@@ -75,6 +75,14 @@ Respalda la base de datos por defecto.
 php index.php cli db-backup gz=yes
 ```
 
+**Restaurar:** el volcado SQL se carga con `mysql -u <usuario> -p <base> < archivo.sql`.
+
+> **AVISO — copias anteriores a esta versión NO restauran.** La columna `password` se
+> cifraba al exportar y nada la descifraba al restaurar, así que la base restaurada dejaba a
+> todos los usuarios sin poder entrar. **Se recupera** aplicando
+> `BaseHashEncryption::decrypt($valor, 'ENCRYPTION_KEY')` a cada `password` — comprobado,
+> devuelve el hash exacto. Detalle y procedimiento en `.agents/context/11-base-de-datos.md`.
+
 ---
 
 ### 2. bundle

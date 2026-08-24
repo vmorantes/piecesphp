@@ -75,6 +75,70 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
             'una restauración con esto dejaría a todos sin poder entrar'
         );
 
+        //Y EL VIAJE ENTERO, que es lo que de verdad se prometía: restaurar y entrar. Leer el
+        //archivo no basta —un volcado puede tener el hash bien y no restaurar—.
+        $tmpDatabase = 'pcs_zz_backup_round_trip';
+        $originalDatabase = (string) $db->getDatabaseName();
+        try {
+            $db->exec("DROP DATABASE IF EXISTS `{$tmpDatabase}`");
+            $db->exec("CREATE DATABASE `{$tmpDatabase}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
+
+            $bloque = static function (string $inicio) use ($sql): string {
+                $i = strpos($sql, $inicio);
+                if ($i === false) {
+                    return '';
+                }
+                $j = $i;
+                $comilla = false;
+                $escape = false;
+                $total = strlen($sql);
+                while ($j < $total) {
+                    $ch = $sql[$j];
+                    if ($escape) {
+                        $escape = false;
+                    } elseif ($ch === '\\') {
+                        $escape = true;
+                    } elseif ($ch === "'") {
+                        $comilla = !$comilla;
+                    } elseif ($ch === ';' && !$comilla) {
+                        return substr($sql, $i, $j - $i);
+                    }
+                    $j++;
+                }
+                return '';
+            };
+
+            $create = $bloque('CREATE TABLE IF NOT EXISTS `pcsphp_users` (');
+            //Sin claves ajenas: la tabla se restaura sola en una base vacía.
+            $create = implode("\n", array_filter(
+                explode("\n", $create),
+                static fn (string $line): bool => strpos($line, 'CONSTRAINT') === false && strpos($line, 'FOREIGN KEY') === false
+            ));
+            $create = (string) preg_replace('/,(\s*\n\s*\))/', '$1', $create);
+            $insert = $bloque('INSERT INTO `pcsphp_users`');
+
+            foreach ([$create, $insert] as $statement) {
+                if (trim($statement) === '') {
+                    continue;
+                }
+                $db->exec(str_replace('`pcsphp_users`', "`{$tmpDatabase}`.`pcsphp_users`", $statement));
+            }
+
+            $restored = $db->prepare("SELECT password FROM `{$tmpDatabase}`.`pcsphp_users` WHERE username = ?");
+            $restored->execute([$username]);
+            $restoredHash = (string) $restored->fetchColumn();
+
+            $check(
+                $restoredHash !== '' && password_verify($plain, $restoredHash),
+                'RESTAURADO en una base de usar y tirar, el usuario PUEDE ENTRAR',
+                'password_verify contra la base restaurada devuelve false: la copia no sirve de red'
+            );
+
+        } finally {
+            $db->exec("DROP DATABASE IF EXISTS `{$tmpDatabase}`");
+            $db->exec("USE `{$originalDatabase}`");
+        }
+
     } finally {
         $db->prepare('DELETE FROM pcsphp_users WHERE id = ?')->execute([$userID]);
         $db->prepare('DELETE FROM user_system_profile WHERE belongsTo = ?')->execute([$userID]);

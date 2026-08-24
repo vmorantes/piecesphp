@@ -2081,6 +2081,23 @@ aplicada a las dos mitades del repositorio:
 En los dos casos la red es **un antes reproducible**. La diferencia es quién lo compara: en uno
 una herramienta, en el otro **necesariamente** alguien leyendo.
 
+### UNA COMPROBACIÓN QUE MIRA EL CUERPO DE UN MÉTODO ES CIEGA A LO QUE ESE MÉTODO DELEGA
+
+**Si el defecto que vigila puede esconderse tras una llamada, la comprobación tiene que
+EJECUTAR, no leer.** Dos casos, y el primero es el más serio de la campaña:
+
+- **`otp-write-separation` pasaba en verde con D2 reintroducido** (T46). Buscaba `->save(` en el
+  cuerpo del método; D2 escribía **una llamada más abajo**, que es exactamente su forma.
+- **`checkRouteOverrides` pide borrar una sobreescritura viva** si su decisión se muda a un
+  método que ella llama (T47). El veredicto no era una duda: era «Bórralo».
+
+El matiz que la hace utilizable, porque no toda comprobación de texto sobra:
+
+| Lo que se pregunta | ¿Basta leer el cuerpo? |
+| :-- | :-- |
+| «¿contiene X?» — una llamada deprecada, un `die($string)` | **Sí.** Está en el texto o no está |
+| «¿HACE X?» — escribe, decide, valida | **No.** Hacer se delega; contener no |
+
 ### CUANDO UNA PUERTA APRUEBA ALGO QUE LUEGO RESULTA DIVERGENTE, EL DEFECTO ES SU ALCANCE
 
 **Y se amplía en el MISMO commit en que se arregla lo que se le escapó**, o la próxima
@@ -4775,3 +4792,103 @@ accidente: salió porque había una herramienta mirando.
 
 `bin/cli snapshot compare` los separa del resto y **falla con salida 1 ante cualquier cambio no
 declarado**. Probado en las dos direcciones.
+
+## T47 · LA CEGUERA POR DELEGACIÓN, AUDITADA CON MUTACIONES
+
+Que `otp-write-separation` pasara en verde con D2 puesto (T46) no era un caso aislado: era una
+**clase** de defecto. Auditados con mutaciones reales los otros clasificadores que juzgan por el
+cuerpo de un método.
+
+### 1. El hueco de T46, cerrado — y por qué no se había podido antes
+
+Quedó abierto que la comprobación de comportamiento nueva **no se había visto fallar**. Cerrado,
+y el obstáculo no era el que parecía:
+
+```
+=== CON la mutación mínima ===   antes=0 despues=1  ->  FALLA <- el buscador creo filas
+=== SIN ella ===                 antes=0 despues=0  ->  PASA
+```
+
+Segundos, no minutos. **Las dos ejecuciones anteriores no se iban de tiempo porque la
+comprobación fuera lenta: se iban porque mi mutación provocaba una RECURSIÓN INFINITA.**
+`createOTPData()` llama a `getOTPData()` para ser idempotente; hacer que el buscador llame al
+creador cierra el ciclo.
+
+> **Y eso es un aviso que vale por sí solo: el creador depende del buscador para no duplicar.
+> El día que alguien vuelva a hacer que el buscador cree, no tendrá un defecto: tendrá un
+> cuelgue.** La mutación correcta es una inserción EN LÍNEA, que es lo que hace la de arriba.
+
+### 2. El clasificador de sobreescrituras de rutas — el agujero existe, en una dirección
+
+`checkRouteOverrides` decide «¿este método decide algo?» leyendo su cuerpo, y ese registro se
+va a usar en E3 para borrar. Probado con dos mutaciones sobre una sobreescritura registrada:
+
+| Mutación | Veredicto | ¿Correcto? |
+| :-- | :-- | :-- |
+| **A** — el cuerpo **delega** en un ayudante privado que decide | «decide» | **Sí.** El cuerpo deja de parecerse al canónico, y ante la duda clasifica como que decide |
+| **B** — el cuerpo queda **canónico** y la decisión se muda a un método que él llama | **«YA NO DECIDE NADA: Bórralo.»** | **NO. Y es el peligroso** |
+
+**B es la dirección que hace daño**, porque el veredicto no es una duda: es un imperativo.
+Seguirlo borraría una sobreescritura viva.
+
+**El tapón**: un cuerpo inerte no significa un método inerte **si lo que llama está
+sobreescrito en la misma clase**. Antes de declarar inerte a `allowedRoute`, se mira si la
+clase declara también el `routeName` al que llama; si lo declara, la decisión puede estar ahí y
+**no se toca**. Comprobado: con el tapón puesto, la mutación B deja de pedir el borrado, y
+retirar una sobreescritura registrada se sigue detectando.
+
+### 3. La regla, que sube a T21
+
+> **UNA COMPROBACIÓN QUE MIRA EL CUERPO DE UN MÉTODO ES CIEGA A LO QUE ESE MÉTODO DELEGA.**
+> Si el defecto que vigila **puede esconderse tras una llamada**, la comprobación tiene que
+> EJECUTAR, no leer.
+
+Y el matiz que hace la regla utilizable, porque no todas las comprobaciones de texto sobran:
+
+| Pregunta que se hace la comprobación | ¿Basta leer? |
+| :-- | :-- |
+| «¿este código contiene X?» — una llamada deprecada, un `die($string)` | **Sí.** Lo que se busca ESTÁ en el texto o no está |
+| «¿este código HACE X?» — escribe, decide, valida | **No.** Hacer algo se puede delegar; contener algo, no |
+
+Las comprobaciones de `verify-integrity` que preguntan lo primero —deprecadas, docblocks sin
+cerrar, PSR-4, eclipses, marcas del instrumental— **están bien como están**. Las dos que
+preguntaban lo segundo eran justo las dos que fallaron.
+
+## T48 · `missing-lang-messages`: escribe TAMBIÉN EN PRODUCCIÓN, y no es una curiosidad
+
+**Tercer camino de lectura que escribe confirmado — y el primero que aparece porque había una
+herramienta mirando, no por accidente.** Eso es exactamente lo que E2 venía a conseguir.
+
+### La respuesta a la pregunta
+
+**No está limitado a local.** `Config::__()` construye la ruta del archivo y escribe sin
+ninguna guarda de entorno: no hay `is_local()`, ni constante, ni bandera. Comprobado leyendo la
+función entera —líneas 560-680 de `src/app/core/Config.php`—: **cero apariciones** de
+`is_local`, `isLocal` o `ENVIRONMENT`.
+
+Es decir: **un despliegue en producción escribe en disco cuando sirve una página con una cadena
+sin traducir**.
+
+### Pero está acotado por dos cosas, y el reparto importa
+
+| Acotación | Qué hace |
+| :-- | :-- |
+| **`no_scan_langs`** (`config/lang.php`) | Hoy excluye `es`, `fr`, `de`, `it`, `pt`. **Solo se escanea `en`** |
+| **`if (!file_exists(...))`** | Cada mensaje se escribe **UNA vez**, no en cada petición |
+
+**Así que no es «una escritura por página servida», que era lo que preocupaba.** Lo que sí hay
+en cada página, en cualquier entorno, es **un `file_exists()` por cada llamada a `__()`** cuyo
+idioma esté en la lista de escaneo — y una página del panel hace decenas.
+
+Y hay un efecto acumulativo que sí es real: **el directorio crece y nadie lo vacía** salvo que
+alguien corra `bin/cli scan-missing-lang`. En este árbol de desarrollo van **1.586 archivos en
+61 grupos**.
+
+### Lo que NO se ha tocado
+
+Nada. Se pidió averiguarlo, no cambiarlo. Queda anotado con su medición para cuando se decida,
+y con las tres salidas evidentes por si sirven: acotarlo a local, apagarlo con una constante de
+módulo como el resto, o dejarlo y añadir la limpieza a `clean-all`.
+
+> **Y lo que sí cambia hoy: entra en el registro de volatilidad declarada** con esta razón
+> escrita, para que las 184 comparaciones del recorrido de E2 no se ensucien con él.

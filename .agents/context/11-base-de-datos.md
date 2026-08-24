@@ -95,6 +95,32 @@ Salida en `dumps/`. Desde 7.0.6 el motor es
 `PiecesPHP\Core\Database\Export\Exporter` (sin dependencia de `mysqldump`), con
 formatos SQL/JSON/CSV/PHP/XML y compresión ZIP/Gzip/Bzip2.
 
+### Restaurar
+
+El volcado SQL se carga como cualquier otro:
+
+```bash
+mysql -u <usuario> -p <base> < dumps/<archivo>.sql
+```
+
+> **SI TU COPIA ES ANTERIOR A ESTA VERSIÓN, NO RESTAURA Y HAY QUE ARREGLARLA ANTES.**
+> `db-backup` cifraba la columna `password` al exportar y nada la descifraba al restaurar,
+> así que **una restauración dejaba a todos los usuarios sin poder entrar** —
+> `password_verify` sobre un hash cifrado falla siempre. Medido, no deducido.
+>
+> **Los datos NO están perdidos.** El cifrado es reversible con la clave literal que usaba:
+>
+> ```php
+> $hashReal = PiecesPHP\Core\BaseHashEncryption::decrypt($valorDelVolcado, 'ENCRYPTION_KEY');
+> ```
+>
+> Restaura la copia y luego recorre `pcsphp_users` aplicando eso a cada `password`, o
+> transforma el `.sql` antes de cargarlo. Comprobado: devuelve el hash `$2y$…` exacto.
+>
+> **Las copias hechas desde esta versión no necesitan nada de esto.**
+> `bin/cli unit-tests:core/db-backup-round-trip` comprueba el viaje entero —exportar,
+> restaurar en una base de usar y tirar, y entrar— para que no vuelva a pasar.
+
 ## Administración
 
 `src/adminer/` trae Adminer embebido para desarrollo. **Se elimina en despliegue**

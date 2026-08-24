@@ -882,7 +882,24 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                         . ' Si decide algo, va a KNOWN_ROUTE_OVERRIDES con su razón; si no, se borra.';
                     continue;
                 }
-                if (!self::routeMethodDecides($method, $body, $canonical)) {
+                //UN CUERPO INERTE NO SIGNIFICA UN MÉTODO INERTE si lo que llama está
+                //sobreescrito en la misma clase: la decisión vive una llamada más abajo.
+                $delega = false;
+                foreach (self::ROUTE_METHODS as $otro) {
+                    if ($otro === $method) {
+                        continue;
+                    }
+                    if (mb_strpos($body['body'], 'self::' . $otro . '(') === false
+                        && mb_strpos($body['body'], 'static::' . $otro . '(') === false) {
+                        continue;
+                    }
+                    if (mb_strpos($code, 'function ' . $otro) !== false) {
+                        $delega = true;
+                        break;
+                    }
+                }
+
+                if (!$delega && !self::routeMethodDecides($method, $body, $canonical)) {
                     $failures[] = $key . ' — está registrado pero YA NO DECIDE NADA: su cuerpo se limita a'
                         . ' devolver si la ruta vino vacía, que es lo que hace el trait. Bórralo.';
                 }

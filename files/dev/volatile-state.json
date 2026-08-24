@@ -9,7 +9,7 @@
     "login_attempts": "Cada intento de acceso —acertado o fallido— escribe su fila. Es el registro de auditoría para el que existe el módulo, así que crece en cualquier recorrido que toque el login. Medido: una petición a /users/login/ añade una fila."
   },
   "files": {
-    "src/app/lang/missing-lang-messages/": "El framework anota cada cadena sin traducir para que `bin/cli scan-missing-lang` pueda encontrarla. Es una ESCRITURA EN UN CAMINO DE LECTURA, y es deliberada: pedir una página pública en otro idioma crea archivos aquí. Medido: dos peticiones a /en/ y /fr/ crearon dos archivos .to-translate."
+    "src/app/lang/missing-lang-messages/": "El framework anota cada cadena sin traducir para que `bin/cli scan-missing-lang` pueda encontrarla. Es una ESCRITURA EN UN CAMINO DE LECTURA, deliberada, y NO está limitada a local: `Config::__()` no tiene guarda de entorno, así que escribe también en producción. Acotada por `no_scan_langs` —hoy solo se escanea `en`— y por `file_exists()`, que hace que cada mensaje se escriba UNA vez, no por petición. Medido: dos peticiones a /en/ crearon dos archivos .to-translate; hay 1.586 acumulados en 61 grupos."
   },
   "retired": {
     "time_on_platform": "RETIRADA. Se declaró por una observación única que NO se pudo reproducir: dos fotos seguidas sin nada en medio salen idénticas. Ver la retractación en T46. Queda la entrada vacía a propósito, para que quede constancia de que se comprobó."

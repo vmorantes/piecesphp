@@ -38,6 +38,37 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## AVISO PARA DESPLIEGUES EXISTENTES — TUS COPIAS DE SEGURIDAD NO RESTAURAN
+
+**Si tienes copias hechas con `bin/cli db-backup` de una versión anterior a esta, no sirven
+tal cual: restaurarlas deja a TODOS los usuarios sin poder entrar.** No es una sospecha; está
+medido de punta a punta —volcado, restaurado en una base de usar y tirar, intento de login—.
+
+**Por qué**: la exportación cifraba la columna `password` y **nada la descifraba al restaurar**,
+así que en la base restaurada `password_verify()` recibe un hash cifrado y devuelve `false`
+siempre.
+
+### LOS DATOS NO ESTÁN PERDIDOS. Así se recuperan
+
+El cifrado es reversible con la clave literal que se usaba. Comprobado: devuelve el hash
+`$2y$…` exacto, byte a byte.
+
+```php
+$hashReal = PiecesPHP\Core\BaseHashEncryption::decrypt($valorDelVolcado, 'ENCRYPTION_KEY');
+```
+
+**Procedimiento:**
+
+1. Restaura la copia como siempre: `mysql -u <usuario> -p <base> < dumps/<archivo>.sql`
+2. Recorre `pcsphp_users` y sustituye cada `password` por su `decrypt(...)` con esa clave.
+   Se puede hacer también sobre el `.sql` antes de cargarlo, si prefieres no tocar la base.
+3. Comprueba con un usuario que conozcas: `password_verify('<su contraseña>', $hashReal)`
+   tiene que devolver `true`.
+
+**Las copias hechas desde esta versión no necesitan nada de esto**, y
+`bin/cli unit-tests:core/db-backup-round-trip` comprueba el viaje entero en cada ejecución
+—exportar, restaurar en una base de usar y tirar, y entrar— para que no vuelva a pasar.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES — los emoji NO se están guardando (arreglado en el paquete)
 
 **Medido, no supuesto**: un emoji escrito por el ORM en una columna de texto se guarda como
@@ -387,6 +418,21 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   cambia qué significa arreglarlo.
 
 ## Pruebas — puertas verificadas en las dos direcciones
+
+- **`UnitTest-DbBackupRoundTrip` comprueba el viaje ENTERO**: exporta, restaura en una base de
+  usar y tirar y **entra**. Leer el archivo no basta: un volcado puede tener el hash bien y no
+  restaurar. Validada rompiéndola — con la transformación reintroducida falla 3 de 5.
+
+- **`otp-write-separation` deja de juzgar por el texto.** Sus comprobaciones eran `grep` de
+  `->save(` sobre el cuerpo del método, y **pasaban en verde con el defecto D2 reintroducido**
+  porque un grep no ve una escritura delegada una llamada más abajo — que es exactamente la
+  forma que tenía D2. Ahora llama a los buscadores y cuenta filas. 7/7.
+
+- **`verify-integrity` deja de pedir el borrado de una sobreescritura de ruta viva.** Su
+  clasificador decidía «¿este método decide algo?» leyendo el cuerpo, así que una sobreescritura
+  cuya decisión se mudara a un método que ella llama se marcaba como **«YA NO DECIDE NADA:
+  Bórralo»**. Ahora, si la clase declara también el método al que llama, no se declara inerte.
+  Ese registro se usa en E3 para borrar, así que el agujero se tapa antes.
 
 - **`UnitTest-OTPFreshUser` sube a 25 comprobaciones**: tres nuevas fijan que preparar el
   doble factor no lo activa, que confirmarlo sí, y que el secreto **no** se regenera al
