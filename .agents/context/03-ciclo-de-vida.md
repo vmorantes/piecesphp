@@ -101,6 +101,55 @@ controlador con `InvocationStrategy::appendBeforeCallMethod(fn)` — patrón usa
 los módulos para inicializar menús y configuraciones de front en el momento correcto
 (ver `NewsRoutes::routes()`).
 
+## Eventos — `BaseEventDispatcher`
+
+**Tiene DOS APIs, no una**, y se confunden con facilidad porque los nombres se parecen.
+
+| API | Para qué | Firma |
+| :-- | :-- | :-- |
+| `defaultListen` / `defaultDispatch` | Los **tres eventos del framework**, sin contexto | `defaultListen(string $nombre, callable $cb)` |
+| `listen` / `dispatch` | Eventos **por clase**: el contexto es el FQCN | `listen(string $evento, callable $cb, ?string $contexto)` |
+
+También hay `hasListeners()` y `hasDefaultListeners()`, que es como `index.php` decide si vale la
+pena disparar.
+
+### Los tres eventos del framework
+
+| Constante | Cuándo se dispara |
+| :-- | :-- |
+| `EVENT_INIT_ROUTES_NAME` | En `index.php:868`, **al terminar de registrar todas las rutas** |
+| `EVENT_ADD_DYNAMIC_TRANSLATIONS_NAME` | En `add-dynamic-translations.php:106`, tras cargar las traducciones dinámicas desde base |
+| `EVENT_CLI_ROUTE_NOT_FOUND_NAME` | En `index.php:942`, cuando una acción de CLI no resuelve |
+
+### Los cuatro eventos de ciclo de vida de los mappers
+
+`BaseEntityMapper` emite, **con la clase del mapper como contexto**:
+
+| Evento | Dónde | Cuándo |
+| :-- | :-- | :-- |
+| `saving` / `saved` | `BaseEntityMapper.php:123, 126` | Antes y después de `save()` |
+| `updating` / `updated` | `BaseEntityMapper.php:139, 142` | Antes y después de `update()` |
+
+```php
+BaseEventDispatcher::listen('updated', function ($mapper) {
+    //…
+}, NewsMapper::class);          //<-- el contexto es la clase, no una cadena libre
+```
+
+**Su único usuario en todo el proyecto es `SystemApprovalManager.php:55`**, que escucha `updated`
+para mover el estado de una aprobación. `saving`, `saved` y `updating` **no los escucha nadie**.
+
+> **ADVERTENCIA, y no es menor**: `saved` y `updated` se disparan cuando `save()`/`update()`
+> devuelven `true`, y eso significa **«la sentencia se ejecutó»**, no «cambió una fila» — ver
+> [06-orm-mappers.md](./06-orm-mappers.md). Así que **`updated` salta también cuando no cambió
+> nada**, y el escuchador de aprobaciones actúa igual.
+
+### Dónde se registran los oyentes
+
+En `app/config/final-configurations-includes/`, que `final-configurations.php:40` incluye **entero
+y por directorio**, justo antes de empezar a manejar rutas. El archivo previsto para esto es
+`event-listeners.php`.
+
 ## Errores y logs
 
 - `CustomSlimErrorHandler` (en `Core/CustomErrorsHandlers/`) genera la respuesta de

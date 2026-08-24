@@ -182,6 +182,21 @@ Ejemplos vivos, para reconocer el patrón y no confundirlo con un defecto:
 **ESCRITURA**, nunca en los de **LECTURA**, y nunca en una ruta alcanzable sin autenticar. Un
 buscador devuelve `null` cuando no encuentra; quien lee lo aguanta. Ver
 `.agents/context/18-siguientes-ventanas.md`, T3.
+## Cuando una supresión se lleva el último ejemplo, el mecanismo se documenta EN EL MISMO COMMIT
+
+**La documentación por ejemplo es documentación.** Un mecanismo del framework que solo se conoce
+porque hay un sitio donde se usa se vuelve invisible el día que ese sitio se borra — y borrarlo
+suele ser correcto, porque el código que se va sobra.
+
+**La regla**: si un cambio retira el último uso —o el más visible— de un mecanismo, **ese
+mecanismo se documenta en el mismo commit**. No en el siguiente, no «cuando toque»: en el mismo,
+porque el momento en que se entiende es justo ese.
+
+> **Se aplicó hacia atrás** al borrado de `QueueJobMapper::migrate()`, que era el único oyente vivo
+> de `EVENT_INIT_ROUTES` —el que queda en `config.php:131` es un `//Do something` vacío—. El
+> despachador se documentó después, en [03-ciclo-de-vida.md](./03-ciclo-de-vida.md); debió ir en
+> aquel commit.
+
 ## Reglas duras (romperlas rompe el framework)
 
 1. **Rutas**: siempre `PiecesPHP\Core\Route` / `RouteGroup`. Nunca `$app->get(...)`
