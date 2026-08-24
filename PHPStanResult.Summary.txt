@@ -196,7 +196,7 @@ project://src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController
 	property.nonObject (Líneas: 60, 60)
 	method.nonObject (Líneas: 218, 225, 230, 237)
 project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php
-	foreach.nonIterable (Líneas: 94)
+	foreach.nonIterable (Líneas: 90)
 project://src/app/classes/MySpace/Views/example-resources.php
 	property.nonObject (Líneas: 12, 14)
 project://src/app/classes/MySpace/Views/profile-organization/profile.php

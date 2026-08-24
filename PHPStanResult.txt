@@ -752,7 +752,7 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php                              
  ------ -------------------------------------------------------------------------------------------- 
-  94     Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  90     Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
