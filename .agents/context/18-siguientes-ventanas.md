@@ -6829,3 +6829,55 @@ guardar ya no la crea porque estaba.
 **Y el panel comprobado**: las tres vistas de contenido genérico —`home-image`, `mapbox-keys`,
 `tokens-limit`— responden **200** con sesión.
 
+
+## T70 · EL EVENTO `updated` QUE SALTA SIN CAMBIOS — es DEFECTO, no ruido
+
+**Medido, no arreglado.** Decide el PROPIETARIO.
+
+### 2.1 · Qué hace realmente el escuchador
+
+`SystemApprovalManager.php:55-80`. Cuando salta `updated` sobre un mapper con aprobaciones:
+
+```php
+if ($approvalElement !== null && $approvalElement->status != SystemApprovalsMapper::STATUS_APPROVED) {
+    $approvalElement->referenceAlias = $contentTypeName;
+    //Si está rechazado pasa a pendiente al editar
+    if ($approvalElement->status == SystemApprovalsMapper::STATUS_REJECTED) {
+        $approvalElement->status = SystemApprovalsMapper::STATUS_PENDING;
+    }
+    $approvalElement->update();
+}
+$class::onUpdatedRecord($payload, $approvalElement);
+```
+
+**No reevalúa hasta el mismo estado: MUEVE la aprobación.**
+
+| Estado de la aprobación | Qué le pasa con un guardado que no cambia nada |
+| :-- | :-- |
+| **APROBADO** | Nada. La guarda `!= STATUS_APPROVED` lo protege |
+| **RECHAZADO** | **Pasa a PENDIENTE** y vuelve a la cola de revisión |
+| **PENDIENTE** | Se reescribe el `referenceAlias` y se vuelve a guardar |
+| *(cualquiera)* | `onUpdatedRecord()` corre igualmente |
+
+**El caso concreto**: un elemento que un revisor rechazó. Alguien abre su formulario de edición y
+pulsa guardar **sin tocar nada**. `update()` devuelve `true` porque la sentencia corrió, salta
+`updated`, y **el rechazo se convierte en pendiente**. Nadie editó nada.
+
+**Y el camino está vivo**: los cuatro manejadores declarados en `SystemApprovals/Util/configurations.php`
+—Organizaciones, Usuarios, Publicaciones y Convocatorias— tienen `$APPROVALS_ALLOW = true`.
+
+> **Es defecto, no ruido.** Ruido sería reevaluar y llegar al mismo sitio. Esto cambia un estado
+> que una persona decidió.
+
+### 2.2 · Cuántos escuchadores hay de los cuatro eventos
+
+| Evento | Escuchadores |
+| :-- | --: |
+| `saving` | **0** |
+| `saved` | **0** |
+| `updating` | **0** |
+| `updated` | **1** |
+
+**Es ese y solo ese.** Los cuatro eventos existen, se emiten en cada `save()` y cada `update()` de
+cualquier mapper, y **tres de los cuatro no los escucha nadie**.
+
