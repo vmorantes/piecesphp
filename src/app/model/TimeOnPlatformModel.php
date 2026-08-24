@@ -34,7 +34,7 @@ class TimeOnPlatformModel extends BaseEntityMapper
             'primary_key' => true,
         ],
         'user_id' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => 'pcsphp_users',
             'reference_field' => 'id',
             'reference_primary_key' => 'id',

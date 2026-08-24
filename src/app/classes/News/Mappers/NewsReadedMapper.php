@@ -40,7 +40,7 @@ class NewsReadedMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'readerUser' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',

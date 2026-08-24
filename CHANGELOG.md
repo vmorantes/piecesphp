@@ -145,11 +145,38 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Corregido — los mappers declaraban `int` en 39 claves ajenas que apuntan a un `bigint`
+
+**Ahora el esquema entero se puede generar desde los mappers.** `bin/cli scheme-create module=all`
+produce un script que MariaDB acepta de principio a fin; antes rechazaba 21 de las 34 tablas.
+
+39 declaraciones en 21 archivos pasan de `'type' => 'int'` a `'type' => 'bigint'`: son las que
+referencian `pcsphp_users.id`, que es `bigint`. **No hay migración**: las columnas reales ya eran
+`bigint(20)` en el esquema que se distribuye —comprobado contra `information_schema` y contra
+`databases/piecesphp_structure.sql`—; el que mentía era el mapper.
+
+**El único cambio observable es el DDL generado**, y se comprobó por partes:
+
+- `length` no interviene: `EntityMapper::$typesValidateLength` es `['varchar','text']`, y
+  `SchemeCreator::$typesLengths` solo tiene `varchar => 255`, así que ni `int` ni `bigint` llevan
+  longitud.
+- La conversión no cambia: los dos tipos van juntos en `$typesInt` y en `SQLTypesEnum::INTEGERS`,
+  y sus únicos consumidores los tratan como un grupo.
+- Nadie compara: **cero** ocurrencias de `== 'int'`, `case 'int'` o `in_array('int'` en toda la
+  aplicación.
+- Y medido sobre datos: leída una fila real **por el mapper** antes y después, en las tres
+  columnas que tienen filas, el valor devuelto y su tipo son idénticos.
+
+**Lo que NO entra**: 20 claves ajenas cuya tabla referenciada es realmente `int(11)` —comprobadas
+una a una contra `information_schema`— y 65 campos `int` que no referencian nada.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES — el `CREATE TABLE` que el framework genera NO SE APLICA
 
-**Versiones afectadas: todas.** La regla del proyecto dice que el SQL de las tablas se genera
-con `SchemeCreator` y no se escribe a mano. **Hoy esa regla no se puede cumplir**: de las 33
-tablas del proyecto, **20 son rechazadas por MariaDB** al aplicar el script generado.
+**Versiones afectadas: todas hasta esta entrada.** La regla del proyecto dice que el SQL de las
+tablas se genera con `SchemeCreator` y no se escribe a mano, y **hasta ahora esa regla no se podía
+cumplir**: de las 34 tablas del proyecto, **21 eran rechazadas por MariaDB** al aplicar el script
+generado. **Corregido en esta misma versión** (ver la entrada de las 39 claves ajenas); esto queda
+como explicación de qué había y por qué.
 
 | Causa | Cuántas |
 | :-- | --: |

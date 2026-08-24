@@ -2138,6 +2138,36 @@ comprobar que una incómoda. **Ahí está el sesgo, y no es de conocimiento: es 
 > `information_schema` es la base y el mapper solo dice lo que cree — y ahí, la discrepancia eran
 > 38 columnas.
 
+### REGLA MAYOR — DOS MEDICIONES QUE COINCIDEN NO SE VERIFICAN ENTRE SÍ SI NO SE SABE QUÉ DEJA FUERA CADA UNA
+
+Es T20 aplicado **al acuerdo** y no a la sorpresa. Ya estaba escrito que el segundo método se
+exige sobre todo cuando el primero **confirma**, y que una medición que **ahorra trabajo** hay que
+mirarla con más ganas. Falta la tercera de la familia, y es la más silenciosa: **la coincidencia
+también es cómoda.**
+
+**El caso que la funda** (T57): el propietario contó 38 declaraciones y yo conté 38. El número
+coincidía y **los conjuntos no**:
+
+| | Cuenta | Qué perdía |
+| :-- | --: | :-- |
+| Su método (leyendo) | 38 | `LoginAttemptsModel` y `TimeOnPlatformModel` |
+| Mi método (descubrimiento) | 38 | `UserProfileMapper` y sus 3 declaraciones |
+| **Reconciliados** | **39** | — |
+
+Uno perdía 2 y el otro perdía 3, y la suma cuadraba en el punto medio. **Dos métodos que dan el
+mismo número no siempre miden lo mismo.**
+
+**Cómo se aplica**: cuando dos mediciones coincidan, no se da por buena la cifra — se comparan
+los **conjuntos**, elemento a elemento. Si no se pueden comparar los conjuntos, la coincidencia no
+verifica nada. Y **el conjunto excluido necesita la misma prueba que el incluido**: fue el
+propietario quien lo exigió, y de ahí salió la comprobación de las 20 claves ajenas descartadas
+contra `information_schema`.
+
+> **Y una segunda cosa, que es peor**: el aviso ya estaba impreso. La herramienta decía
+> *«`PreviousExperiencesMapper::profile` -> `user_system_profile` (tabla sin mapper
+> descubierto)»* en cada corrida. **No falló el instrumento: falló leerlo.** Una salida que nadie
+> lee es exactamente igual de útil que una que no se emite.
+
 ## T21 · PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
 
 **El peor defecto de esta campaña no apareció revisando. Apareció al intentar ENSEÑAR.**
@@ -5838,4 +5868,49 @@ el mismo fallo que la campaña lleva corrigiendo desde el principio.
 **La lección**: el 38 del propietario y el mío coincidían **por casualidad**. Dos métodos que dan
 el mismo número no siempre miden lo mismo; aquí uno perdía 2 y el otro perdía 3, y la suma
 cuadraba de casualidad en el punto medio.
+
+### La condición que puso el propietario, y lo que midió
+
+*«Las 20 que dejas fuera necesitan la misma prueba que las 39 que metes.»* El conjunto incluido
+estaba reconciliado por tres métodos y el excluido por uno solo — **ese desequilibrio es
+exactamente de donde salió `UserProfileMapper`**.
+
+| Excluidas | Cómo se probó | Resultado |
+| :-- | :-- | --: |
+| **20 claves ajenas** cuya tabla referenciada se creía `int` | `information_schema.COLUMNS` sobre la **tabla y columna referenciadas** de cada una | **20 de 20 son `int(11)`. Cero conflictos** |
+| **65 campos `int` que no son clave ajena** | `reference_table` es **null** en los 65 | Ninguno referencia nada |
+
+> El detalle que casi me engaña en la segunda: `EntityMapper` **rellena todas las claves de
+> configuración con su valor por defecto**, así que `array_keys()` las devuelve todas y parecía
+> que los 65 tenían `mapper`. Lo tienen: vale `'\stdClass'`, que es el valor por defecto de
+> `EntityMapper:72` y que el propio ORM trata como «sin mapper» en las líneas 702 y 725. Ningún
+> mapper de la aplicación lo declara a mano. **La clave que decide es `reference_table`, y es
+> null en los 65.**
+
+### Aplicado: las tres puertas
+
+| Puerta | Resultado |
+| :-- | :-- |
+| `scheme-sql-round-trip` | **8/8**, desde 5/8. El esquema entero se crea y se deshace desde los mappers |
+| PHPStan | **859 exactas, sin reparto** |
+| Inercia de datos | **Idéntico** en las 3 columnas con filas reales |
+
+**La inercia, con su método**: se leyó una fila real **por el mapper**, no por SQL, antes y
+después del cambio, comparando el valor y su tipo de PHP.
+
+```
+login_attempts.user_id             id=1  crudo=1  mapper=App\Model\UsersModel#1 (object)
+pcsphp_users_otp_secrets.user      id=5  crudo=1  mapper=App\Model\UsersModel#1 (object)
+system_approvals_elements.createdBy id=1 crudo=1  mapper=App\Model\UsersModel#1 (object)
+```
+
+De las seis candidatas, **tres no tenían ninguna fila con valor** —`news_elements.createdBy`,
+`news_readed_relationship.readerUser` y `publications_elements.createdBy`— y se dice, en vez de
+elegir tres que salieran bien.
+
+> **Y un susto que resultó ser el instrumento, otra vez.** La primera corrida de PHPStan dio
+> **863, +4 sobre el baseline**, y la regla decía parar. Los cuatro errores eran de
+> `ZzTempInercia.php`, el archivo temporal con el que estaba **midiendo la inercia**: entraba en
+> el barrido. Retirado el instrumento, 859 exactas. La regla funcionó: paré, miré, y no era el
+> cambio.
 

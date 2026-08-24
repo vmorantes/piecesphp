@@ -65,7 +65,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -73,7 +73,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'approvalBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
