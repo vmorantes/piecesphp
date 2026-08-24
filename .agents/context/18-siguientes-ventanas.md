@@ -235,6 +235,46 @@ dependen de que alguien se acuerde**, porque esas son las siguientes candidatas:
 
 **Las dos últimas filas son las que más me preocupan**, porque las dos ya han fallado una vez.
 
+#### AMPLIACIÓN — UN MECANISMO QUE DEPENDE DE UNA LISTA MANTENIDA A MANO SIGUE SIENDO MEMORIA
+
+**Convertir una regla en mecanismo no basta: hay que mirar de qué se alimenta el mecanismo.**
+
+**El caso que la funda**: la lista de excepciones de `bin/` en `.gitattributes` estaba mantenida a
+mano, así que los guiones añadidos después nacían en CRLF. **La herramienta construida para que
+nadie tuviera que acordarse —`bin/live-cache`— era precisamente la que no arrancaba.** El
+mecanismo existía; su alimento era memoria.
+
+#### El barrido de nuestra propia maquinaria
+
+*Método: se listan los registros versionados de `files/dev/` y las listas embebidas en las
+herramientas, y de cada uno se pregunta si lo REGENERA un comando o lo escribe una persona.*
+
+| Registro / lista | Cómo se alimenta | Estado |
+| :-- | :-- | :-- |
+| `integrity-signatures.json` | **Derivada** — `verify-integrity update-snapshot=yes` | Sano |
+| `narrative-comments.json` | **Derivada** — `list-narrative=yes`, y solo puede encoger | Sano |
+| `route-inventory.json` | **Derivada** — `bin/cli route-inventory`, y va en `.gitignore` | Sano |
+| `volatile-state.json` · las 14 tablas del slug | **Derivada y comprobada** | Cerrado por la comprobación 11 |
+| `volatile-state.json` · el resto (`login_attempts`, `missing-lang`) | **A mano** | **Abierto** — nada detecta si sobra o falta una |
+| `deprecated-functions.json` | **A mano** | **Abierto** |
+| `shared-toolchain.json` — 4 paquetes, sus archivos y marcadores | **A mano** | **Abierto** |
+| `.gitattributes` — excepciones de `bin/` | **A mano** | **CERRADO**: pasó a patrón `bin/*` |
+| `bin/phpstan.neon` — 15 bloques `paths:` con 23 rutas | **A mano** | **Abierto**, y es el de mayor superficie |
+| `bin/walk-attribute` y `bin/walk-routes` — la lista `$forbidden` de 14 patrones de escritura | **A mano** | **Abierto**, y **duplicada en los dos archivos** |
+| `SchemeSqlTask::IGNORED_DIRECTORIES` | **A mano**, pero es lista NEGRA | Sano por construcción: quedarse corta añade ruido, no ceguera |
+| `PreferSlugsFiller::mappersWithSlug()` | **Derivada** | Sano |
+
+**Van dos encontradas y cerradas** —`volatile-state` con la comprobación 11 y `.gitattributes` con
+el patrón—. **Quedan cinco abiertas**, y la que más me preocupa no es la más grande:
+
+> **`$forbidden` está copiada en `bin/walk-routes` y en `bin/walk-attribute`.** Son 14 patrones que
+> deciden **qué rutas NO se piden**. Si alguien añade uno en un archivo y no en el otro, un
+> recorrido pedirá una ruta de escritura que el otro se salta — y el que la pida **escribirá**
+> mientras cree que solo lee. Es la misma forma que el `PUBLIC_AREA_ROUTES` que deshicimos: la
+> enumeración viviendo dos veces.
+
+**No se arregla nada de esto ahora**, que era el encargo. La lista está para decidir por dónde.
+
 ### LEY 12 — UNA PASADA DE ATRIBUCIÓN SOLO ES VÁLIDA SOBRE UNA BASE RECIÉN RESTAURADA
 
 **La segunda pasada sobre la misma base no confirma la primera: mide un mundo que la primera ya
