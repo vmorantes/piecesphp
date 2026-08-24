@@ -28,11 +28,8 @@ use PiecesPHP\TerminalData;
 abstract class SchemeSqlTask extends TerminalTaskAbstract
 {
 
-    /**
-     * Directorios, relativos a `src/app`, donde este proyecto guarda mappers.
-     * Se descubren TODOS: una lista de módulos escrita a mano se queda atrás.
-     */
-    const MAPPER_DIRECTORIES = ['Mappers', 'SubMappers', 'ORM'];
+    //Lista NEGRA: con la blanca se quedaba fuera UserProfileMapper, suelto en Profile/.
+    const IGNORED_DIRECTORIES = ['Views', 'Statics', 'lang', 'lang-public', 'Exceptions', 'Controllers'];
 
     /**
      * Mappers de un módulo, o de la aplicación entera con `module=all`.
@@ -59,6 +56,7 @@ abstract class SchemeSqlTask extends TerminalTaskAbstract
             }
             $directories = self::mapperDirectoriesUnder($base);
         }
+        $directories = array_values(array_unique($directories));
 
         $creators = [];
         $mappers = [];
@@ -68,15 +66,20 @@ abstract class SchemeSqlTask extends TerminalTaskAbstract
         foreach ($directories as $directory) {
             foreach (glob($directory . '/*.php') ?: [] as $file) {
                 $class = self::declaredClassOf($file);
+                //Solo se reporta como descarte lo que se llama como un mapper: lo demás es ruido.
+                $looksLikeMapper = $class !== null && preg_match('/(Mapper|Model)$/', $class) === 1;
                 if ($class === null || !class_exists($class) || isset($seen[$class])) {
-                    if ($class === null || !class_exists($class)) {
+                    if ($looksLikeMapper && !class_exists($class)) {
                         $skipped[] = basename($file) . ' (no se pudo cargar la clase)';
                     }
                     continue;
                 }
                 $seen[$class] = true;
                 try {
-                    if ((new \ReflectionClass($class))->isAbstract()) {
+                    $reflection = new \ReflectionClass($class);
+                    //Se filtra ANTES de instanciar: recorriendo el módulo entero aparecen
+                    //clases que no son mappers y no hay por qué construirlas.
+                    if ($reflection->isAbstract() || !$reflection->isSubclassOf(EntityMapper::class)) {
                         continue;
                     }
                     $mapper = new $class();
@@ -103,13 +106,15 @@ abstract class SchemeSqlTask extends TerminalTaskAbstract
      */
     protected static function mapperDirectoriesUnder(string $base): array
     {
-        $directories = [];
-        $iterator = new \RecursiveIteratorIterator(
+        $directories = [$base];
+        //Se PODA el subárbol entero: saltarse solo la carpeta `Views` seguía entrando en
+        //`Views/forms` y en `Views/mailing`, que era de donde salía el ruido.
+        $filter = new \RecursiveCallbackFilterIterator(
             new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
+            static fn ($current) => !$current->isDir() || !in_array($current->getBasename(), self::IGNORED_DIRECTORIES, true)
         );
-        foreach ($iterator as $item) {
-            if ($item->isDir() && in_array($item->getBasename(), self::MAPPER_DIRECTORIES, true)) {
+        foreach (new \RecursiveIteratorIterator($filter, \RecursiveIteratorIterator::SELF_FIRST) as $item) {
+            if ($item->isDir()) {
                 $directories[] = $item->getPathname();
             }
         }

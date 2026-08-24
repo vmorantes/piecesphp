@@ -209,6 +209,21 @@ script**. La comprobación está en `bin/cli unit-tests:core/scheme-sql-round-tr
   y el resolvedor los funde: decía «34 tablas» con 33 sentencias en el script. Ahora cuenta las
   sentencias y avisa de la diferencia.
 
+## Corregido — `scheme-create`/`scheme-drop` se dejaban mappers fuera
+
+El descubrimiento buscaba mappers solo en carpetas llamadas `Mappers`, `SubMappers` u `ORM`.
+`UserProfileMapper` vive suelto en `Profile/`, así que **la tabla `user_system_profile` no
+entraba en el script**. Ahora se recorre el módulo entero descartando por lista negra
+—`Views`, `Statics`, `lang`, `lang-public`, `Exceptions`, `Controllers`—.
+
+| | Antes | Después |
+| :-- | --: | --: |
+| Mappers descubiertos | 34 | **35** |
+| Tablas en `scheme-create module=all` | 33 | **34** |
+
+Si tu despliegue tiene mappers fuera de esas tres carpetas, **el script que generabas estaba
+incompleto**.
+
 ## Herramientas — `bin/walk-attribute`: qué ruta de lectura escribe, y dónde
 
 Toma una foto de la base de datos y del árbol de archivos **después de cada petición** y le

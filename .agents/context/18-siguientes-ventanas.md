@@ -5799,3 +5799,43 @@ esperable —un endpoint de DataTables pedido sin sus parámetros no tiene por q
 **no está comprobado que sea solo eso**, y `walk-routes` ya los venía listando. Queda anotado, sin
 investigar.
 
+
+## T57 · EL DESCUBRIMIENTO SE DEJABA MAPPERS FUERA — lo destapó medir por mi cuenta
+
+El propietario pidió medir tres cosas antes de tocar las declaraciones y **no confirmar las
+suyas**. Al hacerlo con un método propio, los dos métodos dieron números distintos, y la
+discrepancia era un defecto en la herramienta que yo mismo había escrito.
+
+| Método | Cuenta | Qué se le escapa |
+| :-- | --: | :-- |
+| Expresión regular sobre `src/app`, buscando `reference_table => UsersModel::TABLE` | **37** | `LoginAttemptsModel` y `TimeOnPlatformModel`, que escriben `'pcsphp_users'` **como literal** en vez de `UsersModel::TABLE` |
+| Descubrimiento + reflexión (`SchemeSqlTask::discover`) | **38** | **`UserProfileMapper`**, y con él 3 declaraciones y la tabla `user_system_profile` entera |
+| **Los dos, reconciliados** | **39 declaraciones en 21 archivos** | — |
+
+**El defecto**: `discover()` buscaba mappers solo en carpetas llamadas `Mappers`, `SubMappers` u
+`ORM`. `UserProfileMapper` vive suelto en `Profile/`. **La lista blanca se quedaba corta**, que es
+el mismo fallo que la campaña lleva corrigiendo desde el principio.
+
+> Y la herramienta **ya lo estaba diciendo** y yo no lo había leído: el plan imprimía
+> *«`PreviousExperiencesMapper::profile` -> `user_system_profile` (tabla sin mapper
+> descubierto)»*. El aviso estaba; faltaba mirarlo.
+
+**Arreglado**: lista NEGRA en vez de blanca —`Views`, `Statics`, `lang`, `lang-public`,
+`Exceptions`, `Controllers`—, podando el subárbol entero. Efecto medido:
+
+| | Antes | Después |
+| :-- | --: | --: |
+| Mappers descubiertos | 34 | **35** |
+| Tablas en el script de `scheme-create module=all` | 33 | **34** |
+| Desajustes de tipo en claves ajenas | 38 | **41** |
+| Tablas que MariaDB rechaza | 20 de 33 | **21 de 34** |
+
+> **Dos afinados que hicieron falta al pasar de blanca a negra**, y los dos por medir:
+> podar solo la carpeta `Views` seguía entrando en `Views/forms` y `Views/mailing` —hay que
+> podar el subárbol—, y reportar como «descartado» todo archivo sin clase convertía un aviso
+> honesto en **cien líneas de ruido**. Ahora solo se reporta lo que se llama como un mapper.
+
+**La lección**: el 38 del propietario y el mío coincidían **por casualidad**. Dos métodos que dan
+el mismo número no siempre miden lo mismo; aquí uno perdía 2 y el otro perdía 3, y la suma
+cuadraba de casualidad en el punto medio.
+
