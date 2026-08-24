@@ -6348,3 +6348,49 @@ de nombre incluida: dos implementaciones del mismo acuñado serían dos verdades
 > comprobación (T46), así que se añadió — con una subclase de solo-pruebas, porque `name` es
 > NOT NULL y el mapper no deja ponerlo a null.
 
+
+## T65 · `'dafault'` — 19 apariciones, efecto CERO, y la misma familia que `'test'`
+
+**Anotado, NO arreglado.** Son 19 archivos: va al lote de E3 que corresponda.
+
+### La medición
+
+| | |
+| :-- | --: |
+| Apariciones de `'dafault' => null` | **19** |
+| Archivos | **19** (una por mapper) |
+| Que NO son `=> null` | **0** |
+| **Efecto real** | **CERO** |
+
+El efecto es cero porque los 19 son `=> null` y **el valor por defecto de `'default'` ya es
+`null`** (`EntityMapper:63`, en `$defaultFieldConfig`). Escribir la opción bien o mal escrita da
+exactamente el mismo resultado.
+
+### Por qué nadie se enteró: la validación recorre lo CONOCIDO
+
+`EntityMapper:990`:
+
+```php
+foreach ($options as $name => $types) {          // $options = $fieldOptionsStructure
+    if (array_key_exists($name, $config)) {      // ¿está la opción CONOCIDA en la config?
+```
+
+Se itera **el catálogo**, no lo que el mapper escribió. Una clave que no esté en el catálogo
+**no se examina jamás**: se ignora en silencio.
+
+### La relación de familia
+
+**Es el mismo mecanismo por el que sobrevivió `'type' => 'test'`** (T54): una estructura abierta
+que acepta lo que sea. Allí el efecto era grave —el campo dejaba de validarse—; aquí es nulo. **Lo
+que comparten no es el daño: es que nadie lo mira.**
+
+### La pregunta que abre, sin responder
+
+> Si las claves desconocidas se ignoran en silencio, **¿cuántas otras opciones mal escritas hay
+> que parecen decir algo?** Una `'nulll' => true` o una `'lenght' => 50` se ignorarían igual, y
+> esas sí cambiarían el comportamiento esperado por quien las escribió.
+
+**Medirlo es barato**: comparar las claves usadas en todos los `$fields` contra
+`fieldOptionsStructure`. Es exactamente la misma forma que la comprobación 10 —los tipos contra el
+vocabulario—, cambiando el eje. **Pero es trabajo de E3**, no de ahora.
+
