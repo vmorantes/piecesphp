@@ -7,7 +7,7 @@ $header_image = isset($header_image) && is_string($header_image) ? $header_image
     "https://placehold.co/500x172.png?text=" . urlencode(get_config('title_app')) :
     base_url(get_config('mailing_logo'))
 );
-$unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())]);
+$unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
 Config::set_lang('es');
 $langGroup = 'TestPCSPHP-Lang';
 ?>
@@ -48,6 +48,8 @@ $langGroup = 'TestPCSPHP-Lang';
 <p>
     <?= __($langGroup, '¿Necesitas ayuda? Contacta con nuestro equipo de soporte técnico [EMAIL_ADDRESS]'); ?>
 </p>
+<?php if (mb_strlen($unsuscriptionURL) > 0): ?>
 <p>
     <?=strReplaceTemplate(__(MAILING_GENERAL_LANG_GROUP, 'UNSUSCRIBE_TEXT'), ['{{url}}' => $unsuscriptionURL]);?>
 </p>
+<?php endif; ?>

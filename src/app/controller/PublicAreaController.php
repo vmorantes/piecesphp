@@ -440,7 +440,6 @@ class PublicAreaController extends BaseController
 
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;
-        //self::$startSegmentRoutes = uniqid(); //Para ocultar este controlador
         if (mb_strlen(self::$startSegmentRoutes) > 0) {
             $startRoute .= self::$startSegmentRoutes;
         } else {
@@ -489,12 +488,16 @@ class PublicAreaController extends BaseController
             return !in_array($e->name(), $ignoreRoutes);
         });
 
-        $group->register($routes);
+        if (PUBLIC_AREA_VIEWS) {
+            $group->register($routes);
+        }
         //──── POST ─────────────────────────────────────────────────────────────────────────
 
         //Otros controladores asociados
 
-        $group = ContactFormsController::routes($group);
+        if (PUBLIC_AREA_CONTACT_FORMS) {
+            $group = ContactFormsController::routes($group);
+        }
 
         return $group;
     }

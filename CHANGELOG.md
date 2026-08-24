@@ -145,6 +145,32 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Añadido — dos interruptores para el área pública
+
+Dos constantes booleanas en `config/constants.php`, **las dos en `true` por defecto**, así que
+ningún despliegue cambia de comportamiento al actualizar:
+
+```php
+define('PUBLIC_AREA_VIEWS', true);          // las cinco vistas públicas GET
+define('PUBLIC_AREA_CONTACT_FORMS', true);  // el destino POST del formulario de contacto
+```
+
+Están separadas a propósito: `contact-forms-general` es un **POST** y no aparece en ningún
+listado de vistas, así que apagarlo por accidente no se vería — el formulario seguiría pintándose
+y dejaría de enviar. Medido: con las vistas apagadas y el contacto encendido, 350 rutas → 345,
+cero `public-*`, y el destino del formulario sigue ahí.
+
+## Corregido — apagar el área pública rompía el envío de correo
+
+Cinco plantillas pedían la URL de baja **sin** `$silentOnNotExists`, así que con la ruta
+`public-unsubscribe` sin registrar lanzaban `RuntimeException` **al renderizar** —dentro de una
+cola o de un cronjob—, no un `href` vacío. Ahora la piden en silencio y **omiten el bloque de baja
+entero** si no hay URL. Ni enlace vacío ni excepción, y **no depende de ninguna constante**.
+
+Se retira además la línea comentada `//self::$startSegmentRoutes = uniqid();`, que "apagaba" el
+área pública **escondiéndola** tras un segmento impronunciable: las rutas seguían existiendo y
+respondiendo. `$startSegmentRoutes` sigue siendo un prefijo legítimo y no cambia.
+
 ## Corregido — el enlace de baja de los correos llevaba un apóstrofo de más
 
 `UNSUSCRIBE_TEXT` emitía `<a href='{{url}}'' target='_blank'>` en los **seis idiomas**. Sale

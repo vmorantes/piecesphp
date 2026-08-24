@@ -127,6 +127,10 @@ define('MAILING_GENERAL_LANG_GROUP', 'mailingGeneral');
 
 //Proyecto
 define('GLOBAL_LANG_GROUP', 'global');
+
+//Apagarlo se lleva por delante el enlace de baja de los correos.
+define('PUBLIC_AREA_VIEWS', true);
+define('PUBLIC_AREA_CONTACT_FORMS', true);
 define('PHONE_AREA_CODES', [
     'Francia' => '+33',
     'Colombia' => '+57',

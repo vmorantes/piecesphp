@@ -6000,3 +6000,96 @@ AHORA : <a href='{{url}}' target='_blank'>haga clic aquí</a>
 
 Sale hacia el usuario **en cada correo que manda el sistema**, en los seis idiomas.
 
+
+## T60 · EL ÁREA PÚBLICA SE APAGA CON DOS INTERRUPTORES — y por qué la primera forma estaba mal
+
+### Dos previsiones corregidas por la medición, que se quedan
+
+1. **El comodín NO se come la raíz.** `{$startRoute}/{name}` y `{$startRoute}/{folder}/{name}`
+   quedan en `/{name}` y `/{folder}/{name}`, pero `genericViews` devuelve **404** cuando no hay
+   vista: `/zzz-no-existe/` 404, `/una/dos/` 404, `/publications/` 404, mientras `/` y `/contact/`
+   dan 200.
+2. **La trampa NO era `href=""`.** `routeName()` devuelve `''` solo cuando la ruta **existe** y el
+   rol no la tiene. Con la ruta **sin registrar**, `$silentOnNotExists` vale `false` por defecto y
+   las cinco plantillas la pedían sin él:
+
+   ```
+   RuntimeException — Named route does not exist for name: public-unsubscribe
+   ```
+
+   **Reventaba al renderizar el correo**, dentro de una cola o de un cronjob — el peor sitio para
+   enterarse. No emitía un enlace vacío.
+3. **`contact-forms-general` es un POST**, el destino del formulario de contacto. No aparece en
+   ningún listado de vistas, así que apagarlo por accidente no se vería: el formulario seguiría
+   pintándose y dejaría de enviar.
+
+### La primera forma estaba mal, y el error de diseño fue del propietario
+
+Se implementó y se deshizo (`git reset --hard`, sin empujar, sin commit de reversión). Era una
+**lista** —`PUBLIC_AREA_ROUTES`— que alimentaba `$ignoreRoutes`. El defecto:
+
+> **La enumeración de los cinco nombres vivía DOS VECES**: en `constants.php` y en el literal del
+> `foreach` de `PublicAreaController`. Añadir una sexta ruta obligaba a tocar las dos, **y nada
+> detectaba la divergencia.**
+
+**Es T54 reintroducido por el arreglo de otra cosa, en la misma semana.** El vocabulario de tipos
+vivía en seis sitios y por eso sobrevivió `'test'`; esto habría empezado igual, con dos.
+
+**Se retiró también la comprobación 11**, que parecía cubrirlo y no cubría:
+
+> Solo detectaba plantillas que llamaran **literalmente** a `PublicAreaController::routeName(`.
+> Una plantilla que reciba `$unsuscriptionURL` de quien la invoca quedaba **invisible**. Verde no
+> significaba seguro. Y es una lista blanca por patrón — el mismo fallo que acaba de costar
+> `UserProfileMapper`.
+
+### La forma buena: dos interruptores booleanos, y nada más
+
+```php
+//Apagarlo se lleva por delante el enlace de baja de los correos.
+define('PUBLIC_AREA_VIEWS', true);
+define('PUBLIC_AREA_CONTACT_FORMS', true);
+```
+
+- **Ninguna lista de rutas**, ni en `constants.php` ni en el controlador. No hay enumeración que
+  pueda divergir de sí misma.
+- **`$ignoreRoutes` vuelve exactamente a como estaba**: la lista manual con `-SAMPLE`. Sigue
+  siendo el mecanismo para excepciones puntuales, y es del propietario. El interruptor ni la
+  alimenta ni la sustituye.
+- **`$startSegmentRoutes` no se toca**: es un PREFIJO, y `ContactFormsController` lo usa con
+  `'contact'`.
+- **La línea `//self::$startSegmentRoutes = uniqid();` se queda borrada**: con el interruptor, el
+  escondite tras un segmento impronunciable deja de tener función.
+
+### Medido, las cuatro combinaciones
+
+| | Rutas | `public-*` | `contact-forms-*` |
+| :-- | --: | --: | --: |
+| Los dos encendidos (por defecto) | **350** | 5 | 1 |
+| Vistas apagadas, contacto encendido | **345** | **0** | **1** |
+| Los dos apagados | **344** | 0 | 0 |
+| Restaurado | 350 | 5 | 1 |
+
+**Por defecto no cambia nada**, que era la condición.
+
+### Lo único que de verdad evitaba la excepción, y es independiente de las constantes
+
+Las cinco plantillas piden la URL con **`$silentOnNotExists = true`** y **omiten el bloque entero**
+cuando no hay URL:
+
+```
+CON la ruta : … por favor <a href='http://localhost/unsubscribe/NmE4…/' target='_blank'>haga clic aquí</a>
+SIN la ruta : (el bloque de baja NO aparece)
+```
+
+**Ni enlace vacío ni excepción.** Y vale con cualquier constante puesta como sea, porque no
+depende de ninguna: es la plantilla la que deja de suponer que la ruta existe.
+
+### Lo que se queda como deuda, con condición de disparo
+
+**El mensaje del ORM ante un tipo desconocido** (T54, B) nombra el campo y el tipo, pero **no la
+clase dueña**. No se puede añadir hoy: `grep -rn "new Field("` sobre el paquete entero devuelve
+**cero**, así que no hay ningún sitio donde el ORM construya campos.
+
+> **Disparo**: cuando exista el primer mapper real sobre `ORM`, ahí habrá por fin un sitio donde
+> se construyen campos, y ahí se añade la clase al mensaje. **No antes.**
+
