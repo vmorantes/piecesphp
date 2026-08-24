@@ -211,6 +211,19 @@ script**. La comprobación está en `bin/cli unit-tests:core/scheme-sql-round-tr
   viejo sin invalidar y el nuevo invalidando. Una puerta vista solo en verde no se ha visto
   funcionar.
 
+## Corregido — cuatro guiones de `bin/` llegaban sin permiso de ejecución
+
+El repositorio tiene `core.fileMode = false`, así que `chmod +x` funciona en el disco y **git
+no lo registra**. Cuatro guiones estaban en el índice como `100644` y llegaban sin permisos a
+cualquiera que clonara: `bin/rector`, `bin/package-css`, `bin/pieces-completion.bash` y
+`bin/node/copyDependencies.sh`.
+
+**`bin/rector` ni siquiera era ejecutable aquí**: devolvía «Permiso denegado» (salida 126) pese
+a estar documentado en `CLAUDE.md` como una de las herramientas del proyecto.
+
+Arreglados los cuatro, y **`verify-integrity` gana una novena comprobación** para que no vuelva
+a pasar: todo archivo de `bin/` que empiece por `#!` tiene que estar en el índice como `100755`.
+
 ## Pruebas
 
 - **`bin/cli unit-tests:core/scheme-sql-round-trip`**: descubre todos los mappers, emite el

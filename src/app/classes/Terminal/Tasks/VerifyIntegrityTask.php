@@ -170,10 +170,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 8. No hay comentarios narrativos fuera del registro ───────────────────────
         $narrativeFailures = self::checkNarrativeComments();
 
+        //──── 9. Los guiones de bin/ están marcados como ejecutables EN EL ÍNDICE ───────
+        $executableFailures = self::checkExecutableBits();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
-            + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures);
+            + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
+            + count($executableFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -196,12 +200,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($toolchainFailures as $line) {
             echoTerminal("\e[31mINSTRUMENTAL:\e[39m {$line}");
         }
+        foreach ($executableFailures as $line) {
+            echoTerminal("\e[31mEJECUTABLE:\e[39m {$line}");
+        }
         foreach ($narrativeFailures as $line) {
             echoTerminal("\e[31mCOMENTARIO:\e[39m {$line}");
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas, eclipses, sobreescrituras, deprecadas, instrumental y comentarios sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios y bits de ejecución sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1472,6 +1479,61 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @param array<string, mixed> $registry
      * @return string[]
      */
+    /**
+     * Un guion con almohadilla-admiración tiene que estar marcado como ejecutable EN EL ÍNDICE.
+     *
+     * Este repositorio tiene `core.fileMode = false`, así que `chmod +x` funciona en el disco y
+     * git NO lo registra: el guion corre aquí y llega sin permisos a quien clone. Pasó con
+     * `bin/live-cache`, y es la clase de regla que solo se cumple si alguien se acuerda (LEY 11).
+     *
+     * @return string[]
+     */
+    protected static function checkExecutableBits(): array
+    {
+        $root = rtrim(str_replace('\\', '/', basepath('..')), '/');
+        if (!is_dir($root . '/.git')) {
+            return [];
+        }
+
+        $output = [];
+        $status = 0;
+        exec('git -C ' . escapeshellarg($root) . ' ls-files -s -- bin 2>/dev/null', $output, $status);
+        if ($status !== 0) {
+            return [];
+        }
+
+        $failures = [];
+        $checked = 0;
+        foreach ($output as $line) {
+            if (preg_match('/^(\d{6})\s+\S+\s+\d+\t(.+)$/', $line, $matched) !== 1) {
+                continue;
+            }
+            [$all, $mode, $relative] = $matched;
+            $file = $root . '/' . $relative;
+            if (!is_file($file)) {
+                continue;
+            }
+            $handle = @fopen($file, 'rb');
+            if ($handle === false) {
+                continue;
+            }
+            $firstBytes = (string) fread($handle, 2);
+            fclose($handle);
+            if ($firstBytes !== '#!') {
+                continue;
+            }
+            $checked++;
+            if ($mode !== '100755') {
+                $failures[] = $relative . ' — empieza por «#!» pero git lo tiene como ' . $mode
+                    . '. Este repositorio ignora el chmod del disco: «git update-index --chmod=+x ' . $relative . '».';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$checked} guion(es) de bin/ comprobados contra su bit de ejecución.");
+
+        return $failures;
+    }
+
     protected static function checkToolchainTracking(string $package, string $packageRoot, array $registry): array
     {
         $tracking = $registry['tracking'] ?? null;

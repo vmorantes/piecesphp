@@ -43,7 +43,7 @@ Implementadas en `src/app/classes/Terminal/Tasks/`:
 | `scheme-create` | `SchemeCreateTask` | `module=<Nombre>\|all`, `output=` | **Emite** el `CREATE TABLE` del módulo, ordenado padres → hijas. Descubre los mappers; no ejecuta |
 | `scheme-drop` | `SchemeDropTask` | `module=<Nombre>\|all`, `output=` | **Emite** el `DROP TABLE`, ordenado hijas → padres. No ejecuta |
 | `snapshot` | `SnapshotTask` | `label=`, `compare=a,b`, `dir=` | Foto de la base y del árbol de `src/`, y su diff |
-| `verify-integrity` | `VerifyIntegrityTask` | `update-snapshot`, `list-narrative` | Ocho comprobaciones estructurales sobre el repositorio |
+| `verify-integrity` | `VerifyIntegrityTask` | `update-snapshot`, `list-narrative` | Nueve comprobaciones estructurales sobre el repositorio |
 | `help` / `h` | `HelpTask` | — | Lista las acciones disponibles |
 | — | `FixWebmDurationTask` | — | Corrige la duración de archivos WebM |
 

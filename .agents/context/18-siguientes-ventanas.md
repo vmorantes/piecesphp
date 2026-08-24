@@ -201,6 +201,7 @@ dependen de que alguien se acuerde**, porque esas son las siguientes candidatas:
 | «Toda cifra lleva su método escrito» (T0) | Ya es mecanismo a medias: el trinquete exige el `[REPARTO]`, pero solo para el baseline |
 | «`git add` con rutas explícitas, y cuadrar el conteo» | Comprobación que compare lo preparado contra lo modificado antes de commitear |
 | «No editar PHP por línea ni por expresión regular» (T10) | **Sin mecanismo.** Hoy solo hay la regla escrita |
+| «Un guion de `bin/` tiene que ser ejecutable» | **YA ES MECANISMO**: comprobación 9 de `verify-integrity`. Ver más abajo |
 | «Los comentarios de prosa se recortan al pasar» | `verify-integrity` ya lo mide y ordena; falta que el registro no pueda crecer |
 
 **Las dos últimas filas son las que más me preocupan**, porque las dos ya han fallado una vez.
@@ -5275,6 +5276,31 @@ que alguien se acuerde.
 
 > *(El inventario trae hoy 349 y no los 347 de la semana pasada: son las dos tareas nuevas,
 > `snapshot` y `scheme-drop`, que registran su propia ruta. Cuadrado, no supuesto.)*
+
+### La segunda regla convertida en mecanismo, el mismo día
+
+Al commitear `bin/live-cache` salió que git lo había guardado como `100644` aunque el `chmod +x`
+había funcionado. **El repositorio tiene `core.fileMode = false`**: el bit del disco no se
+registra. El guion corre aquí y llega **sin permisos de ejecución a quien clone**. Otra regla
+que solo se cumple si alguien se acuerda.
+
+Es ahora la **comprobación 9 de `verify-integrity`**: todo archivo bajo `bin/` que empiece por
+`#!` tiene que estar en el índice como `100755`.
+
+**En su primera corrida encontró cuatro, todos anteriores a hoy:**
+
+| Archivo | Estado |
+| :-- | :-- |
+| `bin/rector` | **Ni siquiera era ejecutable en el disco.** `bin/rector` devolvía «Permiso denegado», salida **126** — y está documentado en `CLAUDE.md` como una de las cuatro herramientas del proyecto |
+| `bin/package-css` | Ejecutable en el disco, `100644` en git |
+| `bin/pieces-completion.bash` | Ejecutable en el disco, `100644` en git |
+| `bin/node/copyDependencies.sh` | Ejecutable en el disco, `100644` en git |
+
+Los cuatro arreglados con `git update-index --chmod=+x`. **Y la puerta, validada rompiéndola**:
+devuelto `bin/rector` a `100644`, la comprobación falla y lo nombra; restaurado, vuelve a verde.
+
+**Esto es T21 otra vez**: una puerta nueva que en su primera corrida encuentra defectos reales
+es una puerta que estaba haciendo falta. Una que nace en verde no ha demostrado nada.
 
 ### Lo que NO cubre, dicho aquí para que no se dé por cubierto
 
