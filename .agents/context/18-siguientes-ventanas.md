@@ -8660,3 +8660,220 @@ bloque M hacía temer.
 > **Un error de este tipo es peor que uno de código**, porque un documento no tiene puertas: no
 > hay suite que falle cuando el registro miente. Lo único que lo atrapó fue que CODER midió por
 > su cuenta en vez de creerse el bloque.
+
+
+## T92 · EL CENSO DE `isset()`/`empty()` SOBRE PROPIEDADES MÁGICAS — dos sitios, no ciento
+
+*Punto 1 del bloque. **Solo informe**: no se ha implementado `__isset()` ni `__unset()`, ni se ha
+arreglado ninguno de los sitios.*
+
+### El método, antes que la cifra
+
+**Unidad: argumento de `isset()`/`empty()` que contiene `->`.** No «línea», no «llamada»: una
+llamada puede llevar varios argumentos y cada uno pregunta por su cuenta.
+
+Extraído con **el tokenizador de PHP** (`token_get_all`), no con expresiones regulares: se
+localiza cada `T_ISSET`/`T_EMPTY`, se recorre su paréntesis **balanceado**, se parten las comas
+de nivel superior y se conserva el argumento entero. Sobre los cinco repositorios, `src/`
+completo, excluido `vendor/`.
+
+**Un segundo método, y NO coincide — que es justo lo que se quería saber.** Un `grep -oE
+'\b(isset|empty)\([^)]*->'` da **130**; el tokenizador da **135**. La diferencia no es ruido y
+está localizada:
+
+| Por qué difieren | Cuántos |
+| :-- | --: |
+| Llamadas con **más de un argumento** con `->` (16 con dos, 1 con tres) | +18 argumentos sobre 17 líneas |
+| Argumentos con **paréntesis internos**, donde `[^)]*` de la expresión regular corta antes | 11 |
+
+**Las dos cifras son correctas en su unidad**: una cuenta ocurrencias de línea, la otra cuenta
+preguntas. La pregunta del bloque era «cuántos sitios preguntan», así que la buena es la del
+tokenizador. Es la T20 en su forma útil: no se buscó el acuerdo, se buscó **qué deja fuera cada
+instrumento**.
+
+### El embudo
+
+| Paso | Quedan | Se van |
+| :-- | --: | :-- |
+| Argumentos de `isset()`/`empty()` con `->` | **135** | — |
+| Que **terminan** en `->propiedad` | **102** | 33 acaban en `[...]` o en `()` |
+| Cuyo receptor es un objeto **de linaje mágico** | **2** | 100 son `stdClass` o clases normales |
+
+**Dos.** Y no había que fiarse del segundo paso: el tercero es el que corta.
+
+### Por qué los 33 que no terminan en propiedad se van — medido, no supuesto
+
+Se midió la forma con índice, que era la que quedaba sin medir:
+
+```
+isset($m->arr['k'])    -> true     ← el contenedor mágico se resuelve por __get
+empty($m->arr['k'])    -> false
+isset($m->obj->b)      -> true
+isset($m->prop)        -> false    ← ROTO: aquí no hay nada después
+```
+
+> **La regla, completa y en una línea: solo está roto cuando la propiedad mágica es el ÚLTIMO
+> paso de la expresión.** Da igual qué venga después —`->sub`, `['clave']`—: cualquier
+> continuación obliga a PHP a llamar a `__get` para obtener el contenedor, y a partir de ahí la
+> comprobación es normal. Lo que PHP consulta con `__isset` es únicamente el paso final.
+
+Ahí se van, de golpe, los 48 sitios con forma `isset($this->langData->$lang)` y
+`isset($this->langData->$lang->$property)` que el bloque M hacía temer.
+
+### 1.1 · Por forma y por clase
+
+Sobre las propiedades de cuál de las seis clases pregunta cada sitio que sí está roto:
+
+| Clase con `__get` | `isset()` | `empty()` | Total |
+| :-- | --: | --: | --: |
+| **`EntityMapper`** (paquete `database`) | **2** | 0 | **2** |
+| `ORM\ORM` | 0 | 0 | 0 |
+| `ExtensibleORM` | 0 | 0 | 0 |
+| `EntityMapperExtensible` | 0 | 0 | 0 |
+| `GenericContentPseudoMapper` | 0 | 0 | 0 |
+| `UserDataPackage` | 0 | 0 | 0 |
+
+Los dos, en el mismo método —`EntityMapper::humanReadable()`, `database/src/Core/Database/EntityMapper.php`—:
+
+```php
+//linea 1321
+if (isset($this->$field->$human_readable_reference_field)) {
+    $data[$field] = $this->$field->$human_readable_reference_field;
+    $set_field = true;
+}
+//linea 1331
+if (isset($this->$field->$reference_field)) {
+    $data[$field] = $this->$field->$reference_field;
+} else {
+    $data[$field] = $this->$field;   // <- la rama que SIEMPRE se toma
+}
+```
+
+`$this->$field` es una propiedad mágica cuyo valor, cuando el campo declara `reference_table`,
+**se hidrata como `new $mapper(...)`** —verificado en `getForeingQuery()`, líneas 885 y 895—. O
+sea que el paso final, `->$reference_field`, es **otra propiedad mágica**, y la comprobación
+devuelve `false` siempre. Se asigna el objeto entero en vez del valor legible.
+
+### Una muestra de cada uno de los grupos que se descartan
+
+| Grupo | Cuántos | Muestra | Por qué NO está roto |
+| :-- | --: | :-- | :-- |
+| Cadena sobre `langData` | 48 | `isset($this->langData->$lang)` | `langData` no es el paso final; `__get` la resuelve a un `stdClass` |
+| `stdClass` con guarda `instanceof` | 10 | `if ($elementOrID instanceof \stdClass) { isset($elementOrID->id) }` | El receptor está comprobado como `stdClass` |
+| Copia local previa | 9 | `$langData = $this->langData; isset($langData->$lang);` | La lectura mágica ya ocurrió en la asignación |
+| Índice sobre propiedad real | 33 | `isset($this->properties[$name])` | Propiedad declarada, y además no es el paso final |
+| Clases sin `__get` | 24 | `empty($this->authToken)` | `MailjetHandler`, `BaseToken`, `FormatHtml`, adminer… |
+| Cast explícito a objeto | 2 | `$metaColumnValue = (object) …; isset($metaColumnValue->$name)` | Es un `stdClass` a propósito |
+
+**La copia local previa es el remedio que el código ya usa**, en los nueve `hasLang()`. Nadie lo
+escribió como remedio —parece una variable de conveniencia— pero funciona por el mismo motivo
+que la cadena.
+
+### 1.2 · `UserDataPackage`, el camino de sesión y permisos: **CERO**
+
+Ni un solo `isset()` ni `empty()` sobre una propiedad suya, en los cinco repositorios. Sus 159
+usos de `getLoggedFrameworkUser()` leen directo —`->type`, `->id`—, que es la forma correcta.
+
+Los cuatro `??` que aparecen cerca —`$currentUser ??= getLoggedFrameworkUser()`— operan sobre
+**el retorno de la función**, no sobre una propiedad mágica. Fuera del censo.
+
+### 1.3 · Qué cambiaría si existiera `__isset()`, y qué NO es inocuo
+
+**Medido**, comparando la misma batería sobre una clase con `__isset` y otra sin él:
+
+| Forma | Hoy | Con `__isset()` | ¿Cambia? |
+| :-- | :-- | :-- | :-- |
+| `isset($m->prop)` | `false` siempre | la verdad | **SÍ — los 2 sitios** |
+| `empty($m->prop)` | `true` siempre | la verdad | SÍ (0 sitios) |
+| `isset($m->obj->sub)` | correcto | correcto **si `__isset` acierta con `obj`** | **RIESGO** |
+| `isset($m->arr['k'])` | correcto | correcto **si `__isset` acierta con `arr`** | **RIESGO** |
+
+**Lo que no es obvio y por eso se midió**: hoy, sin `__isset`, PHP va **directo a `__get`** para
+resolver el contenedor de una cadena. En cuanto existe `__isset`, PHP lo llama **primero** para
+el contenedor:
+
+```
+=== SinIsset ===                    === ConIsset ===
+isset($m->obj->b)  -> true          isset($m->obj->b)  -> [__isset(obj)] true
+isset($m->arr['k'])-> true          isset($m->arr['k'])-> [__isset(arr)] true
+```
+
+> **Una batería uniforme puede ROMPER los 48 sitios encadenados que hoy funcionan bien.** Basta
+> con que `__isset('langData')` devuelva `false` donde `__get('langData')` habría devuelto algo.
+> Arregla 2 y pone 48 en riesgo: **la relación no está a favor de la batería uniforme.**
+
+Y no es un riesgo teórico: **cuatro de los seis `__get` lanzan excepción** para una propiedad no
+definida —`EntityMapper` lanza `DatabaseClassesExceptions`, `GenericContentPseudoMapper` lanza
+`SafeException` **y además la registra**—, así que un `__isset` fiel no es una línea: tiene que
+decidir qué hace con ese lanzamiento.
+
+### 1.4 · ¿Alguien depende del `false` a propósito? NO, y hay prueba
+
+Los dos sitios son el mismo método, y el `false` deja **muerta la rama que el propio método
+acaba de preparar**: tres líneas antes calcula `$has_reference_human_readable_field` para
+decidir si entra. Nadie calcula una condición para no usarla.
+
+**La prueba está fuera del método**: hay **59 declaraciones de `human_readable_reference_field`
+no nulas, repartidas en 24 archivos**. Cincuenta y nueve declaraciones que existen para
+alimentar una rama que nunca se toma. Eso no se escribe a propósito.
+
+### 1.5 · La clase de solo lectura es `UserDataPackage`
+
+`__get` en las seis, `__set` en cinco. **La que falta es `UserDataPackage`** — y no por descuido:
+sus 26 propiedades están **realmente declaradas** como `protected`, y su `__get` existe solo para
+exponerlas de fuera y resolver alias. Medido lo que eso significa:
+
+| Operación desde fuera | Qué pasa |
+| :-- | :-- |
+| Leer una declarada | Va por `__get`. Correcto |
+| **Escribir una declarada** | `Error: Cannot access protected property`. **De verdad es de solo lectura** |
+| Escribir un nombre **nuevo** | **Crea una propiedad dinámica pública, en silencio** |
+| Leer un nombre inexistente | `Warning: Undefined property` — y en este proyecto los `E_WARNING` abortan |
+
+> **Una batería uniforme le cambiaría el contrato**, como avisaba el bloque. Pero el cambio útil
+> aquí no es `__isset()`: es `__set()` lanzando, que cerraría el hueco de la propiedad dinámica
+> —el único agujero real de una clase que por lo demás sí es de solo lectura—. Decisión del
+> PROPIETARIO; no se toca.
+
+### `__unset()`: radio CERO, medido
+
+`unset($m->propiedadMagica)` **no da error y no hace nada**: la propiedad sigue ahí después.
+Y en los cinco repositorios hay **0 sitios** con la forma `unset($variable->propiedad)`.
+Implementarlo no arregla nada y no puede romper nada.
+
+### Hallazgo lateral: un `isset()` que es un error de tecleo, y es fatal
+
+`AppConfigController::recursiveMergeArray()`, línea 2075:
+
+```php
+$oneHasKey = $oneIsArray ? array_key_exists($key, $one) : isset($two->$one);
+$twoHasKey = $twoIsArray ? array_key_exists($key, $two) : isset($two->$key);
+```
+
+La primera dice `$two->$one` donde debía decir `$one->$key`. **No es el defecto mágico** —los dos
+son `stdClass` por la guarda de arriba—: es que usa un objeto **como nombre de propiedad**.
+Medido:
+
+```
+isset($two->$one)  ->  Error: Object of class stdClass could not be converted to string
+```
+
+La rama solo se evalúa cuando `$one` es un `stdClass`, y esa es exactamente la forma con la que
+el método se llama a sí mismo tres líneas más abajo (`$one->$key = self::recursiveMergeArray(…)`).
+Alcanzable desde el guardado de configuración, línea 1536. **No se ha tocado**: sale del censo,
+no del encargo.
+
+### Lo que queda sin verificar, y cuándo se puede
+
+Los dos sitios están confirmados **por lectura y por medición de la semántica de PHP**, no
+ejecutando `humanReadable()` contra una base con datos. Falta eso, y hay un matiz que puede
+cambiar el tamaño del defecto: `EntityMapperExtensible::humanReadable()` **sobrescribe**
+`$data[$name]` para todo campo cuyo valor sea un `EntityMapper`, así que los **22** mappers que
+extienden `EntityMapperExtensible` no enseñan el objeto crudo. Los **12** que extienden
+`BaseEntityMapper` directamente no tienen esa compensación, y **6 de ellos declaran una
+referencia con mapper real**: `LoginAttemptsModel`, `TimeOnPlatformModel`, `OTPSecretsUsersMapper`,
+`PointMapper`, `StateMapper`, `CityMapper`.
+
+Se comprueba con la base levantada de E2-a, **después** de la pasada y no antes, para no
+contaminarla.
+
