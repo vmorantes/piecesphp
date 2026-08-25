@@ -11,7 +11,7 @@ bin/cli verify-integrity update-snapshot=yes  # regenera la instantánea
 
 Devuelve **código de salida 1** si algo falla, así que sirve tal cual en CI.
 
-Comprueba **once** cosas. Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
+Comprueba **dieciséis** cosas, numeradas en el propio `VerifyIntegrityTask::run()`: **esa numeración es la fuente, no esta lista.** Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
 
 1. **Docblocks sin cerrar.** Un comentario de bloque que no cierra, y —lo importante— un
    docblock que se ha tragado una declaración de función.
@@ -29,13 +29,24 @@ Usa el analizador léxico de PHP, no expresiones regulares sobre el texto: `/*` 
 dentro de cadenas —`'image/*'` es el caso típico— y contarlo a pelo daba 32 falsos
 positivos en las vistas.
 
-Las otras nueve: que las clases declaradas se pueden cargar, que el núcleo no eclipsa clases
-de los paquetes, que las sobreescrituras de ruta siguen decidiendo algo, que no hay llamadas a
-funciones deprecadas, que los cuatro paquetes no se han desviado del instrumental común, que no
-crecen los comentarios narrativos, y —desde T51— **que los guiones de `bin/` están marcados como
-ejecutables en el índice de git**, y que **todo tipo declarado en un `$fields` existe en el
-vocabulario de `EntityMapper`**, y que **la lista de tablas con acuñado de slug declarada en
-`files/dev/volatile-state.json` coincida con la que el código descubre**.
+Las otras catorce, en el orden en que corren:
+
+| # | Qué comprueba |
+| --: | :-- |
+| 3 | Toda clase declarada **se puede cargar** por su ruta PSR-4 |
+| 4 | El núcleo **no eclipsa** ninguna clase de los paquetes `piecesphp/*` |
+| 5 | Las sobreescrituras de ruta **siguen decidiendo algo** |
+| 6 | No hay llamadas a **funciones deprecadas** |
+| 7 | Los cuatro paquetes **no se han desviado** del instrumental común |
+| 8 | No crecen los **comentarios narrativos** |
+| 9 | Los guiones de `bin/` están **marcados como ejecutables en el índice de git** (T51) |
+| 10 | Todo tipo declarado en un `$fields` **existe en el vocabulario** de `EntityMapper` |
+| 11 | La lista de tablas con acuñado de slug de `volatile-state.json` **coincide con la que el código descubre** |
+| 12 | La lista de **rutas prohibidas vive en un solo sitio** |
+| 13 | Todo el PHP versionado **se analiza o está declarado fuera** del universo de PHPStan |
+| 14 | Todo `objectToMapper()` **siembra la instantánea** de la fila |
+| 15 | Ninguna propiedad se declara **después del primer método** (T89) |
+| 16 | Ningún docblock quedó **separado de lo que documenta** (T91) |
 
 > La de los tipos existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
 > `SystemApprovalsMapper`: con un tipo desconocido, `validateType()` devuelve **`true` para
