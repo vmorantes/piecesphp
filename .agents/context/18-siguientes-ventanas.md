@@ -7120,6 +7120,13 @@ veredictos que CAMBIAN: 0
 
 Las tres salieron con **FALLOS: 1**. Con todo en su sitio, **verde con las doce**.
 
+**Y el límite de este instrumento, dicho antes de que engañe a nadie**: la comprobación 12 **lee el
+cuerpo de los archivos**, no cuenta nada contra el mundo. Reconoce la copia por su forma
+—`$forbidden = [`— y el uso por el nombre `$isForbidden`. Quien reintroduzca la lista con otro
+nombre de variable pasa por delante sin que salte. Es la misma clase de instrumento que la
+comprobación 5 de las sobreescrituras, que ya lleva su aviso: **avisa, no demuestra.** Lo que sí
+demuestra es la equivalencia de arriba, que se juzga contra las 351 rutas del inventario.
+
 **Lo que NO se hizo, y a propósito**: no se ha corrido ningún recorrido contra el sitio vivo. Un
 recorrido escribe en `login_attempts` y dispara rellenos perezosos, y la LEY 12 dice que eso
 ensucia la base antes de la foto de E3. La equivalencia se probó sobre el inventario, que es el

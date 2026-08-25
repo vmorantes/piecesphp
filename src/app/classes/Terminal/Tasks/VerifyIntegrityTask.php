@@ -1675,6 +1675,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * comentario que explicaba por qué se mira también la URL solo estaba en una de las dos:
      * la razón había divergido antes que el dato. Ver LEY 11 y T73.
      *
+     * LÍMITE: esto LEE EL CUERPO de los archivos. Reconoce la copia por su forma y el uso por
+     * el nombre `$isForbidden`; quien la reintroduzca con otro nombre pasa por delante. Avisa,
+     * no demuestra. Lo que demuestra es la equivalencia de veredictos sobre el inventario.
+     *
      * @return string[]
      */
     protected static function checkForbiddenRoutesAreSingle(): array
