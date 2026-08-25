@@ -98,7 +98,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/scheme-sql-round-trip` | **MariaDB** — aplica los dos scripts de verdad |
 | `core/prefer-slug` | **MariaDB** — crea filas reales y comprueba lo que queda escrito |
 | `core/generic-content` | **MariaDB** — cuenta filas antes y después |
-| `core/db-restore` | **MariaDB** — restaura de verdad sobre una base de usar y tirar |
+| `core/db-restore` | **MariaDB** — pero sobre un volcado que **la propia suite fabrica**: no cubre la forma que produce `db-backup`. Ver T94 |
 | `core/database/type-vocabulary` (paquete) | **Se juzga sola**, pero compara seis fuentes entre sí: la deriva de una la delatan las otras cinco |
 | `core/db-backup-round-trip` | **MariaDB** + `password_verify()` |
 | `core/mapper-finders` | **MariaDB** |

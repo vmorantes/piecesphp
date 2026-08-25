@@ -9005,3 +9005,85 @@ verdad**, que es un juez externo (T21) sin salir de la máquina.
 
 Cuando exista, sus efectos pasan de `network` a `none` y vuelve a la pasada por defecto.
 
+
+## T94 · `db-restore` NO SABE RESTAURAR UN VOLCADO REAL — y su suite pasa 9/9
+
+**Salió al cumplir la LEY 12 del bloque siguiente**: había que restaurar antes de la pasada de
+E2-a, y la restauración informó **«112 aplicada(s), 18 fallida(s)»**.
+
+### La causa, y cuadra exacta
+
+`DbRestoreTask::statementsOf()` parte el volcado por `";\n"` y **no conoce `DELIMITER`**. El
+volcado que produce `db-backup` abre con:
+
+```
+DELIMITER ;;
+CREATE FUNCTION `strTemplateReplace`(…) RETURNS text …
+BEGIN
+    DECLARE replacementKeys TEXT;      <- punto y coma DENTRO del cuerpo
+    …
+END;;
+DELIMITER ;
+```
+
+Cada `;` interno se toma por fin de sentencia, así que el cuerpo de la función llega a MySQL en
+trozos. **La cuadratura no deja lugar a dudas: 18 puntos y coma entre las líneas 12 y 50 del
+volcado, 18 sentencias fallidas.**
+
+```
+FALLO: 1064 You have an error in your SQL syntax           <- los trozos
+FALLO: 1193 Unknown system variable 'replacementKeys'      <- un DECLARE suelto
+FALLO: 1327 Undeclared variable: counterVar
+```
+
+### Lo que NO está mal, dicho para no inflar el hallazgo
+
+- **La tarea no miente**: imprime cada fallo, cuenta las dos cifras y **sale con código 1**.
+- **Los datos llegaron enteros.** Comprobado comparando el volcado de origen contra un
+  `db-backup` tomado justo después: **13 tablas con datos, 139 filas, INSERT idénticos, cero
+  diferencias**. Las 40 tablas y las 5 vistas también.
+- En esta máquina la función **siguió existiendo**… porque el volcado **no lleva `DROP FUNCTION`**
+  y la anterior nunca se borró. O sea que sobrevivió por casualidad, no porque se restaurara.
+
+**Dónde muerde de verdad**: restaurar sobre una base **nueva o distinta** deja las rutinas
+almacenadas **sin crear**. Y `strTemplateReplace` no es decorativa: la usan las plantillas de
+texto.
+
+### La mitad que es mía y es la que importa
+
+`unit-tests:core/db-restore` **pasa 9/9**. Y no puede fallar, porque **el volcado que restaura lo
+fabrica ella misma**:
+
+```php
+file_put_contents($dump, implode("\n", [
+    '-- Volcado de prueba',
+    'DROP TABLE IF EXISTS `zz_viaje`;',
+    'CREATE TABLE `zz_viaje` (…);',
+    "INSERT INTO `zz_viaje` (`id`, `valor`) VALUES (1, 'EL-ORIGINAL');",
+]));
+```
+
+Cuatro líneas, una tabla, ningún `DELIMITER`. **Prueba la forma que la tarea sabe manejar, no la
+forma que `db-backup` produce.**
+
+> **T46, caso 4, y el más caro de los cuatro.** Los tres anteriores comprobaban lo equivocado;
+> este comprueba lo correcto **sobre una entrada que no existe en la realidad**. Una prueba de
+> ida y vuelta cuyo «ida» lo escribe la propia prueba no prueba el viaje: **prueba que sabe
+> volver del sitio al que sabe ir.**
+>
+> **La regla que se saca, y vale para toda prueba de ida y vuelta:** el material de la ida tiene
+> que venir del productor real. Si la prueba lo fabrica, lo fabrica a imagen de lo que el
+> consumidor ya sabe leer.
+
+### Qué haría falta — NO SE HACE AQUÍ
+
+1. Que `statementsOf()` **respete `DELIMITER`**: al verlo, cambiar el separador hasta que se
+   restablezca.
+2. Que la suite restaure **un volcado hecho por `db-backup`**, no uno de juguete. Con eso la
+   comprobación 1 falla hoy, que es lo que se le pide a una provocación.
+3. *(De paso, una molestia menor: `file=` se resuelve contra `src/`, porque `bin/cli` hace `cd`
+   ahí. Una ruta relativa desde la raíz del repositorio da «no existe» sin decir por qué.)*
+
+**No se toca ninguna de las tres**: sale de cumplir una instrucción, no del encargo. Decide el
+PROPIETARIO.
+
