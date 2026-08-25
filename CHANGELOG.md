@@ -38,6 +38,28 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Corregido — dos caminos de LECTURA devolvían 500
+
+**Los endpoints de DataTables fallaban ante cualquier petición sin los parámetros que envía
+DataTables.** Un enlace pegado en el navegador, un monitor o un rastreador recibían un 500:
+`generateHaving(): Argument #2 ($columns) must be of type array, null given`. Eran **23 de las 24
+rutas** de este tipo.
+
+El valor por defecto de `columns` era `null` y el parámetro exige `array`. Ahora es `[]`, que es
+lo correcto: **`columns` solo se lee cuando hay término de búsqueda**, así que ausente y vacío
+significan lo mismo. **Para DataTables no cambia nada** —siempre manda el parámetro—; lo que
+cambia es que la ruta deja de reventar sin él.
+
+`locations-points-datatables` sigue devolviendo 404 sin cabecera `X-Requested-With`: es el único
+de los 24 que se defiende, y es deliberado.
+
+**El formulario de países abortaba si algún país no tenía región.** `CountryMapper` usaba ese
+nombre nulo como índice de array; en PHP 8.4+ eso es una deprecación, y en este proyecto las
+deprecaciones abortan la petición. Afectaba a alta **y** edición de países. Ahora se descarta la
+fila sin nombre.
+
+Los dos quedan fijados por `bin/cli unit-tests:core/read-paths-survive`.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES — tus copias no traían las rutinas almacenadas
 
 **Un volcado hecho con `bin/cli db-backup` de una versión anterior a esta no incluye

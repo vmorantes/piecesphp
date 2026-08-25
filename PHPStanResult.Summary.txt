@@ -525,8 +525,8 @@ project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
 	argument.type (Líneas: 33)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php
-	clone.nonObject (Líneas: 325, 559, 605)
-	method.nonObject (Líneas: 376, 377, 378, 383)
+	clone.nonObject (Líneas: 329, 563, 609)
+	method.nonObject (Líneas: 380, 381, 382, 387)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/MetaTags.php
 	assign.propertyType (Líneas: 157)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ReturnTypes/ResultOperations.php

@@ -2367,19 +2367,19 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php                                           
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  325    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  329    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  376    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
+  380    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
          🪪  method.nonObject                                                                                              
-  377    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
+  381    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
          🪪  method.nonObject                                                                                              
-  378    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
+  382    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
          🪪  method.nonObject                                                                                              
-  383    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
+  387    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
          🪪  method.nonObject                                                                                              
-  559    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  563    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  605    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  609    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------ 
 

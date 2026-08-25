@@ -9496,3 +9496,115 @@ habría quedado sin rutinas y nadie se habría enterado** salvo por las 18 líne
 tarea sí imprimía. La tarea nunca mintió; lo que faltaba era que alguien las leyera, y la primera
 vez que se leyeron fue hoy.
 
+
+## T97 · LOS DOS QUE ROMPÍAN LA FOTO — y el 400 que NO se hizo
+
+*Punto 2 del bloque del 25-08. No son limpieza: son lo que impidió que E2-a fuera completa.*
+
+### 2.1 · Los 24 llamadores, medidos ANTES de tocar nada
+
+**25 rutas llevan `datatables` en el nombre; 24 resuelven URL.** Cada una pedida dos veces: sin
+parámetros y con los que manda DataTables de verdad.
+
+| | Sin parámetros | Con parámetros |
+| :-- | --: | --: |
+| **500** | **23** | 0 |
+| **404** | **1** — `locations-points-datatables` | 0 |
+| **200** | 0 | **24** |
+
+*(La 25.ª, `my-organization-profile-admin-datatables-experience`, exige parámetros de ruta y no se
+resuelve sin inventar valores.)*
+
+**Los 23 caen por lo mismo, con el mismo mensaje**, así que **no son 23 defectos: es uno**.
+
+### Y el arreglo NO es un 400 — el parámetro es opcional DE HECHO
+
+La propuesta era pasar de 500 a 400. **Se leyó el código antes de escribirlo, y el 400 habría
+inventado un requisito que el código no tiene:**
+
+```php
+protected static function generateHaving(array $columns_order, array $columns, $search, …): string
+{
+    …
+    $has_search = mb_strlen($search_value) > 0;
+    if ($has_search) {              // <-- $columns SOLO se lee aquí dentro
+        foreach ($columns_order as $index => $column_name) {
+            $column = $columns[$index] ?? null;
+```
+
+**`$columns` no se usa si no hay búsqueda.** O sea que «ausente» y «vacío» significan exactamente
+lo mismo para este método, y el único motivo de la caída era que el **valor por defecto no
+satisfacía la propia firma**:
+
+```php
+$columns = $request->getQueryParam('columns', null);   // el defecto, en DOS sitios
+```
+
+Cambiarlo a `[]` —y coaccionar si llega algo que no es un array— deja **23 rutas en 200 sin
+cambiar el comportamiento de ningún llamador real**: DataTables siempre manda `columns`, así que
+para él no cambia nada. Un 400 habría roto lo que hoy funciona por accidente y no habría arreglado
+nada.
+
+> **La lección de método: un valor por defecto que no vale para el parámetro que va a recibirlo no
+> es una cuestión de tipos, es una pregunta sin responder.** Alguien escribió `null` sin decidir
+> qué significa «sin columnas», y el `TypeError` es esa indecisión saliendo por la puerta de atrás
+> ocho niveles más abajo.
+
+**Los docblocks decían `@var array` sobre una línea que asignaba `null`.** Otro documento que
+mentía, esta vez a un metro del código que desmentía.
+
+### La única que se defendía, y sigue devolviendo 404
+
+`locations-points-datatables` responde 404 sin cabecera XHR porque `Point::pointsDataTables()`
+comprueba `$request->isXhr()` y lanza `NotFoundException`. **De los 24 archivos que llaman a
+`DataTablesHelper::process`, es el ÚNICO que lo hace.**
+
+**No se toca**: es una guarda deliberada y la única correcta de las 24. Con la cabecera puesta
+responde 200 como las demás. Lo que queda dicho es la asimetría: **veintitrés endpoints sirven
+datos a cualquier GET con sesión, y uno no.** Unificarlo es una decisión del PROPIETARIO, no un
+arreglo.
+
+### 2.2 · `CountryMapper` — una deprecación tumbando dos formularios
+
+```php
+array_map(function ($e) use (&$options) {
+    $options[$e->name] = $e->name;      // línea 276, $e->name es NULL
+}, self::allRegions());
+```
+
+`allRegions()` hace `SELECT region AS name FROM locations_countries GROUP BY region`. **Los dos
+países de esta base tienen `region` a NULL**, así que la agrupación devuelve una fila con `name`
+nulo, y `$options[null]` dispara *«Using null as an array offset is deprecated»* — que aquí
+**aborta**.
+
+Tumbaba **dos** rutas, no una: `locations-countries-forms-add` **y** `-forms-edit`, porque las dos
+pintan el mismo selector. Las dos responden **200** ahora.
+
+**Se descarta la fila sin nombre**, no se le inventa una etiqueta: una región sin nombre no es una
+opción que ofrecer, y el selector ya trae su opción por defecto.
+
+### 2.3 · La suite, provocada en las dos direcciones
+
+`unit-tests:core/read-paths-survive`, **7/7**. Ejercita el código de verdad, no su texto:
+
+- **Construye una `RequestRoute` real y vacía** y llama a `DataTablesHelper::process()`. Un doble
+  no servía: `process()` valida el tipo del parámetro `request`.
+- No se conforma con «no lanzó»: **exige que la respuesta traiga `data` y se declare con éxito**.
+  Sin eso, una excepción tragada más arriba pasaría por buena.
+- El caso que de verdad usa `columns` —**buscar sin declarar columnas**— tiene su comprobación
+  aparte.
+- Para `CountryMapper`, **primero comprueba que el caso existe en los datos** —`COUNT(*)` de
+  países sin región— y **falla si no lo hay**: sin esa guarda, el día que alguien rellene las
+  regiones la suite pasaría sin medir nada.
+
+| Se provoca | Qué sale |
+| :-- | :-- |
+| `getQueryParam('columns', null)` de vuelta | **3/7** con los dos defectos, **5/7** con solo uno |
+| `$options[$e->name]` de vuelta | Cae `allRegionsForSelect() no aborta` **y** `devuelve algo` |
+| Todo en su sitio | **7/7** |
+
+**Una comprobación se corrigió por pasar por el motivo equivocado.** «Ninguna clave es nula» pasaba
+**también con el defecto puesto**, porque la excepción dejaba el array vacío y un array vacío no
+tiene claves nulas. Se cambió por «devuelve algo: al menos la opción por defecto», que solo puede
+cumplirse si la función **llegó al final**. Es T46 en pequeño, cazado antes de commitear.
+

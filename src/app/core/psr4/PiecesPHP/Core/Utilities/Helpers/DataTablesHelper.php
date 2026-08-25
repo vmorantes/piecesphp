@@ -225,9 +225,13 @@ class DataTablesHelper
              */
             $order = $request->getQueryParam('order', null);
             /**
-             * @var array
+             * Vacío, NO nulo: el parámetro exige `array` y `generateHaving()` solo lo lee cuando
+             * hay búsqueda, así que ausente y vacío significan lo mismo. Ver T97.
+             *
+             * @var array<int,mixed>
              */
-            $columns = $request->getQueryParam('columns', null);
+            $columns = $request->getQueryParam('columns', []);
+            $columns = is_array($columns) ? $columns : [];
             /**
              * @var string
              */
@@ -796,9 +800,13 @@ class DataTablesHelper
              */
             $order = $request->getQueryParam('order', null);
             /**
-             * @var array
+             * Vacío, NO nulo: el parámetro exige `array` y `generateHaving()` solo lo lee cuando
+             * hay búsqueda, así que ausente y vacío significan lo mismo. Ver T97.
+             *
+             * @var array<int,mixed>
              */
-            $columns = $request->getQueryParam('columns', null);
+            $columns = $request->getQueryParam('columns', []);
+            $columns = is_array($columns) ? $columns : [];
             /**
              * @var int
              */

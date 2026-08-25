@@ -273,7 +273,12 @@ class CountryMapper extends BaseEntityMapper
         $options[$defaultValue] = $defaultLabel;
 
         array_map(function ($e) use (&$options) {
-            $options[$e->name] = $e->name;
+            //Un país sin región llega aquí con `name` a NULL, y de índice ABORTA. Ver T97.
+            $name = is_string($e->name) ? trim($e->name) : '';
+            if ($name === '') {
+                return;
+            }
+            $options[$name] = $name;
         }, self::allRegions());
 
         return $options;

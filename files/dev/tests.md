@@ -110,6 +110,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/meta-property-hybrid` | **Se juzga sola** (reflexión) |
 | `core/session-user` | **Se juzga sola** (valores devueltos) |
 | `functions/systemOutFormatted` | **Se juzga sola** |
+| `core/read-paths-survive` | **MariaDB** — y exige que el caso exista en los datos antes de medirlo |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
 
 #### `core/http-client` queda SIN COBERTURA — 2026-08-25
