@@ -28,6 +28,7 @@ framework, qué convenciones son obligatorias y dónde vive cada cosa.
 | [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md) | Análisis de módulos: duplicados, acoplamiento, candidatos a eliminar |
 | [15-plantilla-clonar-publications.md](./15-plantilla-clonar-publications.md) | Búsqueda y reemplazo paso a paso para derivar un módulo desde `Publications` |
 | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Backlog actual**: qué queda, en qué orden y qué desbloquea cada cosa |
+| [20-contrato-de-trabajo.md](./20-contrato-de-trabajo.md) | Cómo se trabaja aquí: los tres roles, el formato de las instrucciones, el estado abierto |
 | [historico/](./historico/) | Documentos **ejecutados y cerrados**. Nada de ahí es trabajo pendiente |
 
 ## Reglas rápidas (el TL;DR que casi siempre aplica)
