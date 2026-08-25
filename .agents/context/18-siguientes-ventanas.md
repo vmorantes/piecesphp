@@ -8877,3 +8877,56 @@ referencia con mapper real**: `LoginAttemptsModel`, `TimeOnPlatformModel`, `OTPS
 Se comprueba con la base levantada de E2-a, **después** de la pasada y no antes, para no
 contaminarla.
 
+
+## T93 · LA PUERTA DE `HttpClient` — pendiente escrita, no construida
+
+*Punto 3 del bloque. **No se construye aquí**: se deja escrita con su forma para que se pueda
+levantar sin volver a pensarla.*
+
+### Por qué no hay puerta
+
+`unit-tests:core/http-client` apuntaba a `https://webhook.site/1948a039-…`, **un identificador
+fijo escrito en el código**. Dependía de que un buzón ajeno siguiera vivo, y el día que caduque
+la suite falla por algo que no es nuestro. Al declarar efectos (T85) se marcó `network` y salió
+de la pasada por defecto.
+
+**Está anotado en el registro de puertas con su fecha y sus nueve sitios**: ver
+`files/dev/tests.md`, «`core/http-client` queda SIN COBERTURA — 2026-08-25».
+
+### Lo que la suite comprobaba, y cuánto de eso necesita un servidor
+
+| # | Comprobación | ¿Necesita servidor? |
+| --: | :-- | :-- |
+| 1 | GET con parámetros: la URI lleva `search=test%40example.com&limit=1` **y vuelve un estado** | **Solo para el estado** |
+| 2 | POST: el cuerpo enviado es JSON válido y contiene los valores | **No** — mira `getRequestBody()` |
+| 3 | `override_defaults = true`: `Accept` se sustituye y `Authorization` **desaparece** | **No** — mira `getRequestHeaders()` |
+| 4 | `override_defaults = false`: la cabecera propia entra y la de por defecto **sobrevive** | **No** |
+| 5 | Timeout: con `timeout(2)` contra un agujero negro, tarda entre 2 y 4 s | **No** — usa `10.255.255.1` |
+
+**Tres de las cinco ya son locales.** Lo único que webhook.site aportaba era «alguien contestó».
+
+### La forma que se propone
+
+**El servidor que trae PHP, atado al bucle local**:
+
+```
+php -S 127.0.0.1:<puerto> <guion>   # levantado por la propia suite, y apagado al terminar
+```
+
+El guion devuelve **la petición recibida como JSON** —método, URI, cabeceras, cuerpo—, que es
+justo lo que hacía el buzón ajeno. Con eso la comprobación 1 recupera su estado, y además se gana
+lo que antes no se podía: **comparar lo que el cliente dijo que mandaba contra lo que llegó de
+verdad**, que es un juez externo (T21) sin salir de la máquina.
+
+**Cuatro cosas que hay que resolver al construirla, dichas ahora para que no sorprendan:**
+
+1. **El puerto.** Fijo colisiona; hay que pedir uno libre y pasárselo al servidor.
+2. **Esperar a que levante.** Un `php -S` tarda unos milisegundos; sondear el puerto, no dormir
+   una cifra a ojo — **eso sería otra prueba dependiente del reloj** (T46, caso 3).
+3. **Apagarlo pase lo que pase**, también si una comprobación lanza.
+4. **El balance.** La suite **no imprime ninguno** hoy: hay que añadirle contadores y la línea
+   `Total / Pasaron / Fallaron`, o el corredor la seguirá contando como sin veredicto aunque
+   corra (LEY 13).
+
+Cuando exista, sus efectos pasan de `network` a `none` y vuelve a la pasada por defecto.
+

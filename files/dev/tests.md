@@ -93,13 +93,44 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/mapper-finders` | **MariaDB** |
 | `core/otp-fresh-user` | **MariaDB** |
 | `core/helpers-directories` | **El sistema de archivos** |
-| `core/http-client` | **Un servidor HTTP real** (ojo: `webhook.site` ajeno, caducará) |
+| `core/http-client` | **NADIE — SIN COBERTURA desde el 2026-08-25.** Ver abajo |
 | `core/database-exporter` | Base de datos y archivo |
 | `core/otp-write-separation` | **Mixta** — tres comprobaciones leen el cuerpo del método |
 | `core/meta-property-hybrid` | **Se juzga sola** (reflexión) |
 | `core/session-user` | **Se juzga sola** (valores devueltos) |
 | `functions/systemOutFormatted` | **Se juzga sola** |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
+
+#### `core/http-client` queda SIN COBERTURA — 2026-08-25
+
+**Se retiró de la pasada por defecto** al declarar sus efectos (T85): salía a `webhook.site`, un
+buzón de terceros con un identificador fijo escrito en el código. Un corredor de puertas que
+habla con el exterior es un problema mayor que la puerta que se pierde, así que se retiró
+primero y se reconstruye después.
+
+**Qué queda sin vigilar — nueve sitios usan `HttpClient`:**
+
+| Archivo | Para qué |
+| :-- | :-- |
+| `API/Adapters/APILabsMobileSMS.php` | Envío de SMS |
+| `API/Adapters/MauticEmailAdapter.php` | Mautic |
+| `API/Adapters/MistralHandlerAdapter.php` | Mistral |
+| `API/Adapters/APIExternalAdapterExample.php` | Ejemplo de adaptador |
+| `GoogleReCaptchaV3/Controllers/GoogleReCaptchaV3Controller.php` | reCAPTCHA |
+| `core/psr4/PiecesPHP/Core/MailjetHandler.php` | Mailjet |
+| `core/psr4/PiecesPHP/Core/Utilities/OsTicket/OsTicketAPI.php` | OsTicket |
+| `controller/AdminPanelController.php` | Panel |
+| `controller/UserProblemsController.php` | Reporte de problemas |
+
+**Y la mitad honesta, que hay que decir**: esta suite **nunca imprimió balance**. Era una de las
+tres que T74 encontró sin veredicto, así que **como puerta valía lo que una suite omitida**
+(LEY 13). Lo que se pierde hoy es la ejecución, no un verde que alguien estuviera leyendo.
+
+**Cómo se reconstruye** — ver T93. En corto: el servidor de PHP (`php -S 127.0.0.1:puerto`) con
+un guion que devuelve la petición recibida como JSON. **Tres de las cinco comprobaciones ni
+siquiera necesitan servidor**: miran `getRequestBody()` y `getRequestHeaders()`, o sea lo que el
+cliente construyó, no lo que nadie respondió.
+
 
 
 - PiecesPHP\Core\Helpers\Directories
