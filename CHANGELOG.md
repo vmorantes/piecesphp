@@ -145,6 +145,21 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Dependencias — `piecesphp/database` sube a v3.6.0
+
+Trae `SchemeCreator::createScript()` y `dropScript()`, el charset `utf8mb4` configurable, el
+arreglo de los campos nulables y las excepciones tipadas con el nombre del campo. Con ellas
+`bin/cli scheme-create`, `bin/cli scheme-drop` y la suite del esquema **dejan de guardarse a sí
+mismas**: llevaban desde el 24-08 sin poder correr.
+
+**Aviso para quien actualice**: `composer` toma el PHP del PATH, y si ese PHP está por debajo del
+piso declarado en `composer.json` **se niega a resolver sin tocar nada**. Aquí el PHP por defecto
+es 8.1.34, así que la orden que funciona es:
+
+```bash
+php8.5 /usr/bin/composer update piecesphp/database
+```
+
 ## Herramientas — `bin/cli gates`, y una suite omitida deja de contar como verde
 
 Una suite que no corre no informa: calla. Y el silencio se lee como verde.

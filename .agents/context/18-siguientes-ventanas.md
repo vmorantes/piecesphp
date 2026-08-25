@@ -7223,3 +7223,80 @@ añade balance o se declaran fuera de las puertas.
 > Lo que propongo, **sin implementarlo**: que la suite lo declare **en su propia descripción** —no
 > en una lista central, que volvería a ser memoria— y que el corredor la salte diciéndolo.
 
+## T75 · EL PAQUETE SUBE A v3.6.0 — y no era el push: era el PHP con el que corre Composer
+
+**Dato leído, no supuesto**, de `src/vendor/composer/installed.json`:
+
+```
+piecesphp/database        v3.2.1  ->  v3.6.0
+piecesphp/datastructures  v3.1.0      (sin cambio)
+piecesphp/geojson         v2.1.0      (sin cambio)
+piecesphp/html            v2.1.0      (sin cambio)
+```
+
+`src/composer.lock` pasa de la referencia `d18c5b6b` a `0a919288`, que es exactamente el commit
+que la etiqueta `v3.6.0` señala en `origin`.
+
+### Mi diagnóstico anterior era el equivocado, y la causa real es otra
+
+Dije que faltaba el **push**. **No faltaba**: `git ls-remote --tags` enseña v3.3.0 a v3.6.0 en
+`origin` desde antes. Lo que fallaba es más tonto y más caro:
+
+```
+$ composer update piecesphp/database
+    - Root composer.json requires php >=8.4.1 <8.6 but your php version (8.1.34)
+      does not satisfy that requirement.
+```
+
+**`composer` del PATH corre con el PHP por defecto, que aquí es 8.1.34** —por debajo del piso
+declarado—, así que Composer se niega a resolver y **no toca nada**. La forma que funciona es
+decirle con qué PHP correr:
+
+```bash
+php8.5 /usr/bin/composer update piecesphp/database
+```
+
+Es la misma trampa que ya documentamos para `bin/cli` —de ahí el selector de binario que lleva—,
+y **vuelve a aparecer en la herramienta de al lado**. La regla ya escrita no bastó: la herramienta
+que sí la aplica es `bin/cli`, y Composer se quedó fuera.
+
+### El 8/8, corrido de verdad, hoy
+
+Primera vez desde que existe la corrección de las 39 declaraciones de clave ajena:
+
+```
+   [PASÓ] el descubrimiento encuentra mappers
+   [PASÓ] ningún mapper se queda fuera en silencio
+   [PASÓ] cada clave ajena declara el MISMO tipo que la columna que referencia
+   [PASÓ] la ida y la vuelta cubren las MISMAS tablas
+   [PASÓ] el script de creación se aplica ENTERO en el orden que emite
+   [PASÓ] quedan creadas todas las tablas del script
+   [PASÓ] el script de borrado se aplica ENTERO sin violar claves ajenas
+   [PASÓ] no queda ninguna tabla
+   Total: 8 | Pasaron: 8 | Fallaron: 0
+```
+
+**Con MariaDB de juez**: el esquema entero se crea en el orden que el generador emite y se deshace
+sin violar una sola clave ajena. **La corrección de las 39 queda cerrada de verdad el 2026-08-25**,
+no el día de su commit — que es cuando se escribió, no cuando se demostró.
+
+### 1.3 · Qué más llevaba dormido por la versión del paquete
+
+*Método: se buscan las guardas `method_exists` sobre clases del paquete y se fecha cada una por el
+commit que la introdujo.*
+
+| Qué | Guarda | Dormido desde | Ahora |
+| :-- | :-- | :-- | :-- |
+| `unit-tests:core/scheme-sql-round-trip` | `createScript` / `dropScript` | `9f1b11b0`, **24-08 11:06** | **8/8** |
+| `bin/cli scheme-create` | `createScript` | `9f1b11b0`, **24-08 11:06** | Emite el DDL |
+| `bin/cli scheme-drop` | `dropScript` | `bcb0a980`, **24-08 09:59** | Emite el DDL |
+
+**Tres, no una.** La suite era la única que alguien miraba; las dos tareas se guardaban en silencio
+y **nadie las volvió a correr para comprobarlo**. Ahora las tres funcionan, verificadas una a una.
+
+**Matiz sobre la fecha, para no exagerarla**: entre el 24-08 a las 15:47 y las 15:48 la suite sí
+corrió —con **5 pasadas y 2 fallos**, que fue lo que llevó a corregir las 39—, así que en ese
+hueco el árbol de `vendor` tenía una copia buena. Desde las **15:50** vuelve a omitirse en todas
+las corridas registradas. Lo que se puede afirmar con evidencia: **la omisión duró desde el 24-08
+a las 15:50 hasta hoy**, y el **8/8 nunca se había observado**.
+
