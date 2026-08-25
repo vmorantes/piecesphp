@@ -9087,3 +9087,146 @@ forma que `db-backup` produce.**
 **No se toca ninguna de las tres**: sale de cumplir una instrucción, no del encargo. Decide el
 PROPIETARIO.
 
+
+## T95 · E2-a — LA PASADA DE LECTURA: 66 de 79 ejercitadas, 1 escritura y estaba declarada
+
+*Punto 5 del bloque. **E2-b no se empieza**, como se ordenó.*
+
+### 5.1 · LEY 12, cumplida y con su rastro
+
+```
+bin/cli db-restore file=…/src/dumps/25-08-2026_09-18-46-AM.sql confirm=yes
+files/dev/last-restore.json -> restoredAt 2026-08-25, database piecesphp
+```
+
+**No había rastro previo**: es la primera restauración desde que existe el mecanismo, así que no
+había con qué comparar y no se podía arrancar sin ella.
+
+**Y la restauración destapó un defecto: informó 18 sentencias fallidas.** Se midió antes de
+seguir —ver **T94**— y se comprobó que los datos llegaron enteros: `db-backup` tomado justo
+después da **13 tablas con datos, 139 filas, INSERT idénticos, cero diferencias**. Lo que no se
+restauró fue una función almacenada que ya estaba y era idéntica. **La base sí está en el estado
+del volcado**, que es lo que la pasada necesita.
+
+### 5.2 · Declarado ANTES de medir
+
+El relleno perezoso del slug **ya estaba declarado** en `files/dev/volatile-state.json`, con sus
+14 tablas y su razón, desde el commit `959d0c66` del **24-08 a las 16:12** — o sea, un día antes
+de esta pasada. No se declaró viendo el diff.
+
+> **Pero hay que decir algo que resta valor al verde, y decirlo aquí y no después:** en la base
+> restaurada el relleno **no puede dispararse**. De las 14 tablas con slug, **10 están vacías** y
+> las **4 con filas ya tienen todos los `preferSlug` puestos**. Que no aparezca no significa que
+> no ocurra: significa que **no queda nada que rellenar**. Es la LEY 12 en pequeño, dentro de la
+> propia pasada.
+
+### 5.3 · La tabla — ruta contra lo tocado
+
+**Vacía es lo esperado. Solo hay una fila en todo el recorrido:**
+
+| Ruta | Estado | Qué tocó |
+| :-- | --: | :-- |
+| `user-system-features-generate-otp` | 200 | **tabla `login_attempts` +1 fila** — **DECLARADO** |
+| *las otras 185 del recorrido* | — | — |
+
+**Ninguna de las 79 de E2-a escribió nada.** La única escritura del recorrido completo sale de
+una ruta que no es de E2-a, y cae en la tabla que existe para eso.
+
+```
+RESUMEN: 186 rutas pedidas, 1 escriben, 0 diferencia(s) NO declarada(s).
+```
+
+### La cobertura real, que NO es 79 — y es lo que importa
+
+**El recorredor por defecto solo ejercitó 40 de las 79.** «Limpio» y «no mirado» se leen igual,
+así que se persiguió el resto hasta donde se pudo:
+
+| Sufijo | Cuántas | Con el recorredor tal cual | Tras perseguirlas | Sin ejercitar |
+| :-- | --: | --: | --: | --: |
+| `-list` | 24 | **24 en 200** | 24 | 0 |
+| `-forms-add` | 17 | 16 en 200, 1 en 500 | 16 | 1 |
+| `-datatables` | 21 | **0** — 20 en 500 y 1 en 404 | **21 en 200** | 0 |
+| `-forms-edit` | 17 | **0** — ninguna resuelve URL sin id | **5 en 200**, 1 en 500 | 11 |
+| **Total** | **79** | **40** | **66** | **13** |
+
+**Las dos pasadas extra se hicieron con la base restaurada de nuevo cada vez** —LEY 12— y con la
+maquinaria que ya existe (`bin/cli snapshot`), **sin tocar `bin/walk-attribute`**. Las 26 rutas
+recuperadas dieron **cero cambios**, igual que las 40 primeras.
+
+### Por qué los `-datatables` no se dejaban pedir — y es un defecto, no un tropiezo
+
+Un GET sin parámetros a cualquier `-datatables` responde **500**:
+
+```
+(TypeError) DataTablesHelper::generateHaving(): Argument #2 ($columns)
+must be of type array, null given
+```
+
+El origen está dos líneas más arriba, y en dos sitios —líneas 230 y 801 de `DataTablesHelper`—:
+
+```php
+$columns = $request->getQueryParam('columns', null);   // el valor por defecto es null
+…
+$having = self::generateHaving(…, $columns, …);        // el parámetro exige array
+```
+
+**El valor por defecto del propio método no satisface su propia firma.** Cualquier petición sin
+los parámetros de DataTables —un enlace pegado, un rastreador, un monitor— devuelve 500 en vez de
+400. **Mandándole los parámetros que DataTables manda de verdad, las 21 responden 200.**
+
+**Y una asimetría medida**: de los **24 archivos que llaman a `DataTablesHelper::process`,
+exactamente UNO** —`App\Locations\Controllers\Point`— comprueba `isXhr()` y devuelve 404 si no
+lo es. Por eso `locations-points-datatables` daba 404 donde las otras daban 500: **era la única
+que se defendía**. Con la cabecera `X-Requested-With` puesta, se pone a dar 500 como las demás.
+
+### El otro 500: una deprecación de PHP tumbando una página real
+
+`locations-countries-forms-add` **y** `locations-countries-forms-edit` fallan las dos por lo
+mismo, en `CountryMapper.php:276`:
+
+```php
+array_map(function ($e) use (&$options) {
+    $options[$e->name] = $e->name;     // $e->name es NULL
+}, self::allRegions());
+```
+
+`allRegions()` hace `SELECT region AS name FROM locations_countries GROUP BY region`. **Los dos
+países de esta base tienen `region` a NULL**, así que la agrupación devuelve una fila con `name`
+nulo y `$options[null]` dispara *«Using null as an array offset is deprecated»* — que en este
+proyecto **aborta**. Ver la nota sobre deprecaciones fatales.
+
+**Es reproducible con los datos que hay**, no una hipótesis.
+
+### 5.4 · Lo que NO se pudo comprobar, y por qué
+
+**11 rutas `-forms-edit` no se han ejercitado nunca**, porque su entidad **no tiene ni una fila**
+en esta base y no se inventan ids:
+
+| Ruta | Tabla | Filas |
+| :-- | :-- | --: |
+| `application-calls-admin-forms-edit` | `application_calls_elements` | 0 |
+| `built-in-banner-admin-forms-edit` | `built_in_banner_elements` | 0 |
+| `categories-admin-forms-edit` | `forms_categories` | 0 |
+| `document-types-admin-forms-edit` | `forms_document_types` | 0 |
+| `documents-admin-forms-edit` | `documents_elements` | 0 |
+| `images-repository-admin-forms-edit` | `image_repository_images` | 0 |
+| `interest-research-areas-admin-forms-edit` | `interest_research_area` | 0 |
+| `locations-points-forms-edit` | `locations_points` | 0 |
+| `news-admin-forms-edit` | `news_elements` | 0 |
+| `newsletter-admin-forms-edit` | `newsletter_sucribers` | 0 |
+| `publications-admin-forms-edit` | `publications_elements` | 0 |
+
+**Y las 2 que dan 500 tampoco dicen nada**: una ruta que aborta no demuestra que no escriba,
+demuestra que no llegó. Son `locations-countries-forms-add` y `-forms-edit`.
+
+**Total sin veredicto sobre si escriben: 13 de 79.** No es un cero limpio y no se presenta como
+tal.
+
+> **T39 otra vez, y con nombre y apellido**: 11 de las 13 son por tablas vacías. **Esta base no
+> puede responder** por esas rutas, y ninguna cantidad de cuidado en el recorrido lo arregla. Lo
+> que haría falta es una base con datos, no una pasada mejor.
+
+### 5.5 · E2-b, sin empezar
+
+Confirmado: no se ha tocado ninguna ruta `-actions-*`, ni POST, ni `$_FILES`.
+
