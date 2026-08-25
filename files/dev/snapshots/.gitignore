@@ -1,3 +1,4 @@
 # Las fotos son de una máquina y un momento: no se versionan. Lo que se versiona es la
 # herramienta que las toma y el informe que sale de compararlas.
 *.json
+.last-walk
