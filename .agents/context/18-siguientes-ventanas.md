@@ -8218,3 +8218,46 @@ arriba se midió instalando el paquete local a mano, y después se **devolvió a
 *(Aviso de proceso: la etiqueta `v3.8.0` se **reapuntó** al commit del arreglo de arriba, porque el
 defecto se encontró antes de que la etiqueta saliera del disco. Es local y nunca se empujó.)*
 
+## T88 · CUÁNTO QUEDA DE E2 — el tamaño real, para poder trocearlo
+
+*Medido el 2026-08-25, a petición del PROPIETARIO, que quiere entrar en E3 cuanto antes.*
+
+### Lo que hay, contado
+
+| Qué | Cuánto | De dónde sale |
+| :-- | --: | :-- |
+| Rutas declaradas | **351** | `files/dev/route-inventory.json` |
+| De ellas, del ciclo CRUD | **127** | por sufijo de ruta |
+| — `-list` / `-datatables` | 24 / 21 | lectura |
+| — `-forms-add` / `-forms-edit` | 17 / 17 | lectura (vistas de formulario) |
+| — `-actions-add` / `-actions-edit` / `-actions-delete` | 17 / 18 / 13 | **escritura** |
+| Rutas POST declaradas | **119** | `'POST'` en `src/app/classes` |
+| Controladores con `routes()` | **64** | — |
+| Apariciones de `$_FILES` | **44** en **18 archivos** | — |
+
+**Corrección a un número del encargo**: las guardas de `$_FILES` con la forma
+`isset($_FILES...)` / `!empty($_FILES...)` son **3**, no 9. Las **44** apariciones totales
+incluyen accesos directos sin guarda, que es justo lo que hay que mirar — o sea que el trabajo es
+**mayor** que «9 guardas», no menor.
+
+### Mi recomendación: **NO cabe en un bloque. Caben DOS, y el corte natural es lectura/escritura**
+
+**Bloque E2-a · El ciclo CRUD de lectura** — las **79** rutas de `-list`, `-datatables`,
+`-forms-add` y `-forms-edit`. Es una pasada de **recorrido**: pedirlas todas con `bin/walk-attribute`
+y atribuir lo que escriban. Ya existe la máquina entera —el recorredor, la lista de prohibidas, la
+LEY 12 con `db-restore`—, así que es sobre todo **correr y leer**, más lo que aparezca.
+
+**Bloque E2-b · La pasada de escritura** — las **48** rutas de `-actions-*`, las 119 POST y los 44
+`$_FILES`. Esto **no se puede recorrer**: cada petición escribe, así que hay que leer código, no
+pedir URLs. Es el bloque caro, y el que más probable es que se alargue.
+
+**Por qué el corte ahí y no por módulos**: los dos bloques usan **métodos distintos** —uno mide
+pidiendo, el otro leyendo—, y mezclarlos obliga a cambiar de instrumento a media pasada. Trocear
+por módulo daría trece bloques que repiten el mismo arranque trece veces.
+
+**Y una advertencia sobre E2-b, para que no sorprenda**: es donde viven los mappers, los
+validadores y las subidas. Es el sitio con más probabilidad de destapar defectos como los de este
+bloque —el `'null'` de T86 salió de tocar el ORM de refilón—. **Si el PROPIETARIO quiere entrar en
+E3 cuanto antes, el que hay que vigilar es E2-b**, y conviene decidir de antemano qué se arregla
+dentro y qué se aparta como lote, igual que se hizo con los 30 de T80.
+
