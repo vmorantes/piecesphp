@@ -9762,3 +9762,178 @@ entero en vez de ir cazándolo de uno en uno.
 
 Ni una ruta `-actions-*`, ni POST, ni `$_FILES`.
 
+
+## T99 · `humanReadable()` — LOS TRES ESTADOS, MEDIDOS. Y la respuesta cambia la decisión
+
+*Punto 4 del bloque del 25-08. **Informe: no se ha tocado una línea de código.** El instrumento se
+construyó, se corrió y se borró.*
+
+*Método: se instancian mappers reales con ids leídos de la base. **(a)** es
+`$mapper->humanReadable()`. **El padre crudo** se obtiene invocando
+`EntityMapper::humanReadable` por reflexión sobre la misma instancia, que salta la sobrescritura
+del hijo. **(b)** se calcula aplicando la lógica exacta de las dos ramas arregladas. Nada de esto
+modifica el código.*
+
+### 4.1 · Los tres estados, campo por campo
+
+| Mapper | ¿Compensa? | Campo | Valor | Padre HOY | Final HOY | Padre ARREGLADO |
+| :-- | :-: | :-- | :-- | :-- | :-- | :-- |
+| `CityMapper` | **NO** | `state` | `StateMapper` | **OBJETO** | **OBJETO** | `Atlántico` |
+| `StateMapper` | **NO** | `country` | `CountryMapper` | **OBJETO** | **OBJETO** | `Colombia` |
+| `LoginAttemptsModel` | **NO** | `user_id` | `UsersModel` | **OBJETO** | **OBJETO** | `root` |
+| `TimeOnPlatformModel` | **NO** | `user_id` | `UsersModel` | **OBJETO** | **OBJETO** | `root` |
+| `OTPSecretsUsersMapper` | **NO** | `user` | `UsersModel` | **OBJETO** | **OBJETO** | `root` |
+| `UserProfileMapper` | SÍ | `belongsTo` | `UsersModel` | OBJETO | **ARRAY(15)** | `3` |
+| `UserProfileMapper` | SÍ | `createdBy` | `UsersModel` | OBJETO | **ARRAY(15)** | `root` |
+| `SystemApprovalsMapper` | SÍ | `createdBy` | `UsersModel` | OBJETO | **ARRAY(15)** | `root` |
+| `SystemApprovalsMapper` | SÍ | `approvalBy` | `UsersModel` | OBJETO | **ARRAY(15)** | `root` |
+| `OrganizationMapper` | SÍ | `country` | `CountryMapper` | OBJETO | **ARRAY(5)** | `1` |
+| `OrganizationMapper` | SÍ | `city` | `CityMapper` | OBJETO | **ARRAY(5)** | `88` |
+| `OrganizationMapper` | SÍ | `createdBy` | `UsersModel` | OBJETO | **ARRAY(15)** | `root` |
+| `UserProfileMapper` | SÍ | `country` · `city` · `modifiedBy` | `null` | `null` | `null` | `null` |
+| `OrganizationMapper` | SÍ | `modifiedBy` | `null` | `null` | `null` | `null` |
+
+*16 filas medidas sobre 11 mappers.*
+
+### 4.2 · Los dos grupos se comportan AL REVÉS
+
+| | Campos | Padre arreglado, ¿les cambia algo? |
+| :-- | --: | :-- |
+| **Sin compensación** — `CityMapper`, `StateMapper`, `LoginAttemptsModel`, `TimeOnPlatformModel`, `OTPSecretsUsersMapper` | **5** | **SÍ.** Pasan de devolver el objeto a devolver el nombre |
+| **Con compensación** — descendientes de `EntityMapperExtensible` | **11** | **NO. Ni uno.** El hijo pisa el valor después, pase lo que pase en el padre |
+
+**La sospecha de P-bis queda confirmada, y ya no es sospecha.** Arreglar los dos `isset()` del
+padre **no cambia nada** en los 11 campos de los mappers que heredan la compensación. Solo toca a
+los cinco de arriba.
+
+### 4.3 · La pregunta de contrato: los dos caminos NO llevan al mismo sitio
+
+`human_readable_reference_field` pide **un escalar**; `recursiveHumanization()` devuelve **el array
+entero**. Con los valores delante:
+
+| Campo | Lo que pide la declaración | Lo que entrega la compensación |
+| :-- | :-- | :-- |
+| `SystemApprovalsMapper.createdBy` | `username` → **`"root"`** | **`ARRAY(15)`** — el `humanReadable()` completo del usuario |
+| `OrganizationMapper.country` | `id` → **`1`** | **`ARRAY(5)`** |
+| `UserProfileMapper.belongsTo` | `id` → **`3`** | **`ARRAY(15)`** |
+
+**¿Depende alguien de que sea un array? SÍ, y está a la vista** — `APIController.php`, líneas
+222-226:
+
+```php
+$elementData = $publicationMapper->humanReadable();
+$elementData['createdBy'] = $publicationMapper->createdBy->id ?? null;   // se lo SALTA: lo reescribe
+unset($elementData['category']['meta']);                                 // INDEXA como array
+unset($elementData['category']['META:langData']);
+```
+
+- **`createdBy` no se usa**: la API lo pisa con el id, que es lo que la declaración habría dado.
+- **`category` SÍ se indexa como array.** Si la compensación desapareciera y el padre devolviera
+  el escalar, esas dos líneas intentarían desindexar una cadena.
+
+> **O sea que la compensación no es solo un parche: es un contrato de facto del que ya cuelga la
+> API pública.** Quitarla no es «volver a lo correcto»: es un cambio incompatible.
+
+### 4.4 · La hipótesis del esquema: **NO está saliendo hoy**
+
+**El objeto crudo sí lleva el esquema encima.** Medido, codificando a JSON lo que devuelve
+`humanReadable()`:
+
+| Mapper | JSON | ¿Aparece el esquema? |
+| :-- | --: | :-- |
+| `CityMapper` | **3.806 bytes** | **SÍ — `foreingsKeys`** |
+| `LoginAttemptsModel` | **6.120 bytes** | **SÍ — `foreingsKeys`** |
+| `UsersModel` | 349 bytes | No |
+
+Un `CityMapper` que debería pesar un par de cientos de bytes pesa **3.806** porque arrastra el
+mapper del departamento entero, con parte de su estructura.
+
+**Pero la pregunta era si sale por algún sitio, y la respuesta es NO.** Buscando objetos
+supervivientes en la salida final:
+
+```
+UsersModel                sin objetos
+OrganizationMapper        sin objetos
+SystemApprovalsMapper     sin objetos
+CityMapper                CityMapper.state => OBJETO StateMapper
+LoginAttemptsModel        LoginAttemptsModel.user_id => OBJETO UsersModel
+```
+
+Los objetos existen **solo en los cinco sin compensación**, y esos cinco **no llegan a ningún
+consumidor**:
+
+| Consumidor que P señalaba | Qué pasa de verdad |
+| :-- | :-- |
+| `APIController:220` (Publications) | `PublicationMapper` **compensa**. Sin objetos |
+| `APIController:401` (News) | `NewsMapper` **compensa**. Sin objetos |
+| `UsersController:921` | `UsersModel` **compensa**. Sin objetos |
+| `DataTablesHelper:443` | **CÓDIGO MUERTO** — ver abajo |
+
+**Y las referencias anidadas tampoco escapan**: `recursiveHumanization()` **relee la propiedad
+mágica viva** en cada nivel y la sustituye, así que un `CityMapper` alcanzado desde
+`OrganizationMapper` sale humanizado —por eso `OrganizationMapper` da «sin objetos» aunque
+`CityMapper` por su cuenta no—.
+
+> **Esto encaja con lo que el PROPIETARIO declaró antes de medir**: no recuerda problemas con
+> `humanReadable()`. **La compensación cubre justo lo que él usa**, y los cinco descubiertos son
+> mappers de infraestructura —ciudades, departamentos, intentos de acceso, tiempo en plataforma,
+> secretos OTP— que nadie humaniza.
+
+### El cuarto consumidor de P no existe: `as_mapper` nunca es `true`
+
+La rama de `DataTablesHelper` que llama a `humanReadable()` —línea 443— está dentro de
+`if ($as_mapper)`. Y `as_mapper` solo se puede activar por `datatables_proccessing()`, en
+`config/functions.php`:
+
+```
+$ grep -rn "datatables_proccessing" src --include=*.php | grep -v vendor
+src/app/config/functions.php:43:function datatables_proccessing_with_options(array $options)
+src/app/config/functions.php:60:function datatables_proccessing(
+```
+
+**Dos declaraciones y CERO llamadas.** Nadie pasa `'as_mapper' => true` por ningún otro camino
+—`grep` de `'as_mapper'` fuera del propio helper devuelve solo esa función—.
+
+**Y la ironía, que conviene ver**: esa rama muerta es **la única del proyecto que resuelve la
+referencia legible bien**, comprobando `is_object()` antes de leer el campo. Estaba escrita
+correctamente y no la ejecuta nadie.
+
+### 4.5 · La cifra, reconciliada: 62, 60 y 59 son TRES PREGUNTAS
+
+Ninguna está mal. Medidas por separado:
+
+| Pregunta | Cifra | Cómo |
+| :-- | --: | :-- |
+| Apariciones del **identificador** `human_readable_reference_field` en `piecesphp/src` | **62** en 25 archivos | Incluye los **usos como variable** `$human_readable_reference_field` en `DataTablesHelper` |
+| Apariciones de la **clave** `'human_readable_reference_field'` | **60** en 25 archivos | Una de ellas es una **lectura** de la opción, no una declaración |
+| **Declaraciones** en un `$fields` de un mapper | **59** en 24 archivos | Todas con valor; **cero** a `null` explícito |
+
+**La de ARQUITECTO era 62**: el identificador. **La mía era 59**: las declaraciones. El archivo 25
+que sobra en su cuenta y falta en la mía es `DataTablesHelper.php`, que **usa** la opción y no la
+declara.
+
+*(Y `database/src/Core/Database/EntityMapper.php` tiene 7 apariciones más —la definición de la
+opción, su comentario y su validación—, fuera de las dos cuentas porque no son de este repositorio.)*
+
+### 4.6 · PARADO AQUÍ. Y la decisión es más grande que «arreglar dos líneas»
+
+**Lo que ha cambiado respecto de lo que se creía al empezar:**
+
+1. **El alcance real son 5 campos, no 62.** Los 11 restantes no se enteran.
+2. **Los cinco no llegan a nadie hoy.** El defecto es real y está sin explotar.
+3. **La compensación es un contrato del que cuelga la API pública** (`unset($elementData['category']['meta'])`).
+4. **`human_readable_reference_field` no está «dormida» por accidente en los compensados: está
+   TAPADA**, y por algo que devuelve otra cosa.
+
+**Las tres decisiones que quedan sobre la mesa, y ninguna es mía:**
+
+| | Qué se decide | Qué cuesta |
+| :-- | :-- | :-- |
+| **A** | Arreglar los dos `isset()` del padre | Cambia 5 campos que nadie lee. **Riesgo casi nulo, beneficio casi nulo** — pero deja el padre correcto |
+| **B** | Además, retirar la compensación | **Rompe la API pública.** `category` dejaría de ser un array |
+| **C** | Dejar la compensación y **borrar `human_readable_reference_field`** de los 59 sitios | Reconoce que la opción no se usa. Es la más honesta si B se descarta |
+
+**Mi lectura, y es solo eso:** A sí, B no sin decidir antes qué contrato publica la API, y C
+merece plantearse — **59 declaraciones que no hacen nada son 59 sitios donde alguien puede creer
+que sí.**
+
