@@ -7998,3 +7998,43 @@ propias, y no es lo que se pidió. Queda dicho, con tres cosas que decidir:
 trajo lo que la hipótesis no buscaba.** Comparar checksums no era necesario para responder «¿tapa
 algo el duplicado?» —bastaba leer las dos líneas—, pero fue lo que enseñó el archivo desfasado.)*
 
+## T84 · `TasksManager` — arreglado, y lo que llevaba sin actualizarse
+
+**El fallo**: `shell_exec('composer install')` desde el `post-update-cmd`, sin selector de binario,
+así que el Composer hijo corría con el PHP del PATH —aquí 8.1.34— y se negaba a resolver. Y el
+padre terminaba **bien**.
+
+| Qué | Cómo queda |
+| :-- | :-- |
+| **Selector de binario** | `PCSPHP_PHP_BIN`, y si no, `php8.5` → `php8.4` → `php`. La misma escalera de `bin/cli` |
+| **Qué Composer** | `$_SERVER['COMPOSER_BINARY']`, que es **el phar que está corriendo**, no el que haya en el PATH |
+| **El fallo se ve** | `exec()` con código de salida; la salida del hijo se imprime con sangría y, si falla, un bloque enmarcado con la causa y la orden que lo arregla — y **lanza**, para que el padre deje de terminar bien |
+| **Producción** | Si `COMPOSER_DEV_MODE` es `0`, **no se tocan las herramientas**: un despliegue que no las necesita no puede caerse por ellas |
+
+*Detalle de implementación con motivo: el modo se lee de la variable de entorno y no de
+`$event->isDevMode()`. Las dos son válidas, pero `Composer\Script\Event` **no existe para el
+análisis estático** —no es dependencia del proyecto—, así que llamar a un método suyo añadía un
+`class.notFound` más. La variable la pone el propio Composer para sus scripts. Comprobadas **las
+dos ramas**: con `--no-dev` imprime «Sin modo desarrollo» y no toca nada; sin él, actualiza.*
+
+### Qué llevaba sin actualizarse, y desde cuándo
+
+**Dormido desde el 2026-08-20**, commit `31442a34`, el que subió el piso de `bin/tools` a
+`>=8.4`. Antes de ese día el PHP por defecto —8.1.34— cumplía la restricción y el hijo funcionaba.
+**Cinco días.**
+
+**Y la prueba de que estaba dormido es que al arreglarlo se despertó solo**, en la primera corrida:
+
+```
+- Upgrading phpstan/phpstan (2.2.8 => 2.2.9)
+- Upgrading rector/rector (2.6.2 => 2.6.3)
+```
+
+**Dos versiones de parche.** El daño real fue pequeño —y hay que decirlo así, sin inflarlo—, pero
+el mecanismo llevaba cinco días sin funcionar y **nada lo dijo**. Si el hueco hubiera sido de
+meses, el instrumental que mide la calidad del código habría estado midiendo con una versión vieja
+sin que nadie pudiera saberlo.
+
+*(Y la ironía, que va escrita: `tasks/TasksManager.php` es **uno de los 11 archivos que acaban de
+entrar al análisis** en T79. **La herramienta que no se vigilaba era también la que no se medía.**)*
+

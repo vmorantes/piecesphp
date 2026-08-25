@@ -24,7 +24,13 @@ class TasksManager
     public static function task(Event $event)
     {
 
-        self::setupDevTools();
+        //COMPOSER_DEV_MODE lo pone Composer para sus scripts. Se lee del entorno y no del
+        //$event para no depender de una clase que el análisis no ve. Ver T84.
+        if (getenv('COMPOSER_DEV_MODE') !== '0') {
+            self::setupDevTools();
+        } else {
+            echo "[PiecesPHP] Sin modo desarrollo: no se tocan las herramientas de bin/tools.\n";
+        }
 
         $params_raw = $event->getArguments();
         $params = [];
@@ -92,13 +98,11 @@ class TasksManager
             // 1. Instalar tools si no están instaladas
             $isInstalled = is_dir($toolsDir . '/vendor');
             chdir($toolsDir);
-            if (!$isInstalled) {
-                echo "[PiecesPHP] Instalando herramientas de desarrollo...\n";
-                shell_exec('composer install');
-            } else {
-                echo "[PiecesPHP] Actualizando herramientas de desarrollo...\n";
-                shell_exec('composer update');
-            }
+            $action = $isInstalled ? 'update' : 'install';
+            echo $isInstalled
+                ? "[PiecesPHP] Actualizando herramientas de desarrollo...\n"
+                : "[PiecesPHP] Instalando herramientas de desarrollo...\n";
+            self::runComposer($action);
 
             // 2. Instalar repositorio de phpstan para intellisense
             $phpstanRepoDir = $toolsDir . '/phpstan-src';
@@ -108,13 +112,110 @@ class TasksManager
             if (is_dir($phpstanRepoDir) && !file_exists($phpstanRepoDir . '/phpstancode.zip')) {
                 chdir($phpstanRepoDir);
                 echo "[PiecesPHP] Instalando repositorio de phpstan para intellisense...\n";
-                shell_exec('wget https://github.com/phpstan/phpstan-src/archive/refs/heads/2.2.x.zip -O phpstancode.zip');
-                shell_exec('unzip phpstancode.zip -d .');
+                self::run('wget https://github.com/phpstan/phpstan-src/archive/refs/heads/2.2.x.zip -O phpstancode.zip');
+                self::run('unzip phpstancode.zip -d .');
             } else {
                 echo "[PiecesPHP] Repositorio de phpstan para intellisense ya instalado\n";
             }
 
         }
+    }
+
+    /**
+     * Corre un comando y avisa si falla, en vez de tragárselo.
+     *
+     * @return void
+     */
+    protected static function run(string $command): void
+    {
+        $output = [];
+        $status = 0;
+        exec($command . ' 2>&1', $output, $status);
+        if ($status !== 0) {
+            echo "[PiecesPHP] AVISO: «{$command}» terminó con código {$status}.\n";
+            foreach ($output as $line) {
+                echo '    ' . $line . "\n";
+            }
+        }
+    }
+
+    /**
+     * El PHP con el que hay que correr Composer, que NO es necesariamente el del PATH.
+     *
+     * Composer es un guion PHP y toma el `php` del PATH. Si ese está por debajo del piso
+     * declarado, se niega a resolver y no toca nada. Es la misma trampa que motivó el selector
+     * de `bin/cli`, y aquí llevaba fallando desde el 2026-08-20. Ver T81 y T84.
+     *
+     * @return string
+     */
+    protected static function phpBinary(): string
+    {
+        $declared = getenv('PCSPHP_PHP_BIN');
+        if (is_string($declared) && $declared !== '') {
+            return $declared;
+        }
+
+        foreach (['php8.5', 'php8.4'] as $candidate) {
+            $found = trim((string) shell_exec('command -v ' . escapeshellarg($candidate) . ' 2>/dev/null'));
+            if ($found !== '') {
+                return $candidate;
+            }
+        }
+
+        return 'php';
+    }
+
+    /**
+     * Corre Composer con el binario correcto y NO se traga el fallo.
+     *
+     * @return void
+     */
+    protected static function runComposer(string $action): void
+    {
+        //Composer pone su propia ruta aquí cuando ejecuta un script: es el phar que está corriendo.
+        $composer = (string) ($_SERVER['COMPOSER_BINARY'] ?? '');
+        if ($composer === '' || !is_file($composer)) {
+            $composer = trim((string) shell_exec('command -v composer 2>/dev/null'));
+        }
+
+        if ($composer === '') {
+            self::childFailed($action, 1, ['No se encontró el ejecutable de Composer.']);
+            return;
+        }
+
+        $command = escapeshellarg(self::phpBinary()) . ' ' . escapeshellarg($composer) . ' ' . $action
+            . ' --no-interaction 2>&1';
+
+        $output = [];
+        $status = 0;
+        exec($command, $output, $status);
+
+        foreach ($output as $line) {
+            echo '    ' . $line . "\n";
+        }
+
+        if ($status !== 0) {
+            self::childFailed($action, $status, $output);
+        }
+    }
+
+    /**
+     * Un comando que termina bien mientras su hijo falla es una puerta omitida. Ver LEY 13.
+     *
+     * @param string[] $output
+     * @return void
+     */
+    protected static function childFailed(string $action, int $status, array $output): void
+    {
+        $rule = str_repeat('=', 78);
+        echo "\n{$rule}\n";
+        echo "[PiecesPHP] FALLO: `composer {$action}` de bin/tools terminó con código {$status}.\n";
+        echo "El instrumental de desarrollo NO se ha instalado ni actualizado.\n";
+        echo "Si el mensaje de arriba habla de la versión de PHP, es el PHP del PATH, no el de la web:\n";
+        echo "  PCSPHP_PHP_BIN=php8.5 composer install\n";
+        echo "{$rule}\n\n";
+
+        throw new \RuntimeException("composer {$action} de bin/tools falló con código {$status}.");
     }
 
     /**
