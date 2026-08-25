@@ -145,6 +145,17 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Herramientas — `verify-integrity` gana una decimotercera comprobación
+
+El análisis estático mira `src/app` y `src/index.php`: **802 de los 835 archivos PHP versionados**.
+De los 33 restantes, 22 son `src/adminer` —de terceros, excluido a propósito en el neon— y **11 no
+estaban declarados en ninguna parte**, entre ellos las herramientas de `bin/` y el corredor de
+tareas de Composer.
+
+Un archivo fuera del árbol analizado no sube la cifra de errores: **la deja igual de verde midiendo
+menos**. Ahora `files/dev/phpstan-universe.json` declara qué queda fuera y por qué, y la
+comprobación falla si aparece PHP en un sitio que nadie declaró.
+
 ## Corregido — guardar sin cambiar nada reabría un elemento rechazado
 
 El evento `updated` se despachaba cuando `parent::update()` devolvía `true`, y eso significa «la

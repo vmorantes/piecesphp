@@ -7397,3 +7397,72 @@ todas las cifras de arriba—, y después **devuelto a v3.6.0**, que es lo que u
 
 **Para cerrarla**: push de `v3.7.0` y `php8.5 /usr/bin/composer update piecesphp/database`.
 
+## T77 · ¿QUÉ MIDE EL 859? — el universo, contado
+
+### 3.1 · Los dos números
+
+*Método: los archivos que PHPStan analiza salen de **él mismo**, con `--debug`, que imprime uno por
+línea. El universo sale de `git ls-files`, contando `.php` **y** los guiones sin extensión que
+empiezan por almohadilla-admiración: `bin/walk-routes` es PHP y no lo parece.*
+
+| | Archivos |
+| :-- | --: |
+| **PHP versionado en el repositorio** | **835** |
+| **Que PHPStan analiza** | **802** |
+| Excluidos a propósito en el neon (`src/adminer`, de terceros) | 22 |
+| **Fuera del árbol al que PHPStan apunta** | **11** |
+
+**802 declarados = 802 analizados.** Los dos números coinciden, y no comparten mecanismo: uno sale
+del propio PHPStan y el otro del sistema de archivos. **Dentro del árbol declarado no se cae nada
+en silencio**, que era la primera sospecha.
+
+### 3.2 · La respuesta, con las palabras que pediste
+
+**El 859 se midió sobre el universo REDUCIDO.** La cifra de referencia de toda la campaña mide 802
+de 835 archivos: **mide menos de lo que creíamos.**
+
+Ahora bien, hay que decir de qué tamaño es el hueco antes de que suene peor de lo que es: **22 de
+los 33 que faltan son `src/adminer`**, un panel de terceros que no escribimos, y su exclusión está
+declarada en el propio neon desde siempre. **Los que de verdad no estaban declarados en ninguna
+parte son 11:**
+
+```
+bin/live-cache                              bin/tools/forbidden-routes.php
+bin/node/copyDependencies.php               bin/tools/live-cache.php
+bin/phpstan-process-result.php              bin/tools/refactorization/Rector.php
+bin/walk-attribute                          bin/walk-routes
+files/CliScripts/CorregirTiempoDuraciónWebm.php
+files/CliScripts/GeneradorIntegralTipoUsuario.php
+tasks/TasksManager.php
+```
+
+**Y lo incómodo no es el número, es CUÁLES**: `bin/tools/live-cache.php` y
+`bin/tools/forbidden-routes.php` son los mecanismos de la LEY 11 —lo que construimos para que las
+reglas no dependan de la memoria— y `tasks/TasksManager.php` corre en **cada `composer install`**.
+**El instrumento que mide la calidad no mira las herramientas que hacen cumplir las reglas.**
+
+**No se cambia `paths` en este bloque**, que era el encargo. Meterlos dentro es un movimiento con
+su propio coste —esos guiones no comparten el autoload de la aplicación— y merece su medición.
+
+### 3.3 · La comprobación 13, y nada más
+
+`files/dev/phpstan-universe.json` declara **prefijos con su razón**, no archivos. `verify-integrity`
+exige que **todo PHP versionado esté dentro de `paths`, dentro de `excludePaths`, o declarado ahí**.
+
+| Se provoca | Qué dice |
+| :-- | :-- |
+| Un `.php` nuevo en un sitio no declarado | «`zz-fuera/Zz.php` — ni lo analiza PHPStan ni está declarado fuera. **El baseline no lo cuenta y aun así sale verde**» |
+| Quitar `../src/app` de `paths` | Lo mismo, 801 veces |
+
+**Un defecto encontrado al construirla, y es de los que enseñan**: `git ls-files` **entrecomilla los
+nombres con acentos**, así que `CorregirTiempoDuraciónWebm.php` se perdía en silencio — la
+comprobación contaba 834 en vez de 835. **El instrumento nuevo tenía dentro el mismo defecto que
+venía a cazar.** Arreglado con `-c core.quotePath=false`.
+
+### La forma barata de derivar el universo, dicha y NO implementada
+
+**Apuntar `paths` a la raíz del repositorio y dejar que `excludePaths` lleve las excepciones.**
+Entonces el neon sería la única declaración, este JSON sobraría, y **lo que quedara fuera tendría
+que escribirse en el sitio donde se nota**. Coste a medir antes: los guiones de `bin/` no cargan el
+autoload de la aplicación, así que entrarían con errores propios que hoy nadie cuenta.
+

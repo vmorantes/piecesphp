@@ -182,12 +182,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 12. La lista de rutas prohibidas vive en un solo sitio ────────────────────
         $forbiddenFailures = self::checkForbiddenRoutesAreSingle();
 
+        //──── 13. Todo el PHP versionado se analiza o está declarado fuera ──────────────
+        $universeFailures = self::checkPhpStanUniverse();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
-            + count($forbiddenFailures);
+            + count($forbiddenFailures) + count($universeFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -225,9 +228,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($forbiddenFailures as $line) {
             echoTerminal("\e[31mPROHIBIDAS:\e[39m {$line}");
         }
+        foreach ($universeFailures as $line) {
+            echoTerminal("\e[31mUNIVERSO:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles y rutas prohibidas sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas y universo de análisis sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1340,6 +1346,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     const FORBIDDEN_RELATIVE_PATH = 'files/dev/forbidden-routes.json';
 
     /**
+     * Qué PHP del repositorio queda fuera del análisis estático, y con qué razón.
+     */
+    const UNIVERSE_RELATIVE_PATH = 'files/dev/phpstan-universe.json';
+
+    /**
      * Un comentario que frena algo cabe en una línea (T0, punto 7).
      *
      * La regla anterior —«¿impide romper algo?»— no frenaba la deriva porque no hablaba del
@@ -1732,6 +1743,128 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             . $users . ' guion(es) desde un solo sitio.');
 
         return $failures;
+    }
+
+    /**
+     * Todo el PHP versionado está DENTRO del análisis estático o DECLARADO fuera.
+     *
+     * El baseline de la campaña se mide sobre `paths` de `bin/phpstan.neon`. Si aparece código
+     * en un sitio al que PHPStan no apunta, la cifra sigue saliendo igual de verde mientras mide
+     * menos: es la única de nuestras listas que puede hacer que un número AFIRME algo falso.
+     * Ver T77.
+     *
+     * @return string[]
+     */
+    protected static function checkPhpStanUniverse(): array
+    {
+        $root = rtrim(str_replace('\\', '/', basepath('..')), '/');
+        $neonPath = $root . '/bin/phpstan.neon';
+        $universePath = $root . '/' . self::UNIVERSE_RELATIVE_PATH;
+
+        if (!is_file($neonPath) || !is_file($universePath)) {
+            return ['falta bin/phpstan.neon o ' . self::UNIVERSE_RELATIVE_PATH . ': la comprobación no pudo mirar nada.'];
+        }
+
+        //Solo el bloque de PRIMER nivel: el neon lleva muchos `paths:` dentro de ignoreErrors.
+        $neon = str_replace("\r\n", "\n", (string) file_get_contents($neonPath));
+        $blocks = [];
+        foreach (['paths', 'excludePaths'] as $key) {
+            if (preg_match('/^    ' . $key . ':\n((?:        - .*\n)+)/m', $neon, $matched) !== 1) {
+                return ["bin/phpstan.neon ya no declara `{$key}:` de primer nivel: la comprobación no pudo mirar nada."];
+            }
+            $blocks[$key] = [];
+            foreach (explode("\n", trim($matched[1])) as $line) {
+                //Las rutas del neon son relativas a bin/.
+                $resolved = str_replace('../', '', trim(str_replace('- ', '', trim($line))));
+                if ($resolved !== '') {
+                    $blocks[$key][] = $resolved;
+                }
+            }
+        }
+
+        $declared = json_decode((string) file_get_contents($universePath), true);
+        $outside = is_array($declared) ? array_keys((array) ($declared['outside'] ?? [])) : [];
+
+        $output = [];
+        $status = 0;
+        //`core.quotePath=false`: sin él git ENTRECOMILLA los nombres con acentos y el archivo
+        //se pierde en silencio, que es justo lo que esta comprobación viene a impedir.
+        exec('git -C ' . escapeshellarg($root) . ' -c core.quotePath=false ls-files 2>/dev/null', $output, $status);
+        if ($status !== 0) {
+            return [];
+        }
+
+        $uncovered = [];
+        $analysed = 0;
+        $excluded = 0;
+        $total = 0;
+
+        foreach ($output as $relative) {
+            $file = $root . '/' . $relative;
+            if (!is_file($file)) {
+                continue;
+            }
+            if (!self::looksLikePhp($relative, $file)) {
+                continue;
+            }
+            $total++;
+
+            $under = static function (array $prefixes) use ($relative): bool {
+                foreach ($prefixes as $prefix) {
+                    if ($relative === $prefix || str_starts_with($relative, rtrim($prefix, '/') . '/')) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            if ($under($blocks['excludePaths'])) {
+                $excluded++;
+                continue;
+            }
+            if ($under($blocks['paths'])) {
+                $analysed++;
+                continue;
+            }
+            if (!$under($outside)) {
+                $uncovered[] = $relative;
+            }
+        }
+
+        $failures = [];
+        foreach (array_slice($uncovered, 0, 10) as $relative) {
+            $failures[] = $relative . ' — ni lo analiza PHPStan ni está declarado fuera en '
+                . self::UNIVERSE_RELATIVE_PATH . '. El baseline no lo cuenta y aun así sale verde.';
+        }
+        if (count($uncovered) > 10) {
+            $failures[] = '… y ' . (count($uncovered) - 10) . ' archivo(s) más en la misma situación.';
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$total} archivo(s) PHP versionados: {$analysed} analizados, {$excluded} excluidos en el neon, "
+            . ($total - $analysed - $excluded) . ' declarados fuera.');
+
+        return $failures;
+    }
+
+    /**
+     * ¿Es PHP? Por extensión, o por almohadilla-admiración: `bin/walk-routes` no lleva `.php`.
+     *
+     * @return bool
+     */
+    protected static function looksLikePhp(string $relative, string $file): bool
+    {
+        if (str_ends_with(mb_strtolower($relative), '.php')) {
+            return true;
+        }
+
+        $handle = @fopen($file, 'rb');
+        if ($handle === false) {
+            return false;
+        }
+        $firstLine = (string) fgets($handle, 512);
+        fclose($handle);
+
+        return mb_substr($firstLine, 0, 2) === '#!' && mb_strpos($firstLine, 'php') !== false;
     }
 
     protected static function checkToolchainTracking(string $package, string $packageRoot, array $registry): array
