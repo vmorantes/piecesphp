@@ -119,7 +119,8 @@ por el propietario» que él no reconoce, y no hay forma de adjudicarlas. La dis
 - **Afirmar en vez de medir, en el propio documento que exige medir.** Escribió que
   `$m->campo ?? $otro` «devuelve siempre `$otro`» y lo llamó el caso más peligroso. Falso:
   `??` llama a `__get` y devuelve el valor real. Quince líneas y un intérprete lo habrían dicho.
-  Ver M-bis. **Un documento no tiene puertas: nada falla cuando el registro miente.**
+  Ver M-bis y **LEY 14**, que este caso funda: un documento no tiene puertas, y lo que se
+  escribe mal ahí sobrevive a la compactación convertido en premisa.
 - **Repetir una cifra ajena sin comprobarla.** Sostuvo dos bloques que había cuatro versiones del
   paquete sin empujar. Estaban empujadas; el fallo era que `composer` corría con otro PHP.
 - **Medir lo contiguo y darlo por respuesta.** En ese mismo caso midió las referencias de

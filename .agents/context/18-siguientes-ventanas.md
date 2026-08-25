@@ -389,6 +389,49 @@ script que encadena tareas, a un CI— **es el veredicto, no la pantalla**.
 menos dejaba una línea que alguien podía leer. Aquí no había nada que leer, había una mentira
 bien formada. Corregida en T85: cuenta y devuelve la verdad, **19/19**.
 
+### LEY 14 — UN ERROR EN EL REGISTRO SE PROPAGA A LA COMPACTACIÓN Y SE VUELVE PREMISA
+
+**Los documentos no tienen puertas.** Ninguna suite falla cuando el registro miente, ningún
+análisis estático lo señala y ningún revisor lo tropieza, porque un documento se lee para
+*saber*, no para *comprobar*. Es la única parte de este repositorio sin un mecanismo detrás.
+
+**El caso que la funda.** El bloque M afirmó que `$m->campo ?? $otro` sobre una propiedad mágica
+«devuelve SIEMPRE `$otro`», y lo llamó el más peligroso de los tres, «porque parece un valor por
+defecto inofensivo mientras descarta el valor real». **Es falso**: `??` y `?:` consultan `__get`
+y devuelven el valor real. Se escribió de memoria, dentro del documento cuyo primer principio es
+que toda cifra lleva su método, y sin necesitar ninguna herramienta: quince líneas y un
+intérprete. Ver M-bis.
+
+**Pero el error no se quedó en el documento, y eso es lo que la ley nombra:**
+
+| Paso | Qué le pasa a la afirmación |
+| :-- | :-- |
+| 1 | ARQUITECTO la escribe en el bloque M **como hallazgo**, indistinguible de lo medido |
+| 2 | CODER la lee y la arrastra a su contexto de trabajo |
+| 3 | La conversación se compacta y el resumen la destila a «conceptos técnicos clave» |
+| 4 | **Ya es una premisa**: un hecho sin autor, sin fecha y sin método |
+
+**La compactación es un amplificador de errores del registro.** Comprime, y al comprimir borra
+justamente lo que permitía dudar —quién lo dijo, cuándo, con qué lo midió—. Lo que entra como
+«ARQUITECTO afirma» sale como «se sabe». Y a partir de ahí se planifican bloques enteros: el
+censo de este bloque se dimensionó incluyendo 31 sitios que no tenían nada roto.
+
+**La ley, en dos mitades:**
+
+1. **Una afirmación sobre el comportamiento de una herramienta** —PHP, MySQL, git, composer—
+   **no se escribe sin su método**, exactamente igual que una cifra. La regla de las cifras ya
+   existía; lo que faltaba era darse cuenta de que una semántica es una cifra.
+2. **Cuando una medición desmiente una entrada anterior, la corrección se escribe APARTE y se
+   enlaza**, nunca fundida con el original. Si se funde, desaparece que hubo un error —y con él
+   la única señal de que ese autor puede volver a cometerlo—. Por eso M-bis va en commit propio.
+
+**Qué lo atrapó, y por qué no consuela.** El `??` lo corrigió ARQUITECTO al medirlo por fin; la
+cadena `isset($m->x->y)` la corrigió CODER midiendo en vez de creerse el bloque. **Ninguna de
+las dos correcciones vino de un mecanismo**: vinieron de que alguien, tarde, hizo lo que el
+documento pedía desde el principio. Y la LEY 11 ya dice qué hacer con las reglas que dependen de
+que alguien se acuerde.
+
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
