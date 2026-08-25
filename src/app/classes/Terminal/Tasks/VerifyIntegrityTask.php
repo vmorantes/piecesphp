@@ -188,12 +188,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 14. Todo objectToMapper() siembra la instantánea de la fila ───────────────
         $seedingFailures = self::checkSnapshotSeeding($files);
 
+        //──── 15. Ninguna propiedad se declara después del primer método ────────────────
+        $orderFailures = self::checkPropertiesBeforeMethods();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
-            + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures);
+            + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
+            + count($orderFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -237,9 +241,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($seedingFailures as $line) {
             echoTerminal("\e[31mINSTANTÁNEA:\e[39m {$line}");
         }
+        foreach ($orderFailures as $line) {
+            echoTerminal("\e[31mORDEN:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis e instantáneas sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas y orden de propiedades sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1356,6 +1363,19 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      */
     const UNIVERSE_RELATIVE_PATH = 'files/dev/phpstan-universe.json';
 
+    /** Los paquetes con código propio que comparten esta convención. */
+    const PACKAGES_WITH_SOURCE = ['database', 'datastructures', 'html', 'geojson'];
+
+    /** Declaración de propiedad: visibilidad, nombre y `=` o `;`. Sin paréntesis por medio. */
+    const PROPERTY_PATTERN = '/^\s*(?:(?:final|abstract)\s+)?(?:public|protected|private|var)(?:\s+static)?(?:\s+readonly)?(?:\s+[\w\|\\\\\?]+)?\s+\$\w+\s*(?:=|;)/';
+
+    /** Firma de método. */
+    const METHOD_PATTERN = '/^\s*(?:(?:final|abstract|public|protected|private|static)\s+)*function\s/';
+
+    /** Apertura de clase, trait, interfaz o enum. */
+    const CLASS_PATTERN = '/^\s*(?:(?:final|abstract|readonly)\s+)*(?:class|trait|interface|enum)\s/';
+
+
     /**
      * Un comentario que frena algo cabe en una línea (T0, punto 7).
      *
@@ -1873,6 +1893,91 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
 
+
+    /**
+     * Ninguna propiedad se declara DESPUÉS del primer método de su clase.
+     *
+     * Corre sobre los cinco repositorios, no solo sobre este: la convención es común y una
+     * comprobación que solo mira su propia casa no cierra nada. Ver T89.
+     *
+     * @return string[]
+     */
+    protected static function checkPropertiesBeforeMethods(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $packagesRoot = dirname(dirname($repoRoot));
+        $roots = [dirname($repoRoot) . '/src', dirname($repoRoot) . '/bin', dirname($repoRoot) . '/tasks'];
+
+        foreach (self::PACKAGES_WITH_SOURCE as $package) {
+            $roots[] = $packagesRoot . '/' . $package . '/src';
+        }
+
+        $failures = [];
+        $scanned = 0;
+
+        foreach ($roots as $root) {
+            if (!is_dir($root)) {
+                continue;
+            }
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+            foreach ($iterator as $entry) {
+                $path = str_replace('\\', '/', $entry->getPathname());
+                if (!str_ends_with($path, '.php')) {
+                    continue;
+                }
+                if (preg_match('#/(vendor|node_modules|phpstan-src|adminer|test-data)/#', $path) === 1) {
+                    continue;
+                }
+                $scanned++;
+                foreach (self::propertiesAfterMethods($path) as $line => $code) {
+                    $failures[] = str_replace($packagesRoot . '/', '', $path) . ":{$line} — " . $code
+                        . ' se declara después del primer método. Las propiedades van arriba.';
+                }
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$scanned} archivo(s) PHP comprobados en los cinco repositorios: propiedades antes que métodos.");
+
+        return $failures;
+    }
+
+    /**
+     * @return array<int, string> Línea => código, de cada propiedad mal colocada.
+     */
+    protected static function propertiesAfterMethods(string $path): array
+    {
+        $raw = (string) @file_get_contents($path);
+        $lines = explode("\n", str_replace("\r\n", "\n", $raw));
+
+        $firstMethod = null;
+        $promoted = 0;
+        $found = [];
+
+        foreach ($lines as $index => $line) {
+            //Cada clase empieza de cero: un archivo con dos clases no arrastra la primera.
+            if (preg_match(self::CLASS_PATTERN, $line) === 1) {
+                $firstMethod = null;
+                continue;
+            }
+            if (str_contains($line, 'function') && preg_match(self::METHOD_PATTERN, $line) === 1) {
+                if ($firstMethod === null) {
+                    $firstMethod = $index;
+                }
+                //Las propiedades promovidas van dentro de la lista de parámetros: no se pueden subir.
+                $promoted = substr_count($line, '(') - substr_count($line, ')');
+                continue;
+            }
+            if ($promoted > 0) {
+                $promoted += substr_count($line, '(') - substr_count($line, ')');
+                continue;
+            }
+            if ($firstMethod !== null && preg_match(self::PROPERTY_PATTERN, $line) === 1) {
+                $found[$index + 1] = trim($line);
+            }
+        }
+
+        return $found;
+    }
     /**
      * Todo `objectToMapper()` siembra la instantánea de la fila.
      *

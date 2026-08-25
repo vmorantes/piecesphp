@@ -29,6 +29,35 @@ class BaseController
     const FORMATTER_CLASS = '\\PiecesPHP\\Core\\HTML\\FormatHtml';
 
     /**
+     * Array de variables globales de las vistas
+     *
+     * @var array
+     */
+    protected $global_variables = [];
+
+    /**
+     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
+     */
+    protected $model = null;
+
+    /**
+     * @var string
+     */
+    protected $instance_view_folder = null;
+
+    /**
+     * Directorio de vistas
+     *
+     * @ignore @var string
+     */
+    protected static $view_folder = "/../view/";
+
+    /**
+     * @ignore @var array $config Array de configuraciones
+     */
+    protected $config = [];
+
+    /**
      * Se asigna la configuración estension=>'.php' (Usada para el método render).
      * Se asigna el directorio de las vistas.
      * Se asigna un modelo si existe y si no se le asigna el modelo por defecto.
@@ -362,32 +391,4 @@ class BaseController
         return $this->global_variables;
     }
 
-    /**
-     * Array de variables globales de las vistas
-     *
-     * @var array
-     */
-    protected $global_variables = [];
-
-    /**
-     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
-     */
-    protected $model = null;
-
-    /**
-     * @var string
-     */
-    protected $instance_view_folder = null;
-
-    /**
-     * Directorio de vistas
-     *
-     * @ignore @var string
-     */
-    protected static $view_folder = "/../view/";
-
-    /**
-     * @ignore @var array $config Array de configuraciones
-     */
-    protected $config = [];
 }

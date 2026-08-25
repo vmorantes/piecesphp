@@ -436,18 +436,18 @@ project://src/app/core/psr4/PiecesPHP/CSSVariables.php
 project://src/app/core/psr4/PiecesPHP/Cli.php
 	parameter.defaultValue (Líneas: 43)
 project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
-	argument.type (Líneas: 72)
-	assign.propertyType (Líneas: 78)
-	nullCoalesce.property (Líneas: 333)
+	argument.type (Líneas: 101)
+	assign.propertyType (Líneas: 107)
+	nullCoalesce.property (Líneas: 362)
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
-	argument.type (Líneas: 38, 133, 136, 167, 179)
+	argument.type (Líneas: 51, 146, 149, 180, 192)
 project://src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php
-	argument.type (Líneas: 43, 72, 73)
-	return.type (Líneas: 74, 76, 129, 166)
+	argument.type (Líneas: 61, 90, 91)
+	return.type (Líneas: 92, 94, 147, 184)
 project://src/app/core/psr4/PiecesPHP/Core/BaseToken.php
-	return.type (Líneas: 141, 474)
-	property.notFound (Líneas: 177, 226, 273)
-	argument.type (Líneas: 339, 340, 343, 445, 448, 479, 491, 546)
+	return.type (Líneas: 169, 502)
+	property.notFound (Líneas: 205, 254, 301)
+	argument.type (Líneas: 367, 368, 371, 473, 476, 507, 519, 574)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php
 	argument.type (Líneas: 51, 52)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php

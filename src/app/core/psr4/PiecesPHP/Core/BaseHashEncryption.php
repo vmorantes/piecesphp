@@ -18,6 +18,19 @@ class BaseHashEncryption
 {
     //PROHIBIDO TOCAR LA ARITMÉTICA: & 0xFF reproduce el desbordamiento de chr(); cambiarlo vuelve indescifrable lo ya cifrado.
 
+    /** @ignore */
+    private static $secret_key = 'secret';
+
+    /** @ignore */
+    public static $supported_algs_hash = [
+        'HS256' => ['hash_hmac', 'SHA256'],
+        'HS512' => ['hash_hmac', 'SHA512'],
+        'HS384' => ['hash_hmac', 'SHA384'],
+        'RS256' => ['openssl', 'SHA256'],
+        'RS384' => ['openssl', 'SHA384'],
+        'RS512' => ['openssl', 'SHA512'],
+    ];
+
     /**
      * Encripta un string y lo devuelve en base64 seguro para url
      *
@@ -250,18 +263,6 @@ class BaseHashEncryption
         return strlen($str);
     }
 
-    /** @ignore */
-    private static $secret_key = 'secret';
-
-    /** @ignore */
-    public static $supported_algs_hash = [
-        'HS256' => ['hash_hmac', 'SHA256'],
-        'HS512' => ['hash_hmac', 'SHA512'],
-        'HS384' => ['hash_hmac', 'SHA384'],
-        'RS256' => ['openssl', 'SHA256'],
-        'RS384' => ['openssl', 'SHA384'],
-        'RS512' => ['openssl', 'SHA512'],
-    ];
     const HS256 = 'HS256';
     const HS512 = 'HS512';
     const HS384 = 'HS384';

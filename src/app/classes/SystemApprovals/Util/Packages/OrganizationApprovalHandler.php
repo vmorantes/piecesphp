@@ -21,17 +21,6 @@ use SystemApprovals\Mappers\SystemApprovalsMapper;
 class OrganizationApprovalHandler extends BaseApprovalHandler
 {
 
-    /**
-     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
-     * cambio NO es una edición. Ver T87.
-     *
-     * @return string[]
-     */
-    public static function auditFields(): array
-    {
-        return ['updatedAt', 'modifiedBy'];
-    }
-
     protected static $APPROVALS_ALLOW = true;
     protected static $MAPPER_NAME = OrganizationMapper::class;
     protected static $REFERENCE_TABLE = OrganizationMapper::TABLE;
@@ -51,6 +40,17 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
      * @param int|OrganizationMapper $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['updatedAt', 'modifiedBy'];
+    }
+
     public static function getContentTypeSpecificMapper(int | OrganizationMapper $reference): string
     {
         $text = static::$BASE_TEXT;

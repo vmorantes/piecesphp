@@ -22,16 +22,6 @@ use SystemApprovals\Util\ApprovalElementHandlerInterface;
 abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
 {
 
-    /**
-     * Campos cuyo cambio NO cuenta como edición.
-     *
-     * ABSTRACTO A PROPÓSITO: si la base lo implementara, un manejador nuevo heredaría una
-     * respuesta que nadie decidió. Así no compila hasta que alguien lo piense. Ver T87.
-     *
-     * @return string[]
-     */
-    abstract public static function auditFields(): array;
-
     protected static $APPROVALS_ALLOW = true;
     protected static $MAPPER_NAME = null;
     protected static $REFERENCE_TABLE = OrganizationMapper::TABLE;
@@ -45,6 +35,16 @@ abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
         OrganizationMapper::INACTIVE,
         OrganizationMapper::PENDING_APPROVAL,
     ];
+
+    /**
+     * Campos cuyo cambio NO cuenta como edición.
+     *
+     * ABSTRACTO A PROPÓSITO: si la base lo implementara, un manejador nuevo heredaría una
+     * respuesta que nadie decidió. Así no compila hasta que alguien lo piense. Ver T87.
+     *
+     * @return string[]
+     */
+    abstract public static function auditFields(): array;
 
     public static function isEnabled(): bool
     {

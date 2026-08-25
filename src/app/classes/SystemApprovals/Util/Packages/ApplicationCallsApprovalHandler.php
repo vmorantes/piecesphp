@@ -20,17 +20,6 @@ use SystemApprovals\Mappers\SystemApprovalsMapper;
 class ApplicationCallsApprovalHandler extends BaseApprovalHandler
 {
 
-    /**
-     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
-     * cambio NO es una edición. Ver T87.
-     *
-     * @return string[]
-     */
-    public static function auditFields(): array
-    {
-        return ['updatedAt', 'modifiedBy'];
-    }
-
     protected static $APPROVALS_ALLOW = true;
     protected static $MAPPER_NAME = ApplicationCallsMapper::class;
     protected static $REFERENCE_TABLE = ApplicationCallsMapper::TABLE;
@@ -48,6 +37,17 @@ class ApplicationCallsApprovalHandler extends BaseApprovalHandler
      * @param int|ApplicationCallsMapper $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['updatedAt', 'modifiedBy'];
+    }
+
     public static function getContentTypeSpecificMapper(int | ApplicationCallsMapper $reference): string
     {
         $text = self::$BASE_TEXT;

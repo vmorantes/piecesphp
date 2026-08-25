@@ -8351,3 +8351,55 @@ Se anotan las dos, la acertada y la fallida, porque el registro solo sirve si gu
 
 *La refutada costó una comprobación que, de paso, encontró el desfase de `mapbox-gl.js`. Una
 hipótesis falsa medida sigue produciendo algo; una hipótesis falsa aceptada, no.*
+
+## T89 · PROPIEDADES ENTRE MÉTODOS — cerrado, y el censo salió más grande
+
+**La convención se cumple casi en todas partes, y por eso se cierra hoy.** Ese es el argumento
+entero: **15 casos con la convención cumplida al 99 % se cierran en una tarde; doscientos habrían
+sido una ventana** y habrían acabado siendo una lista de excepciones.
+
+### El censo, y por qué el mío difiere del de ARQUITECTO
+
+*Método: recorrido por líneas de los cinco repositorios, marcando toda declaración de propiedad
+posterior al primer método **de su clase** —cada clase empieza de cero, que un archivo con dos
+clases no arrastre la primera— y descartando las propiedades **promovidas del constructor**, que
+van dentro de la lista de parámetros y no se pueden mover.*
+
+| Archivo | ARQUITECTO | Medido aquí |
+| :-- | --: | --: |
+| `piecesphp` · `BaseMongoModel.php` | 6 | 6 |
+| `piecesphp` · `BaseController.php` | 5 | 5 |
+| `piecesphp` · `BaseEntityMapper.php` | 1 | 1 |
+| `piecesphp` · **`BaseToken.php`** | — | **7** |
+| `piecesphp` · **`BaseHashEncryption.php`** | — | **2** |
+| `database` · `SchemeCreator.php` | 2 | 2 |
+| `database` · `EntityMapper.php` | 1 | 1 |
+| **Total** | **15** | **24** |
+
+**Faltaban `BaseToken` y `BaseHashEncryption`**: nueve casos más, los dos en `core/psr4/`. Son
+clases de terceros traídas al núcleo —JWT y su capa de hash—, y la convención vale igual: si viven
+en nuestro árbol, se leen como nuestras.
+
+**Y 42 más eran míos, de esta misma semana.** Al añadir `auditFields()` en los cinco manejadores de
+aprobación lo puse **antes** de las propiedades estáticas que ya estaban, así que las convertí a
+todas en infracciones. **La comprobación las cazó antes que nadie**, que es exactamente para lo que
+se construyó. Corregido moviendo el método, no las propiedades.
+
+**66 movimientos en total, ninguno de contenido**: solo cambia dónde está escrita cada línea.
+
+### El mecanismo: comprobación 15, sobre los CINCO repositorios
+
+Una comprobación que solo mirara su propia casa no cerraría nada — la mitad de los casos estaban en
+`database`. Recorre **868 archivos** en los cinco.
+
+| Se provoca | Qué dice |
+| :-- | :-- |
+| Una propiedad entre métodos en `piecesphp` | `ORDEN: piecesphp/src/…/BaseEntityMapper.php:123 — protected $zzProvocada = null; se declara después del primer método` |
+| La misma falta en el paquete `html` | `ORDEN: html/src/Core/HTML/Form.php:82 — …` |
+| Todo en su sitio | Verde |
+
+**Y no se cuenta a sí misma**: sus patrones viven en constantes —que se declaran arriba— y ninguna
+de sus líneas es una declaración de propiedad posterior a un método. *(La primera provocación que
+escribí no valía: insertaba la propiedad **antes** del primer método, así que la comprobación tenía
+razón al aprobar. La provocación también hay que provocarla bien.)*
+

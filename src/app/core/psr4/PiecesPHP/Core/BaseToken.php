@@ -16,6 +16,34 @@ namespace PiecesPHP\Core;
 class BaseToken
 {
 
+    /** @var int $leeway Margen de tiempo extra al verificar nbf, iat o exp */
+    public static $leeway = 0;
+
+    /** @var int|null $timestamp Valor por defecto de creación time() si es null */
+    public static $timestamp = null;
+
+    /** @var array $supported_algs Array asociativo de lo métodos de encriptación soportados */
+    public static $supported_algs = [
+        'HS256' => ['hash_hmac', 'SHA256'],
+        'HS512' => ['hash_hmac', 'SHA512'],
+        'HS384' => ['hash_hmac', 'SHA384'],
+        'RS256' => ['openssl', 'SHA256'],
+        'RS384' => ['openssl', 'SHA384'],
+        'RS512' => ['openssl', 'SHA512'],
+    ];
+
+    /** @var array $encrypt Tipo de encriptación por defecto. */
+    public static $encrypt = ['HS256'];
+
+    /** @var string $secret_key Llave usada para la encriptación. */
+    private static $secret_key = 'secret';
+
+    /** @var string|null $aud AUD del token. */
+    private static $aud = null;
+
+    /** @var int $expire_time Tiempo de expiración por defecto. */
+    private static $expire_time = 3600;
+
     /**
      * Genera un token.
      * @param mixed $data Información contenida en el token
@@ -613,34 +641,6 @@ class BaseToken
         }
         return strlen($str);
     }
-
-    /** @var int $leeway Margen de tiempo extra al verificar nbf, iat o exp */
-    public static $leeway = 0;
-
-    /** @var int|null $timestamp Valor por defecto de creación time() si es null */
-    public static $timestamp = null;
-
-    /** @var array $supported_algs Array asociativo de lo métodos de encriptación soportados */
-    public static $supported_algs = [
-        'HS256' => ['hash_hmac', 'SHA256'],
-        'HS512' => ['hash_hmac', 'SHA512'],
-        'HS384' => ['hash_hmac', 'SHA384'],
-        'RS256' => ['openssl', 'SHA256'],
-        'RS384' => ['openssl', 'SHA384'],
-        'RS512' => ['openssl', 'SHA512'],
-    ];
-
-    /** @var array $encrypt Tipo de encriptación por defecto. */
-    public static $encrypt = ['HS256'];
-
-    /** @var string $secret_key Llave usada para la encriptación. */
-    private static $secret_key = 'secret';
-
-    /** @var string|null $aud AUD del token. */
-    private static $aud = null;
-
-    /** @var int $expire_time Tiempo de expiración por defecto. */
-    private static $expire_time = 3600;
 
     const INVALID_USER_LOGGIN = 'INVALID_USER_LOGGIN';
     const EXPIRED_TOKEN = 'EXPIRED_TOKEN';

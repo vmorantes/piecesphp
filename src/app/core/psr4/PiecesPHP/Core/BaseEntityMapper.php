@@ -43,6 +43,11 @@ class BaseEntityMapper extends EntityMapper
     protected static $localeSetted = false;
 
     /**
+     * @var string[]|null Campos que el último `update()` iba a cambiar. NULL si no se sabe.
+     */
+    protected $lastChangedFields = null;
+
+    /**
      * @param mixed $value_compare (Debe ser de tipo escalar)
      * @param string $field_compare
      * @param array $options Las opciones de configuración
@@ -147,11 +152,6 @@ class BaseEntityMapper extends EntityMapper
         }
         return $updated;
     }
-
-    /**
-     * @var string[]|null Campos que el último `update()` iba a cambiar. NULL si no se sabe.
-     */
-    protected $lastChangedFields = null;
 
     /**
      * Qué campos cambió el último `update()`. NULL es «no lo sé», que NO es «ninguno».

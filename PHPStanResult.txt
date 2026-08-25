@@ -1972,79 +1972,79 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/BaseController.php                                                                                                 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------- 
-  72     Parameter Nr.6 $set_database of class PiecesPHP\Core\BaseModel constructor expects bool, null given.                                                  
+  101    Parameter Nr.6 $set_database of class PiecesPHP\Core\BaseModel constructor expects bool, null given.                                                  
          🪪  argument.type                                                                                                                                   
-  78     Property PiecesPHP\Core\BaseController::$model (PiecesPHP\Core\BaseEntityMapper|PiecesPHP\Core\Database\ActiveRecordModel) does not accept object.  
+  107    Property PiecesPHP\Core\BaseController::$model (PiecesPHP\Core\BaseEntityMapper|PiecesPHP\Core\Database\ActiveRecordModel) does not accept object.  
          🪪  assign.propertyType                                                                                                                             
-  333    Property PiecesPHP\Core\BaseController::$instance_view_folder (string) on left side of ?? is not nullable.                                          
+  362    Property PiecesPHP\Core\BaseController::$instance_view_folder (string) on left side of ?? is not nullable.                                          
          🪪  nullCoalesce.property                                                                                                                           
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php                                                                                   
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
-  38     Parameter Nr.1 $data of function openssl_encrypt expects string, string|false given.                                                        
+  51     Parameter Nr.1 $data of function openssl_encrypt expects string, string|false given.                                                        
          🪪  argument.type                                                                                                                         
-  133    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  146    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
-  136    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
+  149    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
          🪪  argument.type                                                                                                                         
-  167    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
+  180    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
          🪪  argument.type                                                                                                                         
-  179    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  192    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
 
  ------ --------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php                                                            
  ------ --------------------------------------------------------------------------------------------------------------- 
-  43     Parameter Nr.1 $version1 of function version_compare expects string, string|false given.                         
+  61     Parameter Nr.1 $version1 of function version_compare expects string, string|false given.                         
          🪪  argument.type                                                                                              
-  72     Parameter Nr.2 $haystack of function array_search expects array, array|null given.                               
+  90     Parameter Nr.2 $haystack of function array_search expects array, array|null given.                               
          🪪  argument.type                                                                                              
-  73     Parameter Nr.1 $keys of function require_keys expects array, array|null given.                                   
+  91     Parameter Nr.1 $keys of function require_keys expects array, array|null given.                                   
          🪪  argument.type                                                                                              
-  74     Method PiecesPHP\Core\BaseMongoModel::insert() should return PiecesPHP\Core\BaseMongoModel but returns bool.   
+  92     Method PiecesPHP\Core\BaseMongoModel::insert() should return PiecesPHP\Core\BaseMongoModel but returns bool.   
          🪪  return.type                                                                                                
-  76     Method PiecesPHP\Core\BaseMongoModel::insert() should return PiecesPHP\Core\BaseMongoModel but returns false.  
+  94     Method PiecesPHP\Core\BaseMongoModel::insert() should return PiecesPHP\Core\BaseMongoModel but returns false.  
          🪪  return.type                                                                                                
-  129    Method PiecesPHP\Core\BaseMongoModel::getDb() should return string but returns MongoDB\Database.               
+  147    Method PiecesPHP\Core\BaseMongoModel::getDb() should return string but returns MongoDB\Database.               
          🪪  return.type                                                                                                
-  166    Method PiecesPHP\Core\BaseMongoModel::getFields() should return array but returns array|null.                  
+  184    Method PiecesPHP\Core\BaseMongoModel::getFields() should return array but returns array|null.                  
          🪪  return.type                                                                                                
  ------ --------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/BaseToken.php                                                                                            
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
-  141    Method PiecesPHP\Core\BaseToken::isExpire() should return bool|string but returns int|object|string.                                      
+  169    Method PiecesPHP\Core\BaseToken::isExpire() should return bool|string but returns int|object|string.                                      
          🪪  return.type                                                                                                                           
-  177    Access to an undefined property object::$data.                                                                                            
+  205    Access to an undefined property object::$data.                                                                                            
          🪪  property.notFound                                                                                                                     
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                     
-  226    Access to an undefined property object::$exp.                                                                                             
+  254    Access to an undefined property object::$exp.                                                                                             
          🪪  property.notFound                                                                                                                     
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                     
-  273    Access to an undefined property object::$iat.                                                                                             
+  301    Access to an undefined property object::$iat.                                                                                             
          🪪  property.notFound                                                                                                                     
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                     
-  339    Parameter Nr.1 $input of static method PiecesPHP\Core\BaseToken::urlSafeB64Encode() expects string, int|string given.                       
+  367    Parameter Nr.1 $input of static method PiecesPHP\Core\BaseToken::urlSafeB64Encode() expects string, int|string given.                       
          🪪  argument.type                                                                                                                         
-  340    Parameter Nr.1 $input of static method PiecesPHP\Core\BaseToken::urlSafeB64Encode() expects string, int|string given.                       
+  368    Parameter Nr.1 $input of static method PiecesPHP\Core\BaseToken::urlSafeB64Encode() expects string, int|string given.                       
          🪪  argument.type                                                                                                                         
-  343    Parameter Nr.1 $input of static method PiecesPHP\Core\BaseToken::urlSafeB64Encode() expects string, int|string given.                       
+  371    Parameter Nr.1 $input of static method PiecesPHP\Core\BaseToken::urlSafeB64Encode() expects string, int|string given.                       
          🪪  argument.type                                                                                                                         
-  445    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  473    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
-  448    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
+  476    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
          🪪  argument.type                                                                                                                         
-  474    Method PiecesPHP\Core\BaseToken::verify() should return bool|int but returns string.                                                      
+  502    Method PiecesPHP\Core\BaseToken::verify() should return bool|int but returns string.                                                      
          🪪  return.type                                                                                                                           
-  479    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
+  507    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
          🪪  argument.type                                                                                                                         
-  491    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  519    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
-  546    Parameter Nr.1 $json of function json_decode expects string, string|null given.                                                             
+  574    Parameter Nr.1 $json of function json_decode expects string, string|null given.                                                             
          🪪  argument.type                                                                                                                         
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
 

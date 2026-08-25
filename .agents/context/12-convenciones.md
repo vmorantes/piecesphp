@@ -221,6 +221,11 @@ porque el momento en que se entiende es justo ese.
 
 ## Estilo de código
 
+- **Las propiedades van ARRIBA, antes del primer método.** Todas: públicas, protegidas,
+  privadas y estáticas. Una propiedad escondida entre dos métodos no se encuentra leyendo
+  la cabecera de la clase, que es donde todo el mundo mira para saber qué guarda.
+  **Lo comprueba `bin/cli verify-integrity` (comprobación 15) en los cinco repositorios**;
+  las propiedades promovidas del constructor no cuentan, porque no se pueden mover.
 - PHP 8.1+ compatible hasta 8.4 (hay una rama `updagre-to-php84` en curso).
 - Docblocks en todas las clases con `@package`, `@author`, `@copyright`, y
   `@property` para las propiedades mágicas de los mappers. **Los mappers dependen
