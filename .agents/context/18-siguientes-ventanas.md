@@ -241,12 +241,22 @@ dependen de que alguien se acuerde**, porque esas son las siguientes candidatas:
 | :-- | :-- |
 | «Corre `bin/phpstan` antes de cerrar un cambio» | Gancho de pre-commit, o una comprobación dentro de `verify-integrity` |
 | «Toda cifra lleva su método escrito» (T0) | Ya es mecanismo a medias: el trinquete exige el `[REPARTO]`, pero solo para el baseline |
-| «`git add` con rutas explícitas, y cuadrar el conteo» | Comprobación que compare lo preparado contra lo modificado antes de commitear |
+| «`git add` con rutas explícitas, y cuadrar el conteo» | Comprobación que compare lo preparado contra lo modificado antes de commitear. **Y ya falló una vez con la regla escrita: ver abajo** |
 | «No editar PHP por línea ni por expresión regular» (T10) | **Sin mecanismo.** Hoy solo hay la regla escrita |
 | «Un guion de `bin/` tiene que ser ejecutable» | **YA ES MECANISMO**: comprobación 9 de `verify-integrity`. Ver más abajo |
 | «Los comentarios de prosa se recortan al pasar» | `verify-integrity` ya lo mide y ordena; falta que el registro no pueda crecer |
 
 **Las dos últimas filas son las que más me preocupan**, porque las dos ya han fallado una vez.
+
+> **Y la del `git add` también, el 2026-08-25.** Al commitear v3.7.0 en el paquete el conteo salió
+> **6 modificados / 3 preparados**, lo imprimí, y **commiteé igual**. Eran los artefactos de
+> PHPStan del paquete —fueron después, en su propio commit—, así que el daño fue ninguno. Eso no
+> cambia lo que pasó: **la regla dice PARAR cuando no cuadra, y no paré.** Queda anotado por quien
+> lo hizo, que es lo que la mantiene viva.
+>
+> Es exactamente el argumento de la LEY 11 aplicado a mí: mientras cumplirla dependa de que alguien
+> se acuerde en el momento, **la regla es una intención**. La fila de la tabla de arriba deja de
+> ser hipotética.
 
 #### AMPLIACIÓN — UN MECANISMO QUE DEPENDE DE UNA LISTA MANTENIDA A MANO SIGUE SIENDO MEMORIA
 
@@ -344,6 +354,25 @@ resultado esperado impreso —«(8/8)»—, y **una puerta que anuncia su result
 anunciado**. Desde ahora una lista de puertas **nombra la suite y no el número**.
 
 **El mecanismo** está en `bin/cli gates`. Ver T74.
+
+#### EL ALCANCE REAL DEL CASO: no era una puerta, eran tres, y ninguna gritó
+
+La suite era lo único que alguien miraba. Con la misma guarda de versión, y **guardándose en
+silencio**, había dos tareas más:
+
+| Qué | Dormido desde | Hasta | Tiempo dormido |
+| :-- | :-- | :-- | --: |
+| `bin/cli scheme-drop` | 24-08, **09:59** | 25-08, la instalación de v3.6.0 | **~23 h** |
+| `bin/cli scheme-create` | 24-08, **11:06** | ídem | **~22 h** |
+| `unit-tests:core/scheme-sql-round-trip` | 24-08, **15:50** | ídem | **~17 h** |
+
+**Las dos tareas no informaban a nadie.** Una suite que se omite al menos imprime la línea que
+nadie leyó; una tarea que se guarda a sí misma **no se vuelve a invocar**, así que su silencio no
+llega ni a ser una línea sin leer. Verificadas una a una al instalar la versión buena: las tres
+funcionan.
+
+**La lección, que es la que da su tamaño a la ley**: la guarda de versión estaba bien escrita en
+los tres sitios. Lo que faltaba no era la guarda —era que alguien se enterara de que había saltado.
 
 ### El baseline vigente y su método
 
@@ -2315,6 +2344,21 @@ maneras de preguntarle lo mismo a la misma fuente son *una* medición escrita do
 
 *(El contraejemplo bueno está en T77: 802 archivos según el propio PHPStan y 802 según `git` y el
 sistema de archivos. Esos dos **sí** son independientes, y por eso su acuerdo dice algo.)*
+
+#### Y el instrumento nuevo traía dentro el mismo defecto que venía a cazar
+
+La comprobación 13 nació para que **ningún archivo PHP quedara fuera de la medición sin que se
+supiera**. Su primera corrida contó **834** cuando eran **835**: `git ls-files` **entrecomilla los
+nombres con caracteres no ASCII**, así que `files/CliScripts/CorregirTiempoDuraciónWebm.php` no
+existía para el bucle que lo leía. **El archivo que se perdía era, exactamente, un archivo que se
+perdía en silencio.**
+
+Se cazó porque el número no cuadró con el recuento hecho a mano —T20 otra vez: dos métodos que **no
+comparten mecanismo**—. Arreglado con `-c core.quotePath=false`.
+
+**Lo que hay que llevarse**: un instrumento recién escrito **no tiene crédito**. Se le exige la
+misma medición que a lo que va a medir, y la primera vez que da un número hay que cuadrarlo contra
+otra cosa. Si el número hubiera sido 835 por casualidad, el defecto seguiría dentro.
 
 ## T21 · PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
 
