@@ -139,11 +139,46 @@ class BaseEntityMapper extends EntityMapper
          * @category GlobalMethodDispatch
          */
         BaseEventDispatcher::dispatch(get_class($this), 'updating', $this);
+        //ANTES de escribir: `parent::update()` refresca la instantánea y el conjunto se vacía.
+        $this->lastChangedFields = method_exists($this, 'changedFields') ? $this->changedFields() : null;
         $updated = parent::update();
         if ($updated && $this->lastUpdateChangedSomething()) {
             BaseEventDispatcher::dispatch(get_class($this), 'updated', $this);
         }
         return $updated;
+    }
+
+    /**
+     * @var string[]|null Campos que el último `update()` iba a cambiar. NULL si no se sabe.
+     */
+    protected $lastChangedFields = null;
+
+    /**
+     * Qué campos cambió el último `update()`. NULL es «no lo sé», que NO es «ninguno».
+     *
+     * Se captura antes de escribir porque el guardado refresca la instantánea. Ver T87.
+     *
+     * @return string[]|null
+     */
+    public function lastChangedFields(): ?array
+    {
+        return $this->lastChangedFields;
+    }
+
+    /**
+     * Siembra la instantánea de la fila en un mapper que NO vino del constructor.
+     *
+     * La guarda de versión vive AQUÍ y no en los 21 `objectToMapper()`. Ver T87.
+     *
+     * @param object|array<string, mixed>|null $row
+     * @return static
+     */
+    public function seedSnapshotFrom($row)
+    {
+        if (method_exists($this, 'seedRowSnapshot')) {
+            $this->seedRowSnapshot($row);
+        }
+        return $this;
     }
 
     /**

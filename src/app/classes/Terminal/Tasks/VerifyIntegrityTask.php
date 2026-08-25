@@ -185,12 +185,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 13. Todo el PHP versionado se analiza o está declarado fuera ──────────────
         $universeFailures = self::checkPhpStanUniverse();
 
+        //──── 14. Todo objectToMapper() siembra la instantánea de la fila ───────────────
+        $seedingFailures = self::checkSnapshotSeeding($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
-            + count($forbiddenFailures) + count($universeFailures);
+            + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -231,9 +234,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($universeFailures as $line) {
             echoTerminal("\e[31mUNIVERSO:\e[39m {$line}");
         }
+        foreach ($seedingFailures as $line) {
+            echoTerminal("\e[31mINSTANTÁNEA:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas y universo de análisis sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis e instantáneas sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1866,6 +1872,44 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         return $failures;
     }
 
+
+    /**
+     * Todo `objectToMapper()` siembra la instantánea de la fila.
+     *
+     * La fila entera ya llega como argumento —para eso existe el método—, así que sembrarla es
+     * una línea. Sin ella, esos objetos dirían «no lo sé» y son 113 llamadas: el camino de los
+     * listados. Ver T87.
+     *
+     * @param string[] $files
+     * @return string[]
+     */
+    protected static function checkSnapshotSeeding(array $files): array
+    {
+        $failures = [];
+        $seeded = 0;
+
+        foreach ($files as $relative) {
+            $path = basepath($relative);
+            if (!is_file($path)) {
+                continue;
+            }
+            $content = (string) file_get_contents($path);
+            //La DECLARACIÓN, no la mención: si no, esta comprobación se cuenta a sí misma.
+            if (preg_match('/public static function objectToMapper\s*\(/', $content) !== 1) {
+                continue;
+            }
+            if (mb_strpos($content, 'seedSnapshotFrom(') === false) {
+                $failures[] = $relative . ' define objectToMapper() y no siembra la instantánea:'
+                    . ' falta `$mapper->seedSnapshotFrom($element);`.';
+                continue;
+            }
+            $seeded++;
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$seeded} objectToMapper() comprobados: todos siembran la instantánea.");
+
+        return $failures;
+    }
     /**
      * ¿Es PHP? Por extensión, o por almohadilla-admiración: `bin/walk-routes` no lleva `.php`.
      *

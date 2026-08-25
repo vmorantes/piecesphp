@@ -695,6 +695,8 @@ class OrganizationPreviousExperiencesMapper extends EntityMapperExtensible
 
         $element = (array) $element;
         $mapper = new OrganizationPreviousExperiencesMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
