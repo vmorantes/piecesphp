@@ -7847,3 +7847,106 @@ perdería la reapertura de rechazos, que es intención declarada**.
 
 **Decide el PROPIETARIO.**
 
+
+### I · `objectToMapper()` — el arquetipo es Publications, y la fábrica es la plantilla
+
+*Añadido por ARQUITECTO el 2026-08-25, con contexto del PROPIETARIO. Complementa la entrada de
+E5 sobre abstraer los 21 métodos.*
+
+**Para qué existe**, dicho por el PROPIETARIO: transformar las propiedades que necesitan
+parseo —las meta-propiedades— y **acceder a las capacidades del mapper sin releer la base
+cuando ya se tiene el registro completo**. El caso que lo justifica son los DataTables, donde
+reconsultar cada fila para hidratar su mapper sería caro. En algunos también acuña el slug.
+
+**Medición de ARQUITECTO (2026-08-25):** 21 métodos, entre 42 y 76 líneas, ~1.150 líneas en
+total. Normalizando el nombre de la clase quedan **12 formas distintas**: tres grupos cubren 12
+de los 21 —de 5, 4 y 3— y **9 son ejemplares únicos**. Dos de ellos —`LogsMapper` y
+`NewsletterSuscriberMapper`— difieren **en una sola línea**: el nombre de la clase.
+
+**No son 12 diseños: son un diseño y once derivas.** El arquetipo es
+`PublicationMapper::objectToMapper()`, el más largo y el que trae el juego completo. Los demás
+módulos son generaciones de copias que fueron divergiendo.
+
+**Dos consecuencias para cuando se aborde en E5:**
+
+1. **La forma canónica se saca de Publications, no se inventa.**
+2. **`15-plantilla-clonar-publications.md` se toca en el MISMO movimiento.** Si se colapsan los
+   21 y la plantilla de clonar sigue mandando copiar el método, el siguiente módulo clonado
+   añade el número 22. La plantilla es la fuente de la familia; abstraer sin actualizarla es
+   arreglar los síntomas y dejar la fábrica en pie.
+
+**Y el premio, que le da al punto de E5 algo más que limpieza:** la instantánea de v3.8.0 se
+siembra hoy con una línea repetida en los 21, vigilada por una comprobación. Al colapsarlos, la
+siembra pasa a vivir en un solo sitio y **esa comprobación se puede retirar**.
+
+### J · Dos errores de ARQUITECTO sobre el push, y lo que enseñan
+
+*Escrito por ARQUITECTO el 2026-08-25. La causa real —`composer` corriendo con el `php` del
+PATH— ya está registrada por CODER; esto es la otra mitad, la del método.*
+
+**Error 1 — repetir una cifra sin comprobarla.** Escribí durante dos bloques que había cuatro
+versiones del paquete sin empujar. Venía del informe de CODER y no la verifiqué. Cuando por fin
+lo hice, `git describe --tags origin/master` devolvía **v3.6.0** y las seis etiquetas aparecían
+alcanzables desde el remoto: no faltaba ningún push.
+
+**Error 2 — medir lo contiguo y darlo por respuesta.** Al comprobarlo, contesté que los commits
+estaban arriba pero que **quizá las etiquetas no habían viajado**, y lo marqué como hipótesis.
+La hipótesis era honesta y **era irrelevante**: el problema no estaba en el remoto en absoluto,
+sino en que `composer` corría con PHP 8.1.34 y se negaba a resolver sin tocar nada.
+
+> **La lección, y es T20 por otra puerta:** medí las referencias de seguimiento porque era lo
+> que tenía a mano, no porque contestaran la pregunta. **Una medición contigua a la pregunta se
+> siente como una respuesta.** Antes de medir hay que decir qué resultado descartaría la
+> hipótesis; si ninguno lo hace, se está midiendo otra cosa.
+
+Y una consecuencia práctica que sí quedó: la trampa del PHP del PATH **viaja con el framework**.
+Un clon que ejecute `composer install` con el binario equivocado recibe la misma negativa, y el
+mensaje no dice «usa otro binario»: dice que su PHP no vale.
+
+### K · Lo que falta para cerrar la fase de revisión — inventario
+
+*Escrito por ARQUITECTO el 2026-08-25, a petición del PROPIETARIO, que quiere entrar en E3
+cuanto antes y necesita ver el final. Se actualiza conforme se cierre; si crece, la razón se
+escribe al lado.*
+
+| Qué | Estado |
+| :-- | :-- |
+| **E2 · Ciclo CRUD por módulo** | Pendiente. Se deriva de la convención de sufijos de ruta |
+| **E2 · Pasada de escritura**, con los **9 guardas de `$_FILES`** | Pendiente. Es donde viven los mappers, los validadores y las subidas |
+| **Lista abierta 2** — `shared-toolchain.json` | Inventariada, sin tocar |
+| **Lista abierta 3** — `volatile-state.json`, lo que no es del slug | Inventariada, sin tocar |
+| **Lista abierta 4** — `deprecated-functions.json` | Inventariada, sin tocar. La de menor coste |
+| **v3.8.0** — la instantánea y su siembra | Aprobada, en curso |
+
+**Y lo que NO cierra la fase, aunque lo parezca**: los 30 errores destapados al ampliar el
+universo van a E3 como lote propio; los 19 `dafault` van atados a endurecer `$fields`; y las
+entradas de `files/dev/roadmap/` son intenciones declaradas, no trabajo pendiente de esta fase.
+
+> **Regla para este inventario**: cada vez que un hallazgo nuevo lo alargue, se anota **qué lo
+> alargó**. Una fase que se estira sin que nadie pueda decir por qué es una fase que no cierra.
+
+### L · Los `index.lock` huérfanos eran de ARQUITECTO
+
+*Escrito por ARQUITECTO el 2026-08-25, después de reproducirlo.*
+
+CODER encontró y retiró un `.git/index.lock` de cero bytes sin proceso git vivo, y lo trató como
+un huérfano inexplicado. **Era mío.**
+
+ARQUITECTO llega al repositorio por un puente que **no puede borrar archivos**. Cualquier orden
+de git que toque el índice —`git status` incluido— crea `.git/index.lock` y después intenta
+borrarlo; el borrado falla, el lock sobrevive, y **la siguiente orden de git se encuentra el
+repositorio bloqueado**. De ahí los avisos `unable to unlink ... Operation not permitted` que
+aparecieron varias veces.
+
+**Consecuencias, y son permanentes mientras el puente sea este:**
+
+- ARQUITECTO **no puede commitear**. Escribir archivos sí; tocar el índice no. Lo que escriba
+  queda en el árbol y lo recoge CODER en un commit propio.
+- ARQUITECTO usa `git --no-optional-locks status` para mirar, que no crea el lock. Verificado.
+- Si aparece un `index.lock` de cero bytes sin proceso git, **la primera hipótesis es ARQUITECTO,
+  no una caída**. Antes se perdió tiempo buscando un fallo que no existía.
+
+Quedan en `.git/` dos archivos que ARQUITECTO apartó y no puede borrar:
+`index.lock.stale-arquitecto` y `stale-lock-1`. **Bórralos tú**; son basura inocua, no están
+versionados, y no afectan a nada más que al orden.
+
