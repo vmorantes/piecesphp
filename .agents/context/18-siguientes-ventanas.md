@@ -6872,6 +6872,10 @@ guardar ya no la crea porque estaba.
 
 ## T70 · EL EVENTO `updated` QUE SALTA SIN CAMBIOS — es DEFECTO, no ruido
 
+> **CORREGIDO EN T72 por el PROPIETARIO**: reabrir un rechazo **al editar** es intención
+> declarada y se respeta. El defecto es que «al editar» está implementado como «al guardar». El
+> escuchador no se toca; lo que tiene que decir la verdad es el evento.
+
 **Medido, no arreglado.** Decide el PROPIETARIO.
 
 ### 2.1 · Qué hace realmente el escuchador
@@ -6963,4 +6967,96 @@ restaura, y **se comprueba que volvió**. Más el rastro, con su archivo y su ba
 
 **Validada rompiéndola dos veces**: quitada la guarda de confirmación falla 1 de 9 —restaura sin
 que nadie lo confirme—; quitado el rastro fallan 3 de 9.
+
+## T72 · CONTAR LAS FILAS CAMBIADAS DESDE DONDE SE DESPACHA `updated` — SE PUEDE, PERO NO AQUÍ
+
+El diagnóstico de T70 queda **corregido por el PROPIETARIO, y la corrección es suya**: el
+escuchador lleva escrito `//Si está rechazado pasa a pendiente al editar`. **Reabrir un rechazo al
+editar es intención declarada y se respeta.** El defecto es que «al editar» está implementado como
+«al guardar». No se toca el escuchador: se hace que el evento diga la verdad.
+
+Antes de tocar nada, la medición de la que depende todo lo demás.
+
+### La medición: ¿se puede saber cuántas filas cambiaron?
+
+*Método: una tabla de usar y tirar en la base real, un UPDATE que no cambia nada y otro que sí,
+sobre la MISMA fila, y dos maneras distintas de preguntar cuánto cambió. Se destruye al terminar.*
+
+| Pregunta | UPDATE sin cambio real | UPDATE con cambio real |
+| :-- | :-- | :-- |
+| `PDOStatement::rowCount()` | **0** | **1** |
+| `PDOStatement::rowCount()` después de `closeCursor()` | — | **1** |
+| `SELECT ROW_COUNT()` | **0** | **1** |
+
+**El dato es el que se necesitaba.** La fila del primer UPDATE **existía y casaba con el `WHERE`**
+—lo demuestra el segundo, que sobre esa misma fila devolvió 1—, y aun así el conteo fue 0: la
+conexión cuenta filas **cambiadas**, no coincidentes. Confirmado el punto de partida del
+PROPIETARIO: `Database::DEFAULT_PDO_OPTIONS` solo trae `ATTR_PERSISTENT`, sin
+`MYSQL_ATTR_FOUND_ROWS`.
+
+**Aviso de método, por la REGLA MAYOR de T20**: las dos filas de arriba coinciden, y **eso no las
+verifica entre sí**: `rowCount()` y `ROW_COUNT()` leen el mismo contador de MariaDB y se
+equivocarían juntas. Lo que discrimina no es que coincidan, sino el diseño de la prueba: **la
+misma fila, primero sin cambiar y después cambiando**. Ahí no cabe la confusión entre «no casó» y
+«casó y no cambió».
+
+*(De paso: `PDO::MYSQL_ATTR_FOUND_ROWS` está DEPRECADA en 8.5 y aquí las deprecaciones abortan. La
+constante no hace falta para nada de esto, pero quien vaya a consultarla se lleva un aborto.)*
+
+### Y aun así, desde el emisor no se alcanza
+
+`BaseEntityMapper::update()` despacha después de `parent::update()`. Para entonces:
+
+| Obstáculo | Comprobado |
+| :-- | :-- |
+| El `PDOStatement` ya no existe | `ActiveRecord::execute()` hace `$this->prepareStatement = null` **y** `resetAll()`. Medido por reflexión tras un `execute()` real: **NULL** |
+| Quien podía contarlo es privado | `_executeUpdate()` está declarado `private` en `ORM/ActiveRecord.php:1120`, y es el único punto donde el statement sigue vivo |
+| No hay costura del lado de la aplicación | `EntityMapper::__construct()` hace `$this->model = new ActiveRecordModel(...)` **con la clase del paquete escrita a mano**. `BaseModel` —que sí es nuestra— no participa: sobreescribir `prepare()` ahí no alcanza a ningún mapper |
+
+**Conclusión: el conteo solo se puede capturar dentro del paquete `piecesphp/database`**, en
+`_executeUpdate()`, guardándolo antes de devolver y exponiéndolo con un accesor nuevo. Sería un
+cambio **aditivo** —ninguna firma existente cambia—, pero es la superficie pública del ORM.
+
+### PARADA, y qué haría falta
+
+**No se ha tocado el emisor.** Hay dos razones, y la segunda es la que manda:
+
+1. **Toca la API pública del ORM**, que es el supuesto en que el encargo mandaba parar.
+2. **Y no se podría probar hoy.** `src/vendor` tiene `piecesphp/database` **v3.2.1**;
+   v3.3.0 a v3.6.0 ya están commiteadas y etiquetadas en su repositorio **esperando el push**. Un
+   accesor nuevo llegaría en v3.7.0 y la aplicación **no lo vería** hasta `composer update`.
+   Llamarlo sin guarda revienta cada `update()` de hoy; llamarlo con guarda deja el arreglo
+   **inerte y dependiente de la versión instalada** —una trampa para el clon— y la suite de 1.3
+   no podría estar verde.
+
+**Los dos rodeos que NO se han tomado**, y por qué:
+
+| Rodeo | Por qué no |
+| :-- | :-- |
+| `SELECT ROW_COUNT()` después de `parent::update()`, del lado de la aplicación | Funciona hoy y no toca el paquete, **pero es de MariaDB**: el paquete también soporta `sqlite`, donde no existe. Un clon sobre sqlite tendría un evento que miente sin que nada lo diga |
+| Releer la fila antes de escribirla y comparar | Una consulta extra por cada `update()` de todo el sistema, para deducir lo que la base ya sabe |
+
+**Lo que hace falta, en orden:**
+
+1. **Push de `piecesphp/database`** con lo que ya está etiquetado (v3.3.0 → v3.6.0), que además
+   desbloquea `scheme-create` y `scheme-sql-round-trip`, hoy autoguardados.
+2. **v3.7.0**: `_executeUpdate()` guarda `rowCount()` antes de cerrar el cursor, y un accesor
+   —`getLastAffectedRows()`— lo devuelve. `resetAll()` **no** lo borra: el valor pertenece a la
+   última ejecución, no a la consulta en construcción.
+3. **`composer update` aquí**, y entonces `BaseEntityMapper::update()` despacha `updated` solo si
+   el conteo es mayor que cero, con su suite de tres casos.
+
+### Lo que la medición de T70 no cubría, y hay que decir
+
+`SystemApprovalManager` llama a `$class::onUpdatedRecord($payload, $approvalElement)` **fuera de la
+guarda de estado**. O sea: un guardado sin cambios no solo movía el rechazo a pendiente — disparaba
+**los efectos de cada manejador**. **El alcance real era mayor que «mueve rechazos»**, y sigue
+abierto mientras el paso 3 no ocurra.
+
+### Y los tres eventos sin escuchadores no se tocan
+
+`saving`, `saved` y `updating` son **API del framework**: un clon puede engancharse a ellos. Que
+hoy no los escuche nadie aquí no es motivo para quitarlos. Ya están documentados en
+`03-ciclo-de-vida.md`, que era lo que de verdad faltaba.
+
 
