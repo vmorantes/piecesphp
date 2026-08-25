@@ -9230,3 +9230,48 @@ tal.
 
 Confirmado: no se ha tocado ninguna ruta `-actions-*`, ni POST, ni `$_FILES`.
 
+
+### P · `humanReadable()` no devuelve un nombre: devuelve el mapper entero
+
+*Medido por ARQUITECTO el 2026-08-25, leyendo `EntityMapper::humanReadable()` después de que CODER
+localizara los dos `isset()` rotos. **CODER encontró las dos líneas; esto es lo que hacen.***
+
+Los dos `isset()` sobre propiedad mágica final están **anidados**, y como los dos son siempre
+`false`, el código cae al último `else`:
+
+```php
+if ($has_reference) {
+    if ($has_reference_human_readable_field) {
+        if (!is_scalar($this->$field)) {
+            if (isset($this->$field->$human_readable_reference_field)) {   // NUNCA  (1321)
+                $data[$field] = $this->$field->$human_readable_reference_field;
+```
+```php
+    if (!$set_field) {
+        if (!is_scalar($this->$field)) {
+            if (isset($this->$field->$reference_field)) {                  // NUNCA  (1331)
+                $data[$field] = $this->$field->$reference_field;
+            } else {
+                $data[$field] = $this->$field;      // <-- ESTO: el mapper ENTERO
+```
+
+**Consecuencia:** para cualquier campo con referencia hidratada a mapper, `humanReadable()` no
+devuelve un nombre ni un id — devuelve **el objeto**. Y después `castPHPToSQLTypes()` no lo
+convierte: un objeto no es numérico ni escalar, así que sale tal cual.
+
+**Dónde sale eso:** `APIController.php:220` y `:401` —la API pública—, `UsersController.php:921`
+y `DataTablesHelper.php:443`.
+
+**Cuánto lleva dormido:** **62 declaraciones de `human_readable_reference_field` en 25 archivos**
+alimentando una rama que no se ha ejecutado nunca. Nadie escribe sesenta y dos declaraciones a
+propósito para un camino muerto.
+
+**Y engancha con el bloque A5**, que estaba anotado como latente: `EntityMapper::jsonSerialize()`
+publica el esquema completo del mapper. Si por la API salen objetos mapper y alguien los codifica
+a JSON, **el esquema puede estar saliendo hoy**. *Hipótesis, no medición* — hay que comprobar qué
+emite hoy la API para esos campos.
+
+> **Lo que esto le hace a la decisión:** arreglar los dos `isset()` NO es un arreglo de dos
+> líneas. **Enciende de golpe una función dormida desde que se escribió** y cambia lo que la API
+> devuelve en 62 sitios. Por eso va en dos tiempos: medir el antes y el después campo por campo,
+> y solo entonces aplicar.
