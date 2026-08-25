@@ -9275,3 +9275,80 @@ emite hoy la API para esos campos.
 > líneas. **Enciende de golpe una función dormida desde que se escribió** y cambia lo que la API
 > devuelve en 62 sitios. Por eso va en dos tiempos: medir el antes y el después campo por campo,
 > y solo entonces aplicar.
+
+### P-bis · CORRECCIÓN AL BLOQUE P — hay una capa de compensación, y eso cambia el diagnóstico
+
+*Señalado por CODER al recoger el bloque P; verificado por ARQUITECTO el 2026-08-25 leyendo
+`EntityMapperExtensible::humanReadable()`. **P y P-bis se leen juntos.***
+
+El bloque P decía que el objeto mapper crudo sale por `APIController:220`, `:401`,
+`UsersController:921` y `DataTablesHelper:443`. **Para esos cuatro sitios es falso**, y CODER
+tenía razón:
+
+```php
+public function humanReadable()
+{
+    $data = parent::humanReadable();          // <- aquí llega el objeto crudo
+    …
+    foreach ($fields as $name) {
+        $value = $this->$name;
+        if (is_subclass_of($value, EntityMapper::class)) {
+            $data[$name] = $this->recursiveHumanization($value);   // <- y aquí se pisa
+        }
+    }
+}
+```
+
+Los mappers de esos cuatro sitios extienden `EntityMapperExtensible`, así que reciben la
+compensación. **El objeto crudo solo sobrevive en los 12 que extienden `BaseEntityMapper`
+directamente**, de los cuales 6 declaran referencia con mapper real: `LoginAttemptsModel`,
+`TimeOnPlatformModel`, `OTPSecretsUsersMapper`, `PointMapper`, `StateMapper`, `CityMapper`.
+
+**Y lo que aparece al mirarlo, que no había visto ninguno de los dos:**
+
+1. **Esto es una capa de parche sobre un padre roto.** Alguien escribió una sobrescritura que
+   arregla, campo por campo, lo que el padre hace mal. Es la misma forma que los `$showSQL` y los
+   `strReplaceTemplate`: el defecto sigue en el padre y el hijo lo tapa. Los que no heredan del
+   hijo no están tapados.
+
+2. **Arreglar los dos `isset()` del padre puede no cambiar NADA en los que sí heredan**, porque
+   el hijo vuelve a pisar el valor después. La opción `human_readable_reference_field` seguiría
+   dormida para ellos aunque el padre se arregle.
+
+3. **Y las dos respuestas no son la misma.** `human_readable_reference_field` pide **un escalar**
+   —un nombre—; `recursiveHumanization()` devuelve **el array entero** del mapper referenciado.
+   No son dos caminos al mismo sitio: son dos contratos distintos, y hoy gana el que nadie
+   declaró.
+
+> **Consecuencia para la medición:** el diff del punto 4 no puede tener dos estados, tiene que
+> tener **tres** — lo que devuelve hoy, lo que devolvería con el padre arreglado, y lo que
+> devuelve el hijo por encima. Y hay que separar los mappers que heredan la compensación de los
+> 6 que no.
+>
+> **Y la pregunta que abre, sin responder:** si la compensación existe porque el padre está roto,
+> ¿debe quedarse cuando el padre se arregle, o era un parche que sobra? Eso no se decide sin ver
+> los tres estados.
+
+#### Lo que dice la experiencia del PROPIETARIO, declarado ANTES de medir
+
+*2026-08-25, con sus palabras: «no recuerdo haber tenido nunca problemas con ese método de
+humanReadable, pero hace tiempo que no lo uso».*
+
+Se escribe aquí **antes** de que la medición del punto 4 se ejecute, y a propósito. Es la regla
+de T56 aplicada a las expectativas: declarar antes, no ajustar el relato después de ver el diff.
+
+**Qué constriñe:** el bloque P llegó a decir que la API «puede estar publicando el esquema». Eso
+era hipótesis y sigue siéndolo, pero ahora tiene dos cosas en contra: la capa de compensación de
+`EntityMapperExtensible`, y años de uso sin síntoma por parte de quien lo usa. La lectura
+compatible con las tres cosas es que **la compensación cubre justo los casos que el PROPIETARIO
+usa** —Publications, News, Users, todos descendientes del hijo— y que la opción
+`human_readable_reference_field` lleva dormida sin que nadie la echara de menos.
+
+**Cómo se usa este dato al medir, y esto es lo que importa:** si la medición devuelve un
+resultado grave y generalizado, **contradice la experiencia de quien lleva años usándolo**, y lo
+primero que hay que sospechar es del instrumento. T20. Un hallazgo espectacular que choca con la
+experiencia del propietario se verifica dos veces antes de escribirse.
+
+**Lo que NO significa:** que no haya defecto. Los dos `isset()` son `false` siempre y eso está
+medido. Significa que **el alcance práctico probablemente sea pequeño**, y que la sorpresa sería
+lo contrario.
