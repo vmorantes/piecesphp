@@ -147,6 +147,19 @@ dolió y no lo escribimos en ningún sitio que alcanzara a los otros cuatro.**
 Y el corolario que la hace verificable: **una decisión escrita en un archivo compartido puede
 tener una puerta detrás**. Las siete de la tabla que no la tenían, no la tuvieron.
 
+#### AMPLIACIÓN — LA RAZÓN DIVERGE ANTES QUE EL DATO, Y NADA LA COMPARA
+
+**El caso que la funda** (T73): `$forbidden` estaba copiada en los dos recorredores. Al comparar,
+**los 17 patrones coincidían**, y una comprobación automática habría dicho «no hay divergencia».
+
+Lo que había divergido era **el comentario**: la copia de `bin/walk-routes` explicaba por qué se
+mira también la URL —el incidente de `/forms/add/`— y la de `bin/walk-attribute` no. Quien tocara
+la segunda no tenía delante el motivo de la mitad de la lista.
+
+**Una copia se detecta comparando datos. El motivo se pierde sin que ninguna comparación lo note**,
+porque nadie compara prosa —y por la REGLA MAYOR de T21, nuestras puertas tampoco pueden—. De ahí
+que la razón no se duplique nunca: **vive UNA vez, en el sitio del que todos leen.**
+
 ### LEY 9 — UNA OPERACIÓN DOCUMENTADA EN UNA SOLA DIRECCIÓN TIENE UN INVERSO SIN ESTRENAR
 
 **No está roto: está SIN ESTRENAR, que es peor, porque nadie sabe que lo está.** Un inverso roto
@@ -2286,6 +2299,22 @@ contra `information_schema`.
 > *«`PreviousExperiencesMapper::profile` -> `user_system_profile` (tabla sin mapper
 > descubierto)»* en cada corrida. **No falló el instrumento: falló leerlo.** Una salida que nadie
 > lee es exactamente igual de útil que una que no se emite.
+
+#### Segundo caso: dos preguntas al MISMO contador (T72)
+
+Para saber si un UPDATE había cambiado algo se midió por dos vías —`PDOStatement::rowCount()` y
+`SELECT ROW_COUNT()`— y **las dos dieron 0 y 1 igual**. La coincidencia **no verifica nada**: las
+dos leen el mismo contador de MariaDB, así que con `MYSQL_ATTR_FOUND_ROWS` activo **se
+equivocarían juntas**.
+
+Lo que sí discrimina no fue tener dos métodos, sino el **diseño de la prueba**: la MISMA fila,
+primero sin cambiar y después cambiando. Ahí no cabe confundir «no casó» con «casó y no cambió».
+
+**La lección afinada**: dos métodos verifican de verdad cuando **no comparten mecanismo**. Dos
+maneras de preguntarle lo mismo a la misma fuente son *una* medición escrita dos veces.
+
+*(El contraejemplo bueno está en T77: 802 archivos según el propio PHPStan y 802 según `git` y el
+sistema de archivos. Esos dos **sí** son independientes, y por eso su acuerdo dice algo.)*
 
 ## T21 · PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
 
