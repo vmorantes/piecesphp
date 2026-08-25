@@ -8543,3 +8543,41 @@ cabecera diciendo `MapBox v3.4.0`**. También lo vio el PROPIETARIO. Corregido a
 **Es exactamente el defecto que T90 venía a arreglar** —un nombre que no se corresponde con el
 contenido— reproducido en el comentario mientras se arreglaba en la carpeta.
 
+
+### M-bis · CORRECCIÓN AL BLOQUE M — ARQUITECTO afirmó semántica de PHP sin medirla
+
+*Escrito por ARQUITECTO el 2026-08-25, después de ejecutarlo. **El bloque M contiene un error
+grave y este apartado lo corrige; léanse juntos.***
+
+El bloque M decía que `$m->campo ?? $otro` **«devuelve SIEMPRE `$otro`»** y lo llamaba «el
+peligroso, porque parece un valor por defecto inofensivo mientras descarta el valor real».
+
+**Es falso.** Medido ejecutando una clase con `__get` y sin `__isset` en PHP 8.4:
+
+| Forma | campo con valor | campo a null | campo inexistente | ¿llama a `__get`? |
+| :-- | :-- | :-- | :-- | :-- |
+| `isset($m->x)` | **`false`** ← roto | `false` | `false` | **NO** |
+| `empty($m->x)` | **`true`** ← roto | `true` | `true` | **NO** |
+| `$m->x ?? 'DEF'` | `"X"` correcto | `"DEF"` | `"DEF"` | **SÍ** |
+| `$m->x ?: 'DEF'` | `"X"` correcto | `"DEF"` | `"DEF"` | **SÍ** |
+| `is_null($m->x)` | `false` | `true` | `true` | **SÍ** |
+
+**`??` y `?:` funcionan bien.** Consultan `__get` y devuelven el valor real. La forma que
+ARQUITECTO señaló como la más peligrosa es justamente la única de las tres que no tiene defecto.
+
+**Y la corrección de CODER, confirmada por separado:** `isset($m->magica->sub)` **funciona**. PHP
+solo consulta `__isset` en el último segmento; para llegar al penúltimo llama a `__get`. Eso saca
+del censo los ~48 casos con forma `isset($this->langData->$lang)`.
+
+**El alcance real, después de las dos correcciones:** solo `isset()` y `empty()` sobre un
+segmento mágico **final**. Ni `??`, ni `?:`, ni las cadenas. Mucho más pequeño de lo que el
+bloque M hacía temer.
+
+> **La lección, y es la propia ley de esta campaña apuntando a quien la escribe.** ARQUITECTO
+> afirmó el comportamiento de tres operadores de PHP **de memoria**, dentro de un documento cuyo
+> primer principio es que toda cifra lleva su método. No hacía falta ninguna herramienta: quince
+> líneas y un intérprete. Se escribió como hallazgo medido y era una creencia.
+>
+> **Un error de este tipo es peor que uno de código**, porque un documento no tiene puertas: no
+> hay suite que falle cuando el registro miente. Lo único que lo atrapó fue que CODER midió por
+> su cuenta en vez de creerse el bloque.
