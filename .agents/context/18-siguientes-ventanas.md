@@ -9608,3 +9608,157 @@ opción que ofrecer, y el selector ya trae su opción por defecto.
 tiene claves nulas. Se cambió por «devuelve algo: al menos la opción por defecto», que solo puede
 cumplirse si la función **llegó al final**. Es T46 en pequeño, cazado antes de commitear.
 
+
+## T98 · E2-a CERRADA — 68 de 79, y el recorredor deja de informar verde sobre media lista
+
+*Punto 3 del bloque del 25-08.*
+
+### 3.1 · LEY 12, por primera vez con un mecanismo que funciona
+
+```
+bin/cli db-restore file=…/src/dumps/25-08-2026_17-42-44-PM.sql confirm=yes
+INFO: 114 sentencia(s) sobre «piecesphp».
+INFO: 114 aplicada(s), 0 fallida(s).
+Rastro: files/dev/last-restore.json
+```
+
+**Cero fallidas.** Las cuatro restauraciones de T95 informaban 18; la del bloque anterior, 1. Esta
+es la primera que aplica el volcado entero.
+
+**El volcado canónico se regeneró a propósito**: se restauró el de la mañana —el estado con el que
+se midió T95— y se volvió a respaldar **con el `db-backup` arreglado**, para que traiga su
+`DROP FUNCTION`. Mismos datos, volcado reaplicable.
+
+### 3.3 · El recorredor dice ahora su propia cobertura
+
+**Lo que decía antes, sobre exactamente el mismo universo:**
+
+```
+RESUMEN: 186 rutas pedidas, 1 escriben, 0 diferencia(s) NO declarada(s).      salida 0
+```
+
+**Lo que dice ahora:**
+
+```
+RESUMEN: 186 rutas pedidas, 136 EJERCITADAS, 50 con error.
+         1 escriben, 0 diferencia(s) NO declarada(s).
+         166 omitidas antes de pedir, con su razón (--skipped para verlas).
+
+LA COBERTURA NO ES COMPLETA. 50 ruta(s) no llegaron a ejecutarse:
+un «sin cambios» sobre una ruta que abortó NO significa que no escriba.      salida 1
+```
+
+**Cincuenta rutas que se contaban como limpias no habían llegado a ejecutarse.** El «186 rutas
+pedidas» era verdad y era engañoso a la vez: pedidas sí, ejercitadas no.
+
+> **Es la LEY 13 fuera de las suites, y con la misma forma exacta**: tres estados —ejercitada,
+> rota, no pedida— colapsados en dos. Una ruta que devuelve 500 **no llegó al código que podría
+> escribir**, así que su «sin cambios» no es un dato: es la ausencia de uno.
+
+La pasada sale con **código 1** también por cobertura parcial, no solo por diferencias sin
+declarar. Y `--skipped` lista las omitidas con su razón, que antes solo se contaban.
+
+**De las 50, la mayoría son esperadas y ahora se ven**: 23 son nombres de clase `*Routes` —el
+registro del grupo, no una ruta de usuario— y 20 son `terminal-*`, que la web no sirve. **Quedan
+siete que no lo son**, y van más abajo.
+
+### 3.2 y 3.4 · Las 79, una por una
+
+*Método: base restaurada, foto antes y después de CADA petición, atribución por petición. Los
+`-datatables` con la cabecera `X-Requested-With` y los parámetros que DataTables manda de verdad;
+los `-forms-edit` con **ids leídos de la base**, no inventados.*
+
+| Sufijo | Cuántas | Ejercitadas (200) | Sin ejercitar |
+| :-- | --: | --: | --: |
+| `-list` | 24 | **24** | 0 |
+| `-datatables` | 21 | **21** | 0 |
+| `-forms-add` | 17 | **17** | 0 |
+| `-forms-edit` | 17 | **6** | **11** |
+| **Total** | **79** | **68** | **11** |
+
+**Lo tocado por las 68: NADA.** Ni una tabla, ni una fila, ni un archivo. La tabla de «ruta →
+tabla/fila/archivo tocado» está **vacía en las 68 filas**, que es lo esperado.
+
+**Y la única escritura del recorrido ancho sigue siendo la de siempre:**
+
+| Ruta | Estado | Qué tocó |
+| :-- | --: | :-- |
+| `user-system-features-generate-otp` | 200 | tabla `login_attempts` **+1** — **DECLARADO** |
+
+*(No es de las 79. Sale del recorrido de 186.)*
+
+### Las 11 que NO se dan por limpias — T39, y se declaran como NO COMPROBADAS
+
+**Ninguna de estas once tiene veredicto.** No escribieron porque **no se pidieron**, y no se
+pidieron porque no hay una sola fila que editar:
+
+| Ruta | Tabla | Filas |
+| :-- | :-- | --: |
+| `application-calls-admin-forms-edit` | `application_calls_elements` | 0 |
+| `built-in-banner-admin-forms-edit` | `built_in_banner_elements` | 0 |
+| `categories-admin-forms-edit` | `forms_categories` | 0 |
+| `document-types-admin-forms-edit` | `forms_document_types` | 0 |
+| `documents-admin-forms-edit` | `documents_elements` | 0 |
+| `images-repository-admin-forms-edit` | `image_repository_images` | 0 |
+| `interest-research-areas-admin-forms-edit` | `interest_research_area` | 0 |
+| `locations-points-forms-edit` | `locations_points` | 0 |
+| `news-admin-forms-edit` | `news_elements` | 0 |
+| `newsletter-admin-forms-edit` | `newsletter_sucribers` | 0 |
+| `publications-admin-forms-edit` | `publications_elements` | 0 |
+
+**No se inventan ids**: pedir `/forms/edit/999/` mide el camino del «no existe», que es otro
+camino. **Esta base no puede responder por estas once**, y ninguna pasada mejor lo arregla — hace
+falta una base con datos.
+
+### Las 2 que abortaban: arregladas, no explicadas
+
+`locations-countries-forms-add` y `-forms-edit` daban 500 por la deprecación de `CountryMapper`
+(T97). **Las dos responden 200 y entran en las 68.** Y `locations-points-datatables`, que daba 404
+por su guarda `isXhr`, responde 200 con la cabecera puesta: la guarda es correcta y la pasada
+ahora la respeta en vez de contarla como rota.
+
+### LO QUE HAY QUE DECIDIR, Y NO DECIDO YO: la lista de prohibidas contradice la definición de E2-a
+
+**El recorredor NO pidió ni una sola de las 34 rutas `-forms-add` / `-forms-edit`.** No es un
+fallo suyo: `files/dev/forbidden-routes.json` las tiene declaradas, y con su razón escrita.
+
+Pero **T88 definió E2-a incluyendo esas 34 y las llamó «lectura (vistas de formulario)»**. Las dos
+decisiones están escritas, las dos fechadas, y **se contradicen**:
+
+| Documento | Qué dice de `-forms-add` |
+| :-- | :-- |
+| `forbidden-routes.json` | *«era inofensivo —una vista de formulario, no una acción— pero la regla es que no se piden»* |
+| T88, definición de E2-a | «`-forms-add` / `-forms-edit`: **lectura** (vistas de formulario)» |
+
+**Las 34 se han medido en esta pasada por fuera del recorredor**, y ninguna escribe. Lo que hay
+que decidir es si salen de la lista de prohibidas —y entonces el recorredor las cubre solo— o si
+se quedan y E2-a se redefine sin ellas. **Con la lista como está, el recorredor nunca podrá cerrar
+E2-a por su cuenta**, y eso hay que saberlo antes de apoyarse en él para E3.
+
+**Y un falso positivo de la misma lista, ya medido**: `actions-logs-admin-list` y
+`actions-logs-admin-datatables` se descartan porque su URL contiene `/actions`, que casa con el
+patrón de las rutas de acción. **Son un listado de registro, puro leer.** Se ejercitaron aparte:
+200 las dos, sin escribir nada.
+
+### Siete rutas rotas que la cobertura destapó, y NO son de E2-a
+
+No se tocan —salen de cumplir el punto 3, no del encargo—, pero quedan dichas:
+
+| Ruta | Estado | Qué pasa |
+| :-- | --: | :-- |
+| `interest-research-areas-admin-ajax-all` | 500 | **`Unknown column 'interest_research_area.startDate'`**. La consulta pide una columna que no existe |
+| `images-repository-admin-ajax-all` | 500 | `_all(): Argument #3 ($description) must be…` — **la misma familia que T97**: un `null` por defecto hacia un parámetro tipado |
+| `locations-countries-ajax-search` | 500 | «El parámetro `query` es obligatorio». Aquí sí es obligatorio de verdad; lo que está mal es **el 500 donde tocaría un 400** |
+| `informes-acceso` | 404 | Declarada y no alcanzable |
+| `my-profile-admin-my-profile` | 403 | Permisos: probablemente correcto |
+| `statics-files` | 403 | Ídem |
+| `locations-points-datatables` | 404 | **Correcto**: su guarda `isXhr`. Ver T97 |
+
+**La segunda merece subrayado**: es el defecto de T97 en otro archivo. Un valor por defecto que no
+satisface la firma que va a recibirlo **no es un caso aislado, es un patrón**, y conviene buscarlo
+entero en vez de ir cazándolo de uno en uno.
+
+### 3.5 · E2-b sigue sin empezar
+
+Ni una ruta `-actions-*`, ni POST, ni `$_FILES`.
+

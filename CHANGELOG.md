@@ -38,6 +38,22 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Herramientas — `bin/walk-attribute` dice su propia cobertura
+
+**Una ruta que responde 4xx o 5xx no llegó al código que podría escribir**, así que su «sin
+cambios» no significa nada. Hasta ahora se contaba junto a las que sí se ejercitaron, y el
+recorrido informaba en verde. Sobre el mismo universo, el antes y el después:
+
+```
+antes:  186 rutas pedidas, 1 escriben, 0 diferencias NO declaradas          (salida 0)
+ahora:  186 rutas pedidas, 136 EJERCITADAS, 50 con error
+        1 escriben, 0 diferencias NO declaradas
+        166 omitidas antes de pedir, con su razón                           (salida 1)
+```
+
+La pasada sale con **código 1** también por cobertura parcial, no solo por diferencias sin
+declarar, y `--skipped` lista las omitidas con su motivo.
+
 ## Corregido — dos caminos de LECTURA devolvían 500
 
 **Los endpoints de DataTables fallaban ante cualquier petición sin los parámetros que envía

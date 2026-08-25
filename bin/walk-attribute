@@ -21,6 +21,10 @@
  * NO se escriben en ningún archivo ni se imprimen.
  *
  * SOLO GET, y descarta por nombre y por URL cualquier ruta de escritura.
+ *
+ * DICE SU PROPIA COBERTURA. Una ruta que respondió 4xx o 5xx no llegó al código que podría
+ * escribir, así que su «sin cambios» no significa nada: se cuenta aparte, se lista, y la pasada
+ * sale con código 1. Informar verde sobre media lista es la LEY 13 fuera de las suites. Ver T98.
  */
 
 $options = [];
@@ -251,6 +255,7 @@ if ($previous === null) {
 }
 
 $attribution = [];
+$requested = [];
 $index = 0;
 foreach ($targets as $target) {
     $index++;
@@ -262,6 +267,8 @@ foreach ($targets as $target) {
     }
     $changes = $diff($previous, $current);
     $previous = $current;
+
+    $requested[] = ['name' => $target['name'], 'url' => $target['url'], 'status' => $response['status']];
 
     if (count($changes) > 0) {
         $attribution[] = [
@@ -315,8 +322,44 @@ foreach ($attribution as $row) {
     }
 }
 
-echo "RESUMEN: " . count($targets) . ' rutas pedidas, ' . count($attribution) . ' escriben, '
-    . $undeclared . " diferencia(s) NO declarada(s).\n";
+//──── COBERTURA ─────────────────────────────────────────────────────────────────────────
+//Una ruta que respondio 4xx o 5xx NO se ejercito: no llego al codigo que podria escribir, asi
+//que su «sin cambios» no dice nada. Contarla como limpia es la LEY 13 fuera de las suites.
+$exercised = [];
+$broken = [];
+foreach ($requested as $row) {
+    if ($row['status'] >= 200 && $row['status'] < 400) {
+        $exercised[] = $row;
+    } else {
+        $broken[] = $row;
+    }
+}
+
+if (count($broken) > 0) {
+    echo "\n── NO SE EJERCITARON: respondieron con error ──\n\n";
+    foreach ($broken as $row) {
+        printf("   \e[31m%3d\e[39m  %s\n", $row['status'], $row['name']);
+    }
+    echo "\n";
+}
+
+echo "RESUMEN: " . count($targets) . ' rutas pedidas, ' . count($exercised) . ' EJERCITADAS, '
+    . count($broken) . " con error.\n";
+echo "         " . count($attribution) . ' escriben, ' . $undeclared . " diferencia(s) NO declarada(s).\n";
+echo "         " . count($skipped) . " omitidas antes de pedir, con su razon (--skipped para verlas).\n";
+
+if (isset($options['skipped'])) {
+    echo "\n── OMITIDAS ANTES DE PEDIR ──\n\n";
+    foreach ($skipped as [$name, $reason]) {
+        printf("   %-52s %s\n", mb_substr($name, 0, 52), $reason);
+    }
+    echo "\n";
+}
+
+if (count($broken) > 0) {
+    echo "\n\e[31mLA COBERTURA NO ES COMPLETA.\e[39m " . count($broken) . " ruta(s) no llegaron a ejecutarse:\n";
+    echo "un «sin cambios» sobre una ruta que aborto NO significa que no escriba.\n";
+}
 echo "AVISO: la atribución supone que nada más toca la base durante el recorrido. Un cronjob o\n";
 echo "       una petición ajena en paralelo se le colgarían a la ruta equivocada.\n";
 
@@ -326,9 +369,16 @@ file_put_contents($lastWalkPath, (string) time());
 
 if (isset($options['json']) && is_string($options['json'])) {
     file_put_contents($options['json'], json_encode([
-        'attribution' => $attribution, 'skipped' => $skipped, 'undeclared' => $undeclared,
+        'attribution' => $attribution,
+        'requested' => $requested,
+        'exercised' => count($exercised),
+        'broken' => $broken,
+        'skipped' => $skipped,
+        'undeclared' => $undeclared,
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     echo "\nJSON: " . $options['json'] . "\n";
 }
 
-exit($undeclared > 0 ? 1 : 0);
+//Sale con error TAMBIEN si la cobertura fue parcial: informar verde sobre la mitad del universo
+//es el mismo defecto que una suite omitida contada como aprobada.
+exit($undeclared > 0 || count($broken) > 0 ? 1 : 0);
