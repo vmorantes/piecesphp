@@ -8261,3 +8261,93 @@ bloque —el `'null'` de T86 salió de tocar el ORM de refilón—. **Si el PROP
 E3 cuanto antes, el que hay que vigilar es E2-b**, y conviene decidir de antemano qué se arregla
 dentro y qué se aparta como lote, igual que se hizo con los 30 de T80.
 
+
+### M · `isset()` sobre una propiedad mágica devuelve SIEMPRE false — y no es solo de los mappers
+
+*Encontrado por CODER al arreglar la fila hidratada; medido y ampliado por ARQUITECTO el
+2026-08-25. Se anota aparte porque el alcance excede con mucho al arreglo que lo destapó.*
+
+Una clase con `__get`/`__set` pero **sin `__isset()`** hace que `isset()` sobre sus propiedades
+mágicas devuelva `false` sin preguntar a nadie: `isset()` no llama a `__get`, llama a `__isset()`,
+y si no existe contesta que no.
+
+**El censo, medido en los cinco repositorios:**
+
+| | `__get` | `__set` | `__isset` | `__unset` |
+| :-- | --: | --: | --: | --: |
+| piecesphp + database | **6 clases** | 5 | **0** | **0** |
+| datastructures · html · geojson | 0 | 0 | 0 | 0 |
+
+Las seis clases:
+
+| Repositorio | Clase |
+| :-- | :-- |
+| database | `EntityMapper` |
+| database | `ORM\ORM` |
+| database | `ExtensibleORM` |
+| piecesphp | `EntityMapperExtensible` |
+| piecesphp | `GenericContentPseudoMapper` |
+| piecesphp | **`UserDataPackage`** |
+
+**Dos cosas que esto dice y que no se veían mirando solo el caso que lo destapó:**
+
+1. **Están los dos linajes del ORM.** No es una carencia del viejo que el nuevo arregle:
+   `ORM` y `ExtensibleORM` la heredan igual, así que la sucesión no la cura.
+2. **`UserDataPackage` es el usuario de la sesión.** Es lo que devuelve
+   `getLoggedFrameworkUser()`, con 123 sitios encadenados contados en esta campaña. Cualquier
+   `isset($user->x)` o `$user->x ?? $otro` en el camino de sesión o de permisos está afectado.
+
+**Las tres formas, y la tercera es la peligrosa:**
+
+- `isset($m->x)` → `false` siempre.
+- `empty($m->x)` → `true` siempre.
+- `$m->x ?? $otro` → **siempre `$otro`**, y parece un valor por defecto inofensivo mientras
+  descarta el valor real.
+
+Y `__unset` a cero: `unset($m->x)` sobre una propiedad mágica **no hace nada y no avisa**.
+
+**Lo que hay que medir, y no se ha hecho:** cuántos sitios preguntan `isset()`, `empty()` o `??`
+sobre una propiedad de cualquiera de esas seis clases.
+
+**Dos salidas, y no las decide ARQUITECTO:** implementar `__isset()` en las seis —arregla todo de
+golpe y cambia la conducta de código que hoy funciona *por* la ausencia— o corregir los sitios uno
+a uno. La primera es una línea por clase con radio grande; la segunda es segura y no termina
+nunca.
+
+**Se mide antes de decidir**, y el orden importa: si se implementa `__isset()`, cualquier sitio
+que hoy dependa del `false` cambia de conducta en silencio.
+
+### N · Propiedades declaradas entre métodos — 15 casos, y se cierran ahora
+
+*Señalado por el PROPIETARIO el 2026-08-25 al ver `$lastChangedFields` declarada entre dos
+métodos en `BaseEntityMapper`. Medido por ARQUITECTO.*
+
+La convención del proyecto es que las propiedades van arriba, antes del primer método. **Se
+cumple casi en todas partes**, y por eso las excepciones son baratas de cerrar:
+
+| Repositorio | Archivo | Casos |
+| :-- | :-- | --: |
+| piecesphp | `core/psr4/PiecesPHP/Core/BaseMongoModel.php` | 6 |
+| piecesphp | `core/psr4/PiecesPHP/Core/BaseController.php` | 5 |
+| piecesphp | `core/psr4/PiecesPHP/Core/BaseEntityMapper.php` | 1 ← nuestra, de esta semana |
+| database | `src/Core/Database/SchemeCreator.php` | 2 |
+| database | `src/Core/Database/EntityMapper.php` | 1 |
+
+**Quince en dos repositorios.** La sospecha del PROPIETARIO era que estaba por todas partes; la
+medición dice lo contrario, y eso es precisamente el argumento para cerrarlo hoy: una convención
+que se cumple en el 99 % de los archivos se puede volver mecanismo sin deuda previa.
+
+### O · Suerte de dos hipótesis de ARQUITECTO en este bloque
+
+Se anotan las dos, la acertada y la fallida, porque el registro solo sirve si guarda las dos.
+
+- **`array.duplicateKey` de mapbox — REFUTADA.** ARQUITECTO dijo que significaba que una de las
+  dos entradas nunca se había copiado y que podía haber un archivo que se cree desplegado sin
+  estarlo. CODER lo midió: **las dos entradas eran idénticas en clave y en valor**, no tapaban
+  nada. Borrada, sin consecuencia.
+- **La siembra de la instantánea en los 21 — ACERTADA.** ARQUITECTO dijo que no hacía falta
+  medir si podía ser estructural, porque `objectToMapper()` ya recibe la fila cruda y la siembra
+  es una línea idéntica. Lo fue: 42 inserciones, cero variantes.
+
+*La refutada costó una comprobación que, de paso, encontró el desfase de `mapbox-gl.js`. Una
+hipótesis falsa medida sigue produciendo algo; una hipótesis falsa aceptada, no.*
