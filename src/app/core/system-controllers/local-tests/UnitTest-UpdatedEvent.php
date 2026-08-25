@@ -42,6 +42,11 @@ CliActions::make('unit-tests:core/updated-event', function ($args) {
         $balance();
         return ['success' => false, 'message' => 'la suite no pudo correr'];
     }
+    if (!method_exists(new UsersModel(), 'changedFields')) {
+        $check(false, 'el paquete instalado trae changedFields()', 'hace falta piecesphp/database >= 3.8.0: LA SUITE NO PUDO CORRER');
+        $balance();
+        return ['success' => false, 'message' => 'la suite no pudo correr'];
+    }
 
     //El accesor llega en piecesphp/database 3.7.0. Aquí se pregunta una vez y se estrecha.
     $changedRows = static function (EntityMapperExtensible $mapper): int {
@@ -119,19 +124,58 @@ CliActions::make('unit-tests:core/updated-event', function ($args) {
             'el alias quedó en «' . $aliasOf() . '»'
         );
 
-        //──── EL LÍMITE, MEDIDO: un mapper que sella `updatedAt` SÍ cambia una fila ─────
+        //──── LOS QUE SELLAN `updatedAt`: LA FILA CAMBIA Y AUN ASÍ NO ES UNA EDICIÓN ────
+        //Era el límite de T76 y es lo que cierra v3.8.0. Ver T87.
         $stamper = \Organizations\Mappers\OrganizationMapper::class;
         $organizationId = (int) $database->query("SELECT referenceValue FROM `{$table}` WHERE referenceTable = 'organizations_elements' LIMIT 1")->fetchColumn();
-        if ($organizationId !== 0) {
-            $organization = new $stamper($organizationId);
-            $organization->update();
-            $check(
-                $changedRows($organization) >= 1,
-                'un mapper que sella updatedAt cambia una fila AUNQUE no se toque nada',
-                'contó ' . $changedRows($organization)
-                    . '. Si esto falla, alguien cambió el sellado y el límite de T76 ya no es el que dice'
-            );
-        }
+        $organizationWhere = "referenceTable = 'organizations_elements' AND referenceValue = " . $database->quote((string) $organizationId);
+        $organizationStatus = static fn (): string => (string) $database->query("SELECT status FROM `{$table}` WHERE {$organizationWhere}")->fetchColumn();
+        $organizationOriginal = $organizationStatus();
+
+        //El sello solo cambia la fila si el segundo cambió: dos guardados dentro del mismo
+        //segundo cuentan 0. Se envejece la marca a mano para que la prueba NO dependa del reloj.
+        $ageStamp = static function () use ($database, $organizationId): void {
+            $database->exec("UPDATE organizations_elements SET updatedAt = '2020-01-01 00:00:00' WHERE id = {$organizationId}");
+        };
+
+        $ageStamp();
+        $organization = new $stamper($organizationId);
+        $organization->update();
+        $check(
+            $changedRows($organization) >= 1,
+            'un mapper que sella updatedAt cambia una fila AUNQUE no se toque nada',
+            'contó ' . $changedRows($organization)
+        );
+        $sealed = $organization->lastChangedFields();
+        $check(
+            is_array($sealed) && count(array_diff($sealed, \SystemApprovals\Util\Packages\OrganizationApprovalHandler::auditFields())) === 0,
+            'y lo único que cambió eran SELLOS de auditoría',
+            'cambió: ' . json_encode($sealed)
+        );
+
+        $ageStamp();
+        $database->exec("UPDATE `{$table}` SET status = " . $database->quote(SystemApprovalsMapper::STATUS_REJECTED) . " WHERE {$organizationWhere}");
+        $organization = new $stamper($organizationId);
+        $organization->update();
+        $check(
+            $organizationStatus() === SystemApprovalsMapper::STATUS_REJECTED,
+            'un RECHAZADO de los que sellan updatedAt, guardado sin cambios, SIGUE RECHAZADO',
+            'quedó en ' . $organizationStatus()
+        );
+
+        $ageStamp();
+        $database->exec("UPDATE `{$table}` SET status = " . $database->quote(SystemApprovalsMapper::STATUS_REJECTED) . " WHERE {$organizationWhere}");
+        $organizationAddress = (string) $database->query("SELECT address FROM organizations_elements WHERE id = {$organizationId}")->fetchColumn();
+        $organization = new $stamper($organizationId);
+        $organization->address = 'ZZ-CENTINELA';
+        $organization->update();
+        $check(
+            $organizationStatus() === SystemApprovalsMapper::STATUS_PENDING,
+            'y con un cambio de verdad SÍ pasa a PENDIENTE',
+            'quedó en ' . $organizationStatus()
+        );
+        $database->exec("UPDATE organizations_elements SET address = " . $database->quote($organizationAddress) . " WHERE id = {$organizationId}");
+        $database->exec("UPDATE `{$table}` SET status = " . $database->quote($organizationOriginal) . " WHERE {$organizationWhere}");
 
     } finally {
         $database->exec("UPDATE `pcsphp_users` SET secondname = " . $database->quote($originalSecondName) . " WHERE id = {$id}");

@@ -109,4 +109,15 @@ interface ApprovalElementHandlerInterface
      * @return UsersModel|null
      */
     public static function getContactUser(EntityMapper $reference): ?UsersModel;
+
+    /**
+     * Campos cuyo cambio NO cuenta como edición: sellos de auditoría.
+     *
+     * Lo pide la INTERFAZ a propósito, y no una lista central: un manejador nuevo que no lo
+     * declare **no compila**, mientras que una lista global se queda corta en silencio el día
+     * que alguien añade el quinto módulo. Ver LEY 11 y T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array;
 }

@@ -1284,54 +1284,54 @@
  ------ ----------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php  
  ------ ----------------------------------------------------------------------------------- 
-  66     Cannot access property $type on App\Model\UsersModel|int.                          
+  77     Cannot access property $type on App\Model\UsersModel|int.                          
          🪪  property.nonObject                                                             
  ------ ----------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php                                                                                                                       
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  52     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContentTypeSpeci…'} given.  
+  62     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContentTypeSpeci…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  81     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'isAutoApprovalSpeci…'} given.  
+  91     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'isAutoApprovalSpeci…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  89     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onApprovedSpecificM…'} given.  
+  99     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onApprovedSpecificM…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  96     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onRejectedSpecificM…'} given.  
+  106    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onRejectedSpecificM…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  103    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onUpdatedRecordSpec…'} given.  
+  113    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onUpdatedRecordSpec…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  110    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContactUserSpeci…'} given.  
+  120    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContactUserSpeci…'} given.  
          🪪  argument.type                                                                                                                                                                           
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php  
  ------ ------------------------------------------------------------------------------- 
-  62     Cannot access property $type on App\Model\UsersModel|int.                      
+  73     Cannot access property $type on App\Model\UsersModel|int.                      
          🪪  property.nonObject                                                         
  ------ ------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php  
  ------ ------------------------------------------------------------------------------- 
-  59     Cannot access property $type on App\Model\UsersModel|int.                      
+  70     Cannot access property $type on App\Model\UsersModel|int.                      
          🪪  property.nonObject                                                         
  ------ ------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------ 
   project://src/src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php  
  ------ ------------------------------------------------------------------------ 
-  49     Cannot access property $organization on App\Model\UsersModel|null.      
+  60     Cannot access property $organization on App\Model\UsersModel|null.      
          🪪  property.nonObject                                                  
-  53     Cannot access property $type on App\Model\UsersModel|null.              
+  64     Cannot access property $type on App\Model\UsersModel|null.              
          🪪  property.nonObject                                                  
  ------ ------------------------------------------------------------------------ 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/SystemApprovalManager.php                                                                                                                                                                                                                                    
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  83     Property SystemApprovals\Util\SystemApprovalManager::$configurations (array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>>) does not accept array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|SystemApprovals\Util\ApprovalElementHandlerInterface>.  
+  88     Property SystemApprovals\Util\SystemApprovalManager::$configurations (array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>>) does not accept array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|SystemApprovals\Util\ApprovalElementHandlerInterface>.  
          🪪  assign.propertyType                                                                                                                                                                                                                                                                           
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1533,7 +1533,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  277    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  283    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 

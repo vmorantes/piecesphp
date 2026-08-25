@@ -322,17 +322,17 @@ project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	property.nonObject (Líneas: 206)
 	argument.type (Líneas: 314, 315, 315)
 project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php
-	property.nonObject (Líneas: 66)
+	property.nonObject (Líneas: 77)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
-	argument.type (Líneas: 52, 81, 89, 96, 103, 110)
+	argument.type (Líneas: 62, 91, 99, 106, 113, 120)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
-	property.nonObject (Líneas: 62)
+	property.nonObject (Líneas: 73)
 project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php
-	property.nonObject (Líneas: 59)
+	property.nonObject (Líneas: 70)
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
-	property.nonObject (Líneas: 49, 53)
+	property.nonObject (Líneas: 60, 64)
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
-	assign.propertyType (Líneas: 83)
+	assign.propertyType (Líneas: 88)
 project://src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.php
 	method.nonObject (Líneas: 13, 153)
 	argument.type (Líneas: 74, 78)
@@ -370,7 +370,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 366)
 	method.deprecated (Líneas: 377)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 277)
+	argument.type (Líneas: 283)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php

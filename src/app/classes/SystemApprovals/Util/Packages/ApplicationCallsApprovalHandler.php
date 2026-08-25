@@ -20,6 +20,17 @@ use SystemApprovals\Mappers\SystemApprovalsMapper;
 class ApplicationCallsApprovalHandler extends BaseApprovalHandler
 {
 
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['updatedAt', 'modifiedBy'];
+    }
+
     protected static $APPROVALS_ALLOW = true;
     protected static $MAPPER_NAME = ApplicationCallsMapper::class;
     protected static $REFERENCE_TABLE = ApplicationCallsMapper::TABLE;

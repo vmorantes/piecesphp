@@ -8094,3 +8094,127 @@ que corren antes **le dejan filas**. O sea: **el resultado de una suite depende 
 antes que ella en la misma pasada.** Subió, así que no es una alarma; pero un número que se mueve
 sin que nadie lo toque merece estar escrito antes de que un día se mueva hacia abajo.
 
+## T86 · UNA COLUMNA `json` A NULL SE REESCRIBE COMO LA CADENA `'null'`
+
+**No lo buscaba nadie: lo encontró la herramienta de T87 en su primera corrida.**
+
+```
+EN LA BASE antes:                          NULL
+EN LA BASE tras un update sin tocar nada:  'null'
+```
+
+`castPHPToSQLTypes()` convierte el `null` de una columna `json` en la **cadena de cuatro letras**
+`null`, así que el primer `update()` de una fila con esa columna a NULL **la reescribe**.
+
+**Por qué nadie se enteró**: `json_decode('null')` devuelve `null`, así que al leerlo por el ORM
+se comporta igual. Lo que deja de funcionar es todo lo que pregunte por la columna **en SQL**:
+`WHERE meta IS NULL` deja de encontrar esas filas, y `COALESCE` ya no salta.
+
+**No se arregla aquí**: arreglarlo cambia lo que se escribe, y eso merece su propia decisión con
+su propia medición —cuántas filas de producción ya tienen `'null'` guardado—. **Queda FIJADO por
+la suite del paquete**: si algún día deja de pasar, la prueba lo dirá en vez de que el cambio pase
+inadvertido.
+
+*(Y la lección de método: **una herramienta que responde una pregunta nueva encuentra defectos
+viejos**. `changedFields()` se construyó para saber qué cambia un guardado, y lo primero que dijo
+fue que un guardado cambia algo que nadie había pedido.)*
+
+## T87 · LA INSTANTÁNEA — v3.8.0, y el `updated` deja de reabrir rechazos en LOS CUATRO
+
+### El mérito, dicho
+
+**La idea es del PROPIETARIO**: que el mapper guarde al hidratarse el estado del registro.
+**ARQUITECTO la tradujo a comparar campos del objeto**, que era el nivel equivocado — ahí hacen
+falta reglas por tipo y todas fallan. **Bajarla a comparar la fila cruda contra `dataToUpdate()`**
+es lo que hace que la regla por tipo deje de existir.
+
+> **REGLA GENERAL, que sale de ahí:**
+> **SI HAY QUE INVENTAR UNA REGLA POR TIPO, SE ESTÁN COMPARANDO LAS COSAS EQUIVOCADAS.**
+>
+> Comparar `DateTime` con `DateTime`, `stdClass` con `stdClass` y mapper con id pedía tres reglas
+> distintas y ninguna era fiable. Comparar **valores SQL contra valores SQL** no pide ninguna. La
+> señal de que se está en el nivel equivocado es la tabla de excepciones que uno se ve obligado a
+> escribir.
+
+### Lo que trae v3.8.0
+
+| Pieza | Qué hace |
+| :-- | :-- |
+| `changedFields(): ?array` | `null` = «no lo sé», `[]` = «nada», lista = esos campos |
+| Instantánea en el constructor | De la fila, **antes** de castear nada |
+| `seedRowSnapshot($row)` | Para los caminos que no pasan por el constructor |
+| Refresco tras guardar | Con lo escrito, sin releer |
+
+### La siembra en los 21, y por qué fue una línea
+
+**No hubo que medir nada**: `objectToMapper()` **ya recibe la fila cruda completa como argumento**
+—para eso existe, según el PROPIETARIO: usar las capacidades del mapper sin releer la base cuando
+ya se tiene el registro, sobre todo en los DataTables—. **La foto es el argumento.**
+
+Los 21 métodos resultaron **uniformes en el punto que importa**: todos hacen `$mapper = new X;`.
+Una línea idéntica después de esa, en los 21. **42 inserciones, 21 archivos, cero variantes.**
+
+**La guarda de versión vive en UN sitio**, `BaseEntityMapper::seedSnapshotFrom()`, y no en los 21:
+con un paquete anterior no revienta, simplemente no siembra.
+
+**Comprobación 14** de `verify-integrity`: todo `objectToMapper()` siembra. Provocada quitando una:
+falla nombrando el archivo. *(Y un tropiezo propio: la primera versión buscaba el texto
+`function objectToMapper` y **se contaba a sí misma** —21 pasaron a 22—. Ahora busca la
+declaración, `public static function objectToMapper(`, que su propio código no contiene.)*
+
+### 1.4 · El manejador declara sus sellos, y la interfaz lo exige
+
+```php
+public static function auditFields(): array;   //en ApprovalElementHandlerInterface
+```
+
+**`BaseApprovalHandler` pasa a ser `abstract` y declara el método `abstract`**, que es lo que da
+la propiedad pedida: si la base lo implementara, un manejador nuevo **heredaría una respuesta que
+nadie decidió**. Así **no compila** hasta que alguien la piense.
+
+Los cuatro declaran: `['updatedAt', 'modifiedBy']` los tres que sellan, `['modified_at']` el de
+usuarios.
+
+### 1.5 · Y ahora sí: NINGUNO de los cuatro reabre un rechazo por un guardado vacío
+
+`unit-tests:core/updated-event`, **10 comprobaciones**. Las cuatro que cierran el asunto:
+
+```
+[PASÓ] un mapper que sella updatedAt cambia una fila AUNQUE no se toque nada
+[PASÓ] y lo único que cambió eran SELLOS de auditoría
+[PASÓ] un RECHAZADO de los que sellan updatedAt, guardado sin cambios, SIGUE RECHAZADO
+[PASÓ] y con un cambio de verdad SÍ pasa a PENDIENTE
+```
+
+**Rota quitando la guarda del escuchador**: el rechazo vuelve a reabrirse. Y **el escuchador no se
+tocó en su intención**: sigue reabriendo al editar, que es lo que el PROPIETARIO decidió.
+
+### Dos defectos que la prueba destapó, y uno era mío
+
+**1 · La fila NO siempre llega cruda.** Cuando el mapper tiene claves ajenas, la consulta con JOIN
+devuelve el campo de referencia **ya hidratado como mapper**, así que `changedFields()` decía que
+`country`, `city` y `createdBy` cambiaban **en cada guardado**. Corregido normalizando al valor que
+se escribiría. Y el acceso **no puede hacerse con `isset()`**: son propiedades mágicas y
+`EntityMapper` no define `__isset()`, así que `isset()` devolvía `false` siempre y la normalización
+no llegaba a ejecutarse. *Lo destapó la suite del consumidor, no la del paquete.*
+
+**2 · Mi propia prueba era intermitente, y pasaba por el motivo equivocado.** La comprobación del
+sello dependía de que el segundo del reloj cambiara entre dos guardados. La primera vez que
+provoqué el fallo quitando la guarda, **salió 10/10**: la prueba aprobaba sin la guarda. Si me
+quedo ahí, habría embarcado una guarda que no hace nada y una prueba que no lo detecta.
+
+> **Se arregla envejeciendo el sello a mano** —`updatedAt = '2020-01-01'`— antes de medir. Una
+> prueba que depende del reloj no es una prueba: es una moneda. Y **la provocación es lo que la
+> descubrió**, no la ejecución en verde: T21 otra vez, y esta vez contra mí.
+
+### Estado: la puerta queda ROJA hasta el push
+
+`src/vendor` tiene **v3.7.0**; la **v3.8.0** está commiteada y etiquetada, sin empujar. Todo lo de
+arriba se midió instalando el paquete local a mano, y después se **devolvió a v3.7.0**. La suite
+**no se omite**: falla diciendo que hace falta `>= 3.8.0`.
+
+**Para cerrarla**: push de `v3.8.0` y `php8.5 /usr/bin/composer update piecesphp/database`.
+
+*(Aviso de proceso: la etiqueta `v3.8.0` se **reapuntó** al commit del arreglo de arriba, porque el
+defecto se encontró antes de que la etiqueta saliera del disco. Es local y nunca se empujó.)*
+

@@ -145,6 +145,22 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Corregido — un guardado sin cambios ya no reabre un rechazo en NINGÚN módulo
+
+El arreglo anterior hacía que `updated` solo saltara si la base decía que cambió una fila, y eso
+**no bastaba en tres de los cuatro tipos con aprobaciones**: sus mappers sellan `updatedAt` y
+`modifiedBy` en cada guardado, así que la fila cambiaba de verdad.
+
+Ahora el escuchador pregunta **qué** campos cambiaron y los compara con los que el manejador
+declara como sellos de auditoría. **La declaración la exige la interfaz**: un manejador nuevo que
+no la haga no compila, mientras que una lista central se quedaría corta en silencio.
+
+**El escuchador conserva su intención**: reabrir un rechazo al editar sigue pasando, y hay una
+comprobación que lo demuestra.
+
+**Requiere `piecesphp/database` >= 3.8.0.** Con una versión anterior se mantiene la conducta
+anterior y la suite `unit-tests:core/updated-event` **falla** para decirlo.
+
 ## Herramientas — cada suite declara qué hace fuera de sí misma
 
 Correr las puertas hacía una petición a un servicio de terceros, y lo único que impedía que

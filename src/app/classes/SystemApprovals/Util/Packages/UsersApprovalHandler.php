@@ -22,6 +22,17 @@ use SystemApprovals\Util\SystemApprovalManager;
 class UsersApprovalHandler extends BaseApprovalHandler
 {
 
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['modified_at'];
+    }
+
     protected static $APPROVALS_ALLOW = true;
     protected static $MAPPER_NAME = UsersModel::class;
     protected static $REFERENCE_TABLE = UsersModel::TABLE;
