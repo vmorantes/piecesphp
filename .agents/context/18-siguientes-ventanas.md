@@ -374,6 +374,21 @@ funcionan.
 **La lección, que es la que da su tamaño a la ley**: la guarda de versión estaba bien escrita en
 los tres sitios. Lo que faltaba no era la guarda —era que alguien se enterara de que había saltado.
 
+#### LA FORMA MÁS PURA DE LA LEY: `helpers-directories` decía verde mientras enseñaba rojo
+
+La suite `unit-tests:core/helpers-directories` **devolvía `success => true` pasara lo que
+pasara**: su `return` llevaba el éxito escrito a mano, sin mirar ningún contador. Y a la vez
+imprimía `[FALLÓ]` por pantalla en cada comprobación que no pasaba.
+
+**Es el tercer estado de la ley en su forma más pura.** Una suite omitida *calla*, que ya es
+malo. Esta **afirmaba lo contrario de lo que enseñaba**: quien leyera la pantalla veía rojo,
+quien leyera el veredicto veía verde. Y lo que se propaga aguas abajo —a un corredor, a un
+script que encadena tareas, a un CI— **es el veredicto, no la pantalla**.
+
+**Lo que la distingue del caso que funda la ley**: la omisión de `scheme-sql-round-trip` al
+menos dejaba una línea que alguien podía leer. Aquí no había nada que leer, había una mentira
+bien formada. Corregida en T85: cuenta y devuelve la verdad, **19/19**.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -5147,6 +5162,27 @@ sobre el cuerpo del método. Reintroducido el defecto **delegando la escritura a
 
 **Arreglo**: la suite gana una comprobación de comportamiento. Crea un usuario propio sin filas
 de OTP, llama a los dos buscadores **de verdad**, y cuenta filas antes y después. Sube a 7/7.
+
+### Caso 3 — mi propia prueba del evento `updated` pasó por el motivo equivocado
+
+**La suite que escribí para fijar que el evento `updated` solo se dispara si cambió una fila
+pasó 10/10 con la guarda quitada.** No porque la guarda sobrase: porque las dos escrituras del
+caso ocurrían **en el mismo segundo**, y `updatedAt` tiene resolución de segundo. Con el defecto
+reintroducido, el campo salía idéntico y no había cambio que detectar.
+
+O sea que la provocación de T21 la hice, salió verde, y la leí como «la guarda no era el motivo»
+cuando el motivo era el reloj. **Validé la prueba y no me enteré de que no la había validado.**
+
+**Arreglo**: envejecer la marca por SQL —`updatedAt = '2020-01-01 00:00:00'`— antes de la
+segunda escritura, para que el cambio no dependa de cuánto tarde la máquina en cruzar el
+siguiente segundo. Con eso, quitar la guarda la rompe.
+
+> **Una prueba que depende del reloj no es una prueba: es una moneda.** Y sale cara casi
+> siempre, que es lo que la vuelve peligrosa: no falla lo bastante para que nadie mire.
+
+Es el caso 1 con otra cara. Allí el entorno hacía cierta la afirmación por el juego de
+caracteres que la base ya traía; aquí, por la resolución del reloj. **Las dos veces la prueba
+medía el entorno creyendo que medía el código.**
 
 ### La regla
 
