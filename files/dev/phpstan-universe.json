@@ -1,13 +1,17 @@
 {
-  "why": "QUÉ CÓDIGO PHP DEL REPOSITORIO NO MIRA PHPSTAN, Y CON QUÉ RAZÓN. El baseline de 859 se mide sobre `paths` de bin/phpstan.neon —src/app y src/index.php, 802 archivos—, no sobre todo el PHP versionado. Lo que queda fuera no es poco ni es ajeno: incluye las herramientas que hacen cumplir las reglas de esta campaña. Una cifra de referencia que mide menos de lo que se cree es peor que una cifra alta. La comprobación 13 de `bin/cli verify-integrity` falla si aparece PHP fuera de lo declarado. Ver T77.",
+  "why": "POR QUÉ CADA EXCLUSIÓN DE `bin/phpstan.neon` ESTÁ AHÍ. `paths` apunta a la raíz del repositorio, así que TODO el PHP entra por defecto y lo único que puede sacarlo es `excludePaths`. Una exclusión nueva no baja la cifra de errores: la deja igual de verde midiendo menos, que es la única forma en que uno de nuestros números puede AFIRMAR algo falso. Por eso cada entrada del neon tiene que estar aquí con su razón, y la comprobación 13 de `bin/cli verify-integrity` falla si aparece una que no lo esté. Ver T77 y T79.",
   "rules": [
-    "Un prefijo solo entra con su razón escrita. Si al escribirla resulta que no la hay, el arreglo es META EL CÓDIGO EN `paths`, no declararlo fuera.",
-    "`src/adminer` NO se declara aquí: ya está en `excludePaths` del propio neon, que es su sitio. Esto es solo para lo que queda fuera del árbol al que PHPStan apunta.",
+    "Una exclusión solo entra con su razón escrita. Si al escribirla resulta que no la hay —que el código es nuestro y solo tiene errores—, el arreglo es ARREGLARLO o SUPRIMIR el error concreto en `ignoreErrors`, que sí se cuenta.",
+    "El universo NO se enumera: `paths` es la raíz. Lo que se enumera es lo que sale, que es lo que hay que justificar.",
     "LA LISTA SOLO PUEDE ENCOGER."
   ],
-  "outside": {
-    "bin/": "El instrumental: `bin/cli`, `bin/phpstan`, los recorredores y `bin/tools/*.php`. Son guiones de desarrollo que no se despliegan y que no comparten el autoload de la aplicación. QUEDA DICHO QUE ES INCÓMODO: `bin/tools/live-cache.php` y `bin/tools/forbidden-routes.php` son mecanismos de la LEY 11, y el instrumento que mide la calidad no los mira.",
-    "files/CliScripts/": "Dos guiones sueltos de operación puntual —corrección de duración WebM y un generador de tipos de usuario—. No se cargan desde la aplicación.",
-    "tasks/": "`TasksManager.php`, el corredor de tareas de Composer. Corre en cada `composer install`/`update` y vive fuera de `src/` a propósito, porque tiene que existir antes que el autoload."
+  "excluded": {
+    "src/adminer": "Panel de base de datos de terceros, embebido tal cual. No lo escribimos ni lo mantenemos; arreglar sus errores sería un parche que el siguiente `composer`/descarga se lleva.",
+    "src/vendor": "Dependencias de Composer. Ignorado por git y regenerado en cada instalación.",
+    "bin/tools/vendor": "Dependencias del instrumental de desarrollo —el propio PHPStan entre ellas—. Ignorado por git.",
+    "bin/tools/phpstan-src": "Copia del código fuente de PHPStan que se descarga para el autocompletado del editor. Ignorado por git.",
+    "bin/Preview": "Carpeta de trabajo del previsualizador. Ignorada por git.",
+    "node_modules": "Dependencias de Node. Ignorado por git; puede traer PHP de ejemplo dentro de algún paquete.",
+    "src/tmp": "Salida temporal de la aplicación y de las suites. Ignorada por git: el `database-exporter` deja ahí un `.php` generado cada vez que corre."
   }
 }

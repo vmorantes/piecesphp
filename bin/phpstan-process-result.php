@@ -188,11 +188,17 @@ if ($currentTotal > $baselineTotal) {
 }
 
 //Cada cifra del baseline declara «[REPARTO] n <- anterior = x arreglos + y supresiones», o esto no pasa.
+//«+ z destapados»: la cifra sube porque creció el universo, no el daño. Ver T79.
 $baselineText = (string) @file_get_contents($baselinePath);
-if (preg_match_all('/\[REPARTO\]\s*(\d+)\s*<-\s*(\d+)\s*=\s*(\d+)\s+arreglos?\s*\+\s*(\d+)\s+supresi/u', $baselineText, $splits, \PREG_SET_ORDER) > 0) {
+if (preg_match_all('/\[REPARTO\]\s*(\d+)\s*<-\s*(\d+)\s*=\s*(\d+)\s+arreglos?\s*\+\s*(\d+)\s+supresi\S*(?:\s*\+\s*(\d+)\s+destapad)?/u', $baselineText, $splits, \PREG_SET_ORDER) > 0) {
     $splitsByTotal = [];
     foreach ($splits as $s) {
-        $splitsByTotal[(int) $s[1]] = ['from' => (int) $s[2], 'fixed' => (int) $s[3], 'muted' => (int) $s[4]];
+        $splitsByTotal[(int) $s[1]] = [
+            'from' => (int) $s[2],
+            'fixed' => (int) $s[3],
+            'muted' => (int) $s[4],
+            'uncovered' => (int) ($s[5] ?? 0),
+        ];
     }
 } else {
     $splitsByTotal = [];
@@ -239,14 +245,15 @@ if (preg_match('/\[ENTRADAS-NEON\]\s*(\d+)/u', $baselineText, $entradas) === 1) 
 
 if (array_key_exists($baselineTotal, $splitsByTotal)) {
     $s = $splitsByTotal[$baselineTotal];
-    $declared = $s['fixed'] + $s['muted'];
+    $declared = $s['fixed'] + $s['muted'] - $s['uncovered'];
     $real = $s['from'] - $baselineTotal;
     if ($declared !== $real) {
         fwrite(STDERR, "\nTRINQUETE: EL REPARTO NO CUADRA. De {$s['from']} a {$baselineTotal} van {$real}, y se declaran "
-            . "{$s['fixed']} arreglos + {$s['muted']} supresiones = {$declared}.\n");
+            . "{$s['fixed']} arreglos + {$s['muted']} supresiones - {$s['uncovered']} destapados = {$declared}.\n");
         exit(1);
     }
-    echo "TRINQUETE: reparto declarado y cuadrado — {$s['from']} -> {$baselineTotal}: {$s['fixed']} por arreglo, {$s['muted']} por supresión.\n";
+    $uncovered = $s['uncovered'] > 0 ? ", {$s['uncovered']} destapados al ampliar el universo" : '';
+    echo "TRINQUETE: reparto declarado y cuadrado — {$s['from']} -> {$baselineTotal}: {$s['fixed']} por arreglo, {$s['muted']} por supresión{$uncovered}.\n";
 }
 
 echo $currentTotal < $baselineTotal

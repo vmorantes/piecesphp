@@ -145,6 +145,21 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Herramientas — el análisis estático pasa a mirar el repositorio entero
+
+`paths` apuntaba a `src/app` y `src/index.php`: **802 de los 835 archivos PHP versionados**. Ahora
+apunta a la raíz, y lo que queda fuera son **7 exclusiones declaradas con su razón** en
+`files/dev/phpstan-universe.json` —todas de código de terceros o regenerado—. **El código nuevo
+nace analizado**; antes nacía invisible.
+
+La cifra de referencia sube de **859 a 889**, y **no es una regresión**: los 859 del universo viejo
+no se mueven ni en un error, y los 30 nuevos vienen de 5 de los 11 archivos que entran. El
+trinquete gana un tercer término para poder declararlo —`+ N destapados`— sin que una regresión
+pueda disfrazarse de lo mismo.
+
+**Las cifras de PHPStan anteriores a esta versión no son comparables con las siguientes**: no
+cuentan sobre el mismo conjunto de archivos.
+
 ## Herramientas — `verify-integrity` gana una decimotercera comprobación
 
 El análisis estático mira `src/app` y `src/index.php`: **802 de los 835 archivos PHP versionados**.

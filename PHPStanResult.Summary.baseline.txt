@@ -1,6 +1,11 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia de la campaña: 859 tripletas. NO DEJARLO PEOR QUE ESTO.
+Referencia vigente — UNIVERSO COMPLETO: 889 tripletas (2026-08-25). NO DEJARLO PEOR.
+
+LA REFERENCIA CAMBIA DE NOMBRE, NO SOLO DE CIFRA. La anterior —859— medía el UNIVERSO
+REDUCIDO: `paths` apuntaba a `src/app` y `src/index.php`, o sea 802 de los 835 archivos
+PHP versionados. Las cifras de la campaña ANTERIORES a esta línea NO son comparables con
+las siguientes: no cuentan sobre el mismo conjunto de archivos. Ver T77 y T79.
 
 CÓMO SE MIDIÓ, que es lo que hace comparable esta cifra (T0, punto 5):
 
@@ -53,6 +58,26 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 889 <- 859 = 0 arreglos + 0 supresiones + 30 destapados
+    NO ES UNA REGRESIÓN Y NO PUEDE LEERSE COMO TAL: no se ha escrito una línea de código
+    peor. Sube porque `paths` pasa a ser el repositorio entero y entran 11 archivos que
+    nunca se habían analizado. El reparto cuadra en las dos direcciones:
+
+        859  errores en el universo viejo (src/app + src/index.php) — IDÉNTICO
+      +  30  en los archivos que entran
+      = 889
+
+    Los 30 salen de 5 archivos: `files/CliScripts/GeneradorIntegralTipoUsuario.php` (16),
+    `tasks/TasksManager.php` (5), `bin/phpstan-process-result.php` (4),
+    `files/CliScripts/CorregirTiempoDuraciónWebm.php` (4) y `bin/node/copyDependencies.php` (1).
+    Los otros 6 que entran salen LIMPIOS, incluidos los mecanismos de la LEY 11.
+    NO SE ARREGLAN EN ESTE BLOQUE, por orden del PROPIETARIO: primero se ve qué había
+    detrás de la puerta. Ver T79.
+
+[ENTRADAS-NEON] 52
+    Entradas de ignoreErrors cuando se midió 889. Ninguna nueva: la subida no viene de
+    suprimir nada, y esta cota lo comprueba.
+
 [REPARTO] 859 <- 874 = 4 arreglos + 11 supresiones
 [ENTRADAS-NEON] 51
     Entradas de ignoreErrors cuando se midió 874. Es la COTA a la declaración de arriba:
@@ -98,10 +123,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-191
+196
 
 [TOTAL DE ERRORES VISIBLES]
-859
+889
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos

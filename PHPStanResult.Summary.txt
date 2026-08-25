@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-191
+196
 
 [TOTAL DE ERRORES VISIBLES]
-859
+889
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,28 +12,31 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 849
+En las dos (8.4 y 8.5): 879
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (335)
+argument.type (357)
 property.nonObject (191)
 method.nonObject (129)
-return.type (55)
+return.type (56)
 assign.propertyType (38)
 method.resultUnused (26)
+foreach.nonIterable (18)
 property.notFound (18)
-foreach.nonIterable (17)
 offsetAccess.invalidOffset (14)
 nullCoalesce.variable (7)
 clone.nonObject (5)
+variable.undefined (4)
 binaryOp.invalid (3)
 offsetAccess.notFound (3)
 function.deprecated (3)
 encapsedStringPart.nonString (2)
 method.notFound (2)
 offsetAssign.dimType (2)
+class.notFound (2)
+array.duplicateKey (1)
 staticMethod.nonObject (1)
 method.deprecated (1)
 nullCoalesce.offset (1)
@@ -42,9 +45,20 @@ parameter.defaultValue (1)
 nullCoalesce.property (1)
 callable.nonCallable (1)
 nullCoalesce.expr (1)
-variable.undefined (1)
 
 [ERRORES POR ARCHIVO]
+project://bin/node/copyDependencies.php
+	array.duplicateKey (Líneas: 6)
+project://bin/phpstan-process-result.php
+	variable.undefined (Líneas: 7, 9)
+	argument.type (Líneas: 39)
+	return.type (Líneas: 224)
+project://files/CliScripts/CorregirTiempoDuraciónWebm.php
+	argument.type (Líneas: 17, 65, 151)
+	foreach.nonIterable (Líneas: 142)
+project://files/CliScripts/GeneradorIntegralTipoUsuario.php
+	variable.undefined (Líneas: 18)
+	argument.type (Líneas: 43, 76, 85, 90, 97, 104, 111, 118, 129, 144, 164, 185, 185, 204, 214)
 project://src/app/classes/API/Adapters/MistralHandlerAdapter.php
 	method.nonObject (Líneas: 82, 84, 85)
 project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
@@ -595,3 +609,6 @@ project://src/index.php
 	argument.type (Líneas: 611, 630, 666, 678, 755, 766, 880, 891)
 	property.nonObject (Líneas: 638)
 	variable.undefined (Líneas: 906)
+project://tasks/TasksManager.php
+	class.notFound (Líneas: 24, 29)
+	argument.type (Líneas: 75, 127, 127)

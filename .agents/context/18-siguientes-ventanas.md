@@ -7503,3 +7503,90 @@ Entonces el neon sería la única declaración, este JSON sobraría, y **lo que 
 que escribirse en el sitio donde se nota**. Coste a medir antes: los guiones de `bin/` no cargan el
 autoload de la aplicación, así que entrarían con errores propios que hoy nadie cuenta.
 
+## T79 · LOS 11 ENTRAN — el universo pasa a ser el repositorio, y la referencia cambia de nombre
+
+### La forma barata funciona, y no hace falta enumerar nada
+
+`paths: ..` —la raíz— y las excepciones en `excludePaths`. **El universo deja de enumerarse**: lo
+que se enumera ahora es lo que SALE, que es lo que hay que justificar. Y la dirección del fallo se
+invierte, que es lo importante: **el código nuevo nace analizado**. Antes nacía invisible.
+
+| Antes | Ahora |
+| :-- | :-- |
+| `paths` enumeraba lo que entra: 2 rutas | `paths` es la raíz: 1 ruta |
+| Lo que quedaba fuera no estaba escrito en ninguna parte | 7 exclusiones, **cada una con su razón** |
+| 802 archivos analizados | **813** |
+
+Las 7 exclusiones son todas de código que no escribimos o que se regenera: `src/adminer`,
+`src/vendor`, `bin/tools/vendor`, `bin/tools/phpstan-src`, `bin/Preview`, `node_modules` y
+`src/tmp`. **Seis de las siete están ignoradas por git**, que es otra forma de decir lo mismo.
+
+### La referencia se RENOMBRA, no se arrastra
+
+```
+[REPARTO] 889 <- 859 = 0 arreglos + 0 supresiones + 30 destapados
+```
+
+**El vocabulario del trinquete gana un tercer término.** Tenía dos —arreglo y supresión— y ninguno
+sirve aquí: no se ha escrito una línea peor ni se ha silenciado nada. `bin/phpstan-process-result.php`
+ahora acepta `+ z destapados` y lo resta al cuadrar, así que **una subida por ampliación de universo
+se puede declarar y una regresión sigue sin poder colarse como tal.**
+
+**El cuadre, en las dos direcciones:**
+
+```
+859  errores en el universo VIEJO (src/app + src/index.php)  <-- IDÉNTICO, ni uno más
++ 30  en los 11 archivos que entran
+= 889
+```
+
+**Que el viejo universo no se moviera ni en un error es el dato que importa**: la ampliación no
+tapó nada ni destapó nada dentro de lo que ya se medía. Todo lo nuevo viene de lo nuevo.
+
+Y en el propio archivo de baseline queda escrito, con estas palabras: **las cifras de la campaña
+anteriores a esta línea NO son comparables con las siguientes**, porque no cuentan sobre el mismo
+conjunto de archivos. La referencia vigente se llama **«universo completo»**, no «859 subió».
+
+### La comprobación 13 cambia de objeto
+
+Antes vigilaba «qué código queda fuera del árbol». Ya no puede quedar nada fuera, así que ahora
+vigila **lo único que puede sacar código: las exclusiones.** Cada entrada de `excludePaths` tiene
+que estar declarada en `files/dev/phpstan-universe.json` con su razón, y al revés.
+
+| Se provoca | Qué dice |
+| :-- | :-- |
+| Excluir `src/app/classes/Publications` sin declararlo | «excluye «…» y el JSON no dice por qué. **Una exclusión no baja la cifra: la deja igual midiendo menos**» |
+| Quitar del neon una exclusión que el JSON justifica | «justifica «bin/Preview», que el neon ya no excluye. La lista solo puede encoger» |
+| Devolver `paths` a `src/app` | Los 11 vuelven a quedar sin cubrir, uno por línea |
+
+*(Y un tropiezo propio: el analizador del neon exigía que la primera línea del bloque fuera una
+ruta, y al añadir comentarios dentro de `excludePaths` dejó de reconocerlo entero. Falló diciendo
+«no pudo mirar nada», que es lo correcto — pero la lección es que el lector tiene que aguantar el
+archivo tal como es, no al revés.)*
+
+## T80 · QUÉ HABÍA DETRÁS DE LA PUERTA — los 30, sin arreglar
+
+**Por orden del PROPIETARIO no se toca ninguno.** Están aquí para verlos antes de decidir.
+
+**Seis de los 11 salen limpios**, y conviene decirlo primero: `bin/live-cache`, `bin/walk-routes`,
+`bin/walk-attribute`, `bin/tools/live-cache.php`, `bin/tools/forbidden-routes.php` y
+`bin/tools/refactorization/Rector.php`. **Los mecanismos de la LEY 11 estaban limpios al nivel 8
+sin que nadie lo hubiera comprobado nunca.**
+
+| Archivo | Errores | Qué son |
+| :-- | --: | :-- |
+| `files/CliScripts/GeneradorIntegralTipoUsuario.php` | **16** | 15 `argument.type` y 1 variable sin definir. Un guion de operación puntual |
+| `tasks/TasksManager.php` | **5** | 2 `class.notFound` sobre `Composer\Script\Event` —**de configuración, no defecto**: las clases de Composer no están en el autoload del análisis— y 3 `argument.type` |
+| `bin/phpstan-process-result.php` | **4** | `$argc`/`$argv` «podrían no estar definidos», un `str_replace` sobre `string\|false` y un retorno `int\|false` |
+| `files/CliScripts/CorregirTiempoDuraciónWebm.php` | **4** | 3 `argument.type` y un `foreach` sobre algo que puede no ser iterable |
+| `bin/node/copyDependencies.php` | **1** | `array.duplicateKey` |
+
+**El que merece una mirada aunque sea el más pequeño**: el `array.duplicateKey` de
+`copyDependencies.php` es una lista de rutas de assets con **la misma clave dos veces**
+—`node_modules/mapbox-v2.6.0/dist/mapbox-gl.js`—, así que **una de las dos entradas nunca se ha
+copiado**. No es un aviso de tipos: es una línea muerta que nadie sabía que estaba muerta.
+
+**Y el de `$argc`/`$argv`**: dependen de `register_argc_argv`, que en CLI viene activado pero no es
+obligatorio. Es exactamente la clase de suposición que esta campaña ha estado persiguiendo, dentro
+de la herramienta que mide la campaña.
+

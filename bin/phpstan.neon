@@ -32,9 +32,11 @@ parameters:
     phpVersion:
         min: 80400 # PHP 8.4 — piso declarado en src/composer.json
         max: 80500 # PHP 8.5 — la versión que sirve Apache
+    # EL UNIVERSO ES EL REPOSITORIO ENTERO, y lo que queda fuera se dice abajo. Al revés
+    # —enumerar lo que entra— el código nuevo nace invisible y la cifra sale igual de verde
+    # midiendo menos. Ver T77 y T79.
     paths:
-        - ../src/app
-        - ../src/index.php
+        - ..
     scanFiles:
         - ../src/app/config/constants.php
     scanDirectories:
@@ -42,7 +44,16 @@ parameters:
     bootstrapFiles:
         - ../src/vendor/autoload.php
     excludePaths:
+        # De terceros: no lo escribimos nosotros.
         - ../src/adminer
+        # Dependencias y herramientas descargadas. Todas ignoradas por git.
+        - ../src/vendor
+        - ../bin/tools/vendor
+        - ../bin/tools/phpstan-src
+        - ../bin/Preview
+        - ../node_modules
+        # Generado en tiempo de ejecución.
+        - ../src/tmp
     treatPhpDocTypesAsCertain: false
     # Los interruptores de módulo de `src/app/config/constants.php` (regla 8 de
     # CLAUDE.md). CADA DESPLIEGUE los configura, así que su valor NO se conoce en

@@ -1748,10 +1748,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /**
      * Todo el PHP versionado está DENTRO del análisis estático o DECLARADO fuera.
      *
-     * El baseline de la campaña se mide sobre `paths` de `bin/phpstan.neon`. Si aparece código
-     * en un sitio al que PHPStan no apunta, la cifra sigue saliendo igual de verde mientras mide
-     * menos: es la única de nuestras listas que puede hacer que un número AFIRME algo falso.
-     * Ver T77.
+     * `paths` apunta a la raíz, así que TODO entra por defecto y lo único que saca código es
+     * `excludePaths`. Una exclusión no baja la cifra de errores: la deja igual de verde midiendo
+     * menos, que es la única forma en que uno de nuestros números puede AFIRMAR algo falso. Por
+     * eso cada exclusión tiene que estar declarada con su razón. Ver T77 y T79.
      *
      * @return string[]
      */
@@ -1767,23 +1767,45 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //Solo el bloque de PRIMER nivel: el neon lleva muchos `paths:` dentro de ignoreErrors.
         $neon = str_replace("\r\n", "\n", (string) file_get_contents($neonPath));
-        $blocks = [];
+        $blocks = ['paths' => [], 'excludePaths' => []];
         foreach (['paths', 'excludePaths'] as $key) {
-            if (preg_match('/^    ' . $key . ':\n((?:        - .*\n)+)/m', $neon, $matched) !== 1) {
+            //Con comentarios y blancos dentro: el neon los lleva y son suyos, no del lector.
+            if (preg_match('/^    ' . $key . ':\n((?:        .*\n|\n)*)/m', $neon, $matched) !== 1) {
                 return ["bin/phpstan.neon ya no declara `{$key}:` de primer nivel: la comprobación no pudo mirar nada."];
             }
             $blocks[$key] = [];
-            foreach (explode("\n", trim($matched[1])) as $line) {
-                //Las rutas del neon son relativas a bin/.
-                $resolved = str_replace('../', '', trim(str_replace('- ', '', trim($line))));
-                if ($resolved !== '') {
-                    $blocks[$key][] = $resolved;
+            foreach (explode("\n", $matched[1]) as $line) {
+                $line = trim($line);
+                if ($line === '' || !str_starts_with($line, '- ')) {
+                    continue;
                 }
+                //Las rutas del neon son relativas a bin/. `..` es la raíz del repositorio.
+                $value = trim(mb_substr($line, 2));
+                $resolved = $value === '..' ? '' : str_replace('../', '', $value);
+                $blocks[$key][] = $resolved;
+            }
+            if (count($blocks[$key]) === 0) {
+                return ["bin/phpstan.neon declara `{$key}:` sin una sola ruta: la comprobación no pudo mirar nada."];
             }
         }
 
         $declared = json_decode((string) file_get_contents($universePath), true);
-        $outside = is_array($declared) ? array_keys((array) ($declared['outside'] ?? [])) : [];
+        $reasons = is_array($declared) ? (array) ($declared['excluded'] ?? []) : [];
+
+        //UNA EXCLUSIÓN SIN RAZÓN ESCRITA ES UN TROZO DE CÓDIGO QUE DEJA DE MEDIRSE EN SILENCIO.
+        $failures = [];
+        foreach ($blocks['excludePaths'] as $excluded) {
+            if (!array_key_exists($excluded, $reasons)) {
+                $failures[] = 'bin/phpstan.neon excluye «' . $excluded . '» y ' . self::UNIVERSE_RELATIVE_PATH
+                    . ' no dice por qué. Una exclusión no baja la cifra: la deja igual midiendo menos.';
+            }
+        }
+        foreach (array_keys($reasons) as $reason) {
+            if (!in_array($reason, $blocks['excludePaths'], true)) {
+                $failures[] = self::UNIVERSE_RELATIVE_PATH . ' justifica «' . $reason
+                    . '», que el neon ya no excluye. La lista solo puede encoger: quítala.';
+            }
+        }
 
         $output = [];
         $status = 0;
@@ -1796,7 +1818,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $uncovered = [];
         $analysed = 0;
-        $excluded = 0;
+        $excludedCount = 0;
         $total = 0;
 
         foreach ($output as $relative) {
@@ -1811,7 +1833,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
             $under = static function (array $prefixes) use ($relative): bool {
                 foreach ($prefixes as $prefix) {
-                    if ($relative === $prefix || str_starts_with($relative, rtrim($prefix, '/') . '/')) {
+                    //Cadena vacía = la raíz del repositorio: lo cubre todo.
+                    if ($prefix === '' || $relative === $prefix || str_starts_with($relative, rtrim($prefix, '/') . '/')) {
                         return true;
                     }
                 }
@@ -1819,29 +1842,26 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             };
 
             if ($under($blocks['excludePaths'])) {
-                $excluded++;
+                $excludedCount++;
                 continue;
             }
             if ($under($blocks['paths'])) {
                 $analysed++;
                 continue;
             }
-            if (!$under($outside)) {
-                $uncovered[] = $relative;
-            }
+            $uncovered[] = $relative;
         }
 
-        $failures = [];
         foreach (array_slice($uncovered, 0, 10) as $relative) {
-            $failures[] = $relative . ' — ni lo analiza PHPStan ni está declarado fuera en '
-                . self::UNIVERSE_RELATIVE_PATH . '. El baseline no lo cuenta y aun así sale verde.';
+            $failures[] = $relative . ' — ni lo analiza PHPStan ni está excluido. El baseline no lo'
+                . ' cuenta y aun así sale verde.';
         }
         if (count($uncovered) > 10) {
             $failures[] = '… y ' . (count($uncovered) - 10) . ' archivo(s) más en la misma situación.';
         }
 
-        echoTerminal("\e[94mINFO:\e[39m {$total} archivo(s) PHP versionados: {$analysed} analizados, {$excluded} excluidos en el neon, "
-            . ($total - $analysed - $excluded) . ' declarados fuera.');
+        echoTerminal("\e[94mINFO:\e[39m {$total} archivo(s) PHP versionados: {$analysed} analizados y {$excludedCount} excluidos, "
+            . 'con ' . count($reasons) . ' exclusión(es) declarada(s).');
 
         return $failures;
     }
