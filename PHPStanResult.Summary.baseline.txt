@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 889 tripletas (2026-08-25). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 888 tripletas (2026-08-25). NO DEJARLO PEOR.
 
 LA REFERENCIA CAMBIA DE NOMBRE, NO SOLO DE CIFRA. La anterior —859— medía el UNIVERSO
 REDUCIDO: `paths` apuntaba a `src/app` y `src/index.php`, o sea 802 de los 835 archivos
@@ -57,6 +57,11 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 888 <- 889 = 1 arreglos + 0 supresiones + 0 destapados
+    La única excepción autorizada de los 30 destapados: el `array.duplicateKey` de
+    `bin/node/copyDependencies.php`. Las dos entradas eran idénticas en clave Y en valor,
+    así que no tapaban nada; la línea era peso muerto y se borra. Ver T83.
 
 [REPARTO] 889 <- 859 = 0 arreglos + 0 supresiones + 30 destapados
     NO ES UNA REGRESIÓN Y NO PUEDE LEERSE COMO TAL: no se ha escrito una línea de código
@@ -123,10 +128,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-196
+195
 
 [TOTAL DE ERRORES VISIBLES]
-889
+888
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos

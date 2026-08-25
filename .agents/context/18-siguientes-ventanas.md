@@ -7950,3 +7950,51 @@ Quedan en `.git/` dos archivos que ARQUITECTO apartó y no puede borrar:
 `index.lock.stale-arquitecto` y `stale-lock-1`. **Bórralos tú**; son basura inocua, no están
 versionados, y no afectan a nada más que al orden.
 
+## T83 · EL `duplicateKey` DE MAPBOX — no era lo que parecía, y al mirarlo salió otra cosa
+
+**La hipótesis era razonable y es FALSA.** Las dos entradas duplicadas eran idénticas **en clave
+y en valor**:
+
+```php
+"node_modules/mapbox-v2.6.0/dist/mapbox-gl.js" => "src/statics/plugins/mapbox/v2.6.0/mapbox-gl.js",
+"node_modules/mapbox-v2.6.0/dist/mapbox-gl.js" => "src/statics/plugins/mapbox/v2.6.0/mapbox-gl.js",
+```
+
+La segunda pisa a la primera **con el mismo destino**, así que no tapaba ninguna entrada ni dejaba
+ningún archivo sin copiar. Era peso muerto. **Borrada**: es la única excepción autorizada de los 30
+destapados, y el baseline baja a 888.
+
+### Pero la comprobación que hice para descartarlo encontró un archivo desfasado
+
+*Método: para las 9 entradas declaradas, sha1 del origen contra sha1 del destino.*
+
+```
+IGUAL            src/statics/plugins/mapbox/v2.6.0/mapbox-gl.js
+IGUAL            src/statics/plugins/mapbox/v2.6.0/mapbox-gl.css
+DISTINTO         src/statics/plugins/mapbox/v3.4.0/mapbox-gl.js     <--
+IGUAL            src/statics/plugins/mapbox/v3.4.0/mapbox-gl.css
+IGUAL            (geocoder x2, cropper x2)
+```
+
+**Desplegado: mapbox-gl 3.19.0. En `node_modules`: 3.21.0.** El alias del `package.json` se llama
+`mapbox-v3.4.0` pero su restricción es `^3.4.0`, así que npm instala lo último de la rama 3. El
+guion de copia **no se ha vuelto a correr desde el último `npm install`**, y `assets.php` sirve el
+3.19.0.
+
+**No está roto para nadie**: el archivo servido está versionado en git, así que todos los clones
+sirven exactamente el mismo. El riesgo es el otro: **el día que alguien corra `copyDependencies`,
+un commit que dice «copiar dependencias» subirá mapbox de 3.19 a 3.21 sin que el mensaje lo diga.**
+
+**No se sube aquí**: cambiar la versión de una librería de mapas es una decisión con consecuencias
+propias, y no es lo que se pidió. Queda dicho, con tres cosas que decidir:
+
+1. Actualizar o no el asset, a sabiendas de que es un salto de versión menor de mapbox.
+2. **El nombre de la carpeta miente**: `v3.4.0` contiene 3.19.0. O se fija la restricción a `~3.4.0`
+   o se renombra a lo que de verdad hay.
+3. **`v2.6.0` no lo usa nadie**: `assets.php` solo referencia `v3.4.0`. Se copia y se versiona un
+   megabyte que ninguna vista pide.
+
+*(Y la lección de método, que es T20 otra vez: **la hipótesis se descartó midiendo, y la medición
+trajo lo que la hipótesis no buscaba.** Comparar checksums no era necesario para responder «¿tapa
+algo el duplicado?» —bastaba leer las dos líneas—, pero fue lo que enseñó el archivo desfasado.)*
+

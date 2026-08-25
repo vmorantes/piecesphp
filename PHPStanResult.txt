@@ -1,13 +1,6 @@
 
 ================[PHPSTAN]================
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/bin/node/copyDependencies.php                                                                                                                                                           
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  6      Array has 2 duplicate keys with value 'node_modules/mapbox-v2.6.0/dist/mapbox-gl.js' ("node_modules/mapbox-v2.6.0/dist/mapbox-gl.js", "node_modules/mapbox-v2.6.0/dist/mapbox-gl.js").  
-         🪪  array.duplicateKey                                                                                                                                                                  
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-
  ------ ------------------------------------------------------------------------------------------------- 
   project://src/bin/phpstan-process-result.php                                                                   
  ------ ------------------------------------------------------------------------------------------------- 
@@ -2774,14 +2767,14 @@
          🪪  class.notFound                                                                                                                   
   24     Parameter $event of method PiecesPHP\ComposerTasks\TasksManager::task() has invalid type Composer\Script\Event.                      
          🪪  class.notFound                                                                                                                   
-  29     Call to method getArguments() on an unknown class Composer\Script\Event.                                                             
+  35     Call to method getArguments() on an unknown class Composer\Script\Event.                                                             
          🪪  class.notFound                                                                                                                   
          💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                                                                 
-  75     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, non-falsy-string given.                                 
+  81     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, non-falsy-string given.                                 
          🪪  argument.type                                                                                                                    
-  127    Parameter Nr.1 $path of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string, string|false given.       
+  228    Parameter Nr.1 $path of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string, string|false given.       
          🪪  argument.type                                                                                                                    
-  127    Parameter Nr.2 $root of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string|null, string|false given.  
+  228    Parameter Nr.2 $root of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string|null, string|false given.  
          🪪  argument.type                                                                                                                    
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2794,5 +2787,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 893 errors                                                                                               
+ [ERROR] Found 892 errors                                                                                               
 

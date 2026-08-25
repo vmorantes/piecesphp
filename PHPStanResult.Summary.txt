@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-196
+195
 
 [TOTAL DE ERRORES VISIBLES]
-889
+888
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,7 +12,7 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 879
+En las dos (8.4 y 8.5): 878
 Solo en 8.5: 10
 Solo en 8.4: 0
 
@@ -36,7 +36,6 @@ encapsedStringPart.nonString (2)
 method.notFound (2)
 offsetAssign.dimType (2)
 class.notFound (2)
-array.duplicateKey (1)
 staticMethod.nonObject (1)
 method.deprecated (1)
 nullCoalesce.offset (1)
@@ -47,8 +46,6 @@ callable.nonCallable (1)
 nullCoalesce.expr (1)
 
 [ERRORES POR ARCHIVO]
-project://bin/node/copyDependencies.php
-	array.duplicateKey (Líneas: 6)
 project://bin/phpstan-process-result.php
 	variable.undefined (Líneas: 7, 9)
 	argument.type (Líneas: 39)
@@ -610,5 +607,5 @@ project://src/index.php
 	property.nonObject (Líneas: 638)
 	variable.undefined (Líneas: 906)
 project://tasks/TasksManager.php
-	class.notFound (Líneas: 24, 29)
-	argument.type (Líneas: 75, 127, 127)
+	class.notFound (Líneas: 24, 35)
+	argument.type (Líneas: 81, 228, 228)

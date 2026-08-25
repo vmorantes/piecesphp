@@ -4,7 +4,6 @@
 $filesToCopy=[
     //Mapbox
     "node_modules/mapbox-v2.6.0/dist/mapbox-gl.js" => "src/statics/plugins/mapbox/v2.6.0/mapbox-gl.js",
-    "node_modules/mapbox-v2.6.0/dist/mapbox-gl.js" => "src/statics/plugins/mapbox/v2.6.0/mapbox-gl.js",
     "node_modules/mapbox-v2.6.0/dist/mapbox-gl.css" => "src/statics/plugins/mapbox/v2.6.0/mapbox-gl.css",
     "node_modules/mapbox-v3.4.0/dist/mapbox-gl.js" => "src/statics/plugins/mapbox/v3.4.0/mapbox-gl.js",
     "node_modules/mapbox-v3.4.0/dist/mapbox-gl.css" => "src/statics/plugins/mapbox/v3.4.0/mapbox-gl.css",
