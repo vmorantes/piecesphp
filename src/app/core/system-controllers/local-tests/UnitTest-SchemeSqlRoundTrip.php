@@ -24,9 +24,13 @@ CliActions::make('unit-tests:core/scheme-sql-round-trip', function ($args) {
         }
     };
 
+    //UNA SUITE OMITIDA ES UNA PUERTA FALLADA (LEY 13). Esto se omitió a sí mismo durante un
+    //día entero por un paquete viejo, y la omisión se leyó dos veces como si fuera un 8/8.
     if (!method_exists(SchemeCreator::class, 'createScript') || !method_exists(SchemeCreator::class, 'dropScript')) {
-        echoTerminal("   \e[33mSe omite: hace falta piecesphp/database >= 3.4.0.\e[39m");
-        return ['success' => true, 'message' => 'omitida'];
+        $check(false, 'el paquete instalado trae createScript() y dropScript()', 'hace falta piecesphp/database >= 3.4.0: LA SUITE NO PUDO CORRER');
+        echoTerminal('');
+        echoTerminal("   Total: 1 | \e[32mPasaron: 0\e[39m | \e[31mFallaron: 1\e[39m");
+        return ['success' => false, 'message' => 'la suite no pudo correr'];
     }
 
     $db = (new BaseModel())->getDatabase();

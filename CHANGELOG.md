@@ -145,6 +145,18 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Herramientas — `bin/cli gates`, y una suite omitida deja de contar como verde
+
+Una suite que no corre no informa: calla. Y el silencio se lee como verde.
+`unit-tests:core/scheme-sql-round-trip` llevaba desde el 24-08 omitiéndose sola —el paquete
+instalado no traía `createScript()`— sin que nada lo señalara.
+
+`bin/cli gates` corre todas las suites y **termina en 1 si alguna no dijo si pasó**. No hay lista
+que mantener: las suites salen del registro de acciones y el veredicto se exige por la línea de
+balance que cada una imprime. Acepta `only=<trozo>` para acotar.
+
+Y la suite del esquema **ya no se omite**: si el paquete instalado se queda corto, **falla**.
+
 ## Herramientas — la lista de rutas que un recorredor nunca pide vive en un solo sitio
 
 Estaba **copiada** en `bin/walk-routes` y en `bin/walk-attribute`. Los 17 patrones aún coincidían

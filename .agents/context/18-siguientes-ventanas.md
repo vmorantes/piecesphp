@@ -310,6 +310,28 @@ Lo que haría falta, dicho para que se pueda construir:
 Sin el paso 1 el paso 2 es imposible: **no hay ningún dato en el sistema del que se pueda deducir
 con certeza si esta base viene de una restauración o de la pasada anterior.**
 
+### LEY 13 — UNA SUITE OMITIDA ES UNA PUERTA FALLADA, NO UN DATO NEUTRO
+
+**«Verde», «rojo» y «no corrió» son tres estados, y solo dos dicen algo del código.** Una puerta
+que no se abre no informa: calla. Y una puerta que calla se lee como verde, porque nada rojo
+aparece.
+
+**El caso que la funda.** `unit-tests:core/scheme-sql-round-trip` se omitió a sí misma desde el
+**24-08 a las 15:50** —el paquete instalado no traía `createScript()`— y su omisión se reportó
+**dos veces como «8/8»**, leyendo el número que la lista de puertas anunciaba en vez del que
+imprimía la suite. La condición de cierre de las 39 declaraciones de clave ajena dependía de esa
+puerta, **y esa puerta no corrió**.
+
+**La ley.** Una suite que no corre se reporta como **FALLO** hasta que alguien decida
+explícitamente que su omisión está justificada, **y esa decisión se escribe**. El silencio nunca
+cuenta como aprobación.
+
+**La mitad que es de quien redacta las instrucciones**: las listas de puertas venían con el
+resultado esperado impreso —«(8/8)»—, y **una puerta que anuncia su resultado invita a leer el
+anunciado**. Desde ahora una lista de puertas **nombra la suite y no el número**.
+
+**El mecanismo** está en `bin/cli gates`. Ver T74.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -7146,4 +7168,58 @@ mismo dato que consume el recorredor.
 **El criterio que las ordena**: arriba, las que **afirman algo falso** —un verde que no cubre lo
 que dice cubrir—. Abajo, las que **callan algo cierto**. Un instrumento que miente es peor que uno
 que no mira, porque el segundo no da permiso para dejar de mirar.
+
+## T74 · `bin/cli gates` — el corredor que no deja pasar el silencio
+
+**Qué hace**: corre todas las suites, imprime una línea por cada una, y **termina en 1 si alguna
+no dijo si pasó**. No hay que leer la salida línea por línea, que era el encargo.
+
+### Las dos cosas que se derivan, y ninguna se enumera
+
+Es la LEY 11 aplicada al propio instrumento: un mecanismo alimentado por una lista a mano sigue
+siendo memoria.
+
+| Qué | De dónde sale |
+| :-- | :-- |
+| **Qué suites hay** | `CliActions::listActionNames()`, filtrado por el prefijo `unit-tests:core/`. Una suite nueva entra sola; no hay lista que se pueda quedar corta |
+| **Si una suite corrió** | **De que imprima su balance.** Sin balance no llegó al final, y el motivo da igual |
+
+**Por qué el balance y no un mensaje de omisión**: buscar los textos de omisión conocidos sería
+otra lista a mano, corta el día que alguien escriba uno nuevo. Y hay una razón más honda: **desde
+fuera, una suite que se omitió y una que terminó sin decir nada son indistinguibles.** Las dos
+callan. Por eso se exige el veredicto, no la ausencia de excusas.
+
+Cada suite corre en **su propio proceso**: varias llaman a `exit()` —se llevarían por delante al
+corredor— y `db-restore` restaura la base entera.
+
+### Provocado en las dos direcciones
+
+| Se provoca | Qué sale |
+| :-- | :-- |
+| Una suite devuelve «omitida» antes de empezar | `[SIN VEREDICTO] prefer-slug — no dice si pasó: no imprimió balance`, salida **1** |
+| El paquete instalado no trae `createScript()` | `[FALLÓ] scheme-sql-round-trip — Total: 1 \| Pasaron: 0 \| Fallaron: 1`, salida **1** |
+| Todo en su sitio | `[PASÓ]`, salida **0** |
+
+La segunda dirección es el arreglo en el origen: `UnitTest-SchemeSqlRoundTrip` **ya no se omite**.
+Cuando el paquete se queda corto **falla, con su balance impreso**, que es lo que la LEY 13 pide.
+
+### Lo que el corredor destapó a la primera
+
+**Tres suites registradas no imprimen NINGÚN veredicto**: `core/database-exporter`,
+`core/helpers-directories` y `core/http-client`. Corren, imprimen cosas, y **nunca dicen si
+pasaron**. No estaban en ninguna lista de puertas —por eso nadie lo había notado—, y para efectos
+de puerta valen lo mismo que una suite omitida.
+
+**No se arreglan aquí**: son tres suites ajenas a este bloque y decide el PROPIETARIO si se les
+añade balance o se declaran fuera de las puertas.
+
+> **Y UN AVISO QUE NO ES MENOR**: `core/http-client` **hace una petición a un servicio externo**
+> —termina diciendo «Revisa logs de terminal y Webhook.site»—. Al correr el corredor completo la
+> primera vez, esa llamada salió. **Un corredor de puertas cuyo comportamiento por defecto habla
+> con el exterior es un problema en sí mismo**, y no lo decido yo. `unit-tests:mautic-batch-send`
+> se salva solo porque no lleva el prefijo `core/`: si alguien lo renombra, el corredor manda
+> correos.
+>
+> Lo que propongo, **sin implementarlo**: que la suite lo declare **en su propia descripción** —no
+> en una lista central, que volvería a ser memoria— y que el corredor la salte diciéndolo.
 
