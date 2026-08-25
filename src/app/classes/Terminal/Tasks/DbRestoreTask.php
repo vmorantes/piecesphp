@@ -101,14 +101,25 @@ class DbRestoreTask extends TerminalTaskAbstract
 
         $database->exec("USE `{$target}`");
         $applied = 0;
+        $ignored = [];
         $failures = [];
         foreach ($statements as $statement) {
+            $reason = self::whyIgnored($statement);
+            if ($reason !== null) {
+                //NO se calla: un volcado que trae esto esperaba otra cosa, y hay que verlo.
+                $ignored[] = mb_substr(str_replace("\n", ' ', $statement), 0, 60) . ' — ' . $reason;
+                continue;
+            }
             try {
                 $database->exec($statement);
                 $applied++;
             } catch (\Throwable $exception) {
                 $failures[] = mb_substr(str_replace("\n", ' ', $exception->getMessage()), 0, 100);
             }
+        }
+
+        foreach ($ignored as $line) {
+            echoTerminal("\e[33mIGNORADA:\e[39m {$line}");
         }
 
         foreach ($failures as $line) {
@@ -146,29 +157,199 @@ class DbRestoreTask extends TerminalTaskAbstract
     /**
      * Sentencias de un volcado.
      *
-     * Los comentarios se quitan POR LÍNEAS y ANTES de partir: partir primero y descartar los
-     * trozos que empiezan por `--` se traga la primera sentencia, que va pegada a la cabecera.
+     * SE RECORRE CARÁCTER A CARÁCTER, no se parte por `;`. Partir por el separador es lo que
+     * rompía los cuerpos de rutina: un `BEGIN … END` lleva puntos y coma dentro, y el volcado
+     * los protege cambiando el separador con `DELIMITER`. Ver T94.
+     *
+     * Lo mismo vale para un `;` dentro de una cadena o de un identificador entrecomillado: no
+     * termina nada, y un partidor ciego no lo sabe.
      *
      * @return string[]
      */
     protected static function statementsOf(string $sql): array
     {
-        $clean = [];
-        foreach (explode("\n", $sql) as $line) {
-            $trimmed = trim($line);
-            if ($trimmed === '' || str_starts_with($trimmed, '--') || str_starts_with($trimmed, '/*')) {
+        $statements = [];
+        $delimiter = ';';
+        $buffer = '';
+        $length = mb_strlen($sql, '8bit');
+        $inSingle = false;
+        $inDouble = false;
+        $inBacktick = false;
+        $inLineComment = false;
+        $inBlockComment = false;
+        $keepBlock = false;
+        $atLineStart = true;
+
+        for ($i = 0; $i < $length; $i++) {
+
+            $char = $sql[$i];
+            $next = $i + 1 < $length ? $sql[$i + 1] : '';
+
+            //─── Dentro de un comentario: solo interesa dónde acaba ───────────────────────
+            if ($inLineComment) {
+                if ($char === "\n") {
+                    $inLineComment = false;
+                    $buffer .= $char;
+                    $atLineStart = true;
+                }
                 continue;
             }
-            $clean[] = $line;
-        }
-        $statements = [];
-        foreach (explode(";\n", implode("\n", $clean)) as $chunk) {
-            $chunk = trim($chunk);
-            if ($chunk !== '') {
-                $statements[] = rtrim($chunk, ';') . ';';
+            if ($inBlockComment) {
+                if ($keepBlock) {
+                    $buffer .= $char;
+                }
+                if ($char === '*' && $next === '/') {
+                    if ($keepBlock) {
+                        $buffer .= $next;
+                    }
+                    $i++;
+                    $inBlockComment = false;
+                    $keepBlock = false;
+                }
+                continue;
             }
+
+            //─── Dentro de una cadena o de un identificador: nada delimita ────────────────
+            if ($inSingle || $inDouble || $inBacktick) {
+                $buffer .= $char;
+                if ($char === '\\' && $next !== '') {
+                    //Una barra invertida se lleva por delante al siguiente, sea cual sea.
+                    $buffer .= $next;
+                    $i++;
+                    continue;
+                }
+                if ($inSingle && $char === "'") {
+                    $inSingle = false;
+                } elseif ($inDouble && $char === '"') {
+                    $inDouble = false;
+                } elseif ($inBacktick && $char === '`') {
+                    $inBacktick = false;
+                }
+                continue;
+            }
+
+            //─── DELIMITER: es una directiva del cliente, y solo vale al principio de línea ─
+            if ($atLineStart && self::looksLikeDelimiter($sql, $i)) {
+                $end = mb_strpos($sql, "\n", $i, '8bit');
+                $line = $end === false ? mb_substr($sql, $i, null, '8bit') : mb_substr($sql, $i, $end - $i, '8bit');
+                $declared = trim(mb_substr(trim($line), 9, null, '8bit'));
+                if ($declared !== '') {
+                    $delimiter = $declared;
+                }
+                $i = $end === false ? $length : $end;
+                $atLineStart = true;
+                continue;
+            }
+
+            //─── Aperturas de comentario ──────────────────────────────────────────────────
+            if ($char === '-' && $next === '-' && ($i + 2 >= $length || $sql[$i + 2] === ' ' || $sql[$i + 2] === "\t" || $sql[$i + 2] === "\n" || $sql[$i + 2] === "\r")) {
+                $inLineComment = true;
+                continue;
+            }
+            if ($char === '#') {
+                $inLineComment = true;
+                continue;
+            }
+            if ($char === '/' && $next === '*') {
+                //`/*!…*/` NO es un comentario: MySQL lo ejecuta. Se conserva tal cual.
+                $keepBlock = $i + 2 < $length && $sql[$i + 2] === '!';
+                $inBlockComment = true;
+                if ($keepBlock) {
+                    $buffer .= $char . $next;
+                }
+                $i++;
+                continue;
+            }
+
+            //─── Aperturas de cadena e identificador ──────────────────────────────────────
+            if ($char === "'") {
+                $inSingle = true;
+                $buffer .= $char;
+                $atLineStart = false;
+                continue;
+            }
+            if ($char === '"') {
+                $inDouble = true;
+                $buffer .= $char;
+                $atLineStart = false;
+                continue;
+            }
+            if ($char === '`') {
+                $inBacktick = true;
+                $buffer .= $char;
+                $atLineStart = false;
+                continue;
+            }
+
+            //─── ¿Termina aquí la sentencia? ──────────────────────────────────────────────
+            if (self::matchesAt($sql, $i, $delimiter)) {
+                $statement = trim($buffer);
+                if ($statement !== '') {
+                    $statements[] = $statement . ';';
+                }
+                $buffer = '';
+                $i += mb_strlen($delimiter, '8bit') - 1;
+                $atLineStart = false;
+                continue;
+            }
+
+            $buffer .= $char;
+            $atLineStart = $char === "\n";
         }
+
+        //Lo que quede sin separador final también es una sentencia: un volcado puede no cerrarla.
+        $rest = trim($buffer);
+        if ($rest !== '') {
+            $statements[] = rtrim($rest, ';') . ';';
+        }
+
         return $statements;
+    }
+
+    /**
+     * Construcciones que se decide NO aplicar, y por qué.
+     *
+     * Las dos son de un `mysqldump --databases`, y las dos **eligen la base por su cuenta**.
+     * Aplicarlas dejaría sin efecto el parámetro `database=`, que es lo único que separa
+     * «restaurar la copia de pruebas» de «restaurar encima de la buena». Se ignoran y se dicen
+     * en voz alta; callarlas sería peor que fallar. Ver T96.
+     *
+     * @return string|null La razón, o `null` si la sentencia se aplica.
+     */
+    protected static function whyIgnored(string $statement): ?string
+    {
+        $head = mb_strtoupper(ltrim($statement));
+        if (str_starts_with($head, 'USE ') || str_starts_with($head, 'USE`')) {
+            return 'cambia de base por su cuenta y anularía database=';
+        }
+        if (str_starts_with($head, 'CREATE DATABASE') || str_starts_with($head, 'DROP DATABASE')) {
+            return 'crea o destruye una base entera: eso lo decide quien invoca, no el volcado';
+        }
+        return null;
+    }
+
+    /**
+     * ¿Empieza en `$offset` una directiva `DELIMITER`?
+     *
+     * @return bool
+     */
+    protected static function looksLikeDelimiter(string $sql, int $offset): bool
+    {
+        if (mb_strtoupper(mb_substr($sql, $offset, 9, '8bit')) !== 'DELIMITER') {
+            return false;
+        }
+        $after = mb_substr($sql, $offset + 9, 1, '8bit');
+        return $after === ' ' || $after === "\t";
+    }
+
+    /**
+     * ¿Está `$needle` exactamente en `$offset`?
+     *
+     * @return bool
+     */
+    protected static function matchesAt(string $haystack, int $offset, string $needle): bool
+    {
+        return $needle !== '' && mb_substr($haystack, $offset, mb_strlen($needle, '8bit'), '8bit') === $needle;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

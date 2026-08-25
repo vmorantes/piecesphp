@@ -1872,6 +1872,7 @@
         "SystemApprovalsRoutes::staticRoute"
     ],
     "app/classes/SystemApprovals/Util/ApprovalElementHandlerInterface.php": [
+        "ApprovalElementHandlerInterface::auditFields",
         "ApprovalElementHandlerInterface::getContactUser",
         "ApprovalElementHandlerInterface::getContentType",
         "ApprovalElementHandlerInterface::getCreationDateColumn",
@@ -1886,6 +1887,7 @@
         "ApprovalElementHandlerInterface::onUpdatedRecord"
     ],
     "app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php": [
+        "ApplicationCallsApprovalHandler::auditFields",
         "ApplicationCallsApprovalHandler::getContentTypeSpecificMapper",
         "ApplicationCallsApprovalHandler::isAutoApprovalSpecificMapper",
         "ApplicationCallsApprovalHandler::onApprovedSpecificMapper",
@@ -1893,6 +1895,7 @@
         "ApplicationCallsApprovalHandler::onUpdatedRecordSpecificMapper"
     ],
     "app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php": [
+        "BaseApprovalHandler::auditFields",
         "BaseApprovalHandler::getContactUser",
         "BaseApprovalHandler::getContentType",
         "BaseApprovalHandler::getCreationDateColumn",
@@ -1907,6 +1910,7 @@
         "BaseApprovalHandler::onUpdatedRecord"
     ],
     "app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php": [
+        "OrganizationApprovalHandler::auditFields",
         "OrganizationApprovalHandler::getContentTypeSpecificMapper",
         "OrganizationApprovalHandler::isAutoApprovalSpecificMapper",
         "OrganizationApprovalHandler::onApprovedSpecificMapper",
@@ -1914,6 +1918,7 @@
         "OrganizationApprovalHandler::onUpdatedRecordSpecificMapper"
     ],
     "app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php": [
+        "PublicationsApprovalHandler::auditFields",
         "PublicationsApprovalHandler::getContentTypeSpecificMapper",
         "PublicationsApprovalHandler::isAutoApprovalSpecificMapper",
         "PublicationsApprovalHandler::onApprovedSpecificMapper",
@@ -1921,6 +1926,7 @@
         "PublicationsApprovalHandler::onUpdatedRecordSpecificMapper"
     ],
     "app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php": [
+        "UsersApprovalHandler::auditFields",
         "UsersApprovalHandler::getContentTypeSpecificMapper",
         "UsersApprovalHandler::isAutoApprovalSpecificMapper",
         "UsersApprovalHandler::onApprovedSpecificMapper",
@@ -1936,6 +1942,7 @@
         "SystemApprovalManager::getMapperInstance",
         "SystemApprovalManager::init",
         "SystemApprovalManager::isApproved",
+        "SystemApprovalManager::isRealEdition",
         "SystemApprovalManager::updateStatus"
     ],
     "app/classes/Terminal/Controllers/TerminalController.php": [
@@ -1978,10 +1985,26 @@
         "DbBackupTask::main",
         "DbBackupTask::route"
     ],
+    "app/classes/Terminal/Tasks/DbRestoreTask.php": [
+        "DbRestoreTask::__construct",
+        "DbRestoreTask::looksLikeDelimiter",
+        "DbRestoreTask::main",
+        "DbRestoreTask::matchesAt",
+        "DbRestoreTask::route",
+        "DbRestoreTask::statementsOf",
+        "DbRestoreTask::whyIgnored",
+        "DbRestoreTask::writeTrace"
+    ],
     "app/classes/Terminal/Tasks/FixWebmDurationTask.php": [
         "FixWebmDurationTask::__construct",
         "FixWebmDurationTask::main",
         "FixWebmDurationTask::route"
+    ],
+    "app/classes/Terminal/Tasks/GatesTask.php": [
+        "GatesTask::__construct",
+        "GatesTask::main",
+        "GatesTask::route",
+        "GatesTask::runSuite"
     ],
     "app/classes/Terminal/Tasks/HelpTask.php": [
         "HelpTask::__construct",
@@ -2052,19 +2075,27 @@
         "VerifyIntegrityTask::checkDeprecatedFunctions",
         "VerifyIntegrityTask::checkDocblocks",
         "VerifyIntegrityTask::checkExecutableBits",
+        "VerifyIntegrityTask::checkForbiddenRoutesAreSingle",
         "VerifyIntegrityTask::checkNarrativeComments",
+        "VerifyIntegrityTask::checkOrphanDocblocks",
         "VerifyIntegrityTask::checkPackageEclipses",
+        "VerifyIntegrityTask::checkPhpStanUniverse",
+        "VerifyIntegrityTask::checkPropertiesBeforeMethods",
         "VerifyIntegrityTask::checkRouteOverrides",
         "VerifyIntegrityTask::checkSharedToolchain",
+        "VerifyIntegrityTask::checkSnapshotSeeding",
         "VerifyIntegrityTask::checkToolchainTracking",
+        "VerifyIntegrityTask::checkVolatileTablesMatchCode",
         "VerifyIntegrityTask::collectFiles",
         "VerifyIntegrityTask::collectNarrativeBlocks",
         "VerifyIntegrityTask::collectSignatures",
         "VerifyIntegrityTask::compareSignatures",
         "VerifyIntegrityTask::declaredClass",
         "VerifyIntegrityTask::hasSwallowedDeclaration",
+        "VerifyIntegrityTask::looksLikePhp",
         "VerifyIntegrityTask::main",
         "VerifyIntegrityTask::nextName",
+        "VerifyIntegrityTask::propertiesAfterMethods",
         "VerifyIntegrityTask::route",
         "VerifyIntegrityTask::routeMethodBody",
         "VerifyIntegrityTask::routeMethodDecides",
@@ -2472,8 +2503,11 @@
     "app/core/psr4/PiecesPHP/Core/BaseEntityMapper.php": [
         "BaseEntityMapper::__callStatic",
         "BaseEntityMapper::__construct",
+        "BaseEntityMapper::lastChangedFields",
+        "BaseEntityMapper::lastUpdateChangedSomething",
         "BaseEntityMapper::model",
         "BaseEntityMapper::save",
+        "BaseEntityMapper::seedSnapshotFrom",
         "BaseEntityMapper::update"
     ],
     "app/core/psr4/PiecesPHP/Core/BaseEventDispatcher.php": [
@@ -3572,13 +3606,15 @@
         "CliActions::get",
         "CliActions::getActions",
         "CliActions::getDescription",
+        "CliActions::getEffects",
         "CliActions::getName",
         "CliActions::listActionNames",
         "CliActions::make",
         "CliActions::register",
         "CliActions::remove",
         "CliActions::run",
-        "CliActions::setDescription"
+        "CliActions::setDescription",
+        "CliActions::setEffects"
     ],
     "app/core/psr4/PiecesPHP/Terminal/CronJobTask.php": [
         "CronJobTask::__construct",

@@ -38,6 +38,38 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## AVISO PARA DESPLIEGUES EXISTENTES — tus copias no traían las rutinas almacenadas
+
+**Un volcado hecho con `bin/cli db-backup` de una versión anterior a esta no incluye
+`DROP FUNCTION IF EXISTS` antes de crear las rutinas.** Las tablas sí iban con `DROP`+`CREATE`;
+las funciones y procedimientos no.
+
+**Qué pasa al restaurarlo:**
+
+- Sobre una base que **ya tiene** esas rutinas, el `CREATE FUNCTION` falla con
+  `1304 … already exists` y la rutina se queda **como estaba antes**, no como decía la copia.
+- Sobre una base **nueva** entra bien la primera vez, pero la copia **no es reaplicable**: la
+  segunda restauración falla.
+
+**Y `bin/cli db-restore` no sabía leer esos bloques.** Partía el archivo por `;` sin entender
+`DELIMITER`, así que el cuerpo de cada rutina —que lleva `;` dentro— llegaba a MySQL troceado.
+En un volcado de este proyecto eran **18 sentencias fallidas de 130**.
+
+**Qué hacer si tienes copias antiguas:** restáuralas con el cliente de MySQL, que sí entiende
+`DELIMITER`, y vuelve a generar la copia con esta versión.
+
+```bash
+mysql -u <usuario> -p <base> < dumps/<archivo>.sql
+```
+
+**Desde esta versión** el volcado trae el `DROP` de las rutinas, la restauración entiende
+`DELIMITER`, cadenas, identificadores y comentarios, y **`unit-tests:core/db-restore` restaura un
+volcado producido por `db-backup`** —no uno fabricado por la propia prueba— comprobando que las
+rutinas, las tablas y las vistas llegan.
+
+`db-restore` **ignora y anuncia** `USE`, `CREATE DATABASE` y `DROP DATABASE`: eligen la base por
+su cuenta y anularían el parámetro `database=`.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES — TUS COPIAS DE SEGURIDAD NO RESTAURAN
 
 **Si tienes copias hechas con `bin/cli db-backup` de una versión anterior a esta, no sirven

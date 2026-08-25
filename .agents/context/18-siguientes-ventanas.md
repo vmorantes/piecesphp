@@ -9352,3 +9352,147 @@ experiencia del propietario se verifica dos veces antes de escribirse.
 **Lo que NO significa:** que no haya defecto. Los dos `isset()` son `false` siempre y eso está
 medido. Significa que **el alcance práctico probablemente sea pequeño**, y que la sorpresa sería
 lo contrario.
+
+
+## T96 · `db-restore` APRENDE A LEER UN VOLCADO, y su prueba deja de fabricarse la comida
+
+*Punto 1 del bloque del 25-08. **Va primero porque todo lo demás se apoya en él**: los puntos 2 y
+3 necesitan restaurar entre pasadas, y E3 entero depende de esta tarea.*
+
+### 1.1 · Qué soporta ahora, y qué se decide NO soportar
+
+**El partidor dejó de partir por `;`.** Ahora recorre el volcado **carácter a carácter** llevando
+la cuenta de dónde está: dentro de una cadena, de un identificador, de un comentario, o en campo
+abierto. Solo en campo abierto un separador separa.
+
+**Las doce construcciones que entiende — y no lo digo yo, lo dice la suite**, que las prueba una
+por una y falla si alguna deja de cumplirse:
+
+| Construcción | Por qué costaba |
+| :-- | :-- |
+| `DELIMITER ;;` con cuerpo de rutina | **El caso de T94**: `BEGIN … END` lleva `;` dentro |
+| `;` dentro de una cadena | `VALUES ('uno; dos')` no son dos sentencias |
+| `;` en una cadena de varias líneas | El partidor viejo cortaba por `";\n"`, así que esta la partía |
+| `;` dentro de un identificador | `` `a;b` `` |
+| Comilla escapada con barra | `'a\';b'` — la barra se lleva por delante al siguiente |
+| Comentario `--` con `;` dentro | |
+| Comentario `#` con `;` dentro | El partidor viejo **ni lo conocía** |
+| Comentario de bloque `/* … */` | |
+| **Comentario ejecutable `/*!40101 … */`** | **NO es un comentario: MySQL lo ejecuta.** Se conserva; el viejo lo tiraba por empezar la línea con `/*` |
+| Última sentencia sin `;` final | |
+| `LOCK TABLES` / `UNLOCK TABLES` | Lo que trae un `mysqldump` corriente |
+| Dos sentencias corrientes | El caso de control |
+
+**Y lo que se decide NO aplicar, con su razón — se ignora y SE DICE EN VOZ ALTA:**
+
+| Construcción | Por qué no |
+| :-- | :-- |
+| `USE <base>` | **Cambia de base por su cuenta y anularía `database=`** |
+| `CREATE DATABASE` / `DROP DATABASE` | Crear o destruir una base entera lo decide quien invoca, no el volcado |
+
+Las dos vienen de un `mysqldump --databases`, y las dos **eligen el destino**. `database=` es lo
+único que separa «restaurar la copia de pruebas» de «restaurar encima de la buena»: una sentencia
+del volcado no puede pisarlo. Se imprimen como `IGNORADA:` con su motivo — **callarlas sería peor
+que fallar**, que es la lección de la LEY 13 aplicada a una tarea.
+
+### El defecto era de la PAREJA, no de una sola
+
+Con el partidor arreglado, restaurar el volcado bajó de **18 fallos a 1**. Y el que quedaba no era
+del restaurador:
+
+```
+FALLO: 1304 FUNCTION strTemplateReplace already exists
+```
+
+**El volcado no traía `DROP FUNCTION IF EXISTS`.** Las tablas sí iban con `DROP`+`CREATE`
+—`table_style => DROP_CREATE`— y las rutinas no. **Un volcado que no se puede volver a aplicar no
+es un respaldo.**
+
+Y lo que lo vuelve más incómodo: **el exportador ya sabía hacerlo**. La opción
+`drop_if_exists_on_functions` existe desde siempre, está documentada en la interfaz, y la usa la
+suite de `database-exporter`. **Simplemente estaba apagada donde importaba.** Encendida:
+**114 sentencias, 0 fallidas, salida 0.**
+
+> **Esto es exactamente lo que T49 pedía y nunca se había hecho: medir las dos juntas.** Cada una
+> pasaba su prueba por separado. El respaldo se probaba comprobando que producía un archivo; la
+> restauración, con un archivo que ella misma escribía. **Nadie llevó nunca la salida de una a la
+> entrada de la otra**, y el hueco entre ambas es donde vivía el defecto.
+
+### 1.2 · La suite se alimenta del volcado real
+
+`unit-tests:core/db-restore` pasa de **9 comprobaciones sobre un volcado de juguete** a **15 sobre
+uno que produce `db-backup`**. Lo que cambia de fondo:
+
+| Antes | Ahora |
+| :-- | :-- |
+| El volcado lo escribía la prueba: 4 líneas, 1 tabla, ningún `DELIMITER` | Lo produce `bin/cli db-backup`, con las 40 tablas, 5 vistas y la rutina |
+| Comprobaba que un valor volvía | Comprueba que **llegaron las rutinas**, y que tablas y vistas cuadran con el origen |
+| — | Comprueba **que el volcado trae un `DELIMITER`**: si la base se queda sin rutinas, la suite **falla** en vez de pasar sin medir nada |
+| — | Comprueba las 12 construcciones del partidor, y las 3 que se ignoran **en las dos direcciones** |
+| — | Comprueba que **restaurar dos veces seguidas** no falla — que es lo que caza el `DROP FUNCTION` ausente |
+
+**La lista de tablas excluidas se LEE de `DbBackupTask::EXCLUDED_TABLES`**, no se copia en la
+suite: estaba escrita a mano dentro del array de opciones y una copia se habría quedado corta.
+LEY 11.
+
+### Provocada en las dos direcciones
+
+| Se provoca | Qué sale |
+| :-- | :-- |
+| Se devuelve el partidor viejo | **9/14** — y entre las 5 caídas, `las rutinas almacenadas llegaron — en la base=0, en el volcado=1` |
+| Se apaga `drop_if_exists_on_functions` en `db-backup` | **12/14** — cae «restaurar dos veces seguidas» y el rastro delata la sentencia fallida |
+| Todo en su sitio | **15/15** |
+
+**Mírese el 9/14 de la primera fila: nueve.** Son exactamente las nueve que pasaban antes. La
+suite vieja no es que fuera floja: es que **las nueve que tenía eran las nueve que el defecto no
+tocaba**.
+
+### 1.3 · T46, caso 4 — y es el más caro de los cuatro
+
+Los tres casos anteriores de T46 comprobaban **lo equivocado**. Este comprueba **lo correcto sobre
+una entrada que no existe en la realidad**.
+
+> **Una prueba de ida y vuelta cuyo «ida» lo escribe la propia prueba no prueba el viaje: prueba
+> que sabe volver del sitio al que sabe ir.**
+>
+> **La regla, y vale para toda prueba de ida y vuelta:** el material de la ida tiene que venir del
+> **productor real**. Si lo fabrica la prueba, lo fabrica —sin querer— a imagen de lo que el
+> consumidor ya sabe leer. No hay mala fe: hay que **el autor de la prueba conoce el formato que
+> el código maneja**, y es justo ese sesgo el que hace la prueba inútil.
+
+**Y el corolario que da miedo**: cuanto más «unitaria» sea una prueba de ida y vuelta, más
+probable es que caiga en esto. Aislar la pieza es lo correcto casi siempre; aquí, **aislar era el
+defecto**.
+
+### 1.4 · La consecuencia hacia atrás, sin suavizar
+
+**Toda restauración hecha con la versión rota pudo dejar la base incompleta.** Hay que decir
+cuántas fueron y qué depende de ellas.
+
+**Cuándo empezó a haber riesgo:** `db-restore` se creó el **24-08 a las 17:02**. Antes de eso las
+restauraciones se hacían a mano con `mysql < archivo.sql`, que **no tiene este defecto**: el
+cliente de MySQL sí entiende `DELIMITER`.
+
+| Pasada | ¿Dependía de una restauración con `db-restore`? | ¿Queda en duda? |
+| :-- | :-- | :-- |
+| **T56** — primera pasada de atribución (24-08) | **No.** Es anterior a que la tarea existiera. Corrió sobre la base tal cual, y esa es justamente la carencia que fundó la LEY 12 | No por esto |
+| **T61 / T64** — acuñado del slug | No | No |
+| **T95 — E2-a, hoy** | **Sí**: cuatro restauraciones, todas del mismo volcado y sobre `piecesphp` | **No, y con prueba** |
+
+**Por qué T95 no queda en duda, dicho con la medición delante y no con un «seguramente»:**
+
+1. **Los datos llegaron enteros.** Se comparó el volcado de origen contra un `db-backup` tomado
+   inmediatamente después: **13 tablas con datos, 139 filas, INSERT idénticos, cero diferencias.**
+   Las 40 tablas y las 5 vistas también.
+2. **Lo único que no se re-aplicaba era la rutina almacenada**, y **estaba presente durante toda
+   la pasada** — precisamente porque el volcado no traía `DROP FUNCTION`, así que la anterior
+   nunca se borró. Verificado: `SHOW FUNCTION STATUS` la sigue devolviendo.
+3. E2-a mide **qué escribe cada ruta de lectura**. Una rutina almacenada ausente podría haber
+   hecho **fallar** rutas, no haberlas hecho escribir en silencio. Y no faltaba.
+
+**Lo que sí hay que decir:** ese «no queda en duda» descansa en que **el defecto era benigno en
+este caso concreto** —misma base, misma rutina, ya existente—. **En una base nueva la restauración
+habría quedado sin rutinas y nadie se habría enterado** salvo por las 18 líneas de `FALLO:` que la
+tarea sí imprimía. La tarea nunca mintió; lo que faltaba era que alguien las leyera, y la primera
+vez que se leyeron fue hoy.
+

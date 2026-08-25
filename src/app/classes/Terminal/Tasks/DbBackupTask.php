@@ -36,6 +36,19 @@ use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 class DbBackupTask extends TerminalTaskAbstract
 {
 
+    /**
+     * Tablas que NO entran en el respaldo, y por qué.
+     *
+     * Vive aquí y no dentro del array de opciones para que la suite pueda leerla en vez de
+     * copiarla: una lista duplicada se queda corta en uno de los dos sitios. Ver LEY 11.
+     *
+     * @var string[]
+     */
+    const EXCLUDED_TABLES = [
+        //Andamiaje de `unit-tests:core/database-exporter`: se crea y se tira en cada corrida.
+        'pcs_unit_tests_core_database_exporter_v1',
+    ];
+
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
     {
         //Procesar entrada
@@ -140,14 +153,15 @@ class DbBackupTask extends TerminalTaskAbstract
                     'include_views' => $withViews,
                     'routines' => $withRoutines,
                     'remove_definer' => !$withDefiner,
+                    //Las tablas ya iban con DROP+CREATE y las rutinas no: un volcado que no se
+                    //puede volver a aplicar no es un respaldo. Ver T96.
+                    'drop_if_exists_on_functions' => true,
                     'table_style' => TableStyle::DROP_CREATE,
                     'data_style' => DataStyle::INSERT,
                     'single_transaction' => true,
                     'auto_increment' => true,
                     'triggers' => true,
-                    'exclude_tables' => [
-                        'pcs_unit_tests_core_database_exporter_v1',
-                    ],
+                    'exclude_tables' => self::EXCLUDED_TABLES,
                     'where' => [
                         "TABLE_NAME" => 'WHERE COMPLETAMENTE FORMADO SIN LA PALABRA WHERE',
                     ],
