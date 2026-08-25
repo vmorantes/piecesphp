@@ -145,6 +145,25 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Cambios que rompen compatibilidad — `mapbox` se fija por versión exacta y `v2.6.0` se retira
+
+El alias `mapbox-v3.4.0` estaba fijado a `^3.4.0`: **el nombre fingía fijar y el acento hacía lo
+contrario**. Hoy resolvía a 3.19.0 —lo desplegado— mientras `node_modules` ya traía 3.21.0, y el
+contenido se movía solo en cada `npm install` sin que nada lo dijera.
+
+- `mapbox-v3.4.0` (`^3.4.0`) pasa a **`mapbox-v3.19.0` (`3.19.0`, exacta)**, y la carpeta
+  `statics/plugins/mapbox/v3.4.0/` a **`v3.19.0/`**. Se fija en **lo que ya estaba desplegado**:
+  no cambia ni un byte de lo que se sirve. Subir a 3.21.0 es otra decisión.
+- `mapbox-geocoder-v2.3.0` pasa a versión exacta. No había derivado, pero podía.
+- **`mapbox-v2.6.0` se retira entera** —carpeta y alias—: no la referenciaba nadie, y eran 1 MB
+  versionados.
+
+**Después de actualizar hace falta `npm install`**: los archivos de bloqueo aún nombran el alias
+viejo y `bin/node/copyDependencies.php` avisa —ahora sale con código 1— si no encuentra el origen.
+
+Y ese guion **ya no copia callando**: compara `sha1` antes de sobrescribir y dice qué va a cambiar.
+Un cambio de contenido ahí es un cambio de librería, y el mensaje del commit tiene que decirlo.
+
 ## Corregido — un guardado sin cambios ya no reabre un rechazo en NINGÚN módulo
 
 El arreglo anterior hacía que `updated` solo saltara si la base decía que cambió una fila, y eso

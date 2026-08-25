@@ -23,8 +23,7 @@
     "dependencies": {
         "cropperjs": "^1.6.2",
         "mapbox": "npm:mapbox-gl@^3.19.0",
-        "mapbox-geocoder-v2.3.0": "npm:@mapbox/mapbox-gl-geocoder@^2.3.0",
-        "mapbox-v2.6.0": "npm:mapbox-gl@^2.6.0",
-        "mapbox-v3.4.0": "npm:mapbox-gl@^3.4.0"
+        "mapbox-geocoder-v2.3.0": "npm:@mapbox/mapbox-gl-geocoder@2.3.0",
+        "mapbox-v3.19.0": "npm:mapbox-gl@3.19.0"
     }
 }

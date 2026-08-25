@@ -329,11 +329,11 @@ $assets['google_captcha_v3_adapter']['plugins'] = [];
  * https://docs.mapbox.com/
  */
 $assets['mapbox']['css'] = [
-    'statics/plugins/mapbox/v3.4.0/mapbox-gl.css',
+    'statics/plugins/mapbox/v3.19.0/mapbox-gl.css',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.css',
 ];
 $assets['mapbox']['js'] = [
-    'statics/plugins/mapbox/v3.4.0/mapbox-gl.js',
+    'statics/plugins/mapbox/v3.19.0/mapbox-gl.js',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.min.js',
 ];
 /**

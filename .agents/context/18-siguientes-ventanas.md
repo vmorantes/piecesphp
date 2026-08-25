@@ -8403,3 +8403,80 @@ de sus líneas es una declaración de propiedad posterior a un método. *(La pri
 escribí no valía: insertaba la propiedad **antes** del primer método, así que la comprobación tenía
 razón al aprobar. La provocación también hay que provocarla bien.)*
 
+## T90 · MAPBOX — el nombre de la carpeta era el SUELO de la restricción, no el contenido
+
+### La corrección, escrita como tal
+
+**ARQUITECTO se equivocó** al decir que `copyDependencies` «subiría mapbox dos versiones menores».
+Lo señaló el PROPIETARIO y `package.json` lo confirma: **la coexistencia está declarada con alias**
+y las carpetas se corresponden con ellos. No es un accidente: es un diseño.
+
+**El defecto real es otro y es mejor**: `mapbox-v3.4.0` está fijado a **`^3.4.0`**, así que
+**el nombre finge fijar y el acento hace lo contrario**. Hoy resuelve a 3.19.0 —lo desplegado— y
+en `node_modules` ya hay **3.21.0**. El contenido se mueve solo en cada `npm install` y nada lo
+dice.
+
+*(Y de paso, mi propia frase de T83 —«subirá mapbox dos versiones menores en un commit que dice
+copiar dependencias»— repetía el mismo error de encuadre: describía el síntoma como si el problema
+fuera el copiador, cuando el problema es que la restricción no dice lo que el nombre promete.)*
+
+### 3.1 · Que el nombre y la restricción se pongan de acuerdo
+
+| Antes | Después | Por qué |
+| :-- | :-- | :-- |
+| `"mapbox-v3.4.0": "npm:mapbox-gl@^3.4.0"` | `"mapbox-v3.19.0": "npm:mapbox-gl@3.19.0"` | **Exacta, y con el número de lo que HOY está desplegado** |
+| `"mapbox-geocoder-v2.3.0": "…@^2.3.0"` | `"…@2.3.0"` | Mismo defecto latente; hoy no ha derivado |
+| Carpeta `plugins/mapbox/v3.4.0/` | `plugins/mapbox/v3.19.0/` | El nombre pasa a ser verdad |
+
+**Por qué 3.19.0 y no 3.21.0, que es lo último**: fijar en lo desplegado **no cambia nada de lo que
+se sirve**. Fijar en 3.21.0 sería una actualización de librería disfrazada de arreglo de
+nomenclatura, que es justo el enredo que veníamos a deshacer. **Subir a 3.21.0 queda como decisión
+aparte**, y ahora se puede tomar viéndola.
+
+*(`cropperjs` sigue en `^1.6.2` y no se toca: su carpeta se llama `cropper`, **sin versión**, así
+que el nombre no promete nada y no puede mentir.)*
+
+### 3.2 · El cuarto alias, `mapbox` a secas: **sobra**
+
+*Método: se busca la carpeta desplegada, la referencia en `copyDependencies`, la referencia en
+`assets.php` y cualquier `import`/`require` de `'mapbox'` en el árbol.*
+
+| Pregunta | Respuesta |
+| :-- | :-- |
+| ¿Tiene carpeta desplegada? | **No** |
+| ¿Lo copia `copyDependencies`? | **No** |
+| ¿Lo referencia `assets.php`? | **No** — usa la carpeta versionada |
+| ¿Lo importa algún JS o TS? | **No** |
+
+**No es «debía desplegarse y no se hizo»: es una dependencia que sobra.** Se instala 3.21.0 de
+mapbox-gl en cada `npm install` para nada. **No lo borro**: quitar una dependencia es decisión del
+PROPIETARIO y él solo autorizó la de `v2.6.0`. Queda dicho, que era lo que pedía el punto.
+
+### 3.3 · `v2.6.0`: **no lo usa nadie, y se va entero**
+
+*Método: `git grep` sobre todo el árbol versionado.* Fuera del propio guion de copia y de este
+documento, **cero referencias**. `assets.php` solo referencia la otra carpeta.
+
+Se van **la carpeta —1 MB versionado— Y el alias de `package.json`**, como mandaba el encargo.
+
+> **Los archivos de bloqueo NO se tocan a mano**, que es regla del proyecto. `package-lock.json`
+> menciona `mapbox-v2.6.0` en 10 sitios y `pnpm-lock.yaml` en 1; **hay que regenerarlos con
+> `npm install`** (o el gestor que corresponda — coexisten los dos archivos, que es otra pregunta).
+> Hasta entonces `package.json` y los locks discrepan, y lo digo en vez de arreglarlo por mi cuenta.
+
+### 3.4 · El copiador ya no copia callando
+
+Antes de copiar compara `sha1` con lo desplegado y **dice qué va a cambiar**:
+
+```
+Resumen: 0 nuevo(s), 0 con contenido distinto, 2 sin origen.
+```
+
+Y si algo cambia de contenido lo dice con los dos hashes, más el aviso de que **un cambio de
+contenido aquí es un cambio de librería y el mensaje del commit tiene que decirlo**. Sale con
+código 1 cuando falta un origen.
+
+**Lo primero que hizo al correr fue avisar de su propio estado transitorio**: `mapbox-v3.19.0` aún
+no está en `node_modules` porque el alias acaba de cambiar de nombre. **Hace falta un `npm install`
+antes del próximo `gulp`**, y ahora eso se ve en vez de deducirse.
+
