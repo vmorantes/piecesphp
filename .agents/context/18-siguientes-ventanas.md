@@ -8198,6 +8198,81 @@ inadvertido.
 viejos**. `changedFields()` se construyó para saber qué cambia un guardado, y lo primero que dijo
 fue que un guardado cambia algo que nadie había pedido.)*
 
+### DIMENSIONADO — punto 2 del bloque del 25-08
+
+#### 2.1 · El camino exacto, y qué vuelve al leer
+
+**Una sola rama, y sirve para escribir en los dos sentidos** —`dataToInsert()` y
+`dataToUpdate()` llaman las dos a `castPHPToSQLTypes()`—:
+
+```php
+} elseif (in_array($typeSQL, $typesJSON)) {
+    if (is_string($value)) { return $value; }
+    else                   { return json_encode($value); }   // json_encode(null) === 'null'
+}
+```
+
+**No es solo el `update()`**: un `insert()` con la columna a `null` escribe la cadena desde el
+primer día. Medido, ejerciendo la rama tal cual está:
+
+```
+  PHP null   -> SQL 'null'   -> vuelve como NULL
+  PHP false  -> SQL 'false'  -> vuelve como false
+  PHP []     -> SQL '[]'     -> vuelve como array()
+```
+
+**Vuelve como `null`, no como cadena.** La rama de lectura hace `json_decode('null')`, que
+devuelve `null` con `json_last_error() === JSON_ERROR_NONE`. **Por eso es invisible desde el
+ORM**: el viaje de ida y vuelta es idempotente. Lo que se rompe es todo lo que pregunte en SQL
+—`IS NULL`, `COALESCE`, `IFNULL`— y los 4 bytes que ocupa donde no ocupaba nada.
+
+#### 2.2 · Cuántas columnas, y cuántas filas afectadas HOY
+
+**35 columnas `json` declaradas** en mappers reales *(34 en el literal `$fields`; la 35.ª,
+`login_attempts.extra_data`, se declara en tiempo de ejecución dentro del constructor, tras un
+`SHOW COLUMNS`, y mi primer conteo la perdió por eso)*.
+
+| | Cuántas |
+| :-- | --: |
+| Admiten NULL —donde el defecto puede darse— | **28** |
+| `NOT NULL` | 7 |
+| **En tablas con CERO filas** | **26 de 35** |
+| **Filas con la cadena `'null'` guardada, hoy** | **0** |
+
+> **El cero de la última fila NO significa que no haya problema: significa que aquí no hay casi
+> nada que mirar.** 26 de las 35 columnas viven en tablas vacías, y las 9 restantes están en las
+> pocas tablas pobladas de esta base. **T39 en pleno.** Un despliegue con datos puede tener otra
+> respuesta y esta base no puede darla.
+>
+> *Método: censo de columnas por análisis de los `$fields`; conteo de filas y búsqueda de la
+> cadena sobre el texto del volcado del que se restauró, verificado idéntico al estado de la
+> base.*
+
+**Y un matiz al revés, en las 7 `NOT NULL`**: ahí escribir `'null'` **no corrompe, ENMASCARA**.
+Un `null` de PHP que la columna debía rechazar entra como una cadena de cuatro letras y MySQL lo
+acepta. La restricción está, y no se entera.
+
+#### 2.3 · Desde cuándo: **desde el primer commit del paquete, 2018-09-12**
+
+No lo introdujo v3.8.0. Lo *encontró*. La rama está, palabra por palabra, en
+`05864cb Init. Merger piecesphp/active-recor and piecesphp/entity-mapper projects`:
+
+```php
+case 'json':
+    if (is_string($value)) { return $value; }
+    else { return json_encode($value); }
+```
+
+**Ocho años.** Cualquier despliegue que haya insertado o actualizado una fila con una columna
+`json` a NULL la tiene escrita como cadena, y nadie lo ha visto porque el ORM la lee bien.
+
+*(Aquí se ve por qué el hallazgo llegó cuando llegó: `changedFields()` compara **la fila cruda
+contra lo que se va a escribir**. Es el primer instrumento del proyecto que mira el valor SQL en
+lugar del valor PHP, y el defecto solo existe en ese lado.)*
+
+**No se arregla.** Con estas cifras decide el PROPIETARIO.
+
+
 ## T87 · LA INSTANTÁNEA — v3.8.0, y el `updated` deja de reabrir rechazos en LOS CUATRO
 
 ### El mérito, dicho
