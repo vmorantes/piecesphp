@@ -145,6 +145,21 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Herramientas — la lista de rutas que un recorredor nunca pide vive en un solo sitio
+
+Estaba **copiada** en `bin/walk-routes` y en `bin/walk-attribute`. Los 17 patrones aún coincidían
+—el comentario que explica por qué se mira también la URL, no: ya solo estaba en uno de los dos—,
+pero lo que cuesta que diverja aquí no es ruido: un recorredor que pida una ruta de escritura
+**escribe creyendo que solo lee**, y se lo atribuye a una ruta de lectura.
+
+Ahora los patrones viven en `files/dev/forbidden-routes.json` —legible por cualquier herramienta,
+en PHP o no— y la comparación en `bin/tools/forbidden-routes.php`. Los dos recorredores lo leen de
+ahí y **ninguno conserva copia**; si el archivo falta, el recorrido no empieza.
+
+Comprobado sobre las **351 rutas** del inventario real: los veredictos son los mismos que antes,
+**cero cambios**. Y `verify-integrity` gana una **duodécima comprobación** que falla si alguien
+vuelve a declarar la lista en otro sitio o deja de leerla de ahí.
+
 ## Herramientas — `verify-integrity` gana una undécima comprobación
 
 La lista de tablas con acuñado de slug de `files/dev/volatile-state.json` está **copiada** de lo

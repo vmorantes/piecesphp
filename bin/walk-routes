@@ -59,28 +59,15 @@ if (!is_array($inventory)) {
 }
 
 /**
- * Nombres y trozos de URL que NUNCA se piden. Sobra con uno de los dos: se comprueban los
- * dos a propósito, porque un nombre puede no seguir la convención y una URL sí, o al revés.
+ * Nombres y trozos de URL que NUNCA se piden. LA LISTA NO VIVE AQUÍ: estuvo copiada en los
+ * dos recorredores, y una copia que diverge hace que uno ESCRIBA creyendo que solo lee.
+ * Ver files/dev/forbidden-routes.json y T73.
  */
-$forbidden = [
-    //Por nombre de ruta, que es la convención del proyecto.
-    '-actions-', '-forms-add', '-forms-edit', '-add', '-edit', '-delete',
-    //Y por FORMA DE URL, porque un enlace real no sigue la convención de nombres: en la
-    //primera corrida se coló `/forms/add/` por no llevar guion. Era inofensivo —una vista
-    //de formulario, no una acción— pero la regla es que no se piden, no que no rompan.
-    '/add', '/edit', '/delete', '/actions', '/remove', '/destroy',
-    'delete', 'destroy', 'remove', 'logout', 'sign-out',
-];
+require_once __DIR__ . '/tools/forbidden-routes.php';
+$forbiddenPatterns = pcsphp_forbidden_patterns($root);
 
-$isForbidden = static function (string $name, string $url) use ($forbidden): ?string {
-    $haystack = mb_strtolower($name . ' ' . $url);
-    foreach ($forbidden as $needle) {
-        if (mb_strpos($haystack, $needle) !== false) {
-            return $needle;
-        }
-    }
-    return null;
-};
+$isForbidden = static fn (string $name, string $url): ?string =>
+    pcsphp_forbidden_match($name, $url, $forbiddenPatterns);
 
 //──── Sesión opcional ───────────────────────────────────────────────────────────────────
 $token = null;

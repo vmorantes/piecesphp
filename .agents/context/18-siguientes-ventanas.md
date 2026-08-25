@@ -260,20 +260,19 @@ herramientas, y de cada uno se pregunta si lo REGENERA un comando o lo escribe u
 | `shared-toolchain.json` — 4 paquetes, sus archivos y marcadores | **A mano** | **Abierto** |
 | `.gitattributes` — excepciones de `bin/` | **A mano** | **CERRADO**: pasó a patrón `bin/*` |
 | `bin/phpstan.neon` — 15 bloques `paths:` con 23 rutas | **A mano** | **Abierto**, y es el de mayor superficie |
-| `bin/walk-attribute` y `bin/walk-routes` — la lista `$forbidden` de 14 patrones de escritura | **A mano** | **Abierto**, y **duplicada en los dos archivos** |
+| `bin/walk-attribute` y `bin/walk-routes` — la lista `$forbidden` de **17** patrones de escritura | **A mano** | **CERRADA**: pasó a `files/dev/forbidden-routes.json`, con la comprobación 12. Ver T73 |
 | `SchemeSqlTask::IGNORED_DIRECTORIES` | **A mano**, pero es lista NEGRA | Sano por construcción: quedarse corta añade ruido, no ceguera |
 | `PreferSlugsFiller::mappersWithSlug()` | **Derivada** | Sano |
 
-**Van dos encontradas y cerradas** —`volatile-state` con la comprobación 11 y `.gitattributes` con
-el patrón—. **Quedan cinco abiertas**, y la que más me preocupa no es la más grande:
+**Van tres encontradas y cerradas** —`volatile-state` con la comprobación 11, `.gitattributes` con
+el patrón, y `$forbidden` con la comprobación 12—. **Quedan cuatro abiertas.**
 
-> **`$forbidden` está copiada en `bin/walk-routes` y en `bin/walk-attribute`.** Son 14 patrones que
-> deciden **qué rutas NO se piden**. Si alguien añade uno en un archivo y no en el otro, un
-> recorrido pedirá una ruta de escritura que el otro se salta — y el que la pida **escribirá**
-> mientras cree que solo lee. Es la misma forma que el `PUBLIC_AREA_ROUTES` que deshicimos: la
-> enumeración viviendo dos veces.
-
-**No se arregla nada de esto ahora**, que era el encargo. La lista está para decidir por dónde.
+> **`$forbidden` estaba copiada en `bin/walk-routes` y en `bin/walk-attribute`.** Eran 17 patrones
+> —no 14, cifra mía mal contada— que deciden **qué rutas NO se piden**. Si alguien añadía uno en un
+> archivo y no en el otro, un recorrido pedía una ruta de escritura que el otro se saltaba, y el
+> que la pedía **escribía** mientras creía que solo leía. Era la misma forma que el
+> `PUBLIC_AREA_ROUTES` que deshicimos: la enumeración viviendo dos veces. **Cerrada en T73**, que
+> trae además el diff previo y las cuatro restantes **ordenadas por lo que cuesta que diverjan**.
 
 ### LEY 12 — UNA PASADA DE ATRIBUCIÓN SOLO ES VÁLIDA SOBRE UNA BASE RECIÉN RESTAURADA
 
@@ -7059,4 +7058,85 @@ abierto mientras el paso 3 no ocurra.
 hoy no los escuche nadie aquí no es motivo para quitarlos. Ya están documentados en
 `03-ciclo-de-vida.md`, que era lo que de verdad faltaba.
 
+
+## T73 · `$forbidden` — la primera de las cinco listas, cerrada
+
+**Por qué esta y no la más grande.** El criterio no es el tamaño: es **qué cuesta que diverja**.
+`bin/phpstan.neon` tiene más superficie, pero su divergencia produce ruido o una cifra corta. Esta
+produce **una escritura silenciosa creyendo que solo se lee**: el recorredor pide una ruta de
+escritura, la atribuye a una ruta de lectura, y deja inservible la foto de la que depende E3.
+**Corrompe el dato y la medición a la vez.**
+
+### El diff previo: no habían divergido — todavía
+
+*Método: se extraen los literales del bloque `$forbidden` de los dos archivos y se comparan como
+listas ordenadas.*
+
+| | `bin/walk-routes` | `bin/walk-attribute` |
+| :-- | :-- | :-- |
+| Patrones | **17** | **17** |
+| Mismo contenido y mismo orden | **Sí** | **Sí** |
+| Bloque completo, comentarios incluidos | — | **No** |
+
+**Corrección de una cifra mía**: en el barrido de la LEY 11 las llamé «14 patrones». Son **17**;
+conté por líneas de agrupación en vez de por literales. Corregida también allí.
+
+**Y el hallazgo, que no es «no había nada»**: los datos coincidían, pero **el comentario que
+explica por qué se mira también la URL —el incidente de `/forms/add/`— solo estaba en una de las
+dos copias.** *La razón había divergido antes que el dato.* Quien tocara `walk-attribute` no tenía
+delante el motivo de la mitad de la lista.
+
+### Dónde vive ahora
+
+| Pieza | Qué es |
+| :-- | :-- |
+| `files/dev/forbidden-routes.json` | **Los datos.** JSON, legible por cualquier herramienta futura, en PHP o no. Con su `why` y sus reglas |
+| `bin/tools/forbidden-routes.php` | **La función de comparación**, para que tampoco la regla de emparejado esté dos veces |
+| Los dos recorredores | `require_once` y nada más. **Ninguno conserva copia** |
+
+**Sin lista no se recorre**: si el JSON falta o no declara `patterns`, la función escribe en
+`STDERR` y sale con 1. Seguir sin ella significaría pedirlo todo, escrituras incluidas.
+
+### Que decide lo mismo que antes
+
+*Método: se aplica la lista de `HEAD` y la nueva a las **351 rutas** del inventario real, y se
+comparan los veredictos uno a uno.*
+
+```
+rutas evaluadas       : 351
+vetadas               : 103
+veredictos que CAMBIAN: 0
+```
+
+### La comprobación 12, provocada en tres direcciones
+
+`verify-integrity` falla si alguien vuelve a copiarla:
+
+| Se provoca | Qué dice |
+| :-- | :-- |
+| Reponer un `$forbidden = [...]` literal en un guion | «`bin/walk-attribute` vuelve a declarar la lista con `$forbidden = [`» |
+| Quitar el `require_once` de un recorredor | «`bin/walk-routes` filtra rutas prohibidas sin cargar `bin/tools/forbidden-routes.php`: está decidiendo con una lista propia» |
+| Borrar el JSON | «no existe `files/dev/forbidden-routes.json`: la comprobación no pudo mirar nada» |
+
+Las tres salieron con **FALLOS: 1**. Con todo en su sitio, **verde con las doce**.
+
+**Lo que NO se hizo, y a propósito**: no se ha corrido ningún recorrido contra el sitio vivo. Un
+recorrido escribe en `login_attempts` y dispara rellenos perezosos, y la LEY 12 dice que eso
+ensucia la base antes de la foto de E3. La equivalencia se probó sobre el inventario, que es el
+mismo dato que consume el recorredor.
+
+### Las otras cuatro, ordenadas por lo que cuesta que diverjan
+
+**No se arregla ninguna. El orden lo aprueba el PROPIETARIO.**
+
+| # | Lista | Qué cuesta que diverja |
+| :-- | :-- | :-- |
+| **1** | `bin/phpstan.neon` — 15 bloques `paths:` con 23 rutas | **Un archivo que no está en `paths:` no se analiza, y el total no baja: sale igual de verde.** Es la única de las cuatro que puede hacer que una cifra del trinquete signifique menos de lo que dice, y ya nos pasó: 34 de 195 archivos descartados en silencio (T20) |
+| **2** | `shared-toolchain.json` — 4 paquetes, sus archivos y marcadores | **Un paquete que se sale del instrumental común deja de vigilarse.** La comprobación 7 aprueba en verde justo lo que dejó de mirar; la comprobación de eclipses nació de ese mismo error |
+| **3** | `volatile-state.json` — las entradas que no son del slug | **Un volátil de más enseña a ignorar un diff real; uno de menos convierte un cambio normal en hallazgo.** Las 14 del slug ya están cerradas por la comprobación 11; quedan `login_attempts` y `missing-lang` |
+| **4** | `deprecated-functions.json` — 11 funciones vigiladas | **Una deprecada nueva que nadie añada pasa sin verse.** Es la de menor coste: el fallo es una omisión, no una afirmación falsa, y PHP acaba diciéndolo por su cuenta |
+
+**El criterio que las ordena**: arriba, las que **afirman algo falso** —un verde que no cubre lo
+que dice cubrir—. Abajo, las que **callan algo cierto**. Un instrumento que miente es peor que uno
+que no mira, porque el segundo no da permiso para dejar de mirar.
 

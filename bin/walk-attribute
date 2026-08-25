@@ -90,20 +90,11 @@ $isVolatileFile = static function (string $path) use ($volatileFiles): bool {
 };
 
 //──── Rutas que NO se piden ─────────────────────────────────────────────────────────────
-$forbidden = [
-    '-actions-', '-forms-add', '-forms-edit', '-add', '-edit', '-delete',
-    '/add', '/edit', '/delete', '/actions', '/remove', '/destroy',
-    'delete', 'destroy', 'remove', 'logout', 'sign-out',
-];
-$isForbidden = static function (string $name, string $url) use ($forbidden): ?string {
-    $haystack = mb_strtolower($name . ' ' . $url);
-    foreach ($forbidden as $needle) {
-        if (mb_strpos($haystack, $needle) !== false) {
-            return $needle;
-        }
-    }
-    return null;
-};
+//LA LISTA NO VIVE AQUÍ, y por eso no puede divergir de la del otro recorredor. Ver T73.
+require_once __DIR__ . '/tools/forbidden-routes.php';
+$forbiddenPatterns = pcsphp_forbidden_patterns($root);
+$isForbidden = static fn (string $name, string $url): ?string =>
+    pcsphp_forbidden_match($name, $url, $forbiddenPatterns);
 
 //──── Sesión ────────────────────────────────────────────────────────────────────────────
 $request = static function (string $url, array $headers = [], ?array $post = null): array {

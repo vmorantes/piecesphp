@@ -179,11 +179,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 11. La lista de tablas volátiles coincide con la que se deriva del código ─
         $volatileFailures = self::checkVolatileTablesMatchCode();
 
+        //──── 12. La lista de rutas prohibidas vive en un solo sitio ────────────────────
+        $forbiddenFailures = self::checkForbiddenRoutesAreSingle();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
-            + count($executableFailures) + count($typeFailures) + count($volatileFailures);
+            + count($executableFailures) + count($typeFailures) + count($volatileFailures)
+            + count($forbiddenFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -218,9 +222,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($narrativeFailures as $line) {
             echoTerminal("\e[31mCOMENTARIO:\e[39m {$line}");
         }
+        foreach ($forbiddenFailures as $line) {
+            echoTerminal("\e[31mPROHIBIDAS:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos y volátiles sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles y rutas prohibidas sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1328,6 +1335,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     const NARRATIVE_RELATIVE_PATH = 'files/dev/narrative-comments.json';
 
     /**
+     * La lista de rutas que un recorredor NUNCA pide. Vive aquí y en ningún otro sitio.
+     */
+    const FORBIDDEN_RELATIVE_PATH = 'files/dev/forbidden-routes.json';
+
+    /**
      * Un comentario que frena algo cabe en una línea (T0, punto 7).
      *
      * La regla anterior —«¿impide romper algo?»— no frenaba la deriva porque no hablaba del
@@ -1649,6 +1661,71 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         echoTerminal("\e[94mINFO:\e[39m {$checked} guion(es) de bin/ comprobados contra su bit de ejecución.");
+
+        return $failures;
+    }
+
+    /**
+     * La lista de rutas prohibidas existe UNA sola vez, y todo el que la usa la lee de ahí.
+     *
+     * Existe porque estaba COPIADA en `bin/walk-routes` y en `bin/walk-attribute`. Lo que
+     * cuesta que diverja no es ruido: un recorredor que pida una ruta de escritura ESCRIBE
+     * creyendo que solo lee, se lo atribuye a una ruta de lectura, y deja inservible la foto
+     * de la que depende E3. Cuando se midió, los 17 patrones aún coincidían, pero el
+     * comentario que explicaba por qué se mira también la URL solo estaba en una de las dos:
+     * la razón había divergido antes que el dato. Ver LEY 11 y T73.
+     *
+     * @return string[]
+     */
+    protected static function checkForbiddenRoutesAreSingle(): array
+    {
+        $root = rtrim(str_replace('\\', '/', basepath('..')), '/');
+        $path = $root . '/' . self::FORBIDDEN_RELATIVE_PATH;
+
+        if (!is_file($path)) {
+            return ['no existe ' . self::FORBIDDEN_RELATIVE_PATH . ': la comprobación no pudo mirar nada.'];
+        }
+
+        $declared = json_decode((string) file_get_contents($path), true);
+        $patterns = is_array($declared) ? ($declared['patterns'] ?? null) : null;
+        if (!is_array($patterns) || count($patterns) === 0) {
+            return [self::FORBIDDEN_RELATIVE_PATH . ' no declara `patterns` o está vacío.'];
+        }
+
+        $failures = [];
+        $users = 0;
+
+        foreach ((array) glob($root . '/bin/*') as $file) {
+            if (!is_string($file) || !is_file($file)) {
+                continue;
+            }
+            $content = (string) file_get_contents($file);
+            $relative = 'bin/' . basename($file);
+
+            //UNA SEGUNDA DECLARACIÓN LITERAL ES LA COPIA VOLVIENDO.
+            if (preg_match('/\$forbidden\s*=\s*\[/', $content) === 1) {
+                $failures[] = $relative . ' vuelve a declarar la lista con `$forbidden = [`.'
+                    . ' Se lee de ' . self::FORBIDDEN_RELATIVE_PATH . ' con bin/tools/forbidden-routes.php.';
+            }
+
+            //Y QUIEN LA USA TIENE QUE LEERLA DE AHÍ, no traérsela por su cuenta.
+            if (mb_strpos($content, '$isForbidden') === false) {
+                continue;
+            }
+            $users++;
+            if (mb_strpos($content, 'tools/forbidden-routes.php') === false) {
+                $failures[] = $relative . ' filtra rutas prohibidas sin cargar bin/tools/forbidden-routes.php:'
+                    . ' está decidiendo con una lista propia.';
+            }
+        }
+
+        if ($users === 0) {
+            $failures[] = 'ningún guion de bin/ usa la lista: o se dejó de filtrar, o la comprobación'
+                . ' dejó de reconocer a quien lo hace.';
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($patterns) . ' patrón(es) de rutas prohibidas, leídos por '
+            . $users . ' guion(es) desde un solo sitio.');
 
         return $failures;
     }
