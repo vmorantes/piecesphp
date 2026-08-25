@@ -7418,13 +7418,21 @@ no contra la conducta vieja—.
 **Rota por el otro lado**: con el paquete instalado sin el accesor, la suite **no se omite**, falla
 con su balance impreso, y el corredor sale con 1.
 
-### ESTADO: la puerta queda ROJA, y es lo correcto
+### ESTADO: CERRADA — v3.7.0 instalada, 7/7
 
-`src/vendor` tiene **v3.6.0**. La v3.7.0 está commiteada y etiquetada en su repositorio, **sin
-empujar**. Verificado de verdad instalando el paquete local a mano y midiendo con él —de ahí salen
-todas las cifras de arriba—, y después **devuelto a v3.6.0**, que es lo que un clon encontraría.
+Empujada la etiqueta, `php8.5 /usr/bin/composer update piecesphp/database` deja `v3.7.0` en
+`src/vendor` —leído de `installed.json`— y la suite pasa entera.
 
-**Para cerrarla**: push de `v3.7.0` y `php8.5 /usr/bin/composer update piecesphp/database`.
+**Y el estado honesto, que es lo que hay que llevarse de aquí:**
+
+> El evento **ya no miente** sobre si la sentencia cambió filas. Pero **un guardado que no toca
+> nada SIGUE reabriendo un rechazo en 3 de los 4 manejadores**, porque el mapper cambia la fila él
+> mismo al sellar `updatedAt` y `modifiedBy`. Y el síntoma es **intermitente por reloj**: dos
+> guardados dentro del mismo segundo cuentan 0 y no reabren nada. Un defecto que aparece o no según
+> el segundo en que caiga es peor de diagnosticar que uno constante.
+
+**Lo que falta para cerrarlo de verdad** no es un número de filas: es saber **QUÉ campos** cambiaron.
+Ver T78.
 
 ## T77 · ¿QUÉ MIDE EL 859? — el universo, contado
 
