@@ -4,7 +4,7 @@
 
 - Requerimientos
     - PiecesPHP
-    - **PHP 8.4.1 – 8.5** (`>=8.4.1 <8.6`)
+    - **PHP 8.4.1 – 8.5** (`>=8.4.1 <8.6`) — **el que sirve la web Y el que ejecuta `composer`**
     - Composer
     - NodeJS 22.x LTS con FNM
     - NPM
@@ -118,6 +118,33 @@ npm install ##NO USAR sudo
 cd $FOLDER/src
 composer install ##NO USAR sudo
 ```
+
+!!! danger "Composer usa el PHP del PATH, no el de la web"
+    `composer` es un guion PHP: corre con **el `php` que encuentre en el PATH**, que no tiene
+    por qué ser el que sirve Apache. Si ese PHP está por debajo del piso declarado, Composer
+    **se niega a resolver y no toca nada**:
+
+    ```
+    Your requirements could not be resolved to an installable set of packages.
+
+      Problem 1
+        - Root composer.json requires php >=8.4.1 <8.6 but your php version (8.1.34)
+          does not satisfy that requirement.
+    ```
+
+    **El mensaje no dice «usa otro binario»: dice que tu PHP no vale**, y eso manda a mirar
+    la versión de la web, que puede estar perfectamente bien. La instalación no se rompe:
+    **no ocurre**, que es más difícil de ver.
+
+    La forma que funciona es decirle a Composer con qué PHP correr:
+
+    ```bash
+    php8.5 /usr/bin/composer install     # o la ruta donde esté el composer.phar
+    php -v && php8.5 -v                  # comprueba los dos: el del PATH y el que quieres
+    ```
+
+    **Son dos versiones distintas que comprobar**: la que ejecuta `composer` y la que sirve
+    la web (`php-fpm<version> -v`). Que una esté bien no dice nada de la otra.
 
 ##### Actualización de NPM (solo en caso de errores)
 ```bash

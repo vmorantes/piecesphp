@@ -7590,3 +7590,56 @@ copiado**. No es un aviso de tipos: es una línea muerta que nadie sabía que es
 obligatorio. Es exactamente la clase de suposición que esta campaña ha estado persiguiendo, dentro
 de la herramienta que mide la campaña.
 
+## T81 · LA TRAMPA DEL PHP DE COMPOSER — no es local, viaja con el clon
+
+`composer` es un guion PHP: corre con **el `php` del PATH**, que no tiene por qué ser el que sirve
+Apache. Si ese PHP está por debajo del piso declarado, Composer **se niega a resolver y no toca
+nada**:
+
+```
+  Problem 1
+    - Root composer.json requires php >=8.4.1 <8.6 but your php version (8.1.34)
+      does not satisfy that requirement.
+```
+
+**El mensaje no dice «usa otro binario»: dice que tu PHP no vale**, y eso manda a mirar la versión
+de la web, que puede estar perfectamente bien. **La instalación no se rompe: no ocurre**, que es
+más difícil de ver.
+
+Queda escrito **en el documento de despliegue**, con el mensaje literal para que quien lo reciba lo
+reconozca, y **en el instalador asistido** del roadmap: son **dos versiones que comprobar**, la que
+sirve la web y la que ejecuta Composer, y que una cumpla no dice nada de la otra.
+
+### La familia, y un miembro encontrado por el camino
+
+Es el mismo fallo que motivó el selector de binario de `bin/cli`, reaparecido en la herramienta de
+al lado. **La pregunta que abriste —qué otras herramientas invocamos sin selector— queda abierta,
+pero no vacía**: al correr el `composer update` de este bloque apareció uno solo.
+
+| Quién invoca | Selector |
+| :-- | :-- |
+| `bin/cli`, `bin/phpstan`, `bin/phpstan-deadcode`, `bin/rector` | **Sí** — `PCSPHP_PHP_BIN` con reserva |
+| **`tasks/TasksManager.php`** → `shell_exec('composer install')` y `composer update` | **NO** |
+| `bin/node/copyDependencies.sh` → `php copyDependencies.php` | **NO** |
+| `bin/package-css` → `gulp` | **NO** (otra familia: Node, no PHP) |
+
+**El de `TasksManager` no es hipotético: falla HOY.** Es el `post-update-cmd` del propio
+`composer.json`, así que corre dentro de cada `composer install`/`update` del proyecto, lanza un
+segundo Composer **con el PHP por defecto**, y ese segundo escupe el mismo rechazo:
+
+```
+> PiecesPHP\ComposerTasks\TasksManager::task
+[PiecesPHP] Actualizando herramientas de desarrollo...
+  Problem 1
+    - Root composer.json requires php >=8.4 <8.6 but your php version (8.1.34) ...
+```
+
+**Consecuencia medida**: el instrumental de `bin/tools` —PHPStan incluido— **no se ha actualizado
+por esa vía**. Y el fallo va enterrado en la salida del comando padre, que sí termina bien.
+
+**No se arregla en este bloque.** Pero ya no es una pregunta abierta del todo: es una pregunta
+abierta con un caso confirmado y dos sospechosos nombrados.
+
+*(De propina, y es coherencia con T80: `TasksManager.php` es uno de los 11 que acaban de entrar al
+análisis. **La herramienta que no se vigilaba era también la que no se medía.**)*
+

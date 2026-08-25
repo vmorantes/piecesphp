@@ -37,7 +37,11 @@ Con `vendor/` **dentro**, para que el servidor no necesite Composer ni Node. Mod
 
 ## Instalador asistido — **por web, no por terminal**
 
-1. Comprueba versión de PHP y extensiones.
+1. Comprueba versión de PHP y extensiones. **DOS versiones, no una**: la que sirve la web
+   (`php-fpm<v> -v`) y **la que ejecuta `composer`** (`php -v`, el del PATH). Son binarios
+   distintos y pueden estar en versiones distintas; que una cumpla no dice nada de la otra.
+   Si la de Composer está por debajo del piso, la instalación **no se rompe: no ocurre**, y el
+   mensaje de error señala al PHP equivocado. Añadido el 2026-08-25 tras tropezar con ello.
 2. Comprueba permisos.
 3. Pide credenciales.
 4. Crea el esquema con `bin/cli scheme-create`.
