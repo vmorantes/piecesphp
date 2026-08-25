@@ -7300,3 +7300,100 @@ hueco el árbol de `vendor` tenía una copia buena. Desde las **15:50** vuelve a
 las corridas registradas. Lo que se puede afirmar con evidencia: **la omisión duró desde el 24-08
 a las 15:50 hasta hoy**, y el **8/8 nunca se había observado**.
 
+## T76 · EL EVENTO `updated` DICE LA VERDAD — y el arreglo NO cura el síntoma en 3 de los 4
+
+**El escuchador no se toca.** Su comentario —«Si está rechazado pasa a pendiente al editar»— es
+intención declarada del PROPIETARIO. Lo que se arregla es que «editar» dejara de significar
+«guardar».
+
+### El paquete: v3.7.0
+
+`_executeUpdate()` guarda `rowCount()` **mientras el statement sigue vivo** —`execute()` lo anula
+y `resetAll()` lo borra en cuanto devuelve— y `getLastChangedRowsCount()` lo expone.
+
+| Decisión | Por qué |
+| :-- | :-- |
+| **CAMBIADAS**, no coincidentes, en el nombre | Es justo la distinción que se pierde |
+| **-1** mientras no haya corrido ningún UPDATE | «No ha corrido» no es «no cambió nada» |
+| `resetAll()` **no** lo borra | Pertenece a la última EJECUCIÓN, igual que `getLastSQLExecuted()` |
+| Documentado que depende de **no** tener `MYSQL_ATTR_FOUND_ROWS` | Con esa bandera la cuenta pasa a ser de coincidentes y **el nombre pasa a mentir** |
+| Documentada la diferencia de **SQLite** | Ahí `rowCount()` cuenta filas **tocadas**. La suite lo comprueba en MySQL y lo **informa** en SQLite, en vez de fingir que son iguales |
+
+`core/database/active-record` sube de 7 a **11**. Quitada la captura, fallan **2 de 11**.
+
+### Aquí: `BaseEntityMapper::update()`
+
+```php
+if ($updated && $this->lastUpdateChangedSomething()) {
+    BaseEventDispatcher::dispatch(get_class($this), 'updated', $this);
+}
+```
+
+Sin el accesor —paquete viejo— se mantiene la conducta anterior: **anunciar de menos sería peor**,
+porque se perdería la reapertura de rechazos, que es intención. Quien avisa de que el paquete se
+quedó corto es la suite, **que falla en vez de omitirse** (LEY 13).
+
+### EL HALLAZGO: el arreglo es correcto y NO BASTA
+
+*Método: se pide a un mapper que se guarde sin tocar nada y se lee de la base cuántas filas
+cambiaron y en qué quedó la aprobación.*
+
+| Sujeto | Guardado sin tocar nada | Aprobación RECHAZADA queda en |
+| :-- | :-- | :-- |
+| `UsersModel` | **0 filas cambiadas** | **RECHAZADO** ✔ |
+| `OrganizationMapper` | **1 fila cambiada** | **PENDIENTE** ✘ |
+
+**Por qué**: `OrganizationMapper::update()` hace `$this->updatedAt = new \DateTime()` antes de
+llamar al padre. **El mapper cambia la fila él mismo**, así que la base tiene razón al decir que
+cambió una: lo que ya no es cierto es que «no se tocó nada».
+
+```
+updatedAt 2026-08-25 09:20:01 -> 2026-08-25 09:21:38   filas cambiadas = 1   SE REABRIÓ
+```
+
+**A cuántos alcanza**: de los cuatro manejadores de aprobación, **tres** sellan `updatedAt`
+—`OrganizationMapper`, `PublicationMapper`, `ApplicationCallsMapper`— y **uno no**, `UsersModel`.
+En todo `src/app` hay **16** mappers con ese sellado.
+
+**Detalle fino, medido**: dos guardados **dentro del mismo segundo** sí cuentan 0, porque la marca
+de tiempo no llega a cambiar. O sea que el síntoma es intermitente por reloj, que es la peor forma
+de que un defecto se manifieste.
+
+**Lo que esto significa, dicho sin adornos**: el evento ya no miente —`updated` significa «cambió
+una fila»— pero **la queja original sigue viva en 3 de los 4 casos**. Arreglarla del todo pide una
+decisión que no es mía:
+
+| Camino | Qué costaría |
+| :-- | :-- |
+| Que el mapper **no selle** `updatedAt` si no hay otro cambio | Toca los 16 mappers y cambia el significado de la columna |
+| Que el escuchador **compare contenido** en vez de fiarse del evento | Toca lo que el PROPIETARIO dijo no tocar |
+| **Aceptarlo**: el evento es honesto y `updatedAt` es un cambio real | No cuesta nada, y deja el síntoma |
+
+### La suite, y las dos direcciones
+
+`unit-tests:core/updated-event`, **7 comprobaciones**, con la base de juez y sobre una fila **viva**
+que se aparta y se devuelve.
+
+| Caso | Resultado |
+| :-- | :-- |
+| RECHAZADO guardado sin cambios | Sigue RECHAZADO |
+| RECHAZADO guardado cambiando algo | Pasa a PENDIENTE — **la intención se conserva, y se demuestra** |
+| PENDIENTE guardado sin cambios | No se reescribe: el centinela del alias sobrevive |
+| Un mapper que sella `updatedAt` | **Cambia una fila igualmente** — el límite, fijado para que nadie lo pierda |
+
+**Rota reponiendo el despacho incondicional: fallan 2 de 7**, y son exactamente las dos que
+describen el defecto. **La tercera no puede fallar por ahí, y hay que decirlo**: «RECHAZADO con
+cambios pasa a PENDIENTE» pasa con arreglo y sin él —es una guarda contra pasarse de corrección,
+no contra la conducta vieja—.
+
+**Rota por el otro lado**: con el paquete instalado sin el accesor, la suite **no se omite**, falla
+con su balance impreso, y el corredor sale con 1.
+
+### ESTADO: la puerta queda ROJA, y es lo correcto
+
+`src/vendor` tiene **v3.6.0**. La v3.7.0 está commiteada y etiquetada en su repositorio, **sin
+empujar**. Verificado de verdad instalando el paquete local a mano y midiendo con él —de ahí salen
+todas las cifras de arriba—, y después **devuelto a v3.6.0**, que es lo que un clon encontraría.
+
+**Para cerrarla**: push de `v3.7.0` y `php8.5 /usr/bin/composer update piecesphp/database`.
+

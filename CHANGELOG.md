@@ -145,6 +145,24 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Corregido — guardar sin cambiar nada reabría un elemento rechazado
+
+El evento `updated` se despachaba cuando `parent::update()` devolvía `true`, y eso significa «la
+sentencia corrió», no «cambió una fila». Consecuencia: abrir un elemento **rechazado**, guardarlo
+sin tocar nada y verlo volver a la cola de aprobación como pendiente.
+
+Ahora `updated` solo se despacha si la base dice que cambió algo. **El escuchador no se toca**:
+reabrir un rechazo al editar es intención, y se conserva —hay una comprobación que lo demuestra,
+no solo que no lo rompe—.
+
+> **Lo que este arreglo NO cura, y conviene saberlo**: un mapper que sella `updatedAt` en su
+> propio `update()` **cambia la fila él mismo**, así que para él «guardar sin tocar nada» sigue
+> siendo un cambio real. Son 3 de los 4 tipos con aprobaciones y 16 mappers en total. Medido, no
+> supuesto.
+
+**Requiere `piecesphp/database` >= 3.7.0.** Con una versión anterior se mantiene la conducta de
+siempre y la suite `unit-tests:core/updated-event` **falla** para decirlo: no se omite en silencio.
+
 ## Dependencias — `piecesphp/database` sube a v3.6.0
 
 Trae `SchemeCreator::createScript()` y `dropScript()`, el charset `utf8mb4` configurable, el

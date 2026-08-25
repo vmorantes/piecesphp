@@ -130,6 +130,8 @@ class BaseEntityMapper extends EntityMapper
 
     /**
      * @inheritDoc
+     *
+     * `updated` solo se despacha si la base dice que cambió una fila. Ver T76.
      */
     public function update()
     {
@@ -138,10 +140,27 @@ class BaseEntityMapper extends EntityMapper
          */
         BaseEventDispatcher::dispatch(get_class($this), 'updating', $this);
         $updated = parent::update();
-        if ($updated) {
+        if ($updated && $this->lastUpdateChangedSomething()) {
             BaseEventDispatcher::dispatch(get_class($this), 'updated', $this);
         }
         return $updated;
+    }
+
+    /**
+     * ¿Cambió una fila de verdad el último `update()`?
+     *
+     * @return bool
+     */
+    protected function lastUpdateChangedSomething(): bool
+    {
+        $model = $this->getModel();
+
+        //Sin accesor no se puede saber: conducta vieja, y la suite lo grita. Ver T76.
+        if (!method_exists($model, 'getLastChangedRowsCount')) {
+            return true;
+        }
+
+        return $model->getLastChangedRowsCount() !== 0;
     }
 
     /**
