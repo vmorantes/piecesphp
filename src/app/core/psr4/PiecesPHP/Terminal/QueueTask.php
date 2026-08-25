@@ -65,12 +65,6 @@ class QueueTask
      * Ejecuta el manejador con datos específicos.
      *
      * @param mixed $data
-     * @return array
-     */
-    /**
-     * Ejecuta el manejador con datos específicos.
-     *
-     * @param mixed $data
      * @return QueueHandlerResponse
      */
     public function execute($data = null): QueueHandlerResponse

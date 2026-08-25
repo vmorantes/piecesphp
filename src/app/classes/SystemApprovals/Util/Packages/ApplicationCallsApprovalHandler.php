@@ -37,17 +37,6 @@ class ApplicationCallsApprovalHandler extends BaseApprovalHandler
      * @param int|ApplicationCallsMapper $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
-    /**
-     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
-     * cambio NO es una edición. Ver T87.
-     *
-     * @return string[]
-     */
-    public static function auditFields(): array
-    {
-        return ['updatedAt', 'modifiedBy'];
-    }
-
     public static function getContentTypeSpecificMapper(int | ApplicationCallsMapper $reference): string
     {
         $text = self::$BASE_TEXT;
@@ -109,5 +98,16 @@ class ApplicationCallsApprovalHandler extends BaseApprovalHandler
      */
     public static function onUpdatedRecordSpecificMapper(ApplicationCallsMapper $element, ?SystemApprovalsMapper $approvalMapper = null): void
     {
+    }
+
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['updatedAt', 'modifiedBy'];
     }
 }

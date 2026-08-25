@@ -191,13 +191,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 15. Ninguna propiedad se declara después del primer método ────────────────
         $orderFailures = self::checkPropertiesBeforeMethods();
 
+        //──── 16. Ningún docblock quedó separado de lo que documenta ────────────────────
+        $orphanFailures = self::checkOrphanDocblocks($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
-            + count($orderFailures);
+            + count($orderFailures) + count($orphanFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -244,9 +247,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($orderFailures as $line) {
             echoTerminal("\e[31mORDEN:\e[39m {$line}");
         }
+        foreach ($orphanFailures as $line) {
+            echoTerminal("\e[31mDOCBLOCK HUÉRFANO:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas y orden de propiedades sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades y docblocks sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1529,18 +1535,6 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         return $failures;
     }
     /**
-     * Lo que las herramientas PRODUCEN también es instrumental compartido.
-     *
-     * Esta comprobación existe porque la de las marcas aprobó en verde cuatro repositorios
-     * cuyo estado de seguimiento divergía: `PHPStanResult.json` versionado aquí y ni versionado
-     * ni ignorado en los paquetes, y un `bin/Preview/` generado colándose en `html`. Las líneas
-     * de `.gitignore` de los intermedios sí se habían propagado; la decisión sobre el archivo
-     * de la unión, no. **El defecto no era la divergencia: era el alcance de la puerta.**
-     *
-     * @param array<string, mixed> $registry
-     * @return string[]
-     */
-    /**
      * Las tablas del acuñado de slug declaradas en `volatile-state.json` tienen que coincidir
      * con las que el código descubre.
      *
@@ -1894,6 +1888,61 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
 
 
+
+    /**
+     * Ningún docblock queda separado de lo que documenta.
+     *
+     * Un docblock con `@param` o `@return` seguido de OTRO docblock significa que alguien
+     * insertó algo entre la documentación y su firma. Pasó dos veces en una sola sesión, las
+     * dos por editar anclando en la línea `function` sin mirar lo que llevaba encima. Ver T91.
+     *
+     * @param string[] $files
+     * @return string[]
+     */
+    protected static function checkOrphanDocblocks(array $files): array
+    {
+        $failures = [];
+        $checked = 0;
+
+        foreach ($files as $relative) {
+            $path = basepath($relative);
+            if (!is_file($path)) {
+                continue;
+            }
+            $checked++;
+            $lines = explode("\n", str_replace("\r\n", "\n", (string) file_get_contents($path)));
+            $index = 0;
+            $count = count($lines);
+
+            while ($index < $count) {
+                if (!str_starts_with(trim($lines[$index]), '/**')) {
+                    $index++;
+                    continue;
+                }
+                $end = $index;
+                $documents = false;
+                while ($end < $count && !str_ends_with(trim($lines[$end]), '*/')) {
+                    if (preg_match('/@(param|return)\b/', $lines[$end]) === 1) {
+                        $documents = true;
+                    }
+                    $end++;
+                }
+                $next = $end + 1;
+                while ($next < $count && trim($lines[$next]) === '') {
+                    $next++;
+                }
+                if ($documents && $next < $count && str_starts_with(trim($lines[$next]), '/**')) {
+                    $failures[] = $relative . ':' . ($index + 1) . ' — un docblock con @param/@return'
+                        . ' va seguido de otro docblock: quedó separado de lo que documenta.';
+                }
+                $index = $end + 1;
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$checked} archivo(s) comprobados: ningún docblock separado de su firma.");
+
+        return $failures;
+    }
     /**
      * Ninguna propiedad se declara DESPUÉS del primer método de su clase.
      *
@@ -1930,7 +1979,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 }
                 $scanned++;
                 foreach (self::propertiesAfterMethods($path) as $line => $code) {
-                    $failures[] = str_replace($packagesRoot . '/', '', $path) . ":{$line} — " . $code
+                    $relative = str_replace($packagesRoot . '/', '', $path);
+                    $failures[] = (is_array($relative) ? implode('', $relative) : $relative) . ":{$line} — " . $code
                         . ' se declara después del primer método. Las propiedades van arriba.';
                 }
             }
@@ -2036,6 +2086,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         return mb_substr($firstLine, 0, 2) === '#!' && mb_strpos($firstLine, 'php') !== false;
     }
 
+    /**
+     * Lo que las herramientas PRODUCEN también es instrumental compartido.
+     *
+     * Esta comprobación existe porque la de las marcas aprobó en verde cuatro repositorios
+     * cuyo estado de seguimiento divergía: `PHPStanResult.json` versionado aquí y ni versionado
+     * ni ignorado en los paquetes, y un `bin/Preview/` generado colándose en `html`. Las líneas
+     * de `.gitignore` de los intermedios sí se habían propagado; la decisión sobre el archivo
+     * de la unión, no. **El defecto no era la divergencia: era el alcance de la puerta.**
+     *
+     * @param array<string, mixed> $registry
+     * @return string[]
+     */
     protected static function checkToolchainTracking(string $package, string $packageRoot, array $registry): array
     {
         $tracking = $registry['tracking'] ?? null;

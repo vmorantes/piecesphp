@@ -1284,7 +1284,7 @@
  ------ ----------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php  
  ------ ----------------------------------------------------------------------------------- 
-  77     Cannot access property $type on App\Model\UsersModel|int.                          
+  66     Cannot access property $type on App\Model\UsersModel|int.                          
          🪪  property.nonObject                                                             
  ------ ----------------------------------------------------------------------------------- 
 
@@ -1308,23 +1308,23 @@
  ------ ------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php  
  ------ ------------------------------------------------------------------------------- 
-  73     Cannot access property $type on App\Model\UsersModel|int.                      
+  62     Cannot access property $type on App\Model\UsersModel|int.                      
          🪪  property.nonObject                                                         
  ------ ------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php  
  ------ ------------------------------------------------------------------------------- 
-  70     Cannot access property $type on App\Model\UsersModel|int.                      
+  59     Cannot access property $type on App\Model\UsersModel|int.                      
          🪪  property.nonObject                                                         
  ------ ------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------ 
   project://src/src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php  
  ------ ------------------------------------------------------------------------ 
-  60     Cannot access property $organization on App\Model\UsersModel|null.      
+  49     Cannot access property $organization on App\Model\UsersModel|null.      
          🪪  property.nonObject                                                  
-  64     Cannot access property $type on App\Model\UsersModel|null.              
+  53     Cannot access property $type on App\Model\UsersModel|null.              
          🪪  property.nonObject                                                  
  ------ ------------------------------------------------------------------------ 
 
@@ -1533,7 +1533,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  283    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  296    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 
@@ -2738,25 +2738,25 @@
   384    Access to an undefined property object::$iat.                                                                                                                                        
          🪪  property.notFound                                                                                                                                                                
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                                
-  611    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
+  606    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
          🪪  argument.type                                                                                                                                                                    
-  630    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
+  625    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
          🪪  argument.type                                                                                                                                                                    
-  638    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
+  633    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
          🪪  property.nonObject                                                                                                                                                               
-  666    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
+  661    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
          🪪  argument.type                                                                                                                                                                    
-  678    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
+  673    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
          🪪  argument.type                                                                                                                                                                    
-  755    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
+  750    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
          🪪  argument.type                                                                                                                                                                    
-  766    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
+  761    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
          🪪  argument.type                                                                                                                                                                    
-  880    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
+  875    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
          🪪  argument.type                                                                                                                                                                    
-  891    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
+  886    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
          🪪  argument.type                                                                                                                                                                    
-  906    Variable $actionName might not be defined.                                                                                                                                           
+  901    Variable $actionName might not be defined.                                                                                                                                           
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 

@@ -325,7 +325,7 @@ $assets['google_captcha_v3_adapter']['js'] = [
 $assets['google_captcha_v3_adapter']['plugins'] = [];
 
 /**
- * MapBox v3.4.0
+ * MapBox v3.19.0
  * https://docs.mapbox.com/
  */
 $assets['mapbox']['css'] = [

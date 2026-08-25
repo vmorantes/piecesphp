@@ -38,17 +38,6 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
      * @param int|PublicationMapper $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
-    /**
-     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
-     * cambio NO es una edición. Ver T87.
-     *
-     * @return string[]
-     */
-    public static function auditFields(): array
-    {
-        return ['updatedAt', 'modifiedBy'];
-    }
-
     public static function getContentTypeSpecificMapper(int | PublicationMapper $reference): string
     {
         $text = static::$BASE_TEXT;
@@ -104,4 +93,15 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
      */
     public static function onUpdatedRecordSpecificMapper(PublicationMapper $element, ?SystemApprovalsMapper $approvalMapper = null): void
     {}
+
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['updatedAt', 'modifiedBy'];
+    }
 }

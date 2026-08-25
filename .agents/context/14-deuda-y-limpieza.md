@@ -408,8 +408,9 @@ versión de lenguaje.
   preexistente. Las tres exportaciones del mismo controlador
   (`admin/logged-export/`, `not-logged-export/`, `attempts-export/`) sí responden 200,
   así que no es el grupo de rutas entero.
-- **Tres versiones de Mapbox GL en paralelo** en `package.json` (v2.6.0, v3.4.0 y la
-  actual v3.19.0). Consolidar en una.
+- **Mapbox GL: de tres alias a dos.** `v2.6.0` se retiró —no la referenciaba nadie— y
+  `v3.4.0` pasó a `v3.19.0` con versión exacta. **Queda uno de más**: el alias `mapbox`
+  a secas (`^3.19.0`), que no tiene carpeta desplegada ni lo referencia nada. Ver T90.
 
 ---
 

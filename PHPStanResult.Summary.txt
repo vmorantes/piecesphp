@@ -322,15 +322,15 @@ project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	property.nonObject (Líneas: 206)
 	argument.type (Líneas: 314, 315, 315)
 project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php
-	property.nonObject (Líneas: 77)
+	property.nonObject (Líneas: 66)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
 	argument.type (Líneas: 62, 91, 99, 106, 113, 120)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
-	property.nonObject (Líneas: 73)
+	property.nonObject (Líneas: 62)
 project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php
-	property.nonObject (Líneas: 70)
+	property.nonObject (Líneas: 59)
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
-	property.nonObject (Líneas: 60, 64)
+	property.nonObject (Líneas: 49, 53)
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
 	assign.propertyType (Líneas: 88)
 project://src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.php
@@ -370,7 +370,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 366)
 	method.deprecated (Líneas: 377)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 283)
+	argument.type (Líneas: 296)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
@@ -603,9 +603,9 @@ project://src/app/view/usuarios/utils/user-card.php
 	argument.type (Líneas: 13)
 project://src/index.php
 	property.notFound (Líneas: 384)
-	argument.type (Líneas: 611, 630, 666, 678, 755, 766, 880, 891)
-	property.nonObject (Líneas: 638)
-	variable.undefined (Líneas: 906)
+	argument.type (Líneas: 606, 625, 661, 673, 750, 761, 875, 886)
+	property.nonObject (Líneas: 633)
+	variable.undefined (Líneas: 901)
 project://tasks/TasksManager.php
 	class.notFound (Líneas: 24, 35)
 	argument.type (Líneas: 81, 228, 228)

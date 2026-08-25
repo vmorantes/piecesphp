@@ -141,8 +141,10 @@ gulp <tarea>
 Node recomendado: **22.12.x** (vía fnm). `npm install` sin `sudo`.
 `npm run deps` ejecuta `bin/node/copyDependencies.sh`.
 
-Dependencias front instaladas por npm: `cropperjs`, `mapbox-gl` (varias versiones
-en paralelo: v2.6.0, v3.4.0 y la actual), `@mapbox/mapbox-gl-geocoder`.
+Dependencias front instaladas por npm: `cropperjs`, `mapbox-gl` y
+`@mapbox/mapbox-gl-geocoder`. Los alias de `mapbox-gl` van fijados a **versión exacta** y
+la carpeta desplegada lleva esa misma versión —hoy `mapbox-v3.19.0`—: con un acento, el
+nombre de la carpeta sería el suelo de la restricción y no su contenido. Ver T90.
 
 ## Convenciones de archivos estáticos por módulo
 

@@ -488,11 +488,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 $this->element = $user;
             }
             /**
-             * Trata de buscar al usuario en la base de datos
-             *
-             * @return \stdClass|null
-             */
-            /**
              * Consumo a Base de Datos: Comprueba si el ID desencriptado del token existe físicamente
              * en MySQL y arma su nombre completo. Esto blinda los casos donde un Token es válido
              * pero el usuario fue eliminado de la base de datos.

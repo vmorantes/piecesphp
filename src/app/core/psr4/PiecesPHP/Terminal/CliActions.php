@@ -72,12 +72,6 @@ class CliActions
         return new self($name, $handler);
     }
 
-    /**
-     * Establece la descripción de la acción
-     *
-     * @param string $description
-     * @return self
-     */
     /** Sale a la red: pide a un servicio de terceros. */
     const EFFECT_NETWORK = 'network';
 
@@ -124,6 +118,12 @@ class CliActions
         return $this->effects;
     }
 
+    /**
+     * Establece la descripción de la acción
+     *
+     * @param string $description
+     * @return self
+     */
     public function setDescription(string $description): self
     {
         $this->description = $description;

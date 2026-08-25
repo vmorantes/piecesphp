@@ -8480,3 +8480,66 @@ código 1 cuando falta un origen.
 no está en `node_modules` porque el alias acaba de cambiar de nombre. **Hace falta un `npm install`
 antes del próximo `gulp`**, y ahora eso se ve en vez de deducirse.
 
+## T91 · SEPARÉ UN DOCBLOCK DE SU FIRMA. DOS VECES, EN UNA SESIÓN
+
+**Lo vio el PROPIETARIO leyendo el código, no ninguna puerta.** Al mover `auditFields()` para
+cumplir la convención de T89, lo inserté **entre el docblock de `getContentTypeSpecificMapper` y su
+firma**:
+
+```php
+    /**
+     * Obtiene el tipo de contenido específico del mapper.
+     * @param int|PublicationMapper $reference …
+     */
+    /**
+     * Sellos de auditoría: …
+     */
+    public static function auditFields(): array
+```
+
+El docblock de arriba quedó documentando a un método que ya no venía detrás. **Y lo mismo en
+`CliActions`**, donde metí el bloque de constantes justo después del docblock de `setDescription()`.
+
+### La causa, y es de método
+
+**Anclé la inserción en la línea `function` sin mirar lo que llevaba encima.** El movedor genérico
+que escribí para las propiedades **sí** retrocede sobre el docblock —lo corregí al escribirlo—;
+los dos parches a mano que hice *antes*, no. **Escribí la lección y después no la apliqué en el
+guion de al lado.**
+
+Y es peor que un descuido de formato: **un docblock separado de su firma sigue leyéndose como si
+la documentara**. En `QueueTask` había uno así desde antes, con `@return array` cuando el método
+devuelve `QueueHandlerResponse`. La documentación no se quedó vacía: se quedó **mintiendo**.
+
+### Lo reparado
+
+*Método: se busca un docblock **con `@param` o `@return`** —los que documentan un invocable—
+seguido de otro docblock. Con `@var` la regla daba 31 falsos positivos: las vistas declaran sus
+variables así y llevan dos docblocks seguidos por diseño.*
+
+| Archivo | De quién | Qué se hizo |
+| :-- | :-- | :-- |
+| Los 4 manejadores de aprobación | **Mío, hoy** | `auditFields()` movido al final de la clase |
+| `CliActions.php` | **Mío, hoy** | El docblock devuelto a `setDescription()` |
+| `VerifyIntegrityTask.php` | Anterior | El docblock devuelto a `checkToolchainTracking()`, que estaba **sin ninguno** |
+| `QueueTask.php` | Anterior | Borrado el duplicado obsoleto —decía `@return array`— |
+| `src/index.php` | Anterior | Borrado el duplicado obsoleto |
+
+### El mecanismo: comprobación 16
+
+Falla si un docblock con `@param`/`@return` va seguido de otro. **Provocada**: colar una línea
+entre el docblock y la firma de `setDescription()` la enciende.
+
+> **Y la lección que me llevo, que es la de la LEY 11 aplicada a mí**: mientras cumplir una regla
+> dependa de que yo me acuerde **en cada guion que escribo**, la regla es una intención. Los dos
+> fallos de hoy son de la misma tarde y del mismo tipo. **No se arregla teniendo más cuidado.**
+
+### Y un daño colateral del mismo movimiento: un comentario que quedó mintiendo
+
+Al renombrar la carpeta de mapbox a `v3.19.0` cambié las rutas de `assets.php` **y dejé su
+cabecera diciendo `MapBox v3.4.0`**. También lo vio el PROPIETARIO. Corregido ahí y en
+`09-frontend-assets.md` y `14-deuda-y-limpieza.md`, que describían las tres versiones en paralelo.
+
+**Es exactamente el defecto que T90 venía a arreglar** —un nombre que no se corresponde con el
+contenido— reproducido en el comentario mientras se arreglaba en la carpeta.
+
