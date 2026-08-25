@@ -7687,3 +7687,163 @@ abierta con un caso confirmado y dos sospechosos nombrados.
 *(De propina, y es coherencia con T80: `TasksManager.php` es uno de los 11 que acaban de entrar al
 análisis. **La herramienta que no se vigilaba era también la que no se medía.**)*
 
+## T82 · INSTANTÁNEA AL HIDRATAR — medido, con recomendación. **No se ha implementado nada**
+
+La idea del PROPIETARIO: que el mapper guarde al hidratarse el estado del registro y pueda
+comparar después, de modo que sepa **qué** cambió y no solo **cuántas filas**. Y su corrección de
+forma —**el conjunto de campos, no un booleano**— es la que la hace funcionar: con un booleano,
+`OrganizationMapper::update()` sella `updatedAt` y `modifiedBy` antes de llamar al padre, así que
+«cambió» sería siempre `true` y volveríamos al mismo defecto con otra cara.
+
+### 1.1 · Dónde se hidrata, y por dónde se entra sin pasar por ahí
+
+**El punto canónico es uno solo**: `EntityMapper::__construct()`, cuando recibe un valor de
+comparación —el bucle `foreach ($first_result as $property => $value)`—. Pero **no es el único
+camino por el que un mapper acaba con los valores de una fila**:
+
+| Camino | Dónde | Usos hoy | ¿Pasa por el constructor? |
+| :-- | :-- | --: | :-- |
+| `new X($id)` | paquete, constructor | el normal | **Sí** — es el punto canónico |
+| **`objectToMapper(\stdClass $row)`** | **21 mappers de `src/app`** | **113 llamadas** | **NO**: `new X` vacío y bucle de asignación |
+| `EntityMapper::getAll()` | paquete | **0 en `src/app`** | **NO**: `new static()` y bucle. Latente |
+| `fromArray()` | 2 mappers | pocas | **NO** |
+| `FETCH_CLASS` vía `setSelectClass()` | el ORM lo soporta | **0 en `src/app`** | **NO, y peor**: PDO asigna las propiedades **antes** del constructor. Latente |
+
+**El que manda es `objectToMapper`: 113 llamadas.** Es el camino de los listados y del panel. Una
+instantánea que solo se tome en el constructor **estaría vacía justo donde más se usa**, y la
+respuesta correcta para esos objetos es «no lo sé», no «nada».
+
+### 1.2 · La regla de igualdad, por tipo — **medida, no supuesta**
+
+*Método: se hidrata un `OrganizationMapper` real y se mira de qué tipo es cada campo; después se
+comparan valores equivalentes construidos por caminos distintos.*
+
+Los campos **no son escalares**: `createdBy` es un **`UsersModel` entero**, `createdAt` un
+`DateTime`, `meta` un `stdClass`.
+
+| Caso | `==` | Qué hay que usar |
+| :-- | :-- | :-- |
+| Dos `DateTime` con el mismo valor | `true` | `getTimestamp()` |
+| Mismo instante en **zonas distintas** | `true` | `getTimestamp()` — coinciden, y es lo correcto |
+| Mismo JSON decodificado dos veces | `true` | — |
+| Mismo contenido, **otro orden de claves** | `true` | — (y `json_encode` diría que **no**: cuidado al revés) |
+| **`{"x":"1"}` contra `{"x":1}`** | **`true`** ← FALSO NEGATIVO | **`json_encode`**, que sí los distingue |
+| **Dos mappers de la MISMA fila** | **`false`** ← FALSO POSITIVO | **comparar el `id`**, nunca el objeto |
+| **Mapper contra su propio id** | **LANZA** | ídem |
+
+**Las dos últimas filas son las que matan la comparación ingenua:**
+
+```
+   dos mappers de la MISMA fila      ==  : false
+   mapper == su propio id                : ¡LANZA! Object of class App\Model\UsersModel
+                                            could not be converted to int
+```
+
+Un `==` sobre un campo de referencia **no da un resultado malo: puede tumbar la petición**, porque
+aquí los avisos abortan. Y dos mappers de la misma fila salen distintos, así que **cada guardado
+diría «createdBy cambió»**.
+
+> **Y la conclusión de método, que es mejor que la lista de reglas**: si hay que inventar una regla
+> por tipo, es que se están comparando las cosas equivocadas. **Lo que se quiere saber es qué
+> cambiaría el UPDATE**, y de eso el ORM ya tiene las dos mitades en forma escalar: la **fila leída**
+> y `dataToUpdate()`, que es exactamente lo que va a escribir. Comparar esas dos **no necesita
+> ninguna regla por tipo**: los dos lados son valores SQL.
+
+### 1.3 · Los que no vienen de una fila
+
+Un mapper construido a mano —`new X()` y campo a campo, el camino de las altas— **no tiene contra
+qué comparar**. La respuesta honesta es **nulo: «no lo sé»**.
+
+- No es «todo cambió»: haría que cada alta disparara los efectos de una edición completa.
+- No es «nada cambió»: silenciaría a los que sí cambian.
+
+**Y esto es, por sí solo, la mejor razón para el conjunto y no el booleano**: `null`, `[]` y
+`['nombre']` son tres respuestas distintas y un booleano solo tiene dos. A los 113 usos de
+`objectToMapper` les pasa lo mismo mientras no siembren la instantánea.
+
+### 1.4 · Cuándo se toma y cuándo se refresca
+
+| Momento | Qué hacer | Dónde |
+| :-- | :-- | :-- |
+| Al hidratar | Guardar la **fila cruda**, tal como vino | `EntityMapper::__construct()`, junto al bucle de asignación |
+| Al entrar por un atajo | Sembrarla desde la fila que se está copiando | `objectToMapper()` y `fromArray()`, vía un método público del paquete |
+| **Tras un guardado con éxito** | **Sustituirla por lo que se acaba de escribir** | Al final de `EntityMapper::update()` y `save()`, cuando `execute()` devolvió `true` |
+
+**Sin ese refresco, el segundo guardado compara contra un estado viejo** y repite los mismos campos
+como si volvieran a cambiar. Y el refresco **no es releer la fila**: es quedarse con los valores
+que `dataToUpdate()` acaba de mandar, que ya se tienen y no cuestan una consulta.
+
+### 1.5 · La memoria, medida con mappers reales
+
+*Método: 234 hidrataciones de `SystemApprovalsMapper` (12 campos) y `memory_get_usage()` con
+`gc_collect_cycles()` antes y después de cada tramo. La base de datos de este árbol no tiene
+ninguna tabla de cientos de filas, así que se repiten las 39 existentes hasta pasar de 200: el
+coste por objeto no depende de que las filas sean distintas.*
+
+| Qué | Coste |
+| :-- | --: |
+| Hidratar 234 mappers | 21.844 KiB — **93,35 KiB por objeto** |
+| **Instantánea leyendo las propiedades** | 4.376 KiB — **18,70 KiB por objeto** (+20 %) |
+| **Instantánea de la FILA CRUDA** | **250 KiB — 1.093 bytes por objeto (+1,1 %)** |
+
+**Y el desglose es el hallazgo**: de los 18,70 KiB de la primera forma, **16 KiB son dos campos**:
+
+```
+   createdBy    8.227 bytes/objeto
+   approvalBy   8.227 bytes/objeto
+   referenceDate   83
+   referenceTable  75
+```
+
+**Leer la propiedad para fotografiarla HIDRATA el mapper referenciado.** O sea: tomar la
+instantánea por lectura de propiedades **engorda el objeto un 20 % y dispara consultas** que sin
+ella no habrían ocurrido. **Fotografiar la fila cruda cuesta 17 veces menos y no toca la base.**
+
+*(Dato de contexto que no es de este apartado pero conviene tener: un `SystemApprovalsMapper`
+hidratado ocupa 93 KiB. Un listado de 500 son ~46 MiB **antes** de cualquier instantánea.)*
+
+### 1.6 · Recomendación: **HACERLO, con cuatro condiciones**
+
+**Sí, y por la razón que dio el PROPIETARIO**: no toca lo que se escribe. El SQL, los campos
+`raw`, los 16 sellos manuales y los disparadores siguen igual. Lo único nuevo es una pregunta que
+hoy nadie sabe responder. Y **el conteo de filas deja de hacer falta**: `getLastChangedRowsCount()`
+pasa a ser el caso degenerado —«¿el conjunto está vacío?»— de algo que dice más.
+
+**Versión**: `piecesphp/database` **v3.8.0**. Menor, aditiva, ninguna firma cambia.
+
+| # | Condición | Por qué |
+| :-- | :-- | :-- |
+| **1** | La instantánea es **la fila cruda**, y la comparación es contra **`dataToUpdate()`** | Los dos lados son valores SQL: **no hace falta ninguna regla por tipo**, que es donde estaba todo el riesgo. Y cuesta 1 KiB por objeto en vez de 18 |
+| **2** | Devuelve **`?array`**: `null` = «no lo sé», `[]` = «nada», `['a','b']` = esos | Los 113 `objectToMapper` y todas las altas caen en `null`. Un booleano no puede decirlo |
+| **3** | El paquete expone **cómo sembrarla** y `verify-integrity` comprueba que los 21 `objectToMapper` lo hacen | Si no, es una obligación que hay que recordar en 21 sitios: LEY 11 otra vez, y esta vez la conocemos de antemano |
+| **4** | **El refresco tras guardar entra en la misma versión** | Media implementación —foto sí, refresco no— es peor que ninguna: el segundo guardado mentiría, y mentiría hacia «sí cambió» |
+
+**Lo que tendría que declarar el manejador de aprobaciones**, y **exigido por la interfaz, no por
+una lista global**:
+
+```php
+interface ApprovalElementHandlerInterface
+{
+    /** Campos cuyo cambio NO cuenta como edición: sellos de auditoría. */
+    public static function auditFields(): array;   //['updatedAt', 'modifiedBy']
+}
+```
+
+**Que sea un método de la interfaz y no una lista central es todo el punto**: un manejador nuevo
+que no lo declare **no compila** —PHP lo exige—, mientras que una lista global se queda corta en
+silencio el día que alguien añade el quinto módulo. El escuchador pasa entonces a preguntar lo que
+de verdad quiere saber: *¿cambió algo que no sea sello de auditoría?*
+
+```php
+$changed = $payload->changedFields();
+if ($changed === null || count(array_diff($changed, $class::auditFields())) > 0) {
+    //edición real
+}
+```
+
+**Nótese el `null`**: cuando no se sabe, se trata como edición. Es la misma elección que ya está
+en `BaseEntityMapper::lastUpdateChangedSomething()` y por el mismo motivo — **anunciar de menos
+perdería la reapertura de rechazos, que es intención declarada**.
+
+**Decide el PROPIETARIO.**
+
