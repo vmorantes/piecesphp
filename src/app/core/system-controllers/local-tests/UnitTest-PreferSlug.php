@@ -134,4 +134,4 @@ CliActions::make('unit-tests:core/prefer-slug', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El acuñado del preferSlug: atómico, y la tarea de relleno masivo.')->register();
+})->setDescription('El acuñado del preferSlug: atómico, y la tarea de relleno masivo.')->setEffects([CliActions::EFFECT_DATABASE])->register();

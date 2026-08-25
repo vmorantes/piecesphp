@@ -55,7 +55,8 @@ class GatesTask extends TerminalTaskAbstract
         $this->description = new StringArray([
             "Corre todas las suites y FALLA si alguna no corrió.\r\n",
             "\tParámetros:\r\n",
-            "\t  only=<trozo> corre solo las suites cuyo nombre lo contenga. Por defecto: todas\r\n",
+            "\t  only=<trozo>   corre solo las suites cuyo nombre lo contenga. Por defecto: todas\r\n",
+            "\t  with=external  incluye las que declaran salida a la red o envío de correo\r\n",
         ]);
         $this->route = "{$startRoute}/gates[/]";
         $this->controller = self::class . '::main';
@@ -76,6 +77,8 @@ class GatesTask extends TerminalTaskAbstract
         $only = \PiecesPHP\TerminalData::instance()->getArgument('only', '');
         $only = is_string($only) ? trim($only) : '';
 
+        $withExternal = \PiecesPHP\TerminalData::instance()->getArgument('with', '') === 'external';
+
         $suites = array_values(array_filter(
             CliActions::listActionNames(),
             static fn (string $name): bool => str_starts_with($name, self::SUITE_PREFIX)
@@ -91,10 +94,33 @@ class GatesTask extends TerminalTaskAbstract
         $root = rtrim(str_replace('\\', '/', basepath('..')), '/');
         $failed = [];
 
+        $skipped = [];
+
         foreach ($suites as $suite) {
-            $result = self::runSuite($root, $suite);
             $short = mb_substr($suite, mb_strlen(self::SUITE_PREFIX));
             $label = str_pad($short, 24);
+            $action = CliActions::get($suite);
+            $effects = $action !== null ? $action->getEffects() : null;
+
+            //SIN DECLARACIÓN NO SE CORRE. El estado por defecto es «no sé qué hace esto».
+            if ($effects === null) {
+                $failed[] = $suite;
+                echoTerminal("   \e[31m[SIN DECLARAR]\e[39m  {$label} no dice qué hace fuera de sí misma: setEffects() en su registro");
+                continue;
+            }
+
+            $external = array_values(array_intersect($effects, CliActions::EFFECTS_EXTERNAL));
+            if (count($external) > 0 && !$withExternal) {
+                $skipped[] = $suite;
+                echoTerminal("   \e[33m[NO SE CORRE]\e[39m   {$label} declara «" . implode(', ', $external)
+                    . "». Para incluirla: bin/cli gates with=external");
+                continue;
+            }
+            if (count($external) > 0) {
+                echoTerminal("   \e[33mAVISO:\e[39m {$short} va a SALIR AL EXTERIOR: " . implode(', ', $external));
+            }
+
+            $result = self::runSuite($root, $suite);
 
             if ($result['ran'] === false) {
                 //Omitida y acabada-sin-decir-nada son indistinguibles desde fuera. Ver T74.
@@ -113,7 +139,8 @@ class GatesTask extends TerminalTaskAbstract
         }
 
         echoTerminal('');
-        echoTerminal('   ' . count($suites) . ' suite(s), ' . count($failed) . ' sin veredicto o con fallos.');
+        echoTerminal('   ' . count($suites) . ' suite(s), ' . count($failed) . ' sin veredicto o con fallos, '
+            . count($skipped) . ' no corridas por declarar efectos externos.');
 
         if (count($failed) > 0) {
             echoTerminal("\e[31m*** {$titleTask}, tarea finalizada CON FALLOS ***\e[39m");

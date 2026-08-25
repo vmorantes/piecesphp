@@ -130,4 +130,4 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) use ($langGro
     echoTerminal('[TEST:Mautic] Proceso de prueba de Mautic finalizado.');
 
     return $response;
-})->setDescription($cliTaskDescription)->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_EMAIL])->register();

@@ -93,4 +93,4 @@ CliActions::make('unit-tests:core/generic-content', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Construir y leer un contenido genérico no crea su fila; guardarlo sí.')->register();
+})->setDescription('Construir y leer un contenido genérico no crea su fila; guardarlo sí.')->setEffects([CliActions::EFFECT_DATABASE])->register();

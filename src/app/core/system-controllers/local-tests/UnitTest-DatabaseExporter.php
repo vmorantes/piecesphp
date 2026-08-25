@@ -281,6 +281,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         systemOutFormatted('');
         systemOutFormatted('Los archivos generados se encuentran en: ' . $outputDir);
 
+        //La linea que el corredor de puertas exige: sin veredicto, la suite no dice si paso.
+        systemOutFormatted("   Total: {$totalCount} | Pasaron: {$passed} | Fallaron: {$failed}");
+
         /**
          * Un salto NO cuenta como fallo. La puerta la decide `$failed`, y solo `$failed`.
          */
@@ -299,4 +302,4 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         ];
     }
 
-})->setDescription($cliTaskDescription)->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

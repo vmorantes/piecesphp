@@ -101,4 +101,4 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[TEST:HTTPClient] Suite finalizada.');
     echoTerminal('Pruebas completadas. Revisa logs de terminal y Webhook.site');
 
-})->setDescription($cliTaskDescription)->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_NETWORK])->register();

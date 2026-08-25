@@ -148,5 +148,5 @@ foreach ($unitTests as $unitTest) {
     $cliTaskFlag = $unitTest['name'];
     $cliTaskDescription = $unitTest['description'];
     $cliTaskCallback = $unitTest['callback'];
-    CliActions::make("{$cliTaskName}:{$cliTaskFlag}", $cliTaskCallback)->setDescription($cliTaskDescription)->register();
+    CliActions::make("{$cliTaskName}:{$cliTaskFlag}", $cliTaskCallback)->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_NONE])->register();
 }

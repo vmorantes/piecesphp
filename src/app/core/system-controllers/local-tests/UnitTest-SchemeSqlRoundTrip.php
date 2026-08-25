@@ -189,4 +189,4 @@ CliActions::make('unit-tests:core/scheme-sql-round-trip', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/" . ($passed + $failed)];
 
-})->setDescription('Crea el esquema entero desde los mappers y lo deshace, con MariaDB de juez.')->register();
+})->setDescription('Crea el esquema entero desde los mappers y lo deshace, con MariaDB de juez.')->setEffects([CliActions::EFFECT_DATABASE])->register();

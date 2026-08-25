@@ -366,4 +366,4 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             : "{$failed} comprobaciones fallaron.",
     ];
 
-})->setDescription($cliTaskDescription)->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_DATABASE])->register();

@@ -98,4 +98,4 @@ CliActions::make('unit-tests:core/db-restore', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('db-restore: respaldar, cambiar, restaurar y comprobar que volvió.')->register();
+})->setDescription('db-restore: respaldar, cambiar, restaurar y comprobar que volvió.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

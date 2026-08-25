@@ -8038,3 +8038,59 @@ sin que nadie pudiera saberlo.
 *(Y la ironía, que va escrita: `tasks/TasksManager.php` es **uno de los 11 archivos que acaban de
 entrar al análisis** en T79. **La herramienta que no se vigilaba era también la que no se medía.**)*
 
+## T85 · EL CORREDOR NO SALE AL EXTERIOR — cada suite declara qué hace
+
+Correr las puertas hizo **una petición a un servicio de terceros**. Y lo único que impedía que
+mandara correos de verdad era que `mautic-batch-send` no lleva el prefijo `core/`. **Eso no es una
+guarda: es un accidente de nombre**, y basta un renombrado para que el corredor mande correo.
+
+### La declaración
+
+`CliActions::setEffects()`, con vocabulario cerrado: `network`, `email`, `database`, `files`, y
+**`none`** —que declara explícitamente que no hay ninguno, y **no es lo mismo que no declarar**—.
+
+| Regla | Qué hace el corredor |
+| :-- | :-- |
+| **Sin declarar** | **NO la corre y cuenta como FALLO.** El estado por defecto es «no sé qué hace esto», y eso no se ejecuta (LEY 13) |
+| Declara `network` o `email` | **No la corre.** Sale `[NO SE CORRE]` con el efecto y la orden para incluirla |
+| Con `with=external` | La corre, **y antes dice en voz alta que va a salir al exterior** |
+| El resto | Se corre |
+
+Las **16 suites registradas** declaran ya. La asignación no se dedujo del nombre: se leyó lo que
+hace cada una.
+
+### Las tres del limbo, resueltas
+
+| Suite | Antes | Ahora |
+| :-- | :-- | :-- |
+| `core/database-exporter` | Contaba `PASADAS`/`FALLIDAS` y **no lo decía en el formato que nadie pudo leer** | Imprime su balance: **23/23** |
+| `core/helpers-directories` | **No contaba nada**, y además **devolvía `success => true` pase lo que pase** | Cuenta y devuelve la verdad: **19/19** |
+| `core/http-client` | Salía a la red en cada pasada | **Declarada `network`: no se corre** |
+
+**Lo de `helpers-directories` merece nombre propio**: imprimía `[FALLÓ]` por pantalla y devolvía
+éxito. Es la forma más pura del defecto que persigue la LEY 13 — **la puerta decía verde mientras
+enseñaba rojo**.
+
+### 2.5 · Sí, queda una puerta sin cubrir, y hay que decirlo
+
+**`HttpClient` se queda sin ninguna prueba en la pasada por defecto.** Y no es código de adorno:
+lo usan **nueve** sitios —el adaptador de SMS, Mautic, Mistral, reCAPTCHA, Mailjet, OsTicket, el
+panel—.
+
+**Pero la cobertura que se pierde era peor de lo que parecía**: la suite apunta a una URL de
+`webhook.site` **escrita en el código**, con un identificador fijo. O sea que dependía de que un
+buzón de terceros siguiera vivo, y **el día que caduque la suite falla por algo que no es nuestro
+código**. No era una puerta: era una puerta con la llave en casa de otro.
+
+**Lo que haría falta, y no es de este bloque**: una suite que ejercite `HttpClient` **sin salir de
+la máquina** —un servidor de un solo uso en `localhost`, o un transporte falso inyectable—. Con
+eso vuelve a la pasada por defecto y deja de depender de nadie.
+
+### Un efecto de segundo orden, medido sin querer
+
+`mapper-finders` pasó de **13/13 con 5 omitidas** a **17/17 con 3 omitidas** entre dos pasadas del
+corredor, sin tocar su código. Sus saltos son por datos —«la tabla no tiene filas»— y las suites
+que corren antes **le dejan filas**. O sea: **el resultado de una suite depende de lo que corrió
+antes que ella en la misma pasada.** Subió, así que no es una alarma; pero un número que se mueve
+sin que nadie lo toque merece estar escrito antes de que un día se mueva hacia abajo.
+

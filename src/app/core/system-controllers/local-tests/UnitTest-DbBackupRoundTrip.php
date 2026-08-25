@@ -157,4 +157,4 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Comprueba que un volcado de db-backup se puede restaurar y permite entrar.')->register();
+})->setDescription('Comprueba que un volcado de db-backup se puede restaurar y permite entrar.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

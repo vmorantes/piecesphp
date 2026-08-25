@@ -149,4 +149,4 @@ CliActions::make('unit-tests:core/updated-event', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/" . ($passed + $failed)];
 
-})->setDescription('El evento `updated` solo salta cuando la base dice que cambió una fila.')->register();
+})->setDescription('El evento `updated` solo salta cuando la base dice que cambió una fila.')->setEffects([CliActions::EFFECT_DATABASE])->register();

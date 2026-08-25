@@ -145,6 +145,21 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Herramientas — cada suite declara qué hace fuera de sí misma
+
+Correr las puertas hacía una petición a un servicio de terceros, y lo único que impedía que
+mandara correos era que una suite no llevaba el prefijo `core/`. Eso no es una guarda: es un
+accidente de nombre.
+
+Ahora cada suite declara sus efectos con `setEffects()` —`network`, `email`, `database`, `files`,
+o `none`—. `bin/cli gates` **no corre** las que salen a la red o mandan correo salvo que se pida
+con `with=external`, y **una suite sin declarar no se corre y cuenta como fallo**: el estado por
+defecto es «no sé qué hace esto».
+
+De paso, dos suites salen del limbo: `core/database-exporter` y `core/helpers-directories` ya
+imprimen su veredicto. La segunda además **devolvía éxito pase lo que pase** mientras imprimía
+`[FALLÓ]` por pantalla.
+
 ## Herramientas — el análisis estático pasa a mirar el repositorio entero
 
 `paths` apuntaba a `src/app` y `src/index.php`: **802 de los 835 archivos PHP versionados**. Ahora
