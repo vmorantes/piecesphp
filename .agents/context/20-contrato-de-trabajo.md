@@ -156,17 +156,25 @@ por el propietario» que él no reconoce, y no hay forma de adjudicarlas. La dis
 
 *Se actualiza en cada pausa. Si esta sección está desfasada, ARQUITECTO incumplió su rutina.*
 
-**Última actualización: 2026-08-25.**
+**Última actualización: 2026-08-25, tras el informe de E2-a.**
 
-- **Fase:** E2 — la foto. Aprobada en dos bloques: **E2-a lectura** (79 rutas, con la máquina que
-  ya existe) y **E2-b escritura** (48 rutas + POST + 44 accesos a `$_FILES` en 18 archivos, de
-  los cuales solo 3 llevan guarda). El corte es por método, no por módulo.
-- **Decisión que ARQUITECTO debe al PROPIETARIO**, cuando llegue el censo: si se implementan
-  `__isset()` y `__unset()` en las seis clases con `__get` —una línea por clase, radio grande— o
-  se corrigen los sitios uno a uno. El alcance real, tras M-bis, es **solo `isset()` y `empty()`
-  sobre un segmento mágico final**.
-- **Pendiente de construir:** la puerta de `HttpClient`, que quedó sin cobertura al retirar la
-  que dependía de un `webhook.site` ajeno. Nueve sitios sin vigilar.
+- **Fase:** E2 — la foto. **E2-a hecha a medias**: el recorredor solo ejercitó 40 de 79 rutas de
+  lectura; persiguiéndolas se llegó a **66**, y quedan **13 sin veredicto** (11 por tablas
+  vacías, 2 por abortar). Una sola escritura en todo el recorrido, y estaba declarada.
+  **E2-b sin empezar.**
+- **Tres decisiones aprobadas por el PROPIETARIO el 2026-08-25**, pendientes de ejecutar:
+  1. `db-restore` se arregla —no conoce `DELIMITER` y perdía 18 sentencias— y su suite se
+     alimenta de un volcado real de `db-backup`, no de uno que ella misma fabrica. **Es el
+     mecanismo de la LEY 12: sin esto, cada foto de E3 se toma sobre una base incompleta.**
+  2. `DataTablesHelper` y `CountryMapper` entran ya: son lo que impidió que la foto fuera
+     completa, no limpieza.
+  3. Los dos `isset()` mágicos se arreglan **por etapas** —medir el antes y el después, luego
+     aplicar—; **no** se implementa `__isset()`: arreglaría 2 sitios y pondría en riesgo 48.
+- **Pendiente de construir:** la puerta de `HttpClient`, sin cobertura desde el 2026-08-25.
 - **Listas abiertas de la LEY 11:** `shared-toolchain.json`, la parte de `volatile-state.json`
   que no es del slug, y `deprecated-functions.json`.
-- **Para cerrar la fase de revisión** falta lo de arriba y nada más. Después, E3.
+- **Anotado sin arreglar:** T86 (una columna `json` a NULL se guarda como la cadena `'null'`,
+  desde 2018, 0 filas afectadas hoy — y ese cero es T39, no un aprobado).
+- **Del PROPIETARIO:** `database` está al día — v3.8.1 alcanzable desde `origin/master`, cero commits locales por delante (verificado 2026-08-25). Quedan 29 commits locales en `piecesphp`
+  por delante de `origin/dev`.
+- **Para cerrar la fase de revisión** falta lo de arriba y E2-b. Después, E3.
