@@ -11312,3 +11312,70 @@ la mesa, sin proponerlo como decisión:
   eso, no ignorarlo.
 - **Dato para esa conversación**: 2,9 s repartidos entre las primeras visitas de un despliegue no
   es lo mismo que 2,9 s de golpe, y ningún usuario ve los 22,78 ms más de una vez por asset.
+
+---
+
+## T112 · EL COMPILADOR MUERE — no era una funcionalidad a medias, era una duplicación
+
+**Decisión del PROPIETARIO, y lo que la cambia es el dato que él aportó**: la compilación de
+estáticos **vive entera en gulp**. `src/gulpfile.js` trae `sassCompileModules()` en la línea 328,
+además de las de núcleo, login, área de admin y avatares. Los `.scss` de los `Statics/` de módulo
+los compila el build.
+
+**Eso invierte el diagnóstico anterior.** El registro decía «decidir entre implementar la
+compilación —hay un `//TODO` que dice que se quiso— o eliminar la dependencia». Con el propósito
+sobre la mesa, la primera opción nunca existió: implementarlo habría sido **escribir por segunda
+vez lo que ya funciona**. Es el defecto «clasificar por la forma sin preguntar el propósito», otra
+vez, y esta vez le tocó al registro.
+
+### 4.b.1 · Fuera el bloque entero, con su `//TODO` dentro
+
+**Un `//TODO` en código inalcanzable es peor que ninguno: promete que alguien lo terminará.** Ese
+promesa llevaba viva desde antes de la campaña, y el registro la creyó.
+
+El método pasa de 54 líneas a **una**:
+
+```php
+return $this->serve($request, $response, $args, $path, $mustValidate);
+```
+
+**Y esa línea dice algo que hasta ahora estaba tapado: quitado el bloque muerto, el método era
+IDÉNTICO a `serve()`.** No se deja duplicado: delega. El archivo baja de 1.257 a 1.225 líneas.
+
+**Comprobado que los dos caminos siguen vivos**, no solo que compila:
+
+| Petición | Antes | Después |
+| :-- | :-- | :-- |
+| Extensión delegada (`.css`) | 302 al enlace | **302 al enlace** |
+| Extensión NO delegada (`.map`) — se sirve desde PHP | 200 | **200** |
+| El enlace, por Apache | 200 | **200** |
+
+### Dos parámetros que no se usan, y NO los quito
+
+`$replacement` y `$baseStaticURL` **sostenían el bloque muerto**. Medido: `$baseStaticURL`
+**no aparece ni una vez en el cuerpo**, ni siquiera cuando el bloque estaba; `$replacement` solo
+alimentaba una copia de sí mismo y el bloque.
+
+**Y los 24 sitios de llamada calculan `self::staticRoute()` para pasarlo al hueco.** Esa llamada
+recorre el contenedor de dependencias, `get_route()` y `ServerStatics::getSymbolicLink()` —que hace
+`file_exists()` dos veces— **en cada petición de estático de módulo, para tirar el resultado**. No
+pongo cifra porque no la he medido; el camino sí está comprobado leyendo el código.
+
+**No los quito porque quitarlos rompe la firma de un método público del núcleo, y esto se clona.**
+Queda anotado y es decisión del PROPIETARIO.
+
+### Y `scssphp` se queda sin ningún consumidor posible
+
+Su única mención en todo el código propio es **una línea de créditos** en
+`app/view/panel/pages/about-framework.php:106`. Ningún PHP lo instancia, ni en `src/app`, ni en
+`bin/`, ni en los cuatro paquetes.
+
+| | |
+| :-- | --: |
+| `src/vendor/scssphp` en disco | **2,3 MB** |
+| Consumidores en el código propio | **0** |
+
+**No lo retiro**: quitar una dependencia es decisión del PROPIETARIO, y arrastra su
+`symfony/filesystem` transitivo. Queda dicho con su medida.
+
+**Puertas**: PHPStan **888 = baseline**, sin reparto. `verify-integrity` verde con las diecisiete.

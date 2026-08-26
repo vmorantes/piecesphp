@@ -358,68 +358,30 @@ class ServerStatics
     }
 
     /**
-     * Sirve archivos con compilación SCSS (funcionalidad deshabilitada)
+     * Sirve un estático de módulo: delega en el servidor web si la extensión lo permite, y
+     * si no lo entrega desde PHP.
+     *
+     * NO compila SCSS, y nunca lo hizo desde que alguien puso el interruptor a `false`: la
+     * compilación de estáticos vive ENTERA en gulp —`sassCompileModules()` en
+     * `src/gulpfile.js`—, así que el bloque de aquí era una duplicación, no una funcionalidad
+     * a medias. Ver T112.
+     *
+     * `$replacement` y `$baseStaticURL` NO SE USAN: sostenían aquel bloque. Se conservan
+     * porque quitarlos rompería la firma de un método público del núcleo, y eso viaja a cada
+     * clon. Anotado en T112.
      *
      * @param Request $request Objeto de solicitud
      * @param Response $response Objeto de respuesta
      * @param array $args Argumentos de la ruta
      * @param string|null $path Ruta personalizada
-     * @param array $replacement Reemplazos para variables SCSS
-     * @param string $baseStaticURL URL base para archivos estáticos
+     * @param array $replacement SIN USO. Eran los reemplazos de variables SCSS
+     * @param string $baseStaticURL SIN USO. Nunca apareció en el cuerpo, ni con el bloque puesto
      * @param bool $mustValidate Si debe validar cache
      * @return Response Respuesta HTTP
      */
     public function compileScssServe(Request $request, Response $response, array $args, ?string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
     {
-
-        $defaultReplacement = [];
-        foreach ($replacement as $toReplace => $valueReplacement) {
-            $defaultReplacement[$toReplace] = $valueReplacement;
-        }
-        $replacement = $defaultReplacement;
-        //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
-        $resource = $args['params'] ?? '';
-        $enableSassCompilation = false;
-
-        //NOTE: Por el momento, la funcionalidad está deshabilitada debido a problemas con el reemplazo de variables SCSS
-        if ($enableSassCompilation) {
-
-            $matches = [];
-            $matched = preg_match('~^css.*\.css$~', $resource, $matches);
-
-            if ($matched === 1) {
-                $filePathCss = $path === null ? self::getStaticPath() . "/$resource" : rtrim(rtrim($path, '\\'), '/') . "/$resource";
-                $filePathSass = str_replace(['css/', '.css'], ['sass/', '.scss'], $filePathCss);
-
-                if (file_exists($filePathSass)) {
-
-                    $toCompile = false;
-
-                    if (!file_exists($filePathCss)) {
-                        $toCompile = true;
-                    } else {
-                        $fileModificationDateCss = filemtime($filePathCss);
-                        $fileModificationDateSass = filemtime($filePathSass);
-                        $lastModificationCss = (new \DateTime)->setTimestamp(is_int($fileModificationDateCss) ? $fileModificationDateCss : 0);
-                        $lastModificationScss = (new \DateTime)->setTimestamp(is_int($fileModificationDateSass) ? $fileModificationDateSass : 0);
-                        $toCompile = $lastModificationCss < $lastModificationScss;
-                    }
-
-                    if ($toCompile) {
-                        //TODO: Implementar la compilación de scss
-                    }
-
-                }
-            }
-
-        }
-
-        //Verificar si se puede delegar al servidor web
-        if (self::shouldDelegateToWebServer($resource)) {
-            return self::delegateToWebServer($request, $response, $resource, $path);
-        }
-        //Procesamiento completo en PHP
-        return self::verifyFile($resource, $request, $response, $path, $mustValidate);
+        return $this->serve($request, $response, $args, $path, $mustValidate);
     }
 
     /**

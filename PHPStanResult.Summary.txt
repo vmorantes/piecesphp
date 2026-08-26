@@ -519,7 +519,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/
 	argument.type (Líneas: 41)
 	assign.propertyType (Líneas: 51)
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
-	argument.type (Líneas: 618, 998)
+	argument.type (Líneas: 580, 960)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	argument.type (Líneas: 111, 162, 163, 179)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php

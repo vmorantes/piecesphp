@@ -87,12 +87,11 @@ $server = new ServerStatics();
 return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
 ```
 
-> ⚠️ **El nombre miente: `compileScssServe()` no compila SCSS.** Verificado el
-> 2026-08-20 en `ServerStatics.php:381`: `$enableSassCompilation = false;` está
-> escrito literal, con una nota que dice que se desactivó por problemas con el
-> reemplazo de variables, y donde iría la compilación hay un
-> `//TODO: Implementar la compilación de scss` (línea ~408). El bloque entero es
-> código muerto: el método solo sirve archivos ya compilados.
+> ⚠️ **El nombre miente: `compileScssServe()` no compila SCSS**, y nunca lo hizo desde
+> que alguien dejó `$enableSassCompilation = false;` escrito a fuego. **El bloque muerto
+> se retiró el 2026-08-26**, con su `//TODO: Implementar la compilación de scss` dentro:
+> no era una funcionalidad a medias, era una DUPLICACIÓN de lo que gulp ya hace. Hoy el
+> método solo sirve archivos ya compilados. Ver T112.
 >
 > Consecuencia: **`scssphp/scssphp` es peso muerto.** Es requisito directo en
 > `src/composer.json`, pero su única mención en todo el código es una línea de

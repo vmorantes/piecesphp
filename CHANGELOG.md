@@ -38,6 +38,26 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Eliminado — el compilador de SCSS que no compilaba
+
+`ServerStatics::compileScssServe()` tenía dentro un bloque con `$enableSassCompilation = false;`
+escrito a fuego y un `//TODO: Implementar la compilación de scss` **dentro del bloque
+inalcanzable**. Un TODO en código que no se ejecuta es peor que ninguno: promete que alguien lo
+terminará.
+
+**No era una funcionalidad a medias: era una duplicación.** La compilación de estáticos vive entera
+en gulp —`sassCompileModules()` en `src/gulpfile.js`, además de las tareas de núcleo, login, área
+de admin y avatares—. Los `.scss` de los módulos los compila el build.
+
+Retirado el bloque, el método era **idéntico** a `serve()`, así que ahora delega en él. Nada cambia
+para quien lo llama, y los dos caminos siguen comprobados: extensión delegada → 302 al enlace;
+extensión no delegada → 200 servido desde PHP.
+
+**Queda anotado, sin tocar**: `$replacement` y `$baseStaticURL` sostenían aquel bloque y **no se
+usan** —`$baseStaticURL` no aparecía en el cuerpo ni con el bloque puesto—, pero quitarlos rompería
+la firma de un método público del núcleo. Y `scssphp/scssphp` se queda sin ningún consumidor
+posible: **2,3 MB en `src/vendor/`** cuya única mención es una línea de créditos.
+
 ## Herramientas — tres instrumentos decían cubrir más de lo que miran
 
 Un instrumento informa sobre el universo que mira, no sobre el que su encabezado promete, y el

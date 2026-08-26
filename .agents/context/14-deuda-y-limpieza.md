@@ -292,9 +292,14 @@ Consecuencia: **`scssphp/scssphp` es requisito directo en `src/composer.json` y 
 única mención en todo el código es una línea de créditos** en
 `app/view/panel/pages/about-framework.php:106`. Ningún PHP lo instancia.
 
-**Acción**: decidir entre implementar la compilación (hay un `//TODO` que dice que se
-quiso) o eliminar la dependencia y el bloque muerto. Mientras siga así, arrastra
-`scssphp` y su `symfony/filesystem` transitivo sin dar nada a cambio.
+**RESUELTO A MEDIAS EL 2026-08-26.** El bloque muerto y su `//TODO` **están fuera**: no era
+una funcionalidad a medias sino una DUPLICACIÓN —la compilación de estáticos vive entera en
+gulp, `sassCompileModules()` en `src/gulpfile.js`, y los 33 `.scss` de los módulos los compila
+el build—. Lo dijo el PROPIETARIO, y por eso la salida no era «implementar el TODO».
+
+**Lo que QUEDA, y es decisión del PROPIETARIO**: `scssphp/scssphp` sigue en
+`src/composer.json` y ahora no tiene ni un consumidor posible — **2,3 MB en `src/vendor/`**
+y su `symfony/filesystem` transitivo, para una línea de créditos. Ver T112.
 
 > Este hallazgo corrigió una afirmación falsa en
 > [09-frontend-assets.md](./09-frontend-assets.md), que describía la compilación en

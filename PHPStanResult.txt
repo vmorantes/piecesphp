@@ -2338,9 +2338,9 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/ServerStatics.php                                                                             
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
-  618    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
+  580    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
          🪪  argument.type                                                                                                              
-  998    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
+  960    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
          🪪  argument.type                                                                                                              
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2784,8 +2784,9 @@
      Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.                                                                                                         
      Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.                                                                                                       
      Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.                                                                                                           
+     Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/core/* was not matched in reported errors.                                                             
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 892 errors                                                                                               
+ [ERROR] Found 893 errors                                                                                               
 
