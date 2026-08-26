@@ -38,6 +38,37 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Herramientas — `statics/server-delegated/` queda declarado como estado volátil
+
+Servir un estático de módulo **crea un enlace simbólico** en `src/statics/server-delegated/`. Es
+deliberado: los assets de cada módulo se sirven desde una ruta estable en vez de las rutas
+entreveradas de cada módulo, y el enlace se crea **al servir y no al desplegar** porque un enlace
+creado en el despliegue deja fuera cualquier asset que aparezca después.
+
+Medido antes de declararlo: sobre 33 recursos sin enlace, la primera pasada crea 32 y **la segunda
+crea cero**; y dos recorridos completos de 205 rutas con sus assets no crean ni rehacen ninguno,
+porque en cuanto el enlace existe la vista emite su URL y lo sirve el servidor web sin pasar por
+PHP.
+
+**Cuidado si mides con esto**: sobre la ruta PHP la escritura **no es condicional** —`unlink` más
+`symlink` en cada petición—, así que «una vez por recurso» describe lo que hace la aplicación, no
+lo que hace el código.
+
+**Y dos cosas anotadas sin arreglar**: el directorio **crece sin límite** —nada poda los enlaces de
+un módulo retirado— y, si en esa ruta hay un archivo real en vez de un enlace, se **renombra a
+`.backup` en silencio** y nadie limpia esos `.backup` jamás.
+
+La regla 3 de `files/dev/volatile-state.json` decía «LA LISTA SOLO PUEDE ENCOGER». Ahora **encoge
+siempre que se pueda**, y para crecer la entrada nueva tiene que traer la medición, el propósito
+escrito y la fecha del hallazgo que la motivó.
+
+## Documentación — la memoria de un agente es una caché del registro
+
+`CLAUDE.md` gana una novena regla: lo que un agente guarde en su memoria persistente **solo puede
+ser algo que ya viva en `.agents/context/`**, más el puntero a su sección. Si la memoria contiene
+algo que el registro no tiene, son dos verdades sin puerta entre ellas, y eso **es el hallazgo**:
+se resuelve subiéndolo al registro.
+
 ## Herramientas — los recorredores no pedían ni un `.css` ni un `.js`
 
 `bin/walk-routes` dice en su encabezado que pide «TODOS los assets que aparecen en las páginas
