@@ -11917,3 +11917,73 @@ gemela ya estaba ahí; lo único que ha cambiado es que ahora se ve.
 | `config/containers.php:109` | `if (…) { throw $e; } elseif (!$missingResponseError) { throw $e; }` | **La condición SÍ decide**: si no se cumple ninguna, no se lanza. Es una simplificación posible, no un defecto |
 | `Core/Menu/MenuGroup.php:321` | Comparador de `uasort`: dos `elseif` distintos devuelven `$gt` | **Correcto**. Varias condiciones con la misma salida |
 | `Core/Menu/MenuGroupCollection.php:144` | El mismo comparador, duplicado | **Correcto** como comparador; lo que sí llama la atención es que esté copiado dos veces |
+
+---
+
+## T118 · S5 · LA SUITE QUE NUNCA CORRÍA — conectada, y sus 7 omisiones tienen UNA sola causa
+
+### (a) · Conectada
+
+`GatesTask::SUITE_PREFIX` pasa de `'unit-tests:core/'` a `'unit-tests:'`. **17 suites**, y las
+etiquetas ahora llevan su espacio de nombres —`core/db-restore`, `functions/systemOutFormatted`—,
+que es más honesto que esconderlo.
+
+**El encabezado de `gates` presumía**: «una suite nueva entra sola; no hay lista que actualizar ni
+que se pueda quedar corta». **El prefijo ERA una lista de un elemento, y se quedó corta.** Queda
+escrito en el propio archivo, al lado de la presunción.
+
+### (b) · Las 7 omitidas, una por una — y son la misma
+
+| # | Comprobación omitida | Motivo impreso |
+| --: | :-- | :-- |
+| 2 | Nombre `'red'` == código 31 | Exige terminal |
+| 3 | Fondo `'blue'` == código 44 | Exige terminal |
+| 4 | Detección de `bold`, `italic`, `underline` | Exige terminal |
+| 5 | Lista `['red','bold','italic']` | Exige terminal |
+| 6 | Mixto: Yellow 33, BgRed 41, Underline 4, Bold 1 | Exige terminal |
+| 7 | Hereda `'magenta'` (35) de `get_config` | Exige terminal |
+| 8 | Hereda negrita (1) y subrayado (4) | Exige terminal |
+
+**Las siete son la misma causa**: sin TTY, `systemOutFormatted()` suprime los códigos ANSI **a
+propósito**, así que las comprobaciones que los buscan no tienen nada que mirar.
+
+**Y esto NO es una suite a medias: es una suite mal invocada.** Corrida bajo un pseudo-terminal:
+
+```
+$ script -qec "bin/cli unit-tests:functions/systemOutFormatted" /dev/null
+ BALANCE FINAL: 10/10 PASADAS
+```
+
+**10 de 10, cero omisiones.** Las siete comprobaciones existen, son correctas y pasan. Lo que
+falla es el entorno en el que el corredor las lanza.
+
+**El remedio, dicho y no hecho** —cambia cómo `gates` invoca a TODAS las suites y eso es alcance—:
+que el corredor lance cada suite bajo un pseudo-terminal, o que la detección de TTY sea inyectable
+para poder forzarla en pruebas. **No lo decido yo.**
+
+### (c) · Buscadas por enumeración, no por lo que `gates` nombra
+
+Se listaron **las 19 acciones registradas** —preguntándole al CLI, que es quien las tiene— en vez
+de leer lo que el corredor dice cubrir, que es justo como se coló esta:
+
+| | |
+| :-- | --: |
+| Acciones registradas en total | **19** |
+| `unit-tests:core/*` | 16 |
+| `unit-tests:functions/*` | **1** ← la huérfana |
+| `tests:*` | **1** ← ver abajo |
+| Que no son pruebas (`loop-sample`) | 1 |
+
+### >>> Una SEGUNDA huérfana, y NO la conecto
+
+**`tests:mautic-batch-send`** — «Prueba de envío masivo de correos con Mautic», en
+`Test-Mautic.php`. Está registrada, `gates` no la ha corrido nunca, y **su prefijo es `tests:`, no
+`unit-tests:`**, así que ensanchar el prefijo tampoco la alcanza.
+
+**Declara sus efectos**: `EFFECT_NETWORK` y `EFFECT_EMAIL`. Es decir, aunque se conectara, el
+corredor la saltaría por defecto y solo entraría con `gates with=external` — igual que
+`core/http-client`. Pero **hoy no aparece ni siquiera como «no se corre»**, que es la diferencia
+entre una puerta declarada fuera y una puerta invisible.
+
+**Sin tocar, esperando al PROPIETARIO**: lo que hay que decidir es si `tests:` entra en el
+corredor como familia declarada-fuera, si se renombra a `unit-tests:`, o si se retira.
