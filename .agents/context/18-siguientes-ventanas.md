@@ -10920,3 +10920,59 @@ Compara contra las etiquetas **locales**. Si la etiqueta no existe ni siquiera e
 paquete se cambió y no se etiquetó— no hay nada que comparar y la comprobación calla, exactamente
 igual que si estuviera todo bien. **Queda dicho**: es el mismo denominador invisible de la LEY 15,
 en la comprobación que acabo de escribir.
+
+### R · HOJA DE RUTA — dónde estamos y cuánto falta
+
+*Escrita por ARQUITECTO el 2026-08-26 a petición del PROPIETARIO. **Es una estimación, no un
+compromiso**, y se mide en BLOQUES —una instrucción y su informe—, no en fechas. La conversión a
+días usa el supuesto que dio el PROPIETARIO: ~35 commits/día.*
+
+**Base de la conversión, medida:** los últimos bloques han sido de 3, 5, 6, 6, 11 y 6 commits —
+media **≈ 6**. A 35 commits/día son **~6 bloques al día**. Encaja con lo real: 36 commits el 24 de
+agosto, 44 el 25.
+
+| Peldaño | Qué queda | Bloques | Días |
+| :-- | :-- | --: | --: |
+| **E2** | Cerrar E2-a (11 rutas sin datos) · **E2-b en dos**: las 50 rutas `-actions-*`, y `$_FILES` + 119 POST | 3–4 | 0,7 |
+| | Las tres listas abiertas de LEY 11 · la puerta de `HttpClient` · la ceguera del comparador | 2 | 0,4 |
+| **E3** | **Seis lotes**, cada uno con restauración + foto antes y después. **El contenido es el mapa de T6** | 6–9 | 1,5 |
+| **E4** | Pruebas unitarias de lo pruebaunitariable + la ventana de correo (T7) | 4–6 | 1,0 |
+| **E5** | Las refactorizaciones del PROPIETARIO · el **4.0.0 del paquete** (bloque Q, cinco piezas) · los 21 `objectToMapper` | 5–7 | 1,2 |
+| **E6** | `source-docs` reestructurado · la guía personal · documentación de API de los cuatro paquetes · vista «Sistema» · CLI y `--help` · el framework como paquete y su instalador | 6–8 | 1,4 |
+| | | **26–36** | **≈ 6** |
+
+#### El hito que importa más que el final
+
+**Al cerrar E3 el framework está limpio y con red**: unos **11–15 bloques** desde el 2026-08-26, o
+**~3 días** al ritmo supuesto. A partir de ahí ya no se repara, se construye.
+
+#### Lo que la aritmética NO gobierna, y va dicho
+
+1. **El cuello de botella es el PROPIETARIO, no los commits.** Seis bloques al día son seis rondas
+   de leer, decidir y pegar. El CODER sostiene ese ritmo; la pregunta es si él quiere sostenerlo
+   seis días seguidos. A tres bloques diarios son doce días y el trabajo es idéntico.
+2. **E5 y E6 no se miden en commits.** Una ventana de documentación produce tres commits y consume
+   una tarde de lectura. Ahí la tabla miente por optimista, y no se sabe cuánto.
+3. **E3 tiene tiempo de reloj que no es de teclado**: cada lote restaura la base y toma dos fotos.
+
+#### Lo que puede estirarlo
+
+**El ritmo de hallazgos no ha bajado.** Cada bloque de esta semana encontró algo que nadie sabía:
+`db-backup` sin `DROP FUNCTION`, el recorredor que jamás pidió un `.css`, las 50 rutas no
+ejercitadas, `humanReadable()` devolviendo el mapper entero. Eso es el instrumental funcionando,
+no un problema — pero mientras siga, **los seis lotes de E3 pueden ser nueve**.
+
+**Estimación honesta: seis días si se mantiene el ritmo y no aparece nada gordo; entre ocho y diez
+es lo que ARQUITECTO apostaría.**
+
+#### Y una corrección de ARQUITECTO a su propia hoja de ruta
+
+La primera versión decía «E3 — seis lotes con restauración y foto», que describe **el mecanismo y
+no el contenido**. El contenido de E3 es el mapa de destino de los módulos (T6): se borran
+completos `ImagesRepository`, `ApplicationCalls` e `InterestResearchAreas`; parciales `MySpace`,
+`ContentNavigationHub` y `ReportsManage`; se reescribe `DataImportExportUtility`.
+
+Y lo que T6 deja escrito y conviene repetir aquí: **el trabajo con riesgo no es borrar, es
+editar.** En el lote de experiencias previas son nueve borrados triviales contra **nueve ediciones
+en archivos que se quedan**, dos de ellas en `SystemApprovals`, que se conserva. De ahí que E2
+tuviera que ir antes: **la foto es la red de esas nueve ediciones.**
