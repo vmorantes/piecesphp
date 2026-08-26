@@ -12141,3 +12141,34 @@ cambiar quién puede qué**, que es lo que estaba autorizado.
 
 **Puertas**: `gates` **18 suites** · PHPStan **888 = baseline** · `verify-integrity` en rojo por la
 única gemela de la PARADA 2, que no se toca.
+
+---
+
+## T121 · S0 · `composer update` NO SE EJECUTÓ — el preámbulo era una parada, y saltó
+
+El bloque S abría con: *«COMPROBAR PRIMERO con qué PHP corre composer: si no es 8.4 o 8.5, PARA y
+repórtalo. Ya nos mordió corriendo bajo 8.1.34.»*
+
+**Volvió a morder, y la comprobación previa lo cazó antes de tocar nada.**
+
+| Qué se miró | Qué salió |
+| :-- | :-- |
+| `head -1 /usr/bin/composer` | `#!/usr/bin/php` |
+| `/usr/bin/php -v` | **PHP 8.1.34** — es un enlace a `/etc/alternatives/php` |
+| `require.php` de `src/composer.json` | `>=8.4.1 <8.6` |
+| `config.platform` de `src/composer.json` | **no lo declara** |
+| Binarios disponibles | `php8.0` … `php8.5` |
+
+**Sin `config.platform`, composer resuelve contra el PHP que lo ejecuta**, o sea 8.1.34, tres
+versiones por debajo del piso. Es el mismo agujero de
+[php-por-defecto-es-81](./historico/16-plan-php85.md): el `platform_check` que debería gritar está
+silenciado por el manejador de errores del propio framework.
+
+**No se ejecutó nada.** La salida evidente —`php8.5 /usr/bin/composer update …`, o declarar
+`config.platform.php` en `src/composer.json` para que deje de depender de qué binario lo lance— es
+una decisión de entorno, y el bloque decía parar. **`composer.lock` sigue en v3.8.0**, así que la
+comprobación 17 sigue avisando de la diferencia con v3.9.0, que es exactamente para lo que se
+construyó.
+
+**Lo que NO bloqueó**: nada de S1 a S7 dependía de esa actualización, así que el bloque siguió
+entero.

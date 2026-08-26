@@ -180,53 +180,62 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 queda desfasada en cuanto CODER commitea el bloque que la volvió cierta. El desfase es de un
 bloque y es inherente; lo que no es aceptable es que sea de tres.*
 
-**Última actualización: 2026-08-26, tras el bloque de la memoria y `server-delegated`.**
+**Última actualización: 2026-08-26, tras el BLOQUE S.**
+
+> **DECISIÓN DE ALCANCE, del PROPIETARIO**: esta campaña **rompe compatibilidad retroactiva a
+> propósito** y desemboca en una MAJOR. No se conserva nada por compatibilidad con clones
+> existentes. Las rupturas se agrupan en `CHANGELOG.md` bajo un solo encabezado; **el número de
+> versión y la etiqueta los pone el PROPIETARIO**.
 
 ### Dónde estamos
 
-**E2-a cerrada** salvo 11 rutas declaradas NO comprobadas por falta de datos (T39). Cerró
-encontrando lo que E2 existía para encontrar: `news-category-admin-forms-edit`, una ruta de puro
-leer, **crea un archivo**, y la máquina lo atribuyó a la ruta correcta.
+**E2-a cerrada** salvo 11 rutas declaradas NO comprobadas por falta de datos (T39).
 
-**E2-b sin empezar**, partida en dos: las **59** rutas `-actions-*` —el 50 era de otra medición, ver
-T114—, y `$_FILES` (44 accesos en 18
-archivos, solo 3 con guarda) más los 119 POST sueltos.
+**E2-b, primera mitad LEÍDA** (T114): son **59** rutas `-actions-*`, no 50, y 48 de ellas son dos
+plantillas. **La segunda mitad —`$_FILES` y los POST sueltos— sin empezar.**
 
-**Hoja de ruta completa: ver el bloque R del [18](./18-siguientes-ventanas.md).** Resumen: 26–36
-bloques hasta E6, y el hito que importa —E3 cerrado, framework limpio y con red— a 11–15 bloques.
+**Hoja de ruta completa: bloque R del [18](./18-siguientes-ventanas.md).**
 
-### Cerrado en el último bloque
+### Cerrado en el bloque S
 
-- **La memoria del CODER se subordina al registro** (§6 de este archivo, regla 9 de `CLAUDE.md`).
-  La primera auditoría encontró **dos huecos**, que es exactamente lo que la regla predecía: el
-  caso que fundó la regla del `git add` explícito vivía solo en su memoria —incluido un
-  `PHPStanResult.json` versionado generado con un archivo ya modificado—, y el truco de
-  `systemApprovalStatus` como prueba de ejecución del ORM.
-- **`server-delegated/` declarado** en `volatile-state.json` y **regla 3 enmendada**: la lista
-  puede crecer si la entrada trae medición, propósito y la fecha del hallazgo.
-- **LEY 15**: un instrumento informa sobre el universo que MIRA, no sobre el que dice cubrir. Tres
-  casos. Se distingue de la 13 en que aquí la puerta sí corre entera, sobre menos de lo que
-  promete.
-- **LEY 12 ampliada al árbol de archivos**, con las dos cegueras separadas.
-- **Comprobación 17**: versión instalada contra última etiquetada.
+- **`serveModuleStatic()` borrado**; los 24 módulos llaman a `serve()` (T115).
+- **Las ocho ramas gemelas** colapsadas, `CAN_ADD_ALL` y `CAN_VIEW_ALL` fuera de los cuatro mappers
+  donde estaban muertas —y **conservadas en los otros cuatro, donde sí restringen**— (T117).
+- **`$isEdit` sale de la RUTA**, en los 13 controladores, y el desajuste con el cuerpo se rechaza
+  con **400** registrado. Con suite que invoca el controlador de verdad (T120).
+- **Los tres caminantes entran en PHPStan**: 812 → 815 archivos, 9 errores arreglados, ninguno
+  silenciado, baseline sigue en 888 (T119).
+- **`gates` corre 18 suites**, no 16: su prefijo dejaba fuera una que existía (T118).
+- **Comprobación 18**: ningún `if/else` con las dos ramas iguales, por árbol de sintaxis (T117).
+- **LEY 16 y `bin/censo`**: ningún censo reporta cero sin probar antes que el instrumento ve (T116).
 
-### Abierto, sin decidir
+### Abierto, sin decidir — LO DE ESTE BLOQUE PRIMERO
 
-- **La carrera de `createDynamicSymlink()`**: entre `unlink` y `symlink` el enlace no existe. Una
-  petición concurrente recibe **404**. No se reproduce en local; **el framework se clona**.
+- **PARADA 2 · `CacheControllersManager.php:419`**: un `if/else` con las dos ramas iguales, fuera de
+  los cuatro módulos de la chuleta. Su origen es otro —una intención a medias, no una copia—, así
+  que la decisión no es la misma. **`verify-integrity` está EN ROJO por esto, a propósito.**
+- **PARADA 5 · `tests:mautic-batch-send`**: segunda suite huérfana, con prefijo `tests:`, que
+  `gates` no alcanza ni ensanchando. Declara red y correo. Hoy no aparece ni como «no se corre».
+- **La asimetría de guardas de T114**: `Documents` y `Organizations` exigen propiedad para editar y
+  nada para dar de alta. S3 cerró el cruce entre rutas; **la asimetría sigue**.
+- **`ImagesRepository::toDelete()`** borra los archivos DENTRO de la transacción y solo hace
+  `rollBack()` si la excepción es `PDOException` (T114).
+- **Los 6 censos sospechosos de la LEY 16** (T116), a remedir cuando se toque su sección.
 - **El 4.0.0 del paquete** (bloque Q): cinco piezas diseñadas, ninguna ejecutada.
 - **Listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json` que no
   es del slug, `deprecated-functions.json`.
 - **La puerta de `HttpClient`**, sin cobertura desde el 2026-08-25.
 - **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
 - **PHPStan en 888 y no baja porque nadie se lo ha pedido**: el trinquete es un tope, no un motor.
-  El trabajo está medido —514 errores con `null`, el 79 % un solo patrón— y depende de la
-  cobertura de pruebas, o sea de E4.
 
 ### Bloqueado en el PROPIETARIO
 
-- **v3.8.1 y v3.9.0 de `database` etiquetadas y sin instalar.** `composer.lock` sigue en v3.8.0 y
-  resuelve desde bitbucket, así que hace falta empujar **las etiquetas**: `git push origin --all`
-  y `git push origin --tags` son dos cosas distintas, y `--all` no lleva etiquetas.
+- **`composer update piecesphp/database` NO SE EJECUTÓ, y es una PARADA.** El bloque S pedía
+  comprobar antes con qué PHP corre composer. Corre con **8.1.34**: `/usr/bin/composer` tiene
+  el shebang `#!/usr/bin/php`, y `/usr/bin/php` apunta por `alternatives` a 8.1.34, por debajo
+  del piso declarado (`>=8.4.1 <8.6`). `src/composer.json` **no declara `config.platform`**, así
+  que composer resolvería contra 8.1.34. Están instalados `php8.4` y `php8.5`. La salida
+  natural es invocarlo como `php8.5 /usr/bin/composer …` o fijar `config.platform.php`, pero
+  **eso lo decide el PROPIETARIO**: el bloque decía parar. `composer.lock` sigue en **v3.8.0**.
 - Si el push se cuelga: `GIT_TERMINAL_PROMPT=0 git push origin master` convierte el cuelgue en un
   error legible, y `git ls-remote origin` separa autenticación de empuje.

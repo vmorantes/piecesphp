@@ -38,6 +38,99 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## ⚠ CAMBIOS INCOMPATIBLES — agrupados a propósito, para una MAJOR
+
+*Esta tanda **rompe compatibilidad hacia atrás deliberadamente**. No se ha conservado nada por
+compatibilidad con instalaciones existentes. **Sin número de versión y sin etiqueta**: el número lo
+decide quien publique, con todo esto delante.*
+
+**Si mantienes módulos propios sobre este framework, esto es lo que te toca cambiar.**
+
+### 1 · `ServerStatics::serveModuleStatic()` YA NO EXISTE. Usa `serve()`
+
+Era un método intermedio que solo reenviaba a `serve()` e ignoraba dos de sus parámetros. En cada
+`<Modulo>Routes::staticResolver()`:
+
+```diff
+-return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
++return $server->serve($request, $response, $args, __DIR__ . '/Statics');
+```
+
+**El comportamiento es idéntico**: `$replacement` y `$baseStaticURL` no se reenviaban a nada, y
+`$mustValidate` vale `true` por defecto en las dos firmas. Comprobado en seis caminos —extensión
+delegada, extensión no delegada, el enlace por el servidor web, otro módulo del panel, uno de zona
+pública y el que cuelga de `/../Statics`—.
+
+De paso desaparece un cálculo que se tiraba: cada llamada evaluaba `self::staticRoute()` —que
+recorre el contenedor y hace dos `file_exists()`— para pasarlo a un parámetro que nadie leía.
+
+### 2 · El alta y la edición dejan de decidirse por el cuerpo de la petición
+
+`-actions-add` y `-actions-edit` son rutas distintas con permisos distintos, pero dentro del
+controlador la rama se elegía con `$isEdit = $id !== -1;` **leído del cuerpo**. La comprobación
+miraba la puerta y el cuerpo elegía la habitación.
+
+En los **13 controladores** afectados la operación sale ahora del **nombre de la ruta**, y el
+desajuste **se rechaza**:
+
+```php
+$isEdit = self::isEditRoute($request);
+if ($isEdit !== ($id !== -1)) {
+    return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+}
+```
+
+**Qué cambia para un cliente**: un POST con `id` a una ruta `-actions-add`, o sin `id` a una
+`-actions-edit`, ahora responde **HTTP 400** con `success:false` y queda **registrado**. Antes se
+atendía. Si tienes un cliente propio que reutilizaba una de las dos rutas para las dos
+operaciones, deja de funcionar — **y esa es la intención**.
+
+`BaseController` gana `isEditRoute()` y `rejectOperationMismatch()`; una ruta que llegue a esos
+métodos sin declarar su operación **lanza** en vez de elegir.
+
+### 3 · Fuera `CAN_ADD_ALL` y `CAN_VIEW_ALL` de cuatro Mappers
+
+`ImagesRepositoryMapper`, `DocumentsMapper`, `DocumentTypesMapper` y `CategoriesMapper`. Si tu
+código las lee, deja de compilar.
+
+**No cambia ningún permiso**: la única condición que las consultaba tenía **las dos ramas
+iguales**, así que ya permitía siempre. Se conservan en los otros cuatro mappers que sí las usan
+—`ApplicationCalls`, `Organizations`, `InterestResearchAreas` y `Publications`—, donde restringen
+por organización de verdad.
+
+### 4 · El bloque de compilación SCSS y su `//TODO` ya no están
+
+Ver la entrada «Eliminado — el compilador de SCSS que no compilaba» más abajo. Si dependías del
+método `compileScssServe()` por su nombre, primero pasó a `serveModuleStatic()` y ahora no existe:
+el punto 1 de esta lista es tu ruta.
+
+---
+
+## Herramientas — cuatro instrumentos que no medían lo que decían
+
+- **`bin/cli gates` no corría todas las suites.** Su prefijo era `unit-tests:core/` y dejaba fuera
+  `unit-tests:functions/systemOutFormatted`, que existe, corre e informa. Ahora corre **18**. Esa
+  suite omite 7 de sus 10 comprobaciones sin TTY —la función suprime los ANSI a propósito—; bajo un
+  pseudo-terminal da 10/10.
+- **PHPStan no analizaba tres archivos versionados.** `bin/live-cache`, `bin/walk-attribute` y
+  `bin/walk-routes` no tienen extensión `.php`, y PHPStan solo mira `.php` salvo que se listen como
+  archivo explícito. Son las herramientas con las que se mide todo lo demás. Entraron —**812 → 815
+  archivos**—, traían 9 errores y **se arreglaron los 9**: ninguno al baseline, que sigue en 888 y
+  ahora significa más.
+- **`verify-integrity` gana la comprobación 18**: falla cuando las **dos ramas de un `if/else` son
+  idénticas**. Por árbol de sintaxis, no por expresiones regulares. Existía el defecto ocho veces en
+  cuatro módulos, propagado copiando módulos, y **no hay generador que lo impida**.
+- **`bin/censo`**: todo censo lleva por delante una búsqueda de control, y si el control falla el
+  censo **aborta** en vez de reportar cero. Toda cifra sale con la ruta resuelta del binario y su
+  versión.
+
+## Información — cuatro módulos sin restricción por tipo de usuario
+
+`ImagesRepository`, `Documents`, `Forms/DocumentTypes` y `Forms/Categories` **no restringen por
+tipo de usuario ni en el alta ni en el listado**: cualquier usuario autenticado con permiso de ruta
+puede. **No es un cambio de esta tanda**: es lo que ya hacían, detrás de una condición que parecía
+decidir y no decidía. Se documenta para que quien clone el framework lo sepa y elija.
+
 ## Cambio de nombre — `compileScssServe()` pasa a llamarse `serveModuleStatic()`
 
 **Un método que se llama «compila SCSS y sirve» y no compila nada es una mentira que se lee 24
