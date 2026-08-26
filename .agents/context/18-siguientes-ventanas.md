@@ -10860,3 +10860,63 @@ enlaces, no 89. Los 32 de diferencia los creó a mano la medición de T104 pidie
 
 Sin tocar, y partida en dos como se aprobó: las **50 rutas `-actions-*`** por un lado, y `$_FILES`
 —44 usos en 18 archivos, solo 3 con guarda— más los **119 POST sueltos** por otro.
+
+---
+
+## T107 · LA COMPROBACIÓN 17 — la versión instalada contra la última etiquetada
+
+### 5.1 · Lo que sigue bloqueado, y no lo desbloqueo yo
+
+`v3.8.1` y `v3.9.0` de `piecesphp/database` están **etiquetadas y sin instalar**. `composer.lock`
+resuelve el paquete desde bitbucket, así que instalarlas exige empujar la etiqueta, y el bloque
+dice «nada de push». **No se simula copiando nada dentro de `src/vendor/`**: eso daría un número
+que no corresponde a ningún estado real del repositorio. La mitad «después» de la demostración de
+T101 **en piecesphp** sigue en espera del PROPIETARIO.
+
+### 5.2 · Y esto sí era mío: que dejara de pasar desapercibido
+
+**El defecto no fue etiquetar sin empujar** —eso puede ser deliberado— **sino que nadie lo notara
+durante un bloque entero.** `v3.8.1` llevaba desde el bloque anterior sin instalarse y el
+`composer.lock` seguía en `v3.8.0` sin que nada lo dijera. Es la LEY 11 en su forma más simple:
+una pregunta que solo se hace si alguien se acuerda de hacerla.
+
+**La comprobación 17 de `verify-integrity`**, `collectPackageVersions()`:
+
+- Lee `src/composer.lock` y se queda con los paquetes `piecesphp/*`.
+- Para cada uno, busca el repositorio hermano al lado y le pide sus etiquetas
+  (`git -C … tag --list`), quedándose con la mayor **por versión y no alfabéticamente** —`v3.10.0`
+  contra `v3.9.0` es exactamente donde el orden alfabético se equivoca—.
+- Si difieren, lo **dice**.
+
+**NO falla, y es deliberado.** Una etiqueta preparada y aún sin empujar es un estado legítimo; lo
+que no puede es ser invisible. Lo único que sí falla es que **no se pueda leer `composer.lock`**,
+porque entonces la comprobación no miró nada, y una comprobación que no mira no puede leerse en
+verde (LEY 13).
+
+**Lo que dice hoy**, con el árbol tal cual está:
+
+```
+VERSIÓN: piecesphp/database — INSTALADA v3.8.0, ETIQUETADA v3.9.0. Puede ser deliberado; queda dicho.
+VERSIÓN: 4 paquete(s) comparado(s), 3 al día.
+```
+
+### Provocada en tres direcciones
+
+| Provocación | Qué imprime | Fallos |
+| :-- | :-- | --: |
+| El estado real: una etiqueta por delante de lo instalado | `INSTALADA v3.8.0, ETIQUETADA v3.9.0` | 0 |
+| Un paquete que no está clonado al lado (`piecesphp/noexiste`) | `sin veredicto: no está clonado al lado` | 0 |
+| `composer.lock` ilegible | `no se pudo leer src/composer.lock: la comparación de versiones NO se hizo` | **1**, y sale con código 1 |
+
+Y la cuarta dirección no hubo que fabricarla: **los otros tres paquetes están al día**, así que la
+línea «3 al día» prueba que no marca todo por igual.
+
+*`composer.lock` se restauró desde una copia y se comprobó por `sha1sum` que volvía byte a byte al
+original: `bea4f2778c2f28ec5655d8bf7fef2fc05f867a9e` antes y después.*
+
+### Lo que esta comprobación NO cubre
+
+Compara contra las etiquetas **locales**. Si la etiqueta no existe ni siquiera en local —porque el
+paquete se cambió y no se etiquetó— no hay nada que comparar y la comprobación calla, exactamente
+igual que si estuviera todo bien. **Queda dicho**: es el mismo denominador invisible de la LEY 15,
+en la comprobación que acabo de escribir.

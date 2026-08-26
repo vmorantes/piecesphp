@@ -38,6 +38,19 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Herramientas — `verify-integrity` gana una decimoséptima comprobación: las versiones de los paquetes
+
+Compara la versión **instalada** de cada paquete `piecesphp/*` en `src/composer.lock` con la
+**última etiquetada** en su repositorio hermano, y lo dice cuando difieren.
+
+**No falla**: una etiqueta preparada y todavía sin empujar es un estado legítimo. Lo que no puede
+es ser invisible — `v3.8.1` de `piecesphp/database` estuvo etiquetada y sin instalar durante un
+bloque entero sin que nada lo dijera. Lo único que sí falla es que **no se pueda leer
+`composer.lock`**, porque entonces la comprobación no miró nada.
+
+Las etiquetas se ordenan **por versión y no alfabéticamente**, que es donde `v3.10.0` contra
+`v3.9.0` se equivoca. Si el paquete no está clonado al lado, lo dice: no aprueba en silencio.
+
 ## Herramientas — `statics/server-delegated/` queda declarado como estado volátil
 
 Servir un estático de módulo **crea un enlace simbólico** en `src/statics/server-delegated/`. Es

@@ -37,6 +37,8 @@ use PiecesPHP\TerminalData;
  *      sin estar en el registro, y que ninguna entrada del registro haya dejado de decidir.
  *   6. Que no aparezca ninguna FUNCIÓN DEPRECADA de las registradas.
  *   7. Que los cuatro paquetes `piecesphp/*` no se hayan desviado del instrumental común.
+ *   8. Y, sin fallar, AVISA cuando la versión instalada de un paquete no es la última
+ *      etiquetada en su repositorio hermano.
  *
  * Devuelve código de salida distinto de cero si algo falla, para poder usarse en CI.
  *
@@ -194,13 +196,17 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 16. Ningún docblock quedó separado de lo que documenta ────────────────────
         $orphanFailures = self::checkOrphanDocblocks($files);
 
+        //──── 17. La versión instalada de cada paquete contra la última etiquetada ──────
+        $versiones = self::collectPackageVersions();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
-            + count($orderFailures) + count($orphanFailures);
+            + count($orderFailures) + count($orphanFailures)
+            + count($versiones['fallos']);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -250,9 +256,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($orphanFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK HUÉRFANO:\e[39m {$line}");
         }
+        foreach ($versiones['fallos'] as $line) {
+            echoTerminal("\e[31mVERSIÓN:\e[39m {$line}");
+        }
+        foreach ($versiones['avisos'] as $line) {
+            echoTerminal("\e[33mVERSIÓN:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades y docblocks sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades y docblocks sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -2224,6 +2236,100 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         return $failures;
+    }
+
+    /**
+     * Compara la versión INSTALADA de cada paquete `piecesphp/*` con la última ETIQUETADA
+     * en el repositorio hermano.
+     *
+     * NO produce fallos: que la instalada vaya por detrás de la etiquetada puede ser
+     * deliberado —una etiqueta preparada y todavía sin empujar es un estado legítimo—. Lo
+     * que no puede es no verse. Ver T107.
+     *
+     * @return array{avisos: string[], fallos: string[]}
+     */
+    protected static function collectPackageVersions(): array
+    {
+        $avisos = [];
+        $fallos = [];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $lockPath = $repoRoot . '/composer.lock';
+
+        $raw = @file_get_contents($lockPath);
+        $lock = is_string($raw) ? json_decode($raw, true) : null;
+        if (!is_array($lock)) {
+            //Sin el lock no hay nada que comparar, y eso SÍ es un fallo: la comprobación no miró nada.
+            return ['avisos' => [], 'fallos' => ['no se pudo leer src/composer.lock: la comparación de versiones NO se hizo.']];
+        }
+
+        $packagesRoot = dirname(dirname($repoRoot));
+        $instalados = [];
+        foreach (array_merge((array) ($lock['packages'] ?? []), (array) ($lock['packages-dev'] ?? [])) as $paquete) {
+            $nombre = (string) ($paquete['name'] ?? '');
+            if (!str_starts_with($nombre, 'piecesphp/')) {
+                continue;
+            }
+            $instalados[$nombre] = (string) ($paquete['version'] ?? '');
+        }
+
+        if (count($instalados) === 0) {
+            return ['avisos' => ['src/composer.lock no declara ningún paquete `piecesphp/*`.'], 'fallos' => []];
+        }
+
+        $comparados = 0;
+        $alDia = 0;
+        foreach ($instalados as $nombre => $instalada) {
+            $directorio = $packagesRoot . '/' . substr($nombre, strlen('piecesphp/'));
+            if (!is_dir($directorio . '/.git')) {
+                //Un despliegue no tiene por qué tener los paquetes al lado: se DICE, no se aprueba en silencio.
+                $avisos[] = $nombre . ' — instalada ' . $instalada . '; sin veredicto: no está clonado al lado.';
+                continue;
+            }
+            $etiqueta = self::latestLocalTag($directorio);
+            if ($etiqueta === null) {
+                $avisos[] = $nombre . ' — instalada ' . $instalada . '; sin veredicto: no tiene ninguna etiqueta con forma de versión.';
+                continue;
+            }
+            $comparados++;
+            if (version_compare(ltrim($instalada, 'v'), ltrim($etiqueta, 'v'), '==')) {
+                $alDia++;
+                continue;
+            }
+            $avisos[] = $nombre . ' — INSTALADA ' . $instalada . ', ETIQUETADA ' . $etiqueta
+                . '. Puede ser deliberado; queda dicho.';
+        }
+
+        $avisos[] = $comparados . ' paquete(s) comparado(s), ' . $alDia . ' al día.';
+        return ['avisos' => $avisos, 'fallos' => $fallos];
+    }
+
+    /**
+     * Última etiqueta local con forma `vX.Y.Z`, ordenada por versión y no alfabéticamente.
+     *
+     * @param string $directorio Raíz del repositorio del paquete.
+     * @return string|null
+     */
+    protected static function latestLocalTag(string $directorio): ?string
+    {
+        $salida = [];
+        $estado = 0;
+        exec('git -C ' . escapeshellarg($directorio) . ' tag --list 2>/dev/null', $salida, $estado);
+        if ($estado !== 0) {
+            return null;
+        }
+        $versiones = [];
+        foreach ($salida as $linea) {
+            $etiqueta = trim((string) $linea);
+            if (preg_match('/^v?\d+\.\d+\.\d+$/', $etiqueta) !== 1) {
+                continue;
+            }
+            $versiones[] = $etiqueta;
+        }
+        if (count($versiones) === 0) {
+            return null;
+        }
+        usort($versiones, static fn (string $a, string $b): int => version_compare(ltrim($a, 'v'), ltrim($b, 'v')));
+        return (string) end($versiones);
     }
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
     {
