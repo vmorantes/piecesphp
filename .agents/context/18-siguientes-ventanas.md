@@ -11987,3 +11987,67 @@ entre una puerta declarada fuera y una puerta invisible.
 
 **Sin tocar, esperando al PROPIETARIO**: lo que hay que decidir es si `tests:` entra en el
 corredor como familia declarada-fuera, si se renombra a `unit-tests:`, o si se retira.
+
+---
+
+## T119 · S4 · LOS TRES CAMINANTES ENTRAN EN PHPStan — y son 9, no 23
+
+### El mecanismo funcionó tal como lo midió ARQUITECTO
+
+Los tres se añaden a `paths` como **archivos explícitos**, junto al `- ..` que ya estaba. No se
+renombra nada a `.php`. La comprobación que el bloque pedía:
+
+| | Antes | Después |
+| :-- | --: | --: |
+| Archivos que PHPStan analiza | **812** | **815** |
+| `verify-integrity`, comprobación 13 | 815 analizados de 837 | **815 analizados de 837** |
+
+**El guardián y la herramienta ya dicen el mismo número.** El PARO 2 de T110 —tres archivos que la
+comprobación contaba como analizados y PHPStan no miraba— queda cerrado.
+
+### Pero el baseline subió a 897, no a 911
+
+**Los tres traían 9 errores, no 23**, y la diferencia no es un misterio: **el 23 se midió en un
+proyecto sintético, con los tres archivos solos.**
+
+Lo comprobé reproduciendo ese error de método. Con un `neon` cuyo `paths` contiene **solo los
+tres**, aparecen **17 errores extra**, y los diecisiete son de la misma familia:
+
+```
+Function pcsphp_live_invalidate not found.
+Function pcsphp_forbidden_patterns not found.
+Function pcsphp_forbidden_match not found.
+```
+
+**Esas funciones existen** —`bin/tools/live-cache.php:119` y
+`bin/tools/forbidden-routes.php:25`— y en la configuración real están **dentro del universo
+analizado**, porque `paths: - ..` cubre `bin/tools/*.php`. Aislar los tres archivos **inventa
+errores que no existen**.
+
+**No hay PARADA 4: ninguno de los 9 es falso positivo.** Los 17 tampoco lo son en el sentido de
+«habría que silenciarlos»: **no aparecen**, y no aparecen porque la medición real mira el universo
+entero. Es la LEY 15 al revés —un universo demasiado PEQUEÑO no da un verde falso, da un rojo
+falso— y le tocó a la medición previa, no al código.
+
+### Los 9, arreglados. Ninguno al baseline
+
+Tres formas, una por archivo:
+
+| Error | Por qué era real | Arreglo |
+| :-- | :-- | :-- |
+| `Variable $argv might not be defined` | `$argv` depende de `register_argc_argv`, que es configurable | Se lee de `$_SERVER['argv']`, filtrando a cadenas |
+| `curl_setopt_array … expects non-empty-string` | `CURLOPT_URL` con una cadena vacía es una petición a ninguna parte | Guarda explícita que lanza, más `@var array<int,string>` para las cabeceras |
+| `Call to deprecated function curl_close()` | Deprecada desde PHP 8.0, y desde 8.0 no hace nada | Fuera la llamada |
+
+**Los tres siguen funcionando**, comprobado y no supuesto: los tres reconocen `--base`, y
+`bin/walk-attribute --base=… --limit=3` arranca, invalida la caché, avisa de la LEY 12, avisa del
+recorte y llega a «Rutas a atribuir: 3».
+
+**PHPStan vuelve a 888 con los tres dentro.** Ningún error silenciado, ninguna entrada nueva en
+`ignoreErrors` —el trinquete lo confirma: «cota del .neon — 52 → 52»—.
+
+### La cifra vale más que antes, y eso va escrito en el baseline
+
+888 sobre **815** archivos, no sobre 812. La nota de medición del baseline lo dice: **los mismos
+888 cubriendo tres archivos más, y son las herramientas con las que se ha medido la campaña
+entera.**

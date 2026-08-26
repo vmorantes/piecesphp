@@ -30,7 +30,9 @@
  */
 
 $options = [];
-foreach (array_slice($argv, 1) as $argument) {
+//$argv depende de `register_argc_argv`; $_SERVER siempre existe en CLI.
+$argumentos = array_values(array_filter((array) ($_SERVER['argv'] ?? []), 'is_string'));
+foreach (array_slice($argumentos, 1) as $argument) {
     if (preg_match('/^--([a-z-]+)(?:=(.*))?$/', $argument, $matches) === 1) {
         $options[$matches[1]] = $matches[2] ?? true;
     }
@@ -105,6 +107,11 @@ $isForbidden = static fn (string $name, string $url): ?string =>
 
 //──── Sesión ────────────────────────────────────────────────────────────────────────────
 $request = static function (string $url, array $headers = [], ?array $post = null): array {
+    if ($url === '') {
+        //Sin URL no hay peticion: un estado inventado seria peor que no pedir.
+        throw new \InvalidArgumentException('URL vacia: no se pide nada.');
+    }
+    /** @var array<int,string> $headers */
     $handle = curl_init();
     curl_setopt_array($handle, [
         CURLOPT_URL => $url,
@@ -121,7 +128,6 @@ $request = static function (string $url, array $headers = [], ?array $post = nul
     }
     $body = curl_exec($handle);
     $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
-    curl_close($handle);
     return ['status' => $status, 'body' => is_string($body) ? $body : ''];
 };
 

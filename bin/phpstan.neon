@@ -37,6 +37,12 @@ parameters:
     # midiendo menos. Ver T77 y T79.
     paths:
         - ..
+        # Los tres ejecutables de bin/ SIN extension .php. PHPStan solo analiza `.php` salvo
+        # que se listen como ARCHIVO EXPLICITO: `fileExtensions: [php, '']` NO funciona, y
+        # estar dentro de un directorio ya listado tampoco basta. Medido en el bloque S.
+        - ../bin/live-cache
+        - ../bin/walk-attribute
+        - ../bin/walk-routes
     scanFiles:
         - ../src/app/config/constants.php
     scanDirectories:
