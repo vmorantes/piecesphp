@@ -10172,3 +10172,142 @@ vetadas AHORA:  67
 liberadas:      36   —  todas GET, cero rutas -actions-
 ```
 
+
+## T101 · OPCIÓN A APLICADA EN EL PAQUETE — y el demo era el oráculo, como se sospechaba
+
+*Punto 2 del bloque del 26-08. **v3.9.0 etiquetada y NO instalada**: ver el bloqueo al final.*
+
+### 2.1 · El demo del paquete, ejecutado ANTES de tocar nada
+
+De los dos resultados posibles que planteaba el encargo, **salió el primero: el defecto está
+demostrado en la documentación del propio paquete.**
+
+`demos/entity-mapper/mappers.php` declara `human_readable_reference_field => 'name'` con
+`'mapper' => MainTableMapper::class`, y llama a `humanReadable()` cuatro veces. Salida **tal
+cual**, dos de las cuatro:
+
+```json
+"SecondTableMapper Getted": {
+  "id": 5,
+  "name": "6a8f130ccbe83",
+  "main_table_reference": {
+      "id": 5, "name": "Brandi", "serialized_column": null,
+      "table": "main_table", "primaryKey": "id", "foreingsKeys": [],
+      "fields": { "id": {...}, "name": {...}, "serialized_column": {...} }
+  },
+  "sample_artificial_column_on_select": "6a8f130ccbe83 - 5"
+}
+```
+
+**Donde se declaró `'name'` —ocho bytes, `"Brandi"`— salen 1.286 con el esquema del mapper
+dentro.** Y no es un caso raro: es **el ejemplo que el paquete publica para enseñar a usarlo**.
+
+| | Antes | Después |
+| :-- | :-- | :-- |
+| `main_table_reference` | objeto de **1.286 bytes**, con `table`, `primaryKey`, `foreingsKeys` y `fields` | **`"Brandi"`** |
+| JSON completo del demo | **3.337 bytes** | **1.003 bytes** |
+
+**La referencia SÍ llegaba hidratada**, así que la segunda hipótesis —«el camino roto nunca se
+alcanza»— queda descartada con la salida delante. Lo que pasaba es que se alcanzaba y se caía al
+último `else`.
+
+> **Y esto responde a por qué el PROPIETARIO siempre creyó que funcionaba**: no lo creyó por el
+> demo —el demo lo desmiente—, sino porque **en el proyecto todo lo que humaniza desciende de
+> `EntityMapperExtensible`**, y ahí el hijo tapa el resultado. Ver 2.7.
+
+### 2.2 · El arreglo, y por qué no es un `isset()` mejor
+
+Las dos ramas dejan de preguntar con `isset()`:
+
+```php
+protected static function readReferenceField($reference, $name)
+{
+    if (!is_object($reference) || !is_string($name) || $name === '') { return null; }
+    try { $value = $reference->$name; } catch (\Throwable $exception) { return null; }
+    return is_scalar($value) ? $value : null;
+}
+```
+
+**El `try` no es defensivo por gusto**: `EntityMapper::__get()` **lanza** para una propiedad no
+definida. Y el `is_scalar` final es lo que impide que el arreglo cambie un objeto por otro objeto.
+
+**La segunda rama también estaba muerta**, y nadie lo había dicho: la que cae a la **clave
+foránea** cuando no hay `human_readable_reference_field` declarado. Ahora una referencia sin
+declaración sale como su id en vez de como el objeto. **Eso es lo que el bloque Q daba por escrito
+y no ejecutado — ya es alcanzable.**
+
+### 2.3 · El hijo, sin tocar
+
+Ni una línea de `EntityMapperExtensible::humanReadable()`. Razones en P-ter.
+
+### 2.5 · La suite del paquete, provocada
+
+`core/database/entity-mapper` sube a **34/34** con tres comprobaciones nuevas sobre **dos mappers
+de prueba**: uno que declara el campo legible y otro que no.
+
+| Se provoca | Qué sale |
+| :-- | :-- |
+| Los dos `isset()` de vuelta | **31/34** — caen las tres: `Se esperaba 'EL-PADRE'; hay: OBJETO`, `El esquema del mapper SALE en el JSON (811 bytes)`, `Se esperaba la clave 7; hay: OBJETO` |
+| Todo en su sitio | **34/34** |
+
+**La segunda comprobación es la que discrimina de verdad**: busca `foreingsKeys` en el JSON. No
+pregunta si el valor es el esperado —eso puede acertar por casualidad— sino **si el esquema se
+está publicando**.
+
+> **Dos errores míos, corregidos y dichos:**
+>
+> 1. **La primera provocación aplicó solo una de las dos ramas** —el reemplazo multilínea no casó
+>    por los finales de línea— **y lo anuncié como hecha sin comprobarlo.** Salió «una falla» y
+>    parecía que la comprobación no discriminaba. Rehecha con aserción sobre las dos: caen las tres.
+> 2. **Doble conteo propio**: `logSuccess()` y `logError()` ya incrementan los contadores, y yo los
+>    incrementaba además a mano. El total decía 37 y eran 34. Corregido.
+
+### 2.7 · Quién consume esto: **NADIE de los 13 directos**
+
+**15 llamadas reales** a `humanReadable()` en los dos repositorios *(el grep da 17: dos son
+menciones en un docblock y en un comentario — otra cifra que hay que decir con su unidad)*.
+
+| Sitio | Receptor | ¿Es uno de los 13 directos? |
+| :-- | :-- | :-- |
+| `APIController:220` · `:401` · `:1336` | `PublicationMapper`, `NewsMapper`, `UsersModel` | No: los tres **compensan** |
+| `UsersController:921` · `UsersModel:369` | `UsersModel` | No: **compensa** |
+| `DataTablesHelper:447` | el elemento, si `as_mapper` | **Código muerto** — `as_mapper` nunca es `true` |
+| `EntityMapperExtensible:301` · `ExtensibleORM:209` | `parent::` | Es el propio hijo |
+| `EntityMapperExtensible:331` · `MetaProperty:600` · `MetaProperty:529` · `ExtensibleORM:237` | la referencia hidratada | **Pueden alcanzarlos, y los SUSTITUYEN igual** |
+| `SchemeCreator:445` · `ORMSchemeCreator:305` | el mapper de la plantilla | Genera DDL: **sin referencias hidratadas** |
+| `ORM.php:503` | una referencia en la capa ORM | Otra jerarquía |
+
+**Ninguna de las 15 humaniza un `CityMapper`, `StateMapper`, `LoginAttemptsModel`,
+`TimeOnPlatformModel` ni `OTPSecretsUsersMapper` por su nombre.** Comprobado buscando los 13 como
+receptor: **cero apariciones**.
+
+> **Lo que hay que decir, y es la conclusión del punto**: **el paso de objeto a escalar es
+> TRANSPARENTE para este proyecto.** Los cinco que cambian no los lee nadie, y los once que se
+> leen no cambian. **El arreglo no puede romper nada aquí — y arregla el paquete para todo el que
+> no herede del hijo, empezando por su propio demo.**
+
+### 2.6 · Las 59 declaraciones siguen donde estaban
+
+Y ahora **hacen algo**: son lo que se sirve cuando la referencia se resuelve.
+
+### EL BLOQUE: v3.9.0 está etiquetada y NO se puede instalar sin empujar
+
+`src/composer.lock` resuelve `piecesphp/database` desde **bitbucket**, no desde el disco:
+
+```
+piecesphp/database  v3.8.0  a9c79e70510d  https://bitbucket.org/piecesphp/database.git
+```
+
+**Composer no puede alcanzar una etiqueta que no está empujada**, y el bloque dice «nada de push».
+Así que:
+
+- **v3.9.0** (este arreglo) — etiquetada, sin empujar, **sin instalar**.
+- **v3.8.1** (las propiedades antes del primer método, del 25-08) — **tampoco está instalada**: el
+  `composer.lock` sigue en v3.8.0. Llevaba un bloque entero esperando y no se había dicho.
+
+**Lo que queda pendiente de la demostración 2.4**: el «después» **en piecesphp**. El «antes» está
+medido (T99), el «después» está demostrado en el paquete (demo + suite), pero **componer las dos
+—instalar y volver a medir los dos grupos aquí— necesita el push.** No se ha simulado copiando
+nada dentro de `src/vendor/`: eso habría dado un número que no corresponde a ningún estado real
+del repositorio.
+
