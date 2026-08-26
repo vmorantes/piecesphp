@@ -188,7 +188,8 @@ bloque y es inherente; lo que no es aceptable es que sea de tres.*
 encontrando lo que E2 existía para encontrar: `news-category-admin-forms-edit`, una ruta de puro
 leer, **crea un archivo**, y la máquina lo atribuyó a la ruta correcta.
 
-**E2-b sin empezar**, partida en dos: las 50 rutas `-actions-*`, y `$_FILES` (44 accesos en 18
+**E2-b sin empezar**, partida en dos: las **59** rutas `-actions-*` —el 50 era de otra medición, ver
+T114—, y `$_FILES` (44 accesos en 18
 archivos, solo 3 con guarda) más los 119 POST sueltos.
 
 **Hoja de ruta completa: ver el bloque R del [18](./18-siguientes-ventanas.md).** Resumen: 26–36

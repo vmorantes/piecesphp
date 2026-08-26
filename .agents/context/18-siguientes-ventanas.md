@@ -10858,7 +10858,8 @@ enlaces, no 89. Los 32 de diferencia los creó a mano la medición de T104 pidie
 
 ### 6.3 · E2-b sigue sin empezar
 
-Sin tocar, y partida en dos como se aprobó: las **50 rutas `-actions-*`** por un lado, y `$_FILES`
+Sin tocar, y partida en dos como se aprobó: las **59 rutas `-actions-*`** por un lado —eran 50 en
+esta línea, y el 50 venía de otra pregunta: ver T114— y `$_FILES`
 —44 usos en 18 archivos, solo 3 con guarda— más los **119 POST sueltos** por otro.
 
 ---
@@ -10933,7 +10934,7 @@ agosto, 44 el 25.
 
 | Peldaño | Qué queda | Bloques | Días |
 | :-- | :-- | --: | --: |
-| **E2** | Cerrar E2-a (11 rutas sin datos) · **E2-b en dos**: las 50 rutas `-actions-*`, y `$_FILES` + 119 POST | 3–4 | 0,7 |
+| **E2** | Cerrar E2-a (11 rutas sin datos) · **E2-b en dos**: las 59 rutas `-actions-*` (no 50: ver T114), y `$_FILES` + 119 POST | 3–4 | 0,7 |
 | | Las tres listas abiertas de LEY 11 · la puerta de `HttpClient` · la ceguera del comparador | 2 | 0,4 |
 | **E3** | **Seis lotes**, cada uno con restauración + foto antes y después. **El contenido es el mapa de T6** | 6–9 | 1,5 |
 | **E4** | Pruebas unitarias de lo pruebaunitariable + la ventana de correo (T7) | 4–6 | 1,0 |
@@ -11459,3 +11460,156 @@ hablaba en presente: `07-modulos.md` —que además afirmaba que «compila SASS 
 
 **Puertas**: `gates` 16 suites, 0 sin veredicto · `verify-integrity` verde con las diecisiete ·
 PHPStan **888 = baseline**, sin reparto.
+
+---
+
+## T114 · E2-b, PRIMERA MITAD — las rutas de acción, leídas. **Son 59, no 50**
+
+**Informe. No se arregló nada, y no se pidió una sola URL**: todo sale de leer el código.
+
+### El denominador estaba mal, y venía repetido en tres sitios
+
+`route-inventory.json` da **59** rutas con `-actions-` en el nombre. El registro decía **50** en
+T106, en la hoja de ruta del bloque R y en «Estado abierto» del contrato.
+
+**De dónde salió el 50**: de la última pasada del recorredor —«205 rutas pedidas, 155 ejercitadas,
+**50 con error**»—. Es otro número, de otra pregunta, y se coló como si fuera el tamaño de E2-b.
+**Una cifra sin su método, exactamente lo que el propio documento prohíbe.** Corregido a 59 donde
+aparecía.
+
+### 5.3 · La forma: 48 de las 59 son DOS métodos
+
+| Método que las atiende | Rutas |
+| :-- | --: |
+| `action` — atiende **`-actions-add` Y `-actions-edit`** | **28** |
+| `toDelete` | **13** |
+| `saveProfileAction` · `addExperienceAction` · `deleteExperienceAction` · `changeOrganizationAdminAction` (MySpace) | 8 |
+| `translations`, `markAsRead`, `approvalAction`, la verificación de reCAPTCHA | 4 |
+
+**No son 59 casos: son dos plantillas clonadas en catorce módulos, y un puñado de casos propios.**
+Las 15 implementaciones de `toDelete` miden entre 137 y 163 líneas y tienen la misma estructura.
+Se tratan como plantillas.
+
+### 5.1 · Qué escriben, con qué guardas, y qué pasa sin los datos
+
+**La plantilla `action()`** — 28 rutas:
+
+- **Escribe** en la tabla de su entidad, vía el mapper, con `Parameters`/`Validator` por campo.
+- **Guardas**: el array de roles de la ruta, más el middleware `DefaultAccessControlModules`, que
+  **sí es una puerta HTTP**: llama a `routeName($nombre, $args)` y hace `throw403` si devuelve
+  cadena vacía. No es solo visibilidad de menús.
+- **Sin datos**: `Parameters::validate()` lanza, y los cuatro `catch` de la cola lo recogen. **Todas
+  devuelven un `Response` con JSON** y `success:false`, sin escribir. Cumple la regla 5 del
+  framework.
+
+**La plantilla `toDelete()`** — 13 rutas: el `id` sale de `$args`, no del cuerpo, y el patrón de
+ruta lo exige, así que **sin id no hay ruta y no hay handler**. Todo va en transacción.
+
+### 5.2 · ¿Alguna escribe lo que no le toca? SÍ, y de tres maneras
+
+#### (a) `-actions-add` y `-actions-edit` son EL MISMO MÉTODO, y quien decide es el CUERPO
+
+```php
+//Se define si es edición o creación
+$isEdit = $id !== -1;
+```
+
+`action()` **nunca mira por qué ruta entró**. Comprobado: en su cuerpo no hay ni `getName()`, ni
+`RouteContext`, ni comparación con `actions-add`/`actions-edit`.
+
+**Pero el permiso SÍ es por ruta** —el nombre de la ruta *es* el identificador de permiso, regla 2
+del framework—. Así que **la guarda está en el nombre y el comportamiento está en el cuerpo**, y
+basta un `id` en el POST para cruzarlas.
+
+**En 12 de los 14 módulos no tiene consecuencia**: `$creation` y `$edition` son literalmente el
+mismo array de roles, medido. **En dos sí.**
+
+#### (b) `Documents` — el caso más claro, y es de manual
+
+`_allowedRoute('actions-edit')` exige **`createdBy == currentUserID`**, salvo para `CAN_EDIT_ALL`.
+Y `_allowedRoute('actions-add')` es esto, tal cual:
+
+```php
+} elseif ($name == 'forms-add' || $name == 'actions-add') {
+    $allow = false;
+    if (!$candAddAll) { $allow = true; } else { $allow = true; }
+}
+```
+
+**Las dos ramas asignan `true`.** Calcula `$candAddAll` y tira la respuesta: no es una guarda, es la
+forma de una guarda.
+
+Con `$creation` incluyendo `TYPE_USER_GENERAL`, la lectura del código dice que **un usuario general
+puede enviar un POST a `/documents/action/add/` con `id=<documento ajeno>` y editarlo**, saltándose
+el `createdBy` que `-actions-edit` sí comprueba. **Leído, no ejecutado**: el bloque pedía leer
+código y no pedir URLs, así que **esto no está probado contra el servidor**.
+
+#### (c) `Organizations` — la misma forma, con la regla de propiedad
+
+`_allowedRoute` tiene rama para `'forms-edit' || 'actions-edit'` —solo tu propia organización, o
+ser su administrador, o estar en `CAN_MODIFY_ALL`— **y ninguna rama para `actions-add`**. De los
+cinco controladores que ponen reglas por nombre de ruta, **es el único asimétrico**; los otros
+cuatro tienen rama para las dos, aunque una de ellas no decida nada.
+
+Y su rama de edición **no vuelve a comprobar nada**: `new OrganizationMapper((int) $id)` y a
+escribir.
+
+#### El contraste que lo confirma: MySpace lo hace bien
+
+Los cinco métodos de `MyProfile` y `MyOrganizationProfile` **sacan el sujeto de la sesión**
+(`getLoggedFrameworkUser()`) y **ninguno acepta un id por el cuerpo**. La misma casa, el mismo
+framework, el patrón correcto. La plantilla CRUD es la que no lo sigue.
+
+### 5.2 (segunda parte) · Los borrados: 9 blandos, 6 duros, y dos que tocan otra tabla A PROPÓSITO
+
+| | Cuántos |
+| :-- | --: |
+| `toDelete` que marcan `status = INACTIVE` | **9** |
+| `toDelete` que hacen `DELETE FROM` de verdad | **6** |
+
+**Los dos que escriben fuera de su entidad lo hacen bien**: `NewsCategory` y `PublicationsCategory`
+ejecutan, dentro de la misma transacción,
+`UPDATE …news SET category = <sin categoría> WHERE category = :ID` antes del `DELETE`. **Eso es
+justo lo que evita los huérfanos**, y es la respuesta buena a la pregunta de 5.2.
+
+`ImagesRepository`, `Newsletter`, `PreviousExperiences` y `OrganizationPreviousExperiences` borran
+su fila y ya. Comprobado que **ninguna otra tabla referencia** la de imágenes.
+
+### Un defecto de transacción, en `ImagesRepository`
+
+```php
+$pdo->beginTransaction();
+… DELETE FROM …
+$imageRemoved  = $element->imageRemove();
+$authorizationRemoved = $element->authorizationRemove();
+$folderRemove  = $element->folderRemove();
+$pdo->commit();
+```
+
+**Los archivos se borran DENTRO de la transacción, antes del `commit()`.** El sistema de archivos no
+participa de la transacción: si el `commit` falla, el `rollBack()` devuelve la fila **y los archivos
+ya no están**. Queda una fila apuntando a un archivo que no existe.
+
+**Y el `rollBack()` solo ocurre si la excepción es `PDOException`**:
+
+```php
+} catch (\Exception $e) {
+    if ($e instanceof PDOException) { $pdo->rollBack(); … }
+```
+
+Si quien lanza es `imageRemove()`, **la transacción se queda abierta y sin deshacer**.
+
+### Y una guarda que no decide nada, ocho veces
+
+El idiom `if (!$x) { $allow = true; } else { $allow = true; }` aparece **8 veces en 4
+controladores** —`Documents`, `ImagesRepository`, `Forms/Categories`, `Forms/DocumentTypes`—:
+cuatro gobernando `actions-add`/`forms-add` y cuatro gobernando `list`.
+
+**La comprobación 5 de `verify-integrity` existe para esto** —«que ninguna entrada del registro haya
+dejado de decidir»— **y no lo ve**: la sobreescritura existe y sintácticamente hace algo. Lo que no
+hay es nada que mire si una condición tiene las dos ramas iguales. Es otra vez el denominador: la
+puerta comprueba que el método esté, no que decida.
+
+### 5.4 · Nada arreglado. 5.5 · La segunda mitad, sin empezar
+
+`$_FILES` y los POST sueltos **no se han tocado**.
