@@ -176,60 +176,56 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 ## 7. Estado abierto
 
-*Se actualiza en cada pausa. Si esta sección está desfasada, ARQUITECTO incumplió su rutina.*
+*Se actualiza en cada pausa. **Aviso de diseño**: esta sección describe lo pendiente, así que
+queda desfasada en cuanto CODER commitea el bloque que la volvió cierta. El desfase es de un
+bloque y es inherente; lo que no es aceptable es que sea de tres.*
 
-**Última actualización: 2026-08-26, con el CODER compactando.**
+**Última actualización: 2026-08-26, tras el bloque de la memoria y `server-delegated`.**
 
 ### Dónde estamos
 
-**E2-a prácticamente cerrada**, y cerró encontrando algo: `news-category-admin-forms-edit` —una
-ruta de puro leer— **crea un archivo**, y la máquina lo atribuyó a la ruta correcta. Es la primera
-vez que el instrumento encuentra algo que nadie había visto antes de construirlo. Salió además de
-la familia `-forms-*` que el veto prohibía recorrer.
+**E2-a cerrada** salvo 11 rutas declaradas NO comprobadas por falta de datos (T39). Cerró
+encontrando lo que E2 existía para encontrar: `news-category-admin-forms-edit`, una ruta de puro
+leer, **crea un archivo**, y la máquina lo atribuyó a la ruta correcta.
 
-68 de 79 ejercitadas; **11 declaradas NO comprobadas** por tablas vacías. El universo del
-recorrido ancho cambió —186 → 205 rutas, 0 → 202 estáticos—, así que **las cifras anteriores no
-son comparables**.
+**E2-b sin empezar**, partida en dos: las 50 rutas `-actions-*`, y `$_FILES` (44 accesos en 18
+archivos, solo 3 con guarda) más los 119 POST sueltos.
 
-**E2-b sin empezar.** Aprobado partirla en dos: las 50 rutas `-actions-*` por un lado, y `$_FILES`
-más los POST sueltos por otro.
+**Hoja de ruta completa: ver el bloque R del [18](./18-siguientes-ventanas.md).** Resumen: 26–36
+bloques hasta E6, y el hito que importa —E3 cerrado, framework limpio y con red— a 11–15 bloques.
 
-### Decidido y pendiente de ejecutar
+### Cerrado en el último bloque
 
-- **`server-delegated/` se declara** en `volatile-state.json`, y **la regla 3 de ese archivo se
-  enmienda** —hoy dice «la lista solo puede encoger»—. Decisión del ARQUITECTO, delegada por el
-  PROPIETARIO, que aportó el propósito: los enlaces sirven los assets de módulo desde una ruta
-  estable, y se crean al servir y no al desplegar porque los cambios en caliente lo exigen.
-  **Condición previa**: medir que la escritura es una vez por recurso y no por petición. Si se
-  repite por petición no es estado volátil, es una fuga.
-- **`humanReadable()`, opción A**: arreglar los dos `isset()` del padre y NO tocar al hijo. El
-  demo del propio paquete resultó ser el oráculo: emitía 1.286 bytes de esquema donde debía
-  emitir `"Brandi"`.
+- **La memoria del CODER se subordina al registro** (§6 de este archivo, regla 9 de `CLAUDE.md`).
+  La primera auditoría encontró **dos huecos**, que es exactamente lo que la regla predecía: el
+  caso que fundó la regla del `git add` explícito vivía solo en su memoria —incluido un
+  `PHPStanResult.json` versionado generado con un archivo ya modificado—, y el truco de
+  `systemApprovalStatus` como prueba de ejecución del ORM.
+- **`server-delegated/` declarado** en `volatile-state.json` y **regla 3 enmendada**: la lista
+  puede crecer si la entrada trae medición, propósito y la fecha del hallazgo.
+- **LEY 15**: un instrumento informa sobre el universo que MIRA, no sobre el que dice cubrir. Tres
+  casos. Se distingue de la 13 en que aquí la puerta sí corre entera, sobre menos de lo que
+  promete.
+- **LEY 12 ampliada al árbol de archivos**, con las dos cegueras separadas.
+- **Comprobación 17**: versión instalada contra última etiquetada.
 
 ### Abierto, sin decidir
 
-- **La ceguera del comparador con los enlaces**: `mtime` y hash siguen el enlace al destino, y
-  `db-restore` restaura la base pero no el árbol. Es la LEY 12 aplicada a los archivos y **no
-  tiene mecanismo**.
-- **El 4.0.0 del paquete** (bloque Q): las cinco piezas están diseñadas, ninguna ejecutada.
-- **Listas abiertas de la LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json`
-  que no es del slug, y `deprecated-functions.json`.
+- **La carrera de `createDynamicSymlink()`**: entre `unlink` y `symlink` el enlace no existe. Una
+  petición concurrente recibe **404**. No se reproduce en local; **el framework se clona**.
+- **El 4.0.0 del paquete** (bloque Q): cinco piezas diseñadas, ninguna ejecutada.
+- **Listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json` que no
+  es del slug, `deprecated-functions.json`.
 - **La puerta de `HttpClient`**, sin cobertura desde el 2026-08-25.
 - **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
+- **PHPStan en 888 y no baja porque nadie se lo ha pedido**: el trinquete es un tope, no un motor.
+  El trabajo está medido —514 errores con `null`, el 79 % un solo patrón— y depende de la
+  cobertura de pruebas, o sea de E4.
 
 ### Bloqueado en el PROPIETARIO
 
-- **El push de `database` se cuelga.** Un solo remoto, HTTPS a bitbucket con el token en la URL,
-  `master` y `dev` ahead 1. Diagnóstico propuesto: `GIT_TERMINAL_PROMPT=0 git push origin master`
-  convierte el cuelgue en un error legible; `git ls-remote origin` separa autenticación de
-  empuje. **Y `git push origin master` NO envía etiquetas**: hace falta `--tags`. Eso explicaría
-  que `composer.lock` no resuelva v3.8.1 ni v3.9.0.
-- Mientras tanto **v3.8.1 y v3.9.0 están etiquetadas y sin instalar**, y el CODER hizo bien en no
-  simularlo copiando nada dentro de `src/vendor/`.
-
-### El patrón que ya lleva tres casos
-
-Un instrumento que informa verde sobre un universo más pequeño del que dice cubrir: las suites
-omitidas (LEY 13), las 50 rutas que se daban por limpias sin ejecutarse, y `bin/walk-routes`,
-cuyo encabezado prometía pedir «TODOS los assets» y **nunca pidió un `.css` ni un `.js`** porque
-su extractor solo aceptaba comillas dobles. Tres no es anécdota.
+- **v3.8.1 y v3.9.0 de `database` etiquetadas y sin instalar.** `composer.lock` sigue en v3.8.0 y
+  resuelve desde bitbucket, así que hace falta empujar **las etiquetas**: `git push origin --all`
+  y `git push origin --tags` son dos cosas distintas, y `--all` no lleva etiquetas.
+- Si el push se cuelga: `GIT_TERMINAL_PROMPT=0 git push origin master` convierte el cuelgue en un
+  error legible, y `git ls-remote origin` separa autenticación de empuje.
