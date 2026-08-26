@@ -9982,3 +9982,97 @@ puede retirar en bloque**, y ese acoplamiento es en sí mismo el hallazgo.
 > ceder ante el padre cuando el padre ya resuelve. Eso **es un cambio de contrato de la API**
 > —array a escalar— y necesita migrar antes a los consumidores. No es limpieza; es una ventana.
 
+### Q · `piecesphp/database` 4.0.0 — las cinco piezas de un solo major
+
+*Diseñado entre PROPIETARIO y ARQUITECTO el 2026-08-26. **Es plan, no está ejecutado.** Ninguna
+pieza estorba a las otras y las cinco solo pueden entrar en un cambio de mayor, así que van
+juntas: cinco mayores por separado sería absurdo.*
+
+#### 1 · El contrato de `humanReadable()` — decisión del PROPIETARIO
+
+Hoy gana la humanización recursiva **no porque nadie lo decidiera**, sino porque el otro camino
+está roto. Pasa a ser un parámetro declarado, con **tres estados** y no dos:
+
+| Constante | Qué devuelve una referencia | Notas |
+| :-- | :-- | :-- |
+| `REFERENCE_STYLE_FLAT` | **Un escalar**: el campo declarado en `human_readable_reference_field`; si no hay declaración, **la clave foránea** | Plano es plano: NO recurre |
+| `REFERENCE_STYLE_NESTED` | El array del mapper referenciado, con **sus** referencias en plano | **Valor por defecto.** Un nivel |
+| `REFERENCE_STYLE_DEEP` | Hasta el final | **Requisito: corte de ciclos.** Ver abajo |
+
+*(Nombres a criterio de quien implemente; el PROPIETARIO propuso `HUMANIZER_STYLE_*` y ARQUITECTO
+`REFERENCE_STYLE_*`, por nombrar lo que varía —la referencia— y no el humanizador.)*
+
+**Por qué el defecto es NESTED y no DEEP**: lo que hoy corre es DEEP, y nadie lo eligió.
+`EntityMapperExtensible::recursiveHumanization()` se llama a sí misma por cada subcampo que sea
+mapper, **sin corte de profundidad y sin protección contra ciclos**. Sobrevive por suerte: nadie
+ha referenciado en círculo todavía. Ofrecer DEEP como modo con nombre sin resolver eso sería
+embarcar una trampa.
+
+**El plano sin declaración ya está escrito** y el PROPIETARIO lo recordaba bien: `EntityMapper`
+línea 1331 intenta `$this->$field->$reference_field` —la clave foránea— cuando no hay campo
+legible declarado. Está muerta por el mismo `isset()`. **El diseño ya existe en el código; solo
+hace falta que sea alcanzable y que se pueda pedir.**
+
+**Esto rescata las 59 declaraciones** de `human_readable_reference_field` sin borrarlas ni
+forzarlas: pasan a ser lo que se sirve cuando alguien pide FLAT.
+
+#### 2 · Consolidar `recursiveHumanization()`
+
+Está escrita **cuatro veces**, `private` en cada una: `EntityMapperExtensible:328` y
+`MetaProperty:597` en piecesphp; `MetaProperty:526` y `ExtensibleORM:234` en el paquete. Dos de
+las cuatro están **dentro del paquete**, y por eso el destino correcto es `EntityMapper` y no
+`BaseEntityMapper` —ARQUITECTO recomendó lo segundo y el PROPIETARIO lo corrigió: en
+`BaseEntityMapper` esas dos copias se quedan donde están.
+
+#### 3 · T22 · mudar `MetaProperty` a `…\ORM\Meta\`
+
+Decidido hace ventanas, sin ejecutar. Es cambio de nombre calificado: solo cabe en un major.
+
+#### 4 · El prefijo `PiecesPHP\` demasiado ancho
+
+Causa de que el núcleo eclipse al paquete por prefijo más largo (ver bloque C).
+
+#### 5 · Lo que se queda en el hijo
+
+`EntityMapperExtensible::humanReadable()` conserva **solo su trabajo propio**: las claves `META:`
+de las meta-propiedades. Deja de compensar porque ya no hay nada que compensar.
+
+#### El impacto de la firma, medido
+
+Añadir el parámetro al padre **obliga a las cuatro sobrescrituras a aceptarlo** —`EntityMapper`,
+`EntityMapperExtensible`, `ExtensibleORM`, `ORM\ORM`—, y esto no es opinión: PHP lo comprueba **al
+declarar la clase**, no al llamar al método.
+
+```
+hijo que OMITE un parámetro opcional del padre  -> Fatal: Declaration of H1::m() must be
+                                                   compatible with P1::m(int $x = 1)
+hijo que AÑADE un opcional que el padre no tiene -> permitido
+retorno ESTRECHADO en el hijo (covarianza)       -> permitido
+retorno ESTRECHADO en el PADRE                   -> rompe a todos los hijos ya escritos
+```
+
+*(Medido por ARQUITECTO en PHP 8.4 en su contenedor —el puente no tiene PHP—; es semántica del
+lenguaje, no cambia en 8.5. Lo de 8.5 lo confirma CODER en la máquina real.)*
+
+**Consecuencia para los clones**: un despliegue donde alguien haya sobrescrito `humanReadable()`
+en un mapper propio **revienta al arrancar**, no al llamar. Es exactamente lo que un major
+documenta, y tiene que estar dicho con esas palabras en el CHANGELOG.
+
+#### Sin resolver, y va antes de implementar
+
+- **Corte de ciclos para DEEP.** Requisito, no mejora.
+- **Los demos del paquete son el oráculo y nadie los ha mirado.** `demos/entity-mapper/` declara
+  `human_readable_reference_field => 'name'` con `'mapper' => MainTableMapper::class` y llama a
+  `humanReadable()` cuatro veces. El PROPIETARIO dice que siempre creyó que el humanizador
+  funcionaba, y ese demo es donde lo habría visto. **Hay que ejecutarlo y mirar la salida**: o
+  demuestra el defecto en la documentación del propio paquete, o revela que la referencia llega
+  sin hidratar y el camino roto nunca se alcanza.
+- **De las 16 llamadas a `humanReadable()`, cuáles consumen referencias de los 13 mappers que
+  extienden `BaseEntityMapper` directamente.** Si ninguna, el paso de objeto a array es
+  invisible y el cambio es transparente.
+
+#### Y el trabajo que arrastra, apuntado por el PROPIETARIO
+
+Al cerrar todo esto hay que escribir **documentación de API pública para desarrolladores** de los
+cuatro paquetes, y que la del framework **remita a ellas**. Va con la ventana de documentación
+de E6, no con el major.
