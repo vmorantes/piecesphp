@@ -11229,3 +11229,86 @@ que buscaba.
 **Regla, y va también a la memoria del CODER**: al buscar código PHP, `grep -F` para literales o
 `\$` escapado; y cualquier cero que sorprenda se repite con `/usr/bin/grep` antes de reportarlo.
 Las mediciones de este bloque se rehicieron con `/usr/bin/grep`.
+
+---
+
+## T111 · QUÉ CUESTA SERVIR UN ESTÁTICO DE MÓDULO — medido, sin optimizar nada
+
+### El método, antes que las cifras
+
+**Una sola conexión TLS reutilizada.** La primera versión de esta medición daba 52,8 ms y 30,4 ms:
+una conexión nueva por petición, así que **cada medida pagaba el saludo TLS** —29,2 ms, medido
+aparte—. Con `curl` recibiendo las 45 URLs de una vez, el saludo se paga una vez y no contamina.
+
+**45 tiradas, se descartan las 5 primeras, y se reporta la MEDIANA.** Con una sola conexión, el
+cuerpo de la respuesta hay que descartarlo en TODAS: `-o /dev/null` una vez solo cubre la primera
+URL, y las demás escupían el CSS a la salida y ensuciaban el fichero de tiempos.
+
+### 4.a.1 · El primer golpe contra los posteriores
+
+| Qué se pide | Quién responde | Mediana |
+| :-- | :-- | --: |
+| `/admin/news/statics/css/news.css` | **PHP**: arranca, delega, hace el enlace y devuelve un 302 | **22,78 ms** |
+| `/statics/server-delegated/…/news.css` | **Apache**, sin PHP | **0,52 ms** |
+| **El primer golpe completo** — el 302 y su seguimiento | los dos | **≈ 23,3 ms** |
+
+**Apache sirve 44 veces más rápido que la ruta PHP.**
+
+### Y lo que la cifra NO dice hasta que se descompone
+
+**El enlace no cuesta nada.** `symlink()` + `rename()`, 500 tiradas en PHP CLI:
+
+| Operación | Mediana |
+| :-- | --: |
+| `symlink` + `rename` (el algoritmo nuevo, atómico) | **0,0125 ms** |
+| `unlink` + `symlink` (el viejo, con ventana) | 0,0089 ms |
+
+**El arreglo de T108 cuesta 3,6 microsegundos, el 0,016 % de la petición.** Quien temiera que la
+atomicidad se pagara cara, no.
+
+**Entonces, ¿de dónde salen los 22,78 ms?** De arrancar PHP. Dos controles sobre el mismo
+servidor:
+
+| Control | Mediana |
+| :-- | --: |
+| La misma ruta PHP con una extensión **no delegada** (`.map`): sirve el archivo desde PHP, sin enlace | 24,61 ms |
+| Una ruta PHP **que no existe**: arranque más la página 404 del framework | 22,50 ms |
+
+**Una petición a este framework cuesta ~22,5 ms hagas lo que hagas dentro.** El enlace es el
+0,05 % de eso. **Optimizar `createDynamicSymlink()` no serviría de nada**, y es justo lo que la
+medición venía a impedir — igual que con los `$sqlCreate`, donde la primera cifra decía 15,5 ms y
+la honesta dijo 1,2 ms y cero consultas.
+
+### 4.a.2 · El denominador
+
+**126 assets de módulo** con extensión delegada bajo `src/app/classes/*/Statics/`: **91 `.js` y
+35 `.css`**. No hay imágenes ni fuentes en los módulos; las que hay viven en `src/statics/`, que
+Apache sirve directo y nunca pasa por aquí.
+
+**Con eso, el coste total del mecanismo:**
+
+| | |
+| :-- | --: |
+| Peticiones a PHP, una por asset y una sola vez | **126** |
+| Tiempo de PHP acumulado | **126 × 22,78 ms ≈ 2,9 s** |
+| Redirecciones extra que paga el navegador | 126, a 0,52 ms cada una |
+
+**Y hay que decir cuándo se paga**: no es «por despliegue» sin más. Se paga **una vez por asset**,
+la primera vez que una vista lo referencia sin que su enlace exista. El enlace sobrevive a los
+despliegues salvo que alguien borre el directorio; un despliegue que solo cambia el contenido de un
+`.js` **no paga nada**, porque el enlace ya apunta ahí. Lo que sí paga es un asset **nuevo**, o un
+`server-delegated/` recién vaciado — y entonces se pagan los 126 de golpe.
+
+### 4.a.3 · NO se optimiza
+
+**Decide el PROPIETARIO, y el diseño va a E6**, junto al artefacto de versión y el instalador: es
+la misma conversación —qué se genera al desplegar y qué al servir—. Lo que la medición deja sobre
+la mesa, sin proponerlo como decisión:
+
+- **El lugar donde una optimización pagaría no es el enlace: son las 126 peticiones a PHP y las 126
+  redirecciones.** Crearlos al desplegar los quita las dos.
+- **Y el argumento en contra sigue en pie**, y es del PROPIETARIO: un enlace creado en el
+  despliegue deja fuera cualquier asset que aparezca después. Cualquier diseño tiene que resolver
+  eso, no ignorarlo.
+- **Dato para esa conversación**: 2,9 s repartidos entre las primeras visitas de un despliegue no
+  es lo mismo que 2,9 s de golpe, y ningún usuario ve los 22,78 ms más de una vez por asset.
