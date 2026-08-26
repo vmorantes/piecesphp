@@ -333,6 +333,60 @@ Lo que haría falta, dicho para que se pueda construir:
 Sin el paso 1 el paso 2 es imposible: **no hay ningún dato en el sistema del que se pueda deducir
 con certeza si esta base viene de una restauración o de la pasada anterior.**
 
+#### AMPLIACIÓN — 2026-08-26 · LA MISMA LEY EN EL ÁRBOL DE ARCHIVOS
+
+La ley se escribió mirando la base. **Vale igual para el árbol, y ahí el agujero es mayor**, porque
+en el árbol ni siquiera existe el «restaurar» que la mitad de la base ya tiene.
+
+**Dos ceguera distintas, y hay que separarlas:**
+
+1. **`db-restore` restaura la base, NO el árbol.** Una escritura de archivo que ya ocurrió no
+   vuelve a ocurrir por mucho que se restaure la base: el archivo sigue ahí. Es exactamente la
+   LEY 12 —el sujeto reacciona a la medición y se agota— pero sin el mecanismo que la base sí
+   tiene desde T71. **Caso medido:** la escritura de estáticos dio **0** dos veces seguidas; la
+   primera por el instrumento, la segunda porque la corrida anterior ya había creado los enlaces.
+2. **El comparador no ve un enlace RECREADO.** `SnapshotTask::snapshotFiles()` firma cada archivo
+   con `tamaño:mtime:sha1`, y las tres cosas **siguen el enlace hasta su destino**: `is_file()`
+   sobre un enlace devuelve `true`, y `filemtime()` y `sha1_file()` leen el archivo apuntado.
+   Borrar el enlace y rehacerlo apuntando al mismo sitio deja **la misma firma**. Medido en T104:
+   33 recreaciones seguidas, y el comparador no registró ninguna.
+
+**Un cero se lee igual venga de donde venga.** «No hay nada» y «ya no queda nada que hacer» dan la
+misma pantalla, y esta ley existe porque la segunda se disfraza de la primera.
+
+#### Lo que haría falta para cerrarlo — DISEÑO, no código
+
+**Nada de esto está construido.** Se escribe antes para que se pueda discutir sin haber gastado en
+implementarlo.
+
+**a) Comparar los enlaces por su destino, no por su contenido.** En `snapshotFiles()`, mirar
+`is_link()` **antes** que `isFile()` y, cuando lo sea, firmar con `lstat`:
+`'enlace:' . readlink($ruta) . ':' . $ctimeDelEnlace`. Eso distingue las tres cosas que hoy se
+confunden en una: **el enlace apareció**, **el enlace apunta ahora a otro sitio**, y **el enlace se
+rehízo apuntando al mismo sitio**. Dos cuidados: el iterador **no debe seguir enlaces de
+directorio** —`RecursiveDirectoryIterator::FOLLOW_SYMLINKS` es opcional y hay que dejarlo apagado,
+o un enlace que apunte hacia arriba cuelga el censo—, y **un enlace roto deja de ser invisible**,
+que es una mejora, no un efecto colateral.
+
+**b) Qué significaría «restaurar el árbol».** No hay pareja backup/restore como en la base, y las
+tres lecturas posibles no valen lo mismo:
+
+| Lectura | Qué haría | Por qué no, o por qué sí |
+| :-- | :-- | :-- |
+| Con git | `git checkout .` más `git clean -xfd` | **No.** `server-delegated/` está en `.gitignore`, así que solo lo borraría `-x`, y `-x` se lleva por delante `vendor/`, `node_modules/` y los logs. Además los archivos son de `www-data`. Demasiado romo |
+| Copiando el subárbol | Guardar y volcar el directorio entero | **No aporta**: un enlace no tiene contenido que copiar, y el coste crece con el árbol |
+| Con la lista ya declarada | `bin/cli tree-restore` borra exactamente las rutas del bloque `files` de `volatile-state.json` | **Sí.** Es el inverso que le falta al par, y **reutiliza una declaración que la regla 1 ya obliga a mantener**: una sola verdad con dos usos, no una lista nueva que envejezca sola (LEY 11) |
+
+**c) Y la marca, igual que en la base.** `db-restore` deja `files/dev/last-restore.json` y por eso
+el paso 2 de arriba es posible. Un `tree-restore` tendría que dejar la suya, y
+`bin/walk-attribute` exigir las **dos** —base y árbol— antes de dar por válida una pasada de
+atribución. Sin la marca, la exigencia no se puede escribir.
+
+**El obstáculo real, que no es de diseño:** los archivos de `server-delegated/` los crea Apache y
+son de `www-data`. Una tarea de CLI corriendo como el usuario del desarrollador **no puede
+borrarlos**. O la tarea corre como `www-data`, o el directorio se vuelve escribible por el grupo.
+Es una decisión de despliegue y **no la tomo yo**.
+
 ### LEY 13 — UNA SUITE OMITIDA ES UNA PUERTA FALLADA, NO UN DATO NEUTRO
 
 **«Verde», «rojo» y «no corrió» son tres estados, y solo dos dicen algo del código.** Una puerta
