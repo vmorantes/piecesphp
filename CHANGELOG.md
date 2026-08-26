@@ -38,6 +38,30 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Corregido — el enlace delegado se sustituía dejando un instante sin enlace
+
+`ServerStatics::createDynamicSymlink()` borraba el enlace y lo volvía a crear. **Entre las dos
+llamadas la ruta no existía**, y una petición que cayera dentro de esa ventana recibía un **404**;
+además, un `getSymbolicLink()` concurrente devolvía `null` y la vista reenviaba a PHP, que repetía
+la operación. No se reproduce en local, y este framework se clona.
+
+Ahora el enlace se crea con nombre temporal y se publica con `rename()`, que es **atómico**: la
+ruta apunta al enlace viejo o al nuevo, **nunca a nada**.
+
+De paso, dos defectos que salieron al reescribirlo:
+
+- **Un enlace roto no se reparaba nunca.** `file_exists()` sigue el enlace, así que uno apuntando a
+  la nada parecía ausente; luego `symlink()` fallaba porque la ruta sí estaba ocupada, y se quedaba
+  rota indefinidamente.
+- **La `umask` se quedaba en `0`** cuando el recurso no existía: ese `return` estaba fuera del
+  `try`, así que no pasaba por el `finally` que la restauraba.
+
+El apartado a `.backup` de un archivo real que ocupe esa ruta **se queda, y ahora hace más falta**:
+medido, `rename()` de un enlace encima de un archivo real lo sustituye y **el contenido se pierde
+sin rastro**.
+
+Puerta nueva: `bin/cli unit-tests:core/symlink-no-window`.
+
 ## Herramientas — `verify-integrity` gana una decimoséptima comprobación: las versiones de los paquetes
 
 Compara la versión **instalada** de cada paquete `piecesphp/*` en `src/composer.lock` con la

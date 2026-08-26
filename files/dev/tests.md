@@ -112,6 +112,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/session-user` | **Se juzga sola** (valores devueltos) |
 | `functions/systemOutFormatted` | **Se juzga sola** |
 | `core/read-paths-survive` | **MariaDB** — y exige que el caso exista en los datos antes de medirlo |
+| `core/symlink-no-window` | **El sistema de archivos** — un banco en `sys_get_temp_dir()`, más tres comprobaciones que leen el cuerpo del método (T108) |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
 
 #### `core/http-client` queda SIN COBERTURA — 2026-08-25

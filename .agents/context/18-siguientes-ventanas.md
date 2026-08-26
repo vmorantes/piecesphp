@@ -10976,3 +10976,85 @@ Y lo que T6 deja escrito y conviene repetir aquí: **el trabajo con riesgo no es
 editar.** En el lote de experiencias previas son nueve borrados triviales contra **nueve ediciones
 en archivos que se quedan**, dos de ellas en `SystemApprovals`, que se conserva. De ahí que E2
 tuviera que ir antes: **la foto es la red de esas nueve ediciones.**
+
+
+---
+
+## T108 · LA CARRERA DE `createDynamicSymlink()` — ARREGLADA, Y CON DOS DEFECTOS DE PROPINA
+
+**El tercero de los riesgos de T104 no era para anotar.** Entre `unlink($symlinkPath)` y
+`symlink($targetPath, $symlinkPath)` **la ruta final no existe**, y en ese instante una petición a
+`/statics/server-delegated/…` recibe un **404**, un `getSymbolicLink()` concurrente devuelve `null`
+y la vista reenvía a PHP, que vuelve a borrar y rehacer. **En local no se reproduce y el framework
+se clona**: es la definición de trampa embarcada.
+
+### 1.1 · Temporal y `rename()` encima
+
+```php
+$temporaryPath = $symlinkPath . '.' . bin2hex(random_bytes(6)) . '.tmp';
+if (symlink($targetPath, $temporaryPath) && !rename($temporaryPath, $symlinkPath)) {
+    unlink($temporaryPath);
+}
+```
+
+`rename(2)` **sustituye de forma atómica**: la ruta apunta al enlace viejo o al nuevo, nunca a
+nada. Con eso desaparecen los tres síntomas de golpe, porque los tres eran el mismo.
+
+### 1.2 · El `.backup` NO era una defensa contra la ventana — y ahora sostiene más peso
+
+Estaba en la otra rama, la de «hay algo aquí que **no** es un enlace». Con el algoritmo nuevo pasa
+a ser **imprescindible**, y se mide en vez de suponerse:
+
+| Qué hace `rename()` de un enlace… | Resultado medido |
+| :-- | :-- |
+| …encima de un **archivo real** | **`true`**, la ruta pasa a ser enlace y **el contenido original se pierde sin rastro** |
+| …encima de un **directorio no vacío** | **`false`**, el directorio sobrevive y la publicación no ocurre |
+
+Sin el `.backup`, la publicación atómica **destruiría en silencio** un archivo real colocado ahí, y
+se atascaría contra un directorio. **Se queda**, y el riesgo 2 de T104 sigue anotado tal cual: nada
+avisa cuando aparece un `.backup`, y nadie los limpia.
+
+### Dos defectos que salieron al reescribirlo, sin buscarlos
+
+1. **Un enlace ROTO no se reparaba nunca.** `file_exists()` **sigue el enlace**, así que un enlace
+   apuntando a la nada le parecía ausente al código viejo: no entraba en la rama del `unlink`, y
+   después el `symlink()` fallaba porque la ruta **sí** estaba ocupada. Resultado: la ruta se
+   quedaba rota para siempre. El código nuevo mira `is_link()` primero y `rename()` la sustituye
+   sin preguntar. Comprobado en la suite, en los dos sentidos.
+2. **La `umask` se quedaba cambiada.** El `return` temprano de `realpath() === false` estaba
+   **fuera del `try`**, así que en ese camino nunca se ejecutaba el `finally` que la restauraba.
+   Una petición a un recurso inexistente dejaba `umask(0)` puesta para el resto del proceso.
+
+### 1.3 · La prueba: `unit-tests:core/symlink-no-window`
+
+**No hace falta concurrencia para medir una ventana: hace falta un observador dentro del
+recorrido.** El banco de pruebas vive en `sys_get_temp_dir()` y pregunta siempre lo mismo —«¿la
+ruta final resuelve AHORA?»— en los puntos intermedios de cada algoritmo:
+
+| Algoritmo | Huecos observados |
+| :-- | --: |
+| El viejo, entre `unlink` y `symlink` | **1** |
+| El nuevo, tras crear el temporal y tras publicarlo | **0** |
+
+**Y el viejo termina resolviendo**, que es exactamente lo que lo hacía invisible: mirado solo antes
+y después, los dos algoritmos son indistinguibles.
+
+Las tres últimas comprobaciones leen **el cuerpo del método de producción**: que publica con
+`rename()` sobre el definitivo, que **no borra la ruta final en ningún momento**, y que mira
+`is_link()` antes que `file_exists()`. **Provocada**: reintroduciendo el borrar-y-rehacer, la suite
+cae a **10/12** con esas dos fallando; restaurado el archivo, vuelve a **12/12** y su `sha1sum`
+coincide con el de antes de la provocación.
+
+*Por qué el cuerpo del método y no solo el comportamiento: `createDynamicSymlink()` es privada y
+escribe en `src/statics/server-delegated/`, cuyos subdirectorios son de `www-data` porque los crea
+Apache. Una suite corriendo como el usuario del desarrollador no puede escribir ahí, así que
+ejercitarla de verdad exigiría permisos que un clon no tiene por qué darle. Queda dicho: **el
+camino real se comprobó a mano**, con tres peticiones seguidas a la ruta PHP —302, el enlace
+rehecho las tres veces, el `GET` del enlace en 200, cero `.tmp` y cero `.backup`—, y eso **no** está
+en la puerta.*
+
+### 1.4 · La entrada de volátiles, al día
+
+Sigue rehaciendo el enlace en cada petición a la ruta PHP —eso no cambia y no se pretendía
+cambiar—, pero **ya no hay ventana**. La frase que importa se queda escrita tal cual: **«una vez
+por recurso» describe lo que hace la aplicación, no lo que hace el código.**

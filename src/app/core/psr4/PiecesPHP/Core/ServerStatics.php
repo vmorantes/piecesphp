@@ -1211,7 +1211,10 @@ class ServerStatics
     }
 
     /**
-     * Crea un enlace simbólico dinámico para archivos delegados
+     * Crea o actualiza el enlace simbólico delegado de un recurso, SIN ventana.
+     *
+     * La sustitución es atómica: se crea con nombre temporal y `rename(2)` lo pone encima
+     * del definitivo. La ruta final apunta al enlace viejo o al nuevo, nunca a nada. Ver T108.
      *
      * @param string $relativePath Ruta relativa del archivo
      * @return string URL del enlace simbólico
@@ -1222,6 +1225,7 @@ class ServerStatics
         $finalPath = baseurl("statics/server-delegated/{$relativePath}");
         $absoluteSourcePath = realpath(append_to_path_system(basepath(), $relativePath));
         if ($absoluteSourcePath === false) {
+            umask($oldUmask);
             return $finalPath;
         }
         try {
@@ -1236,17 +1240,19 @@ class ServerStatics
             if (!is_dir($symlinkDir)) {
                 mkdir($symlinkDir, 0755, true);
             }
-
-            //Crear enlace simbólico
-            if (file_exists($symlinkPath)) {
-                if (is_link($symlinkPath)) {
-                    unlink($symlinkPath);
-                } else {
-                    rename($symlinkPath, $symlinkPath . '.backup');
-                }
+            if (!file_exists($targetPath)) {
+                return $finalPath;
             }
-            if (file_exists($targetPath) && !file_exists($symlinkPath)) {
-                symlink($targetPath, $symlinkPath);
+
+            //`rename()` sustituiría un archivo REAL sin dejar rastro: ese se aparta, no se pisa.
+            //`is_link()` primero, porque `file_exists()` sigue el enlace y da false si está roto.
+            if (!is_link($symlinkPath) && file_exists($symlinkPath)) {
+                rename($symlinkPath, $symlinkPath . '.backup');
+            }
+
+            $temporaryPath = $symlinkPath . '.' . bin2hex(random_bytes(6)) . '.tmp';
+            if (symlink($targetPath, $temporaryPath) && !rename($temporaryPath, $symlinkPath)) {
+                unlink($temporaryPath);
             }
         } finally {
             umask($oldUmask);
