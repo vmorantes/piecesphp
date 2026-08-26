@@ -528,6 +528,45 @@ que tengan?** Los candidatos evidentes, para cuando toque mirarlos, sin prejuzga
 
 **No se abre aquí.** Se deja escrito para que exista la pregunta, que es lo que faltaba.
 
+### LEY 16 — NINGÚN CENSO REPORTA UN CERO SIN HABER PROBADO ANTES QUE EL INSTRUMENTO VE
+
+**Un cero y un instrumento roto se leen igual.** Es la LEY 15 llevada al sitio peor: no al
+universo que el instrumento mira, sino a si mira algo.
+
+**El caso que la funda, y no era de la máquina del PROPIETARIO.** En este entorno `grep` es una
+**función de shell instalada por el propio agente** —`CLAUDE_CODE_EXECPATH`— que re-ejecuta el
+binario de `claude` como **`ugrep` con `-G`**. `/usr/bin/grep` sí es GNU 3.11, pero no es el que
+corre al escribir `grep`.
+
+Medido sobre `src/app`, con y sin `-F`:
+
+| Patrón | shell `-F` | GNU `-F` | shell **regex** | GNU **regex** |
+| :-- | --: | --: | --: | --: |
+| `isset($_FILES` | 3 | 3 | **0** | 3 |
+| `$_FILES` | 49 | 49 | **0** | 49 |
+| `$showSQL` | 1 | 1 | **0** | 1 |
+
+**Cualquier búsqueda sin `-F` de un patrón con `$` devolvía CERO.** No solo con el `$` a mitad de
+patrón: también al principio.
+
+**Y hay un segundo estrechamiento, más silencioso todavía.** Esa función añade `--ignore-files`,
+así que **salta lo que está en `.gitignore`**. Contando un literal en todo el árbol: **164 archivos
+con el `grep` del shell contra 228 con GNU**. Los 64 que faltan están todos bajo `src/vendor/`. Para
+casi todos nuestros censos eso es lo que queremos —pero nadie lo decidió, y no se veía.
+
+**Dónde NO llega la contaminación, medido**: dentro de un guion `#!/bin/bash` y dentro de un
+`exec()` de PHP, `grep` resuelve a GNU 3.11. Es decir, **todo lo que mide el utillaje
+—`verify-integrity`, los recorredores, `bin/phpstan`— usó GNU**. Lo sospechoso es solo lo que se
+tecleó a mano en la conversación y acabó escrito aquí.
+
+**La ley.** Todo censo lleva por delante una **búsqueda de control con resultado conocido y
+distinto de cero**. Si el control da cero, **el censo aborta** diciendo que el instrumento está
+roto. No reporta cero. Y toda cifra sale con la **ruta resuelta** del binario y su versión, no con
+el nombre que se tecleó — porque el nombre puede ser una función que envuelve otra cosa.
+
+**El mecanismo, no el recordatorio**: `bin/censo`. Acordarse de escapar es memoria, y la memoria
+ya falló (LEY 11).
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -11210,6 +11249,10 @@ tercera**: que el guardián diga que están dentro cuando no lo están.
 
 ### Y una trampa del entorno que puede haber falseado cualquier medición por `grep`
 
+**CORREGIDO EN T116**: no es un alias del perfil ni es de esta máquina — es una **función de shell
+que instala el propio agente**, y el `$` falla también al PRINCIPIO del patrón, no solo a mitad.
+Lo que sigue se deja como se escribió, con su error, que es lo que manda la LEY 14.
+
 **`grep` en esta máquina es `ugrep 7.8.4`, no GNU grep**, por un alias del perfil: `/usr/bin/grep`
 sí es GNU 3.11, pero no es el que se ejecuta al escribir `grep`.
 
@@ -11690,3 +11733,83 @@ hablaba en presente y enseñaba la llamada con los dos argumentos muertos: `07-m
 
 **Puertas**: PHPStan **888 = baseline**, sin reparto · `verify-integrity` verde con las diecisiete ·
 `gates` 16 suites, 0 sin veredicto.
+
+---
+
+## T116 · S6 · EL CANARIO — `bin/censo`, y la corrección de a quién culpaba T110
+
+### La causa, corregida
+
+T110 dijo que el `grep` de esta máquina era ugrep **«por un alias del perfil»**. **Es falso, y hay
+que decirlo con el mismo cuidado con el que se dijo mal.** `grep` es una **función de shell que
+instala el propio agente**: mira `CLAUDE_CODE_EXECPATH` —o `~/.local/bin/claude`— y re-ejecuta ese
+binario con `exec -a ugrep … -G --ignore-files --hidden -I --exclude-dir=…`.
+
+**No es la máquina del PROPIETARIO: es el entorno del CODER.** La diferencia importa, porque
+cambia dónde hay que buscar los censos sospechosos y a quién afecta la ley.
+
+### Lo medido, entero
+
+| Patrón | shell `-F` | GNU `-F` | shell **regex** | GNU **regex** |
+| :-- | --: | --: | --: | --: |
+| `isset($_FILES` | 3 | 3 | **0** | 3 |
+| `$_FILES` | 49 | 49 | **0** | 49 |
+| `$showSQL` | 1 | 1 | **0** | 1 |
+
+**El `$` no falla solo a mitad de patrón: falla también al principio.** T110 lo describió más
+estrecho de lo que es.
+
+Y el segundo estrechamiento: `--ignore-files` hace que el `grep` del shell **salte lo ignorado por
+git**. Un literal contado en todo el árbol da **164 archivos** con él y **228** con GNU; los 64 que
+faltan están todos bajo `src/vendor/`.
+
+### Hasta dónde llega — y es la parte tranquilizadora
+
+| Desde dónde se llama a `grep` | Qué binario responde |
+| :-- | :-- |
+| La conversación del CODER | **ugrep 7.8.4** con `-G` |
+| Un guion `#!/bin/bash` de `bin/` | GNU grep 3.11 |
+| Un `exec()` de PHP | GNU grep 3.11 |
+
+**Todo lo que mide el utillaje usó GNU.** `verify-integrity`, los recorredores y `bin/phpstan`
+quedan fuera de sospecha, y eso se midió, no se supuso.
+
+### (a) y (b) · El mecanismo: `bin/censo`
+
+Dos canarios, y solo el primero aborta:
+
+1. **El canario que ABORTA**: busca un literal que SÍ está en un archivo de control recién escrito.
+   Si no lo encuentra, el censo **no se hace** y sale con código 1 diciendo que el instrumento está
+   roto. Probado en las dos direcciones: con `grep` y con `/usr/bin/grep` canta vivo; con un
+   binario que no busca —`/usr/bin/false`— cae y sale con 1.
+2. **El canario del DIALECTO**, que solo avisa: prueba el mismo literal **sin `-F`** y, si da cero,
+   dice que ese `grep` trata el `$` como ancla. No aborta porque `bin/censo` siempre usa `-F` y por
+   ahí no le entra; se dice para quien busque a mano.
+
+**Y toda cifra sale con su instrumento**: la salida imprime la **ruta resuelta** del binario y su
+versión, no el nombre que se tecleó. Es lo único que habría delatado esto el primer día.
+
+Está en `bash`, no en PHP, **a propósito**: un `#!/usr/bin/env php` en `bin/` habría sido un cuarto
+caminante y habría movido el universo de PHPStan justo en el bloque que lo está cuadrando (S4).
+
+### (c) · Los censos sospechosos — enumerados, NO rehechos
+
+Un censo entra en la lista si su cifra cuenta apariciones de un identificador con `$` y **pudo**
+salir de un `grep` tecleado a mano. **No se rehacen aquí**; se listan para que exista la duda.
+
+| Sección del 18 | Qué contó | Por qué es sospechoso |
+| :-- | :-- | :-- |
+| **T88** | `$_FILES`: 44 en 18 archivos; los `isset(...)`/`!empty(...)`, 3 y no 9 | El patrón lleva `$` y el conteo es el argumento del troceo de E2-b |
+| **T58** | Los diez `$showSQL` | Identificador con `$`; la cifra decidió que se retiraran |
+| **T86** | 34 columnas `json` en el literal `$fields` | Se contó dentro de `$fields` |
+| **T99** | 59 declaraciones en un `$fields`, 62 apariciones del identificador | El identificador no lleva `$`, pero el recorte «solo en `$fields`» sí |
+| **T24 / T29** | `isset($_POST)` / `isset($_GET)`: 44 de 50, y 26 | Patrón con `$` a mitad |
+| **T33** | Los 9 de `$name = $_FILES[$nameOnFiles]['name'];` | Patrón con `$` a mitad |
+
+**Son 6.** Ninguno se rehace en este bloque: cada uno vuelve a medirse con `bin/censo` cuando su
+sección se toque, y ese es el criterio — **no un barrido, sino que ninguno se vuelva a citar sin
+pasar por el canario**.
+
+*Atenuante, y va dicho para no inflar la alarma: varias de esas cifras salieron de la salida JSON
+de PHPStan y no de un `grep` —T24 y T29 son mapas de ramas de PHPStan—. La lista es de sospechosos,
+no de errores.*

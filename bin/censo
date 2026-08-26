@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# Censo con CANARIO. Ningún censo reporta un cero sin haber probado antes que el
+# instrumento ve algo.
+#
+# Existe por la LEY 16: el `grep` de la máquina donde se hizo esta campaña resultó ser
+# `ugrep`, que trata `$` como ancla EN MEDIO del patrón. Buscar una variable de PHP sin
+# escapar devolvía CERO en silencio, y un cero se lee igual venga de un universo vacío o
+# de un instrumento roto. El remedio no es acordarse de escapar —eso es memoria, y la
+# memoria ya falló—: es que la herramienta se niegue a contar si no ve.
+#
+# Uso:
+#   bin/censo '<patrón>' [ruta...]        cuenta líneas que casan
+#   bin/censo -l '<patrón>' [ruta...]     lista los archivos
+#   bin/censo --canario                   solo prueba el instrumento
+#
+# El patrón se trata como CADENA LITERAL (`-F`): es lo que se quiere el 99% de las veces
+# al buscar código, y es lo único que no depende del dialecto de expresiones del grep
+# que haya instalado.
+#
+# El grep se puede fijar con PCSPHP_GREP. Sea cual sea, se le pasa el canario primero.
+
+set -u
+
+GREP_BIN="${PCSPHP_GREP:-grep}"
+
+canario() {
+    #El canario lleva un `$` A MITAD DE PATRÓN a propósito: es la forma exacta que falla.
+    local muestra fixture salida
+    fixture="$(mktemp)"
+    printf 'rename($temporaryPath, $symlinkPath);\n' > "$fixture"
+    salida="$("$GREP_BIN" -cF 'rename($temporaryPath' "$fixture" 2>/dev/null || true)"
+    rm -f "$fixture"
+    if [ "$salida" != "1" ]; then
+        echo "CANARIO CAÍDO: «$GREP_BIN» no encuentra un literal que SÍ está en el archivo de control." >&2
+        echo "               Devolvió «$salida» donde tenía que devolver 1." >&2
+        echo "               EL INSTRUMENTO ESTÁ ROTO. El censo NO se hace: un cero suyo no significaría nada." >&2
+        return 1
+    fi
+    return 0
+}
+
+#El otro canario, que NO aborta: dice si este grep tiene la manía que funda la LEY 16.
+#No aborta porque `bin/censo` siempre usa `-F` y por ahí no le entra; se dice para que
+#quien busque a mano por su cuenta lo sepa antes de creerse un cero.
+dialecto() {
+    local fixture salida
+    fixture="$(mktemp)"
+    printf 'rename($temporaryPath, $symlinkPath);\n' > "$fixture"
+    salida="$("$GREP_BIN" -c 'rename($temporaryPath' "$fixture" 2>/dev/null || true)"
+    rm -f "$fixture"
+    if [ "$salida" != "1" ]; then
+        echo "AVISO: «$GREP_BIN» trata el «\$» como ancla EN MEDIO del patrón."
+        echo "       Un patrón con una variable de PHP sin escapar te devolverá CERO en silencio."
+        echo "       Busca con -F, o escapa \\\$. Ver LEY 16."
+    fi
+}
+
+if [ "${1:-}" = "--canario" ]; then
+    canario || exit 1
+    echo "CANARIO VIVO: «$GREP_BIN» ve el literal de control."
+    dialecto
+    exit 0
+fi
+
+if [ $# -lt 1 ]; then
+    echo "Uso: bin/censo [-l] '<patrón>' [ruta...]" >&2
+    exit 1
+fi
+
+MODO="-c"
+if [ "$1" = "-l" ]; then
+    MODO="-l"
+    shift
+fi
+
+PATRON="${1:-}"
+shift
+if [ $# -eq 0 ]; then
+    set -- .
+fi
+
+canario || exit 1
+
+if [ "$MODO" = "-l" ]; then
+    "$GREP_BIN" -rlF --exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git -- "$PATRON" "$@"
+    exit 0
+fi
+
+TOTAL=$("$GREP_BIN" -rhoF --exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git -- "$PATRON" "$@" 2>/dev/null | wc -l)
+ARCHIVOS=$("$GREP_BIN" -rlF --exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git -- "$PATRON" "$@" 2>/dev/null | wc -l)
+#TODA CIFRA LLEVA SU MÉTODO: el instrumento se imprime junto al número, no aparte, y con la
+#RUTA RESUELTA y su versión — `grep` puede ser una función que envuelve otra cosa. Ver LEY 16.
+RESUELTO="$(command -v "$GREP_BIN" 2>/dev/null || echo "$GREP_BIN")"
+VERSION="$("$GREP_BIN" --version 2>/dev/null | head -1)"
+echo "${TOTAL} aparición(es) en ${ARCHIVOS} archivo(s) · patrón literal «${PATRON}»"
+echo "   instrumento: ${RESUELTO} — ${VERSION}"
