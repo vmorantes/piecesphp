@@ -11613,3 +11613,80 @@ puerta comprueba que el método esté, no que decida.
 ### 5.4 · Nada arreglado. 5.5 · La segunda mitad, sin empezar
 
 `$_FILES` y los POST sueltos **no se han tocado**.
+
+---
+
+# BLOQUE S · LA CAMPAÑA ROMPE COMPATIBILIDAD A PROPÓSITO
+
+*Decisión de alcance del PROPIETARIO, 2026-08-26: esta campaña desemboca en una MAJOR y **no se
+conserva nada por compatibilidad con clones existentes**. Las rupturas se agrupan en el CHANGELOG
+bajo un solo encabezado; el número de versión y la etiqueta los pone él.*
+
+---
+
+## T115 · `serveModuleStatic()` SE BORRA — el método intermedio no tenía nada que aportar
+
+Renombrarlo (T113) dejó ver lo que el nombre viejo tapaba: **quitado el bloque muerto, era una
+línea que reenviaba a `serve()`**, que ya es público. Con la compatibilidad retroactiva fuera de la
+mesa, la salida honesta no es el nombre nuevo: es que no exista.
+
+### Las dos firmas, LEÍDAS y no supuestas
+
+```php
+serveModuleStatic(Request $r, Response $s, array $args, ?string $path = null,
+                  array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
+{
+    return $this->serve($request, $response, $args, $path, $mustValidate);
+}
+
+serve(Request $r, Response $s, array $args, ?string $path = null, bool $mustValidate = true)
+```
+
+**Tres hechos, y de los tres depende que el comportamiento sea idéntico:**
+
+1. `$replacement` y `$baseStaticURL` **no se reenvían**: el cuerpo nunca los pasa. Quitarlos no
+   cambia nada.
+2. `$mustValidate` vale **`true` por defecto en las dos firmas**. Los 24 llamadores pasaban seis
+   argumentos y nunca el séptimo, así que valía `true`; ahora pasan cuatro y sigue valiendo `true`.
+3. `$path` era el cuarto en las dos, y se sigue pasando en la misma posición.
+
+### El cambio en los llamadores
+
+```diff
+-return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
++return $server->serve($request, $response, $args, __DIR__ . '/Statics');
+```
+
+**24 llamadores, dos formas exactas**: 23 con `__DIR__ . '/Statics'` y uno con
+`__DIR__ . '/../Statics'` —`Importers`, cuyo controlador cuelga un nivel más abajo—.
+
+**Y de paso desaparece un cálculo que se tiraba.** Cada llamada evaluaba `self::staticRoute()`
+para el hueco de `$baseStaticURL`: eso recorre el contenedor de dependencias, `get_route()` y
+`ServerStatics::getSymbolicLink()` —dos `file_exists()`— **en cada petición de estático de módulo**.
+`staticRoute()` no se queda huérfana: sigue con **236 usos** en el árbol, que son los legítimos —las
+vistas construyendo URLs—.
+
+### Comprobado, en seis caminos
+
+| Camino | Estado |
+| :-- | :-- |
+| Extensión delegada, `admin/news/statics/css/news.css` | **302** al enlace |
+| Extensión NO delegada, `.map` | **200**, desde PHP |
+| El enlace, por Apache | **200** |
+| Otro módulo del panel, `admin/logs/…` | **302** |
+| Zona pública, `organizations/…` | **302** |
+| El del `/../Statics`, `importers/…` | **302** |
+
+`php -l` sobre los 25 archivos, sin un solo error. La instantánea de firmas baja de **3.052 a
+3.051** y `serveModuleStatic` ya no aparece en `files/dev/integrity-signatures.json`.
+
+### Qué NO se tocó, y por qué
+
+`CHANGELOG.md` y las entradas del registro que nombran `compileScssServe` o `serveModuleStatic`
+—T112, T113— **se quedan como están: cuentan lo que pasó**. Lo que sí se corrigió es todo lo que
+hablaba en presente y enseñaba la llamada con los dos argumentos muertos: `07-modulos.md`,
+`09-frontend-assets.md`, `13-recetas.md`, y la línea de `14-deuda-y-limpieza.md` que decía «hoy
+`serveModuleStatic()`».
+
+**Puertas**: PHPStan **888 = baseline**, sin reparto · `verify-integrity` verde con las diecisiete ·
+`gates` 16 suites, 0 sin veredicto.

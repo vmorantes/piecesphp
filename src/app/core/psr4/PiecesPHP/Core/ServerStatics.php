@@ -358,33 +358,6 @@ class ServerStatics
     }
 
     /**
-     * Sirve un estático de módulo: delega en el servidor web si la extensión lo permite, y
-     * si no lo entrega desde PHP.
-     *
-     * NO compila SCSS, y nunca lo hizo desde que alguien puso el interruptor a `false`: la
-     * compilación de estáticos vive ENTERA en gulp —`sassCompileModules()` en
-     * `src/gulpfile.js`—, así que el bloque de aquí era una duplicación, no una funcionalidad
-     * a medias. Ver T112.
-     *
-     * `$replacement` y `$baseStaticURL` NO SE USAN: sostenían aquel bloque. Se conservan
-     * porque quitarlos rompería la firma de un método público del núcleo, y eso viaja a cada
-     * clon. Anotado en T112.
-     *
-     * @param Request $request Objeto de solicitud
-     * @param Response $response Objeto de respuesta
-     * @param array $args Argumentos de la ruta
-     * @param string|null $path Ruta personalizada
-     * @param array $replacement SIN USO. Eran los reemplazos de variables SCSS
-     * @param string $baseStaticURL SIN USO. Nunca apareció en el cuerpo, ni con el bloque puesto
-     * @param bool $mustValidate Si debe validar cache
-     * @return Response Respuesta HTTP
-     */
-    public function serveModuleStatic(Request $request, Response $response, array $args, ?string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
-    {
-        return $this->serve($request, $response, $args, $path, $mustValidate);
-    }
-
-    /**
      * Sirve archivos estáticos con delegación inteligente al servidor web
      *
      * @param Request $request Objeto de solicitud

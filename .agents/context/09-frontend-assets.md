@@ -84,14 +84,15 @@ Cada módulo registra su propio servidor de estáticos:
 ```php
 // en <Modulo>Routes::staticResolver()
 $server = new ServerStatics();
-return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+return $server->serve($request, $response, $args, __DIR__ . '/Statics');
 ```
 
-> ⚠️ **Se llamaba `compileScssServe()` y no compilaba SCSS**, y nunca lo hizo desde
-> que alguien dejó `$enableSassCompilation = false;` escrito a fuego. **El bloque muerto
-> se retiró el 2026-08-26**, con su `//TODO: Implementar la compilación de scss` dentro:
-> no era una funcionalidad a medias, era una DUPLICACIÓN de lo que gulp ya hace. Hoy el
-> método solo sirve archivos ya compilados. Ver T112.
+> ⚠️ **Aquí hubo un método propio, `compileScssServe()`, que no compilaba SCSS** y nunca lo
+> hizo, desde que alguien dejó `$enableSassCompilation = false;` escrito a fuego. **El bloque
+> muerto se retiró el 2026-08-26**, con su `//TODO: Implementar la compilación de scss` dentro:
+> no era una funcionalidad a medias, era una DUPLICACIÓN de lo que gulp ya hace. Sin el
+> bloque, el método quedaba idéntico a `serve()`, así que **se borró entero**: los módulos
+> llaman a `serve()`. Ver T112 y T115.
 >
 > Consecuencia: **`scssphp/scssphp` es peso muerto.** Es requisito directo en
 > `src/composer.json`, pero su única mención en todo el código es una línea de

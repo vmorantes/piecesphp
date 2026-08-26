@@ -3394,7 +3394,6 @@
         "ServerStatics::readFile",
         "ServerStatics::selectCompressionAlgorithm",
         "ServerStatics::serve",
-        "ServerStatics::serveModuleStatic",
         "ServerStatics::setStaticPath",
         "ServerStatics::shouldDelegateToWebServer",
         "ServerStatics::typeIsAllowed",

@@ -151,9 +151,7 @@ class MiModuloRoutes
     protected static function staticResolver(RouteGroup $group)
     {
         $handler = function (Request $request, Response $response, array $args) {
-            return (new ServerStatics())->serveModuleStatic(
-                $request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute()
-            );
+            return (new ServerStatics())->serve($request, $response, $args, __DIR__ . '/Statics');
         };
         $cssVars = fn(Request $rq, Response $rs) => CSSVariables::instance('global')->toResponse($rq, $rs, false);
 

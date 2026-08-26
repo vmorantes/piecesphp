@@ -122,7 +122,7 @@ class FileManagerRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         $routeStatics = new Route('filemanager/statics-resolver/[{params:.*}]', $callableHandler, FileManagerRoutes::class);
