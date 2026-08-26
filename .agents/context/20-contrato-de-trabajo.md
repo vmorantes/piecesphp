@@ -156,25 +156,58 @@ por el propietario» que él no reconoce, y no hay forma de adjudicarlas. La dis
 
 *Se actualiza en cada pausa. Si esta sección está desfasada, ARQUITECTO incumplió su rutina.*
 
-**Última actualización: 2026-08-25, tras el informe de E2-a.**
+**Última actualización: 2026-08-26, con el CODER compactando.**
 
-- **Fase:** E2 — la foto. **E2-a hecha a medias**: el recorredor solo ejercitó 40 de 79 rutas de
-  lectura; persiguiéndolas se llegó a **66**, y quedan **13 sin veredicto** (11 por tablas
-  vacías, 2 por abortar). Una sola escritura en todo el recorrido, y estaba declarada.
-  **E2-b sin empezar.**
-- **Tres decisiones aprobadas por el PROPIETARIO el 2026-08-25**, pendientes de ejecutar:
-  1. `db-restore` se arregla —no conoce `DELIMITER` y perdía 18 sentencias— y su suite se
-     alimenta de un volcado real de `db-backup`, no de uno que ella misma fabrica. **Es el
-     mecanismo de la LEY 12: sin esto, cada foto de E3 se toma sobre una base incompleta.**
-  2. `DataTablesHelper` y `CountryMapper` entran ya: son lo que impidió que la foto fuera
-     completa, no limpieza.
-  3. Los dos `isset()` mágicos se arreglan **por etapas** —medir el antes y el después, luego
-     aplicar—; **no** se implementa `__isset()`: arreglaría 2 sitios y pondría en riesgo 48.
-- **Pendiente de construir:** la puerta de `HttpClient`, sin cobertura desde el 2026-08-25.
-- **Listas abiertas de la LEY 11:** `shared-toolchain.json`, la parte de `volatile-state.json`
+### Dónde estamos
+
+**E2-a prácticamente cerrada**, y cerró encontrando algo: `news-category-admin-forms-edit` —una
+ruta de puro leer— **crea un archivo**, y la máquina lo atribuyó a la ruta correcta. Es la primera
+vez que el instrumento encuentra algo que nadie había visto antes de construirlo. Salió además de
+la familia `-forms-*` que el veto prohibía recorrer.
+
+68 de 79 ejercitadas; **11 declaradas NO comprobadas** por tablas vacías. El universo del
+recorrido ancho cambió —186 → 205 rutas, 0 → 202 estáticos—, así que **las cifras anteriores no
+son comparables**.
+
+**E2-b sin empezar.** Aprobado partirla en dos: las 50 rutas `-actions-*` por un lado, y `$_FILES`
+más los POST sueltos por otro.
+
+### Decidido y pendiente de ejecutar
+
+- **`server-delegated/` se declara** en `volatile-state.json`, y **la regla 3 de ese archivo se
+  enmienda** —hoy dice «la lista solo puede encoger»—. Decisión del ARQUITECTO, delegada por el
+  PROPIETARIO, que aportó el propósito: los enlaces sirven los assets de módulo desde una ruta
+  estable, y se crean al servir y no al desplegar porque los cambios en caliente lo exigen.
+  **Condición previa**: medir que la escritura es una vez por recurso y no por petición. Si se
+  repite por petición no es estado volátil, es una fuga.
+- **`humanReadable()`, opción A**: arreglar los dos `isset()` del padre y NO tocar al hijo. El
+  demo del propio paquete resultó ser el oráculo: emitía 1.286 bytes de esquema donde debía
+  emitir `"Brandi"`.
+
+### Abierto, sin decidir
+
+- **La ceguera del comparador con los enlaces**: `mtime` y hash siguen el enlace al destino, y
+  `db-restore` restaura la base pero no el árbol. Es la LEY 12 aplicada a los archivos y **no
+  tiene mecanismo**.
+- **El 4.0.0 del paquete** (bloque Q): las cinco piezas están diseñadas, ninguna ejecutada.
+- **Listas abiertas de la LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json`
   que no es del slug, y `deprecated-functions.json`.
-- **Anotado sin arreglar:** T86 (una columna `json` a NULL se guarda como la cadena `'null'`,
-  desde 2018, 0 filas afectadas hoy — y ese cero es T39, no un aprobado).
-- **Del PROPIETARIO:** `database` está al día — v3.8.1 alcanzable desde `origin/master`, cero commits locales por delante (verificado 2026-08-25). Quedan 29 commits locales en `piecesphp`
-  por delante de `origin/dev`.
-- **Para cerrar la fase de revisión** falta lo de arriba y E2-b. Después, E3.
+- **La puerta de `HttpClient`**, sin cobertura desde el 2026-08-25.
+- **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
+
+### Bloqueado en el PROPIETARIO
+
+- **El push de `database` se cuelga.** Un solo remoto, HTTPS a bitbucket con el token en la URL,
+  `master` y `dev` ahead 1. Diagnóstico propuesto: `GIT_TERMINAL_PROMPT=0 git push origin master`
+  convierte el cuelgue en un error legible; `git ls-remote origin` separa autenticación de
+  empuje. **Y `git push origin master` NO envía etiquetas**: hace falta `--tags`. Eso explicaría
+  que `composer.lock` no resuelva v3.8.1 ni v3.9.0.
+- Mientras tanto **v3.8.1 y v3.9.0 están etiquetadas y sin instalar**, y el CODER hizo bien en no
+  simularlo copiando nada dentro de `src/vendor/`.
+
+### El patrón que ya lleva tres casos
+
+Un instrumento que informa verde sobre un universo más pequeño del que dice cubrir: las suites
+omitidas (LEY 13), las 50 rutas que se daban por limpias sin ejecutarse, y `bin/walk-routes`,
+cuyo encabezado prometía pedir «TODOS los assets» y **nunca pidió un `.css` ni un `.js`** porque
+su extractor solo aceptaba comillas dobles. Tres no es anécdota.
