@@ -218,43 +218,43 @@
          🪪  property.nonObject                                                                                                                                                
   223    Cannot access property $id on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.                                                                
          🪪  property.nonObject                                                                                                                                                
-  725    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+  728    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
          🪪  argument.type                                                                                                                                                     
-  735    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+  738    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
          🪪  argument.type                                                                                                                                                     
-  755    Property ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::$applicationCall (ApplicationCalls\Mappers\ApplicationCallsMapper|int) does not accept int|null.  
+  758    Property ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::$applicationCall (ApplicationCalls\Mappers\ApplicationCallsMapper|int) does not accept int|null.  
          🪪  assign.propertyType                                                                                                                                               
-  796    Cannot clone stdClass|null.                                                                                                                                           
+  799    Cannot clone stdClass|null.                                                                                                                                           
          🪪  clone.nonObject                                                                                                                                                   
-  800    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+  803    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
          🪪  argument.type                                                                                                                                                     
-  810    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+  813    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
          🪪  argument.type                                                                                                                                                     
-  1309   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                              
+  1312   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                              
          🪪  property.nonObject                                                                                                                                                
-  1310   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                            
+  1313   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                            
          🪪  property.nonObject                                                                                                                                                
-  1311   Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                              
+  1314   Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                              
          🪪  property.nonObject                                                                                                                                                
-  1401   Cannot access property $id on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                   
+  1404   Cannot access property $id on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                   
          🪪  property.nonObject                                                                                                                                                
-  1480   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                                     
+  1483   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                                     
          🪪  argument.type                                                                                                                                                     
-  1651   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                                         
+  1654   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                                         
          🪪  argument.type                                                                                                                                                     
-  1659   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
+  1662   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
          🪪  method.nonObject                                                                                                                                                  
-  1660   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
+  1663   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
          🪪  method.nonObject                                                                                                                                                  
-  1730   Cannot access property $organization on stdClass|null.                                                                                                                
+  1733   Cannot access property $organization on stdClass|null.                                                                                                                
          🪪  property.nonObject                                                                                                                                                
-  1732   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                          
+  1735   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                          
          🪪  property.nonObject                                                                                                                                                
-  1754   Cannot access property $organization on stdClass|null.                                                                                                                
+  1757   Cannot access property $organization on stdClass|null.                                                                                                                
          🪪  property.nonObject                                                                                                                                                
-  1756   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                          
+  1759   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                          
          🪪  property.nonObject                                                                                                                                                
-  1801   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                                                            
+  1804   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                                                            
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -465,11 +465,11 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   280    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|int.                          
          🪪  property.nonObject                                                                                      
-  857    Cannot access property $id on Documents\Mappers\DocumentsMapper|null.                                       
+  860    Cannot access property $id on Documents\Mappers\DocumentsMapper|null.                                       
          🪪  property.nonObject                                                                                      
-  942    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.               
+  945    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.               
          🪪  argument.type                                                                                           
-  1230   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1233   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -501,9 +501,9 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Forms/Categories/Controllers/CategoriesController.php                                       
  ------ ------------------------------------------------------------------------------------------------------------ 
-  714    Cannot access property $id on Forms\Categories\Mappers\CategoriesMapper|null.                               
+  717    Cannot access property $id on Forms\Categories\Mappers\CategoriesMapper|null.                               
          🪪  property.nonObject                                                                                      
-  944    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  947    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -521,9 +521,9 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php                                 
  ------ ------------------------------------------------------------------------------------------------------------ 
-  715    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.                         
+  718    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.                         
          🪪  property.nonObject                                                                                      
-  945    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  948    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -625,29 +625,29 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php                                                                       
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------ 
-  419    Parameter Nr.3 $langs of method InterestResearchAreas\Mappers\InterestResearchAreasMapper::addDataManyLangs() expects array<string>, list<int|string> given.  
+  422    Parameter Nr.3 $langs of method InterestResearchAreas\Mappers\InterestResearchAreasMapper::addDataManyLangs() expects array<string>, list<int|string> given.  
          🪪  argument.type                                                                                                                                           
-  444    Parameter Nr.3 $langs of method InterestResearchAreas\Mappers\InterestResearchAreasMapper::addDataManyLangs() expects array<string>, list<int|string> given.  
+  447    Parameter Nr.3 $langs of method InterestResearchAreas\Mappers\InterestResearchAreasMapper::addDataManyLangs() expects array<string>, list<int|string> given.  
          🪪  argument.type                                                                                                                                           
-  877    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                    
+  880    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                    
          🪪  property.nonObject                                                                                                                                      
-  878    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                  
+  881    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                  
          🪪  property.nonObject                                                                                                                                      
-  879    Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                    
+  882    Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                    
          🪪  property.nonObject                                                                                                                                      
-  968    Cannot access property $id on InterestResearchAreas\Mappers\InterestResearchAreasMapper|null.                                                               
+  971    Cannot access property $id on InterestResearchAreas\Mappers\InterestResearchAreasMapper|null.                                                               
          🪪  property.nonObject                                                                                                                                      
-  980    Cannot access property $color on InterestResearchAreas\Mappers\InterestResearchAreasMapper|null.                                                            
+  983    Cannot access property $color on InterestResearchAreas\Mappers\InterestResearchAreasMapper|null.                                                            
          🪪  property.nonObject                                                                                                                                      
-  1045   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                           
+  1048   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                           
          🪪  argument.type                                                                                                                                           
-  1275   Cannot access property $organization on stdClass|null.                                                                                                      
+  1278   Cannot access property $organization on stdClass|null.                                                                                                      
          🪪  property.nonObject                                                                                                                                      
-  1277   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                
+  1280   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                
          🪪  property.nonObject                                                                                                                                      
-  1299   Cannot access property $organization on stdClass|null.                                                                                                      
+  1302   Cannot access property $organization on stdClass|null.                                                                                                      
          🪪  property.nonObject                                                                                                                                      
-  1301   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                
+  1304   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                
          🪪  property.nonObject                                                                                                                                      
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -858,25 +858,25 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/News/Controllers/NewsCategoryController.php                                 
  ------ -------------------------------------------------------------------------------------------- 
-  443    Property News\Mappers\NewsCategoryMapper::$iconImage (string) does not accept string|null.  
+  446    Property News\Mappers\NewsCategoryMapper::$iconImage (string) does not accept string|null.  
          🪪  assign.propertyType                                                                     
-  666    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.             
+  669    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.             
          🪪  method.nonObject                                                                        
-  673    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.                      
+  676    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.                      
          🪪  method.nonObject                                                                        
-  678    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.                       
+  681    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.                       
          🪪  method.nonObject                                                                        
-  688    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.                     
+  691    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.                     
          🪪  method.nonObject                                                                        
-  840    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
+  843    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
          🪪  property.nonObject                                                                      
-  874    Variable $page on left side of ??= always exists and is not nullable.                       
+  877    Variable $page on left side of ??= always exists and is not nullable.                       
          🪪  nullCoalesce.variable                                                                   
-  875    Variable $perPage on left side of ??= always exists and is not nullable.                    
+  878    Variable $perPage on left side of ??= always exists and is not nullable.                    
          🪪  nullCoalesce.variable                                                                   
-  916    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
+  919    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
-  916    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
+  919    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -885,27 +885,27 @@
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
   188    Cannot access property $id on int|News\Mappers\NewsCategoryMapper.                                                                     
          🪪  property.nonObject                                                                                                                 
-  566    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
+  569    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
          🪪  argument.type                                                                                                                      
-  567    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
+  570    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
          🪪  argument.type                                                                                                                      
-  597    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
+  600    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
          🪪  argument.type                                                                                                                      
-  598    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
+  601    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
          🪪  argument.type                                                                                                                      
-  1114   Cannot access property $id on News\Mappers\NewsMapper|null.                                                                            
+  1117   Cannot access property $id on News\Mappers\NewsMapper|null.                                                                            
          🪪  property.nonObject                                                                                                                 
-  1290   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
+  1293   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
          🪪  argument.type                                                                                                                      
-  1298   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
+  1301   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                 
-  1298   Parameter Nr.1 $value of class News\Mappers\NewsCategoryMapper constructor expects int|null, int|News\Mappers\NewsCategoryMapper given.  
+  1301   Parameter Nr.1 $value of class News\Mappers\NewsCategoryMapper constructor expects int|null, int|News\Mappers\NewsCategoryMapper given.  
          🪪  argument.type                                                                                                                      
-  1299   Cannot access property $profilesTarget on News\Mappers\NewsMapper|null.                                                                
+  1302   Cannot access property $profilesTarget on News\Mappers\NewsMapper|null.                                                                
          🪪  property.nonObject                                                                                                                 
-  1300   Cannot access property $createdBy on News\Mappers\NewsMapper|null.                                                                     
+  1303   Cannot access property $createdBy on News\Mappers\NewsMapper|null.                                                                     
          🪪  property.nonObject                                                                                                                 
-  1301   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.                                                                    
+  1304   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.                                                                    
          🪪  property.nonObject                                                                                                                 
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -939,11 +939,11 @@
  ------ ----------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Newsletter/Controllers/NewsletterController.php                          
  ------ ----------------------------------------------------------------------------------------- 
-  792    Cannot access property $id on Newsletter\Mappers\NewsletterSuscriberMapper|null.         
+  795    Cannot access property $id on Newsletter\Mappers\NewsletterSuscriberMapper|null.         
          🪪  property.nonObject                                                                   
-  802    Cannot call method nameDisplay() on Newsletter\Mappers\NewsletterSuscriberMapper|null.   
+  805    Cannot call method nameDisplay() on Newsletter\Mappers\NewsletterSuscriberMapper|null.   
          🪪  method.nonObject                                                                     
-  803    Cannot call method emailDisplay() on Newsletter\Mappers\NewsletterSuscriberMapper|null.  
+  806    Cannot call method emailDisplay() on Newsletter\Mappers\NewsletterSuscriberMapper|null.  
          🪪  method.nonObject                                                                     
  ------ ----------------------------------------------------------------------------------------- 
 
@@ -961,15 +961,15 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   217    Cannot access property $id on App\Model\UsersModel|int|null.                                                
          🪪  property.nonObject                                                                                      
-  855    Parameter Nr.2 $array of function array_key_exists expects array, array|object|null given.                    
+  858    Parameter Nr.2 $array of function array_key_exists expects array, array|object|null given.                    
          🪪  argument.type                                                                                           
-  1309   Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                
+  1312   Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                
          🪪  property.nonObject                                                                                      
-  1327   Parameter Nr.1 $string of function str_pad expects string, int given.                                         
+  1330   Parameter Nr.1 $string of function str_pad expects string, int given.                                         
          🪪  argument.type                                                                                           
-  1532   Cannot access property $meta on stdClass|null.                                                              
+  1535   Cannot access property $meta on stdClass|null.                                                              
          🪪  property.nonObject                                                                                      
-  1588   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1591   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -1007,9 +1007,9 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php                            
  ------ ------------------------------------------------------------------------------------------------------------ 
-  919    Cannot access property $id on PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper|null.                    
+  922    Cannot access property $id on PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper|null.                    
          🪪  property.nonObject                                                                                      
-  1177   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1180   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -1128,13 +1128,13 @@
  ------ --------------------------------------------------------------------------------- 
   project://src/src/app/classes/Publications/Controllers/PublicationsCategoryController.php      
  ------ --------------------------------------------------------------------------------- 
-  567    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.  
+  570    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.  
          🪪  method.nonObject                                                             
-  574    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.           
+  577    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.           
          🪪  method.nonObject                                                             
-  579    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.            
+  582    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.            
          🪪  method.nonObject                                                             
-  589    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.          
+  592    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.          
          🪪  method.nonObject                                                             
  ------ --------------------------------------------------------------------------------- 
 
@@ -1145,35 +1145,35 @@
          🪪  argument.type                                                                                                                               
   237    Cannot access property $id on int|Publications\Mappers\PublicationCategoryMapper.                                                               
          🪪  property.nonObject                                                                                                                          
-  648    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
+  651    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
          🪪  assign.propertyType                                                                                                                         
-  704    Cannot clone stdClass|null.                                                                                                                     
+  707    Cannot clone stdClass|null.                                                                                                                     
          🪪  clone.nonObject                                                                                                                             
-  1197   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
+  1200   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
-  1319   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1322   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1329   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1332   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1336   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+  1339   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1512   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
+  1515   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1519   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1522   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1520   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1523   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1521   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1524   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1594   Cannot access property $organization on stdClass|null.                                                                                          
+  1597   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1596   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1599   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1619   Cannot access property $organization on stdClass|null.                                                                                          
+  1622   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1621   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1624   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1672   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1675   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 

@@ -115,6 +115,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/read-paths-survive` | **MariaDB** — y exige que el caso exista en los datos antes de medirlo |
 | `core/symlink-no-window` | **El sistema de archivos** — un banco en `sys_get_temp_dir()`, más tres comprobaciones que leen el cuerpo del método (T108) |
 | `functions/systemOutFormatted` | **Se juzga sola** — pero **omite 7 de 10 sin TTY**: la función suprime los ANSI a propósito. Bajo `script -qec` da 10/10. Ver T118 |
+| `core/operation-from-route` | **MariaDB** — invoca el controlador de verdad; el caso coherente usa un id inexistente, así que **no escribe** (T120) |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
 
 #### `core/http-client` queda SIN COBERTURA — 2026-08-25

@@ -375,6 +375,97 @@ class BaseController
     }
 
     /**
+     * Grupo de idioma de los mensajes que emite este contrato.
+     *
+     * @var string
+     */
+    const OPERATION_LANG_GROUP = 'operation-route';
+
+    /**
+     * Sufijos de ruta que declaran la operación. La ruta manda; el cuerpo, no.
+     *
+     * @var array<string,bool>
+     */
+    const OPERATION_ROUTE_SUFFIXES = [
+        '-actions-add' => false,
+        '-actions-edit' => true,
+    ];
+
+    /**
+     * ¿Esta petición entró por la ruta de EDICIÓN?
+     *
+     * La operación la decide el NOMBRE DE LA RUTA, que es lo mismo que concede el permiso.
+     * Derivarla del cuerpo —`$isEdit = $id !== -1`— dejaba que el cliente eligiera la rama
+     * mientras la comprobación miraba la puerta. Ver T120.
+     *
+     * @param \PiecesPHP\Core\Routing\RequestRoute $request
+     * @return bool
+     * @throws \UnexpectedValueException Si la ruta no declara ninguna de las dos operaciones.
+     */
+    public static function isEditRoute(\PiecesPHP\Core\Routing\RequestRoute $request): bool
+    {
+        $route = $request->getRoute();
+        $name = $route !== null ? (string) $route->getName() : '';
+
+        foreach (self::OPERATION_ROUTE_SUFFIXES as $suffix => $isEdit) {
+            if (str_ends_with($name, $suffix)) {
+                return $isEdit;
+            }
+        }
+
+        //NO SE ADIVINA. Una ruta que llega aquí sin declarar su operación es un error de
+        //registro, y elegir una rama por defecto sería reponer el defecto que esto arregla.
+        throw new \UnexpectedValueException(
+            'La ruta «' . $name . '» llega a una acción de alta/edición y no declara cuál es: '
+            . 'su nombre tiene que terminar en ' . implode(' o ', array_keys(self::OPERATION_ROUTE_SUFFIXES)) . '.'
+        );
+    }
+
+    /**
+     * Respuesta al desajuste entre la ruta y el `id` recibido. IDÉNTICA en los 13 sitios.
+     *
+     * No se resuelve eligiendo una rama: se rechaza. Un `id` en la ruta de alta, o su ausencia
+     * en la de edición, solo puede venir de un cliente que no es el formulario.
+     *
+     * @param \PiecesPHP\Core\Routing\RequestRoute $request
+     * @param \PiecesPHP\Core\Routing\ResponseRoute $response
+     * @param bool $isEditRoute Operación que declara la ruta.
+     * @param int $id Identificador recibido en el cuerpo.
+     * @return \PiecesPHP\Core\Routing\ResponseRoute
+     */
+    public static function rejectOperationMismatch(
+        \PiecesPHP\Core\Routing\RequestRoute $request,
+        \PiecesPHP\Core\Routing\ResponseRoute $response,
+        bool $isEditRoute,
+        int $id
+    ): \PiecesPHP\Core\Routing\ResponseRoute {
+        $route = $request->getRoute();
+        $name = $route !== null ? (string) $route->getName() : '';
+
+        $result = new \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations(
+            [],
+            __(self::OPERATION_LANG_GROUP, 'Operación')
+        );
+        $result->setSingleOperation(true);
+        $result->setSuccessOnSingleOperation(false);
+        $result->setValue('redirect', false);
+        $result->setValue('redirect_to', null);
+        $result->setValue('reload', false);
+        $result->setMessage(__(
+            self::OPERATION_LANG_GROUP,
+            'La operación solicitada no corresponde con la ruta utilizada.'
+        ));
+
+        //SE REGISTRA: un desajuste no lo produce el formulario, así que interesa que deje rastro.
+        log_exception(new \UnexpectedValueException(
+            'Desajuste de operación en «' . $name . '»: la ruta declara '
+            . ($isEditRoute ? 'EDICIÓN' : 'ALTA') . ' y el cuerpo trae id=' . $id . '.'
+        ));
+
+        return $response->withJson($result, 400);
+    }
+
+    /**
      * Devuelve la ruta del directorio de las vistas
      * @return string
      */

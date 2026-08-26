@@ -345,8 +345,11 @@ class DocumentTypesController extends AdminPanelController
             $id = $expectedParameters->getValue('id');
             $documentTypeName = $expectedParameters->getValue('documentTypeName');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 

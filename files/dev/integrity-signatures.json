@@ -2500,6 +2500,8 @@
         "BaseController::getGlobalVariables",
         "BaseController::getInstanceViewDir",
         "BaseController::getViewDir",
+        "BaseController::isEditRoute",
+        "BaseController::rejectOperationMismatch",
         "BaseController::render",
         "BaseController::setConfig",
         "BaseController::setInstanceViewDir",
@@ -3716,6 +3718,11 @@
         "TestQueueRequest::form",
         "TestQueueRequest::handle",
         "TestQueueRequest::process"
+    ],
+    "app/core/system-controllers/local-tests/UnitTest-OperationFromRoute.php": [
+        "__construct",
+        "getArguments",
+        "getName"
     ],
     "app/model/AppConfigModel.php": [
         "AppConfigModel::__construct",

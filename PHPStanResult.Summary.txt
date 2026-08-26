@@ -86,12 +86,12 @@ project://src/app/classes/App/Locations/Controllers/State.php
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
 project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php
-	property.nonObject (Líneas: 222, 223, 1309, 1310, 1311, 1401, 1730, 1732, 1754, 1756)
-	argument.type (Líneas: 725, 735, 800, 810, 1480, 1651, 1801)
-	assign.propertyType (Líneas: 755)
-	clone.nonObject (Líneas: 796)
-	method.nonObject (Líneas: 1659, 1660)
-	offsetAccess.invalidOffset (Líneas: 1820)
+	property.nonObject (Líneas: 222, 223, 1312, 1313, 1314, 1404, 1733, 1735, 1757, 1759)
+	argument.type (Líneas: 728, 738, 803, 813, 1483, 1654, 1804)
+	assign.propertyType (Líneas: 758)
+	clone.nonObject (Líneas: 799)
+	method.nonObject (Líneas: 1662, 1663)
+	offsetAccess.invalidOffset (Líneas: 1823)
 project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
 	return.type (Líneas: 450)
 	argument.type (Líneas: 461, 784, 785, 786)
@@ -140,9 +140,9 @@ project://src/app/classes/DataImportExportUtility/Controllers/HelperController.p
 project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
-	property.nonObject (Líneas: 280, 857)
-	argument.type (Líneas: 942, 1230)
-	offsetAccess.invalidOffset (Líneas: 1249)
+	property.nonObject (Líneas: 280, 860)
+	argument.type (Líneas: 945, 1233)
+	offsetAccess.invalidOffset (Líneas: 1252)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	argument.type (Líneas: 236)
 	property.nonObject (Líneas: 273, 299)
@@ -151,16 +151,16 @@ project://src/app/classes/EventsLog/Views/log/list.php
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
 	assign.propertyType (Líneas: 62)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
-	property.nonObject (Líneas: 714)
-	argument.type (Líneas: 944)
-	offsetAccess.invalidOffset (Líneas: 963)
+	property.nonObject (Líneas: 717)
+	argument.type (Líneas: 947)
+	offsetAccess.invalidOffset (Líneas: 966)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
 	argument.type (Líneas: 217)
 	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
-	property.nonObject (Líneas: 715)
-	argument.type (Líneas: 945)
-	offsetAccess.invalidOffset (Líneas: 964)
+	property.nonObject (Líneas: 718)
+	argument.type (Líneas: 948)
+	offsetAccess.invalidOffset (Líneas: 967)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	argument.type (Líneas: 217)
 	property.nonObject (Líneas: 254, 281)
@@ -181,8 +181,8 @@ project://src/app/classes/Importers/Controller/ImporterController.php
 project://src/app/classes/Importers/Managers/ImporterUsers.php
 	method.nonObject (Líneas: 69, 70, 71)
 project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php
-	argument.type (Líneas: 419, 444, 1045)
-	property.nonObject (Líneas: 877, 878, 879, 968, 980, 1275, 1277, 1299, 1301)
+	argument.type (Líneas: 422, 447, 1048)
+	property.nonObject (Líneas: 880, 881, 882, 971, 983, 1278, 1280, 1302, 1304)
 project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php
 	argument.type (Líneas: 177, 203, 407)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
@@ -217,13 +217,13 @@ project://src/app/classes/MySpace/Views/profile/profile.php
 project://src/app/classes/MySpace/Views/user-security.php
 	property.nonObject (Líneas: 13, 15)
 project://src/app/classes/News/Controllers/NewsCategoryController.php
-	assign.propertyType (Líneas: 443)
-	method.nonObject (Líneas: 666, 673, 678, 688)
-	property.nonObject (Líneas: 840, 916)
-	nullCoalesce.variable (Líneas: 874, 875)
+	assign.propertyType (Líneas: 446)
+	method.nonObject (Líneas: 669, 676, 681, 691)
+	property.nonObject (Líneas: 843, 919)
+	nullCoalesce.variable (Líneas: 877, 878)
 project://src/app/classes/News/Controllers/NewsController.php
-	property.nonObject (Líneas: 188, 1114, 1298, 1299, 1300, 1301)
-	argument.type (Líneas: 566, 567, 597, 598, 1290, 1298)
+	property.nonObject (Líneas: 188, 1117, 1301, 1302, 1303, 1304)
+	argument.type (Líneas: 569, 570, 600, 601, 1293, 1301)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	argument.type (Líneas: 445)
 project://src/app/classes/News/Mappers/NewsMapper.php
@@ -233,14 +233,14 @@ project://src/app/classes/News/Mappers/NewsMapper.php
 project://src/app/classes/News/Mappers/NewsReadedMapper.php
 	argument.type (Líneas: 89, 89)
 project://src/app/classes/Newsletter/Controllers/NewsletterController.php
-	property.nonObject (Líneas: 792)
-	method.nonObject (Líneas: 802, 803)
+	property.nonObject (Líneas: 795)
+	method.nonObject (Líneas: 805, 806)
 project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
 	method.nonObject (Líneas: 137, 146)
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
-	property.nonObject (Líneas: 217, 1309, 1532)
-	argument.type (Líneas: 855, 1327, 1588)
-	offsetAccess.invalidOffset (Líneas: 1607)
+	property.nonObject (Líneas: 217, 1312, 1535)
+	argument.type (Líneas: 858, 1330, 1591)
+	offsetAccess.invalidOffset (Líneas: 1610)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	argument.type (Líneas: 441, 884, 886, 1002)
 	offsetAccess.invalidOffset (Líneas: 1003)
@@ -249,9 +249,9 @@ project://src/app/classes/Organizations/OrganizationsRoutes.php
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	property.nonObject (Líneas: 11)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
-	property.nonObject (Líneas: 919)
-	argument.type (Líneas: 1177)
-	offsetAccess.invalidOffset (Líneas: 1196)
+	property.nonObject (Líneas: 922)
+	argument.type (Líneas: 1180)
+	offsetAccess.invalidOffset (Líneas: 1199)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	return.type (Líneas: 247)
 	argument.type (Líneas: 258)
@@ -284,14 +284,14 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	assign.propertyType (Líneas: 217)
 	return.type (Líneas: 299)
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
-	method.nonObject (Líneas: 567, 574, 579, 589)
+	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 141, 1197, 1512, 1672)
-	property.nonObject (Líneas: 237, 1336, 1594, 1596, 1619, 1621)
-	assign.propertyType (Líneas: 648)
-	clone.nonObject (Líneas: 704)
-	method.nonObject (Líneas: 1319, 1329, 1519, 1520, 1521)
-	offsetAccess.invalidOffset (Líneas: 1689)
+	argument.type (Líneas: 141, 1200, 1515, 1675)
+	property.nonObject (Líneas: 237, 1339, 1597, 1599, 1622, 1624)
+	assign.propertyType (Líneas: 651)
+	clone.nonObject (Líneas: 707)
+	method.nonObject (Líneas: 1322, 1332, 1522, 1523, 1524)
+	offsetAccess.invalidOffset (Líneas: 1692)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)

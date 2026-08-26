@@ -12051,3 +12051,93 @@ recorte y llega a «Rutas a atribuir: 3».
 888 sobre **815** archivos, no sobre 812. La nota de medición del baseline lo dice: **los mismos
 888 cubriendo tres archivos más, y son las herramientas con las que se ha medido la campaña
 entera.**
+
+---
+
+## T120 · S3 · LA OPERACIÓN SALE DE LA RUTA, Y EL DESAJUSTE SE RECHAZA
+
+**El defecto, dicho en una línea**: la comprobación miraba la puerta y el cuerpo elegía la
+habitación. `-actions-add` y `-actions-edit` son entradas distintas con permisos distintos, y
+dentro del método `$isEdit = $id !== -1;` dejaba que el cliente eligiera la rama.
+
+### >>> PARADA 3 · NO se dispara: los 13 encajan
+
+Comprobado antes de tocar, no después. Cada uno de los 13 controladores con esa asignación liga
+`action` a **exactamente dos rutas**, y son siempre las mismas:
+
+```
+action -> ['-actions-add', '-actions-edit']      ×13
+```
+
+Ninguno sirve una tercera operación desde `action`, y ninguno usa otros sufijos. **No hay caso que
+no encaje, así que no hay convención que inventar.**
+
+*Fuera de los 13 quedan dos que ligan `action` a esas rutas sin usar la asignación —`Locations`,
+que registra con otra forma, y el contenido genérico de `helpers-system`—. No entran en S3 porque
+no tienen el defecto; se dicen para que el 13 no parezca el total.*
+
+### (a) · El ayudante, en `BaseController`
+
+```php
+public static function isEditRoute(RequestRoute $request): bool
+```
+
+Lee el nombre que **Slim ya tiene resuelto** —`$request->getRoute()->getName()`, el mismo que usa
+`DefaultAccessControlModules` para conceder el permiso— y lo compara contra
+`OPERATION_ROUTE_SUFFIXES`. Ni el cuerpo, ni la URL a mano.
+
+**Y no adivina**: una ruta que llegue aquí sin declarar su operación **lanza**. Elegir una rama por
+defecto sería reponer el defecto que esto arregla.
+
+### (b) y (c) · La guarda, idéntica en los 13
+
+```php
+//LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+$isEdit = self::isEditRoute($request);
+if ($isEdit !== ($id !== -1)) {
+    return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+}
+```
+
+**El desajuste se RECHAZA, no se resuelve eligiendo una rama.** Y el rechazo es uno solo, en el
+ayudante, así que no puede divergir entre módulos:
+
+| | |
+| :-- | :-- |
+| **Código** | **400**. No es un 200 con `success:false`: la petición está mal formada, no ha fallado una regla de negocio |
+| **Mensaje** | «La operación solicitada no corresponde con la ruta utilizada.», por `__()` en el grupo `operation-route` |
+| **Cuerpo** | Un `ResultOperations` con `success:false`, `redirect:false`, `reload:false` — la misma forma que el resto, para que el JavaScript existente no reviente |
+| **¿Se registra?** | **Sí.** `log_exception()` con la ruta, la operación que declara y el `id` recibido. Un desajuste no lo produce el formulario |
+
+*El grupo `operation-route` no tiene carpeta de traducciones, igual que `exceptions` y `errors` en
+el núcleo: `__()` cae al texto en español y lo anota en `missing-lang-messages`, que está declarado
+como volátil.*
+
+### (d) · La prueba: `unit-tests:core/operation-from-route`
+
+**No es una intención: invoca el controlador de verdad.** `NewsCategoryController::action()`, con
+una `RequestRoute` real a la que se le adjunta la ruta por su atributo.
+
+| Caso | Qué se manda | Qué exige |
+| :-- | :-- | :-- |
+| El que pidió el bloque | `id=999999` a `-actions-add` | **400** y `success:false` |
+| El desajuste inverso | sin `id` a `-actions-edit` | **400** |
+| **El discriminante** | `id=999999` a `-actions-edit` | **NO 400**, y el mensaje **no** es el del desajuste |
+| Contrato en los 13 | — | 13 usan el ayudante y **0** derivan del cuerpo |
+
+**El tercero es el que hace que los dos primeros signifiquen algo**: sin él, una guarda que
+rechazara siempre pasaría igual. Y usa un `id` que no existe, así que **la suite no escribe nada**
+pese a invocar el camino de escritura.
+
+**Provocada**: devolviendo un solo controlador a `$isEdit = $id !== -1;` la suite cae a **6/10** y
+el archivo vuelve byte a byte al restaurarlo, comprobado por `sha1sum`.
+
+### Lo que este arreglo NO cierra
+
+**El desajuste ya no cruza las dos rutas, pero la asimetría de las guardas de T114 sigue ahí.**
+`Documents` sigue exigiendo `createdBy == currentUserID` para editar y nada para dar de alta, solo
+que ahora el alta ya no puede editar. **Es el agujero cerrado por el lado que se podía cerrar sin
+cambiar quién puede qué**, que es lo que estaba autorizado.
+
+**Puertas**: `gates` **18 suites** · PHPStan **888 = baseline** · `verify-integrity` en rojo por la
+única gemela de la PARADA 2, que no se toca.
