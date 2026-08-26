@@ -9937,3 +9937,48 @@ opción, su comentario y su validación—, fuera de las dos cuentas porque no s
 merece plantearse — **59 declaraciones que no hacen nada son 59 sitios donde alguien puede creer
 que sí.**
 
+
+### P-ter · Por qué el parche del hijo NO se puede borrar al arreglar el padre
+
+*Pregunta del PROPIETARIO el 2026-08-26: «al arreglar el padre se borra el parche del hijo porque
+ya vendría bien del padre, ¿no? ¿o es peligroso?». Medido por ARQUITECTO antes de contestar.*
+
+**Es peligroso, por dos razones independientes.**
+
+**1 · El padre y el hijo no devuelven lo mismo.** El padre arreglado entrega **un escalar** —lo
+que pide `human_readable_reference_field`: `"root"`, `1`, `3`—. El hijo entrega **el array entero**
+del mapper referenciado. Y la API **indexa dentro de ese array**:
+
+- `APIController.php:405` → `$elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage'])`
+- `APIController.php:225-226` → `unset($elementData['category']['meta'])`, `['META:langData']`
+
+Ejecutado en PHP 8.4 con las dos formas:
+
+```
+con el parche:  $d['category']['iconImage']  ->  "a.png"
+sin el parche:  TypeError: Cannot access offset of type string on string
+                Error:     Cannot unset string offsets
+```
+
+Con `E_WARNING` promovido a excepción, eso no degrada: **mata la petición**.
+
+**2 · El método del hijo hace DOS trabajos, y solo uno es el parche.** Además de pisar el objeto,
+añade las claves `META:` de las meta-propiedades:
+
+```php
+foreach ($this->metaProperties as $name => $property) {
+    $data['META:' . $name] = $property->getValueHuman();
+}
+```
+
+Borrarlo entero se llevaría las meta-propiedades de la salida, que no tienen ninguna relación con
+el defecto del padre. **Un método que compensa un fallo ajeno Y hace un trabajo propio no se
+puede retirar en bloque**, y ese acoplamiento es en sí mismo el hallazgo.
+
+> **Lo que significa para la opción A**: arreglar el padre y **no tocar al hijo**. Los 11
+> compensados no cambian, los 5 sin compensación pasan a devolver lo declarado, y nada se rompe.
+>
+> **Y lo que queda abierto para E5**, planteado por el PROPIETARIO y con razón: si el hijo debería
+> ceder ante el padre cuando el padre ya resuelve. Eso **es un cambio de contrato de la API**
+> —array a escalar— y necesita migrar antes a los consumidores. No es limpieza; es una ventana.
+
