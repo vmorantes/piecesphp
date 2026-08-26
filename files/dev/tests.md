@@ -29,7 +29,7 @@ Usa el analizador léxico de PHP, no expresiones regulares sobre el texto: `/*` 
 dentro de cadenas —`'image/*'` es el caso típico— y contarlo a pelo daba 32 falsos
 positivos en las vistas.
 
-Las otras quince, en el orden en que corren:
+Las otras dieciséis, en el orden en que corren:
 
 | # | Qué comprueba |
 | --: | :-- |
@@ -48,6 +48,7 @@ Las otras quince, en el orden en que corren:
 | 15 | Ninguna propiedad se declara **después del primer método** (T89) |
 | 16 | Ningún docblock quedó **separado de lo que documenta** (T91) |
 | 17 | La versión **instalada** de cada paquete contra la **última etiquetada** en su repositorio hermano. **AVISA, no falla** (T107) |
+| 18 | Ningún `if/else` tiene **las dos ramas iguales**. Por ÁRBOL DE SINTAXIS (nikic/php-parser), no por expresiones regulares (bloque S) |
 
 > La de los tipos existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
 > `SystemApprovalsMapper`: con un tipo desconocido, `validateType()` devuelve **`true` para

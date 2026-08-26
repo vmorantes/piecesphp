@@ -2086,6 +2086,7 @@
         "VerifyIntegrityTask::checkSharedToolchain",
         "VerifyIntegrityTask::checkSnapshotSeeding",
         "VerifyIntegrityTask::checkToolchainTracking",
+        "VerifyIntegrityTask::checkTwinBranches",
         "VerifyIntegrityTask::checkVolatileTablesMatchCode",
         "VerifyIntegrityTask::collectFiles",
         "VerifyIntegrityTask::collectNarrativeBlocks",
@@ -2093,6 +2094,7 @@
         "VerifyIntegrityTask::collectSignatures",
         "VerifyIntegrityTask::compareSignatures",
         "VerifyIntegrityTask::declaredClass",
+        "VerifyIntegrityTask::enterNode",
         "VerifyIntegrityTask::hasSwallowedDeclaration",
         "VerifyIntegrityTask::latestLocalTag",
         "VerifyIntegrityTask::looksLikePhp",
@@ -2103,6 +2105,7 @@
         "VerifyIntegrityTask::routeMethodBody",
         "VerifyIntegrityTask::routeMethodDecides",
         "VerifyIntegrityTask::snapshotPath",
+        "VerifyIntegrityTask::toolchainAutoloadPath",
         "VerifyIntegrityTask::writeSnapshot"
     ],
     "app/config/final-configurations-includes/patches_composer_dependencies.php": [

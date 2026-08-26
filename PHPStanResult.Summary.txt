@@ -141,35 +141,35 @@ project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
 	property.nonObject (Líneas: 280, 857)
-	argument.type (Líneas: 942, 1240)
-	offsetAccess.invalidOffset (Líneas: 1259)
+	argument.type (Líneas: 942, 1230)
+	offsetAccess.invalidOffset (Líneas: 1249)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
-	argument.type (Líneas: 248)
-	property.nonObject (Líneas: 285, 311)
+	argument.type (Líneas: 236)
+	property.nonObject (Líneas: 273, 299)
 project://src/app/classes/EventsLog/Views/log/list.php
 	property.nonObject (Líneas: 10)
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
 	assign.propertyType (Líneas: 62)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 	property.nonObject (Líneas: 714)
-	argument.type (Líneas: 954)
-	offsetAccess.invalidOffset (Líneas: 973)
+	argument.type (Líneas: 944)
+	offsetAccess.invalidOffset (Líneas: 963)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
-	argument.type (Líneas: 229)
-	property.nonObject (Líneas: 266, 293)
+	argument.type (Líneas: 217)
+	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
 	property.nonObject (Líneas: 715)
-	argument.type (Líneas: 955)
-	offsetAccess.invalidOffset (Líneas: 974)
+	argument.type (Líneas: 945)
+	offsetAccess.invalidOffset (Líneas: 964)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
-	argument.type (Líneas: 229)
-	property.nonObject (Líneas: 266, 293)
+	argument.type (Líneas: 217)
+	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 193, 313, 482)
 project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php
 	argument.type (Líneas: 172, 248, 250, 251, 253, 270)
 project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
-	property.nonObject (Líneas: 400, 423)
+	property.nonObject (Líneas: 388, 411)
 project://src/app/classes/ImagesRepository/Views/images-repository/filter-view.php
 	argument.type (Líneas: 23)
 project://src/app/classes/Importers/Controller/ImporterController.php
@@ -370,7 +370,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 368)
 	method.deprecated (Líneas: 379)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 310)
+	argument.type (Líneas: 316)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php

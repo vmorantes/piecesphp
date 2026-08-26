@@ -134,18 +134,6 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         ],
     ];
 
-    const CAN_VIEW_ALL = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
-    ];
-
-    const CAN_ADD_ALL = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
-    ];
-
     const CAN_EDIT_ALL = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,

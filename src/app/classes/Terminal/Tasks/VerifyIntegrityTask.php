@@ -201,6 +201,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 17. La versión instalada de cada paquete contra la última etiquetada ──────
         $versiones = self::collectPackageVersions();
 
+        //──── 18. Ningún `if/else` con las dos ramas iguales ───────────────────────────
+        $twinFailures = self::checkTwinBranches($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -208,7 +211,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
             + count($orderFailures) + count($orphanFailures)
-            + count($versiones['fallos']);
+            + count($versiones['fallos']) + count($twinFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -264,9 +267,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($versiones['avisos'] as $line) {
             echoTerminal("\e[33mVERSIÓN:\e[39m {$line}");
         }
+        foreach ($twinFailures as $line) {
+            echoTerminal("\e[31mRAMAS GEMELAS:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades y docblocks sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks y ramas gemelas sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -2332,6 +2338,106 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         usort($versiones, static fn (string $a, string $b): int => version_compare(ltrim($a, 'v'), ltrim($b, 'v')));
         return (string) end($versiones);
+    }
+
+    /**
+     * Ruta del autocargador del utillaje, donde vive el analizador de sintaxis.
+     *
+     * @return string
+     */
+    protected static function toolchainAutoloadPath(): string
+    {
+        return dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/bin/tools/vendor/autoload.php';
+    }
+
+    /**
+     * Un `if/else` cuyas DOS ramas hacen lo mismo: la condición no decide nada.
+     *
+     * Se compara el ÁRBOL DE SINTAXIS, no el texto: con expresiones regulares esto es
+     * indetectable —cambia el sangrado, el orden de los comentarios o una línea en blanco y
+     * el patrón deja de casar— y además el `grep` de una máquina puede no ser el que crees.
+     * Ver bloque S y LEY 16.
+     *
+     * Solo `if/else` de dos ramas SIN `elseif`. Un `elseif` que repite el cuerpo de otro es
+     * legítimo —varias condiciones distintas con la misma salida, como un comparador—; dos
+     * ramas de un `if/else` idénticas no lo son nunca: la condición se evalúa y se tira.
+     *
+     * @param string[] $files
+     * @return string[]
+     */
+    protected static function checkTwinBranches(array $files): array
+    {
+        $autoload = self::toolchainAutoloadPath();
+        if (!is_file($autoload)) {
+            //NO SE APRUEBA EN SILENCIO: sin analizador la comprobación no miró nada (LEY 13).
+            return ['no existe bin/tools/vendor/autoload.php: la comprobación de ramas gemelas NO se hizo. Ejecuta `composer install` en bin/tools.'];
+        }
+        require_once $autoload;
+        if (!class_exists(\PhpParser\ParserFactory::class)) {
+            return ['bin/tools/vendor no trae nikic/php-parser: la comprobación de ramas gemelas NO se hizo.'];
+        }
+
+        $base = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $parser = (new \PhpParser\ParserFactory())->createForNewestSupportedVersion();
+        $printer = new \PhpParser\PrettyPrinter\Standard();
+
+        $failures = [];
+        $analysed = 0;
+
+        foreach ($files as $relative) {
+            $path = $base . '/' . $relative;
+            $code = @file_get_contents($path);
+            if (!is_string($code)) {
+                continue;
+            }
+            try {
+                $ast = $parser->parse($code);
+            } catch (\Throwable $exception) {
+                $failures[] = $relative . ' — no se pudo analizar: ' . $exception->getMessage();
+                continue;
+            }
+            if ($ast === null) {
+                continue;
+            }
+            $analysed++;
+
+            //PROMOVIDAS: una propiedad suelta aquí la ve la comprobación 15 como fuera de sitio.
+            $visitor = new class ($printer) extends \PhpParser\NodeVisitorAbstract {
+                public function __construct(
+                    private \PhpParser\PrettyPrinter\Standard $printer,
+                    public array $found = []
+                ) {
+                }
+                public function enterNode(\PhpParser\Node $node)
+                {
+                    if (!$node instanceof \PhpParser\Node\Stmt\If_) {
+                        return null;
+                    }
+                    if ($node->else === null || count($node->elseifs) > 0) {
+                        return null;
+                    }
+                    if ($this->printer->prettyPrint($node->stmts) === $this->printer->prettyPrint($node->else->stmts)) {
+                        $this->found[] = $node->getStartLine();
+                    }
+                    return null;
+                }
+            };
+            $traverser = new \PhpParser\NodeTraverser();
+            $traverser->addVisitor($visitor);
+            $traverser->traverse($ast);
+
+            foreach ($visitor->found as $line) {
+                $failures[] = $relative . ':' . $line . ' — las DOS ramas de este `if/else` hacen lo mismo:'
+                    . ' la condición se evalúa y su respuesta se tira. O decide algo, o sobra.';
+            }
+        }
+
+        $veredicto = count($failures) === 0
+            ? 'ningún `if/else` con las dos ramas iguales'
+            : count($failures) . ' con las dos ramas iguales';
+        echoTerminal("\e[94mINFO:\e[39m {$analysed} archivo(s) analizados por sintaxis: {$veredicto}.");
+
+        return $failures;
     }
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
     {

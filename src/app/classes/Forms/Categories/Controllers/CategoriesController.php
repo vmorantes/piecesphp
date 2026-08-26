@@ -854,8 +854,6 @@ class CategoriesController extends AdminPanelController
 
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
-                $canViewAll = in_array($currentUserType, CategoriesMapper::CAN_VIEW_ALL);
-                $candAddAll = in_array($currentUserType, CategoriesMapper::CAN_ADD_ALL);
 
                 if ($name == 'actions-delete') {
 
@@ -901,13 +899,9 @@ class CategoriesController extends AdminPanelController
 
                 } elseif ($name == 'forms-add' || $name == 'actions-add') {
 
-                    $allow = false;
-
-                    if (!$candAddAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 
@@ -917,13 +911,9 @@ class CategoriesController extends AdminPanelController
 
                 if (in_array($name, $checkNames)) {
 
-                    $allow = false;
-
-                    if (!$canViewAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 

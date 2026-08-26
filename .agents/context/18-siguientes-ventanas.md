@@ -11813,3 +11813,107 @@ pasar por el canario**.
 *Atenuante, y va dicho para no inflar la alarma: varias de esas cifras salieron de la salida JSON
 de PHPStan y no de un `grep` —T24 y T29 son mapas de ramas de PHPStan—. La lista es de sospechosos,
 no de errores.*
+
+---
+
+## T117 · S2 · LAS OCHO RAMAS GEMELAS, DOS CONSTANTES MUERTAS, Y LA PUERTA QUE LO IMPIDE
+
+### (a) · Las ocho, colapsadas. El comportamiento NO cambia
+
+```php
+$allow = false;
+if (!$candAddAll) { $allow = true; } else { $allow = true; }
+```
+
+**Hoy ya permitía siempre**, así que colapsarlo a `$allow = true;` no enciende ninguna restricción
+nueva. Encenderla dejaría usuarios fuera y no está autorizado.
+
+Ocho instancias, dos por archivo: `ImagesRepositoryController`, `DocumentsController`,
+`DocumentTypesController` y `CategoriesController`. Cuatro gobernaban `actions-add`/`forms-add` y
+cuatro gobernaban `list`.
+
+### (b) · Las constantes: `CAN_ADD_ALL` fuera, `CAN_VIEW_ALL` **solo donde estaba muerta**
+
+**Censo antes de borrar, con `bin/censo` y su canario.** Y aquí el censo cambió la decisión:
+
+| Constante | Declarada en | Lecturas reales | Qué se hizo |
+| :-- | --: | :-- | :-- |
+| `CAN_ADD_ALL` | **4** mappers | 1 por mapper, y esa alimentaba **solo** la rama gemela | **Borradas las cuatro** |
+| `CAN_VIEW_ALL` | **8** mappers | En 4 alimentaba la rama gemela; **en los otros 4 se usa de verdad** | Borradas **solo** esas cuatro |
+
+**Los cuatro que se quedan y por qué**: `ApplicationCalls`, `InterestResearchAreas` y `Publications`
+la leen en un `if (!in_array($currentUserType, …::CAN_VIEW_ALL))` que **restringe por
+organización**; `Organizations` la mete en un `array_merge` con `CAN_MODIFY_ALL` y
+`CAN_VIEW_BASE_LIST`. Borrarlas ahí habría abierto listados. **La instrucción decía «los cuatro
+Mappers» y los mappers con esa constante son ocho: sin el censo se habrían tocado los que no
+tocaba.**
+
+Comprobación final: `CAN_ADD_ALL` **0 apariciones en todo el árbol**; `CAN_VIEW_ALL` **11 en 8
+archivos**, todas las que se usan.
+
+### (c) · Las dos asignaciones muertas de `ImagesRepositoryController`
+
+`$canViewAll` aparecía **4 veces**: tres asignaciones —452 en `filterView()`, 1265 en
+`dataTablesFilterView()`, 1491 en `_allowedRoute()`— y **una sola lectura**, en la rama gemela.
+Las de 452 y 1265 **calculaban y tiraban** dentro de métodos que nunca las miran. Fuera las tres,
+y con ellas el último lector de la constante.
+
+### (d) · El hecho desnudo, que es información y no deuda
+
+**Estos cuatro módulos NO tienen restricción por tipo de usuario ni en el alta ni en el listado.**
+Cualquier usuario autenticado con permiso de ruta puede. No es un cambio de este bloque: **es lo
+que ya hacían**, escondido detrás de una condición que parecía decidir. Se documenta para que
+quien clone el framework lo sepa.
+
+### (e) · LA PUERTA — comprobación 18, por árbol de sintaxis
+
+**Arreglar las ocho no impide la novena**: no hay generador de módulos, la chuleta se propaga
+copiando módulos enteros, y así llegaron estas ocho a cuatro sitios.
+
+`checkTwinBranches()` parsea con **nikic/php-parser** —el que ya viene con PHPStan en
+`bin/tools/vendor`— y compara los dos cuerpos **impresos desde el árbol**, no el texto. Con
+expresiones regulares esto es indetectable: cambia el sangrado o una línea en blanco y el patrón
+deja de casar. Y el `grep` de este entorno, además, no es el que uno cree (LEY 16).
+
+**Solo `if/else` de DOS ramas, sin `elseif`.** Un `elseif` que repite el cuerpo de otro es legítimo
+—varias condiciones distintas con la misma salida—; dos ramas de un `if/else` idénticas no lo son
+nunca. Se llegó a ese recorte midiendo: la versión ancha, comparando todas las ramas contra todas,
+daba **6** hallazgos sobre nuestro código, y **3 de los 6 eran comparadores correctos**.
+
+**Coste**: 804 archivos en ~1 s. **Provocada**: reintroduciendo una sola gemela pasa de 1 a 2
+hallazgos y el archivo vuelve byte a byte al restaurarlo, comprobado por `sha1sum`.
+
+**Si falta el analizador**, la comprobación **no aprueba en silencio**: devuelve un fallo diciendo
+que no miró nada.
+
+### >>> PARADA 2 · UNA gemela fuera de los cuatro archivos, y NO la toco
+
+```
+app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php:419
+```
+
+```php
+foreach ($data as $propertyName => $value) {
+    if ($propertyName == 'criteries') {
+        $this->$propertyName = $value;
+    } else {
+        $this->$propertyName = $value;
+    }
+}
+```
+
+Es `jsonUnserialize()`. **El caso especial de `criteries` se abrió y nunca se escribió**: la
+condición existe, se evalúa y su respuesta se tira. Tiene la misma forma que las ocho y **un
+origen distinto** —aquí no hay chuleta copiada, hay una intención a medias—, así que la decisión
+no es la misma. **Sin tocar, esperando al PROPIETARIO.**
+
+**`verify-integrity` queda EN ROJO por este único hallazgo.** Es deliberado y es la LEY 13: la
+gemela ya estaba ahí; lo único que ha cambiado es que ahora se ve.
+
+### Los tres que la versión ancha señalaba y la estrecha NO — para que conste que se miraron
+
+| Sitio | Qué es | Veredicto |
+| :-- | :-- | :-- |
+| `config/containers.php:109` | `if (…) { throw $e; } elseif (!$missingResponseError) { throw $e; }` | **La condición SÍ decide**: si no se cumple ninguna, no se lanza. Es una simplificación posible, no un defecto |
+| `Core/Menu/MenuGroup.php:321` | Comparador de `uasort`: dos `elseif` distintos devuelven `$gt` | **Correcto**. Varias condiciones con la misma salida |
+| `Core/Menu/MenuGroupCollection.php:144` | El mismo comparador, duplicado | **Correcto** como comparador; lo que sí llama la atención es que esté copiado dos veces |

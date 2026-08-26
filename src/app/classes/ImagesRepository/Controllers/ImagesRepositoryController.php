@@ -449,7 +449,6 @@ class ImagesRepositoryController extends AdminPanelController
         $currentUser = $this->user;
         $currentUserType = (int) $currentUser->type;
         $currentUserID = (int) $currentUser->id;
-        $canViewAll = in_array($currentUserType, ImagesRepositoryMapper::CAN_VIEW_ALL);
 
         $data = [];
         $data['langGroup'] = self::LANG_GROUP;
@@ -1262,7 +1261,6 @@ class ImagesRepositoryController extends AdminPanelController
         $currentUser = $this->user;
         $currentUserType = (int) $currentUser->type;
         $currentUserID = (int) $currentUser->id;
-        $canViewAll = in_array($currentUserType, ImagesRepositoryMapper::CAN_VIEW_ALL);
 
         //──── Consulta ──────────────────────────────────────────────────────────────────────────
         $table = ImagesRepositoryMapper::TABLE;
@@ -1488,8 +1486,6 @@ class ImagesRepositoryController extends AdminPanelController
 
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
-                $canViewAll = in_array($currentUserType, ImagesRepositoryMapper::CAN_VIEW_ALL);
-                $candAddAll = in_array($currentUserType, ImagesRepositoryMapper::CAN_ADD_ALL);
 
                 if ($name == 'actions-delete') {
 
@@ -1535,13 +1531,9 @@ class ImagesRepositoryController extends AdminPanelController
 
                 } elseif ($name == 'forms-add' || $name == 'actions-add') {
 
-                    $allow = false;
-
-                    if (!$candAddAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 } elseif ($name == 'single') {
 
@@ -1559,13 +1551,9 @@ class ImagesRepositoryController extends AdminPanelController
 
                 if (in_array($name, $checkNames)) {
 
-                    $allow = false;
-
-                    if (!$canViewAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 
