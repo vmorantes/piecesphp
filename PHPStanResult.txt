@@ -1512,20 +1512,20 @@
  ------ ---------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Terminal/Tasks/ScanMissingLangTask.php                                              
  ------ ---------------------------------------------------------------------------------------------------- 
-  130    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.  
+  132    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                             
-  154    Parameter Nr.1 $key of function array_key_exists expects int|string, string|false given.              
+  156    Parameter Nr.1 $key of function array_key_exists expects int|string, string|false given.              
          🪪  argument.type                                                                                   
-  268    Parameter Nr.1 $code of method PhpParser\Parser::parse() expects string, string|false given.          
+  270    Parameter Nr.1 $code of method PhpParser\Parser::parse() expects string, string|false given.          
          🪪  argument.type                                                                                   
-  308    Parameter Nr.1 $string of function ltrim expects string, array|float|int|string|false given.          
+  310    Parameter Nr.1 $string of function ltrim expects string, array|float|int|string|false given.          
          🪪  argument.type                                                                                   
-  328    Access to an undefined property PhpParser\Node\Arg|PhpParser\Node\VariadicPlaceholder::$value.      
+  330    Access to an undefined property PhpParser\Node\Arg|PhpParser\Node\VariadicPlaceholder::$value.      
          🪪  property.notFound                                                                               
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property               
-  366    Binary operation "." between '$' and PhpParser\Node\Expr|string results in an error.                
+  368    Binary operation "." between '$' and PhpParser\Node\Expr|string results in an error.                
          🪪  binaryOp.invalid                                                                                
-  377    Call to deprecated method getLine() of class PhpParser\NodeAbstract:                                
+  379    Call to deprecated method getLine() of class PhpParser\NodeAbstract:                                
          Use getStartLine() instead                                                                          
          🪪  method.deprecated                                                                               
  ------ ---------------------------------------------------------------------------------------------------- 
@@ -1533,7 +1533,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  308    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  310    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 

@@ -38,6 +38,22 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Herramientas — tres instrumentos decían cubrir más de lo que miran
+
+Un instrumento informa sobre el universo que mira, no sobre el que su encabezado promete, y el
+denominador vive en un comentario que nadie comprueba. Medidos los seis candidatos, tres no
+coincidían y **se corrigió el texto, no el alcance**:
+
+- **`bin/cli scan-missing-lang`** decía «revisa los mensajes faltantes por traducción». Revisa **un
+  idioma de seis**: `allowed_langs` trae 6 y `no_scan_langs` deja fuera 5, así que solo se escanea
+  `en`. Ahora lo dice en su descripción.
+- **`bin/cli snapshot`** decía «la base de datos y el árbol de archivos». Fotografía **solo
+  `src/`** — el árbol servido—, así que los **251 archivos versionados fuera de `src/`** no entran
+  en ninguna comparación. Ahora lo dice.
+- **`bin/cli verify-integrity`** decía «comprueba cuatro cosas» y enumeraba ocho: **corre
+  diecisiete**. Cubría más de lo que prometía. La cabecera deja de contar —un número a mano vuelve
+  a divergir— y remite a `main()` y a `files/dev/tests.md`.
+
 ## Corregido — el enlace delegado se sustituía dejando un instante sin enlace
 
 `ServerStatics::createDynamicSymlink()` borraba el enlace y lo volvía a crear. **Entre las dos

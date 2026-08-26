@@ -54,7 +54,8 @@ class SnapshotTask extends TerminalTaskAbstract
         }
 
         $this->description = new StringArray([
-            "Fotografía la base de datos y el árbol de archivos, y compara dos fotos.\r\n",
+            "Fotografía la base de datos y el árbol SERVIDO —`src/`, no el repositorio—, y compara dos fotos.\r\n",
+            "\tLo que vive fuera de `src/` no entra en la foto: `bin/`, `files/dev/` y la documentación.\r\n",
             "\tParámetros:\r\n",
             "\t  label=<nombre>   nombre de la foto. Por defecto: la fecha\r\n",
             "\t  dir=<ruta>       dónde vive. Por defecto: files/dev/snapshots\r\n",

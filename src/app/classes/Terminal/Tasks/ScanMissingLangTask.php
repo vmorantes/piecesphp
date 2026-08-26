@@ -47,6 +47,8 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         //Establecer propiedades
         $this->description = new StringArray([
             "Revisa los mensajes faltantes por traducción y genera un archivo php con ellos.\r\n",
+            "\tNO mira todos los idiomas: solo los de `allowed_langs` que NO estén en `no_scan_langs`.\r\n",
+            "\tHoy son 6 permitidos y 5 sin escanear, así que se revisa UNO: `en`. Ver LEY 15.\r\n",
             "\tParámetros:\r\n",
             "\t  --exclude-lang Cadena separada por comas de idiomas a ignorar, i.e.: --exclude-lang=es,en\r\n",
             "\t  --exclude-group Cadena separada por comas de grupos a ignorar, i.e.: --exclude-group=general,public\r\n",

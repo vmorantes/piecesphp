@@ -11132,3 +11132,100 @@ exactamente lo que la LEY 14 describe.
 **Lo que sigue sin puerta**: el verificador de arriba es un procedimiento, no un mecanismo. La
 memoria vive fuera del repositorio, así que ninguna suite puede correrlo. Queda dicho por segunda
 vez.
+
+---
+
+## T110 · LEY 15 · LOS SEIS CANDIDATOS, MEDIDOS — y dos de ellos tienen el ALCANCE mal, no el comentario
+
+**Medido, no leído.** Cada fila trae el número con el que se comprobó.
+
+| # | Instrumento | Qué dice cubrir | Qué mira de verdad | Veredicto |
+| --: | :-- | :-- | :-- | :-- |
+| 1 | `bin/phpstan` | «Ahora son DOS PASADAS y el baseline es LA UNIÓN» | Tres análisis —la tabla en 8.4, y los JSON de 8.4 y 8.5—. 8.4: 888 instancias / **878 tripletas**; 8.5: 898 / **888**. Unión real = **888 tripletas**, y el artefacto tiene esas 888, ni una menos | **COINCIDE** |
+| 2 | `bin/cli scan-missing-lang` | «Revisa los mensajes faltantes por traducción» | `allowed_langs` tiene **6** idiomas y `no_scan_langs` deja fuera **5**: revisa **UNO**, `en` | **NO** — comentario corregido |
+| 3 | `bin/cli verify-integrity` | La cabecera dice «Comprueba **cuatro** cosas» y enumera **ocho** | `main()` corre **DIECISIETE** | **NO — y cubre MÁS** |
+| 4 | `bin/cli snapshot` | Al usuario: «la base de datos y **el árbol de archivos**» | Solo `src/`. Hay **251 archivos versionados fuera de `src/`** que no entran en ninguna foto | **NO** — comentario corregido |
+| 5 | `bin/rector` | No promete alcance en su encabezado; **lo imprime al correr** | Su universo son los archivos con errores de `PHPStanResult.json`, y lo dice: «N archivo(s) entran al análisis» | **COINCIDE**, con la dependencia frágil de T109 |
+| 6 | `bin/cli gates` | «Corre **TODAS** las suites» y presume: «una suite nueva entra sola; no hay lista que se pueda quedar corta» | `SUITE_PREFIX = 'unit-tests:core/'` | **NO — Y EL ALCANCE ES EL DEFECTUOSO** |
+
+### 3.3 · El que cubre MÁS: `verify-integrity`
+
+**Su verde vale más de lo que decía.** El comentario prometía cuatro comprobaciones y enumeraba
+ocho; corren **diecisiete**. Nueve comprobaciones llevaban tiempo trabajando sin que su encabezado
+lo reconociera — entre ellas las de tipos, volátiles, rutas prohibidas, universo de PHPStan,
+instantáneas, orden de propiedades y docblocks huérfanos.
+
+**Corregido dejando de contar**: la cabecera ya no dice un número —un número a mano vuelve a
+divergir mañana (LEY 11)— y remite a `main()` y a `files/dev/tests.md`.
+
+### PARO 1 · `gates` deja fuera una suite que existe, corre y reporta omisiones
+
+`unit-tests:functions/systemOutFormatted` **está registrada, corre, e imprime su balance**:
+
+```
+BALANCE FINAL: 3/3 PASADAS, 7 OMITIDAS
+```
+
+**Y `bin/cli gates` no la ha corrido nunca**, porque su prefijo es `unit-tests:core/`. Peor: esas
+**7 OMITIDAS** son exactamente lo que la LEY 13 llama una puerta fallada, y llevan invisibles todo
+este tiempo **dentro del corredor que existe para impedir justo eso**.
+
+**No lo cambio yo.** El comentario aquí no es lo defectuoso: ensanchar el prefijo a `unit-tests:`
+mete otra suite en la pasada por defecto, cambia lo que `gates` reporta y destapa 7 omisiones que
+habrá que decidir qué son. Eso es alcance, y el bloque dice pararse. **Lo que hay que decidir**:
+si el prefijo se ensancha, si esa suite se traslada bajo `core/`, o si se declara fuera con su
+razón —que es la única salida que la LEY 13 admite—.
+
+### PARO 2 · Tres archivos versionados que NADIE analiza, y el guardián los cuenta como analizados
+
+Salió al cuadrar el candidato 1 con el 3, que es lo que T20 pide: dos métodos que no comparten
+mecanismo.
+
+| Fuente | Cifra |
+| :-- | --: |
+| PHPStan, su propia barra de progreso | **812** archivos |
+| `.php` versionados fuera de los `excludePaths`, contados a mano | **812** |
+| La comprobación 13 de `verify-integrity` | **815 analizados** de 837 |
+
+**Los tres de diferencia son estos, y son nuestros:**
+
+```
+bin/live-cache      bin/walk-attribute      bin/walk-routes
+```
+
+**No tienen extensión `.php`.** `looksLikePhp()` los acepta —mira el `#!` de la primera línea, y
+hace bien— pero **`bin/phpstan.neon` no declara `fileExtensions`**, así que PHPStan solo mira
+`.php` y estos tres **nunca han pasado por el análisis estático**. La comprobación que existe para
+garantizar que «todo el PHP versionado se analiza o está declarado fuera» **los cuenta como
+analizados**, que es la tercera opción que no debería existir.
+
+**Lo que costaría, medido y no estimado**: analizados con un `neon` derivado y el mismo nivel,
+producen **23 errores** — `live-cache` 11, `walk-attribute` 6, `walk-routes` 6.
+
+**No lo cambio yo**, y aquí el alcance es defectuoso de las dos maneras posibles: si se declara
+`fileExtensions`, el baseline sube 23 y hay que repartirlos; si se declaran excluidos, se está
+diciendo que los tres recorredores de esta campaña no se miden. **Lo que no puede quedarse es la
+tercera**: que el guardián diga que están dentro cuando no lo están.
+
+### Y una trampa del entorno que puede haber falseado cualquier medición por `grep`
+
+**`grep` en esta máquina es `ugrep 7.8.4`, no GNU grep**, por un alias del perfil: `/usr/bin/grep`
+sí es GNU 3.11, pero no es el que se ejecuta al escribir `grep`.
+
+**La diferencia que importa**: ugrep trata `$` como ancla **en medio del patrón**, no solo al
+final.
+
+| Patrón | ugrep | GNU / `-F` |
+| :-- | --: | --: |
+| `rename($temporaryPath` | **0** | 1 |
+| `$temporaryPath` | **0** | 1 |
+| `\$temporaryPath` | 1 | 1 |
+
+**Un patrón con una variable de PHP sin escapar devuelve CERO en silencio**, que es exactamente la
+forma de fallo que esta ley describe: la respuesta es correcta sobre un universo que no es el que
+se creía buscar. Se cazó porque un `grep -c` dijo 0 justo después de haber reintroducido a mano lo
+que buscaba.
+
+**Regla, y va también a la memoria del CODER**: al buscar código PHP, `grep -F` para literales o
+`\$` escapado; y cualquier cero que sorprenda se repite con `/usr/bin/grep` antes de reportarlo.
+Las mediciones de este bloque se rehicieron con `/usr/bin/grep`.

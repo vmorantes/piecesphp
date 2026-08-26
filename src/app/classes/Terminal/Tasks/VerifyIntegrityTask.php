@@ -25,9 +25,11 @@ use PiecesPHP\TerminalData;
  * de existir. `php -l` no lo detecta —un docblock sin cerrar NO es un error de
  * sintaxis— y las pruebas tampoco, porque no había ninguna que llamara a ese método.
  *
- * Comprueba cuatro cosas. Las dos primeras son las que habrían servido en aquel
- * incidente; las otras dos salieron de fallos posteriores del mismo tipo — estructurales,
- * silenciosos y que ninguna prueba de comportamiento alcanza:
+ * CUÁNTAS COMPROBACIONES HAY LO DICE `main()`, no este comentario: decía «cuatro» mientras
+ * enumeraba ocho y corrían diecisiete. La lista completa y al día vive en `files/dev/tests.md`.
+ * Aquí van solo las que explican POR QUÉ existe esto — las dos primeras son las que habrían
+ * servido en aquel incidente, y el resto salió de fallos posteriores del mismo tipo:
+ * estructurales, silenciosos y que ninguna prueba de comportamiento alcanza.
  *
  *   1. Docblocks sin cerrar.
  *   2. Desaparición de funciones y métodos, comparando contra una instantánea.

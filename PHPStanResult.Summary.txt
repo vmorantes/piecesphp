@@ -364,13 +364,13 @@ project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php
 	argument.type (Líneas: 69, 94, 180)
 	method.nonObject (Líneas: 150)
 project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
-	foreach.nonIterable (Líneas: 130)
-	argument.type (Líneas: 154, 268, 308)
-	property.notFound (Líneas: 328)
-	binaryOp.invalid (Líneas: 366)
-	method.deprecated (Líneas: 377)
+	foreach.nonIterable (Líneas: 132)
+	argument.type (Líneas: 156, 270, 310)
+	property.notFound (Líneas: 330)
+	binaryOp.invalid (Líneas: 368)
+	method.deprecated (Líneas: 379)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 308)
+	argument.type (Líneas: 310)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
