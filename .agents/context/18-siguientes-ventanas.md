@@ -11058,3 +11058,77 @@ en la puerta.*
 Sigue rehaciendo el enlace en cada petición a la ruta PHP —eso no cambia y no se pretendía
 cambiar—, pero **ya no hay ventana**. La frase que importa se queda escrita tal cual: **«una vez
 por recurso» describe lo que hace la aplicación, no lo que hace el código.**
+
+---
+
+## T109 · LOS DOS HUECOS DE MEMORIA, RESPONDIDOS — informe
+
+### 2.1 · ¿Puede volver a pasar hoy un artefacto que no corresponde a su código? **SÍ**
+
+**Nada lo impide, y no es una opinión: está demostrado.**
+
+`PHPStanResult.json`, `PHPStanResult.txt` y `PHPStanResult.Summary.txt` se versionan, y **el
+artefacto no guarda ningún rastro del código con el que se generó**: sus claves de primer nivel son
+`totals`, `files` y `errors`. Ni un hash, ni una fecha, ni el commit. **No hay ningún dato del que
+se pueda deducir si corresponde al árbol de hoy.**
+
+Tampoco hay ganchos de git: `.git/hooks/` está vacío de todo lo que no sea `.sample` y
+`core.hooksPath` no está puesto.
+
+**La demostración, con un cambio SOLO DE CUERPO** —importa que sea de cuerpo, porque la
+comprobación 2 de `verify-integrity` compara **firmas**, así que un método añadido sí la despierta;
+una línea dentro de un método existente, no—:
+
+| Qué se preguntó | Qué contestó |
+| :-- | :-- |
+| `bin/cli verify-integrity` | **verde**, las diecisiete |
+| `bin/cli gates` | **verde**, 16 suites, 0 sin veredicto |
+| El artefacto versionado | **888 errores** |
+| `bin/phpstan`, corrido a mano | **TRINQUETE ROTO: 889 contra un baseline de 888 (+1)** |
+
+**Solo lo dice quien lo corre, y nada obliga a correrlo.** El trinquete es sólido; lo que no hay es
+nada que impida commitear sin haberlo consultado.
+
+**Lo que haría falta, dicho y NO construido** —el PROPIETARIO pidió informe—:
+
+1. **Que el artefacto lleve la huella de su universo.** Un `sourcesFingerprint` dentro del propio
+   JSON: el hash de la lista `(ruta, mtime, tamaño)` de los archivos analizados, que es barato y ya
+   se calcula para otra cosa en `SnapshotTask::snapshotFiles()`.
+2. **Que alguien la compruebe.** Una comprobación 18 que recalcule esa huella sobre el árbol actual
+   y **falle** si no coincide: el artefacto no corresponde al código.
+3. **El matiz que decide si sirve**: tiene que fallar sobre el **árbol de trabajo**, no sobre el
+   índice. El defecto original fue exactamente ese —el archivo estaba modificado en el árbol y
+   fuera del `git add`—, así que una comprobación que mire lo preparado no lo habría visto.
+
+**Y el aviso que va con la propuesta**: una huella basada en `mtime` da falsos positivos con cada
+`git checkout`, así que probablemente tenga que ser por contenido. Eso lo encarece, y por eso esto
+es informe y no código.
+
+### 2.2 · Los 14 tienen su puntero, y todos resuelven. Pero la auditoría anterior se quedó corta
+
+**Los 14 sí**, comprobado mecánicamente: se extrae de la línea de apertura de cada archivo toda
+ancla `T<n>`, `LEY <n>` y documento numerado, y se comprueba una por una contra
+`18-siguientes-ventanas.md` y contra el sistema de archivos. **28 memorias, 0 punteros rotos.**
+
+**Lo que apareció al comprobarlo de verdad, y es el hueco que el bloque anterior no vio**: la
+auditoría de T103 preguntó «¿hay puntero?», no «¿resuelve?». Sobre las **11 que ya lo traían**:
+
+| Qué | Cuántas | Qué se hizo |
+| :-- | --: | :-- |
+| **Puntero COLGANTE** — apuntaba a `.agents/context/16-plan-php85.md`, que se movió a `historico/` | **1** | Corregido |
+| **Puntero VAGO** — nombraba el archivo pero ninguna sección, así que no se puede comprobar | **8** | Línea de apertura con su ancla |
+| Correctos | 2 | — |
+
+**Y un error mío, encontrado por el propio verificador**: al normalizar los vagos escribí que los
+comentarios narrativos estaban en «T63 y T80». **No lo comprobé.** T63 es el endpoint de cronjobs y
+T80 es lo que había detrás de la puerta. Son **T38 y T40**. La comprobación mecánica lo cazó en el
+acto, y ese es justo el argumento: **«hay un puntero» no es una propiedad comprobable; «el puntero
+resuelve» sí.**
+
+**Un puntero vago no es medio bueno: es inservible.** «Está en el 18» sobre un documento de 11.000
+líneas no permite ni confirmarlo ni desmentirlo, y una referencia que no se puede desmentir es
+exactamente lo que la LEY 14 describe.
+
+**Lo que sigue sin puerta**: el verificador de arriba es un procedimiento, no un mecanismo. La
+memoria vive fuera del repositorio, así que ninguna suite puede correrlo. Queda dicho por segunda
+vez.
