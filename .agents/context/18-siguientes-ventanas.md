@@ -10440,9 +10440,11 @@ accidente. Apareció justo donde el PROPIETARIO dijo que estaría —en una vist
 sus estáticos— y **la máquina nueva la atribuyó a la ruta correcta**. Las otras 67 no tocaron nada:
 sus enlaces ya existían de las mediciones anteriores.
 
-**No está declarada en `files/dev/volatile-state.json`.** Y **no la declaro yo**: la regla 3 de ese
-archivo dice **«LA LISTA SOLO PUEDE ENCOGER»**. Añadir `src/statics/server-delegated/` es una
-decisión del PROPIETARIO, y hay dos lecturas legítimas:
+**RESUELTO EN T104 el 2026-08-26**, y esta parte queda como estaba escrita para que se vea qué se
+decidió y con qué: en su momento **no se declaró**, porque la regla 3 decía «LA LISTA SOLO PUEDE
+ENCOGER» y añadir `src/statics/server-delegated/` era decisión del PROPIETARIO. Ganó la primera de
+las dos lecturas —el ARQUITECTO la cerró con el propósito que aportó el PROPIETARIO—, la entrada
+está declarada y **la regla 3 se enmendó**. Las dos lecturas que se ofrecieron eran:
 
 1. **Es deliberado** —el framework delega estáticos al servidor web a propósito— y entonces es una
    entrada de volátiles como la de `missing-lang-messages/`.
@@ -10546,3 +10548,131 @@ Es la LEY 14 otra vez —los documentos no tienen puertas— y aquí tampoco hay
 regla que depende de que alguien se acuerde, que es justo lo que la LEY 11 declara insuficiente.
 **Queda dicho, no resuelto.** Lo que sí queda escrito es el criterio del día que falle: la
 divergencia **se sube al registro**, no se borra de la memoria.
+
+---
+
+## T104 · `server-delegated/` — MEDIDO, DECLARADO, Y LA REGLA 3 ENMENDADA
+
+### 1.1 · La medición previa, que era la condición de todo lo demás
+
+**La pregunta**: ¿la escritura es una vez por recurso o se repite en cada petición? **Las dos
+cosas, y la diferencia está en quién pide.**
+
+**Reiniciar el estado no hizo falta** —y era lo que bloqueaba la medición del bloque anterior—:
+de los 126 assets de módulo, **38 no tenían enlace**. Sujetos fríos de verdad, sin tocar nada de
+lo ya existente y sin necesitar permisos de `www-data`.
+
+**El instrumento, y el primero no servía.** La primera versión miraba el inodo y el `ctime` en
+segundos. Los dos mienten aquí: `unlink` + `symlink` seguidos **reutilizan el inodo liberado**, y
+tres peticiones caben en el mismo segundo. Repetido con **ctime en nanosegundos**
+—`stat -c %z`, `find -printf %C@`—, que es lo único que discrimina.
+
+| Pasada | Recursos pedidos | Enlaces creados | Enlaces **recreados** |
+| :-- | --: | --: | --: |
+| A — la primera vez | 33 | **32** | 1 — ya lo había calentado la sonda previa |
+| B — idéntica, seguida | 33 | **0** | **33** |
+
+**La segunda pasada crea CERO. Y escribe 33 veces.** Son dos preguntas distintas y el instrumento
+tenía que separarlas: «archivo nuevo» y «escritura» no son lo mismo.
+
+*Cobertura, dicha entera: se resolvieron 35 URLs y se ejercitaron 33. Las otras dos —`profile
+copy.css` y `my-organization-profile copy.css` de `MySpace`— no se pudieron pedir porque llevan un
+espacio en el nombre y mi bucle las partió. No es un fallo del framework; sí son dos archivos
+«copy» olvidados en el repositorio, y quedan dichos.*
+
+### El camino que toma la aplicación NO repite
+
+`staticRouteModulesResolver` —en `src/app/config/containers.php`— pregunta por el enlace con
+`ServerStatics::getSymbolicLink()` **antes de emitir la URL**: si existe, la vista emite
+`/statics/server-delegated/…` y lo sirve Apache; si no existe, emite la ruta PHP, que lo crea y
+redirige con un 302. Es decir: **la ruta PHP solo se pisa mientras falta el enlace.**
+
+Medido de punta a punta con el recorredor completo, no con una sonda:
+
+| | Enlaces | Creados | Recreados |
+| :-- | --: | --: | --: |
+| Antes | 89 | — | — |
+| Tras la pasada 1 — 205 rutas con sus assets | 89 | **0** | **0** |
+| Tras la pasada 2, idéntica | 89 | **0** | **0** |
+
+**Dos recorridos completos no tocaron un solo enlace.** Ese es el criterio que puso el
+PROPIETARIO —«la segunda debe dar cero escrituras nuevas»— y se cumple.
+
+**El censo es un segundo método, no el mismo.** El comparador de fotos firma cada archivo con
+`tamaño:mtime:sha1` y **eso sigue el enlace hasta el destino**; el censo usa `lstat` sobre el
+enlace mismo. Dos mecanismos distintos, así que el acuerdo entre ellos no es tautológico (T20).
+
+### Y aun así hay que decirlo: sobre la ruta PHP la escritura es INCONDICIONAL
+
+`createDynamicSymlink()` no comprueba si el enlace ya apunta a donde debe. Borra y rehace:
+
+```php
+if (file_exists($symlinkPath)) {
+    if (is_link($symlinkPath)) { unlink($symlinkPath); }
+    else { rename($symlinkPath, $symlinkPath . '.backup'); }
+}
+if (file_exists($targetPath) && !file_exists($symlinkPath)) { symlink($targetPath, $symlinkPath); }
+```
+
+**«Una vez por recurso» describe lo que hace la aplicación, no lo que hace el código.** Cualquiera
+que pida la ruta PHP —un HTML viejo, un marcador, un rastreador— vuelve a disparar la escritura.
+Va como riesgo, no como una entrada de volatilidad aparte: la volatilidad declarada describe el
+estado que el sistema produce, y ese estado es el mismo enlace apuntando al mismo sitio.
+
+### 1.2 · La entrada declarada
+
+En la sección `files` de `files/dev/volatile-state.json`, con el mismo rigor que
+`missing-lang-messages/`: qué escribe, por qué existe, con qué medición y en qué fecha.
+
+**El propósito es del PROPIETARIO, y nadie lo había preguntado** —que es el defecto «clasificar
+por la forma sin preguntar el propósito», ya escrito en el contrato—: los enlaces sirven los
+assets de módulo desde una **ruta estable** en vez de las rutas entreveradas de cada módulo, y se
+crean **al servir y no al desplegar** porque los cambios de archivos en caliente lo exigen: un
+enlace creado en el despliegue **deja fuera cualquier asset que aparezca después**.
+
+### 1.3 · La regla 3, enmendada
+
+Antes: «LA LISTA SOLO PUEDE ENCOGER». Ahora **la lista encoge siempre que se pueda**, y para
+crecer la entrada nueva trae **las tres cosas**: la medición que la sostiene, el propósito
+escrito, y la fecha y el hallazgo que la motivaron.
+
+**El motivo va escrito en el propio archivo**, no solo aquí: lo que la prohibición absoluta
+protegía —que nadie declare algo para callarlo— **ya lo cubren las reglas 1 y 2**, que exigen
+medir antes de declarar y convierten en defecto lo que no tenga razón. A cambio, la prohibición
+obligaba a elegir entre **dejar ruido permanente en el comparador** o **saltarse la regla en
+silencio**, y las dos son peores que enmendarla. La retirada de `time_on_platform` se conserva
+como precedente de que encoger sigue siendo lo normal.
+
+### 1.4 · Los riesgos, anotados y SIN arreglar
+
+**Eran dos. Son tres.**
+
+1. **El directorio crece sin límite.** Nada poda los enlaces de un módulo retirado, renombrado o
+   apagado por su constante. Hoy son **121**; el número solo sube. Es otra vez el patrón de T49,
+   un directo sin su inverso.
+2. **`rename($symlinkPath, $symlinkPath . '.backup')` renombra en silencio lo que haya ahí si no
+   es un enlace.** Un archivo real colocado en esa ruta —por un despliegue, por una copia, por un
+   error— desaparece de su sitio sin que nadie se entere, y el `.backup` tampoco se limpia jamás.
+   Hoy hay **0 archivos `.backup`**, medido con `find -name '*.backup'`; lo que no hay es nada que
+   avise cuando aparezca el primero.
+3. **La ventana entre `unlink` y `symlink`** — este no estaba en la lista. Entre las dos llamadas
+   el enlace **no existe**. Una petición concurrente a `/statics/server-delegated/…` dentro de esa
+   ventana recibe un **404**, y una llamada concurrente a `getSymbolicLink()` devuelve `null`, con
+   lo que la vista emite la ruta PHP y vuelve a borrar y rehacer. Es una ventana de microsegundos
+   y en local no se reproduce; se anota porque **el framework se clona** y bajo carga esa ventana
+   se pisa. Lo canónico sería crear el enlace con nombre temporal y `rename()` atómico encima, que
+   nunca deja el hueco. **No se toca aquí.**
+
+### La declaración, provocada en las dos direcciones
+
+Una entrada de volátiles vista solo en verde no se ha visto funcionar (T21). Sobre las **mismas
+dos fotos**, con un enlace nuevo de `Importers` creado entre ellas:
+
+| | Qué imprime | Código |
+| :-- | :-- | --: |
+| Con la entrada declarada | `VOLATILIDAD DECLARADA (no cuenta)` · `· archivo src/statics/server-delegated/…` | **0** |
+| Quitando la entrada | `DIFERENCIAS NO DECLARADAS: 1` · `+ src/statics/server-delegated/…` | **1** |
+
+**Discrimina.** Y de paso deja medido lo que la entrada NO puede hacer por sí sola: la
+declaración cubre el enlace **nuevo**; el enlace **recreado** no aparece en ninguna de las dos
+columnas, porque el comparador no lo ve. Eso es lo del apartado siguiente.
