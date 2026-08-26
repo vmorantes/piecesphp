@@ -10076,3 +10076,99 @@ documenta, y tiene que estar dicho con esas palabras en el CHANGELOG.
 Al cerrar todo esto hay que escribir **documentación de API pública para desarrolladores** de los
 cuatro paquetes, y que la del framework **remita a ellas**. Va con la ventana de documentación
 de E6, no con el major.
+
+
+## T100 · LAS RUTAS DE FORMULARIO ENTRAN EN LA PASADA — y el veto queda derogado con fecha
+
+*Punto 1 del bloque del 26-08.*
+
+### 1.1 · La razón declarada, tal cual está escrita
+
+**Sí hay un motivo escrito, y no dice que estas rutas escriban. Dice lo contrario.** De
+`files/dev/forbidden-routes.json`, regla 1, palabra por palabra:
+
+> *«En la primera corrida se coló `/forms/add/` por no llevar guion; **era inofensivo —una vista
+> de formulario, no una acción—** pero la regla es que no se piden, no que no rompan.»*
+
+Y el propósito de la lista, en su campo `why`:
+
+> *«Un recorredor que pida una ruta de escritura **ESCRIBE creyendo que solo lee**, se lo atribuye
+> a una ruta de lectura, y deja inservible la foto de la que depende E3.»*
+
+**O sea que el motivo declarado es una política de cautela**, no una medición: la lista existe
+para no escribir, y el propio archivo reconoce que estas 34 no escriben. **No hay un motivo
+oculto que contradiga la decisión del PROPIETARIO.** Se procede.
+
+### 1.2 · La derogación, explícita
+
+**Queda derogado el veto sobre `-forms-add` y `-forms-edit`, el 2026-08-26, por decisión del
+PROPIETARIO.** La entrada de `forbidden-routes.json` cede; **T88 se mantiene**: las 34 son rutas
+de **lectura** y forman parte de E2-a.
+
+**El motivo, y es el que importa**: **son PRECISAMENTE donde vive la escritura en camino de
+lectura.** El pseudo-mapper que creaba una fila al abrir un formulario —el caso que fundó media
+campaña— salió de ahí. **Prohibirlas dejaba la foto ciega justo en la zona que la foto existe para
+mirar.** Y ahora hay un `db-restore` que funciona, así que la pasada se puede repetir.
+
+*(La derogación está escrita también dentro del propio JSON, en la razón de cada excepción: quien
+lo abra dentro de un año ve la fecha y el motivo sin venir aquí.)*
+
+### 1.3 · El defecto del patrón, y cuántas víctimas tenía
+
+**36 rutas de lectura estaban vetadas. No 34.**
+
+| Patrón que la vetaba | Rutas de lectura atrapadas |
+| :-- | --: |
+| `-forms-add` | 17 |
+| `-forms-edit` | 17 |
+| **`/actions`** | **2** — `actions-logs-admin-list` y `actions-logs-admin-datatables` |
+
+**Las dos últimas son un falso positivo puro**, no una decisión de política: son el listado del
+registro de acciones, y su URL contiene `/actions` porque el módulo se llama así. **Un patrón por
+subcadena que atrapa un listado de puro leer es un defecto del patrón.**
+
+**Y no hay más.** Se comprobaron los 17 patrones contra las 352 rutas: de las 103 vetadas, **36
+tienen forma de lectura y las otras 67 son escrituras de verdad**. Los patrones `/remove` y
+`/destroy` no casan con nada — no se tocan, pero queda dicho.
+
+### Por qué NO bastaba con quitar los dos patrones
+
+`-forms-add` no era el único que las atrapaba: **la comparación es por subcadena, y `-add` también
+casa con `-forms-add`**. Lo mismo `-edit`. Quitar los dos patrones con guion las habría dejado
+vetadas igual, por el patrón corto.
+
+Y afinar los patrones tampoco servía: los tres POST que no siguen la forma `/action/*`
+—`newsletter-admin-add`, `timing-add`, `user-edit-request`— **dependen justo de los patrones
+cortos** para quedar vetados. Estrecharlos habría liberado escrituras.
+
+**La salida es una puerta declarada, no un patrón más afinado**: `forbidden-routes.json` gana un
+bloque `allow` que **gana sobre `patterns`**, con la razón escrita en cada entrada. Se consulta
+**antes**, y solo después de que el recorredor haya descartado todo lo que no es GET.
+
+> **Por qué una puerta y no expresiones regulares**: convertir los 17 patrones en expresiones
+> regulares habría resuelto lo mismo y **habría producido una lista que nadie relee**. Una
+> excepción con su razón al lado se puede discutir; una expresión regular con anclas, no.
+
+### El mecanismo que la sostiene, provocado en tres direcciones
+
+Una puerta de excepciones sin guarda **es una trampa embarcada**: basta una entrada demasiado
+ancha para que el recorredor empiece a pedir escrituras. `verify-integrity` la vigila:
+
+| Se provoca | Qué sale |
+| :-- | :-- |
+| Una excepción que libera una ruta **POST** | `la excepción «-actions-add» libera application-calls-admin-actions-add, que es POST: el recorredor escribiría creyendo que lee.` |
+| Una excepción que **no libera nada** | `no libera ninguna ruta: o sobra, o el patrón que la motivaba ya no existe.` |
+| Una excepción **sin razón escrita** | `no declara su razón.` |
+| Todo en su sitio | `3 excepción(es) declaradas liberan 36 ruta(s), todas GET.` |
+
+**La segunda es la que evita que esto se pudra**: una excepción que ya no libera nada es una
+excepción que sobrevive a su motivo, y esas son las que un día tapan algo nuevo.
+
+### El resultado, medido
+
+```
+vetadas ANTES: 103
+vetadas AHORA:  67
+liberadas:      36   —  todas GET, cero rutas -actions-
+```
+

@@ -38,6 +38,20 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Herramientas — las vistas de formulario vuelven a la pasada de recorrido
+
+`files/dev/forbidden-routes.json` vetaba las 34 rutas `-forms-add` / `-forms-edit`. **Son GET y no
+escriben** —el propio archivo lo reconocía—, y son justo donde vive el defecto que la pasada
+busca: abrir un formulario que crea una fila. **Veto derogado el 2026-08-26.**
+
+De paso, dos falsos positivos del patrón `/actions`: `actions-logs-admin-list` y
+`actions-logs-admin-datatables`, que son un listado de puro leer.
+
+Quitar los patrones no bastaba —la comparación es por subcadena y `-add` casa con `-forms-add`—,
+así que el archivo gana un bloque **`allow`** que gana sobre `patterns`, con la razón escrita en
+cada entrada. `bin/cli verify-integrity` falla si una excepción libera una ruta que no sea GET, si
+no libera ninguna, o si no declara su razón.
+
 ## Herramientas — `bin/walk-attribute` dice su propia cobertura
 
 **Una ruta que responde 4xx o 5xx no llegó al código que podría escribir**, así que su «sin

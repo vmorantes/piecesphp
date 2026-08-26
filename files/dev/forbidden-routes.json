@@ -3,7 +3,8 @@
   "rules": [
     "Se comprueban el NOMBRE de ruta y la URL. Sobra con uno de los dos: se miran los dos a propósito, porque un nombre puede no seguir la convención y una URL sí, o al revés. En la primera corrida se coló `/forms/add/` por no llevar guion; era inofensivo —una vista de formulario, no una acción— pero la regla es que no se piden, no que no rompan.",
     "La comparación es por SUBCADENA y en minúsculas, sobre `nombre + ' ' + url`. Un patrón nuevo se añade sabiendo eso: `-add` también casa con `-add-something`.",
-    "Ninguna herramienta guarda copia de esta lista. `bin/tools/forbidden-routes.php` es el único lector, y la comprobación 12 de `bin/cli verify-integrity` falla si alguien vuelve a declararla en otro sitio."
+    "Ninguna herramienta guarda copia de esta lista. `bin/tools/forbidden-routes.php` es el único lector, y la comprobación 12 de `bin/cli verify-integrity` falla si alguien vuelve a declararla en otro sitio.",
+    "Una entrada de `allow` GANA sobre `patterns`. Existe porque la comparación es por subcadena y un patrón de escritura puede atrapar una ruta de lectura: `-add` casa con `-forms-add`, y `/actions` con `actions-logs-admin-list`. Cada excepción lleva su razón escrita, y solo se consulta después de que el recorredor ya haya descartado todo lo que no es GET."
   ],
   "patterns": [
     "-actions-",
@@ -23,5 +24,10 @@
     "remove",
     "logout",
     "sign-out"
-  ]
+  ],
+  "allow": {
+    "-forms-add": "Vista del formulario de alta. Es GET y NO escribe: se mide en E2-a, y es PRECISAMENTE donde vive el defecto que E2 busca —el pseudo-mapper que creaba una fila al abrir un formulario salió de aquí—. Prohibirla dejaba la foto ciega en la zona que la foto existe para mirar. Derogado el veto el 2026-08-26 por el PROPIETARIO; ver T100.",
+    "-forms-edit": "Ídem. Vista del formulario de edición, GET, no escribe. Derogado el veto el 2026-08-26; ver T100.",
+    "actions-logs-": "Listado del registro de acciones. Su URL contiene `/actions`, que es el patrón de las rutas de acción, pero esto es un LISTADO DE PURO LEER. Falso positivo del patrón, no una excepción de política. Ver T100."
+  }
 }

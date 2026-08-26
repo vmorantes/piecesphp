@@ -42,7 +42,7 @@ Las otras catorce, en el orden en que corren:
 | 9 | Los guiones de `bin/` están **marcados como ejecutables en el índice de git** (T51) |
 | 10 | Todo tipo declarado en un `$fields` **existe en el vocabulario** de `EntityMapper` |
 | 11 | La lista de tablas con acuñado de slug de `volatile-state.json` **coincide con la que el código descubre** |
-| 12 | La lista de **rutas prohibidas vive en un solo sitio** |
+| 12 | La lista de **rutas prohibidas vive en un solo sitio**, y sus **excepciones solo liberan rutas GET**, con su razón escrita (T100) |
 | 13 | Todo el PHP versionado **se analiza o está declarado fuera** del universo de PHPStan |
 | 14 | Todo `objectToMapper()` **siembra la instantánea** de la fila |
 | 15 | Ninguna propiedad se declara **después del primer método** (T89) |

@@ -1759,8 +1759,90 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 . ' dejó de reconocer a quien lo hace.';
         }
 
+        $failures = array_merge($failures, self::checkForbiddenAllowances($root, $declared, $patterns));
+
         echoTerminal("\e[94mINFO:\e[39m " . count($patterns) . ' patrón(es) de rutas prohibidas, leídos por '
             . $users . ' guion(es) desde un solo sitio.');
+
+        return $failures;
+    }
+
+    /**
+     * Las excepciones de la lista de prohibidas solo pueden liberar rutas GET.
+     *
+     * Una excepción se compara por subcadena igual que los patrones, así que puede pasarse de
+     * ancha sin que nadie lo note. Y lo que hay al otro lado no es ruido: **una ruta de escritura
+     * liberada hace que el recorredor ESCRIBA creyendo que solo lee**. Ver T100.
+     *
+     * @param array<string,mixed>|null $declared
+     * @param array<int,string> $patterns
+     * @return string[]
+     */
+    protected static function checkForbiddenAllowances(string $root, $declared, array $patterns): array
+    {
+        $allowances = is_array($declared) ? ($declared['allow'] ?? []) : [];
+        if (!is_array($allowances) || $allowances === []) {
+            return [];
+        }
+
+        $inventoryPath = $root . '/files/dev/route-inventory.json';
+        if (!is_file($inventoryPath)) {
+            return ['hay excepciones declaradas en ' . self::FORBIDDEN_RELATIVE_PATH
+                . ' y no existe files/dev/route-inventory.json: no se pueden comprobar.'];
+        }
+
+        $inventory = json_decode((string) file_get_contents($inventoryPath), true);
+        if (!is_array($inventory)) {
+            return ['files/dev/route-inventory.json no se puede leer: las excepciones quedan sin comprobar.'];
+        }
+
+        $failures = [];
+        $freed = 0;
+
+        foreach ($allowances as $exception => $reason) {
+            $exception = mb_strtolower((string) $exception);
+            if (!is_string($reason) || trim($reason) === '') {
+                $failures[] = 'la excepción «' . $exception . '» no declara su razón.';
+            }
+
+            $matches = 0;
+            foreach ($inventory as $route) {
+                if (!is_array($route)) {
+                    continue;
+                }
+                $name = (string) ($route['name'] ?? '');
+                $url = (string) ($route['url'] ?? '');
+                $haystack = mb_strtolower($name . ' ' . $url);
+                if (mb_strpos($haystack, $exception) === false) {
+                    continue;
+                }
+                $vetoed = false;
+                foreach ($patterns as $needle) {
+                    if (mb_strpos($haystack, (string) $needle) !== false) {
+                        $vetoed = true;
+                        break;
+                    }
+                }
+                if (!$vetoed) {
+                    continue;
+                }
+                $matches++;
+                //LO QUE NO PUEDE PASAR: liberar algo que no sea GET.
+                if (mb_strtoupper((string) ($route['method'] ?? '')) !== 'GET') {
+                    $failures[] = 'la excepción «' . $exception . '» libera ' . $name
+                        . ', que es ' . (string) $route['method'] . ': el recorredor escribiría creyendo que lee.';
+                }
+            }
+
+            if ($matches === 0) {
+                $failures[] = 'la excepción «' . $exception . '» no libera ninguna ruta:'
+                    . ' o sobra, o el patrón que la motivaba ya no existe.';
+            }
+            $freed += $matches;
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($allowances) . ' excepción(es) declaradas liberan '
+            . $freed . ' ruta(s), todas GET.');
 
         return $failures;
     }

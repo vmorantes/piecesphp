@@ -2075,6 +2075,7 @@
         "VerifyIntegrityTask::checkDeprecatedFunctions",
         "VerifyIntegrityTask::checkDocblocks",
         "VerifyIntegrityTask::checkExecutableBits",
+        "VerifyIntegrityTask::checkForbiddenAllowances",
         "VerifyIntegrityTask::checkForbiddenRoutesAreSingle",
         "VerifyIntegrityTask::checkNarrativeComments",
         "VerifyIntegrityTask::checkOrphanDocblocks",

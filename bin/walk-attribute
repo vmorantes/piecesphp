@@ -97,8 +97,9 @@ $isVolatileFile = static function (string $path) use ($volatileFiles): bool {
 //LA LISTA NO VIVE AQUÍ, y por eso no puede divergir de la del otro recorredor. Ver T73.
 require_once __DIR__ . '/tools/forbidden-routes.php';
 $forbiddenPatterns = pcsphp_forbidden_patterns($root);
+$forbiddenAllowed = pcsphp_forbidden_allowed($root);
 $isForbidden = static fn (string $name, string $url): ?string =>
-    pcsphp_forbidden_match($name, $url, $forbiddenPatterns);
+    pcsphp_forbidden_match($name, $url, $forbiddenPatterns, $forbiddenAllowed);
 
 //──── Sesión ────────────────────────────────────────────────────────────────────────────
 $request = static function (string $url, array $headers = [], ?array $post = null): array {

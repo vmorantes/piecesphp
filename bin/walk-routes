@@ -65,9 +65,10 @@ if (!is_array($inventory)) {
  */
 require_once __DIR__ . '/tools/forbidden-routes.php';
 $forbiddenPatterns = pcsphp_forbidden_patterns($root);
+$forbiddenAllowed = pcsphp_forbidden_allowed($root);
 
 $isForbidden = static fn (string $name, string $url): ?string =>
-    pcsphp_forbidden_match($name, $url, $forbiddenPatterns);
+    pcsphp_forbidden_match($name, $url, $forbiddenPatterns, $forbiddenAllowed);
 
 //──── Sesión opcional ───────────────────────────────────────────────────────────────────
 $token = null;
