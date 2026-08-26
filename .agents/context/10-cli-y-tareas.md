@@ -242,15 +242,26 @@ hueco. Ahí vivían las nueve llamadas deprecadas que tumbaban `img-gen`.
 
 - El inventario sale de `get_routes()`, **no de una lista escrita a mano**: una lista a mano
   envejece en silencio y deja de cubrir justo lo que se acaba de añadir.
-- **SOLO GET**, y descarta por nombre **y** por URL cualquier cosa con `-actions-`,
-  `-forms-add`, `-forms-edit`, `-add`, `-edit`, `-delete`, `delete`, `destroy`, `remove` o
-  `logout`, **aunque esté declarada como GET**. No escribe nada.
-- Recorre después **todos los assets** que aparecen en las páginas visitadas.
+- **SOLO GET**, y descarta por nombre **y** por URL lo que declare
+  `files/dev/forbidden-routes.json`: `-actions-`, `-add`, `-edit`, `-delete`, `delete`,
+  `destroy`, `remove` o `logout`, **aunque esté declarado como GET**. No escribe nada.
+  Ese archivo tiene además un bloque `allow` que **gana** sobre los patrones, para las rutas
+  cuyo nombre parece de escritura y no lo es —`-forms-add`, `-forms-edit` y
+  `actions-logs-`, que son vistas—. Cada excepción lleva su razón escrita y
+  `verify-integrity` falla si libera algo que no sea GET o si no la trae. Ver T100.
+- Recorre después **los assets** que aparecen en las páginas visitadas. Hasta T102 esta
+  línea decía «todos» y era falsa: el extractor solo aceptaba comillas dobles y los
+  ayudantes del framework emiten simples, así que **no pidió un solo `.css` ni `.js`** en
+  toda la campaña. Hoy acepta las dos comillas y descarta los dominios de terceros.
 - **Con sesión**: exporta `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` antes de llamarlo. Hace
   `POST /users/login/` y manda el JWT en la cabecera `JWTAuth`. **Las credenciales no se
   escriben en ningún archivo ni entran en el repositorio.** Sin ellas, todo `/admin/*`
   responde 302 y el recorrido sigue siendo útil para la zona pública y los assets.
 - **Antes de correrlo, vacía el log** para que las entradas que aparezcan sean suyas.
+- **Para comprobar que una respuesta ejecutó el ORM de verdad**, buscar
+  `systemApprovalStatus` en el cuerpo: ese campo **no existe en ninguna tabla** y solo
+  aparece si `fieldsToSelect()` pasó por `BaseEntityMapper::__callStatic`. Un 200 no
+  prueba que se consultara nada; ese campo sí.
 - Sale con código 1 si alguna ruta o asset no dio 2xx.
 
 **Lo que NO cubre, y hay que decirlo**: las rutas que exigen parámetros no se piden, porque
