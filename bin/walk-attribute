@@ -16,6 +16,8 @@
  *   bin/cli route-inventory
  *   bin/walk-attribute --base=https://85.localhost/vicsen/piecesphp/src
  *   bin/walk-attribute --base=… --json=salida.json --limit=40
+ *   bin/walk-attribute --base=… --no-assets    # sin los estáticos de cada vista
+ *   bin/walk-attribute --base=… --skipped      # lista las omitidas con su razón
  *
  * Sesión: PCSPHP_WALK_USER y PCSPHP_WALK_PASS, igual que `walk-routes`. Las credenciales
  * NO se escriben en ningún archivo ni se imprimen.
@@ -144,6 +146,48 @@ if ($token !== null) {
     $headers[] = 'JWTAuth: ' . $token;
 }
 
+//──── Los estáticos que cuelga cada vista ───────────────────────────────────────────────
+//SERVIR UN ESTÁTICO ESCRIBE: `ServerStatics::createDynamicSymlink()` hace mkdir, unlink y
+//symlink AL SERVIR. Pidiendo solo el HTML, esa escritura no ocurría durante la foto. Ver T102.
+$looksLikeAsset = static fn (string $url): bool =>
+    preg_match('~\.(css|js|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot|map)(\?|$)~i', $url) === 1;
+
+$assetsOf = static function (string $html, string $base) use ($looksLikeAsset): array {
+    //Las DOS comillas: los ayudantes de assets del framework emiten simples.
+    $candidates = [];
+    if (preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $dobles) > 0) {
+        $candidates = array_merge($candidates, $dobles[1]);
+    }
+    if (preg_match_all("/(?:src|href)\s*=\s*'([^']+)'/i", $html, $simples) > 0) {
+        $candidates = array_merge($candidates, $simples[1]);
+    }
+
+    $host = (string) parse_url($base, PHP_URL_HOST);
+    $found = [];
+    foreach ($candidates as $raw) {
+        $raw = trim($raw);
+        if ($raw === '' || str_starts_with($raw, 'data:') || str_starts_with($raw, '#')) {
+            continue;
+        }
+        if (!$looksLikeAsset($raw)) {
+            continue;
+        }
+        if (str_starts_with($raw, 'http')) {
+            $absolute = $raw;
+        } elseif (str_starts_with($raw, '/')) {
+            $absolute = (string) parse_url($base, PHP_URL_SCHEME) . '://' . $host . $raw;
+        } else {
+            $absolute = rtrim($base, '/') . '/' . ltrim($raw, '/');
+        }
+        //Nada de terceros: un CDN no es nuestro y pedirlo sería salir al exterior.
+        if ((string) parse_url($absolute, PHP_URL_HOST) !== $host) {
+            continue;
+        }
+        $found[$absolute] = true;
+    }
+    return array_keys($found);
+};
+
 //──── Fotos ─────────────────────────────────────────────────────────────────────────────
 $snapshotDirectory = $root . '/files/dev/snapshots/attribution';
 if (!is_dir($snapshotDirectory)) {
@@ -257,10 +301,28 @@ if ($previous === null) {
 
 $attribution = [];
 $requested = [];
+$assetsSeen = [];
+$assetsTotal = 0;
 $index = 0;
 foreach ($targets as $target) {
     $index++;
     $response = $request($target['url'], $headers);
+
+    //Los estáticos de ESTA vista se piden ANTES de fotografiar, para que lo que escriban se le
+    //atribuya a ella y no a la ruta siguiente.
+    $assetsAsked = 0;
+    if (!isset($options['no-assets']) && $response['status'] >= 200 && $response['status'] < 300) {
+        foreach ($assetsOf($response['body'], $base) as $assetUrl) {
+            if (isset($assetsSeen[$assetUrl])) {
+                continue;
+            }
+            $assetsSeen[$assetUrl] = true;
+            $request($assetUrl, $headers);
+            $assetsAsked++;
+            $assetsTotal++;
+        }
+    }
+
     $current = $snapshot('paso');
     if ($current === null) {
         fwrite(STDERR, "Fallo al fotografiar después de {$target['name']}. Se aborta: una foto perdida rompe la cadena.\n");
@@ -348,6 +410,8 @@ echo "RESUMEN: " . count($targets) . ' rutas pedidas, ' . count($exercised) . ' 
     . count($broken) . " con error.\n";
 echo "         " . count($attribution) . ' escriben, ' . $undeclared . " diferencia(s) NO declarada(s).\n";
 echo "         " . count($skipped) . " omitidas antes de pedir, con su razon (--skipped para verlas).\n";
+echo "         " . $assetsTotal . " estatico(s) distintos pedidos ademas de las rutas"
+    . (isset($options['no-assets']) ? ' (--no-assets: NINGUNO)' : '') . ".\n";
 
 if (isset($options['skipped'])) {
     echo "\n── OMITIDAS ANTES DE PEDIR ──\n\n";

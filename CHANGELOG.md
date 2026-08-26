@@ -38,6 +38,25 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Herramientas — los recorredores no pedían ni un `.css` ni un `.js`
+
+`bin/walk-routes` dice en su encabezado que pide «TODOS los assets que aparecen en las páginas
+visitadas». **No lo hacía**: su extractor solo aceptaba comillas dobles, y los ayudantes de assets
+del framework emiten comillas simples. Sobre `/admin/`: 73 enlaces entre comillas dobles con
+**cero** `.css`/`.js`, y 48 entre comillas simples con **los 48**.
+
+Arreglado en los dos recorredores. Y `bin/walk-attribute` **pide ahora los estáticos de cada
+vista antes de fotografiar**, porque servir un estático escribe:
+`ServerStatics::createDynamicSymlink()` hace `mkdir`, `unlink` y `symlink` al servir. Con el
+extractor arreglado aparecieron **61 escrituras** que la foto no veía.
+
+Se añaden `--no-assets` y `--skipped`.
+
+**Aviso para quien mida con estas herramientas**: el comparador de fotos **no ve que un enlace
+simbólico se recree**, porque `mtime` y el hash siguen el enlace hasta el destino, que no cambia.
+Solo se ve el enlace que no existía. Y `bin/cli db-restore` restaura la base, **no el árbol**: una
+escritura de archivo que ya ocurrió no vuelve a ocurrir.
+
 ## Herramientas — las vistas de formulario vuelven a la pasada de recorrido
 
 `files/dev/forbidden-routes.json` vetaba las 34 rutas `-forms-add` / `-forms-edit`. **Son GET y no

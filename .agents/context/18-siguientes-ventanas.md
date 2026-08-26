@@ -10311,3 +10311,164 @@ medido (T99), el «después» está demostrado en el paquete (demo + suite), per
 nada dentro de `src/vendor/`: eso habría dado un número que no corresponde a ningún estado real
 del repositorio.
 
+
+## T102 · LA FOTO NO VEÍA LOS ESTÁTICOS — y el recorredor de assets no pedía ni un `.css`
+
+*Puntos 3 y 4 del bloque del 26-08.*
+
+### El dato del PROPIETARIO, verificado
+
+`ServerStatics::createDynamicSymlink()`, línea 1219, **al servir**:
+
+```php
+if (!is_dir($symlinkDir)) { mkdir($symlinkDir, 0755, true); }
+if (file_exists($symlinkPath)) {
+    if (is_link($symlinkPath)) { unlink($symlinkPath); }
+    else { rename($symlinkPath, $symlinkPath . '.backup'); }
+}
+if (file_exists($targetPath) && !file_exists($symlinkPath)) { symlink($targetPath, $symlinkPath); }
+```
+
+**Y no solo la primera vez**: el `unlink` + `symlink` ocurre en **cada** petición del estático.
+
+### Lo que apareció al medir, y es peor que lo que se buscaba
+
+**`bin/walk-routes` —el recorredor cuyo encabezado dice que pide «TODOS los assets que aparecen
+en las páginas visitadas»— NUNCA ha pedido un solo `.css` ni un solo `.js`.**
+
+```php
+preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $matches)   // SOLO comillas dobles
+```
+
+Medido sobre `/admin/`, que devuelve 64 KB de HTML:
+
+| | Enlaces `src`/`href` | De ellos, `.css` o `.js` |
+| :-- | --: | --: |
+| Con comillas **dobles** | 73 | **0** |
+| Con comillas **simples** | 48 | **48** |
+
+**Los ayudantes de assets del framework emiten comillas simples.** Así que el recorredor de assets
+llevaba toda la campaña pidiendo únicamente imágenes —las que sí van entre comillas dobles— y
+declarándose satisfecho.
+
+> **Esto es peor que el hueco que veníamos a tapar.** No es que la pasada de atribución no pidiera
+> los estáticos: es que **el recorredor que existe PARA pedirlos tampoco los pedía**, y su informe
+> de «assets: N pedidos, todos en 2xx» era verdad sobre un conjunto que no incluía nada de lo que
+> el framework sirve por su cuenta.
+
+### 3.2 · Cuántas escrituras aparecen — medido antes de arreglar nada
+
+**Primera medición: 0.** Y era el instrumento, no el sistema — con el extractor de comillas dobles
+solo salían **20 estáticos, todas imágenes**, que Apache sirve directo sin pasar por
+`ServerStatics`.
+
+**Con el extractor arreglado: 203 estáticos distintos, y 61 escrituras.**
+
+| Método | Cifra |
+| :-- | --: |
+| Diferencias que informa el comparador de fotos | **61** |
+| Enlaces simbólicos en `server-delegated` **antes** (`find -type l`) | **27** |
+| Ídem **después** | **87** |
+| Diferencia | **60 enlaces nuevos** |
+
+*Dos métodos, y se sabe qué deja fuera cada uno: el comparador cuenta **cualquier** cambio de
+archivo —los 60 enlaces más uno—; el `find` cuenta **solo enlaces**. No se buscó el acuerdo: se
+buscó la diferencia, que es de 1 y está explicada.*
+
+### Y una ceguera del comparador, medida sin querer
+
+**La segunda corrida, idéntica, dio 0 cambios** — con los 203 estáticos servidos otra vez y, por
+tanto, con 87 enlaces desenlazados y vueltos a crear.
+
+**El comparador de fotos NO VE que un enlace simbólico se recree.** `getMTime()` y `sha1_file()`
+**siguen el enlace**, así que miden el archivo destino, que no ha cambiado. Solo se ve el enlace
+que **no existía**.
+
+> **Consecuencia para la LEY 12, y hay que decirla**: `db-restore` restaura **la base**, no el
+> árbol. **Una escritura de archivo que ya ocurrió no vuelve a ocurrir**, y la foto siguiente la
+> ve limpia. Es la LEY 12 exactamente, aplicada a los archivos, y **no tiene mecanismo**.
+
+*No se pudieron retirar los enlaces para volver a medir en frío: los crea Apache y son de
+`www-data`. Se dice, y la cifra buena es la de la primera corrida.*
+
+### 3.1 · La pasada pide ahora los estáticos de cada vista
+
+`bin/walk-attribute` extrae los `src`/`href` **con las dos comillas**, descarta lo que no sea
+nuestro —un CDN no se pide: sería salir al exterior—, y **pide los estáticos ANTES de fotografiar**,
+para que lo que escriban se le atribuya a la vista que los cuelga y no a la ruta siguiente. Cada
+estático se pide una vez por pasada. `--no-assets` lo desactiva, y el resumen dice cuántos se
+pidieron.
+
+`bin/walk-routes` recibe el mismo arreglo del extractor.
+
+### 4 · E2-a, con las 34 dentro y los estáticos incluidos
+
+**4.4 · El universo cambió de tamaño, así que el «79» de antes ya no es comparable con el
+recorrido ancho:**
+
+| | Antes | Ahora |
+| :-- | --: | --: |
+| Rutas pedidas por el recorredor | 186 | **205** |
+| Omitidas antes de pedir | 166 | **147** |
+| Ejercitadas | 136 | **155** |
+| Estáticos pedidos | **0** | **202** |
+
+**Las 79 de E2-a siguen siendo 79** —el corte es por sufijo, y no ha cambiado—, pero **el
+recorredor ya cubre 61 por su cuenta** (24 `-list` + 20 `-datatables` + 17 `-forms-add`) donde
+antes cubría 42.
+
+**4.3 · La tabla final, con la pasada dirigida** *(ids leídos de la base, parámetros de DataTables,
+cabecera XHR y estáticos de cada vista)*:
+
+| Sufijo | Cuántas | Ejercitadas | Escriben |
+| :-- | --: | --: | --: |
+| `-list` | 24 | 24 | 0 |
+| `-datatables` | 21 | 21 | 0 |
+| `-forms-add` | 17 | 17 | 0 |
+| `-forms-edit` | 17 | **6** | **1** |
+| **Total** | **79** | **68** | **1** |
+
+### EL HALLAZGO: una ruta de puro leer CREA UN ARCHIVO
+
+```
+news-category-admin-forms-edit   200   archivo NUEVO
+    src/statics/server-delegated/app/classes/News/Statics/js/categories/edit-form.js
+```
+
+**Es la primera escritura en camino de lectura que esta campaña encuentra POR DISEÑO** y no por
+accidente. Apareció justo donde el PROPIETARIO dijo que estaría —en una vista de formulario, con
+sus estáticos— y **la máquina nueva la atribuyó a la ruta correcta**. Las otras 67 no tocaron nada:
+sus enlaces ya existían de las mediciones anteriores.
+
+**No está declarada en `files/dev/volatile-state.json`.** Y **no la declaro yo**: la regla 3 de ese
+archivo dice **«LA LISTA SOLO PUEDE ENCOGER»**. Añadir `src/statics/server-delegated/` es una
+decisión del PROPIETARIO, y hay dos lecturas legítimas:
+
+1. **Es deliberado** —el framework delega estáticos al servidor web a propósito— y entonces es una
+   entrada de volátiles como la de `missing-lang-messages/`.
+2. **Es un efecto secundario evitable**: el enlace podría crearse al desplegar y no al servir, y
+   entonces no hay nada que declarar porque no debería pasar.
+
+### 4.2 · Las 11 sin veredicto, declaradas NO COMPROBADAS
+
+Las mismas once de T98, todas `-forms-edit` sobre tablas con **cero filas**:
+`application_calls_elements`, `built_in_banner_elements`, `forms_categories`,
+`forms_document_types`, `documents_elements`, `image_repository_images`,
+`interest_research_area`, `locations_points`, `news_elements`, `newsletter_sucribers`,
+`publications_elements`.
+
+**No se dan por limpias.** Y ahora se sabe qué se pierde con ellas: **la única escritura encontrada
+salió de un `-forms-edit`**, que es justo la familia que no se puede ejercitar sin datos. **T39 deja
+de ser una limitación abstracta: es el sitio exacto donde el hallazgo apareció.**
+
+### 3.3 · Consecuencia para E3, escrita
+
+> **Si un lote de E3 toca `ServerStatics` o un `.scss` de módulo, la foto de antes y después NO
+> habría visto nada** —el recorredor no pedía los estáticos, y aunque los pidiera, un enlace ya
+> creado no vuelve a crearse—.
+>
+> **Antes de cualquier lote que toque estáticos hay que:** (1) correr la pasada **con** estáticos,
+> que ya es lo que hace; y (2) **vaciar `src/statics/server-delegated/`**, que hoy no se puede
+> hacer sin permisos de `www-data` y que **no tiene tarea que lo haga**. Sin lo segundo, la foto
+> mide un árbol ya caliente.
+

@@ -206,8 +206,14 @@ if (!isset($options['no-assets'])) {
         $nextFrontier = [];
 
         foreach ($frontier as $pageUrl => $html) {
-            if (preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $matches) === false) {
-                continue;
+            //LAS DOS COMILLAS. Con solo las dobles, este recorredor NUNCA pidió un .css ni un
+            //.js: los ayudantes de assets del framework emiten comillas simples. Ver T102.
+            $matches = [1 => []];
+            if (preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $dobles) > 0) {
+                $matches[1] = array_merge($matches[1], $dobles[1]);
+            }
+            if (preg_match_all("/(?:src|href)\s*=\s*'([^']+)'/i", $html, $simples) > 0) {
+                $matches[1] = array_merge($matches[1], $simples[1]);
             }
             foreach ($matches[1] as $candidate) {
                 $url = $normalise($candidate);
