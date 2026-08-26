@@ -11379,3 +11379,83 @@ Su única mención en todo el código propio es **una línea de créditos** en
 `symfony/filesystem` transitivo. Queda dicho con su medida.
 
 **Puertas**: PHPStan **888 = baseline**, sin reparto. `verify-integrity` verde con las diecisiete.
+
+---
+
+## T113 · `compileScssServe` → `serveModuleStatic` — LEY 15 EN UN NOMBRE, y el primero en una firma
+
+### 4.b.3 · La ley, en su cuarto caso y en un sitio nuevo
+
+Los tres casos de la LEY 15 vivían en **comentarios**: la lista de puertas que decía «8/8», el
+recorredor que informaba «sin cambios» sobre rutas que abortaron, y el encabezado que prometía
+«todos los assets». **Este vive en una FIRMA.**
+
+**Un método llamado `compileScssServe` que no compila es la misma mentira, y es peor por tres
+razones:**
+
+1. **Se lee en cada sitio de llamada, no una vez.** Un encabezado se lee al abrir el archivo;
+   el nombre se lee **24 veces**, una por módulo, cada vez que alguien copia el patrón.
+2. **Se copia.** El patrón de `staticResolver()` se clona de módulo a módulo —así llegó a los 24—,
+   y con él la promesa.
+3. **Sobrevive a quien la escribió.** El comentario que explicaba el interruptor estaba *dentro*
+   del método; el nombre viajaba solo, y por eso el registro llegó a proponer «implementar el
+   `//TODO`».
+
+**Y el daño está documentado**: `20-contrato-de-trabajo.md` §5 ya guardaba `compileScssServe` como
+uno de los tres casos del defecto «clasificar por la forma sin preguntar el propósito». **La forma
+era el nombre.**
+
+### 4.b.4 · Nada dependía del nombre para otra cosa que llamarlo
+
+Comprobado antes de tocar, no después:
+
+| Qué se buscó | Resultado |
+| :-- | :-- |
+| Llamadas dinámicas (`call_user_func`, `method_exists`, `->$var`, `->{...}`) | **ninguna** |
+| Cadenas literales en configuración, rutas, `.neon`, `.json` o JavaScript | **ninguna** |
+| Usos en `src/vendor/` o en los cuatro paquetes `piecesphp/*` | **ninguno** |
+| Menciones en documentación | 5 archivos, tratados aparte |
+
+El único rastro fuera del código era `files/dev/integrity-signatures.json`, que se regenera.
+
+### El renombrado, y su evidencia
+
+**25 archivos PHP, 25 ocurrencias, una por archivo.** Los 24 sitios de llamada son **idénticos
+entre sí**, lo que hace el cambio mecánico y revisable de un vistazo:
+
+```diff
+-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
++            return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+```
+
+```diff
+-    public function compileScssServe(Request $request, ... )
++    public function serveModuleStatic(Request $request, ... )
+     {
+         return $this->serve($request, $response, $args, $path, $mustValidate);
+     }
+```
+
+**Por qué `serveModuleStatic` y no `serveDelegatedStatic`**: no *solo* delega. Para una extensión
+fuera de la lista —un `.map`, por ejemplo— lo sirve desde PHP con sus cabeceras de caché. El nombre
+tiene que cubrir los dos caminos, y lo que los une es **de dónde sale el archivo**: el `Statics/` de
+un módulo.
+
+**Comprobado de punta a punta**, en cinco rutas y no en una:
+
+| Camino | Estado |
+| :-- | :-- |
+| Extensión delegada, `admin/news/statics/css/news.css` | **302** al enlace |
+| Extensión NO delegada, `.map` | **200**, servido desde PHP |
+| El enlace, por Apache | **200** |
+| Otro módulo, `admin/logs/statics/css/log.css` | **302** |
+| Zona pública, `organizations/organizations/statics/…` | **302** |
+
+**Dónde NO se renombró, y a propósito**: `20-contrato-de-trabajo.md` §5 y la entrada del
+`CHANGELOG.md` conservan `compileScssServe`, porque **cuentan lo que pasó**. Cambiar el nombre en
+un relato histórico haría que el relato dejara de ser cierto. Lo que sí se corrigió es todo lo que
+hablaba en presente: `07-modulos.md` —que además afirmaba que «compila SASS al vuelo»—,
+`09-frontend-assets.md`, `13-recetas.md` y `14-deuda-y-limpieza.md`.
+
+**Puertas**: `gates` 16 suites, 0 sin veredicto · `verify-integrity` verde con las diecisiete ·
+PHPStan **888 = baseline**, sin reparto.

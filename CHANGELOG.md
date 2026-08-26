@@ -38,6 +38,26 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## Cambio de nombre — `compileScssServe()` pasa a llamarse `serveModuleStatic()`
+
+**Un método que se llama «compila SCSS y sirve» y no compila nada es una mentira que se lee 24
+veces**, una por cada módulo que copió el patrón, y que sobrevive a quien la escribió: por ese
+nombre llegó a proponerse «implementar el TODO» de un bloque que no había que implementar.
+
+**Si tienes módulos propios, es el único cambio que te afecta de este lote**, y es mecánico:
+
+```diff
+-return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
++return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+```
+
+La firma no cambia y el comportamiento tampoco. Comprobado en cinco caminos: extensión delegada
+(302 al enlace), extensión no delegada servida desde PHP (200), el enlace por el servidor web
+(200), otro módulo del panel y un módulo de zona pública.
+
+Nada dependía del nombre para otra cosa que llamarlo: no hay llamadas dinámicas, ni cadenas
+literales en configuración o JavaScript, ni usos en `vendor/` o en los paquetes `piecesphp/*`.
+
 ## Eliminado — el compilador de SCSS que no compilaba
 
 `ServerStatics::compileScssServe()` tenía dentro un bloque con `$enableSassCompilation = false;`

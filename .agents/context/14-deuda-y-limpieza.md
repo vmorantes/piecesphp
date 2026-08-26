@@ -272,7 +272,7 @@ propio archivo de instrucciones, es HTML o assets en vez de PHP con lógica, o s
 Descubierto el 2026-08-20 buscando cómo ejercitar `symfony/filesystem` tras el salto
 de Symfony a 8.1.
 
-`ServerStatics::compileScssServe()` **no compila SCSS pese al nombre**:
+`ServerStatics::compileScssServe()` —hoy `serveModuleStatic()`— **no compilaba SCSS pese al nombre**:
 
 ```php
 // ServerStatics.php:381

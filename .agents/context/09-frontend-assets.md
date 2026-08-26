@@ -84,10 +84,10 @@ Cada módulo registra su propio servidor de estáticos:
 ```php
 // en <Modulo>Routes::staticResolver()
 $server = new ServerStatics();
-return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+return $server->serveModuleStatic($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
 ```
 
-> ⚠️ **El nombre miente: `compileScssServe()` no compila SCSS**, y nunca lo hizo desde
+> ⚠️ **Se llamaba `compileScssServe()` y no compilaba SCSS**, y nunca lo hizo desde
 > que alguien dejó `$enableSassCompilation = false;` escrito a fuego. **El bloque muerto
 > se retiró el 2026-08-26**, con su `//TODO: Implementar la compilación de scss` dentro:
 > no era una funcionalidad a medias, era una DUPLICACIÓN de lo que gulp ya hace. Hoy el

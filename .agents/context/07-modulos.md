@@ -103,7 +103,7 @@ class NewsRoutes
 `staticRoute()` delega en el servicio DI `staticRouteModulesResolver`, y
 `staticResolver()` registra dos rutas: `<modulo>/statics/globals-vars.css`
 (variables CSS globales) y `<modulo>/statics/[{params:.*}]` (servido con
-`ServerStatics::compileScssServe`, que NO compila nada: sirve el archivo ya compilado
+`ServerStatics::serveModuleStatic`, que sirve el archivo ya compilado
 por gulp, delegándolo al servidor web cuando la extensión lo permite).
 
 ## `<Modulo>Controller` — el patrón

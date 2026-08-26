@@ -379,7 +379,7 @@ class ServerStatics
      * @param bool $mustValidate Si debe validar cache
      * @return Response Respuesta HTTP
      */
-    public function compileScssServe(Request $request, Response $response, array $args, ?string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
+    public function serveModuleStatic(Request $request, Response $response, array $args, ?string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
     {
         return $this->serve($request, $response, $args, $path, $mustValidate);
     }

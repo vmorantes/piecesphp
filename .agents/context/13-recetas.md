@@ -151,7 +151,7 @@ class MiModuloRoutes
     protected static function staticResolver(RouteGroup $group)
     {
         $handler = function (Request $request, Response $response, array $args) {
-            return (new ServerStatics())->compileScssServe(
+            return (new ServerStatics())->serveModuleStatic(
                 $request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute()
             );
         };
