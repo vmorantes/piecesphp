@@ -33,6 +33,11 @@ vive en `.agents/context/historico/`, y no es trabajo pendiente.
    `CREATE TABLE` a mano.
 8. **No se edita `src/vendor/`** ni los paquetes `piecesphp/*` desde aquí: son repos
    aparte.
+9. **La memoria de un agente es una caché del registro.** Lo que guardes en tu memoria
+   persistente solo puede ser algo que YA VIVA en `.agents/context/`, más el puntero a su
+   sección. Si la memoria contiene algo que el registro no tiene son dos verdades sin puerta
+   entre ellas: **eso es el hallazgo**, y se resuelve subiéndolo al registro, no borrándolo
+   de la memoria. Ver `.agents/context/20-contrato-de-trabajo.md` §6 y T103 del 18.
 
 ## Módulo de referencia
 

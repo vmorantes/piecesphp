@@ -10472,3 +10472,77 @@ de ser una limitación abstracta: es el sitio exacto donde el hallazgo apareció
 > hacer sin permisos de `www-data` y que **no tiene tarea que lo haga**. Sin lo segundo, la foto
 > mide un árbol ya caliente.
 
+
+---
+
+## T103 · LA MEMORIA DEL CODER SE SUBORDINA AL REGISTRO — y la primera pasada ya encontró dos huecos
+
+**Regla del PROPIETARIO, 2026-08-26.** Escrita en
+[20-contrato-de-trabajo.md](./20-contrato-de-trabajo.md) §6 y en `CLAUDE.md`:
+
+> Lo que el CODER guarde en su memoria persistente solo puede ser algo que YA VIVA en
+> `.agents/context/`, más el puntero a su sección.
+
+**No se prohíbe la memoria: se subordina.** Sobrevivir a una compactación es exactamente lo que
+hace falta contra la LEY 14, así que retirarla sería quitar la única defensa que hay. Lo que no
+puede es tener contenido propio: si la memoria puede contener algo que el registro no tiene, son
+**dos verdades sin puerta entre ellas** — la forma que esta campaña lleva meses retirando, la
+misma del `PUBLIC_AREA_ROUTES` duplicado, la de la lista de `preferSlug` que nadie regenera y la
+de los `$showSQL`. Con la regla puesta la memoria es una **caché**, y el día que contenga algo que
+el registro no tenga, **eso mismo es el hallazgo**.
+
+### La auditoría, con su método
+
+`grep` sobre los archivos de memoria buscando una referencia a `.agents/context/`, a
+`18-siguientes-ventanas.md` o a un documento numerado; y después, uno por uno, la búsqueda del
+**contenido** —no del título— dentro de `.agents/context/`, que es lo que distingue «el tema se
+menciona» de «el hecho está escrito».
+
+| | Cuántas |
+| :-- | --: |
+| Archivos de memoria, sin contar el índice `MEMORY.md` | **25** |
+| Ya traían el puntero | **11** |
+| No lo traían | **14** |
+| Cuyo **contenido** no estaba en el registro | **2** |
+| Retiradas | **0** |
+
+**Ninguna se retiró**: las 25 hablan de cosas que el registro ya cubre. A las 14 se les añadió la
+línea de puntero. **Y las dos que faltaban se subieron al registro**, que es lo que manda la regla:
+la divergencia no se resuelve borrando la memoria.
+
+### Hueco 1 — el caso que fundó una regla estaba SOLO en la memoria
+
+`20-contrato-de-trabajo.md` §3 lleva escrito «`git add` con rutas explícitas… se cuadra el conteo
+y se reportan los dos números; si no cuadran, el CODER **para**». **La regla está. El caso que la
+fundó, no.**
+
+Fue así: tras aplicar Rector a 103 archivos, un `git add -- src/app …` dejó fuera
+**`src/index.php`**, que cuelga de `src/` y no de `src/app/`. PHPStan sí lo analiza
+—`../src/index.php` está en su universo—, así que Rector sí lo había tocado. **El commit decía 103
+archivos y contenía 102**; y lo que de verdad importa: el `PHPStanResult.json` versionado dentro
+de ese commit se había generado con el archivo ya modificado en el árbol, así que **el reporte no
+correspondía al código que lo acompañaba**. Reparado después en el commit `93dbca10`, «el archivo
+que se quedó fuera del lote 1».
+
+**Por qué importa que faltara.** Sin el caso, la regla parece una manía del PROPIETARIO. Con el
+caso, es el cierre de un agujero concreto, y de la clase que más daño hace aquí: un artefacto
+versionado que no corresponde al código con el que se midió. Toda la campaña se apoya en que eso
+no pase.
+
+### Hueco 2 — cómo comprobar que una respuesta ejecutó el ORM
+
+`BaseEntityMapper::__callStatic` está documentado en
+[06-orm-mappers.md](./06-orm-mappers.md) y en [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md).
+Lo que no estaba escrito en ningún sitio es el uso que se le da al recorrer: **buscar
+`systemApprovalStatus` en el cuerpo de la respuesta** es la prueba de que el ORM se ejecutó de
+verdad, porque ese campo **no existe en ninguna tabla** y solo aparece si `fieldsToSelect()` pasó
+por el interceptor. Un 200 no prueba que se consultara nada; ese campo sí. Escrito en
+[10-cli-y-tareas.md](./10-cli-y-tareas.md), junto a los recorredores.
+
+### Lo que la regla NO arregla
+
+La memoria sigue **sin puerta**: nada falla si mañana se guarda ahí algo que el registro no tiene.
+Es la LEY 14 otra vez —los documentos no tienen puertas— y aquí tampoco hay mecanismo, solo una
+regla que depende de que alguien se acuerde, que es justo lo que la LEY 11 declara insuficiente.
+**Queda dicho, no resuelto.** Lo que sí queda escrito es el criterio del día que falle: la
+divergencia **se sube al registro**, no se borra de la memoria.

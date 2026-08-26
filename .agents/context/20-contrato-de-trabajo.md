@@ -66,6 +66,9 @@ desordenado:
   leer el número anunciado en vez del impreso — pasó, y se reportó 8/8 durante días con la suite
   omitida. Se nombra la suite; el número lo pone quien la corre.
 - **Una suite omitida es un fallo**, no un dato neutro (LEY 13).
+- **La memoria del CODER se subordina al registro** (§6): solo puede cachear lo que ya vive
+  en `.agents/context/`, con el puntero a su sección. Lo que aparezca solo en memoria **es un
+  hallazgo**, y se sube al registro.
 - **La regla de los diez**: cualquier cambio que toque más de diez archivos se enseña —plan y
   evidencia— **antes** de commitear, aunque esté aprobado.
 - **Paradas explícitas dentro del recuadro.** Es mejor una instrucción ancha con paradas que
@@ -149,6 +152,25 @@ por el propietario» que él no reconoce, y no hay forma de adjudicarlas. La dis
 
 `.agents/context/` **no es la historia de la campaña**: es documentación paralela para agentes y
 **viaja con el framework**.
+
+### La memoria del CODER es una caché del registro, nunca una segunda verdad
+
+El CODER tiene memoria persistente propia —archivos suyos, fuera del repositorio— y **debe
+tenerla**: es lo único que sobrevive a una compactación, que es justo donde la LEY 14 hace daño.
+No se prohíbe. Se subordina:
+
+> **Lo que se guarde en memoria solo puede ser algo que YA VIVA en `.agents/context/`, más el
+> puntero a su sección.**
+
+**El motivo.** Si la memoria puede contener algo que el registro no tiene, son dos verdades sin
+puerta entre ellas — exactamente la forma que esta campaña lleva meses retirando. Con la regla
+puesta, la memoria es una **caché**; y el día que contenga algo que el registro no tenga, **eso
+mismo es el hallazgo**: no se corrige borrando la memoria, se corrige subiéndolo al registro.
+
+**Cómo se aplica.** Cada archivo de memoria abre con la línea que dice dónde vive el original
+—«Escrito como T20 en `18-siguientes-ventanas.md`»— y nada se guarda sin ella. La primera
+auditoría está en T103: de 25 archivos, 14 no traían el puntero y **2 contenían algo que el
+registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 ---
 
