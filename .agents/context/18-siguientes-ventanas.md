@@ -486,6 +486,48 @@ documento pedía desde el principio. Y la LEY 11 ya dice qué hacer con las regl
 que alguien se acuerde.
 
 
+### LEY 15 — UN INSTRUMENTO INFORMA SOBRE EL UNIVERSO QUE MIRA, NO SOBRE EL QUE DICE CUBRIR
+
+**Y el universo que dice cubrir está escrito en un comentario, que no tiene puertas (LEY 14).**
+
+Tres casos, y tres no es anécdota:
+
+| # | Instrumento | Lo que decía | Lo que miraba de verdad |
+| :-- | :-- | :-- | :-- |
+| 1 | La lista de puertas | «8/8» | 7 corrían; `scheme-sql-round-trip` se omitía a sí misma. **LEY 13** |
+| 2 | `bin/walk-attribute` | «sin cambios» sobre las rutas de lectura | 40 de 79 ejercitadas; las demás respondieron 4xx o 5xx y **nunca llegaron al código que podría escribir**. Ver T98 |
+| 3 | `bin/walk-routes` | «Recorre **todos los assets**» en su propio encabezado | Cero `.css` y cero `.js` en toda la campaña: el extractor solo aceptaba comillas dobles y el framework emite simples. Ver T102 |
+
+**Por qué los tres se leen en verde.** Ninguno miente en su salida: los tres informan
+correctamente **sobre lo que miraron**. La mentira está en el denominador, y el denominador vive
+donde nadie lo comprueba —una constante, un encabezado, una lista de puertas escrita a mano—.
+Un instrumento con el denominador equivocado **es más peligroso que uno roto**, porque el roto se
+nota.
+
+**Cómo se distingue de la LEY 13.** La 13 habla de una puerta que **no corre**; esta, de una que
+**corre entera y sobre menos de lo que promete**. La 13 se cierra ejecutando; esta no se cierra
+ejecutando, porque ejecutar es justamente lo que produce el verde.
+
+**El mecanismo, y hoy solo lo tiene uno.** Un instrumento **dice su propia cobertura**: imprime
+cuántos elementos cubrió contra los que declara cubrir, **lista los que se quedaron fuera con su
+razón** y **sale con código distinto de cero cuando la cobertura es parcial**. Es lo que se le
+puso a `bin/walk-attribute` en T98, y es lo único que convierte el denominador en algo
+comprobable. Lo demás —leer el encabezado y creerlo— es la LEY 14 con otra ropa.
+
+#### La pregunta que abre, y NO se responde aquí
+
+**¿Qué otros instrumentos nuestros declaran en su encabezado un alcance que nadie ha comprobado
+que tengan?** Los candidatos evidentes, para cuando toque mirarlos, sin prejuzgar ninguno:
+
+- `bin/phpstan` y su universo de archivos —ya falló una vez, por el truncado de rutas: T2—.
+- `bin/cli scan-missing-lang`, acotado por `no_scan_langs`: hoy solo escanea `en`.
+- `bin/cli verify-integrity` y sus dieciséis comprobaciones: cada una declara qué cubre.
+- `SnapshotTask::EXCLUDED_PATHS`, que decide qué parte del árbol entra en la foto.
+- `bin/rector` y su configuración de rutas, hermana del caso de PHPStan.
+- Las suites propias: cada una declara qué prueba, y esa declaración no la comprueba nadie.
+
+**No se abre aquí.** Se deja escrito para que exista la pregunta, que es lo que faltaba.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -10730,3 +10772,91 @@ dos fotos**, con un enlace nuevo de `Importers` creado entre ellas:
 **Discrimina.** Y de paso deja medido lo que la entrada NO puede hacer por sí sola: la
 declaración cubre el enlace **nuevo**; el enlace **recreado** no aparece en ninguna de las dos
 columnas, porque el comparador no lo ve. Eso es lo del apartado siguiente.
+
+---
+
+## T105 · EL PRIMER HALLAZGO POR DISEÑO — una ruta de puro leer crea un archivo
+
+```
+news-category-admin-forms-edit    200    archivo NUEVO
+    src/statics/server-delegated/app/classes/News/Statics/js/categories/edit-form.js
+```
+
+**Es la primera vez en toda la campaña que la máquina encuentra algo que nadie había visto antes
+de construirla.** Los dos casos anteriores de escritura en camino de lectura —el registro de
+intentos de acceso y los mensajes sin traducir— aparecieron **por accidente**, uno cada vez, y el
+instrumento se construyó *después*, para dejar de depender de la suerte. Este salió del
+instrumento.
+
+Las tres cosas van juntas porque separadas no dicen lo mismo:
+
+**1 · Salió de la familia que el veto prohibía recorrer.** `news-category-admin-forms-edit` es una
+ruta `-forms-edit`, y `forbidden-routes.json` la descartaba por el nombre. La razón declarada de
+ese veto decía, literalmente, que era «inofensivo —una vista de formulario, no una acción— pero la
+regla es que no se piden»: una política de cautela, **nunca una medición**. Se derogó en T100 con
+una puerta declarada, y **lo primero que apareció al abrirla fue esto**. La cautela estaba
+protegiendo el hallazgo, no el sistema.
+
+**2 · Es de las que no se pueden ejercitar sin datos, y por eso T39 deja de ser abstracta.**
+`-forms-edit` exige el identificador de una fila. Con 89 filas en 36 tablas y 22 de ellas vacías,
+las 11 rutas que quedan sin veredicto son exactamente de esta forma. Hasta hoy «no hay datos» era
+una limitación anotada; ahora es **una limitación con una víctima conocida**: la única escritura
+encontrada salió de la familia que menos se puede ejercitar. **Lo que hay detrás de las 11 no es
+«probablemente nada».**
+
+**3 · Apareció donde el diseño de E2 predijo que aparecería.** La foto por ruta, la atribución
+individual y la petición de los estáticos **antes** de fotografiar —las tres piezas de T98 y
+T102— existen para que un cambio se le cuelgue a quien lo provocó y no al recorrido entero. Aquí
+funcionaron: el archivo apareció en una sola petición y la máquina lo atribuyó a la ruta correcta,
+no a la siguiente.
+
+**Qué NO es.** No es un defecto: T104 midió el propósito, lo declaró y lo dejó escrito. **El valor
+del hallazgo no es que estuviera mal, es que estaba invisible.** Un efecto deliberado que nadie
+recuerda haber decidido se comporta igual que uno accidental el día que estorba.
+
+**Y lo que deja abierto.** Las otras 67 rutas de la pasada no tocaron nada, pero **sus enlaces ya
+existían de las mediciones anteriores**: sobre ellas la pasada no probó que no escriban, probó que
+no quedaba nada que escribir. Es la ampliación de la LEY 12 al árbol, y es la razón de que ese
+apartado se escribiera hoy y no más adelante.
+
+---
+
+## T106 · E2-a — LAS CIFRAS ANTERIORES NO SON COMPARABLES, Y LAS 11 SIGUEN SIN VEREDICTO
+
+### 6.1 · Las 11 no se dan por limpias
+
+Siguen **declaradas NO COMPROBADAS** por falta de datos (T39), y así se quedan hasta que haya
+filas con las que ejercitarlas. No son un aprobado con asterisco: son un hueco, y T105 acaba de
+mostrar de qué tamaño puede ser lo que vive ahí.
+
+**68 de 79 ejercitadas.** El recorredor sale con código 1 mientras la cobertura sea parcial, que
+es lo que impide leerlo en verde.
+
+### 6.2 · El universo cambió: LO DE ANTES Y LO DE AHORA NO SE PUEDEN RESTAR
+
+Igual que se hizo con el baseline de PHPStan cuando cambió el universo de archivos, **queda
+escrito que estas cifras no son comparables con las de los bloques anteriores**:
+
+| Qué | Antes | Ahora | Por qué cambió |
+| :-- | --: | --: | :-- |
+| Rutas del recorrido ancho | 186 | **205** | Entraron las 36 de lectura que el veto descartaba (T100) |
+| Rutas ejercitadas | 136 | **155** | Consecuencia de lo anterior |
+| Estáticos pedidos | 0 | **202** | El extractor solo aceptaba comillas dobles (T102) |
+| Enlaces en `server-delegated/` | 27 | **89** | Consecuencia de que por fin se pidan los estáticos |
+
+**Una diferencia entre dos cifras de estas columnas no significa nada.** El denominador es otro,
+y ese es exactamente el defecto que la LEY 15 nombra: la cifra es correcta y la comparación es
+falsa. Cualquier lectura de progreso tiene que arrancar de la fila «ahora».
+
+*Método, para que la tabla no sea una afirmación: las rutas y las ejercitadas salen del propio
+`bin/walk-attribute`, que las imprime; los estáticos, de la lista de assets que pide en la pasada;
+los enlaces, de `find src/statics/server-delegated -type l | wc -l`.*
+
+**Y una quinta cifra que NO es del recorrido, para que nadie la sume mal**: hoy hay **121**
+enlaces, no 89. Los 32 de diferencia los creó a mano la medición de T104 pidiendo recursos que
+**ninguna vista referencia**. El recorrido produce 89; el 121 es estado de laboratorio.
+
+### 6.3 · E2-b sigue sin empezar
+
+Sin tocar, y partida en dos como se aprobó: las **50 rutas `-actions-*`** por un lado, y `$_FILES`
+—44 usos en 18 archivos, solo 3 con guarda— más los **119 POST sueltos** por otro.
