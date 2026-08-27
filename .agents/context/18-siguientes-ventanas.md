@@ -12196,3 +12196,91 @@ construyó.
 
 **Lo que NO bloqueó**: nada de S1 a S7 dependía de esa actualización, así que el bloque siguió
 entero.
+
+---
+
+# BLOQUE T · LOS CINCO REPOSITORIOS DECLARAN 8.5
+
+---
+
+## T122 · T0 · EL PISO SUBE, EL TECHO SE CIERRA, Y COMPOSER DEJA DE DEPENDER DEL BINARIO
+
+**Decisión del PROPIETARIO**: el código debe ser 100 % compatible con 8.5; **8.4 es un extra, no un
+compromiso**. Los proyectos viejos se quedan en la versión que ya tienen publicada.
+
+### Lo que declaraban los cinco, y lo que declaran ahora
+
+| Repositorio | Antes | Ahora | `config.platform` |
+| :-- | :-- | :-- | :-- |
+| `piecesphp` (framework) | `>=8.4.1 <8.6` | **`>=8.5 <8.6`** | añadido |
+| `database` | `>=8.4 <9.0` | **`>=8.5 <8.6`** | añadido al `config` que ya tenía |
+| `datastructures` | `>=8.4 <9.0` | **`>=8.5 <8.6`** | bloque `config` nuevo |
+| `html` | `>=8.4 <9.0` | **`>=8.5 <8.6`** | bloque `config` nuevo |
+| `geojson` | `>=8.4 <9.0` | **`>=8.5 <8.6`** | bloque `config` nuevo |
+
+**El techo era la mitad que nadie miraba.** `<9.0` decía que los paquetes funcionan en un PHP 8.9
+que no existe, mientras el framework que los consume declaraba hasta 8.5. **Solo hay puertas para
+8.4 y 8.5**: lo demás era una promesa. Es la LEY 15 en una restricción de versión — un alcance
+declarado que nadie ha comprobado.
+
+### La plataforma, y por qué `8.5.0` y no `8.5.9`
+
+`config.platform.php: "8.5.0"` — **el piso de la rama, no el parche que sirve Apache hoy**. Atarlo
+a `8.5.9` sería atarlo a hoy.
+
+**Y resuelve el bloqueo de T121, medido**:
+
+```
+$ composer diagnose
+PHP version: 8.5.0 - Package overridden via config.platform, actual: 8.1.34
+```
+
+`/usr/bin/composer` sigue arrancando con 8.1.34 por su shebang. **Ya da igual.**
+
+### PARADA T0 · no se dispara
+
+Comprobado en los cinco antes de escribir nada, con `composer validate` y `composer update
+--dry-run`: **ninguna dependencia, ni de desarrollo, exige menos de 8.5.** Los cuatro paquetes
+responden `composer.json is valid` y el framework resuelve sin un solo conflicto.
+
+### Los locks de los paquetes: resincronizados, NO actualizados
+
+Fijar la plataforma deja el lock desincronizado. Se corrió `composer update --lock`, que **solo
+rehace el hash y anota `platform-overrides`**. Comprobado comparando la lista completa
+`nombre@versión` antes y después en los cuatro: **idénticas**. Un `composer update` a secas habría
+subido 6 paquetes por repositorio sin que nadie lo pidiera.
+
+*Los `composer.lock` de los cuatro paquetes están en su `.gitignore` —son librerías—, así que ese
+resincronizado no entra en ningún commit. Por eso cada paquete commitea **dos** archivos y no tres.*
+
+### (d) · `piecesphp/database` a v3.9.0
+
+```
+Upgrading piecesphp/database (v3.8.0 => v3.9.0)
+VERSIÓN: 4 paquete(s) comparado(s), 4 al día.
+```
+
+**La comprobación 17 deja de avisar**, que es exactamente para lo que se construyó en T107. Estuvo
+avisando desde que se escribió hasta que se resolvió, sin fallar ni una vez: hizo su trabajo.
+
+### (e) · Ningún trinquete se movió, y esa era la condición
+
+| Puerta | Antes | Después |
+| :-- | :-- | :-- |
+| PHPStan | 888 | **888** |
+| Entradas de `ignoreErrors` | 52 | **52** |
+| `gates` | 18 suites, 0 sin veredicto | **18 suites, 0 sin veredicto** |
+
+**Nada que reportar como hallazgo.** Si alguna cifra se hubiera movido solo por cambiar la
+plataforma, eso habría sido el hallazgo del bloque.
+
+### (c) · La cadena, escrita y NO tocada
+
+`html` depende de **`piecesphp/datastructures: "^3.1"`**, y `^3.1` significa `>=3.1 <4.0`.
+
+**Subir el piso de `datastructures` obliga a que su próxima etiqueta sea 4.0, y entonces `^3.1` la
+excluiría**: `html` se quedaría anclado a la última 3.x, la que todavía declara `>=8.4 <9.0`.
+
+**No se toca ahora**: sin etiqueta publicada no hay 4.0 a la que apuntar, y escribir `^4.0` contra
+algo que no existe rompe la instalación de hoy para arreglar la de mañana. Queda escrito en el
+`CHANGELOG.md` de `html` como lo primero que hacer al etiquetar.

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "469bdb124b7f7f60a8b1d333ec93e86d",
+    "content-hash": "b70927ed95641609af75a5874d7d525d",
     "packages": [
         {
             "name": "aminyazdanpanah/php-ffmpeg-video-streaming",
@@ -2044,16 +2044,16 @@
         },
         {
             "name": "piecesphp/database",
-            "version": "v3.8.0",
+            "version": "v3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/database.git",
-                "reference": "a9c79e70510d17277242ff6e01ac796a94aec036"
+                "reference": "b146bcf6e35f74b0be258db9dd8ad3548718e487"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/database/get/a9c79e70510d17277242ff6e01ac796a94aec036.zip",
-                "reference": "a9c79e70510d17277242ff6e01ac796a94aec036",
+                "url": "https://bitbucket.org/piecesphp/database/get/b146bcf6e35f74b0be258db9dd8ad3548718e487.zip",
+                "reference": "b146bcf6e35f74b0be258db9dd8ad3548718e487",
                 "shasum": ""
             },
             "require": {
@@ -2104,9 +2104,9 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/database/src/a9c79e70510d17277242ff6e01ac796a94aec036/?at=v3.8.0"
+                "source": "https://bitbucket.org/piecesphp/database/src/b146bcf6e35f74b0be258db9dd8ad3548718e487/?at=v3.9.0"
             },
-            "time": "2026-08-25T17:02:18+00:00"
+            "time": "2026-08-26T16:29:23+00:00"
         },
         {
             "name": "piecesphp/datastructures",
@@ -4466,7 +4466,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.4.1 <8.6",
+        "php": ">=8.5 <8.6",
         "ext-date": "*",
         "ext-openssl": "*",
         "ext-pcre": "*",
@@ -4490,5 +4490,8 @@
         "ext-curl": "*"
     },
     "platform-dev": [],
+    "platform-overrides": {
+        "php": "8.5.0"
+    },
     "plugin-api-version": "2.6.0"
 }

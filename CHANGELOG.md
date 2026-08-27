@@ -104,6 +104,40 @@ Ver la entrada «Eliminado — el compilador de SCSS que no compilaba» más aba
 método `compileScssServe()` por su nombre, primero pasó a `serveModuleStatic()` y ahora no existe:
 el punto 1 de esta lista es tu ruta.
 
+### 5 · El piso de PHP sube a 8.5, y composer deja de depender del binario que lo arranque
+
+```diff
+-"php": ">=8.4.1 <8.6"
++"php": ">=8.5 <8.6"
+```
+
+**El código debe ser 100 % compatible con 8.5; 8.4 es un extra, no un compromiso.** Si tu despliegue
+va por 8.4, se queda en la versión publicada que ya tienes.
+
+Y `src/composer.json` gana **`config.platform.php: "8.5.0"`**. Sin eso, composer resuelve contra el
+PHP que lo ejecuta: en la máquina de desarrollo `/usr/bin/composer` arranca con **8.1.34** por su
+shebang, tres versiones por debajo del piso declarado, y nadie lo veía porque el `platform_check`
+que debería gritar está silenciado por el manejador de errores del propio framework.
+
+**Es el piso de la rama, `8.5.0`, no `8.5.9`**: atarlo al parche que sirve Apache hoy es atarlo a
+hoy. Comprobado — `composer diagnose` responde:
+
+```
+PHP version: 8.5.0 - Package overridden via config.platform, actual: 8.1.34
+```
+
+**Los cuatro paquetes `piecesphp/*` hacen lo mismo en su propia tanda**, y además cierran el techo:
+declaraban `<9.0`, o sea un PHP 8.9 que no existe y que nadie ha probado. Ahora `>=8.5 <8.6`, que es
+para lo que hay puertas.
+
+### 6 · `piecesphp/database` pasa a v3.9.0
+
+`composer update piecesphp/database`. Trae el arreglo de `humanReadable()`, que devolvía el mapper
+entero —con su esquema dentro— en vez del valor declarado en `human_readable_reference_field`.
+
+**Ninguna cifra se movió por esto**: PHPStan sigue en 888, las 18 suites en verde y las 52 entradas
+de `ignoreErrors` intactas.
+
 ---
 
 ## Herramientas — cuatro instrumentos que no medían lo que decían
