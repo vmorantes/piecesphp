@@ -58,8 +58,18 @@ desordenado:
 ## 3. Reglas permanentes de las instrucciones al CODER
 
 - **Nada de push.** Nunca se le pide. El PROPIETARIO empuja cuando quiere.
-- **`git add` con rutas explícitas**, nunca `-A` ni punto. Se cuadra el conteo y se reportan los
-  dos números. Si no cuadran, el CODER **para**.
+- **`git add` con rutas explícitas**, nunca `-A` ni punto. Y son **TRES números, no dos**:
+  **previsto · cambiado · añadido**.
+    - Se paran los pies cuando **AÑADIDO ≠ CAMBIADO**. Eso es dejarse algo fuera de verdad, y es
+      el caso que funda la regla: un commit que anunciaba 103 archivos y contenía 102.
+    - Un archivo **PREVISTO que no cambió** se **declara en el reporte**, con una línea diciendo
+      por qué no cambió. No desaparece en silencio y **no detiene el bloque**: el previsto es una
+      expectativa de ARQUITECTO, no una medición, y contra una expectativa no se para.
+    - **Por qué cambió la regla**: en el bloque S el conteo dio 3 contra 4 y el CODER commiteó
+      habiendo debido parar. Al mirarlo, lo previsto que faltaba era `integrity-signatures.json`,
+      que **no cambió porque no tenía por qué** —el cambio movía una constante, no una firma—.
+      La regla vieja mandaba parar por un acierto del código.
+    - **La cuenta es por repositorio**, no del bloque: son cinco.
 - **Commits atómicos por asunto.** Árbol sano después de cada uno.
 - **Árbol limpio al terminar, y se enseña.**
 - **Las puertas se nombran, no se numeran.** Escribir «(8/8)» en la lista de puertas invita a
