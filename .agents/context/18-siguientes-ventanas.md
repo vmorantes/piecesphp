@@ -12405,3 +12405,75 @@ plataforma—, así que este −2 no se puede confundir con el cambio de PHP. Es
 `CacheControllersCriteries::__unserialize()` mete los criterios en un `ArrayObject` **sin
 reconstruir cada `CacheControllersCritery`**: dentro quedan arrays. Es la misma familia un nivel más
 abajo. **No se rediseña la caché**, así que se anota y se deja.
+
+---
+
+## T124 · T2 · LOS DOS MODOS SE PRUEBAN LOS DOS — 7 omitidas se vuelven 14, y sin pseudo-terminal
+
+### La asimetría, dicha entera: la suite cubría el modo en el que NO estaba
+
+`Cli::systemOutFormatted()` detecta con `stream_isatty(STDOUT)` y ramifica. **La suite repetía la
+misma detección** y, sin terminal, se saltaba 7 comprobaciones.
+
+**Y `gates` corre sin terminal.** Así que la suite omitía justamente las de la rama en la que la
+función estaba corriendo mientras la probaba — y la rama que sí ejercitaba, la de terminal, es la
+que en `gates` no se ejecuta nunca. **La mitad probada y la mitad ejecutada eran conjuntos
+disjuntos.**
+
+Es la LEY 15 en su forma más incómoda: no un instrumento que mira menos de lo que dice, sino uno
+que mira **la mitad equivocada**, y que además informaba de ello con toda claridad — «7 OMITIDAS»—
+sin que nadie leyera lo que significaba.
+
+### (a) y (b) · La condición se PASA, no se detecta
+
+```php
+public static function systemOutFormatted(string $text, array $format = [], ?bool $isTty = null): string
+{
+    …
+    $isTty = $isTty ?? (defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT));
+```
+
+**`null` detecta, que es lo de siempre**: el comportamiento por defecto no cambia ni una coma. El
+envoltorio global de `AppHelpers.php` gana el mismo tercer parámetro y lo reenvía.
+
+### (c) · La suite borra su detección y ejerce los dos
+
+| | Antes | Ahora |
+| :-- | --: | --: |
+| Comprobaciones que corren | 3 | **17** |
+| Omitidas | **7** | **0** |
+| ¿Hace falta un pty? | sí, para cubrirlas | **no** |
+
+Las 7 que exigían terminal se ejercitan **dos veces**: con `true` se exige el código ANSI concreto,
+con `false` se exige que la salida sea **exactamente el texto plano**. Más las 3 que ya corrían.
+
+**Provocada**: quitando el reenvío del envoltorio —una sola línea— caen **7**, que son exactamente
+las siete «CON terminal». El archivo vuelve byte a byte, comprobado por `sha1sum`.
+
+### (e) · La rama sin terminal NO deja secuencias de escape. Comprobado, no supuesto
+
+Era la pregunta que podía convertirse en hallazgo: si lo que va a los archivos de log llevara ANSI
+dentro, eso es un defecto. **No lo lleva.**
+
+Las siete comprobaciones «SIN terminal» no se conforman con «no hay `\033[`»: exigen que la salida
+sea **idéntica al texto de entrada** —`'Rojo'`, `'Mixto'`, `'GlobalOpts'`—, que es la forma fuerte
+de la misma pregunta. Las siete pasan, incluidas las dos que heredan formato de `get_config`, que
+eran las candidatas a colarse.
+
+### Un defecto de la suite que salió al reescribirla
+
+Devolvía **`'success' => true` siempre**, literal, pasara lo que pasara:
+
+```php
+return ['success' => true, 'message' => 'Pruebas de systemOutFormatted completadas exitosamente.'];
+```
+
+**Esta suite no podía poner el corredor en rojo.** Llevaba desde que se escribió sin poder fallar, y
+`gates` la habría dado por buena con las 17 caídas. Ahora devuelve `$failed === 0`. Es el mismo
+patrón de las ramas gemelas: la forma de una puerta sin la puerta.
+
+### (d) · `gates` no se toca, y el pty queda descartado
+
+El remedio del pseudo-terminal **habría cambiado qué mitad se cubre, no cuántas**: pasaría a
+ejercitar la rama de terminal y a dejar sin probar la de tubería, que es la que va a los archivos.
+Cubrir las dos exige poder elegir, y por eso el arreglo es el parámetro y no el entorno.

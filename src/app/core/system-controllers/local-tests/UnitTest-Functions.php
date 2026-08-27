@@ -1,8 +1,8 @@
 <?php
 
-use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
-use PiecesPHP\Core\Helpers\Directories\FileObject;
-use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
+//`systemOutFormatted()` tiene DOS modos y los dos son la función: embellecer en terminal y
+//salir limpia hacia una tubería o un archivo. Se prueban los dos, sin pseudo-terminal. Ver T124.
+
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;
 
@@ -12,7 +12,7 @@ $cliTaskName = 'unit-tests';
 $unitTests = [
     [
         'name' => 'functions/systemOutFormatted',
-        'description' => 'Pruebas unitarias de la función systemOutFormatted',
+        'description' => 'Pruebas unitarias de la función systemOutFormatted, en sus DOS modos',
         'callback' => function ($args) {
 
             echoTerminal('[TEST:systemOutFormatted] Iniciando suite de pruebas unitarias...', true, "\r\n", '33');
@@ -20,18 +20,9 @@ $unitTests = [
 
             $passed = 0;
             $failed = 0;
-            $skipped = 0;
 
-            //Sin terminal, systemOutFormatted() suprime el ANSI a propósito: esas comprobaciones se saltan, no fallan.
-            $isTty = defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT);
-
-            $checkResult = function ($condition, $name, $details = null, bool $requiresTty = false) use (&$passed, &$failed, &$skipped, $isTty) {
-                if ($requiresTty && !$isTty) {
-                    $skipped++;
-                    echoTerminal("   \e[33m[OMITIDA]\e[33m $name");
-                    echoTerminal("      - Exige terminal: sin TTY la función suprime los códigos ANSI a propósito.");
-                    return null;
-                }
+            //Sin `$requiresTty` y sin omitidas: la condición de terminal se PASA, no se detecta.
+            $checkResult = function ($condition, $name, $details = null) use (&$passed, &$failed) {
                 $condition ? $passed++ : $failed++;
                 $status = $condition ? "\e[32m[PASÓ]\e[33m" : "\e[31m[FALLÓ]\e[33m";
                 echoTerminal("   $status $name");
@@ -41,104 +32,117 @@ $unitTests = [
                 return $condition;
             };
 
+            $ver = function (string $texto): string {
+                return str_replace("\033", "\\e", $texto);
+            };
+            //La rama sin terminal no puede dejar NI UNA secuencia: lo que sale va a un archivo.
+            $sinAnsi = function (string $texto): bool {
+                return preg_match('/\033\[/', $texto) !== 1;
+            };
+
             // --- PRUEBA 1: Formato Básico (Sin formato) ---
             echoTerminal('[1/9] Probando salida básica sin formato...');
-            $out = systemOutFormatted('Normal', ['newLine' => false, 'color' => 'default', 'background' => 'default']);
-            // Un texto sin formato no debería tener códigos ANSI si se fuerza default o se queda base
+            $out = systemOutFormatted('Normal', ['newLine' => false, 'color' => 'default', 'background' => 'default'], true);
             $hasNoCodes = strpos($out, "\033[") === false || $out === "\033[39;49mNormal\033[0m" || $out === "Normal";
-            $checkResult($hasNoCodes, "Salida plana / Base", "Obtenido: " . str_replace("\033", "\\e", $out));
+            $checkResult($hasNoCodes, "Salida plana / Base", "Obtenido: " . $ver($out));
             echoTerminal(' ');
 
             // --- PRUEBA 2: Colores por nombre vs numérico ---
             echoTerminal('[2/9] Probando colores por nombre vs numérico...');
-            $outName = systemOutFormatted('Rojo', ['color' => 'red', 'newLine' => false]);
-            $outNum = systemOutFormatted('Rojo', ['color' => 31, 'newLine' => false]);
-            $same = $outName === $outNum;
-            $contains31 = strpos($outName, '31') !== false;
-            $checkResult($same && $contains31, "Nombre 'red' == Código 31", "Obtenido: " . str_replace("\033", "\\e", $outName), true);
+            $outName = systemOutFormatted('Rojo', ['color' => 'red', 'newLine' => false], true);
+            $outNum = systemOutFormatted('Rojo', ['color' => 31, 'newLine' => false], true);
+            $checkResult($outName === $outNum && strpos($outName, '31') !== false, "CON terminal: nombre 'red' == código 31", "Obtenido: " . $ver($outName));
+            $plano = systemOutFormatted('Rojo', ['color' => 'red', 'newLine' => false], false);
+            $checkResult($sinAnsi($plano) && $plano === 'Rojo', "SIN terminal: sale 'Rojo' y ni una secuencia", "Obtenido: " . $ver($plano));
             echoTerminal(' ');
 
             // --- PRUEBA 3: Fondo por nombre vs numérico ---
             echoTerminal('[3/9] Probando fondo por nombre vs numérico...');
-            $outBgName = systemOutFormatted('Fondo Azul', ['background' => 'blue', 'newLine' => false]);
-            $outBgNum = systemOutFormatted('Fondo Azul', ['background' => 44, 'newLine' => false]);
-            $checkResult($outBgName === $outBgNum && strpos($outBgName, '44') !== false, "Nombre 'blue' == Código 44", "Obtenido: " . str_replace("\033", "\\e", $outBgName), true);
+            $outBgName = systemOutFormatted('Fondo Azul', ['background' => 'blue', 'newLine' => false], true);
+            $outBgNum = systemOutFormatted('Fondo Azul', ['background' => 44, 'newLine' => false], true);
+            $checkResult($outBgName === $outBgNum && strpos($outBgName, '44') !== false, "CON terminal: nombre 'blue' == código 44", "Obtenido: " . $ver($outBgName));
+            $plano = systemOutFormatted('Fondo Azul', ['background' => 'blue', 'newLine' => false], false);
+            $checkResult($sinAnsi($plano) && $plano === 'Fondo Azul', "SIN terminal: sale el texto y ni una secuencia", "Obtenido: " . $ver($plano));
             echoTerminal(' ');
 
             // --- PRUEBA 4: Opciones de estilo (Negrita, Itálica, etc.) ---
             echoTerminal('[4/9] Probando opciones de estilo booleanas...');
-            $outStyles = systemOutFormatted('Estilizado', ['bold' => true, 'italic' => true, 'underline' => true, 'newLine' => false]);
+            $estilos = ['bold' => true, 'italic' => true, 'underline' => true, 'newLine' => false];
+            $outStyles = systemOutFormatted('Estilizado', $estilos, true);
             $hasBold = strpos($outStyles, '1') !== false;
             $hasItalic = strpos($outStyles, '3') !== false;
             $hasUnderline = strpos($outStyles, '4') !== false;
-            $checkResult($hasBold && $hasItalic && $hasUnderline, "Detección de 1 (bold), 3 (italic) y 4 (underline)", "Obtenido: " . str_replace("\033", "\\e", $outStyles), true);
+            $checkResult($hasBold && $hasItalic && $hasUnderline, "CON terminal: 1 (bold), 3 (italic) y 4 (underline)", "Obtenido: " . $ver($outStyles));
+            $plano = systemOutFormatted('Estilizado', $estilos, false);
+            $checkResult($sinAnsi($plano) && $plano === 'Estilizado', "SIN terminal: ningún estilo se cuela", "Obtenido: " . $ver($plano));
             echoTerminal(' ');
 
             // --- PRUEBA 5: Formato en lista (Simplificado) ---
             echoTerminal('[5/9] Probando formato en lista plana...');
-            $outList = systemOutFormatted('Lista', ['red', 'bold', 'italic', 'newLine' => false]);
-            $has31 = strpos($outList, '31') !== false;
-            $has1 = strpos($outList, '1') !== false;
-            $has3 = strpos($outList, '3') !== false;
-            $checkResult($has31 && $has1 && $has3, "Lista ['red', 'bold', 'italic']", "Obtenido: " . str_replace("\033", "\\e", $outList), true);
+            $lista = ['red', 'bold', 'italic', 'newLine' => false];
+            $outList = systemOutFormatted('Lista', $lista, true);
+            $checkResult(strpos($outList, '31') !== false && strpos($outList, '1') !== false && strpos($outList, '3') !== false, "CON terminal: lista ['red', 'bold', 'italic']", "Obtenido: " . $ver($outList));
+            $plano = systemOutFormatted('Lista', $lista, false);
+            $checkResult($sinAnsi($plano) && $plano === 'Lista', "SIN terminal: la lista tampoco se cuela", "Obtenido: " . $ver($plano));
             echoTerminal(' ');
 
             // --- PRUEBA 6: Formato mixto ---
             echoTerminal('[6/9] Probando formato mixto (asociativo + lista)...');
-            $outMixed = systemOutFormatted('Mixto', ['color' => 'yellow', 'background' => 'red', 'underline' => true, 'bold', 'newLine' => false]);
-            $codes = ['33', '41', '1', '4'];
+            $mixto = ['color' => 'yellow', 'background' => 'red', 'underline' => true, 'bold', 'newLine' => false];
+            $outMixed = systemOutFormatted('Mixto', $mixto, true);
             $allPresent = true;
-            foreach ($codes as $c) {
+            foreach (['33', '41', '1', '4'] as $c) {
                 if (strpos($outMixed, $c) === false) {
                     $allPresent = false;
                 }
             }
-            $checkResult($allPresent, "Mixto: Yellow (33), BgRed (41), Underline (4), Bold (1)", "Obtenido: " . str_replace("\033", "\\e", $outMixed), true);
+            $checkResult($allPresent, "CON terminal: Yellow (33), BgRed (41), Underline (4), Bold (1)", "Obtenido: " . $ver($outMixed));
+            $plano = systemOutFormatted('Mixto', $mixto, false);
+            $checkResult($sinAnsi($plano) && $plano === 'Mixto', "SIN terminal: el mixto sale limpio", "Obtenido: " . $ver($plano));
             echoTerminal(' ');
 
             // --- PRUEBA 7: Configuraciones Globales (terminal_color) ---
             echoTerminal('[7/9] Probando herencia de terminal_color...');
             set_config('terminal_color', 'magenta');
-            $outGlobal = systemOutFormatted('Global', ['newLine' => false]);
-            $has35 = strpos($outGlobal, '35') !== false;
-            $checkResult($has35, "Hereda 'magenta' (35) de get_config", "Obtenido: " . str_replace("\033", "\\e", $outGlobal), true);
+            $outGlobal = systemOutFormatted('Global', ['newLine' => false], true);
+            $checkResult(strpos($outGlobal, '35') !== false, "CON terminal: hereda 'magenta' (35) de get_config", "Obtenido: " . $ver($outGlobal));
+            $plano = systemOutFormatted('Global', ['newLine' => false], false);
+            $checkResult($sinAnsi($plano) && $plano === 'Global', "SIN terminal: la herencia global tampoco pinta", "Obtenido: " . $ver($plano));
             set_config('terminal_color', null);
             echoTerminal(' ');
 
             // --- PRUEBA 8: Configuraciones Globales (terminal_format_options) ---
             echoTerminal('[8/9] Probando herencia de terminal_format_options...');
             set_config('terminal_format_options', ['bold' => true, 'underline' => true]);
-            $outGlobalOpt = systemOutFormatted('GlobalOpts', ['newLine' => false]);
-            $has1 = strpos($outGlobalOpt, '1') !== false;
-            $has4 = strpos($outGlobalOpt, '4') !== false;
-            $checkResult($has1 && $has4, "Hereda negrita (1) y subrayado (4)", "Obtenido: " . str_replace("\033", "\\e", $outGlobalOpt), true);
+            $outGlobalOpt = systemOutFormatted('GlobalOpts', ['newLine' => false], true);
+            $checkResult(strpos($outGlobalOpt, '1') !== false && strpos($outGlobalOpt, '4') !== false, "CON terminal: hereda negrita (1) y subrayado (4)", "Obtenido: " . $ver($outGlobalOpt));
+            $plano = systemOutFormatted('GlobalOpts', ['newLine' => false], false);
+            $checkResult($sinAnsi($plano) && $plano === 'GlobalOpts', "SIN terminal: las opciones globales tampoco", "Obtenido: " . $ver($plano));
 
-            // Probar sobreescritura de global con local
-            $outOverride = systemOutFormatted('Override', ['bold' => false, 'newLine' => false]);
-            $hasNoBold = strpos($outOverride, '1') === false;
-            $checkResult($hasNoBold, "Sobrescritura local de opción global (bold => false)", "Obtenido: " . str_replace("\033", "\\e", $outOverride));
+            $outOverride = systemOutFormatted('Override', ['bold' => false, 'newLine' => false], true);
+            $checkResult(strpos($outOverride, '1') === false, "Sobrescritura local de opción global (bold => false)", "Obtenido: " . $ver($outOverride));
 
             set_config('terminal_format_options', null);
             echoTerminal(' ');
 
             // --- PRUEBA 9: NewLine y NewLineChars ---
             echoTerminal('[9/9] Probando NewLine y NewLineChars...');
-            // Verificamos que no genere errores fatales
-            $outNL = systemOutFormatted('Línea', ['newLine' => true, 'newLineChars' => "\n"]);
-            $checkResult(strpos($outNL, 'Línea') !== false, "Ejecución sin errores de NewLine", "Obtenido: " . str_replace("\033", "\\e", $outNL));
+            $outNL = systemOutFormatted('Línea', ['newLine' => true, 'newLineChars' => "\n"], true);
+            $checkResult(strpos($outNL, 'Línea') !== false, "Ejecución sin errores de NewLine", "Obtenido: " . $ver($outNL));
             echoTerminal(' ');
 
             $total = $passed + $failed;
             echoTerminal(' ');
             echoTerminal(str_repeat('=', 80));
-            echoTerminal(" BALANCE FINAL: {$passed}/{$total} PASADAS" . ($skipped > 0 ? ", {$skipped} OMITIDAS" : '') . ' ');
+            echoTerminal(" BALANCE FINAL: {$passed}/{$total} PASADAS" . ($failed > 0 ? ", {$failed} FALLIDAS" : '') . ' ');
             echoTerminal(str_repeat('=', 80));
             echoTerminal('[TEST:systemOutFormatted] Suite finalizada.', true, "\r\n", $failed === 0 ? '32' : '31');
             echoTerminal('');
 
+            //Antes devolvía `true` SIEMPRE: la suite no podía poner el corredor en rojo. Ver T124.
             return [
-                'success' => true,
-                'message' => 'Pruebas de systemOutFormatted completadas exitosamente.',
+                'success' => $failed === 0,
+                'message' => "{$passed}/{$total}",
             ];
         },
     ],

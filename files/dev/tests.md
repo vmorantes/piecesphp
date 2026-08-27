@@ -114,7 +114,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `functions/systemOutFormatted` | **Se juzga sola** |
 | `core/read-paths-survive` | **MariaDB** — y exige que el caso exista en los datos antes de medirlo |
 | `core/symlink-no-window` | **El sistema de archivos** — un banco en `sys_get_temp_dir()`, más tres comprobaciones que leen el cuerpo del método (T108) |
-| `functions/systemOutFormatted` | **Se juzga sola** — pero **omite 7 de 10 sin TTY**: la función suprime los ANSI a propósito. Bajo `script -qec` da 10/10. Ver T118 |
+| `functions/systemOutFormatted` | **Se juzga sola** — ejerce los DOS modos pasando la condición de terminal: **17/17, cero omitidas y sin pty** (T124) |
 | `core/operation-from-route` | **MariaDB** — invoca el controlador de verdad; el caso coherente usa un id inexistente, así que **no escribe** (T120) |
 | `core/cache-criteries-round-trip` | **Se juzga sola** — la IDA la produce `jsonSerialize()` de producción, no la prueba (T123) |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |

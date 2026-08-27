@@ -140,6 +140,26 @@ de `ignoreErrors` intactas.
 
 ---
 
+## Corregido — `systemOutFormatted()` acepta la condición de terminal, y sus dos modos se prueban
+
+La función tiene **dos modos y los dos son la función**: embellecer la salida en una terminal, y
+salir limpia hacia una tubería o un archivo de log. Detectaba con `stream_isatty(STDOUT)` y la suite
+**repetía la misma detección**, así que sin terminal se saltaba 7 comprobaciones — y como el
+corredor de puertas corre sin terminal, **probaba la mitad que allí no se ejecuta**.
+
+`systemOutFormatted()` gana un tercer parámetro `?bool $isTty`, con **`null` = detectar, que es lo
+de siempre**. El comportamiento por defecto no cambia; lo que cambia es que ahora se pueden
+ejercitar los dos modos sin un pseudo-terminal. El envoltorio global de `AppHelpers.php` lo reenvía.
+
+La suite pasa de **3 comprobaciones con 7 omitidas** a **17 sin ninguna omitida**.
+
+**Comprobado, porque era la pregunta que importaba**: la rama sin terminal **no deja ni una
+secuencia de escape** — la salida es idéntica al texto de entrada, también cuando el formato se
+hereda de `get_config`. Lo que va a los archivos de log va limpio.
+
+**Y un defecto de la propia suite**: devolvía `'success' => true` literal, así que **no podía poner
+el corredor en rojo** pasara lo que pasara. Ahora devuelve el resultado real.
+
 ## Corregido — la caché de controladores devolvía `criteries` como array crudo
 
 `CacheControllersManager::jsonUnserialize()` tenía un `if/else` con **las dos ramas idénticas**

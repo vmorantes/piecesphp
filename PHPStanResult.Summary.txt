@@ -415,9 +415,9 @@ project://src/app/controller/UsersController.php
 	return.type (Líneas: 1891)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
-	argument.type (Líneas: 2247, 2305, 2322, 2322, 3244, 3245, 3246, 3346, 3347)
+	argument.type (Líneas: 2247, 2305, 2322, 2322, 3245, 3246, 3247, 3347, 3348)
 	offsetAccess.invalidOffset (Líneas: 2346)
-	offsetAccess.notFound (Líneas: 3139, 3140)
+	offsetAccess.notFound (Líneas: 3140, 3141)
 project://src/app/core/Config.php
 	argument.type (Líneas: 815, 1094)
 	assign.propertyType (Líneas: 931)

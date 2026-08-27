@@ -1827,19 +1827,19 @@
          🪪  argument.type                                                                                                                                                  
   2346   Possibly invalid array key type (callable)|string.                                                                                                                 
          🪪  offsetAccess.invalidOffset                                                                                                                                     
-  3139   Offset 'file' might not exist on array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}.  
+  3140   Offset 'file' might not exist on array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}.  
          🪪  offsetAccess.notFound                                                                                                                                          
-  3140   Offset 'line' might not exist on array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}.  
+  3141   Offset 'line' might not exist on array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}.  
          🪪  offsetAccess.notFound                                                                                                                                          
-  3244   Parameter Nr.3 $subject of function preg_replace expects array<float|int|string>|string, string|null given.                                                          
-         🪪  argument.type                                                                                                                                                  
   3245   Parameter Nr.3 $subject of function preg_replace expects array<float|int|string>|string, string|null given.                                                          
          🪪  argument.type                                                                                                                                                  
-  3246   Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                     
+  3246   Parameter Nr.3 $subject of function preg_replace expects array<float|int|string>|string, string|null given.                                                          
          🪪  argument.type                                                                                                                                                  
-  3346   Parameter Nr.1 $filename of function file_exists expects string, string|false given.                                                                                 
+  3247   Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                     
          🪪  argument.type                                                                                                                                                  
-  3347   Parameter Nr.1 $locationPath of function append_to_path_system expects string, string|false given.                                                                   
+  3347   Parameter Nr.1 $filename of function file_exists expects string, string|false given.                                                                                 
+         🪪  argument.type                                                                                                                                                  
+  3348   Parameter Nr.1 $locationPath of function append_to_path_system expects string, string|false given.                                                                   
          🪪  argument.type                                                                                                                                                  
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 

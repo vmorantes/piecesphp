@@ -202,10 +202,12 @@ class Cli
      *  newLine:?bool,
      *  newLineChars:?string
      * }|string[]|int[] $format Configuración: color, background, estilos, o lista de formatos (nombres o códigos ANSI)
+     * @param bool|null $isTty Condición de terminal. `null` la DETECTA, que es lo de siempre.
+     *                         Se puede pasar para ejercitar los dos modos sin un pseudo-terminal.
      * @return string Texto formateado con secuencias ANSI
      * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting
      */
-    public static function systemOutFormatted(string $text, array $format = []): string
+    public static function systemOutFormatted(string $text, array $format = [], ?bool $isTty = null): string
     {
         $colorsMapping = [
             'default' => 39,
@@ -310,7 +312,7 @@ class Cli
 
         $codes = array_unique($codes);
         sort($codes); // Ordenar para consistencia
-        $isTty = defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT);
+        $isTty = $isTty ?? (defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT));
 
         if (!$isTty) {
             // Sustitución de caracteres de dibujo (box-drawing) por ASCII

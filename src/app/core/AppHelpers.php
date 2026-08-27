@@ -3005,12 +3005,13 @@ function echoTerminal(string $text, bool $newLine = true, string $newLineChars =
  *  newLine:?bool,
  *  newLineChars:?string
  * }|string[]|int[] $format Configuración: color, background, estilos, o lista de formatos (nombres o códigos ANSI)
+ * @param bool|null $isTty Condición de terminal. `null` la DETECTA, que es lo de siempre.
  * @return string Texto formateado con secuencias ANSI
  * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting
  */
-function systemOutFormatted(string $text, array $format = []): string
+function systemOutFormatted(string $text, array $format = [], ?bool $isTty = null): string
 {
-    return \PiecesPHP\Cli::systemOutFormatted($text, $format);
+    return \PiecesPHP\Cli::systemOutFormatted($text, $format, $isTty);
 }
 
 /**
