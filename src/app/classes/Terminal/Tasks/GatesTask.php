@@ -43,8 +43,8 @@ use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 class GatesTask extends TerminalTaskAbstract
 {
 
-    /** Prefijo de las acciones que son suites. */
-    const SUITE_PREFIX = 'unit-tests:';
+    /** Directorio donde viven las suites. QUÉ SUITES HAY sale de aquí, no de una lista. */
+    const SUITES_DIRECTORY = 'app/core/system-controllers/local-tests';
 
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
     {
@@ -82,15 +82,24 @@ class GatesTask extends TerminalTaskAbstract
 
         $withExternal = \PiecesPHP\TerminalData::instance()->getArgument('with', '') === 'external';
 
-        $suites = array_values(array_filter(
-            CliActions::listActionNames(),
-            static fn (string $name): bool => str_starts_with($name, self::SUITE_PREFIX)
-                && ($only === '' || mb_strpos($name, $only) !== false)
-        ));
+        //UNA SUITE ES UNA ACCIÓN DECLARADA BAJO `local-tests/`. Nada de prefijos: el prefijo
+        //ERA una lista de un elemento y se quedó corta —dejaba fuera `functions/` y `tests:`—.
+        $suitesDirectory = rtrim(str_replace('\\', '/', basepath('')), '/') . '/' . self::SUITES_DIRECTORY . '/';
+        $suites = [];
+        foreach (CliActions::listActionNames() as $name) {
+            $action = CliActions::get($name);
+            if ($action === null || !str_starts_with($action->definedIn(), $suitesDirectory)) {
+                continue;
+            }
+            if ($only !== '' && mb_strpos($name, $only) === false) {
+                continue;
+            }
+            $suites[] = $name;
+        }
         sort($suites);
 
         if (count($suites) === 0) {
-            echoTerminal("\e[31mERROR:\e[39m ninguna suite registrada con el prefijo «" . self::SUITE_PREFIX . "».");
+            echoTerminal("\e[31mERROR:\e[39m ninguna suite declarada bajo " . self::SUITES_DIRECTORY . ".");
             exit(1);
         }
 
@@ -100,7 +109,7 @@ class GatesTask extends TerminalTaskAbstract
         $skipped = [];
 
         foreach ($suites as $suite) {
-            $short = mb_substr($suite, mb_strlen(self::SUITE_PREFIX));
+            $short = str_replace('unit-tests:', '', $suite);
             $label = str_pad($short, 24);
             $action = CliActions::get($suite);
             $effects = $action !== null ? $action->getEffects() : null;

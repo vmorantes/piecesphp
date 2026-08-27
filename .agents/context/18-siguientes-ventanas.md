@@ -12550,3 +12550,49 @@ Ninguno al baseline: **886 antes, 886 después**. Uno era real y de los que impo
 del propio doble: tres parámetros de constructor sin usar, un `json_encode()` que puede devolver
 `false`, y un `instanceof` **siempre cierto** — ese último era una comprobación tautológica, y se
 sustituyó por la de la reflexión, que sí puede fallar.
+
+---
+
+## T126 · T4 · `gates` IMPRIME LO QUE NO CORRE — y el universo deja de ser un prefijo
+
+### (a) · Qué suites hay sale de lo que HAY
+
+El prefijo era una lista a mano de un elemento, y se quedó corta dos veces: primero dejando fuera
+`unit-tests:functions/…` (T118) y después `tests:mautic-batch-send` (T125), a la que **ensanchar el
+prefijo tampoco alcanzaba**.
+
+**Ahora una suite es una acción declarada bajo `local-tests/`.** `CliActions` recuerda en qué
+archivo se registró —el primer marco de la pila que no es ella misma— y `gates` filtra por eso.
+No hay prefijo, no hay lista, y una suite nueva entra por existir.
+
+```
+antes:  const SUITE_PREFIX = 'unit-tests:';
+ahora:  const SUITES_DIRECTORY = 'app/core/system-controllers/local-tests';
+```
+
+| | Antes | Ahora |
+| :-- | --: | --: |
+| Suites que `gates` ve | 19 | **21** |
+| Declaradas fuera, con su motivo | 1 | **2** |
+
+La que aparece es `tests:mautic-batch-send`, con su línea:
+
+```
+[NO SE CORRE]   tests:mautic-batch-send  declara «network, email». Para incluirla: bin/cli gates with=external
+```
+
+### (b) y (c) · Los tres estados, y el tercero ya se imprime
+
+| Estado | Cómo sale | ¿Cuenta como fallo? |
+| :-- | :-- | :-- |
+| Corrió y pasó | `[PASÓ]` con su balance | No |
+| Corrió y falló, o no llegó al balance | `[FALLÓ]` / sin veredicto | **Sí** |
+| **Excluida a propósito** | `[NO SE CORRE]` **con el motivo declarado** | No |
+| **Existe y no está ni corrida ni declarada** | `[SIN DECLARAR]` | **Sí** |
+
+**Provocado**: una suite temporal en `local-tests/` sin `setEffects()` hace que `gates` pase de
+**21 suites, 0 sin veredicto** a **22 suites, 1 sin veredicto** y termine **CON FALLOS**. Retirada,
+vuelve a 21 y a verde.
+
+**El estado por defecto es «no sé qué hace esto», y eso es un fallo.** Una suite que aparece sin
+declarar no se cuela: se ve y detiene el corredor.

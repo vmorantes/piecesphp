@@ -46,6 +46,12 @@ class CliActions
     protected ?array $effects = null;
 
     /**
+     * @var string Archivo que la registró. Lo usa `gates` para saber QUÉ SUITES HAY sin una
+     *             lista a mano: una suite es una acción declarada bajo `local-tests/`.
+     */
+    protected string $definedIn = '';
+
+    /**
      * @var string Clave de configuración para el registro global
      */
     protected static string $configKey = 'SystemCliActions';
@@ -58,6 +64,25 @@ class CliActions
     {
         $this->name = $name;
         $this->handler = $handler;
+
+        //El primer marco que no sea este archivo es quien la declara.
+        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5) as $frame) {
+            $file = isset($frame['file']) ? str_replace('\\', '/', (string) $frame['file']) : '';
+            if ($file !== '' && $file !== str_replace('\\', '/', __FILE__)) {
+                $this->definedIn = $file;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Archivo que declaró esta acción.
+     *
+     * @return string
+     */
+    public function definedIn(): string
+    {
+        return $this->definedIn;
     }
 
     /**

@@ -140,6 +140,24 @@ de `ignoreErrors` intactas.
 
 ---
 
+## Herramientas — `gates` enumera lo que existe, y deja de callar lo que no corre
+
+Una suite ya no se reconoce por un **prefijo en su nombre** —una lista a mano de un elemento, que se
+quedó corta dos veces— sino por **estar declarada bajo `local-tests/`**. `CliActions` recuerda qué
+archivo la registró y el corredor filtra por eso: una suite nueva entra **por existir**.
+
+**Verde, rojo y NO-CORRIÓ son tres estados, y el tercero ahora se imprime.** Las excluidas a
+propósito salen con su motivo y no cuentan como fallo:
+
+```
+[NO SE CORRE]   tests:mautic-batch-send  declara «network, email». Para incluirla: bin/cli gates with=external
+```
+
+Y una suite que **exista sin declarar sus efectos** detiene el corredor: el estado por defecto es
+«no sé qué hace esto», y eso es un fallo, no un dato neutro.
+
+El corredor pasa de ver **19 suites** a ver **21**.
+
 ## Herramientas — la prueba de Mautic se parte en dos
 
 **`tests:mautic-batch-send` era una sola pieza que necesitaba claves y salía a la red**, así que

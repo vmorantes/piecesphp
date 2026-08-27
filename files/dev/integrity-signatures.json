@@ -3608,6 +3608,7 @@
     ],
     "app/core/psr4/PiecesPHP/Terminal/CliActions.php": [
         "CliActions::__construct",
+        "CliActions::definedIn",
         "CliActions::execute",
         "CliActions::exists",
         "CliActions::get",
