@@ -3719,6 +3719,16 @@
         "TestQueueRequest::handle",
         "TestQueueRequest::process"
     ],
+    "app/core/system-controllers/local-tests/Mautic-BatchFlow.php": [
+        "pcsphp_mautic_batch_flow"
+    ],
+    "app/core/system-controllers/local-tests/UnitTest-MauticBatchLogic.php": [
+        "__construct",
+        "createBatchContacts",
+        "createEmailTemplate",
+        "createSegment",
+        "sendEmail"
+    ],
     "app/core/system-controllers/local-tests/UnitTest-OperationFromRoute.php": [
         "__construct",
         "getArguments",

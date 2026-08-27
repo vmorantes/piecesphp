@@ -117,6 +117,8 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `functions/systemOutFormatted` | **Se juzga sola** — ejerce los DOS modos pasando la condición de terminal: **17/17, cero omitidas y sin pty** (T124) |
 | `core/operation-from-route` | **MariaDB** — invoca el controlador de verdad; el caso coherente usa un id inexistente, así que **no escribe** (T120) |
 | `core/cache-criteries-round-trip` | **Se juzga sola** — la IDA la produce `jsonSerialize()` de producción, no la prueba (T123) |
+| `core/mautic-batch-logic` | **Se juzga sola** — el recorrido de envío masivo contra un transporte FALSO: sin red, sin claves, sin correo (T125) |
+| `tests:mautic-batch-send` | **RED y CORREO** — la otra mitad, con el adaptador real. Fuera de la pasada por defecto (T125) |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
 
 #### `core/http-client` queda SIN COBERTURA — 2026-08-25

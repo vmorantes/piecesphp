@@ -140,6 +140,26 @@ de `ignoreErrors` intactas.
 
 ---
 
+## Herramientas — la prueba de Mautic se parte en dos
+
+**`tests:mautic-batch-send` era una sola pieza que necesitaba claves y salía a la red**, así que
+nunca entraba en el corredor de puertas y su lógica —lotear contactos, encadenar listas, los cuatro
+caminos de error— no la comprobaba nadie.
+
+Ahora el recorrido vive aparte, **sin construir el adaptador y sin leer credenciales**, y lo
+comparten dos mitades:
+
+- **`bin/cli unit-tests:core/mautic-batch-logic`** lo ejerce contra un **transporte falso** que
+  hereda del adaptador real. Sin red, sin claves, sin correo. **Entra en `gates`.**
+- **`bin/cli tests:mautic-batch-send`** lo ejerce con el adaptador de verdad. Sigue **fuera** de la
+  pasada por defecto, declarando `network` y `email`.
+
+No cambia ninguna clase de producción: el adaptador ya entraba por parámetro.
+
+**Un defecto encontrado al partirla**: `createEmailTemplate()` declara `?int` y `sendEmail()` exige
+`int`, así que un fallo al crear la plantilla **reventaba con un `TypeError`** en vez de devolver su
+motivo. Ahora tiene guarda, y ese camino es una de las comprobaciones.
+
 ## Corregido — `systemOutFormatted()` acepta la condición de terminal, y sus dos modos se prueban
 
 La función tiene **dos modos y los dos son la función**: embellecer la salida en una terminal, y

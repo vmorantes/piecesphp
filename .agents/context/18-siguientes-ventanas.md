@@ -12477,3 +12477,76 @@ patrón de las ramas gemelas: la forma de una puerta sin la puerta.
 El remedio del pseudo-terminal **habría cambiado qué mitad se cubre, no cuántas**: pasaría a
 ejercitar la rama de terminal y a dejar sin probar la de tubería, que es la que va a los archivos.
 Cubrir las dos exige poder elegir, y por eso el arreglo es el parámetro y no el entorno.
+
+---
+
+## T125 · T3 · `tests:mautic-batch-send` PARTIDA EN DOS — y NO hizo falta tocar producción
+
+### (c) primero: el punto de inyección ya existía
+
+**Comprobado antes de escribir nada**, que es lo que el bloque pedía:
+
+| Qué se miró | Qué salió |
+| :-- | :-- |
+| ¿`MauticEmailAdapter` es final o una interfaz? | **Clase normal**, no final. Se puede heredar |
+| ¿Su constructor sale a la red? | **No**. Solo crea el directorio de logs |
+| Los cuatro métodos que usa el recorrido | **públicos** y no estáticos: se pueden sobreescribir |
+| ¿El recorrido construía el adaptador? | **No**: el closure `$do` lo recibía por parámetro |
+
+**Así que no hay que cambiar ninguna clase de producción, y no se ha cambiado.** El adaptador ya
+entraba por parámetro; lo único que faltaba era que el recorrido fuese alcanzable desde otra suite.
+
+### El corte
+
+| Archivo | Qué es | ¿Entra en `gates`? |
+| :-- | :-- | :-- |
+| `local-tests/Mautic-BatchFlow.php` | **El recorrido**, sin credenciales y sin construir el adaptador | No registra nada |
+| `local-tests/UnitTest-MauticBatchLogic.php` | `unit-tests:core/mautic-batch-logic` — el recorrido contra un **transporte falso** | **SÍ** |
+| `local-tests/Test-Mautic.php` | `tests:mautic-batch-send` — el mismo recorrido con el adaptador real | **No**, declara `network` y `email` |
+
+**Las dos mitades corren EL MISMO recorrido.** No es una copia de la lógica: `Test-Mautic.php` pasa
+de 133 líneas a 56 y llama a la misma función. Si mañana el recorrido cambia, las dos lo notan.
+
+### El falso HEREDA del real, y eso lo comprueba la propia suite
+
+El doble es una clase anónima que extiende `MauticEmailAdapter` y sobreescribe los cuatro métodos.
+Su constructor **no llama al del padre a propósito** —el del padre crea directorios—.
+
+**Y hay una comprobación para el riesgo que eso abre**: si el recorrido llamara un día a un quinto
+método, el falso no lo tendría cubierto y **saldría a la red de verdad desde una suite de `gates`**.
+Por eso la suite comprueba por reflexión que los cuatro que usa están los cuatro sobreescritos.
+
+### Lo que cubre, y por qué es lógica y no adorno
+
+| Comprobación | Qué defiende |
+| :-- | :-- |
+| Los contactos van en **un solo lote** | Que no se llame al transporte una vez por persona |
+| El lote lleva **a todas** las personas | Que el bucle no se deje ninguna |
+| Cada contacto lleva **las tres claves** que Mautic espera | La forma del lote |
+| El segmento recibe **los IDs devueltos**, no los correos | El paso de una lista a la siguiente, que es donde se cruzan |
+| Se envía **la plantilla recién creada** | Que el id no se pierda entre pasos |
+| **Los cuatro caminos de error**, uno por uno | Que cada fallo devuelva SU motivo y pare ahí |
+
+**12/12**, sin red, sin claves y sin correo.
+
+### Un defecto encontrado al extraer, y arreglado
+
+`createEmailTemplate()` declara `?int` y `sendEmail()` exige `int`. **Si la creación de la plantilla
+fallaba, el recorrido reventaba con un `TypeError`** en vez de devolver su motivo. Ahora hay guarda
+y su camino de error está entre los cuatro que la suite ejercita.
+
+### (b) · La mitad que habla con Mautic se queda fuera, y AHORA SE VE
+
+Sigue declarando `network` y `email`, así que `gates` no la corre por defecto. **La diferencia es
+que antes no aparecía de ninguna forma y ahora sale con su motivo** (T126).
+
+La prueba de extremo a extremo contra listas de mailinator **necesita claves** y queda para
+lanzarla a mano, no para una puerta. Eso no cambia.
+
+### Los seis errores de PHPStan que trajo el código nuevo, arreglados
+
+Ninguno al baseline: **886 antes, 886 después**. Uno era real y de los que importan
+—`render()` devuelve `string|null` y `strReplaceTemplate()` exige `string`—; los otros cinco eran
+del propio doble: tres parámetros de constructor sin usar, un `json_encode()` que puede devolver
+`false`, y un `instanceof` **siempre cierto** — ese último era una comprobación tautológica, y se
+sustituyó por la de la reflexión, que sí puede fallar.

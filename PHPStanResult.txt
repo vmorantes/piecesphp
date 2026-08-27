@@ -2781,8 +2781,9 @@
      Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.                                                                                                       
      Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.                                                                                                           
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/core/* was not matched in reported errors.                                                             
+     Ignored error pattern identical.alwaysFalse was not matched in reported errors.                                                                                                            
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 891 errors                                                                                               
+ [ERROR] Found 892 errors                                                                                               
 
