@@ -567,6 +567,30 @@ el nombre que se tecleó — porque el nombre puede ser una función que envuelv
 **El mecanismo, no el recordatorio**: `bin/censo`. Acordarse de escapar es memoria, y la memoria
 ya falló (LEY 11).
 
+### LEY 17 — EL ALCANCE DE UNA INSTRUCCIÓN NO SE HEREDA DE LA CONVERSACIÓN: SE MIDE
+
+**La escribió ARQUITECTO y la fundó ARQUITECTO.** El bloque S decía «borrar `CAN_ADD_ALL` y
+`CAN_VIEW_ALL` de **los cuatro Mappers**». El cuatro no salió de ningún censo: salió de que
+cuatro módulos eran los que se habían estado discutiendo. El censo del CODER midió **ocho**
+declaraciones de `CAN_VIEW_ALL`, y en cuatro de ellas la constante **sí restringe por
+organización**. Ejecutar la instrucción al pie de la letra habría **abierto cuatro listados**.
+
+**Por qué no es la LEY 15 otra vez.** Allí el instrumento miraba menos de lo que decía cubrir.
+Aquí el instrumento estaba bien: lo que venía con el universo mal era **la orden**. Cada elemento
+del alcance estaba medido —los cuatro módulos eran reales y sus ocho ramas también— y por eso el
+alcance **se siente medido**. Lo que nadie miró es lo que quedaba fuera. Un alcance heredado de la
+conversación trae el denominador de la conversación, no el del árbol.
+
+**La ley.** Antes de escribir una instrucción que **borre o mueva un símbolo**, el alcance se
+mide sobre el árbol entero, no sobre el subconjunto del que se venía hablando. Y si la
+instrucción nombra un número —«los cuatro», «los trece», «los veinticuatro»— ese número
+**lleva al lado el censo que lo produjo**, o no se escribe.
+
+**El corolario que ya estaba funcionando.** El CODER censa antes de ejecutar aunque la
+instrucción le dé el número hecho, y eso es lo que evitó el daño. Esa costumbre deja de ser
+costumbre: **es la puerta de esta ley**, y se escribe en las instrucciones como paso, no como
+virtud del que las cumple.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |

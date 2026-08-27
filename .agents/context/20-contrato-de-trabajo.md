@@ -74,6 +74,14 @@ desordenado:
 - **Paradas explícitas dentro del recuadro.** Es mejor una instrucción ancha con paradas que
   cinco estrechas: el PROPIETARIO lo pidió así — *«¿no se abarca más cuando se pueda?»*.
 - **Cierre fijo**: «Si algo te obliga a desviarte, para y repórtalo en vez de decidirlo tú.»
+- **El alcance se mide antes de escribirlo** (LEY 17). Ninguna instrucción que borre o mueva un
+  símbolo nombra un número —«los cuatro», «los trece»— sin el censo que lo produjo al lado. Y el
+  censo va DENTRO de la instrucción como paso previo, no como confianza en que el CODER lo hará.
+- **Toda medición de ARQUITECTO lleva escrita la versión de PHP.** Y si el resultado PUEDE
+  depender de la versión, ARQUITECTO **no la hace**: se delega al CODER en 8.5. Los dos shells de
+  ARQUITECTO tienen 8.4 y ninguno, y el único entorno con 8.5 es el del CODER.
+- **Toda distancia de git se mide contra la rama en la que se está.** `origin/master..HEAD`
+  estando en `dev` da un número que significa algo y no es el que se preguntó.
 
 ---
 
@@ -134,6 +142,23 @@ por el propietario» que él no reconoce, y no hay forma de adjudicarlas. La dis
 - **Clasificar por la forma sin preguntar el propósito.** Tres veces: Webflow, `compileScssServe`
   y un GET que escribía. Las tres retractadas. **Si alguien lo dejó así a propósito, primero se
   pregunta por el propósito.**
+- **Heredar el alcance de la conversación en vez de medirlo.** El bloque S mandó borrar dos
+  constantes «de los cuatro Mappers». `CAN_VIEW_ALL` estaba declarada en **ocho**, y en cuatro
+  restringe por organización de verdad: el censo del CODER evitó que se abrieran cuatro listados.
+  El cuatro no salía de ninguna medición — salía de que cuatro módulos eran los que se venían
+  discutiendo. Funda **LEY 17**. Es primo de «medir lo contiguo», pero peor: allí se mide otra
+  cosa, aquí **no se mide nada y el número parece medido** porque cada elemento suyo sí lo estaba.
+- **Medir contra el denominador equivocado, otra vez y en git.** Reportó que `piecesphp` iba «17
+  commits por delante» comparando `origin/master..HEAD` **estando en `dev`**. La cifra significaba
+  algo; no era lo que se había preguntado. Medido bien: los cuatro extremos idénticos.
+- **Declarar un límite propio sin comprobarlo.** Dijo «no puedo medir esto de PHPStan, aquí no hay
+  repo» teniendo `phpstan.phar` **vendorizado en el árbol que tenía delante**, a un `stage` de
+  distancia. El límite era suyo, no del entorno. **Antes de declarar que algo no se puede medir,
+  mirar si la herramienta ya está en el árbol.**
+- **Delegar en el CODER la sección que es la memoria de ARQUITECTO.** El bloque S le pidió poner
+  al día §7. Lo hizo, y bien — pero eso deja al agente cuyo trabajo hay que comprobar escribiendo
+  el estado con el que se comprueba. **§7 la escribe ARQUITECTO.** Al CODER se le piden los
+  documentos numerados, nunca este archivo.
 - **Cortar demasiado fino después de un error.** Tras equivocarse en el diseño del área pública
   empezó a trocear tanto que cada ronda compraba poco. Lo seguro no es que la instrucción sea
   corta: es que cada pieza tenga su puerta y sus paradas.
@@ -182,6 +207,10 @@ bloque y es inherente; lo que no es aceptable es que sea de tres.*
 
 **Última actualización: 2026-08-26, tras el BLOQUE S.**
 
+*Escrita por ARQUITECTO. La del bloque S la puso el CODER porque la instrucción se lo pidió, y
+eso fue un error de ARQUITECTO: esta sección es su memoria, y no la escribe el agente cuyo
+trabajo sirve para comprobar.*
+
 > **DECISIÓN DE ALCANCE, del PROPIETARIO**: esta campaña **rompe compatibilidad retroactiva a
 > propósito** y desemboca en una MAJOR. No se conserva nada por compatibilidad con clones
 > existentes. Las rupturas se agrupan en `CHANGELOG.md` bajo un solo encabezado; **el número de
@@ -214,6 +243,16 @@ plantillas. **La segunda mitad —`$_FILES` y los POST sueltos— sin empezar.**
 - **PARADA 2 · `CacheControllersManager.php:419`**: un `if/else` con las dos ramas iguales, fuera de
   los cuatro módulos de la chuleta. Su origen es otro —una intención a medias, no una copia—, así
   que la decisión no es la misma. **`verify-integrity` está EN ROJO por esto, a propósito.**
+  **LEÍDO POR ARQUITECTO, y NO es código muerto: es un defecto de ida y vuelta.** La rama está en
+  `jsonUnserialize()`, que se alimenta de `json_decode(file_get_contents($fileConfig), true)` —o
+  sea, **array asociativo**—. `criteries` se declara `protected $criteries = null`, el constructor
+  le pone un `\ArrayObject`, `setCriteries()` exige un `CacheControllersCriteries` y
+  `jsonSerialize()` lo vuelca. Al restaurar de caché se le asigna **el array crudo**: el
+  `if ($propertyName == 'criteries')` era exactamente el sitio donde iba la rehidratación, y las
+  dos ramas acabaron con el mismo cuerpo. **Después de una restauración, `getCriteries()` devuelve
+  un array donde el resto del código espera un objeto.** Falta medir el radio: quién llama a
+  `getCriteries()` tras restaurar y qué le hace. **La comprobación 18 encontró un defecto real en
+  su primera pasada fuera del conjunto que la motivó.**
 - **PARADA 5 · `tests:mautic-batch-send`**: segunda suite huérfana, con prefijo `tests:`, que
   `gates` no alcanza ni ensanchando. Declara red y correo. Hoy no aparece ni como «no se corre».
 - **La asimetría de guardas de T114**: `Documents` y `Organizations` exigen propiedad para editar y
@@ -227,6 +266,15 @@ plantillas. **La segunda mitad —`$_FILES` y los POST sueltos— sin empezar.**
 - **La puerta de `HttpClient`**, sin cobertura desde el 2026-08-25.
 - **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
 - **PHPStan en 888 y no baja porque nadie se lo ha pedido**: el trinquete es un tope, no un motor.
+
+### En el tintero — declarado por el PROPIETARIO, sin ejecutar
+
+- **El módulo como patrón mecanizable**, y los `staticResolver` universalizables. Escrito en
+  `files/dev/roadmap/El módulo como patrón mecanizable.md` con lo medido, las dos trampas y el
+  requisito de entrada (E2-b). **Sin decidir**: fase de esta campaña o campaña aparte.
+- **El versionado del framework.** El PROPIETARIO no se siente listo: las versiones se atan a
+  `last-stable`, y esa rama está **236 commits por detrás** y no tiene nada de la campaña. Lo
+  discutirán PROPIETARIO y ARQUITECTO. Los paquetes van por su cuenta y no entran aquí.
 
 ### Bloqueado en el PROPIETARIO
 
