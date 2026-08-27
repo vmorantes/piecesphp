@@ -2057,34 +2057,30 @@
          🪪  argument.type                                                                                                                                             
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php                                                                                         
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  162    Parameter Nr.1 $filename of function file_exists expects string, string|false given.                                                                         
-         🪪  argument.type                                                                                                                                          
-  164    Parameter Nr.1 $filename of function is_dir expects string, string|false given.                                                                              
-         🪪  argument.type                                                                                                                                          
-  166    Parameter Nr.1 $directory of function rmdir expects string, string|false given.                                                                              
-         🪪  argument.type                                                                                                                                          
-  168    Parameter Nr.1 $path of function basename expects string, string|false given.                                                                                
-         🪪  argument.type                                                                                                                                          
-  169    Parameter Nr.1 $filename of function unlink expects string, string|false given.                                                                              
-         🪪  argument.type                                                                                                                                          
-  200    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
-         🪪  argument.type                                                                                                                                          
-  219    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
-         🪪  argument.type                                                                                                                                          
-  274    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
-         🪪  argument.type                                                                                                                                          
-  317    Property PiecesPHP\Core\Cache\CacheControllersManager::$criteries (ArrayObject) does not accept PiecesPHP\Core\Cache\CacheControllersCriteries.            
-         🪪  assign.propertyType                                                                                                                                    
-  326    Method PiecesPHP\Core\Cache\CacheControllersManager::getCriteries() should return PiecesPHP\Core\Cache\CacheControllersCriteries but returns ArrayObject.  
-         🪪  return.type                                                                                                                                            
-  346    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
-         🪪  argument.type                                                                                                                                          
-  372    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
-         🪪  argument.type                                                                                                                                          
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------------------------ 
+  project://src/src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php                  
+ ------ ------------------------------------------------------------------------------------ 
+  162    Parameter Nr.1 $filename of function file_exists expects string, string|false given.  
+         🪪  argument.type                                                                   
+  164    Parameter Nr.1 $filename of function is_dir expects string, string|false given.       
+         🪪  argument.type                                                                   
+  166    Parameter Nr.1 $directory of function rmdir expects string, string|false given.       
+         🪪  argument.type                                                                   
+  168    Parameter Nr.1 $path of function basename expects string, string|false given.         
+         🪪  argument.type                                                                   
+  169    Parameter Nr.1 $filename of function unlink expects string, string|false given.       
+         🪪  argument.type                                                                   
+  200    Parameter Nr.1 $json of function json_decode expects string, string|false given.      
+         🪪  argument.type                                                                   
+  219    Parameter Nr.1 $json of function json_decode expects string, string|false given.      
+         🪪  argument.type                                                                   
+  274    Parameter Nr.1 $json of function json_decode expects string, string|false given.      
+         🪪  argument.type                                                                   
+  346    Parameter Nr.1 $json of function json_decode expects string, string|false given.      
+         🪪  argument.type                                                                   
+  372    Parameter Nr.1 $json of function json_decode expects string, string|false given.      
+         🪪  argument.type                                                                   
+ ------ ------------------------------------------------------------------------------------ 
 
  ------ --------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php                           
@@ -2788,5 +2784,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 893 errors                                                                                               
+ [ERROR] Found 891 errors                                                                                               
 

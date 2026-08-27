@@ -4,7 +4,7 @@
 195
 
 [TOTAL DE ERRORES VISIBLES]
-888
+886
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,7 +12,7 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 878
+En las dos (8.4 y 8.5): 876
 Solo en 8.5: 10
 Solo en 8.4: 0
 
@@ -20,8 +20,8 @@ Solo en 8.4: 0
 argument.type (357)
 property.nonObject (191)
 method.nonObject (129)
-return.type (56)
-assign.propertyType (38)
+return.type (55)
+assign.propertyType (37)
 method.resultUnused (26)
 foreach.nonIterable (18)
 property.notFound (18)
@@ -452,8 +452,6 @@ project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php
 	argument.type (Líneas: 51, 52)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
 	argument.type (Líneas: 162, 164, 166, 168, 169, 200, 219, 274, 346, 372)
-	assign.propertyType (Líneas: 317)
-	return.type (Líneas: 326)
 project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php
 	argument.type (Líneas: 71, 125)
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php

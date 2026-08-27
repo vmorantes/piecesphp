@@ -140,6 +140,26 @@ de `ignoreErrors` intactas.
 
 ---
 
+## Corregido — la caché de controladores devolvía `criteries` como array crudo
+
+`CacheControllersManager::jsonUnserialize()` tenía un `if/else` con **las dos ramas idénticas**
+justo donde iba la rehidratación de `criteries`. Al restaurar de caché, el valor entraba como el
+array crudo del JSON, así que **`getCriteries()` devolvía un array donde su propia firma declara un
+`CacheControllersCriteries`**.
+
+La clase de al lado, `CacheControllersCriteries::__unserialize()`, tiene la misma forma **con el
+caso especial escrito**: aquí el cuerpo se había perdido y quedó el molde.
+
+Ahora hay un solo camino con rehidratación, y la propiedad se alinea con las dos firmas que ya la
+declaraban —`setCriteries()` la exige por tipo y `getCriteries()` la promete—. **PHPStan llevaba
+toda la campaña reportando esa contradicción**: son los dos errores que desaparecen.
+
+**Si construyes un `CacheControllersManager` y NO llamas a `setCriteries()`**, el hash con el que se
+nombra su archivo de caché cambia, así que esa entrada se recalcula una vez. Quien llama a
+`setCriteries()` antes de `process()` —el único uso del framework— no se ve afectado.
+
+Puerta nueva: `bin/cli unit-tests:core/cache-criteries-round-trip`.
+
 ## Herramientas — cuatro instrumentos que no medían lo que decían
 
 - **`bin/cli gates` no corría todas las suites.** Su prefijo era `unit-tests:core/` y dejaba fuera

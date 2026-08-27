@@ -12284,3 +12284,124 @@ excluiría**: `html` se quedaría anclado a la última 3.x, la que todavía decl
 **No se toca ahora**: sin etiqueta publicada no hay 4.0 a la que apuntar, y escribir `^4.0` contra
 algo que no existe rompe la instalación de hoy para arreglar la de mañana. Queda escrito en el
 `CHANGELOG.md` de `html` como lo primero que hacer al etiquetar.
+
+---
+
+## T123 · T1 · LA REHIDRATACIÓN DE `CacheControllersManager` — PARADA 2 CERRADA POR LA VÍA HONESTA
+
+### (a) · El radio, MEDIDO antes de tocar nada — y es cero
+
+| Pregunta | Respuesta medida |
+| :-- | --: |
+| ¿Quién llama a `getCriteries()`? | **NADIE.** Su única aparición en todo el árbol es su propia declaración |
+| ¿Quién llama a `setCriteries()`? | **Uno**: `PublicationsController:1180` |
+| ¿Quién instancia `CacheControllersManager`? | **Uno**: `PublicationsController:1176` |
+| ¿Se reserializa el objeto tras restaurar? | Solo si `process()` se llama dos veces sobre la misma instancia. **Nadie lo hace** |
+
+**El defecto era real en el tipo y no tenía consumidor.** Eso no lo hace inofensivo —el día que
+alguien llame a `getCriteries()` recibe un array donde la firma promete un objeto— pero sí explica
+por qué llevaba años ahí sin romper nada, y justifica arreglarlo al mínimo y cerrar.
+
+### >>> PARADA T1 · los dos tipos chocan, PERO hay uno correcto evidente. Y no lo elijo yo
+
+Los dos usos, como pide el bloque:
+
+| A favor de `\ArrayObject` | A favor de `CacheControllersCriteries` |
+| :-- | :-- |
+| `@var \ArrayObject` en la propiedad | `setCriteries(CacheControllersCriteries $criteries)` — **con tipo obligatorio de PHP** |
+| `$this->criteries = new \ArrayObject();` en el constructor | `@return CacheControllersCriteries` en el getter |
+| | El único consumidor real pasa un `CacheControllersCriteries` |
+
+**Y lo decisivo no es el recuento: es que el analizador estático llevaba toda la campaña
+diciéndolo**, y estaba dentro de los 888:
+
+```
+317: Property CacheControllersManager::$criteries (ArrayObject) does not accept CacheControllersCriteries.
+326: Method CacheControllersManager::getCriteries() should return CacheControllersCriteries but returns ArrayObject.
+```
+
+**No elegí yo: elegí lo que PHPStan ya había dictaminado dos veces.** Los dos errores desaparecen
+al alinear la propiedad con las dos firmas. Si el PROPIETARIO prefiere lo contrario, es un revert.
+
+### La prueba de que la rama gemela era una COPIA con el cuerpo perdido
+
+`CacheControllersCriteries::__unserialize()` —la clase de al lado— tiene **la misma forma con el
+caso especial escrito**:
+
+```php
+if ($propertyName == 'criteries') {
+    $arrayObject = new ArrayObject(is_array($value) ? $value : []);
+    $this->$propertyName = $arrayObject;
+} else {
+    $this->$propertyName = $value;
+}
+```
+
+Mismo `if ($propertyName == 'criteries')`, misma estructura. En `CacheControllersManager` el cuerpo
+del caso especial **se perdió y quedó el molde**. No era código muerto: era una rehidratación que
+alguien vació.
+
+### (b) y (c) · Un solo camino, con rehidratación
+
+```php
+foreach ($data as $propertyName => $value) {
+    if ($propertyName === 'criteries') {
+        $restored = new CacheControllersCriteries();
+        $restored->__unserialize(is_array($value) ? $value : []);
+        $value = $restored;
+    }
+    $this->$propertyName = $value;
+}
+```
+
+**Ya no hay dos ramas: hay una asignación y un caso especial antes.** La comprobación 18 se queda
+sin nada que señalar **porque la gemela dejó de existir**, no porque se le pusiera una excepción.
+
+Y el constructor pasa a `new CacheControllersCriteries()`: sin eso, un objeto recién construido y
+uno restaurado seguirían siendo de tipos distintos, y la prueba de ida y vuelta no significaría
+nada.
+
+**Efecto declarado sobre la caché**: el hash sale de `json_encode($this)`, así que cambiar el valor
+inicial de `criteries` cambiaría el nombre del archivo de caché **para quien no llame a
+`setCriteries()`**. El único consumidor real lo llama siempre antes de `process()`, así que su hash
+no se mueve. Queda dicho en el CHANGELOG.
+
+### (d) · La prueba, y su IDA la produce el objeto
+
+`unit-tests:core/cache-criteries-round-trip`. **La ida es `json_encode($original)`**, que pasa por
+el `jsonSerialize()` de producción — no un volcado escrito a mano, que es el caso 4 de T46.
+
+| Comprobación | Por qué está |
+| :-- | :-- |
+| El volcado trae la clave `criteries` | Que la ida existe |
+| Lo que entra ES un `CacheControllersCriteries` | Que la ida es del tipo bueno |
+| **Lo que sale es del mismo tipo** | El defecto |
+| **Los dos criterios siguen ahí, por su nombre** | **El discriminante**: envolver la nada en un objeto vacío pasaría la anterior |
+| Un objeto recién construido ya es de ese tipo | Que la firma y el constructor concuerdan |
+
+**Provocada**: con el archivo anterior, **2/5**, y las tres que caen son exactamente las tres que
+describen el defecto.
+
+### Un error mío, y de los que cuestan
+
+**Provoqué restaurando el archivo con `git checkout`, y como el arreglo aún no estaba commiteado,
+me lo llevé por delante.** Hubo que rehacerlo. La provocación por copia de seguridad funciona; la
+provocación contra `git` **solo es segura después del commit**, porque `git checkout` no restaura
+lo que quería restaurar: restaura lo que hay en HEAD.
+
+### El reparto, y por qué es limpio
+
+| Puerta | Antes de T1 | Después |
+| :-- | --: | --: |
+| PHPStan | 888 | **886** |
+| Entradas de `ignoreErrors` | 52 | **52** |
+
+`[REPARTO] 886 <- 888 = 2 arreglos + 0 supresiones + 0 destapados`. **Los dos son las dos
+contradicciones de tipo**, y **T0 se midió aparte y movió cero** —888 antes y después de subir la
+plataforma—, así que este −2 no se puede confundir con el cambio de PHP. Esa era la condición.
+
+### Lo que NO se tocó, y queda medido
+
+`CacheControllersCriteries::__unserialize()` mete los criterios en un `ArrayObject` **sin
+reconstruir cada `CacheControllersCritery`**: dentro quedan arrays. Es la misma familia un nivel más
+abajo. **No se rediseña la caché**, así que se anota y se deja.

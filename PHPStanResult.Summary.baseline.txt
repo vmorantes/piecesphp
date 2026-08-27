@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 888 tripletas (2026-08-25). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 886 tripletas (2026-08-26). NO DEJARLO PEOR.
 
 EL 2026-08-26 EL UNIVERSO CRECIÓ Y LA CIFRA NO. De 812 a 815 archivos analizados: entraron
 `bin/live-cache`, `bin/walk-attribute` y `bin/walk-routes`, los tres ejecutables de `bin/`
@@ -64,6 +64,17 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 886 <- 888 = 2 arreglos + 0 supresiones + 0 destapados
+    Los DOS eran la misma contradicción, y PHPStan llevaba toda la campaña diciéndola:
+    `CacheControllersManager::$criteries` estaba tipada `\ArrayObject` mientras
+    `setCriteries()` exige un `CacheControllersCriteries` y `getCriteries()` declara
+    devolverlo. `assign.propertyType` en la 317 y `return.type` en la 326. Al alinear la
+    propiedad con las dos firmas —que es lo que el analizador pedía— se van las dos.
+    NO son supresiones y no se ha tocado el `.neon`: la cota sigue en 52 entradas. Ver T123.
+
+    La plataforma de composer subió a 8.5 en el MISMO bloque y movió CERO: se midió antes
+    (888) y después (888) de ese cambio, aparte. Este -2 es todo del arreglo de la caché.
 
 [REPARTO] 888 <- 889 = 1 arreglos + 0 supresiones + 0 destapados
     La única excepción autorizada de los 30 destapados: el `array.duplicateKey` de
@@ -138,7 +149,7 @@ HISTORIA DE ESTE BASELINE
 195
 
 [TOTAL DE ERRORES VISIBLES]
-888
+886
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos

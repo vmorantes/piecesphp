@@ -76,7 +76,7 @@ class CacheControllersManager implements JsonSerializable
     protected $creationTime = 0;
 
     /**
-     * @var \ArrayObject
+     * @var CacheControllersCriteries
      */
     protected $criteries = null;
 
@@ -114,7 +114,7 @@ class CacheControllersManager implements JsonSerializable
 
         $this->className = $className;
         $this->methodName = $methodName;
-        $this->criteries = new \ArrayObject();
+        $this->criteries = new CacheControllersCriteries();
         $this->duration = $validTimeOnSeconds;
 
         $this->init();
@@ -416,15 +416,15 @@ class CacheControllersManager implements JsonSerializable
 
         foreach ($data as $propertyName => $value) {
 
-            if ($propertyName == 'criteries') {
-
-                $this->$propertyName = $value;
-
-            } else {
-
-                $this->$propertyName = $value;
-
+            //`criteries` viaja como array y volvía como array: sin esto, `getCriteries()`
+            //devuelve un array donde su firma declara un objeto. Ver T123.
+            if ($propertyName === 'criteries') {
+                $restored = new CacheControllersCriteries();
+                $restored->__unserialize(is_array($value) ? $value : []);
+                $value = $restored;
             }
+
+            $this->$propertyName = $value;
 
         }
 
