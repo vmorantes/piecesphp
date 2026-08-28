@@ -169,6 +169,7 @@ class FileUpload
 
     }
 
+    //Si devuelve true, `$_FILES[$name]` EXISTE: nueve accesos de produccion se apoyan en eso.
     /**
      * @return bool
      * @throws \Exception en caso de no ser un archivo subido mediante formulario
@@ -184,7 +185,13 @@ class FileUpload
             $tmp = $file['tmp_name'];
             $error = $file['error'];
 
-            if ($error == \UPLOAD_ERR_OK) {
+            //NO compares $error con `==`: vale la CADENA FAKE_ERROR si la clave no venia. Ver T135.
+            if ($error === self::NOT_UPLOAD_FAKE_ERROR) {
+
+                $this->errorMessages[] = 'No se ha subido ningún archivo.';
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_OK) {
 
                 if (is_uploaded_file($tmp)) {
 
@@ -249,6 +256,12 @@ class FileUpload
             } elseif ($error == \UPLOAD_ERR_EXTENSION) {
 
                 $this->errorMessages[] = 'No se ha subido ningún archivo. Problema con alguna extensión.';
+                $valid = false;
+
+            } else {
+
+                //Sin esta rama, un error desconocido deja `$valid` como estaba: en true.
+                $this->errorMessages[] = 'No se ha podido validar el archivo subido.';
                 $valid = false;
 
             }

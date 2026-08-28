@@ -2184,11 +2184,11 @@
  ------ ------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php                                            
  ------ ------------------------------------------------------------------------------------------------- 
-  210    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
+  222    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
          🪪  argument.type                                                                                
-  387    Variable $directory on left side of ??= always exists and is not nullable.                       
+  406    Variable $directory on left side of ??= always exists and is not nullable.                       
          🪪  nullCoalesce.variable                                                                        
-  444    Variable $directory on left side of ??= always exists and is not nullable.                       
+  463    Variable $directory on left side of ??= always exists and is not nullable.                       
          🪪  nullCoalesce.variable                                                                        
  ------ ------------------------------------------------------------------------------------------------- 
 

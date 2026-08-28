@@ -166,6 +166,47 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## ⚠ Corregido — `FileUpload::validate()` decía que sí cuando el archivo no existía
+
+**La migración a PHP 8 rompió esta guarda y nadie se enteró en dos versiones mayores.**
+
+Cuando la clave pedida no viene en `$_FILES`, el constructor rellena la información con valores
+falsos y `error` = `'FAKE_ERROR'`, **una cadena**. `validate()` la comparaba con `==` contra los
+`UPLOAD_ERR_*`, que son enteros:
+
+| | `'FAKE_ERROR' == 0` |
+| :-- | :-- |
+| PHP 7.4 | **`true`** → entraba en la rama, `is_uploaded_file()` fallaba, `$valid = false` |
+| PHP 8.0 en adelante | **`false`** → **ninguna rama casaba** |
+
+Y la cadena de `if/elseif` **no tenía `else`**. Así que `$valid` se quedaba en `true` y
+`validate()` **afirmaba que había un archivo válido cuando no había ninguno**.
+
+**Nueve accesos de producción dependen de esa respuesta** — el patrón
+`$name = $_FILES[$nameOnFiles]['name'];` repetido en ocho controladores más `ImagesRepository`—,
+todos detrás de un `if ($valid)`. Con la guarda muerta, quedaban desprotegidos.
+
+Se arregla por los dos lados: una rama explícita para `FAKE_ERROR` **comparada con `===`**, y un
+`else` final para cualquier código de error que no reconozcamos.
+
+**Y se fija con una puerta nueva, `core/file-upload-contract` (7/7)**, porque un contrato escrito
+en un comentario no es un contrato. Cada rama del arreglo tiene su propia comprobación, y se ha
+verificado **quitándolas por separado**: sin la rama del `FAKE_ERROR` falla una; sin el `else`
+final falla otra. La primera versión de la suite no distinguía —quitar cualquiera de las dos la
+dejaba en verde— y ese es justo el fallo que la LEY 24 describe.
+
+### E2-b · el resto de los accesos a superglobales, medidos y clasificados
+
+|  | ocurrencias | líneas | archivos | sin guarda |
+| :-- | --: | --: | --: | --: |
+| `$_FILES` | 49 | 44 | 18 | **0** |
+| `$_POST` | 77 | 41 | 18 | **0** |
+
+Ninguno queda desprotegido: o llevan `isset`/`empty`/`array_key_exists` delante, o usan el
+**array completo** —donde no hay índice que pueda faltar—, o se apoyan en el contrato de
+`FileUpload` que esta misma entrada arregla. En los módulos que E3 va a borrar no se ha tocado
+nada: 3 accesos a `$_FILES` y 2 a `$_POST` en `ImagesRepository` y `ApplicationCalls`.
+
 ## Herramientas — el bit de ejecución se pone solo, y no esperamos a la tercera
 
 `verify-integrity` cazó **dos veces** un guion nuevo de `bin/` guardado en el índice como
