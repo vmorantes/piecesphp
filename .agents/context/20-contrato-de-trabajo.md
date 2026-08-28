@@ -62,19 +62,30 @@ desordenado:
   **previsto · cambiado · añadido**.
     - Se paran los pies cuando **AÑADIDO ≠ CAMBIADO**. Eso es dejarse algo fuera de verdad, y es
       el caso que funda la regla: un commit que anunciaba 103 archivos y contenía 102.
-    - Un archivo **PREVISTO que no cambió** se **declara en el reporte**, con una línea diciendo
-      por qué no cambió. No desaparece en silencio y **no detiene el bloque**: el previsto es una
-      expectativa de ARQUITECTO, no una medición, y contra una expectativa no se para.
-    - **Por qué cambió la regla**: en el bloque S el conteo dio 3 contra 4 y el CODER commiteó
-      habiendo debido parar. Al mirarlo, lo previsto que faltaba era `integrity-signatures.json`,
-      que **no cambió porque no tenía por qué** —el cambio movía una constante, no una firma—.
-      La regla vieja mandaba parar por un acierto del código.
+    - Un archivo **PREVISTO que no cambió** se **explica antes de commitear**, con una línea que
+      diga por qué no cambió. No desaparece en silencio, y **sin esa explicación se para** — ver
+      la regla ampliada más abajo, que corrige esta redacción.
+    - **De dónde sale**: en el bloque S el conteo dio 3 contra 4 y el CODER commiteó habiendo
+      debido parar. Lo previsto que faltaba era `integrity-signatures.json`, que **no cambió
+      porque no tenía por qué** —el cambio movía una constante, no una firma—. La explicación
+      valía; lo que no vale es no darla.
     - **La cuenta es por repositorio**, no del bloque: son cinco.
 - **La guarda del `git add` es `bin/guarda-add`, y EMITE SU LÍNEA.** «guarda ejecutada: 4·4·4».
   **La ausencia de esa línea es un fallo**, no un silencio: significa que la guarda no corrió.
   Escribirla en línea es lo que la mató una vez —una variable con `ñ`, ver LEY 18—. Los guiones
   de guarda llevan `set -e`, `set -u` y `set -o pipefail`, y **la que hace el trabajo es la
   primera**: las otras dos no cazan ese caso, medido.
+- **`previsto != cambiado` OBLIGA A EXPLICAR LA DIFERENCIA ANTES DE COMMITEAR.** Si no aparece
+  explicación, se para. La redacción anterior lo daba por inocuo, y estaba mal: en el bloque T
+  una parada en `10·9·9` cazó los tres artefactos de PHPStan que faltaban por preparar.
+- **SE PROVOCA DESDE UN ESTADO GUARDADO.** Provocar es destructivo. Un `git checkout` para
+  «restaurar» devuelve lo que hay en HEAD, no lo que tenías: en el bloque T se llevó por delante
+  un arreglo sin commitear y hubo que rehacerlo. Se copia antes, se restaura de la copia, y se
+  comprueba con `sha1sum` que el archivo volvió idéntico.
+- **Toda orden de git de ARQUITECTO lleva `--no-optional-locks`.** Medido:
+  `git --no-optional-locks status --porcelain` no deja `.git/index.lock`. Sin ese flag, el
+  puente deja candados huérfanos que él no puede borrar y que rompen el primer `git add` del
+  CODER.
 - **Commits atómicos por asunto.** Árbol sano después de cada uno.
 - **Árbol limpio al terminar, y se enseña.**
 - **Las puertas se nombran, no se numeran.** Escribir «(8/8)» en la lista de puertas invita a

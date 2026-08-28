@@ -12227,3 +12227,184 @@ de verdad a través de Mautic con credenciales reales.
 meses** registrada, ejecutable y fuera de toda pasada. No la escondía nadie: la escondía un prefijo.
 La otra que llevaba escondida —`functions/systemOutFormatted`, T118— también existía desde esa misma
 fecha. **Dos suites de marzo que ninguna puerta miró hasta agosto.**
+
+---
+
+## T128 · U4 · LA PASADA DE RETENCIÓN SOBRE LOS 129 BLOQUES — clasificados, NADA borrado
+
+**La regla, una sola pregunta por bloque**: ¿algo futuro depende de él? Si su conclusión ya está
+aplicada —en el código, en una puerta o en una ley—, el registro ya hizo su trabajo.
+
+### Las tres cifras
+
+| Montón | Cuántos | Qué son |
+| :-- | --: | :-- |
+| **PROMOCIONA** | **19** | Su conclusión es documentación de framework o una ley: sube a `01`–`15` o a `19` |
+| **SE QUEDA** | **26** | Algo pendiente depende de ellos, y se dice qué |
+| **SE VA** | **84** | Aplicado y con puerta. Git guarda cómo se llegó |
+| | **129** | |
+
+**El 65 % del registro ya no sostiene nada.** Son 11.548 líneas de bloques T; los 84 que se van
+suman la mayor parte.
+
+### PROMOCIONA — 19
+
+**Cinco son leyes sin nombre de ley**, y ese es el hallazgo del montón: llevan tiempo funcionando
+como tales, se citan como tales, y viven en el registro que nació para morir.
+
+| Bloque | Va a |
+| :-- | :-- |
+| **T10** · No se edita PHP por línea, se edita por estructura | **19-leyes.md** |
+| **T17** · Una regla mecánica se aplica a TODA la familia o a ninguna | **19-leyes.md** |
+| **T20** · Cuando una medición sorprende, se sospecha de la medición | **19-leyes.md** |
+| **T21** · Pedir la demostración no es ceremonia, es un detector | **19-leyes.md** |
+| **T46** · Una prueba que pasaría con el defecto puesto no es una prueba | **19-leyes.md** |
+| T1 · La garantía de `ERRMODE_EXCEPTION` | `11-base-de-datos.md` |
+| T5 · Por qué las puertas son las que son | `files/dev/tests.md` |
+| T14 · `scan-invalid-utf8` viaja con el framework | `10-cli-y-tareas.md` |
+| T48 · `missing-lang-messages` escribe también en producción | `08-i18n.md` |
+| T51 · El opcache deja de ser regla y pasa a ser código | `10-cli-y-tareas.md` |
+| T55 · Las rutas de prueba, solo en local | `05-routing-y-permisos.md` |
+| T60 · El área pública se apaga con dos interruptores | `04-configuracion.md` |
+| T64 · El acuñado del slug: atómico, visible y declarado | `06-orm-mappers.md` |
+| T67 · Qué significa el retorno de `update()` | `06-orm-mappers.md` |
+| T74 · `bin/cli gates` | `10-cli-y-tareas.md` |
+| T81 · La trampa del PHP de Composer | `12-convenciones.md` |
+| T85 · El corredor no sale al exterior | `10-cli-y-tareas.md` |
+| T104 · `server-delegated/`, medido y declarado | `09-frontend-assets.md` |
+| T111 · Qué cuesta servir un estático de módulo | `09-frontend-assets.md` |
+
+### SE QUEDA — 26, y de qué depende cada uno
+
+| Bloque | Depende de… |
+| :-- | :-- |
+| T4 | Rotar el token de GitHub. Es del PROPIETARIO |
+| T6 | E3: es el mapa de destino de los módulos |
+| T7 | La ventana de pruebas de correo, sin empezar |
+| T9 | Las 98 reglas de Rector que faltan |
+| T13 | La supresión de ramas muertas, **no autorizada** |
+| T15 | El `psr-4` de `src/app/classes`, candidato futuro |
+| T18 | El lote de las 300 ramas, que no se aplica |
+| T22 | La mudanza de `MetaProperty`, decidida y no ejecutada |
+| T25 | Las utilidades clonadas, medidas y no ejecutadas |
+| T26 | Dos preguntas de seguridad abiertas sobre el enrutado |
+| T29 | Es el mapa vigente de las 309 ramas |
+| T34 | Es la escalera: el plan de E2–E6 |
+| T39 | Limitación permanente del entorno; se cita en cada pasada |
+| T63 | Cuatro observaciones del endpoint de cronjobs, sin arreglar |
+| T65 | Los 19 `dafault`, atados a endurecer `$fields` |
+| T72 | Contar filas cambiadas desde el despacho de `updated` |
+| T80 | Los 30 de detrás de la puerta, sin arreglar |
+| T82 | La instantánea al hidratar: nada implementado |
+| T86 | La columna `json` a NULL, desde 2018 |
+| T88 | El tamaño de E2, con E2-b a medias |
+| T92 | Los dos `isset()` mágicos, sin tocar |
+| T93 | La puerta de `HttpClient`, y ahora también su falta de balance (T127) |
+| T106 | Las 11 rutas sin veredicto por falta de datos |
+| T114 | La asimetría de guardas y la transacción de `ImagesRepository` |
+| T116 | Los 6 censos sospechosos de la LEY 16 |
+| T122 | Las cuatro restricciones de `src/composer.json`, pendientes del empuje |
+
+### SE VA — 84
+
+Todo lo demás. Son los bloques cuya conclusión **ya está en el código, en una puerta o en una ley**:
+las dos migraciones de PHP, los mapas derogados, los arreglos con su suite, los cierres de E1 y E2-a,
+y los bloques R, S y T salvo los que aparecen arriba.
+
+### >>> PARADA U4 · qué NO puedo afirmar
+
+**No aparece ningún bloque cuya conclusión esté sin aplicar y sin esperar por nadie** — pero hay que
+decir con qué se ha comprobado, porque es menos de lo que parece.
+
+La clasificación se hizo **por el título y por lo que el registro dice de sí mismo**, con sondas
+sueltas sobre el código en los casos que olían a trabajo perdido: `T45` —el cifrado de contraseñas
+en `db-backup`— **sí está aplicado**, con su comentario en el código. **No he verificado las 129
+conclusiones contra el árbol**: eso es una pasada propia, no un apartado.
+
+**Los tres candidatos que quedan por comprobar antes de borrar nada**: `T53` (las dos rutas con
+nombre `uniqid()`), `T57` (el descubrimiento que se dejaba mappers fuera) y `T59` (el apóstrofo de
+`UNSUSCRIBE_TEXT`). Los tres describen defectos concretos y **ninguno aparece citado como cerrado
+más adelante**. Van al montón «SE VA» **provisionalmente y marcados**: si al borrar se comprueba
+que su arreglo no está, eso es trabajo perdido y cambia de montón.
+
+**Nada se ha borrado en este bloque**, como se pidió.
+
+---
+
+## T129 · U0 y U6 · LOS PAQUETES SE VERSIONAN, Y EL BASELINE RESPONDE PREGUNTAS QUE NADIE LE HA HECHO
+
+### U0 · La corrección de ARQUITECTO, y las cuatro mayores
+
+El bloque T decía «ni tags ni versiones, en ninguno de los cinco». **Era un error suyo.** La regla
+del PROPIETARIO: **los cuatro paquetes se versionan y se etiquetan siempre** —si no se etiquetan,
+sus cambios no entran nunca en `piecesphp` y el trabajo queda muerto—; **solo `piecesphp` no**.
+
+| Paquete | De | A | Por qué MAYOR |
+| :-- | :-- | :-- | :-- |
+| `database` | v3.9.0 | **v4.0.0** | Subir el piso de PHP **excluye consumidores** |
+| `datastructures` | v3.1.0 | **v4.0.0** | Igual |
+| `html` | v2.1.0 | **v3.0.0** | Igual, más la cadena de abajo |
+| `geojson` | v2.1.0 | **v3.0.0** | Igual |
+
+**La cadena, resuelta en el mismo acto**: `html` pasa de `piecesphp/datastructures: "^3.1"` a
+`"^4.0"`. `^3.1` significa `>=3.1 <4.0` y habría excluido la 4.0 que `datastructures` publica ahora:
+`html` se habría quedado anclado a la última 3.x, la que todavía declara `>=8.4 <9.0`, **mientras el
+suyo propio ya exige 8.5**. Una cadena rota en silencio.
+
+`piecesphp` **sin versión y sin etiqueta**, y sus etiquetas siguen siendo las de antes.
+
+### >>> PARADA U0 · dónde me detengo, y por qué el orden no es negociable
+
+`src/composer.json` **no declara `repositories`**: composer resuelve por el camino público, así que
+**una etiqueta local no existe para composer**. Intentar ahora el `composer update` de las cuatro
+mayores fallaría, y **ese fallo no significaría nada**.
+
+Las cuatro restricciones del framework siguen intactas y ninguna alcanza las nuevas:
+
+```
+piecesphp/database: ^3.1      piecesphp/datastructures: ^3.0
+piecesphp/geojson:  ^2.0      piecesphp/html:           ^2.0
+```
+
+**Le toca al PROPIETARIO empujar los cuatro con sus etiquetas.** Después se mueven las cuatro y se
+actualiza.
+
+### U6 · El criterio que cambia: LA PARADA T1 LA RESOLVIÓ EL BASELINE
+
+En T123 los dos tipos de `criteries` se contradecían —`\ArrayObject` en el constructor,
+`CacheControllersCriteries` en las dos firmas— y la instrucción decía: si chocan de verdad y no hay
+uno correcto evidente, **para y no elijas tú**.
+
+**No hizo falta elegir. La respuesta llevaba meses escrita dentro de los 888:**
+
+```
+317: Property CacheControllersManager::$criteries (ArrayObject) does not accept CacheControllersCriteries.
+326: Method getCriteries() should return CacheControllersCriteries but returns ArrayObject.
+```
+
+**Un baseline no es solo trabajo aplazado: es un almacén de respuestas a preguntas que todavía no se
+han hecho.** Los 886 de hoy son 886 afirmaciones sobre el código, cada una con su ubicación exacta,
+producidas por algo que no tiene opinión. Cuando una decisión parece indecidible, **antes de
+declararla indecidible se le pregunta al baseline** — puede que ya esté respondida y solo estuviera
+esperando a que alguien hiciera la pregunta.
+
+**Y tiene una consecuencia que no es retórica**: el baseline se ha estado leyendo como una deuda a
+bajar. También es un **corpus consultable**, y consultarlo es gratis.
+
+### U6 · Tres reglas nuevas en el contrato, y las tres vienen de un error de este bloque o del anterior
+
+| Regla | El caso |
+| :-- | :-- |
+| **Se provoca desde un estado guardado** | Un `git checkout` para «restaurar» devolvió lo que había en HEAD y se llevó un arreglo sin commitear. En este bloque, las 22 suites se copiaron antes y se restauraron por `sha1sum` |
+| **`previsto != cambiado` obliga a explicar antes de commitear** | ARQUITECTO había aflojado la regla; una parada en `10·9·9` cazó los tres artefactos de PHPStan que faltaban por preparar |
+| **Toda orden de git de ARQUITECTO lleva `--no-optional-locks`** | Dejó un `.git/index.lock` huérfano que el puente no puede borrar y que rompe el primer `git add` del CODER |
+
+### La guarda, ampliada sobre la marcha: los PENDIENTES se declaran
+
+`bin/guarda-add` comparaba `añadido` contra **todos** los archivos cambiados del repositorio. Con
+tres asuntos en vuelo a la vez —lo normal en un bloque— eso hacía imposible commitear por asunto sin
+que la guarda parase.
+
+Se le añadió `--pendientes=<n>`: los archivos que se dejan fuera **a propósito** porque son de otro
+asunto **se cuentan y se dicen**. La condición pasa a ser `añadido + pendientes == cambiado`.
+**La diferencia entre dejar algo fuera y olvidarlo es que lo primero se declara.**
