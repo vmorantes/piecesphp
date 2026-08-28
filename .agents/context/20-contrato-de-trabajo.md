@@ -177,13 +177,24 @@ por el propietario» que él no reconoce, y no hay forma de adjudicarlas. La dis
 
 ## 6. Dónde va cada cosa
 
-| Si es… | Va a… |
-| :-- | :-- |
-| **Ley durable** — cómo se trabaja, una convención | El documento numerado que corresponda |
-| **Pendiente** — ventana, peldaño, backlog | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) |
-| **Lo hecho** — medición, hallazgo, error corregido | [`historico/`](./historico/) |
-| **Intención declarada del PROPIETARIO, sin resolver** | `files/dev/roadmap/` |
-| **El contrato de trabajo** | Este archivo |
+**La tabla reparte por TIPO de contenido. Falta el otro eje, que es el que decide si algo
+sobrevive: PARA QUIÉN se escribe.** Un archivo se ubica cruzando los dos.
+
+| Si es… | Va a… | Audiencia | ¿Vive para siempre? |
+| :-- | :-- | :-- | :-- |
+| **Cómo funciona el framework** — módulos, rutas, mappers, i18n, assets | `01`–`15` | **Desarrollador**: viene a USARLO | **Sí** |
+| **Ley durable** — una regla que ya falló y costó dinero | [19-leyes.md](./19-leyes.md) | **Mantenedor** | **Sí** |
+| **El contrato de trabajo** | Este archivo | **Mantenedor** | **Sí** |
+| **Pendiente** — ventana, peldaño, backlog | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Mantenedor** | **NO: nació para morir** |
+| **Lo hecho** — medición, hallazgo, error corregido | [`historico/`](./historico/) | **Mantenedor** | Sí, como explicación de por qué algo es como es |
+| **Intención declarada del PROPIETARIO, sin resolver** | `files/dev/roadmap/` | **PROPIETARIO** | Hasta que se decida |
+
+**Las dos audiencias no se mezclan**, y el `README.md` de `.agents/context/` abre con esa
+bifurcación: quien viene a escribir un módulo **no pasa por el 18**.
+
+**Y la regla que se derivó de esto**: lo que vive para siempre **no puede vivir dentro de lo que
+nace para morir**. Las leyes estaban dentro de `T0` del 18, y por eso el 18 no podía disolverse
+sin llevárselas. Ver el bloque U.
 
 `.agents/context/` **no es la historia de la campaña**: es documentación paralela para agentes y
 **viaja con el framework**.
