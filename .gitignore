@@ -37,3 +37,8 @@ PHPStanResult.8.4.json
 PHPStanResult.8.5.json
 #El rastro de la última restauración es de una máquina y un momento: no se versiona.
 files/dev/last-restore.json
+
+#La configuración LOCAL del agente: permisos que acumula cada máquina, no del proyecto.
+#Se ignoraba solo por el ignore global de una máquina, y un ignore que no viaja no es una regla:
+#en otro clon aparecía sin seguimiento. Ver bloque U.
+.claude/settings.local.json
