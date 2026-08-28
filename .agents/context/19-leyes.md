@@ -693,8 +693,8 @@ una persona, y eso queda dicho.
 
 ### LEY 19 — UNA AFIRMACIÓN SOBRE EL CONSUMIDOR NO SE DEDUCE DEL PRODUCTOR
 
-**Tres casos, los tres del mismo tramo de campaña, los tres de ARQUITECTO, y los tres con la
-misma forma**: se leyó lo que un archivo *contiene* y se afirmó lo que otra herramienta *hace*
+**Cinco casos, todos del mismo tramo de campaña, todos de ARQUITECTO, y todos con la misma
+forma**: se leyó lo que un archivo *contiene* y se afirmó lo que otra herramienta *hace*
 con él, sin abrir la línea que lo implementa.
 
 | Se leyó (el productor) | Se afirmó (el consumidor) | Lo que hacía de verdad |
@@ -702,9 +702,16 @@ con él, sin abrir la línea que lo implementa.
 | El SCSS, con sus `@import` | «van a salir avisos de deprecación» | La consola los tenía **silenciados**: `gulpfile.js` los apaga uno por uno |
 | El `return` de una suite | «esa suite no puede ponerse roja» | `gates` **parsea la línea de balance impresa**, no el valor devuelto |
 | El manual de `set -u` / `pipefail` | «con esto la guarda aborta» | El caso que funda la LEY 18 es una **orden inexistente**: solo aborta con `set -e` |
+| Un ejemplo de mensaje de commit | «la convención es `docs(t114)`, así que el bloque tiene procedencia en git» | Esa forma se usó **una vez en 2.056 commits**. La procedencia existe, pero en el commit que aplicó el cambio |
+| El aviso `LF will be replaced by CRLF` | «los artefactos dan ruido de diff» | El aviso habla del **checkout**. Con `text` puesto git normaliza en los dos sentidos y **no hay diff**; los cambios eran de contenido |
 
-El error no es de descuido: en los tres casos el razonamiento era **correcto sobre el
+El error no es de descuido: en los cinco casos el razonamiento era **correcto sobre el
 productor**. Lo que faltaba era ir a mirar quién lo consume.
+
+**Los dos últimos son de la misma familia y merecen su nombre**: el cuarto es **generalizar
+desde un solo ejemplo** —se vio `docs(t114)` una vez y se dedujo una convención—, y el quinto
+es **heredar una premisa de un informe sin volver a medirla**, que es la LEY 14 y ésta actuando
+juntas: un error del registro se convirtió en una tarea del bloque siguiente.
 
 > **LA PUERTA: toda afirmación sobre el comportamiento de una herramienta se acompaña de la
 > línea del consumidor que lo implementa, o se escribe como HIPÓTESIS A MEDIR.**

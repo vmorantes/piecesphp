@@ -166,6 +166,19 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## Documentación — la LEY 19 llega a cinco casos, y los cinco son de la misma persona
+
+*Una afirmación sobre el consumidor no se deduce del productor.* Los dos nuevos:
+
+| Se leyó | Se afirmó | Era |
+| :-- | :-- | :-- |
+| Un ejemplo de mensaje de commit | «la convención es `docs(t114)`» | Se usó **una vez en 2.056 commits** |
+| El aviso `LF will be replaced by CRLF` | «los artefactos dan ruido de diff» | El aviso habla del **checkout**; no había ningún diff |
+
+El cuarto es **generalizar desde un solo ejemplo**; el quinto, **heredar una premisa de un informe
+sin volver a medirla** — la LEY 14 y ésta actuando juntas, hasta convertir un error del registro en
+una tarea del bloque siguiente.
+
 ## ⚠ Corregido — `FileUpload::validate()` decía que sí cuando el archivo no existía
 
 **La migración a PHP 8 rompió esta guarda y nadie se enteró en dos versiones mayores.**

@@ -12660,3 +12660,259 @@ documentados en `03-ciclo-de-vida.md`, que era su destino declarado.
 ### SIGUE SIN BORRARSE NADA
 
 La tabla queda para que ARQUITECTO arbitre. El borrado va en el bloque siguiente.
+
+---
+
+## T133 · W1 · `HttpClient::$baseURL` DEJA DE SER ESTÁTICA — y la de al lado NO se toca
+
+### El radio, acotado por dos métodos antes de tocar nada
+
+| Método | Subclases de `HttpClient` |
+| :-- | --: |
+| Texto (`bin/censo 'extends HttpClient'`) en los **cinco** repositorios | 0 |
+| **Reflexión** sobre 452 clases con namespace, `is_subclass_of()` | **0** |
+
+El segundo hace falta porque el primero no ve un `extends` con alias ni con FQCN. Tres clases no
+se pudieron cargar —las extensiones de PHPStan, que necesitan el paquete de `bin/tools`— y
+ninguna menciona `HttpClient`.
+
+Dentro de la clase, **tres referencias reales**: la declaración (36), la escritura del
+constructor (80) y la lectura al construir la URI (176). Las otras tres apariciones son el
+parámetro y una variable local.
+
+**NO hubo PARADA W1**: sin subclases, nadie puede estar escribiéndola esperando que afecte a otras.
+
+### W1(d) · Los constructores de producción, y una corrección a mi propia cifra
+
+**Dije nueve archivos en el bloque V. Son SIETE archivos y NUEVE construcciones.** Los otros dos
+—`AdminPanelController` y `UserProblemsController`— solo **leen** el cliente que ya guardó
+`OsTicketAPI`. La cifra salió de contar archivos que *mencionan* `HttpClient`, no que lo construyan.
+
+| Archivo | Construcciones | ¿Guarda el cliente? |
+| :-- | --: | :-- |
+| `MailjetHandler` | 1 | **Sí**, en `$this->client` |
+| `OsTicketAPI` | 1 | **Sí**, en `$this->httpClient` |
+| `MauticEmailAdapter` | 2 | No |
+| `APIExternalAdapterExample` | 2 | No |
+| `MistralHandlerAdapter` · `APILabsMobileSMS` · `GoogleReCaptchaV3Controller` | 1 c/u | No |
+
+**Los dos que guardan el cliente son los expuestos de verdad**: construyen una vez y usan más
+tarde, cuando otro constructor ya pudo pisarles la base. Los demás construyen y usan en el mismo
+método.
+
+**Ninguno dependía del comportamiento compartido**: las nueve construcciones pasan su propia URL.
+
+### La prueba, y la provocación
+
+`core/http-client-request-build` gana un quinto caso: dos clientes con destinos distintos, cada uno
+tiene que conservar el suyo. Reintroducida la propiedad estática, sale **11/13 con dos fallos** —el
+primero apunta a `SEGUNDO` y las dos URIs son la misma—. Restaurado por `sha1sum`. Sube a 13/13.
+
+### >>> LO QUE EL CENSO DESTAPÓ, Y ES LO CONTRARIO <<<
+
+`OsTicketAPI` tiene **su propia `$baseURL` estática**, y **no se toca**, porque no es el mismo caso:
+
+| | `HttpClient` (defecto) | `OsTicketAPI` (diseño) |
+| :-- | :-- | :-- |
+| Quién la escribe | **el constructor**, en cada instancia | un **setter estático público**, `setBaseURL()` |
+| Qué hace el constructor | la sobrescribe | la usa **solo como valor por defecto** si no le pasan URL |
+| Quién lo pide | nadie | **cinco archivos**, que la fijan desde la configuración |
+
+Es configuración global **con su puerta de entrada declarada**. La diferencia no es que una sea
+estática y la otra no: es que **una lo dice y la otra lo hacía de tapadillo**.
+
+### Y la documentación describía el comportamiento correcto
+
+`source-docs/.../http-client.md` no menciona nada estático y todos sus ejemplos suponen que cada
+cliente lleva su URL. **No hubo que corregirla: el arreglo la vuelve cierta.** El documento llevaba
+razón y el código no, y nadie los había comparado.
+
+---
+
+## T134 · W2 y W4 · LA GUÍA QUE APUNTA AL VACÍO, Y EL BIT QUE SE PONE SOLO
+
+### W2 · Las cuatro de T68, y el censo que las generaliza
+
+`general.md` mandaba al operador **cuatro veces** a `src/app/database.php` y
+`src/app/constants.php`. Los dos viven en `src/app/config/`. Corregidas, más una quinta
+ambigua en `cronjobs.md` —`config/database.php` en prosa, sin raíz—.
+
+**Y se generaliza, que es lo que importa**: `bin/censo-rutas-doc` lee los 38 documentos de
+`source-docs/`, extrae toda ruta de archivo mencionada y comprueba cuáles existen.
+
+| | |
+| :-- | --: |
+| Documentos leídos | 38 |
+| Rutas comprobables | **16** |
+| Descartadas por alcance | 18 |
+| **Que no existen** | **0** |
+
+**Las 18 descartadas se dicen una a una con su motivo**, porque un censo que descarta en silencio
+miente sobre su propia cobertura (LEY 15): ramas sueltas de diagramas de estructura (`app/`,
+`core/`, `view/`…), rutas del sistema (`/etc/sysctl.d/`) y plantillas con marcador (`[Modulo]`).
+
+**El instrumento falló primero, y se cazó por rareza**: la primera versión hacía `lstrip('./')`
+para quitar el prefijo relativo y **se comía el punto de `.agents/`**, dando 17 rutas rotas de las
+que 14 existían. `lstrip` quita *caracteres*, no un prefijo. Probado también al revés, plantando
+una ruta inventada en `general.md`: sale en rojo y devuelve código 1. Restaurado por `sha1sum`.
+
+**Lo que NO cubre, y hay que decirlo**: los diagramas de estructura no se han verificado rama por
+rama contra el árbol. Son 18 tokens sueltos sin raíz; comprobarlos exige interpretar el dibujo, no
+resolver una ruta.
+
+### >>> PARADA W2 · UN PASO ENTERO OBSOLETO, Y NO LO ARREGLO <<<
+
+`general.md`, sección **«Despliegue de PiecesPHP (Ubuntu 24.04 LTS)»**, tiene un aviso destacado
+que dice:
+
+> *Desde la versión 7.1.0 el piso es **PHP 8.4.1**…*
+>
+> ```bash
+> sudo apt install php8.4 php8.4-{mysql,xml,mbstring,curl,gd,zip,intl,sqlite3,bcmath} -y
+> ```
+
+**El piso es `>=8.5 <8.6` desde el bloque T.** Un despliegue nuevo que siga este paso instala 8.4,
+y `vendor/composer/platform_check.php` —que el propio aviso cita— aborta el arranque. No es una
+ruta mal escrita: es **el procedimiento de despliegue mandando instalar la versión equivocada**.
+
+Y arrastra su propia justificación caducada: *«El `.1` del piso no es capricho: lo exige
+`symfony/cache` 8.1»*. Symfony subió a 8.1 y el piso ya no es 8.4.1 por ese motivo.
+
+**No se arregla de paso, según lo pedido.**
+
+### Podredumbre menor del mismo documento, que NO es parada
+
+El `sudo rm -Rf` de la preparación nombra **tres cosas que no existen** —`tmp`, `TODO` y
+`guides`—. `rm -Rf` sobre algo inexistente no falla, así que es podredumbre, no trampa. Se
+enseña y se deja.
+
+### W4 · El bit de ejecución, a la segunda y no a la tercera
+
+`verify-integrity` cazó **dos veces** un guion nuevo guardado como `100644`: `bin/guarda-add` en
+el bloque U y `bin/anexar` en el V. El repositorio tiene `core.fileMode=false`, así que el
+`chmod +x` del disco no llega al índice. **La puerta lo veía después de commitear.**
+
+El mecanismo va en `bin/guarda-add`, **porque por ahí pasa todo lo que se va a commitear** y no
+exige acordarse de ninguna herramienta nueva — que es lo que la LEY 11 dice que no funciona.
+Discrimina por el `#!`, comprobado plantando a la vez un guion sin bit y un `.txt`: cambia el
+primero y deja el segundo. Y lo dice en su línea:
+
+```
+guarda ejecutada: 4·4·4  (previsto·cambiado·anadido) en .
+  bit de ejecucion puesto en el indice: bin/censo-rutas-doc
+```
+
+**Estrenado en el mismo bloque, sobre un guion real**, sin que nadie se acordara.
+
+> **La LEY 11 pide tres fallos, y se ha hecho a la segunda a propósito. La ley es un SUELO, no un
+> techo**: cuando el patrón ya es idéntico dos veces y el mecanismo cabe en una línea, esperar a
+> la tercera es ceremonia.
+
+---
+
+## T135 · W3 · E2-b CIERRA, Y EL CENSO DESTAPÓ UNA GUARDA QUE MURIÓ EN LA MIGRACIÓN
+
+### >>> PARADA W3 · las cifras se separan, y NO es un instrumento roto <<<
+
+**Las dos discrepancias tienen causas distintas y ninguna es un `grep` contaminado.**
+
+**(1) `$_FILES`: 44 contra 49 son DOS UNIDADES.**
+
+| Instrumento | Unidad | Cifra |
+| :-- | :-- | --: |
+| La medición de T88, y `git grep -c` | **líneas que casan** | 44 |
+| `bin/censo` (`grep -rhoF \| wc -l`) | **ocurrencias** | 49 |
+
+Y el árbol **no ha cambiado**: `git grep -c` sobre el commit donde se midieron los 44 y sobre
+`HEAD` dan **44 y 44**. Cinco líneas llevan dos apariciones. Es literalmente el caso «469 contra
+464» que ya está en el registro: la misma cifra en otra unidad.
+
+**(2) `$_POST`: 119 contra 77 es una ETIQUETA MAL PUESTA, y está dentro del registro.**
+
+La línea que originó el número dice:
+
+> `| Rutas POST declaradas | **119** | `'POST'` en `src/app/classes` |`
+
+**Los 119 nunca fueron accesos a `$_POST`: eran rutas POST declaradas**, contadas buscando el
+literal `'POST'`. Hoy ese mismo patrón da **120**, una más, coherente con el código añadido.
+
+Un bloque posterior lo reetiquetó como *«los 119 POST sueltos»*, y de ahí pasó a la instrucción del
+bloque W. **LEY 14 en estado puro**: un error del registro que se propaga y llega convertido en
+tarea. `$_POST` de verdad son **77 ocurrencias en 41 líneas**.
+
+**No hay seis meses de censos con el instrumento roto.** Lo que había era una unidad sin declarar
+y una etiqueta cambiada.
+
+### La clasificación contra el mapa de T6
+
+|  | ocurr. | líneas | archivos | sin guarda |
+| :-- | --: | --: | --: | --: |
+| `$_FILES` — módulos que **se quedan** | 43 | 39 | 16 | **0** |
+| `$_FILES` — módulos que **E3 borra** | 6 | 5 | 2 | *no se toca* |
+| `$_POST` — módulos que **se quedan** | 48 | 28 | 13 | **0** |
+| `$_POST` — **E3 borra** / borra parcial | 19 / 10 | 9 / 4 | 3 / 2 | *no se toca* |
+
+**Cómo se llegó al cero, que no fue de una pasada.** El primer instrumento buscaba
+`isset`/`empty`/`array_key_exists` en la misma línea: daba 34 sin guarda. Con 8 líneas de
+contexto y la misma clave: 29. Excluyendo docblocks —13 de esos 29 eran líneas de `@param` que
+**nombran** la superglobal—: 15. Y los 15 restantes, leídos uno a uno, resultaron ser:
+
+| Qué son | Cuántos |
+| :-- | --: |
+| Uso del **array completo**, donde no hay índice que pueda faltar | 6 |
+| El patrón `$_FILES[$nameOnFiles]['name']` detrás de `if ($valid)` | 8 |
+| Escritura deliberada (`FreezeRequest` reinyectando, `Utilities` simulando) | 2 |
+
+Y en `$_POST`, el caso de `PublicationsController` que parecía suelto está guardado por una
+**clausura** —`$attachmentExistsByIndex`, que hace `in_array` sobre las claves— y ningún patrón de
+`isset` la iba a encontrar.
+
+### >>> Y ENTONCES LA PRUEBA TIRÓ LA CONCLUSIÓN <<<
+
+Los 8 accesos se apoyan en un contrato: `FileUpload::validate()` devuelve `false` si la clave no
+está en `$_FILES`, porque el constructor rellena con `FAKE_ERROR`. **Lo leí en el código, lo di por
+bueno, y escribí el contrato en una línea.** Después escribí la suite que lo fija.
+
+**La suite salió 3/5.** `validate()` devuelve **`true`** con `$_FILES` vacío.
+
+| | `'FAKE_ERROR' == 0` |
+| :-- | :-- |
+| PHP 7.4 | **`true`** |
+| PHP 8.0 y 8.5 | **`false`** |
+
+`error` vale la **cadena** `'FAKE_ERROR'` y se comparaba con `==` contra enteros. En PHP 7 casaba
+con `UPLOAD_ERR_OK`, entraba en la rama, `is_uploaded_file()` fallaba y `$valid` pasaba a `false`.
+**Desde PHP 8.0 no casa con ninguna rama, y la cadena de `if/elseif` no tenía `else`**: `$valid` se
+quedaba en `true`.
+
+**La guarda funcionaba en PHP 7 y murió en la migración, en silencio, con nueve accesos de
+producción colgando de ella.** Ninguna puerta la miraba porque no existía ninguna puerta.
+
+### El arreglo, y las dos provocaciones que hicieron falta
+
+Rama explícita para `FAKE_ERROR` **con `===`**, y `else` final para cualquier código desconocido.
+
+**La primera provocación salió VERDE y eso era el hallazgo.** Anulé la rama nueva y la suite siguió
+7/7: el `else` la tapaba. Anulé el `else`: también verde, la rama lo tapaba. **Cada mitad ocultaba
+el fallo de la otra**, y la suite no distinguía. Es la LEY 24 sobre mi propia prueba.
+
+Corregida: una comprobación mira **el mensaje concreto** («No se ha subido ningún archivo», no el
+genérico) y otra mete un `error` inventado, el `99`, que no es ningún `UPLOAD_ERR_*`.
+
+| Provocación | Resultado |
+| :-- | :-- |
+| Sin la rama de `FAKE_ERROR` | **6/7** — falla el mensaje por su nombre |
+| Sin el `else` final | **6/7** — falla el código desconocido |
+| Sin las dos (el estado anterior) | **5/7** — fallan los dos «devuelve false» |
+
+Puerta nueva: **`core/file-upload-contract`, 7/7**. El corredor pasa a 23 suites.
+
+### E2 QUEDA CERRADA
+
+| | |
+| :-- | :-- |
+| E2-a | cerrada, con las 11 rutas sin veredicto declaradas en T106 |
+| E2-b · las rutas `-actions-*` | cerradas: la operación sale del nombre de la ruta |
+| E2-b · `$_FILES` y `$_POST` | **cerrado aquí**: 0 accesos sin guarda, y el contrato del que dependían pasa a tener puerta |
+
+**Lo que queda para la major es E3**, y el mapa de T6 manda.
