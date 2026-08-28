@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Guarda del `git add`: cuadra los TRES números y DEJA CONSTANCIA DE QUE CORRIÓ.
+#
+# Existe por la LEY 18. En el bloque T esta comprobación se escribió en línea, con una
+# variable llamada `añad`; bash rechaza los identificadores con `ñ`, la asignación nunca
+# ocurrió y la comparación tampoco. No falló: CALLÓ. Y una guarda muda se lee igual que una
+# guarda satisfecha.
+#
+# Por eso este guion imprime SIEMPRE su línea de «guarda ejecutada». Si esa línea no está en
+# la salida, la guarda no corrió, y eso se trata como un fallo.
+#
+# Uso, DESPUÉS del `git add` y ANTES del `git commit`:
+#   bin/guarda-add <previsto> [--repo=<ruta>] [--motivo="..."] [--pendientes=<n>]
+#
+# Se para si AÑADIDO + PENDIENTES != CAMBIADO: eso es dejarse algo fuera de verdad.
+# `--pendientes=<n>` son los archivos que quedan sin preparar A PROPÓSITO, porque pertenecen a
+# OTRO asunto de este mismo bloque. Hay que decir cuántos: un commit atómico deja cosas fuera, y
+# la diferencia entre dejarlas fuera y olvidarlas es que las primeras se cuentan.
+# Se para si PREVISTO != CAMBIADO y no se da un --motivo: la diferencia se explica antes de
+# commitear, no después.
+
+#MEDIDO, y el bloque U pedía solo las dos primeras: `set -u` y `set -o pipefail` NO cazan el
+#caso que funda la ley —un identificador con `ñ` da «orden no encontrada» y el guion SIGUE—.
+#La que aborta es `set -e`. Las tres, entonces.
+set -e
+set -u
+set -o pipefail
+
+PREVISTO="${1:-}"
+shift || true
+
+REPO="."
+MOTIVO=""
+PENDIENTES=0
+for ARG in "$@"; do
+    case "$ARG" in
+        --repo=*) REPO="${ARG#--repo=}" ;;
+        --motivo=*) MOTIVO="${ARG#--motivo=}" ;;
+        --pendientes=*) PENDIENTES="${ARG#--pendientes=}" ;;
+    esac
+done
+
+if ! [[ "$PREVISTO" =~ ^[0-9]+$ ]]; then
+    echo "guarda NO ejecutada: falta el número previsto. Uso: bin/guarda-add <previsto> [--repo=…] [--motivo=…]" >&2
+    exit 1
+fi
+
+CAMBIADO=$(git -C "$REPO" status --porcelain | wc -l)
+ANADIDO=$(git -C "$REPO" diff --cached --name-only | wc -l)
+
+SUMA=$((ANADIDO + PENDIENTES))
+
+echo "guarda ejecutada: ${PREVISTO}·${CAMBIADO}·${ANADIDO}  (previsto·cambiado·anadido) en ${REPO}"
+if [ "$PENDIENTES" -ne 0 ]; then
+    echo "  mas ${PENDIENTES} pendiente(s) declarados para otro asunto: ${ANADIDO}+${PENDIENTES}=${SUMA}"
+fi
+
+if [ "$SUMA" -ne "$CAMBIADO" ]; then
+    echo "  PARA: ${ANADIDO} anadidos + ${PENDIENTES} declarados pendientes no suman los ${CAMBIADO} cambiados." >&2
+    git -C "$REPO" status --short >&2
+    exit 1
+fi
+
+if [ "$PREVISTO" -ne "$CAMBIADO" ]; then
+    if [ -z "$MOTIVO" ]; then
+        echo "  PARA: se preveian ${PREVISTO} y cambiaron ${CAMBIADO}. La diferencia se explica ANTES de commitear:" >&2
+        echo "        vuelve a llamar con --motivo=\"...\"" >&2
+        exit 1
+    fi
+    echo "  previsto != cambiado, explicado: ${MOTIVO}"
+fi
+
+exit 0

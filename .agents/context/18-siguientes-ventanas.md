@@ -137,7 +137,7 @@ Estaban aquí, dentro de `T0`, y eso era el problema: **lo único permanente de 
 dentro del contenedor que nació para morir**. Se movieron ÍNTEGRAS el 2026-08-26; aquí no queda
 copia, solo este puntero — dos verdades sin puerta entre ellas es lo que llevamos meses quitando.
 
-Son las **leyes 8 a 17**. Cada una con el caso que la funda.
+Son las **leyes 8 a 18**. Cada una con el caso que la funda.
 
 
 ### El baseline vigente y su método

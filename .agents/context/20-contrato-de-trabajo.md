@@ -70,6 +70,11 @@ desordenado:
       que **no cambió porque no tenía por qué** —el cambio movía una constante, no una firma—.
       La regla vieja mandaba parar por un acierto del código.
     - **La cuenta es por repositorio**, no del bloque: son cinco.
+- **La guarda del `git add` es `bin/guarda-add`, y EMITE SU LÍNEA.** «guarda ejecutada: 4·4·4».
+  **La ausencia de esa línea es un fallo**, no un silencio: significa que la guarda no corrió.
+  Escribirla en línea es lo que la mató una vez —una variable con `ñ`, ver LEY 18—. Los guiones
+  de guarda llevan `set -e`, `set -u` y `set -o pipefail`, y **la que hace el trabajo es la
+  primera**: las otras dos no cazan ese caso, medido.
 - **Commits atómicos por asunto.** Árbol sano después de cada uno.
 - **Árbol limpio al terminar, y se enseña.**
 - **Las puertas se nombran, no se numeran.** Escribir «(8/8)» en la lista de puertas invita a

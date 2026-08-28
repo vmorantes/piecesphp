@@ -27,6 +27,7 @@ quedaron absorbidas por los documentos numerados antes de que existiera esta num
 | **15** | Un instrumento informa sobre el universo que MIRA, no sobre el que dice cubrir |
 | **16** | Ningún censo reporta un cero sin haber probado que el instrumento ve |
 | **17** | El alcance de una instrucción no se hereda de la conversación: se mide |
+| **18** | Ningún mecanismo de control reporta «todo bien» sin haber probado que se ejecutó |
 
 ---
 ### LEY 8 — UNA DECISIÓN QUE NO VIVE EN UN ARCHIVO NO SE PROPAGA
@@ -500,3 +501,51 @@ instrucción nombra un número —«los cuatro», «los trece», «los veinticua
 instrucción le dé el número hecho, y eso es lo que evitó el daño. Esa costumbre deja de ser
 costumbre: **es la puerta de esta ley**, y se escribe en las instrucciones como paso, no como
 virtud del que las cumple.
+
+### LEY 18 — NINGÚN MECANISMO DE CONTROL REPORTA «TODO BIEN» SIN HABER PROBADO QUE SE EJECUTÓ
+
+**Es la LEY 16 sacada de los censos y llevada a las guardas.** Allí el problema era que un cero es
+indistinguible de un instrumento roto; aquí es que **el silencio es indistinguible de la
+conformidad**. Una guarda que no corre no dice nada, y nada se lee como que todo va bien.
+
+**Los tres casos, y son la misma forma tres veces:**
+
+| # | El mecanismo | Cómo calló | Cómo se leyó |
+| :-- | :-- | :-- | :-- |
+| 1 | El `grep` de los censos | ugrep devolvía **0** para cualquier patrón con `$` sin escapar | «no hay ninguno» |
+| 2 | `bin/cli gates` | una suite se omitía a sí misma y no aparecía | «8/8» |
+| 3 | La guarda del `git add` | se escribió con una variable llamada `añad`; **bash rechaza los identificadores con `ñ`**, la asignación nunca ocurrió y la comparación tampoco | «el conteo cuadró» |
+
+**El tercero es el más limpio de los tres** porque no hubo error de juicio: la guarda estaba
+escrita, era correcta y decía lo que había que decir. Simplemente **no se ejecutó**, y en la salida
+eso se ve igual que si hubiera pasado. Se comprobó después a mano y estaba bien; durante ese rato,
+una guarda muda se leyó como una guarda satisfecha.
+
+**La ley, en tres exigencias:**
+
+1. **Toda guarda emite una línea que prueba que corrió.** `guarda ejecutada: 4·4·4`. **La ausencia
+   de esa línea es un fallo**, no un silencio: si no está, la guarda no corrió y se para.
+2. **La guarda vive en un archivo, no en la línea de órdenes.** Escrita en línea se reescribe cada
+   vez, y cada reescritura puede tener su propia `ñ`. En `bin/guarda-add` se escribe una vez.
+3. **Los guiones de guarda llevan `set -e`, `set -u` y `set -o pipefail`.**
+
+#### Y aquí hay una medición que corrige lo que se pidió
+
+El bloque U pedía `set -u` y `set -o pipefail`. **Ninguna de las dos caza el caso que funda la
+ley.** Medido:
+
+| Opción | Ante `añad=2` |
+| :-- | :-- |
+| `set -u` | **sigue adelante** (código 127, «orden no encontrada») |
+| `set -o pipefail` | **sigue adelante** |
+| **`set -e`** | **ABORTA** |
+
+Un identificador que bash no acepta no es una variable indefinida —que es lo que `set -u` vigila—
+sino **una orden que no existe**. Las tres opciones van puestas, pero **la que hace el trabajo es
+`set -e`**, y decirlo importa: quien copie las dos primeras creyendo que está cubierto, no lo está.
+
+#### Lo que la ley NO puede exigir todavía
+
+Que alguien LEA la línea. `gates` y `verify-integrity` fallan solos; `bin/guarda-add` sale con
+código distinto de cero, pero **quien lo invoca puede ignorar ese código**. La cadena termina en
+una persona, y eso queda dicho.
