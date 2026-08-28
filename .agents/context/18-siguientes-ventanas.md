@@ -12145,3 +12145,85 @@ vuelve a 21 y a verde.
 
 **El estado por defecto es «no sé qué hace esto», y eso es un fallo.** Una suite que aparece sin
 declarar no se cuela: se ve y detiene el corredor.
+
+---
+
+# BLOQUE U · LOS PAQUETES SE VERSIONAN, Y EL REGISTRO EMPIEZA A DESMONTARSE
+
+---
+
+## T127 · U1 · ¿CUÁNTAS PUERTAS MÁS SON DECORATIVAS? — una, y no es la que se creía
+
+### (a) · El censo de veredictos: ninguna otra los fija
+
+Con `bin/censo` por delante, sobre las 21 suites:
+
+| Qué devuelven | Cuántas |
+| :-- | --: |
+| `'success' => $failed === 0` — derivado | **19** |
+| `'success' => false` como salida temprana de aborto | 8 de esas 19, y es correcto: abortar es fallar |
+| `'success' => true` fijo | **0** |
+| **Sin `return` y sin balance** | **1**: `UnitTest-HttpClient.php` |
+
+### Y una corrección a lo que escribí en T124
+
+**Dije que la suite con `'success' => true` literal «no podía poner el corredor en rojo». Es
+falso.** `GatesTask::runSuite()` **no mira el valor devuelto**: parsea la línea impresa —
+`BALANCE FINAL: X/Y PASADAS` o `Total: … | Fallaron: N`— y de ahí saca los fallos. Una suite con
+una comprobación caída habría impreso `17/18` y `gates` la habría marcado roja **igual**.
+
+Lo que el literal sí rompía es el veredicto de `bin/cli unit-tests:…` invocado directamente, y
+cualquier otro consumidor del retorno. **Era un defecto, pero no el que dije.** Corregido aquí, no
+fundido con el original, como manda la LEY 14.
+
+### La que sí es decorativa: `core/http-client`
+
+**No tiene `return` y no imprime balance.** Aunque se corriera con `gates with=external`, caería en
+«no dice si pasó: no imprimió balance». Es decir: **no es solo que no se corra —T93— es que no
+podría dar veredicto si se corriera.** Dos defectos superpuestos, y el segundo no se había visto.
+
+**No se toca**: sale a `webhook.site`, y arreglarla es la ventana que T93 ya tiene abierta.
+
+### (b) · La prueba dura: las 19 se ponen rojas
+
+**Provocación uniforme y desde un estado guardado**: se copian las 22 suites, se inserta
+`$failed++;` justo después de su `$failed = 0;` —ancla que existe en las 19— y se corre el
+corredor.
+
+```
+21 suite(s), 19 sin veredicto o con fallos, 2 no corridas por declarar efectos externos.
+*** Corredor de puertas, tarea finalizada CON FALLOS ***
+```
+
+**Las 19 pasan a `[FALLÓ]`, una por una.** Restaurado desde la copia, el `sha1sum` del conjunto
+vuelve al de antes y el censo de `PROVOCACION TEMPORAL` da **0**.
+
+*Primer intento fallido, y por qué importa: el ancla era la línea del balance, y en varias suites
+esa línea es la continuación de un ternario. Insertar ahí daba `ParseError`. El ancla buena es una
+línea que es una sentencia completa.*
+
+**Ninguna suite corrible es decorativa. El censo queda terminado.**
+
+### Un defecto cosmético que salió de la provocación
+
+`core/database-exporter` imprimió `Total: 23 | Pasaron: 23 | Fallaron: 1`. Su `$totalCount` se
+calcula aparte, así que **pasaron + fallaron no cuadra con el total**. `gates` lee `Fallaron:` y
+acierta, pero la línea se contradice a sí misma. Anotado, sin arreglar.
+
+### (c) · Las suites que aparecieron, y de dónde salían
+
+El corredor pasó de **18 a 21**. Las tres:
+
+| Suite | De dónde salió | Veredicto |
+| :-- | :-- | :-- |
+| `core/mautic-batch-logic` | Creada en el bloque T (T125) | **12/12** |
+| `core/cache-criteries-round-trip` | Creada en el bloque T (T123) | **5/5** |
+| `tests:mautic-batch-send` | **Existía desde el 2026-03-25** y `gates` no la alcanzaba | **NO SE CORRE**: declara `network` y `email` |
+
+**El motivo de la segunda declarada fuera** —la primera es `core/http-client`— es que envía correo
+de verdad a través de Mautic con credenciales reales.
+
+**Y aquí está el hallazgo, que no es de fontanería**: `tests:mautic-batch-send` llevaba **cinco
+meses** registrada, ejecutable y fuera de toda pasada. No la escondía nadie: la escondía un prefijo.
+La otra que llevaba escondida —`functions/systemOutFormatted`, T118— también existía desde esa misma
+fecha. **Dos suites de marzo que ninguna puerta miró hasta agosto.**
