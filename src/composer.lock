@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b70927ed95641609af75a5874d7d525d",
+    "content-hash": "0c413fe48088e009a1addaee1c4b05e1",
     "packages": [
         {
             "name": "aminyazdanpanah/php-ffmpeg-video-streaming",
@@ -2044,16 +2044,16 @@
         },
         {
             "name": "piecesphp/database",
-            "version": "v3.9.0",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/database.git",
-                "reference": "b146bcf6e35f74b0be258db9dd8ad3548718e487"
+                "reference": "e9f5ac3728bd185bf4771c03afad034c169c629f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/database/get/b146bcf6e35f74b0be258db9dd8ad3548718e487.zip",
-                "reference": "b146bcf6e35f74b0be258db9dd8ad3548718e487",
+                "url": "https://bitbucket.org/piecesphp/database/get/e9f5ac3728bd185bf4771c03afad034c169c629f.zip",
+                "reference": "e9f5ac3728bd185bf4771c03afad034c169c629f",
                 "shasum": ""
             },
             "require": {
@@ -2069,7 +2069,7 @@
                 "ext-pdo_sqlite": "*",
                 "ext-sqlite3": "*",
                 "ext-zip": "*",
-                "php": ">=8.4 <9.0"
+                "php": ">=8.5 <8.6"
             },
             "require-dev": {
                 "nikic/php-parser": "^5.5",
@@ -2104,30 +2104,32 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/database/src/b146bcf6e35f74b0be258db9dd8ad3548718e487/?at=v3.9.0"
+                "source": "https://bitbucket.org/piecesphp/database/src/e9f5ac3728bd185bf4771c03afad034c169c629f/?at=v4.0.0"
             },
-            "time": "2026-08-26T16:29:23+00:00"
+            "time": "2026-08-28T21:08:23+00:00"
         },
         {
             "name": "piecesphp/datastructures",
-            "version": "v3.1.0",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/datastructures.git",
-                "reference": "badf7743518a99eb8591ea5c98100e356b26e60c"
+                "reference": "b228df454965b44c14eb7fe57c0a4b8a20edbd02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/datastructures/get/badf7743518a99eb8591ea5c98100e356b26e60c.zip",
-                "reference": "badf7743518a99eb8591ea5c98100e356b26e60c",
+                "url": "https://bitbucket.org/piecesphp/datastructures/get/b228df454965b44c14eb7fe57c0a4b8a20edbd02.zip",
+                "reference": "b228df454965b44c14eb7fe57c0a4b8a20edbd02",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.4 <9.0"
+                "php": ">=8.5 <8.6"
             },
             "require-dev": {
                 "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^10.0"
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpunit/phpunit": "^10.0",
+                "rector/rector": "^2.3"
             },
             "type": "library",
             "autoload": {
@@ -2154,22 +2156,22 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/datastructures/src/badf7743518a99eb8591ea5c98100e356b26e60c/?at=v3.1.0"
+                "source": "https://bitbucket.org/piecesphp/datastructures/src/b228df454965b44c14eb7fe57c0a4b8a20edbd02/?at=v4.0.0"
             },
-            "time": "2026-08-20T23:14:38+00:00"
+            "time": "2026-08-28T21:08:23+00:00"
         },
         {
             "name": "piecesphp/geojson",
-            "version": "v2.1.0",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/geojson.git",
-                "reference": "70b67280ab9edf5ab446fa1bccd921e43104696d"
+                "reference": "f11f5ee64990c1f8dbb5a283843c8142150e83f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/geojson/get/70b67280ab9edf5ab446fa1bccd921e43104696d.zip",
-                "reference": "70b67280ab9edf5ab446fa1bccd921e43104696d",
+                "url": "https://bitbucket.org/piecesphp/geojson/get/f11f5ee64990c1f8dbb5a283843c8142150e83f5.zip",
+                "reference": "f11f5ee64990c1f8dbb5a283843c8142150e83f5",
                 "shasum": ""
             },
             "require": {
@@ -2178,10 +2180,12 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "ext-pcre": "*",
-                "php": ">=8.4 <9.0"
+                "php": ">=8.5 <8.6"
             },
             "require-dev": {
-                "phpstan/phpstan": "^2.1"
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "rector/rector": "^2.3"
             },
             "type": "library",
             "autoload": {
@@ -2208,31 +2212,33 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/geojson/src/70b67280ab9edf5ab446fa1bccd921e43104696d/?at=v2.1.0"
+                "source": "https://bitbucket.org/piecesphp/geojson/src/f11f5ee64990c1f8dbb5a283843c8142150e83f5/?at=v3.0.0"
             },
-            "time": "2026-08-20T23:16:32+00:00"
+            "time": "2026-08-28T21:08:23+00:00"
         },
         {
             "name": "piecesphp/html",
-            "version": "v2.1.0",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/html.git",
-                "reference": "92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a"
+                "reference": "7350039021e581b4cbf29c0edf624a96d55b6579"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/html/get/92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a.zip",
-                "reference": "92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a",
+                "url": "https://bitbucket.org/piecesphp/html/get/7350039021e581b4cbf29c0edf624a96d55b6579.zip",
+                "reference": "7350039021e581b4cbf29c0edf624a96d55b6579",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.4 <9.0",
-                "piecesphp/datastructures": "^3.1"
+                "php": ">=8.5 <8.6",
+                "piecesphp/datastructures": "^4.0"
             },
             "require-dev": {
                 "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^10.5"
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpunit/phpunit": "^10.5",
+                "rector/rector": "^2.3"
             },
             "type": "library",
             "autoload": {
@@ -2258,9 +2264,9 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/html/src/92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a/?at=v2.1.0"
+                "source": "https://bitbucket.org/piecesphp/html/src/7350039021e581b4cbf29c0edf624a96d55b6579/?at=v3.0.0"
             },
-            "time": "2026-08-20T23:14:53+00:00"
+            "time": "2026-08-28T21:08:23+00:00"
         },
         {
             "name": "pragmarx/google2fa",

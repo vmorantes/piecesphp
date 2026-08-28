@@ -138,6 +138,32 @@ entero —con su esquema dentro— en vez del valor declarado en `human_readable
 **Ninguna cifra se movió por esto**: PHPStan sigue en 888, las 18 suites en verde y las 52 entradas
 de `ignoreErrors` intactas.
 
+### 7 · Los cuatro paquetes `piecesphp/*` suben de mayor, y el framework los alcanza
+
+```diff
+-"piecesphp/database": "^3.1",
+-"piecesphp/datastructures": "^3.0",
+-"piecesphp/geojson": "^2.0",
+-"piecesphp/html": "^2.0",
++"piecesphp/database": "^4.0",
++"piecesphp/datastructures": "^4.0",
++"piecesphp/geojson": "^3.0",
++"piecesphp/html": "^3.0",
+```
+
+`database` y `datastructures` van a **v4.0.0**; `html` y `geojson`, a **v3.0.0**. La mayor la
+fuerza el punto 5: pasar de `<9.0` a `>=8.5 <8.6` **estrecha** el rango, y estrechar un requisito
+de plataforma rompe a quien resolvía por debajo. `html` sube además su propia dependencia a
+`piecesphp/datastructures: "^4.0"`, así que las dos ramas de 3.x quedan cerradas a la vez.
+
+**Si tu despliegue va por PHP 8.4, `composer update` no te dará estas versiones y hace bien**: te
+deja en las anteriores, que siguen publicadas.
+
+Comprobado tras el `composer update`: el lock trae las cuatro mayores, `composer why
+piecesphp/datastructures` muestra las dos exigencias de `^4.0` —la del framework y la de `html`—
+resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 suites en verde y
+`verify-integrity` sin novedad.
+
 ---
 
 ## Herramientas — `gates` enumera lo que existe, y deja de callar lo que no corre
