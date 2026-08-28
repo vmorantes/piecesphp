@@ -481,7 +481,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	return.type (Líneas: 340)
 	nullCoalesce.variable (Líneas: 377, 421)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
-	offsetAssign.dimType (Líneas: 276)
+	offsetAssign.dimType (Líneas: 275)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
 	method.nonObject (Líneas: 139)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Importer.php

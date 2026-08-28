@@ -166,6 +166,44 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## ⚠ Corregido — `HttpClient` compartía la URL base entre TODAS sus instancias
+
+`HttpClient::$baseURL` estaba declarada `protected static` y el **constructor la escribía**:
+
+```diff
+-protected static $baseURL = '';
+-self::$baseURL = $baseURL;      // en __construct()
+-$baseURL = trim(self::$baseURL, '/');
++protected string $baseURL = '';
++$this->baseURL = $baseURL;
++$baseURL = trim($this->baseURL, '/');
+```
+
+**Construir un cliente reescribía la URL base de todos los demás, incluidos los ya construidos y
+en uso.** Demostrado con el autoload real antes de tocar nada:
+
+```
+tras construir el de reCaptcha : https://www.google.com/recaptcha/api
+tras construir el de Mautic    : https://mautic.interno.example/api
+y el de reCaptcha, intacto     : https://mautic.interno.example/api
+```
+
+**Quién estaba expuesto**: siete archivos construyen `HttpClient` —nueve construcciones—, y **dos
+guardan el cliente en una propiedad y lo usan más tarde**: `MailjetHandler` y `OsTicketAPI`. Ésos
+son los que podían enviar a la URL equivocada sin que nadie viera por qué.
+
+**Ninguno dependía del comportamiento compartido**: las nueve construcciones pasan su propia URL.
+Y el radio estaba acotado: la propiedad es `protected` y **`HttpClient` no tiene ninguna
+subclase**, comprobado por dos métodos independientes —búsqueda de texto en los cinco
+repositorios, y reflexión sobre 452 clases cargadas—.
+
+**La regresión se fija con una prueba, no con un comentario.** `core/http-client-request-build`
+gana un quinto caso: dos clientes con destinos distintos, y cada uno tiene que conservar el suyo.
+Provocada reintroduciendo la propiedad estática, **sale 11/13 con dos fallos**. Sube a 13/13.
+
+**Cómo llegó a verse**: la puerta que nunca se corría era la que lo habría cazado — su último caso
+construía un segundo cliente. Ver el bloque anterior.
+
 ## Documentación — las leyes 1 a 7 no faltaban: se llamaban «puntos». Y el archivo pasa a 24
 
 `19-leyes.md` empezaba en la **LEY 8**, y «LEY 1» a «LEY 7» no aparecían en ningún archivo. Buscadas

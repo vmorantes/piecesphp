@@ -2208,7 +2208,7 @@
  ------ ------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php  
  ------ ------------------------------------------------------ 
-  276    Cannot assign new offset to list<string>|string.      
+  275    Cannot assign new offset to list<string>|string.      
          🪪  offsetAssign.dimType                              
  ------ ------------------------------------------------------ 
 

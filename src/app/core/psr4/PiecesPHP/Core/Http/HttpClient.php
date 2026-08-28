@@ -30,10 +30,9 @@ class HttpClient
     const MODE_PARSED_FROM_JSON_ASSOC = 'MODE_PARSED_FROM_JSON_ASSOC';
     const MODE_PARSED_TO_JSON = 'MODE_PARSED_TO_JSON';
 
-    /**
-     * @var string
-     */
-    protected static $baseURL = '';
+    //NO la vuelvas estatica: cada cliente lleva la suya, y compartirla hacia que construir
+    //uno reescribiese la URL base de todos los demas. Ver `core/http-client-request-build`.
+    protected string $baseURL = '';
 
     /**
      * @var array
@@ -77,7 +76,7 @@ class HttpClient
      */
     public function __construct(string $baseURL, array $configurations = [])
     {
-        self::$baseURL = $baseURL;
+        $this->baseURL = $baseURL;
         $this->defaultHeaders = [
             'accept' => '*/*',
         ];
@@ -173,7 +172,7 @@ class HttpClient
         }
         $context = stream_context_create($streamContextConfiguration);
 
-        $baseURL = trim(self::$baseURL, '/');
+        $baseURL = trim($this->baseURL, '/');
         $requestURL = $request_uri . $query_string;
         $this->requestURI = mb_strlen($request_uri) == 0 ? $baseURL . $requestURL : append_to_url($baseURL, $requestURL, true);
 

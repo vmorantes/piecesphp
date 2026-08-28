@@ -33,7 +33,7 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     ]);
 
     //─── 1/4 · El GET pone lo suyo en la URI, no en el cuerpo ──────────────────────────
-    echoTerminal('[1/4] GET: los parámetros van a la URI y el cuerpo queda vacío');
+    echoTerminal('[1/5] GET: los parámetros van a la URI y el cuerpo queda vacío');
 
     $cliente->request('', 'GET', ['search' => 'test@example.com', 'limit' => 1]);
     $uri = $cliente->getRequestURI();
@@ -45,7 +45,7 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     echoTerminal(' ');
 
     //─── 2/4 · El POST codifica según el Content-Type que se le declare ────────────────
-    echoTerminal('[2/4] POST: el Content-Type decide cómo se codifica el cuerpo');
+    echoTerminal('[2/5] POST: el Content-Type decide cómo se codifica el cuerpo');
 
     $cliente->request('', 'POST', ['name' => 'Test Item', 'value' => 123], ['Content-Type' => 'application/json']);
     $cuerpoJson = $cliente->getRequestBody();
@@ -63,7 +63,7 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     echoTerminal(' ');
 
     //─── 3/4 · override_defaults = true: las de por defecto se pierden ─────────────────
-    echoTerminal('[3/4] override_defaults = true reemplaza, no fusiona');
+    echoTerminal('[3/5] override_defaults = true reemplaza, no fusiona');
 
     $cliente->request('', 'GET', [], ['Accept' => 'text/plain'], true, true);
     $cabeceras = $cliente->getRequestHeaders();
@@ -75,7 +75,7 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     echoTerminal(' ');
 
     //─── 4/4 · override_defaults = false: fusiona ──────────────────────────────────────
-    echoTerminal('[4/4] override_defaults = false conserva las de por defecto');
+    echoTerminal('[4/5] override_defaults = false conserva las de por defecto');
 
     $cliente->request('', 'POST', ['hi' => 1], ['Content-Type' => 'application/json'], true, false);
     $cabeceras = $cliente->getRequestHeaders();
@@ -85,6 +85,27 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     $check(($cabeceras['Authorization'] ?? '') === 'Bearer TOKEN_POR_DEFECTO',
         'y la de por defecto sobrevive a la fusión',
         (string) ($cabeceras['Authorization'] ?? 'ausente'));
+
+    echoTerminal(' ');
+
+    //─── 5/5 · Cada cliente conserva SU URL base ───────────────────────────────────────
+    echoTerminal('[5/5] Dos clientes a la vez no se pisan la URL base');
+
+    $primero = new HttpClient('data://text/plain,PRIMERO');
+    //Construir el segundo es el gesto que rompia: con `$baseURL` estatica, este constructor
+    //reescribia la base del primero. Ver T133.
+    $segundo = new HttpClient('data://text/plain,SEGUNDO');
+
+    $segundo->request('', 'GET');
+    $uriSegundo = $segundo->getRequestURI();
+    $primero->request('', 'GET');
+    $uriPrimero = $primero->getRequestURI();
+
+    $check(str_contains($uriPrimero, 'PRIMERO'),
+        'el primero sigue apuntando a donde se le dijo', $uriPrimero);
+    $check(str_contains($uriSegundo, 'SEGUNDO'),
+        'y el segundo a la suya', $uriSegundo);
+    $check($uriPrimero !== $uriSegundo, 'que no son la misma', $uriPrimero . ' vs ' . $uriSegundo);
 
     echoTerminal(' ');
     $total = $passed + $failed;
