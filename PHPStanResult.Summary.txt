@@ -474,8 +474,8 @@ project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php
 project://src/app/core/psr4/PiecesPHP/Core/Email/Mailgun.php
 	argument.type (Líneas: 92)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
-	argument.type (Líneas: 222)
-	nullCoalesce.variable (Líneas: 406, 463)
+	argument.type (Líneas: 217)
+	nullCoalesce.variable (Líneas: 400, 457)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	argument.type (Líneas: 234)
 	return.type (Líneas: 340)
