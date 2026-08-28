@@ -2460,17 +2460,6 @@
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------- 
-  project://src/src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php                         
- ------ -------------------------------------------------------------------------------------------- 
-  52     Parameter Nr.1 $json of function json_decode expects string, array|object|string given.       
-         🪪  argument.type                                                                           
-  53     Parameter Nr.1 $haystack of function str_contains expects string, array|object|string given.  
-         🪪  argument.type                                                                           
-  57     Binary operation "." between '   Body: ' and array|object|string results in an error.       
-         🪪  binaryOp.invalid                                                                        
- ------ -------------------------------------------------------------------------------------------- 
-
  ------ ------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/model/AvatarModel.php                                                                                
  ------ ------------------------------------------------------------------------------------------------------------- 
@@ -2785,5 +2774,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 892 errors                                                                                               
+ [ERROR] Found 889 errors                                                                                               
 

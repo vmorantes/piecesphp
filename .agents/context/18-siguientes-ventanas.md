@@ -12408,3 +12408,102 @@ que la guarda parase.
 Se le añadió `--pendientes=<n>`: los archivos que se dejan fuera **a propósito** porque son de otro
 asunto **se cuentan y se dicen**. La condición pasa a ser `añadido + pendientes == cambiado`.
 **La diferencia entre dejar algo fuera y olvidarlo es que lo primero se declara.**
+
+---
+
+## T130 · V0 y V1 · LA CADENA DE VERSIONES SE CIERRA, Y LA PUERTA MUDA APRENDE A OPINAR
+
+### V0 · Las cuatro restricciones alcanzan las cuatro mayores
+
+La PARADA U0 se levantó: el PROPIETARIO empujó los cinco repositorios con sus etiquetas.
+
+| | antes | ahora | resuelto |
+| :-- | :-- | :-- | :-- |
+| `piecesphp/database` | `^3.1` | `^4.0` | **v4.0.0** |
+| `piecesphp/datastructures` | `^3.0` | `^4.0` | **v4.0.0** |
+| `piecesphp/geojson` | `^2.0` | `^3.0` | **v3.0.0** |
+| `piecesphp/html` | `^2.0` | `^3.0` | **v3.0.0** |
+
+`composer why piecesphp/datastructures` devuelve las **dos** exigencias de `^4.0` —la del framework
+y la de `html v3.0.0`— resueltas contra la misma versión, sin conflicto. Ninguna cifra se movió por
+la subida: PHPStan siguió en 886 y las 21 suites en verde.
+
+**Efecto colateral declarado**: el `composer update` disparó un script de post-instalación del
+propio proyecto que actualizó `bin/tools/composer.lock` —`rector` de 2.6.3 a 2.6.4—. No es V0 y no
+se pidió: va en commit aparte, y se cuenta como pendiente en la guarda.
+
+### V1 · `core/http-client` no podía opinar, y la partición no es una opinión
+
+La suite existía desde siempre y **no acumulaba nada**: su `$checkResult` devolvía un booleano que
+nadie leía, no imprimía balance y no devolvía veredicto. Con `network` declarado nunca corría, así
+que su mudez no se notaba. **T127 la señaló; aquí se arregla.**
+
+Se parte en dos, con el criterio de T125:
+
+| Suite | Qué mira | En `gates` | Veredicto |
+| :-- | :-- | :--: | :-- |
+| `core/http-client-request-build` | URI, cuerpo y cabeceras: cómo se **construye** | **sí** | **10/10** |
+| `core/http-client` | Que sale de verdad y que el tiempo se honra | no, `network` | **5/5** |
+
+**El corte está medido, no supuesto.** En `HttpClient::request()`:
+
+| Se escribe | Línea |
+| :-- | --: |
+| `requestHeaders` (vía `processHeaders()`) | 133 |
+| `requestBody` | 143 / 148 |
+| `requestURI` | 178 |
+| **`file_get_contents()`** | **182** |
+
+Las tres quedan puestas **antes** de que salga la petición. Por eso las diez comprobaciones de la
+suite local no dependen de que nadie responda, y su destino es un `data://text/plain,OK`, que sirve
+el propio PHP: ni socket, ni DNS, ni puerto.
+
+**Y el veredicto de la externa, que nadie había visto nunca: 5/5.** Su destino deja de ser un token
+personal de webhook.site —caducan, y al caducar la prueba miente sin decirlo— y pasa a
+`https://example.com`, reservado por la RFC 2606 exactamente para esto.
+
+### Provocadas las dos, desde copia guardada
+
+Con `$failed++` inyectado tras `$failed = 0;`: `core/http-client-request-build` sale `10/11` y
+`gates` la marca **`[FALLÓ]`**; `core/http-client` sale `5/6`. Restauradas por `sha1sum`, censo de
+rastros **cero**.
+
+### La provocación destapó una guarda que no se conocía
+
+La primera versión de la suite local se registró **sin `setEffects()`**, y `gates` no la ignoró ni
+la dio por buena: la marcó **`[SIN DECLARAR] no dice qué hace fuera de sí misma`** y la contó como
+suite sin veredicto. **Una suite que no declara sus efectos no entra por defecto: se rechaza.** El
+vocabulario tiene un valor para esto, `EFFECT_NONE`, y hay que escribirlo.
+
+### El baseline baja a 883
+
+`[REPARTO] 883 <- 886 = 3 arreglos + 0 supresiones + 0 destapados`. Los tres estaban en la suite
+vieja y eran el mismo defecto: `request()` devuelve `string|false` y el resultado se trataba como
+`string` sin estrechar —`argument.type` en la 52 y la 53, `binaryOp.invalid` en la 57—. Al
+reescribir, un `is_string()` delante. **La suite nueva no aporta ningún error.**
+
+### >>> PARADA V1 · `HttpClient::$baseURL` ES ESTÁTICA <<<
+
+**Es una trampa embarcable y no la toco: es el núcleo, y no es lo que V1 pide.**
+
+`HttpClient.php:36` declara `protected static $baseURL = ''`, y el constructor de la línea 78 hace
+`self::$baseURL = $baseURL`. **Construir un cliente reescribe la URL base de todos los demás**,
+incluidos los ya construidos. Demostrado con el autoload real del framework:
+
+```
+baseURL es estatica: true
+tras construir el de reCaptcha : https://www.google.com/recaptcha/api
+tras construir el de Mautic    : https://mautic.interno.example/api
+y el objeto de reCaptcha, intacto, ahora apunta a: https://mautic.interno.example/api
+```
+
+**Nueve archivos de producción construyen `HttpClient`**: `MauticEmailAdapter`,
+`MistralHandlerAdapter`, `APILabsMobileSMS`, `APIExternalAdapterExample`,
+`GoogleReCaptchaV3Controller`, `AdminPanelController`, `UserProblemsController`, `MailjetHandler` y
+`OsTicketAPI`. Dos integraciones vivas en la misma petición se pisan la URL base.
+
+**Y la puerta que nunca corrió es la que lo habría cazado**: la propia suite construía un segundo
+cliente en su último caso, reescribiendo la base del primero. Nadie lo vio porque no daba veredicto.
+
+Mientras no se decida, la suite externa lleva un comentario de orden en el punto donde importa. La
+suite local usa una sola instancia y no puede tropezar.

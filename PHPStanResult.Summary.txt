@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-195
+194
 
 [TOTAL DE ERRORES VISIBLES]
-886
+883
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 876
+En las dos (8.4 y 8.5): 873
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (357)
+argument.type (355)
 property.nonObject (191)
 method.nonObject (129)
 return.type (55)
@@ -29,11 +29,11 @@ offsetAccess.invalidOffset (14)
 nullCoalesce.variable (7)
 clone.nonObject (5)
 variable.undefined (4)
-binaryOp.invalid (3)
 offsetAccess.notFound (3)
 function.deprecated (3)
 encapsedStringPart.nonString (2)
 method.notFound (2)
+binaryOp.invalid (2)
 offsetAssign.dimType (2)
 class.notFound (2)
 staticMethod.nonObject (1)
@@ -540,9 +540,6 @@ project://src/app/core/system-controllers/Test.php
 	return.type (Líneas: 124)
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
 	argument.type (Líneas: 54, 198, 199, 204)
-project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
-	argument.type (Líneas: 52, 53)
-	binaryOp.invalid (Líneas: 57)
 project://src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php
 	offsetAccess.invalidOffset (Líneas: 166)
 project://src/app/model/AvatarModel.php

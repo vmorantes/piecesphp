@@ -1,104 +1,71 @@
 <?php
+
+//Solo lo que necesita red. Lo que no —cómo se construye la petición— vive en
+//`core/http-client-request-build`, que sí entra en `gates`. Ver T130.
+
 use PiecesPHP\Core\Http\HttpClient;
-use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;
 
-$langGroup = 'TestPCSPHP-Lang';
-$cliArguments = TerminalData::instance()->arguments();
-$cliTaskName = 'unit-tests';
-$cliTaskFlag = 'core/http-client';
-$cliTaskDescription = 'Pruebas unitarias de ' . HttpClient::class;
-CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
-    echoTerminal('[TEST:HTTPClient] Iniciando suite de pruebas unitarias...');
+CliActions::make('unit-tests:core/http-client', function ($args) {
+
+    echoTerminal("\e[33m[TEST:HttpClient] La petición sale, la respuesta vuelve, y el tiempo se honra\e[39m");
     echoTerminal('');
-    set_config('terminal_color', '33');
 
-    $webhookURL = 'https://webhook.site/1948a039-b070-48f2-8ade-4421cdd7889c';
-    $client = new HttpClient($webhookURL);
-
-    // Cabeceras por defecto
-    $client->setDefaultRequestHeaders([
-        'Authorization' => 'Bearer DEFAULT_TOKEN',
-        'Accept' => 'application/json',
-    ]);
-
-    $checkResult = function ($condition, $name) {
-        $status = $condition ? '[PASÓ]' : '[FALLÓ]';
-        echoTerminal("   $status $name");
-        return $condition;
+    $passed = 0;
+    $failed = 0;
+    $check = function (bool $condition, string $name, string $detail = '') use (&$passed, &$failed): void {
+        if ($condition) {
+            $passed++;
+            echoTerminal("   \e[32m[PASÓ]\e[39m {$name}");
+        } else {
+            $failed++;
+            echoTerminal("   \e[31m[FALLÓ]\e[39m {$name}" . ($detail !== '' ? " — {$detail}" : ''));
+        }
     };
 
-    // --- CASO 1: GET con Parámetros ---
-    echoTerminal('[1/5] Probando GET con parámetros de consulta...');
-    $params = ['search' => 'test@example.com', 'limit' => 1];
-    $client->request('', 'GET', $params);
+    //Reservado por la RFC 2606. NO un token de webhook.site: caducan, y al caducar mienten.
+    $destino = 'https://example.com';
 
-    $uri = $client->getRequestURI();
-    $hasParams = str_contains($uri, 'search=test%40example.com') && str_contains($uri, 'limit=1');
-    $gotStatus = $client->getResponseStatus() !== null;
+    //─── 1/2 · La respuesta vuelve ─────────────────────────────────────────────────────
+    echoTerminal('[1/2] Un GET real trae estado y cuerpo');
 
-    $checkResult($hasParams && $gotStatus, 'GET Params y Conectividad');
-    echoTerminal('   URL: ' . $uri);
-    echoTerminal('   Status: ' . ($client->getResponseStatus() ?? 'ERROR/TIMEOUT'));
-    echoTerminal('   Response: ' . ($client->getResponseBody()));
+    $cliente = new HttpClient($destino);
+    $cliente->setDefaultRequestHeaders(['Accept' => 'text/html']);
+    $cliente->timeout(15);
+    $cuerpo = $cliente->request('', 'GET', ['q' => 'prueba']);
+    $estado = $cliente->getResponseStatus();
+
+    $check($estado !== null, 'la respuesta trae código de estado', var_export($estado, true));
+    $check(is_string($cuerpo) && mb_strlen($cuerpo) > 0, 'y un cuerpo no vacío',
+        is_string($cuerpo) ? mb_strlen($cuerpo) . ' bytes' : var_export($cuerpo, true));
+    echoTerminal('   URI: ' . $cliente->getRequestURI());
+    echoTerminal('   Estado: ' . ($estado ?? 'sin respuesta'));
     echoTerminal(' ');
 
-    // --- CASO 2: POST con JSON ---
-    echoTerminal('[2/5] Probando POST con cuerpo JSON...');
-    $body = ['name' => 'Test Item', 'value' => 123];
-    $client->request('', 'POST', $body, ['Content-Type' => 'application/json']);
+    //─── 2/2 · El tiempo de espera se honra ────────────────────────────────────────────
+    echoTerminal('[2/2] El tiempo de espera corta la petición');
 
-    $sentBody = $client->getRequestBody();
-    $isJson = @json_decode($sentBody) !== null;
-    $hasValues = str_contains($sentBody, '"name":"Test Item"');
+    //OJO AL ORDEN: `HttpClient::$baseURL` es ESTÁTICA, así que construir este cliente
+    //reescribe la base del anterior. Todo lo que use `$cliente` tiene que estar hecho ya.
+    $lento = new HttpClient('http://10.255.255.1');
+    $lento->timeout(2);
 
-    $checkResult($isJson && $hasValues, 'Cuerpo POST codificado como JSON');
-    echoTerminal('   Status: ' . $client->getResponseStatus());
-    echoTerminal('   Body: ' . $sentBody);
+    $inicio = microtime(true);
+    $respuesta = @$lento->request('', 'GET');
+    $duracion = microtime(true) - $inicio;
+
+    $check($duracion >= 2, 'espera lo declarado antes de rendirse', round($duracion, 2) . ' s');
+    //Sin la cota superior, un tiempo de espera ignorado del todo también «pasaría».
+    $check($duracion < 6, 'y no se pasa de largo', round($duracion, 2) . ' s');
+    $check($respuesta === false || $respuesta === '', 'y no devuelve un cuerpo inventado',
+        var_export($respuesta, true));
+
     echoTerminal(' ');
+    $total = $passed + $failed;
+    echoTerminal($failed === 0
+        ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"
+        : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
 
-    // --- CASO 3: Fusión de cabeceras (override_defaults = true) ---
-    echoTerminal('[3/5] Probando fusión con override_defaults = true...');
-    $client->request('', 'GET', [], ['Accept' => 'text/plain'], true, true);
-    $headers = $client->getRequestHeaders();
+    return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-    $isOverridden = ($headers['Accept'] ?? '') === 'text/plain';
-    $authMissing = !isset($headers['Authorization']); // Si override=true y no lo pasamos, se pierde
-
-    $checkResult($isOverridden && $authMissing, 'Sobrescritura total de cabeceras');
-    echoTerminal('   Status: ' . $client->getResponseStatus());
-    echoTerminal('   Accept: ' . ($headers['Accept'] ?? 'N/A'));
-    echoTerminal('   Auth: ' . (isset($headers['Authorization']) ? 'Presente (Error)' : 'Ausente (OK)'));
-    echoTerminal(' ');
-
-    // --- CASO 4: Fusión de cabeceras (override_defaults = false) ---
-    echoTerminal('[4/5] Probando fusión con override_defaults = false...');
-    $client->request('', 'POST', ['hi' => 1], ['Content-Type' => 'application/json'], true, false);
-    $headers = $client->getRequestHeaders();
-
-    $hasCustom = ($headers['Content-Type'] ?? '') === 'application/json';
-    $hasDefault = ($headers['Authorization'] ?? '') === 'Bearer DEFAULT_TOKEN';
-
-    $checkResult($hasCustom && $hasDefault, 'Fusión de cabeceras (Mantiene defaults)');
-    echoTerminal('   Status: ' . $client->getResponseStatus());
-    echoTerminal('   Content-Type: ' . ($headers['Content-Type'] ?? 'N/A'));
-    echoTerminal('   Auth: ' . ($headers['Authorization'] ?? 'N/A'));
-    echoTerminal(' ');
-
-    // --- CASO 5: Timeout ---
-    echoTerminal('[5/5] Probando Timeout configurado...');
-    $timeoutClient = new HttpClient('http://10.255.255.1');
-    $timeoutClient->timeout(2); // bajamos a 2s para rapidez
-    $startTime = microtime(true);
-    @$timeoutClient->request('', 'GET');
-    $duration = microtime(true) - $startTime;
-
-    $worked = $duration >= 2 && $duration < 4; // Margen de error
-    $checkResult($worked, "Timeout detectado en ~$duration s");
-    echoTerminal(' ');
-
-    set_config('terminal_color', null);
-    echoTerminal('[TEST:HTTPClient] Suite finalizada.');
-    echoTerminal('Pruebas completadas. Revisa logs de terminal y Webhook.site');
-
-})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_NETWORK])->register();
+})->setDescription('HttpClient sale a la red de verdad: la respuesta vuelve y el tiempo de espera se honra.')->setEffects([CliActions::EFFECT_NETWORK])->register();

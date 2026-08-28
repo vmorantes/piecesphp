@@ -166,6 +166,38 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## Herramientas — la puerta de `HttpClient` no podía opinar, y ahora son dos
+
+`unit-tests:core/http-client` existía desde siempre y **no daba veredicto**: su `$checkResult`
+devolvía un booleano que nadie leía, no imprimía línea de balance y no devolvía nada. `gates`
+la habría contado como «no dice si pasó» aunque se hubiera corrido — y no se corría, porque
+declara `network`. **Una puerta que ni corre ni puede opinar no es una puerta.**
+
+Se parte en dos, con el mismo criterio que la prueba de Mautic:
+
+| Suite | Qué mira | En `gates` |
+| :-- | :-- | :--: |
+| `core/http-client-request-build` | Cómo se **construye** la petición: URI, cuerpo, cabeceras | **sí** |
+| `core/http-client` | Que la petición **sale** y que el tiempo de espera se honra | no, declara `network` |
+
+**La partición no es una opinión, es una medición.** En `HttpClient::request()`, `requestHeaders`,
+`requestBody` y `requestURI` quedan escritos en las líneas 133, 143/148 y 178 — **antes** del
+`file_get_contents()` de la 182. Todo lo que se comprueba sobre ellos es independiente de que
+alguien responda, y el destino de la suite local es un `data://`, que sirve el propio PHP: ni
+socket, ni DNS, ni puerto.
+
+Las dos imprimen balance, devuelven veredicto y **se han provocado**: con un fallo inyectado,
+`core/http-client-request-build` sale `10/11` y `gates` la marca `[FALLÓ]`; `core/http-client`
+sale `5/6`. Restauradas por `sha1sum`, cero rastros.
+
+**El veredicto de la externa, que nadie había visto nunca: 5/5 PASADAS.** Su destino deja de ser
+un token personal de webhook.site —caducan, y al caducar la prueba miente— y pasa a
+`https://example.com`, reservado por la RFC 2606 para esto.
+
+De paso desaparecen del baseline los **tres únicos errores** que PHPStan veía en la suite vieja,
+que eran el mismo defecto: `request()` devuelve `string|false` y el resultado se trataba como
+`string` sin estrecharlo.
+
 ## Herramientas — `gates` enumera lo que existe, y deja de callar lo que no corre
 
 Una suite ya no se reconoce por un **prefijo en su nombre** —una lista a mano de un elemento, que se
