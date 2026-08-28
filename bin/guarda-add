@@ -49,9 +49,35 @@ fi
 CAMBIADO=$(git -C "$REPO" status --porcelain | wc -l)
 ANADIDO=$(git -C "$REPO" diff --cached --name-only | wc -l)
 
+#EL BIT DE EJECUCION, PUESTO AQUI PORQUE AQUI PASA TODO LO QUE SE VA A COMMITEAR.
+#El repositorio tiene core.fileMode=false, asi que un `chmod +x` del disco NO llega al indice
+#y git guarda el guion como 100644. `verify-integrity` lo caza, pero tarde: ya esta commiteado.
+#Se hizo a la SEGUNDA vez, no a la tercera que pide la LEY 11: el patron ya era identico
+#-bin/guarda-add en el bloque U, bin/anexar en el V- y el arreglo cabe en una linea. Ver T134.
+ARREGLADOS=""
+while IFS= read -r ARCHIVO; do
+    [ -n "$ARCHIVO" ] || continue
+    case "$ARCHIVO" in
+        bin/*) ;;
+        *) continue ;;
+    esac
+    RUTA="${REPO%/}/$ARCHIVO"
+    [ -f "$RUTA" ] || continue
+    #Solo los que declaran interprete: un .neon o un .php de datos en bin/ no es ejecutable.
+    head -c 2 "$RUTA" 2>/dev/null | grep -q '^#!' || continue
+    MODO=$(git -C "$REPO" ls-files --stage -- "$ARCHIVO" | awk '{print $1}')
+    if [ "$MODO" = "100644" ]; then
+        git -C "$REPO" update-index --chmod=+x -- "$ARCHIVO"
+        ARREGLADOS="${ARREGLADOS} ${ARCHIVO}"
+    fi
+done <<< "$(git -C "$REPO" diff --cached --name-only)"
+
 SUMA=$((ANADIDO + PENDIENTES))
 
 echo "guarda ejecutada: ${PREVISTO}·${CAMBIADO}·${ANADIDO}  (previsto·cambiado·anadido) en ${REPO}"
+if [ -n "$ARREGLADOS" ]; then
+    echo "  bit de ejecucion puesto en el indice:${ARREGLADOS}"
+fi
 if [ "$PENDIENTES" -ne 0 ]; then
     echo "  mas ${PENDIENTES} pendiente(s) declarados para otro asunto: ${ANADIDO}+${PENDIENTES}=${SUMA}"
 fi

@@ -166,6 +166,29 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## Herramientas — el bit de ejecución se pone solo, y no esperamos a la tercera
+
+`verify-integrity` cazó **dos veces** un guion nuevo de `bin/` guardado en el índice como
+`100644`: `bin/guarda-add` en un bloque y `bin/anexar` en el siguiente. El repositorio tiene
+`core.fileMode=false`, así que **un `chmod +x` del disco no llega al índice** y git guarda el
+guion sin su bit. La puerta lo veía, sí — pero **después de commitear**.
+
+`bin/guarda-add` lo pone ahora él mismo, y lo dice:
+
+```
+guarda ejecutada: 2·2·2  (previsto·cambiado·anadido) en .
+  bit de ejecucion puesto en el indice: bin/censo-rutas-doc
+```
+
+**Va en la guarda porque por ahí pasa todo lo que se va a commitear**, sin que nadie tenga que
+acordarse de una herramienta nueva — que es justo lo que la LEY 11 dice que no funciona.
+Discrimina por el `#!`: un `.txt` o un `.neon` dentro de `bin/` se queda como está, comprobado
+plantando los dos a la vez.
+
+> **Se ha hecho a la SEGUNDA, no a la tercera.** La LEY 11 pide tres fallos, pero es un **suelo,
+> no un techo**: cuando el patrón ya es idéntico dos veces y el mecanismo cabe en una línea,
+> esperar a la tercera es ceremonia.
+
 ## ⚠ Corregido — `HttpClient` compartía la URL base entre TODAS sus instancias
 
 `HttpClient::$baseURL` estaba declarada `protected static` y el **constructor la escribía**:
