@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""Censa las rutas de archivo que menciona `source-docs/` y dice cuales NO existen.
+
+Una guia de instalacion que nombra archivos inexistentes es la trampa embarcada en su forma
+mas pura: el clon nuevo la sigue. Salio de T68, apartado H — `general.md` mandaba al operador
+cuatro veces a `src/app/database.php` y `src/app/constants.php`, que viven en `src/app/config/`.
+
+CANARIO obligatorio (LEY 16): antes de contar nada se comprueba con una ruta que SI existe y
+otra que NO, para que un cero no pueda venir de un comprobador roto. Ya paso una vez: la
+primera version hacia `lstrip('./')` y se comia el punto de `.agents/`, dando falsos rotos.
+
+Uso:  bin/censo-rutas-doc          (codigo 1 si alguna ruta no existe)
+"""
+import re, sys
+from pathlib import Path
+RAIZ = Path('/var/www/html/vicsen/piecesphp')
+DOCS = sorted((RAIZ/'source-docs').rglob('*.md'))
+
+#Una ruta es un token con `/` y una extension conocida, o un directorio conocido del proyecto.
+PAT = re.compile(r'`([^`\n]+)`|(?<![\w/`])((?:src|bin|files|public|app|config|vendor)/[\w./\-]+)')
+EXT = re.compile(r'\.(php|js|json|md|neon|lock|yml|yaml|css|scss|ini|sh|xml|htaccess)$')
+
+def candidatas(texto):
+    out=set()
+    for m in PAT.finditer(texto):
+        t=(m.group(1) or m.group(2) or '').strip()
+        if not t or ' ' in t: continue
+        if '/' not in t: continue
+        if t.startswith(('http','www.','#','@','$')): continue
+        t=t.rstrip('.,;:)')
+        if EXT.search(t) or t.endswith('/'):
+            out.add(t)
+    return out
+
+def existe(t):
+    #OJO: `lstrip('./')` se comia el punto de `.agents/`. Solo se quita el prefijo `./`.
+    t=t[2:] if t.startswith('./') else t
+    t=t.rstrip('/')
+    #Muchos documentos escriben la ruta relativa a `src/`, que es la raiz de la aplicacion.
+    return (RAIZ/t).exists() or (RAIZ/'src'/t).exists()
+
+def fuera_de_alcance(t):
+    """Lo que no es una ruta del repositorio y no puede contarse como rota."""
+    if t.startswith('/'): return 'ruta del sistema'
+    if '[' in t or ']' in t: return 'plantilla con marcador'
+    if t.endswith('/') and t.count('/')==1: return 'rama de un diagrama de estructura'
+    return None
+
+#CANARIO
+vivo, muerto = 'src/app/config/database.php', 'src/app/database.php'
+assert existe(vivo) and not existe(muerto), 'CANARIO CAIDO: el comprobador no discrimina'
+print(f'canario: `{vivo}` existe, `{muerto}` no. El comprobador discrimina.\n')
+
+total=set(); rotas={}; fuera={}
+for d in DOCS:
+    txt=d.read_text(encoding='utf-8',errors='replace')
+    for t in candidatas(txt):
+        motivo=fuera_de_alcance(t)
+        if motivo:
+            fuera.setdefault(t,motivo); continue
+        total.add(t)
+        if not existe(t):
+            rotas.setdefault(t,[]).append(str(d.relative_to(RAIZ)))
+print(f'documentos leidos        : {len(DOCS)}')
+print(f'rutas comprobables       : {len(total)}')
+print(f'descartadas por alcance  : {len(fuera)}')
+print(f'RUTAS QUE NO EXISTEN     : {len(rotas)}\n')
+for t,m in sorted(fuera.items()):
+    print(f'  (fuera de alcance) {t}  -- {m}')
+print()
+for t in sorted(rotas):
+    print(f'  {t}')
+    for f in sorted(set(rotas[t])):
+        print(f'      <- {f}')
+
+sys.exit(1 if rotas else 0)

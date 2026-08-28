@@ -165,10 +165,10 @@ sudo systemctl restart apache2
     - init-project
     - init-project:watch
 - Base de datos:
-    - Se debe configurar la conexión en el archivo src/app/database.php
+    - Se debe configurar la conexión en el archivo `src/app/config/database.php`
     - Los archivos para usar en la base de datos están en la carpeta databases
 - Otras cosas:
-    - En el archivo src/app/constants.php se pueden activar/desactivar algunas características integradas.
+    - En el archivo `src/app/config/constants.php` se pueden activar/desactivar algunas características integradas.
 
 ## Despliegue de PiecesPHP (Ubuntu 24.04 LTS)
 
@@ -187,6 +187,6 @@ sudo systemctl restart apache2
     arranque.
 
 ## Notas adicionales
-- Configura la base de datos en `src/app/database.php`.
+- Configura la base de datos en `src/app/config/database.php`.
 - Los archivos SQL están en la carpeta `databases`.
-- Puedes activar/desactivar características en `src/app/constants.php`.
+- Puedes activar/desactivar características en `src/app/config/constants.php`.

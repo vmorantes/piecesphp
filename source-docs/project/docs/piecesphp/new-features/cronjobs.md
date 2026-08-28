@@ -56,7 +56,7 @@ Para que las tareas se ejecuten, se debe configurar una única entrada en el `cr
 >
 > Ese flag **decide a qué BASE DE DATOS se conecta la aplicación**: en terminal,
 > `is_local()` devuelve exactamente lo que diga `--local` (`Utilities.php:607-610`), y
-> `config/database.php` elige credenciales y nombre de base según ese valor. Una línea de
+> `src/app/config/database.php` elige credenciales y nombre de base según ese valor. Una línea de
 > crontab con `--local` en producción **apunta los cronjobs a la base de desarrollo**.
 >
 > `bin/cli` sí lo añade solo, y está bien: es el atajo para trabajar en local.

@@ -189,6 +189,30 @@ plantando los dos a la vez.
 > no un techo**: cuando el patrón ya es idéntico dos veces y el mecanismo cabe en una línea,
 > esperar a la tercera es ceremonia.
 
+## Corregido — la guía de instalación mandaba al operador a archivos que no existen
+
+`source-docs/.../general.md` decía **cuatro veces** `src/app/database.php` y
+`src/app/constants.php`. Los dos viven en **`src/app/config/`**. Es lo primero que lee quien clona
+el framework, y lo seguía. Corregidas las cuatro, más una quinta ambigua en `cronjobs.md`.
+
+**Y se generaliza, que es lo que importa**: `bin/censo-rutas-doc` lee los **38 documentos** de
+`source-docs/`, extrae toda ruta de archivo que mencionan y comprueba cuáles existen.
+
+| | |
+| :-- | --: |
+| Documentos leídos | 38 |
+| Rutas comprobables | **16** |
+| Descartadas por alcance | 18 |
+| **Que no existen** | **0** |
+
+Las 18 descartadas son ramas sueltas de diagramas de estructura (`app/`, `core/`, `view/`…),
+rutas del sistema (`/etc/sysctl.d/`) y plantillas con marcador (`[Modulo]`). **Se dicen una a una
+con su motivo**: un censo que descarta en silencio miente sobre su propia cobertura.
+
+El guion lleva canario obligatorio, y hace falta: **su primera versión hacía `lstrip('./')` y se
+comía el punto de `.agents/`**, reportando como rotas rutas que existían. Probado también al
+revés, plantando una ruta inventada: sale en rojo y devuelve código 1.
+
 ## ⚠ Corregido — `HttpClient` compartía la URL base entre TODAS sus instancias
 
 `HttpClient::$baseURL` estaba declarada `protected static` y el **constructor la escribía**:
