@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+#
+# Anexa un fragmento al final de un documento RESPETANDO SUS FINALES DE LÍNEA.
+#
+# Existe por la LEY 11: los documentos del registro van en CRLF, los heredocs y los
+# editores de un agente escriben LF, y anexar sin convertir produce un archivo con los
+# dos finales mezclados. Eso ya rompió un docblock por desplazamiento de índices (LEY 20)
+# y ensucia cualquier conteo posterior. El guion vivía FUERA del repositorio, en un bloc
+# de notas, y se perdió: un ayudante fuera del repositorio es memoria, no mecanismo.
+#
+# Uso:
+#   bin/anexar <documento> <fragmento>
+#
+# Los finales se toman del DESTINO, no se declaran: si el destino usa CRLF, el fragmento
+# entra en CRLF; si usa LF, en LF. Un destino vacío o sin ningún salto asume LF.
+
+import sys
+from pathlib import Path
+
+if len(sys.argv) != 3:
+    print('uso: bin/anexar <documento> <fragmento>', file=sys.stderr)
+    raise SystemExit(2)
+
+destino, fuente = Path(sys.argv[1]), Path(sys.argv[2])
+for ruta in (destino, fuente):
+    if not ruta.is_file():
+        print(f'no existe o no es un archivo: {ruta}', file=sys.stderr)
+        raise SystemExit(1)
+
+actual = destino.read_bytes()
+salto = b'\r\n' if b'\r\n' in actual else b'\n'
+
+#Se normaliza a LF primero para no duplicar los \r de un fragmento que ya venga en CRLF.
+nuevo = fuente.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', salto)
+
+if actual and not actual.endswith(salto):
+    actual += salto
+
+destino.write_bytes(actual + nuevo)
+print(f'anexadas {nuevo.count(salto)} lineas a {destino} '
+      f'con finales {"CRLF" if salto == b"\r\n" else "LF"}')
