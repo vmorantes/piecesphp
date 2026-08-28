@@ -51,93 +51,30 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
 
 ### La fase no cierra con un número. Cierra con esto:
 
-1. **Cero errores que señalen un defecto real.**
-2. **Todo lo demás arreglado, o suprimido CON RAZÓN ESCRITA** y, si la supresión es
-   temporal, **con la condición que la retira**.
-   > **PRECISIÓN, y viene de intentar aplicar esta regla a los 85 del grupo B: EL CIERRE POR
-   > SUPRESIÓN DOCUMENTADA EXIGE QUE LA RAZÓN EXISTA.** No que esté escrita: que exista.
-   >
-   > Cuando la respuesta **no está en el código sino en datos que no tenemos**, no se suprime:
-   > **se aplaza con el motivo escrito**. Escribir «no se puede saber si es un defecto» ochenta
-   > y cinco veces no son ochenta y cinco supresiones justificadas — son ochenta y cinco
-   > justificaciones falsas, y eso es peor que dejar el error a la vista, porque un error
-   > visible al menos se ve.
-   >
-   > La diferencia práctica entre suprimir y aplazar: **una supresión se cierra y no se vuelve
-   > a mirar; un aplazamiento lleva escrito QUÉ lo desbloquea.** Los 85 llevan «E2, cuando el
-   > ciclo CRUD haya poblado la base», que es una condición comprobable y con fecha.
-3. **Los `.neon` dejan de ser cajón de sastre y pasan a ser registro documentado.** La
-   auditoría de los 67 `ignoreErrors` —48 vivos silenciando 3.083 errores, 19 muertos— es
-   el formato de referencia. **Los cinco repositorios al mismo estándar.**
-4. **TRINQUETE: el baseline solo baja.** Un error nuevo se arregla o se justifica por
-   escrito. El que no cumpla ninguna de las dos cosas, no entra.
-6. **UNA FASE NO SE CIERRA POR CONSENSO NI POR CHECKLIST.** Se cierra cuando existe una
-   comprobación que falla si deja de ser cierta, **Y ESA COMPROBACIÓN SE HA VISTO FALLAR.**
+**LOS SIETE PUNTOS SON LAS LEYES 1 A 7, Y VIVEN EN [19-leyes.md](./19-leyes.md).**
 
-   **Escrita porque la migración a 8.5 se dio por terminada y no lo estaba.** Había DOS
-   detectores —PHPStan y la promoción de `E_DEPRECATED` a excepción— y **no se probó
-   ninguno**. Los dos fallaban a la vez, cada uno por su motivo, y quedaron nueve llamadas
-   deprecadas en el árbol; una tumbaba la generación de imágenes con un 400.
+Estuvieron aquí desde el principio, sin número de ley y dentro del contenedor que nació para
+morir. La LEY 8 se escribió literalmente a continuación del punto 7 continuando esta misma
+numeración, así que no había ningún hueco: **había siete leyes llamándose «puntos»**. Movidos
+íntegros en el bloque V; aquí no queda copia, solo este puntero. Ver T132.
 
-   Plantar un `imagedestroy()` el primer día y correr los dos habría costado **cinco
-   minutos** y habría enseñado que el estático no lo veía con el rango de versiones puesto,
-   y que el de ejecución solo dispara si alguien pisa la línea.
+| | En una línea |
+| --: | :-- |
+| **LEY 1** | Cero errores que señalen un defecto real |
+| **LEY 2** | Lo demás se arregla o se suprime con razón escrita, y suprimir exige que la razón EXISTA |
+| **LEY 3** | Un `.neon` no es un cajón de sastre, es un registro documentado |
+| **LEY 4** | El baseline solo baja |
+| **LEY 5** | Toda cifra que sobrevive a la sesión lleva su método escrito |
+| **LEY 6** | Una fase se cierra con una comprobación que se ha visto FALLAR |
+| **LEY 7** | Un comentario que frena algo cabe en una línea |
 
-5. **TODA CIFRA QUE SOBREVIVE A LA SESIÓN LLEVA SU MÉTODO ESCRITO.** No es un paralelismo
-   con la regla 2: **es lo que hace funcionar el trinquete.** Comparar dos baselines solo
-   significa algo si se midieron igual, y ya falló una vez — cuando el pipeline pasó de
-   tabla a JSON, la pregunta «¿es comparable?» no tuvo respuesta hasta que alguien fue a
-   averiguarla. Un trinquete que compara peras con manzanas no impide nada.
-
-   Con dos límites, para que no se vuelva burocracia:
-
-   - **Solo las cifras que SOBREVIVEN a la sesión**: las que entran en un documento, en un
-     baseline o en el `CHANGELOG`. Un número dicho en un reporte se explica por su contexto
-     y muere con él; ese no lleva método.
-   - **El método debe ser REPRODUCIBLE, NO DESCRIPTIVO**: el comando o la herramienta
-     nombrada, no una frase. «Medido sobre la salida de PHPStan» no sirve; «`bin/phpstan`,
-     contando instancias en `PHPStanResult.json`» sí.
-
-7. **UN COMENTARIO QUE FRENA ALGO CABE EN UNA LÍNEA. SI NECESITA UN PÁRRAFO, EL PÁRRAFO NO ES
-   EL COMENTARIO.** La regla anterior —«¿impide romper algo?»— era correcta y **no frenaba la
-   deriva**, porque no decía nada del TAMAÑO: un relato de doce líneas siempre encuentra una
-   frase suya que sí impide romper algo, y con esa se justifica entero.
-
-   El reparto, y no hay cuarto sitio:
-
-   | Dónde | Qué va | Tamaño |
-   | :-- | :-- | :-- |
-   | **El código** | la guarda: qué no se puede hacer aquí y qué pasa si se hace | **una línea** |
-   | **El `CHANGELOG`** | el relato: qué se cambió, por qué, qué se midió | lo que haga falta |
-   | **La instrucción / el documento** | el razonamiento que llevó a la decisión | lo que haga falta |
-
-   Ejemplo del reparto bien hecho, sobre el 2FA:
-
-   ```php
-   //No pongas twoAuthFactor en ENABLED aquí: preparar no es activar. Lo activa confirm2FA().
-   ```
-
-   Eso frena el borrado. **Todo lo demás —la ventana de bloqueo, el código de seguridad vacío,
-   el secreto que se regeneraba— es historia, y la historia va al `CHANGELOG` y a T35.**
-
-   **Y hay un motivo que no es estético: un comentario largo ENVEJECE MAL.** El del `chr()`
-   explica un arreglo de compatibilidad; el día que ese arreglo sea irrelevante, el comentario
-   **miente**, y nadie va a ir a buscarlo. Un documento fechado puede envejecer sin mentir
-   porque se lee como historia; un comentario en el código se lee como el presente.
-
-   > **Causa reconocida por el propietario, y anotarla es parte de la regla:** escribir el
-   > razonamiento en MAYÚSCULAS en la instrucción hace que acabe de encabezado en un docblock.
-   > **EL RAZONAMIENTO VA EN LA INSTRUCCIÓN, LA LÍNEA VA EN EL CÓDIGO, EL RELATO VA EN EL
-   > CHANGELOG.**
-
-   La regla se vigila con una puerta, no a ojo: ver T38.
 ### LAS LEYES VIVEN EN [19-leyes.md](./19-leyes.md)
 
 Estaban aquí, dentro de `T0`, y eso era el problema: **lo único permanente de este archivo vivía
 dentro del contenedor que nació para morir**. Se movieron ÍNTEGRAS el 2026-08-26; aquí no queda
 copia, solo este puntero — dos verdades sin puerta entre ellas es lo que llevamos meses quitando.
 
-Son las **leyes 8 a 18**. Cada una con el caso que la funda.
+Son las **leyes 1 a 24**. Cada una con el caso que la funda.
 
 
 ### El baseline vigente y su método
@@ -1222,6 +1159,10 @@ Cambia el comportamiento en tiempo de ejecución sin tocar ninguna línea de ló
 
 ## T10 · NO SE EDITA PHP POR LÍNEA, SE EDITA POR ESTRUCTURA
 
+> **PROMOCIONADO A LEY EN EL BLOQUE V: es la [LEY 20](./19-leyes.md).** Lo
+> durable vive allí; aquí queda el desarrollo completo con todos sus casos, hasta que la
+> pasada de retención de T128 decida qué se conserva.
+
 > **PRECISIÓN QUE A ESTA REGLA LE FALTABA, Y ES LA QUE LA VUELVE ÚTIL: ES LA PRIMERA OPCIÓN,
 > NO EL PLAN B.** Los cuatro incidentes de abajo comparten algo peor que la causa técnica:
 > **en los cuatro se empezó por el atajo y se llegó a la estructura DESPUÉS de romper algo.**
@@ -1796,6 +1737,10 @@ independiente. Lo que este análisis sí cierra es que **la del núcleo no puede
 reescribir el linaje entero**.
 ## T17 · REGLA — una regla mecánica se aplica a TODA la familia o a ninguna
 
+> **PROMOCIONADO A LEY EN EL BLOQUE V: es la [LEY 21](./19-leyes.md).** Lo
+> durable vive allí; aquí queda el desarrollo completo con todos sus casos, hasta que la
+> pasada de retención de T128 decida qué se conserva.
+
 **La mejor lección del lote, y salió de un error propio.**
 
 Antes del primer lote de Rector había **39 archivos** con `strlen($route) > 0`. Rector
@@ -1884,6 +1829,10 @@ muerto — no tienen hook**. Ni lo declaran ni lo llaman, así que son coherente
 Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla no.
 
 ## T20 · CUANDO UNA MEDICIÓN SORPRENDE, SE SOSPECHA PRIMERO DE LA MEDICIÓN
+
+> **PROMOCIONADO A LEY EN EL BLOQUE V: es la [LEY 22](./19-leyes.md).** Lo
+> durable vive allí; aquí queda el desarrollo completo con todos sus casos, hasta que la
+> pasada de retención de T128 decida qué se conserva.
 
 **Cuatro veces en esta campaña el defecto estaba en el INSTRUMENTO, no en lo medido.**
 
@@ -2127,6 +2076,10 @@ misma medición que a lo que va a medir, y la primera vez que da un número hay 
 otra cosa. Si el número hubiera sido 835 por casualidad, el defecto seguiría dentro.
 
 ## T21 · PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
+
+> **PROMOCIONADO A LEY EN EL BLOQUE V: es la [LEY 23](./19-leyes.md).** Lo
+> durable vive allí; aquí queda el desarrollo completo con todos sus casos, hasta que la
+> pasada de retención de T128 decida qué se conserva.
 
 **El peor defecto de esta campaña no apareció revisando. Apareció al intentar ENSEÑAR.**
 
@@ -4878,6 +4831,10 @@ Era la condición (a) de E2 —la base restaurable como red de la limpieza— y 
 empezar. **Y no era trabajo de E2**: era un defecto embarcado que E2 se encontró de paso.
 
 ## T46 · UNA PRUEBA QUE PASARÍA CON EL DEFECTO PUESTO NO ES UNA PRUEBA
+
+> **PROMOCIONADO A LEY EN EL BLOQUE V: es la [LEY 24](./19-leyes.md).** Lo
+> durable vive allí; aquí queda el desarrollo completo con todos sus casos, hasta que la
+> pasada de retención de T128 decida qué se conserva.
 
 **Corolario de T21, aplicado a las pruebas en vez de a las puertas. Y ya tiene dos casos, uno
 de ellos grave.**
@@ -12021,6 +11978,14 @@ return ['success' => true, 'message' => 'Pruebas de systemOutFormatted completad
 `gates` la habría dado por buena con las 17 caídas. Ahora devuelve `$failed === 0`. Es el mismo
 patrón de las ramas gemelas: la forma de una puerta sin la puerta.
 
+> ⚠ **ESTE PÁRRAFO ES FALSO Y SE CONSERVA A PROPÓSITO** (LEY 14: las correcciones van aparte y
+> enlazadas, no fundidas con el original). **`gates` sí habría marcado esta suite en rojo**: no lee
+> el valor devuelto, **parsea la línea de balance impresa**. Con 17 caídas habría impreso `0/17` y
+> el corredor la habría contado como fallida. Lo que el `'success' => true` literal rompía es el
+> **veredicto de `bin/cli` invocado directamente**, que es otro defecto y también real —pero menor—.
+> Corregido en T127 y elevado a [LEY 19](./19-leyes.md), que es la que gobierna el error:
+> se afirmó lo que hace el consumidor leyendo el productor.
+
 ### (d) · `gates` no se toca, y el pty queda descartado
 
 El remedio del pseudo-terminal **habría cambiado qué mitad se cubre, no cuántas**: pasaría a
@@ -12558,3 +12523,140 @@ enseñar antes de commitear porque no hay nada que enseñar.
 
 Están repartidos casi a la mitad y no producen ni un diff. Añadir una regla para ellos sería
 mecanismo sin problema que resolver.
+
+---
+
+## T132 · V2 y V3 · LOS 84 SE CRUZAN CONTRA GIT, Y LAS LEYES 1 A 7 APARECEN
+
+### V3(a) · Las leyes 1 a 7 NO faltaban: se llamaban «puntos»
+
+Buscadas en los **2.056 commits** del framework y en los de los cuatro paquetes, con el
+instrumento validado por canario —busca `LEY 8`, lo encuentra; busca `LEY 999`, no—, los números
+de ley que han existido alguna vez son exactamente **8 a 19**. «LEY 1» a «LEY 7» **no aparecen en
+ninguna versión de ningún archivo de ningún repositorio**.
+
+**Pero no son un hueco.** El commit que introduce la primera ley, `66a49f42`, lo dice en su propio
+mensaje:
+
+> *«T0 gana la LEY 8: una decisión que no vive en un archivo no se propaga. **Con los siete casos
+> que explican media campaña.**»*
+
+Y el diff enseña dónde la puso: **inmediatamente después del punto 7 del criterio de cierre de
+`T0`**. Los siete puntos son las leyes 1 a 7 y la numeración nunca se interrumpió — lo que pasó es
+que las siete primeras **se quedaron con su nombre viejo, dentro del contenedor que nació para
+morir**, mientras la octava en adelante se llamaban leyes.
+
+Movidas íntegras a `19-leyes.md`, con su procedencia anotada. En `T0` queda el puntero y la tabla
+de una línea. **Y son las que más se citaban**: `verify-integrity` imprimía «(T0, punto 7)» en su
+propio mensaje de error, y `bin/phpstan-deadcode`, el baseline y dos registros JSON citaban «T0,
+punto 5». **Las cinco referencias apuntan ya a la LEY 7 y a la LEY 5.**
+
+### V3(b) · Las cinco sin nombre pasan a leyes 20 a 24
+
+| Bloque | Ley | Título |
+| :-- | :--: | :-- |
+| T10 | **20** | No se edita código por posición, se edita por estructura |
+| T17 | **21** | Una regla mecánica se aplica a toda la familia o a ninguna |
+| T20 | **22** | Se sospecha del instrumento cuando sorprende, y MÁS cuando confirma |
+| T21 | **23** | Pedir la demostración no es ceremonia, es un detector |
+| T46 | **24** | Una prueba que pasaría con el defecto puesto no es una prueba |
+
+**Los números son correlativos por orden de entrada y NO tienen relación con el número de bloque.**
+La casualidad estaba servida —T20 podría haber sido «LEY 20»— y el archivo lo declara en su
+encabezado para que nadie lea un vínculo que no existe. Cada ley anota debajo de su título de qué
+bloque sale, y ese es el único vínculo.
+
+### V3(c) · LEY 19, y sus tres casos son del mismo tramo
+
+**Una afirmación sobre el consumidor no se deduce del productor.** Los tres casos —los avisos de
+`@import` leídos en el SCSS, la suite que «no podía ponerse roja» leída en su `return`, y el
+`set -u`/`pipefail` recetado para un fallo que solo caza `set -e`— comparten la forma: el
+razonamiento era **correcto sobre el productor**, y faltó abrir la línea de quien lo consume.
+
+### V3(d) · T124 corregido aparte y enlazado
+
+El párrafo falso se conserva con un aviso al lado, según la LEY 14. `gates` **sí** habría marcado
+en rojo la suite del `'success' => true` literal: parsea el balance impreso. Lo que ese literal
+rompía es el veredicto de `bin/cli` invocado directamente.
+
+---
+
+### V2 · La retención, cruzada contra git — y son 128 bloques, no 129
+
+**Primera corrección, y es de conteo.** Los bloques `T` del registro no son 129: **son 128**.
+**`T78` no existe** — el número se saltó al escribirlo. La cifra de T128 estaba mal por uno.
+
+### El instrumento falló primero, y se cazó por contradicción
+
+El primer cruce dio **10 bloques con commit de 74**. El censo de números `T` vistos en mensajes de
+commit, hecho antes, ya listaba T24, T35, T36, T37, T38… que ese cruce daba por ausentes.
+**Dos instrumentos, dos respuestas: uno estaba roto.**
+
+Era el mío: `git log --format="%H|%s %b"` produce cuerpos multilínea, y partir por `|` línea a
+línea deja **5.517 líneas para 2.056 commits** — todas las líneas de cuerpo perdían su hash y su
+texto se leía como identificador. Rehecho con un separador de registro (`%x01`), el mismo cruce da
+**33 de 83**. LEY 22, y esta vez el disparador no fue la sorpresa sino **la contradicción entre dos
+mediciones**.
+
+### La tabla revisada
+
+| Montón | U4 | **V2** | Qué cambia |
+| :-- | --: | --: | :-- |
+| **PROMOCIONA** | 19 | **19** | Cinco ya ejecutadas: son las leyes 20 a 24 |
+| **SE QUEDA** | 26 | **28** | Entran **T68** y **T128** |
+| **SE VA** | 84 | **81** | Salen los dos anteriores y **T78, que no existe** |
+| | 129 | **128** | |
+
+### La evidencia de los 81, por vía
+
+| Vía | Cuántos | Qué es |
+| :-- | --: | :-- |
+| **Un commit lo nombra** | 33 | `git log --all` sobre asunto y cuerpo, con `\bT<n>\b` |
+| **El commit que lo introdujo tocó código** | 43 | El commit que añadió su encabezado al `18` cambió archivos fuera de `.agents/`, `CHANGELOG` y los artefactos |
+| **Puerta o ley** | 5 | Ver abajo |
+
+**La convención `docs(t114)` se usó UNA sola vez en 2.056 commits.** Esa es la razón de que el
+cruce por nombre solo alcance a 33: la procedencia existe, pero está en el commit que aplicó el
+cambio, no en una etiqueta.
+
+### Los siete que no tenían commit con código, resueltos uno a uno
+
+| Bloque | Veredicto | Evidencia |
+| :-- | :-- | :-- |
+| **T61** · los 14 de 21 `objectToMapper()` | **SE VA** | **Puerta**: `verify-integrity` → «21 objectToMapper() comprobados: todos siembran la instantánea» |
+| **T66** · segunda pasada de atribución | **SE VA** | `bin/walk-attribute` está versionado y ejecutable; el método vive en la LEY 12 |
+| **T68** · el último ejemplo de un mecanismo | **SE QUEDA** | Ver abajo |
+| **T105** · el hallazgo por diseño | **SE VA** | **Ley**: es la LEY 15, ya en `19-leyes.md` |
+| **T121** · rupturas agrupadas y parada del composer | **SE VA** | El bloque «⚠ CAMBIOS INCOMPATIBLES» está en el `CHANGELOG`; la parada la cerró V0 (T130) |
+| **T128** · la clasificación misma | **SE QUEDA** | Es la tabla que se está arbitrando. No puede irse antes de ejecutarse |
+| **T129** · U0 y U6 | **SE VA** | U0 cerrado en V0; U6 es criterio escrito en el contrato |
+
+### >>> LO QUE LA PARADA U4 NO PUDO DESCARTAR, Y AQUÍ APARECE <<<
+
+**T68 tiene una conclusión sin aplicar y sin dueño**, y la clasificación por título lo mandaba a la
+papelera con ella dentro.
+
+Su apartado H dice que `source-docs/project/docs/piecesphp/content/general.md` manda al operador a
+`src/app/database.php` y `src/app/constants.php`. **Siguen ahí, cuatro veces, y los dos archivos no
+existen**: viven en `src/app/config/`. Es documentación de instalación apuntando al vacío, en el
+documento que lee quien clona el framework.
+
+La otra mitad de T68 **sí** está aplicada: los eventos de ciclo de vida del mapper están
+documentados en `03-ciclo-de-vida.md`, que era su destino declarado.
+
+**T68 pasa a SE QUEDA**, con lo que depende de él escrito: arreglar las cuatro referencias de
+`general.md`.
+
+### Y los tres provisionales, verificados contra el árbol
+
+| Bloque | Decía | Está |
+| :-- | :-- | :-- |
+| **T53** · las dos rutas con nombre `uniqid()` | «no se ha tocado nada» | **Arreglado**: `Test.php:240-241` lleva `pcsphp-testing-queue-request`, fijo. Cero `uniqid(` en nombres de ruta |
+| **T57** · el descubrimiento se dejaba mappers fuera | «arreglado, lista negra» | **Arreglado**: `SchemeSqlTask::IGNORED_DIRECTORIES` con las seis carpetas |
+| **T59** · el apóstrofo suelto | «arreglado, seis archivos» | **Arreglado**: cero apariciones de `{{url}}''` |
+
+**Los tres salen de provisionales y se confirman en SE VA.**
+
+### SIGUE SIN BORRARSE NADA
+
+La tabla queda para que ARQUITECTO arbitre. El borrado va en el bloque siguiente.

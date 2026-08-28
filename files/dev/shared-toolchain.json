@@ -63,7 +63,7 @@
   "tracking": {
     "why": "LO QUE LAS HERRAMIENTAS PRODUCEN también es instrumental compartido, y hasta ahora la puerta no lo miraba: comprobaba que los archivos contuvieran las marcas y aprobaba en verde sobre cuatro repositorios cuyo estado de seguimiento divergía. El defecto no era la divergencia, era el ALCANCE de la puerta.",
     "tracked": {
-      "PHPStanResult.json": "Es de donde el resumen saca el dato —no de la tabla, que recorta las rutas—. Sin él versionado, el método escrito en el baseline no es reproducible desde el repositorio, y eso es la regla de T0 punto 5."
+      "PHPStanResult.json": "Es de donde el resumen saca el dato —no de la tabla, que recorta las rutas—. Sin él versionado, el método escrito en el baseline no es reproducible desde el repositorio, y eso es la LEY 5."
     },
     "ignored": {
       "PHPStanResult.8.4.json": "Intermedio de la pasada de 8.4. Se regenera; versionarlo es ruido.",

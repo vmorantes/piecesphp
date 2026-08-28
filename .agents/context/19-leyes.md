@@ -12,11 +12,31 @@
 
 Una regla que **ya falló al menos una vez y costó dinero**. No son buenas prácticas: cada una
 trae el caso que la funda, y sin ese caso no se entiende por qué es tan tajante. Se numeran por
-orden de aparición y **empiezan en la 8**: las anteriores se escribieron como reglas sueltas y
-quedaron absorbidas por los documentos numerados antes de que existiera esta numeración.
+orden de aparición.
+
+> **DE DÓNDE SALEN LAS SIETE PRIMERAS, porque durante un tiempo pareció que faltaban.** La
+> numeración empezaba en la 8 y las leyes 1 a 7 no aparecían en ningún archivo. **No es que se
+> perdieran: es que se llamaban de otra manera.** Son los **siete puntos del criterio de cierre
+> de `T0`**, y la LEY 8 se escribió literalmente a continuación del punto 7, continuando esa
+> numeración — el commit `66a49f42` lo dice en su propio mensaje: *«T0 gana la LEY 8. Con los
+> siete casos que explican media campaña»*. Buscadas en los **2.056 commits** de los cinco
+> repositorios, «LEY 1» a «LEY 7» no existen en ninguna versión de ningún archivo. Recuperadas
+> aquí íntegras en el bloque V, con su procedencia anotada. Ver T132.
+
+> **EL NÚMERO DE LEY NO GUARDA NINGUNA RELACIÓN CON EL NÚMERO DE BLOQUE `T`.** La LEY 17 no sale
+> de T17, ni la 20 de T20. Cada ley que viene de un bloque lo dice debajo de su título, y ese es
+> el único vínculo que hay. **Las leyes se numeran correlativas por orden de entrada aquí**, y no
+> se renumeran nunca.
 
 | # | En una línea |
 | --: | :-- |
+| **1** | Cero errores que señalen un defecto real |
+| **2** | Lo demás se arregla o se suprime con razón escrita, y suprimir exige que la razón EXISTA |
+| **3** | Un `.neon` no es un cajón de sastre, es un registro documentado |
+| **4** | El baseline solo baja |
+| **5** | Toda cifra que sobrevive a la sesión lleva su método escrito |
+| **6** | Una fase se cierra con una comprobación que se ha visto FALLAR |
+| **7** | Un comentario que frena algo cabe en una línea |
 | **8** | Una decisión que no vive en un archivo no se propaga |
 | **9** | Una operación documentada en una sola dirección tiene un inverso sin estrenar |
 | **10** | `password` es opaco para toda herramienta que mueva filas de usuario |
@@ -28,8 +48,129 @@ quedaron absorbidas por los documentos numerados antes de que existiera esta num
 | **16** | Ningún censo reporta un cero sin haber probado que el instrumento ve |
 | **17** | El alcance de una instrucción no se hereda de la conversación: se mide |
 | **18** | Ningún mecanismo de control reporta «todo bien» sin haber probado que se ejecutó |
+| **19** | Una afirmación sobre el consumidor no se deduce del productor |
+| **20** | No se edita código por posición, se edita por estructura |
+| **21** | Una regla mecánica se aplica a toda la familia o a ninguna |
+| **22** | Se sospecha del instrumento cuando sorprende, y MÁS cuando confirma |
+| **23** | Pedir la demostración no es ceremonia, es un detector |
+| **24** | Una prueba que pasaría con el defecto puesto no es una prueba |
 
 ---
+### LEY 1 — CERO ERRORES QUE SEÑALEN UN DEFECTO REAL
+
+*Punto 1 del criterio de cierre de `T0`.*
+
+**Cero errores que señalen un defecto real.** No cero errores: cero **defectos**. La cifra
+del baseline mide trabajo pendiente, no salud; lo que no puede quedar es un error que, leído,
+describa algo que se rompe.
+
+### LEY 2 — LO DEMÁS SE ARREGLA O SE SUPRIME CON RAZÓN ESCRITA, Y SUPRIMIR EXIGE QUE LA RAZÓN EXISTA
+
+*Punto 2 del criterio de cierre de `T0`.*
+
+**Todo lo demás arreglado, o suprimido CON RAZÓN ESCRITA** y, si la supresión es temporal,
+**con la condición que la retira**.
+
+> **PRECISIÓN, y viene de intentar aplicar esta regla a los 85 del grupo B: EL CIERRE POR
+> SUPRESIÓN DOCUMENTADA EXIGE QUE LA RAZÓN EXISTA.** No que esté escrita: que exista.
+>
+> Cuando la respuesta **no está en el código sino en datos que no tenemos**, no se suprime:
+> **se aplaza con el motivo escrito**. Escribir «no se puede saber si es un defecto» ochenta
+> y cinco veces no son ochenta y cinco supresiones justificadas — son ochenta y cinco
+> justificaciones falsas, y eso es peor que dejar el error a la vista, porque un error
+> visible al menos se ve.
+>
+> La diferencia práctica entre suprimir y aplazar: **una supresión se cierra y no se vuelve
+> a mirar; un aplazamiento lleva escrito QUÉ lo desbloquea.** Los 85 llevan «E2, cuando el
+> ciclo CRUD haya poblado la base», que es una condición comprobable y con fecha.
+
+### LEY 3 — UN `.neon` NO ES UN CAJÓN DE SASTRE, ES UN REGISTRO DOCUMENTADO
+
+*Punto 3 del criterio de cierre de `T0`.*
+
+**Los `.neon` dejan de ser cajón de sastre y pasan a ser registro documentado.** La auditoría
+de los 67 `ignoreErrors` —48 vivos silenciando 3.083 errores, 19 muertos— es el formato de
+referencia. **Los cinco repositorios al mismo estándar.**
+
+### LEY 4 — EL BASELINE SOLO BAJA
+
+*Punto 4 del criterio de cierre de `T0`.*
+
+**TRINQUETE: el baseline solo baja.** Un error nuevo se arregla o se justifica por escrito.
+El que no cumpla ninguna de las dos cosas, no entra.
+
+### LEY 5 — TODA CIFRA QUE SOBREVIVE A LA SESIÓN LLEVA SU MÉTODO ESCRITO
+
+*Punto 5 del criterio de cierre de `T0`.*
+
+**No es un paralelismo con la LEY 2: es lo que hace funcionar el trinquete.** Comparar dos
+baselines solo significa algo si se midieron igual, y ya falló una vez — cuando el pipeline
+pasó de tabla a JSON, la pregunta «¿es comparable?» no tuvo respuesta hasta que alguien fue a
+averiguarla. Un trinquete que compara peras con manzanas no impide nada.
+
+Con dos límites, para que no se vuelva burocracia:
+
+- **Solo las cifras que SOBREVIVEN a la sesión**: las que entran en un documento, en un
+  baseline o en el `CHANGELOG`. Un número dicho en un reporte se explica por su contexto y
+  muere con él; ese no lleva método.
+- **El método debe ser REPRODUCIBLE, NO DESCRIPTIVO**: el comando o la herramienta nombrada,
+  no una frase. «Medido sobre la salida de PHPStan» no sirve; «`bin/phpstan`, contando
+  instancias en `PHPStanResult.json`» sí.
+
+### LEY 6 — UNA FASE SE CIERRA CON UNA COMPROBACIÓN QUE SE HA VISTO FALLAR
+
+*Punto 6 del criterio de cierre de `T0`.*
+
+**UNA FASE NO SE CIERRA POR CONSENSO NI POR CHECKLIST.** Se cierra cuando existe una
+comprobación que falla si deja de ser cierta, **Y ESA COMPROBACIÓN SE HA VISTO FALLAR.**
+
+**Escrita porque la migración a 8.5 se dio por terminada y no lo estaba.** Había DOS
+detectores —PHPStan y la promoción de `E_DEPRECATED` a excepción— y **no se probó ninguno**.
+Los dos fallaban a la vez, cada uno por su motivo, y quedaron nueve llamadas deprecadas en el
+árbol; una tumbaba la generación de imágenes con un 400.
+
+Plantar un `imagedestroy()` el primer día y correr los dos habría costado **cinco minutos** y
+habría enseñado que el estático no lo veía con el rango de versiones puesto, y que el de
+ejecución solo dispara si alguien pisa la línea.
+
+### LEY 7 — UN COMENTARIO QUE FRENA ALGO CABE EN UNA LÍNEA
+
+*Punto 7 del criterio de cierre de `T0`.*
+
+**SI NECESITA UN PÁRRAFO, EL PÁRRAFO NO ES EL COMENTARIO.** La regla anterior —«¿impide romper
+algo?»— era correcta y **no frenaba la deriva**, porque no decía nada del TAMAÑO: un relato de
+doce líneas siempre encuentra una frase suya que sí impide romper algo, y con esa se justifica
+entero.
+
+El reparto, y no hay cuarto sitio:
+
+| Dónde | Qué va | Tamaño |
+| :-- | :-- | :-- |
+| **El código** | la guarda: qué no se puede hacer aquí y qué pasa si se hace | **una línea** |
+| **El `CHANGELOG`** | el relato: qué se cambió, por qué, qué se midió | lo que haga falta |
+| **La instrucción / el documento** | el razonamiento que llevó a la decisión | lo que haga falta |
+
+Ejemplo del reparto bien hecho, sobre el 2FA:
+
+```php
+//No pongas twoAuthFactor en ENABLED aquí: preparar no es activar. Lo activa confirm2FA().
+```
+
+Eso frena el borrado. **Todo lo demás —la ventana de bloqueo, el código de seguridad vacío, el
+secreto que se regeneraba— es historia, y la historia va al `CHANGELOG` y a T35.**
+
+**Y hay un motivo que no es estético: un comentario largo ENVEJECE MAL.** El del `chr()` explica
+un arreglo de compatibilidad; el día que ese arreglo sea irrelevante, el comentario **miente**, y
+nadie va a ir a buscarlo. Un documento fechado puede envejecer sin mentir porque se lee como
+historia; un comentario en el código se lee como el presente.
+
+> **Causa reconocida por el propietario, y anotarla es parte de la regla:** escribir el
+> razonamiento en MAYÚSCULAS en la instrucción hace que acabe de encabezado en un docblock.
+> **EL RAZONAMIENTO VA EN LA INSTRUCCIÓN, LA LÍNEA VA EN EL CÓDIGO, EL RELATO VA EN EL
+> CHANGELOG.**
+
+La regla se vigila con una puerta, no a ojo: ver T38.
+
 ### LEY 8 — UNA DECISIÓN QUE NO VIVE EN UN ARCHIVO NO SE PROPAGA
 
 **Se propagó lo escrito en un archivo compartido; lo decidido sin escribirlo en ninguno llegó a
@@ -549,3 +690,151 @@ sino **una orden que no existe**. Las tres opciones van puestas, pero **la que h
 Que alguien LEA la línea. `gates` y `verify-integrity` fallan solos; `bin/guarda-add` sale con
 código distinto de cero, pero **quien lo invoca puede ignorar ese código**. La cadena termina en
 una persona, y eso queda dicho.
+
+### LEY 19 — UNA AFIRMACIÓN SOBRE EL CONSUMIDOR NO SE DEDUCE DEL PRODUCTOR
+
+**Tres casos, los tres del mismo tramo de campaña, los tres de ARQUITECTO, y los tres con la
+misma forma**: se leyó lo que un archivo *contiene* y se afirmó lo que otra herramienta *hace*
+con él, sin abrir la línea que lo implementa.
+
+| Se leyó (el productor) | Se afirmó (el consumidor) | Lo que hacía de verdad |
+| :-- | :-- | :-- |
+| El SCSS, con sus `@import` | «van a salir avisos de deprecación» | La consola los tenía **silenciados**: `gulpfile.js` los apaga uno por uno |
+| El `return` de una suite | «esa suite no puede ponerse roja» | `gates` **parsea la línea de balance impresa**, no el valor devuelto |
+| El manual de `set -u` / `pipefail` | «con esto la guarda aborta» | El caso que funda la LEY 18 es una **orden inexistente**: solo aborta con `set -e` |
+
+El error no es de descuido: en los tres casos el razonamiento era **correcto sobre el
+productor**. Lo que faltaba era ir a mirar quién lo consume.
+
+> **LA PUERTA: toda afirmación sobre el comportamiento de una herramienta se acompaña de la
+> línea del consumidor que lo implementa, o se escribe como HIPÓTESIS A MEDIR.**
+
+Y su forma más útil, porque es la que se olvida: **el productor y el consumidor casi nunca
+están en el mismo repositorio ni en el mismo lenguaje.** El SCSS lo consume Gulp; la suite la
+consume `GatesTask`; el guion lo consume bash. **Cruzar esa frontera de memoria es lo que falla.**
+
+Emparenta con la LEY 15 —un instrumento informa sobre el universo que MIRA— pero no es la
+misma: la 15 va del **alcance** de una medición, esta va de la **cadena** entre quien produce
+un dato y quien lo interpreta.
+
+### LEY 20 — NO SE EDITA CÓDIGO POR POSICIÓN, SE EDITA POR ESTRUCTURA
+
+*Sale de T10 del registro, y de ninguna otra parte. El número de ley NO tiene relación con el
+número de bloque.*
+
+> **LA PRECISIÓN QUE LA VUELVE ÚTIL: ES LA PRIMERA OPCIÓN, NO EL PLAN B.** Los cuatro
+> incidentes comparten algo peor que la causa técnica: **en los cuatro se empezó por el atajo y
+> se llegó a la estructura DESPUÉS de romper algo.** Escrita como diagnóstico —«esto pasó por
+> editar por posición»— no impide el quinto; escrita como orden de preferencia, sí.
+>
+> **Si la herramienta estructural cuesta veinte minutos más, cuesta menos que revertir
+> dieciocho archivos.** No es un cálculo optimista: es lo que pasó en el cuarto incidente.
+
+| Incidente | Causa | Qué lo delató |
+| :-- | :-- | :-- |
+| `OrganizationMapper` con un docblock sin cerrar | Un script partió por `\r\n` un archivo con 1.342 CRLF **y un LF suelto**: todos los índices siguientes se desplazaron | Nada automático. Se encontró a mano |
+| 32 falsos positivos en `verify-integrity` | Contaba `/*` contra `*/` en texto plano, y `'image/*'` aparece dentro de cadenas | La propia revisión de los resultados |
+| `SyncOTPRecordsTask` sin `namespace` ni `use` | Un corte por posición casó con el docblock **de archivo** en vez del **de clase** | Ejecutar la tarea |
+| **18 mappers rotos** | Un `preg_replace` con `(.*?)` y `/s`: **la expresión regular no sabe dónde cierra una llave** | `php -l`, archivo a archivo antes de commitear |
+
+**Cuando haya que preguntarle algo al código fuente, se tokeniza.** `token_get_all()` lleva
+cuatro apariciones en el proyecto: es patrón, no excepción.
+
+> **La diferencia entre las dos herramientas no es la elegancia, es qué saben:** un contador de
+> llaves —o `token_get_all()`— sabe qué es un bloque; una expresión regular sabe qué es una
+> silueta de texto. **Cuando la pregunta es «¿dónde termina esto?», la silueta no puede
+> responder**, y responderá igualmente con algo que parece razonable.
+
+Corolario: **cortar por índice de cadena también es editar por posición**, y abrir un archivo
+sin `newline=''` también — 20 archivos pasaron de CRLF a LF y un commit declaró **4.185
+inserciones para 41 líneas reales**.
+
+### LEY 21 — UNA REGLA MECÁNICA SE APLICA A TODA LA FAMILIA O A NINGUNA
+
+*Sale de T17 del registro.*
+
+Antes del primer lote de Rector había **39 archivos** con `strlen($route) > 0`. Rector convirtió
+**25** y dejó **14**, porque solo pudo probar el tipo en esos.
+
+**Cada cambio individual era correcto. El resultado agregado fue peor:** un lote mecánico
+**partió en dos un grupo homogéneo**, justo en el código que se estaba a punto de unificar.
+
+> **Antes de correr una regla mecánica, cuenta a cuántos sitios de la familia alcanza. Si no
+> los cubre todos: o completas el resto a mano EN EL MISMO COMMIT, o no la corres.**
+
+La aplicación parcial **fabrica divergencia** aunque acierte caso por caso. Y en una plantilla
+que se clona, **la divergencia fabricada se hereda**.
+
+### LEY 22 — CUANDO UNA MEDICIÓN SORPRENDE SE SOSPECHA DEL INSTRUMENTO, Y CUANDO CONFIRMA, MÁS
+
+*Sale de T20 del registro.*
+
+**Dieciséis veces en esta campaña el defecto estaba en el INSTRUMENTO, no en lo medido.** El
+inventario completo, con lo que cada uno llegó a afirmar, está en T20; aquí va lo que no puede
+perderse.
+
+| Instrumento | Se afirmó | Era |
+| :-- | :-- | :-- |
+| La tabla de PHPStan, que recorta rutas al ancho de terminal | «192 archivos con errores» | **195**, y Rector no veía 34 |
+| `git diff --name-only --ignore-cr-at-eol` | «58 de 59 archivos cambian» | **cero**: el filtro lo aplica `--stat`, no `--name-only` |
+| `phpVersion` como RANGO en `phpstan.neon` | «cubre las dos versiones» | Un rango reporta la **intersección**: cegó toda deprecación exclusiva de 8.5 |
+| `git blame` sin `--ignore-revs-file` | «114 comentarios nuestros contra 18 viejos» | **44 contra 88** |
+
+#### La forma afilada, y es la que cuesta
+
+**UN ERROR DE MEDICIÓN QUE COINCIDE CON TU HIPÓTESIS ES EL ÚNICO QUE NO VAS A ATRAPAR.**
+
+Todos los demás instrumentos fallaron dando un número **raro**, y la rareza disparó la
+comprobación. El `git blame` falló dando un número **esperado**: confirmaba la sospecha del
+propietario y la mía. Eso no es una respuesta, **es un eco**. Y la conclusión operativa cambiaba
+entera —de «recortamos lo nuestro» a «hay una lista cerrada que mantener»—.
+
+> **EL SEGUNDO MÉTODO INDEPENDIENTE SE EXIGE SOBRE TODO CUANDO EL PRIMERO CONFIRMA LO QUE
+> CREÍAS.** La sorpresa dispara la sospecha sola. **La confirmación no dispara nada.** La regla
+> no es «duda de lo que te sorprende»: es **«duda de lo que te da la razón»**.
+
+### LEY 23 — PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
+
+*Sale de T21 del registro.*
+
+**El peor defecto de esta campaña no apareció revisando. Apareció al intentar ENSEÑAR.** El
+commit de 4.185 inserciones para 41 líneas reales era irrevisable, y por eso invisible: nadie
+lee cuatro mil líneas para comprobar que sobran. Salió cuando el propietario dijo **«enséñame
+el Paso B»** y hubo que producir el diff.
+
+El caso más caro es T35: dos hipótesis sobre el 2FA —una mía y una del propietario—, las dos
+coherentes con **todos** los síntomas observables, **las dos falsas**. Ninguna sobrevivió a
+poner el estado en la tabla y preguntarle a la puerta.
+
+#### Su mitad estructural: NUESTRAS PUERTAS NO PUEDEN VERIFICAR PROSA. NINGUNA. NUNCA
+
+Todas verifican **propiedades ejecutables**: que un archivo compile, que una clase cargue, que
+una firma no cambie, que un contador no suba, que una suite pase. **Un comentario, un documento,
+un nombre de variable, una entrada del `CHANGELOG` — su verdad es SEMÁNTICA**, y está fuera del
+alcance de `verify-integrity`, del trinquete y de las suites. No es que hoy no lo detecten: es
+que **no pueden**.
+
+Lo demostró T40: ocho comentarios acabaron describiendo un código que no era el suyo, y **todo
+estaba en verde**, porque la puerta contaba menos bloques y eso era justo lo que se buscaba.
+
+> **TODO CAMBIO SOBRE PROSA SE ENTREGA COMO PARES ANTES/DESPUÉS, no como conteo.**
+
+### LEY 24 — UNA PRUEBA QUE PASARÍA CON EL DEFECTO PUESTO NO ES UNA PRUEBA
+
+*Sale de T46 del registro. Corolario de la LEY 23, aplicado a las pruebas en vez de a las puertas.*
+
+| Caso | La prueba preguntaba | Por qué pasaba igual con el defecto |
+| :-- | :-- | :-- |
+| `SET NAMES` (T43) | «¿la conexión es `utf8mb4`?» | La base de pruebas **ya lo es por defecto** |
+| `otp-write-separation` (D2) | `grep` de `->save(` sobre el cuerpo del método | **GRAVE**: D2 delegaba la escritura a otro método, una llamada más abajo |
+| El evento `updated` | «¿cambió `updatedAt`?» | Las dos escrituras caían **en el mismo segundo**, y el campo tiene resolución de segundo |
+
+> **Una comprobación sobre el TEXTO del código verifica una propiedad del texto, no del
+> comportamiento.** Sirve para lo que sirve —es barata y no necesita datos— pero **no se puede
+> presentar como prueba de que algo no ocurre**. Lo que no ocurre solo se demuestra ejecutándolo.
+
+El tercer caso es el que más enseña, porque **la provocación se hizo**: salió verde y se leyó
+como «la guarda no era el motivo», cuando el motivo era el reloj. **Se validó la prueba sin
+enterarse de que no se había validado.** Arreglo: envejecer la marca por SQL antes de la segunda
+escritura, para que el cambio no dependa de cuánto tarde la máquina en cruzar el siguiente
+segundo.

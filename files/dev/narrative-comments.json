@@ -1,5 +1,5 @@
 {
-  "why": "Registro CERRADO de comentarios narrativos heredados. Un bloque narrativo es el que tiene más de dos líneas de prosa y ninguna anotación (@param, @return, @var, @package, @author, @throws). Ver T0 punto 7, T38 y T40 en .agents/context/18-siguientes-ventanas.md.",
+  "why": "Registro CERRADO de comentarios narrativos heredados. Un bloque narrativo es el que tiene más de dos líneas de prosa y ninguna anotación (@param, @return, @var, @package, @author, @throws). Ver la LEY 7 en .agents/context/19-leyes.md, y T38 y T40 en .agents/context/18-siguientes-ventanas.md.",
   "rules": [
     "LA LISTA SOLO PUEDE ENCOGER. Un archivo que no esté aquí y tenga bloques narrativos hace fallar bin/cli verify-integrity.",
     "Se guardan las LÍNEAS DE PROSA de cada entrada, no solo el número de bloques: si un bloque crece de 4 a 30 líneas, el conteo de entradas no se entera y el archivo empeora. La puerta falla si la prosa de un archivo CRECE.",

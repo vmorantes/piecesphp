@@ -2,7 +2,7 @@
 
 # Mide las RAMAS MUERTAS que el bloque «Condiciones redundantes y código muerto» de
 # bin/phpstan.neon silencia. Existe porque una cifra que se publica tiene que poder decir
-# con qué se midió (T0, punto 5), y la de las ramas muertas no se saca del informe normal:
+# con qué se midió (LEY 5), y la de las ramas muertas no se saca del informe normal:
 # son justamente las que ese bloque oculta.
 #
 # No duplica la configuración: la deriva de bin/phpstan.neon en cada ejecución, así que no

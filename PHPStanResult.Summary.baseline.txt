@@ -14,7 +14,7 @@ REDUCIDO: `paths` apuntaba a `src/app` y `src/index.php`, o sea 802 de los 835 a
 PHP versionados. Las cifras de la campaña ANTERIORES a esta línea NO son comparables con
 las siguientes: no cuentan sobre el mismo conjunto de archivos. Ver T77 y T79.
 
-CÓMO SE MIDIÓ, que es lo que hace comparable esta cifra (T0, punto 5):
+CÓMO SE MIDIÓ, que es lo que hace comparable esta cifra (LEY 5):
 
     bin/phpstan
 

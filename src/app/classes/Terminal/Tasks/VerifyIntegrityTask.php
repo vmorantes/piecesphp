@@ -1403,7 +1403,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
 
     /**
-     * Un comentario que frena algo cabe en una línea (T0, punto 7).
+     * Un comentario que frena algo cabe en una línea (LEY 7).
      *
      * La regla anterior —«¿impide romper algo?»— no frenaba la deriva porque no hablaba del
      * TAMAÑO: un relato de doce líneas siempre encuentra una frase suya que sí impide romper
@@ -1533,7 +1533,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             if (!array_key_exists($file, $permitidos)) {
                 $failures[] = $file . ' — ' . $datos['blocks'] . ' bloque(s) narrativo(s), '
                     . $datos['prose'] . ' líneas de prosa, y el archivo NO está en el registro.'
-                    . ' La guarda cabe en una línea (T0, punto 7); el relato va al CHANGELOG.';
+                    . ' La guarda cabe en una línea (LEY 7); el relato va al CHANGELOG.';
                 continue;
             }
             if ($datos['prose'] > $permitidos[$file]['prose']) {

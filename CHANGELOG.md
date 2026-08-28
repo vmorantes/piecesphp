@@ -166,6 +166,47 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## Documentación — las leyes 1 a 7 no faltaban: se llamaban «puntos». Y el archivo pasa a 24
+
+`19-leyes.md` empezaba en la **LEY 8**, y «LEY 1» a «LEY 7» no aparecían en ningún archivo. Buscadas
+en los **2.056 commits** del framework y en los de los cuatro paquetes, con el instrumento validado
+por canario, **nunca existieron con ese nombre**.
+
+**No eran un hueco: eran los siete puntos del criterio de cierre de `T0`.** El commit que introduce
+la primera ley lo dice en su propio mensaje —*«T0 gana la LEY 8. Con los siete casos que explican
+media campaña»*— y la colocó **inmediatamente después del punto 7**, continuando esa numeración. Las
+siete primeras se quedaron con su nombre viejo, dentro del documento que nació para morir.
+
+Recuperadas íntegras, con su procedencia anotada. **Y eran las más citadas**: `verify-integrity`
+imprimía «(T0, punto 7)» en su mensaje de error, y `bin/phpstan-deadcode`, el baseline y dos
+registros JSON citaban «T0, punto 5». Las cinco referencias apuntan ya a la LEY 7 y a la LEY 5.
+
+**Cinco bloques del registro que llevaban tiempo funcionando como leyes** —y citándose como
+tales— pasan a serlo: no se edita código por posición (**20**), una regla mecánica se aplica a toda
+la familia o a ninguna (**21**), se sospecha del instrumento cuando sorprende y más cuando confirma
+(**22**), pedir la demostración es un detector (**23**), y una prueba que pasaría con el defecto
+puesto no es una prueba (**24**).
+
+> **El número de ley NO guarda relación con el número de bloque `T`**, y el archivo lo dice en su
+> encabezado. La LEY 17 no sale de T17 ni la 20 de T20; la casualidad estaba servida y habría
+> vuelto el documento ilegible.
+
+Y entra la **LEY 19 — una afirmación sobre el consumidor no se deduce del productor**, con tres
+casos del mismo tramo: los avisos de `@import` predichos leyendo el SCSS cuando la consola los
+tenía silenciados, una suite declarada incapaz de ponerse roja leyendo su `return` cuando `gates`
+parsea el balance, y `set -u`/`pipefail` recetados para un fallo que solo caza `set -e`.
+
+## Herramientas — `bin/anexar`, el ayudante que vivía fuera del repositorio
+
+Anexa un fragmento a un documento **respetando los finales de línea del destino**, que es lo que
+hace falta constantemente porque los documentos del registro van en CRLF y todo lo que escribe una
+herramienta sale en LF. Mezclar los dos ya rompió un docblock por desplazamiento de índices.
+
+Vivía en un bloc de notas **fuera del repositorio** y se perdió; hubo que rehacerlo de memoria.
+**Un ayudante fuera del repositorio es memoria, no mecanismo** — LEY 11. Ahora está versionado, con
+su bit de ejecución, y probado en sus cuatro caminos: destino CRLF con fragmento LF, destino LF con
+fragmento CRLF, destino inexistente y llamada sin argumentos.
+
 ## Herramientas — los artefactos de PHPStan se declaran en LF, y el «ruido CRLF» resulta que no existía
 
 `.gitattributes` gana `PHPStanResult.* text eol=lf`, el mismo trato que ya tenían los `*.lock`:
