@@ -24,6 +24,14 @@ bin/*           text eol=lf
 # Archivos generados por herramientas que siempre escriben LF. Forzar CRLF aquí sería
 # pelearse con la herramienta en cada ejecución.
 *.lock          text eol=lf
+PHPStanResult.*  text eol=lf
+
+# MEDIDO, para que nadie los mueva creyendo que arregla algo: con `text` puesto, git
+# normaliza a LF en el índice en LOS DOS SENTIDOS, así que un artefacto en LF NO produce
+# diff aunque el checkout declare CRLF. Lo que estas dos líneas quitan es el aviso «LF
+# will be replaced by CRLF» de cada `git add` y la reescritura que git haría al tocarlos.
+# Los `.md` NO necesitan nada: los 118 versionados están 65 en CRLF y 53 en LF, y git no
+# ve modificado ni uno. Ver T131.
 
 #──── Binarios: git nunca debe tocarles un byte ──────────────────────────────────────────
 *.png    binary

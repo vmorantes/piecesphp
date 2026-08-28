@@ -12507,3 +12507,54 @@ cliente en su último caso, reescribiendo la base del primero. Nadie lo vio porq
 
 Mientras no se decida, la suite externa lleva un comentario de orden en el punto donde importa. La
 suite local usa una sola instancia y no puede tropezar.
+
+---
+
+## T131 · V4 · EL «RUIDO CRLF» NO EXISTÍA — y el que lo afirmó fui yo
+
+### La premisa, medida
+
+El bloque V pedía arreglar el ruido de finales de línea de los `PHPStanResult.*`, partiendo de una
+frase de mi propio informe del bloque U: *«los `PHPStanResult.*` que git mostraba modificados solo
+por normalización CRLF»*. **La frase es falsa.**
+
+| Paso | Resultado |
+| :-- | :-- |
+| Árbol limpio | `git status --porcelain` vacío |
+| `bin/phpstan`, sin tocar una línea de código | los tres artefactos quedan en LF |
+| `git status --porcelain` otra vez | **vacío** |
+
+Con `text` puesto —y `* text=auto eol=crlf` lo pone para todo—, git **normaliza a LF en el índice
+en los dos sentidos**. Un archivo en LF en el árbol de trabajo no produce diff aunque el checkout
+declare CRLF. Cuando esos artefactos aparecían modificados era porque **la cifra había cambiado de
+verdad**, que es exactamente lo que tenía que pasar en aquel bloque.
+
+**Esto es la LEY 19 aplicada a mí, y de la forma más literal**: afirmé el comportamiento de git
+—el consumidor— leyendo el archivo y el aviso —el productor— sin comprobar qué hace git con ellos.
+El aviso `LF will be replaced by CRLF the next time Git touches it` es un aviso sobre el
+**checkout**, no sobre el diff, y yo lo leí como si fuera un diff.
+
+### Lo que sí quedaba por hacer, que es menos de lo que parecía
+
+`.gitattributes` gana una línea: `PHPStanResult.*  text eol=lf`, el mismo trato que ya tenían los
+`*.lock` por el mismo motivo escrito allí —los escribe una herramienta que siempre pone LF—. Lo
+que quita es el aviso de cada `git add` y la reescritura que git haría al tocarlos. **No quita
+ningún diff, porque no había ninguno.**
+
+### V4(c) · Lo que cambia en archivos ya versionados: nada
+
+`git add --renormalize .` sobre el repositorio entero, con la regla nueva puesta, deja **un solo
+archivo modificado: `.gitattributes`**. Cero contenido versionado alterado. No hay nada que
+enseñar antes de commitear porque no hay nada que enseñar.
+
+### Los `.md` no necesitan nada, y también está medido
+
+| | |
+| :-- | --: |
+| `.md` versionados | 118 |
+| en CRLF en el árbol de trabajo | 65 |
+| en LF en el árbol de trabajo | 53 |
+| **que git ve modificados** | **0** |
+
+Están repartidos casi a la mitad y no producen ni un diff. Añadir una regla para ellos sería
+mecanismo sin problema que resolver.

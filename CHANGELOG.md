@@ -166,6 +166,31 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ---
 
+## Herramientas — los artefactos de PHPStan se declaran en LF, y el «ruido CRLF» resulta que no existía
+
+`.gitattributes` gana `PHPStanResult.* text eol=lf`, el mismo trato que ya tenían los `*.lock`:
+los escribe una herramienta que **siempre** pone LF, y forzar CRLF es pelearse con ella en cada
+ejecución. Lo que se quita es el aviso `LF will be replaced by CRLF` de cada `git add` y la
+reescritura que git haría al tocarlos.
+
+**Pero la premisa de la que salía este cambio era falsa, y conviene decirlo porque estaba escrita
+en un informe.** Se venía diciendo que esos artefactos aparecían modificados «solo por
+normalización CRLF». No es así, y se mide en tres pasos:
+
+| Paso | Resultado |
+| :-- | :-- |
+| Árbol limpio | `git status` vacío |
+| `bin/phpstan`, sin tocar una línea de código | los tres artefactos quedan en **LF** |
+| `git status` otra vez | **vacío** |
+
+Con `text` puesto, git normaliza a LF **en los dos sentidos**: un archivo en LF en el árbol de
+trabajo no produce diff aunque el checkout declare CRLF. Cuando esos artefactos aparecían
+modificados era porque **la cifra había cambiado de verdad**.
+
+Los `.md` no necesitan nada: de los 118 versionados, **65 están en CRLF y 53 en LF, y git no ve
+modificado ni uno**. Y `git add --renormalize .` sobre el repositorio entero, con la regla nueva
+puesta, toca **cero archivos ya versionados**.
+
 ## Herramientas — la puerta de `HttpClient` no podía opinar, y ahora son dos
 
 `unit-tests:core/http-client` existía desde siempre y **no daba veredicto**: su `$checkResult`
