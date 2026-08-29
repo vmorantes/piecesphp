@@ -54,6 +54,9 @@ orden de aparición.
 | **22** | Se sospecha del instrumento cuando sorprende, y MÁS cuando confirma |
 | **23** | Pedir la demostración no es ceremonia, es un detector |
 | **24** | Una prueba que pasaría con el defecto puesto no es una prueba |
+| **25** | Una red se prueba con el procedimiento con el que se va a usar, no en reposo |
+| **26** | Un valor que significa «no medí» no puede participar en una igualdad |
+| **27** | Una suite no puede medir su propio efecto |
 
 ---
 ### LEY 1 — CERO ERRORES QUE SEÑALEN UN DEFECTO REAL
@@ -845,3 +848,72 @@ como «la guarda no era el motivo», cuando el motivo era el reloj. **Se validó
 enterarse de que no se había validado.** Arreglo: envejecer la marca por SQL antes de la segunda
 escritura, para que el cambio no dependa de cuánto tarde la máquina en cruzar el siguiente
 segundo.
+
+### LEY 25 — UNA RED SE PRUEBA CON EL PROCEDIMIENTO CON EL QUE SE VA A USAR, NO EN REPOSO
+
+*Sale de T138. Confirmada por ARQUITECTO en el bloque Z.*
+
+La foto de E3 —`bin/cli snapshot`— se iba a usar para atribuir el efecto de cada lote. Antes de
+usarla se le pidió una comparación **en reposo**: dos fotos seguidas sin tocar nada. Salió
+**diferencia vacía**, que es lo que tenía que salir.
+
+Y estaba rota por los dos lados a la vez:
+
+| Defecto | Qué hacía | Por qué no salía en reposo |
+| :-- | :-- | :-- |
+| El `mtime` decidía la igualdad | Un `cp` de restauración marcaba **todo** como cambiado | En reposo nadie copia nada |
+| 59 archivos sin `sha1` | `'grande' == 'grande'` se leía como «idéntico» | En reposo esos 59 tampoco cambian |
+
+**Ruido propio y punto ciego, y ninguno de los dos se asoma quieto.** Salieron al hacerle *lo
+mismo que le iba a hacer el lote*: restaurar la base desde un volcado y borrar archivos de verdad.
+
+> Arreglar uno sin ver el otro habría cambiado ruido por ceguera, que es peor: el ruido se nota.
+
+**La forma corta**: *una red en reposo no está probada, está guardada.*
+
+---
+
+### LEY 26 — UN VALOR QUE SIGNIFICA «NO MEDÍ» NO PUEDE PARTICIPAR EN UNA IGUALDAD
+
+*Sale de T138. Confirmada por ARQUITECTO en el bloque Z.*
+
+La foto guardaba por archivo `tamaño:mtime:hash`. Para los archivos grandes no calculaba el hash
+y escribía el literal `'grande'`. La comparación era una igualdad de cadenas, así que dos
+archivos **completamente distintos** de más de ese tamaño daban `'grande' == 'grande'` y la foto
+los declaraba **idénticos**.
+
+**El centinela no decía «no lo sé»: decía «son iguales».** Un valor que significa ausencia de
+medición, metido en una comparación, se convierte en una afirmación positiva y falsa.
+
+Arreglo, y es de forma, no de umbral: la ausencia se representa con `NO_MEDIDO` y **se ramifica
+antes de comparar**, produciendo un tercer estado —`NO COMPARABLE`— que cuenta como hallazgo y no
+como coincidencia. La foto además dice cuánto le cuesta (`272 MB hasheados en 598 ms`), que es lo
+que hacía atractivo el corte.
+
+**La forma corta**: *«no lo sé» y «son iguales» no son el mismo valor, y una igualdad no sabe
+distinguirlos.*
+
+---
+
+### LEY 27 — UNA SUITE NO PUEDE MEDIR SU PROPIO EFECTO
+
+*Sale de T138 y cobra su segunda pieza en T140. Confirmada por ARQUITECTO en el bloque Z.*
+
+| Suite | Efecto que dejaba | Su propio veredicto |
+| :-- | :-- | :-- |
+| `core/database-exporter` | Una tabla de andamiaje sin borrar | **23/23 PASADAS**, con la fuga y sin ella |
+| `core/db-backup-round-trip` | Una fila huérfana en `system_approvals_elements` **por corrida** | **5/5 PASADAS**, con la fuga y sin ella |
+
+Las dos recogían *algo* —la primera su tabla, la segunda su usuario— y las dos se dejaban un
+rastro que **no está entre lo que ellas miran**. Ninguna podía cazarlo: una suite comprueba lo
+que afirma, y su propia basura no es una de sus afirmaciones.
+
+Las cazó **la foto**, que no participa en la corrida. Y el caso de `db-backup-round-trip` afila la
+ley un grado más: **la fila no la escribe la suite**. La escribe `SystemApprovalManager::init()`
+al arrancar la app, porque la suite lanza un subproceso mientras su usuario de prueba existe.
+*El efecto de una suite incluye lo que otro escribe por haber corrido ella.*
+
+> **Consecuencia operativa**: el instrumento que mide los efectos de un lote tiene que ser
+> **externo a las suites**, y hay que correrlo aunque todas estén en verde. Verde no es limpio.
+
+**La forma corta**: *quien participa no arbitra.*
