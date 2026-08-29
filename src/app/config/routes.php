@@ -60,7 +60,6 @@ use Forms\FormsRoutes;
 use GeoJSONManager\GeoJsonManagerRoutes;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Importers\Controller\ImporterController;
-use InterestResearchAreas\InterestResearchAreasRoutes;
 use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
@@ -214,8 +213,6 @@ GeoJsonManagerRoutes::routes($zona_administrativa);
 
 //Convocatorias
 
-//Áreas de investigación
-InterestResearchAreasRoutes::routes($zona_administrativa, $zona_publica);
 
 //Reportes
 ReportsManageRoutes::routes($zona_administrativa);

@@ -12,7 +12,6 @@
 use App\Model\UsersModel;
 use ContentNavigationHub\ContentNavigationHubRoutes;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
-use InterestResearchAreas\Controllers\InterestResearchAreasController;
 use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\MyProfileController;
 use Organizations\Mappers\OrganizationMapper;
@@ -69,11 +68,6 @@ if (!in_array($current_type_user, $externalUsers)) {
                         'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi organización'),
                         'href' => MyOrganizationProfileController::routeName('my-organization-profile', [], true),
                         'visible' => MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($current_type_user, OrganizationMapper::PROFILE_EDITOR),
-                    ]),
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Áreas de investigación'),
-                        'href' => InterestResearchAreasController::routeName('list', [], true),
-                        'visible' => InterestResearchAreasController::allowedRoute('list'),
                     ]),
                 ],
             ]),

@@ -5,7 +5,6 @@ use App\Locations\LocationsLang;
 use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\ProfileController;
 use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**

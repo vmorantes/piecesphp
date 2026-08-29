@@ -660,72 +660,6 @@
         "ImporterUsers::title",
         "ImporterUsers::view"
     ],
-    "app/classes/InterestResearchAreas/Controllers/HelperController.php": [
-        "HelperController::__construct",
-        "HelperController::getLangsForSelect"
-    ],
-    "app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php": [
-        "InterestResearchAreasController::__construct",
-        "InterestResearchAreasController::_all",
-        "InterestResearchAreasController::_allowedRoute",
-        "InterestResearchAreasController::action",
-        "InterestResearchAreasController::addForm",
-        "InterestResearchAreasController::all",
-        "InterestResearchAreasController::dataTables",
-        "InterestResearchAreasController::editForm",
-        "InterestResearchAreasController::listView",
-        "InterestResearchAreasController::pathFrontInterestResearchAreaAdapter",
-        "InterestResearchAreasController::render",
-        "InterestResearchAreasController::routes",
-        "InterestResearchAreasController::toDelete"
-    ],
-    "app/classes/InterestResearchAreas/Exceptions/DuplicateException.php": [
-        "DuplicateException::__construct"
-    ],
-    "app/classes/InterestResearchAreas/Exceptions/SafeException.php": [
-        "SafeException::__construct"
-    ],
-    "app/classes/InterestResearchAreas/InterestResearchAreasLang.php": [
-        "InterestResearchAreasLang::injectLang"
-    ],
-    "app/classes/InterestResearchAreas/InterestResearchAreasRoutes.php": [
-        "InterestResearchAreasRoutes::init",
-        "InterestResearchAreasRoutes::routes",
-        "InterestResearchAreasRoutes::staticResolver",
-        "InterestResearchAreasRoutes::staticRoute"
-    ],
-    "app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php": [
-        "InterestResearchAreasMapper::__construct",
-        "InterestResearchAreasMapper::addDataManyLangs",
-        "InterestResearchAreasMapper::all",
-        "InterestResearchAreasMapper::allBy",
-        "InterestResearchAreasMapper::currentLangData",
-        "InterestResearchAreasMapper::existsByAreaName",
-        "InterestResearchAreasMapper::existsByID",
-        "InterestResearchAreasMapper::fieldCurrentLangForSQL",
-        "InterestResearchAreasMapper::fieldsToSelect",
-        "InterestResearchAreasMapper::getBy",
-        "InterestResearchAreasMapper::getEncryptIDForSlug",
-        "InterestResearchAreasMapper::getLangData",
-        "InterestResearchAreasMapper::getNoTranslatableProperties",
-        "InterestResearchAreasMapper::getTranslatableProperties",
-        "InterestResearchAreasMapper::hasLang",
-        "InterestResearchAreasMapper::model",
-        "InterestResearchAreasMapper::objectToMapper",
-        "InterestResearchAreasMapper::save",
-        "InterestResearchAreasMapper::setLangData",
-        "InterestResearchAreasMapper::statuses",
-        "InterestResearchAreasMapper::update"
-    ],
-    "app/classes/InterestResearchAreas/Util/FieldTranslationUtility.php": [
-        "FieldTranslationUtility::__construct",
-        "FieldTranslationUtility::baseLang",
-        "FieldTranslationUtility::currentLang",
-        "FieldTranslationUtility::fieldName",
-        "FieldTranslationUtility::isTranslatable",
-        "FieldTranslationUtility::mapper",
-        "FieldTranslationUtility::translatable"
-    ],
     "app/classes/MySpace/Controllers/AllProfilesController.php": [
         "AllProfilesController::__construct",
         "AllProfilesController::dataTables",
@@ -1761,6 +1695,7 @@
         "VerifyIntegrityTask::__construct",
         "VerifyIntegrityTask::calledFunctions",
         "VerifyIntegrityTask::checkClassesAreLoadable",
+        "VerifyIntegrityTask::checkDanglingDelegatedLinks",
         "VerifyIntegrityTask::checkDeclaredTypes",
         "VerifyIntegrityTask::checkDeprecatedFunctions",
         "VerifyIntegrityTask::checkDocblocks",
@@ -1811,7 +1746,6 @@
         "genericViewRouteExists",
         "getAllUsers",
         "getAllUsersForSelect",
-        "getInteresResearchAreas",
         "getNationalities",
         "getPhoneAreas",
         "menu_sidebar_items"

@@ -7,7 +7,6 @@
 use App\Controller\PublicAreaController;
 use App\Model\UsersModel;
 use PiecesPHP\Core\Exceptions\RouteNotExistsException;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -317,45 +316,6 @@ function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionTex
 
     foreach ($nationalities as $nationality => $display) {
         $options[$nationality] = __(GLOBAL_LANG_GROUP, $display);
-    }
-
-    return $options;
-}
-/**
- * Devuelve un array listo para ser usado en array_to_html_options con las áreas de interés de investigación.
- *
- * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
- * @param string|null $emptyOptionText El texto de la opción vacía.
- * @param int[] $ignoreIDs
- * @param bool $returnObjects
- * @return array
- */
-function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null, array $ignoreIDs = [], bool $returnObjects = false): array
-{
-    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione las áreas de interes');
-    $options = [];
-
-    if ($withEmptyOption) {
-        $options[''] = $emptyOptionText;
-    }
-
-    $areas = InterestResearchAreasMapper::all(true);
-
-    /**
-     * @var InterestResearchAreasMapper $area
-     */
-    foreach ($areas as $area) {
-        if (!in_array($area->id, $ignoreIDs)) {
-            if (!$returnObjects) {
-                $options[(string) $area->id] = $area->currentLangData('areaName');
-            } else {
-                $options[(string) $area->id] = [
-                    'areaName' => $area->currentLangData('areaName'),
-                    'color' => $area->color,
-                    'id' => $area->id,
-                ];
-            }
-        }
     }
 
     return $options;

@@ -65,20 +65,6 @@
       "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
     },
     {
-      "file": "src/app/classes/InterestResearchAreas/InterestResearchAreasRoutes.php",
-      "blocks": 1,
-      "prose": 8,
-      "motive": "cabecera-de-archivo",
-      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
-    },
-    {
-      "file": "src/app/classes/InterestResearchAreas/Statics/js/InterestResearchAreaAdapter.js",
-      "blocks": 1,
-      "prose": 9,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
       "file": "src/app/classes/MySpace/Statics/js/my-organization-profile.js",
       "blocks": 1,
       "prose": 5,

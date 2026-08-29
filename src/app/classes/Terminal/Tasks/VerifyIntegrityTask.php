@@ -883,7 +883,6 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //──── Propiedad del recurso MÁS pertenencia a la organización ──────────────────
         'Publications\\Controllers\\PublicationsController::_allowedRoute' => 'Borrado y edición: creador o autor, o administrador de la MISMA organización que el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
-        'InterestResearchAreas\\Controllers\\InterestResearchAreasController::_allowedRoute' => 'Ídem ApplicationCalls. Módulo condenado (T6).',
         'MySpace\\Controllers\\MyOrganizationProfileController::_allowedRoute' => 'Rutas del perfil de organización: solo el administrador de esa organización, o PROFILE_EDITOR_SUPER. Sin organización, deniega.',
         'Organizations\\Controllers\\OrganizationsController::_allowedRoute' => 'Borrado y edición: protege la organización inicial (INITIAL_ID_GLOBAL), y permite al editor de su propia organización o a su administrador. Respeta DISABLE_NORMAL_EDIT_FORM.',
 
