@@ -1,0 +1,266 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Censo de LLAMADAS CUYO VALOR DEVUELTO SE DESCARTA y puede significar fallo.
+ *
+ * POR QUÉ EXISTE
+ * --------------
+ * Es la CUARTA vez que aparece el mismo defecto en esta campaña:
+ *
+ *   · `FileUpload::validate()` — la comparación laxa murió y nadie miró el `false` (T135).
+ *   · Un `'success' => true` literal, que no salía de ninguna comprobación.
+ *   · Una suite que no imprimía balance y `gates` no podía leer su veredicto (T126).
+ *   · `db-backup` descartaba el `false` del exportador y decía «Operación exitosa» sobre
+ *     un volcado de 7 tablas de 33 (T141).
+ *
+ * En los cuatro, la información de fallo EXISTÍA y nadie la leyó.
+ *
+ * QUÉ MIDE, Y QUÉ NO
+ * ------------------
+ * Una llamada cuenta si (1) es una sentencia completa —el resultado no se asigna, ni se
+ * compara, ni se devuelve, ni entra en otra expresión— y (2) el nombre llamado está en la
+ * lista de los que señalan fallo por valor devuelto.
+ *
+ * NO mide intención. Que una llamada salga aquí no la convierte en defecto: `unlink()` de
+ * un temporal puede ignorarse a conciencia. Esto SOLO MIDE Y CLASIFICA.
+ *
+ * Se tokeniza, no se busca por texto: `token_get_all()` no confunde una llamada con la
+ * misma palabra dentro de una cadena o un comentario. LEY 20.
+ *
+ * Uso:
+ *   bin/censo-retornos-ignorados [ruta...]        tabla por familia
+ *   bin/censo-retornos-ignorados --detalle [ruta] una línea por hallazgo
+ */
+
+//────────────────────────────────────────────────────────────────────────────────────────
+// Nativas que SEÑALAN FALLO POR VALOR DEVUELTO. Cada familia dice qué devuelve al fallar.
+//────────────────────────────────────────────────────────────────────────────────────────
+$FAMILIAS = [
+    'escritura de archivo' => [
+        'file_put_contents', 'fwrite', 'fputs', 'fputcsv', 'rename', 'copy', 'unlink',
+        'mkdir', 'rmdir', 'touch', 'symlink', 'link', 'chmod', 'chown', 'chgrp',
+        'move_uploaded_file', 'ftruncate', 'fflush',
+    ],
+    'lectura de archivo' => [
+        'file_get_contents', 'fread', 'fgets', 'readfile', 'file', 'realpath',
+    ],
+    'manejo de recurso' => [
+        'fclose', 'gzclose', 'closedir', 'flock', 'rewind', 'fseek',
+    ],
+    'proceso y entorno' => [
+        'chdir', 'putenv', 'setlocale', 'exec', 'system', 'proc_close', 'ini_set',
+    ],
+    'base de datos' => [
+        'execute', 'exec', 'commit', 'rollBack', 'beginTransaction',
+    ],
+    'serializacion' => [
+        'json_decode', 'json_encode', 'unserialize', 'preg_replace', 'preg_match',
+        'preg_match_all', 'settype',
+    ],
+];
+
+$RIESGOSAS = [];
+foreach ($FAMILIAS as $familia => $nombres) {
+    foreach ($nombres as $n) {
+        $RIESGOSAS[strtolower($n)] = $familia;
+    }
+}
+
+//────────────────────────────────────────────────────────────────────────────────────────
+// CANARIO: el detector tiene que ver un caso que SÍ está, y no ver uno que NO.
+//────────────────────────────────────────────────────────────────────────────────────────
+function llamadasDescartadas(string $codigo, array $riesgosas): array
+{
+    $tokens = @token_get_all($codigo);
+    if (!is_array($tokens)) {
+        return [];
+    }
+
+    //Normalizar: se descartan espacios y comentarios, conservando la línea.
+    $planos = [];
+    foreach ($tokens as $t) {
+        if (is_array($t)) {
+            if (in_array($t[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                continue;
+            }
+            $planos[] = ['tipo' => $t[0], 'texto' => $t[1], 'linea' => $t[2]];
+        } else {
+            $planos[] = ['tipo' => null, 'texto' => $t, 'linea' => null];
+        }
+    }
+
+    $hallazgos = [];
+    $total = count($planos);
+    //Una sentencia empieza justo despues de `;`, `{`, `}` o al abrir PHP.
+    $inicios = [';', '{', '}'];
+
+    for ($i = 0; $i < $total; $i++) {
+
+        $esInicio = $i === 0
+            || (in_array($planos[$i - 1]['texto'], $inicios, true) && $planos[$i - 1]['tipo'] === null)
+            || $planos[$i - 1]['tipo'] === T_OPEN_TAG;
+        if (!$esInicio) {
+            continue;
+        }
+
+        //Localizar el nombre llamado: `nombre(`, `$x->nombre(`, `Clase::nombre(`.
+        $j = $i;
+        $nombre = null;
+        while ($j < $total && $j < $i + 12) {
+            if ($planos[$j]['tipo'] === T_STRING && isset($planos[$j + 1]) && $planos[$j + 1]['texto'] === '(') {
+                $nombre = $planos[$j]['texto'];
+                break;
+            }
+            //Solo se atraviesan piezas de un acceso encadenado; cualquier otra cosa corta.
+            $puente = $planos[$j]['tipo'] === T_VARIABLE
+                || $planos[$j]['tipo'] === T_OBJECT_OPERATOR
+                || $planos[$j]['tipo'] === T_NULLSAFE_OBJECT_OPERATOR
+                || $planos[$j]['tipo'] === T_DOUBLE_COLON
+                || $planos[$j]['tipo'] === T_STRING
+                || $planos[$j]['tipo'] === T_NS_SEPARATOR;
+            if (!$puente) {
+                break;
+            }
+            $j++;
+        }
+
+        if ($nombre === null || !isset($riesgosas[strtolower($nombre)])) {
+            continue;
+        }
+
+        //El resultado se descarta si la llamada TERMINA la sentencia: `)` seguido de `;`.
+        $k = $j + 1;
+        $profundidad = 0;
+        $cierre = null;
+        while ($k < $total) {
+            $txt = $planos[$k]['texto'];
+            if ($txt === '(') {
+                $profundidad++;
+            } elseif ($txt === ')') {
+                $profundidad--;
+                if ($profundidad === 0) {
+                    $cierre = $k;
+                    break;
+                }
+            }
+            $k++;
+        }
+        if ($cierre === null || !isset($planos[$cierre + 1])) {
+            continue;
+        }
+        if ($planos[$cierre + 1]['texto'] !== ';') {
+            continue;
+        }
+
+        //LA FORMA IMPORTA: `exec(` a secas es el de PROCESOS y devuelve string|false;
+        //`$db->exec(` es el de PDO y LANZA, porque la conexión va en ERRMODE_EXCEPTION.
+        //Sin esta distinción los 43 `exec()` caían todos en la familia equivocada.
+        $esMetodo = $j > $i
+            && in_array($planos[$j - 1]['tipo'], [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON], true);
+        $familia = $riesgosas[strtolower($nombre)];
+        if ($familia === 'base de datos' && !$esMetodo) {
+            $familia = 'proceso y entorno';
+        }
+        if ($familia !== 'base de datos' && $esMetodo && in_array(strtolower($nombre), ['exec', 'execute'], true)) {
+            $familia = 'base de datos';
+        }
+
+        $hallazgos[] = [
+            'nombre' => ($esMetodo ? '->' : '') . $nombre,
+            'familia' => $familia,
+            'linea' => $planos[$j]['linea'],
+        ];
+    }
+
+    return $hallazgos;
+}
+
+$controlPositivo = '<?php $a = 1; file_put_contents($x, $y); $b = 2;';
+$controlNegativo = '<?php $ok = file_put_contents($x, $y); if (file_put_contents($x, $y)) { echo 1; }';
+$vePositivo = count(llamadasDescartadas($controlPositivo, $RIESGOSAS));
+$veNegativo = count(llamadasDescartadas($controlNegativo, $RIESGOSAS));
+if ($vePositivo !== 1 || $veNegativo !== 0) {
+    fwrite(STDERR, "CANARIO CAÍDO: el detector ve {$vePositivo} donde debe ver 1, y {$veNegativo} donde debe ver 0.\n");
+    fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
+    exit(2);
+}
+echo "CANARIO VIVO: ve la llamada descartada y NO la que se lee.\n";
+
+//────────────────────────────────────────────────────────────────────────────────────────
+// El universo se declara, no se hereda.
+//────────────────────────────────────────────────────────────────────────────────────────
+$argumentos = array_slice($argv, 1);
+$detalle = in_array('--detalle', $argumentos, true);
+$rutas = array_values(array_filter($argumentos, static fn (string $a): bool => $a !== '--detalle'));
+if (count($rutas) === 0) {
+    $rutas = ['src/app', 'bin'];
+}
+
+//FUERA, y por su nombre: `bin/tools` trae PHPStan y Rector DESCARGADOS —7.886 archivos en
+//el bloque X— y `logs/` infló el censo de YC5. Ver LEY 15.
+$EXCLUIDOS = ['/vendor/', '/node_modules/', '/.git/', '/bin/tools/', '/app/logs/', '/dumps/'];
+
+$archivos = [];
+foreach ($rutas as $raiz) {
+    if (!is_dir($raiz)) {
+        if (is_file($raiz)) {
+            $archivos[] = $raiz;
+        }
+        continue;
+    }
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        $ruta = str_replace('\\', '/', $f->getPathname());
+        if (!$f->isFile() || strtolower($f->getExtension()) !== 'php') {
+            continue;
+        }
+        foreach ($EXCLUIDOS as $patron) {
+            if (strpos('/' . $ruta, $patron) !== false) {
+                continue 2;
+            }
+        }
+        $archivos[] = $ruta;
+    }
+}
+sort($archivos);
+
+$porFamilia = [];
+$porNombre = [];
+$detalles = [];
+foreach ($archivos as $ruta) {
+    $codigo = (string) @file_get_contents($ruta);
+    foreach (llamadasDescartadas($codigo, $RIESGOSAS) as $h) {
+        $porFamilia[$h['familia']] = ($porFamilia[$h['familia']] ?? 0) + 1;
+        $porNombre[$h['nombre']] = ($porNombre[$h['nombre']] ?? 0) + 1;
+        $detalles[] = "{$ruta}:{$h['linea']}\t{$h['nombre']}()\t{$h['familia']}";
+    }
+}
+
+$total = array_sum($porFamilia);
+echo 'UNIVERSO: ' . count($archivos) . " archivo(s) .php · rutas: " . implode(', ', $rutas) . "\n";
+echo "          excluidos por nombre: " . implode(' ', $EXCLUIDOS) . "\n\n";
+$porExcepcion = $porFamilia['base de datos'] ?? 0;
+$porValor = $total - $porExcepcion;
+echo "TOTAL DE LLAMADAS CON EL VALOR DEVUELTO DESCARTADO: {$total}\n";
+echo "  de las que SEÑALAN FALLO POR EXCEPCIÓN (no cuentan): {$porExcepcion}\n";
+echo "  de las que SEÑALAN FALLO POR VALOR DEVUELTO ........: {$porValor}\n\n";
+echo "  La conexión va en ERRMODE_EXCEPTION —lo fija `Database::connect()` del paquete\n";
+echo "  `piecesphp/database`, y PHP 8 ya lo trae por defecto—, así que `->execute()`,\n";
+echo "  `->exec()`, `->commit()` y compañía LANZAN. Descartar su retorno no pierde nada.\n\n";
+
+arsort($porFamilia);
+foreach ($porFamilia as $familia => $n) {
+    printf("  %-22s %3d\n", $familia, $n);
+}
+echo "\n";
+arsort($porNombre);
+foreach ($porNombre as $nombre => $n) {
+    printf("  %-22s %3d\n", $nombre . '()', $n);
+}
+
+if ($detalle) {
+    echo "\n";
+    foreach ($detalles as $linea) {
+        echo "  {$linea}\n";
+    }
+}
