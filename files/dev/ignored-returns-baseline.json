@@ -18,10 +18,14 @@
     "cifras": {
         "descartadas_total": 485,
         "senalan_por_excepcion": 290,
-        "senalan_por_valor": 195,
+        "senalan_por_valor": 193,
         "declaradas": 0,
-        "sin_declarar": 195,
-        "_nota": "`declaradas` es el valor EN EL MOMENTO DE CONGELAR y NO participa en el trinquete: sube al declarar, y eso es progreso. La única cifra que el trinquete compara es `sin_declarar`."
+        "sin_declarar": 193,
+        "_nota": "`declaradas` es el valor EN EL MOMENTO DE CONGELAR y NO participa en el trinquete: sube al declarar, y eso es progreso. La única cifra que el trinquete compara es `sin_declarar`.",
+        "_historia": [
+            "195 al congelar (2026-08-29, bloque AB0).",
+            "193 tras el lote 3 de E3 (2026-08-29, bloque AB1): DOS murieron con `ApplicationCalls`, no se arreglaron ni se declararon. La cota baja porque el codigo que las contenia ya no existe."
+        ]
     },
     "por_que_290_no_cuentan": "Son de PDO. La conexión va en ERRMODE_EXCEPTION —lo fija `Database::connect()` del paquete `piecesphp/database`, y PHP 8 ya lo trae por defecto—, así que `->execute()`, `->exec()`, `->commit()` y compañía LANZAN. Descartar su retorno no pierde información. Distinguir la FORMA de la llamada fue necesario: `exec(` a secas es el de procesos y devuelve `string|false`.",
     "orden_de_trabajo": [

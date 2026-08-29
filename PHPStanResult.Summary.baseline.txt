@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 830 tripletas (2026-08-29). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 768 tripletas (2026-08-29). NO DEJARLO PEOR.
 
 EL 2026-08-26 EL UNIVERSO CRECIÓ Y LA CIFRA NO. De 812 a 815 archivos analizados: entraron
 `bin/live-cache`, `bin/walk-attribute` y `bin/walk-routes`, los tres ejecutables de `bin/`
@@ -64,6 +64,27 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 768 <- 830 = 0 arreglos + 0 supresiones + 62 murieron + 0 destapados
+
+    Tercer lote de E3: `ApplicationCalls`, borrado completo, con sus consumidores.
+
+        60  murieron CON SU ARCHIVO
+         2  con CÓDIGO RETIRADO de archivos que SE QUEDAN
+             (`ContentNavigationHubController` y `GeoJsonManagerController`, los dos a cero)
+
+    NINGÚN ARCHIVO AJENO AL LOTE movió su cifra. Método: conteo por archivo del bloque
+    `[ERRORES POR ARCHIVO]` de los dos resúmenes, con el MISMO analizador para los dos lados.
+
+    CORRECCIÓN DE MÉTODO respecto al lote anterior: «murió con su archivo» se decide
+    MIRANDO EL DISCO, no la ausencia en el resumen. Un archivo que baja a CERO desaparece
+    del listado igual que uno borrado, y no son lo mismo — con el método viejo, este lote
+    habría reportado 61/0 en vez de 60/2.
+
+    Y el lote destapó un defecto que el censo de doce formas NO vio y PHPStan SÍ:
+    `MySpaceController` llamaba a `ContentNavigationHubController::applicationCallsListView()`,
+    un método borrado en este mismo lote. El nombre del método no casa con ninguna forma del
+    censo —`applicationCalls` seguido de `ListView` no deja frontera de palabra—. Ver T142.
 
 [REPARTO] 830 <- 835 = 5 arreglos + 0 supresiones + 0 murieron + 0 destapados
 
@@ -196,10 +217,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-184
+173
 
 [TOTAL DE ERRORES VISIBLES]
-830
+768
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -207,23 +228,23 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 820
-Solo en 8.5: 10
+En las dos (8.4 y 8.5): 759
+Solo en 8.5: 9
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (341)
-property.nonObject (163)
-method.nonObject (120)
-return.type (55)
-assign.propertyType (35)
+argument.type (321)
+property.nonObject (140)
+method.nonObject (111)
+return.type (52)
+assign.propertyType (32)
 method.resultUnused (26)
-foreach.nonIterable (18)
 property.notFound (18)
-offsetAccess.invalidOffset (14)
+foreach.nonIterable (17)
+offsetAccess.invalidOffset (12)
 nullCoalesce.variable (7)
-clone.nonObject (5)
 variable.undefined (4)
+clone.nonObject (4)
 offsetAccess.notFound (3)
 function.deprecated (3)
 encapsedStringPart.nonString (2)
@@ -280,38 +301,6 @@ project://src/app/classes/App/Locations/Controllers/State.php
 	foreach.nonIterable (Líneas: 461)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
-project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php
-	property.nonObject (Líneas: 222, 223, 1312, 1313, 1314, 1404, 1733, 1735, 1757, 1759)
-	argument.type (Líneas: 728, 738, 803, 813, 1483, 1654, 1804)
-	assign.propertyType (Líneas: 758)
-	clone.nonObject (Líneas: 799)
-	method.nonObject (Líneas: 1662, 1663)
-	offsetAccess.invalidOffset (Líneas: 1823)
-project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
-	return.type (Líneas: 450)
-	argument.type (Líneas: 461, 784, 785, 786)
-	property.nonObject (Líneas: 549, 572)
-project://src/app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php
-	argument.type (Líneas: 165, 227, 244)
-	return.type (Líneas: 228, 247)
-	property.nonObject (Líneas: 259, 279)
-project://src/app/classes/ApplicationCalls/Util/AttachmentPackage.php
-	assign.propertyType (Líneas: 62, 63)
-project://src/app/classes/ApplicationCalls/Views/application-calls/forms/edit.php
-	property.nonObject (Líneas: 250, 255)
-	method.nonObject (Líneas: 251)
-project://src/app/classes/ApplicationCalls/Views/application-calls/public/util/item-internal.php
-	argument.type (Líneas: 18, 19)
-	property.nonObject (Líneas: 20, 88)
-	method.nonObject (Líneas: 88)
-project://src/app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php
-	offsetAccess.invalidOffset (Líneas: 146)
-project://src/app/classes/ContentNavigationHub/Views/application-calls/detail.php
-	argument.type (Líneas: 26)
-	method.nonObject (Líneas: 147, 174, 219)
-	property.nonObject (Líneas: 173, 178)
-project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-application-call-card.php
-	argument.type (Líneas: 12)
 project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-org-card.php
 	argument.type (Líneas: 16)
 project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-person-card.php
@@ -360,7 +349,7 @@ project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	argument.type (Líneas: 217)
 	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
-	foreach.nonIterable (Líneas: 193, 313, 482)
+	foreach.nonIterable (Líneas: 190, 310)
 project://src/app/classes/Importers/Controller/ImporterController.php
 	assign.propertyType (Líneas: 91, 121)
 	argument.type (Líneas: 115, 144, 155, 165, 290, 297)
@@ -484,17 +473,15 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 144)
-	argument.type (Líneas: 368, 368, 640)
-	assign.propertyType (Líneas: 375)
-	method.nonObject (Líneas: 549)
-	offsetAccess.invalidOffset (Líneas: 659)
+	staticMethod.nonObject (Líneas: 143)
+	argument.type (Líneas: 366, 366, 638)
+	assign.propertyType (Líneas: 373)
+	method.nonObject (Líneas: 547)
+	offsetAccess.invalidOffset (Líneas: 657)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 145)
 	property.nonObject (Líneas: 206)
 	argument.type (Líneas: 314, 315, 315)
-project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php
-	property.nonObject (Líneas: 66)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
 	argument.type (Líneas: 62, 91, 99, 106, 113, 120)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
@@ -505,17 +492,13 @@ project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
 	property.nonObject (Líneas: 49, 53)
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
 	assign.propertyType (Líneas: 88)
-project://src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.php
-	method.nonObject (Líneas: 13, 153)
-	argument.type (Líneas: 74, 78)
-	property.nonObject (Líneas: 152, 157)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php
 	method.nonObject (Líneas: 16)
 	property.nonObject (Líneas: 20, 24, 74, 75)
 	argument.type (Líneas: 24)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-user.php
-	property.nonObject (Líneas: 21, 23, 27, 150, 150, 158, 158, 166, 174)
-	method.nonObject (Líneas: 22, 25, 110, 118, 126, 134, 142)
+	property.nonObject (Líneas: 19, 21, 25, 148, 148, 156, 156, 164, 172)
+	method.nonObject (Líneas: 20, 23, 108, 116, 124, 132, 140)
 project://src/app/classes/SystemApprovals/Views/forms/approval-publications.php
 	method.nonObject (Líneas: 58, 70, 152)
 	argument.type (Líneas: 75, 84, 88)
@@ -538,7 +521,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 368)
 	method.deprecated (Líneas: 379)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 316)
+	argument.type (Líneas: 322)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php

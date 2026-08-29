@@ -211,157 +211,6 @@
          🪪  property.nonObject                                                      
  ------ ---------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php                                                                                           
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  222    Cannot access property $id on App\Locations\Mappers\CountryMapper|int.                                                                                                
-         🪪  property.nonObject                                                                                                                                                
-  223    Cannot access property $id on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.                                                                
-         🪪  property.nonObject                                                                                                                                                
-  728    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
-         🪪  argument.type                                                                                                                                                     
-  738    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
-         🪪  argument.type                                                                                                                                                     
-  758    Property ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::$applicationCall (ApplicationCalls\Mappers\ApplicationCallsMapper|int) does not accept int|null.  
-         🪪  assign.propertyType                                                                                                                                               
-  799    Cannot clone stdClass|null.                                                                                                                                           
-         🪪  clone.nonObject                                                                                                                                                   
-  803    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
-         🪪  argument.type                                                                                                                                                     
-  813    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
-         🪪  argument.type                                                                                                                                                     
-  1312   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                              
-         🪪  property.nonObject                                                                                                                                                
-  1313   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                            
-         🪪  property.nonObject                                                                                                                                                
-  1314   Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                              
-         🪪  property.nonObject                                                                                                                                                
-  1404   Cannot access property $id on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                   
-         🪪  property.nonObject                                                                                                                                                
-  1483   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                                     
-         🪪  argument.type                                                                                                                                                     
-  1654   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                                         
-         🪪  argument.type                                                                                                                                                     
-  1662   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
-         🪪  method.nonObject                                                                                                                                                  
-  1663   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
-         🪪  method.nonObject                                                                                                                                                  
-  1733   Cannot access property $organization on stdClass|null.                                                                                                                
-         🪪  property.nonObject                                                                                                                                                
-  1735   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                          
-         🪪  property.nonObject                                                                                                                                                
-  1757   Cannot access property $organization on stdClass|null.                                                                                                                
-         🪪  property.nonObject                                                                                                                                                
-  1759   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                          
-         🪪  property.nonObject                                                                                                                                                
-  1804   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                                                            
-         🪪  argument.type                                                                                                                                                     
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php                                               
- ------ ------------------------------------------------------------------------------------------------------------------ 
-  450    Method ApplicationCalls\Mappers\ApplicationCallsMapper::isActiveByDates() should return string but returns bool.  
-         🪪  return.type                                                                                                   
-  461    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                     
-         🪪  argument.type                                                                                                 
-  549    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                          
-         🪪  property.nonObject                                                                                            
-  572    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                          
-         🪪  property.nonObject                                                                                            
-  784    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
-         🪪  argument.type                                                                                                 
-  785    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
-         🪪  argument.type                                                                                                 
-  786    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
-         🪪  argument.type                                                                                                 
- ------ ------------------------------------------------------------------------------------------------------------------ 
-
- ------ ------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php                                                        
- ------ ------------------------------------------------------------------------------------------------------------------------------------- 
-  165    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                                        
-         🪪  argument.type                                                                                                                    
-  227    Parameter Nr.1 $finfo of function finfo_file expects finfo, finfo|false given.                                                         
-         🪪  argument.type                                                                                                                    
-  228    Method ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::getMimeType() should return string|null but returns string|false.  
-         🪪  return.type                                                                                                                      
-  244    Parameter Nr.1 $haystack of function strpos expects string, string|null given.                                                         
-         🪪  argument.type                                                                                                                    
-  247    Method ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::fileIsImage() should return string|null but returns bool.          
-         🪪  return.type                                                                                                                      
-  259    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                             
-         🪪  property.nonObject                                                                                                               
-  279    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                             
-         🪪  property.nonObject                                                                                                               
- ------ ------------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/ApplicationCalls/Util/AttachmentPackage.php                                           
- ------ ------------------------------------------------------------------------------------------------------ 
-  62     Property ApplicationCalls\Util\AttachmentPackage::$applicationCallID (int) does not accept int|null.  
-         🪪  assign.propertyType                                                                               
-  63     Property ApplicationCalls\Util\AttachmentPackage::$attachmentID (int) does not accept int|null.       
-         🪪  assign.propertyType                                                                               
- ------ ------------------------------------------------------------------------------------------------------ 
-
- ------ --------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ApplicationCalls/Views/application-calls/forms/edit.php                                  
- ------ --------------------------------------------------------------------------------------------------------- 
-  250    Cannot access property $fileLocation on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.  
-         🪪  property.nonObject                                                                                   
-  251    Cannot call method fileIsImage() on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.      
-         🪪  method.nonObject                                                                                     
-  255    Cannot access property $id on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.            
-         🪪  property.nonObject                                                                                   
- ------ --------------------------------------------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/ApplicationCalls/Views/application-calls/public/util/item-internal.php                            
- ------ ------------------------------------------------------------------------------------------------------------------ 
-  18     Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string|null given.                
-         🪪  argument.type                                                                                                 
-  19     Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string|null given.                
-         🪪  argument.type                                                                                                 
-  20     Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                          
-         🪪  property.nonObject                                                                                            
-  88     Cannot access property $color on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.         
-         🪪  property.nonObject                                                                                            
-  88     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
-         🪪  method.nonObject                                                                                              
- ------ ------------------------------------------------------------------------------------------------------------------ 
-
- ------ ------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php  
- ------ ------------------------------------------------------------------------------------- 
-  146    Possibly invalid array key type bool|float|int|string.                               
-         🪪  offsetAccess.invalidOffset                                                       
- ------ ------------------------------------------------------------------------------------- 
-
- ------ ----------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ContentNavigationHub/Views/application-calls/detail.php                                    
- ------ ----------------------------------------------------------------------------------------------------------- 
-  26     Parameter Nr.2 $array of function implode expects array<string>, array<array<string, string>|string> given.  
-         🪪  argument.type                                                                                          
-  147    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.               
-         🪪  method.nonObject                                                                                       
-  173    Cannot access property $fileLocation on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.    
-         🪪  property.nonObject                                                                                     
-  174    Cannot call method fileIsImage() on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.        
-         🪪  method.nonObject                                                                                       
-  178    Cannot access property $id on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.              
-         🪪  property.nonObject                                                                                     
-  219    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.               
-         🪪  method.nonObject                                                                                       
- ------ ----------------------------------------------------------------------------------------------------------- 
-
- ------ ----------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-application-call-card.php         
- ------ ----------------------------------------------------------------------------------------------------------- 
-  12     Parameter Nr.2 $array of function implode expects array<string>, array<array<string, string>|string> given.  
-         🪪  argument.type                                                                                          
- ------ ----------------------------------------------------------------------------------------------------------- 
-
  ------ ---------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-org-card.php                           
  ------ ---------------------------------------------------------------------------------------------------------------- 
@@ -541,11 +390,9 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php                     
  ------ -------------------------------------------------------------------------------------------- 
-  193    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  190    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
-  313    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
-         🪪  foreach.nonIterable                                                                     
-  482    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  310    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -1125,17 +972,17 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php                                                               
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  144    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
+  143    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
          🪪  staticMethod.nonObject                                                                                                              
-  368    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  366    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  368    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
+  366    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
          🪪  argument.type                                                                                                                       
-  375    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
+  373    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
          🪪  assign.propertyType                                                                                                                 
-  549    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
+  547    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
          🪪  method.nonObject                                                                                                                    
-  640    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
+  638    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1153,13 +1000,6 @@
   315    Parameter Nr.1 $keys of function array_combine expects array<int|string>, array<array<string, string>|string> given.                      
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ ----------------------------------------------------------------------------------- 
-  project://src/src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php  
- ------ ----------------------------------------------------------------------------------- 
-  66     Cannot access property $type on App\Model\UsersModel|int.                          
-         🪪  property.nonObject                                                             
- ------ ----------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php                                                                                                                       
@@ -1209,23 +1049,6 @@
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.php                                       
- ------ ------------------------------------------------------------------------------------------------------------------ 
-  13     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
-         🪪  method.nonObject                                                                                              
-  74     Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string|null given.                
-         🪪  argument.type                                                                                                 
-  78     Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string|null given.                
-         🪪  argument.type                                                                                                 
-  152    Cannot access property $fileLocation on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.           
-         🪪  property.nonObject                                                                                            
-  153    Cannot call method fileIsImage() on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.               
-         🪪  method.nonObject                                                                                              
-  157    Cannot access property $id on ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null.                     
-         🪪  property.nonObject                                                                                            
- ------ ------------------------------------------------------------------------------------------------------------------ 
-
- ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php                                     
  ------ ------------------------------------------------------------------------------------------------------------------ 
   16     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
@@ -1245,47 +1068,47 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/SystemApprovals/Views/forms/approval-profile-user.php                                             
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  21     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.              
+  19     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.              
          🪪  property.nonObject                                                                                            
-  21     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.              
+  19     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.              
          🪪  property.nonObject                                                                                            
-  22     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
+  20     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
          🪪  method.nonObject                                                                                              
-  23     Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.            
+  21     Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.            
          🪪  property.nonObject                                                                                            
-  25     Cannot call method currentLangData() on Organizations\Mappers\OrganizationMapper|null.                            
+  23     Cannot call method currentLangData() on Organizations\Mappers\OrganizationMapper|null.                            
          🪪  method.nonObject                                                                                              
-  27     Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                      
+  25     Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                      
          🪪  property.nonObject                                                                                            
-  110    Cannot call method getPhone() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                             
+  108    Cannot call method getPhone() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                             
          🪪  method.nonObject                                                                                              
-  118    Cannot call method getLinkedinLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
+  116    Cannot call method getLinkedinLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
          🪪  method.nonObject                                                                                              
-  126    Cannot call method getWebsiteLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                       
+  124    Cannot call method getWebsiteLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                       
          🪪  method.nonObject                                                                                              
-  134    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
+  132    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
          🪪  method.nonObject                                                                                              
-  142    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
+  140    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
          🪪  method.nonObject                                                                                              
-  150    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                           
+  148    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                           
          🪪  property.nonObject                                                                                            
-  150    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                           
+  148    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                           
          🪪  property.nonObject                                                                                            
-  150    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                          
+  148    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                          
          🪪  property.nonObject                                                                                            
-  158    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                              
+  156    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                              
          🪪  property.nonObject                                                                                            
-  158    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                              
+  156    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                              
          🪪  property.nonObject                                                                                            
-  158    Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                             
+  156    Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                             
          🪪  property.nonObject                                                                                            
-  166    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+  164    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
          🪪  property.nonObject                                                                                            
-  166    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+  164    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
          🪪  property.nonObject                                                                                            
-  174    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+  172    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
          🪪  property.nonObject                                                                                            
-  174    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+  172    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
          🪪  property.nonObject                                                                                            
  ------ ------------------------------------------------------------------------------------------------------------------ 
 
@@ -1377,7 +1200,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  316    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  322    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 
@@ -2618,5 +2441,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 836 errors                                                                                               
+ [ERROR] Found 775 errors                                                                                               
 
