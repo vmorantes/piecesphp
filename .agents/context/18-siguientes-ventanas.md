@@ -13961,3 +13961,129 @@ separados no tienen orden posible.
 8. **Foto final**: todo lo que aparezca lo explica el lote, o es un hallazgo. Lo que el lote
    toque FUERA del universo de la foto se lista en el reporte.
 9. **`[REPARTO]` con sus cuatro términos**, separando lo que murió con su archivo.
+
+
+---
+
+## T142 · AB · EL TRINQUETE DE LOS 195, Y EL LOTE 3 CIERRA EL CICLO QUE FUNDÓ E3
+
+### AB0 · Los 195 se congelan sin triajar ninguno
+
+**La declaración vive PEGADA A LA LLAMADA, no en una lista central.** Una lista por
+`archivo:línea` se pudre en cuanto la línea se mueve — ya costó dos puertas rojas,
+`prefer-slug` y `operation-from-route`.
+
+    //RETORNO-IGNORADO: el temporal puede no existir y da igual; se borra por si acaso.
+    @unlink($temporal);
+
+**Y tiene que traer el motivo.** Una marca vacía no declara nada y el censo la sigue
+contando: si no, la marca se convierte en la forma nueva de callar.
+
+| | |
+| :-- | --: |
+| declaradas con motivo | 1 |
+| **SIN DECLARAR** | **193** ← la que tiene que encoger |
+| total que señalan por valor devuelto | 194 |
+
+La línea base vive en `files/dev/ignored-returns-baseline.json` **con su método al lado**
+—herramienta, universo, patrón y canario—, que es lo que pide la LEY 5 y lo que faltaba en
+los seis censos sospechosos de la LEY 16.
+
+> **EL TRINQUETE COMPARA TAMBIÉN EL UNIVERSO.** Una cifra que baja porque el censo mira
+> menos archivos no es una mejora: es otro instrumento. Ver LEY 15.
+
+**Entra en `verify-integrity` como comprobación 19**, porque un trinquete que nadie corre es
+una regla, no un mecanismo. Emite su línea: sin ella no corrió (LEY 18).
+
+**Orden de trabajo, anotado para que no se decida a medias**: primero los que REPORTAN ÉXITO
+TRAS EL FALLO —la forma de `db-backup`—, y dentro de eso `núcleo` (47) y `Database` (10)
+antes que el resto, porque viajan a cada clon.
+
+#### Lo que el mecanismo cazó nada más existir
+
+- **A su propio autor**: el `exec()` que acababa de escribir para llamar al censo. Declarado
+  con motivo, que es exactamente para lo que está la marca.
+- **Al comprobador de docblocks huérfanos**: había insertado el método nuevo entre un
+  docblock y su firma.
+- **A `bin/normaliza-eol`**: construía su lista con `git ls-files`, **que no lista lo no
+  versionado**. Un archivo NUEVO —el único caso para el que existe la regla de §3— era
+  invisible para la herramienta escrita para verlo. Lo delató git avisando al preparar el
+  propio JSON de la línea base mientras la herramienta decía «0 fuera de forma».
+
+### AB1 · El lote 3, y el ciclo que fundó el recorte de E3
+
+`ApplicationCalls` y `ContentNavigationHub` **se citan mutuamente**. Ese es el hecho —y no
+la tabla inflada por `logs/` de la PARADA YC5— sobre el que se sostiene que dejen de ser
+lotes separados. Aquí se cobra: el lado consumidor de `ContentNavigationHub` va DENTRO de
+este lote, y `ContentNavigationHub` no desaparece.
+
+| | antes | después |
+| :-- | --: | --: |
+| Tablas | 32 | 30 |
+| Vistas | 4 | 3 |
+| Archivos en el universo de la foto | 5.303 | 5.181 |
+| PHPStan | 830 | 768 |
+
+**Foto: 60 diferencias, las 60 del lote.** Objetos de base 3, archivos editados 17, borrados
+40.
+
+#### El censo tuvo que llegar a DOCE formas, y aun así se le escapó una
+
+| Forma | Cómo apareció |
+| :-- | :-- |
+| `APPLICATION_CALLS` | **El canario la cazó**: `\bAPPLICATION` no casa dentro de `FEATURE_TYPE_APPLICATION_CALLS`, porque el guion bajo es carácter de palabra. Habría dado cero en silencio |
+| `ApplicationsCalls` | Con la ese en medio. Es la clave del informe, `totalApplicationsCallsQty`, y trajo dos archivos de `ReportsManage` que no nombran el módulo |
+| `detail.js` | No nombra nada: vivía en un directorio `application-calls/`. Lo vio la mirada al directorio, no el censo |
+
+**Y LA QUE SE ESCAPÓ, que la destapó PHPStan y no yo:**
+
+> `MySpaceController` llamaba a `ContentNavigationHubController::applicationCallsListView()`,
+> un método borrado en este mismo lote. **Ninguna de las doce formas casa con el nombre del
+> método**: `applicationCalls` seguido de `ListView` no deja frontera de palabra.
+
+Esto cambia comportamiento y se dice: los usuarios aprobados que no son root aterrizaban en
+el listado de convocatorias, y ahora caen en «Mi espacio». Se eligió lo conservador —el
+`else` que ya existía— en vez de inventar un destino. **Borrar la rama sin más también era
+una página en blanco**: `$normalSpace` se quedaba en `false` y el método caía hasta un
+`return $response` vacío. Se comprobó leyendo el final del método.
+
+#### El reparto, con una corrección de método
+
+    [REPARTO] 768 <- 830 = 0 arreglos + 0 supresiones + 62 murieron + 0 destapados
+              60 murieron CON SU ARCHIVO · 2 con código retirado de archivos que se quedan
+
+**«Murió con su archivo» se decide MIRANDO EL DISCO**, no la ausencia en el resumen: un
+archivo que baja a CERO desaparece del listado igual que uno borrado. Con el método del lote
+anterior, este habría reportado 61/0 en vez de 60/2.
+
+#### Lo que el lote tocó FUERA del universo de la foto, declarado
+
+`files/dev/volatile-state.json` · `files/dev/narrative-comments.json` ·
+`files/dev/integrity-signatures.json` · `files/dev/ignored-returns-baseline.json` · los
+cuatro artefactos de PHPStan · siete documentos de `.agents/context/`.
+
+Y queda dicho: **`Statics/css/contents-map.css` es generado y NO se recompiló** —no se
+ejecutan builds sin pedirlo—, así que sigue nombrando lo borrado hasta el siguiente `gulp`.
+
+### AB2 · Los enlaces rotos se DETECTAN, no se retiran en caliente
+
+La decisión, con las dos medidas que la sostienen:
+
+1. **El retorno temprano de `createDynamicSymlink()` ocurre ANTES de normalizar la ruta.**
+   `realpath()` falla y la función vuelve en la línea siguiente; la normalización que quita
+   los `../` está más abajo. Borrar ahí actuaría sobre una ruta sin normalizar.
+2. **Ese camino solo corre cuando alguien PIDE el asset.** Nadie pide los de un módulo
+   muerto, así que la limpieza en caliente no llegaría nunca a los que importan.
+
+Por eso va donde sí se ejecuta siempre: **`verify-integrity`, comprobación 20**, roja ante
+cualquier enlace de `statics/server-delegated/` cuyo destino no exista. Hoy comprueba 103.
+
+Provocada sobre un enlace PROPIO: verde con el destino vivo, **roja al borrarlo, nombrando
+la ruta**, verde al retirarlo.
+
+### AB3 · La LEY 24 sale de las pruebas
+
+**Cualquier verificación que pasaría con el defecto presente no es una verificación.** Los dos
+casos del bloque AA: `db-backup` comprobando el éxito con `file_exists()`, y los guiones de
+permisos haciendo `sudo chown` y luego `chmod` sin `sudo`. La forma es la misma en los dos:
+**se comprueba un efecto colateral del intento en vez del resultado del intento.**

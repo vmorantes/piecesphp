@@ -335,7 +335,9 @@ escribir.
 ### Patrón 1 · Propiedad del recurso
 
 El más común: **solo el creador toca lo suyo**, salvo un tipo de usuario con permiso global.
-La variante completa añade la organización. Extraído de `ApplicationCallsController`.
+La variante completa añade la organización. Se extrajo de `ApplicationCallsController`,
+**borrado en el lote 3 de E3**; el patrón sigue vigente y hoy se ve igual en
+`PublicationsController`.
 
 ```php
 private static function _allowedRoute(string $name, string $route, array $params = [])

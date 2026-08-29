@@ -18,7 +18,7 @@ Ya eliminados en ramas anteriores: chat interno, presentaciones de capacitación
 | PiecesPHP (UserSystem, Banner, Helpers, Localization, RoutingUtils) | 10.367 | 280 | — | Núcleo funcional. Conservar |
 | Publications | 8.751 | 10 | 3 | Activo, referencia de calidad. Conservar |
 | MySpace | 7.749 | 10 | 8 | Home del backoffice + perfiles. Desacoplable |
-| ApplicationCalls | 6.162 | 12 | 3 | Capa de proyecto |
+| ~~ApplicationCalls~~ | 6.162 | 12 | 3 | **BORRADO** en el lote 3 de E3 (bloque AB) |
 | App\Locations | 6.030 | 125 | 1 | Catálogo geográfico. Conservar |
 | News | 6.024 | 3 | 0 | Marcado «por renovar» |
 | Forms | 5.320 | 3 | 1 | Marcado «por renovar» |
@@ -96,7 +96,8 @@ importe. `BaseEventDispatcher` ya existe y es exactamente para esto.
 ### 3. El cluster de 8 módulos: acoplado, pero no todo es descartable
 
 ```
-Organizations ←→ MySpace ←→ ApplicationCalls ←→ ContentNavigationHub
+Organizations ←→ MySpace ←→ ApplicationCalls ←→ ContentNavigationHub   ← el ciclo QUE FUNDÓ
+                                 (borrado en AB)        el recorte de E3
       ↑             ↑              ↑                     ↑
       └──── SystemApprovals ── ReportsManage ── InterestResearchAreas ── GeoJSONManager
 ```
@@ -116,7 +117,7 @@ acoplamiento está **muy concentrado**, y eso cambia el diagnóstico por módulo
 | **SystemApprovals** | 3 | Ver desglose abajo | **Mecanismo agnóstico**, envoltorio no |
 | **MySpace** | 8 | `MySpaceController` (7) + 3 controladores de perfil de organización | **Desacoplable.** Ver abajo |
 | **InterestResearchAreas** | 3 | Controlador + mapper | Específico del dominio |
-| **ApplicationCalls** | 3 | Controlador + una vista | Específico del dominio |
+| **~~ApplicationCalls~~** | 3 | Controlador + una vista | **BORRADO** (bloque AB) |
 | **ContentNavigationHub** | 4 | 1 controlador + **8 vistas** | El más enredado: el acoplamiento está en las vistas |
 
 #### SystemApprovals: el mecanismo sí es agnóstico
@@ -173,7 +174,7 @@ No borrar: **separar por capas**, no por módulos.
 1. **Base reutilizable** — `Organizations`, `SystemApprovals` (tras sacar el SQL del
    mapper), `GeoJSONManager` (tras aislar su controlador), `ReportsManage` (tras
    separar `Queries/`), `MySpace` como home genérico.
-2. **Capa de proyecto** — `ApplicationCalls`, `InterestResearchAreas`,
+2. **Capa de proyecto** — ~~`ApplicationCalls`~~ *(borrado, bloque AB)*, `InterestResearchAreas`,
    `ContentNavigationHub`, los `Util/Packages/*` de aprobaciones, las `Queries/` de
    reportes, los handlers de GeoJSON.
 

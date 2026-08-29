@@ -849,6 +849,21 @@ enterarse de que no se había validado.** Arreglo: envejecer la marca por SQL an
 escritura, para que el cambio no dependa de cuánto tarde la máquina en cruzar el siguiente
 segundo.
 
+#### AMPLIACIÓN — 2026-08-29 · NO ES SOLO DE LAS PRUEBAS
+
+**CUALQUIER VERIFICACIÓN QUE PASARÍA CON EL DEFECTO PRESENTE NO ES UNA VERIFICACIÓN.** La ley
+nació mirando pruebas; el bloque AA la encontró dos veces en código que no es de prueba:
+
+| Dónde | Qué verificaba | Por qué pasaba con el defecto puesto |
+| :-- | :-- | :-- |
+| `db-backup` | `file_exists($outputPath)` | **El archivo existe aunque la exportación reviente a mitad.** Dio «Operación exitosa» sobre 7 tablas de 33 |
+| Los guiones de permisos | los `[+]` que imprime y su salida 0 | `sudo chown` y luego `chmod` SIN `sudo`: si el propietario elegido no es quien ejecuta, **todos** los `chmod` fallan y el guion sigue imprimiendo su parte |
+
+> La forma es siempre la misma: **se comprueba un efecto colateral del intento en vez del
+> resultado del intento.** Que el archivo exista es consecuencia de haber empezado, no de haber
+> terminado. Que el guion llegue al final es consecuencia de no abortar, no de haber aplicado
+> nada. Confirmada por ARQUITECTO en el bloque AB. Ver T141 y T142.
+
 ### LEY 25 — UNA RED SE PRUEBA CON EL PROCEDIMIENTO CON EL QUE SE VA A USAR, NO EN REPOSO
 
 *Sale de T138. Confirmada por ARQUITECTO en el bloque Z.*

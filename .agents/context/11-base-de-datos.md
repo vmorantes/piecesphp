@@ -43,7 +43,6 @@ Configuración en `src/app/config/database.php` (multi-grupo, grupo `default`).
 | `documents_elements` | Documents |
 | `built_in_banner_elements` | BuiltIn\Banner |
 | `newsletter_sucribers` | Newsletter *(sic — el nombre tiene la errata en el esquema)* |
-| `application_calls_elements`, `application_calls_attachments` | ApplicationCalls |
 | `interest_research_area` | InterestResearchAreas |
 | `forms_categories`, `forms_document_types` | Forms |
 

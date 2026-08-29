@@ -158,7 +158,6 @@ Dentro de las vistas y métodos, los assets se cargan con `set_custom_assets()`,
 | :-- | :-- | :-- |
 | **API** | `API` | Endpoints REST (`APIRoutes`, `APIController`, `Adapters/`, `Exceptions/`). Se monta bajo `/core`. Controlado por `API_MODULE` y flags `API_*` |
 | **App** | `App\Locations`, `App\Presentations` | `Locations` = ubicaciones (países/estados/ciudades/puntos) con sus mappers, vistas y lang |
-| **ApplicationCalls** | `ApplicationCalls` | Convocatorias (zona admin + pública) |
 | **Components** | `Components` | Proveedor de componentes HTML reutilizables (`ComponentProviderRoutes`) |
 | **ContentNavigationHub** | `ContentNavigationHub` | Hub centralizado de contenido navegable (contenidos, perfiles, convocatorias) |
 | **DataImportExportUtility** | `DataImportExportUtility` | Utilidad genérica de importación/exportación (`ExportHandlers/`) |

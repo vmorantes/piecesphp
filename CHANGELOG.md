@@ -222,6 +222,69 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ CAMBIO INCOMPATIBLE — fuera el módulo de convocatorias, con sus dos tablas y su vista
+
+**E3, tercer lote.** Desaparece `ApplicationCalls` entero: 32 archivos, las tablas
+`application_calls_elements` y `application_calls_attachments`, y la vista
+`application_calls_active_date_elements`.
+
+**Si tu despliegue lo usa, pierdes los datos y la funcionalidad.** El DDL sale también de
+`databases/piecesphp_structure.sql` y `databases/piecesphp_views.sql`.
+
+**Lo que cambia en los módulos que SE CONSERVAN**, cada uno en su commit:
+
+| Módulo | Qué pierde |
+| :-- | :-- |
+| `ContentNavigationHub` | El listado y el detalle de convocatorias con sus tres rutas, dos piezas de mapa, dos filtros y la rama de tipo de característica del JS. **El mapa sigue funcionando**: pintaba tres tipos de punto y conserva dos |
+| `SystemApprovals` | El manejador de aprobación de convocatorias y su formulario |
+| `GeoJSONManager` | `withApplicationCalls()` y el caso `APPLICATION_CALLS` del enum `FeaturesTypes` |
+| `ReportsManage` | Los tres contadores de convocatorias del informe, con sus dos tarjetas |
+| `MySpace` | **Cambio de comportamiento**, ver abajo |
+
+### ⚠ Dónde aterrizan ahora los usuarios aprobados que no son root
+
+`MySpaceController` los mandaba al listado de convocatorias. Ahora **caen en «Mi espacio»**,
+que es la rama que ya existía. No se ha inventado un destino nuevo.
+
+Lo destapó PHPStan, no el censo: el nombre del método llamado —`applicationCallsListView`—
+no casa con ninguna de las doce formas de nombrar el módulo.
+
+## Herramientas — trinquete de los valores de retorno que nadie lee
+
+Cuarta aparición de la misma clase de defecto. Se congelan **195** sin triajar ninguno, y se
+pone trinquete sobre la cifra de **no declarados**, que es la única que tiene que encoger.
+
+Para declarar un ignorado deliberado se escribe una marca **pegada a la llamada**, con el
+motivo:
+
+```php
+//RETORNO-IGNORADO: el temporal puede no existir y da igual; se borra por si acaso.
+@unlink($temporal);
+```
+
+Una marca sin motivo no declara nada: si no, la marca sería la forma nueva de callar. La
+línea base vive en `files/dev/ignored-returns-baseline.json` con su método al lado, y el
+trinquete compara **también el universo** — una cifra que baja porque el censo mira menos
+archivos no es una mejora.
+
+`verify-integrity` gana la comprobación 19 para correrlo.
+
+## Herramientas — `verify-integrity` detecta los enlaces rotos del árbol servido
+
+`ServerStatics::createDynamicSymlink()` crea enlaces al servir y **nunca retira uno cuyo
+destino desapareció**. Borrar los `Statics/` de un módulo deja un enlace roto por archivo, y
+el directorio está declarado volátil, así que nada lo veía.
+
+**Se detecta, no se retira en caliente**, y por dos motivos medidos: el retorno temprano de
+esa función ocurre *antes* de normalizar la ruta, y ese camino solo corre cuando alguien pide
+el asset — nadie pide los de un módulo muerto, así que la limpieza en caliente no llegaría
+nunca a los que importan.
+
+## Corregido — `bin/normaliza-eol` no veía los archivos nuevos
+
+Construía su lista con `git ls-files`, que no lista lo no versionado. Un archivo **nuevo** —el
+único caso para el que existe la regla— era invisible para la herramienta escrita para verlo.
+
 ## ⚠ Corregido — `db-backup` decía «Operación exitosa» sobre un respaldo de 7 tablas de 33
 
 **Si tienes copias hechas con este framework, compruébalas.** La tarea descartaba el valor

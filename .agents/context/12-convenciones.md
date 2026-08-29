@@ -32,7 +32,7 @@ rol, sigue leyéndose dentro de diez años.
 
 | Elemento | Convención | Ejemplo |
 | :-- | :-- | :-- |
-| Módulo (carpeta y namespace) | `PascalCase` | `News`, `ApplicationCalls` |
+| Módulo (carpeta y namespace) | `PascalCase` | `News`, `SystemApprovals` |
 | Clase de rutas | `<Modulo>Routes` | `NewsRoutes` |
 | Clase de idiomas | `<Modulo>Lang` | `NewsLang` |
 | Controlador | `<Entidad>Controller` | `NewsCategoryController` |

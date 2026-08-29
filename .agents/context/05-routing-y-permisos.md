@@ -127,10 +127,11 @@ descuido — es consecuencia de tres cosas del diseño:
 1. **Son piezas nucleares del acoplamiento controlador↔Slim.** Traducen
    `$baseRouteName + sufijo` a una ruta Slim registrada y, de paso, resuelven el
    permiso. No son un helper accesorio.
-2. **No todos los controladores comparten padre.** 39 extienden
-   `AdminPanelController`, pero 4 extienden `BaseController` directamente
+2. **No todos los controladores comparten padre.** 43 extienden
+   `AdminPanelController`, y 3 de zona pública extienden `BaseController` directamente
    (`PublicAreaController`, `PublicationsPublicController`,
-   `ApplicationCallsPublicController`, `BuiltInBannerPublicController`) y
+   `BuiltInBannerPublicController`) —eran 4 hasta que `ApplicationCallsPublicController`
+   se fue con su módulo en el bloque AB— y
    `ContactFormsController` extiende `PublicAreaController`. Meterlas en
    `AdminPanelController` dejaría fuera toda la zona pública.
 3. **Usan `self::$baseRouteName`, no `static::`.** En una clase padre `self::`

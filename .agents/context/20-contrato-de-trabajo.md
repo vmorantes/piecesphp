@@ -251,88 +251,80 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Última actualización: 2026-08-29, tras el BLOQUE Z — lote 2 de E3 A MEDIAS, con parada abierta.**
+**Última actualización: 2026-08-29, tras el BLOQUE AA — lote 2 de E3 CERRADO.**
 
 > **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campaña ENTERA — «toda es toda».
 
-> **TRES ERRORES DE ARQUITECTO EN ESTA MISMA SECCIÓN, corregidos aquí y cazados por el CODER en
-> el bloque Z**: decía «de siete lotes a cuatro» y listaba cinco; justificaba el sitio de
-> `DataImportExportUtility` con una dependencia que **no existe** —consume CERO, medido en seis
-> formas con canario—; y se apoyaba en una tabla de citas **inflada por los archivos de `logs/`**,
-> que imprimen nombres de clase en las trazas de excepción. Las tres eran afirmaciones sin medir.
-
 ### Dónde estamos
 
-**E2 CERRADA** (W). **E3: lote 1 cerrado (YC), lote 2 A MEDIAS (Z).**
+**E2 cerrada** (W). **E3: lotes 1 y 2 cerrados.** Quedan tres.
 
 ```
 lote 1   tablas 35->33   src/ 5.437->5.427   PHPStan 883->844
-lote 2   src/ 5.427->5.297   PHPStan 844->835   ← mitad de código hecha; falta vista y tabla
+lote 2   tablas 33->32   vistas 5->4         PHPStan 844->830
 ```
 
 **Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde ·
-PHPStan **835** = baseline · 27 leyes.
-
-### E3 — CINCO lotes, no siete. Quedan tres y medio.
-
-La unidad no es el módulo: es **la cosa que muere MÁS SUS CONSUMIDORES, consumidores primero**.
-Los «borrados parciales» de T6 son el lado consumidor de los borrados completos.
-
-**Lo que sostiene el recorte NO es la tabla de citas** —estaba inflada—, sino un hecho medido:
-`ApplicationCalls` y `ContentNavigationHub` **se citan mutuamente**, así que como módulos separados
-no hay orden posible.
+PHPStan **830** = baseline · 27 leyes.
 
 | Lote | Qué | Estado |
 | :-- | :-- | :-- |
-| 1 | Experiencias previas + consumidores | ✅ cerrado (YC) |
-| 2 | `ImagesRepository` + consumidores | ⏸ código hecho; falta la vista y la tabla |
-| 3 | `ApplicationCalls` + consumidores | pendiente — tiene vista, misma mina |
-| 4 | `InterestResearchAreas` + consumidores | pendiente — se lleva el alias |
-| 5 | `DataImportExportUtility` — reescritura | pendiente |
+| 1 | Experiencias previas + consumidores | listo |
+| 2 | `ImagesRepository` + consumidores | listo |
+| 3 | `ApplicationCalls` + consumidores | siguiente — su vista ya la cubre `scheme-drop` |
+| 4 | `InterestResearchAreas` + consumidores | se lleva el alias |
+| 5 | `DataImportExportUtility` — reescritura | juicio de ARQUITECTO: la última |
 
-**Orden medido**: una sola arista entre los tres módulos que mueren — `ApplicationCalls` nombra a
-`InterestResearchAreas` en 5 archivos, **todos por el alias**. Sin ciclo. Los que citan mueren
-antes que los citados.
+### LO GRANDE QUE ESTE BLOQUE ABRIO — 195 retornos ignorados
 
-**Sobre el lote 5**: **no consume nada de 2–4** (medido). Va el último por criterio, no por
-dependencia — una reescritura es trabajo de otra clase y mezclarla a mitad de una tanda de
-borrados añade riesgo sin ganar nada. Es juicio de ARQUITECTO, y así queda dicho.
+`db-backup` mentia porque descartaba el retorno del exportador y comprobaba el exito con
+`file_exists()`: **el archivo existe igual aunque la exportacion reviente a mitad**. Arreglado, y
+ahora se verifica a si mismo por dos caminos.
 
-### PARADA ABIERTA — lo que decide ARQUITECTO antes de reanudar
+El censo de la clase (`bin/censo-retornos-ignorados`, tokenizado, 790 archivos):
 
-1. **`scheme-drop` no sabe de vistas.** Las tablas salen de `$fields`; una vista no tiene
-   `$fields`. `image_repository_images_view` quedó apuntando a una tabla borrada. **No es
-   opcional**: `ApplicationCalls` tiene `application_calls_active_date_elements` y el lote 3 pisa
-   la misma mina.
-2. **`db-backup` MIENTE.** Produjo un volcado de 8 KB —7 tablas de 33, cero `INSERT`— y terminó
-   diciendo «Operación exitosa»: el exportador captura, devuelve `false`, y la tarea **no mira el
-   valor devuelto**. Es un defecto propio; el lote solo lo destapó. **Es lo más peligroso que ha
-   encontrado esta campaña.**
-3. **`databases/*.sql` está versionado y FUERA de la foto y del inventario.** Un módulo tiene
-   piezas fuera de `src/`, y el paso 2 de la plantilla solo censaba `src/app`.
+```
+retornos descartados ................................ 485
+  ...que senalan fallo POR EXCEPCION (PDO, no cuentan) 290
+  ...QUE SENALAN FALLO POR VALOR DEVUELTO ...........  195   <- 8 veces el umbral
+unlink 37 · file_put_contents 36 · mkdir 29 · chmod 22 · fwrite 15
+nucleo 47 · Terminal 38 · bin/ 21 · Cache 12 · Helpers 10 · Database 10
+```
+
+**Aparecer en la lista NO es ser un defecto**: un `unlink()` de un temporal puede ignorarse a
+conciencia. **Decision de ARQUITECTO: no se triaja a mano, se pone un trinquete.** Lo deliberado se
+DECLARA y se cuenta aparte; lo no declarado es la lista que tiene que encoger. Es el trinquete de
+PHPStan aplicado a otra clase. **No bloquea E3.**
 
 ### Abierto, sin decidir
 
-- **Las cuatro controladoras de `Locations` deciden alta-o-edición desde el CUERPO.** Escriben
-  `$is_edit` con guion bajo y la suite `operation-from-route` busca el literal `$isEdit`: lleva
-  **desde T120 diciendo cero** sobre cuatro controladores que tienen el defecto, en un módulo que
-  SE CONSERVA. LEY 24 en estado puro. La ceguera de la puerta se arregla primero; el número real
-  decidirá el resto.
-- **75 de 82 filas de `system_approvals_elements` son huérfanas**, con ids desde el 10. La fuga
-  está cortada; vaciar lo acumulado es un `DELETE` sobre tabla real y **requiere autorización del
-  PROPIETARIO**.
-- **Diez enlaces simbólicos rotos** en `statics/server-delegated/`, propiedad de `www-data` y sin
-  bit de escritura para el grupo. El CODER **no puede retirarlos**. Necesita mano del PROPIETARIO
-  o una decisión de permisos —que nunca se cambian sin decírselo—.
-- **`phpstan-strict-rules`**: nivel 8 no detecta la comparación laxa que mató a
-  `FileUpload::validate()`. Pendiente medir el coste de habilitar solo esa regla.
-- **Las tres listas abiertas de LEY 11** · **T86** · **la asimetría de guardas de T114**.
-- **El repaso del PROCEDIMIENTO de despliegue** → E6 · **el 4.0.0 del paquete** → E5.
+- **Los 195**, con su trinquete. Primero los que *reportan exito* tras el fallo —la forma de
+  `db-backup`—, y `nucleo` y `Database` antes que el resto, porque viajan a cada clon.
+- **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. La puerta ya
+  no esta ciega —tokeniza y sigue el flujo—; las cuatro quedan DECLARADAS, no calladas. Modulo que
+  SE CONSERVA.
+- **`createDynamicSymlink()` nunca retira un enlace cuyo destino desaparecio.** La hipotesis de
+  ARQUITECTO —residuo del `umask`— **era falsa**: los diez se trazaron a los commits que borraron
+  sus destinos. Es una causa VIVA y vuelve en los lotes 3, 4 y 5. Esta en el paso 6 de la plantilla.
+- **Los guiones de permisos**: diez divergencias medidas, entre ellas `sudo chown -R` seguido de
+  `chmod` SIN sudo —si el propietario elegido no es quien ejecuta, todos los `chmod` fallan y el
+  guion sale con 0—. Propuesta aceptada: partir en `bin/censo-permisos` (no interactivo, solo lee,
+  puede entrar en `verify-integrity`) y el que aplica, con `sudo` y `set -euo pipefail`.
+- **`files/API/`**: 20 archivos generados POR MODULO fuera de `src/`. Siguiente candidata a entrar
+  en el universo de la foto.
+- **`phpstan-strict-rules`** · **las tres listas de LEY 11** · **T86** · **la asimetria de T114**.
+- **El procedimiento de despliegue** -> E6 · **el 4.0.0 del paquete** -> E5.
 - **Los 81 bloques del registro**: el borrado espera al cierre de E6.
-- **`.editorconfig` nombra cuatro scripts de `bin/` y hay dieciséis** (LEY 11 + LEY 21). Medido:
-  los dieciséis están hoy en LF, así que es preventivo. Añadido pendiente de enviar al CODER.
 
-### Fuera de la campaña — roadmap
+### Fuera de la campana - roadmap
 
-`files/dev/roadmap/`: los silencios de Sass · el módulo como patrón mecanizable · el skill de
-aterrizaje · una caché de verdad · la distribución sin ruido · el versionado.
+`files/dev/roadmap/`: silencios de Sass · el modulo como patron mecanizable · el skill de
+aterrizaje · una cache de verdad · la distribucion sin ruido · el versionado · **las cuatro
+revisiones de seguridad y operacion** (errores, encriptacion, autenticacion, tokens de API), con
+el sistema de errores en TRES MODOS —mantenedor, desarrollo, produccion—, invariante: *lo que
+cambia es la reaccion, nunca el registro*, y los tres modos con puerta.
+
+**Y una nota del PROPIETARIO, sin desarrollar a proposito** (2026-08-29): al cerrar la campana,
+ARQUITECTO debe recordarle **«Perfeccionar geovisor»**. El no quiso gastar contexto explicandolo
+ahora; el sabra a que se refiere. Queda escrito aqui y no en la memoria de ARQUITECTO porque una
+compactacion se lo llevaria.
