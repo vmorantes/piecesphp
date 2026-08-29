@@ -222,6 +222,76 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ CAMBIO INCOMPATIBLE — fuera el repositorio de imágenes, y su tabla NO se ha borrado todavía
+
+**E3, segundo lote.** Desaparece `ImagesRepository` entero: 25 archivos versionados, más los 2 CSS
+compilados que no lo estaban.
+
+**Si tu despliegue lo usa, pierdes la funcionalidad.** El módulo no está y su constante
+`IMAGES_REPOSITORY` tampoco.
+
+| | |
+| :-- | :-- |
+| **Se borra** | `src/app/classes/ImagesRepository/` completo — controladores, mapper, vistas, JS, SASS y `lang/` |
+| **Se edita** | `MySpaceController` y la vista `my-space` —el conteo y las dos tarjetas—, `config/routes.php` y `config/constants.php` |
+| **Registros que encogen** | La sobreescritura de ruta en `verify-integrity`, la entrada de comentarios narrativos y la tabla en `volatile-state.json` |
+
+**`MySpace` se conserva y por eso va en commit propio**: pierde el número de fotografías y los dos
+enlaces del panel, y nada más.
+
+**LA TABLA `image_repository_images` SIGUE EN PIE, A PROPÓSITO.** Tiene una **vista** encima,
+`image_repository_images_view`, que `scheme-drop` no emite: las tablas salen de `$fields` y una
+vista no tiene `$fields`. Aplicar solo el `DROP TABLE` deja la vista rota, y con ella rota
+**`db-backup` produce un volcado truncado —7 tablas de 33— y termina diciendo «Operación
+exitosa»**. La base quedó restaurada a su estado previo y las 23 puertas en verde; retirar tabla y
+vista juntas queda pendiente de decisión.
+
+Censo de huérfanos con canario sobre 2.647 archivos: **cero** en las diez formas de nombrar el
+módulo, y cero menciones en el inventario de 330 rutas. El baseline de PHPStan baja de 844 a 835,
+y los nueve murieron con su archivo.
+
+## Corregido — `db-backup-round-trip` dejaba una fila de aprobación por corrida
+
+La suite creaba su usuario de prueba y lanzaba `db-backup` en un subproceso. Ese arranque ejecuta
+`SystemApprovalManager::init()`, que **rellena una fila de aprobación por cada usuario que no la
+tenga**, y el `finally` no la recogía. Medido: 82 filas con el arreglo, 83 sin él.
+
+Es la segunda pieza de la misma ley que cazó la fuga del exportador —una suite no puede medir su
+propio efecto—, y la afila: **el efecto de una suite incluye lo que otro escribe por haber corrido
+ella**.
+
+De las 82 filas de aprobación de usuario, **75 son huérfanas** de corridas anteriores. No se
+borran: es un `DELETE` sobre una tabla real.
+
+## Herramientas — `bin/normaliza-eol`, y el «ruido CRLF» eran 298 archivos, no tres
+
+Un archivo en LF con `eol=crlf` declarado **no produce diff**, así que git no lo señala nunca —
+pero lo reescribe «la próxima vez que lo toque», y ese volteo cambia un byte por línea sin cambiar
+el contenido. Invisible para git; una diferencia a investigar para cualquier instrumento que mire
+bytes.
+
+Bajo `src/` había **298** en ese estado. Normalizados, **cero blobs alterados**. Y como un archivo
+nuevo vuelve a caer siempre —`bin/anexar` respeta los finales del destino, y un archivo nuevo no
+tiene destino—, la regla pasa a ser herramienta: `bin/normaliza-eol` lee la forma correcta de `git
+check-attr` y no decide nada por su cuenta.
+
+De propina, medido al provocarla sobre el propio guion: con el shebang en CRLF, `/usr/bin/env`
+busca «`python3\r`» y el guion no arranca. `bin/* eol=lf` no era cosmético.
+
+## Corregido — dos puertas llevaban una cifra escrita, y el lote las puso rojas sin motivo
+
+`core/operation-from-route` exigía exactamente 13 controladores usando `self::isEditRoute()`. Al
+morir uno con su módulo, la puerta se puso roja sin que nada estuviera mal.
+
+Ahora la población sale del árbol por **dos métodos independientes**: por texto, los que usan el
+ayudante; por estructura, los que registran el **mismo manejador** para `-actions-add` y
+`-actions-edit`. Se exige que el segundo conjunto esté contenido en el primero, y el fallo
+**nombra** al que falta en vez de dar una resta.
+
+**Hallazgo abierto que esto destapó**: la otra comprobación de esa suite busca el literal
+`$isEdit = $id !== -1;`, y las cuatro controladoras de `Locations` escriben `$is_edit`, con guion
+bajo. Llevan desde su cierre contando «cero» sobre cuatro controladores que tienen el defecto.
+
 ## ⚠ CAMBIO INCOMPATIBLE — fuera las experiencias previas del perfil
 
 **E3, primer lote.** Desaparecen las experiencias previas de usuario y de organización: la entidad,

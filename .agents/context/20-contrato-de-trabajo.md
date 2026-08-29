@@ -115,6 +115,10 @@ desordenado:
   ARQUITECTO tienen 8.4 y ninguno, y el único entorno con 8.5 es el del CODER.
 - **Toda distancia de git se mide contra la rama en la que se está.** `origin/master..HEAD`
   estando en `dev` da un número que significa algo y no es el que se preguntó.
+- **Un archivo NUEVO se pasa por `bin/normaliza-eol` antes de commitearlo.** `bin/anexar` respeta
+  los finales del destino, pero un archivo nuevo no tiene destino: nace con los del proceso que lo
+  escribió, y git lo voltea la primera vez que lo toca. Para git eso es invisible; **para la foto
+  de E3 es una diferencia que hay que ir a investigar**. Ver T140.
 
 ---
 
@@ -245,77 +249,74 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 ## 7. Estado abierto
 
-*La escribe ARQUITECTO, en cada pausa. **Aviso de diseño**: describe lo pendiente, así que queda
-desfasada en cuanto CODER commitea el bloque que la volvió cierta. El desfase es de un bloque y es
-inherente; de tres no es aceptable.*
+*La escribe ARQUITECTO, en cada pausa. Desfase de un bloque es inherente; de tres, no aceptable.*
 
-**Última actualización: 2026-08-28, tras el BLOQUE X.**
+**Última actualización: 2026-08-29, tras el BLOQUE YC — primer lote de E3 cerrado.**
 
-> **FALLO DE ARQUITECTO, ANOTADO AQUÍ MISMO**: esta sección estuvo cuatro bloques sin tocar —T, U,
-> V y W— después de que ARQUITECTO la reclamara como suya. Lo cazó el CODER en el bloque X leyendo
-> el encabezado. Una sección que declara su propio límite de desfase y lo incumple es la forma
-> exacta que esta campaña retira.
-
-> **DECISIÓN DE ALCANCE, del PROPIETARIO (2026-08-28)**: **la MAJOR depende de terminar la campaña
-> ENTERA — «toda es toda»**. ARQUITECTO propuso etiquetar al cerrar E3 y el PROPIETARIO lo
-> rechazó. La propuesta era mala y el bloque W lo demostró: la guía de despliegue mandaba instalar
-> PHP 8.4 con el piso en 8.5, y el `Dockerfile` construía una imagen que no arranca. Con el atajo,
-> el primer clon nuevo no habría arrancado. **La documentación es parte de la major.**
+> **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campaña ENTERA — «toda es toda».
 
 ### Dónde estamos
 
-**E2 CERRADA** (bloque W). E2-a con sus 11 rutas declaradas en T106; las rutas `-actions-*` con la
-operación saliendo de la ruta; `$_FILES` y `$_POST` clasificados contra el mapa de T6 y **cero sin
-guarda**, con puerta propia.
+**E2 CERRADA** (bloque W). **E3 en marcha: primer lote cerrado** (YC) — experiencias previas.
 
-**Quedan E3, E4, E5 y E6.** Hoja de ruta completa: bloque R del [18](./18-siguientes-ventanas.md).
+```
+Tablas      35 -> 33      Archivos en src/  5.437 -> 5.427      PHPStan  883 -> 844
+[REPARTO] 844 <- 883 = 0 arreglos + 0 supresiones + 39 murieron + 0 destapados
+          17 murieron CON SU ARCHIVO · 22 con CÓDIGO RETIRADO de archivos que se quedan
+```
 
-**Estado de las puertas al cerrar X**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas ·
-`verify-integrity` verde, 16 guiones · PHPStan **883** = baseline · `censo-rutas-doc` 0 rotas ·
-`censo-comparaciones-cero` 9 candidatas, 0 peligrosas · 24 leyes en
-[19-leyes.md](./19-leyes.md), sin huecos.
+**Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde ·
+PHPStan **844** = baseline · 27 leyes en [19-leyes.md](./19-leyes.md).
 
-### Lo siguiente, y es lo único en el camino crítico
+### E3 SE RECORTA — decisión de ARQUITECTO tras la PARADA YC5
 
-**E3 · seis lotes, uno por bloque, sin compartir bloque con nada.** Contenido en T6:
-se borran completos `ImagesRepository`, `ApplicationCalls` e `InterestResearchAreas`; parciales
-`MySpace`, `ContentNavigationHub` y `ReportsManage`; se reescribe `DataImportExportUtility`.
+La medición del CODER: **seis de siete lotes de T6 tienen más archivos citándolos FUERA de su
+módulo que dentro**, y **los siete tocan `src/app/config/routes.php`**. El núcleo cambia en los
+siete, no en uno.
 
-**El riesgo no es borrar, es editar.** El primer lote —experiencias previas— son nueve borrados
-triviales contra **nueve ediciones en archivos que se quedan**, dos de ellas en `SystemApprovals`,
-que se conserva.
+**El defecto no es el orden, es la UNIDAD.** T6 agrupó por módulo. La unidad que funcionó en YC
+—y que el propio CODER aplicó sin que nadie se lo pidiera— es **la cosa que muere MÁS SUS
+CONSUMIDORES, en un solo lote, consumidores primero**. Así ningún commit deja referencias
+colgando, y la foto sigue siendo atribuible.
+
+Con esa unidad, los «borrados parciales» de T6 —`MySpace`, `ContentNavigationHub`,
+`ReportsManage`— **dejan de ser lotes**: son el lado consumidor de los tres borrados completos, y
+T6 ya los define así («solo se retira lo relacionado con los de arriba»). El primer lote lo
+demuestra: «experiencias previas» era un subconjunto de `MySpace`, no un módulo.
+
+**E3 pasa de siete lotes a cuatro:**
+
+| Lote | Qué | Nota |
+| :-- | :-- | :-- |
+| 1 ✅ | Experiencias previas + consumidores | Cerrado en YC |
+| 2 | `ImagesRepository` + consumidores | |
+| 3 | `ApplicationCalls` + consumidores | |
+| 4 | `InterestResearchAreas` + consumidores | Se lleva el alias de `SubMappers/` |
+| 5 | `DataImportExportUtility` — REESCRITURA | **El último**: consume lo que muere en 2–4 |
+
+**El orden dentro de 2–4 se decide con una medición que aún no existe**: las referencias «FUERA»
+no son todas iguales. Las que viven en un módulo que TAMBIÉN muere se van solas si ese módulo se
+borra antes. Hay que partir la columna FUERA en *fuera-y-también-muere* contra *fuera-y-se-queda*.
 
 ### Abierto, sin decidir
 
-- **`phpstan-strict-rules`**: PHPStan nivel 8 **no** detecta la comparación laxa que mató a
-  `FileUpload::validate()` — comprobado sobre el caso exacto en el bloque X. La regla vive en ese
-  paquete, que no está instalado. Pendiente: medir qué cuesta habilitar **solo** esa regla, y
-  decidir después.
-- **Las tres listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json`
-  que no es del slug, `deprecated-functions.json`.
-- **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018. *(La sospecha de
-  censo sobre T86 quedó cerrada en X3 — la cifra cuadraba. El defecto sigue abierto.)*
-- **La asimetría de guardas de T114**: exigen propiedad para editar y nada para dar de alta.
-- **El repaso del PROCEDIMIENTO de despliegue** → E6. La versión de PHP ya está corregida en toda
-  su familia; lo que queda es el procedimiento, empezando por el `rm -Rf` que nombra `tmp`, `TODO`
-  y `guides`, que no existen.
-- **El 4.0.0 del paquete** (bloque Q): cinco piezas diseñadas, ninguna ejecutada → E5.
-- **Los 81 bloques del registro**: la tabla de retención está hecha; **el borrado espera a la
-  cláusula de disolución**, o sea al cierre de E6. Que la tabla exista no la ejecuta.
+- **Dos hallazgos de la foto final de YC**, reportados y sin arreglar: `core/db-backup-round-trip`
+  deja **una fila por corrida** en `system_approvals_elements` (misma familia que la fuga del
+  exportador, ya arreglada); y tres suites fueron reescritas **LF → CRLF** por git según
+  `.gitattributes`, invisible a `git status` y visible a la foto. Las dos ensucian la foto de
+  **cada** lote restante.
+- **`phpstan-strict-rules`**: PHPStan nivel 8 no detecta la comparación laxa que mató a
+  `FileUpload::validate()`. Pendiente medir qué cuesta habilitar solo esa regla.
+- **Las tres listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de
+  `volatile-state.json` que no es del slug, `deprecated-functions.json`.
+- **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
+- **La asimetría de guardas de T114**.
+- **El repaso del PROCEDIMIENTO de despliegue** → E6.
+- **El 4.0.0 del paquete** (bloque Q) → E5.
+- **Los 81 bloques del registro**: la tabla está hecha; el borrado espera al cierre de E6.
 
-### Retirado de la lista, con motivo
-
-- **`ImagesRepository::toDelete()`** —borrados de archivo dentro de la transacción, `rollBack()`
-  solo ante `PDOException`—. **Muere con su módulo**: T6 borra `ImagesRepository` entero en E3, y
-  arreglar lo que va a desaparecer es trabajo tirado. *(El CODER paró en X4 al ver que la orden de
-  retirarlo chocaba con la prohibición de tocar esta sección. Hizo bien: lo retira ARQUITECTO, y es
-  esta línea.)*
-- **Los seis censos sospechosos de la LEY 16**: cerrados en X3. Ninguno era un instrumento roto.
-  Con el `$` contaminado ese `grep` devuelve **cero**, no un número menor, y los seis dieron
-  cifras distintas de cero.
-
-### Fuera de la campaña — roadmap, del PROPIETARIO
+### Fuera de la campaña — roadmap
 
 `files/dev/roadmap/`: los silencios de Sass · el módulo como patrón mecanizable · el skill de
-aterrizaje · una caché de verdad y el framework «como una bala» · la distribución sin ruido en los
-despliegues · la conversación sobre versionado (`last-stable` está 236 commits por detrás).
+aterrizaje · una caché de verdad · la distribución sin ruido · el versionado (`last-stable` a 236
+commits).

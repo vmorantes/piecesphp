@@ -12538,6 +12538,41 @@ enseñar antes de commitear porque no hay nada que enseñar.
 Están repartidos casi a la mitad y no producen ni un diff. Añadir una regla para ellos sería
 mecanismo sin problema que resolver.
 
+### CORRECCIÓN — 2026-08-29, bloque Z0(c). El título generaliza de más
+
+*Escrita APARTE y enlazada, no fundida: el párrafo de arriba se queda tal cual porque sus
+mediciones son correctas y hay que poder ver qué se afirmó. LEY 14.*
+
+**Todo lo medido arriba sigue siendo cierto. Lo que está mal es el título.** «El ruido CRLF no
+existía» vale para **git**, y solo para git. Para el archivo en disco es falso, y la propia T131
+lo dice sin sacar la consecuencia: *«el aviso es sobre el checkout, no sobre el diff»*. Pues eso
+mismo — **git reescribe el archivo**, y quien mire bytes lo ve.
+
+Quien mira bytes existe desde el bloque Y: **la foto de E3**. En YC tres suites aparecieron en la
+comparación con un byte más por línea y ningún cambio de contenido, y yo tuve que ir a buscar por
+qué, porque el registro me decía que ese ruido no existía.
+
+| | |
+| :-- | --: |
+| Archivos versionados bajo `src/` que git declara `eol=crlf` | 1.751 |
+| …de los que tienen algún final de línea | 1.451 |
+| …y que estaban en **LF** en el árbol de trabajo | **298** |
+| De esos, los que cambiaron en la foto de YC | 3 — los que git tocó |
+
+*Los 298 restantes hasta 1.751 no tienen ni un salto de línea —vacíos o de una sola línea sin
+salto final— y los 2 últimos son binarios. Que ese 298 coincida con el otro 298 es casualidad:
+son disjuntos por construcción, porque `w/none` y `w/lf` son valores del mismo campo.*
+
+Los 298 no eran un problema de git —**cero** los ve modificados— pero **cada uno se voltea la
+primera vez que git lo toca**, y ese volteo sí sale en la foto. Los tres de YC fueron los tres que
+git tocó, por ser recién creados.
+
+**Es la LEY 19 contra mí por segunda vez, y en el mismo asunto**: en V deduje el comportamiento
+del archivo —el consumidor de la foto— de lo que hacía el diff —el productor de la conclusión—.
+
+**Arreglado en Z0(b)**, y con el denominador real, no con tres: los 298 normalizados en disco,
+**cero blobs alterados**. Ver T140, apartado Z0(b).
+
 ---
 
 ## T132 · V2 y V3 · LOS 84 SE CRUZAN CONTRA GIT, Y LAS LEYES 1 A 7 APARECEN
@@ -13481,3 +13516,190 @@ propio módulo.*
 > **UNA PROVOCACIÓN SE HACE SOBRE UN ARCHIVO PROPIO, NUNCA SOBRE UNO DEL PROYECTO.** Cambiar una
 > `a` por una `b` para probar el «mismo tamaño» cayó dentro de `get_allowed_langs()` y tumbó el
 > CLI entero. El estado guardado lo salvó; un archivo propio habría evitado el susto.
+
+
+---
+
+## T140 · Z · LA FOTO SE LIMPIA ANTES DE USARLA, Y EL LOTE 2 PARA A UN PASO DEL FINAL
+
+### Z0(a) · La fuga de `db-backup-round-trip`: no la escribe la suite, y aun así es suya
+
+La suite inserta su usuario de prueba con SQL crudo y después lanza `bin/cli db-backup` **en un
+subproceso**. Ese arranque ejecuta `SystemApprovalManager::init()`, que rellena una fila de
+aprobación **por cada usuario que no la tenga**. El `finally` borraba usuario y perfil; esa fila
+no.
+
+| | filas en `system_approvals_elements` |
+| :-- | --: |
+| antes | 82 |
+| con el arreglo, tras correr la suite | 82 |
+| SIN el arreglo, tras correr la suite | **83** |
+
+Provocado retirando el bloque desde una copia guardada y restaurándolo por `sha1sum -c`.
+
+> **Y aquí está lo que afila la LEY 27**: el efecto de una suite incluye **lo que otro escribe por
+> haber corrido ella**. Buscar «quién hace el INSERT» dentro de la suite no lo habría encontrado
+> nunca: el INSERT está en el arranque de la aplicación.
+
+**HALLAZGO ABIERTO, sin arreglar y sin permiso para arreglarlo**: de las **82** filas de
+aprobación de usuario, **75 son huérfanas** —apuntan a usuarios que ya no existen, con ids desde
+el 10—. La fuga es vieja, no de YC. El arreglo corta la hemorragia; **vaciar lo acumulado es un
+`DELETE` sobre una tabla real y no se hace sin permiso explícito para esa acción concreta.**
+
+### Z0(b) · El ruido de finales de línea no eran tres archivos: eran 298
+
+`git add` sobre un archivo en LF con `eol=crlf` declarado avisa:
+`LF will be replaced by CRLF the next time Git touches it`. **Ese aviso es el mecanismo entero.**
+
+| | |
+| :-- | --: |
+| Versionados bajo `src/` que git declara `eol=crlf` | 1.751 |
+| …de los que tienen algún final de línea | 1.451 |
+| …que estaban en **LF** en el árbol de trabajo | **298** |
+| De esos, los que se voltearon durante YC | 3 — los tres que git tocó |
+
+Normalizados los 298 en disco. **Cero blobs alterados**, comprobado preparándolos todos y
+contando lo que quedaba en el índice: 0 archivos con contenido.
+
+Y como un archivo NUEVO vuelve a caer siempre —`bin/anexar` respeta los finales del destino, y un
+archivo nuevo no tiene destino—, la regla se convierte en herramienta: **`bin/normaliza-eol`**,
+que lee la forma correcta de `git check-attr` y no decide nada por su cuenta. §3 del contrato la
+exige antes de commitear un archivo nuevo.
+
+> **De propina, medido al provocarla sobre el propio guion**: con el shebang en CRLF,
+> `/usr/bin/env` busca «`python3\r`» y el guion **no arranca**. `bin/* eol=lf` no es cosmético.
+
+Fuera de `src/` quedan **78 archivos** en el mismo estado —documentación y archivos de agentes—.
+**No se tocan**: están fuera del universo de la foto, y varios los escribe ARQUITECTO.
+
+### Z0(c) · La corrección a T131 va pegada a T131
+
+Escrita allí mismo, aparte y enlazada (LEY 14). En una línea: **T131 acierta en todo lo que mide y
+generaliza de más en el título.** «El ruido CRLF no existía» vale para git; para el archivo en
+disco es falso, y la propia T131 lo dice sin sacar la consecuencia.
+
+### Z1 · El orden de los lotes, y el censo de YC estaba inflado
+
+**LEY 15, otra vez, y en mi contra.** El censo de la PARADA YC5 daba 24 / 39 / 21 citas. Mira
+`src/app` **entero** —2.689 archivos— y ahí dentro están `logs/`. Las excepciones imprimen el
+nombre de la clase, así que **los archivos de log cuentan como «cita»**:
+
+| Módulo | YC dijo | Son logs | Código de verdad |
+| :-- | --: | --: | --: |
+| `ImagesRepository` | 24 | 9 | **15** |
+| `ApplicationCalls` | 39 | 8 | **31** |
+| `InterestResearchAreas` | 21 | 8 | **13**\* |
+
+\* Y 13 se queda corto por el otro lado: el alias mal escrito `interestResearhAreas` no contiene
+el namespace. Contándolo, son **31**.
+
+**CONSECUENCIA PARA LA DECISIÓN DE ARQUITECTO**: la frase «seis de siete lotes tienen más
+archivos fuera de su módulo que dentro» **es un artefacto de contar logs**. Con el instrumento
+limpio:
+
+| Módulo | dentro | fuera, en módulo que MUERE | fuera, se queda | núcleo/config | ¿más fuera? |
+| :-- | --: | --: | --: | --: | :-- |
+| `ImagesRepository` | 11 | 0 | 3 | 1 | no |
+| `ApplicationCalls` | 16 | 0 | 13 | 2 | no, por uno |
+| `InterestResearchAreas` | 9 | **5** | 15 | 2 | **sí, y de largo** |
+| `DataImportExportUtility` | 5 | 0 | 1 | 1 | no |
+
+Lo que **sí** se confirma: **los siete tocan `src/app/config/routes.php`** y cuatro tocan
+`config/menu.php`. Y el cambio de unidad se sostiene solo: `ApplicationCalls` y
+`ContentNavigationHub` **se citan mutuamente**, así que como lotes separados no tienen orden.
+
+**Segunda corrección a §7, que no puedo tocar**: dice que `DataImportExportUtility` va el último
+porque «consume lo que muere en 2–4». **Consume cero.** Medido en seis formas —los tres
+namespaces y las tres tablas— sobre sus 13 archivos, con canario. Su sitio puede seguir siendo el
+último, pero no por ese motivo.
+
+#### Z1(b) · La regla de orden, aplicada
+
+`LOS QUE CITAN MUEREN ANTES QUE LOS CITADOS`. Entre los tres que mueren hay **una sola arista**:
+`ApplicationCalls` nombra a `InterestResearchAreas` en **5 archivos**, todos por el alias. Por
+namespace la arista **no existe**, y por eso el primer censo hacía parecer la regla inerte.
+
+**No hay ciclo**: la PARADA Z1 no se dispara. El orden queda `ApplicationCalls` antes que
+`InterestResearchAreas` —5 archivos de trabajo que desaparecen gratis—, `ImagesRepository` libre
+por no tener aristas, y se toma como lote 2 por ser el más pequeño. Coincide con §7.
+
+### Z2 · El lote 2, y dónde para
+
+Foto sobre base recién restaurada (LEY 12). Inventario verificado archivo a archivo. **Sin
+puentes**: todo lo que importa el módulo es del núcleo o de `Locations`, que se queda.
+
+| | antes | después |
+| :-- | --: | --: |
+| Archivos en `src/` | 5.427 | 5.297 |
+| PHPStan | 844 | 835 |
+
+Las **130** de diferencia: 27 del módulo + 95 rastros de traducción del grupo muerto + 8 enlaces
+del árbol servido. **34 diferencias en la foto, las 34 explicadas por el lote.**
+
+Censo de huérfanos con canario, sobre 2.647 archivos sin `logs/`: **cero en las diez formas**, y
+cero menciones en el inventario de 330 rutas.
+
+---
+
+## >>> PARADA Z2 · LA MITAD DE BASE DE DATOS NO SE HIZO <<<
+
+**Existe una VISTA, `image_repository_images_view`, que selecciona de la tabla borrada.**
+
+`bin/cli scheme-drop module=ImagesRepository` emitió **una sola sentencia** —`DROP TABLE IF
+EXISTS image_repository_images`—. **La herramienta no sabe de vistas**: salen de `$fields`, y una
+vista no tiene `$fields`.
+
+Al aplicar solo el `DROP TABLE`, la vista quedó rota, y entonces:
+
+| Puerta | Qué pasó |
+| :-- | :-- |
+| `core/db-backup-round-trip` | SIN VEREDICTO — excepción de PDO |
+| `core/database-exporter` | 7 de 23 |
+| `core/db-restore` | 12 de 15 |
+
+Y la causa es peor que las tres puertas juntas:
+
+> **`db-backup` produjo un volcado TRUNCADO —8 KB, 7 tablas de 33, cero `INSERT`— y terminó
+> diciendo «Operación exitosa».** El exportador recorre los objetos en orden alfabético, revienta
+> en el que va justo después de la tabla borrada, `catch`ea la excepción, devuelve `false`… y la
+> tarea no mira el valor devuelto. **Una herramienta de respaldo que miente sobre un respaldo
+> incompleto es exactamente la trampa que esta campaña existe para quitar.** Es un defecto propio,
+> no del lote: el lote solo lo destapó.
+
+**Y la vista SÍ vive en el repositorio**, en `databases/piecesphp_views.sql` — un archivo
+versionado **fuera de `src/`** y, por tanto, fuera de mi inventario y fuera del universo de la
+foto. **Esto es lo que dispara la parada**: mi paso 2 censó `src/app`, y un módulo tiene piezas
+fuera de ahí.
+
+**Estado en que queda**, elegido para que sea seguro y reanudable:
+
+- **La base se restauró a su estado previo al lote.** La tabla y la vista están vivas, `db-backup`
+  vuelve a dar 55 KB con 33 tablas, y las 23 puertas están en verde.
+- **La mitad de código está hecha y commiteada.** Queda una tabla y una vista sin mapper: inerte.
+- Reanudar es una sola operación: retirar la vista y la tabla juntas.
+
+**Lo que decide ARQUITECTO, y por eso no lo decido yo:**
+
+1. Si `scheme-drop` aprende a emitir las vistas que dependen de las tablas del módulo. **No es
+   opcional para lo que viene**: `ApplicationCalls` tiene `application_calls_active_date_elements`
+   y el lote 3 pisa exactamente la misma mina.
+2. Si `db-backup` debe fallar cuando el exportador devuelve `false`. Y si `databases/*.sql` entra
+   en el inventario de lote y en el universo de la foto.
+
+### Dos hallazgos más, ninguno del lote
+
+**(1) `core/operation-from-route` tenía una cifra escrita**, `=== 13`, y el lote la dejó en 12.
+Sustituida por dos métodos independientes sobre la misma población: por texto los que usan el
+ayudante, por estructura los que registran el **mismo manejador** para `-actions-add` y
+`-actions-edit`. Provocado con un archivo propio; el fallo **nombra** al que falta.
+
+**(2) La otra comprobación de esa suite es ciega, y esto no lo he tocado.** Busca el literal
+`$isEdit = $id !== -1;`. `App\Locations\Controllers\City::action` —y sus tres hermanas
+`Country`, `Point` y `State`— hacen `$is_edit = $id !== -1;`, **con guion bajo**, y llegan a un
+manejador compartido a través de la fábrica `Locations.php`. La puerta lleva desde T120 diciendo
+«cero» sobre cuatro controladores que tienen el defecto. **LEY 24 en estado puro**, en un módulo
+que SE QUEDA.
+
+**(3) Diez enlaces simbólicos rotos** en `src/statics/server-delegated/` —2 de YC, 8 de este
+lote—. El directorio está declarado volátil, así que la foto no los ve. **No puedo retirarlos**:
+son de `www-data` y su directorio no tiene bit de escritura para el grupo.
