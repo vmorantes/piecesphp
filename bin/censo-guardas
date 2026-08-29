@@ -1,0 +1,440 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * LAS GUARDAS DEL NUCLEO, Y CUALES PUEDEN FALLAR ABIERTAS.
+ *
+ * POR QUE EXISTE
+ * --------------
+ * E4 no se selecciona por «que se puede probar» —eso dio 317 funciones puras y la mayoria no
+ * descubriria nada— sino por CONSECUENCIA: si esto se rompiera EN SILENCIO, ¿lo notaria
+ * alguien? Una GUARDA —lo que valida, rechaza, autoriza o limita— falla ABIERTO: dice que si
+ * cuando debia decir que no, y nadie reporta un permiso concedido de mas.
+ *
+ * Es la forma de `FileUpload::validate()` (T135): murio en PHP 8 por una comparacion laxa, se
+ * quedo devolviendo lo contrario de lo que debia, y nueve accesos colgaban de ella.
+ *
+ * QUE MIDE — POR FORMA, NO POR NOMBRE
+ * -----------------------------------
+ * Una funcion entra si cumple ALGUNA de estas cuatro senales, y se dice CUAL:
+ *
+ *   NOMBRE      se llama is/can/has/allow/validate/check/verify/assert/require/must/should
+ *   BOOLEANA    declara `: bool` o devuelve `true`/`false` literal
+ *   ACUMULADOR  acumula un `$valid`/`$allow`/`$ok`/`$passed` y lo devuelve
+ *   LANZA       hace `throw` dentro de una condicion
+ *
+ * RED ANCHA Y CLASIFICAR DESPUES. La senal NOMBRE sola no basta para llamarlo guarda, y por
+ * eso se imprimen por separado.
+ *
+ * FALLO ABIERTO POR CONSTRUCCION — las tres formas de T135:
+ *   SIN-ELSE    cadena de `if/elseif` sin `else` final: si no casa ninguna rama, no decide
+ *   LAXA        `==` o `!=` en el cuerpo: lo que cambio bajo los pies en PHP 8
+ *   VALID-TRUE  el acumulador nace en `true`: hay que demostrar el fallo para rechazar
+ *
+ * LO QUE NO MIDE, Y SE IMPRIME:
+ *  - El cruce con las suites es POR NOMBRE. Que una suite nombre la funcion no dice que
+ *    pruebe su RECHAZO, que es lo unico que la prueba como guarda. Eso se revisa a mano.
+ *  - `SIN-ELSE` no distingue la cadena que devuelve por defecto al final de la que no
+ *    devuelve nada: las dos salen, y la segunda es la peligrosa.
+ *
+ * Uso:
+ *   bin/censo-guardas               la tabla
+ *   bin/censo-guardas --detalle     una linea por guarda
+ *   bin/censo-guardas --fuera       cuantas hay FUERA del nucleo (para declarar el universo)
+ */
+
+const RAIZ = __DIR__ . '/../src/app/core';
+const FUERA = __DIR__ . '/../src/app/classes';
+const SUITES = __DIR__ . '/../src/app/core/system-controllers/local-tests';
+
+//Fuera y por su nombre: las vistas no declaran guardas, y las suites y sus datos son el
+//instrumento del cruce, no parte de lo medido.
+const EXCLUIDOS = ['/system-views/', '/local-tests/', '/test-data/'];
+
+const PREFIJOS = ['is', 'can', 'has', 'allow', 'validate', 'check', 'verify',
+                  'assert', 'require', 'must', 'should', 'deny', 'exists'];
+
+const ACUMULADORES = ['$valid', '$isValid', '$allow', '$allowed', '$ok', '$passed', '$granted'];
+
+/** La clase que declara el archivo, si declara alguna. */
+function claseDe(string $codigo): ?string
+{
+    if (preg_match('/^\s*(?:final\s+|abstract\s+|readonly\s+)*(?:class|trait|interface|enum)\s+(\w+)/m', $codigo, $m) === 1) {
+        return $m[1];
+    }
+    return null;
+}
+
+function ficheros(string $raiz): array
+{
+    if (!is_dir($raiz)) {
+        return [];
+    }
+    $salida = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if (!$f->isFile()) {
+            continue;
+        }
+        $p = str_replace('\\', '/', (string) $f->getPathname());
+        if (!str_ends_with($p, '.php')) {
+            continue;
+        }
+        foreach (EXCLUIDOS as $x) {
+            if (mb_strpos($p, $x) !== false) {
+                continue 2;
+            }
+        }
+        $salida[] = $p;
+    }
+    sort($salida);
+    return $salida;
+}
+
+/**
+ * Nombre, firma, cuerpo y linea de cada funcion, por tokens.
+ *
+ * @return array<int,array{nombre:string,firma:string,cuerpo:string,linea:int}>
+ */
+function funciones(string $codigo): array
+{
+    $tokens = token_get_all($codigo);
+    $total = count($tokens);
+    $salida = [];
+
+    for ($i = 0; $i < $total; $i++) {
+        $t = $tokens[$i];
+        if (!is_array($t) || $t[0] !== T_FUNCTION) {
+            continue;
+        }
+        $linea = $t[2];
+        $nombre = null;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $u = $tokens[$j];
+            if (is_array($u) && ($u[0] === T_WHITESPACE || $u[0] === T_COMMENT || $u[0] === T_DOC_COMMENT)) {
+                continue;
+            }
+            if (is_array($u) && $u[0] === T_STRING) {
+                $nombre = $u[1];
+            }
+            break;
+        }
+        if ($nombre === null) {
+            continue;
+        }
+        //La firma va de `function` al `{`; el cuerpo, del `{` a su pareja.
+        $firma = '';
+        $cuerpo = '';
+        $abierto = false;
+        $profundidad = 0;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $u = $tokens[$j];
+            $texto = is_array($u) ? $u[1] : $u;
+            if (!$abierto) {
+                if ($texto === ';') {
+                    break;
+                }
+                if ($texto === '{') {
+                    $abierto = true;
+                    $profundidad = 1;
+                    continue;
+                }
+                $firma .= $texto;
+                continue;
+            }
+            if ($texto === '{') {
+                $profundidad++;
+            }
+            if ($texto === '}') {
+                $profundidad--;
+                if ($profundidad === 0) {
+                    break;
+                }
+            }
+            $cuerpo .= $texto;
+        }
+        if (!$abierto) {
+            continue;
+        }
+        $lineaFin = is_array($tokens[$j] ?? null) ? $tokens[$j][2] : $linea + mb_substr_count($cuerpo, "\n");
+        $salida[] = ['nombre' => $nombre, 'firma' => $firma, 'cuerpo' => $cuerpo,
+                     'linea' => $linea, 'lineaFin' => $lineaFin];
+    }
+
+    return $salida;
+}
+
+/** @return string[] */
+function senales(array $f): array
+{
+    $s = [];
+    foreach (PREFIJOS as $p) {
+        //Prefijo con frontera: `isValid` si, `island` no.
+        if (preg_match('/^' . $p . '(?![a-z])/', $f['nombre']) === 1) {
+            $s[] = 'NOMBRE';
+            break;
+        }
+    }
+    if (mb_strpos($f['firma'], ': bool') !== false
+        || preg_match('/\breturn\s*(true|false)\s*;/i', $f['cuerpo']) === 1) {
+        $s[] = 'BOOLEANA';
+    }
+    foreach (ACUMULADORES as $a) {
+        if (mb_strpos($f['cuerpo'], $a) !== false && mb_strpos($f['cuerpo'], 'return ' . $a) !== false) {
+            $s[] = 'ACUMULADOR';
+            break;
+        }
+    }
+    if (mb_strpos($f['cuerpo'], 'throw') !== false
+        && (mb_strpos($f['cuerpo'], 'if') !== false || mb_strpos($f['cuerpo'], 'match') !== false)) {
+        $s[] = 'LANZA';
+    }
+    return $s;
+}
+
+/** @return string[] */
+function fallosAbiertos(array $f): array
+{
+    $r = [];
+    $cuerpo = $f['cuerpo'];
+    $tieneElseIf = preg_match('/\belseif\b/', $cuerpo) === 1 || preg_match('/\belse\s+if\b/', $cuerpo) === 1;
+    $tieneElseSuelto = preg_match('/\belse\s*\{/', $cuerpo) === 1;
+    if ($tieneElseIf && !$tieneElseSuelto) {
+        $r[] = 'SIN-ELSE';
+    }
+    if (preg_match('/[^=!<>]==[^=]/', $cuerpo) === 1 || preg_match('/!=[^=]/', $cuerpo) === 1) {
+        $r[] = 'LAXA';
+    }
+    foreach (ACUMULADORES as $a) {
+        if (preg_match('/' . preg_quote($a, '/') . '\s*=\s*true\s*;/', $cuerpo) === 1) {
+            $r[] = 'VALID-TRUE';
+            break;
+        }
+    }
+    return $r;
+}
+
+//CANARIO DE CUATRO CARAS. Sin las cuatro, ningun numero de abajo significaria nada. LEY 16.
+$fixture = '<?php '
+    . 'function isThing(): bool { if ($a) { return true; } elseif ($b) { return true; } } '
+    . 'function suma(int $a, int $b): int { return $a + $b; } '
+    . 'function island(): string { return "x"; } '
+    . 'function acumula() { $valid = true; if ($x == 1) { $valid = false; } return $valid; }';
+$vistas = [];
+foreach (funciones($fixture) as $f) {
+    $vistas[$f['nombre']] = ['s' => senales($f), 'a' => fallosAbiertos($f)];
+}
+$fallo = null;
+if (!in_array('NOMBRE', $vistas['isThing']['s'] ?? [], true)) {
+    $fallo = 'no reconoce `isThing` como guarda por NOMBRE';
+} elseif (!in_array('SIN-ELSE', $vistas['isThing']['a'] ?? [], true)) {
+    $fallo = 'no ve la cadena `if/elseif` sin `else` de `isThing`';
+} elseif (in_array('NOMBRE', $vistas['island']['s'] ?? [], true)) {
+    $fallo = '`island` sale como guarda: el prefijo `is` no lleva frontera';
+} elseif ($vistas['suma']['s'] !== []) {
+    $fallo = '`suma` sale como guarda sin serlo';
+} elseif (!in_array('VALID-TRUE', $vistas['acumula']['a'] ?? [], true)
+    || !in_array('LAXA', $vistas['acumula']['a'] ?? [], true)
+    || !in_array('ACUMULADOR', $vistas['acumula']['s'] ?? [], true)) {
+    $fallo = 'no ve el acumulador nacido en `true` con comparacion laxa';
+}
+if ($fallo !== null) {
+    fwrite(STDERR, "CANARIO CAÍDO: {$fallo}.\n               EL CENSO NO SE HACE.\n");
+    exit(2);
+}
+echo "CANARIO VIVO: ve la guarda y su cadena sin `else`, no confunde `island` con `is`,\n";
+echo "              no marca una suma, y caza el acumulador nacido en `true` con `==`.\n";
+
+$argumentos = array_slice($argv, 1);
+$detalle = in_array('--detalle', $argumentos, true);
+$fuera = in_array('--fuera', $argumentos, true);
+$cruce = in_array('--cruce', $argumentos, true);
+
+$archivos = ficheros($fuera ? FUERA : RAIZ);
+$guardas = [];
+$funcionesTotales = 0;
+
+foreach ($archivos as $p) {
+    $codigo = (string) file_get_contents($p);
+    $clase = claseDe($codigo);
+    foreach (funciones($codigo) as $f) {
+        $funcionesTotales++;
+        $s = senales($f);
+        if ($s === []) {
+            continue;
+        }
+        $guardas[] = [
+            'archivo' => $p,
+            'clase' => $clase,
+            'nombre' => $f['nombre'],
+            'linea' => $f['linea'],
+            'lineaFin' => $f['lineaFin'],
+            'senales' => $s,
+            'abiertos' => fallosAbiertos($f),
+        ];
+    }
+}
+
+//El cruce con lo que YA se prueba. El texto de las suites se limpia de COMENTARIOS y CADENAS
+//antes de mirarlo: `//... SystemApprovalManager::init() ...` en un comentario daba por probada
+//una guarda que nadie llama. LEY 20 — se tokeniza, no se busca en el texto crudo.
+$codigoSuites = '';
+foreach (glob(SUITES . '/*.php') ?: [] as $s) {
+    foreach (token_get_all((string) file_get_contents($s)) as $tk) {
+        if (is_array($tk) && in_array($tk[0], [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING,
+                                               T_ENCAPSED_AND_WHITESPACE, T_INLINE_HTML], true)) {
+            continue;
+        }
+        $codigoSuites .= is_array($tk) ? $tk[1] : $tk;
+    }
+}
+
+$conPrueba = 0;
+$sinPrueba = 0;
+$porSenal = [];
+$porAbierto = [];
+
+foreach ($guardas as $i => $g) {
+    //LA PRIMERA VERSIÓN BUSCABA EL NOMBRE SUELTO Y DABA 48. Era ruido: `check`, `success`,
+    //`register`, `exists` y `value` aparecen en las 24 suites por ser palabras corrientes. Ahora
+    //se exige que aparezca como LLAMADA, y en las de clase, que la suite nombre TAMBIÉN su clase.
+    //`function nombre(` NO es una llamada: es la declaracion de la propia suite. Las suites
+    //declaran clases anonimas con su `__construct`, y sin esto salian como cobertura.
+    $llamada = preg_match('/(?<!function\s)(?<!function\s\s)(?:->|::|\W)'
+        . preg_quote($g['nombre'], '/') . '\s*\(/', $codigoSuites) === 1;
+    if ($llamada && preg_match('/function\s+' . preg_quote($g['nombre'], '/') . '\s*\(/', $codigoSuites) === 1) {
+        //Aparece declarada. Solo cuenta si ademas aparece LLAMADA en otro sitio.
+        $sinDeclaraciones = preg_replace('/function\s+' . preg_quote($g['nombre'], '/') . '\s*\(/', '', $codigoSuites);
+        $llamada = preg_match('/(?:->|::|\W)' . preg_quote($g['nombre'], '/') . '\s*\(/', (string) $sinDeclaraciones) === 1;
+    }
+    //La clase, como PALABRA ENTERA: `mb_strpos` daba por nombrada la clase `Field` porque
+    //`getFields()` la contiene como subcadena.
+    $conClase = $g['clase'] === null
+        || preg_match('/\b' . preg_quote($g['clase'], '/') . '\b/', $codigoSuites) === 1;
+    $nombrada = $llamada && $conClase;
+    $guardas[$i]['sueltaEnTexto'] = mb_strpos($codigoSuites, $g['nombre']) !== false;
+    $guardas[$i]['nombrada'] = $nombrada;
+    $nombrada ? $conPrueba++ : $sinPrueba++;
+    foreach ($g['senales'] as $s) {
+        $porSenal[$s] = ($porSenal[$s] ?? 0) + 1;
+    }
+    foreach ($g['abiertos'] as $a) {
+        $porAbierto[$a] = ($porAbierto[$a] ?? 0) + 1;
+    }
+}
+
+$raizMostrada = $fuera ? 'src/app/classes' : 'src/app/core';
+printf("UNIVERSO: %d archivo(s) de `%s`, sin `system-views/`, `local-tests/` ni `test-data/`\n",
+    count($archivos), $raizMostrada);
+printf("          %d función(es) con cuerpo · %d suite(s) para el cruce\n\n",
+    $funcionesTotales, count(glob(SUITES . '/*.php') ?: []));
+
+printf("GUARDAS POR FORMA: %d\n", count($guardas));
+foreach (['NOMBRE', 'BOOLEANA', 'ACUMULADOR', 'LANZA'] as $s) {
+    printf("  %-12s %5d\n", $s, $porSenal[$s] ?? 0);
+}
+echo "  (una guarda puede tener varias señales; la suma es mayor que el total)\n\n";
+
+printf("PUEDEN FALLAR ABIERTAS POR CONSTRUCCIÓN:\n");
+foreach (['SIN-ELSE', 'LAXA', 'VALID-TRUE'] as $a) {
+    printf("  %-12s %5d\n", $a, $porAbierto[$a] ?? 0);
+}
+$conAlguno = count(array_filter($guardas, static fn (array $g): bool => $g['abiertos'] !== []));
+printf("  %-12s %5d   (con al menos una)\n\n", 'ALGUNA', $conAlguno);
+
+$sueltas = count(array_filter($guardas, static fn (array $g): bool => $g['sueltaEnTexto']));
+printf("CRUCE CON LAS %d SUITES:\n", count(glob(SUITES . '/*.php') ?: []));
+printf("  el nombre aparece SUELTO en el texto de alguna suite ... %d  (ruido: `check`, `success`…)\n", $sueltas);
+printf("  aparece como LLAMADA y con su clase nombrada .......... %d\n", $conPrueba);
+printf("  SIN NINGUNA .......................................... %d\n", $sinPrueba);
+$peor = array_filter($guardas, static fn (array $g): bool => $g['abiertos'] !== [] && !$g['nombrada']);
+printf("  con forma de fallo abierto Y sin nombrar ... %d\n\n", count($peor));
+
+echo "LO QUE NO MIDE: el cruce es POR NOMBRE. Que una suite nombre la función no dice que\n";
+echo "                pruebe su RECHAZO, que es lo único que la prueba como guarda.\n";
+
+if ($cruce) {
+    //EL CRUCE CON LO YA MEDIDO. Se leen los otros dos censos —no se reimplementan— y cada
+    //`archivo:linea` se atribuye a la funcion que lo contiene por su rango de lineas.
+    $raizRepo = dirname(__DIR__);
+    $hallazgos = [];
+
+    $salidaRetornos = [];
+    exec(escapeshellarg($raizRepo . '/bin/censo-retornos-ignorados') . ' --detalle '
+        . escapeshellarg($raizRepo . '/src/app/core') . ' 2>/dev/null', $salidaRetornos);
+    foreach ($salidaRetornos as $l) {
+        if (preg_match('#^\s+(\S+\.php):(\d+)\s#', $l, $m) === 1) {
+            $hallazgos['RETORNO'][] = [$m[1], (int) $m[2]];
+        }
+    }
+
+    $salidaCeros = [];
+    exec('cd ' . escapeshellarg($raizRepo) . ' && '
+        . escapeshellarg($raizRepo . '/bin/censo-comparaciones-cero') . ' src/app/core 2>/dev/null', $salidaCeros);
+    foreach ($salidaCeros as $l) {
+        if (preg_match('#^\s+(\S+\.php):(\d+)\s#', $l, $m) === 1) {
+            $hallazgos['CERO'][] = [$m[1], (int) $m[2]];
+        }
+    }
+
+    echo "\nCRUCE CON LO YA MEDIDO — los 193 retornos ignorados y las comparaciones con cero:\n";
+    $enTres = [];
+    foreach (['RETORNO', 'CERO'] as $clase) {
+        $tocadas = [];
+        foreach ($hallazgos[$clase] ?? [] as [$archivo, $linea]) {
+            //Los dos lados se normalizan a ruta relativa del repositorio. La primera version
+            //comparaba `bin/../src/app/...` contra una ruta ABSOLUTA y daba CERO en silencio.
+            $archivoRel = str_replace($raizRepo . '/', '', (string) (realpath($archivo) ?: $archivo));
+            foreach ($guardas as $g) {
+                $rel = str_replace($raizRepo . '/', '', (string) (realpath($g['archivo']) ?: $g['archivo']));
+                if ($rel !== $archivoRel) {
+                    continue;
+                }
+                if ($linea >= $g['linea'] && $linea <= $g['lineaFin']) {
+                    $clave = $g['nombre'] . '  ' . $rel . ':' . $g['linea'];
+                    $tocadas[$clave] = true;
+                    $enTres[$clave][$clase] = true;
+                    if ($g['abiertos'] !== []) {
+                        $enTres[$clave]['ABIERTA'] = true;
+                    }
+                    if (!$g['nombrada']) {
+                        $enTres[$clave]['SIN-PRUEBA'] = true;
+                    }
+                }
+            }
+        }
+        printf("  guardas que contienen algún hallazgo de %-8s %d\n", $clase, count($tocadas));
+    }
+
+    echo "\n  EN LAS TRES LISTAS —forma de fallo abierto, sin prueba, y con un hallazgo medido—:\n";
+    $primeras = 0;
+    foreach ($enTres as $clave => $marcas) {
+        if (!isset($marcas['ABIERTA']) || !isset($marcas['SIN-PRUEBA'])) {
+            continue;
+        }
+        $primeras++;
+        printf("    %-60s %s\n", $clave, implode(',', array_keys(array_diff_key($marcas, ['ABIERTA' => 1, 'SIN-PRUEBA' => 1]))));
+    }
+    if ($primeras === 0) {
+        echo "    ninguna.\n";
+    }
+}
+
+if ($detalle) {
+    $llamadas = array_filter($guardas, static fn (array $g): bool => $g['nombrada']);
+    printf("\nLAS %d QUE UNA SUITE SÍ LLAMA — hay que mirar A MANO si prueban el RECHAZO:\n", count($llamadas));
+    usort($llamadas, static fn (array $a, array $b): int => [$a['clase'] ?? '', $a['nombre']] <=> [$b['clase'] ?? '', $b['nombre']]);
+    foreach ($llamadas as $g) {
+        printf("  %-24s %-34s %s\n", $g['clase'] ?? '(función global)', $g['nombre'],
+            implode(',', $g['abiertos']) ?: '-');
+    }
+
+    echo "\nDETALLE — las que pueden fallar abiertas y ninguna suite llama:\n";
+    usort($peor, static fn (array $a, array $b): int => [$a['archivo'], $a['linea']] <=> [$b['archivo'], $b['linea']]);
+    foreach ($peor as $g) {
+        printf("  %-38s %-11s %s:%d\n", $g['nombre'], implode(',', $g['abiertos']),
+            str_replace(dirname(__DIR__) . '/', '', $g['archivo']), $g['linea']);
+    }
+}
+
+exit(0);
