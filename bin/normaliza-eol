@@ -23,10 +23,40 @@ NO decide nada por su cuenta: la forma correcta la dice `git check-attr`, y los 
 sin finales de línea o binarios no se tocan.
 """
 
+import os
 import subprocess
 import sys
 
 FORMAS = {'crlf': b'\r\n', 'lf': b'\n'}
+
+
+def forma_en_disco(ruta):
+    """La forma que tiene el archivo AHORA: crlf, lf, mixed o none."""
+    try:
+        with open(ruta, 'rb') as f:
+            crudo = f.read()
+    except OSError:
+        return None
+    if b'\x00' in crudo[:8000]:
+        return None
+    crlf = crudo.count(b'\r\n')
+    lf = crudo.count(b'\n') - crlf
+    if crlf and lf:
+        return 'mixed'
+    if crlf:
+        return 'crlf'
+    if lf:
+        return 'lf'
+    return 'none'
+
+
+def eol_declarado(ruta):
+    """Lo que `.gitattributes` dice para esta ruta. Vale para archivos SIN versionar."""
+    salida = subprocess.run(['git', 'check-attr', 'eol', '--', ruta], capture_output=True, text=True)
+    if salida.returncode != 0:
+        return None
+    valor = salida.stdout.strip().rsplit(': ', 1)[-1]
+    return valor if valor in FORMAS else None
 
 
 def candidatos(rutas):
@@ -37,6 +67,11 @@ def candidatos(rutas):
         sys.exit(2)
     fuera = []
     vistos = 0
+    conocidos = set()
+    for linea in salida.stdout.splitlines():
+        partes = linea.split('\t')
+        if len(partes) == 2:
+            conocidos.add(partes[1])
     for linea in salida.stdout.splitlines():
         partes = linea.split('\t')
         if len(partes) != 2:
@@ -55,6 +90,30 @@ def candidatos(rutas):
         vistos += 1
         if arbol != declarado:
             fuera.append((ruta, declarado))
+
+    # UN ARCHIVO NUEVO NO LO LISTA `git ls-files`, y es EXACTAMENTE el caso para el que
+    # existe la regla de §3: `bin/anexar` respeta el destino, y un archivo nuevo no tiene
+    # destino. Sin esto la herramienta callaba justo donde tenía que hablar. Ver T142.
+    # Los NO versionados: los explícitos, y los que cuelguen de un directorio pedido.
+    # `--exclude-standard` respeta `.gitignore`, así que no entran los generados.
+    sueltos = list(rutas)
+    otros = subprocess.run(['git', 'ls-files', '--others', '--exclude-standard', '--'] + rutas,
+                           capture_output=True, text=True)
+    if otros.returncode == 0:
+        sueltos.extend(otros.stdout.splitlines())
+
+    for ruta in sueltos:
+        if not os.path.isfile(ruta) or ruta in conocidos:
+            continue
+        conocidos.add(ruta)
+        forma = forma_en_disco(ruta)
+        quiere = eol_declarado(ruta)
+        if forma is None or quiere is None or forma == 'none':
+            continue
+        vistos += 1
+        if forma != quiere:
+            fuera.append((ruta, quiere))
+
     return vistos, fuera
 
 
