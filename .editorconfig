@@ -20,7 +20,22 @@ indent_size = 4
 charset = utf-8
 end_of_line = lf
 insert_final_newline = false
-[{cli,phpstan,package-css,rector}]
+# TODO `bin/` EN LF, como hace `.gitattributes` con `bin/* text eol=lf`.
+# Antes esto nombraba cuatro guiones a mano y los otros trece caian en [*], que declara
+# CRLF: abrir uno en un editor que respete este archivo lo habria dejado sin arrancar
+# —`/usr/bin/env` busca «python3\r»— y git NO lo delata, porque normaliza en el indice.
+# Medido con la implementacion real de editorconfig, no deducido de la especificacion.
+[bin/*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false
+# Los escribe una herramienta que SIEMPRE pone LF, igual que declara `.gitattributes`.
+# Sin esto caian en [*] —CRLF— y abrirlos en un editor conforme los reescribia enteros.
+[PHPStanResult.*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false
+[*.lock]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = false
