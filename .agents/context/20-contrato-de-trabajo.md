@@ -238,89 +238,77 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 ## 7. Estado abierto
 
-*Se actualiza en cada pausa. **Aviso de diseño**: esta sección describe lo pendiente, así que
-queda desfasada en cuanto CODER commitea el bloque que la volvió cierta. El desfase es de un
-bloque y es inherente; lo que no es aceptable es que sea de tres.*
+*La escribe ARQUITECTO, en cada pausa. **Aviso de diseño**: describe lo pendiente, así que queda
+desfasada en cuanto CODER commitea el bloque que la volvió cierta. El desfase es de un bloque y es
+inherente; de tres no es aceptable.*
 
-**Última actualización: 2026-08-26, tras el BLOQUE S.**
+**Última actualización: 2026-08-28, tras el BLOQUE X.**
 
-*Escrita por ARQUITECTO. La del bloque S la puso el CODER porque la instrucción se lo pidió, y
-eso fue un error de ARQUITECTO: esta sección es su memoria, y no la escribe el agente cuyo
-trabajo sirve para comprobar.*
+> **FALLO DE ARQUITECTO, ANOTADO AQUÍ MISMO**: esta sección estuvo cuatro bloques sin tocar —T, U,
+> V y W— después de que ARQUITECTO la reclamara como suya. Lo cazó el CODER en el bloque X leyendo
+> el encabezado. Una sección que declara su propio límite de desfase y lo incumple es la forma
+> exacta que esta campaña retira.
 
-> **DECISIÓN DE ALCANCE, del PROPIETARIO**: esta campaña **rompe compatibilidad retroactiva a
-> propósito** y desemboca en una MAJOR. No se conserva nada por compatibilidad con clones
-> existentes. Las rupturas se agrupan en `CHANGELOG.md` bajo un solo encabezado; **el número de
-> versión y la etiqueta los pone el PROPIETARIO**.
+> **DECISIÓN DE ALCANCE, del PROPIETARIO (2026-08-28)**: **la MAJOR depende de terminar la campaña
+> ENTERA — «toda es toda»**. ARQUITECTO propuso etiquetar al cerrar E3 y el PROPIETARIO lo
+> rechazó. La propuesta era mala y el bloque W lo demostró: la guía de despliegue mandaba instalar
+> PHP 8.4 con el piso en 8.5, y el `Dockerfile` construía una imagen que no arranca. Con el atajo,
+> el primer clon nuevo no habría arrancado. **La documentación es parte de la major.**
 
 ### Dónde estamos
 
-**E2-a cerrada** salvo 11 rutas declaradas NO comprobadas por falta de datos (T39).
+**E2 CERRADA** (bloque W). E2-a con sus 11 rutas declaradas en T106; las rutas `-actions-*` con la
+operación saliendo de la ruta; `$_FILES` y `$_POST` clasificados contra el mapa de T6 y **cero sin
+guarda**, con puerta propia.
 
-**E2-b, primera mitad LEÍDA** (T114): son **59** rutas `-actions-*`, no 50, y 48 de ellas son dos
-plantillas. **La segunda mitad —`$_FILES` y los POST sueltos— sin empezar.**
+**Quedan E3, E4, E5 y E6.** Hoja de ruta completa: bloque R del [18](./18-siguientes-ventanas.md).
 
-**Hoja de ruta completa: bloque R del [18](./18-siguientes-ventanas.md).**
+**Estado de las puertas al cerrar X**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas ·
+`verify-integrity` verde, 16 guiones · PHPStan **883** = baseline · `censo-rutas-doc` 0 rotas ·
+`censo-comparaciones-cero` 9 candidatas, 0 peligrosas · 24 leyes en
+[19-leyes.md](./19-leyes.md), sin huecos.
 
-### Cerrado en el bloque S
+### Lo siguiente, y es lo único en el camino crítico
 
-- **`serveModuleStatic()` borrado**; los 24 módulos llaman a `serve()` (T115).
-- **Las ocho ramas gemelas** colapsadas, `CAN_ADD_ALL` y `CAN_VIEW_ALL` fuera de los cuatro mappers
-  donde estaban muertas —y **conservadas en los otros cuatro, donde sí restringen**— (T117).
-- **`$isEdit` sale de la RUTA**, en los 13 controladores, y el desajuste con el cuerpo se rechaza
-  con **400** registrado. Con suite que invoca el controlador de verdad (T120).
-- **Los tres caminantes entran en PHPStan**: 812 → 815 archivos, 9 errores arreglados, ninguno
-  silenciado, baseline sigue en 888 (T119).
-- **`gates` corre 18 suites**, no 16: su prefijo dejaba fuera una que existía (T118).
-- **Comprobación 18**: ningún `if/else` con las dos ramas iguales, por árbol de sintaxis (T117).
-- **LEY 16 y `bin/censo`**: ningún censo reporta cero sin probar antes que el instrumento ve (T116).
+**E3 · seis lotes, uno por bloque, sin compartir bloque con nada.** Contenido en T6:
+se borran completos `ImagesRepository`, `ApplicationCalls` e `InterestResearchAreas`; parciales
+`MySpace`, `ContentNavigationHub` y `ReportsManage`; se reescribe `DataImportExportUtility`.
 
-### Abierto, sin decidir — LO DE ESTE BLOQUE PRIMERO
+**El riesgo no es borrar, es editar.** El primer lote —experiencias previas— son nueve borrados
+triviales contra **nueve ediciones en archivos que se quedan**, dos de ellas en `SystemApprovals`,
+que se conserva.
 
-- **PARADA 2 · `CacheControllersManager.php:419`**: un `if/else` con las dos ramas iguales, fuera de
-  los cuatro módulos de la chuleta. Su origen es otro —una intención a medias, no una copia—, así
-  que la decisión no es la misma. **`verify-integrity` está EN ROJO por esto, a propósito.**
-  **LEÍDO POR ARQUITECTO, y NO es código muerto: es un defecto de ida y vuelta.** La rama está en
-  `jsonUnserialize()`, que se alimenta de `json_decode(file_get_contents($fileConfig), true)` —o
-  sea, **array asociativo**—. `criteries` se declara `protected $criteries = null`, el constructor
-  le pone un `\ArrayObject`, `setCriteries()` exige un `CacheControllersCriteries` y
-  `jsonSerialize()` lo vuelca. Al restaurar de caché se le asigna **el array crudo**: el
-  `if ($propertyName == 'criteries')` era exactamente el sitio donde iba la rehidratación, y las
-  dos ramas acabaron con el mismo cuerpo. **Después de una restauración, `getCriteries()` devuelve
-  un array donde el resto del código espera un objeto.** Falta medir el radio: quién llama a
-  `getCriteries()` tras restaurar y qué le hace. **La comprobación 18 encontró un defecto real en
-  su primera pasada fuera del conjunto que la motivó.**
-- **PARADA 5 · `tests:mautic-batch-send`**: segunda suite huérfana, con prefijo `tests:`, que
-  `gates` no alcanza ni ensanchando. Declara red y correo. Hoy no aparece ni como «no se corre».
-- **La asimetría de guardas de T114**: `Documents` y `Organizations` exigen propiedad para editar y
-  nada para dar de alta. S3 cerró el cruce entre rutas; **la asimetría sigue**.
-- **`ImagesRepository::toDelete()`** borra los archivos DENTRO de la transacción y solo hace
-  `rollBack()` si la excepción es `PDOException` (T114).
-- **Los 6 censos sospechosos de la LEY 16** (T116), a remedir cuando se toque su sección.
-- **El 4.0.0 del paquete** (bloque Q): cinco piezas diseñadas, ninguna ejecutada.
-- **Listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json` que no
-  es del slug, `deprecated-functions.json`.
-- **La puerta de `HttpClient`**, sin cobertura desde el 2026-08-25.
-- **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
-- **PHPStan en 888 y no baja porque nadie se lo ha pedido**: el trinquete es un tope, no un motor.
+### Abierto, sin decidir
 
-### En el tintero — declarado por el PROPIETARIO, sin ejecutar
+- **`phpstan-strict-rules`**: PHPStan nivel 8 **no** detecta la comparación laxa que mató a
+  `FileUpload::validate()` — comprobado sobre el caso exacto en el bloque X. La regla vive en ese
+  paquete, que no está instalado. Pendiente: medir qué cuesta habilitar **solo** esa regla, y
+  decidir después.
+- **Las tres listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de `volatile-state.json`
+  que no es del slug, `deprecated-functions.json`.
+- **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018. *(La sospecha de
+  censo sobre T86 quedó cerrada en X3 — la cifra cuadraba. El defecto sigue abierto.)*
+- **La asimetría de guardas de T114**: exigen propiedad para editar y nada para dar de alta.
+- **El repaso del PROCEDIMIENTO de despliegue** → E6. La versión de PHP ya está corregida en toda
+  su familia; lo que queda es el procedimiento, empezando por el `rm -Rf` que nombra `tmp`, `TODO`
+  y `guides`, que no existen.
+- **El 4.0.0 del paquete** (bloque Q): cinco piezas diseñadas, ninguna ejecutada → E5.
+- **Los 81 bloques del registro**: la tabla de retención está hecha; **el borrado espera a la
+  cláusula de disolución**, o sea al cierre de E6. Que la tabla exista no la ejecuta.
 
-- **El módulo como patrón mecanizable**, y los `staticResolver` universalizables. Escrito en
-  `files/dev/roadmap/El módulo como patrón mecanizable.md` con lo medido, las dos trampas y el
-  requisito de entrada (E2-b). **Sin decidir**: fase de esta campaña o campaña aparte.
-- **El versionado del framework.** El PROPIETARIO no se siente listo: las versiones se atan a
-  `last-stable`, y esa rama está **236 commits por detrás** y no tiene nada de la campaña. Lo
-  discutirán PROPIETARIO y ARQUITECTO. Los paquetes van por su cuenta y no entran aquí.
+### Retirado de la lista, con motivo
 
-### Bloqueado en el PROPIETARIO
+- **`ImagesRepository::toDelete()`** —borrados de archivo dentro de la transacción, `rollBack()`
+  solo ante `PDOException`—. **Muere con su módulo**: T6 borra `ImagesRepository` entero en E3, y
+  arreglar lo que va a desaparecer es trabajo tirado. *(El CODER paró en X4 al ver que la orden de
+  retirarlo chocaba con la prohibición de tocar esta sección. Hizo bien: lo retira ARQUITECTO, y es
+  esta línea.)*
+- **Los seis censos sospechosos de la LEY 16**: cerrados en X3. Ninguno era un instrumento roto.
+  Con el `$` contaminado ese `grep` devuelve **cero**, no un número menor, y los seis dieron
+  cifras distintas de cero.
 
-- **`composer update piecesphp/database` NO SE EJECUTÓ, y es una PARADA.** El bloque S pedía
-  comprobar antes con qué PHP corre composer. Corre con **8.1.34**: `/usr/bin/composer` tiene
-  el shebang `#!/usr/bin/php`, y `/usr/bin/php` apunta por `alternatives` a 8.1.34, por debajo
-  del piso declarado (`>=8.4.1 <8.6`). `src/composer.json` **no declara `config.platform`**, así
-  que composer resolvería contra 8.1.34. Están instalados `php8.4` y `php8.5`. La salida
-  natural es invocarlo como `php8.5 /usr/bin/composer …` o fijar `config.platform.php`, pero
-  **eso lo decide el PROPIETARIO**: el bloque decía parar. `composer.lock` sigue en **v3.8.0**.
-- Si el push se cuelga: `GIT_TERMINAL_PROMPT=0 git push origin master` convierte el cuelgue en un
-  error legible, y `git ls-remote origin` separa autenticación de empuje.
+### Fuera de la campaña — roadmap, del PROPIETARIO
+
+`files/dev/roadmap/`: los silencios de Sass · el módulo como patrón mecanizable · el skill de
+aterrizaje · una caché de verdad y el framework «como una bala» · la distribución sin ruido en los
+despliegues · la conversación sobre versionado (`last-stable` está 236 commits por detrás).
