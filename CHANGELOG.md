@@ -179,6 +179,42 @@ El cuarto es **generalizar desde un solo ejemplo**; el quinto, **heredar una pre
 sin volver a medirla** — la LEY 14 y ésta actuando juntas, hasta convertir un error del registro en
 una tarea del bloque siguiente.
 
+## Herramientas — `bin/censo-comparaciones-cero`, y la clase de defecto de `FileUpload` queda acotada
+
+`FileUpload::validate()` murió en la migración a PHP 8 por comparar con `==` una cadena contra
+`UPLOAD_ERR_OK`. La pregunta era cuántas más había. **La respuesta es ninguna, y la clase resultó
+ser mucho más estrecha de lo que parecía.**
+
+**Medido en los dos binarios, no deducido del manual:**
+
+| Valor a la izquierda | `== 0` en 7.4 → 8.5 | `== 1` / `== 200` / `== 1305` |
+| :-- | :-- | :-- |
+| `"abc"` no numérica | **`true` → `false`** | `false` → `false` |
+| `""` cadena vacía | **`true` → `false`** | `false` → `false` |
+| `"42000"` numérica | `false` → `false` | igual |
+
+**Solo la columna del cero cambió.** Con cualquier otro entero, PHP 7 y PHP 8 coinciden — una
+cadena no numérica nunca casó con `1305`. Por eso `FileUpload` murió y los `$e->getCode() == 1305`
+de los mappers no: **`UPLOAD_ERR_OK` vale cero**.
+
+El censo **tokeniza** con `token_get_all()`, porque un `grep` no distingue un `==` dentro de una
+cadena ni sabe cuál es el operando de la izquierda. Y **resuelve las constantes con `constant()`**:
+sin eso no habría cazado el caso que lo funda, que no comparaba contra el literal `0`.
+
+| Repositorio | Archivos | Laxas contra cero | Sin `int` garantizado |
+| :-- | --: | --: | --: |
+| Framework | 811 | 37 | **9** |
+| Los cuatro paquetes | 109 | 8 | **0** |
+
+**Las nueve, leídas una a una: ninguna peligrosa.** Ninguna está en un camino de guarda y ninguna
+puede recibir una cadena no numérica —`MetaProperty::TYPE_INT`, `gmdate("H:i:s")`, `floatval()`, un
+parámetro declarado `int`—.
+
+**No hay puerta automática**: PHPStan nivel 8 **no detecta esto**, comprobado sobre el caso exacto.
+
+*La primera pasada reportó 7.886 archivos: `bin/tools/` contiene PHPStan y Rector descargados. LEY
+15 sobre el propio instrumento, cazada por la rareza de la cifra.*
+
 ## ⚠ Corregido — `FileUpload::validate()` decía que sí cuando el archivo no existía
 
 **La migración a PHP 8 rompió esta guarda y nadie se enteró en dos versiones mayores.**

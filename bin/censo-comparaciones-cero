@@ -1,0 +1,87 @@
+#!/usr/bin/env php
+<?php
+/*
+ * Censa las comparaciones laxas contra CERO, que son la unica forma que cambio de sentido al
+ * pasar de PHP 7 a PHP 8. MEDIDO en los dos binarios, no deducido del manual:
+ *
+ *                  == 0        == 1 / 200 / 1305
+ *   "abc"      7.4 true  ->  8 false        igual en las dos
+ *   ""         7.4 true  ->  8 false        igual en las dos
+ *   "42000"        false ->    false        igual en las dos
+ *
+ * Por eso solo `== 0` importa: con cualquier otro entero las dos versiones coinciden.
+ *
+ * Lo funda `FileUpload::validate()`, que comparaba la CADENA 'FAKE_ERROR' contra
+ * UPLOAD_ERR_OK y devolvia true sin archivo desde PHP 8.0. Ver T135 y T136.
+ *
+ * NO basta con buscar el literal `0`: aquel caso comparaba contra una CONSTANTE que vale cero.
+ * El censo las resuelve con `constant()`.
+ *
+ * PHPStan nivel 8 NO detecta esto: comprobado sobre el caso exacto, responde «No errors».
+ *
+ * Uso:  bin/censo-comparaciones-cero <ruta> [ruta...]
+ */
+$raices = $argv; array_shift($raices);
+if ($raices === []) {
+    fwrite(STDERR, "uso: bin/censo-comparaciones-cero <ruta> [ruta...]\n");
+    exit(2);
+}
+
+$fixture = "<?php\n\$a='x';\nif (\$a == 0) {}\nif (\$a === 0) {}\n";
+$t = token_get_all($fixture); $l=0;$e=0;
+foreach ($t as $tk) { if (is_array($tk)) { if ($tk[0]===T_IS_EQUAL) $l++; if ($tk[0]===T_IS_IDENTICAL) $e++; } }
+if ($l!==1||$e!==1) { fwrite(STDERR,"CANARIO CAIDO\n"); exit(1); }
+echo "canario: el tokenizador distingue == de ===\n";
+
+//Nativas cuyo retorno NO puede ser una cadena.
+$intSeguro = '/\b(count|mb_strlen|strlen|preg_match|sizeof|strcmp|substr_count|intdiv|iconv_strlen)\s*\(/';
+$total=0; $archivos=0; $hits=[];
+foreach ($raices as $raiz) {
+    if (!is_dir($raiz)) { continue; }
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if (!$f->isFile() || $f->getExtension() !== 'php') { continue; }
+        $ruta=$f->getPathname();
+        //`bin/tools/` trae PHPStan y Rector DESCARGADOS: 7.800 archivos de terceros que no son
+        //nuestro codigo. Sin esta linea el censo decia mirar el proyecto y miraba otra cosa.
+        if (str_contains($ruta,'/vendor/') || str_contains($ruta,'/node_modules/')
+            || str_contains($ruta,'/bin/tools/')) { continue; }
+        $archivos++;
+        $tokens = token_get_all((string) file_get_contents($ruta));
+        $n=count($tokens);
+        for ($i=0;$i<$n;$i++) {
+            $tk=$tokens[$i];
+            if (!is_array($tk) || ($tk[0]!==T_IS_EQUAL && $tk[0]!==T_IS_NOT_EQUAL)) { continue; }
+            $sig=null;
+            for ($j=$i+1;$j<$n;$j++) { $x=$tokens[$j];
+                if (is_array($x)&&in_array($x[0],[T_WHITESPACE,T_COMMENT,T_DOC_COMMENT],true)) continue; $sig=$x; break; }
+            $ant=null;
+            for ($j=$i-1;$j>=0;$j--) { $x=$tokens[$j];
+                if (is_array($x)&&in_array($x[0],[T_WHITESPACE,T_COMMENT,T_DOC_COMMENT],true)) continue; $ant=$x; break; }
+            //NO basta con el literal `0`: el caso que funda este censo comparaba contra
+            //UPLOAD_ERR_OK, que VALE cero. Se resuelve la constante y se mira su valor.
+            $esCero=function($t){
+                if (!is_array($t)) { return false; }
+                if ($t[0]===T_LNUMBER && $t[1]==='0') { return true; }
+                if ($t[0]===T_STRING && defined($t[1])) {
+                    $v = constant($t[1]);
+                    return is_int($v) && $v === 0;
+                }
+                return false;
+            };
+            if (!$esCero($sig) && !$esCero($ant)) { continue; }
+            if ($esCero($sig) && $esCero($ant)) { continue; }
+            $total++;
+            $lineas=file($ruta);
+            $texto=trim($lineas[$tk[2]-1] ?? '');
+            if (preg_match($intSeguro,$texto)) { continue; }
+            $hits[]=['a'=>$ruta,'l'=>$tk[2],'t'=>$texto];
+        }
+    }
+}
+echo "archivos tokenizados      : {$archivos}\n";
+echo "comparaciones laxas con 0 : {$total}\n";
+echo "de ellas, sin int garantizado por una nativa: ".count($hits)."\n";
+foreach ($hits as $h) { echo "  ".str_replace('/var/www/html/vicsen/','',$h['a']).":{$h['l']}  ".substr($h['t'],0,92)."\n"; }
+
+exit($hits === [] ? 0 : 1);
