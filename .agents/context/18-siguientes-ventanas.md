@@ -12916,3 +12916,233 @@ Puerta nueva: **`core/file-upload-contract`, 7/7**. El corredor pasa a 23 suites
 | E2-b · `$_FILES` y `$_POST` | **cerrado aquí**: 0 accesos sin guarda, y el contrato del que dependían pasa a tener puerta |
 
 **Lo que queda para la major es E3**, y el mapa de T6 manda.
+
+---
+
+## T136 · X1 y X2 · LA CLASE DE DEFECTO DE `FileUpload`, ACOTADA A UNA SOLA FORMA
+
+### Lo primero: la clase es MÁS ESTRECHA de lo que parecía, y está medido
+
+El encargo hablaba de «comparar con `==` una cadena contra un entero». **Medido en los dos
+binarios, con `0`, `1`, `200` y `1305`:**
+
+| Valor a la izquierda | `== 0` en 7.4 → 8.5 | `== 1` / `== 200` / `== 1305` |
+| :-- | :-- | :-- |
+| `"abc"` (no numérica) | **`true` → `false`** | `false` → `false` |
+| `"HY000"` | **`true` → `false`** | `false` → `false` |
+| `""` (cadena vacía) | **`true` → `false`** | `false` → `false` |
+| `"42000"` (numérica) | `false` → `false` | igual |
+| `null` | `true` → `true` | igual |
+
+**Solo la columna del CERO cambia.** Con cualquier otro entero, PHP 7.4 y PHP 8.5 dan el mismo
+resultado, porque una cadena no numérica nunca casó con `1305` ni antes ni ahora.
+
+Y sale la cadena vacía, que no estaba en la hipótesis: `"" == 0` también dejó de ser cierto.
+
+**Por eso `FileUpload` murió y los `$e->getCode() == 1305` no**: `UPLOAD_ERR_OK` **vale cero**.
+
+### El censo, y el agujero que casi se lo lleva
+
+Se **TOKENIZA**, no se busca por texto: un `grep` no distingue un `==` dentro de una cadena ni sabe
+cuál es el operando de la izquierda. Canario: un fichero de control con un `==`, un `===` y un `==`
+dentro de una cadena; el tokenizador tiene que ver 1 y 1.
+
+**El primer censo buscaba el literal `0` y NO habría cazado el caso que lo funda**, porque
+`FileUpload` comparaba contra `UPLOAD_ERR_OK`, una **constante que vale cero**. Corregido
+resolviendo las constantes con `constant()`, y **probado contra el caso exacto**: lo caza, ignora
+el `===` y descarta el `count(...) == 0`.
+
+### >>> Y EL CENSO SE MIRÓ A SÍ MISMO EN EL UNIVERSO EQUIVOCADO <<<
+
+La primera pasada sobre `bin/` reportó **7.886 archivos tokenizados** y 62 hallazgos. **`bin/tools/`
+contiene PHPStan y Rector descargados**: 7.000 archivos de terceros, con sus propios tests de
+comparaciones laxas. **LEY 15 sobre mi propio instrumento**, cazada por la rareza de la cifra.
+Excluido `bin/tools/`, el universo real son **811 archivos**.
+
+*Ironía útil: entre los archivos de terceros que se colaron estaban
+`loose-const-comparison-php7.php` y `-php8.php` de PHPStan, que documentan exactamente el cambio
+—`0 == "foo"` es `true` en 7 y `false` en 8—. Una tercera fuente independiente confirmando la
+medición.*
+
+### Las cifras, con su método
+
+*Método: `bin/censo-comparaciones-cero <rutas>`, que tokeniza con `token_get_all()`, resuelve las
+constantes con `constant()` y descarta las líneas donde el otro operando lo produce una nativa que
+devuelve `int` —`count`, `mb_strlen`, `strlen`, `preg_match`, `sizeof`, `strcmp`, `substr_count`,
+`intdiv`, `iconv_strlen`—.*
+
+| Repositorio | Archivos | Laxas contra cero | Sin `int` garantizado |
+| :-- | --: | --: | --: |
+| Framework (`src/app` + `bin`, sin `bin/tools`) | 811 | 37 | **9** |
+| Los cuatro paquetes, enteros | 109 | 8 | **0** |
+
+**NO se dispara la PARADA X1**: 9 candidatas, muy por debajo de las 40.
+
+### (b)(c)(d) · Las nueve, leídas una a una — CERO PELIGROSAS
+
+| Sitio | De dónde viene el operando | ¿Cadena no numérica? | Camino |
+| :-- | :-- | :--: | :-- |
+| `NewsController:1127,1128` | `draft`, declarada `MetaProperty::TYPE_INT` | no | presentación |
+| `Utilities:1206,1212,1218` | `explode(':', gmdate("H:i:s", …))` → `'00'`…`'59'` | no, siempre numéricas | presentación |
+| `Utilities:1416` | `$status = 0` y solo recibe `200` o `304` | no | presentación |
+| `ExifHelper:251` ×2 | `floatval($parts[…])` | no, es `float` | cálculo |
+| `DataTablesHelper:1290` | parámetro declarado **`int $start`**, y los llamadores hacen `(int)` | no | paginación |
+
+**Ninguna está en un camino de guarda y ninguna puede recibir una cadena no numérica.** En módulos
+que E3 borra había 2, y no se cuentan (T6).
+
+**(d) Puerta**: el subconjunto peligroso está vacío. La única que existió —`FileUpload`— tiene
+puerta desde el bloque W: `core/file-upload-contract`.
+
+**Y no hay puerta automática**: PHPStan nivel 8 **NO detecta esto**. Comprobado sobre el caso
+exacto —una función que devuelve `string` comparada con `UPLOAD_ERR_OK`—: responde «No errors». La
+regla existe en `phpstan-strict-rules`, que **no está instalado** y cuya adopción no se decide aquí.
+
+### El censo queda como guion, no como memoria
+
+`bin/censo-comparaciones-cero`, versionado. Sin él, la cifra «9 de 37 en 811 archivos» no tendría
+método reproducible, que es lo que exige la LEY 5.
+
+---
+
+## X2 · LA GUÍA DE DESPLIEGUE MANDABA A INSTALAR EL PHP QUE NO ARRANCA
+
+`general.md` decía *«el piso es PHP 8.4.1»* y `sudo apt install php8.4 …`. **El piso es
+`>=8.5 <8.6` desde el bloque T**, y `platform_check.php` —que el propio aviso citaba— aborta con
+8.4. Corregidos el texto y el comando; la justificación caducada —«lo exige `symfony/cache` 8.1»—
+se sustituye por la fuente real: **`require.php` de `src/composer.json`, que es la única**.
+
+Se añade además que **el techo es tan real como el piso**: `<8.6` significa que 8.6 tampoco vale.
+
+### La familia entera, porque media corrección fabrica divergencia (LEY 21)
+
+Censada la versión en toda la documentación, aparecieron **cuatro sitios más con la misma
+afirmación**:
+
+| Dónde | Decía | Por qué entra |
+| :-- | :-- | :-- |
+| `general.md:7`, el bloque de requisitos | `PHP 8.4.1 – 8.5 (>=8.4.1 <8.6)` | Es la misma afirmación, en la cabecera del mismo documento |
+| `index.md:5`, la portada de la documentación | «probado desde PHP 8.4.1 hasta 8.5» | Lo primero que se lee |
+| `docker/index.md:27` y `:30` | `FROM php:8.4-apache` | **Un Dockerfile que construye una imagen que no arranca**: el mismo defecto de X2 en otro entorno |
+
+**Quedan dos menciones a 8.4 y se dejan a propósito**: la entrada del `changelog.md` de la 7.1.0
+—corregirla sería falsificar historia— y una salida de `composer` citada literalmente en el
+apartado de diagnóstico, que es un ejemplo, no una instrucción.
+
+`hestiacp/index.md` lista `--multiphp '7.3,…,8.4,8.5'`: incluye 8.5, así que no es una afirmación
+del piso y no se toca.
+
+### (c) · El resto del procedimiento NO se ha repasado
+
+El `sudo rm -Rf` nombra **`tmp`, `TODO` y `guides`, que no existen**. `rm -Rf` sobre lo inexistente
+no falla, así que es podredumbre y no trampa. **Queda anotado como PENDIENTE DE E6**, que es donde
+vive la documentación.
+
+---
+
+## T137 · X3 y X4 · LA LISTA DE LA LEY 16 SE CIERRA — NINGUNO ERA UN INSTRUMENTO ROTO
+
+### El argumento que cierra la lista entera antes de mirarla uno a uno
+
+T116 midió que el `grep` del entorno del CODER, con un `$` en el patrón y **sin `-F`**, devuelve
+**CERO**, no un número menor:
+
+| Patrón | shell `-F` | shell **regex** |
+| :-- | --: | --: |
+| `$_FILES` | 49 | **0** |
+| `isset($_FILES` | 3 | **0** |
+
+**Los seis censos sospechosos dieron cifras distintas de cero.** Si alguno hubiera salido del
+instrumento roto, habría dado 0 y nadie habría escrito nada. **Ninguna cifra no nula pudo venir de
+ahí**, y eso vale para los seis a la vez.
+
+### Los seis, uno a uno
+
+| Censo | Sospecha | Veredicto | Qué era |
+| :-- | :-- | :-- | :-- |
+| **T88** · `$_FILES`: 44 en 18 archivos | patrón con `$` | **UNIDAD** | 44 **líneas**, 49 **ocurrencias**. El árbol no ha cambiado: `git grep -c` da 44 entonces y 44 hoy |
+| **T33** · los 9 de `$_FILES[$nameOnFiles]` | `$` a mitad | **CONTEO CORTO POR UNO** | Son **10**, uno por controlador, y ya eran 10 el día que se escribió. No es el instrumento: con el `$` roto habría dado 0 |
+| **T58** · los diez `$showSQL` | identificador con `$` | **UNIDAD** | Diez **archivos con el bloque**; el identificador aparecía **31 veces en 11 archivos**. Lo dice el propio commit que los retiró: *«fuera el interruptor `$showSQL`, y eran diez, no once»* |
+| **T86** · 34 columnas `json` | recorte «dentro de `$fields`» | **CUADRA** | Hoy `'type' => 'json'` da **35** en 26 archivos, y T86 ya declaraba «35 declaradas, 34 en el literal `$fields`, la 35.ª aparte» |
+| **T99** · 59 y 62 | recorte «solo en `$fields`» | **YA RECONCILIADO EN SÍ MISMO** | Su §4.5 se titula «62, 60 y 59 son TRES PREGUNTAS». Hoy: 64 apariciones del identificador (+2 por código nuevo), 4 como variable en `DataTablesHelper`, 64−4 = **60**. Cuadra |
+| **T24 / T29** · 44 de 50, y 26 | `$` a mitad | **OTRO INSTRUMENTO** | No salieron de un `grep`: son `isset.variable` y `function.alreadyNarrowedType`, **identificadores de error de PHPStan** contados sobre su JSON |
+
+**LA LISTA QUEDA CERRADA. Cero instrumentos rotos, cero cifras que hubiera que retirar.**
+
+### >>> LA LECCIÓN, QUE ES LO QUE VALE <<<
+
+**Dos cifras que no cuadran apuntaron a un instrumento roto y no lo era.** Lo que había, en cinco de
+los seis casos, era **una unidad sin declarar o un recorte sin escribir**:
+
+| Lo que se escribió | Lo que significaba de verdad |
+| :-- | :-- |
+| «44 accesos a `$_FILES`» | 44 **líneas** que casan con `$_FILES` |
+| «los diez `$showSQL`» | diez **archivos** con el bloque, de 31 apariciones |
+| «34 columnas `json`» | 34 dentro del literal `$fields`, de 35 declaradas |
+| «119 POST sueltos» | 119 **rutas POST declaradas**, que no es lo mismo ni de lejos |
+
+> **TODA CIFRA DEL REGISTRO LLEVA SU UNIDAD Y SU PATRÓN AL LADO.** «44 accesos» no significa nada;
+> «44 líneas que casan con `$_FILES` en `src/app`» sí. Es la LEY 5 —toda cifra lleva su método— con
+> el detalle que faltaba: **el método incluye la unidad y el patrón, no solo la herramienta.**
+
+La LEY 16 no se debilita: sigue siendo cierto que un censo no reporta un cero sin canario. Lo que
+esta pasada añade es que **una discrepancia entre dos censos es MÁS probable que sea de unidad que
+de instrumento**, y mirar la unidad primero cuesta un minuto.
+
+---
+
+## X4 · LISTA DE PENDIENTES
+
+### `ImagesRepository::toDelete()` MUERE CON EL MÓDULO
+
+Los borrados de archivo dentro de la transacción, y el `rollBack()` que solo atiende a
+`PDOException` (T114), **dejan de ser trabajo**: T6 pone `ImagesRepository` en «se borran
+completos», y su primera frase es que **arreglar código que va a desaparecer es trabajo tirado**.
+
+> **NO LO HE QUITADO DE LA LISTA, y hay que decir por qué**: el pendiente vive en la **§7 «Estado
+> abierto» del contrato**, que **escribe ARQUITECTO** y que tengo prohibido tocar. Queda aquí
+> anotado para que se retire de allí.
+
+**Y de paso, una observación sobre §7 que no es una edición**: su encabezado dice *«Última
+actualización: 2026-08-26, tras el BLOQUE S»*, y la propia sección declara que un desfase de un
+bloque es inherente pero **«que sea de tres no es aceptable»**. Van **cuatro** —T, U, V, W—, y sigue
+listando como abiertas cosas ya cerradas: la PARADA 5 de `tests:mautic-batch-send` y los seis
+censos de la LEY 16 que este bloque acaba de cerrar.
+
+### LOS 81 BLOQUES NO SE BORRAN TODAVÍA
+
+La cláusula de disolución del [18](./18-siguientes-ventanas.md) dice que el registro muere **cuando
+E2–E6 cierren**. E2 cerró en el bloque W; **quedan E3, E4, E5 y E6**. La tabla de retención de T128,
+revisada en T132 —19 promocionan, 28 se quedan, 81 se van—, **está hecha y ahí se queda hasta
+entonces**. Que esté hecha no la ejecuta.
+
+### DOS CRITERIOS QUE NO SON ANÉCDOTAS
+
+**1 · Una propiedad estática no es el defecto. El defecto es que no lo diga.**
+
+`HttpClient::$baseURL` y `OsTicketAPI::$baseURL` eran las dos estáticas, y solo una era un defecto:
+
+| | `HttpClient` | `OsTicketAPI` |
+| :-- | :-- | :-- |
+| Quién la escribe | **el constructor**, en cada instancia | un **setter estático público** |
+| Qué hace el constructor | la sobrescribe | la lee **solo como valor por defecto** |
+| Quién lo pide | nadie | cinco archivos, desde la configuración |
+
+**El criterio no es «estático mal, instancia bien»**: es si el estado compartido **está declarado y
+tiene una puerta de entrada**, o si se comparte de tapadillo como efecto de construir un objeto.
+
+**2 · La documentación puede ser el ORÁCULO, y aquí lo fue.**
+
+`source-docs/.../http-client.md` describía el comportamiento correcto —cada cliente con su URL—
+mientras el código hacía otro. **No hubo que corregirla: el arreglo la volvió cierta.**
+
+**Es un método, no una casualidad.** Cuando un documento y el código discrepan, la regla del
+proyecto es «gana el código», y es la correcta para *decidir qué está vigente*. Pero para
+*encontrar defectos* la discrepancia sirve en las dos direcciones: **un documento que describe algo
+más razonable que lo que hace el código es un candidato a defecto**, y compararlos es barato.
+
+### PENDIENTE DE E6
+
+El procedimiento de despliegue de `general.md` tiene un `sudo rm -Rf` que nombra **`tmp`, `TODO` y
+`guides`**, que no existen. No es trampa —`rm -Rf` sobre lo inexistente no falla— pero es
+podredumbre, y **el repaso completo de la documentación es E6**.

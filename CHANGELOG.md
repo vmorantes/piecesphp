@@ -179,6 +179,30 @@ El cuarto es **generalizar desde un solo ejemplo**; el quinto, **heredar una pre
 sin volver a medirla** — la LEY 14 y ésta actuando juntas, hasta convertir un error del registro en
 una tarea del bloque siguiente.
 
+## Documentación — los seis censos sospechosos de la LEY 16 se cierran, y ninguno era un instrumento roto
+
+La lista llevaba semanas abierta. **Cerrada entera, y el resultado es más útil que el que se
+esperaba: en cinco de los seis lo que faltaba era la UNIDAD, no el instrumento.**
+
+| Censo | Veredicto | Qué era |
+| :-- | :-- | :-- |
+| `$_FILES`: 44 | **unidad** | 44 **líneas**, 49 **ocurrencias**; el árbol no ha cambiado |
+| los 9 de `$_FILES[$nameOnFiles]` | **conteo corto por uno** | Son 10, y ya lo eran |
+| los diez `$showSQL` | **unidad** | Diez **archivos**, 31 apariciones |
+| 34 columnas `json` | **cuadra** | 35 declaradas, 34 en el literal `$fields` |
+| 59 y 62 de `human_readable_reference_field` | **ya reconciliado en su sitio** | «62, 60 y 59 son TRES PREGUNTAS» |
+| 44 de 50, y 26 | **otro instrumento** | Son identificadores de error de PHPStan, no un `grep` |
+
+**Y hay un argumento que los cierra todos a la vez**: con el `$` roto, ese `grep` devuelve **cero**,
+no un número menor. Los seis dieron cifras distintas de cero, así que **ninguna pudo salir de ahí**.
+
+> **TODA CIFRA DEL REGISTRO LLEVA SU UNIDAD Y SU PATRÓN AL LADO.** «44 accesos» no significa nada;
+> «44 líneas que casan con `$_FILES` en `src/app`» sí. Es la regla de «toda cifra lleva su método»
+> con el detalle que faltaba: **el método incluye la unidad y el patrón, no solo la herramienta.**
+
+Una discrepancia entre dos censos es **más probable que sea de unidad que de instrumento**, y
+mirar la unidad primero cuesta un minuto.
+
 ## ⚠ Corregido — la guía de despliegue mandaba a instalar el PHP que no arranca
 
 `general.md` decía *«el piso es PHP 8.4.1»* y `sudo apt install php8.4 …`. **El piso es
