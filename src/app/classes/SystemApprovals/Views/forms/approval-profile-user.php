@@ -16,8 +16,6 @@ $userPackage = new UserDataPackage($approvalMapper->referenceValue);
 $mapper = $userPackage->getMapper();
 $profileMapper = $userPackage->profile;
 $organizationMapper = $userPackage->organizationMapper;
-$researchAreas = is_array($profileMapper->interestResearhAreas) ? $profileMapper->interestResearhAreas : [];
-$researchAreas = !empty($researchAreas) ? implode(', ', array_map(fn($e) => $e->currentLangData('areaName'), $researchAreas)) : '-';
 $affiliatedInstitutions = $profileMapper->affiliatedInstitutions;
 $affiliatedInstitutions ??= [];
 $organizationText = $organizationMapper->currentLangData('name');
@@ -173,11 +171,6 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $text; ?></div>
-
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Áreas de investigación de interés'); ?></div>
-            <div class="base-text"><?= $researchAreas; ?></div>
 
             <div class="base-horizontal-space"></div>
 

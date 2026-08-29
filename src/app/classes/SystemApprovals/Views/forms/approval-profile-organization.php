@@ -12,8 +12,6 @@
      * @var string $action
      */
     $mapper = new OrganizationMapper($approvalMapper->referenceValue);
-    $researchAreas = is_array($mapper->interestResearhAreas) ? $mapper->interestResearhAreas : [];
-    $researchAreas = !empty($researchAreas) ? implode(', ', array_map(fn($e) => $e->currentLangData('areaName'), $researchAreas)) : '-';
     $affiliatedInstitutions = $mapper->affiliatedInstitutions;
     $affiliatedInstitutions ??= [];
     //Si no tiene admin se asigna el root
@@ -98,11 +96,6 @@
 
             <div class="base-title"><?=__($langGroup, 'Instituciones a las que pertenece');?></div>
             <div class="base-text"><?=!empty($affiliatedInstitutions) ? implode(', ', $affiliatedInstitutions) : '-';?></div>
-
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?=__($langGroup, 'Áreas de investigación de interés');?></div>
-            <div class="base-text"><?=$researchAreas;?></div>
 
             <div class="base-horizontal-space"></div>
 
