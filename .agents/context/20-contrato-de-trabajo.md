@@ -251,67 +251,59 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Última actualización: 2026-08-29, tras el BLOQUE AA — lote 2 de E3 CERRADO.**
+**Ultima actualizacion: 2026-08-29, tras el BLOQUE AB — lote 3 de E3 CERRADO.**
 
-> **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campaña ENTERA — «toda es toda».
+> **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campana ENTERA — «toda es toda».
 
-### Dónde estamos
+### Donde estamos
 
-**E2 cerrada** (W). **E3: lotes 1 y 2 cerrados.** Quedan tres.
+**E2 cerrada** (W). **E3: lotes 1, 2 y 3 cerrados.** Quedan dos.
 
 ```
 lote 1   tablas 35->33   src/ 5.437->5.427   PHPStan 883->844
 lote 2   tablas 33->32   vistas 5->4         PHPStan 844->830
+lote 3   tablas 32->30   vistas 4->3         PHPStan 830->768   archivos 5.303->5.181
 ```
 
-**Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde ·
-PHPStan **830** = baseline · 27 leyes.
+**Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde,
+**20 comprobaciones**, 103 enlaces, 193 retornos sin declarar · PHPStan **768** = baseline ·
+27 leyes.
 
-| Lote | Qué | Estado |
+| Lote | Que | Estado |
 | :-- | :-- | :-- |
 | 1 | Experiencias previas + consumidores | listo |
 | 2 | `ImagesRepository` + consumidores | listo |
-| 3 | `ApplicationCalls` + consumidores | siguiente — su vista ya la cubre `scheme-drop` |
-| 4 | `InterestResearchAreas` + consumidores | se lleva el alias |
-| 5 | `DataImportExportUtility` — reescritura | juicio de ARQUITECTO: la última |
+| 3 | `ApplicationCalls` + consumidores | listo |
+| 4 | `InterestResearchAreas` + consumidores | **siguiente** — se lleva el alias, y TOCA EL NUCLEO |
+| 5 | `DataImportExportUtility` — reescritura | juicio de ARQUITECTO: la ultima |
 
-### LO GRANDE QUE ESTE BLOQUE ABRIO — 195 retornos ignorados
+**El lote 4 es el unico que toca `src/app/config/functions.php`**, que cita el alias de
+`SubMappers/`. Al cerrarlo ese directorio queda VACIO y se borra de verdad, cerrando lo que T6
+afirmaba y que el lote 1 tuvo que desmentir.
 
-`db-backup` mentia porque descartaba el retorno del exportador y comprobaba el exito con
-`file_exists()`: **el archivo existe igual aunque la exportacion reviente a mitad**. Arreglado, y
-ahora se verifica a si mismo por dos caminos.
+### Metodo, dos correcciones nacidas del bloque AB
 
-El censo de la clase (`bin/censo-retornos-ignorados`, tokenizado, 790 archivos):
-
-```
-retornos descartados ................................ 485
-  ...que senalan fallo POR EXCEPCION (PDO, no cuentan) 290
-  ...QUE SENALAN FALLO POR VALOR DEVUELTO ...........  195   <- 8 veces el umbral
-unlink 37 · file_put_contents 36 · mkdir 29 · chmod 22 · fwrite 15
-nucleo 47 · Terminal 38 · bin/ 21 · Cache 12 · Helpers 10 · Database 10
-```
-
-**Aparecer en la lista NO es ser un defecto**: un `unlink()` de un temporal puede ignorarse a
-conciencia. **Decision de ARQUITECTO: no se triaja a mano, se pone un trinquete.** Lo deliberado se
-DECLARA y se cuenta aparte; lo no declarado es la lista que tiene que encoger. Es el trinquete de
-PHPStan aplicado a otra clase. **No bloquea E3.**
+- **«Murio con su archivo» se decide MIRANDO EL DISCO**, no por ausencia en el resumen de PHPStan:
+  un archivo que baja a CERO errores desaparece del informe igual que uno borrado. Con el metodo
+  anterior el lote 3 habria dicho 61/0 en vez de 60/2. Los TOTALES de los lotes 1 y 2 son
+  correctos; lo que pudo quedar mal es el desglose. No se rehacen.
+- **Un censo por TEXTO tiene techo, y solo lo cruza un instrumento que entiende TIPOS.** El lote 3
+  necesito DOCE formas y un canario —que cazo que `\bAPPLICATION` no casa dentro de
+  `FEATURE_TYPE_APPLICATION_CALLS`, porque el guion bajo es caracter de palabra— y AUN ASI se le
+  escapo una llamada que encontro PHPStan. **El paso 6 de la plantilla incluye la pasada de
+  PHPStan como parte del censo, no como paso posterior.**
 
 ### Abierto, sin decidir
 
-- **Los 195**, con su trinquete. Primero los que *reportan exito* tras el fallo —la forma de
-  `db-backup`—, y `nucleo` y `Database` antes que el resto, porque viajan a cada clon.
-- **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. La puerta ya
-  no esta ciega —tokeniza y sigue el flujo—; las cuatro quedan DECLARADAS, no calladas. Modulo que
-  SE CONSERVA.
-- **`createDynamicSymlink()` nunca retira un enlace cuyo destino desaparecio.** La hipotesis de
-  ARQUITECTO —residuo del `umask`— **era falsa**: los diez se trazaron a los commits que borraron
-  sus destinos. Es una causa VIVA y vuelve en los lotes 3, 4 y 5. Esta en el paso 6 de la plantilla.
-- **Los guiones de permisos**: diez divergencias medidas, entre ellas `sudo chown -R` seguido de
-  `chmod` SIN sudo —si el propietario elegido no es quien ejecuta, todos los `chmod` fallan y el
-  guion sale con 0—. Propuesta aceptada: partir en `bin/censo-permisos` (no interactivo, solo lee,
-  puede entrar en `verify-integrity`) y el que aplica, con `sudo` y `set -euo pipefail`.
-- **`files/API/`**: 20 archivos generados POR MODULO fuera de `src/`. Siguiente candidata a entrar
-  en el universo de la foto.
+- **Los retornos ignorados**, congelados: **193 sin declarar**, 1 declarado con motivo, trinquete
+  en la comprobacion 19. La marca vive PEGADA a la llamada y trae su motivo — una lista por
+  `archivo:linea` se pudre en cuanto la linea se mueve. Orden para cuando toque: primero los que
+  REPORTAN EXITO tras el fallo, y dentro de eso `nucleo` (47) y `Database` (10).
+- **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. Declaradas,
+  no calladas. Modulo que SE CONSERVA.
+- **`files/API/`**: 20 archivos generados POR MODULO fuera de `src/`. Candidata a entrar en el
+  universo de la foto.
+- **Los guiones de permisos**: diez divergencias medidas. Propuesta aceptada y sin ejecutar.
 - **`phpstan-strict-rules`** · **las tres listas de LEY 11** · **T86** · **la asimetria de T114**.
 - **El procedimiento de despliegue** -> E6 · **el 4.0.0 del paquete** -> E5.
 - **Los 81 bloques del registro**: el borrado espera al cierre de E6.
@@ -325,6 +317,5 @@ el sistema de errores en TRES MODOS —mantenedor, desarrollo, produccion—, in
 cambia es la reaccion, nunca el registro*, y los tres modos con puerta.
 
 **Y una nota del PROPIETARIO, sin desarrollar a proposito** (2026-08-29): al cerrar la campana,
-ARQUITECTO debe recordarle **«Perfeccionar geovisor»**. El no quiso gastar contexto explicandolo
-ahora; el sabra a que se refiere. Queda escrito aqui y no en la memoria de ARQUITECTO porque una
-compactacion se lo llevaria.
+ARQUITECTO debe recordarle **«Perfeccionar geovisor»**. El sabra a que se refiere. Queda escrito
+aqui y no en la memoria de ARQUITECTO porque una compactacion se lo llevaria.

@@ -27,7 +27,7 @@ Ya eliminados en ramas anteriores: chat interno, presentaciones de capacitación
 | SystemApprovals | 4.339 | 8 | 3 | Mecanismo agnóstico; **el core depende de él** |
 | API | 4.093 | 3 | 5 | Conservar |
 | Documents | 3.268 | 3 | 1 | Marcado «por renovar» |
-| InterestResearchAreas | 3.008 | 0 | 3 | Capa de proyecto, hoja |
+| ~~InterestResearchAreas~~ | 3.008 | 0 | 3 | **BORRADO** en el lote 4 de E3 (bloque AC) |
 | Terminal | 2.287 | 1 | 1 | Núcleo. Conservar |
 | Newsletter | 1.982 | 2 | 0 | Hoja aislada |
 | ContentNavigationHub | 1.546 | 3 | 4 | Capa de proyecto. Acople en 8 vistas |
@@ -100,6 +100,7 @@ Organizations ←→ MySpace ←→ ApplicationCalls ←→ ContentNavigationHub
                                  (borrado en AB)        el recorte de E3
       ↑             ↑              ↑                     ↑
       └──── SystemApprovals ── ReportsManage ── InterestResearchAreas ── GeoJSONManager
+                                                      (borrado en AC)
 ```
 
 **~30.000 LOC, el 34 % de `app/classes/`.** Todos apuntan a `Organizations`, y hoy
@@ -116,7 +117,7 @@ acoplamiento está **muy concentrado**, y eso cambia el diagnóstico por módulo
 | **ReportsManage** | 5 | 4 en `Queries/ReportsManageQueries.php`, 1 en el controlador | **Base válida.** El motor de reportes es genérico; las consultas concretas son del proyecto. Separar `Queries/` |
 | **SystemApprovals** | 3 | Ver desglose abajo | **Mecanismo agnóstico**, envoltorio no |
 | **MySpace** | 8 | `MySpaceController` (7) + 3 controladores de perfil de organización | **Desacoplable.** Ver abajo |
-| **InterestResearchAreas** | 3 | Controlador + mapper | Específico del dominio |
+| **~~InterestResearchAreas~~** | 3 | Controlador + mapper | **BORRADO** (bloque AC) |
 | **~~ApplicationCalls~~** | 3 | Controlador + una vista | **BORRADO** (bloque AB) |
 | **ContentNavigationHub** | 4 | 1 controlador + **8 vistas** | El más enredado: el acoplamiento está en las vistas |
 
@@ -174,9 +175,9 @@ No borrar: **separar por capas**, no por módulos.
 1. **Base reutilizable** — `Organizations`, `SystemApprovals` (tras sacar el SQL del
    mapper), `GeoJSONManager` (tras aislar su controlador), `ReportsManage` (tras
    separar `Queries/`), `MySpace` como home genérico.
-2. **Capa de proyecto** — ~~`ApplicationCalls`~~ *(borrado, bloque AB)*, `InterestResearchAreas`,
-   `ContentNavigationHub`, los `Util/Packages/*` de aprobaciones, las `Queries/` de
-   reportes, los handlers de GeoJSON.
+2. **Capa de proyecto** — ~~`ApplicationCalls`~~ *(borrado, AB)*, ~~`InterestResearchAreas`~~
+   *(borrado, AC)*, `ContentNavigationHub`, los `Util/Packages/*` de aprobaciones, las
+   `Queries/` de reportes, los handlers de GeoJSON.
 
 Orden natural: primero mover los 3 controladores de perfil a `Organizations`, luego
 invertir el home de MySpace, luego el SQL del mapper de aprobaciones. Cada paso baja

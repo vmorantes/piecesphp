@@ -168,7 +168,6 @@ Dentro de las vistas y métodos, los assets se cargan con `set_custom_assets()`,
 | **GeoJSONManager** | `GeoJSONManager` | Gestión de capas GeoJSON (usa `piecesphp/geojson`) |
 | **GoogleReCaptchaV3** | `GoogleReCaptchaV3` | Integración reCAPTCHA v3 |
 | **Importers** | `Importers` | Importadores de datos (`Managers/`, `Controller/`) |
-| **InterestResearchAreas** | `InterestResearchAreas` | Áreas de interés/investigación |
 | **MySpace** | `MySpace` | "Mi espacio": mi perfil, mi organización, recursos |
 | **News** | `News` | Noticias internas + categorías + marcado de leídas |
 | **Newsletter** | `Newsletter` | Suscriptores de newsletter |
@@ -184,7 +183,7 @@ Dentro de las vistas y métodos, los assets se cargan con `set_custom_assets()`,
 
 | Ruta | Qué es |
 | :-- | :-- |
-| `PiecesPHP/UserSystem/` | Sistema de usuarios: perfiles (`UserProfileMapper` + `SubMappers/`), autenticación OTP/TOTP, `UserDataPackage`, rutas y vistas |
+| `PiecesPHP/UserSystem/` | Sistema de usuarios: perfiles (`UserProfileMapper`; `SubMappers/` se borró en el bloque AC al quedar vacío), autenticación OTP/TOTP, `UserDataPackage`, rutas y vistas |
 | `PiecesPHP/LocalizationSystem/` | Gestión de idiomas y traducciones desde el panel (`Packages/`, `Util/`) |
 | `PiecesPHP/BuiltIn/Banner/` | Banners de inicio (`HOME_IMAGE_BANNER`) |
 | `PiecesPHP/BuiltIn/Helpers/` | Contenidos genéricos (`GenericContentController`, `GenericContentPseudoMapper`) |

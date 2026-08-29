@@ -14087,3 +14087,128 @@ la ruta**, verde al retirarlo.
 casos del bloque AA: `db-backup` comprobando el éxito con `file_exists()`, y los guiones de
 permisos haciendo `sudo chown` y luego `chmod` sin `sudo`. La forma es la misma en los dos:
 **se comprueba un efecto colateral del intento en vez del resultado del intento.**
+
+
+---
+
+## T143 · AC · E3 CIERRA SUS BORRADOS, Y `SubMappers/` SE VA DE VERDAD
+
+### AC1 · El lote 4, medido desde cero
+
+Las cifras del alias que venían del lote 1 —84 apariciones en 17 archivos— **no se
+reutilizaron**: los lotes 2 y 3 ya se habían llevado parte por delante. Censo nuevo.
+
+**Y el vocabulario NO se inventó.** Se barrió el árbol con una red ancha —cualquier token
+que contuviera `esear[ch]h` o `nteres`— y de ahí salieron **47 tokens distintos**, que
+luego se clasificaron. Así aparecieron formas que una lista escrita a mano no habría
+tenido: `getInteresResearchAreas` (con «Interes», sin la ese), `interestResearhAreasNames`,
+`interestResearhAreasColorsNames`, `controlResearhAreasDropdown`, `research-areas-title`.
+
+| | dentro | fuera |
+| :-- | --: | --: |
+| Archivos que lo nombran | 16 | 31 |
+
+#### Lo que MIDIÓ el riesgo antes de tocarlo
+
+> **`interestResearhAreas` NO ES UNA COLUMNA. Es una META-PROPIEDAD**, guardada dentro del
+> JSON de `meta`: todo el SQL la lee con `JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')`.
+
+Eso cambia el tamaño del lote. **No hay DDL de perfiles ni de organizaciones que tocar** —a
+diferencia del lote 1, donde las experiencias previas tenían sus propias dos tablas—. La base
+actual no lleva ni un dato con esa clave; un despliegue real la conservaría en el `meta` como
+dato huérfano e inerte.
+
+**Cambio de comportamiento, y se dice**: el campo estaba entre los REQUERIDOS para dar un
+perfil —y una organización— por completos. Al irse, se completan con un campo menos.
+
+#### La PARADA AC1 no se dispara, y con la comprobación hecha
+
+`config/functions.php` pierde `getInteresResearchAreas()` **entera, 40 líneas**. No es un
+cambio de firma ni una función que se mueva de sitio: es una función que solo servía al
+módulo, y sus **tres** llamadores mueren o pierden su bloque en este mismo lote. Se comprobó
+que no la usa nadie más —solo la instantánea de firmas, que se regenera— antes de tocarla.
+Lo demás de `config/` es el desregistro de siempre: `routes.php` y `menu.php`.
+
+### AC1(b) · `SubMappers/` se borra, y eso cierra una afirmación de T6
+
+El alias era una clase **sin cuerpo** que solo extendía la del módulo. Con el módulo fuera,
+el alias sale, y el directorio queda vacío: se borra.
+
+> **T6 decía que `SubMappers/` se borraba completo y no quedaba nada que reubicar.** El lote
+> 1 lo desmintió: de sus tres archivos, dos eran de experiencias previas y el tercero
+> apuntaba a un módulo con **otro calendario**, así que hubo que parar y dejarlo en pie. Hoy
+> ese calendario llegó y la afirmación se vuelve cierta — **tres bloques después**.
+>
+> La corrección de método sigue valiendo igual: **antes de borrar un directorio «completo»,
+> se mira a dónde apunta cada archivo.** Que T6 acertara al final no significa que su método
+> fuera bueno; significa que tuvo suerte con el orden.
+
+### AC2 · Lo que el lote cerró además
+
+| | antes | después |
+| :-- | --: | --: |
+| Tablas | 30 | 29 |
+| Vistas | 3 | 3 |
+| Archivos en el universo de la foto | 5.181 | 5.090 |
+| PHPStan | 768 | 749 |
+
+**Foto: 51 diferencias, las 51 del lote** — 1 tabla, 25 archivos editados, 1 alias y 24 del
+módulo.
+
+    [REPARTO] 749 <- 768 = 0 arreglos + 0 supresiones + 19 murieron + 0 destapados
+              15 murieron CON SU ARCHIVO · 4 con código retirado de archivos que se quedan
+
+Con el método corregido: **«murió con su archivo» se decide MIRANDO EL DISCO.** Cero ajenos.
+
+**PHPStan como SEGUNDO MÉTODO del censo**, que es lo que enseñó el lote 3 —allí destapó una
+llamada que trece formas de texto no vieron—. Esta vez no encontró ninguna, que es el
+resultado que se buscaba.
+
+Los **seis** enlaces rotos del árbol servido, retirados en el lote que los produce.
+
+#### Fuera del universo de la foto, declarado
+
+`files/dev/volatile-state.json` · `files/dev/narrative-comments.json` ·
+`files/dev/integrity-signatures.json` · los cuatro artefactos de PHPStan · cuatro documentos
+de `.agents/context/`.
+
+**Y una residuo que se nombra en vez de callarse**: los diccionarios de traducción de los
+módulos que SE CONSERVAN —`MySpace/lang/*`, `SystemApprovals/lang/*`, `lang/sidebarAdminZone/*`
+y `lang/dynamic-translations/*`— conservan las claves de las cadenas retiradas, en seis
+idiomas. Son inertes —nadie las consulta— y **ningún lote de E3 las ha podado**, ni el 1 ni
+el 3. Queda dicho como deuda medida, no como algo que este bloque haya introducido.
+
+---
+
+## E3, LA FASE ENTERA — primera vez que se puede dar la cifra completa
+
+| Lote | Qué | Bloque |
+| --: | :-- | :-- |
+| 1 | Experiencias previas + consumidores | YC |
+| 2 | `ImagesRepository` + consumidores | Z y AA |
+| 3 | `ApplicationCalls` + consumidores | AB |
+| 4 | `InterestResearchAreas` + el alias + consumidores | AC |
+| 5 | `DataImportExportUtility` — **REESCRITURA, no borrado** | pendiente |
+
+**LOS CUATRO BORRADOS ESTÁN CERRADOS. Queda la reescritura.**
+
+| | al empezar E3 | hoy |
+| :-- | --: | --: |
+| Tablas | 35 | **29** |
+| Vistas | 5 | **3** |
+| PHPStan | 883 | **749** |
+
+**−6 tablas, −2 vistas, −134 errores de PHPStan.** Y de esos 134, **ni uno** salió de un
+arreglo o de una supresión: los cuatro repartos declaran `0 arreglos + 0 supresiones` y todo
+el descenso es código que dejó de existir.
+
+Tablas retiradas: `previous_experiences`, `organization_previous_experiences`,
+`image_repository_images`, `application_calls_elements`, `application_calls_attachments`,
+`interest_research_area`. Vistas: `image_repository_images_view`,
+`application_calls_active_date_elements`.
+
+> **Lo que E3 ha costado en instrumentos**, y no estaba previsto: la foto tuvo que aprender a
+> ver vistas y `databases/`; `scheme-drop` tuvo que aprender a emitir vistas; `db-backup` dejó
+> de mentir sobre respaldos incompletos; dos puertas cambiaron una cifra escrita por una cota
+> derivada; y `verify-integrity` ganó dos comprobaciones. **Ninguna de esas seis cosas era
+> trabajo de E3: las destapó E3.**

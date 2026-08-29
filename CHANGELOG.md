@@ -222,6 +222,41 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ CAMBIO INCOMPATIBLE — fuera las áreas de interés de investigación
+
+**E3, cuarto y último lote de borrado.** Desaparece `InterestResearchAreas` entero —24
+archivos y la tabla `interest_research_area`— y con él el **alias vacío** de
+`PiecesPHP/UserSystem/Profile/SubMappers/`, que era una clase sin cuerpo. Ese directorio
+queda vacío y también se borra.
+
+**Los perfiles de usuario y las organizaciones pierden un campo.** `interestResearhAreas`
+**no era una columna**: es una meta-propiedad guardada dentro del JSON de `meta`, así que no
+hay migración de esquema que aplicar. En un despliegue existente la clave se queda en el
+`meta` como dato huérfano e inerte.
+
+**Si mantienes módulos propios sobre este framework:**
+
+- **`getInteresResearchAreas()` YA NO EXISTE.** Vivía en `config/functions.php` y solo servía
+  a este módulo.
+- Los perfiles y las organizaciones ya no exponen `interestResearhAreasNames`,
+  `interestResearhAreasIDsNames` ni `interestResearhAreasColorsNames` en sus consultas.
+- El listado de actores y el mapa pierden su columna y su filtro de áreas.
+
+**Cambio de comportamiento**: el campo estaba entre los requeridos para dar un perfil —y una
+organización— por completos. Ahora se completan con un campo menos.
+
+## E3 cierra sus borrados
+
+| | al empezar | hoy |
+| :-- | --: | --: |
+| Tablas | 35 | 29 |
+| Vistas | 5 | 3 |
+| Errores de PHPStan | 883 | 749 |
+
+**−6 tablas, −2 vistas, −134 errores**, y de esos 134 ni uno salió de un arreglo ni de una
+supresión: es código que dejó de existir. Queda pendiente la reescritura de
+`DataImportExportUtility`, que no es un borrado.
+
 ## ⚠ CAMBIO INCOMPATIBLE — fuera el módulo de convocatorias, con sus dos tablas y su vista
 
 **E3, tercer lote.** Desaparece `ApplicationCalls` entero: 32 archivos, las tablas
