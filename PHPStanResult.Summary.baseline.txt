@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 844 tripletas (2026-08-28). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 835 tripletas (2026-08-29). NO DEJARLO PEOR.
 
 EL 2026-08-26 EL UNIVERSO CRECIÓ Y LA CIFRA NO. De 812 a 815 archivos analizados: entraron
 `bin/live-cache`, `bin/walk-attribute` y `bin/walk-routes`, los tres ejecutables de `bin/`
@@ -64,6 +64,16 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 835 <- 844 = 0 arreglos + 0 supresiones + 9 murieron + 0 destapados
+    Segundo lote de E3: `ImagesRepository`, borrado completo. Los NUEVE murieron CON SU
+    ARCHIVO —6 del controlador, 2 del mapper, 1 de la vista `filter-view`— y NINGUNO salió de
+    código retirado de un archivo que se queda. El lote anterior repartía 17/22; este, 9/0.
+
+    Y lo que de verdad hay que mirar: NINGÚN ARCHIVO AJENO AL LOTE MOVIÓ SU CIFRA. Los tres
+    que bajan son tres de los 27 borrados. Método: conteo por archivo del
+    `[ERRORES POR ARCHIVO]` de los dos resúmenes, con el MISMO analizador para los dos lados
+    —contarlos con dos parsers distintos ya dio 18 donde había 17, en YC—.
 
 [REPARTO] 844 <- 883 = 0 arreglos + 0 supresiones + 39 murieron + 0 destapados
     EL CUARTO TÉRMINO, y E3 lo va a producir seis veces: un error que se va PORQUE SE BORRÓ
@@ -175,10 +185,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-188
+185
 
 [TOTAL DE ERRORES VISIBLES]
-844
+835
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -186,13 +196,13 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 834
+En las dos (8.4 y 8.5): 825
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (352)
-property.nonObject (165)
+argument.type (345)
+property.nonObject (163)
 method.nonObject (121)
 return.type (55)
 assign.propertyType (35)
@@ -223,7 +233,7 @@ nullCoalesce.expr (1)
 project://bin/phpstan-process-result.php
 	variable.undefined (Líneas: 7, 9)
 	argument.type (Líneas: 39)
-	return.type (Líneas: 224)
+	return.type (Líneas: 225)
 project://files/CliScripts/CorregirTiempoDuraciónWebm.php
 	argument.type (Líneas: 17, 65, 151)
 	foreach.nonIterable (Líneas: 142)
@@ -340,12 +350,6 @@ project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 193, 313, 482)
-project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php
-	argument.type (Líneas: 172, 248, 250, 251, 253, 270)
-project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
-	property.nonObject (Líneas: 388, 411)
-project://src/app/classes/ImagesRepository/Views/images-repository/filter-view.php
-	argument.type (Líneas: 23)
 project://src/app/classes/Importers/Controller/ImporterController.php
 	assign.propertyType (Líneas: 91, 121)
 	argument.type (Líneas: 115, 144, 155, 165, 290, 297)

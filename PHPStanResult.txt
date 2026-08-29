@@ -549,39 +549,6 @@
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php                                     
- ------ ---------------------------------------------------------------------------------------------------------------- 
-  172    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.  
-         🪪  argument.type                                                                                               
-  248    Parameter Nr.2 $thumbWidth of function imageToThumbnail expects int, float|int given.                             
-         🪪  argument.type                                                                                               
-  250    Parameter Nr.1 $data of function imagecreatefromstring expects string, string|false given.                        
-         🪪  argument.type                                                                                               
-  251    Parameter Nr.1 $image of function imagesx expects GdImage, GdImage|false given.                                   
-         🪪  argument.type                                                                                               
-  253    Parameter Nr.2 $thumbWidth of function imageToThumbnail expects int, float|int<100, max> given.                   
-         🪪  argument.type                                                                                               
-  270    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.  
-         🪪  argument.type                                                                                               
- ------ ---------------------------------------------------------------------------------------------------------------- 
-
- ------ -------------------------------------------------------------------------- 
-  project://src/src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php       
- ------ -------------------------------------------------------------------------- 
-  388    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                    
-  411    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                    
- ------ -------------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------------------------------- 
-  project://src/src/app/classes/ImagesRepository/Views/images-repository/filter-view.php       
- ------ ------------------------------------------------------------------------------- 
-  23     Parameter Nr.1 $string of function last_char expects string, string|null given.  
-         🪪  argument.type                                                              
- ------ ------------------------------------------------------------------------------- 
-
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Importers/Controller/ImporterController.php                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -2666,5 +2633,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 850 errors                                                                                               
+ [ERROR] Found 841 errors                                                                                               
 

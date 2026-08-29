@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-188
+185
 
 [TOTAL DE ERRORES VISIBLES]
-844
+835
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,13 +12,13 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 834
+En las dos (8.4 y 8.5): 825
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (352)
-property.nonObject (165)
+argument.type (345)
+property.nonObject (163)
 method.nonObject (121)
 return.type (55)
 assign.propertyType (35)
@@ -166,12 +166,6 @@ project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 193, 313, 482)
-project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php
-	argument.type (Líneas: 172, 248, 250, 251, 253, 270)
-project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
-	property.nonObject (Líneas: 388, 411)
-project://src/app/classes/ImagesRepository/Views/images-repository/filter-view.php
-	argument.type (Líneas: 23)
 project://src/app/classes/Importers/Controller/ImporterController.php
 	assign.propertyType (Líneas: 91, 121)
 	argument.type (Líneas: 115, 144, 155, 165, 290, 297)
