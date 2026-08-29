@@ -7,8 +7,6 @@ use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use ApplicationCalls\Util\AttachmentPackage;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 /**
@@ -24,11 +22,6 @@ $researchAreas = is_array($profileMapper->interestResearhAreas) ? $profileMapper
 $researchAreas = !empty($researchAreas) ? implode(', ', array_map(fn($e) => $e->currentLangData('areaName'), $researchAreas)) : '-';
 $affiliatedInstitutions = $profileMapper->affiliatedInstitutions;
 $affiliatedInstitutions ??= [];
-/**
- * @var PreviousExperiencesMapper[]
- */
-$previousExperiences = PreviousExperiencesMapper::allBy('profile', $profileMapper->id);
-
 $organizationText = $organizationMapper->currentLangData('name');
 $userTypeText = UsersModel::getTypeUserName($userPackage->type);
 $isBaseOrganization = $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
@@ -221,58 +214,6 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
 
             <div class="base-horizontal-space"></div>
 
-            <?php if(!empty($previousExperiences)): ?>
-
-            <div class="base-title size4"><?= __($langGroup, 'Experiencias'); ?></div>
-
-            <div class="base-horizontal-space"></div>
-
-            <?php foreach($previousExperiences as $experienceRecord): ?>
-            <?php
-                $experience = new PreviousExperiencesMapper($experienceRecord->id);
-                $researchAreasExperience = array_map(fn($e) => (new InterestResearchAreasMapper($e))->currentLangData('areaName'), $experience->researchAreas);
-                $institutionsExperience = array_map(fn($e) => is_string($e) ? trim($e) : null, $experience->institutionsParticipated);
-                $institutionsExperience = array_filter(
-                    $experience->institutionsParticipated, 
-                    fn($e) => is_string($e) && mb_strlen($e) > 0
-                );
-            ?>
-
-            <div class="base-title size2"><?= __($langGroup, 'Nombre de la experiencia'); ?></div>
-            <div class="base-text mark2"><?= $experience->currentLangData('experienceName'); ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Tipo de experiencia'); ?></div>
-            <div class="base-text"><?= $experience->experienceTypeDisplayText(); ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Ubicación'); ?></div>
-            <div class="base-text"><?= __(LocationsLang::LANG_GROUP_NAMES, $experience->country->name); ?>, <?= __(LocationsLang::LANG_GROUP_NAMES, $experience->city->name); ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Fecha inicial'); ?></div>
-            <div class="base-text"><?= $experience->startDateFormat('%e %1 %B %1 Y', ['%1' => __(LANG_GROUP, 'de')]); ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Fecha final'); ?></div>
-            <div class="base-text"><?= $experience->endDateFormat('%e %1 %B %1 Y', ['%1' => __(LANG_GROUP, 'de')]); ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Descripción'); ?></div>
-            <div class="base-text"><?= $experience->currentLangData('description'); ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Actores implicados'); ?></div>
-            <div class="base-text"><?= !empty($institutionsExperience) ? implode(', ', $institutionsExperience) : '-'; ?></div>
-            <div class="base-horizontal-space"></div>
-
-            <div class="base-title"><?= __($langGroup, 'Área de investigación'); ?></div>
-            <div class="base-text"><?= !empty($researchAreasExperience) ? implode(', ', $researchAreasExperience) : '-'; ?></div>
-
-            <div class="base-horizontal-divider"></div>
-            <?php endforeach; ?>
-
-            <?php endif; ?>
 
         </form>
 
