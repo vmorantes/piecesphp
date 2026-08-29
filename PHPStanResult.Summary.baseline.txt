@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 768 tripletas (2026-08-29). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 749 tripletas (2026-08-29). NO DEJARLO PEOR.
 
 EL 2026-08-26 EL UNIVERSO CRECIÓ Y LA CIFRA NO. De 812 a 815 archivos analizados: entraron
 `bin/live-cache`, `bin/walk-attribute` y `bin/walk-routes`, los tres ejecutables de `bin/`
@@ -64,6 +64,22 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 749 <- 768 = 0 arreglos + 0 supresiones + 19 murieron + 0 destapados
+
+    Cuarto y último lote de borrado de E3: `InterestResearchAreas`, con el alias vacío de
+    `SubMappers/` y sus consumidores.
+
+        15  murieron CON SU ARCHIVO
+         4  con CÓDIGO RETIRADO de archivos que SE QUEDAN
+             (`MyProfileController`, y las dos vistas de aprobación)
+
+    NINGÚN ARCHIVO AJENO AL LOTE movió su cifra. Método: conteo por archivo de los dos
+    resúmenes, con el MISMO analizador, y «murió con su archivo» decidido MIRANDO EL DISCO.
+
+    PHPStan es aquí el SEGUNDO MÉTODO del censo de huérfanos, no solo una puerta: en el
+    lote 3 destapó una llamada que trece formas de texto no vieron. Esta vez no encontró
+    ninguna, que es el resultado que se buscaba.
 
 [REPARTO] 768 <- 830 = 0 arreglos + 0 supresiones + 62 murieron + 0 destapados
 
@@ -217,10 +233,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-173
+171
 
 [TOTAL DE ERRORES VISIBLES]
-768
+749
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -228,14 +244,14 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 759
+En las dos (8.4 y 8.5): 740
 Solo en 8.5: 9
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (321)
-property.nonObject (140)
-method.nonObject (111)
+argument.type (315)
+property.nonObject (129)
+method.nonObject (109)
 return.type (52)
 assign.propertyType (32)
 method.resultUnused (26)
@@ -349,7 +365,7 @@ project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	argument.type (Líneas: 217)
 	property.nonObject (Líneas: 254, 281)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
-	foreach.nonIterable (Líneas: 190, 310)
+	foreach.nonIterable (Líneas: 177, 284)
 project://src/app/classes/Importers/Controller/ImporterController.php
 	assign.propertyType (Líneas: 91, 121)
 	argument.type (Líneas: 115, 144, 155, 165, 290, 297)
@@ -358,25 +374,20 @@ project://src/app/classes/Importers/Controller/ImporterController.php
 	return.type (Líneas: 347)
 project://src/app/classes/Importers/Managers/ImporterUsers.php
 	method.nonObject (Líneas: 69, 70, 71)
-project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php
-	argument.type (Líneas: 422, 447, 1048)
-	property.nonObject (Líneas: 880, 881, 882, 971, 983, 1278, 1280, 1302, 1304)
-project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php
-	argument.type (Líneas: 177, 203, 407)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
-	property.nonObject (Líneas: 98, 98, 123, 129, 129, 129, 211, 211, 216, 216, 219, 304, 304, 305, 324, 475, 475)
-	argument.type (Líneas: 129)
-	method.nonObject (Líneas: 325)
+	property.nonObject (Líneas: 97, 97, 122, 128, 128, 128, 210, 210, 215, 215, 218, 303, 303, 304, 323, 474, 474)
+	argument.type (Líneas: 128)
+	method.nonObject (Líneas: 324)
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
-	method.nonObject (Líneas: 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 383)
-	property.nonObject (Líneas: 380, 381)
+	method.nonObject (Líneas: 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 351)
+	property.nonObject (Líneas: 349)
 project://src/app/classes/MySpace/Controllers/OrganizationProfileController.php
 	property.nonObject (Líneas: 83)
 project://src/app/classes/MySpace/Controllers/ProfileController.php
 	argument.type (Líneas: 80)
 	method.nonObject (Líneas: 108)
 project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php
-	foreach.nonIterable (Líneas: 86)
+	foreach.nonIterable (Líneas: 84)
 project://src/app/classes/MySpace/Views/example-resources.php
 	property.nonObject (Líneas: 12, 14)
 project://src/app/classes/MySpace/Views/user-security.php
@@ -403,12 +414,12 @@ project://src/app/classes/Newsletter/Controllers/NewsletterController.php
 project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
 	method.nonObject (Líneas: 137, 146)
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
-	property.nonObject (Líneas: 217, 1312, 1535)
-	argument.type (Líneas: 858, 1330, 1591)
-	offsetAccess.invalidOffset (Líneas: 1610)
+	property.nonObject (Líneas: 216, 1278, 1501)
+	argument.type (Líneas: 825, 1296, 1557)
+	offsetAccess.invalidOffset (Líneas: 1576)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
-	argument.type (Líneas: 441, 884, 886, 1002)
-	offsetAccess.invalidOffset (Líneas: 1003)
+	argument.type (Líneas: 437, 867, 869, 985)
+	offsetAccess.invalidOffset (Líneas: 986)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	property.nonObject (Líneas: 107, 110)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
@@ -440,7 +451,7 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
 	assign.propertyType (Líneas: 376, 403)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php
-	argument.type (Líneas: 219)
+	argument.type (Líneas: 216)
 project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	assign.propertyType (Líneas: 217)
 	return.type (Líneas: 299)
@@ -493,12 +504,11 @@ project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
 	assign.propertyType (Líneas: 88)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php
-	method.nonObject (Líneas: 16)
-	property.nonObject (Líneas: 20, 24, 74, 75)
-	argument.type (Líneas: 24)
+	property.nonObject (Líneas: 18, 22, 72, 73)
+	argument.type (Líneas: 22)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-user.php
-	property.nonObject (Líneas: 19, 21, 25, 148, 148, 156, 156, 164, 172)
-	method.nonObject (Líneas: 20, 23, 108, 116, 124, 132, 140)
+	property.nonObject (Líneas: 19, 23, 146, 146, 154, 154, 162, 170)
+	method.nonObject (Líneas: 21, 106, 114, 122, 130, 138)
 project://src/app/classes/SystemApprovals/Views/forms/approval-publications.php
 	method.nonObject (Líneas: 58, 70, 152)
 	argument.type (Líneas: 75, 84, 88)
@@ -525,7 +535,7 @@ project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
-	return.type (Líneas: 248)
+	return.type (Líneas: 247)
 project://src/app/config/roles.php
 	nullCoalesce.offset (Líneas: 112)
 project://src/app/controller/AdminPanelController.php
