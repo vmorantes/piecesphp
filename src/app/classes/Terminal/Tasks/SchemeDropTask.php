@@ -78,7 +78,29 @@ class SchemeDropTask extends SchemeSqlTask
             exit(1);
         }
 
-        self::emit(SchemeCreator::dropScript($found['creators']), count($found['creators']), $found['skipped']);
+        $script = SchemeCreator::dropScript($found['creators']);
+
+        //LAS VISTAS VAN DELANTE: una vista sobre una tabla borrada mata al exportador. Ver T141.
+        $tables = array_values(array_unique(array_map(
+            static fn (SchemeCreator $creator): string => $creator->getTable(),
+            $found['creators']
+        )));
+        $views = self::viewsDependingOn($tables);
+
+        if (!$views['readable']) {
+            //NO se calla: sin la fuente, este guion no puede afirmar que no hay vistas.
+            echoTerminal("\e[33mAVISO:\e[39m no se pudo leer {$views['source']}: las vistas NO se han comprobado.");
+        } elseif (count($views['views']) > 0) {
+            $head = "-- Vistas que seleccionan de estas tablas. VAN PRIMERO: una vista sobre una\r\n";
+            $head .= "-- tabla borrada rompe el exportador entero. Fuente: databases/piecesphp_views.sql\r\n";
+            foreach ($views['views'] as $view) {
+                $head .= "DROP VIEW IF EXISTS `{$view}`;\r\n";
+            }
+            $script = $head . "\r\n" . $script;
+        }
+
+        self::emit($script, count($found['creators']), $found['skipped']);
+        echoTerminal("\e[94mINFO:\e[39m " . count($views['views']) . ' vista(s) dependiente(s) en el script.');
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
     }

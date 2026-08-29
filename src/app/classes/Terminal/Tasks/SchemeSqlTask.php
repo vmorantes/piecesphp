@@ -155,6 +155,66 @@ abstract class SchemeSqlTask extends TerminalTaskAbstract
     }
 
     /**
+     * Vistas que SELECCIONAN de alguna de estas tablas.
+     *
+     * LA FUENTE NO ES `$fields`: una vista no lo tiene. Vive en
+     * `databases/piecesphp_views.sql`, que es el único sitio del repositorio donde están
+     * declaradas. Existe porque borrar una tabla y dejar su vista rota tumba `db-backup`
+     * entero — pasó con `image_repository_images_view` en el lote 2 de E3. Ver T141.
+     *
+     * @param string[] $tables Tablas del módulo.
+     * @return array{views: string[], readable: bool, source: string} Vistas ordenadas para
+     *                                                                 borrar, la de más
+     *                                                                 arriba primero.
+     */
+    protected static function viewsDependingOn(array $tables): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $source = dirname($repoRoot) . '/databases/piecesphp_views.sql';
+
+        if (!is_file($source)) {
+            return ['views' => [], 'readable' => false, 'source' => $source];
+        }
+
+        $sql = (string) @file_get_contents($source);
+        $declared = [];
+        //Cada vista termina con `);` en su propia línea; así se acota el cuerpo sin
+        //analizar SQL de verdad, que aquí no hace falta.
+        if (preg_match_all('/CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+`?(\w+)`?\s+AS\s*\((.*?)\n\s*\);/is', $sql, $matches, \PREG_SET_ORDER) > 0) {
+            foreach ($matches as $match) {
+                $referenced = [];
+                if (preg_match_all('/\b(?:FROM|JOIN)\s+`?(\w+)`?/i', $match[2], $refs) > 0) {
+                    $referenced = array_values(array_unique($refs[1]));
+                }
+                $declared[$match[1]] = $referenced;
+            }
+        }
+
+        $affected = [];
+        foreach ($declared as $view => $referenced) {
+            if (count(array_intersect($referenced, $tables)) > 0) {
+                $affected[] = $view;
+            }
+        }
+
+        //Una vista que selecciona de OTRA vista afectada se retira ANTES que ella. Hoy
+        //ninguna lo hace; el orden se calcula igual para que el guion no dependa de eso.
+        usort($affected, static function (string $a, string $b) use ($declared): int {
+            $aUsesB = in_array($b, $declared[$a] ?? [], true);
+            $bUsesA = in_array($a, $declared[$b] ?? [], true);
+            if ($aUsesB && !$bUsesA) {
+                return -1;
+            }
+            if ($bUsesA && !$aUsesB) {
+                return 1;
+            }
+            return strcmp($a, $b);
+        });
+
+        return ['views' => $affected, 'readable' => true, 'source' => $source];
+    }
+
+    /**
      * Módulo pedido por línea de órdenes, validado.
      *
      * @return string
