@@ -6,7 +6,6 @@
 
 namespace ReportsManage\Queries;
 
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Locations\LocationsLang;
 use App\Locations\Mappers\CountryMapper;
 use App\Model\UsersModel;
@@ -63,10 +62,6 @@ class ReportsManageQueries
         $totalOrganizationsQtyFrancia = self::getTotalOrganizationsQty($Francia !== null ? $Francia->id : -1);
         $totalOrganizationsQtyOthers = $totalOrganizationsQty - $totalOrganizationsQtyColombia - $totalOrganizationsQtyFrancia;
 
-        //Total de tipos de convocatorias
-        $totalApplicationsCallsQty = self::getTotalApplicationsCallsByTypeQty();
-        $totalApplicationsCallsBilateralProjectQty = self::getTotalApplicationsCallsByTypeQty(ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT);
-        $totalApplicationsCallsFundingOpportunityQty = self::getTotalApplicationsCallsByTypeQty(ApplicationCallsMapper::CONTENT_TYPE_FUNDING_OPPORTUNITY);
 
         //Total de publicaciones
         $totalApprovedPublicationsQty = self::getTotalPublicationsQty(SystemApprovalsMapper::STATUS_APPROVED);
@@ -148,10 +143,6 @@ class ReportsManageQueries
                     "unitText" => __(self::LANG_GROUP, 'organización(es)'),
                 ],
             ],
-            //Total de tipos de convocatorias
-            "totalApplicationsCallsQty" => $totalApplicationsCallsQty,
-            "totalApplicationsCallsBilateralProjectQty" => $totalApplicationsCallsBilateralProjectQty,
-            "totalApplicationsCallsFundingOpportunityQty" => $totalApplicationsCallsFundingOpportunityQty,
             //Total de publicaciones
             "totalApprovedPublicationsQty" => $totalApprovedPublicationsQty,
             "totalPendingPublicationsQty" => $totalPendingPublicationsQty,
@@ -286,60 +277,6 @@ class ReportsManageQueries
         //Filtrar por país
         if ($countryID !== null) {
             $whereSegment->addCritery(new WhereItem("{$table}.country", WhereItem::EQUAL_OPERATOR, $countryID));
-        }
-
-        $model->select("COUNT({$table}.id) AS total");
-        if ($whereSegment->countCriteria() > 0) {
-            $model->where($whereSegment);
-        }
-        if ($havingSegment->countCriteria() > 0) {
-            $model->having($havingSegment);
-        }
-        $model->execute();
-        $result = $model->result();
-        $total = !empty($result) ? (int) $result[0]->total : 0;
-
-        return $total;
-    }
-
-    /**
-     * @param string $contentType
-     * @return int
-     */
-    public static function getTotalApplicationsCallsByTypeQty(?string $contentType = null)
-    {
-
-        $table = ApplicationCallsMapper::TABLE;
-        $tableAppovals = SystemApprovalsMapper::TABLE;
-        $model = ApplicationCallsMapper::model();
-
-        //Select
-        $model->select();
-
-        $whereSegment = new WhereSegment();
-        $havingSegment = new HavingSegment();
-
-        //Filtrar por estado
-        $whereSegment->addCritery(new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, ApplicationCallsMapper::ACTIVE));
-
-        //Filtrar por aprobación
-        $whereSegmentApprovals = new WhereSegment();
-        $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceValue", WhereItem::EQUAL_OPERATOR, "{$table}.id"));
-        $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceTable", WhereItem::EQUAL_OPERATOR, "'{$table}'"));
-        $whereSegmentApprovals = strReplaceTemplate((string) $whereSegmentApprovals, $whereSegmentApprovals->getReplacementValues());
-        $subQueryApprovals = "SELECT {$tableAppovals}.status FROM {$tableAppovals} {$whereSegmentApprovals} LIMIT 1";
-        $whereSegment->addCritery(new WhereItem(
-            "({$subQueryApprovals})",
-            WhereItem::EQUAL_OPERATOR,
-            '"' . SystemApprovalsMapper::STATUS_APPROVED . '"',
-            '',
-            null,
-            false
-        ));
-
-        //Filtrar por tipo de contenido
-        if ($contentType !== null) {
-            $whereSegment->addCritery(new WhereItem("{$table}.contentType", WhereItem::EQUAL_OPERATOR, $contentType));
         }
 
         $model->select("COUNT({$table}.id) AS total");

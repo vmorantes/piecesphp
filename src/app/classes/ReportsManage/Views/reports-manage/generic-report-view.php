@@ -90,15 +90,6 @@ $currentUser = getLoggedFrameworkUser();
 
                 <div class="two-columns-grid two-on-break-1">
 
-                    <div class="card-statistic tall">
-                        <div class="toolbar">
-                            <div class="help" data-tooltip="">
-                                <i class="icon help"></i>
-                            </div>
-                        </div>
-                        <div class="data">
-                            <div data-type="totalApplicationsCallsFundingOpportunityQty" class="number">0&nbsp;</div>
-                        </div>
                         <div class="footer">
                             <div class="caption">
                                 <?= __($langGroup, 'Total de oportunidades de financiación'); ?>
@@ -108,15 +99,6 @@ $currentUser = getLoggedFrameworkUser();
                         </div>
                     </div>
 
-                    <div class="card-statistic tall">
-                        <div class="toolbar">
-                            <div class="help" data-tooltip="">
-                                <i class="icon help"></i>
-                            </div>
-                        </div>
-                        <div class="data">
-                            <div data-type="totalApplicationsCallsBilateralProjectQty" class="number">0&nbsp;</div>
-                        </div>
                         <div class="footer">
                             <div class="caption">
                                 <?= __($langGroup, 'Proyectos bilaterales'); ?>
