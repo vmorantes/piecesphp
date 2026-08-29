@@ -11,6 +11,81 @@ use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
 
+/**
+ * ¿Este archivo decide la operación a partir del CUERPO de la petición?
+ *
+ * SE TOKENIZA. La versión anterior buscaba el literal `$isEdit = $id !== -1;` y por eso no
+ * vio cuatro controladores que escriben `$is_edit`, con guion bajo, desde T120. Un literal
+ * comprueba una propiedad del TEXTO, no del comportamiento. Ver LEY 24 y T141.
+ *
+ * Lo que busca es el flujo: una variable que sale de `getParsedBodyParam('id', …)` y acaba
+ * decidiendo otra variable comparándose contra `-1`. El nombre da igual.
+ *
+ * @param string $codigo Código PHP completo.
+ * @return bool
+ */
+function derivaLaOperacionDelCuerpo(string $codigo): bool
+{
+    $tokens = @token_get_all($codigo);
+    if (!is_array($tokens)) {
+        return false;
+    }
+
+    $planos = [];
+    foreach ($tokens as $token) {
+        if (is_array($token)) {
+            if (in_array($token[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)) {
+                continue;
+            }
+            $planos[] = ['tipo' => $token[0], 'texto' => $token[1]];
+        } else {
+            $planos[] = ['tipo' => null, 'texto' => $token];
+        }
+    }
+
+    //Paso 1: qué variables salen del `id` del CUERPO.
+    $delCuerpo = [];
+    $total = count($planos);
+    for ($i = 0; $i < $total - 6; $i++) {
+        if ($planos[$i]['tipo'] !== \T_VARIABLE || $planos[$i + 1]['texto'] !== '=') {
+            continue;
+        }
+        for ($j = $i + 2; $j < min($i + 10, $total - 2); $j++) {
+            if ($planos[$j]['tipo'] !== \T_STRING || $planos[$j]['texto'] !== 'getParsedBodyParam') {
+                continue;
+            }
+            $argumento = $planos[$j + 2]['texto'] ?? '';
+            if (trim($argumento, "'\"") === 'id') {
+                $delCuerpo[$planos[$i]['texto']] = true;
+            }
+            break;
+        }
+    }
+
+    if (count($delCuerpo) === 0) {
+        return false;
+    }
+
+    //Paso 2: alguna de ellas decide un booleano comparándose contra -1.
+    for ($i = 0; $i < $total - 5; $i++) {
+        if ($planos[$i]['tipo'] !== \T_VARIABLE || $planos[$i + 1]['texto'] !== '=') {
+            continue;
+        }
+        if ($planos[$i + 2]['tipo'] !== \T_VARIABLE || !isset($delCuerpo[$planos[$i + 2]['texto']])) {
+            continue;
+        }
+        $comparadores = [\T_IS_NOT_IDENTICAL, \T_IS_IDENTICAL, \T_IS_NOT_EQUAL, \T_IS_EQUAL];
+        if (!in_array($planos[$i + 3]['tipo'], $comparadores, true)) {
+            continue;
+        }
+        if ($planos[$i + 4]['texto'] === '-' && ($planos[$i + 5]['texto'] ?? '') === '1') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 CliActions::make('unit-tests:core/operation-from-route', function ($args) {
 
     echoTerminal("\e[33m[TEST:OperationFromRoute] La ruta decide la operación, no el cuerpo\e[39m");
@@ -111,7 +186,7 @@ CliActions::make('unit-tests:core/operation-from-route', function ($args) {
     $raiz = rtrim(str_replace('\\', '/', basepath('')), '/') . '/app/classes';
     $usanAyudante = [];
     $compartenManejador = [];
-    $conElViejo = 0;
+    $derivanDelCuerpo = [];
     $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($raiz, \FilesystemIterator::SKIP_DOTS));
     foreach ($iterador as $archivo) {
         if (!$archivo->isFile() || strtolower($archivo->getExtension()) !== 'php') {
@@ -122,8 +197,10 @@ CliActions::make('unit-tests:core/operation-from-route', function ($args) {
         if (mb_strpos($contenido, 'self::isEditRoute($request)') !== false) {
             $usanAyudante[] = $ruta;
         }
-        if (mb_strpos($contenido, '$isEdit = $id !== -1;') !== false) {
-            $conElViejo++;
+        //LA PREGUNTA NO ES SI EXISTE UN LITERAL. Buscar `$isEdit = $id !== -1;` dejó CUATRO
+        //controladores sin ver desde T120: escriben `$is_edit`, con guion bajo. Ver T141.
+        if (derivaLaOperacionDelCuerpo($contenido)) {
+            $derivanDelCuerpo[] = $ruta;
         }
 
         //LA POBLACIÓN, por un método INDEPENDIENTE del anterior: el MISMO manejador registrado
@@ -159,7 +236,30 @@ CliActions::make('unit-tests:core/operation-from-route', function ($args) {
         'todos los que comparten manejador usan el ayudante',
         count($compartenManejador) . ' comparten, ' . $conAyudante . ' usan el ayudante; sin él: ' . implode(', ', $sinAyudante)
     );
-    $check($conElViejo === 0, 'y ninguno deriva ya la operación del cuerpo', "quedan={$conElViejo}");
+    //LOS CUATRO DECLARADOS, con su razón y su puntero. Si aparece un quinto, esto se pone
+    //rojo: una excepción declarada no es una excepción abierta. Ver T141 y LEY 2.
+    $exceptionesDeclaradas = [
+        'App/Locations/Controllers/City.php',
+        'App/Locations/Controllers/Country.php',
+        'App/Locations/Controllers/Point.php',
+        'App/Locations/Controllers/State.php',
+    ];
+    sort($derivanDelCuerpo);
+    $sinDeclarar = array_values(array_diff($derivanDelCuerpo, $exceptionesDeclaradas));
+    $declaradasQueYaNo = array_values(array_diff($exceptionesDeclaradas, $derivanDelCuerpo));
+
+    $check(
+        count($sinDeclarar) === 0,
+        'ninguno deriva la operación del cuerpo, salvo los declarados',
+        count($derivanDelCuerpo) . ' derivan; sin declarar: ' . implode(', ', $sinDeclarar)
+    );
+    //LA LISTA SOLO PUEDE ENCOGER, y encoger incluye vaciarse: si uno se arregla, hay que
+    //quitarlo de aquí, o la declaración empieza a cubrir algo que ya no existe.
+    $check(
+        count($declaradasQueYaNo) === 0,
+        'y la lista de excepciones no cubre nada que ya esté arreglado',
+        'sobran: ' . implode(', ', $declaradasQueYaNo)
+    );
 
     echoTerminal(' ');
     $total = $passed + $failed;
