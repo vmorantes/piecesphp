@@ -16,7 +16,6 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Validation\Validator;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -45,7 +44,6 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @property \stdClass|string|null $meta
  * @property string $baseLang
  * @property \stdClass|null $langData
- * @property int[]|InterestResearchAreasMapper[]|null $interestResearhAreas
  * @property string[] $affiliatedInstitutions
  */
 class UserProfileMapper extends EntityMapperExtensible
@@ -191,7 +189,6 @@ class UserProfileMapper extends EntityMapperExtensible
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), true), 'baseLang');
-        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY_MAPPER, null, true, InterestResearchAreasMapper::class, 'id'), 'interestResearhAreas');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY, [], false), 'affiliatedInstitutions');
         parent::__construct($value, $fieldCompare);
 
@@ -476,9 +473,6 @@ class UserProfileMapper extends EntityMapperExtensible
      *  - countryName
      *  - cityName
      *  - fullLocation
-     *  - interestResearhAreasNames
-     *  - interestResearhAreasIDsNames
-     *  - interestResearhAreasColorsNames
      *  - baseLang
      * @return string[]
      */
@@ -489,7 +483,6 @@ class UserProfileMapper extends EntityMapperExtensible
         $mapper = (new UserProfileMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
-        $tableInterestResearchAreas = InterestResearchAreasMapper::TABLE;
         $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
         $tableCity = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
 
@@ -497,12 +490,6 @@ class UserProfileMapper extends EntityMapperExtensible
         $countryName = "(SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country)";
         $cityName = "(SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city)";
 
-        //Áreas de investigación
-        $researchAreas = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas'))";
-        $areaNameCurrentLang = InterestResearchAreasMapper::fieldCurrentLangForSQL('areaName');
-        $researchAreasNameSubQuery = "SELECT GROUP_CONCAT($areaNameCurrentLang SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndIDSubQuery = "SELECT GROUP_CONCAT(CONCAT({$tableInterestResearchAreas}.id, ':', $areaNameCurrentLang) SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndColorSubQuery = "SELECT GROUP_CONCAT(CONCAT(JSON_UNQUOTE(JSON_EXTRACT({$tableInterestResearchAreas}.meta, '$.color')), ':', $areaNameCurrentLang) SEPARATOR '|@|') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
 
         //Usuario
         $tableUser = UsersModel::TABLE;
@@ -529,9 +516,6 @@ class UserProfileMapper extends EntityMapperExtensible
             "{$countryName} AS countryName",
             "{$cityName} AS cityName",
             "CONCAT((SELECT countryName), '{$locationSeparator}', (SELECT cityName)) AS fullLocation",
-            "({$researchAreasNameSubQuery}) AS interestResearhAreasNames",
-            "({$researchAreasNameAndIDSubQuery}) AS interestResearhAreasIDsNames",
-            "({$researchAreasNameAndColorSubQuery}) AS interestResearhAreasColorsNames",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
@@ -598,7 +582,7 @@ class UserProfileMapper extends EntityMapperExtensible
      * Verifica si el perfil de un usuario está completo.
      *
      * Un perfil se considera completo si tiene todos los campos requeridos llenos.
-     * Los campos requeridos son: jobPosition, nationality, country, city, latitude, longitude e interestResearhAreas.
+     * Los campos requeridos son: jobPosition, nationality, country, city, latitude y longitude.
      *
      * @param int $userID El ID del usuario.
      * @return bool true si el perfil está completo, false de lo contrario.
@@ -621,7 +605,6 @@ class UserProfileMapper extends EntityMapperExtensible
                 'city' => fn($e) => Validator::isInteger($e),
                 'latitude' => fn($e) => Validator::isDouble($e),
                 'longitude' => fn($e) => Validator::isDouble($e),
-                'interestResearhAreas' => fn($e) => is_array($e) && !empty($e),
             ];
 
             foreach ($requiredProperties as $requiredProperty => $validator) {
@@ -883,7 +866,6 @@ class UserProfileMapper extends EntityMapperExtensible
 
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
-            'interestResearhAreas' => null,
             'affiliatedInstitutions' => [],
         ];
 
