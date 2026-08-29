@@ -54,7 +54,7 @@ src/app/classes/MiModulo/
 ├── Views/mi-modulo/{list.php, forms/{add.php,edit.php}}
 ├── Statics/{sass/mi-modulo.scss, js/mi-modulo/{list,add-form,edit-form,delete-config}.js}
 ├── Exceptions/SafeException.php
-└── lang/{es.php,en.php,fr.php,de.php,it.php,pt.php}
+└── lang/{es.php,en.php}
 ```
 El namespace raíz es `MiModulo` (PSR-4 sobre `src/app/classes`); no hay que tocar
 `autoloads.php`.

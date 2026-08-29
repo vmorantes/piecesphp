@@ -33,7 +33,7 @@ src/app/classes/News/
 │   └── js/{NewsAdapter.js, news/{list,add-form,edit-form,delete-config}.js,
 │            categories/{...}}
 ├── Exceptions/{SafeException.php, DuplicateException.php}
-└── lang/{es.php, en.php, fr.php, ...}  + lang/files/
+└── lang/{es.php, en.php}  + lang/files/
 ```
 
 Variantes que aparecen en otros módulos: `Util/`, `Enums/`, `Managers/`,

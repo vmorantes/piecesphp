@@ -142,8 +142,8 @@ Las vistas **de módulo** no viven aquí: viven en
 
 #### `app/lang/`
 
-Archivos por idioma en la raíz (`es.php`, `en.php`, `fr.php`, `de.php`, `it.php`,
-`pt.php`, `default.php`) más subcarpetas por grupo temático
+Archivos por idioma en la raíz (`es.php`, `en.php`, `default.php`) más subcarpetas por
+grupo temático
 (`usersModule`, `adminZone`, `sidebarAdminZone`, `app_config`, `loginReport`,
 `mailingGeneral`, `public`, `about-framework`, `files`, `FileValidator`,
 `replace-generic-titles`), y las carpetas operativas
