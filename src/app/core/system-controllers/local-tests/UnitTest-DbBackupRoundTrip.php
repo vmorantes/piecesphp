@@ -142,9 +142,7 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
     } finally {
         $db->prepare('DELETE FROM pcsphp_users WHERE id = ?')->execute([$userID]);
         $db->prepare('DELETE FROM user_system_profile WHERE belongsTo = ?')->execute([$userID]);
-        //LA FILA DE APROBACIÓN NO LA ESCRIBE ESTA SUITE, PERO ES SUYA: al arrancar la app,
-        //`SystemApprovalManager::init()` rellena una por cada usuario que no la tenga, y el
-        //subproceso de arriba arranca mientras el usuario de prueba existe. Ver T140.
+        //La fila de aprobación la escribe `SystemApprovalManager::init()` al arrancar. Ver T140.
         $db->prepare('DELETE FROM system_approvals_elements WHERE referenceTable = ? AND referenceValue = ?')
             ->execute(['pcsphp_users', (string) $userID]);
         foreach ($after as $file) {

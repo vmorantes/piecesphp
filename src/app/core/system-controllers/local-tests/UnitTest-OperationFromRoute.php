@@ -104,27 +104,61 @@ CliActions::make('unit-tests:core/operation-from-route', function ($args) {
     $check(mb_strpos($mensaje, 'no corresponde con la ruta') === false,
         'y el mensaje NO es el del desajuste', $mensaje);
 
-    //─── El contrato en los 13 sitios ──────────────────────────────────────────────────
+    //─── El contrato, sobre una población DERIVADA DEL ÁRBOL ───────────────────────────
     echoTerminal(' ');
-    echoTerminal('[extra] Los 13 controladores usan el ayudante y ninguno deriva del cuerpo');
+    echoTerminal('[extra] Todo controlador que comparte manejador toma la operación de la ruta');
 
     $raiz = rtrim(str_replace('\\', '/', basepath('')), '/') . '/app/classes';
-    $conAyudante = 0;
+    $usanAyudante = [];
+    $compartenManejador = [];
     $conElViejo = 0;
     $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($raiz, \FilesystemIterator::SKIP_DOTS));
     foreach ($iterador as $archivo) {
         if (!$archivo->isFile() || strtolower($archivo->getExtension()) !== 'php') {
             continue;
         }
+        $ruta = str_replace($raiz . '/', '', (string) $archivo->getPathname());
         $contenido = (string) @file_get_contents((string) $archivo->getPathname());
         if (mb_strpos($contenido, 'self::isEditRoute($request)') !== false) {
-            $conAyudante++;
+            $usanAyudante[] = $ruta;
         }
         if (mb_strpos($contenido, '$isEdit = $id !== -1;') !== false) {
             $conElViejo++;
         }
+
+        //LA POBLACIÓN, por un método INDEPENDIENTE del anterior: el MISMO manejador registrado
+        //para `-actions-add` y para `-actions-edit`. Quien comparte metodo necesita el ayudante.
+        $manejadores = [];
+        if (preg_match_all('/new\s+Route\s*\((.*?)\)\s*,/s', $contenido, $bloques) > 0) {
+            foreach ($bloques[1] as $argumentos) {
+                foreach (['-actions-add', '-actions-edit'] as $sufijo) {
+                    if (mb_strpos($argumentos, $sufijo) === false) {
+                        continue;
+                    }
+                    $partes = explode(',', $argumentos);
+                    if (isset($partes[1])) {
+                        $manejadores[$sufijo][] = trim($partes[1]);
+                    }
+                }
+            }
+        }
+        //Solo si el archivo DEFINE el método: `Locations.php` registra rutas para OTRAS cuatro
+        //clases con un manejador en variable, y esas cuatro NO pasan por aquí. Ver T140.
+        $comparte = isset($manejadores['-actions-add'], $manejadores['-actions-edit'])
+            && count(array_intersect($manejadores['-actions-add'], $manejadores['-actions-edit'])) > 0;
+        if ($comparte && mb_strpos($contenido, 'public function action(') !== false) {
+            $compartenManejador[] = $ruta;
+        }
     }
-    $check($conAyudante === 13, 'los 13 lo usan', "encontrados={$conAyudante}");
+    $conAyudante = count($usanAyudante);
+    //NO una cifra escrita: la poblacion sale del arbol. Un `13` aqui se pudre en el primer
+    //borrado de E3 —paso con `prefer-slug` en YC y con este mismo en el lote 2—. Ver T140.
+    $sinAyudante = array_values(array_diff($compartenManejador, $usanAyudante));
+    $check(
+        count($sinAyudante) === 0,
+        'todos los que comparten manejador usan el ayudante',
+        count($compartenManejador) . ' comparten, ' . $conAyudante . ' usan el ayudante; sin él: ' . implode(', ', $sinAyudante)
+    );
     $check($conElViejo === 0, 'y ninguno deriva ya la operación del cuerpo', "quedan={$conElViejo}");
 
     echoTerminal(' ');
