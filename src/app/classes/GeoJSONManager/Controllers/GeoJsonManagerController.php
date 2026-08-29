@@ -6,7 +6,6 @@
 
 namespace GeoJSONManager\Controllers;
 
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
@@ -92,8 +91,6 @@ class GeoJsonManagerController extends AdminPanelController
         if ($featuresType == FeaturesTypes::PROFILES->value) {
             $geometries = self::withPersonsProfiles($geometries, $queryParams);
             $geometries = self::withOrganizationsProfiles($geometries, $queryParams);
-        } else if ($featuresType == FeaturesTypes::APPLICATION_CALLS->value) {
-            $geometries = self::withApplicationCalls($geometries, $queryParams);
         }
         $geoJSON = GeoJSONFactory::getGeoJsonFromGeometries($geometries);
 
@@ -336,183 +333,6 @@ class GeoJsonManagerController extends AdminPanelController
                 //Añadir feature
                 $geometries->append($feature);
             }
-        }
-
-        return $geometries;
-    }
-
-    public static function withApplicationCalls(FeaturesCollection $geometries, array $params = [])
-    {
-
-        /**
-         * @var string|null $search
-         * @var int[]|null $researchAreas
-         * @var int[]|null $organizations
-         * @var string[]|null $contentType
-         * @var string[]|null $financingType
-         * @var \DateTime|null $startDate
-         * @var \DateTime|null $endDate
-         */
-        $search = $params['search'] ?? null;
-        $researchAreas = $params['researchAreas'] ?? null;
-        $organizations = $params['organizations'] ?? null;
-        $contentType = $params['contentType'] ?? null;
-        $financingType = $params['financingType'] ?? null;
-        $startDate = $params['startDate'] ?? null;
-        $endDate = $params['endDate'] ?? null;
-
-        $whereString = null;
-        $havingString = null;
-        $and = 'AND';
-        $where = [];
-        $having = [];
-        $table = ApplicationCallsMapper::TABLE;
-        $fields = ApplicationCallsMapper::fieldsToSelect();
-
-        //NOTE: Validación de criterios extraída de ApplicationCallsController::_all()
-        $approvedValue = SystemApprovalsRoutes::ENABLE ? SystemApprovalsMapper::STATUS_APPROVED : null;
-        if ($approvedValue !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "systemApprovalStatus = '{$approvedValue}'";
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if ($search !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $titleField = ApplicationCallsMapper::fieldCurrentLangForSQL('title');
-            $contentField = ApplicationCallsMapper::fieldCurrentLangForSQL('content');
-            $fields[] = "{$titleField} AS titleForQuerySearch";
-            $fields[] = "{$contentField} AS contentForQuerySearch";
-            $critery = [
-                "UPPER(titleForQuerySearch) LIKE UPPER('%{$search}%')",
-                "UPPER(contentForQuerySearch) LIKE UPPER('%{$search}%')",
-                "TRIM(UPPER(targetCountriesNames)) COLLATE utf8_general_ci LIKE TRIM(UPPER('%{$search}%'))",
-            ];
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($researchAreas)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = [];
-            foreach ($researchAreas as $researchArea) {
-                $critery[] = "JSON_CONTAINS(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')), {$researchArea})";
-            }
-            $critery = implode(' OR ', $critery);
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($organizations)) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [];
-            foreach ($organizations as $organization) {
-                $critery[] = "organizationID = {$organization}";
-            }
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($contentType)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $contentType = implode("','", $contentType);
-            $critery = "{$table}.contentType IN ('{$contentType}')";
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($financingType)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $financingType = implode("','", $financingType);
-            $critery = "{$table}.financingType IN ('{$financingType}')";
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        $startDateStr = $startDate !== null ? $startDate->format('Y-m-d 00:00:00') : '';
-        $endDateStr = $endDate !== null ? $endDate->format('Y-m-d 00:00:00') : '';
-        if ($startDate !== null && $endDate !== null) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $startDateCritery = "DATE({$table}.startDate) >= '{$startDateStr}'";
-            $endDateCritery = "DATE({$table}.endDate) <= '{$endDateStr}'";
-            $critery = "({$startDateCritery}) AND ({$endDateCritery})";
-            $where[] = "{$beforeOperator} ({$critery})";
-        } else {
-            if ($startDate !== null) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "DATE({$table}.endDate) >= '{$startDateStr}' AND '{$startDateStr}' <= DATE({$table}.startDate)";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-            if ($endDate !== null) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "DATE({$table}.startDate) <= '{$endDateStr}' AND DATE({$table}.endDate) >= '{$endDateStr}'";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-        }
-
-        $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
-        $now = $now->getTimestamp();
-        $unixNowDate = "FROM_UNIXTIME({$now})";
-        $startDateSQL = "{$table}.startDate";
-        $endDateSQL = "{$table}.endDate";
-
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "{$startDateSQL} <= {$unixNowDate} OR {$table}.startDate IS NULL";
-        $where[] = "{$beforeOperator} ({$critery})";
-
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
-        $where[] = "{$beforeOperator} ({$critery})";
-
-        if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-        }
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
-        $model = ApplicationCallsMapper::model();
-        $model->select($fields);
-        if ($whereString !== null) {
-            $model->where($whereString);
-        }
-        if ($havingString !== null) {
-            $model->having($havingString);
-        }
-        $model->execute();
-        $result = $model->result();
-        $usersProfilesByUserID = [];
-        foreach ($result as $record) {
-
-            if (!array_key_exists($record->createdBy, $usersProfilesByUserID)) {
-                $usersProfilesByUserID[$record->createdBy] = UserProfileMapper::getProfile($record->createdBy);
-            }
-            $userProfile = $usersProfilesByUserID[$record->createdBy];
-
-            if ($userProfile !== null) {
-                $lat = $userProfile->latitude;
-                $lng = $userProfile->longitude;
-                if ($lat !== null && $lng !== null) {
-
-                    $applicationCallMapper = new ApplicationCallsMapper($record->id);
-
-                    //Agrego datos a la feature
-                    $featureProperties = [
-                        'name' => $applicationCallMapper->currentLangData('title'),
-                        'pointHTML' => ContentNavigationHubController::view('contents/map-elements/profile-application-call-point', [
-                            'mapper' => $applicationCallMapper,
-                        ], false),
-                        'cardHTML' => ContentNavigationHubController::view('contents/map-elements/profile-application-call-card', [
-                            'mapper' => $applicationCallMapper,
-                        ], false),
-                    ];
-
-                    //Crear feature
-                    $point = new Point($lng, $lat);
-                    $feature = GeoJSONFactory::getFeatureFromGeometry(new GeometryPackage($point), $featureProperties);
-
-                    //Añadir feature
-                    $geometries->append($feature);
-                }
-            }
-
         }
 
         return $geometries;
