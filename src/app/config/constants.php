@@ -47,7 +47,6 @@ define('PUBLICATIONS_MODULE', true);
 define('NEWS_MODULE', true);
 
 //Repositorio de imágenes
-define('IMAGES_REPOSITORY', true);
 
 //Módulo de documentos
 define('DOCUMENTS_MODULE_ENABLE', true);

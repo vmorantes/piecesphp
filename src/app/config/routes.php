@@ -60,7 +60,6 @@ use FileManager\FileManagerRoutes;
 use Forms\FormsRoutes;
 use GeoJSONManager\GeoJsonManagerRoutes;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
-use ImagesRepository\ImagesRepositoryRoutes;
 use Importers\Controller\ImporterController;
 use InterestResearchAreas\InterestResearchAreasRoutes;
 use MySpace\MySpaceRoutes;
@@ -192,7 +191,6 @@ NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 NewsRoutes::routes($zona_administrativa);
 
 //Registro fotográfico
-ImagesRepositoryRoutes::routes($zona_administrativa);
 
 //Formularios
 FormsRoutes::routes($zona_administrativa);

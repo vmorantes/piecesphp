@@ -100,13 +100,6 @@
       "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
     },
     {
-      "file": "src/app/classes/ImagesRepository/Statics/js/images-repository/utils.js",
-      "blocks": 1,
-      "prose": 4,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
       "file": "src/app/classes/Importers/Statics/js/users.js",
       "blocks": 1,
       "prose": 3,
