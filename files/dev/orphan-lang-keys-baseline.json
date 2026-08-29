@@ -1,0 +1,24 @@
+{
+    "why": "El paso 6 de la plantilla de lote censaba IDENTIFICADORES y NUNCA CENSÓ TEXTO VISIBLE. Los cuatro lotes de E3 dieron cero honesto dentro de ese universo —LEY 15— y aun así dejaron 39 cadenas huérfanas en los diccionarios de los módulos que SE CONSERVAN, más texto de un módulo muerto renderizándose en una vista viva. Lo vio el PROPIETARIO, no la puerta. Se congela lo que ya había para que no crezca.",
+    "rules": [
+        "LA CIFRA QUE TIENE QUE ENCOGER ES `cadenas_distintas`. Un módulo que muere se lleva sus claves de los diccionarios que se quedan; si la cifra sube, ese barrido no se hizo.",
+        "Las 53 congeladas son ANTERIORES a E3: se midieron sobre el árbol de `68bb1378^` con el mismo instrumento. NO se retiran aquí — este bloque limpia lo que E3 ensució, no la deuda que se encontró.",
+        "El censo da por huérfana una clave que se pida con `__($grupo, $variable)`, porque no resuelve variables. Por eso es un trinquete sobre lo que CRECE y NO una lista de borrado automático."
+    ],
+    "medido": {
+        "fecha": "2026-08-29",
+        "bloque": "AD",
+        "herramienta": "bin/censo-claves-huerfanas",
+        "universo": "archivos .php/.js/.ts bajo `src/` fuera de `lang/` para los usos, y los .php bajo cualquier `lang/` para las claves; excluidos vendor, node_modules, bin/tools, app/logs, dumps, statics/plugins, statics/core, server-delegated, missing-lang-messages y app/cache",
+        "codigo": 708,
+        "diccionarios": 75,
+        "canario": "dos caras — una cadena que SÍ se pide sale pedida, y una inventada no. Si alguna falla, el censo no se hace."
+    },
+    "cifras": {
+        "claves_declaradas": 775,
+        "cadenas_pedidas": 901,
+        "entradas_huerfanas": 80,
+        "cadenas_distintas": 53
+    },
+    "como_se_separo_lo_de_E3": "Se extrajo el árbol previo a E3 con `git archive 68bb1378^` y se corrió el MISMO censo sobre él: 69 cadenas huérfanas antes, 92 después. Las 39 de diferencia son las que dejó E3 y se retiraron en este bloque. Las 53 que quedan ya estaban, y se declaran como deuda anterior, no como residuo."
+}

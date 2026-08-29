@@ -210,6 +210,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 20. Ningún enlace del árbol servido apunta al vacío ──────────────────────
         $symlinkFailures = self::checkDanglingDelegatedLinks();
 
+        //──── 21. Las claves de traducción que nadie pide no han crecido ───────────────
+        $langFailures = self::checkOrphanLangKeys();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -218,13 +221,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
             + count($orderFailures) + count($orphanFailures)
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
-            + count($symlinkFailures);
+            + count($symlinkFailures) + count($langFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
         }
         foreach ($symlinkFailures as $line) {
             echoTerminal("\e[31mENLACE:\e[39m {$line}");
+        }
+        foreach ($langFailures as $line) {
+            echoTerminal("\e[31mTRADUCCIÓN:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -2357,6 +2363,48 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function toolchainAutoloadPath(): string
     {
         return dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/bin/tools/vendor/autoload.php';
+    }
+
+    /**
+     * Las claves de traducción que NADIE pide no han crecido.
+     *
+     * Delega en `bin/censo-claves-huerfanas --trinquete`, que es donde vive el método.
+     *
+     * Existe porque el paso 6 de la plantilla de lote censaba IDENTIFICADORES y nunca
+     * censó TEXTO VISIBLE: los cuatro lotes de E3 dieron cero honesto dentro de ese
+     * universo y aun así dejaron 39 cadenas huérfanas en los diccionarios de los módulos
+     * que se conservan. Ver T144.
+     *
+     * @return string[]
+     */
+    protected static function checkOrphanLangKeys(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $script = $root . '/bin/censo-claves-huerfanas';
+
+        if (!is_file($script)) {
+            //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
+            return ['no existe ' . $script . ': el trinquete de traducciones NO se ha comprobado'];
+        }
+
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
+        exec('cd ' . escapeshellarg($root) . ' && ' . escapeshellarg($script) . ' --trinquete 2>&1', $output, $status);
+
+        $line = '';
+        foreach ($output as $candidate) {
+            if (mb_strpos($candidate, 'TRINQUETE') === 0) {
+                $line = $candidate;
+            }
+        }
+
+        if ($status !== 0) {
+            return [$line !== '' ? $line : 'el censo de claves salió con código ' . $status];
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'claves de traducción comprobadas.'));
+        return [];
     }
 
     /**

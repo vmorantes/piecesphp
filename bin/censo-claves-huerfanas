@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Claves de traducción que NADIE pide.
+
+POR QUÉ EXISTE
+--------------
+El paso 6 de la plantilla de lote censaba IDENTIFICADORES y nunca censó TEXTO VISIBLE. Los
+cuatro lotes de E3 dieron cero honesto dentro de ese universo —LEY 15— y aun así dejaron
+39 cadenas huérfanas en los diccionarios de los módulos que SE CONSERVAN, más texto de un
+módulo muerto renderizándose en una vista viva. Lo vio el PROPIETARIO, no la puerta.
+
+QUÉ MIDE
+--------
+Una clave es huérfana si su cadena NO aparece como segundo argumento de ningún `__()` del
+código vivo. En este framework la clave ES el texto en español, así que la comparación es
+cadena contra cadena y no hace falta resolver nada.
+
+QUÉ NO MIDE: si una clave se pide desde una plantilla construida en tiempo de ejecución
+—`__($grupo, $variable)`— este censo la dará por huérfana. Por eso es un TRINQUETE sobre lo
+que CRECE, no una lista de borrado automático.
+
+Uso:
+  bin/censo-claves-huerfanas              la tabla
+  bin/censo-claves-huerfanas --detalle    cada clave con su archivo
+  bin/censo-claves-huerfanas --trinquete  compara contra la línea base y FALLA si crecen
+"""
+
+import collections
+import json
+import os
+import re
+import sys
+
+BASELINE = 'files/dev/orphan-lang-keys-baseline.json'
+
+#FUERA, y por su nombre: lo descargado, lo generado y el rastro de traducciones faltantes.
+EXCLUIDOS = ('/vendor/', '/node_modules/', '/.git/', '/bin/tools/', '/app/logs/', '/dumps/',
+             '/statics/plugins/', '/statics/core/', '/server-delegated/',
+             '/missing-lang-messages/', '/app/cache/')
+
+
+def barre(raiz, exts):
+    encontrados = []
+    for base, dirs, files in os.walk(raiz):
+        for f in files:
+            ruta = os.path.join(base, f).replace('\\', '/')
+            if any(x in '/' + ruta for x in EXCLUIDOS):
+                continue
+            if f.endswith(exts):
+                encontrados.append(ruta)
+    return encontrados
+
+
+def cadenas_pedidas(archivos):
+    """Todo lo que algún `__()` pide como segundo argumento."""
+    patrones = [
+        re.compile(r"__\(\s*[^,()]+,\s*'((?:[^'\\]|\\.)*)'"),
+        re.compile(r'__\(\s*[^,()]+,\s*"((?:[^"\\]|\\.)*)"'),
+    ]
+    usadas = set()
+    for ruta in archivos:
+        contenido = open(ruta, encoding='utf-8', errors='replace').read()
+        for patron in patrones:
+            for m in patron.finditer(contenido):
+                usadas.add(m.group(1))
+    return usadas
+
+
+def main():
+    argumentos = sys.argv[1:]
+    detalle = '--detalle' in argumentos
+    trinquete = '--trinquete' in argumentos
+
+    codigo = [r for r in barre('src', ('.php', '.js', '.ts')) if '/lang/' not in r]
+    diccionarios = [r for r in barre('src', ('.php',)) if '/lang/' in r]
+
+    usadas = cadenas_pedidas(codigo)
+
+    #CANARIO DE DOS CARAS: una cadena que SÍ se pide tiene que salir pedida, y una inventada
+    #no. Sin las dos, un «cero huérfanas» no significaría nada. LEY 16.
+    control_viva = 'Ubicación'
+    control_inventada = 'zzz-cadena-que-no-existe-en-ninguna-parte'
+    if control_viva not in usadas or control_inventada in usadas:
+        print(f'CANARIO CAÍDO: «{control_viva}» no aparece pedida, o la inventada sí.', file=sys.stderr)
+        print('               EL CENSO NO SE HACE.', file=sys.stderr)
+        return 2
+    print(f'CANARIO VIVO: «{control_viva}» sale pedida y la inventada no.')
+
+    huerfanas = collections.defaultdict(list)
+    total_claves = 0
+    for ruta in diccionarios:
+        contenido = open(ruta, encoding='utf-8', errors='replace').read()
+        for m in re.finditer(r'^\s*"((?:[^"\\]|\\.)*)"\s*=>', contenido, re.M):
+            total_claves += 1
+            if m.group(1) not in usadas:
+                huerfanas[ruta].append(m.group(1))
+
+    distintas = {c for v in huerfanas.values() for c in v}
+    entradas = sum(len(v) for v in huerfanas.values())
+
+    print(f'UNIVERSO: {len(codigo)} archivos de código · {len(diccionarios)} diccionarios')
+    print(f'          {total_claves} claves declaradas · {len(usadas)} cadenas pedidas por `__()`\n')
+    print(f'CLAVES HUÉRFANAS: {entradas} entrada(s), {len(distintas)} cadena(s) distinta(s), '
+          f'en {len(huerfanas)} diccionario(s)\n')
+    for ruta in sorted(huerfanas, key=lambda x: -len(huerfanas[x])):
+        print(f'  {len(huerfanas[ruta]):4d}  {ruta}')
+        if detalle:
+            for c in sorted(huerfanas[ruta]):
+                print(f'          {c}')
+
+    if not trinquete:
+        return 0
+
+    print('')
+    crudo = None
+    try:
+        with open(BASELINE, encoding='utf-8') as f:
+            crudo = json.load(f)
+    except (OSError, ValueError):
+        #Sin línea base el trinquete no significa nada, y decirlo es mejor que pasar en verde.
+        print(f'TRINQUETE: no se pudo leer {BASELINE}. SIN LÍNEA BASE NO HAY TRINQUETE.')
+        return 1
+
+    cota = int(crudo.get('cifras', {}).get('cadenas_distintas', -1))
+    if cota < 0:
+        print(f'TRINQUETE: {BASELINE} no trae `cifras.cadenas_distintas`.')
+        return 1
+
+    #EL UNIVERSO TAMBIÉN SE COMPARA: menos diccionarios mirados dan menos huérfanas sin que
+    #nadie haya arreglado nada. Ver LEY 15.
+    universo = int(crudo.get('medido', {}).get('diccionarios', 0))
+    if universo > 0 and universo != len(diccionarios):
+        print(f'TRINQUETE: el universo cambió — {universo} diccionarios al congelar, '
+              f'{len(diccionarios)} ahora. La cifra NO es comparable hasta declararlo.')
+
+    if len(distintas) > cota:
+        print(f'TRINQUETE ROTO: {len(distintas)} cadenas huérfanas contra una cota de {cota} '
+              f'(+{len(distintas) - cota}).')
+        print('                Un módulo que muere se lleva sus claves de los diccionarios que se quedan.')
+        return 1
+    if len(distintas) < cota:
+        print(f'TRINQUETE: {len(distintas)} contra una cota de {cota} (-{cota - len(distintas)}).')
+        print(f'           Baja la cota en {BASELINE}, con la fecha y el motivo.')
+        return 1
+    print(f'TRINQUETE: {len(distintas)} cadenas huérfanas, igual que la línea base.')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
