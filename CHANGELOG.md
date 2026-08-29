@@ -164,6 +164,67 @@ piecesphp/datastructures` muestra las dos exigencias de `^4.0` —la del framewo
 resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 suites en verde y
 `verify-integrity` sin novedad.
 
+### 8 · La aplicación se sirve en `es` y `en`. `/fr/`, `/de/`, `/it/` y `/pt/` dan 404
+
+Decisión del PROPIETARIO. Los cuatro idiomas **no se borraron: se dejaron comentados** en los
+once sitios que hay que tocar, porque este framework se clona y ese resto es el único ejemplo
+completo de cómo se da de alta un idioma. Cada sitio lleva la marca
+`@codigo-comentado · IDIOMA COMENTADO`, y el mapa entero está en `.agents/context/08-i18n.md`.
+
+**Si tu despliegue servía alguno de los cuatro**, descomenta su línea en los ocho sitios de
+`src/app/config/lang.php` y atiende los tres de fuera —diccionarios, `translations/<code>.js` y
+los idiomas de CKEditor y elFinder—. Con el primero basta para que la URL vuelva a existir.
+
+Lo que se retira de verdad: `src/statics/core/js/translations/{fr,de,it,pt}.js`. El front
+ofrecía arranque en idiomas que PHP ya no puede completar.
+
+**MEDIDO**, provocándolo sobre copia guardada y restaurando por `sha256`:
+
+| | comentado | descomentado |
+| :-- | :-- | :-- |
+| `/fr/` | 404 | 200 |
+| banderas del selector | 1 (`gb`) | 2 (`gb`, `fr`) |
+
+`/` sigue en 200 y en español; `/en/` en 200 y en inglés.
+
+---
+
+## `lc_time_names`: un candidato descartado dejó de registrarse como error
+
+`BaseModel` y `BaseEntityMapper` prueban una lista de locales por idioma
+—`'es' => ['es_ES', 'es_CO', 'es_MX']`—, se quedan con el primero que la base acepta y
+**registraban una excepción por cada uno que descartaban**. En un servidor donde `es_ES` no
+exista —MariaDB y varias versiones de MySQL traen listas distintas— el mecanismo funciona
+perfectamente y llena el registro de errores mientras funciona. Es el `db-backup` al revés:
+aquel reportaba éxito sobre un fallo, este reportaba fallo sobre un éxito.
+
+Ahora solo se registra si fallan TODOS, y entonces **una sola vez**, diciendo el idioma y los
+candidatos probados. **MEDIDO** con una petición idéntica y tres candidatos inválidos:
+
+| | entradas en el registro |
+| :-- | :-- |
+| antes | **6** — tres candidatos × dos clases |
+| ahora | **2** — una por clase, nombrando los tres |
+| con un candidato válido al final | **0** |
+
+El bloque estaba **duplicado línea por línea** en las dos clases —28 líneas, idénticas salvo de
+dónde sale la conexión— y pasa a `PiecesPHP\Core\LcTimeNamesTrait`. No habían derivado
+todavía; se unifica antes de que lo hagan.
+
+Queda anotado en `.agents/context/12-convenciones.md` que la interpolación de
+`SET lc_time_names = '…'` es **forzada** —`SET` no admite parámetros— y **no es inyectable**:
+el idioma solo se usa como clave y el valor sale de la lista blanca de configuración.
+
+---
+
+## Una línea de código comentada no es un relato
+
+La puerta de comentarios narrativos contaba como prosa **cualquier** línea comentada, así que
+«comentar en vez de borrar» —lo que pidió el PROPIETARIO para los idiomas— la ponía roja: cuatro
+entradas comentadas seguidas son un bloque de cuatro líneas de prosa. La anotación
+**`@codigo-comentado`** exime al bloque, igual que ya lo hacían `@param` o `@return`. Se declara
+en el sitio, no se adivina con una heurística.
+
 ---
 
 ## Documentación — la LEY 19 llega a cinco casos, y los cinco son de la misma persona

@@ -119,6 +119,12 @@ desordenado:
   los finales del destino, pero un archivo nuevo no tiene destino: nace con los del proceso que lo
   escribió, y git lo voltea la primera vez que lo toca. Para git eso es invisible; **para la foto
   de E3 es una diferencia que hay que ir a investigar**. Ver T140.
+- **Una edición en una vista se cierra CONTANDO ETIQUETAS, antes y después.** Anclar por
+  SANGRÍA no es anclar: la sangría no dice qué cierra un `</div>`. Dos veces cerró un contenedor
+  INTERIOR —`generic-report-view.php` en AB, las dos vistas de perfil en AC— y la primera dejó
+  dos pies de tarjeta huérfanos con sus etiquetas RENDIDAS EN PANTALLA: 96/96 → 86/88 → 80/80.
+  **Lo vio el PROPIETARIO, no la puerta.** Desde AE lo vigila la comprobación 22 de
+  `verify-integrity`, pero la puerta llega al commit y la cuenta llega a la edición. Ver T145.
 
 ---
 
@@ -251,79 +257,86 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-29, tras el BLOQUE AC — E3 CIERRA SUS BORRADOS.**
+**Ultima actualizacion: 2026-08-29, tras el BLOQUE AD — E3 CERRADA.**
 
 > **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campana ENTERA — «toda es toda».
+> Y su criterio de reparto, dado en AD: **lo que CORRIGE una trampa entra en la campana; lo que
+> EXTIENDE una capacidad, no.**
 
 ### Donde estamos
 
-**E2 cerrada** (W). **E3: los cuatro lotes de borrado, cerrados.** Queda la REESCRITURA.
+**E2 cerrada** (W). **E3 CERRADA** (YC, Z, AA, AB, AC, AD): cuatro lotes de borrado y su residuo
+visible retirado.
 
 ```
                 al empezar E3     hoy
 Tablas                     35      29     -6
 Vistas                      5       3     -2
-PHPStan                   883     749   -134
+PHPStan                   883     749   -134   (0 arreglos, 0 supresiones: todo es codigo borrado)
 ```
 
-**De esos 134, NI UNO salio de un arreglo ni de una supresion**: los cuatro repartos declaran
-`0 arreglos + 0 supresiones`. Todo el descenso es codigo que dejo de existir. Dicho al reves, para
-que nadie lo lea como mejora del codigo que se queda: **E3 no arreglo nada, borro**. Los 749 que
-quedan siguen ahi.
+`DataImportExportUtility` **sale de E3 y pasa a E5** como CONSOLIDACION, por decision del
+PROPIETARIO: agrupar el importador interactivo, las exportaciones de entidades y la importacion
+exogena, conservando extensibilidad, portabilidad y boilerplate. **Es un ARQUETIPO**, no codigo de
+produccion: su prueba de aceptacion es si alguien puede construir uno nuevo a partir de el sin
+leerse el nucleo.
 
-**Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde,
-20 comprobaciones, 97 enlaces, 193 retornos sin declarar · PHPStan **749** = baseline · 27 leyes.
+**Puertas**: `gates` 23 suites · `verify-integrity` verde, **21 comprobaciones**, 53 claves
+huerfanas declaradas · PHPStan **749** = baseline · 27 leyes.
 
-| Lote | Que | Estado |
-| :-- | :-- | :-- |
-| 1 | Experiencias previas + consumidores | listo (YC) |
-| 2 | `ImagesRepository` + consumidores | listo (Z, AA) |
-| 3 | `ApplicationCalls` + consumidores | listo (AB) |
-| 4 | `InterestResearchAreas` + el alias | listo (AC) |
-| 5 | `DataImportExportUtility` — REESCRITURA | **pendiente, y SIN ESPECIFICACION** |
+**SIGUIENTE: E4** — pruebas unitarias de lo pruebaunitariable, y la ventana de correo (T7).
 
-### Lo que E3 costo en instrumentos, y no era trabajo de E3
+### El residuo de E3, y lo que enseno
 
-La foto aprendio a ver VISTAS y `databases/` · `scheme-drop` aprendio a emitir vistas ·
-`db-backup` dejo de mentir sobre respaldos incompletos · dos puertas cambiaron una cifra escrita
-por una cota derivada · `verify-integrity` gano dos comprobaciones. **Ninguna era trabajo de E3.
-Las destapo E3.**
+El PROPIETARIO vio rotulos fantasma en pantalla y perdio la confianza. Tenia razon, y era peor que
+texto rancio: **`ReportsManage/generic-report-view.php` estaba ROTO, y lo rompimos nosotros en el
+bloque AB** anclando un cierre en un `</div>` por SANGRIA FIJA que cerraba un div interior. Divs
+96/96 -> 86/88 -> hoy 80/80. Las otras nueve vistas que E3 toco cuadran, porque alli si se
+contaron etiquetas.
 
-### Metodo, tres correcciones nacidas de E3
-
-- **«Murio con su archivo» se decide MIRANDO EL DISCO**, no por ausencia en el resumen de PHPStan.
-- **Un censo por TEXTO tiene techo**; solo lo cruza un instrumento que entiende TIPOS. La pasada de
-  PHPStan es parte del censo, no un paso posterior.
-- **RED ANCHA Y CLASIFICAR DESPUES, en vez de enumerar formas por adelantado.** El lote 4 barrio con
-  `esear[ch]h`/`nteres`, saco 47 tokens y clasifico luego; asi aparecieron `getInteresResearchAreas`
-  —sin la ese—, `interestResearhAreas` y `controlResearhAreasDropdown`. Una lista escrita a mano
-  jamas produce las erratas del propio arbol, porque enumerar formas es memoria (LEY 11).
+- **ANCLAR UNA EDICION POR SANGRIA NO ES ANCLAR.** Segundo incidente: el primero fueron las dos
+  vistas de perfil en AC, rehechas desde copia guardada. La ley es un SUELO: mecanismo a la
+  segunda.
+- **PARA ATRIBUIR, SE MIDE EL ESTADO ANTERIOR, NO SE CLASIFICA POR APARIENCIA.** El CODER
+  reconstruyo el arbol previo con `git archive 68bb1378^` y corrio el MISMO censo: 69 huerfanas
+  antes, 92 despues, **39 de diferencia** — las unicas que retiro. Eso salvo a «Activo»,
+  «Inactivo», «Investigacion» y «Oportunidad de financiacion», que suenan a modulo muerto y **ya
+  eran huerfanas antes**.
+- **EL CENSO DE HUERFANOS CENSABA IDENTIFICADORES Y NUNCA CENSO TEXTO VISIBLE.** Fallo de diseno
+  de ARQUITECTO. Los ceros de los cuatro lotes eran honestos dentro de su universo (LEY 15).
+  **Lo vio el PROPIETARIO, no la puerta.** Ya esta la comprobacion 21.
 
 ### Abierto, sin decidir
 
-- **La REESCRITURA de `DataImportExportUtility` no tiene especificacion.** T6 dice «se reescribe» y
-  no dice en que se convierte. Antes de escribir una linea hay que leer que hace hoy y proponer que
-  deberia ser — y ARQUITECTO no conoce el MOTIVO de la reescritura, que es del PROPIETARIO.
-- **Los diccionarios de traduccion de los modulos que SE CONSERVAN** guardan las claves de las
-  cadenas retiradas, en seis idiomas. Inertes. Ningun lote de E3 los podo. Deuda medida, no
-  introducida por AC.
-- **Los retornos ignorados**: 193 sin declarar, trinquete en la comprobacion 19. Orden: primero los
-  que REPORTAN EXITO tras el fallo, luego `nucleo` (47) y `Database` (10).
+- **`config/lang.php` sigue declarando `fr`, `de`, `it`, `pt` en `allowed_langs`**, con locale,
+  formato y bandera. `/fr/` es una URL valida y el selector ofrece cuatro idiomas que ahora salen
+  en espanol. Retirarlos es DECIDIR QUE IDIOMAS OFRECE LA APLICACION: es del PROPIETARIO.
+  Lo mismo para los seis diccionarios de `statics/core/js/translations/`.
+- **El recolector de faltantes no cubre el front.** PHP escribe `missing-lang-messages/...`; falta
+  medir si `_i18n()` hace lo equivalente. Si no, el recolector ve media aplicacion y no dice cual
+  mitad. Es una TRAMPA, no una extension: entra en la campana.
+- **La arquitectura del front NO ESTA DOCUMENTADA.** `09-frontend-assets.md` explica la tuberia —
+  gulp, `ServerStatics`, variables CSS— y no menciona `own-plugins`, `helpers.js`,
+  `configurations.js`, `pcsphpGlobals` ni `_i18n`. Son 126 archivos JS, 82 SCSS, 68 CSS, doce
+  adaptadores y un `Proxy` en `configurations.js:113` que une el diccionario estatico con el que
+  llega del servidor. **Ese diseno es invisible salvo que alguien abra esa linea.** Destino:
+  `16-frontend-arquitectura.md`, en E6. ARQUITECTO lo escribe.
+- **Los retornos ignorados**: 193 sin declarar, trinquete en la comprobacion 19.
 - **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. Declaradas.
-- **`files/API/`** — 20 archivos generados POR MODULO fuera de `src/` · **los guiones de permisos**
-  (diez divergencias, propuesta aceptada sin ejecutar) · **`phpstan-strict-rules`** · **las tres
-  listas de LEY 11** · **T86** · **la asimetria de T114**.
+- **`files/API/`** fuera del universo de la foto · **los guiones de permisos** ·
+  **`phpstan-strict-rules`** · **las tres listas de LEY 11** · **T86** · **la asimetria de T114**.
 - **El procedimiento de despliegue** -> E6 · **el 4.0.0 del paquete** -> E5.
 - **Los 81 bloques del registro**: el borrado espera al cierre de E6.
 
 ### Fuera de la campana - roadmap
 
 `files/dev/roadmap/`: silencios de Sass · el modulo como patron mecanizable · el skill de
-aterrizaje · una cache de verdad · la distribucion sin ruido · el versionado · **las cuatro
-revisiones de seguridad y operacion** (errores, encriptacion, autenticacion, tokens de API), con
-el sistema de errores en TRES MODOS y el invariante *lo que cambia es la reaccion, nunca el
-registro*.
+aterrizaje · una cache de verdad · la distribucion sin ruido · el versionado · las cuatro
+revisiones de seguridad y operacion (errores en TRES MODOS, encriptacion, autenticacion, tokens de
+API) · **el GUI de traducciones**, que segun el criterio del PROPIETARIO no entra: no corrige la
+logica de i18n, la extiende. Su forma segura: escribe la capa `dynamic-translations`, NUNCA los
+diccionarios base; el zip es una PROMOCION revisable, no una sincronizacion; y la capa son DATOS,
+nunca PHP escrito por un formulario.
 
-**Nota del PROPIETARIO, sin desarrollar a proposito** (2026-08-29): al cerrar la campana,
-ARQUITECTO debe recordarle **«Perfeccionar geovisor»**. El sabra a que se refiere. Queda escrito
-aqui y no en la memoria de ARQUITECTO porque una compactacion se lo llevaria.
+**Nota del PROPIETARIO, sin desarrollar a proposito**: al cerrar la campana, ARQUITECTO debe
+recordarle **«Perfeccionar geovisor»**.

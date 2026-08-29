@@ -14344,6 +14344,13 @@ de borrado automático.
 > texto legítimo que comparte palabra. **El tercero no se toca.**
 >
 > **(c) Y los enlaces simbólicos** de `statics/server-delegated/` cuyo destino desapareció.
+>
+> **(d) PARA ATRIBUIR SE MIDE EL ESTADO ANTERIOR** —añadido en AE, y vale para cualquier
+> fase, no solo E3—. Cuando haya que distinguir «lo que ensuciamos» de «lo que ya estaba», se
+> RECONSTRUYE el árbol previo con `git archive <ref>` a un temporal y se corre EL MISMO censo.
+> **La diferencia es lo nuestro.** En AD eso salvó cuatro cadenas que una clasificación por
+> vocabulario habría borrado siendo deuda anterior: `Activo`, `Inactivo`, `Investigación` y
+> `Oportunidad de financiación`. Ver T145.
 
 ### Las tres de método que vienen de AC
 
@@ -14369,3 +14376,217 @@ de borrado automático.
   exportaciones de entidades y la importación exógena—, no una reparación. Hay que conservar
   extensibilidad, portabilidad y *boilerplate*. **No se toca ni se investiga**; ARQUITECTO
   escribirá su especificación aparte.
+
+---
+
+## T145 · AE · EL IDIOMA QUEDA COHERENTE, Y DOS PUERTAS APRENDEN LO QUE NO MIRABAN
+
+**Bloque AE.** Cierra el idioma, arregla un registro que reportaba fallo sobre un éxito, pone
+la puerta que faltaba en las vistas, y **mide qué es «pruebaunitariable»** antes de abrir E4.
+
+### AE1 · La aplicación se sirve en `es` y `en`
+
+Decisión del PROPIETARIO. Los otros cuatro **se comentan, no se borran**: este framework se
+clona, y ese resto es el único ejemplo completo de cómo se da de alta un idioma. **Once
+sitios**, ocho en `config/lang.php` y tres fuera, todos con la marca
+`@codigo-comentado · IDIOMA COMENTADO`. El mapa entero está en `08-i18n.md`.
+
+**MEDIDO, provocándolo desde copia guardada y restaurando por `sha256`** (idéntico las dos
+veces):
+
+| | comentado | descomentado |
+| :-- | :-- | :-- |
+| `/fr/` | **404** | **200** |
+| banderas del selector | **1** (`gb`) | **2** (`gb`, `fr`) |
+
+`/` sigue en 200 y español, `/en/` en 200 e inglés.
+
+Se retiran de verdad `statics/core/js/translations/{fr,de,it,pt}.js`: el front ofrecía
+arranque en idiomas que PHP ya no puede completar.
+
+#### Dos cosas comprobadas que PARECÍAN defectos y no lo son
+
+- **`en.js` no trae `semantic_form` ni `semantic_search`** —121 líneas contra 170— y **no le
+  faltan**: `configurations.js:467` los RELLENA en ejecución con los valores por defecto de
+  Fomantic, que ya vienen en inglés, y los usa como origen para traducir los demás. Queda
+  escrito en el propio `en.js` para que nadie los «complete».
+- **`assets.php` no mapea `'es'` para CKEditor.** No es un olvido: el CKEditor vendorizado
+  trae 63 traducciones y `es.js` no está entre ellas.
+
+#### Lo que NO se tocó, y por qué
+
+`MySpace/Statics/js/profiles-translation-config.js` declara `translatableFields` con destino
+`'fr'`. **Es lo único que sigue nombrando un idioma retirado.** No se toca: los campos que
+busca —`experienceName[es]`, `description[fr]`— **no existen en ninguna vista del árbol**, así
+que la función es un no-op, y decidir si esa traducción automática se retira o se reapunta a
+`en` es del PROPIETARIO, no mía.
+
+### AE2 · `lc_time_names` — reportaba fallo sobre un éxito
+
+`BaseModel` y `BaseEntityMapper` recorren candidatos de locale por idioma
+—`'es' => ['es_ES','es_CO','es_MX']`—, se quedan con el primero que la base acepta y
+**registraban `log_exception()` con cada uno que descartaban**. Donde `es_ES` no exista, el
+mecanismo funciona perfectamente y llena el registro mientras funciona.
+
+**Es el `db-backup` de T141 al revés**: aquel reportaba éxito sobre un fallo, este reportaba
+fallo sobre un éxito. La raíz es la misma — **confundir el INTENTO con el RESULTADO**.
+
+**MEDIDO** con una petición idéntica a la misma ruta y tres candidatos inválidos:
+
+| | entradas en `error.plain.log` |
+| :-- | --: |
+| código viejo | **6** — tres candidatos × dos clases |
+| código nuevo | **2** — una por clase, nombrando los tres |
+| nuevo, con un candidato válido al final | **0** |
+| nuevo, con la configuración real | **0** |
+
+#### El susto: la primera medición dijo que el código viejo se portaba como el nuevo
+
+Y era el instrumento, otra vez. **`opcache.revalidate_freq` vale 2 segundos**: la petición
+salió dentro de esa ventana y ejecutó el código anterior al `git checkout`. Con tres segundos
+de espera entre el cambio de archivo y la petición, el contraste salió. **Toda provocación que
+intercambie un archivo PHP tiene que esperar fuera de esa ventana**, o mide el código de antes.
+
+#### La duplicación, medida antes de decidir
+
+28 líneas en cada clase, **idénticas salvo UNA** —de dónde sale la conexión: `getDatabase()`
+contra `getModel()->getDatabase()`—. No habían derivado. Se unifican en
+`PiecesPHP\Core\LcTimeNamesTrait`: no comparten ascendiente en este repositorio, y un trait no
+cambia ninguna firma existente.
+
+Dos matices que se conservan a propósito y quedan escritos:
+
+- La conexión se resuelve con un **`Closure`, perezoso**: `getDatabase()` llama por debajo a
+  `checkDbConnectionFallback()`, que puede RECONECTAR. Resolverla antes de saber si hay
+  candidatos añadiría una reconexión que hoy no ocurre.
+- La bandera se marca **ANTES** de intentarlo, no después: si esa reconexión construyera otro
+  modelo, volvería a entrar aquí.
+
+Y en `12-convenciones.md` queda que **`SET lc_time_names = '…'` va interpolado a la fuerza**
+—`SET` no admite parámetros preparados— y **no es inyectable**: el idioma solo se usa como
+clave y el valor sale de la lista blanca de `config/lang.php`.
+
+### AE3 · Anclar por sangría no es anclar — la puerta, con su viabilidad medida antes
+
+**VIABILIDAD PRIMERO**, porque un `<div>` dentro de un `if` con su cierre en el `else` daría
+desbalance legítimo y una puerta que nace roja acaba ignorada:
+
+| | |
+| :-- | --: |
+| Vistas del árbol | 178 |
+| **Cuadran en las ocho etiquetas** | **176** |
+| Desbalanceadas | 2 — `panel/layout/{header,footer}.php` |
+
+Las dos son el armazón del panel: `header.php` abre lo que `footer.php` cierra. Van declaradas
+en `KNOWN_UNBALANCED_VIEWS` con su razón y su condición de retirada, y la lista **solo puede
+encoger**: una entrada que vuelva a cuadrar hace fallar la puerta.
+
+**Comprobación 22 de `verify-integrity`**, con canario de dos caras y **coste medido: 0,012 s**
+sobre los 2,2 s que ya cuesta la tarea entera.
+
+**PROVOCADA en sus dos caras:**
+
+- Una vista **propia** con `<div> 2/1` y `<section> 1/0`: la puerta la nombra y falla.
+- `tagBalance()` mutilado sobre copia guardada: **el canario cae** y la comprobación se niega a
+  hacerse. Restaurado con `sha256` idéntico.
+
+Y la regla que de verdad lo evita va a **§3 del contrato**: *una edición en una vista se cierra
+contando etiquetas, antes y después*. La puerta llega al commit; la cuenta llega a la edición.
+El caso: 96/96 → 86/88 → 80/80 en `generic-report-view.php`. **Lo vio el PROPIETARIO, no la
+puerta.**
+
+### El hallazgo que no estaba en la instrucción · la puerta de comentarios prohibía «comentar en vez de borrar»
+
+Al comentar los cuatro idiomas, `verify-integrity` se puso roja con **8 fallos**. El motivo:
+la comprobación de comentarios narrativos cuenta como PROSA **cualquier** línea comentada, así
+que cuatro entradas comentadas seguidas son un bloque de cuatro líneas de relato.
+
+**Una línea de código comentada no es un relato.** La decisión del PROPIETARIO —comentar, no
+borrar— era estructuralmente incompatible con la puerta tal como estaba. Se resuelve con la
+anotación **`@codigo-comentado`**, que exime al bloque igual que ya lo hacían `@param` o
+`@return`. **Se declara, no se adivina**: una heurística que separase código de prosa acertaría
+casi siempre, y «casi siempre» en una puerta es ruido.
+
+**Y la puerta tenía razón en lo demás**: mis comentarios eran demasiado largos. La instrucción
+pedía **una línea** de rótulo y escribí **veintiocho**. La receta entera se fue a `08-i18n.md`,
+que es donde LEY 7 dice que va. `lang.php` vuelve a sus **24 líneas de prosa registradas**, ni
+una más; `assets.php`, a sus 32.
+
+### El otro hallazgo · el censo de claves huérfanas miraba el 48% de su universo
+
+La comprobación 21, escrita hace un bloque, imprimía «775 claves declaradas» como si fueran
+todas. **Son 775 de 1.632.** Solo juzga las claves con COMILLA DOBLE al principio de línea —los
+diccionarios PLANOS de los módulos—; los AGRUPADOS de `app/lang/` van con comilla simple y un
+nivel más adentro, y no los mira.
+
+**MEDIDO ejecutando los 75 diccionarios con PHP**, no leyéndolos con una expresión regular.
+Juzgar el universo ancho daría **277 huérfanas contra 53**, y la mayor parte de esa diferencia
+son falsos positivos: índices numéricos y grupos que se piden con variable.
+
+**Pero no todo era falso positivo.** Con el universo ancho aparecieron `ASC`, `DESC` y
+`Ordenar por` en `app/lang/{es,en}.php`: **solo los pedía `ImagesRepository`**, muerto en el
+lote 1 de E3. Residuo real que la cota estrecha no podía ver. Retirados.
+
+**Y la atribución de T144 se rehízo con el instrumento ancho, y aguanta**: 294 cadenas
+huérfanas antes de E3, 280 hoy, y **solo 4 aparecen hoy sin ser huérfanas antes** — las tres de
+`ImagesRepository` y `'es'`, que dejó de tener su único `__('langShort','es')` literal en este
+mismo bloque.
+
+Ampliar la cota es decisión de ARQUITECTO. Que el instrumento mienta sobre su cobertura, no:
+desde AE **imprime cuántas de cuántas mira**. LEY 15.
+
+### AE5 · Qué es «pruebaunitariable» — el censo, antes de escribir una sola prueba
+
+`bin/censo-pruebabilidad`, con canario de tres caras y **tokenizando**, no con expresiones
+regulares sobre el texto. Universo: **137 archivos** de `src/app/core` sin `system-views/` ni
+`local-tests/` —que son el instrumento del cruce, no parte de lo medido—; **1.179 funciones con
+cuerpo**; **24 suites** para cruzar.
+
+| Qué hace falta para ejercitarla | Funciones | % |
+| :-- | --: | --: |
+| **PURO** — entra un valor, sale un valor | 952 | 80,7 |
+| **NECESITA RED O DISCO** | 92 | 7,8 |
+| **NECESITA PETICIÓN** | 90 | 7,6 |
+| **NECESITA BASE** | 45 | 3,8 |
+
+Precedencia: PETICIÓN > BASE > RED/DISCO > PURO. Se responde «qué es lo más pesado que hace
+falta».
+
+Y el embudo del montón PURO, que es lo que decide el tamaño de E4:
+
+| | |
+| :-- | --: |
+| Nombres distintos puros | 698 |
+| Ya nombrados por alguna suite | 113 |
+| **Sin cubrir** | **585** |
+| — de esos, TRIVIALES (una sentencia, sin ramas) | 230 |
+| — **con lógica y sin cubrir** | **355** |
+| — de esos, privados o protegidos | 38 |
+| — **públicos, con lógica y sin cubrir** | **317** |
+
+#### 317 ES UNA COTA SUPERIOR, Y LA SEGUNDA MEDICIÓN LO DICE
+
+El análisis es **directo, no transitivo**: una función sin marcas que llame a otra que sí las
+tiene sale PURA. **Un 80,7% de pureza en el núcleo de un framework no es creíble**, así que se
+comprobó con un método que no comparte mecanismo: **muestra a mano de 10**, tomadas una de cada
+36 de la lista ordenada.
+
+| Veredicto | Cuántas | Ejemplos |
+| :-- | --: | :-- |
+| **Merece prueba y se puede llamar** | 3 | `decimalCoordinatesToDMS`, `jsonEncode` —devuelve un `int` cuando falla, contrato no obvio—, `getServerVariable` |
+| Marginal — pura sobre estado, casi trivial | 2 | `removeMetaProperty`, `setValues` |
+| **No** | 5 | `initAppConfigs` —llama a 13 inicializadores impuros: **el punto ciego transitivo en carne**—, `allowCaching` y `getDataTypeByExtension` —privadas—, `__get` —necesita un mapper—, `setExtensionOnMove` —dos sentencias, se le escapó al filtro de triviales— |
+
+**Extrapolando la muestra, lo realmente pruebaunitariable ronda las 100–160 funciones**, no 317.
+Se dice con su método: es una muestra de 10, no un censo.
+
+>>> ESPERANDO DECISIÓN DE ARQUITECTO SOBRE E4 <<<
+
+### Abierto, y no decidido aquí
+
+- **`profiles-translation-config.js` sigue nombrando `'fr'`** para una traducción automática
+  cuyos campos no existen.
+- **`app/lang/dynamic-translations/fr/global.php` sigue versionado**, con 8 de las 53 huérfanas
+  declaradas, y hay carpetas `de/`, `it/` y `pt/` con su `.keep`. Los 75 borrados del
+  PROPIETARIO en AD no las alcanzaron.
+- **Ampliar el universo del censo de claves** de 775 a 1.632, con el ruido que trae.
