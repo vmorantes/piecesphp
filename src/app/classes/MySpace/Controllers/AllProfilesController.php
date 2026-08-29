@@ -108,7 +108,6 @@ class AllProfilesController extends AdminPanelController
             "{$tableUserProfile}.belongsTo AS id",
             "{$tableUserProfile}.fullname AS name",
             "{$tableUserProfile}.fullLocation",
-            "{$tableUserProfile}.interestResearhAreasColorsNames",
             "{$tableUserProfile}.createdAt",
             "'USER' AS type",
             "NULL AS image",
@@ -126,7 +125,6 @@ class AllProfilesController extends AdminPanelController
             "{$tableOrganization}.id",
             "{$tableOrganization}.name",
             "{$tableOrganization}.fullLocation",
-            "{$tableOrganization}.interestResearhAreasColorsNames",
             "{$tableOrganization}.createdAt",
             "'ORGANIZATION' AS type",
             "logo AS image",
@@ -142,7 +140,6 @@ class AllProfilesController extends AdminPanelController
             'id',
             'name',
             'fullLocation',
-            'interestResearhAreasColorsNames',
             'type',
             'createdAt',
             'image',
@@ -153,7 +150,6 @@ class AllProfilesController extends AdminPanelController
         $columnsOrder = [
             'name',
             'fullLocation',
-            'interestResearhAreasColorsNames',
         ];
 
         $customOrder = [
@@ -201,18 +197,9 @@ class AllProfilesController extends AdminPanelController
                 $avatar = "<div class='avatar {$orgClass}'><img src='{$avatar}' /></div>";
                 $name = "<div class='name'>{$e->name}</div>";
 
-                $areaTags = [];
-                $areasNamesColors = is_string($e->interestResearhAreasColorsNames) ? explode('|@|', $e->interestResearhAreasColorsNames) : [];
-                foreach ($areasNamesColors as $areasNameColor) {
-                    $areaColor = explode(':', $areasNameColor)[0];
-                    $areaName = explode(':', $areasNameColor)[1];
-                    $areaTags[] = "<span class='area-tag' style='--area-color: {$areaColor}'>{$areaName}</span>";
-                }
-                $areaTags = "<div class='area-tags'>" . implode(' ', $areaTags) . "</div>";
 
                 $columns[] = "<div class='user-info'>{$avatar} {$name}</div>";
                 $columns[] = $e->fullLocation;
-                $columns[] = $areaTags;
                 $columns[] = $buttons;
                 return $columns;
             },

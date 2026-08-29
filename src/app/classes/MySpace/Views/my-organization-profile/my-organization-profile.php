@@ -26,8 +26,6 @@ foreach($affiliatedInstitutions as $affiliatedInstitution){
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
 
-$interestResearhAreas = $organizationMapper->interestResearhAreas;
-$interestResearhAreas = $interestResearhAreas !== null ? array_map(fn($e) => $e->id, $interestResearhAreas) : [];
 $langGroupDatatables = 'datatables';
 
 $allowedLangs = Config::get_allowed_langs();
@@ -238,15 +236,6 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
             <div class="ui tab" data-tab="professionalData">
 
-                <div class="container-standard-form">
-                    <div class="field required">
-                        <label class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Áreas de investigación de interés'); ?></div>
-                        </label>
-
-                        <select name="interestResearhAreas[]" multiple class="ui dropdown multiple auto search" required><?= array_to_html_options(getInteresResearchAreas(), $interestResearhAreas, true); ?></select>
-                    </div>
-                </div>
 
                 <br>
 

@@ -28,7 +28,6 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**

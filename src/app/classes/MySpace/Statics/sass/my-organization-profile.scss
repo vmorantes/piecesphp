@@ -219,29 +219,7 @@ form.ui.form.my-profile {}
             }
         }
 
-        .research-areas-title {
-            font-size: pxToRem(16);
-            color: #254079;
-            line-height: pxToRem(24);
-            margin-bottom: 10px;
-        }
 
-        .research-areas {
-
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-
-            .area {
-                background-color: var(--area-color);
-                border-radius: 8px;
-                padding: 4px 8px;
-                font-size: pxToRem(14);
-                color: #1B1C1D;
-                line-height: pxToRem(24);
-            }
-        }
 
         .institutions {
             font-size: pxToRem(14);

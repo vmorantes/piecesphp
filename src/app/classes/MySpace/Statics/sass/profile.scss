@@ -156,11 +156,6 @@ $avatarOffsetPx3: 40;
 
     .profile-content .section.institutions {}
 
-    .profile-content .section.interest-research-areas {
-        &.mobile {
-            display: none;
-        }
-    }
 
     .profile-content .section.location-data {
         &.mobile {
@@ -337,12 +332,6 @@ $avatarOffsetPx3: 40;
                 margin-bottom: 24px;
             }
 
-            .research-areas-title {
-                font-size: pxToRem(16);
-                color: $color254079;
-                line-height: pxToRem(24);
-                margin-bottom: 12px;
-            }
 
             .institutions {
                 font-size: pxToRem(14);
@@ -351,21 +340,6 @@ $avatarOffsetPx3: 40;
                 margin-bottom: 24px;
             }
 
-            .research-areas {
-
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-
-                .area {
-                    background-color: var(--area-color);
-                    border-radius: 8px;
-                    padding: 4px 8px;
-                    font-size: pxToRem(14);
-                    color: $color1B1C1D;
-                    line-height: pxToRem(24);
-                }
-            }
         }
 
         @container experience-row (max-width: 410px) {
@@ -478,15 +452,6 @@ $avatarOffsetPx3: 40;
             }
         }
 
-        .profile-content .section.interest-research-areas {
-            &.mobile {
-                display: block;
-            }
-
-            &:not(.mobile) {
-                display: none;
-            }
-        }
 
         .profile-content .section.location-data {
             &.mobile {

@@ -27,7 +27,6 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
@@ -240,34 +239,6 @@ class MyProfileController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'interestResearhAreas',
-                null,
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray && !empty($value);
-                    if ($valid) {
-                        foreach ($value as $i) {
-                            if ($i instanceof InterestResearchAreasMapper) {
-                                if ($i->id == null) {
-                                    throw new SafeException(__(self::LANG_GROUP, 'El área de interés no es válida'));
-                                }
-                            } else if (!Validator::isInteger($i)) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                false,
-                function ($value) {
-                    return is_array($value) ? array_map(function ($e) {
-                        if (Validator::isInteger($e)) {
-                            return new InterestResearchAreasMapper($e);
-                        }
-                    }, $value) : [];
-                }
-            ),
-            new Parameter(
                 'affiliatedInstitutions',
                 [],
                 function ($value) {
@@ -335,7 +306,6 @@ class MyProfileController extends AdminPanelController
              * @var int $city
              * @var double $latitude
              * @var double $longitude
-             * @var InterestResearchAreasMapper[] $interestResearhAreas
              * @var string[] $affiliatedInstitutions
              */
             $id = getLoggedFrameworkUserOrFail()->id;
@@ -349,7 +319,6 @@ class MyProfileController extends AdminPanelController
             $city = $expectedParameters->getValue('city');
             $latitude = $expectedParameters->getValue('latitude');
             $longitude = $expectedParameters->getValue('longitude');
-            $interestResearhAreas = $expectedParameters->getValue('interestResearhAreas');
             $affiliatedInstitutions = $expectedParameters->getValue('affiliatedInstitutions');
 
             //NOTE: Esto debería ser provisional
@@ -377,7 +346,6 @@ class MyProfileController extends AdminPanelController
                 $mapper->setLangData($lang, 'city', $city);
                 $mapper->setLangData($lang, 'latitude', $latitude);
                 $mapper->setLangData($lang, 'longitude', $longitude);
-                $mapper->interestResearhAreas = $interestResearhAreas;
                 $mapper->affiliatedInstitutions = $affiliatedInstitutions;
 
                 $updated = $mapper->update();

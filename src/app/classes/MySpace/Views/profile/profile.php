@@ -14,7 +14,6 @@ use PiecesPHP\UserSystem\UserDataPackage;
  */
 $affiliatedInstitutions = $userOfProfile->profile->affiliatedInstitutions;
 $affiliatedInstitutions ??= [];
-$interestResearhAreas = $userOfProfile->profile->interestResearhAreas;
 $currentUserIsSameProfile = $currentUser->id == $userOfProfile->id;
 
 $contactInformation = [
@@ -128,16 +127,6 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                 </div>
                 <?php endif; ?>
 
-                <?php if(!empty($interestResearhAreas)): ?>
-                <div class="section interest-research-areas mobile">
-                    <div class="title"><?= __($langGroup, 'Áreas de investigación de interés'); ?></div>
-                    <div class="container-tags">
-                        <?php foreach($interestResearhAreas as $researchArea): ?>
-                        <div class="tag-special" style="--tag-color: <?= $researchArea->color; ?>;"><?= $researchArea->currentLangData('areaName'); ?></div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
 
                 <div class="section location-data mobile">
                     <div class="title no-m-b"><?= __($langGroup, 'Ubicación'); ?></div>
@@ -162,16 +151,6 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                     </div>
                 </div>
 
-                <?php if(!empty($interestResearhAreas)): ?>
-                <div class="section interest-research-areas">
-                    <div class="title small-m-b"><?= __($langGroup, 'Áreas de investigación de interés'); ?></div>
-                    <div class="container-tags">
-                        <?php foreach($interestResearhAreas as $researchArea): ?>
-                        <div class="tag-special" style="--tag-color: <?= $researchArea->color; ?>;"><?= $researchArea->currentLangData('areaName'); ?></div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
 
                 <div class="section location-data">
                     <div class="title no-m-b"><?= __($langGroup, 'Ubicación'); ?></div>

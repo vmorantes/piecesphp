@@ -17,8 +17,6 @@ $affiliatedInstitutionsOptions = [
 foreach($affiliatedInstitutions as $affiliatedInstitution){
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
-$interestResearhAreas = $currentUser->profile->interestResearhAreas;
-$interestResearhAreas = $interestResearhAreas !== null ? array_map(fn($e) => $e->id, $interestResearhAreas) : [];
 $esShort = ucfirst(strtolower(__('langShort', 'es')));
 $frShort = ucfirst(strtolower(__('langShort', 'fr')));
 $langGroupDatatables = 'datatables';
@@ -168,15 +166,6 @@ $langGroupDatatables = 'datatables';
 
             <div class="ui tab" data-tab="professionalData">
 
-                <div class="container-standard-form">
-                    <div class="field required">
-                        <label class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Áreas de investigación de interés'); ?></div>
-                        </label>
-
-                        <select name="interestResearhAreas[]" multiple class="ui dropdown multiple auto search" required><?= array_to_html_options(getInteresResearchAreas(), $interestResearhAreas, true); ?></select>
-                    </div>
-                </div>
 
                 <br>
 
