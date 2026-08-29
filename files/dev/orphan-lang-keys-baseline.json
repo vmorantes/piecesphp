@@ -7,18 +7,24 @@
     ],
     "medido": {
         "fecha": "2026-08-29",
-        "bloque": "AD",
+        "bloque": "AD; universo redeclarado en AF",
         "herramienta": "bin/censo-claves-huerfanas",
         "universo": "archivos .php/.js/.ts bajo `src/` fuera de `lang/` para los usos, y los .php bajo cualquier `lang/` para las claves; excluidos vendor, node_modules, bin/tools, app/logs, dumps, statics/plugins, statics/core, server-delegated, missing-lang-messages y app/cache",
-        "codigo": 708,
-        "diccionarios": 75,
+        "codigo": 709,
+        "diccionarios": 74,
         "canario": "dos caras — una cadena que SÍ se pide sale pedida, y una inventada no. Si alguna falla, el censo no se hace."
     },
     "cifras": {
-        "claves_declaradas": 775,
-        "cadenas_pedidas": 901,
-        "entradas_huerfanas": 80,
-        "cadenas_distintas": 53
+        "claves_declaradas": 765,
+        "cadenas_pedidas": 899,
+        "entradas_huerfanas": 72,
+        "cadenas_distintas": 53,
+        "_historia": [
+            "AD: 80 entradas / 53 cadenas distintas en 75 diccionarios, con 708 archivos de código.",
+            "AF: se retiran `lang/dynamic-translations/{fr,de,it,pt}/` con los cuatro idiomas fuera de servicio. Las ENTRADAS bajan de 80 a 72 —las 8 que vivían en `fr/global.php`—, pero las CADENAS DISTINTAS SIGUEN EN 53: las mismas 8 están también en `es/global.php`, así que ninguna deja de ser huérfana. La cota NO baja, y decirlo es el punto.",
+            "AF: `codigo` sube de 708 a 709 por `LcTimeNamesTrait.php`, creado en el bloque AE. Es un archivo de código nuevo, no un diccionario."
+        ]
     },
-    "como_se_separo_lo_de_E3": "Se extrajo el árbol previo a E3 con `git archive 68bb1378^` y se corrió el MISMO censo sobre él: 69 cadenas huérfanas antes, 92 después. Las 39 de diferencia son las que dejó E3 y se retiraron en este bloque. Las 53 que quedan ya estaban, y se declaran como deuda anterior, no como residuo."
+    "como_se_separo_lo_de_E3": "Se extrajo el árbol previo a E3 con `git archive 68bb1378^` y se corrió el MISMO censo sobre él: 69 cadenas huérfanas antes, 92 después. Las 39 de diferencia son las que dejó E3 y se retiraron en este bloque. Las 53 que quedan ya estaban, y se declaran como deuda anterior, no como residuo.",
+    "por_que_la_cota_no_baja_al_borrar_un_diccionario": "La cota es CADENAS DISTINTAS, no entradas. Una cadena deja de ser huérfana solo cuando alguien la pide o cuando desaparece de TODOS los diccionarios. Borrar uno de los dos diccionarios que la declaran baja las entradas y deja la cota igual. Es deliberado: si la cota contara entradas, borrar traducciones parecería progreso."
 }
