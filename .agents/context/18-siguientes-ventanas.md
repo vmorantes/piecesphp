@@ -14212,3 +14212,160 @@ Tablas retiradas: `previous_experiences`, `organization_previous_experiences`,
 > de mentir sobre respaldos incompletos; dos puertas cambiaron una cifra escrita por una cota
 > derivada; y `verify-integrity` ganó dos comprobaciones. **Ninguna de esas seis cosas era
 > trabajo de E3: las destapó E3.**
+
+
+---
+
+## T144 · AD · EL CENSO DE HUÉRFANOS MIRABA IDENTIFICADORES Y NUNCA MIRÓ TEXTO
+
+### El fallo de diseño, con su nombre
+
+**El paso 6 de la plantilla censaba IDENTIFICADORES y NUNCA CENSÓ TEXTO VISIBLE.** Es de
+ARQUITECTO, y lo dice él.
+
+Los ceros de los cuatro lotes de E3 eran **honestos dentro de su universo** —LEY 15 en su
+forma más pura—: se les preguntó por namespaces, clases, tablas, rutas y constantes, y no
+quedaba ninguna. Nadie les preguntó por las palabras con las que el módulo se llamaba **de
+cara al usuario**. Y ahí sí quedaba.
+
+**Lo vio el PROPIETARIO, no la puerta.** Eso es lo que hay que retener.
+
+### AD0 · Los cuatro idiomas, y un hallazgo que no se decide aquí
+
+75 diccionarios de `fr`, `pt`, `it` y `de` borrados **por el PROPIETARIO**, dejados en el
+índice. Van en su commit y **no cuentan contra la guarda**: no los añadí yo.
+
+Comprobado que no rompen nada: `LangInjector` guarda con `file_exists()` en sus **tres**
+puntos de carga, así que un diccionario ausente se salta en silencio y `__($grupo, 'Texto')`
+devuelve su segundo argumento.
+
+> **HALLAZGO, reportado y NO decidido**: `config/lang.php` sigue declarando los cuatro en
+> `allowed_langs`, con su locale, su formato de fecha y su bandera. `/fr/` sigue siendo una
+> URL válida y el selector sigue ofreciendo cuatro idiomas que ahora muestran el texto en
+> español. **Retirarlos es decidir qué idiomas ofrece la aplicación**, y eso no es una
+> consecuencia mecánica de borrar unos archivos.
+
+### AD1 · El censo del residuo visible
+
+**RED ANCHA Y CLASIFICAR DESPUÉS.** El vocabulario salió de los **diccionarios de los cuatro
+muertos, recuperados de git** —incluidos los cuatro idiomas recién borrados, que para
+extraer vocabulario sirven igual—: **209 frases**, de las que se destilaron **17 términos
+distintivos**.
+
+#### Los tres montones
+
+| Montón | Cuántos | Qué se hizo |
+| :-- | --: | :-- |
+| **1 · Claves de traducción huérfanas** | 39 cadenas, 54 entradas, 9 diccionarios | Retiradas |
+| **2 · Texto vivo de un módulo muerto** | **5 archivos** | Retirado |
+| **3 · Texto legítimo que comparte palabra** | 7 archivos | **NO se toca** |
+
+El montón 3 importa tanto como los otros: `SnapshotTask` dice «**Fotografía** la base de
+datos» —el verbo—, `DirectoryObject` habla de «archivos **contenidos**» —el adjetivo—, y el
+«**Mapa de contenidos**» del menú es una vista que SIGUE VIVA.
+
+#### El montón 2, que es el que costó la confianza
+
+> **`ReportsManage/Views/reports-manage/generic-report-view.php` TENÍA EL HTML ROTO, Y ES
+> MÍO.** En el bloque AB quité las dos tarjetas de convocatorias anclando el cierre en un
+> `</div>` a **sangría fija**, y esa sangría cerraba un div INTERIOR. Se fueron las mitades
+> de arriba y quedaron dos `<div class="footer">` huérfanos —con sus etiquetas **rendidas en
+> pantalla**— y dos `</div>` de más.
+>
+> Medido: **96/96 divs antes de mi edición, 86/88 después**. Hoy 80/80.
+
+Los otros cuatro son rótulos y un docblock que describían lo que ya no existe:
+`config/routes.php` (2), `config/constants.php` (1), `ContentNavigationHubController` (1) y
+el docblock de `GeoJsonManagerController` (2 líneas).
+
+**Comprobadas las otras nueve vistas que E3 tocó y siguen existiendo: cuadran todas.** Era la
+única, porque en los demás sitios ya conté etiquetas en vez de fiarme del sangrado.
+
+#### Cómo se separó lo de E3 de la deuda anterior — MIDIENDO
+
+Muchas huérfanas son viejas, y **borrar de más es tan malo como no borrar**. No se clasificó
+a ojo: se extrajo el árbol previo a E3 con `git archive 68bb1378^` y se corrió el **mismo
+censo** sobre él.
+
+| | |
+| :-- | --: |
+| Cadenas huérfanas ANTES de E3 | 69 |
+| Cadenas huérfanas DESPUÉS | 92 |
+| **La diferencia — lo que dejó E3** | **39** |
+
+Eso descartó **falsos positivos que una clasificación por vocabulario habría borrado**:
+`Activo`, `Inactivo`, `Investigación` y `El idioma "%s" no está permitido.` estaban en los
+diccionarios de los muertos, pero **ya eran huérfanas antes de que E3 empezara**. Y confirmó
+un caso al revés: `Oportunidad de financiación` en `SystemApprovals` suena a convocatorias y
+**no se toca**, por lo mismo.
+
+Después: **cero cadenas huérfanas nuevas** respecto al árbol previo. Las 53 que quedan son
+deuda anterior y se declaran como tal.
+
+#### Sobre las sondas de ARQUITECTO, y una corrección
+
+De las cuatro, la parte de `lang/` ya no era comparable —lo avisaba la instrucción—. Los
+controles que **sí** debían aparecer aparecieron todos… salvo un matiz:
+
+> ARQUITECTO clasificó **«los 5 de `MySpace`» como si no vivieran en `lang/`**. Sí vivían:
+> son sus cinco diccionarios por módulo, `classes/MySpace/lang/{es,en,fr,it,pt,de}`.
+> Comprobado sobre `3cfd6fa9^`: los cinco eran `de.php`, `en.php`, `fr.php`, `it.php` y
+> `pt.php`, uno cada uno. **El censo no falló; la sonda estaba mal clasificada.**
+
+Los controles reales fuera de `lang/` eran **tres** —`ReportsManage`, `ContentNavigationHub`
+y `config/routes.php`— y los tres salieron.
+
+### AD3 · La puerta, para que no vuelva a pasar
+
+`bin/censo-claves-huerfanas` + **comprobación 21 de `verify-integrity`**. Compara cadena
+contra cadena, porque en este framework **la clave ES el texto en español**. Canario de dos
+caras. Trinquete sobre `cadenas_distintas`, congelado en 53.
+
+**Coste medido antes de decidir que fuera permanente**: 0,11 s contra los 2,0 s que ya
+cuesta `verify-integrity`.
+
+**Y lo que NO mide, dicho**: una clave pedida con `__($grupo, $variable)` sale como huérfana,
+porque no resuelve variables. Por eso es un trinquete **sobre lo que crece** y no una lista
+de borrado automático.
+
+#### EL PASO 6 DE LA PLANTILLA, REESCRITO — ahora tiene DOS MITADES
+
+> **6. CENSO DE HUÉRFANOS, con canario, en sus dos mitades:**
+>
+> **(a) IDENTIFICADORES** — namespaces, clases, mappers, controladores, tablas, nombres de
+> ruta, constantes, alias y campos. El vocabulario se EXTRAE del árbol con una red ancha y se
+> clasifica después; no se escribe de memoria. Y **PHPStan es el segundo método**: en el lote
+> 3 destapó una llamada que trece formas de texto no vieron.
+>
+> **(b) VOCABULARIO VISIBLE** — el módulo que muere **aporta sus términos**, sacados de sus
+> diccionarios (que git conserva aunque el módulo ya no esté), y con ellos se barre todo lo
+> que se conserva: vistas, controladores, JS, `config/`, menús y los diccionarios que quedan.
+> El resultado se clasifica en tres montones: clave huérfana, texto vivo de un muerto, y
+> texto legítimo que comparte palabra. **El tercero no se toca.**
+>
+> **(c) Y los enlaces simbólicos** de `statics/server-delegated/` cuyo destino desapareció.
+
+### Las tres de método que vienen de AC
+
+1. **RED ANCHA Y CLASIFICAR DESPUÉS.** Una lista de frases escrita de memoria no produce las
+   variantes del árbol. En AC la red ancha destapó **tres erratas** que ninguna lista habría
+   tenido: `getInteresResearchAreas` —«Interes», sin la ese—, `interestResearhAreas` —sin la
+   ce— y `ApplicationsCalls` —con la ese en medio—.
+2. **UNA PREDICCIÓN QUE SE CUMPLE POR CASUALIDAD NO QUEDA VALIDADA.** T6 dijo que
+   `SubMappers/` se borraba completo; el lote 1 lo desmintió y el lote 4 lo cumplió. Que
+   acertara al final no valida su método: **agrupó por directorio y no por destino**, y eso
+   siguió siendo falso todo el tiempo.
+3. **E3 NO ARREGLÓ NADA: BORRÓ.** Los cuatro repartos declaran `0 arreglos + 0 supresiones`.
+   Los 134 errores que bajaron son código que dejó de existir. **Una fase de limpieza no es
+   una fase de reparación**, y confundirlas haría leer el descenso del baseline como calidad
+   ganada.
+
+### Decisiones anotadas
+
+- **Los cuatro idiomas los borró el PROPIETARIO**, con su motivo: se conservan `es`, `en` y
+  los diccionarios de JS; el resto casi nunca se usaba y era ruido.
+- **`DataImportExportUtility` SALE DE E3 y pasa a E5.** Motivo del PROPIETARIO: es una
+  **consolidación** de tres mecanismos que hacen lo mismo —el importador interactivo, las
+  exportaciones de entidades y la importación exógena—, no una reparación. Hay que conservar
+  extensibilidad, portabilidad y *boilerplate*. **No se toca ni se investiga**; ARQUITECTO
+  escribirá su especificación aparte.

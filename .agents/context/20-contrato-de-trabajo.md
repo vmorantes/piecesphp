@@ -251,60 +251,68 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-29, tras el BLOQUE AB — lote 3 de E3 CERRADO.**
+**Ultima actualizacion: 2026-08-29, tras el BLOQUE AC — E3 CIERRA SUS BORRADOS.**
 
 > **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campana ENTERA — «toda es toda».
 
 ### Donde estamos
 
-**E2 cerrada** (W). **E3: lotes 1, 2 y 3 cerrados.** Quedan dos.
+**E2 cerrada** (W). **E3: los cuatro lotes de borrado, cerrados.** Queda la REESCRITURA.
 
 ```
-lote 1   tablas 35->33   src/ 5.437->5.427   PHPStan 883->844
-lote 2   tablas 33->32   vistas 5->4         PHPStan 844->830
-lote 3   tablas 32->30   vistas 4->3         PHPStan 830->768   archivos 5.303->5.181
+                al empezar E3     hoy
+Tablas                     35      29     -6
+Vistas                      5       3     -2
+PHPStan                   883     749   -134
 ```
+
+**De esos 134, NI UNO salio de un arreglo ni de una supresion**: los cuatro repartos declaran
+`0 arreglos + 0 supresiones`. Todo el descenso es codigo que dejo de existir. Dicho al reves, para
+que nadie lo lea como mejora del codigo que se queda: **E3 no arreglo nada, borro**. Los 749 que
+quedan siguen ahi.
 
 **Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde,
-**20 comprobaciones**, 103 enlaces, 193 retornos sin declarar · PHPStan **768** = baseline ·
-27 leyes.
+20 comprobaciones, 97 enlaces, 193 retornos sin declarar · PHPStan **749** = baseline · 27 leyes.
 
 | Lote | Que | Estado |
 | :-- | :-- | :-- |
-| 1 | Experiencias previas + consumidores | listo |
-| 2 | `ImagesRepository` + consumidores | listo |
-| 3 | `ApplicationCalls` + consumidores | listo |
-| 4 | `InterestResearchAreas` + consumidores | **siguiente** — se lleva el alias, y TOCA EL NUCLEO |
-| 5 | `DataImportExportUtility` — reescritura | juicio de ARQUITECTO: la ultima |
+| 1 | Experiencias previas + consumidores | listo (YC) |
+| 2 | `ImagesRepository` + consumidores | listo (Z, AA) |
+| 3 | `ApplicationCalls` + consumidores | listo (AB) |
+| 4 | `InterestResearchAreas` + el alias | listo (AC) |
+| 5 | `DataImportExportUtility` — REESCRITURA | **pendiente, y SIN ESPECIFICACION** |
 
-**El lote 4 es el unico que toca `src/app/config/functions.php`**, que cita el alias de
-`SubMappers/`. Al cerrarlo ese directorio queda VACIO y se borra de verdad, cerrando lo que T6
-afirmaba y que el lote 1 tuvo que desmentir.
+### Lo que E3 costo en instrumentos, y no era trabajo de E3
 
-### Metodo, dos correcciones nacidas del bloque AB
+La foto aprendio a ver VISTAS y `databases/` · `scheme-drop` aprendio a emitir vistas ·
+`db-backup` dejo de mentir sobre respaldos incompletos · dos puertas cambiaron una cifra escrita
+por una cota derivada · `verify-integrity` gano dos comprobaciones. **Ninguna era trabajo de E3.
+Las destapo E3.**
 
-- **«Murio con su archivo» se decide MIRANDO EL DISCO**, no por ausencia en el resumen de PHPStan:
-  un archivo que baja a CERO errores desaparece del informe igual que uno borrado. Con el metodo
-  anterior el lote 3 habria dicho 61/0 en vez de 60/2. Los TOTALES de los lotes 1 y 2 son
-  correctos; lo que pudo quedar mal es el desglose. No se rehacen.
-- **Un censo por TEXTO tiene techo, y solo lo cruza un instrumento que entiende TIPOS.** El lote 3
-  necesito DOCE formas y un canario —que cazo que `\bAPPLICATION` no casa dentro de
-  `FEATURE_TYPE_APPLICATION_CALLS`, porque el guion bajo es caracter de palabra— y AUN ASI se le
-  escapo una llamada que encontro PHPStan. **El paso 6 de la plantilla incluye la pasada de
-  PHPStan como parte del censo, no como paso posterior.**
+### Metodo, tres correcciones nacidas de E3
+
+- **«Murio con su archivo» se decide MIRANDO EL DISCO**, no por ausencia en el resumen de PHPStan.
+- **Un censo por TEXTO tiene techo**; solo lo cruza un instrumento que entiende TIPOS. La pasada de
+  PHPStan es parte del censo, no un paso posterior.
+- **RED ANCHA Y CLASIFICAR DESPUES, en vez de enumerar formas por adelantado.** El lote 4 barrio con
+  `esear[ch]h`/`nteres`, saco 47 tokens y clasifico luego; asi aparecieron `getInteresResearchAreas`
+  —sin la ese—, `interestResearhAreas` y `controlResearhAreasDropdown`. Una lista escrita a mano
+  jamas produce las erratas del propio arbol, porque enumerar formas es memoria (LEY 11).
 
 ### Abierto, sin decidir
 
-- **Los retornos ignorados**, congelados: **193 sin declarar**, 1 declarado con motivo, trinquete
-  en la comprobacion 19. La marca vive PEGADA a la llamada y trae su motivo — una lista por
-  `archivo:linea` se pudre en cuanto la linea se mueve. Orden para cuando toque: primero los que
-  REPORTAN EXITO tras el fallo, y dentro de eso `nucleo` (47) y `Database` (10).
-- **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. Declaradas,
-  no calladas. Modulo que SE CONSERVA.
-- **`files/API/`**: 20 archivos generados POR MODULO fuera de `src/`. Candidata a entrar en el
-  universo de la foto.
-- **Los guiones de permisos**: diez divergencias medidas. Propuesta aceptada y sin ejecutar.
-- **`phpstan-strict-rules`** · **las tres listas de LEY 11** · **T86** · **la asimetria de T114**.
+- **La REESCRITURA de `DataImportExportUtility` no tiene especificacion.** T6 dice «se reescribe» y
+  no dice en que se convierte. Antes de escribir una linea hay que leer que hace hoy y proponer que
+  deberia ser — y ARQUITECTO no conoce el MOTIVO de la reescritura, que es del PROPIETARIO.
+- **Los diccionarios de traduccion de los modulos que SE CONSERVAN** guardan las claves de las
+  cadenas retiradas, en seis idiomas. Inertes. Ningun lote de E3 los podo. Deuda medida, no
+  introducida por AC.
+- **Los retornos ignorados**: 193 sin declarar, trinquete en la comprobacion 19. Orden: primero los
+  que REPORTAN EXITO tras el fallo, luego `nucleo` (47) y `Database` (10).
+- **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. Declaradas.
+- **`files/API/`** — 20 archivos generados POR MODULO fuera de `src/` · **los guiones de permisos**
+  (diez divergencias, propuesta aceptada sin ejecutar) · **`phpstan-strict-rules`** · **las tres
+  listas de LEY 11** · **T86** · **la asimetria de T114**.
 - **El procedimiento de despliegue** -> E6 · **el 4.0.0 del paquete** -> E5.
 - **Los 81 bloques del registro**: el borrado espera al cierre de E6.
 
@@ -313,9 +321,9 @@ afirmaba y que el lote 1 tuvo que desmentir.
 `files/dev/roadmap/`: silencios de Sass · el modulo como patron mecanizable · el skill de
 aterrizaje · una cache de verdad · la distribucion sin ruido · el versionado · **las cuatro
 revisiones de seguridad y operacion** (errores, encriptacion, autenticacion, tokens de API), con
-el sistema de errores en TRES MODOS —mantenedor, desarrollo, produccion—, invariante: *lo que
-cambia es la reaccion, nunca el registro*, y los tres modos con puerta.
+el sistema de errores en TRES MODOS y el invariante *lo que cambia es la reaccion, nunca el
+registro*.
 
-**Y una nota del PROPIETARIO, sin desarrollar a proposito** (2026-08-29): al cerrar la campana,
+**Nota del PROPIETARIO, sin desarrollar a proposito** (2026-08-29): al cerrar la campana,
 ARQUITECTO debe recordarle **«Perfeccionar geovisor»**. El sabra a que se refiere. Queda escrito
 aqui y no en la memoria de ARQUITECTO porque una compactacion se lo llevaria.

@@ -222,6 +222,43 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ Corregido — el informe genérico tenía el HTML roto y mostraba texto de un módulo borrado
+
+Al retirar las dos tarjetas de convocatorias, el corte se ancló en un `</div>` a sangría
+fija y esa sangría cerraba un `div` interior. Quedaron dos pies de tarjeta huérfanos —con
+sus etiquetas **visibles en pantalla**— y dos `</div>` de más. Medido: 96/96 etiquetas antes,
+86/88 después, 80/80 ahora.
+
+Comprobadas las otras nueve vistas afectadas por la limpieza de módulos: cuadran todas.
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera los diccionarios de `fr`, `pt`, `it` y `de`
+
+Decisión del PROPIETARIO. Se conservan `es`, `en` y los diccionarios de JS.
+
+**No rompe nada**: `LangInjector` guarda con `file_exists()` en sus tres puntos de carga, así
+que un diccionario ausente se salta y `__($grupo, 'Texto')` devuelve su segundo argumento.
+**Pero `config/lang.php` sigue declarando los cuatro en `allowed_langs`**, así que `/fr/`
+sigue siendo una URL válida y el selector los ofrece mostrando el texto en español. Retirarlos
+de ahí es decidir qué idiomas ofrece la aplicación.
+
+## Corregido — 39 claves de traducción que ya no pedía nadie
+
+La limpieza de módulos dejó texto de módulos muertos en los diccionarios de los que se
+conservan. Se separó de la deuda anterior **midiendo**: se extrajo el árbol previo a la
+limpieza y se corrió el mismo censo — 69 cadenas huérfanas antes, 92 después, y solo las 39
+de diferencia se retiraron.
+
+## Herramientas — `verify-integrity` encuentra las claves de traducción que nadie pide
+
+Faltaba esta puerta, y por eso los censos de huérfanos daban cero: miraban IDENTIFICADORES y
+nunca miraban TEXTO VISIBLE. El cero era cierto dentro del universo que miraban.
+
+`bin/censo-claves-huerfanas` compara cadena contra cadena —en este framework la clave *es* el
+texto en español—, con canario de dos caras y trinquete sobre lo que crece. Cuesta 0,11 s.
+
+**Lo que no mide, dicho**: una clave pedida con `__($grupo, $variable)` sale como huérfana,
+porque no resuelve variables. Es un trinquete, no una lista de borrado automático.
+
 ## ⚠ CAMBIO INCOMPATIBLE — fuera las áreas de interés de investigación
 
 **E3, cuarto y último lote de borrado.** Desaparece `InterestResearchAreas` entero —24
