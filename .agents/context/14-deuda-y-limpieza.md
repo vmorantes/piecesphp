@@ -23,7 +23,7 @@ Ya eliminados en ramas anteriores: chat interno, presentaciones de capacitación
 | News | 6.024 | 3 | 0 | Marcado «por renovar» |
 | Forms | 5.320 | 3 | 1 | Marcado «por renovar» |
 | Organizations | 4.668 | 30 | 1 | Base reutilizable (fan-in 30, fan-out 1) |
-| ImagesRepository | 4.400 | 2 | 0 | **Candidato fuerte** |
+| ~~ImagesRepository~~ | 4.400 | 2 | 0 | **BORRADO** en el lote 2 de E3 (bloque AA) |
 | SystemApprovals | 4.339 | 8 | 3 | Mecanismo agnóstico; **el core depende de él** |
 | API | 4.093 | 3 | 5 | Conservar |
 | Documents | 3.268 | 3 | 1 | Marcado «por renovar» |
@@ -331,7 +331,7 @@ cambios de GD y de manejo de fuentes.
 
 | Qué | LOC | Consideración |
 | :-- | --: | :-- |
-| **`ImagesRepository`** | 4.400 | Marcado «por renovar» en `IGNORE.md` y «rehacer módulo de imágenes» en `TODO.md`. Solapa con `BuiltIn/Banner` (3.389) y `FileManager` (1.309): **tres formas distintas de gestionar imágenes/archivos**. Solo lo usa `MySpace` (2 referencias). Si se va a rehacer, bórralo antes de reescribirlo |
+| **~~`ImagesRepository`~~** | 4.400 | **BORRADO** en el lote 2 de E3 (bloque AA); se conserva la nota porque explica la decisión. Marcado «por renovar» en `IGNORE.md` y «rehacer módulo de imágenes» en `TODO.md`. Solapa con `BuiltIn/Banner` (3.389) y `FileManager` (1.309): **tres formas distintas de gestionar imágenes/archivos**. Solo lo usa `MySpace` (2 referencias). Si se va a rehacer, bórralo antes de reescribirlo |
 | **`FileManager`** | 1.309 | 0 acoplamiento. Es un envoltorio de elFinder, dependencia pesada (`studio-42/elfinder`). Marcado «por renovar». ¿Lo usa alguien de verdad? |
 | **`Newsletter`** | 1.982 | Hoja aislada; solo `ContactFormsController` y `PublicAreaController`. Función muy delgada (tabla `newsletter_sucribers`, con errata en el nombre) |
 | **`EventsLog`** | 1.210 | Solo lo usa `APIController`. Útil si se audita de verdad; muerto si nadie mira `actions_log` |
@@ -426,7 +426,8 @@ versión de lenguaje.
 2. Borrar `Importers` *(bajo riesgo, ~1.129 LOC)*
 3. Decidir sobre `Components` *(completar o borrar)*
 4. Invertir la dependencia `BaseEntityMapper` → `SystemApprovals` *(desbloquea todo lo demás)*
-5. Decidir el destino de `ImagesRepository` / `FileManager` / `Banner` — **una sola**
+5. Decidir el destino de ~~`ImagesRepository`~~ *(borrado, bloque AA)* / `FileManager` /
+   `Banner` — **una sola**
    estrategia de archivos e imágenes
 6. Mover `MyOrganizationProfileController`, `OrganizationProfileController` y
    `AllProfilesController` de `MySpace` a `Organizations` *(mover archivos, sin

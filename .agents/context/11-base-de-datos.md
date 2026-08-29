@@ -42,7 +42,6 @@ Configuración en `src/app/config/database.php` (multi-grupo, grupo `default`).
 | `publications_elements`, `publications_categories`, `publications_attachments` | Publications |
 | `documents_elements` | Documents |
 | `built_in_banner_elements` | BuiltIn\Banner |
-| `image_repository_images` | ImagesRepository |
 | `newsletter_sucribers` | Newsletter *(sic — el nombre tiene la errata en el esquema)* |
 | `application_calls_elements`, `application_calls_attachments` | ApplicationCalls |
 | `interest_research_area` | InterestResearchAreas |

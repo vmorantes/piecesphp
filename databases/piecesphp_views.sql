@@ -28,16 +28,6 @@ CREATE VIEW news_active_date_elements AS (
         (UNIX_TIMESTAMP(pe.startDate) <= nowDate OR pe.startDate IS NULL) AND
         (UNIX_TIMESTAMP(DATE_ADD(pe.endDate, INTERVAL 15 DAY)) > nowDate OR pe.endDate IS NULL)
 );
-DROP VIEW IF EXISTS image_repository_images_view;
-CREATE VIEW image_repository_images_view AS (
-    SELECT
-        YEAR(img.captureDate) AS imageYear,
-        (SELECT lc.name FROM locations_cities AS lc WHERE lc.id = img.city) AS cityName,
-        (SELECT lc.state FROM locations_cities AS lc WHERE lc.id = img.city) AS stateID,
-        (SELECT ls.name FROM locations_states AS ls WHERE ls.id = stateID) AS stateName,
-        img.*
-    FROM image_repository_images AS img
-);
 DROP VIEW IF EXISTS built_in_banner_active_date_elements;
 CREATE VIEW built_in_banner_active_date_elements AS (
     SELECT

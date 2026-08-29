@@ -171,35 +171,6 @@ CREATE TABLE `forms_document_types` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
-DROP TABLE IF EXISTS `image_repository_images`;
-CREATE TABLE `image_repository_images` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `city` int(11) NOT NULL,
-  `author` text NOT NULL,
-  `description` text NOT NULL,
-  `image` text NOT NULL,
-  `authorization` text DEFAULT NULL,
-  `folder` text NOT NULL,
-  `resolution` text NOT NULL,
-  `size` double NOT NULL,
-  `coordinates` longtext DEFAULT NULL,
-  `captureDate` datetime NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  KEY `city` (`city`),
-  CONSTRAINT `image_repository_images_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `image_repository_images_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `image_repository_images_ibfk_5` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-
 DROP TABLE IF EXISTS `interest_research_area`;
 CREATE TABLE `interest_research_area` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

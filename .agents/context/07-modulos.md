@@ -168,7 +168,6 @@ Dentro de las vistas y métodos, los assets se cargan con `set_custom_assets()`,
 | **Forms** | `Forms\Categories`, `Forms\DocumentTypes` | Formularios: categorías y tipos de documento |
 | **GeoJSONManager** | `GeoJSONManager` | Gestión de capas GeoJSON (usa `piecesphp/geojson`) |
 | **GoogleReCaptchaV3** | `GoogleReCaptchaV3` | Integración reCAPTCHA v3 |
-| **ImagesRepository** | `ImagesRepository` | Registro/repositorio fotográfico |
 | **Importers** | `Importers` | Importadores de datos (`Managers/`, `Controller/`) |
 | **InterestResearchAreas** | `InterestResearchAreas` | Áreas de interés/investigación |
 | **MySpace** | `MySpace` | "Mi espacio": mi perfil, mi organización, recursos |
