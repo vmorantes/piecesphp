@@ -44,6 +44,21 @@ class SnapshotTask extends TerminalTaskAbstract
     /** @var int Bytes hasheados en la última foto, para que diga lo que cuesta. */
     protected static int $hashedBytes = 0;
 
+    /**
+     * EL UNIVERSO DE LA FOTO, declarado. Lo que no esté aquí NO SE VE.
+     *
+     * `src/` es el árbol servido. `databases/` entró en el bloque AA: un módulo tiene
+     * piezas fuera de `src/` —su DDL y sus vistas viven ahí— y el lote 2 de E3 paró
+     * justo por eso. Ver T141.
+     *
+     * FUERA, y se dice para que nadie lo lea como cobertura total: `bin/`, `files/`
+     * —incluida la documentación de API generada por módulo—, `.agents/`,
+     * `source-docs/` y la raíz. Un lote que los toque lo declara en su reporte.
+     *
+     * @var string[]
+     */
+    const SNAPSHOT_ROOTS = ['src', 'databases'];
+
     /** @var string[] Rutas que no forman parte del árbol servido. */
     const EXCLUDED_PATHS = [
         '/vendor/', '/node_modules/', '/.git/', '/dumps/', '/tmp/', '/files/dev/snapshots/',
@@ -60,8 +75,10 @@ class SnapshotTask extends TerminalTaskAbstract
         }
 
         $this->description = new StringArray([
-            "Fotografía la base de datos y el árbol SERVIDO —`src/`, no el repositorio—, y compara dos fotos.\r\n",
-            "\tLo que vive fuera de `src/` no entra en la foto: `bin/`, `files/dev/` y la documentación.\r\n",
+            "Fotografía la base de datos y un universo DECLARADO de archivos, y compara dos fotos.\r\n",
+            "\tCUBRE: `src/` —el árbol servido— y `databases/` —el DDL y las vistas—.\r\n",
+            "\tNO CUBRE: `bin/`, `files/`, `.agents/`, `source-docs/` ni la raíz. Un lote que\r\n",
+            "\tlos toque lo declara en su reporte; la foto no puede decirlo por él.\r\n",
             "\tParámetros:\r\n",
             "\t  label=<nombre>   nombre de la foto. Por defecto: la fecha\r\n",
             "\t  dir=<ruta>       dónde vive. Por defecto: files/dev/snapshots\r\n",
@@ -202,13 +219,21 @@ class SnapshotTask extends TerminalTaskAbstract
      */
     protected static function snapshotFiles(string $repoRoot): array
     {
-        $base = $repoRoot . '/src';
-        if (!is_dir($base)) {
-            return [];
-        }
         $out = [];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS));
-        foreach ($iterator as $file) {
+        $files = [];
+        foreach (self::SNAPSHOT_ROOTS as $root) {
+            $base = $repoRoot . '/' . $root;
+            if (!is_dir($base)) {
+                //NO se calla: una raíz declarada que no existe convierte la foto en otra cosa.
+                echoTerminal("\e[33mAVISO:\e[39m la raíz declarada «{$root}» no existe: la foto NO la cubre.");
+                continue;
+            }
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS)) as $file) {
+                $files[] = $file;
+            }
+        }
+
+        foreach ($files as $file) {
             if (!$file->isFile()) {
                 continue;
             }
