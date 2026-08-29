@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Pone en disco los finales de línea que `.gitattributes` DECLARA.
+
+POR QUÉ EXISTE
+--------------
+`.gitattributes` normaliza a LF en el índice, así que un archivo en LF con `eol=crlf`
+declarado **no produce diff** y git no lo señala nunca. Pero git lo reescribe «la próxima
+vez que lo toque», y ese volteo cambia un byte por línea SIN cambiar el contenido.
+
+Para git eso es invisible. Para un instrumento que mire bytes —la foto de `bin/cli
+snapshot`, que es la red de E3— es una diferencia que hay que ir a investigar. En el
+bloque YC pasó con tres suites recién creadas y costó una investigación entera.
+
+`bin/anexar` respeta los finales del destino, pero **un archivo nuevo no tiene destino que
+respetar**: nace con los del proceso que lo escribió. Esto lo arregla después.
+
+USO
+---
+    bin/normaliza-eol [ruta...]            solo informa; sale 1 si hay algo fuera de forma
+    bin/normaliza-eol --arregla [ruta...]  reescribe
+
+NO decide nada por su cuenta: la forma correcta la dice `git check-attr`, y los archivos
+sin finales de línea o binarios no se tocan.
+"""
+
+import subprocess
+import sys
+
+FORMAS = {'crlf': b'\r\n', 'lf': b'\n'}
+
+
+def candidatos(rutas):
+    orden = ['git', 'ls-files', '--eol', '--'] + rutas
+    salida = subprocess.run(orden, capture_output=True, text=True)
+    if salida.returncode != 0:
+        print('ERROR: `git ls-files` falló. ¿Es esto un repositorio?', file=sys.stderr)
+        sys.exit(2)
+    fuera = []
+    vistos = 0
+    for linea in salida.stdout.splitlines():
+        partes = linea.split('\t')
+        if len(partes) != 2:
+            continue
+        campos, ruta = partes[0].split(), partes[1]
+        arbol = next((c[2:] for c in campos if c.startswith('w/')), None)
+        declarado = next((c.split('=')[1] for c in campos if c.startswith('eol=')), None)
+        # `none` = sin un solo salto de línea. `-text` = binario. Ninguno se toca.
+        if arbol not in FORMAS or declarado not in FORMAS:
+            continue
+        vistos += 1
+        if arbol != declarado:
+            fuera.append((ruta, declarado))
+    return vistos, fuera
+
+
+def normaliza(ruta, declarado):
+    with open(ruta, 'rb') as f:
+        crudo = f.read()
+    # NO se añade ni se quita el salto final: solo cambia la forma de los que ya hay.
+    plano = crudo.replace(b'\r\n', b'\n')
+    nuevo = plano if declarado == 'lf' else plano.replace(b'\n', b'\r\n')
+    if nuevo == crudo:
+        return False
+    with open(ruta, 'wb') as f:
+        f.write(nuevo)
+    return True
+
+
+def main():
+    argumentos = sys.argv[1:]
+    arregla = '--arregla' in argumentos
+    rutas = [a for a in argumentos if a != '--arregla'] or ['.']
+
+    vistos, fuera = candidatos(rutas)
+    print(f'GUARDA EJECUTADA: {vistos} archivo(s) con final de línea declarado, '
+          f'{len(fuera)} fuera de forma.')
+
+    if not fuera:
+        return 0
+
+    if not arregla:
+        for ruta, declarado in fuera[:20]:
+            print(f'   {ruta} — declarado {declarado}')
+        if len(fuera) > 20:
+            print(f'   … y {len(fuera) - 20} más')
+        print('Para reescribirlos: bin/normaliza-eol --arregla')
+        return 1
+
+    tocados = sum(1 for ruta, declarado in fuera if normaliza(ruta, declarado))
+    print(f'   reescritos: {tocados}')
+    # LO QUE HACE HONESTA LA OPERACIÓN: si algún blob cambió, esto NO era un cambio de
+    # finales de línea y hay que mirarlo. Se dice aquí, no se deja para el `git status`.
+    preparado = subprocess.run(['git', 'diff', '--stat', '--'] + rutas,
+                               capture_output=True, text=True).stdout.strip()
+    print(f'   contenido alterado según git: {"NINGUNO" if preparado == "" else preparado}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
