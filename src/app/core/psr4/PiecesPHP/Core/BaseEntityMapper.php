@@ -7,7 +7,6 @@ namespace PiecesPHP\Core;
 
 use App\Model\UsersModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
-use PiecesPHP\Core\Database\Database;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use ReflectionMethod;
@@ -37,10 +36,8 @@ class BaseEntityMapper extends EntityMapper
      */
     protected $fields = [];
 
-    /**
-     * @var bool
-     */
-    protected static $localeSetted = false;
+    //`$localeSetted` y el bloque de `lc_time_names` viven en el trait. Ver T145.
+    use LcTimeNamesTrait;
 
     /**
      * @var string[]|null Campos que el último `update()` iba a cambiar. NULL si no se sabe.
@@ -87,34 +84,7 @@ class BaseEntityMapper extends EntityMapper
             parent::__construct($value_compare, $field_compare, $options);
         }
 
-        if (!self::$localeSetted) {
-            $lcTimeNameOptions = get_config('lc_time_names_mysql');
-            if (is_array($lcTimeNameOptions) && !empty($lcTimeNameOptions)) {
-                $currentLang = Config::get_lang();
-                $lcTimeNameList = array_key_exists($currentLang, $lcTimeNameOptions) ? $lcTimeNameOptions[$currentLang] : null;
-                $lcTimeNameList = is_array($lcTimeNameList) ? $lcTimeNameList : [$lcTimeNameList];
-
-                if (is_array($lcTimeNameList) && !empty($lcTimeNameList)) {
-                    foreach ($lcTimeNameList as $lcTimeName) {
-                        if (is_string($lcTimeName) && mb_strlen($lcTimeName) > 0) {
-                            $databaseInstance = $this->getModel()->getDatabase();
-                            if ($databaseInstance instanceof Database) {
-                                try {
-                                    $prepareStatement = $databaseInstance->prepare("SET lc_time_names = '{$lcTimeName}';");
-                                    $prepareStatement->execute();
-                                    $prepareStatement->closeCursor();
-                                    break;
-                                } catch (\Exception $e) {
-                                    log_exception($e);
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            self::$localeSetted = true;
-        }
+        $this->setLcTimeNamesOnce(fn () => $this->getModel()->getDatabase());
     }
 
     /**

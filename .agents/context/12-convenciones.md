@@ -285,6 +285,17 @@ porque el momento en que se entiende es justo ese.
 - `IGNORE.md` está en `.gitignore`: es un bloc de notas local, no versionado. No
   muevas su contenido (comandos, credenciales personales) a archivos versionados.
 
+### La interpolación que NO se «arregla» con `prepare()`
+
+`SET lc_time_names = '…'` en `LcTimeNamesTrait` va interpolado y **tiene que ir así**:
+`SET` no admite parámetros preparados. Comprobado que no es inyectable: el idioma solo se
+usa como CLAVE de búsqueda, y el valor sale siempre de la lista blanca
+`lc_time_names_mysql` de `config/lang.php`, que nadie construye en ejecución. Quien lo
+convierta a parámetro rompe la sentencia. Ver T145.
+
+Regla general: una interpolación forzada se anota EN EL SITIO con por qué no es
+inyectable. Si no se puede escribir esa frase, es que sí lo es.
+
 ## Cuando trabajes en este proyecto
 
 1. **Lee primero `Publications`**: es la referencia canónica del proyecto — el
