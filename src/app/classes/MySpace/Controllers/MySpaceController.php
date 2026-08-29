@@ -8,8 +8,6 @@ namespace MySpace\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use ContentNavigationHub\ContentNavigationHubRoutes;
-use ContentNavigationHub\Controllers\ContentNavigationHubController;
 use Documents\Mappers\DocumentsMapper;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
@@ -104,8 +102,6 @@ class MySpaceController extends AdminPanelController
 
                 if ($currentUserType == UsersModel::TYPE_USER_COMUNICACIONES && PublicationsRoutes::ENABLE) {
                     return (new PublicationsController())->listView($request, $response);
-                } elseif ($currentUserType != UsersModel::TYPE_USER_ROOT && ContentNavigationHubRoutes::ENABLE) {
-                    return (new ContentNavigationHubController())->applicationCallsListView($request, $response);
                 } else {
                     $normalSpace = true;
                 }
