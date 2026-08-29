@@ -10,7 +10,7 @@
          🪪  variable.undefined                                                                           
   39     Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
          🪪  argument.type                                                                                
-  228    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
+  226    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
          🪪  return.type                                                                                  
  ------ ------------------------------------------------------------------------------------------------- 
 

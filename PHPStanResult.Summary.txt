@@ -49,7 +49,7 @@ nullCoalesce.expr (1)
 project://bin/phpstan-process-result.php
 	variable.undefined (Líneas: 7, 9)
 	argument.type (Líneas: 39)
-	return.type (Líneas: 228)
+	return.type (Líneas: 226)
 project://files/CliScripts/CorregirTiempoDuraciónWebm.php
 	argument.type (Líneas: 17, 65, 151)
 	foreach.nonIterable (Líneas: 142)

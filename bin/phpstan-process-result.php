@@ -188,10 +188,7 @@ if ($currentTotal > $baselineTotal) {
 }
 
 //Cada cifra del baseline declara «[REPARTO] n <- anterior = x arreglos + y supresiones», o esto no pasa.
-//«+ z destapados»: la cifra sube porque creció el universo, no el daño. Ver T79.
-//«+ w murieron»: E3 BORRA CODIGO, y un error que se va con su archivo no es un arreglo ni una
-//supresion. MEDIDO en el primer lote: de 39, solo 17 murieron con su archivo y 22 se fueron con
-//codigo retirado de archivos que SE QUEDAN. Son la misma familia y se suman juntos. Ver T139.
+//«+ z destapados» (T79) y «+ w murieron» (T139) no son ni arreglo ni supresion, y se declaran.
 $baselineText = (string) @file_get_contents($baselinePath);
 if (preg_match_all('/\[REPARTO\]\s*(\d+)\s*<-\s*(\d+)\s*=\s*(\d+)\s+arreglos?\s*\+\s*(\d+)\s+supresi\S*(?:\s*\+\s*(\d+)\s+destapad\S*)?(?:\s*\+\s*(\d+)\s+murieron)?/u', $baselineText, $splits, \PREG_SET_ORDER) > 0) {
     $splitsByTotal = [];

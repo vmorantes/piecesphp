@@ -114,9 +114,26 @@ CliActions::make('unit-tests:core/prefer-slug', function ($args) {
             'antes=' . (string) json_encode($antesIntacto) . ' después=' . (string) json_encode($slugEnBase($idConValor)));
         $check(($resumen['detail'][$tabla] ?? -1) >= 1, 'el resumen cuenta lo que rellenó', (string) json_encode($resumen['detail']));
 
-        //Y los mappers con slug se DESCUBREN, no se enumeran.
+        //Y los mappers con slug se DESCUBREN, no se enumeran. La cota SALE DEL ARBOL, no de un
+        //numero escrito: E3 borra mappers y un `>= 14` cableado falla en cada lote. Ver T139.
         $conSlug = PreferSlugsFiller::mappersWithSlug();
-        $check(count($conSlug) >= 14, 'los mappers con preferSlug se descubren solos', count($conSlug) . ' encontrados');
+        //Metodo INDEPENDIENTE del que se prueba: se cuentan por TEXTO los mappers que declaran
+        //el campo, y el descubrimiento -que va por reflexion- tiene que encontrarlos todos.
+        $declarantes = 0;
+        $raiz = basepath('app/classes');
+        $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($raiz, \FilesystemIterator::SKIP_DOTS));
+        foreach ($iterador as $archivo) {
+            if (!$archivo->isFile() || $archivo->getExtension() !== 'php') {
+                continue;
+            }
+            $texto = (string) file_get_contents($archivo->getPathname());
+            if (str_contains($texto, "'preferSlug' =>") || str_contains($texto, '"preferSlug" =>')) {
+                $declarantes++;
+            }
+        }
+        $check($declarantes > 0, 'el censo por texto ve mappers que declaran preferSlug', "{$declarantes} declarantes");
+        $check(count($conSlug) >= $declarantes, 'el descubrimiento por reflexión los encuentra todos',
+            count($conSlug) . " descubiertos contra {$declarantes} declarados por texto");
 
     } catch (\Throwable $exception) {
         $check(false, 'la suite corre sin excepciones', $exception->getMessage());
