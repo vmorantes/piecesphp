@@ -197,7 +197,7 @@ class ContentNavigationHubController extends AdminPanelController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route( //Vista del listado: Convocatorias
+            new Route( //Vista del listado: actores
                 "{$startRoute}/profiles-list[/]",
                 $classname . ':profileListView',
                 self::$baseRouteName . '-profiles-list',

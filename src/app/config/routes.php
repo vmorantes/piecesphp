@@ -188,7 +188,6 @@ NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 //Noticias internas
 NewsRoutes::routes($zona_administrativa);
 
-//Registro fotográfico
 
 //Formularios
 FormsRoutes::routes($zona_administrativa);
@@ -210,8 +209,6 @@ ContentNavigationHubRoutes::routes($zona_administrativa, $zona_publica);
 
 //Gestión de GeoJSON
 GeoJsonManagerRoutes::routes($zona_administrativa);
-
-//Convocatorias
 
 
 //Reportes

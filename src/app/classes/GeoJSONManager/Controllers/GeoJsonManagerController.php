@@ -313,14 +313,12 @@ class GeoJsonManagerController extends AdminPanelController
     }
 
     /**
-     * Maneja la solicitud de características GeoJSON para contenidos
+     * Maneja la solicitud de características GeoJSON de perfiles
      *
      * Este método procesa los parámetros de la solicitud para filtrar y obtener
      * características GeoJSON basadas en:
      * - Términos de búsqueda
-     * - Áreas de investigación seleccionadas
      * - Organizaciones específicas
-     * - Tipos de contenido
      *
      * @param Request $request La solicitud HTTP con los parámetros de filtrado
      * @return mixed Las características GeoJSON filtradas según los parámetros
