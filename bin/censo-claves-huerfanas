@@ -18,6 +18,29 @@ QUÉ NO MIDE: si una clave se pide desde una plantilla construida en tiempo de e
 —`__($grupo, $variable)`— este censo la dará por huérfana. Por eso es un TRINQUETE sobre lo
 que CRECE, no una lista de borrado automático.
 
+QUÉ NO MIRA, Y ESO SE IMPRIME
+-----------------------------
+Solo juzga las claves declaradas con COMILLA DOBLE al principio de línea, que es la forma
+de los diccionarios PLANOS de los módulos (`return ["clave" => "valor"]`). Los AGRUPADOS de
+`app/lang/` usan comilla simple y meten las claves un nivel más adentro
+(`$lang = ['grupo' => ['clave' => 'valor']]`): esos NO se juzgan.
+
+No es un olvido, es una cota declarada. Medido el 29-08-2026 EJECUTANDO los 75 diccionarios
+con PHP —no leyéndolos con una expresión regular—: 1.632 claves reales, de las que este censo
+mira 775, el 48%. Juzgar el resto daría 277 huérfanas contra 53, y la mayor parte de esa
+diferencia son FALSOS POSITIVOS: índices numéricos (`'day' => [0 => 'Domingo']`) y grupos que
+se piden con variable. Una puerta que nace roja acaba ignorada.
+
+La línea que se imprime abajo cuenta con expresión regular y da 1.627, cinco menos: son las
+claves NUMÉRICAS, que ninguna de las dos expresiones casa y la ejecución sí. Se prefiere la
+regular porque no obliga a ejecutar código de la aplicación para decir una cobertura.
+
+Pero no todo es falso positivo: con el universo ancho aparecieron `ASC`, `DESC` y
+`Ordenar por` en `app/lang/{es,en}.php`, que solo pedía `ImagesRepository` —muerto en el
+lote 1 de E3—. Es residuo real que la cota estrecha no podía ver. Ampliar el universo es
+DECISIÓN DE ARQUITECTO, no de esta herramienta. Mientras no se tome, el censo IMPRIME su
+cobertura: un instrumento dice el universo que mira, no el que su título sugiere. LEY 15.
+
 Uso:
   bin/censo-claves-huerfanas              la tabla
   bin/censo-claves-huerfanas --detalle    cada clave con su archivo
@@ -97,8 +120,21 @@ def main():
     distintas = {c for v in huerfanas.values() for c in v}
     entradas = sum(len(v) for v in huerfanas.values())
 
+    #LA COBERTURA SE IMPRIME. Contar lo que NO se juzga cuesta una expresión regular más y
+    #es lo único que impide leer «775 claves declaradas» como si fueran todas. Ver LEY 15 y
+    #el bloque «QUÉ NO MIRA» de arriba.
+    no_miradas = 0
+    for ruta in diccionarios:
+        contenido = open(ruta, encoding='utf-8', errors='replace').read()
+        no_miradas += len(re.findall(r"^\s*'((?:[^'\\]|\\.)*)'\s*=>", contenido, re.M))
+    declaradas = total_claves + no_miradas
+    cobertura = (100 * total_claves / declaradas) if declaradas else 0
+
     print(f'UNIVERSO: {len(codigo)} archivos de código · {len(diccionarios)} diccionarios')
-    print(f'          {total_claves} claves declaradas · {len(usadas)} cadenas pedidas por `__()`\n')
+    print(f'          {total_claves} de {declaradas} claves declaradas MIRADAS ({cobertura:.0f}%) · '
+          f'{len(usadas)} cadenas pedidas por `__()`')
+    print(f'          Las otras {no_miradas} van con comilla simple —diccionarios AGRUPADOS de '
+          f'`app/lang/`— y NO se juzgan.\n')
     print(f'CLAVES HUÉRFANAS: {entradas} entrada(s), {len(distintas)} cadena(s) distinta(s), '
           f'en {len(huerfanas)} diccionario(s)\n')
     for ruta in sorted(huerfanas, key=lambda x: -len(huerfanas[x])):
