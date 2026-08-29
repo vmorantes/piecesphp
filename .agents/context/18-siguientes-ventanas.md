@@ -13703,3 +13703,261 @@ que SE QUEDA.
 **(3) Diez enlaces simbólicos rotos** en `src/statics/server-delegated/` —2 de YC, 8 de este
 lote—. El directorio está declarado volátil, así que la foto no los ve. **No puedo retirarlos**:
 son de `www-data` y su directorio no tiene bit de escritura para el grupo.
+
+
+---
+
+## T141 · AA · LA CUARTA VEZ DEL MISMO DEFECTO, Y EL LOTE 2 CIERRA
+
+### AA0 · `db-backup` decía «exitosa» sobre un respaldo de 7 tablas de 33
+
+Descartaba el valor devuelto por el exportador y probaba el éxito con `file_exists()`. **El
+archivo existe igual aunque la exportación reviente a mitad.**
+
+| | código viejo | código nuevo |
+| :-- | :-- | :-- |
+| Con una vista rota encima de una tabla borrada | «Operación exitosa», rc **0** | «El respaldo FALLÓ», rc **1** |
+| Objetos escritos | 38 de 40 | — |
+
+Y ahora **el respaldo se verifica a sí mismo, por dos caminos**: lo esperado sale de la BASE
+—`SHOW TABLES` menos las exclusiones declaradas— y lo escrito **se lee del ARCHIVO**,
+comprimido o no. Si falta algo dice cuántos y cuáles.
+
+`views=no` es una petición legítima, no una ausencia: sin esa distinción reportaba **5 huecos
+falsos**. Esa rama de la verificación se vio disparar por ahí, antes de corregirla.
+
+**`db-restore` NO tiene la enfermedad, y se probó en vez de suponerlo**: captura por
+sentencia, cuenta los fallos y sale con 1. Un volcado con una sentencia inválida da
+`1 fallida(s)` y `rc=1`.
+
+#### AA0(e) · EL CENSO DE LA CLASE — y dispara la parada
+
+Un valor de retorno que nadie lee. **Cuatro veces ya**: `FileUpload::validate()` (T135), el
+`'success' => true` literal, la suite sin balance (T126) y `db-backup`.
+
+`bin/censo-retornos-ignorados` tokeniza —una llamada dentro de una cadena no es una
+llamada— y solo cuenta si la llamada es la sentencia ENTERA.
+
+| | |
+| :-- | --: |
+| Universo: archivos `.php` de `src/app` y `bin`, sin `bin/tools/` ni `app/logs/` | 790 |
+| Llamadas con el valor devuelto DESCARTADO | 485 |
+| …que señalan fallo **por excepción** —no cuentan— | 290 |
+| **…que señalan fallo POR VALOR DEVUELTO** | **195** |
+
+Las 290 son PDO: la conexión va en `ERRMODE_EXCEPTION` —lo fija `Database::connect()` del
+paquete, y PHP 8 ya lo trae por defecto—, así que `->execute()` y `->exec()` LANZAN.
+**Distinguir la FORMA de la llamada fue necesario**: `exec(` a secas es el de procesos y
+devuelve `string|false`; sin esa distinción los 43 `exec()` caían en la familia equivocada.
+
+Reparto de las 195: `unlink()` 37 · `file_put_contents()` 36 · `mkdir()` 29 · `chmod()` 22 ·
+`fwrite()` 15 · `ini_set()` 8 · `exec()` 8 · el resto por debajo de 7. Por zona: núcleo 47,
+`Terminal` 38, `bin/` 21, `Cache` 12, `Helpers` 10, `Database` 10.
+
+---
+
+## >>> PARADA AA0 · 195 CONTRA UN UMBRAL DE 25 <<<
+
+Ocho veces el umbral. **Se entrega la tabla y no se clasifica más.** Que una llamada salga
+ahí no la convierte en defecto —`unlink()` de un temporal puede ignorarse a conciencia—;
+separar las deliberadas de las peligrosas es el trabajo, y es bloque propio.
+
+---
+
+### AA1 · `scheme-drop` aprende las vistas
+
+La fuente no es `$fields` —una vista no lo tiene—: es `databases/piecesphp_views.sql`. Se
+extrae de cada vista lo que aparece tras `FROM` y `JOIN`, y se emiten las que intersecan con
+las tablas del módulo, **antes** de los `DROP TABLE`.
+
+Provocado neutralizando la llamada desde copia guardada: sin ella `ApplicationCalls` emite
+dos `DROP TABLE` y ninguna vista. Controles que discriminan: `Publications` y `News` traen
+una cada uno, `InterestResearchAreas` y `Documents` **ninguna**.
+
+> **EL LOTE 3 TENÍA LA MISMA MINA PUESTA**: `application_calls_active_date_elements`.
+
+Si el archivo fuente no se puede leer, **no se calla**: dice que las vistas no se han
+comprobado. Un cero silencioso ahí vale lo mismo que un cero de un instrumento roto.
+
+### AA2 · El universo de la foto se declara
+
+`databases/` entra: +6 archivos, exactamente los que hay ahí. Las raíces son una constante,
+y la descripción dice también lo que **no** cubre —`bin/`, `files/`, `.agents/`,
+`source-docs/` y la raíz—.
+
+**Y la mitad de base de datos tenía el mismo agujero**: `snapshotTables()` filtra por
+`TABLE_TYPE = 'BASE TABLE'`, así que el lote 2 borró una vista y la comparación **no dijo
+nada**. Ahora las vistas se guardan por su DEFINICIÓN. Una foto anterior a esto no se
+compara contra un vacío: se dice NO COMPARABLE y cuenta como hallazgo.
+
+#### Dónde vive una pieza de módulo fuera de `src/`, medido sobre los 255 versionados
+
+| Zona | Archivos | ¿Es trabajo de lote? |
+| :-- | --: | :-- |
+| `files/API/` | 20 | Documentación de API **generada por módulo**. Candidata siguiente |
+| `.agents/` | 19 | Documentación. La corrige el mismo commit, como manda `CLAUDE.md` |
+| raíz | 7 | `CHANGELOG.md`, artefactos de PHPStan |
+| **`databases/`** | **3** | **DDL y vistas. Trabajo real, y es lo que paró el lote 2** |
+| `bin/`, `source-docs/` | 2 | — |
+
+**PASO 2 DE LA PLANTILLA, CORREGIDO**: el inventario se censa sobre el universo declarado, no
+sobre `src/app`. Y lo que un lote toque fuera de la foto —`volatile-state.json`,
+`narrative-comments.json`, `integrity-signatures.json`— se lista en el reporte.
+
+### AA3 · El lote 2 cierra, y el ORDEN se aprendió rompiéndolo
+
+**La herramienta lee las vistas del archivo de declaración, no de la base.** Al retirar la
+declaración ANTES de tocar la base, el guion emitido dejó de incluir la vista y la base se
+quedó con una vista huérfana — hecho, medido y deshecho. **Primero la base, con la
+declaración aún puesta; después el archivo.**
+
+| | antes | después |
+| :-- | --: | --: |
+| Tablas | 33 | 32 |
+| Vistas | 5 | 4 |
+| Objetos que verifica `db-backup` | 38 | 36 |
+
+**Foto: 4 diferencias, las 4 del lote** — tabla borrada, vista borrada y los dos archivos de
+DDL. `db-backup-round-trip` 5/5 y `db-restore` 15/15 **después**. PHPStan no se mueve: esta
+mitad no borra ni una línea de PHP.
+
+### AA4 · La puerta que llevaba ciega desde T120
+
+Preguntaba por el literal `$isEdit = $id !== -1;`. Las cuatro controladoras de `Locations`
+escriben `$is_edit`. **Cuatro controladores con el defecto, y la puerta decía cero.**
+
+Ahora se tokeniza y se sigue el flujo: una variable que sale de `getParsedBodyParam('id')` y
+acaba decidiendo otra contra `-1`. Las cuatro quedan **declaradas**, no calladas, y una
+segunda comprobación exige que la lista no cubra nada ya arreglado.
+
+Provocado dos veces sobre archivo propio: una TERCERA grafía —`$esModificacion` desde
+`$identificador`— sale **nombrada**, y una entrada inventada en la lista pone roja la
+segunda comprobación.
+
+**Los controladores NO se tocan.** El número es 4 y los nombres son `City`, `Country`,
+`Point` y `State`, en un módulo que SE CONSERVA.
+
+### AA5 · La limpieza desbloqueada, y una hipótesis que no se sostiene
+
+**LOS DIEZ ENLACES ROTOS NO SON RESIDUO HISTÓRICO DE PERMISOS.** Se trazó cada uno hasta el
+commit que borró su destino:
+
+| Enlaces | Destino borrado por |
+| --: | :-- |
+| 8 | `65df59f2` — lote 2, `ImagesRepository` |
+| 2 | `7baa6abf` — lote 1, experiencias previas |
+
+**Los diez apuntan a archivos que borraron los lotes de E3.** La causa no es el `umask` —el
+commit del bloque S, `4de6fe93`, va del `rename()` atómico, no de permisos—: es que
+`createDynamicSymlink()` **crea enlaces y nunca retira uno cuyo destino desapareció**. Los
+permisos solo decidían si YO podía borrarlos. **La causa sigue viva y volverá en los lotes 3,
+4 y 5**; entra en el paso 6 de la plantilla.
+
+Retirados los diez y los cuatro directorios que quedaron vacíos.
+
+**Las 75 filas huérfanas**, con respaldo previo y foto: `system_approvals_elements` 83 → 8.
+Las 8 que quedan son los 7 usuarios reales más la organización. Las suites de base en verde
+después.
+
+### AA6 · Los dos guiones de permisos — DIAGNÓSTICO, sin reescribir
+
+**Cuatro de los cinco puntos de ARQUITECTO se confirman. El primero es falso en parte.**
+
+| # | Afirmación | Veredicto |
+| --: | :-- | :-- |
+| 1 | Son el mismo guion salvo `SRC_DIR` | **FALSO EN PARTE**: comparten 62 líneas, y el de la raíz lleva **29 más** para `bin/` |
+| 2 | Dice 775/664 y hace 755/644 | **CIERTO** (línea 33 contra 34-35) |
+| 3 | `src/permissions.sh` se quita su bit | **CIERTO**, y el de la raíz también se lo quita a él |
+| 4 | No tiene `set -e` | **CIERTO**, ni `-u` ni `pipefail` |
+| 5 | Es interactivo | **CIERTO**: dos `read -r` |
+
+**CINCO DIVERGENCIAS MÁS:**
+
+6. **`sudo chown -R` y luego `chmod` SIN `sudo`.** Si el propietario elegido no es quien
+   ejecuta, **todos** los `chmod` fallan — y sin `set -e` el guion sigue imprimiendo sus
+   `[+]` y sale con 0. *(Derivado del código y de la semántica POSIX; NO ejecutado, porque
+   correrlo exige `sudo` y toca permisos.)*
+7. **`bin/node/copyDependencies.sh` nunca casa.** El bucle hace `cd "$EXECUTABLES_DIR"` y las
+   entradas conservan el prefijo `bin/`: busca `bin/bin/node/…`. El `if [ -f ]` lo salta en
+   silencio. El archivo existe.
+8. **La lista de ejecutables nombra 6 y en `bin/` hay 17 con shebang.** Doce sin cubrir, y es
+   una lista mantenida a mano (LEY 11).
+9. **`WRITABLE_DIRS` es otra lista a mano.** Los doce existen hoy; uno que desaparezca se
+   salta sin decir nada, y uno que debiera ser escribible y no esté listado no se nota nunca.
+10. **Cuál de los dos corras cambia el resultado**, y nada lo dice: el de `src/` no toca
+    `bin/`.
+
+#### PROPUESTA, sin ejecutar
+
+**Partir en dos, y que solo una mitad sea puerta.**
+
+- **`bin/censo-permisos`** — NO interactivo, solo LEE. Recorre el árbol, compara contra la
+  política declarada **en un archivo, no en el guion**, e imprime lo que no cumple.
+  Devuelve 1 si algo no cumple. Es lo único que puede entrar en `verify-integrity`.
+- **`permissions-and-property.sh`** se queda como el que APLICA: sigue necesitando `sudo` y
+  no entra en ninguna puerta. Deja de tener listas propias —lee el mismo archivo de
+  política— y gana `set -euo pipefail`.
+- **La política, en un solo sitio**: los directorios escribibles derivados de lo que la
+  aplicación escribe, y los ejecutables derivados del shebang, no de una lista. Es lo que ya
+  hace `verify-integrity` con los 17 guiones de `bin/`.
+
+*El PROPIETARIO ha dejado `src/` en 0777. `core.fileMode = false`, comprobado, así que git no
+ve nada. NO se ha tocado ni un permiso.*
+
+### AA7 · `.editorconfig` y `.gitattributes` decían cosas distintas
+
+**Medido con la implementación REAL de editorconfig** —la que trae la extensión del editor—,
+archivo a archivo. No deducido de la especificación: LEY 19.
+
+| | antes | después |
+| :-- | --: | --: |
+| Guiones de `bin/` que editorconfig declara `lf` | **4 de 17** | 22 de 22 |
+| Divergencias en el framework, sobre 2.170 versionados | **19** | **0** |
+| Divergencias en los cuatro paquetes | 3 | 0 |
+
+Las 19 eran: 13 guiones de `bin/` y los 6 generados —`PHPStanResult.*` y los dos
+`composer.lock`— que `.gitattributes` declara en LF y `.editorconfig` no cubría.
+
+En los paquetes la divergencia era **`bin/rector`**: `.gitattributes` lo declara `lf` y
+`.editorconfig` solo nombraba `[phpstan]`. `piecesphp/database` ya lo tenía bien; los otros
+tres, no.
+
+> **QUEDA DICHO Y NO SE TOCA**: la sección `[{yaml,neon}]` **no cubre extensiones**. Casa con
+> ficheros LLAMADOS `yaml` o `neon`; `algo.neon` cae en `[*]`. Comprobado con la
+> implementación real. Arreglarlo mueve el estilo de indentación de archivos reales, y eso es
+> otra decisión.
+
+### La LEY 27, afilada
+
+**El efecto de una suite incluye lo que otro escribe por haber corrido ella.** La fila de
+aprobación de `db-backup-round-trip` no la escribe la suite: la escribe
+`SystemApprovalManager::init()` al arrancar la app en el subproceso. Buscar «quién hace el
+INSERT» dentro de la suite no la habría encontrado nunca.
+
+### La corrección al censo de YC5, y en qué se apoya de verdad el recorte de E3
+
+El censo de la PARADA YC5 contaba **archivos de log** como citas: las excepciones imprimen el
+nombre de la clase. 24/39/21 eran 15/31/31. **«Seis de siete lotes tienen más fuera que
+dentro» es falso**: es UNO de cuatro, y es `InterestResearchAreas`.
+
+**El recorte de E3 NO se apoya en esa tabla**, y por eso sigue en pie: se apoya en que
+`ApplicationCalls` y `ContentNavigationHub` **se citan mutuamente**, así que como lotes
+separados no tienen orden posible.
+
+### La plantilla de lote, escrita — porque solo vivía en una instrucción
+
+1. **Foto de partida** sobre base recién restaurada (LEY 12), después de limpiar lo que
+   ensucie la comparación.
+2. **Inventario verificado**, archivo a archivo, **sobre el universo declarado** — `src/` y
+   `databases/`—, no sobre `src/app`. Si el mapa de T6 discrepa del árbol, gana el árbol.
+3. **Puentes**: alias vacíos que apunten fuera. Si apuntan a algo con otro calendario, no se
+   tocan y se dice.
+4. **Consumidores primero.** Cada módulo que SE CONSERVA va en su propio commit.
+5. Después lo consumido: mappers, controladores, vistas, JS.
+6. **Censo de huérfanos con canario**, en todas sus formas. Y **los enlaces rotos del árbol
+   servido**, que ningún mecanismo retira.
+7. **Base de datos por la vía del proyecto**: `scheme-drop` emite vistas y tablas, **la base
+   antes que el archivo de declaración**. `db-backup` y `db-restore` dan la vuelta después.
+8. **Foto final**: todo lo que aparezca lo explica el lote, o es un hallazgo. Lo que el lote
+   toque FUERA del universo de la foto se lista en el reporte.
+9. **`[REPARTO]` con sus cuatro términos**, separando lo que murió con su archivo.

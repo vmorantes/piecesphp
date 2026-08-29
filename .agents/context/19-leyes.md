@@ -917,3 +917,13 @@ al arrancar la app, porque la suite lanza un subproceso mientras su usuario de p
 > **externo a las suites**, y hay que correrlo aunque todas estén en verde. Verde no es limpio.
 
 **La forma corta**: *quien participa no arbitra.*
+
+#### AMPLIACIÓN — 2026-08-29 · el efecto incluye lo que otro escribe por haber corrido ella
+
+`db-backup-round-trip` dejaba una fila huérfana en `system_approvals_elements`. **La suite no
+la escribe.** La escribe `SystemApprovalManager::init()` al arrancar la aplicación, porque la
+suite lanza `bin/cli db-backup` en un subproceso mientras su usuario de prueba existe.
+
+Buscar «quién hace el INSERT» dentro de la suite no lo habría encontrado nunca: el INSERT
+está en el arranque. **Lo que una suite tiene que recoger no es lo que ella escribe, es lo
+que queda distinto por haber corrido.** Confirmado por ARQUITECTO en el bloque AA. Ver T141.

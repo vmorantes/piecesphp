@@ -249,74 +249,90 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 ## 7. Estado abierto
 
-*La escribe ARQUITECTO, en cada pausa. Desfase de un bloque es inherente; de tres, no aceptable.*
+*La escribe ARQUITECTO, en cada pausa.*
 
-**Última actualización: 2026-08-29, tras el BLOQUE YC — primer lote de E3 cerrado.**
+**Última actualización: 2026-08-29, tras el BLOQUE Z — lote 2 de E3 A MEDIAS, con parada abierta.**
 
 > **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campaña ENTERA — «toda es toda».
 
+> **TRES ERRORES DE ARQUITECTO EN ESTA MISMA SECCIÓN, corregidos aquí y cazados por el CODER en
+> el bloque Z**: decía «de siete lotes a cuatro» y listaba cinco; justificaba el sitio de
+> `DataImportExportUtility` con una dependencia que **no existe** —consume CERO, medido en seis
+> formas con canario—; y se apoyaba en una tabla de citas **inflada por los archivos de `logs/`**,
+> que imprimen nombres de clase en las trazas de excepción. Las tres eran afirmaciones sin medir.
+
 ### Dónde estamos
 
-**E2 CERRADA** (bloque W). **E3 en marcha: primer lote cerrado** (YC) — experiencias previas.
+**E2 CERRADA** (W). **E3: lote 1 cerrado (YC), lote 2 A MEDIAS (Z).**
 
 ```
-Tablas      35 -> 33      Archivos en src/  5.437 -> 5.427      PHPStan  883 -> 844
-[REPARTO] 844 <- 883 = 0 arreglos + 0 supresiones + 39 murieron + 0 destapados
-          17 murieron CON SU ARCHIVO · 22 con CÓDIGO RETIRADO de archivos que se quedan
+lote 1   tablas 35->33   src/ 5.437->5.427   PHPStan 883->844
+lote 2   src/ 5.427->5.297   PHPStan 844->835   ← mitad de código hecha; falta vista y tabla
 ```
 
 **Puertas**: `gates` 23 suites, 0 sin veredicto, 2 fuera declaradas · `verify-integrity` verde ·
-PHPStan **844** = baseline · 27 leyes en [19-leyes.md](./19-leyes.md).
+PHPStan **835** = baseline · 27 leyes.
 
-### E3 SE RECORTA — decisión de ARQUITECTO tras la PARADA YC5
+### E3 — CINCO lotes, no siete. Quedan tres y medio.
 
-La medición del CODER: **seis de siete lotes de T6 tienen más archivos citándolos FUERA de su
-módulo que dentro**, y **los siete tocan `src/app/config/routes.php`**. El núcleo cambia en los
-siete, no en uno.
+La unidad no es el módulo: es **la cosa que muere MÁS SUS CONSUMIDORES, consumidores primero**.
+Los «borrados parciales» de T6 son el lado consumidor de los borrados completos.
 
-**El defecto no es el orden, es la UNIDAD.** T6 agrupó por módulo. La unidad que funcionó en YC
-—y que el propio CODER aplicó sin que nadie se lo pidiera— es **la cosa que muere MÁS SUS
-CONSUMIDORES, en un solo lote, consumidores primero**. Así ningún commit deja referencias
-colgando, y la foto sigue siendo atribuible.
+**Lo que sostiene el recorte NO es la tabla de citas** —estaba inflada—, sino un hecho medido:
+`ApplicationCalls` y `ContentNavigationHub` **se citan mutuamente**, así que como módulos separados
+no hay orden posible.
 
-Con esa unidad, los «borrados parciales» de T6 —`MySpace`, `ContentNavigationHub`,
-`ReportsManage`— **dejan de ser lotes**: son el lado consumidor de los tres borrados completos, y
-T6 ya los define así («solo se retira lo relacionado con los de arriba»). El primer lote lo
-demuestra: «experiencias previas» era un subconjunto de `MySpace`, no un módulo.
-
-**E3 pasa de siete lotes a cuatro:**
-
-| Lote | Qué | Nota |
+| Lote | Qué | Estado |
 | :-- | :-- | :-- |
-| 1 ✅ | Experiencias previas + consumidores | Cerrado en YC |
-| 2 | `ImagesRepository` + consumidores | |
-| 3 | `ApplicationCalls` + consumidores | |
-| 4 | `InterestResearchAreas` + consumidores | Se lleva el alias de `SubMappers/` |
-| 5 | `DataImportExportUtility` — REESCRITURA | **El último**: consume lo que muere en 2–4 |
+| 1 | Experiencias previas + consumidores | ✅ cerrado (YC) |
+| 2 | `ImagesRepository` + consumidores | ⏸ código hecho; falta la vista y la tabla |
+| 3 | `ApplicationCalls` + consumidores | pendiente — tiene vista, misma mina |
+| 4 | `InterestResearchAreas` + consumidores | pendiente — se lleva el alias |
+| 5 | `DataImportExportUtility` — reescritura | pendiente |
 
-**El orden dentro de 2–4 se decide con una medición que aún no existe**: las referencias «FUERA»
-no son todas iguales. Las que viven en un módulo que TAMBIÉN muere se van solas si ese módulo se
-borra antes. Hay que partir la columna FUERA en *fuera-y-también-muere* contra *fuera-y-se-queda*.
+**Orden medido**: una sola arista entre los tres módulos que mueren — `ApplicationCalls` nombra a
+`InterestResearchAreas` en 5 archivos, **todos por el alias**. Sin ciclo. Los que citan mueren
+antes que los citados.
+
+**Sobre el lote 5**: **no consume nada de 2–4** (medido). Va el último por criterio, no por
+dependencia — una reescritura es trabajo de otra clase y mezclarla a mitad de una tanda de
+borrados añade riesgo sin ganar nada. Es juicio de ARQUITECTO, y así queda dicho.
+
+### PARADA ABIERTA — lo que decide ARQUITECTO antes de reanudar
+
+1. **`scheme-drop` no sabe de vistas.** Las tablas salen de `$fields`; una vista no tiene
+   `$fields`. `image_repository_images_view` quedó apuntando a una tabla borrada. **No es
+   opcional**: `ApplicationCalls` tiene `application_calls_active_date_elements` y el lote 3 pisa
+   la misma mina.
+2. **`db-backup` MIENTE.** Produjo un volcado de 8 KB —7 tablas de 33, cero `INSERT`— y terminó
+   diciendo «Operación exitosa»: el exportador captura, devuelve `false`, y la tarea **no mira el
+   valor devuelto**. Es un defecto propio; el lote solo lo destapó. **Es lo más peligroso que ha
+   encontrado esta campaña.**
+3. **`databases/*.sql` está versionado y FUERA de la foto y del inventario.** Un módulo tiene
+   piezas fuera de `src/`, y el paso 2 de la plantilla solo censaba `src/app`.
 
 ### Abierto, sin decidir
 
-- **Dos hallazgos de la foto final de YC**, reportados y sin arreglar: `core/db-backup-round-trip`
-  deja **una fila por corrida** en `system_approvals_elements` (misma familia que la fuga del
-  exportador, ya arreglada); y tres suites fueron reescritas **LF → CRLF** por git según
-  `.gitattributes`, invisible a `git status` y visible a la foto. Las dos ensucian la foto de
-  **cada** lote restante.
-- **`phpstan-strict-rules`**: PHPStan nivel 8 no detecta la comparación laxa que mató a
-  `FileUpload::validate()`. Pendiente medir qué cuesta habilitar solo esa regla.
-- **Las tres listas abiertas de LEY 11**: `shared-toolchain.json`, la parte de
-  `volatile-state.json` que no es del slug, `deprecated-functions.json`.
-- **T86**: una columna `json` a NULL se guarda como la cadena `'null'`, desde 2018.
-- **La asimetría de guardas de T114**.
-- **El repaso del PROCEDIMIENTO de despliegue** → E6.
-- **El 4.0.0 del paquete** (bloque Q) → E5.
-- **Los 81 bloques del registro**: la tabla está hecha; el borrado espera al cierre de E6.
+- **Las cuatro controladoras de `Locations` deciden alta-o-edición desde el CUERPO.** Escriben
+  `$is_edit` con guion bajo y la suite `operation-from-route` busca el literal `$isEdit`: lleva
+  **desde T120 diciendo cero** sobre cuatro controladores que tienen el defecto, en un módulo que
+  SE CONSERVA. LEY 24 en estado puro. La ceguera de la puerta se arregla primero; el número real
+  decidirá el resto.
+- **75 de 82 filas de `system_approvals_elements` son huérfanas**, con ids desde el 10. La fuga
+  está cortada; vaciar lo acumulado es un `DELETE` sobre tabla real y **requiere autorización del
+  PROPIETARIO**.
+- **Diez enlaces simbólicos rotos** en `statics/server-delegated/`, propiedad de `www-data` y sin
+  bit de escritura para el grupo. El CODER **no puede retirarlos**. Necesita mano del PROPIETARIO
+  o una decisión de permisos —que nunca se cambian sin decírselo—.
+- **`phpstan-strict-rules`**: nivel 8 no detecta la comparación laxa que mató a
+  `FileUpload::validate()`. Pendiente medir el coste de habilitar solo esa regla.
+- **Las tres listas abiertas de LEY 11** · **T86** · **la asimetría de guardas de T114**.
+- **El repaso del PROCEDIMIENTO de despliegue** → E6 · **el 4.0.0 del paquete** → E5.
+- **Los 81 bloques del registro**: el borrado espera al cierre de E6.
+- **`.editorconfig` nombra cuatro scripts de `bin/` y hay dieciséis** (LEY 11 + LEY 21). Medido:
+  los dieciséis están hoy en LF, así que es preventivo. Añadido pendiente de enviar al CODER.
 
 ### Fuera de la campaña — roadmap
 
 `files/dev/roadmap/`: los silencios de Sass · el módulo como patrón mecanizable · el skill de
-aterrizaje · una caché de verdad · la distribución sin ruido · el versionado (`last-stable` a 236
-commits).
+aterrizaje · una caché de verdad · la distribución sin ruido · el versionado.

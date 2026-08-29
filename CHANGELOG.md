@@ -222,6 +222,77 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ Corregido — `db-backup` decía «Operación exitosa» sobre un respaldo de 7 tablas de 33
+
+**Si tienes copias hechas con este framework, compruébalas.** La tarea descartaba el valor
+devuelto por el exportador y probaba el éxito con `file_exists()` — y el archivo existe igual
+aunque la exportación reviente a mitad. Con una vista rota encima de una tabla borrada
+producía 8 KB, 7 tablas de 33 y cero `INSERT`, y terminaba con código de salida 0.
+
+Ahora el valor devuelto se lee, se imprime el motivo, y **el respaldo se verifica a sí
+mismo**: lo esperado sale de la base, lo escrito se lee del archivo —comprimido o no—, y si
+falta algo dice cuántos objetos y cuáles. Salida distinta de cero cuando falla.
+
+`db-restore` no tenía la enfermedad, y se comprobó ejecutándolo en vez de suponerlo.
+
+## ⚠ CAMBIO INCOMPATIBLE — `scheme-drop` emite también las vistas del módulo
+
+Las tablas salen de `$fields`; una **vista** no tiene `$fields`, así que el script de borrado
+la callaba. Retirar la tabla y dejar la vista apuntando al vacío deja un objeto roto en la
+base y **mata al exportador entero**.
+
+La fuente es `databases/piecesphp_views.sql`. Se emiten los `DROP VIEW` **antes** de los
+`DROP TABLE`. Si el archivo no se puede leer, lo dice en vez de callar.
+
+**Si automatizas borrados de módulo, el orden importa**: la herramienta lee las vistas del
+archivo de declaración, no de la base. Retira primero de la base —con la declaración aún
+puesta— y edita el archivo después. Al revés, la base se queda con la vista huérfana.
+
+## ⚠ CAMBIO INCOMPATIBLE — se va la tabla y la vista del repositorio de imágenes
+
+Cierra el borrado empezado en la entrada de abajo. Desaparecen `image_repository_images` y
+`image_repository_images_view`, y sus declaraciones salen de `databases/piecesphp_structure.sql`
+y `databases/piecesphp_views.sql`.
+
+## La foto de `snapshot` cubre más: `databases/` y las vistas
+
+El universo se declara en una constante y la descripción dice también lo que **no** cubre
+—`bin/`, `files/`, `.agents/`, `source-docs/` y la raíz—. Un módulo tiene piezas fuera de
+`src/`: su DDL y sus vistas viven en `databases/`.
+
+Y `snapshotTables()` filtraba por `TABLE_TYPE = 'BASE TABLE'`, así que **una vista borrada no
+aparecía en la comparación**. Ahora se guardan por su definición, con lo que se ven las dos
+cosas que pueden pasarles: que desaparezcan y que les cambien el cuerpo.
+
+## Corregido — dos puertas más que preguntaban por un texto en vez de por un comportamiento
+
+`core/operation-from-route` buscaba el literal `$isEdit = $id !== -1;`. Las cuatro
+controladoras de `Locations` escriben `$is_edit`, con guion bajo, y **llevaban desde su cierre
+sin ser vistas**: la puerta decía cero sobre cuatro controladores que tienen el defecto.
+
+Ahora se tokeniza y se sigue el flujo — una variable que sale del cuerpo de la petición y
+acaba decidiendo otra contra `-1` —, así que el nombre da igual. Las cuatro quedan declaradas
+con su razón, no calladas, y una segunda comprobación exige que esa lista no cubra nada que ya
+esté arreglado.
+
+## Herramientas — `bin/censo-retornos-ignorados`
+
+Mide la cuarta aparición de la misma clase de defecto: un valor de retorno que nadie lee.
+Tokeniza, distingue una llamada de método de una función homónima, y declara su universo.
+**Solo mide y clasifica.**
+
+## Corregido — `.editorconfig` no cubría lo que `.gitattributes` sí
+
+`.gitattributes` declara `bin/* text eol=lf`. `.editorconfig` nombraba **cuatro** guiones a
+mano y los otros trece caían en `[*]`, que declara CRLF: abrir `bin/censo` en un editor
+conforme lo habría dejado sin arrancar —con el shebang en CRLF, `/usr/bin/env` busca
+«`python3\r`»— y git no lo delata, porque normaliza en el índice.
+
+Igual con `PHPStanResult.*` y `*.lock`. Y en tres de los cuatro paquetes faltaba `bin/rector`.
+
+Medido con la implementación real de editorconfig, archivo a archivo: de **19 divergencias a
+cero** sobre los 2.170 archivos versionados, y de 3 a cero en los paquetes.
+
 ## ⚠ CAMBIO INCOMPATIBLE — fuera el repositorio de imágenes, y su tabla NO se ha borrado todavía
 
 **E3, segundo lote.** Desaparece `ImagesRepository` entero: 25 archivos versionados, más los 2 CSS
