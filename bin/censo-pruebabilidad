@@ -1,0 +1,281 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * QUE ES «PRUEBAUNITARIABLE» — censo previo a E4.
+ *
+ * E4 se enuncia como «pruebas unitarias de lo pruebaunitariable». Eso es una palabra, no una
+ * instruccion: antes de escribir una prueba hay que saber SOBRE QUE. Este censo clasifica cada
+ * funcion del nucleo por lo que hace falta para ejercitarla, y cruza el monton PURO contra lo
+ * que ya cubren las suites.
+ *
+ * COMO CLASIFICA, y por que se puede leer sin creerselo: mira el CUERPO de cada funcion,
+ * tokenizado con `token_get_all` —no con expresiones regulares sobre el texto—, y busca marcas.
+ * La precedencia es PETICION > BASE > RED/DISCO > PURO: se responde «que es lo mas pesado que
+ * necesito para ejercitarla».
+ *
+ * LO QUE NO MIDE, Y SE IMPRIME:
+ *  - Es un analisis DIRECTO, no transitivo: una funcion sin marcas que llame a otra que si las
+ *    tiene sale como PURA. El monton PURO es, por tanto, una COTA SUPERIOR.
+ *  - El cruce contra las suites es por NOMBRE: se busca el nombre de la funcion en el codigo de
+ *    `local-tests/`. Un nombre corto o repetido puede dar un falso positivo de cobertura.
+ *
+ * Uso:
+ *   bin/censo-pruebabilidad              la tabla
+ *   bin/censo-pruebabilidad --detalle    lista las PURAS sin cubrir
+ */
+
+const RAIZ = __DIR__ . '/../src/app/core';
+const SUITES = __DIR__ . '/../src/app/core/system-controllers/local-tests';
+
+//Fuera, y por su nombre: las vistas del sistema no declaran funciones que probar, y las suites
+//son el instrumento con el que se cruza, no parte del universo medido.
+const EXCLUIDOS = ['/system-views/', '/local-tests/'];
+
+const MARCAS = [
+    'PETICION' => ['$_POST', '$_GET', '$_FILES', '$_SESSION', '$_COOKIE', '$_REQUEST', '$_SERVER',
+                   'ServerRequestInterface', 'getRequest', 'session_start', 'setcookie', 'header',
+                   'RouteContext', 'get_route', 'redirect'],
+    'BASE' => ['Database', 'Mapper', 'ActiveRecord', 'EntityMapper', '->model(', '->select(',
+               '->execute(', '->prepare(', 'PDO', 'query('],
+    'RED_O_DISCO' => ['file_get_contents', 'file_put_contents', 'fopen', 'fwrite', 'unlink',
+                      'mkdir', 'rmdir', 'scandir', 'is_file', 'is_dir', 'file_exists', 'curl_',
+                      'mail(', 'copy(', 'rename(', 'glob(', 'realpath', 'require', 'include'],
+];
+
+function ficheros(string $raiz): array
+{
+    $salida = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if (!$f->isFile()) {
+            continue;
+        }
+        $p = str_replace('\\', '/', (string) $f->getPathname());
+        if (!str_ends_with($p, '.php')) {
+            continue;
+        }
+        foreach (EXCLUIDOS as $x) {
+            if (mb_strpos($p, $x) !== false) {
+                continue 2;
+            }
+        }
+        $salida[] = $p;
+    }
+    sort($salida);
+    return $salida;
+}
+
+/**
+ * Nombre y cuerpo de cada funcion del archivo, por tokens.
+ *
+ * @return array<int,array{0:string,1:string}>
+ */
+function funciones(string $codigo): array
+{
+    $tokens = token_get_all($codigo);
+    $total = count($tokens);
+    $salida = [];
+
+    for ($i = 0; $i < $total; $i++) {
+        $t = $tokens[$i];
+        if (!is_array($t) || $t[0] !== T_FUNCTION) {
+            continue;
+        }
+        //El nombre: el primer T_STRING despues de `function`. Si viene `(`, es anonima.
+        $nombre = null;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $u = $tokens[$j];
+            if (is_array($u) && ($u[0] === T_WHITESPACE || $u[0] === T_COMMENT || $u[0] === T_DOC_COMMENT)) {
+                continue;
+            }
+            if (is_array($u) && $u[0] === T_STRING) {
+                $nombre = $u[1];
+            }
+            break;
+        }
+        if ($nombre === null) {
+            continue;
+        }
+        //La visibilidad decide si una prueba puede llamarla sin reflexión. Se mira hacia atrás
+        //desde `function`: los modificadores van justo antes.
+        $visibilidad = 'public';
+        for ($j = $i - 1; $j >= 0 && $j > $i - 8; $j--) {
+            $u = $tokens[$j];
+            if (!is_array($u)) {
+                break;
+            }
+            if ($u[0] === T_PRIVATE || $u[0] === T_PROTECTED) {
+                $visibilidad = 'oculta';
+                break;
+            }
+            if ($u[0] === T_PUBLIC) {
+                break;
+            }
+            if ($u[0] !== T_WHITESPACE && $u[0] !== T_STATIC && $u[0] !== T_FINAL && $u[0] !== T_ABSTRACT) {
+                break;
+            }
+        }
+        //El cuerpo: del primer `{` a su pareja. Si aparece `;` antes, es abstracta o de interfaz.
+        $profundidad = 0;
+        $cuerpo = '';
+        $abierto = false;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $u = $tokens[$j];
+            $texto = is_array($u) ? $u[1] : $u;
+            if (!$abierto) {
+                if ($texto === ';') {
+                    break;
+                }
+                if ($texto === '{') {
+                    $abierto = true;
+                    $profundidad = 1;
+                }
+                continue;
+            }
+            if ($texto === '{') {
+                $profundidad++;
+            }
+            if ($texto === '}') {
+                $profundidad--;
+                if ($profundidad === 0) {
+                    break;
+                }
+            }
+            $cuerpo .= $texto;
+        }
+        if (!$abierto) {
+            continue;
+        }
+        $salida[] = [$nombre, $cuerpo, $visibilidad];
+    }
+
+    return $salida;
+}
+
+/**
+ * Una funcion es TRIVIAL si su cuerpo es una sola sentencia sin ramas: un getter, un setter,
+ * un `return $this->x;`. Probarla no descubre nada, y contarla dentro de «lo pruebaunitariable»
+ * infla la cifra que decide el tamano de E4.
+ */
+function trivial(string $cuerpo): bool
+{
+    $sentencias = mb_substr_count($cuerpo, ';');
+    if ($sentencias > 1) {
+        return false;
+    }
+    foreach (['if', 'for', 'foreach', 'while', 'switch', 'try', 'match', '?', '&&', '||'] as $rama) {
+        if (mb_strpos($cuerpo, $rama) !== false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function clasifica(string $cuerpo): string
+{
+    foreach (MARCAS as $clase => $marcas) {
+        foreach ($marcas as $m) {
+            if (mb_strpos($cuerpo, $m) !== false) {
+                return $clase;
+            }
+        }
+    }
+    return 'PURO';
+}
+
+//CANARIO DE TRES CARAS: el tokenizador tiene que ver una funcion, y la clasificacion tiene que
+//separar lo puro de lo que no. Sin las tres, ningun numero de abajo significaria nada. LEY 16.
+$fixture = '<?php function suma(int $a, int $b): int { return $a + $b; } '
+    . 'function lee(): string { return $_POST["x"]; } '
+    . 'abstract class Z { abstract public function nada(); }';
+$vistas = funciones($fixture);
+$porNombre = [];
+foreach ($vistas as [$n, $c]) {
+    $porNombre[$n] = clasifica($c);
+}
+if (count($vistas) !== 2
+    || ($porNombre['suma'] ?? '') !== 'PURO'
+    || ($porNombre['lee'] ?? '') !== 'PETICION'
+    || array_key_exists('nada', $porNombre)) {
+    fwrite(STDERR, "CANARIO CAÍDO: el censo no ve dos funciones donde hay dos, o no separa pura de con-petición.\n");
+    fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
+    exit(2);
+}
+echo "CANARIO VIVO: ve las 2 funciones con cuerpo, ignora la abstracta, y separa PURO de PETICION.\n";
+
+$archivos = ficheros(RAIZ);
+$conteo = ['PURO' => 0, 'BASE' => 0, 'PETICION' => 0, 'RED_O_DISCO' => 0];
+$puras = [];
+$triviales = [];
+$ocultas = [];
+
+foreach ($archivos as $p) {
+    foreach (funciones((string) file_get_contents($p)) as [$nombre, $cuerpo, $visibilidad]) {
+        $clase = clasifica($cuerpo);
+        $conteo[$clase]++;
+        if ($clase === 'PURO') {
+            $puras[$nombre] = $p;
+            if (trivial($cuerpo)) {
+                $triviales[$nombre] = $p;
+            }
+            if ($visibilidad === 'oculta') {
+                $ocultas[$nombre] = $p;
+            }
+        }
+    }
+}
+
+//El cruce contra lo que YA se prueba: por nombre, dentro del codigo de las suites.
+$codigoSuites = '';
+foreach (glob(SUITES . '/*.php') ?: [] as $s) {
+    $codigoSuites .= (string) file_get_contents($s);
+}
+$suites = count(glob(SUITES . '/*.php') ?: []);
+$cubiertas = [];
+$sinCubrir = [];
+foreach ($puras as $nombre => $p) {
+    if (mb_strpos($codigoSuites, $nombre) !== false) {
+        $cubiertas[$nombre] = $p;
+    } else {
+        $sinCubrir[$nombre] = $p;
+    }
+}
+
+$total = array_sum($conteo);
+printf("UNIVERSO: %d archivo(s) de `src/app/core`, sin `system-views/` ni `local-tests/`\n", count($archivos));
+printf("          %d función(es) con cuerpo · %d suite(s) para el cruce\n\n", $total, $suites);
+
+foreach (['PURO', 'BASE', 'PETICION', 'RED_O_DISCO'] as $clase) {
+    printf("  %-12s %5d   %5.1f%%\n", $clase, $conteo[$clase], $total > 0 ? 100 * $conteo[$clase] / $total : 0);
+}
+
+printf("\nDEL MONTÓN PURO (%d nombres distintos):\n", count($puras));
+printf("  ya nombradas por alguna suite ... %d\n", count($cubiertas));
+printf("  SIN cubrir ...................... %d\n", count($sinCubrir));
+
+$trivialesSinCubrir = array_intersect_key($triviales, $sinCubrir);
+printf("\nY DE ESOS PUROS, CUÁNTOS MERECEN UNA PRUEBA:\n");
+printf("  TRIVIALES (una sentencia, sin ramas: getters y setters) ... %d\n", count($triviales));
+printf("  CON LÓGICA ................................................ %d\n", count($puras) - count($triviales));
+$conLogicaSinCubrir = array_diff_key($sinCubrir, $trivialesSinCubrir);
+printf("  CON LÓGICA **y sin cubrir** ............................... %d\n", count($conLogicaSinCubrir));
+printf("  de esas, PRIVADAS o PROTEGIDAS (no se llaman sin reflexión) %d\n",
+    count(array_intersect_key($ocultas, $conLogicaSinCubrir)));
+printf("  PÚBLICAS, con lógica y sin cubrir — LA COTA SUPERIOR DE E4  %d\n",
+    count(array_diff_key($conLogicaSinCubrir, $ocultas)));
+
+echo "\nLO QUE NO MIDE: el análisis es DIRECTO, no transitivo — una función sin marcas que llame\n";
+echo "                a otra que sí las tiene sale PURA, así que PURO es una COTA SUPERIOR.\n";
+echo "                Y el cruce es por NOMBRE: puede dar cobertura donde no la hay.\n";
+
+if (in_array('--detalle', array_slice($argv, 1), true)) {
+    echo "\nPURAS CON LÓGICA Y SIN CUBRIR:\n";
+    $sinCubrir = array_diff_key($conLogicaSinCubrir, $ocultas);
+    ksort($sinCubrir);
+    foreach ($sinCubrir as $nombre => $p) {
+        printf("  %-45s %s\n", $nombre, str_replace(dirname(__DIR__) . '/', '', $p));
+    }
+}
+
+exit(0);
