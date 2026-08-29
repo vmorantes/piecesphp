@@ -30,7 +30,25 @@
  * Uso:
  *   bin/censo-retornos-ignorados [ruta...]        tabla por familia
  *   bin/censo-retornos-ignorados --detalle [ruta] una línea por hallazgo
+ *   bin/censo-retornos-ignorados --trinquete      compara contra la línea base y FALLA si
+ *                                                 los NO DECLARADOS han crecido
  */
+const BASELINE = 'files/dev/ignored-returns-baseline.json';
+
+/**
+ * LA MARCA DE IGNORADO DELIBERADO.
+ *
+ * Se escribe en un comentario PEGADO a la llamada —misma línea o encima— y **tiene que
+ * traer el motivo**: una marca sin texto no declara nada, y este censo la ignora.
+ *
+ *     //RETORNO-IGNORADO: el temporal puede no existir y da igual; se borra por si acaso.
+ *     @unlink($temporal);
+ *
+ * Callar en silencio es lo que esta campaña retira. Callar CON MOTIVO ESCRITO y que el
+ * censo lo cuente APARTE es otra cosa: la cifra que tiene que encoger es la de los NO
+ * declarados, y para eso los declarados tienen que seguir viéndose.
+ */
+const MARCA = 'RETORNO-IGNORADO:';
 
 //────────────────────────────────────────────────────────────────────────────────────────
 // Nativas que SEÑALAN FALLO POR VALOR DEVUELTO. Cada familia dice qué devuelve al fallar.
@@ -74,6 +92,29 @@ function llamadasDescartadas(string $codigo, array $riesgosas): array
     $tokens = @token_get_all($codigo);
     if (!is_array($tokens)) {
         return [];
+    }
+
+    //LAS DECLARACIONES SE RECOGEN ANTES DE TIRAR LOS COMENTARIOS. La marca vive PEGADA a la
+    //llamada y no en una lista central: una lista por archivo:línea se pudre en cuanto la
+    //línea se mueve, y eso ya costó dos puertas rojas. Ver T142.
+    $declaradas = [];
+    foreach ($tokens as $t) {
+        if (!is_array($t) || !in_array($t[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+            continue;
+        }
+        if (preg_match('/' . preg_quote(MARCA, '/') . '\s*(\S.*)$/mu', $t[1], $razon) !== 1) {
+            continue;
+        }
+        //SIN MOTIVO NO HAY DECLARACIÓN: una marca vacía es callar en silencio con otra cara.
+        if (mb_strlen(trim($razon[1])) < 10) {
+            continue;
+        }
+        //Vale para la línea del comentario y para las dos siguientes: la marca se pone
+        //encima de la llamada, y una llamada puede empezar en la línea de después.
+        $linea = $t[2] + mb_substr_count($t[1], "\n");
+        for ($k = $t[2]; $k <= $linea + 2; $k++) {
+            $declaradas[$k] = trim($razon[1]);
+        }
     }
 
     //Normalizar: se descartan espacios y comentarios, conservando la línea.
@@ -165,10 +206,13 @@ function llamadasDescartadas(string $codigo, array $riesgosas): array
             $familia = 'base de datos';
         }
 
+        $linea = $planos[$j]['linea'];
         $hallazgos[] = [
             'nombre' => ($esMetodo ? '->' : '') . $nombre,
             'familia' => $familia,
-            'linea' => $planos[$j]['linea'],
+            'linea' => $linea,
+            'declarada' => isset($declaradas[$linea]),
+            'razon' => $declaradas[$linea] ?? '',
         ];
     }
 
@@ -177,21 +221,46 @@ function llamadasDescartadas(string $codigo, array $riesgosas): array
 
 $controlPositivo = '<?php $a = 1; file_put_contents($x, $y); $b = 2;';
 $controlNegativo = '<?php $ok = file_put_contents($x, $y); if (file_put_contents($x, $y)) { echo 1; }';
+$controlDeclarado = "<?php\n//" . MARCA . " el destino puede no existir y da exactamente igual.\nfile_put_contents(\$x, \$y);\n";
+$controlMarcaVacia = '<?php' . "\n//" . MARCA . "\nfile_put_contents(\$x, \$y);\n";
+
 $vePositivo = count(llamadasDescartadas($controlPositivo, $RIESGOSAS));
 $veNegativo = count(llamadasDescartadas($controlNegativo, $RIESGOSAS));
-if ($vePositivo !== 1 || $veNegativo !== 0) {
-    fwrite(STDERR, "CANARIO CAÍDO: el detector ve {$vePositivo} donde debe ver 1, y {$veNegativo} donde debe ver 0.\n");
+$declarado = llamadasDescartadas($controlDeclarado, $RIESGOSAS);
+$marcaVacia = llamadasDescartadas($controlMarcaVacia, $RIESGOSAS);
+
+$fallos = [];
+if ($vePositivo !== 1) {
+    $fallos[] = "ve {$vePositivo} llamadas descartadas donde debe ver 1";
+}
+if ($veNegativo !== 0) {
+    $fallos[] = "ve {$veNegativo} donde debe ver 0";
+}
+if (count($declarado) !== 1 || $declarado[0]['declarada'] !== true) {
+    $fallos[] = 'no reconoce una declaración con motivo';
+}
+//LA CUARTA CARA DEL CANARIO: una marca SIN motivo no puede declarar nada, o la marca se
+//convierte en la forma nueva de callar.
+if (count($marcaVacia) !== 1 || $marcaVacia[0]['declarada'] !== false) {
+    $fallos[] = 'acepta una marca VACÍA como declaración';
+}
+if (count($fallos) > 0) {
+    fwrite(STDERR, "CANARIO CAÍDO: " . implode('; ', $fallos) . ".\n");
     fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
     exit(2);
 }
-echo "CANARIO VIVO: ve la llamada descartada y NO la que se lee.\n";
+echo "CANARIO VIVO: ve la descartada, NO la que se lee, SÍ la declarada con motivo, y NO la marca vacía.\n";
 
 //────────────────────────────────────────────────────────────────────────────────────────
 // El universo se declara, no se hereda.
 //────────────────────────────────────────────────────────────────────────────────────────
 $argumentos = array_slice($argv, 1);
 $detalle = in_array('--detalle', $argumentos, true);
-$rutas = array_values(array_filter($argumentos, static fn (string $a): bool => $a !== '--detalle'));
+$trinquete = in_array('--trinquete', $argumentos, true);
+$rutas = array_values(array_filter(
+    $argumentos,
+    static fn (string $a): bool => $a !== '--detalle' && $a !== '--trinquete'
+));
 if (count($rutas) === 0) {
     $rutas = ['src/app', 'bin'];
 }
@@ -227,12 +296,19 @@ sort($archivos);
 $porFamilia = [];
 $porNombre = [];
 $detalles = [];
+$declaradas = 0;
+$sinDeclarar = 0;
 foreach ($archivos as $ruta) {
     $codigo = (string) @file_get_contents($ruta);
     foreach (llamadasDescartadas($codigo, $RIESGOSAS) as $h) {
         $porFamilia[$h['familia']] = ($porFamilia[$h['familia']] ?? 0) + 1;
         $porNombre[$h['nombre']] = ($porNombre[$h['nombre']] ?? 0) + 1;
-        $detalles[] = "{$ruta}:{$h['linea']}\t{$h['nombre']}()\t{$h['familia']}";
+        //Las de PDO no entran en el trinquete: lanzan, no devuelven false.
+        if ($h['familia'] !== 'base de datos') {
+            $h['declarada'] ? $declaradas++ : $sinDeclarar++;
+        }
+        $marca = $h['declarada'] ? 'DECLARADA' : 'sin declarar';
+        $detalles[] = "{$ruta}:{$h['linea']}\t{$h['nombre']}()\t{$h['familia']}\t{$marca}";
     }
 }
 
@@ -244,6 +320,10 @@ $porValor = $total - $porExcepcion;
 echo "TOTAL DE LLAMADAS CON EL VALOR DEVUELTO DESCARTADO: {$total}\n";
 echo "  de las que SEÑALAN FALLO POR EXCEPCIÓN (no cuentan): {$porExcepcion}\n";
 echo "  de las que SEÑALAN FALLO POR VALOR DEVUELTO ........: {$porValor}\n\n";
+echo "  LAS TRES CIFRAS DEL TRINQUETE\n";
+echo "     declaradas con motivo ..: {$declaradas}\n";
+echo "     SIN DECLARAR ...........: {$sinDeclarar}   <- la que tiene que encoger\n";
+echo "     total ..................: {$porValor}\n\n";
 echo "  La conexión va en ERRMODE_EXCEPTION —lo fija `Database::connect()` del paquete\n";
 echo "  `piecesphp/database`, y PHP 8 ya lo trae por defecto—, así que `->execute()`,\n";
 echo "  `->exec()`, `->commit()` y compañía LANZAN. Descartar su retorno no pierde nada.\n\n";
@@ -264,3 +344,42 @@ if ($detalle) {
         echo "  {$linea}\n";
     }
 }
+
+if (!$trinquete) {
+    exit(0);
+}
+
+echo "\n";
+$crudo = @file_get_contents(BASELINE);
+if (!is_string($crudo)) {
+    //Sin línea base el trinquete no significa nada, y decirlo es mejor que pasar en verde.
+    echo "TRINQUETE: no se pudo leer " . BASELINE . ". SIN LÍNEA BASE NO HAY TRINQUETE.\n";
+    exit(1);
+}
+$base = json_decode($crudo, true);
+if (!is_array($base) || !isset($base['cifras']['sin_declarar'])) {
+    echo "TRINQUETE: " . BASELINE . " no trae `cifras.sin_declarar`.\n";
+    exit(1);
+}
+$cota = (int) $base['cifras']['sin_declarar'];
+
+//EL UNIVERSO TAMBIÉN SE COMPARA: una cifra que baja porque el censo mira menos archivos no
+//es una mejora, es un instrumento distinto. Ver LEY 15.
+$universoBase = (int) ($base['medido']['archivos_en_el_universo'] ?? 0);
+if ($universoBase > 0 && count($archivos) !== $universoBase) {
+    echo "TRINQUETE: el universo cambió — {$universoBase} archivos al congelar, " . count($archivos) . " ahora.\n";
+    echo "           La cifra NO es comparable hasta que se declare por qué. Ver LEY 15.\n";
+}
+
+if ($sinDeclarar > $cota) {
+    echo "TRINQUETE ROTO: {$sinDeclarar} sin declarar contra una cota de {$cota} (+" . ($sinDeclarar - $cota) . ").\n";
+    echo "                Se arregla la llamada, o se declara con `" . MARCA . " <motivo>` pegado a ella.\n";
+    exit(1);
+}
+if ($sinDeclarar < $cota) {
+    echo "TRINQUETE: {$sinDeclarar} sin declarar contra una cota de {$cota} (-" . ($cota - $sinDeclarar) . ").\n";
+    echo "           Baja la cota en " . BASELINE . ", con la fecha y el motivo.\n";
+    exit(1);
+}
+echo "TRINQUETE: {$sinDeclarar} sin declarar y {$declaradas} declaradas, igual que la línea base.\n";
+exit(0);

@@ -1,0 +1,50 @@
+{
+    "why": "Un valor de retorno que nadie lee. CUARTA aparición de la misma clase en esta campaña: `FileUpload::validate()` (T135), el `'success' => true` literal, la suite sin balance (T126) y `db-backup` diciendo «Operación exitosa» sobre 7 tablas de 33 (T141). En los cuatro, la información de fallo EXISTÍA y nadie la leyó. Se congela la cifra para que no crezca mientras se triaja, que es trabajo de otro bloque.",
+    "rules": [
+        "LA CIFRA QUE TIENE QUE ENCOGER ES `sin_declarar`. `declaradas` puede subir: declarar es progreso, no deuda.",
+        "Una declaración es una marca `RETORNO-IGNORADO:` PEGADA a la llamada, con el motivo escrito. Sin motivo no declara: el censo la sigue contando como no declarada.",
+        "La marca vive junto a la llamada y NO en una lista central. Una lista por archivo:línea se pudre en cuanto la línea se mueve — ya costó dos puertas rojas, `prefer-slug` y `operation-from-route`.",
+        "Que una llamada salga en el censo NO la convierte en defecto. `unlink()` de un temporal puede ignorarse a conciencia; lo que no puede es ignorarse SIN DECIRLO."
+    ],
+    "medido": {
+        "fecha": "2026-08-29",
+        "bloque": "AB",
+        "herramienta": "bin/censo-retornos-ignorados",
+        "universo": "archivos .php bajo `src/app` y `bin`, excluyendo /vendor/ /node_modules/ /.git/ /bin/tools/ /app/logs/ /dumps/",
+        "archivos_en_el_universo": 790,
+        "patron": "llamada que es la SENTENCIA ENTERA —el resultado no se asigna, ni se compara, ni entra en otra expresión— y cuyo nombre está en la lista de los que señalan fallo por valor devuelto. Se tokeniza con `token_get_all()`: una llamada dentro de una cadena o un comentario no es una llamada.",
+        "canario": "cuatro caras: ve la descartada, NO ve la que se lee, SÍ ve la declarada con motivo, y NO acepta una marca vacía. Si alguna falla, el censo no se hace."
+    },
+    "cifras": {
+        "descartadas_total": 485,
+        "senalan_por_excepcion": 290,
+        "senalan_por_valor": 195,
+        "declaradas": 0,
+        "sin_declarar": 195,
+        "_nota": "`declaradas` es el valor EN EL MOMENTO DE CONGELAR y NO participa en el trinquete: sube al declarar, y eso es progreso. La única cifra que el trinquete compara es `sin_declarar`."
+    },
+    "por_que_290_no_cuentan": "Son de PDO. La conexión va en ERRMODE_EXCEPTION —lo fija `Database::connect()` del paquete `piecesphp/database`, y PHP 8 ya lo trae por defecto—, así que `->execute()`, `->exec()`, `->commit()` y compañía LANZAN. Descartar su retorno no pierde información. Distinguir la FORMA de la llamada fue necesario: `exec(` a secas es el de procesos y devuelve `string|false`.",
+    "orden_de_trabajo": [
+        "1 · PRIMERO LOS QUE REPORTAN ÉXITO TRAS EL FALLO, que es la forma de `db-backup`: la llamada falla, nadie lo mira, y lo que sigue afirma que todo fue bien. Son los que hacen daño de verdad.",
+        "2 · Dentro de eso, `núcleo` (47) y `Database` (10) antes que el resto: viajan a CADA CLON del framework.",
+        "3 · Después `Terminal` (38) y `bin/` (21): son las herramientas con las que se mide la campaña.",
+        "4 · El resto, por familia."
+    ],
+    "reparto_al_congelar": {
+        "por_familia": {
+            "escritura de archivo": 159,
+            "proceso y entorno": 16,
+            "manejo de recurso": 14,
+            "serializacion": 6
+        },
+        "por_zona": {
+            "nucleo": 47,
+            "Terminal": 38,
+            "bin": 21,
+            "Cache": 12,
+            "Helpers": 10,
+            "Database": 10,
+            "resto": 57
+        }
+    }
+}

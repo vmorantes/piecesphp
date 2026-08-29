@@ -204,6 +204,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 18. Ningún `if/else` con las dos ramas iguales ───────────────────────────
         $twinFailures = self::checkTwinBranches($files);
 
+        //──── 19. Los retornos ignorados sin declarar no han crecido ───────────────────
+        $returnFailures = self::checkIgnoredReturns();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -211,8 +214,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
             + count($orderFailures) + count($orphanFailures)
-            + count($versiones['fallos']) + count($twinFailures);
+            + count($versiones['fallos']) + count($twinFailures) + count($returnFailures);
 
+        foreach ($returnFailures as $line) {
+            echoTerminal("\e[31mRETORNO:\e[39m {$line}");
+        }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
         }
@@ -2346,6 +2352,44 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function toolchainAutoloadPath(): string
     {
         return dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/bin/tools/vendor/autoload.php';
+    }
+
+    /**
+     * Los retornos ignorados SIN DECLARAR no han crecido.
+     *
+     * Delega en `bin/censo-retornos-ignorados --trinquete`, que es donde vive el método:
+     * duplicarlo aquí crearía dos verdades sin puerta entre ellas (LEY 11).
+     *
+     * @return string[]
+     */
+    protected static function checkIgnoredReturns(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $script = $root . '/bin/censo-retornos-ignorados';
+
+        if (!is_file($script)) {
+            //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
+            return ['no existe ' . $script . ': el trinquete de retornos NO se ha comprobado'];
+        }
+
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
+        exec('cd ' . escapeshellarg($root) . ' && ' . escapeshellarg($script) . ' --trinquete 2>&1', $output, $status);
+
+        $line = '';
+        foreach ($output as $candidate) {
+            if (mb_strpos($candidate, 'TRINQUETE') === 0) {
+                $line = $candidate;
+            }
+        }
+
+        if ($status !== 0) {
+            return [$line !== '' ? $line : 'el censo de retornos salió con código ' . $status];
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'retornos ignorados comprobados.'));
+        return [];
     }
 
     /**
