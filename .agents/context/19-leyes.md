@@ -174,6 +174,13 @@ historia; un comentario en el código se lee como el presente.
 
 La regla se vigila con una puerta, no a ojo: ver T38.
 
+**Y la puerta tenía su propio punto ciego, corregido en AE:** contaba como prosa CUALQUIER
+línea comentada, así que «comentar en vez de borrar» —una decisión legítima del PROPIETARIO
+para los idiomas— la ponía roja. Una línea de código comentada **no es un relato**. Se exime
+con la anotación **`@codigo-comentado`**, que se declara en el bloque igual que `@param`. Se
+declara, no se adivina: una heurística que distinguiera código de prosa acertaría casi
+siempre, y «casi siempre» en una puerta es ruido. Ver T145.
+
 ### LEY 8 — UNA DECISIÓN QUE NO VIVE EN UN ARCHIVO NO SE PROPAGA
 
 **Se propagó lo escrito en un archivo compartido; lo decidido sin escribirlo en ninguno llegó a

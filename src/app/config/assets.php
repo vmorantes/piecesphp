@@ -179,12 +179,11 @@ $assets['quilljs']['plugins'] = [
  * 27.1.0
  * https://ckeditor.com/ckeditor-5/
  */
-//No hay entrada para 'es' porque el CKEditor vendorizado NO trae `translations/es.js`:
-//son 63 archivos y ese no está. Con el idioma en español la expresión de abajo resuelve a
-//cadena vacía y el editor se queda en su inglés de fábrica. No es un olvido.
+//No hay 'es' porque el CKEditor vendorizado NO trae `translations/es.js`: son 63 y ese no
+//está, así que en español el editor se queda en su inglés de fábrica. No es un olvido.
 $ckeditorLangs = [
     'en' => 'statics/plugins/ckeditor/translations/en.js',
-    //IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`.
+    //@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
     //'fr' => 'statics/plugins/ckeditor/translations/fr.js',
     //'de' => 'statics/plugins/ckeditor/translations/de.js',
     //'it' => 'statics/plugins/ckeditor/translations/it.js',

@@ -5,11 +5,9 @@ window.addEventListener('load', function () {
 	let fileManagerSelector = '.filemanager-component'
 	let fileManagerComponent = $(fileManagerSelector)
 	const replaceLangs = function(lang){
-		//elFinder no usa siempre el mismo código que la aplicación. Esta lista traduce del
-		//uno al otro; con 'pt' retirado se queda vacía, y así se ve qué hay que mirar al
-		//dar de alta un idioma. La receta completa está en `app/config/lang.php`.
+		//elFinder no usa el mismo código que la aplicación: esta lista traduce del uno al otro.
 		const replaceList = {
-			//IDIOMA COMENTADO
+			//@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
 			//'pt': 'pt_BR',
 		}
 		return typeof replaceList[lang] !== 'undefined' ? replaceList[lang] : lang

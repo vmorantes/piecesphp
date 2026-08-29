@@ -30,33 +30,8 @@ set_config('lang_by_cookie', true);
 set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 
 /**
- * ┌──────────────────────────────────────────────────────────────────────────────────┐
- * │  CÓMO SE AÑADE UN IDIOMA — EL EJEMPLO ESTÁ COMENTADO EN ESTE MISMO ARCHIVO        │
- * └──────────────────────────────────────────────────────────────────────────────────┘
- *
- * Este proyecto se sirve en 'es' y 'en'. Los otros cuatro se dejan COMENTADOS a
- * propósito: no son un resto, son la receta completa. Para dar de alta un idioma se
- * descomenta su línea en los OCHO sitios de este archivo —están todos marcados con
- * «IDIOMA COMENTADO»— y se atienden los TRES de fuera:
- *
- *   1. `allowed_langs` .............. lo hace válido como segmento de URL y en el selector
- *   2. `autoTranslateFromLangGroupHTMLIgnoreLangs` .. sáltalo si NO quieres traducción automática
- *   3. `no_scan_langs` .............. sácalo de aquí si quieres que `scan-missing-lang` lo audite
- *   4. `locale_langs` ............... `setlocale()` de PHP; varios candidatos por si el sistema no trae uno
- *   5. `lc_time_names_mysql` ........ nombres de mes y día que devuelve MySQL; ver AE2 sobre los candidatos
- *   6. `format_date_lang` ........... formato de fecha de PHP
- *   7. `format_date_lang_sql` ....... el mismo formato, en la sintaxis de MySQL
- *   8. `get_fomantic_flag_by_lang` .. la bandera del selector (el código de PAÍS no siempre es el de idioma:
- *                                      'en' usa 'gb')
- *
- *   FUERA DE AQUÍ:
- *   · `app/lang/<código>.php` y el `<código>.php` de cada módulo con carpeta `lang/`.
- *     Si falta, `LangInjector` lo salta y `__()` devuelve el texto en español: no rompe,
- *     pero se ve el idioma equivocado.
- *   · `statics/core/js/translations/<código>.js` y su entrada en `configurations.js`.
- *     Sin eso el front cae al idioma por defecto.
- *   · `config/assets.php`: el idioma de CKEditor. Y si el módulo usa elFinder, mira
- *     `FileManager/Statics/js/file-manager.js`, que traduce códigos ('pt' → 'pt_BR').
+ * Los cuatro idiomas COMENTADOS de este archivo son EL EJEMPLO de cómo se añade uno.
+ * La receta —los ocho sitios de aquí y los tres de fuera— en `.agents/context/08-i18n.md`.
  */
 
 /**
@@ -67,7 +42,7 @@ set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 set_config('allowed_langs', [
     'es',
     'en',
-    //IDIOMA COMENTADO: descomentar para dar de alta el idioma. Ver el bloque de arriba.
+    //@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
     //'fr',
     //'de',
     //'it',
@@ -78,7 +53,7 @@ set_config('allowed_langs', [
 add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
     'es',
     'en',
-    //IDIOMA COMENTADO
+    //@codigo-comentado · IDIOMA COMENTADO
     //'fr',
     //'de',
     //'it',
@@ -89,7 +64,7 @@ add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
 set_config('no_scan_langs', [
     'es',
     //'en',
-    //IDIOMA COMENTADO
+    //@codigo-comentado · IDIOMA COMENTADO
     //'fr',
     //'de',
     //'it',
@@ -129,7 +104,7 @@ set_config('get_locale_versions_by_locale', function (array $locales) {
 set_config('locale_langs', [
     'es' => get_config('get_locale_versions_by_locale')(['es_CO', 'es_ES', 'es_MX']),
     'en' => get_config('get_locale_versions_by_locale')(['en_US']),
-    //IDIOMA COMENTADO
+    //@codigo-comentado · IDIOMA COMENTADO
     //'fr' => get_config('get_locale_versions_by_locale')(['fr_FR']),
     //'de' => get_config('get_locale_versions_by_locale')(['de_DE']),
     //'it' => get_config('get_locale_versions_by_locale')(['it_IT']),
@@ -148,7 +123,7 @@ set_config('lc_time_names_mysql', [
     'en' => [
         'en_US',
     ],
-    //IDIOMA COMENTADO
+    //@codigo-comentado · IDIOMA COMENTADO
     //'fr' => [
     //    'fr_FR',
     //],
@@ -171,7 +146,7 @@ set_config('format_date_lang', [
     //'en' => 'l, Y/F/d', // Saturday, 2021/May/08
     'es' => 'd/m/Y', // 08/05/2021
     'en' => 'm/d/Y',
-    //IDIOMA COMENTADO
+    //@codigo-comentado · IDIOMA COMENTADO
     //'fr' => 'm/d/Y',
     //'de' => 'm/d/Y',
     //'it' => 'm/d/Y',
@@ -180,7 +155,7 @@ set_config('format_date_lang', [
 set_config('format_date_lang_sql', [
     'es' => '%d/%m/%Y', // 08/05/2021
     'en' => '%Y/%m/%d',
-    //IDIOMA COMENTADO
+    //@codigo-comentado · IDIOMA COMENTADO
     //'fr' => '%Y/%m/%d',
     //'de' => '%Y/%m/%d',
     //'it' => '%Y/%m/%d',
@@ -197,7 +172,7 @@ set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size
     $flags = [
         'es' => "<i{CURRENT}class='{$size} es flag'></i>",
         'en' => "<i{CURRENT}class='{$size} gb flag'></i>",
-        //IDIOMA COMENTADO: la bandera es un código de PAÍS, no de idioma ('en' usa 'gb').
+        //@codigo-comentado · IDIOMA COMENTADO. La bandera es código de PAÍS: 'en' usa 'gb'.
         //'fr' => "<i{CURRENT}class='{$size} fr flag'></i>",
         //'de' => "<i{CURRENT}class='{$size} de flag'></i>",
         //'it' => "<i{CURRENT}class='{$size} it flag'></i>",

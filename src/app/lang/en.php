@@ -6,7 +6,7 @@ $lang = [
     'lang' => [
         'es'               => 'Spanish',
         'en'               => 'English',
-        //IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`.
+        //@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
         //'fr'               => 'French',
         //'de'               => 'German',
         //'it'               => 'Italian',
@@ -18,7 +18,7 @@ $lang = [
     'langShort' => [
         'es' => 'ES',
         'en' => 'EN',
-        //IDIOMA COMENTADO
+        //@codigo-comentado · IDIOMA COMENTADO
         //'fr' => 'FR',
         //'de' => 'DE',
         //'it' => 'IT',

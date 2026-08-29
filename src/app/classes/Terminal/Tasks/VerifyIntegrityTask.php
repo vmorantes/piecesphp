@@ -213,6 +213,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 21. Las claves de traducción que nadie pide no han crecido ───────────────
         $langFailures = self::checkOrphanLangKeys();
 
+        //──── 22. Las etiquetas de cada vista cuadran ──────────────────────────────────
+        $tagFailures = self::checkViewTagBalance();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -221,7 +224,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
             + count($orderFailures) + count($orphanFailures)
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
-            + count($symlinkFailures) + count($langFailures);
+            + count($symlinkFailures) + count($langFailures) + count($tagFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -231,6 +234,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($langFailures as $line) {
             echoTerminal("\e[31mTRADUCCIÓN:\e[39m {$line}");
+        }
+        foreach ($tagFailures as $line) {
+            echoTerminal("\e[31mETIQUETA:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -1428,7 +1434,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      */
     protected static function collectNarrativeBlocks(): array
     {
-        $anotaciones = ['@param', '@return', '@var', '@package', '@author', '@throws'];
+        //`@codigo-comentado` exime al bloque: una línea de código comentada NO es relato, y
+        //contarla como tal prohibía «comentar en vez de borrar». Se declara, no se adivina.
+        $anotaciones = ['@param', '@return', '@var', '@package', '@author', '@throws', '@codigo-comentado'];
         $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
         $roots = [$repoRoot . '/app', dirname($repoRoot) . '/bin'];
         $excluir = ['/vendor/', '/node_modules/', '/bin/tools/', '.min.', '/statics/core/', '/statics/plugins/'];
@@ -2405,6 +2413,129 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'claves de traducción comprobadas.'));
         return [];
+    }
+
+    /**
+     * Las vistas cuyas etiquetas NO cuadran a propósito. Como `KNOWN_ECLIPSES`: solo encoge.
+     */
+    const KNOWN_UNBALANCED_VIEWS = [
+        'src/app/view/panel/layout/header.php' => [
+            'reason' => 'Abre el armazón de la página que cierra footer.php: el desbalance es '
+                . 'el reparto entre los dos archivos, no un error. Medido: 9 <div> y 7 </div>.',
+            'retiredWhen' => 'Cuando el armazón del panel deje de repartirse entre dos archivos.',
+        ],
+        'src/app/view/panel/layout/footer.php' => [
+            'reason' => 'Cierra lo que abrió header.php. Medido: 0 <div> y 2 </div>.',
+            'retiredWhen' => 'Cuando el armazón del panel deje de repartirse entre dos archivos.',
+        ],
+    ];
+
+    /**
+     * Las etiquetas de cada vista cuadran.
+     *
+     * Existe por dos incidentes de la misma forma: anclar una edición en un `</div>` A
+     * SANGRÍA FIJA. La sangría no dice qué cierra ese `</div>`, y las dos veces cerró un
+     * contenedor INTERIOR: en `generic-report-view.php` (bloque AB) se fueron las mitades
+     * de arriba de dos tarjetas y quedaron dos pies huérfanos RENDIDOS EN PANTALLA, con sus
+     * etiquetas visibles. Lo vio el PROPIETARIO, no la puerta.
+     *
+     * VIABILIDAD MEDIDA ANTES DE CONSTRUIRLA, porque un `<div>` dentro de un `if` con su
+     * cierre en el `else` daría desbalance legítimo: de 178 vistas del árbol, **176 cuadran**
+     * en las ocho etiquetas. Las dos que no son el armazón del panel, y van declaradas.
+     *
+     * @return string[]
+     */
+    protected static function checkViewTagBalance(): array
+    {
+        $tags = ['div', 'section', 'table', 'form', 'ul', 'li', 'tr', 'td'];
+
+        //CANARIO: un desbalance conocido tiene que salir, y uno equilibrado no. Sin las dos
+        //caras, un «todas cuadran» no significaría nada. LEY 16.
+        $roto = self::tagBalance('<div class="a"><div></div>', 'div');
+        $sano = self::tagBalance('<div class="a"><div></div></div>', 'div');
+        if ($roto[0] === $roto[1] || $sano[0] !== $sano[1]) {
+            return ['CANARIO CAÍDO: el contador de etiquetas no distingue un desbalance de un '
+                . 'equilibrio. La comprobación NO se hace.'];
+        }
+
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        $views = [];
+
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($repoRoot . '/app', \FilesystemIterator::SKIP_DOTS));
+
+        foreach ($it as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+            $p = str_replace('\\', '/', (string) $file->getPathname());
+            if (!str_ends_with($p, '.php')) {
+                continue;
+            }
+            if (mb_strpos($p, '/Views/') === false && mb_strpos($p, '/view/') === false) {
+                continue;
+            }
+            $views[] = $p;
+        }
+
+        sort($views);
+
+        $failures = [];
+        $descuadradas = [];
+
+        foreach ($views as $p) {
+            $relativo = ltrim(str_replace($root, '', $p), '/');
+            $contenido = (string) file_get_contents($p);
+            $malas = [];
+
+            foreach ($tags as $tag) {
+                [$abren, $cierran] = self::tagBalance($contenido, $tag);
+                if ($abren !== $cierran) {
+                    $malas[] = "<{$tag}> {$abren}/{$cierran}";
+                }
+            }
+
+            if (count($malas) === 0) {
+                continue;
+            }
+
+            $descuadradas[] = $relativo;
+
+            if (array_key_exists($relativo, self::KNOWN_UNBALANCED_VIEWS)) {
+                continue;
+            }
+
+            $failures[] = $relativo . ' — ' . implode(', ', $malas)
+                . '. Una edición en una vista se cierra CONTANDO ETIQUETAS: si el desbalance es'
+                . ' a propósito, va a KNOWN_UNBALANCED_VIEWS con su razón y su condición de retirada.';
+        }
+
+        foreach (self::KNOWN_UNBALANCED_VIEWS as $relativo => $entry) {
+            if (!in_array($relativo, $descuadradas, true)) {
+                $failures[] = $relativo . ' — figura como desbalance declarado y ya cuadra.'
+                    . ' Quita la entrada: la lista solo puede encoger.';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($views) . ' vista(s) comprobadas en '
+            . count($tags) . ' etiquetas, ' . count(self::KNOWN_UNBALANCED_VIEWS) . ' desbalance(s) declarado(s).');
+
+        return $failures;
+    }
+
+    /**
+     * Cuántas veces abre y cuántas cierra una etiqueta en un texto.
+     *
+     * @param string $contenido
+     * @param string $tag
+     * @return array{0: int, 1: int}
+     */
+    protected static function tagBalance(string $contenido, string $tag): array
+    {
+        $abren = preg_match_all('#<' . $tag . '[\s>/]#i', $contenido);
+        $cierran = preg_match_all('#</' . $tag . '\s*>#i', $contenido);
+
+        return [is_int($abren) ? $abren : 0, is_int($cierran) ? $cierran : 0];
     }
 
     /**
