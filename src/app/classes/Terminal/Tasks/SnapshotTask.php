@@ -124,6 +124,7 @@ class SnapshotTask extends TerminalTaskAbstract
         $snapshot = [
             'label' => $label,
             'tables' => self::snapshotTables(),
+            'views' => self::snapshotViews(),
             'files' => $withFiles ? self::snapshotFiles($repoRoot) : null,
         ];
 
@@ -136,7 +137,7 @@ class SnapshotTask extends TerminalTaskAbstract
         $sinHuella = count(array_filter((array) ($snapshot['files'] ?? []),
             static fn (string $stamp): bool => str_ends_with($stamp, ':' . self::NO_MEASURED)));
         $capped = array_filter($snapshot['tables'], static fn (array $t): bool => $t['capped'] === true);
-        echoTerminal("\e[94mINFO:\e[39m " . count($snapshot['tables']) . " tablas, {$rows} filas.");
+        echoTerminal("\e[94mINFO:\e[39m " . count($snapshot['tables']) . " tablas, {$rows} filas, " . count($snapshot['views']) . ' vista(s).');
         if ($withFiles) {
             $mb = round(self::$hashedBytes / 1048576, 1);
             $ms = (int) round((microtime(true) - $startedAt) * 1000);
@@ -157,6 +158,35 @@ class SnapshotTask extends TerminalTaskAbstract
         echoTerminal("\e[34mEscrito:\e[39m {$path}");
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
+    }
+
+    /**
+     * Las VISTAS, por su definición.
+     *
+     * `snapshotTables()` filtra por `TABLE_TYPE = 'BASE TABLE'`, así que una vista no
+     * entraba en la foto: el lote 2 de E3 borró una y la comparación no dijo nada. Se
+     * guarda la DEFINICIÓN y no las filas —una vista no tiene filas propias—, con lo que
+     * un borrado y un cambio de cuerpo se ven los dos. Ver T141.
+     *
+     * @return array<string, string> Nombre de la vista => huella de su definición.
+     */
+    protected static function snapshotViews(): array
+    {
+        $db = (new BaseModel())->getDatabase();
+        if ($db === null) {
+            echoTerminal("\e[31mERROR:\e[39m sin conexión a base de datos no hay foto que tomar.");
+            exit(1);
+        }
+        $statement = $db->query("SELECT TABLE_NAME, VIEW_DEFINITION FROM information_schema.VIEWS WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME");
+        $out = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $name = (string) ($row['TABLE_NAME'] ?? '');
+            if ($name === '') {
+                continue;
+            }
+            $out[$name] = sha1((string) ($row['VIEW_DEFINITION'] ?? ''));
+        }
+        return $out;
     }
 
     /**
@@ -336,6 +366,32 @@ class SnapshotTask extends TerminalTaskAbstract
                 echoTerminal("  \e[31m- TABLA BORRADA\e[39m {$table}");
                 $findings++;
             }
+        }
+
+        //Las vistas van aparte porque se comparan por otra cosa: su definición.
+        if (!array_key_exists('views', $before) || !array_key_exists('views', $after)) {
+            //NO se comparan contra un vacío: una de las dos fotos es anterior a que se
+            //censaran, y darlas todas por nuevas sería ruido inventado.
+            echoTerminal("  \e[35m? VISTAS: NO COMPARABLES\e[39m — una de las dos fotos no las censó");
+            $findings++;
+        } else {
+        $viewsBefore = (array) ($before['views'] ?? []);
+        $viewsAfter = (array) ($after['views'] ?? []);
+        foreach ($viewsAfter as $view => $hashAfter) {
+            if (!array_key_exists($view, $viewsBefore)) {
+                echoTerminal("  \e[31m+ VISTA NUEVA\e[39m {$view}");
+                $findings++;
+            } elseif ($viewsBefore[$view] !== $hashAfter) {
+                echoTerminal("  \e[33m~ VISTA\e[39m {$view} — la definición cambió");
+                $findings++;
+            }
+        }
+        foreach ($viewsBefore as $view => $hashBefore) {
+            if (!array_key_exists($view, $viewsAfter)) {
+                echoTerminal("  \e[31m- VISTA BORRADA\e[39m {$view}");
+                $findings++;
+            }
+        }
         }
 
         echoTerminal("\e[32m── ÁRBOL DE ARCHIVOS ──\e[39m");
