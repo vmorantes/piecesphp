@@ -106,11 +106,16 @@ class DbBackupTask extends TerminalTaskAbstract
             $withDefiner = TerminalData::instance()->getArgument('definer', 'no') === 'yes';
 
             $db = (new BaseModel())->getDatabase();
+            if ($db === null) {
+                //Sin conexión no hay respaldo, y decirlo es mejor que reventar más abajo.
+                throw new \Exception('No hay conexión a la base de datos: no se puede respaldar.');
+            }
             $dbName = $db->getDatabaseName();
 
             // Preparar Exportador
+            $format = new SqlFormat();
             $exporter = new Exporter($db, $dbName);
-            $exporter->setFormatPlugin(new SqlFormat());
+            $exporter->setFormatPlugin($format);
 
             // Seleccionar plugin de salida
             $outputPlugin = $gz ? new GzipFileOutput() : new FileOutput();
@@ -147,7 +152,7 @@ class DbBackupTask extends TerminalTaskAbstract
                 $changePermissions = !file_exists($outputFile);
 
                 // Ejecutar exportación
-                $exporter->export([
+                $exported = $exporter->export([
                     'filename' => $outputFile,
                     'include_data' => $withData,
                     'include_views' => $withViews,
@@ -169,19 +174,53 @@ class DbBackupTask extends TerminalTaskAbstract
                     //restaurar, asi que la restauracion dejaba a todos sin poder entrar.
                     'transformations' => [],
                 ]);
+                //Si el plugin no dice qué escribió, se informa sobre el que se le pidió.
                 $outputPath = $outputPlugin->getFilename();
+                $outputPath = is_string($outputPath) ? $outputPath : $outputFile;
 
-                if (file_exists($outputPath)) {
-                    if ($changePermissions) {
-                        chmod($outputPath, 0664);
-                    }
-                    $responseText = "Operación exitosa\r\n";
-                    $responseText .= "Archivo generado: " . basename($outputPath) . "\r\n";
-                    $success = true;
-                } else {
+                //EL VALOR DEVUELTO SE LEE. `file_exists` no prueba nada: el archivo existe
+                //igual aunque la exportación reviente a mitad. Ver T141.
+                if ($exported !== true) {
+                    $errors = implode("\n", $exporter->getErrors());
+                    $responseText = "El respaldo FALLÓ: el exportador devolvió false.\r\n";
+                    $responseText .= $errors !== '' ? "Motivo:\n{$errors}\r\n" : "Sin motivo declarado.\r\n";
+                    $responseText .= "Archivo INCOMPLETO: " . basename($outputPath) . "\r\n";
+                    $exceptionToThrow = new \Exception($responseText);
+                } elseif (!file_exists($outputPath)) {
                     $errors = implode("\n", $exporter->getErrors());
                     $responseText = "Ha ocurrido un error durante la exportación:\n{$errors}\r\n";
                     $exceptionToThrow = new \Exception($responseText);
+                } else {
+
+                    //Lo esperado sale de la BASE y lo escrito se lee del ARCHIVO: dos caminos.
+                    $expected = array_diff($exporter->getTables(), self::EXCLUDED_TABLES);
+                    if (!$withViews) {
+                        //`views=no` es una petición legítima: lo que no se pidió no se echa
+                        //en falta. Medido: sin esto, `views=no` reportaba 5 ausencias falsas.
+                        $expected = array_filter($expected, static fn (string $o): bool => !$format->isView($db, $o));
+                    }
+                    $expected = array_values($expected);
+                    $written = self::objectsInDump($outputPath);
+                    $missing = array_values(array_diff($expected, $written));
+                    sort($missing);
+
+                    if (count($missing) > 0) {
+                        $responseText = "El respaldo está INCOMPLETO: faltan " . count($missing);
+                        $responseText .= " de " . count($expected) . " objeto(s).\r\n";
+                        $responseText .= "Faltan: " . implode(', ', $missing) . "\r\n";
+                        $responseText .= "Archivo NO fiable: " . basename($outputPath) . "\r\n";
+                        $exceptionToThrow = new \Exception($responseText);
+                    } else {
+                        if ($changePermissions) {
+                            chmod($outputPath, 0664);
+                        }
+                        $responseText = "Operación exitosa\r\n";
+                        $responseText .= "Archivo generado: " . basename($outputPath) . "\r\n";
+                        $responseText .= "Verificado: " . count($expected) . " objeto(s) esperados, ";
+                        $responseText .= count($expected) . " escrito(s).\r\n";
+                        $success = true;
+                    }
+
                 }
 
             } catch (\Exception $e) {
@@ -204,7 +243,53 @@ class DbBackupTask extends TerminalTaskAbstract
             throw $exceptionToThrow;
         }
 
+        //Un respaldo que falla tiene que NOTARSE fuera del proceso. Mismo trato que
+        //`db-restore`, y solo en terminal: por HTTP el `exit` truncaría la respuesta.
+        if (!$success && TerminalData::getInstance()->isTerminal()) {
+            exit(1);
+        }
+
         return $success;
+    }
+
+    /**
+     * Los objetos que un volcado CONTIENE de verdad, leídos del archivo.
+     *
+     * Camino distinto al del exportador a propósito: si se le preguntara a él, la
+     * comprobación sería el productor confirmándose a sí mismo. Ver LEY 19.
+     *
+     * @param string $path Ruta del volcado, comprimido o no.
+     * @return string[] Nombres de tabla y de vista hallados.
+     */
+    protected static function objectsInDump(string $path): array
+    {
+        $content = '';
+
+        if (mb_substr($path, -3) === '.gz') {
+            $handle = @gzopen($path, 'rb');
+            if ($handle === false) {
+                return [];
+            }
+            while (!gzeof($handle)) {
+                $chunk = gzread($handle, 262144);
+                if ($chunk === false) {
+                    break;
+                }
+                $content .= $chunk;
+            }
+            gzclose($handle);
+        } else {
+            $content = (string) @file_get_contents($path);
+        }
+
+        //DOS FORMAS, y las dos hacen falta: las tablas salen con `IF NOT EXISTS` y las vistas
+        //se emiten antes como tabla de mentira, sin él. Medido sobre un volcado real.
+        $found = [];
+        if (preg_match_all('/^CREATE TABLE (?:IF NOT EXISTS )?`([^`]+)`/m', $content, $matches) > 0) {
+            $found = $matches[1];
+        }
+
+        return array_values(array_unique($found));
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
