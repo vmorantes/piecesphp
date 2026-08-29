@@ -6,7 +6,6 @@
 
 namespace SystemApprovals\Controllers;
 
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Controller\AdminPanelController;
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
@@ -176,7 +175,6 @@ class SystemApprovalsController extends AdminPanelController
                 $title,
             ]);
             $formByType = [
-                ApplicationCallsMapper::TABLE => 'forms/approval-applications-calls',
                 UsersModel::TABLE => 'forms/approval-profile-user',
                 OrganizationMapper::TABLE => 'forms/approval-profile-organization',
                 PublicationMapper::TABLE => 'forms/approval-publications',

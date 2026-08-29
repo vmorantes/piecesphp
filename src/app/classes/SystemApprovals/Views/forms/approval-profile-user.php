@@ -3,8 +3,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 use App\Locations\LocationsLang;
 use App\Model\UsersModel;
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
-use ApplicationCalls\Util\AttachmentPackage;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\UserSystem\UserDataPackage;
