@@ -24,10 +24,10 @@ Para este despliegue, coloca los archivos Docker en la raíz de tu proyecto:
 
 ## 🛠️ 2. Dockerfile (Extensiones Cruciales)
 
-Este archivo crea una imagen de PHP 8.4 con **todas** las extensiones necesarias, incluyendo las que usa tu versión compilada de Adminer (como `sqlite3`).
+Este archivo crea una imagen de PHP 8.5 —el piso que declara `src/composer.json`— con **todas** las extensiones necesarias, incluyendo las que usa tu versión compilada de Adminer (como `sqlite3`).
 
 ```dockerfile
-FROM php:8.4-apache
+FROM php:8.5-apache
 
 # 1. Instalar librerías de sistema necesarias
 RUN apt-get update && apt-get install -y \

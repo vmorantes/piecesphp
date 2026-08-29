@@ -179,6 +179,25 @@ El cuarto es **generalizar desde un solo ejemplo**; el quinto, **heredar una pre
 sin volver a medirla** — la LEY 14 y ésta actuando juntas, hasta convertir un error del registro en
 una tarea del bloque siguiente.
 
+## ⚠ Corregido — la guía de despliegue mandaba a instalar el PHP que no arranca
+
+`general.md` decía *«el piso es PHP 8.4.1»* y `sudo apt install php8.4 …`. **El piso es
+`>=8.5 <8.6`**, y `platform_check.php` —que el propio aviso citaba— aborta el arranque con 8.4.
+**Un despliegue nuevo que siguiera esa guía no levantaba.**
+
+Corregidos el texto y el comando. La justificación caducada —«el `.1` lo exige `symfony/cache`
+8.1»— se sustituye por la fuente real: **`require.php` de `src/composer.json`, que es la única**.
+Y se añade que **el techo es tan real como el piso**: `<8.6` significa que 8.6 tampoco vale
+mientras no se pruebe.
+
+**Y la familia entera, porque media corrección fabrica divergencia**: censada la versión en toda la
+documentación aparecieron cuatro sitios más con la misma afirmación —el bloque de requisitos del
+propio `general.md`, la portada `index.md`, y **un `FROM php:8.4-apache` en la guía de Docker**,
+que es el mismo defecto en otro entorno—.
+
+Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
+changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
+
 ## Herramientas — `bin/censo-comparaciones-cero`, y la clase de defecto de `FileUpload` queda acotada
 
 `FileUpload::validate()` murió en la migración a PHP 8 por comparar con `==` una cadena contra

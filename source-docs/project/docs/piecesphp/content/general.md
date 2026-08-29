@@ -4,7 +4,7 @@
 
 - Requerimientos
     - PiecesPHP
-    - **PHP 8.4.1 – 8.5** (`>=8.4.1 <8.6`) — **el que sirve la web Y el que ejecuta `composer`**
+    - **PHP 8.5** (`>=8.5 <8.6`) — **el que sirve la web Y el que ejecuta `composer`**
     - Composer
     - NodeJS 22.x LTS con FNM
     - NPM
@@ -173,18 +173,21 @@ sudo systemctl restart apache2
 ## Despliegue de PiecesPHP (Ubuntu 24.04 LTS)
 
 !!! warning "PHP: Ubuntu 24.04 no basta por defecto"
-    Desde la versión 7.1.0 el piso es **PHP 8.4.1**, y Ubuntu 24.04 LTS trae **8.3** en
-    sus repositorios. Hay que añadir el repositorio de ondrej antes de desplegar:
+    El piso es **PHP 8.5** y el techo, **8.6**, y Ubuntu 24.04 LTS trae **8.3** en sus
+    repositorios. Hay que añadir el repositorio de ondrej antes de desplegar:
 
     ```bash
     sudo add-apt-repository ppa:ondrej/php -y
     sudo apt update
-    sudo apt install php8.4 php8.4-{mysql,xml,mbstring,curl,gd,zip,intl,sqlite3,bcmath} -y
+    sudo apt install php8.5 php8.5-{mysql,xml,mbstring,curl,gd,zip,intl,sqlite3,bcmath} -y
     ```
 
-    El `.1` del piso no es capricho: lo exige `symfony/cache` 8.1, que entra como
-    dependencia transitiva. `vendor/composer/platform_check.php` lo verifica en cada
-    arranque.
+    **El rango lo declara `require.php` de `src/composer.json` — `">=8.5 <8.6"` — y ésa es la
+    única fuente.** `vendor/composer/platform_check.php` lo verifica en cada arranque: un
+    despliegue con 8.4 no arranca.
+
+    Y el techo es tan real como el piso: `<8.6` significa que **8.6 tampoco vale** mientras no
+    se pruebe.
 
 ## Notas adicionales
 - Configura la base de datos en `src/app/config/database.php`.
