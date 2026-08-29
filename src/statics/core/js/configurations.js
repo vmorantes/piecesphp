@@ -116,18 +116,21 @@ pcsphpGlobals.messages = {
 	en: new Proxy(PCSPHP_TRANSLATIONS_EN, {
 		set: pcsphpGlobals.messagesProxySetHandler,
 	}),
-	fr: new Proxy(PCSPHP_TRANSLATIONS_FR, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	de: new Proxy(PCSPHP_TRANSLATIONS_DE, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	it: new Proxy(PCSPHP_TRANSLATIONS_IT, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	pt: new Proxy(PCSPHP_TRANSLATIONS_PT, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
+	//IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`. Cada entrada de
+	//aquí necesita su `translations/<código>.js`, porque la constante se lee al cargar y
+	//una que no exista revienta el archivo entero, no solo su idioma.
+	//fr: new Proxy(PCSPHP_TRANSLATIONS_FR, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
+	//de: new Proxy(PCSPHP_TRANSLATIONS_DE, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
+	//it: new Proxy(PCSPHP_TRANSLATIONS_IT, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
+	//pt: new Proxy(PCSPHP_TRANSLATIONS_PT, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
 }
 
 if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {

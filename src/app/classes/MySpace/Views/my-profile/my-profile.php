@@ -17,8 +17,6 @@ $affiliatedInstitutionsOptions = [
 foreach($affiliatedInstitutions as $affiliatedInstitution){
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
-$esShort = ucfirst(strtolower(__('langShort', 'es')));
-$frShort = ucfirst(strtolower(__('langShort', 'fr')));
 $langGroupDatatables = 'datatables';
 ?>
 <section class="module-view-container">

@@ -6,10 +6,11 @@ $lang = [
     'lang' => [
         'es'               => 'Spanish',
         'en'               => 'English',
-        'fr'               => 'French',
-        'de'               => 'German',
-        'it'               => 'Italian',
-        'pt'               => 'Portuguese',
+        //IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`.
+        //'fr'               => 'French',
+        //'de'               => 'German',
+        //'it'               => 'Italian',
+        //'pt'               => 'Portuguese',
         'Idioma'           => 'Language',
         'Idiomas'          => 'Languages',
         'Idioma principal' => 'Main language',
@@ -17,10 +18,11 @@ $lang = [
     'langShort' => [
         'es' => 'ES',
         'en' => 'EN',
-        'fr' => 'FR',
-        'de' => 'DE',
-        'it' => 'IT',
-        'pt' => 'PT',
+        //IDIOMA COMENTADO
+        //'fr' => 'FR',
+        //'de' => 'DE',
+        //'it' => 'IT',
+        //'pt' => 'PT',
     ],
     'formatsDate' => [
         'd-m-Y h:i:s'   => 'Y-m-d h:i:s',
@@ -312,9 +314,6 @@ $lang = [
         'Buscar'              => 'To look for...',
         'Buscador'            => 'Search',
         'Resultados visibles' => 'Visible results',
-        'Ordenar por'         => 'Sort by',
-        'ASC'                 => '<i class="ui icon arrow down"></i>Ascendent',
-        'DESC'                => '<i class="ui icon arrow up"></i>Descendent',
         "Ver"                 => "See",
         "elementos"           => "elements",
     ],

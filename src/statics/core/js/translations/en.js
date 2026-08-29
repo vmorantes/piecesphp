@@ -1,19 +1,25 @@
+//NO le añadas `semantic_form` ni `semantic_search`: NO faltan. `configurations.js` los
+//RELLENA en tiempo de ejecución con los valores por defecto de Fomantic, que ya vienen en
+//inglés, y los usa como origen para traducir los demás idiomas. Escribirlos aquí a mano
+//los pisaría con una copia que se queda vieja.
 var PCSPHP_TRANSLATIONS_EN = {
 	lang: {
 		'es': 'Spanish',
 		'en': 'English',
-		'fr': 'French',
-		'de': 'German',
-		'it': 'Italian',
-		'pt': 'Portuguese',
+		//IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`.
+		//'fr': 'French',
+		//'de': 'German',
+		//'it': 'Italian',
+		//'pt': 'Portuguese',
 	},
 	langShort: {
 		'es': 'ES',
 		'en': 'EN',
-		'fr': 'FR',
-		'de': 'DE',
-		'it': 'IT',
-		'pt': 'PT',
+		//IDIOMA COMENTADO
+		//'fr': 'FR',
+		//'de': 'DE',
+		//'it': 'IT',
+		//'pt': 'PT',
 	},
 	titles: {
 		error: 'Error',
