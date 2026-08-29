@@ -42,7 +42,6 @@
  */
 
 use API\APIRoutes;
-use ApplicationCalls\ApplicationCallsRoutes;
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
@@ -214,7 +213,6 @@ ContentNavigationHubRoutes::routes($zona_administrativa, $zona_publica);
 GeoJsonManagerRoutes::routes($zona_administrativa);
 
 //Convocatorias
-ApplicationCallsRoutes::routes($zona_administrativa, $zona_publica);
 
 //Áreas de investigación
 InterestResearchAreasRoutes::routes($zona_administrativa, $zona_publica);

@@ -231,147 +231,6 @@
         "StateMapper::isDuplicateName",
         "StateMapper::model"
     ],
-    "app/classes/ApplicationCalls/ApplicationCallsLang.php": [
-        "ApplicationCallsLang::injectLang"
-    ],
-    "app/classes/ApplicationCalls/ApplicationCallsRoutes.php": [
-        "ApplicationCallsRoutes::init",
-        "ApplicationCallsRoutes::routes",
-        "ApplicationCallsRoutes::staticResolver",
-        "ApplicationCallsRoutes::staticRoute"
-    ],
-    "app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php": [
-        "ApplicationCallsController::__construct",
-        "ApplicationCallsController::_all",
-        "ApplicationCallsController::_allowedRoute",
-        "ApplicationCallsController::action",
-        "ApplicationCallsController::addForm",
-        "ApplicationCallsController::all",
-        "ApplicationCallsController::dataTables",
-        "ApplicationCallsController::editForm",
-        "ApplicationCallsController::handlerUpload",
-        "ApplicationCallsController::listView",
-        "ApplicationCallsController::pathFrontApplicationCallAdapter",
-        "ApplicationCallsController::render",
-        "ApplicationCallsController::routes",
-        "ApplicationCallsController::toDelete"
-    ],
-    "app/classes/ApplicationCalls/Controllers/ApplicationCallsPublicController.php": [
-        "ApplicationCallsPublicController::__construct",
-        "ApplicationCallsPublicController::all",
-        "ApplicationCallsPublicController::init",
-        "ApplicationCallsPublicController::render",
-        "ApplicationCallsPublicController::routes",
-        "ApplicationCallsPublicController::view"
-    ],
-    "app/classes/ApplicationCalls/Controllers/HelperController.php": [
-        "HelperController::__construct",
-        "HelperController::getLangsForSelect"
-    ],
-    "app/classes/ApplicationCalls/Exceptions/DuplicateException.php": [
-        "DuplicateException::__construct"
-    ],
-    "app/classes/ApplicationCalls/Exceptions/SafeException.php": [
-        "SafeException::__construct"
-    ],
-    "app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php": [
-        "ApplicationCallsMapper::__construct",
-        "ApplicationCallsMapper::activesByDateIDs",
-        "ApplicationCallsMapper::addDataManyLangs",
-        "ApplicationCallsMapper::all",
-        "ApplicationCallsMapper::allBy",
-        "ApplicationCallsMapper::contentTypeBackgroundColor",
-        "ApplicationCallsMapper::contentTypeForFullDisplayText",
-        "ApplicationCallsMapper::contentTypeIcon",
-        "ApplicationCallsMapper::contentTypeIconColor",
-        "ApplicationCallsMapper::contentTypeText",
-        "ApplicationCallsMapper::contentTypes",
-        "ApplicationCallsMapper::contentTypesForFullDisplay",
-        "ApplicationCallsMapper::contentTypesForFullDisplayForSelect",
-        "ApplicationCallsMapper::contentTypesForSelect",
-        "ApplicationCallsMapper::createdAtFormat",
-        "ApplicationCallsMapper::createdByFullName",
-        "ApplicationCallsMapper::currencies",
-        "ApplicationCallsMapper::currenciesForSelect",
-        "ApplicationCallsMapper::currentLangData",
-        "ApplicationCallsMapper::elementFriendlySlug",
-        "ApplicationCallsMapper::endDateFormat",
-        "ApplicationCallsMapper::excerpt",
-        "ApplicationCallsMapper::existsByID",
-        "ApplicationCallsMapper::existsByTitle",
-        "ApplicationCallsMapper::extractIDFromSlug",
-        "ApplicationCallsMapper::fieldCurrentLangForSQL",
-        "ApplicationCallsMapper::fieldsToSelect",
-        "ApplicationCallsMapper::financingTypeText",
-        "ApplicationCallsMapper::financingTypes",
-        "ApplicationCallsMapper::financingTypesForSelect",
-        "ApplicationCallsMapper::getAttachments",
-        "ApplicationCallsMapper::getAttachmentsByLang",
-        "ApplicationCallsMapper::getBy",
-        "ApplicationCallsMapper::getEncryptIDForSlug",
-        "ApplicationCallsMapper::getLangData",
-        "ApplicationCallsMapper::getNoTranslatableProperties",
-        "ApplicationCallsMapper::getSlug",
-        "ApplicationCallsMapper::getTranslatableProperties",
-        "ApplicationCallsMapper::getURLAlternatives",
-        "ApplicationCallsMapper::hasLang",
-        "ApplicationCallsMapper::isActiveByDates",
-        "ApplicationCallsMapper::lastModifiedElement",
-        "ApplicationCallsMapper::model",
-        "ApplicationCallsMapper::modifiedByFullName",
-        "ApplicationCallsMapper::objectToMapper",
-        "ApplicationCallsMapper::save",
-        "ApplicationCallsMapper::setLangData",
-        "ApplicationCallsMapper::startDateFormat",
-        "ApplicationCallsMapper::statuses",
-        "ApplicationCallsMapper::update",
-        "ApplicationCallsMapper::updatedAtFormat"
-    ],
-    "app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php": [
-        "AttachmentApplicationCallsMapper::__construct",
-        "AttachmentApplicationCallsMapper::all",
-        "AttachmentApplicationCallsMapper::allBy",
-        "AttachmentApplicationCallsMapper::createdAtFormat",
-        "AttachmentApplicationCallsMapper::createdByFullName",
-        "AttachmentApplicationCallsMapper::existsByApplicationCall",
-        "AttachmentApplicationCallsMapper::existsByID",
-        "AttachmentApplicationCallsMapper::fieldsToSelect",
-        "AttachmentApplicationCallsMapper::fileExists",
-        "AttachmentApplicationCallsMapper::fileIsImage",
-        "AttachmentApplicationCallsMapper::getBy",
-        "AttachmentApplicationCallsMapper::getExactAttachment",
-        "AttachmentApplicationCallsMapper::getExtension",
-        "AttachmentApplicationCallsMapper::getMimeType",
-        "AttachmentApplicationCallsMapper::lastModifiedElement",
-        "AttachmentApplicationCallsMapper::model",
-        "AttachmentApplicationCallsMapper::modifiedByFullName",
-        "AttachmentApplicationCallsMapper::objectToMapper",
-        "AttachmentApplicationCallsMapper::save",
-        "AttachmentApplicationCallsMapper::update",
-        "AttachmentApplicationCallsMapper::updatedAtFormat"
-    ],
-    "app/classes/ApplicationCalls/Util/AttachmentPackage.php": [
-        "AttachmentPackage::__construct",
-        "AttachmentPackage::forceEvaluationMapper",
-        "AttachmentPackage::getApplicationCallID",
-        "AttachmentPackage::getDisplayName",
-        "AttachmentPackage::getLang",
-        "AttachmentPackage::getMapper",
-        "AttachmentPackage::hasAttachment",
-        "AttachmentPackage::isRequired",
-        "AttachmentPackage::setApplicationCallID",
-        "AttachmentPackage::setLang",
-        "AttachmentPackage::setRequired"
-    ],
-    "app/classes/ApplicationCalls/Util/FieldTranslationUtility.php": [
-        "FieldTranslationUtility::__construct",
-        "FieldTranslationUtility::baseLang",
-        "FieldTranslationUtility::currentLang",
-        "FieldTranslationUtility::fieldName",
-        "FieldTranslationUtility::isTranslatable",
-        "FieldTranslationUtility::mapper",
-        "FieldTranslationUtility::translatable"
-    ],
     "app/classes/Components/ComponentProviderLang.php": [
         "ComponentProviderLang::injectLang"
     ],
@@ -401,8 +260,6 @@
     ],
     "app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php": [
         "ContentNavigationHubController::__construct",
-        "ContentNavigationHubController::applicationCallDetailView",
-        "ContentNavigationHubController::applicationCallsListView",
         "ContentNavigationHubController::contentsMapView",
         "ContentNavigationHubController::profileListView",
         "ContentNavigationHubController::render",
@@ -721,7 +578,6 @@
         "GeoJsonManagerController::handleRequestContentsGeoJsonFeaturesParam",
         "GeoJsonManagerController::render",
         "GeoJsonManagerController::routes",
-        "GeoJsonManagerController::withApplicationCalls",
         "GeoJsonManagerController::withOrganizationsProfiles",
         "GeoJsonManagerController::withPersonsProfiles"
     ],
@@ -767,97 +623,6 @@
     ],
     "app/classes/GoogleReCaptchaV3/GoogleReCaptchaV3Routes.php": [
         "GoogleReCaptchaV3Routes::routes"
-    ],
-    "app/classes/ImagesRepository/Controllers/HelperController.php": [
-        "HelperController::__construct"
-    ],
-    "app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php": [
-        "ImagesRepositoryController::__construct",
-        "ImagesRepositoryController::_all",
-        "ImagesRepositoryController::_allowedRoute",
-        "ImagesRepositoryController::action",
-        "ImagesRepositoryController::addForm",
-        "ImagesRepositoryController::all",
-        "ImagesRepositoryController::allowedLangsForSelect",
-        "ImagesRepositoryController::dataTables",
-        "ImagesRepositoryController::dataTablesFilterView",
-        "ImagesRepositoryController::editForm",
-        "ImagesRepositoryController::filterView",
-        "ImagesRepositoryController::friendlyAuthorizationName",
-        "ImagesRepositoryController::friendlyImageName",
-        "ImagesRepositoryController::handlerUpload",
-        "ImagesRepositoryController::listView",
-        "ImagesRepositoryController::previewImage",
-        "ImagesRepositoryController::routes",
-        "ImagesRepositoryController::singleView",
-        "ImagesRepositoryController::toDelete",
-        "ImagesRepositoryController::view"
-    ],
-    "app/classes/ImagesRepository/Exceptions/DuplicateException.php": [
-        "DuplicateException::__construct"
-    ],
-    "app/classes/ImagesRepository/ImagesRepositoryLang.php": [
-        "ImagesRepositoryLang::injectLang"
-    ],
-    "app/classes/ImagesRepository/ImagesRepositoryRoutes.php": [
-        "ImagesRepositoryRoutes::init",
-        "ImagesRepositoryRoutes::routes",
-        "ImagesRepositoryRoutes::staticResolver",
-        "ImagesRepositoryRoutes::staticRoute"
-    ],
-    "app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php": [
-        "ImagesRepositoryMapper::__construct",
-        "ImagesRepositoryMapper::all",
-        "ImagesRepositoryMapper::allBy",
-        "ImagesRepositoryMapper::author",
-        "ImagesRepositoryMapper::authorizationExists",
-        "ImagesRepositoryMapper::authorizationExtension",
-        "ImagesRepositoryMapper::authorizationFullPath",
-        "ImagesRepositoryMapper::authorizationIconByExtension",
-        "ImagesRepositoryMapper::authorizationName",
-        "ImagesRepositoryMapper::authorizationRemove",
-        "ImagesRepositoryMapper::captureDateFormat",
-        "ImagesRepositoryMapper::countAll",
-        "ImagesRepositoryMapper::createdAtFormat",
-        "ImagesRepositoryMapper::createdByFullName",
-        "ImagesRepositoryMapper::currentLangData",
-        "ImagesRepositoryMapper::elementFriendlySlug",
-        "ImagesRepositoryMapper::existsByID",
-        "ImagesRepositoryMapper::extractIDFromSlug",
-        "ImagesRepositoryMapper::fieldCurrentLangForSQL",
-        "ImagesRepositoryMapper::fieldsToSelect",
-        "ImagesRepositoryMapper::folderRemove",
-        "ImagesRepositoryMapper::getAuthorizationPublicURL",
-        "ImagesRepositoryMapper::getBy",
-        "ImagesRepositoryMapper::getByID",
-        "ImagesRepositoryMapper::getCoordinates",
-        "ImagesRepositoryMapper::getEncryptIDForSlug",
-        "ImagesRepositoryMapper::getFriendlyAuthorizationName",
-        "ImagesRepositoryMapper::getFriendlyImageName",
-        "ImagesRepositoryMapper::getImagePublicURL",
-        "ImagesRepositoryMapper::getLangData",
-        "ImagesRepositoryMapper::getNoTranslatableProperties",
-        "ImagesRepositoryMapper::getPreviewImagePath",
-        "ImagesRepositoryMapper::getSlug",
-        "ImagesRepositoryMapper::getStates",
-        "ImagesRepositoryMapper::getTranslatableProperties",
-        "ImagesRepositoryMapper::getURLAlternatives",
-        "ImagesRepositoryMapper::getYears",
-        "ImagesRepositoryMapper::hasAuthorization",
-        "ImagesRepositoryMapper::imageExists",
-        "ImagesRepositoryMapper::imageExtension",
-        "ImagesRepositoryMapper::imageFullPath",
-        "ImagesRepositoryMapper::imageName",
-        "ImagesRepositoryMapper::imageRemove",
-        "ImagesRepositoryMapper::jsonExtractExistsMySQL",
-        "ImagesRepositoryMapper::model",
-        "ImagesRepositoryMapper::modifiedByFullName",
-        "ImagesRepositoryMapper::objectToMapper",
-        "ImagesRepositoryMapper::save",
-        "ImagesRepositoryMapper::setLangData",
-        "ImagesRepositoryMapper::translateEntityObject",
-        "ImagesRepositoryMapper::update",
-        "ImagesRepositoryMapper::updatedAtFormat"
     ],
     "app/classes/Importers/Controller/HelperController.php": [
         "HelperController::__construct"
@@ -1734,7 +1499,6 @@
     "app/classes/ReportsManage/Queries/ReportsManageQueries.php": [
         "ReportsManageQueries::__construct",
         "ReportsManageQueries::genericReportData",
-        "ReportsManageQueries::getTotalApplicationsCallsByTypeQty",
         "ReportsManageQueries::getTotalOrganizationsQty",
         "ReportsManageQueries::getTotalPublicationsQty",
         "ReportsManageQueries::getTotalResearchersQty"
@@ -1816,14 +1580,6 @@
         "ApprovalElementHandlerInterface::onApproved",
         "ApprovalElementHandlerInterface::onRejected",
         "ApprovalElementHandlerInterface::onUpdatedRecord"
-    ],
-    "app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php": [
-        "ApplicationCallsApprovalHandler::auditFields",
-        "ApplicationCallsApprovalHandler::getContentTypeSpecificMapper",
-        "ApplicationCallsApprovalHandler::isAutoApprovalSpecificMapper",
-        "ApplicationCallsApprovalHandler::onApprovedSpecificMapper",
-        "ApplicationCallsApprovalHandler::onRejectedSpecificMapper",
-        "ApplicationCallsApprovalHandler::onUpdatedRecordSpecificMapper"
     ],
     "app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php": [
         "BaseApprovalHandler::auditFields",
@@ -1914,6 +1670,7 @@
     "app/classes/Terminal/Tasks/DbBackupTask.php": [
         "DbBackupTask::__construct",
         "DbBackupTask::main",
+        "DbBackupTask::objectsInDump",
         "DbBackupTask::route"
     ],
     "app/classes/Terminal/Tasks/DbRestoreTask.php": [
@@ -1983,7 +1740,8 @@
         "SchemeSqlTask::discover",
         "SchemeSqlTask::emit",
         "SchemeSqlTask::mapperDirectoriesUnder",
-        "SchemeSqlTask::requestedModule"
+        "SchemeSqlTask::requestedModule",
+        "SchemeSqlTask::viewsDependingOn"
     ],
     "app/classes/Terminal/Tasks/SnapshotTask.php": [
         "SnapshotTask::__construct",
@@ -1991,7 +1749,8 @@
         "SnapshotTask::main",
         "SnapshotTask::route",
         "SnapshotTask::snapshotFiles",
-        "SnapshotTask::snapshotTables"
+        "SnapshotTask::snapshotTables",
+        "SnapshotTask::snapshotViews"
     ],
     "app/classes/Terminal/Tasks/SyncOTPRecordsTask.php": [
         "SyncOTPRecordsTask::__construct",
@@ -2008,6 +1767,7 @@
         "VerifyIntegrityTask::checkExecutableBits",
         "VerifyIntegrityTask::checkForbiddenAllowances",
         "VerifyIntegrityTask::checkForbiddenRoutesAreSingle",
+        "VerifyIntegrityTask::checkIgnoredReturns",
         "VerifyIntegrityTask::checkNarrativeComments",
         "VerifyIntegrityTask::checkOrphanDocblocks",
         "VerifyIntegrityTask::checkPackageEclipses",
@@ -3663,6 +3423,7 @@
     ],
     "app/core/system-controllers/local-tests/UnitTest-OperationFromRoute.php": [
         "__construct",
+        "derivaLaOperacionDelCuerpo",
         "getArguments",
         "getName"
     ],

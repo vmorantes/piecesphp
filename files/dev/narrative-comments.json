@@ -37,48 +37,6 @@
       "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
     },
     {
-      "file": "src/app/classes/ApplicationCalls/ApplicationCallsRoutes.php",
-      "blocks": 1,
-      "prose": 8,
-      "motive": "cabecera-de-archivo",
-      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
-    },
-    {
-      "file": "src/app/classes/ApplicationCalls/Statics/js/ApplicationCallAdapter.js",
-      "blocks": 1,
-      "prose": 9,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
-      "file": "src/app/classes/ApplicationCalls/Statics/js/application-calls/add-form.js",
-      "blocks": 1,
-      "prose": 5,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
-      "file": "src/app/classes/ApplicationCalls/Statics/js/application-calls/edit-form.js",
-      "blocks": 1,
-      "prose": 5,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
-      "file": "src/app/classes/ApplicationCalls/Statics/js/application-calls/translation-config.js",
-      "blocks": 1,
-      "prose": 3,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
-      "file": "src/app/classes/ContentNavigationHub/Statics/js/application-calls/list.js",
-      "blocks": 1,
-      "prose": 3,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
       "file": "src/app/classes/ContentNavigationHub/Statics/js/contents/map.js",
       "blocks": 2,
       "prose": 10,

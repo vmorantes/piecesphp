@@ -9,8 +9,6 @@
  * En este este archivo se pueden definir elementos útiles para generar menús
  */
 
-use ApplicationCalls\Controllers\ApplicationCallsController;
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Model\UsersModel;
 use ContentNavigationHub\ContentNavigationHubRoutes;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
@@ -73,11 +71,6 @@ if (!in_array($current_type_user, $externalUsers)) {
                         'visible' => MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($current_type_user, OrganizationMapper::PROFILE_EDITOR),
                     ]),
                     new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Contenidos'),
-                        'href' => ApplicationCallsController::routeName('list', [], true),
-                        'visible' => ApplicationCallsController::allowedRoute('list'),
-                    ]),
-                    new MenuItem([
                         'text' => __(ADMIN_MENU_LANG_GROUP, 'Áreas de investigación'),
                         'href' => InterestResearchAreasController::routeName('list', [], true),
                         'visible' => InterestResearchAreasController::allowedRoute('list'),
@@ -99,11 +92,6 @@ if (!in_array($current_type_user, $externalUsers)) {
                         'text' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de contenidos'),
                         'href' => ContentNavigationHubController::routeName('contents-map', [], true),
                         'visible' => ContentNavigationHubController::allowedRoute('contents-map'),
-                    ]),
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Contenidos'),
-                        'href' => ContentNavigationHubController::routeName('application-calls-list', [], true),
-                        'visible' => ContentNavigationHubController::allowedRoute('application-calls-list'),
                     ]),
                 ],
             ]),
@@ -136,50 +124,6 @@ if (!in_array($current_type_user, $externalUsers)) {
                 'asLink' => true,
                 'href' => ContentNavigationHubController::routeName('profiles-list', [], true),
                 'visible' => ContentNavigationHubController::allowedRoute('profiles-list'),
-            ]),
-            new MenuGroup([
-                'name' => __(ADMIN_MENU_LANG_GROUP, 'Proyectos'),
-                'visible' => ContentNavigationHubRoutes::ENABLE,
-                'icon' => 'search',
-                'position' => 0,
-                'items' => [
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Consultar proyectos'),
-                        'href' => ContentNavigationHubController::routeName('application-calls-list-by-type', [
-                            'type' => ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT,
-                        ], true),
-                        'visible' => ContentNavigationHubController::allowedRoute('application-calls-list-by-type', [
-                            'type' => ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT,
-                        ]),
-                    ]),
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Agregar proyectos'),
-                        'href' => ApplicationCallsController::routeName('forms-add', [], true) . '?p',
-                        'visible' => ApplicationCallsController::allowedRoute('forms-add'),
-                    ]),
-                ],
-            ]),
-            new MenuGroup([
-                'name' => __(ADMIN_MENU_LANG_GROUP, 'Oportunidades'),
-                'visible' => ContentNavigationHubRoutes::ENABLE,
-                'icon' => 'search',
-                'position' => 0,
-                'items' => [
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Consultar oportunidades'),
-                        'href' => ContentNavigationHubController::routeName('application-calls-list-by-type', [
-                            'type' => ApplicationCallsMapper::CONTENT_TYPE_FUNDING_OPPORTUNITY,
-                        ], true),
-                        'visible' => ContentNavigationHubController::allowedRoute('application-calls-list-by-type', [
-                            'type' => ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT,
-                        ]),
-                    ]),
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Agregar oportunidades'),
-                        'href' => ApplicationCallsController::routeName('forms-add', [], true) . '?o',
-                        'visible' => ApplicationCallsController::allowedRoute('forms-add'),
-                    ]),
-                ],
             ]),
             new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de actores y contenidos'),

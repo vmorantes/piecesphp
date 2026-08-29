@@ -207,6 +207,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 19. Los retornos ignorados sin declarar no han crecido ───────────────────
         $returnFailures = self::checkIgnoredReturns();
 
+        //──── 20. Ningún enlace del árbol servido apunta al vacío ──────────────────────
+        $symlinkFailures = self::checkDanglingDelegatedLinks();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -214,10 +217,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
             + count($orderFailures) + count($orphanFailures)
-            + count($versiones['fallos']) + count($twinFailures) + count($returnFailures);
+            + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
+            + count($symlinkFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
+        }
+        foreach ($symlinkFailures as $line) {
+            echoTerminal("\e[31mENLACE:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -876,7 +883,6 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //──── Propiedad del recurso MÁS pertenencia a la organización ──────────────────
         'Publications\\Controllers\\PublicationsController::_allowedRoute' => 'Borrado y edición: creador o autor, o administrador de la MISMA organización que el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
-        'ApplicationCalls\\Controllers\\ApplicationCallsController::_allowedRoute' => 'Borrado y edición: creador, o administrador de la misma organización, o CAN_*_ALL. Módulo condenado (T6). ES EL EJEMPLO CANÓNICO documentado en 13-recetas.md.',
         'InterestResearchAreas\\Controllers\\InterestResearchAreasController::_allowedRoute' => 'Ídem ApplicationCalls. Módulo condenado (T6).',
         'MySpace\\Controllers\\MyOrganizationProfileController::_allowedRoute' => 'Rutas del perfil de organización: solo el administrador de esa organización, o PROFILE_EDITOR_SUPER. Sin organización, deniega.',
         'Organizations\\Controllers\\OrganizationsController::_allowedRoute' => 'Borrado y edición: protege la organización inicial (INITIAL_ID_GLOBAL), y permite al editor de su propia organización o a su administrador. Respeta DISABLE_NORMAL_EDIT_FORM.',
@@ -2352,6 +2358,55 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function toolchainAutoloadPath(): string
     {
         return dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/bin/tools/vendor/autoload.php';
+    }
+
+    /**
+     * Ningún enlace de `statics/server-delegated/` apunta al vacío.
+     *
+     * `ServerStatics::createDynamicSymlink()` crea enlaces al servir y NUNCA retira uno
+     * cuyo destino desapareció. Borrar los `Statics/` de un módulo deja un enlace roto por
+     * archivo, y el directorio está declarado volátil, así que la foto no los ve.
+     *
+     * SE COMPRUEBA AQUÍ Y NO SE RETIRA EN CALIENTE, por dos medidas:
+     *
+     *  1. El retorno temprano de `createDynamicSymlink()` ocurre ANTES de normalizar la
+     *     ruta —`realpath()` falla y devuelve—, así que borrar ahí actuaría sobre una ruta
+     *     sin normalizar, que es donde un `../` se vuelve un borrado.
+     *  2. Ese camino solo corre cuando ALGUIEN PIDE el asset. Nadie pide los de un módulo
+     *     muerto, así que la limpieza en caliente no llegaría nunca a los que importan.
+     *
+     * Ver T142.
+     *
+     * @return string[]
+     */
+    protected static function checkDanglingDelegatedLinks(): array
+    {
+        $base = basepath('statics/server-delegated');
+        if (!is_dir($base)) {
+            echoTerminal("\e[94mINFO:\e[39m no hay árbol servido delegado que comprobar.");
+            return [];
+        }
+
+        $broken = [];
+        $checked = 0;
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+        foreach ($iterator as $entry) {
+            $path = (string) $entry->getPathname();
+            if (!is_link($path)) {
+                continue;
+            }
+            $checked++;
+            //`file_exists()` SIGUE el enlace: da false justo cuando el destino no está.
+            if (!file_exists($path)) {
+                $broken[] = str_replace(basepath(), '', $path) . ' — su destino ya no existe';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$checked} enlace(s) del árbol servido comprobados contra su destino.");
+        return $broken;
     }
 
     /**
