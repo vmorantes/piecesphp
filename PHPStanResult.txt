@@ -10,7 +10,7 @@
          🪪  variable.undefined                                                                           
   39     Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
          🪪  argument.type                                                                                
-  224    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
+  228    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
          🪪  return.type                                                                                  
  ------ ------------------------------------------------------------------------------------------------- 
 
@@ -662,101 +662,79 @@
          🪪  argument.type                                                                                                                                         
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php                                                                                                    
- ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  100    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  100    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  126    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  134    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  134    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  134    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  134    Parameter Nr.1 $organizationID of static method App\Model\UsersModel::allOrganizationUsersCanBeAdminForSelect() expects int, int|null given.                                 
-         🪪  argument.type                                                                                                                                                          
-  218    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  218    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  223    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  223    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  226    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  482    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  482    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  488    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  488    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  489    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  499    Property PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper::$profile (int|Organizations\Mappers\OrganizationMapper) does not accept int|null.  
-         🪪  assign.propertyType                                                                                                                                                    
-  633    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  633    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  634    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  653    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  654    Cannot call method update() on Organizations\Mappers\OrganizationMapper|null.                                                                                              
-         🪪  method.nonObject                                                                                                                                                       
-  807    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                    
-         🪪  property.nonObject                                                                                                                                                     
-  807    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                               
-         🪪  property.nonObject                                                                                                                                                     
-  813    Cannot access property $profile on stdClass|null.                                                                                                                          
-         🪪  property.nonObject                                                                                                                                                     
- ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
+  project://src/src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php                                                                     
+ ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
+  98     Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  98     Cannot access property $id on App\Model\UsersModel|int|null.                                                                                
+         🪪  property.nonObject                                                                                                                      
+  123    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  129    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  129    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                
+         🪪  property.nonObject                                                                                                                      
+  129    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                
+         🪪  property.nonObject                                                                                                                      
+  129    Parameter Nr.1 $organizationID of static method App\Model\UsersModel::allOrganizationUsersCanBeAdminForSelect() expects int, int|null given.  
+         🪪  argument.type                                                                                                                           
+  211    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  211    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                
+         🪪  property.nonObject                                                                                                                      
+  216    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  216    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                
+         🪪  property.nonObject                                                                                                                      
+  219    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                
+         🪪  property.nonObject                                                                                                                      
+  304    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  304    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                
+         🪪  property.nonObject                                                                                                                      
+  305    Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                
+         🪪  property.nonObject                                                                                                                      
+  324    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  325    Cannot call method update() on Organizations\Mappers\OrganizationMapper|null.                                                               
+         🪪  method.nonObject                                                                                                                        
+  475    Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                     
+         🪪  property.nonObject                                                                                                                      
+  475    Cannot access property $id on App\Model\UsersModel|int|null.                                                                                
+         🪪  property.nonObject                                                                                                                      
+ ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/MySpace/Controllers/MyProfileController.php                                                                                                          
- ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  377    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  378    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  379    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  380    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  381    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  382    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  383    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  384    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  385    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  386    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
-         🪪  method.nonObject                                                                                                                                                 
-  387    Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                 
-         🪪  property.nonObject                                                                                                                                               
-  388    Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                               
-         🪪  property.nonObject                                                                                                                                               
-  390    Cannot call method update() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                                  
-         🪪  method.nonObject                                                                                                                                                 
-  678    Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                                   
-         🪪  property.nonObject                                                                                                                                               
-  678    Property PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper::$profile (int|PiecesPHP\UserSystem\Profile\UserProfileMapper) does not accept int|null.  
-         🪪  assign.propertyType                                                                                                                                              
-  784    Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                                   
-         🪪  property.nonObject                                                                                                                                               
-  785    Cannot access property $profile on stdClass|null.                                                                                                                    
-         🪪  property.nonObject                                                                                                                                               
- ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------------------------------- 
+  project://src/src/app/classes/MySpace/Controllers/MyProfileController.php                                             
+ ------ -------------------------------------------------------------------------------------------------------- 
+  370    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  371    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  372    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  373    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  374    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  375    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  376    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  377    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  378    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  379    Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                
+         🪪  method.nonObject                                                                                    
+  380    Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.    
+         🪪  property.nonObject                                                                                  
+  381    Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.  
+         🪪  property.nonObject                                                                                  
+  383    Cannot call method update() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                     
+         🪪  method.nonObject                                                                                    
+ ------ -------------------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
   project://src/src/app/classes/MySpace/Controllers/OrganizationProfileController.php  
@@ -776,46 +754,10 @@
          🪪  method.nonObject                                                                                         
  ------ ------------------------------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php                                                                                                                        
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  65     Parameter Nr.1 $user of static method MySpace\Controllers\MyOrganizationProfileController::hasSuperPrivileges() expects PiecesPHP\UserSystem\UserDataPackage, PiecesPHP\UserSystem\UserDataPackage|null given.  
-         🪪  argument.type                                                                                                                                                                                             
-  68     Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                                                       
-         🪪  property.nonObject                                                                                                                                                                                        
-  68     Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                                                                  
-         🪪  property.nonObject                                                                                                                                                                                        
-  231    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.                                                                                                                               
-         🪪  method.nonObject                                                                                                                                                                                          
-  238    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.                                                                                                                                        
-         🪪  method.nonObject                                                                                                                                                                                          
-  243    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.                                                                                                                                         
-         🪪  method.nonObject                                                                                                                                                                                          
-  250    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.                                                                                                                                       
-         🪪  method.nonObject                                                                                                                                                                                          
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController.php          
- ------ ------------------------------------------------------------------------------------ 
-  60     Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.  
-         🪪  property.nonObject                                                              
-  60     Cannot access property $profile on PiecesPHP\UserSystem\UserDataPackage|null.       
-         🪪  property.nonObject                                                              
-  218    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.     
-         🪪  method.nonObject                                                                
-  225    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.              
-         🪪  method.nonObject                                                                
-  230    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.               
-         🪪  method.nonObject                                                                
-  237    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.             
-         🪪  method.nonObject                                                                
- ------ ------------------------------------------------------------------------------------ 
-
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php                          
  ------ -------------------------------------------------------------------------------------------- 
-  90     Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  86     Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -827,24 +769,6 @@
   14     Cannot access property $username on PiecesPHP\UserSystem\UserDataPackage|null.  
          🪪  property.nonObject                                                          
  ------ -------------------------------------------------------------------------------- 
-
- ------ -------------------------------------------------------------------------- 
-  project://src/src/app/classes/MySpace/Views/profile-organization/profile.php            
- ------ -------------------------------------------------------------------------- 
-  218    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.  
-         🪪  property.nonObject                                                    
-  219    Cannot access property $name on App\Locations\Mappers\CityMapper|int.     
-         🪪  property.nonObject                                                    
- ------ -------------------------------------------------------------------------- 
-
- ------ -------------------------------------------------------------------------- 
-  project://src/src/app/classes/MySpace/Views/profile/profile.php                         
- ------ -------------------------------------------------------------------------- 
-  199    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.  
-         🪪  property.nonObject                                                    
-  200    Cannot access property $name on App\Locations\Mappers\CityMapper|int.     
-         🪪  property.nonObject                                                    
- ------ -------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------- 
   project://src/src/app/classes/MySpace/Views/user-security.php                                 
@@ -1091,24 +1015,6 @@
          🪪  assign.propertyType                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php  
- ------ --------------------------------------------------------------------------------------------------- 
-  278    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                           
-         🪪  property.nonObject                                                                             
-  301    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                           
-         🪪  property.nonObject                                                                             
- ------ --------------------------------------------------------------------------------------------------- 
-
- ------ --------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php  
- ------ --------------------------------------------------------------------------------------- 
-  278    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.               
-         🪪  property.nonObject                                                                 
-  301    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.               
-         🪪  property.nonObject                                                                 
- ------ --------------------------------------------------------------------------------------- 
-
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php                                                                      
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
@@ -1352,83 +1258,69 @@
          🪪  property.nonObject                                                                                            
  ------ ------------------------------------------------------------------------------------------------------------------ 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php                                                                             
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  19     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.                                          
-         🪪  method.nonObject                                                                                                                                      
-  25     Parameter Nr.2 $value of static method PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper::allBy() expects int, int|null given.  
-         🪪  argument.type                                                                                                                                         
-  27     Cannot access property $id on App\Model\UsersModel|int|null.                                                                                              
-         🪪  property.nonObject                                                                                                                                    
-  31     Cannot access property $id on App\Model\UsersModel|int|null.                                                                                              
-         🪪  property.nonObject                                                                                                                                    
-  31     Parameter Nr.1 $userID of class PiecesPHP\UserSystem\UserDataPackage constructor expects int, int|null given.                                               
-         🪪  argument.type                                                                                                                                         
-  81     Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                                                                  
-         🪪  property.nonObject                                                                                                                                    
-  82     Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                                                                     
-         🪪  property.nonObject                                                                                                                                    
-  192    Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                                                                     
-         🪪  property.nonObject                                                                                                                                    
-  192    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                                                                  
-         🪪  property.nonObject                                                                                                                                    
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------------------------------------------------------ 
+  project://src/src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php                                     
+ ------ ------------------------------------------------------------------------------------------------------------------ 
+  16     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
+         🪪  method.nonObject                                                                                              
+  20     Cannot access property $id on App\Model\UsersModel|int|null.                                                      
+         🪪  property.nonObject                                                                                            
+  24     Cannot access property $id on App\Model\UsersModel|int|null.                                                      
+         🪪  property.nonObject                                                                                            
+  24     Parameter Nr.1 $userID of class PiecesPHP\UserSystem\UserDataPackage constructor expects int, int|null given.       
+         🪪  argument.type                                                                                                 
+  74     Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                          
+         🪪  property.nonObject                                                                                            
+  75     Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                             
+         🪪  property.nonObject                                                                                            
+ ------ ------------------------------------------------------------------------------------------------------------------ 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/SystemApprovals/Views/forms/approval-profile-user.php                                                                         
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------- 
-  23     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                          
-         🪪  property.nonObject                                                                                                                        
-  23     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                          
-         🪪  property.nonObject                                                                                                                        
-  24     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.                              
-         🪪  method.nonObject                                                                                                                          
-  25     Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                        
-         🪪  property.nonObject                                                                                                                        
-  30     Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                            
-         🪪  property.nonObject                                                                                                                        
-  30     Parameter Nr.2 $value of static method PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper::allBy() expects int, int|null given.  
-         🪪  argument.type                                                                                                                             
-  32     Cannot call method currentLangData() on Organizations\Mappers\OrganizationMapper|null.                                                        
-         🪪  method.nonObject                                                                                                                          
-  34     Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                                                  
-         🪪  property.nonObject                                                                                                                        
-  117    Cannot call method getPhone() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                         
-         🪪  method.nonObject                                                                                                                          
-  125    Cannot call method getLinkedinLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                  
-         🪪  method.nonObject                                                                                                                          
-  133    Cannot call method getWebsiteLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                   
-         🪪  method.nonObject                                                                                                                          
-  141    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                  
-         🪪  method.nonObject                                                                                                                          
-  149    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                  
-         🪪  method.nonObject                                                                                                                          
-  157    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                       
-         🪪  property.nonObject                                                                                                                        
-  157    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                       
-         🪪  property.nonObject                                                                                                                        
-  157    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                                                      
-         🪪  property.nonObject                                                                                                                        
-  165    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                          
-         🪪  property.nonObject                                                                                                                        
-  165    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                          
-         🪪  property.nonObject                                                                                                                        
-  165    Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                                                         
-         🪪  property.nonObject                                                                                                                        
-  173    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                      
-         🪪  property.nonObject                                                                                                                        
-  173    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                      
-         🪪  property.nonObject                                                                                                                        
-  181    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                      
-         🪪  property.nonObject                                                                                                                        
-  181    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                      
-         🪪  property.nonObject                                                                                                                        
-  250    Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                                                         
-         🪪  property.nonObject                                                                                                                        
-  250    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                                                      
-         🪪  property.nonObject                                                                                                                        
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------------------------------------------------------ 
+  project://src/src/app/classes/SystemApprovals/Views/forms/approval-profile-user.php                                             
+ ------ ------------------------------------------------------------------------------------------------------------------ 
+  21     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.              
+         🪪  property.nonObject                                                                                            
+  21     Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.              
+         🪪  property.nonObject                                                                                            
+  22     Cannot call method currentLangData() on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.  
+         🪪  method.nonObject                                                                                              
+  23     Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.            
+         🪪  property.nonObject                                                                                            
+  25     Cannot call method currentLangData() on Organizations\Mappers\OrganizationMapper|null.                            
+         🪪  method.nonObject                                                                                              
+  27     Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                      
+         🪪  property.nonObject                                                                                            
+  110    Cannot call method getPhone() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                             
+         🪪  method.nonObject                                                                                              
+  118    Cannot call method getLinkedinLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
+         🪪  method.nonObject                                                                                              
+  126    Cannot call method getWebsiteLink() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                       
+         🪪  method.nonObject                                                                                              
+  134    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
+         🪪  method.nonObject                                                                                              
+  142    Cannot call method currentLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                      
+         🪪  method.nonObject                                                                                              
+  150    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                           
+         🪪  property.nonObject                                                                                            
+  150    Cannot access property $country on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                           
+         🪪  property.nonObject                                                                                            
+  150    Cannot access property $name on App\Locations\Mappers\CountryMapper|int.                                          
+         🪪  property.nonObject                                                                                            
+  158    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                              
+         🪪  property.nonObject                                                                                            
+  158    Cannot access property $city on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                              
+         🪪  property.nonObject                                                                                            
+  158    Cannot access property $name on App\Locations\Mappers\CityMapper|int.                                             
+         🪪  property.nonObject                                                                                            
+  166    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+         🪪  property.nonObject                                                                                            
+  166    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+         🪪  property.nonObject                                                                                            
+  174    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+         🪪  property.nonObject                                                                                            
+  174    Cannot access property $latitude on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                          
+         🪪  property.nonObject                                                                                            
+ ------ ------------------------------------------------------------------------------------------------------------------ 
 
  ------ ------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/SystemApprovals/Views/forms/approval-publications.php                           
@@ -2774,5 +2666,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 889 errors                                                                                               
+ [ERROR] Found 850 errors                                                                                               
 

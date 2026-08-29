@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 883 tripletas (2026-08-28). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 844 tripletas (2026-08-28). NO DEJARLO PEOR.
 
 EL 2026-08-26 EL UNIVERSO CRECIÓ Y LA CIFRA NO. De 812 a 815 archivos analizados: entraron
 `bin/live-cache`, `bin/walk-attribute` y `bin/walk-routes`, los tres ejecutables de `bin/`
@@ -64,6 +64,26 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 844 <- 883 = 0 arreglos + 0 supresiones + 39 murieron + 0 destapados
+    EL CUARTO TÉRMINO, y E3 lo va a producir seis veces: un error que se va PORQUE SE BORRÓ
+    SU CÓDIGO no es un arreglo —nadie corrigió nada— ni una supresión —el `.neon` sigue en 52
+    entradas—. Primer lote de E3, las experiencias previas.
+
+    Y el desglose importa, porque el nombre del término se queda corto:
+
+      17  murieron CON SU ARCHIVO: los cuatro borrados que tenían errores
+      22  se fueron con el CÓDIGO RETIRADO de seis archivos que SE QUEDAN
+      --
+      39
+
+    Los diez archivos cuya cifra se mueve son EXACTAMENTE los diez del lote: ocho borrados
+    —cuatro con errores— y las nueve ediciones —seis con errores—. Ninguno ajeno se movió, que
+    es lo que la parada del bloque venía a comprobar.
+
+    Método: comparar `PHPStanResult.Summary.txt` contra este baseline archivo por archivo, con
+    el mismo parser para los dos. Contar desde el baseline con una expresión aparte daba 18 en
+    vez de 17: un parser distinto para cada lado no es comparable.
 
 [REPARTO] 883 <- 886 = 3 arreglos + 0 supresiones + 0 destapados
     Los TRES eran el mismo defecto y estaban los tres en `UnitTest-HttpClient.php`:
@@ -155,10 +175,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-194
+188
 
 [TOTAL DE ERRORES VISIBLES]
-883
+844
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -166,16 +186,16 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 873
+En las dos (8.4 y 8.5): 834
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (355)
-property.nonObject (191)
-method.nonObject (129)
+argument.type (352)
+property.nonObject (165)
+method.nonObject (121)
 return.type (55)
-assign.propertyType (37)
+assign.propertyType (35)
 method.resultUnused (26)
 foreach.nonIterable (18)
 property.notFound (18)
@@ -340,34 +360,21 @@ project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchArea
 project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php
 	argument.type (Líneas: 177, 203, 407)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
-	property.nonObject (Líneas: 100, 100, 126, 134, 134, 134, 218, 218, 223, 223, 226, 482, 482, 488, 488, 489, 633, 633, 634, 653, 807, 807, 813)
-	argument.type (Líneas: 134)
-	assign.propertyType (Líneas: 499)
-	method.nonObject (Líneas: 654)
+	property.nonObject (Líneas: 98, 98, 123, 129, 129, 129, 211, 211, 216, 216, 219, 304, 304, 305, 324, 475, 475)
+	argument.type (Líneas: 129)
+	method.nonObject (Líneas: 325)
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
-	method.nonObject (Líneas: 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 390)
-	property.nonObject (Líneas: 387, 388, 678, 784, 785)
-	assign.propertyType (Líneas: 678)
+	method.nonObject (Líneas: 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 383)
+	property.nonObject (Líneas: 380, 381)
 project://src/app/classes/MySpace/Controllers/OrganizationProfileController.php
 	property.nonObject (Líneas: 83)
 project://src/app/classes/MySpace/Controllers/ProfileController.php
 	argument.type (Líneas: 80)
 	method.nonObject (Líneas: 108)
-project://src/app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php
-	argument.type (Líneas: 65)
-	property.nonObject (Líneas: 68, 68)
-	method.nonObject (Líneas: 231, 238, 243, 250)
-project://src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController.php
-	property.nonObject (Líneas: 60, 60)
-	method.nonObject (Líneas: 218, 225, 230, 237)
 project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php
-	foreach.nonIterable (Líneas: 90)
+	foreach.nonIterable (Líneas: 86)
 project://src/app/classes/MySpace/Views/example-resources.php
 	property.nonObject (Líneas: 12, 14)
-project://src/app/classes/MySpace/Views/profile-organization/profile.php
-	property.nonObject (Líneas: 218, 219)
-project://src/app/classes/MySpace/Views/profile/profile.php
-	property.nonObject (Líneas: 199, 200)
 project://src/app/classes/MySpace/Views/user-security.php
 	property.nonObject (Líneas: 13, 15)
 project://src/app/classes/News/Controllers/NewsCategoryController.php
@@ -428,10 +435,6 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
 	argument.type (Líneas: 301)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
 	assign.propertyType (Líneas: 376, 403)
-project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
-	property.nonObject (Líneas: 278, 301)
-project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php
-	property.nonObject (Líneas: 278, 301)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php
 	argument.type (Líneas: 219)
 project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
@@ -492,13 +495,12 @@ project://src/app/classes/SystemApprovals/Views/forms/approval-applications-call
 	argument.type (Líneas: 74, 78)
 	property.nonObject (Líneas: 152, 157)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php
-	method.nonObject (Líneas: 19)
-	argument.type (Líneas: 25, 31)
-	property.nonObject (Líneas: 27, 31, 81, 82, 192, 192)
+	method.nonObject (Líneas: 16)
+	property.nonObject (Líneas: 20, 24, 74, 75)
+	argument.type (Líneas: 24)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-user.php
-	property.nonObject (Líneas: 23, 25, 30, 34, 157, 157, 165, 165, 173, 181, 250, 250)
-	method.nonObject (Líneas: 24, 32, 117, 125, 133, 141, 149)
-	argument.type (Líneas: 30)
+	property.nonObject (Líneas: 21, 23, 27, 150, 150, 158, 158, 166, 174)
+	method.nonObject (Líneas: 22, 25, 110, 118, 126, 134, 142)
 project://src/app/classes/SystemApprovals/Views/forms/approval-publications.php
 	method.nonObject (Líneas: 58, 70, 152)
 	argument.type (Líneas: 75, 84, 88)
@@ -628,14 +630,14 @@ project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php
 project://src/app/core/psr4/PiecesPHP/Core/Email/Mailgun.php
 	argument.type (Líneas: 92)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
-	argument.type (Líneas: 210)
-	nullCoalesce.variable (Líneas: 387, 444)
+	argument.type (Líneas: 217)
+	nullCoalesce.variable (Líneas: 400, 457)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	argument.type (Líneas: 234)
 	return.type (Líneas: 340)
 	nullCoalesce.variable (Líneas: 377, 421)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
-	offsetAssign.dimType (Líneas: 276)
+	offsetAssign.dimType (Líneas: 275)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
 	method.nonObject (Líneas: 139)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Importer.php
