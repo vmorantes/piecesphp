@@ -9,19 +9,6 @@ use Organizations\Mappers\OrganizationMapper;
  */
 
 $featureTypesOptions = array_to_html_options(FeaturesTypes::valuesForSelect());
-$areaDataForOptions = getInteresResearchAreas(true, null, [], true);
-$areasOptions = [];
-foreach ($areaDataForOptions as $areaData) {
-    if (is_string($areaData)) {
-        $areasOptions[] = "<option value=''>{$areaData}</option>";
-    } else {
-        $areaID = $areaData['id'];
-        $areaName = $areaData['areaName'];
-        $areaColor = $areaData['color'];
-        $areasOptions[] = "<option value='{$areaID}' data-color='{$areaColor}'>{$areaName}</option>";
-    }
-}
-$areasOptions = implode("\n", $areasOptions);
 
 ?>
 <script>
@@ -55,14 +42,6 @@ const FEATURE_TYPE_PROFILES = '<?= FeaturesTypes::PROFILES->value; ?>'
                     </div>
                 </div>
 
-                <div class="segment">
-                    <div class="field">
-                        <label><?= __($langGroup, 'Áreas de investigación'); ?></label>
-                        <select name="researchAreas[]" multiple class="ui dropdown multiple search special-tags" control-research-areas>
-                            <?= $areasOptions; ?>
-                        </select>
-                    </div>
-                </div>
 
                 <div class="segment">
 

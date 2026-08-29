@@ -62,22 +62,6 @@ window.addEventListener('load', function () {
 				configurateVisibility(value)
 			}
 		})
-		const controlResearhAreasDropdown = formFilter.find(`[control-research-areas]`).dropdown({
-			onAdd: function (addedValue, addedText, $addedChoice) {
-				let maxTimes = 30
-				let counterTry = 0
-				const interval = setInterval(function () {
-					const tag = controlResearhAreasDropdown.find(`.ui.label.visible[data-value=${addedValue}]`)
-					const color = controlResearhAreasDropdown.find(`select option[value="${addedValue}"]`).data('color')
-					tag.addClass('tag-area')
-					tag.attr('style', `--tag-color: ${color};`)
-					counterTry++
-					if (counterTry >= maxTimes || tag.length > 0) {
-						clearInterval(interval)
-					}
-				}, 200)
-			}
-		})
 		const controlOrganizationsDropdown = formFilter.find(`[control-organizations ]`).dropdown()
 		const controlStartDateInput = formFilter.find(`[control-start-date]`)
 		const controlEndDateInput = formFilter.find(`[control-end-date]`)
@@ -86,7 +70,6 @@ window.addEventListener('load', function () {
 		const controlsEnabledByFeatureType = {}
 		controlsEnabledByFeatureType[FEATURE_TYPE_PROFILES] = [
 			controlSearchInput,
-			controlResearhAreasDropdown,
 			controlOrganizationsDropdown,
 			controlSubmitButton,
 		]
@@ -110,13 +93,6 @@ window.addEventListener('load', function () {
 				element: controlSearchInput,
 				getValue: function () {
 					const value = this.element.val()
-					return value
-				},
-			},
-			{
-				element: controlResearhAreasDropdown,
-				getValue: function () {
-					const value = this.element.dropdown('get value')
 					return value
 				},
 			},
