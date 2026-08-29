@@ -6,8 +6,6 @@
 
 namespace ContentNavigationHub\Controllers;
 
-use ApplicationCalls\Controllers\ApplicationCallsController;
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use ContentNavigationHub\ContentNavigationHubLang;
@@ -69,107 +67,6 @@ class ContentNavigationHubController extends AdminPanelController
         add_global_asset(ContentNavigationHubRoutes::staticRoute('globals-vars.css'), 'css');
         add_global_asset(ContentNavigationHubRoutes::staticRoute(self::BASE_CSS_DIR . '/content-navigation-hub.css'), 'css');
 
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function applicationCallDetailView(Request $request, Response $response)
-    {
-
-        $id = $request->getAttribute('id', null);
-        $id = Validator::isInteger($id) ? (int) $id : null;
-
-        $element = new ApplicationCallsMapper($id);
-
-        if ($element->id !== null) {
-
-            set_custom_assets([
-                ContentNavigationHubRoutes::staticRoute(self::BASE_CSS_DIR . '/detail-view.css'),
-            ], 'css');
-
-            set_custom_assets([
-                ContentNavigationHubRoutes::staticRoute(self::BASE_JS_DIR . '/application-calls/detail.js'),
-            ], 'js');
-
-            $backLink = self::routeName('application-calls-list');
-
-            $title = $element->contentTypeForFullDisplayText() . ': ' . $element->currentLangData('title');
-            $description = '';
-
-            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
-
-            $data = [];
-            $data['element'] = $element;
-            $data['title'] = $title;
-            $data['description'] = $description;
-            $data['langGroup'] = self::LANG_GROUP;
-            $data['breadcrumbs'] = get_breadcrumbs([
-                __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
-                ],
-                __(self::LANG_GROUP, 'Contenidos') => [
-                    'url' => $backLink,
-                ],
-                $element->contentTypeForFullDisplayText(),
-            ]);
-
-            $this->helpController->render('panel/layout/header');
-            $this->render('application-calls/detail', $data, true, false);
-            $this->helpController->render('panel/layout/footer');
-
-            return $response;
-
-        } else {
-            throw new NotFoundException($request, $response);
-        }
-
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
-     * @return Response
-     */
-    public function applicationCallsListView(Request $request, Response $response, array $args = [])
-    {
-
-        $contentTypeSelected = $args['type'] ?? null;
-        $contentTypeSelected = is_scalar($contentTypeSelected) && !is_null($contentTypeSelected) ? $contentTypeSelected : '';
-        $contentTypeSelected = in_array($contentTypeSelected, array_keys(ApplicationCallsMapper::CONTENT_TYPES)) ? $contentTypeSelected : null;
-
-        $title = __(self::LANG_GROUP, 'Contenidos');
-        if ($contentTypeSelected !== null) {
-            $title = ApplicationCallsMapper::contentTypes()[$contentTypeSelected];
-        }
-        $description = '';
-
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
-
-        $data = [];
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['title'] = $title;
-        $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
-            __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
-            ],
-            $title,
-        ]);
-        $data['contentTypeSelected'] = $contentTypeSelected;
-
-        set_custom_assets([
-            ApplicationCallsController::pathFrontApplicationCallAdapter(),
-            ContentNavigationHubRoutes::staticRoute(self::BASE_JS_DIR . '/application-calls/list.js'),
-        ], 'js');
-
-        $this->helpController->render('panel/layout/header');
-        $this->render('application-calls/list', $data);
-        $this->helpController->render('panel/layout/footer');
-        return $response;
     }
 
     /**
@@ -300,33 +197,6 @@ class ContentNavigationHubController extends AdminPanelController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route( //Vista del listado: Convocatorias
-                "{$startRoute}/application-calls-list[/]",
-                $classname . ':applicationCallsListView',
-                self::$baseRouteName . '-application-calls-list',
-                'GET',
-                true,
-                null,
-                $list
-            ),
-            new Route( //Vista del listado: Convocatorias (POR TIPO)
-                "{$startRoute}/application-calls-list/{type}[/]",
-                $classname . ':applicationCallsListView',
-                self::$baseRouteName . '-application-calls-list-by-type',
-                'GET',
-                true,
-                null,
-                $list
-            ),
-            new Route( //Vista de detalle: Convocatorias
-                "{$startRoute}/application-calls-detail/{id}[/]",
-                $classname . ':applicationCallDetailView',
-                self::$baseRouteName . '-application-calls-detail',
-                'GET',
-                true,
-                null,
-                $list
-            ),
             new Route( //Vista del listado: Convocatorias
                 "{$startRoute}/profiles-list[/]",
                 $classname . ':profileListView',

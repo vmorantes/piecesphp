@@ -79,23 +79,11 @@ window.addEventListener('load', function () {
 			}
 		})
 		const controlOrganizationsDropdown = formFilter.find(`[control-organizations ]`).dropdown()
-		const controlContentTypeDropdown = formFilter.find(`[control-content-type]`).dropdown()
-		const controlFinancingTypeDropdown = formFilter.find(`[control-financing-type ]`).dropdown()
 		const controlStartDateInput = formFilter.find(`[control-start-date]`)
 		const controlEndDateInput = formFilter.find(`[control-end-date]`)
 
 		//Visibilidad de los controles según el tipo de feature seleccionado
 		const controlsEnabledByFeatureType = {}
-		controlsEnabledByFeatureType[FEATURE_TYPE_APPLICATION_CALLS] = [
-			controlSearchInput,
-			controlResearhAreasDropdown,
-			controlOrganizationsDropdown,
-			controlContentTypeDropdown,
-			controlFinancingTypeDropdown,
-			controlStartDateInput,
-			controlEndDateInput,
-			controlSubmitButton,
-		]
 		controlsEnabledByFeatureType[FEATURE_TYPE_PROFILES] = [
 			controlSearchInput,
 			controlResearhAreasDropdown,
@@ -134,20 +122,6 @@ window.addEventListener('load', function () {
 			},
 			{
 				element: controlOrganizationsDropdown,
-				getValue: function () {
-					const value = this.element.dropdown('get value')
-					return value
-				},
-			},
-			{
-				element: controlContentTypeDropdown,
-				getValue: function () {
-					const value = this.element.dropdown('get value')
-					return value
-				},
-			},
-			{
-				element: controlFinancingTypeDropdown,
 				getValue: function () {
 					const value = this.element.dropdown('get value')
 					return value
