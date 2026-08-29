@@ -115,11 +115,9 @@ class GeoJsonManagerController extends AdminPanelController
 
         /**
          * @var string|null $search
-         * @var int[]|null $researchAreas
          * @var int[]|null $organizations
          */
         $search = $params['search'] ?? null;
-        $researchAreas = $params['researchAreas'] ?? null;
         $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
@@ -144,20 +142,9 @@ class GeoJsonManagerController extends AdminPanelController
             $critery = [
                 "UPPER(fullname) LIKE UPPER('%{$search}%')",
                 "UPPER(fullLocation) LIKE UPPER('%{$search}%')",
-                "UPPER(interestResearhAreasNames) LIKE UPPER('%{$search}%')",
             ];
             $critery = implode(' OR ', $critery);
             $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($researchAreas)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = [];
-            foreach ($researchAreas as $researchArea) {
-                $critery[] = "JSON_CONTAINS(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')), {$researchArea})";
-            }
-            $critery = implode(' OR ', $critery);
-            $where[] = "{$beforeOperator} ({$critery})";
         }
 
         if (!empty($organizations)) {
@@ -232,11 +219,9 @@ class GeoJsonManagerController extends AdminPanelController
 
         /**
          * @var string|null $search
-         * @var int[]|null $researchAreas
          * @var int[]|null $organizations
          */
         $search = $params['search'] ?? null;
-        $researchAreas = $params['researchAreas'] ?? null;
         $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
@@ -264,20 +249,9 @@ class GeoJsonManagerController extends AdminPanelController
             $critery = [
                 "UPPER(name) LIKE UPPER('%{$search}%')",
                 "UPPER(fullLocation) LIKE UPPER('%{$search}%')",
-                "UPPER(interestResearhAreasNames) LIKE UPPER('%{$search}%')",
             ];
             $critery = implode(' OR ', $critery);
             $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($researchAreas)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = [];
-            foreach ($researchAreas as $researchArea) {
-                $critery[] = "JSON_CONTAINS(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')), {$researchArea})";
-            }
-            $critery = implode(' OR ', $critery);
-            $where[] = "{$beforeOperator} ({$critery})";
         }
 
         if (!empty($organizations)) {
@@ -366,21 +340,6 @@ class GeoJsonManagerController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'researchAreas',
-                [],
-                function ($value) {
-                    $value = !is_array($value) ? [$value] : $value;
-                    return is_array($value);
-                },
-                true,
-                function ($value) {
-                    $value = !is_array($value) ? [$value] : $value;
-                    return array_map(fn($e) => is_scalar($e) ? (
-                        Validator::isInteger($e) ? (int) $e : -1
-                    ) : -1, $value);
-                }
-            ),
-            new Parameter(
                 'organizations',
                 [],
                 function ($value) {
@@ -450,7 +409,6 @@ class GeoJsonManagerController extends AdminPanelController
 
         /**
          * @var string $search
-         * @var int[] $researchAreas
          * @var int[] $organizations
          * @var string[] $contentType
          * @var string[] $financingType
@@ -458,7 +416,6 @@ class GeoJsonManagerController extends AdminPanelController
          * @var \DateTime|null $endDate
          */
         $search = $expectedParameters->getValue('search');
-        $researchAreas = $expectedParameters->getValue('researchAreas');
         $organizations = $expectedParameters->getValue('organizations');
         $contentType = $expectedParameters->getValue('contentType');
         $financingType = $expectedParameters->getValue('financingType');
@@ -467,7 +424,6 @@ class GeoJsonManagerController extends AdminPanelController
 
         return [
             'search' => $search,
-            'researchAreas' => $researchAreas,
             'organizations' => $organizations,
             'contentType' => $contentType,
             'financingType' => $financingType,
