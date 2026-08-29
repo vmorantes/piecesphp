@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-185
+184
 
 [TOTAL DE ERRORES VISIBLES]
-835
+830
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,14 +12,14 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 825
+En las dos (8.4 y 8.5): 820
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (345)
+argument.type (341)
 property.nonObject (163)
-method.nonObject (121)
+method.nonObject (120)
 return.type (55)
 assign.propertyType (35)
 method.resultUnused (26)
@@ -330,9 +330,6 @@ project://src/app/classes/Terminal/Controllers/TerminalController.php
 	method.notFound (Líneas: 158, 163)
 project://src/app/classes/Terminal/Tasks/BundleTask.php
 	argument.type (Líneas: 125)
-project://src/app/classes/Terminal/Tasks/DbBackupTask.php
-	method.nonObject (Líneas: 109)
-	argument.type (Líneas: 112, 174, 176, 179)
 project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
 	foreach.nonIterable (Líneas: 121)
 project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php

@@ -1330,21 +1330,6 @@
          🪪  argument.type                                                                                                                                         
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/Terminal/Tasks/DbBackupTask.php                                                                                                                       
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  109    Cannot call method getDatabaseName() on PiecesPHP\Core\Database\Database|null.                                                                                        
-         🪪  method.nonObject                                                                                                                                                  
-  112    Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
-         🪪  argument.type                                                                                                                                                     
-  174    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
-         🪪  argument.type                                                                                                                                                     
-  176    Parameter Nr.1 $filename of function chmod expects string, string|null given.                                                                                           
-         🪪  argument.type                                                                                                                                                     
-  179    Parameter Nr.1 $path of function basename expects string, string|null given.                                                                                            
-         🪪  argument.type                                                                                                                                                     
- ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-
  ------ ---------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Terminal/Tasks/FixWebmDurationTask.php                                              
  ------ ---------------------------------------------------------------------------------------------------- 
@@ -2633,5 +2618,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 841 errors                                                                                               
+ [ERROR] Found 836 errors                                                                                               
 

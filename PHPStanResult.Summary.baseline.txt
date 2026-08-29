@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO: 835 tripletas (2026-08-29). NO DEJARLO PEOR.
+Referencia vigente — UNIVERSO COMPLETO: 830 tripletas (2026-08-29). NO DEJARLO PEOR.
 
 EL 2026-08-26 EL UNIVERSO CRECIÓ Y LA CIFRA NO. De 812 a 815 archivos analizados: entraron
 `bin/live-cache`, `bin/walk-attribute` y `bin/walk-routes`, los tres ejecutables de `bin/`
@@ -64,6 +64,17 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+[REPARTO] 830 <- 835 = 5 arreglos + 0 supresiones + 0 murieron + 0 destapados
+
+    LOS CINCO EN UN SOLO ARCHIVO, `DbBackupTask.php`, que pasa de 5 a 0. Ningún otro
+    archivo mueve su cifra.
+
+    Salen del arreglo del bloque AA, no de una pasada de tipos: `(new BaseModel())
+    ->getDatabase()` devuelve `Database|null` y se usaba sin estrechar —2 errores que ya
+    estaban—, y `getFilename()` devuelve `?string` —los 3 que habría añadido el código
+    nuevo—. Se estrecha en el origen: sin conexión se lanza, y si el plugin no dice qué
+    escribió se informa sobre el archivo que se le pidió.
 
 [REPARTO] 835 <- 844 = 0 arreglos + 0 supresiones + 9 murieron + 0 destapados
     Segundo lote de E3: `ImagesRepository`, borrado completo. Los NUEVE murieron CON SU
@@ -185,10 +196,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-185
+184
 
 [TOTAL DE ERRORES VISIBLES]
-835
+830
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -196,14 +207,14 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 825
+En las dos (8.4 y 8.5): 820
 Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (345)
+argument.type (341)
 property.nonObject (163)
-method.nonObject (121)
+method.nonObject (120)
 return.type (55)
 assign.propertyType (35)
 method.resultUnused (26)
@@ -514,9 +525,6 @@ project://src/app/classes/Terminal/Controllers/TerminalController.php
 	method.notFound (Líneas: 158, 163)
 project://src/app/classes/Terminal/Tasks/BundleTask.php
 	argument.type (Líneas: 125)
-project://src/app/classes/Terminal/Tasks/DbBackupTask.php
-	method.nonObject (Líneas: 109)
-	argument.type (Líneas: 112, 174, 176, 179)
 project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
 	foreach.nonIterable (Líneas: 121)
 project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php
