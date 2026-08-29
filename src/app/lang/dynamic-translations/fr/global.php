@@ -15,8 +15,6 @@ return [
     "Investigación" => "Recherche",
     "Colaboración Bilateral" => "Collaboration bilatérale",
     "+ Ver perfil" => "+ Voir le profil",
-    "Seleccione las áreas de interes" => "Sélectionnez les domaines d'intérêt",
     "Primer apellido" => "Premier nom de famille",
-    "Tipos de experiencia" => "Types d'expérience",
     "El tiempo de respuesta depende del servicio de traducción de las plataformas de inteligencia artificial, por lo que su duración puede variar." => "Le temps de réponse dépend du service de traduction des plateformes d'intelligence artificielle, sa durée peut donc varier.",
 ];
