@@ -9,8 +9,6 @@ namespace MySpace\Controllers\Util;
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
@@ -35,8 +33,6 @@ class ProfileTasksUtilities extends AdminPanelController
         $sqlCreate = [
             (new \PiecesPHP\Core\Database\SchemeCreator(new UserProfileMapper()))->getSQL(),
             (new \PiecesPHP\Core\Database\SchemeCreator(new InterestResearchAreasMapper()))->getSQL(),
-            (new \PiecesPHP\Core\Database\SchemeCreator(new PreviousExperiencesMapper()))->getSQL(),
-            (new \PiecesPHP\Core\Database\SchemeCreator(new OrganizationPreviousExperiencesMapper()))->getSQL(),
         ];
         $sql = implode("\r\n", $sqlCreate);
         if ($echo) {

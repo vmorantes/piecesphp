@@ -6,7 +6,6 @@ use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\ProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -19,10 +18,6 @@ use PiecesPHP\UserSystem\UserDataPackage;
 $affiliatedInstitutions = $organizationMapper->affiliatedInstitutions;
 $affiliatedInstitutions ??= [];
 $interestResearhAreas = $organizationMapper->interestResearhAreas;
-/**
- * @var OrganizationPreviousExperiencesMapper[]
- */
-$previousExperiences = OrganizationPreviousExperiencesMapper::allBy('profile', $organizationMapper->id);
 $currentUserIsAdmin = $currentUser->id == $adminUser->id;
 
 $contactInformation = [
@@ -172,78 +167,6 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                     <div id="map-mobile" class="map-profile-mobile"></div>
                 </div>
 
-                <?php if(!empty($previousExperiences)): ?>
-                <div class="section experiences">
-                    <div class="title no-m-b"><?= __($langGroup, 'Experiencias previas'); ?></div>
-                    <?php foreach($previousExperiences as $experienceRecord): ?>
-                    <?php
-                        $experience = new OrganizationPreviousExperiencesMapper($experienceRecord->id);
-                        $researchAreasExperience = array_map(fn($e) => (new InterestResearchAreasMapper($e)), $experience->researchAreas);
-                        $institutionsExperience = array_map(fn($e) => is_string($e) ? trim($e) : null, $experience->institutionsParticipated);
-                        $institutionsExperience = array_filter(
-                            $experience->institutionsParticipated, 
-                            fn($e) => is_string($e) && mb_strlen($e) > 0
-                        );
-                    ?>
-                    <div class="experience-row">
-
-                        <div class="topbar">
-                            <div class="experience-type">
-                                <div class="icon <?= $experience->experienceTypeIcon(); ?>" data-tooltip="<?= $experience->experienceTypeDisplayText(); ?>">
-                                    <i class="icon <?= $experience->experienceTypeIcon(); ?>"></i>
-                                </div>
-                            </div>
-                            <div class="data">
-                                <div class="experience-title"><?= $experience->currentLangData('experienceName'); ?></div>
-                                <div class="meta">
-                                    <div class="item">
-                                        <div class="icon">
-                                            <i class="calendar alternate outline icon"></i>
-                                            <div class="text"><?= __($langGroup, 'Inició'); ?></div>
-                                        </div>
-                                        <div class="data"><?= $experience->startDateFormat(); ?></div>
-                                    </div>
-                                    <div class="item">
-                                        <div class="icon">
-                                            <i class="calendar alternate outline icon"></i>
-                                            <div class="text"><?= __($langGroup, 'Finalizó'); ?></div>
-                                        </div>
-                                        <div class="data"><?= $experience->endDateFormat(); ?></div>
-                                    </div>
-                                    <div class="item">
-                                        <div class="icon">
-                                            <i class="map outline icon"></i>
-                                        </div>
-                                        <div class="data big">
-                                            <?= __(LocationsLang::LANG_GROUP_NAMES, $experience->country->name); ?>,
-                                            <?= __(LocationsLang::LANG_GROUP_NAMES, $experience->city->name); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="description"><?= $experience->currentLangData('description'); ?></div>
-
-                        <?php if(!empty($institutionsExperience)): ?>
-                        <div class="institutions">
-                            <?= implode(', ', $institutionsExperience); ?>
-                        </div>
-                        <?php endif; ?>
-
-                        <?php if(!empty($researchAreasExperience)): ?>
-                        <div class="research-areas-title"><?= __($langGroup, 'Áreas de investigación'); ?></div>
-                        <div class="research-areas">
-                            <?php foreach($researchAreasExperience as $researchAreaExperience): ?>
-                            <div class="area" style="--area-color: <?= $researchAreaExperience->color; ?>;"><?= $researchAreaExperience->currentLangData('areaName'); ?></div>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php endif; ?>
-
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif; ?>
 
             </div>
 

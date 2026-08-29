@@ -6,7 +6,6 @@ use MySpace\Controllers\ProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsLang;
 use PiecesPHP\Core\Config;
-use PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -267,100 +266,6 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
         <br>
 
-        <form data-tab-related="professionalData" method='POST' action="<?= $actionExperience; ?>" class="ui form my-organization-profile-experiences">
-
-            <div class="container-standard-form">
-
-                <div class="section-fields-divider">
-                    <div class="title s24"><?= __($langGroup, 'Experiencias previas'); ?></div>
-                    <div class="description fs20 grey"><?= __($langGroup, 'Proyectos de investigación / Cooperación bilateral'); ?></div>
-                </div>
-
-                <div class="field">
-                    <div class="fields">
-                        <div class="six wide field required">
-                            <label><?= __($langGroup, 'Tipo de experiencia'); ?></label>
-                            <select name="experienceType" class="ui dropdown auto search" required>
-                                <?= array_to_html_options(OrganizationPreviousExperiencesMapper::experienceTypesForSelect(), null); ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <?php foreach($allowedLangs as $allowedLang): ?>
-                <?php $shortLang = ucfirst(strtolower(__('langShort', $allowedLang))); ?>
-                <div class="field required">
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Nombre de la experiencia'); ?> - <?= $shortLang; ?></label>
-                        <input required type="text" name="experienceName[<?= $allowedLang; ?>]" placeholder=" " value="">
-                    </div>
-                </div>
-                <?php endforeach; ?>
-
-                <div class="field required">
-                    <label><?= __($langGroup, 'Áreas de investigación'); ?></label>
-                    <select name="researchAreas[]" multiple class="ui dropdown multiple auto search" required>
-                        <?= array_to_html_options(getInteresResearchAreas(), null, true); ?>
-                    </select>
-                </div>
-
-                <div class="field required">
-                    <label><?= __($langGroup, 'Instituciones que participaron'); ?></label>
-                    <select name="institutionsParticipated[]" multiple class="ui dropdown multiple auto additions search">
-                        <option value=""><?= __($langGroup, 'Añada las instituciones'); ?></option>
-                    </select>
-                </div>
-
-                <div class="four fields">
-
-                    <div class="field required">
-                        <label><?= __(LOCATIONS_LANG_GROUP, 'País'); ?></label>
-                        <select required name="country" locations-component-auto-filled-country2 class="ui dropdown" with-dropdown></select>
-                    </div>
-
-                    <div class="field required">
-                        <label><?= __(LOCATIONS_LANG_GROUP, 'Ciudad'); ?></label>
-                        <select required name="city" locations-component-auto-filled-city2 class="ui dropdown" with-dropdown></select>
-                    </div>
-
-                    <div class="field required" calendar-group-js='periodo' calendar-type="date" start>
-                        <label><?= __($langGroup, 'Fecha inicial'); ?></label>
-                        <input type="text" name="startDate" autocomplete="off" required value="">
-                    </div>
-
-                    <div class="field required" calendar-group-js='periodo' calendar-type="date" end>
-                        <label><?= __($langGroup, 'Fecha final'); ?></label>
-                        <input type="text" name="endDate" autocomplete="off" required value="">
-                    </div>
-
-                </div>
-
-                <?php foreach($allowedLangs as $allowedLang): ?>
-                <?php $shortLang = ucfirst(strtolower(__('langShort', $allowedLang))); ?>
-                <div class="field required">
-                    <label><?= __($langGroup, 'Descripción corta del proyecto y su rol'); ?> - <?= $shortLang; ?></label>
-                    <textarea name="description[<?= $allowedLang; ?>]" required></textarea>
-                </div>
-                <?php endforeach; ?>
-
-                <br>
-
-                <div class="field">
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color alt" translate>
-                            <i class="icon world"></i>
-                            <?= __($langGroup, 'Traducir'); ?>
-                        </button>
-                        <button type="submit" class="ui button brand-color">
-                            <i class="icon plus"></i>
-                            <?= __($langGroup, 'Agregar'); ?>
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-        </form>
 
         <br>
 
@@ -373,56 +278,6 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
         <br>
 
-        <div id="previousExperiencesList" data-tab-related="professionalData" class="cards-container-standard experience-list">
-
-            <div class="table-to-cards">
-
-                <div class="section-fields-divider">
-                    <div class="title s20"><?= __($langGroup, 'Experiencias'); ?></div>
-                </div>
-
-                <div class="ui form component-controls">
-
-                    <div class="flex-fields">
-
-                        <div class="field">
-
-                            <div class="length-pagination">
-                                <span><?= __($langGroupDatatables, 'Ver') ?></span>
-                                <input type="number" length-pagination placeholder="10">
-                                <span><?= __($langGroupDatatables, 'elementos') ?></span>
-                            </div>
-
-                        </div>
-
-                        <div class="field">
-
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?= __($langGroupDatatables, 'Buscar') ?>">
-                                <i class="search icon"></i>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <table url="<?= $dataTablesExperienceLink; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?= __($langGroup, 'Nombre'); ?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
-
-            </div>
-
-        </div>
 
     </div>
 

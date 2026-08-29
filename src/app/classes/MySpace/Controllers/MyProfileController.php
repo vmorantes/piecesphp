@@ -8,7 +8,6 @@ namespace MySpace\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use MySpace\Controllers\Util\PreviousExperiencesController;
 use MySpace\Controllers\Util\ProfileTasksUtilities;
 use MySpace\Exceptions\SafeException;
 use MySpace\MySpaceLang;
@@ -29,7 +28,6 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
@@ -86,14 +84,11 @@ class MyProfileController extends AdminPanelController
         import_locations([], false, true);
         set_custom_assets([
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/profiles-translation-config.js'),
-            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/experience/delete-config.js'),
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-profile.js'),
         ], 'js');
 
         $currentUser = getLoggedFrameworkUserOrFail();
         $action = self::routeName('actions-save-profile');
-        $actionExperience = self::routeName('actions-save-experience');
-        $dataTablesExperienceLink = self::routeName('datatables-experience');
 
         $title = __(self::LANG_GROUP, 'Mi perfil');
         $description = __(self::LANG_GROUP, 'Gestionar');
@@ -101,8 +96,6 @@ class MyProfileController extends AdminPanelController
 
         $data = [];
         $data['action'] = $action;
-        $data['actionExperience'] = $actionExperience;
-        $data['dataTablesExperienceLink'] = $dataTablesExperienceLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['currentUser'] = $currentUser;
         $data['title'] = $title;
@@ -434,308 +427,6 @@ class MyProfileController extends AdminPanelController
         return $response->withJson($resultOperation);
     }
 
-    /**
-     * Agregar experiencia
-     *
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function addExperienceAction(Request $request, Response $response)
-    {
-
-        //──── Entrada ───────────────────────────────────────────────────────────────────────────
-
-        //Definición de validaciones y procesamiento
-        $expectedParameters = new Parameters([
-            new Parameter(
-                'experienceType',
-                null,
-                function ($value) {
-                    return is_string($value) && mb_strlen(trim($value)) > 0;
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-            new Parameter(
-                'experienceName',
-                null,
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray && !empty($value);
-                    $allowedLangs = Config::get_allowed_langs();
-                    if ($valid) {
-                        foreach ($value as $lang => $text) {
-                            if (!(is_string($lang) && is_string($text) && in_array($lang, $allowedLangs))) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                false,
-                function ($value) {
-                    $parsed = [];
-                    $allowedLangs = Config::get_allowed_langs();
-                    if (is_array($value)) {
-                        foreach ($value as $lang => $text) {
-                            if (is_string($lang) && is_string($text) && in_array($lang, $allowedLangs)) {
-                                $parsed[$lang] = clean_string($text);
-                            }
-                        }
-                    }
-                    return $parsed;
-                }
-            ),
-            new Parameter(
-                'researchAreas',
-                null,
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray && !empty($value);
-                    if ($valid) {
-                        foreach ($value as $i) {
-                            if ($i instanceof InterestResearchAreasMapper) {
-                                if ($i->id == null) {
-                                    throw new SafeException(__(self::LANG_GROUP, 'El área de interés no es válida'));
-                                }
-                            } else if (!Validator::isInteger($i)) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                false,
-                function ($value) {
-                    return is_array($value) ? array_map(function ($e) {
-                        if (Validator::isInteger($e)) {
-                            return new InterestResearchAreasMapper($e);
-                        }
-                    }, $value) : [];
-                }
-            ),
-            new Parameter(
-                'institutionsParticipated',
-                [],
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray || is_null($value);
-                    if ($valid) {
-                        foreach ($value as $i) {
-                            if (!is_scalar($i)) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                true,
-                function ($value) {
-                    return is_array($value) ? array_map(function ($e) {
-                        if (is_scalar($e)) {
-                            return clean_string((string) $e);
-                        } else {
-                            return null;
-                        }
-                    }, $value) : [];
-                }
-            ),
-            new Parameter(
-                'country',
-                null,
-                function ($value) {
-                    return Validator::isInteger($value);
-                },
-                false,
-                function ($value) {
-                    return Validator::isInteger($value) ? (int) $value : null;
-                }
-            ),
-            new Parameter(
-                'city',
-                null,
-                function ($value) {
-                    return Validator::isInteger($value);
-                },
-                false,
-                function ($value) {
-                    return Validator::isInteger($value) ? (int) $value : null;
-                }
-            ),
-            new Parameter(
-                'startDate',
-                null,
-                function ($value) {
-                    return Validator::isDate($value, 'Y-m-d');
-                },
-                false,
-                function ($value) {
-                    return $value instanceof \DateTime  ? $value : \DateTime::createFromFormat('Y-m-d', $value);
-                }
-            ),
-            new Parameter(
-                'endDate',
-                null,
-                function ($value) {
-                    return Validator::isDate($value, 'Y-m-d');
-                },
-                false,
-                function ($value) {
-                    return $value instanceof \DateTime  ? $value : \DateTime::createFromFormat('Y-m-d', $value);
-                }
-            ),
-            new Parameter(
-                'description',
-                null,
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray && !empty($value);
-                    $allowedLangs = Config::get_allowed_langs();
-                    if ($valid) {
-                        foreach ($value as $lang => $text) {
-                            if (!(is_string($lang) && is_string($text) && in_array($lang, $allowedLangs))) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                false,
-                function ($value) {
-                    $parsed = [];
-                    $allowedLangs = Config::get_allowed_langs();
-                    if (is_array($value)) {
-                        foreach ($value as $lang => $text) {
-                            if (is_string($lang) && is_string($text) && in_array($lang, $allowedLangs)) {
-                                $parsed[$lang] = clean_string($text);
-                            }
-                        }
-                    }
-                    return $parsed;
-                }
-            ),
-        ]);
-
-        //Obtención de datos
-        $inputData = $request->getParsedBody();
-
-        //Asignación de datos para procesar
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
-
-        //──── Estructura de respuesta ───────────────────────────────────────────────────────────
-
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Experiencias'));
-        $resultOperation->setSingleOperation(true); //Se define que es de una única operación
-
-        //Valores iniciales de la respuesta
-        $resultOperation->setSuccessOnSingleOperation(false);
-        $resultOperation->setValue('redirect', false);
-        $resultOperation->setValue('redirect_to', null);
-        $resultOperation->setValue('reload', false);
-
-        //Mensajes de respuesta
-        $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
-        $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
-        $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
-
-        //──── Acciones ──────────────────────────────────────────────────────────────────────────
-        try {
-
-            //Intenta validar, si todo sale bien el código continúa
-            $expectedParameters->validate();
-
-            //Información del formulario
-            /**
-             * @var string $experienceType
-             * @var array<string,string> $experienceName
-             * @var InterestResearchAreasMapper[] $researchAreas
-             * @var string[] $institutionsParticipated
-             * @var int $country
-             * @var int $city
-             * @var \DateTime $startDate
-             * @var \DateTime $endDate
-             * @var array<string,string> $description
-             */
-            $experienceType = $expectedParameters->getValue('experienceType');
-            $experienceName = $expectedParameters->getValue('experienceName');
-            $researchAreas = $expectedParameters->getValue('researchAreas');
-            $researchAreas = array_map(fn($e) => $e->id, $researchAreas);
-            $institutionsParticipated = $expectedParameters->getValue('institutionsParticipated');
-            $country = $expectedParameters->getValue('country');
-            $city = $expectedParameters->getValue('city');
-            $startDate = $expectedParameters->getValue('startDate');
-            $endDate = $expectedParameters->getValue('endDate');
-            $description = $expectedParameters->getValue('description');
-
-            try {
-
-                $mapper = new PreviousExperiencesMapper();
-                $lang = Config::get_default_lang();
-
-                $mapper->profile = getLoggedFrameworkUserOrFail()->profile->id;
-                $mapper->setLangData($lang, 'experienceType', $experienceType);
-                $mapper->setLangData($lang, 'researchAreas', $researchAreas);
-                $mapper->setLangData($lang, 'institutionsParticipated', $institutionsParticipated);
-                $mapper->setLangData($lang, 'country', $country);
-                $mapper->setLangData($lang, 'city', $city);
-                $mapper->setLangData($lang, 'startDate', $startDate);
-                $mapper->setLangData($lang, 'endDate', $endDate);
-                foreach ($experienceName as $lang => $text) {
-                    $mapper->setLangData($lang, 'experienceName', $text);
-                }
-                foreach ($description as $lang => $text) {
-                    $mapper->setLangData($lang, 'description', $text);
-                }
-
-                $saved = $mapper->save();
-                $resultOperation->setSuccessOnSingleOperation($saved);
-
-                if ($saved) {
-
-                    $resultOperation
-                        ->setMessage($successEditMessage)
-                        ->setValue('reload', false)
-                        ->setValue('redirect', false)
-                        ->setValue('redirect_to', self::routeName('list'));
-
-                } else {
-
-                    $resultOperation->setMessage($unknowErrorMessage);
-
-                }
-
-            } catch (SafeException $e) {
-
-                $resultOperation->setMessage($e->getMessage());
-
-            } catch (\Exception $e) {
-
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
-
-            }
-
-        } catch (SafeException $e) {
-
-            $resultOperation->setMessage($e->getMessage());
-
-        } catch (ParsedValueException $e) {
-
-            $resultOperation->setMessage($unknowErrorWithValuesMessage);
-            log_exception($e);
-
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
-
-            $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
-
-        }
-
-        return $response->withJson($resultOperation);
-    }
 
     /**
      * @inheritDoc
@@ -745,56 +436,6 @@ class MyProfileController extends AdminPanelController
         return parent::render(trim($name, '/'), $data, $mode, $format);
     }
 
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = $params[$paramName] ?? null;
-            $paramValue ??= $_GET[$paramName] ?? null;
-            $paramValue ??= $_POST[$paramName] ?? null;
-            return $paramValue;
-        };
-
-        $allow = $route !== '';
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-                if ($name == 'actions-delete-experience') {
-
-                    $allow = false;
-                    $id = ($getParam)('id');
-                    $experienceRecord = PreviousExperiencesMapper::getBy($id, 'id');
-                    $profileID = $currentUser->profile->id;
-                    $matchProfile = $profileID == $experienceRecord->profile;
-
-                    if ($matchProfile || in_array($currentUserType, PreviousExperiencesMapper::CAN_DELETE_ALL)) {
-                        $allow = true;
-                    }
-                }
-
-            }
-
-        }
-
-        return $allow;
-    }
 
     /**
      * @param RouteGroup $group
@@ -837,38 +478,11 @@ class MyProfileController extends AdminPanelController
                 $withProfile
             ),
             //JSON
-            new Route( //Datos para datatables de experiencia
-                "{$startRoute}/datatables/experience[/]",
-                PreviousExperiencesController::class . ':dataTables',
-                self::$baseRouteName . '-datatables-experience',
-                'GET',
-                true,
-                null,
-                $allRoles
-            ),
             //──── POST ──────────────────────────────────────────────────────────────────────────────
             new Route( //Acción guardar el perfil
                 "{$startRoute}/action/profile/save[/]",
                 $classname . ':saveProfileAction',
                 self::$baseRouteName . '-actions-save-profile',
-                'POST',
-                true,
-                null,
-                $saveProfile
-            ),
-            new Route( //Acción agregar experiencia
-                "{$startRoute}/action/experience/save[/]",
-                $classname . ':addExperienceAction',
-                self::$baseRouteName . '-actions-save-experience',
-                'POST',
-                true,
-                null,
-                $saveProfile
-            ),
-            new Route( //Acción eliminar experiencia
-                "{$startRoute}/action/experience/delete/{id}[/]",
-                PreviousExperiencesController::class . ':toDelete',
-                self::$baseRouteName . '-actions-delete-experience',
                 'POST',
                 true,
                 null,
