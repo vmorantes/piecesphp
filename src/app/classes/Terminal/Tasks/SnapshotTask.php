@@ -38,6 +38,12 @@ class SnapshotTask extends TerminalTaskAbstract
     //Por encima de esto no hay hash por fila: se guarda el conteo, un hash agregado, y SE DICE.
     const MAX_ROWS_PER_TABLE = 20000;
 
+    //Marca de «NO MEDÍ». Nunca cuenta como igual: dos registros con esto son NO COMPARABLES.
+    const NO_MEASURED = 'sin-huella';
+
+    /** @var int Bytes hasheados en la última foto, para que diga lo que cuesta. */
+    protected static int $hashedBytes = 0;
+
     /** @var string[] Rutas que no forman parte del árbol servido. */
     const EXCLUDED_PATHS = [
         '/vendor/', '/node_modules/', '/.git/', '/dumps/', '/tmp/', '/files/dev/snapshots/',
@@ -96,6 +102,8 @@ class SnapshotTask extends TerminalTaskAbstract
             mkdir($dir, 0775, true);
         }
 
+        $startedAt = microtime(true);
+        self::$hashedBytes = 0;
         $snapshot = [
             'label' => $label,
             'tables' => self::snapshotTables(),
@@ -106,8 +114,21 @@ class SnapshotTask extends TerminalTaskAbstract
         file_put_contents($path, json_encode($snapshot, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR) . "\n");
 
         $rows = array_sum(array_column($snapshot['tables'], 'count'));
+        //Un instrumento que se vuelve lento en silencio acaba desactivado por quien no sabe
+        //por qué tarda. Que lo diga él.
+        $sinHuella = count(array_filter((array) ($snapshot['files'] ?? []),
+            static fn (string $stamp): bool => str_ends_with($stamp, ':' . self::NO_MEASURED)));
         $capped = array_filter($snapshot['tables'], static fn (array $t): bool => $t['capped'] === true);
         echoTerminal("\e[94mINFO:\e[39m " . count($snapshot['tables']) . " tablas, {$rows} filas.");
+        if ($withFiles) {
+            $mb = round(self::$hashedBytes / 1048576, 1);
+            $ms = (int) round((microtime(true) - $startedAt) * 1000);
+            echoTerminal("\e[94mINFO:\e[39m {$mb} MB hasheados en {$ms} ms.");
+        }
+        if ($sinHuella > 0) {
+            echoTerminal("\e[33mAVISO:\e[39m {$sinHuella} archivo(s) SIN HUELLA: no se pudieron leer. "
+                . 'No cuentan como iguales en ninguna comparación.');
+        }
         if (count($capped) > 0) {
             //Un recorte silencioso se lee como cobertura completa: se nombra.
             echoTerminal("\e[33mAVISO:\e[39m sin hash por fila en " . count($capped) . ' tabla(s) por superar '
@@ -202,11 +223,11 @@ class SnapshotTask extends TerminalTaskAbstract
             if (!is_file($path)) {
                 continue;
             }
-            //Tamaño y mtime bastan para detectar una escritura y son mucho más baratos que el
-            //contenido; el hash solo se calcula para archivos pequeños.
+            //SIN CORTE POR TAMAÑO: `'grande' == 'grande'` se leía como «idéntico». Ver T138.
             $size = (int) $file->getSize();
-            $hash = $size <= 1048576 ? @sha1_file($path) : 'grande';
-            $out[$relative] = $size . ':' . (int) $file->getMTime() . ':' . (is_string($hash) ? $hash : 'ilegible');
+            $hash = @sha1_file($path);
+            $out[$relative] = $size . ':' . (int) $file->getMTime() . ':' . (is_string($hash) ? $hash : self::NO_MEASURED);
+            self::$hashedBytes += $size;
         }
         ksort($out);
         return $out;
@@ -306,16 +327,40 @@ class SnapshotTask extends TerminalTaskAbstract
             }
             return false;
         };
+        //El mtime se GUARDA pero NO decide: un `cp` lo cambia sin tocar el contenido. Ver T138.
+        $huella = static function (string $stamp): array {
+            $partes = explode(':', $stamp, 3);
+            return [$partes[0] ?? '', $partes[2] ?? self::NO_MEASURED];
+        };
+        $noComparables = 0;
         foreach ($filesAfter as $path => $stamp) {
-            $cambio = !array_key_exists($path, $filesBefore) ? '+' : ($filesBefore[$path] !== $stamp ? '~' : null);
-            if ($cambio === null) {
+            [$sizeAfter, $hashAfter] = $huella($stamp);
+            if (!array_key_exists($path, $filesBefore)) {
+                if ($esVolatil($path)) {
+                    $declared[] = 'archivo ' . $path;
+                    continue;
+                }
+                echoTerminal("  \e[31m+ {$path}\e[39m");
+                $findings++;
+                continue;
+            }
+            [$sizeBefore, $hashBefore] = $huella($filesBefore[$path]);
+            //«Sin huella» significa «no medí», y eso NUNCA es «igual»: sin esto, dos registros
+            //ilegibles se leían como sin cambios.
+            if ($hashBefore === self::NO_MEASURED || $hashAfter === self::NO_MEASURED) {
+                echoTerminal("  \e[35m? {$path}\e[39m — NO COMPARABLE: sin huella de contenido");
+                $noComparables++;
+                $findings++;
+                continue;
+            }
+            if ($sizeBefore === $sizeAfter && $hashBefore === $hashAfter) {
                 continue;
             }
             if ($esVolatil($path)) {
                 $declared[] = 'archivo ' . $path;
                 continue;
             }
-            echoTerminal("  \e[31m{$cambio} {$path}\e[39m");
+            echoTerminal("  \e[31m~ {$path}\e[39m");
             $findings++;
         }
         foreach ($filesBefore as $path => $stamp) {
@@ -329,6 +374,10 @@ class SnapshotTask extends TerminalTaskAbstract
             echoTerminal("  \e[31m- {$path}\e[39m");
             $findings++;
         }
+        //Cero es el estado normal; que deje de serlo es un aviso, no un detalle.
+        echoTerminal('  ' . ($noComparables === 0
+            ? "\e[32mno comparables: 0\e[39m"
+            : "\e[35mNO COMPARABLES: {$noComparables}\e[39m"));
 
         if (count($declared) > 0) {
             echoTerminal("\e[32m── VOLATILIDAD DECLARADA (no cuenta) ──\e[39m");

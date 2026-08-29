@@ -785,6 +785,13 @@ que alguien pregunte qué hace ese directorio.
 
 #### Inventario medido
 
+> ⚠ **CORRECCIÓN, Y VA AQUÍ PORQUE DE ESTE INVENTARIO SE BORRA** (LEY 14: aparte y enlazada, el
+> texto original se conserva tal cual). **La ruta de los tres mappers está incompleta**: sin raíz
+> se lee como `core/psr4/…`, donde NO están. La real es
+> **`src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/`**. Y son **769** líneas cada uno de
+> los dos grandes, no 768. Verificado archivo a archivo en el bloque Y, antes de borrar nada. El
+> aviso de abajo —«los mappers NO viven en `MySpace`»— sigue siendo correcto. Ver T138.
+
 **Se borran (9 archivos):**
 
 ```
@@ -13146,3 +13153,161 @@ más razonable que lo que hace el código es un candidato a defecto**, y compara
 El procedimiento de despliegue de `general.md` tiene un `sudo rm -Rf` que nombra **`tmp`, `TODO` y
 `guides`**, que no existen. No es trampa —`rm -Rf` sobre lo inexistente no falla— pero es
 podredumbre, y **el repaso completo de la documentación es E6**.
+
+---
+
+## T138 · Y0 y YB · LA RED DE E3 TENÍA RUIDO PROPIO **Y** UN PUNTO CIEGO, Y NINGUNO SALÍA EN REPOSO
+
+**E3 entero se apoya en «foto antes y foto después». El bloque Y empezó probando la red en vez de
+usarla, y la red no estaba lista.** Dos defectos, opuestos entre sí, y los dos invisibles mientras
+la foto no se usara de verdad.
+
+### Lo que sí funcionaba, y por eso engañaba
+
+| Prueba | Resultado |
+| :-- | :-- |
+| `db-restore`, 114 sentencias, 0 fallidas | ✔ |
+| Dos fotos seguidas sin tocar nada | **diferencia VACÍA** |
+| Provocar un alta de tabla, un alta de archivo, una baja de cada, una modificación | **las ve todas** |
+
+Con eso cualquiera habría dado la red por buena. **Salió al RESTAURAR.**
+
+### Defecto 1 · El mtime decidía la igualdad
+
+El registro por archivo es `tamaño:mtime:sha1` y la comparación (`SnapshotTask.php:310`) comparaba
+**la cadena entera**. Al restaurar un archivo con `cp`, el contenido vuelve pero el mtime no:
+
+```
+y0-a:  574:1787346265:71f795b531324a3373ecb1f63576f5371115ae69
+y0-e:  574:1787971133:71f795b531324a3373ecb1f63576f5371115ae69
+            ^^^^^^^^^^ lo único distinto
+```
+
+`sha1sum -c` decía «la suma coincide» y la foto lo marcaba como modificado. Confirmado al revés:
+devolviendo **solo** el mtime con `utime`, la diferencia desaparece.
+
+**Por qué era grave y no cosmético**: el procedimiento obligatorio de esta campaña es *«se provoca
+desde un estado guardado»* —copiar, romper, restaurar—. Cada archivo que se tocara y se revirtiera
+en E3 iba a salir como modificado en la foto final, justo la que debe distinguir lo explicado de lo
+real.
+
+> El comentario del propio código lo decía sin darse cuenta: *«Tamaño y mtime bastan para detectar
+> UNA ESCRITURA»*. Y es cierto. Pero la foto no pregunta si hubo escritura: pregunta **si cambió el
+> contenido**, y son dos preguntas distintas. El sha1 ya estaba guardado para responder la segunda.
+
+### Defecto 2 · El punto ciego, y era el contrario
+
+Antes de cambiar la comparación a `tamaño + sha1` había que comprobar que el sha1 existía. **No
+existía en todos:**
+
+```php
+$hash = $size <= 1048576 ? @sha1_file($path) : 'grande';
+```
+
+| | |
+| :-- | --: |
+| Registros con sha1 real | 5.378 |
+| Con la cadena `'grande'` | **59** |
+
+Y `'grande' == 'grande'` **se leía como «idéntico»**. Los 59 son el **37,2 % del peso del árbol
+servido** —101,3 MB: imágenes subidas y librerías de terceros—, y para ellos comparar
+`tamaño + hash` habría sido comparar `tamaño + 'grande'`: **una modificación que no cambiara el
+tamaño era invisible**. Hasta entonces lo tapaba justo el mtime, el defecto 1.
+
+**Arreglar uno sin ver el otro habría cambiado un ruido por una ceguera.**
+
+*El motivo del corte —«el hash es más caro»— era razonable cuando se escribió. Medido hoy: hashear
+los 59 cuesta **0,07 s**. Un número medido envejece mejor que un motivo.*
+
+### El arreglo, en tres piezas
+
+| Pieza | Qué hace |
+| :-- | :-- |
+| **Sin corte** | El sha1 se calcula siempre. Los 5.437 con huella real |
+| **El coste se imprime** | `272 MB hasheados en 598 ms`. Un instrumento que se vuelve lento en silencio acaba desactivado por quien no sabe por qué tarda |
+| **Tres estados** | igual, distinto y **NO COMPARABLE**. El mtime se sigue guardando y deja de decidir |
+
+**«Sin huella» no es «igual».** `@sha1_file()` puede fallar por permisos, y dos registros
+`'ilegible'` se leían como sin cambios. Ahora un archivo sin huella sale con su marca `?`, se
+cuenta aparte y la foto lo avisa: *«N archivo(s) SIN HUELLA: no cuentan como iguales en ninguna
+comparación»*. **Cero es el estado normal; que deje de serlo es un aviso.**
+
+### Provocado, y con los casos que discriminan
+
+| Provocación | Antes | Ahora |
+| :-- | :-- | :-- |
+| Las seis formas: alta/baja/modificación en base y árbol | las veía | **las ve** |
+| Un carácter por otro, **mismo tamaño**, archivo pequeño | la veía | **la ve** |
+| Un byte cambiado en uno de los 59 grandes, **mismo tamaño** | **INVISIBLE** | **la ve** |
+| `cp` restaurando sin cambiar nada | **falso `~`** | **no aparece** |
+| Un archivo ilegible (`chmod 000`) entre dos fotos | «sin cambios» | **`? NO COMPARABLE`** |
+| Dos fotos seguidas sin tocar nada | vacía | **vacía** |
+
+*El caso del archivo grande es la prueba de que quitar el corte sirvió: `semantic.css`, 2.034.370
+bytes antes y después, un byte distinto. Su registro pasa de `2034370:…:grande` a
+`2034370:…:d0b928aa…`.*
+
+**Y un error propio que conviene dejar escrito**: la primera provocación del «mismo tamaño» la hice
+sobre `NewsLang.php` cambiando una `a` por una `b`, y la letra caía dentro de
+`get_allowed_langs()`. Tumbó el CLI entero. **Una provocación se hace sobre un archivo de prueba
+propio, no sobre uno del proyecto**, salvo que se pueda restaurar sin ejecutar nada en medio.
+
+### YB4 · La tabla de andamiaje SE LE ESCAPABA a su suite
+
+`pcs_unit_tests_core_database_exporter_v1` la excluye `db-backup` con motivo escrito, y la foto sí
+la ve. **La tentación era declararla volátil. No hacía falta: era un defecto.**
+
+El seeder hace `DROP TABLE IF EXISTS` + `CREATE TABLE` **al entrar**, y **nadie la borraba al
+salir**. Cada corrida de `core/database-exporter` dejaba la tabla puesta: una suite con un efecto
+que no deshace.
+
+Arreglado con un `finally` —para que limpie también cuando revienta—. Comprobado con la propia
+foto: **36 tablas antes, 35 después**. Y provocado quitando el `finally`: vuelve a aparecer,
+`+ TABLA NUEVA pcs_unit_tests_core_database_exporter_v1 (2 filas)`.
+
+> **Lo que más enseña**: la suite pasa **23/23 con la fuga y sin ella**. No podía cazar su propio
+> efecto. La que la cazó fue la foto — un instrumento distinto, mirando desde fuera.
+
+`volatile-state.json` no crece. **Declarar algo volátil es el último recurso, no el primero.**
+
+### CANDIDATAS A LEY
+
+> **UNA RED SE PRUEBA CON EL PROCEDIMIENTO CON EL QUE SE VA A USAR, NO EN REPOSO.**
+> Dos fotos seguidas daban diferencia vacía y la provocación simple salía verde. El ciclo real
+> —copiar, romper, **restaurar**— era el único que destapaba el ruido, y es el que la campaña usa
+> en cada bloque.
+
+> **UN VALOR QUE SIGNIFICA «NO MEDÍ» NO PUEDE PARTICIPAR EN UNA IGUALDAD.**
+> `'grande' == 'grande'` se leía como idéntico. Un centinela que ocupa el sitio del dato hereda su
+> semántica de comparación, y esa semántica es falsa. O no se compara, o se compara en tres
+> estados.
+
+### QUÉ CUBRE LA FOTO Y QUÉ NO — gobierna los cinco lotes restantes de E3
+
+| | |
+| :-- | :-- |
+| **Cubre** | La base ENTERA (35 tablas, hash por fila hasta 20.000 filas) y el árbol **servido**: `src/`, 5.437 archivos, 272 MB |
+| **No cubre** | `bin/`, `files/dev/`, `source-docs/`, `.agents/`, `CHANGELOG.md`, y lo excluido por diseño: vendor, node_modules, .git, dumps, tmp, snapshots, logs, cache |
+
+**Los 18 archivos del lote de experiencias previas están los 18 en la foto**, y las dos tablas
+también. **Las nueve ediciones SÍ tienen red.**
+
+**Y una que temí y no era**: `previous_experiences` y `organization_previous_experiences` están
+declaradas volátiles, pero el bucle de tablas desaparecidas **no consulta esa lista**. Un
+`- TABLA BORRADA` se reporta siempre. La volatilidad silencia cambios de contenido, no
+desapariciones.
+
+### CORRECCIÓN A T6 — Y VA PEGADA AL INVENTARIO PORQUE DE AHÍ SE BORRA
+
+> **La ruta de los mappers que da T6 está incompleta.** Dice
+> `PiecesPHP/UserSystem/Profile/SubMappers/` sin la raíz, y de ahí se lee `core/psr4/…`, donde
+> **no están**. La real es:
+>
+> **`src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/`**
+>
+> El aviso de T6 —«los mappers NO viven en `MySpace`»— es correcto y sigue vigente; lo que falta es
+> la mitad de la ruta. Verificado archivo a archivo antes de borrar nada.
+>
+> **Y las líneas**: `PreviousExperiencesMapper.php` y
+> `OrganizationPreviousExperiencesMapper.php` son **769**, no 768. `InterestResearchAreasMapper.php`
+> son 30, como decía.

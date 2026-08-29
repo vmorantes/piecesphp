@@ -222,6 +222,48 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ Corregido — la foto de `snapshot` tenía ruido propio Y un punto ciego, y eran opuestos
+
+E3 se apoya en «foto antes y foto después». La red se probó **antes** de usarla y no estaba lista.
+Lo que la daba por buena: `db-restore` sin fallos, dos fotos seguidas con diferencia vacía, y las
+altas y bajas provocadas viéndose todas. **Los dos defectos salieron al RESTAURAR.**
+
+**1 · El mtime decidía la igualdad.** El registro es `tamaño:mtime:sha1` y se comparaba la cadena
+entera. Restaurar un archivo con `cp` devuelve el contenido pero no el mtime: `sha1sum -c` decía
+«la suma coincide» y la foto lo marcaba como modificado. Como el procedimiento de trabajo es
+*copiar, romper, restaurar*, **cada archivo revertido iba a salir como cambiado**.
+
+**2 · Y el contrario: 59 archivos sin huella.** Había un corte —`$size <= 1048576 ? sha1_file() :
+'grande'`— y **`'grande' == 'grande'` se leía como «idéntico»**. Son el **37,2 % del peso del árbol
+servido**: para ellos, una modificación que no cambiara el tamaño era invisible, y lo tapaba justo
+el mtime del defecto 1. **Arreglar uno sin ver el otro habría cambiado un ruido por una ceguera.**
+
+Quitar el corte cuesta **0,07 s** medidos. El motivo escrito se sustituye por esa cifra.
+
+| Pieza | Qué cambia |
+| :-- | :-- |
+| Sin corte | El sha1 se calcula siempre: los 5.437 con huella real |
+| El coste se dice | `272 MB hasheados en 598 ms` |
+| Tres estados | igual, distinto y **NO COMPARABLE** — el mtime se guarda y deja de decidir |
+
+**«Sin huella» no es «igual»**: un archivo ilegible sale con su marca `?`, se cuenta aparte y la
+foto lo avisa. Cero es el estado normal.
+
+**Provocado en seis formas más las dos que discriminan**: un byte cambiado en uno de los 59 grandes
+—invisible antes, visible ahora— y un `cp` que restaura sin cambiar nada —falso positivo antes,
+silencio ahora—.
+
+## Corregido — la suite del exportador dejaba su tabla de andamiaje en la base
+
+`core/database-exporter` hace `DROP TABLE IF EXISTS` + `CREATE TABLE` al entrar y **nadie borraba
+al salir**: cada corrida dejaba `pcs_unit_tests_core_database_exporter_v1` puesta. Una suite con un
+efecto que no deshace. Recogida ahora en un `finally`, para que limpie también cuando revienta:
+**36 tablas antes, 35 después**.
+
+**La suite pasa 23/23 con la fuga y sin ella** — no podía cazar su propio efecto. La cazó la foto,
+un instrumento distinto mirando desde fuera. Y no se ha declarado nada volátil: declarar algo
+volátil es el último recurso, no el primero.
+
 ## Herramientas — `bin/censo-comparaciones-cero`, y la clase de defecto de `FileUpload` queda acotada
 
 `FileUpload::validate()` murió en la migración a PHP 8 por comparar con `==` una cadena contra

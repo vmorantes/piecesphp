@@ -300,6 +300,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             'success' => false,
             'message' => 'Error crítico en la suite del exportador: ' . $e->getMessage(),
         ];
+    } finally {
+        //RECOGE LO SUYO: el seeder crea al entrar y nadie borraba al salir. Ver T138.
+        if (isset($db, $testTable)) {
+            $db->exec("DROP TABLE IF EXISTS {$testTable}");
+        }
     }
 
 })->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();
