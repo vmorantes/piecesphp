@@ -19,7 +19,6 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Validation\Validator;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 
 /**
  * OrganizationMapper.
@@ -57,7 +56,6 @@ use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
  * @property double|null $longitude
  * @property double|null $latitude
  * @property int|UsersModel|null $administrator
- * @property int[]|InterestResearchAreasMapper[]|null $interestResearhAreas
  * @property string[] $affiliatedInstitutions
  */
 class OrganizationMapper extends EntityMapperExtensible
@@ -336,7 +334,6 @@ class OrganizationMapper extends EntityMapperExtensible
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, '+57', true), 'phoneCode');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'longitude');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'latitude');
-        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY_MAPPER, null, true, InterestResearchAreasMapper::class, 'id'), 'interestResearhAreas');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY, [], false), 'affiliatedInstitutions');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_MAPPER, new UsersModel(), true, UsersModel::class), 'administrator');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -368,7 +365,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * Verifica si el perfil de una organización está completo.
      *
      * Un perfil se considera completo si tiene todos los campos requeridos llenos.
-     * Los campos requeridos son: name, informativeEmail, activitySector, logo, country, city, latitude, longitude y interestResearhAreas.
+     * Los campos requeridos son: name, informativeEmail, activitySector, logo, country, city, latitude y longitude.
      *
      * @return bool true si el perfil está completo, false de lo contrario.
      */
@@ -389,7 +386,6 @@ class OrganizationMapper extends EntityMapperExtensible
                 'city' => fn($e) => Validator::isInteger($e) || $e instanceof CityMapper,
                 'latitude' => fn($e) => Validator::isDouble($e),
                 'longitude' => fn($e) => Validator::isDouble($e),
-                'interestResearhAreas' => fn($e) => is_array($e) && !empty($e),
             ];
 
             foreach ($requiredProperties as $requiredProperty => $validator) {
@@ -642,9 +638,6 @@ class OrganizationMapper extends EntityMapperExtensible
      *  - sizeText
      *  - actionLinesText
      *  - esalText
-     *  - interestResearhAreasNames
-     *  - interestResearhAreasIDsNames
-     *  - interestResearhAreasColorsNames
      *  - statusText
      * @return string[]
      */
@@ -655,7 +648,6 @@ class OrganizationMapper extends EntityMapperExtensible
         $model = $mapper->getModel();
         $table = $model->getTable();
 
-        $tableInterestResearchAreas = InterestResearchAreasMapper::TABLE;
         $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
         $tableCity = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
         $tableUser = UsersModel::TABLE;
@@ -663,12 +655,6 @@ class OrganizationMapper extends EntityMapperExtensible
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
-        //Áreas de investigación
-        $researchAreas = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas'))";
-        $areaNameCurrentLang = InterestResearchAreasMapper::fieldCurrentLangForSQL('areaName');
-        $researchAreasNameSubQuery = "SELECT GROUP_CONCAT($areaNameCurrentLang SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndIDSubQuery = "SELECT GROUP_CONCAT(CONCAT({$tableInterestResearchAreas}.id, ':', $areaNameCurrentLang) SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndColorSubQuery = "SELECT GROUP_CONCAT(CONCAT(JSON_UNQUOTE(JSON_EXTRACT({$tableInterestResearchAreas}.meta, '$.color')), ':', $areaNameCurrentLang) SEPARATOR '|@|') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
 
         //Ubicaciones
         $countryName = "SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country";
@@ -688,9 +674,6 @@ class OrganizationMapper extends EntityMapperExtensible
             "JSON_UNQUOTE(JSON_EXTRACT('{$sizesJSON}', CONCAT('$.', {$table}.size))) AS sizeText",
             "JSON_UNQUOTE(JSON_EXTRACT('{$actionLinesJSON}', CONCAT('$.', {$table}.actionLines))) AS actionLinesText",
             "JSON_UNQUOTE(JSON_EXTRACT('{$esalOptionsJSON}', CONCAT('$.', {$table}.esal))) AS esalText",
-            "({$researchAreasNameSubQuery}) AS interestResearhAreasNames",
-            "({$researchAreasNameAndIDSubQuery}) AS interestResearhAreasIDsNames",
-            "({$researchAreasNameAndColorSubQuery}) AS interestResearhAreasColorsNames",
             "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
             "{$table}.meta",
         ];
@@ -1249,7 +1232,6 @@ class OrganizationMapper extends EntityMapperExtensible
             'phoneCode' => '+57',
             'longitude' => 0.0,
             'latitude' => 0.0,
-            'interestResearhAreas' => null,
             'affiliatedInstitutions' => [],
             'administrator' => null,
         ];

@@ -36,7 +36,6 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 
 /**
  * OrganizationsController.
@@ -573,34 +572,6 @@ class OrganizationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'interestResearhAreas',
-                [],
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray && !empty($value);
-                    if ($valid) {
-                        foreach ($value as $i) {
-                            if ($i instanceof InterestResearchAreasMapper) {
-                                if ($i->id == null) {
-                                    throw new SafeException(__(self::LANG_GROUP, 'El área de interés no es válida'));
-                                }
-                            } else if (!Validator::isInteger($i)) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                true,
-                function ($value) {
-                    return is_array($value) ? array_map(function ($e) {
-                        if (Validator::isInteger($e)) {
-                            return new InterestResearchAreasMapper($e);
-                        }
-                    }, $value) : [];
-                }
-            ),
-            new Parameter(
                 'affiliatedInstitutions',
                 [],
                 function ($value) {
@@ -691,7 +662,6 @@ class OrganizationsController extends AdminPanelController
              * @var string|null $websiteLink
              * @var string|null $informativeEmail
              * @var string|null $billingEmail
-             * @var InterestResearchAreasMapper[] $interestResearhAreas
              * @var string[] $affiliatedInstitutions
              * @var int $status
              * @var int $administrator
@@ -715,7 +685,6 @@ class OrganizationsController extends AdminPanelController
             $websiteLink = $expectedParameters->getValue('websiteLink');
             $informativeEmail = $expectedParameters->getValue('informativeEmail');
             $billingEmail = $expectedParameters->getValue('billingEmail');
-            $interestResearhAreas = $expectedParameters->getValue('interestResearhAreas');
             $affiliatedInstitutions = $expectedParameters->getValue('affiliatedInstitutions');
             $status = $expectedParameters->getValue('status');
             $administrator = $expectedParameters->getValue('administrator');
@@ -770,7 +739,6 @@ class OrganizationsController extends AdminPanelController
                     $mapper->setLangData($lang, 'websiteLink', $websiteLink);
                     $mapper->setLangData($lang, 'informativeEmail', $informativeEmail);
                     $mapper->setLangData($lang, 'billingEmail', $billingEmail);
-                    $mapper->interestResearhAreas = $interestResearhAreas;
                     $mapper->affiliatedInstitutions = $affiliatedInstitutions;
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
                     if ($currentUser !== null && OrganizationMapper::canModifyAnyOrganization($currentUser->type)) {
@@ -844,7 +812,6 @@ class OrganizationsController extends AdminPanelController
                             'websiteLink' => $websiteLink,
                             'informativeEmail' => $informativeEmail,
                             'billingEmail' => $billingEmail,
-                            'interestResearhAreas' => $interestResearhAreas,
                             'affiliatedInstitutions' => $affiliatedInstitutions,
                             'status' => $status,
                             'administrator' => $administrator,
@@ -882,7 +849,6 @@ class OrganizationsController extends AdminPanelController
                         if ($websiteLink !== $invalidVal) {$mapper->setLangData($lang, 'websiteLink', $websiteLink);}
                         if ($informativeEmail !== $invalidVal) {$mapper->setLangData($lang, 'informativeEmail', $informativeEmail);}
                         if ($billingEmail !== $invalidVal) {$mapper->setLangData($lang, 'billingEmail', $billingEmail);}
-                        if ($interestResearhAreas !== $invalidVal) {$mapper->interestResearhAreas = $interestResearhAreas;}
                         if ($affiliatedInstitutions !== $invalidVal) {$mapper->affiliatedInstitutions = $affiliatedInstitutions;}
                         if (OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type)) {
                             if ($status !== null) {
