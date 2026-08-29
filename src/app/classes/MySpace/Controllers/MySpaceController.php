@@ -11,7 +11,6 @@ use App\Model\UsersModel;
 use ContentNavigationHub\ContentNavigationHubRoutes;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
 use Documents\Mappers\DocumentsMapper;
-use ImagesRepository\Mappers\ImagesRepositoryMapper;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
 use News\Controllers\NewsController;
@@ -137,13 +136,11 @@ class MySpaceController extends AdminPanelController
 
                     $currentUser = getLoggedFrameworkUserOrFail();
                     $qtyDocuments = DocumentsMapper::countAll();
-                    $qtyImages = ImagesRepositoryMapper::countAll();
 
                     $data = [];
                     $data['langGroup'] = self::LANG_GROUP;
                     $data['subtitle'] = $currentUser->fullName;
                     $data['qtyDocuments'] = $qtyDocuments;
-                    $data['qtyImages'] = $qtyImages;
                     $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
 
                     $this->helpController->render('panel/layout/header', [
