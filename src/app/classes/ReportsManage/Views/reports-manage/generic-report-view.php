@@ -90,23 +90,7 @@ $currentUser = getLoggedFrameworkUser();
 
                 <div class="two-columns-grid two-on-break-1">
 
-                        <div class="footer">
-                            <div class="caption">
-                                <?= __($langGroup, 'Total de oportunidades de financiación'); ?>
-                            </div>
-                            <div class="action-button">
-                            </div>
-                        </div>
-                    </div>
 
-                        <div class="footer">
-                            <div class="caption">
-                                <?= __($langGroup, 'Proyectos bilaterales'); ?>
-                            </div>
-                            <div class="action-button">
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="card-statistic tall">
                         <div class="toolbar">
