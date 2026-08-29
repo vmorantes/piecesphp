@@ -14590,3 +14590,167 @@ Se dice con su método: es una muestra de 10, no un censo.
   declaradas, y hay carpetas `de/`, `it/` y `pt/` con su `.keep`. Los 75 borrados del
   PROPIETARIO en AD no las alcanzaron.
 - **Ampliar el universo del censo de claves** de 775 a 1.632, con el ruido que trae.
+
+---
+
+## T146 · AF · LAS GUARDAS DEL NÚCLEO, Y UNA FUNCIÓN QUE NO ESTABA MAL APUNTADA SINO A MEDIAS
+
+**Bloque AF.** Primer lote de E4. Dos paradas, y las dos disparadas.
+
+### La decisión de E4, con su justificación
+
+E4 **no cubre las funciones puras**. 317 no era el número, y el motivo estaba en la propia
+medición de AE: escribir 317 pruebas produciría muchas que no descubren nada. Se selecciona
+por CONSECUENCIA:
+
+> la pregunta no es «¿se puede probar?» sino **«si esto se rompiera EN SILENCIO, ¿lo notaría
+> alguien?»**
+
+Las tres pruebas que encontraron algo en toda la campaña fueron CONTRATOS —
+`FileUploadContract`, `http-client-request-build` y los viajes de ida y vuelta—. **Ninguna
+salió de «cubrir lo cubrible».**
+
+### AF1 · El censo de guardas
+
+`bin/censo-guardas`, tokenizando, canario de **cuatro caras**. Universo: **135 archivos** de
+`src/app/core` sin `system-views/`, `local-tests/` ni `test-data/`; **1.179 funciones con
+cuerpo**; 24 suites para el cruce.
+
+Se busca la FORMA, no un nombre. Una función entra si cumple alguna señal, y se dice cuál:
+
+| Señal | Qué es | Cuántas |
+| :-- | :-- | --: |
+| NOMBRE | `is`/`can`/`has`/`allow`/`validate`/`check`/`verify`/… con frontera | 97 |
+| BOOLEANA | declara `: bool` o devuelve `true`/`false` literal | 88 |
+| LANZA | `throw` dentro de una condición | 56 |
+| ACUMULADOR | acumula `$valid`/`$allow`/`$ok` y lo devuelve | 10 |
+| **GUARDAS POR FORMA** | | **180** |
+
+#### (c) Las que pueden FALLAR ABIERTAS por construcción
+
+Las tres formas son las de `FileUpload::validate()` (T135):
+
+| | | |
+| :-- | --: | :-- |
+| LAXA | 24 | `==` o `!=`: lo que cambió bajo los pies en PHP 8 |
+| VALID-TRUE | 8 | el acumulador nace en `true`: hay que demostrar el fallo para rechazar |
+| SIN-ELSE | 6 | cadena `if/elseif` sin `else`: si no casa ninguna rama, no decide |
+| **con alguna** | **29** | |
+
+#### (b) ¿Tienen prueba? Y si la tienen, ¿de RECHAZO?
+
+El cruce mecánico da **9 guardas que alguna suite llama de verdad**. Y esas nueve se
+revisaron A MANO, porque llamar no es probar el rechazo:
+
+| Guarda | ¿Prueba el RECHAZO? | Qué hace la suite |
+| :-- | :-- | :-- |
+| `getLoggedFrameworkUserOrFail` | **SÍ** | sin sesión, tiene que lanzar |
+| `BaseController::isEditRoute` | **SÍ** | `add` → false, `edit` → true, y el desajuste da 400 |
+| `SessionToken::isActiveSession` | **SÍ** | entradas inválidas → false, y **sin lanzar** |
+| `FileUpload::validate` | **SÍ** | cuatro casos de rechazo **y** el discriminante |
+| `MetaProperty::setValue` | **SÍ** | un array sobre un tipo escalar → excepción |
+| `DataTablesHelper::process` | no | «no lanza con la petición vacía»: eso es ACEPTACIÓN |
+| `EntityMapperExtensible::addMetaProperty` | no | construcción válida |
+| `Exporter::export` | no | viaje de ida y vuelta del contenido |
+| `CacheControllersCriteries::criteries` | no | viaje de ida y vuelta |
+
+**5 de 180 guardas tienen prueba de rechazo. 175 no.**
+
+#### El instrumento se corrigió TRES veces, y cada corrección bajaba la cifra
+
+Es el patrón de la LEY 22 en limpio: la primera cifra era cómoda y falsa.
+
+| Cruce | Daba | Qué estaba mal |
+| :-- | --: | :-- |
+| nombre suelto en el texto | 48 | `check`, `success`, `register`, `exists` y `value` salen en las 24 suites por ser palabras corrientes |
+| exigiendo `nombre(` y su clase | 19 | seguía mirando **texto crudo**: `//… SystemApprovalManager::init() …` **en un comentario** daba por probada una guarda que nadie llama |
+| tokenizando las suites y descartando `function nombre(` | 11 | las suites declaran clases anónimas con su propio `__construct` |
+| exigiendo la clase como PALABRA ENTERA | **9** | `getFields()` contiene `Field` como subcadena |
+
+La cifra que se publica es 9, y **el camino queda escrito**: cada paso lo encontró una
+sospecha, no una comprobación automática. Las cuatro correcciones están en el propio código
+del censo, cada una con su comentario de una línea.
+
+#### (d) El cruce con lo ya medido
+
+| | |
+| :-- | --: |
+| Guardas que contienen alguno de los 193 retornos ignorados | 12 |
+| Guardas que contienen alguna de las comparaciones con cero | **0** |
+
+**El cero está PROBADO, no afirmado.** Las cuatro funciones que contienen las siete
+comparaciones laxas con cero del núcleo son `seconds_to_duration`,
+`generateCachingHeadersAndStatus`, `getGPSDataToNumber` y `generatePage`: ninguna tiene forma
+de guarda. Y este cruce también empezó dando un cero falso —comparaba `bin/../src/app/…`
+contra una ruta absoluta— hasta que se normalizaron los dos lados.
+
+> **LA PRIMERA DE TODAS, por estar en las tres listas:**
+> `DataTablesHelper::processFromQuery` — forma LAXA, ninguna suite la llama, y contiene un
+> retorno ignorado de los 193.
+
+Detrás van las que la campaña ya sabe que deciden acceso y visibilidad y **nadie prueba**:
+`Roles::hasPermissions` (LAXA + VALID-TRUE), `ControllerRoutingTrait::routeName`
+(VALID-TRUE), `Parameter::isValid` (LAXA + VALID-TRUE), `BaseHashEncryption::hashVerify`,
+`BaseToken::check` y `BaseToken::verify` (SIN-ELSE los tres),
+`get_route_roles_allowed` (SIN-ELSE + LAXA).
+
+>>> **PARADA AF1 · DISPARADA.** 175 guardas sin prueba de rechazo, muy por encima de las ~40
+> del umbral. **No se escribió ninguna prueba.** El corte lo decide ARQUITECTO. <<<
+
+### AF3 · Lo que quedaba del idioma
+
+#### (a) PARADA AF3 · DISPARADA — no es un destino mal puesto
+
+La instrucción lo anticipó: si al reapuntar `'fr'` a `'en'` resultara que `description[en]`
+tampoco existe, **es una función que quedó a medias**. Medido, y es peor que eso — la función
+está muerta **de punta a punta**, en tres eslabones:
+
+| Eslabón | Medido |
+| :-- | :-- |
+| `experienceName` | aparece en **UN solo archivo de todo `src/`**: el propio JS |
+| `description[…]` como nombre de campo | **cero** apariciones en `src/app` |
+| `button[translate]`, al que se engancha el manejador | **cero** en las vistas de `MySpace` |
+
+Sin el botón el manejador **no llega a engancharse nunca**. Reapuntar el destino no arreglaría
+nada: pondría `'en'` en una configuración que nadie lee, para campos que no existen, en un
+formulario sin el botón que la dispara. **NO SE TOCÓ, y no inventé los campos.**
+
+#### (b) Las traducciones dinámicas de los cuatro idiomas — HECHO
+
+Se retiran `lang/dynamic-translations/{fr,de,it,pt}/`. `fr/` iba con su `global.php` y su
+`.keep`; las otras tres solo tenían el `.keep`. **Se lleva también el `fr/.keep`**: dejarlo
+mantendría una carpeta vacía nombrando un idioma retirado, que es justo lo que AE1 cerró.
+
+Comprobado antes de borrar que nada enumera una lista fija de idiomas:
+`add-dynamic-translations.php` recorre **las carpetas que existen** y solo carga las que estén
+en `allowed_langs`, así que `fr/` ya se ignoraba en tiempo de ejecución.
+
+**Y LA CIFRA NO BAJÓ, QUE ES EL PUNTO:**
+
+| | antes | después |
+| :-- | --: | --: |
+| entradas huérfanas | 80 | **72** |
+| **cadenas distintas — la cota** | **53** | **53** |
+| diccionarios | 75 | 74 |
+
+Las 8 que vivían en `fr/global.php` **están también en `es/global.php`**, así que ninguna dejó
+de ser huérfana. La cota es CADENAS DISTINTAS y no entradas **a propósito**: si contara
+entradas, borrar traducciones parecería progreso. Queda escrito en el baseline.
+
+**El trinquete avisó del cambio de universo** —«75 diccionarios al congelar, 74 ahora»— y se
+declaró en `files/dev/orphan-lang-keys-baseline.json`, junto con que `codigo` sube de 708 a
+709 por `LcTimeNamesTrait.php`, que es un archivo de código nuevo y no un diccionario.
+
+### Las tres reglas de método de AE, que valen para todo lo que venga
+
+Van a **§3 del contrato** porque no son de este bloque:
+
+1. **Toda provocación que intercambie un archivo PHP espera fuera de
+   `opcache.revalidate_freq`** —2 segundos aquí—, o mide el código anterior. Costó una
+   medición falsa en AE2.
+2. **SE DECLARA, NO SE ADIVINA.** Cuando una puerta tenga que distinguir dos cosas que se
+   parecen, se anota en el sitio en vez de inferirlo con una heurística: `@codigo-comentado`
+   frente a «adivinar si una línea comentada es código». Una heurística acierta casi siempre,
+   y «casi siempre» en una puerta es ruido.
+3. **Un instrumento dice cuánto de su universo mira.** No cuántos encontró: qué fracción miró.
+   LEY 15, y el caso es el censo de claves con su 48%.

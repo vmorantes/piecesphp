@@ -176,7 +176,10 @@ completo de cómo se da de alta un idioma. Cada sitio lleva la marca
 los idiomas de CKEditor y elFinder—. Con el primero basta para que la URL vuelva a existir.
 
 Lo que se retira de verdad: `src/statics/core/js/translations/{fr,de,it,pt}.js`. El front
-ofrecía arranque en idiomas que PHP ya no puede completar.
+ofrecía arranque en idiomas que PHP ya no puede completar. Y
+`src/app/lang/dynamic-translations/{fr,de,it,pt}/`, que ya se ignoraba en ejecución:
+`add-dynamic-translations.php` recorre las carpetas que existen y solo carga las que estén en
+`allowed_langs`.
 
 **MEDIDO**, provocándolo sobre copia guardada y restaurando por `sha256`:
 
@@ -216,6 +219,20 @@ Queda anotado en `.agents/context/12-convenciones.md` que la interpolación de
 el idioma solo se usa como clave y el valor sale de la lista blanca de configuración.
 
 ---
+
+## E4 se selecciona por consecuencia, no por «lo que se puede probar»
+
+La pregunta no es «¿se puede probar?» sino **«si esto se rompiera en silencio, ¿lo notaría
+alguien?»**. Las tres pruebas que han encontrado algo en esta campaña fueron CONTRATOS, no
+cobertura. `bin/censo-guardas` mide lo que valida, rechaza, autoriza o limita, y marca lo que
+puede FALLAR ABIERTO —decir que sí cuando debía decir que no—, que es un fallo invisible por
+definición: nadie reporta un permiso concedido de más.
+
+En el núcleo: **180 guardas por forma**, 29 con forma de fallo abierto —comparación laxa,
+acumulador nacido en `true`, cadena `if/elseif` sin `else`: las tres formas de
+`FileUpload::validate()`— y **solo 5 con prueba de RECHAZO**. Llamar a una guarda desde una
+suite no es probarla: cuatro de las nueve que alguna suite llama solo comprueban que ACEPTA lo
+bueno.
 
 ## Una línea de código comentada no es un relato
 

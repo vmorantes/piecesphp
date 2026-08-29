@@ -125,6 +125,16 @@ desordenado:
   dos pies de tarjeta huérfanos con sus etiquetas RENDIDAS EN PANTALLA: 96/96 → 86/88 → 80/80.
   **Lo vio el PROPIETARIO, no la puerta.** Desde AE lo vigila la comprobación 22 de
   `verify-integrity`, pero la puerta llega al commit y la cuenta llega a la edición. Ver T145.
+- **Una provocación que intercambie un archivo PHP espera fuera de `opcache.revalidate_freq`.**
+  Aquí vale 2 segundos. Cambiar el archivo y pedir la URL de inmediato mide EL CÓDIGO
+  ANTERIOR: en AE2 dio que el código viejo se portaba como el nuevo. El CLI no está afectado
+  —`opcache.enable_cli` está en Off—. Ver T145.
+- **SE DECLARA, NO SE ADIVINA.** Cuando una puerta tenga que distinguir dos cosas que se
+  parecen, se anota en el sitio en vez de inferirlo: `@codigo-comentado` frente a adivinar si
+  una línea comentada es código. Una heurística acierta casi siempre, y «casi siempre» en una
+  puerta es ruido que acaba ignorándose. Ver T145 y LEY 7.
+- **Un instrumento dice cuánto de su UNIVERSO mira, no solo cuánto encontró.** El censo de
+  claves imprimía «775 declaradas» mirando el 48% de las que hay. Ver T145 y LEY 15.
 
 ---
 
@@ -257,86 +267,83 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-29, tras el BLOQUE AD — E3 CERRADA.**
+**Ultima actualizacion: 2026-08-29, tras el BLOQUE AE.**
 
-> **ALCANCE, del PROPIETARIO**: la MAJOR depende de terminar la campana ENTERA — «toda es toda».
-> Y su criterio de reparto, dado en AD: **lo que CORRIGE una trampa entra en la campana; lo que
-> EXTIENDE una capacidad, no.**
+> **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
+> una trampa entra; lo que EXTIENDE una capacidad, no.**
 
 ### Donde estamos
 
-**E2 cerrada** (W). **E3 CERRADA** (YC, Z, AA, AB, AC, AD): cuatro lotes de borrado y su residuo
-visible retirado.
+**E2 y E3 cerradas.** El idioma queda en `es` y `en`. **E4 abierta.**
+
+**Puertas**: `gates` 23 suites · `verify-integrity` verde, **22 comprobaciones** (178 vistas con 2
+desbalances declarados, 53 claves huerfanas, 193 retornos) · PHPStan **749** = baseline · 27 leyes.
+
+### E4 — DECISION DE ARQUITECTO: SE SELECCIONA POR CONSECUENCIA, NO POR PRUEBABILIDAD
+
+Censo (`bin/censo-pruebabilidad`, 137 archivos, 1.179 funciones):
 
 ```
-                al empezar E3     hoy
-Tablas                     35      29     -6
-Vistas                      5       3     -2
-PHPStan                   883     749   -134   (0 arreglos, 0 supresiones: todo es codigo borrado)
+PURO 952 (80,7%) · RED/DISCO 92 · PETICION 90 · BASE 45
+698 nombres puros -> 113 cubiertos -> 585 sin cubrir -> 230 triviales
+                                                     -> 317 publicas con logica
 ```
 
-`DataImportExportUtility` **sale de E3 y pasa a E5** como CONSOLIDACION, por decision del
-PROPIETARIO: agrupar el importador interactivo, las exportaciones de entidades y la importacion
-exogena, conservando extensibilidad, portabilidad y boilerplate. **Es un ARQUETIPO**, no codigo de
-produccion: su prueba de aceptacion es si alguien puede construir uno nuevo a partir de el sin
-leerse el nucleo.
+**El CODER desconfio de su propia cifra** —80,7 % de pureza en un nucleo no es creible— y la
+contrasto con una muestra a mano de 10: 3 merecen prueba, 2 marginales, 5 no. Lo realmente
+pruebaunitariable ronda **100-160**, no 317. Y nombro el error sistematico: **el analisis es
+DIRECTO, no transitivo** — `initAppConfigs` llama a trece inicializadores impuros y sale «puro».
 
-**Puertas**: `gates` 23 suites · `verify-integrity` verde, **21 comprobaciones**, 53 claves
-huerfanas declaradas · PHPStan **749** = baseline · 27 leyes.
+**Decision**: E4 no es cubrir lo puro. La pregunta no es «se puede probar?» sino **«si esto se
+rompiera en silencio, lo notaria alguien?»**. La evidencia es de esta campana: las pruebas que
+encontraron algo fueron CONTRATOS —`FileUploadContract` destapo una guarda muerta desde PHP 8,
+`http-client-request-build` destapo la `$baseURL` estatica, los viajes de ida y vuelta destaparon
+tres—. Ninguna salio de «cubrir lo cubrible».
 
-**SIGUIENTE: E4** — pruebas unitarias de lo pruebaunitariable, y la ventana de correo (T7).
+1. **GUARDAS** — lo que valida, rechaza, autoriza o limita. Si falla ABIERTO no lo nota nadie.
+2. **CONTRATOS DE RETORNO NO OBVIO** — donde el llamante supone mal. `jsonEncode` devolviendo un
+   `int` al fallar.
+3. **VIAJES DE IDA Y VUELTA** — serializar, respaldar, codificar. Tres defectos ya encontrados ahi.
 
-### El residuo de E3, y lo que enseno
+Fuera: las 230 triviales y la masa pura pero aburrida. No por imposibles: porque una prueba ahi no
+descubre nada.
 
-El PROPIETARIO vio rotulos fantasma en pantalla y perdio la confianza. Tenia razon, y era peor que
-texto rancio: **`ReportsManage/generic-report-view.php` estaba ROTO, y lo rompimos nosotros en el
-bloque AB** anclando un cierre en un `</div>` por SANGRIA FIJA que cerraba un div interior. Divs
-96/96 -> 86/88 -> hoy 80/80. Las otras nueve vistas que E3 toco cuadran, porque alli si se
-contaron etiquetas.
+### Metodo, tres reglas nuevas de AE
 
-- **ANCLAR UNA EDICION POR SANGRIA NO ES ANCLAR.** Segundo incidente: el primero fueron las dos
-  vistas de perfil en AC, rehechas desde copia guardada. La ley es un SUELO: mecanismo a la
-  segunda.
-- **PARA ATRIBUIR, SE MIDE EL ESTADO ANTERIOR, NO SE CLASIFICA POR APARIENCIA.** El CODER
-  reconstruyo el arbol previo con `git archive 68bb1378^` y corrio el MISMO censo: 69 huerfanas
-  antes, 92 despues, **39 de diferencia** — las unicas que retiro. Eso salvo a «Activo»,
-  «Inactivo», «Investigacion» y «Oportunidad de financiacion», que suenan a modulo muerto y **ya
-  eran huerfanas antes**.
-- **EL CENSO DE HUERFANOS CENSABA IDENTIFICADORES Y NUNCA CENSO TEXTO VISIBLE.** Fallo de diseno
-  de ARQUITECTO. Los ceros de los cuatro lotes eran honestos dentro de su universo (LEY 15).
-  **Lo vio el PROPIETARIO, no la puerta.** Ya esta la comprobacion 21.
+- **Toda provocacion que intercambie un archivo PHP espera fuera de `opcache.revalidate_freq`**
+  (2 s aqui). La primera medicion de AE2 dijo que el codigo viejo se portaba como el nuevo: era
+  opcache sirviendo el anterior.
+- **Se declara, no se adivina.** La puerta de comentarios contaba como PROSA el codigo comentado.
+  Una heuristica que separase codigo de prosa acertaria casi siempre, y «casi siempre» en una
+  puerta es ruido. Se resolvio con la anotacion `@codigo-comentado`.
+- **Un instrumento dice cuanto de su universo mira.** La comprobacion 21 imprimia «775 claves» como
+  si fueran todas: son **775 de 1.632**, porque solo juzga la comilla doble. ARQUITECTO decide NO
+  ampliar la cota: 277 contra 53 seria casi todo falso positivo, y una puerta ruidosa se acaba
+  ignorando. El defecto era la mentira sobre la cobertura, no la cobertura.
 
 ### Abierto, sin decidir
 
-- **`config/lang.php` sigue declarando `fr`, `de`, `it`, `pt` en `allowed_langs`**, con locale,
-  formato y bandera. `/fr/` es una URL valida y el selector ofrece cuatro idiomas que ahora salen
-  en espanol. Retirarlos es DECIDIR QUE IDIOMAS OFRECE LA APLICACION: es del PROPIETARIO.
-  Lo mismo para los seis diccionarios de `statics/core/js/translations/`.
-- **El recolector de faltantes no cubre el front.** PHP escribe `missing-lang-messages/...`; falta
-  medir si `_i18n()` hace lo equivalente. Si no, el recolector ve media aplicacion y no dice cual
-  mitad. Es una TRAMPA, no una extension: entra en la campana.
-- **La arquitectura del front NO ESTA DOCUMENTADA.** `09-frontend-assets.md` explica la tuberia —
-  gulp, `ServerStatics`, variables CSS— y no menciona `own-plugins`, `helpers.js`,
-  `configurations.js`, `pcsphpGlobals` ni `_i18n`. Son 126 archivos JS, 82 SCSS, 68 CSS, doce
-  adaptadores y un `Proxy` en `configurations.js:113` que une el diccionario estatico con el que
-  llega del servidor. **Ese diseno es invisible salvo que alguien abra esa linea.** Destino:
-  `16-frontend-arquitectura.md`, en E6. ARQUITECTO lo escribe.
-- **Los retornos ignorados**: 193 sin declarar, trinquete en la comprobacion 19.
-- **Las cuatro controladoras de `Locations`** deciden la operacion desde el CUERPO. Declaradas.
-- **`files/API/`** fuera del universo de la foto · **los guiones de permisos** ·
-  **`phpstan-strict-rules`** · **las tres listas de LEY 11** · **T86** · **la asimetria de T114**.
-- **El procedimiento de despliegue** -> E6 · **el 4.0.0 del paquete** -> E5.
+- **`profiles-translation-config.js` sigue nombrando `'fr'`.** Sus campos no existen en ninguna
+  vista: la funcion ya era un no-op. Del PROPIETARIO.
+- **`app/lang/dynamic-translations/fr/global.php` sigue versionado**, con 8 de las 53 huerfanas, y
+  hay carpetas `de/`, `it/`, `pt/` con su `.keep`.
+- **Los retornos ignorados**: 193 sin declarar · **`Locations`**: cuatro controladoras deciden la
+  operacion desde el CUERPO.
+- **La arquitectura del front NO ESTA DOCUMENTADA** -> `16-frontend-arquitectura.md`, en E6.
+  126 JS, 82 SCSS, 68 CSS, doce adaptadores y un `Proxy` en `configurations.js:113`.
+- **`files/API/`** · **los guiones de permisos** · **`phpstan-strict-rules`** · **las tres listas de
+  LEY 11** · **T86** · **la asimetria de T114** · **el despliegue** -> E6.
+- **`DataImportExportUtility`** -> E5, CONSOLIDACION y ARQUETIPO. Dos pruebas de aceptacion:
+  **supervivencia** —aguanta en un clon con lo opcional apagado?— y **utilidad** —puede alguien
+  construir uno nuevo sin leerse el nucleo?—. Ancla en usuarios, la tabla sine qua non.
 - **Los 81 bloques del registro**: el borrado espera al cierre de E6.
 
 ### Fuera de la campana - roadmap
 
-`files/dev/roadmap/`: silencios de Sass · el modulo como patron mecanizable · el skill de
-aterrizaje · una cache de verdad · la distribucion sin ruido · el versionado · las cuatro
-revisiones de seguridad y operacion (errores en TRES MODOS, encriptacion, autenticacion, tokens de
-API) · **el GUI de traducciones**, que segun el criterio del PROPIETARIO no entra: no corrige la
-logica de i18n, la extiende. Su forma segura: escribe la capa `dynamic-translations`, NUNCA los
-diccionarios base; el zip es una PROMOCION revisable, no una sincronizacion; y la capa son DATOS,
-nunca PHP escrito por un formulario.
+Silencios de Sass · el modulo como patron mecanizable · el skill de aterrizaje · una cache de
+verdad · la distribucion sin ruido · el versionado · las cuatro revisiones de seguridad y
+operacion · el GUI de traducciones · **y en la ventana de i18n: `es.js`/`en.js` pasan a ser
+ARTEFACTOS GENERADOS desde PHP.** El `Proxy` se queda; lo que cambia es que la base deja de
+mantenerse a mano, y entonces el conjunto de idiomas no puede divergir.
 
-**Nota del PROPIETARIO, sin desarrollar a proposito**: al cerrar la campana, ARQUITECTO debe
-recordarle **«Perfeccionar geovisor»**.
+**Nota del PROPIETARIO**: al cerrar la campana, recordarle **«Perfeccionar geovisor»**.
