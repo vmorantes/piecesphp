@@ -45,7 +45,12 @@ def candidatos(rutas):
         arbol = next((c[2:] for c in campos if c.startswith('w/')), None)
         declarado = next((c.split('=')[1] for c in campos if c.startswith('eol=')), None)
         # `none` = sin un solo salto de línea. `-text` = binario. Ninguno se toca.
-        if arbol not in FORMAS or declarado not in FORMAS:
+        # `mixed` SÍ se toca, y por poco se queda fuera: escribir un bloque en LF dentro de
+        # un archivo en CRLF deja el archivo mezclado, git avisa, y la primera versión de
+        # esto decía «0 fuera de forma». El universo del instrumento otra vez. Ver T140.
+        if declarado not in FORMAS:
+            continue
+        if arbol not in FORMAS and arbol != 'mixed':
             continue
         vistos += 1
         if arbol != declarado:
