@@ -82,6 +82,13 @@ desordenado:
   «restaurar» devuelve lo que hay en HEAD, no lo que tenías: en el bloque T se llevó por delante
   un arreglo sin commitear y hubo que rehacerlo. Se copia antes, se restaura de la copia, y se
   comprueba con `sha1sum` que el archivo volvió idéntico.
+- **Y SOBRE UN ARCHIVO PROPIO, nunca sobre uno del proyecto.** Cambiar una `a` por una `b` para
+  probar el caso «mismo tamaño, contenido distinto» cayó dentro de `get_allowed_langs()` y tumbó
+  el CLI entero. El estado guardado lo salvó; un archivo propio habría evitado el susto. Si no hay
+  más remedio que usar uno del proyecto, se restaura **antes** de ejecutar nada que dependa de él.
+- **Los archivos que ARQUITECTO deje escritos entran SIEMPRE en el `git add` del bloque en curso**,
+  se anuncien o no en la instrucción. Si aparece uno inesperado, se dice en el reporte y se
+  commitea igual.
 - **Toda orden de git de ARQUITECTO lleva `--no-optional-locks`.** Medido:
   `git --no-optional-locks status --porcelain` no deja `.git/index.lock`. Sin ese flag, el
   puente deja candados huérfanos que él no puede borrar y que rompen el primer `git add` del

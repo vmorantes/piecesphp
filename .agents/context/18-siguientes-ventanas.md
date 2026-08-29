@@ -758,6 +758,13 @@ qué trato recibe cada error antes de mirarlo.
 | **Se reescribe** | `DataImportExportUtility` | Atención **solo si el error es un defecto real**, no si es un tipo mal declarado. |
 | **Trato completo** | todo lo demás | Las cuatro respuestas: contrato / manejo explícito / defecto / protocolo. |
 
+> ⚠ **CORRECCIÓN DE MÉTODO AL MAPA DE ARRIBA** (LEY 14: aparte y enlazada). **Este mapa agrupó por
+> DIRECTORIO, no por DESTINO.** Un directorio puede contener un **puente** —un alias vacío— hacia
+> un módulo que muere en OTRO lote: pasó con `SubMappers/`, donde dos mappers eran de experiencias
+> previas y el tercero apuntaba a `InterestResearchAreas`, con 104 referencias vivas en siete
+> módulos. **Antes de borrar un directorio «completo», se mira a dónde apunta cada archivo.**
+> Censo de puentes de todo `src/app` y reprecio de los siete lotes, en T139.
+
 ### Experiencias previas — **se borran, y el trabajo con riesgo NO es el borrado**
 
 `PreviousExperiencesMapper` y `OrganizationPreviousExperiencesMapper` se van, con sus dos
@@ -13311,3 +13318,166 @@ desapariciones.
 > **Y las líneas**: `PreviousExperiencesMapper.php` y
 > `OrganizationPreviousExperiencesMapper.php` son **769**, no 768. `InterestResearchAreasMapper.php`
 > son 30, como decía.
+
+---
+
+## T139 · YC · E3, PRIMER LOTE: EXPERIENCIAS PREVIAS — CERRADO, Y CON DOS PARADAS
+
+### Lo hecho, con su foto
+
+| | antes | después |
+| :-- | --: | --: |
+| Tablas | 35 | **33** |
+| Archivos en `src/` | 5.437 | **5.427** |
+| PHPStan | 883 | **844** |
+
+Ocho borrados y nueve ediciones. Las dos de `SystemApprovals` **en commit propio**, y se
+retiraron **antes** de borrar los mappers: ningún commit deja referencias colgando.
+
+### >>> POR QUÉ SON OCHO Y NO NUEVE — la corrección de método a T6 <<<
+
+`InterestResearchAreasMapper.php` **no se tocó**. Es un **alias vacío de 30 líneas** hacia
+`InterestResearchAreas\Mappers\InterestResearchAreasMapper`, un módulo que muere en **otro lote**.
+Tenía **104 referencias en 23 archivos de siete módulos**, y seis de esos archivos están en
+módulos que **se conservan**:
+
+| Archivo | Citas | |
+| :-- | --: | :-- |
+| `UserProfileMapper.php` | 5 | se queda |
+| `OrganizationMapper.php` | 5 | `Organizations` se conserva |
+| `OrganizationsController.php` | 4 | ídem |
+| `approval-profile-user.php` · `-organization.php` | 2+2 | `SystemApprovals` se conserva |
+| `config/functions.php` | 3 | **el núcleo** |
+
+> **T6 AGRUPÓ POR DIRECTORIO, NO POR DESTINO.** Por eso metió en «se borra completo» un
+> directorio que contiene un puente hacia otro calendario, y por eso su frase «no queda nada que
+> reubicar» era cierta para dos de los tres archivos y falsa para el tercero.
+>
+> **Un lote, un diff atribuible.** Mezclar dos destruye la atribución de la foto, que es lo único
+> que E3 tiene por red.
+
+### Tres consecuencias que abrió el lote, y las pidió la puerta
+
+`verify-integrity` reportó cinco fallos tras el borrado, **todos ciertos y todos del lote**:
+
+| Lo que dijo | Qué se hizo |
+| :-- | :-- |
+| Desaparecieron los dos `addExperienceAction()` | Instantánea regenerada |
+| `MyProfileController::_allowedRoute` ya no decide nada | **Se borra**, y su entrada sale del registro de sobreescrituras |
+| Las dos tablas están declaradas volátiles y el código ya no las descubre | Fuera de `volatile-state.json` |
+
+**Borrar el hook se comprobó en el consumidor antes de hacerlo** (LEY 19). El permisivo del trait
+devuelve `true` y el de aquí devolvía `$route !== ''`, que **no** son iguales — pero
+`allowedRoute()` termina en `return $allow ? $route : '';`, así que con `$route` vacío devuelve
+cadena vacía decida lo que decida el hook. **Equivalentes en el único punto donde difieren.**
+
+### YC4 · El cuarto término, y el nombre se le queda corto
+
+`[REPARTO] 844 <- 883 = 0 arreglos + 0 supresiones + **39 murieron** + 0 destapados`
+
+| | |
+| --: | :-- |
+| **17** | murieron **con su archivo** — los cuatro borrados que tenían errores |
+| **22** | se fueron con el **código retirado** de seis archivos que **se quedan** |
+
+**Los diez archivos cuya cifra se mueve son exactamente los diez del lote.** Ninguno ajeno, que
+es lo que la parada venía a comprobar. Provocado declarando 30 en vez de 39: el trinquete para.
+
+*Y un error de método propio: contar los muertos leyendo el baseline con una expresión aparte dio
+18 en vez de 17. **Dos parsers distintos, uno para cada lado, no son comparables** — hay que
+comparar los dos artefactos con el mismo.*
+
+### La foto final: 24 diferencias, 22 del lote y **DOS HALLAZGOS**
+
+Las 22 esperadas: 8 borrados, 9 ediciones, `VerifyIntegrityTask`, las dos tablas, y los dos
+`server-delegated` que ya estaban declarados volátiles. **Y dos que el lote no explica.**
+
+#### HALLAZGO 1 · `core/db-backup-round-trip` deja una fila por corrida
+
+`system_approvals_elements`: 75 → 76 → **77**. Acotado midiendo, no adivinando:
+
+```
+antes                     usuarios=7 aprobaciones=76
+tras db-backup-round-trip usuarios=7 aprobaciones=77   <-- ella
+tras db-restore           usuarios=7 aprobaciones=77
+tras otp-fresh-user       usuarios=7 aprobaciones=77
+```
+
+**Es la misma familia que la fuga del exportador de T138**: una suite con un efecto que no
+deshace, creciendo monótonamente. No se arregla aquí —es otra suite y otro asunto—, pero queda
+identificada con su método.
+
+#### HALLAZGO 2 · Tres suites cambiaron sin que nadie las tocara, y git no lo ve
+
+`UnitTest-FileUploadContract.php`, `UnitTest-HttpClient.php` y `UnitTest-HttpClientRequestBuild.php`
+aparecen modificadas. `git status` está **limpio** para las tres.
+
+| Archivo | Líneas | Bytes antes | Bytes ahora | Δ |
+| :-- | --: | --: | --: | --: |
+| FileUploadContract | 100 | 4.927 | 5.027 | **+100** |
+| HttpClient | 71 | 3.419 | 3.490 | **+71** |
+| HttpClientRequestBuild | 118 | 5.986 | 6.104 | **+118** |
+
+**Un byte por línea: LF → CRLF.** Las escribí con heredoc en LF y git las reescribió a CRLF según
+`.gitattributes`, con el mismo mtime las tres.
+
+> **Y esto MATIZA lo que escribí en T131.** Allí concluí que el «ruido CRLF» no existía porque git
+> no producía diff. **Cierto para git, y falso para el archivo**: git normaliza al comparar, pero
+> el archivo en disco SÍ se reescribe, y cualquier instrumento que mire bytes —la foto— lo ve.
+> Es la LEY 19 en mi contra por segunda vez: afirmé sobre *el archivo* leyendo lo que hace *git*.
+>
+> **Para E3 esto importa**: una renormalización va a aparecer en cada foto como modificación real,
+> y no lo es. No es ruido de la foto —la foto tiene razón, los bytes cambiaron— pero tampoco es
+> trabajo del lote.
+
+### YC5 · EL CENSO DE PUENTES, y la PARADA que dispara
+
+**Alias vacíos en todo `src/app`: cuatro.** Tokenizado, con canario.
+
+| Alias | Apunta a | ¿Cruza al mapa de T6? |
+| :-- | :-- | :-- |
+| `SubMappers\InterestResearchAreasMapper` | `InterestResearchAreas\Mappers\…` | **SÍ — el único** |
+| `API\Adapters\CronJobTaskAdapter` | `CronJobTask` | no, núcleo |
+| `Core\RouteGroup` | `RouteGroupAdapter` | no, núcleo |
+| `Core\Route` | `RouteAdapter` | no, núcleo |
+
+**Solo hay un puente hacia un módulo que se borra, y ya se conoce.** Pero el reprecio de los lotes
+no sale de los puentes: sale de las referencias.
+
+| Módulo | Destino | Archivos que lo citan | **Fuera** | Dentro | En módulos que se conservan | Núcleo/config |
+| :-- | :-- | --: | --: | --: | --: | --: |
+| `ImagesRepository` | se borra | 24 | **13** | 11 | 11 | 1 |
+| `ApplicationCalls` | se borra | 39 | **23** | 16 | 16 | 2 |
+| `InterestResearchAreas` | se borra | 21 | **12** | 9 | 12 | 2 |
+| `MySpace` | parcial | 39 | **22** | 17 | 16 | 3 |
+| `ContentNavigationHub` | parcial | 21 | **13** | 8 | 11 | 2 |
+| `ReportsManage` | parcial | 17 | **11** | 6 | 10 | 1 |
+| `DataImportExportUtility` | se reescribe | 7 | 2 | 5 | 2 | 1 |
+
+> **>>> PARADA YC5 · SEIS DE LOS SIETE TIENEN MÁS ARCHIVOS FUERA QUE DENTRO <<<**
+>
+> Solo `DataImportExportUtility` se libra. Y **los siete tocan `src/app/config/routes.php`**;
+> cinco tocan además `config/menu.php`, y `MySpace` toca `AdminPanelController`.
+> **El núcleo cambia en los siete lotes**, no en uno.
+>
+> Este primer lote no lo sufrió porque «experiencias previas» es un subconjunto de `MySpace`, no
+> el módulo entero. Los que vienen no tienen esa suerte.
+>
+> *Límite honesto: «archivos que citan el namespace» no es «trabajo». Un archivo puede tener una
+> cita trivial. Como señal de reprecio vale; como estimación de horas, no.*
+
+*Y el instrumento falló primero, cazado por la uniformidad: la primera pasada daba 9,9,9,9,8,8,8 —
+el patrón llevaba doble barra y los `use` llevan una, así que no casaba ni con los archivos del
+propio módulo.*
+
+### CANDIDATA A LEY, y sale de T138
+
+> **UNA SUITE NO PUEDE MEDIR SU PROPIO EFECTO.** La del exportador pasaba 23/23 con la fuga y sin
+> ella. La de `db-backup-round-trip` pasa 5/5 dejando una fila por corrida. **Las dos las cazó la
+> foto**, un instrumento que no participa. Un efecto colateral solo lo ve quien está fuera de él.
+
+### REGLA NUEVA PARA §3 DEL CONTRATO
+
+> **UNA PROVOCACIÓN SE HACE SOBRE UN ARCHIVO PROPIO, NUNCA SOBRE UNO DEL PROYECTO.** Cambiar una
+> `a` por una `b` para probar el «mismo tamaño» cayó dentro de `get_allowed_langs()` y tumbó el
+> CLI entero. El estado guardado lo salvó; un archivo propio habría evitado el susto.

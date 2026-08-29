@@ -222,6 +222,47 @@ que es el mismo defecto en otro entorno—.
 Se dejan a propósito las dos menciones que son **historia y no instrucción**: la entrada del
 changelog de la 7.1.0 y una salida de `composer` citada en el apartado de diagnóstico.
 
+## ⚠ CAMBIO INCOMPATIBLE — fuera las experiencias previas del perfil
+
+**E3, primer lote.** Desaparecen las experiencias previas de usuario y de organización: la entidad,
+su CRUD, sus vistas, su JS y sus dos tablas.
+
+**Si tu despliegue las usa, pierdes los datos.** `previous_experiences` y
+`organization_previous_experiences` se borran del esquema, y el SQL lo emite `scheme-drop`, no se
+escribe a mano.
+
+| | |
+| :-- | :-- |
+| **Se borran** | `PreviousExperiencesMapper`, `OrganizationPreviousExperiencesMapper`, sus dos controladores `Util`, las dos vistas `experience-list-card` y los dos JS `delete-config` |
+| **Se editan** | Los dos controladores de perfil, `ProfileTasksUtilities`, cuatro vistas de `MySpace` y **las dos vistas de aprobación de `SystemApprovals`** |
+| **Rutas que dejan de existir** | `-datatables-experience`, `-actions-save-experience`, `-actions-delete-experience`, en los dos controladores |
+
+**`SystemApprovals` se conserva y por eso va en commit propio**: las dos vistas de aprobación
+dejan de mostrar el bloque de experiencias, y **lo de áreas de interés no se toca**.
+
+`ProfileTasksUtilities` **no se borra**: además de las experiencias genera el SQL de
+`UserProfileMapper`, que se queda.
+
+**`InterestResearchAreasMapper` tampoco se toca**, aunque viva en el mismo directorio: es un alias
+vacío hacia `InterestResearchAreas`, un módulo que muere en otro lote, y tiene 104 referencias
+vivas en siete módulos —cuatro de ellos de los que se conservan—.
+
+Censo de huérfanos con canario: **cero** referencias vivas a lo borrado, rutas y permisos
+incluidos. Y el baseline de PHPStan baja de 883 a 844.
+
+## Herramientas — el trinquete gana su cuarto término: `murieron`
+
+E3 borra código, y **un error que se va porque se borró su código no es un arreglo** —nadie
+corrigió nada— **ni una supresión** —el `.neon` sigue en 52 entradas— **ni un destapado**.
+
+```
+[REPARTO] 844 <- 883 = 0 arreglos + 0 supresiones + 39 murieron + 0 destapados
+```
+
+Y el nombre se queda corto, medido: de los 39, solo **17 murieron con su archivo**; los otros
+**22 se fueron con código retirado de archivos que se quedan**. Los diez archivos cuya cifra se
+mueve son exactamente los diez del lote.
+
 ## ⚠ Corregido — la foto de `snapshot` tenía ruido propio Y un punto ciego, y eran opuestos
 
 E3 se apoya en «foto antes y foto después». La red se probó **antes** de usarla y no estaba lista.
