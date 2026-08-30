@@ -30,8 +30,8 @@ set_config('lang_by_cookie', true);
 set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 
 /**
- * Los cuatro idiomas COMENTADOS de este archivo son EL EJEMPLO de cómo se añade uno.
- * La receta —los ocho sitios de aquí y los tres de fuera— en `.agents/context/08-i18n.md`.
+ * `allowed_langs` es EL INTERRUPTOR: lo que no esté ahí no existe, y lo demás de este archivo
+ * puede quedarse vivo sin molestar. Cómo se añade un idioma: `.agents/context/08-i18n.md`.
  */
 
 /**
@@ -42,7 +42,7 @@ set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 set_config('allowed_langs', [
     'es',
     'en',
-    //@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
+    //@codigo-comentado · Descomentar da de alta el idioma. Ver `.agents/context/08-i18n.md`.
     //'fr',
     //'de',
     //'it',
@@ -53,22 +53,20 @@ set_config('allowed_langs', [
 add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
     'es',
     'en',
-    //@codigo-comentado · IDIOMA COMENTADO
-    //'fr',
-    //'de',
-    //'it',
-    //'pt',
+    'fr',
+    'de',
+    'it',
+    'pt',
 ]);
 
 //Idiomas y grupos para ignorar en el registro de traducciones faltantes (missing-lang-messages). Idiomas para añadir aunque no esté en los permitidos (additional_langs_to_scan).
 set_config('no_scan_langs', [
     'es',
     //'en',
-    //@codigo-comentado · IDIOMA COMENTADO
-    //'fr',
-    //'de',
-    //'it',
-    //'pt',
+    'fr',
+    'de',
+    'it',
+    'pt',
 ]);
 set_config('no_scan_lang_groups', [
     'locationBackend-names',
@@ -104,11 +102,10 @@ set_config('get_locale_versions_by_locale', function (array $locales) {
 set_config('locale_langs', [
     'es' => get_config('get_locale_versions_by_locale')(['es_CO', 'es_ES', 'es_MX']),
     'en' => get_config('get_locale_versions_by_locale')(['en_US']),
-    //@codigo-comentado · IDIOMA COMENTADO
-    //'fr' => get_config('get_locale_versions_by_locale')(['fr_FR']),
-    //'de' => get_config('get_locale_versions_by_locale')(['de_DE']),
-    //'it' => get_config('get_locale_versions_by_locale')(['it_IT']),
-    //'pt' => get_config('get_locale_versions_by_locale')(['pt_PT']),
+    'fr' => get_config('get_locale_versions_by_locale')(['fr_FR']),
+    'de' => get_config('get_locale_versions_by_locale')(['de_DE']),
+    'it' => get_config('get_locale_versions_by_locale')(['it_IT']),
+    'pt' => get_config('get_locale_versions_by_locale')(['pt_PT']),
 ]);
 
 /**
@@ -123,19 +120,18 @@ set_config('lc_time_names_mysql', [
     'en' => [
         'en_US',
     ],
-    //@codigo-comentado · IDIOMA COMENTADO
-    //'fr' => [
-    //    'fr_FR',
-    //],
-    //'de' => [
-    //    'de_DE',
-    //],
-    //'it' => [
-    //    'it_IT',
-    //],
-    //'pt' => [
-    //    'pt_PT',
-    //],
+    'fr' => [
+        'fr_FR',
+    ],
+    'de' => [
+        'de_DE',
+    ],
+    'it' => [
+        'it_IT',
+    ],
+    'pt' => [
+        'pt_PT',
+    ],
 ]);
 
 /**
@@ -146,20 +142,18 @@ set_config('format_date_lang', [
     //'en' => 'l, Y/F/d', // Saturday, 2021/May/08
     'es' => 'd/m/Y', // 08/05/2021
     'en' => 'm/d/Y',
-    //@codigo-comentado · IDIOMA COMENTADO
-    //'fr' => 'm/d/Y',
-    //'de' => 'm/d/Y',
-    //'it' => 'm/d/Y',
-    //'pt' => 'd/m/Y',
+    'fr' => 'm/d/Y',
+    'de' => 'm/d/Y',
+    'it' => 'm/d/Y',
+    'pt' => 'd/m/Y',
 ]);
 set_config('format_date_lang_sql', [
     'es' => '%d/%m/%Y', // 08/05/2021
     'en' => '%Y/%m/%d',
-    //@codigo-comentado · IDIOMA COMENTADO
-    //'fr' => '%Y/%m/%d',
-    //'de' => '%Y/%m/%d',
-    //'it' => '%Y/%m/%d',
-    //'pt' => '%d/%m/%Y',
+    'fr' => '%Y/%m/%d',
+    'de' => '%Y/%m/%d',
+    'it' => '%Y/%m/%d',
+    'pt' => '%d/%m/%Y',
 ]);
 
 /**
@@ -172,11 +166,10 @@ set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size
     $flags = [
         'es' => "<i{CURRENT}class='{$size} es flag'></i>",
         'en' => "<i{CURRENT}class='{$size} gb flag'></i>",
-        //@codigo-comentado · IDIOMA COMENTADO. La bandera es código de PAÍS: 'en' usa 'gb'.
-        //'fr' => "<i{CURRENT}class='{$size} fr flag'></i>",
-        //'de' => "<i{CURRENT}class='{$size} de flag'></i>",
-        //'it' => "<i{CURRENT}class='{$size} it flag'></i>",
-        //'pt' => "<i{CURRENT}class='{$size} pt flag'></i>",
+        'fr' => "<i{CURRENT}class='{$size} fr flag'></i>",
+        'de' => "<i{CURRENT}class='{$size} de flag'></i>",
+        'it' => "<i{CURRENT}class='{$size} it flag'></i>",
+        'pt' => "<i{CURRENT}class='{$size} pt flag'></i>",
     ];
 
     $currentLang = \PiecesPHP\Core\Config::get_lang();

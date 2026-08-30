@@ -7,8 +7,7 @@ window.addEventListener('load', function () {
 	const replaceLangs = function(lang){
 		//elFinder no usa el mismo código que la aplicación: esta lista traduce del uno al otro.
 		const replaceList = {
-			//@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
-			//'pt': 'pt_BR',
+			'pt': 'pt_BR',
 		}
 		return typeof replaceList[lang] !== 'undefined' ? replaceList[lang] : lang
 	}

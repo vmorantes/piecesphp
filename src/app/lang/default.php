@@ -5,20 +5,18 @@ $lang = [
     'lang' => [
         'es' => 'Español',
         'en' => 'Inglés',
-        //@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
-        //'fr' => 'Francés',
-        //'de' => 'Alemán',
-        //'it' => 'Italiano',
-        //'pt' => 'Portugués',
+        'fr' => 'Francés',
+        'de' => 'Alemán',
+        'it' => 'Italiano',
+        'pt' => 'Portugués',
     ],
     'langShort' => [
         'es' => 'ES',
         'en' => 'EN',
-        //@codigo-comentado · IDIOMA COMENTADO
-        //'fr' => 'FR',
-        //'de' => 'DE',
-        //'it' => 'IT',
-        //'pt' => 'PT',
+        'fr' => 'FR',
+        'de' => 'DE',
+        'it' => 'IT',
+        'pt' => 'PT',
     ],
     'formatsDate' => [
         'd-m-Y h:i:s'   => 'd-m-Y h:i:s',

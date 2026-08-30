@@ -6,11 +6,10 @@ $lang = [
     'lang' => [
         'es'               => 'Spanish',
         'en'               => 'English',
-        //@codigo-comentado · IDIOMA COMENTADO. Receta en `.agents/context/08-i18n.md`.
-        //'fr'               => 'French',
-        //'de'               => 'German',
-        //'it'               => 'Italian',
-        //'pt'               => 'Portuguese',
+        'fr'               => 'French',
+        'de'               => 'German',
+        'it'               => 'Italian',
+        'pt'               => 'Portuguese',
         'Idioma'           => 'Language',
         'Idiomas'          => 'Languages',
         'Idioma principal' => 'Main language',
@@ -18,11 +17,10 @@ $lang = [
     'langShort' => [
         'es' => 'ES',
         'en' => 'EN',
-        //@codigo-comentado · IDIOMA COMENTADO
-        //'fr' => 'FR',
-        //'de' => 'DE',
-        //'it' => 'IT',
-        //'pt' => 'PT',
+        'fr' => 'FR',
+        'de' => 'DE',
+        'it' => 'IT',
+        'pt' => 'PT',
     ],
     'formatsDate' => [
         'd-m-Y h:i:s'   => 'Y-m-d h:i:s',

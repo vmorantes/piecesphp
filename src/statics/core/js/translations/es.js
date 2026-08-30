@@ -2,20 +2,18 @@ var PCSPHP_TRANSLATIONS_ES = {
 	lang: {
 		'es': 'Español',
 		'en': 'Inglés',
-		//IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`.
-		//'fr': 'Francés',
-		//'de': 'Alemán',
-		//'it': 'Italiano',
-		//'pt': 'Portugués',
+		'fr': 'Francés',
+		'de': 'Alemán',
+		'it': 'Italiano',
+		'pt': 'Portugués',
 	},
 	langShort: {
 		'es': 'ES',
 		'en': 'EN',
-		//IDIOMA COMENTADO
-		//'fr': 'FR',
-		//'de': 'DE',
-		//'it': 'IT',
-		//'pt': 'PT',
+		'fr': 'FR',
+		'de': 'DE',
+		'it': 'IT',
+		'pt': 'PT',
 	},
 	titles: {
 		error: 'Error',
