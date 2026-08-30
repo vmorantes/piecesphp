@@ -14351,6 +14351,13 @@ de borrado automático.
 > **La diferencia es lo nuestro.** En AD eso salvó cuatro cadenas que una clasificación por
 > vocabulario habría borrado siendo deuda anterior: `Activo`, `Inactivo`, `Investigación` y
 > `Oportunidad de financiación`. Ver T145.
+>
+> **(e) COMPORTAMIENTO SIN SUJETO** —la TERCERA ceguera, añadida en AG—. Un manejador
+> enganchado a un selector que ya no casa con nada. `form.find('button[translate]')` devuelve
+> una colección vacía y **JavaScript no se queja**: no lanza, no traza, no enciende ninguna
+> puerta. El código sigue descargándose en cada carga y no hace nada. Se censa cruzando los
+> selectores de ATRIBUTO de nuestro JS contra el PHP del árbol y contra los `attr()` del
+> propio JS. En AG: 9 sin productor de 98 buscados. Ver T147.
 
 ### Las tres de método que vienen de AC
 
@@ -14754,3 +14761,192 @@ Van a **§3 del contrato** porque no son de este bloque:
    y «casi siempre» en una puerta es ruido.
 3. **Un instrumento dice cuánto de su universo mira.** No cuántos encontró: qué fracción miró.
    LEY 15, y el caso es el censo de claves con su 48%.
+
+---
+
+## T147 · AG · SE REVIERTE EL EXCESO DE COMENTADO, Y LAS GUARDAS DE ACCESO YA RECHAZAN
+
+**Bloque AG.** Encabeza una **corrección de ARQUITECTO**: AG1 se acordó con el PROPIETARIO
+hace tres bloques, ARQUITECTO la dio por capturada y **no la transmitió**. Su causa está en §7:
+la tenía en la conversación y no en disco.
+
+### AG1 · La receta se explica, no se deja comentada
+
+Criterio del PROPIETARIO. **El código comentado se pudre**: nadie lo actualiza, y el día que
+alguien lo descomente en bloque se lleva por delante lo que ya no encaja. Y esas entradas no
+molestaban: si el idioma no está en `allowed_langs`, **nadie las pide nunca**.
+
+Se queda comentado **solo `allowed_langs`**, que es el interruptor, con un puntero corto a
+`08-i18n.md`. Vuelven a estar vivas —siete bloques en `lang.php` y uno en cada uno de los
+otros cinco archivos—:
+
+| Archivo | Qué vuelve |
+| :-- | :-- |
+| `config/lang.php` | los siete bloques que no son `allowed_langs` |
+| `config/assets.php` | el mapa de idiomas de CKEditor |
+| `lang/default.php` · `lang/en.php` | los grupos `lang` y `langShort` |
+| `translations/es.js` · `en.js` | los mismos dos grupos |
+| `FileManager/…/file-manager.js` | el `'pt' => 'pt_BR'` de elFinder |
+
+`ASC`, `DESC` y `Ordenar por` **no vuelven**: eso quedó decidido en AE y era residuo de
+`ImagesRepository`. Y no se revierten las cuatro entradas de `configurations.js`, por decisión
+del PROPIETARIO: esa capa va a ENCOGER cuando `es.js` y `en.js` pasen a ser artefactos
+generados desde PHP.
+
+**Comprobado después**: `/` y `/en/` en 200, `/fr/` y `/de/` en 404, **una** bandera en el
+selector, y **cero** líneas nuevas en el registro de errores.
+
+> #### CORRECCIÓN DE HECHO, aparte y enlazada (LEY 14)
+>
+> El comentario que escribí en `assets.php` decía que sin `translations/es.js` el editor «se
+> queda en su inglés de fábrica». **ES FALSO**, y está también en el mensaje del commit
+> `6df4e815`, que no se reescribe.
+>
+> **Medido**: `ckeditor.js` abre con `(function(t){const e=t["es"]=t["es"]||{};e.dictionary=…`
+> y trae `Undo:"Deshacer"`, `Bold:"Negrita"`. **CKEditor 5 empaqueta su idioma de origen en el
+> bundle**; los `translations/*.js` son los ADICIONALES. Que no haya `es.js` entre los 63 es
+> cierto y no significa lo que yo dije.
+>
+> Es **LEY 19**: se midió el PRODUCTOR —el listado de archivos— y se afirmó sobre el
+> CONSUMIDOR —lo que ve el usuario en el editor—. **Lo vio el PROPIETARIO mirando la
+> aplicación. Tercera vez.**
+
+### AG2 · Lo que murió con el lote 1 se va — COMPORTAMIENTO SIN SUJETO
+
+La traducción automática de `MySpace` **no era una función a medio construir: funcionaba, y su
+sujeto murió**. El `<button … translate>` vivía dentro del formulario de experiencias previas,
+y el lote 1 de E3 se llevó el formulario.
+
+| Medido con `git grep -l "experienceName" 7baa6abf^ -- src` | |
+| :-- | --: |
+| Archivos antes del lote 1 | **13** |
+| Archivos hoy | **1** |
+
+*(ARQUITECTO dijo diez; con este método salen trece. La diferencia no cambia la conclusión,
+pero la cifra que se publica es la que trae su orden al lado.)*
+
+Se retira `profiles-translation-config.js` entero, sus dos registros en
+`MyProfileController` y `MyOrganizationProfileController`, y los dos manejadores de
+`my-profile.js` y `my-organization-profile.js` con lo que arrastran —`translateButton` y
+`handleTranslate`, que no se usaban en ningún otro sitio—. **Llaves y paréntesis contados antes
+y después**: 49→48 y 69→68 llaves, equilibrados los dos. Y el enlace roto que quedó en
+`server-delegated/` lo cazó la comprobación 20 y se retiró.
+
+**`Publications` NO se toca**: su `[do-translation]` sigue existiendo en
+`Views/publications/forms/edit.php`, comprobado. Pasa a ser la implementación de referencia.
+
+> #### LA CLASE NUEVA · COMPORTAMIENTO SIN SUJETO
+>
+> Un manejador enganchado a un selector que ya no casa con nada. `form.find('button[translate]')`
+> devuelve una colección vacía y **JavaScript no se queja**: no lanza, no traza, no enciende
+> ninguna puerta. El código sigue ahí, se descarga en cada carga de la página, y no hace nada.
+>
+> **Es la TERCERA ceguera del paso 6**, junto a los identificadores y el texto visible. Las
+> tres tienen la misma forma —un cero honesto dentro de un universo que no incluye lo que
+> importa (LEY 15)— y las tres las vio el PROPIETARIO antes que ninguna puerta.
+
+#### PARADA AG2 · ¿hay más? Sí, y la medida es barata
+
+Se buscaron los selectores de ATRIBUTO —`[algo]`, `algo[otro]`— dentro de `find(`, `$(`,
+`querySelector(` y `querySelectorAll(` de NUESTRO JavaScript, y se cruzaron contra todo el PHP
+del árbol y contra los `attr()`/`setAttribute()`/`prop()` del propio JS.
+
+| | |
+| :-- | --: |
+| Archivos JS propios | 89 |
+| Atributos distintos buscados en selectores | 98 |
+| Descartados por venir de una plantilla `${…}` | 4 |
+| **Sin productor en ninguna parte** | **9** |
+
+`container-colors`, `container-steps`, `data-to-step`, `datatable-js`,
+`element-location-module-data`, `lang-group`, `options-order`, `options-order-type` y
+`see-more`. El más llamativo es `element-location-module-data`, que buscan **tres** archivos
+incluido el componente de ubicaciones del núcleo.
+
+**Barato —instantáneo— y poco ruidoso: 9 de 98, un 9%.** No se construye puerta, porque la
+instrucción lo condiciona y porque no hay decisión tomada sobre qué hacer con ellos. **NO SE
+ARREGLÓ NINGUNO.** Solo se mira el atributo: las clases (`.ui.dropdown`) son de Fomantic y
+darían ruido puro.
+
+### AG3 · E4, lote 1 — `UnitTest-AccessGuards`, 33 comprobaciones
+
+Seis de las ocho, cada una con **rechazo, discriminante y provocación**:
+
+| Guarda | Lo que se congela |
+| :-- | :-- |
+| `BaseHashEncryption::hashVerify` | firma inventada, firma de otro mensaje y firma con otra llave dan `false` ESTRICTO; y `NOT_SUPPORTED_ALGORITHM` vale **0**, que es FALSY: un `if (!hashVerify(…))` lo trata como rechazo — **cierra** |
+| `BaseToken::verify` | lo mismo, salvo que su `NOT_SUPPORTED_ALGORITHM` es una **CADENA truthy**: `if (!verify(…))` la leería como firma válida |
+| `BaseToken::decode` | un token con la firma alterada y otro con un `alg` inexistente **no devuelven el contenido**, ni siquiera con el `alg` inventado metido en `$allowed_algs` |
+| `BaseToken::check` | token vacío → `INVALID_TOKEN_SUPPLIED`; firma alterada → `!== true`; los tres códigos de error son TRUTHY |
+| `Roles::hasPermissions` | rol sin la ruta → `false`; ruta inexistente → `false`; rol inexistente → **LANZA**, y solo con `$silent_mode` devuelve `false` |
+| `get_route_roles_allowed` | un `$type` no contemplado mete **NULOS** en la lista y no avisa |
+| `Parameter::validate` | un valor rechazado lanza; **sin validador acepta cualquier cosa**, porque `$valid` nace en `true` |
+
+#### DOS CONTRATOS QUE SORPRENDIERON Y SE CONGELARON
+
+1. **`check()` sobre un JWT sin `exp` devuelve el OBJETO del payload**, no `true` ni una
+   cadena. Sale de `isExpire()`, que sin `exp` devuelve el payload, y `check()` lo reenvía tal
+   cual. Es truthy y no es `true`: con `!== true` cierra, con `if (!$x)` abriría. Por eso el
+   discriminante va con `setToken()`, que es lo que usa la aplicación.
+2. **`hasPermissions` con un rol inexistente LANZA**, no devuelve `false`. Mi primera versión
+   de la prueba lo asumió al revés y falló: el contrato se midió, no se supuso.
+
+#### LA PRIMERA PROVOCACIÓN SALIÓ VERDE, Y ESO ES UN HALLAZGO
+
+Quitando `if (empty(self::$supported_algs[$header->alg]))` de `decode()`, la suite **siguió en
+33/33**. No porque la guarda no importe: porque **detrás hay otra**
+—`!in_array($header->alg, $allowed_algs)`— y mi caso de prueba tampoco pasaba esa. Estaba
+probando la segunda creyendo probar la primera. **LEY 24 en su forma exacta: una verificación
+que pasaría con el defecto presente no es una verificación.**
+
+Se añadió el caso que la aísla —meter el `alg` inventado EN `$allowed_algs`, para que lo único
+que separe a un token forjado de ser aceptado sea esa comprobación—, y entonces sí:
+
+| Provocación, desde copia guardada y restaurada con `sha256` idéntico | Resultado |
+| :-- | :-- |
+| Fuera `empty(self::$supported_algs[$header->alg])` de `decode()` | **32/33** — se acepta una firma sin verificar |
+| Una ruta desconocida pasa a CONCEDER en `hasPermissions` | **29/30** |
+| `hashVerify` devuelve `true` sin comparar | **27/30** |
+| `Parameter::isValid` ignora el validador | **32/33** |
+
+`opcache.enable_cli` está en **Off**, así que estas provocaciones no necesitan esperar la
+ventana de revalidación: la suite corre por CLI. La espera sigue siendo obligatoria para lo que
+sirve Apache.
+
+#### LAS DOS QUE NO SE ESCRIBIERON, Y POR QUÉ
+
+- **`ControllerRoutingTrait::routeName`.** Su caso de rechazo es la rama «sin usuario,
+  CONCEDE», y eso **ya está en T26 como PREGUNTA DE SEGURIDAD ABIERTA**, escrita en el propio
+  docblock del trait. Escribirle una prueba de rechazo sería **declarar correcto** un
+  comportamiento que el registro marca como pendiente de decisión. **No se toca sin el
+  PROPIETARIO.**
+- **`DataTablesHelper::processFromQuery`.** Necesita base de datos, una tabla y una petición
+  DataTables completa —`draw`, `start`, `length`, `columns[…]`, `order[…]`—, así que es una
+  suite con `EFFECT_DATABASE`, no una unitaria. Y es de la categoría «deforma datos», no
+  «alguien entrando»: va detrás por el mismo criterio que ordenó el lote.
+
+### EL CENSO DE GUARDAS SE CORRIGIÓ UNA QUINTA VEZ, Y ESTA CAMBIÓ EL CORTE
+
+`VALID-TRUE` marcaba **cualquier** `$allowed = true;`, y esos son justo los que se ponen DENTRO
+de una rama: lo contrario de nacer en `true`. Ahora solo cuenta la PRIMERA asignación al
+acumulador.
+
+| | antes | después |
+| :-- | --: | --: |
+| VALID-TRUE | 8 | **6** |
+| con alguna forma de fallo abierto | 29 | **28** |
+
+Y el efecto sobre el corte de AG3: **`Roles::hasPermissions` arranca en `$allowed = false`** y
+**`ControllerRoutingTrait::routeName` también** —`$allowed = false;` en su primera línea—. Las
+dos estaban en la lista con una etiqueta que era **mía y era falsa**. `hasPermissions` sigue
+siendo LAXA; `routeName` sale de la lista de formas de fallo abierto entera.
+
+**Las cinco correcciones, todas a la baja: 48 → 19 → 11 → 9 en el cruce con las suites, y
+8 → 6 en VALID-TRUE.** La primera cifra siempre fue la cómoda. LEY 22.
+
+### Anotado, porque se pedía en el registro
+
+- **La cota de claves huérfanas cuenta CADENAS DISTINTAS y no entradas, a propósito.** Si
+  contara entradas, **borrar traducciones parecería progreso**: en AF se retiró
+  `dynamic-translations/fr/global.php` y las entradas bajaron de 80 a 72 mientras la cota se
+  quedaba en 53, porque las mismas 8 cadenas viven también en `es/global.php`.

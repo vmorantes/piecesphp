@@ -166,14 +166,14 @@ resueltas sin conflicto, y **ninguna cifra se movió**: PHPStan en 886, las 21 s
 
 ### 8 · La aplicación se sirve en `es` y `en`. `/fr/`, `/de/`, `/it/` y `/pt/` dan 404
 
-Decisión del PROPIETARIO. Los cuatro idiomas **no se borraron: se dejaron comentados** en los
-once sitios que hay que tocar, porque este framework se clona y ese resto es el único ejemplo
-completo de cómo se da de alta un idioma. Cada sitio lleva la marca
-`@codigo-comentado · IDIOMA COMENTADO`, y el mapa entero está en `.agents/context/08-i18n.md`.
+Decisión del PROPIETARIO. Los cuatro **se comentan en `allowed_langs` y en ningún sitio más**:
+eso es el interruptor, y lo que no está ahí no existe. El resto de sus entradas —locale,
+formatos, banderas, nombres de idioma, mapas de plugins— **sigue vivo**, porque nadie las pide
+si el idioma no está dado de alta. La receta se explica en `.agents/context/08-i18n.md`, no se
+deja comentada: el código comentado se pudre y nadie lo actualiza.
 
-**Si tu despliegue servía alguno de los cuatro**, descomenta su línea en los ocho sitios de
-`src/app/config/lang.php` y atiende los tres de fuera —diccionarios, `translations/<code>.js` y
-los idiomas de CKEditor y elFinder—. Con el primero basta para que la URL vuelva a existir.
+**Si tu despliegue servía alguno de los cuatro**, descomenta su línea en `allowed_langs` y ya
+está. Solo un idioma NUEVO obliga a recorrer la lista entera del documento.
 
 Lo que se retira de verdad: `src/statics/core/js/translations/{fr,de,it,pt}.js`. El front
 ofrecía arranque en idiomas que PHP ya no puede completar. Y
@@ -219,6 +219,30 @@ Queda anotado en `.agents/context/12-convenciones.md` que la interpolación de
 el idioma solo se usa como clave y el valor sale de la lista blanca de configuración.
 
 ---
+
+## Las guardas de acceso ya prueban que RECHAZAN
+
+`UnitTest-AccessGuards`, 33 comprobaciones sobre siete guardas del núcleo: verificación de
+hash y de firma JWT, `decode()`, `check()`, `Roles::hasPermissions()`,
+`get_route_roles_allowed()` y `Parameter::validate()`. Cada una con su caso de RECHAZO, su
+discriminante —uno que NO debe rechazarse— y su provocación: **se quita la guarda y la suite
+tiene que ponerse roja**.
+
+Dos contratos que sorprendieron y quedan congelados: `BaseToken::check()` sobre un JWT sin
+`exp` devuelve **el objeto del payload**, no `true` ni un código de error —por eso los
+consumidores comparan con `!== true` y no con `!`—; y `Roles::hasPermissions()` con un rol
+inexistente **lanza**, no devuelve `false`, salvo en modo silencioso.
+
+Y la primera provocación salió **verde**, que es un hallazgo: la prueba comprobaba una guarda
+creyendo comprobar otra, porque `decode()` tiene dos en cadena. Se añadió el caso que aísla la
+primera.
+
+## Fuera la traducción automática de `MySpace`
+
+No estaba a medio construir: **funcionaba y su sujeto murió**. El botón que la disparaba vivía
+en el formulario de experiencias previas, que se retiró con el primer lote de la limpieza.
+`experienceName` estaba en 13 archivos y hoy en 1. `Publications` conserva la suya —su
+`[do-translation]` sigue en la vista— y pasa a ser la implementación de referencia.
 
 ## E4 se selecciona por consecuencia, no por «lo que se puede probar»
 

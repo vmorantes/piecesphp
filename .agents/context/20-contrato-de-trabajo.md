@@ -321,6 +321,33 @@ descubre nada.
   ampliar la cota: 277 contra 53 seria casi todo falso positivo, y una puerta ruidosa se acaba
   ignorando. El defecto era la mentira sobre la cobertura, no la cobertura.
 
+### El censo del paso 6 tiene una TERCERA ceguera: COMPORTAMIENTO SIN SUJETO
+
+Censaba identificadores; en AD se le anadio texto visible; y en AG aparece la tercera clase.
+
+`MySpace/Statics/js/profiles-translation-config.js` y los manejadores de `my-profile.js:202` y
+`my-organization-profile.js:284` buscan `form.find('button[translate]')`. **Ese boton vivia dentro
+del formulario de experiencias previas y el lote 1 de E3 se lo llevo.** Medido: `experienceName`
+estaba en 10 archivos antes de `7baa6abf`, hoy en 1 —el JS huerfano—.
+
+**No era una funcion a medio construir: funcionaba, y su sujeto murio.** Es residuo, no regresion.
+Y JavaScript **no se queja**: un selector que no casa con nada no lanza, no traza, no enciende
+ninguna puerta. La funcion deja de existir y nadie se entera.
+
+> **COMPORTAMIENTO SIN SUJETO** — un manejador enganchado a un selector que ya no casa. Tercera
+> mitad del paso 6, junto a identificadores y texto visible.
+
+**El mecanismo NO se pierde**: la traduccion automatica de contenido sigue viva y funcionando en
+`Publications`, que pasa a ser su implementacion de referencia — igual que usuarios lo es para
+importar y exportar.
+
+### FALLO DE ARQUITECTO, anotado para que no se repita
+
+La reversion del exceso de comentado en los idiomas se acordo con el PROPIETARIO, ARQUITECTO dijo
+que estaba capturada, **y no la metio en la instruccion durante tres bloques**. Causa: la tenia en
+la conversacion y NO EN DISCO. Lo que se escribe aqui sobrevive; lo que solo se dice se lo lleva el
+siguiente reporte. **Lo que ARQUITECTO promete se escribe en §7 en el momento, no en un mensaje.**
+
 ### Abierto, sin decidir
 
 - **`profiles-translation-config.js` sigue nombrando `'fr'`.** Sus campos no existen en ninguna
