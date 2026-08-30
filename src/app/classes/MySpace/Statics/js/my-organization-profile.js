@@ -280,15 +280,6 @@ window.addEventListener('load', function () {
 			}
 		})
 
-		//Botones
-		let translateButton = form.find('button[translate]')
-
-		//Comportamiento de botón de traducción
-		const handleTranslate = function (event) {
-			MySpaceProfilesTranslationConfig.handle(event, form)
-		}
-		translateButton.on('click', handleTranslate)
-
 	}
 
 	function configurateMap() {

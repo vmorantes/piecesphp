@@ -82,7 +82,6 @@ class MyProfileController extends AdminPanelController
         remove_imported_asset('locations');
         import_locations([], false, true);
         set_custom_assets([
-            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/profiles-translation-config.js'),
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-profile.js'),
         ], 'js');
 

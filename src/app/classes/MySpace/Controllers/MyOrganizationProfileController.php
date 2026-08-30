@@ -113,7 +113,6 @@ class MyOrganizationProfileController extends AdminPanelController
                 import_locations([], false, true);
                 import_cropper();
                 set_custom_assets([
-                    MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/profiles-translation-config.js'),
                     MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-organization-profile.js'),
                 ], 'js');
 

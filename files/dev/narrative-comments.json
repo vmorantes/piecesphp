@@ -100,13 +100,6 @@
       "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
     },
     {
-      "file": "src/app/classes/MySpace/Statics/js/profiles-translation-config.js",
-      "blocks": 1,
-      "prose": 3,
-      "motive": "cabecera-de-adaptador",
-      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
-    },
-    {
       "file": "src/app/classes/News/Statics/js/NewsAdapter.js",
       "blocks": 1,
       "prose": 8,
