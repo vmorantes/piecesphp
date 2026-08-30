@@ -143,12 +143,12 @@ project://src/app/classes/Importers/Controller/ImporterController.php
 project://src/app/classes/Importers/Managers/ImporterUsers.php
 	method.nonObject (Líneas: 69, 70, 71)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
-	property.nonObject (Líneas: 97, 97, 122, 128, 128, 128, 210, 210, 215, 215, 218, 303, 303, 304, 323, 474, 474)
-	argument.type (Líneas: 128)
-	method.nonObject (Líneas: 324)
+	property.nonObject (Líneas: 97, 97, 121, 127, 127, 127, 209, 209, 214, 214, 217, 302, 302, 303, 322, 473, 473)
+	argument.type (Líneas: 127)
+	method.nonObject (Líneas: 323)
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
-	method.nonObject (Líneas: 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 351)
-	property.nonObject (Líneas: 349)
+	method.nonObject (Líneas: 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 350)
+	property.nonObject (Líneas: 348)
 project://src/app/classes/MySpace/Controllers/OrganizationProfileController.php
 	property.nonObject (Líneas: 83)
 project://src/app/classes/MySpace/Controllers/ProfileController.php
