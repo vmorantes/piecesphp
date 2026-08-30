@@ -205,8 +205,12 @@ function fallosAbiertos(array $f): array
     if (preg_match('/[^=!<>]==[^=]/', $cuerpo) === 1 || preg_match('/!=[^=]/', $cuerpo) === 1) {
         $r[] = 'LAXA';
     }
+    //Solo cuenta la PRIMERA asignacion al acumulador. La version anterior marcaba cualquier
+    //`$allowed = true;`, y esos son los que se ponen dentro de una rama: justo lo contrario de
+    //nacer en `true`. `Roles::hasPermissions` salia marcada y arranca en `false`.
     foreach (ACUMULADORES as $a) {
-        if (preg_match('/' . preg_quote($a, '/') . '\s*=\s*true\s*;/', $cuerpo) === 1) {
+        if (preg_match('/' . preg_quote($a, '/') . '\s*=\s*(true|false)\s*;/', $cuerpo, $m) === 1
+            && $m[1] === 'true') {
             $r[] = 'VALID-TRUE';
             break;
         }
