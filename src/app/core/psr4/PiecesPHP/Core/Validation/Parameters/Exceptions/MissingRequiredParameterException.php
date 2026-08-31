@@ -1,19 +1,19 @@
 <?php
 
 /**
- * MissingRequiredParamaterException.php
+ * MissingRequiredParameterException.php
  */
 namespace PiecesPHP\Core\Validation\Parameters\Exceptions;
 
 /**
- * MissingRequiredParamaterException
+ * MissingRequiredParameterException
  *
  * @category    Exceptions
  * @package     PiecesPHP\Core\Validation\Parameters\Exceptions
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */
-class MissingRequiredParamaterException extends \Exception
+class MissingRequiredParameterException extends \Exception
 {
     /**
      * @param string $message

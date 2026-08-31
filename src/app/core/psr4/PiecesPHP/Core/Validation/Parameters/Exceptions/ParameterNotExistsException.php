@@ -1,19 +1,19 @@
 <?php
 
 /**
- * ParamaterNotExistsException.php
+ * ParameterNotExistsException.php
  */
 namespace PiecesPHP\Core\Validation\Parameters\Exceptions;
 
 /**
- * ParamaterNotExistsException
+ * ParameterNotExistsException
  *
  * @category    Exceptions
  * @package     PiecesPHP\Core\Validation\Parameters\Exceptions
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */
-class ParamaterNotExistsException extends \Exception
+class ParameterNotExistsException extends \Exception
 {
     /**
      * @param string $message
