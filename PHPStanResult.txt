@@ -152,22 +152,22 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/City.php                                          
  ------ -------------------------------------------------------------------------------------------- 
-  398    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  401    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  430    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  433    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  591    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  594    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/Country.php                                       
  ------ -------------------------------------------------------------------------------------------- 
-  395    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  404    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  427    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  436    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  512    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  521    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -196,11 +196,11 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/State.php                                         
  ------ -------------------------------------------------------------------------------------------- 
-  365    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  368    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  391    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  394    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  467    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  470    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -310,13 +310,13 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Documents/Controllers/DocumentsController.php                                               
  ------ ------------------------------------------------------------------------------------------------------------ 
-  280    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|int.                          
+  282    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|int.                          
          🪪  property.nonObject                                                                                      
-  860    Cannot access property $id on Documents\Mappers\DocumentsMapper|null.                                       
+  862    Cannot access property $id on Documents\Mappers\DocumentsMapper|null.                                       
          🪪  property.nonObject                                                                                      
-  945    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.               
+  947    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.               
          🪪  argument.type                                                                                           
-  1233   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1240   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -2333,28 +2333,28 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/index.php                                                                                                                                                                        
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  385    Access to an undefined property object::$iat.                                                                                                                                        
+  386    Access to an undefined property object::$iat.                                                                                                                                        
          🪪  property.notFound                                                                                                                                                                
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                                
-  607    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
+  608    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
          🪪  argument.type                                                                                                                                                                    
-  626    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
+  627    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
          🪪  argument.type                                                                                                                                                                    
-  634    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
+  635    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
          🪪  property.nonObject                                                                                                                                                               
-  662    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
+  663    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
          🪪  argument.type                                                                                                                                                                    
-  674    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
+  675    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
          🪪  argument.type                                                                                                                                                                    
-  751    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
+  752    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
          🪪  argument.type                                                                                                                                                                    
-  762    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
+  763    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
          🪪  argument.type                                                                                                                                                                    
-  876    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
+  877    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
          🪪  argument.type                                                                                                                                                                    
-  887    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
+  888    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
          🪪  argument.type                                                                                                                                                                    
-  902    Variable $actionName might not be defined.                                                                                                                                           
+  903    Variable $actionName might not be defined.                                                                                                                                           
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 

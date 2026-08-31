@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-31, tras el BLOQUE AJ.**
+**Ultima actualizacion: 2026-08-31, tras el BLOQUE AK.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -810,6 +810,63 @@ Son publicas y cada clon las hereda. Con la aclaracion del PROPIETARIO, se renom
 
 Y el defecto de fondo: **un parametro obligatorio que falta es error del CLIENTE y hoy sale 500.**
 No es de esa ruta: `Parameters::validate()` lanza y nadie lo traduce a 4xx.
+
+### AK — Y OTRO UNIVERSO CORTO DE ARQUITECTO
+
+El CODER encontro que **`having(string)` concatena igual que `where(string)`**, y que el censo
+—y el contraste de ARQUITECTO: *177 llamadas, 19 interpoladas, 32 archivos*— **solo miraban
+`->where(`**. El punto de partida real era **13, no 8**. Mismo error que el `grep -v`: el universo
+era mas estrecho que la afirmacion. Van tres.
+
+`City::search` estaba entre las escondidas: la instruccion de ARQUITECTO la daba por «el mismo
+LIKE» y usa `having` porque filtra por un alias del SELECT.
+
+Cerrado en AK: las 5 `-ajax-search` piden sesion (10 de listado siguen publicas), `Point::search`,
+`State::search` y `City::search` por marcador, el 400 en el manejador global, y la errata
+`Paramater` a **CERO en nuestro codigo** (1 archivo en `src/vendor`, de terceros, declarado y no
+tocado). Trinquete en **10**, comprobacion 24.
+
+### LA PARADA DE AK ERA CORRECTA, Y EL HUECO ES DE LA BIBLIOTECA
+
+`WhereItem::toString()` — leido entero:
+
+```php
+} elseif ($this->operator == self::IN_OPERATOR || $this->operator == self::NOT_IN_OPERATOR) {
+    $str = "{$this->leftMember} {$this->operator} {$this->rightMember}";   // CRUDO
+} elseif ($this->operator == self::FIND_IN_SET_OPERATOR) {
+    ... str_replace('{SEARCH}','{VALUES}', (string) $this->rightMember, $this->leftMember)  // CRUDO
+```
+
+**TRES familias de operador se saltan la via de marcadores: `IN`, `NOT IN` y `FIND_IN_SET`.**
+ARQUITECTO estuvo a punto de señalar `CountryMapper::allByRegions()` como «la via segura»: usa
+`findInSet` dentro de un `WhereSegment` y **tambien concatena**. Solo es inofensiva porque **no la
+llama nadie** (0 consumidores, medido).
+
+> **El framework NO PUEDE HOY expresar una comparacion de lista de forma segura.** Eso no es un
+> defecto de uso: es un hueco del paquete `database`, y va a su propio bloque, versionado.
+
+**Mientras tanto, la salida es VALIDAR EL DOMINIO**, que es lo que el propio modulo ya hace con
+`state` y `country` via `Validator::isInteger` + `(int)`:
+
+- `ids` (3 rutas publicas): `array_map('intval')` + descartar <= 0 + **si la lista queda vacia, no
+  se añade el criterio** —`IN ()` es error de sintaxis—.
+- `region` (1 ruta publica): son nombres; validacion estricta por elemento. `intval` no aplica.
+
+El CODER lo propuso y no lo decidio: hizo bien. **Es validacion, no escapado a mano.**
+
+### DOS ERRORES DEL CODER, CONTADOS POR EL MISMO
+
+1. El reemplazo de la errata alcanzo **8 archivos de `src/app/logs/`**, que guardan el nombre que
+   la excepcion TENIA al lanzarse. Reescribirlos falsifica el registro. Restaurados con el
+   reemplazo inverso; estan en `.gitignore` y nunca iban al commit, **pero el daño era al
+   registro**, y lo dijo.
+2. Preparo con `git status --porcelain | grep "^ M"`. Un archivo renombrado sale **`RM`**, no ` M`:
+   el bucle lo salto y `61e20557` entro con el nombre de clase viejo dentro. Lo cerro `98704439`.
+   **No uso `--amend`**: reescribir historia no esta autorizado. La guarda cazo la parte contable
+   (40·40·39 -> PARA); lo que no cazo fue el contenido de un archivo ya preparado como renombrado.
+
+> **Regla nueva, de ahi**: preparar por estado con `grep "^ M"` PIERDE los renombrados. Cuando un
+> bloque renombre archivos, se prepara por RUTA EXPLICITA, que es lo que ya manda el contrato.
 
 ### Abierto, sin decidir
 

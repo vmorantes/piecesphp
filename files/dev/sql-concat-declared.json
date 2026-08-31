@@ -1,0 +1,30 @@
+{
+    "why": "Llamadas que CONCATENAN un valor de la petición y NO se pueden parametrizar, porque la comparación es de LISTA. `WhereItem::toString()` imprime el valor en crudo para `IN`, `NOT IN` y `FIND_IN_SET` —esos tres operadores están en `NOT_ALIAS_OPERATORS`, así que ni siquiera se les genera marcador—. Donde la vía preparada no existe, se VALIDA EL DOMINIO, que es lo que el propio módulo ya hacía con `state` y `country`. Aquí se declara cada una con la validación que la cierra. Ver T152.",
+    "rules": [
+        "LA LISTA SOLO PUEDE ENCOGER. El día que la biblioteca parametrice `IN`, estas entradas se retiran y el código pasa a marcador.",
+        "Declarar NO es eximir de pensar: cada entrada dice QUÉ validación cierra el agujero. Una entrada sin validación descrita no vale.",
+        "Se declara por `archivo::metodo`. El censo las resta de CONFIRMADO y las imprime aparte: no desaparecen, se separan.",
+        "Una entrada que ya no case con ningún hallazgo hace fallar: encoger incluye vaciarse."
+    ],
+    "medido": {
+        "fecha": "2026-08-31",
+        "bloque": "AL",
+        "hueco_de_la_biblioteca": "src/vendor/piecesphp/database/.../Critery/WhereItem.php:238-241 — `IN`/`NOT IN` imprimen `{$rightMember}` en crudo y `FIND_IN_SET` lo sustituye en `{SEARCH}`. El paquete está versionado y etiquetado: se anota, no se toca.",
+        "ids_antes": "`ids[]=abc` daba 500 con `Unknown column 'abc' in 'WHERE'`",
+        "ids_despues": "`ids[]=abc` da 200 y el criterio NO se añade; `ids[]=1&ids[]=abc` devuelve solo el 1"
+    },
+    "entries": [
+        {
+            "where": "src/app/classes/App/Locations/Controllers/City.php::cities",
+            "validation": "`ids` pasa por `array_map('intval')` y se descartan los `<= 0`; si la lista queda vacía NO se añade el criterio, porque `IN ()` no compila. `state` y `country` ya eran enteros por `Validator::isInteger`."
+        },
+        {
+            "where": "src/app/classes/App/Locations/Controllers/State.php::states",
+            "validation": "`ids` igual que en City. `country` ya era entero por `Validator::isInteger`."
+        },
+        {
+            "where": "src/app/classes/App/Locations/Controllers/Country.php::countries",
+            "validation": "`ids` igual que en City. `region` son NOMBRES, así que `intval` no aplica: cada elemento tiene que casar `^[\\p{L}\\p{N} \\-]{1,60}$` y lo que no case se descarta. `UPPER('NONE')` entra siempre, así que la lista nunca queda vacía."
+        }
+    ]
+}

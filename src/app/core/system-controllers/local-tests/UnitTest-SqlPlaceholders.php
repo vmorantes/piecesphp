@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/4] Las cuatro búsquedas de Locations siguen por la vía parametrizada');
+    echoTerminal('[4/5] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -146,6 +146,22 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             }
         }
 
+        //`DocumentsController::searchDropdown` usa `having` y se arregló en AL.
+        $seccion = '';
+        foreach ($salida as $linea) {
+            if (mb_strpos($linea, '── CONFIRMADO') === 0) {
+                $seccion = 'CONFIRMADO';
+                continue;
+            }
+            if (mb_strpos($linea, '── ') === 0) {
+                $seccion = '';
+                continue;
+            }
+            if ($seccion === 'CONFIRMADO' && mb_strpos($linea, 'DocumentsController.php') !== false) {
+                $reaparecidas[] = 'DocumentsController';
+            }
+        }
+
         $check($estado === 0, 'el censo corrió y su canario no cayó');
         $check(
             count($reaparecidas) === 0,
@@ -154,6 +170,31 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 ? 'VOLVIÓ LA CONCATENACIÓN en: ' . implode(', ', $reaparecidas)
                 : 'Country, Point, State y City van por segmento preparado.'
         );
+    }
+    echoTerminal(' ');
+
+    //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
+    echoTerminal('[5/5] Las tres listas `IN (...)` siguen validando el dominio');
+
+    //`WhereItem::toString()` imprime el valor en crudo para `IN`, así que aquí no hay marcador
+    //que comprobar: lo que cierra el agujero es la VALIDACIÓN, y eso se comprueba en la fuente.
+    //Si alguien la quita, el censo seguiría diciendo lo mismo y solo esto se pondría rojo.
+    $raizSrc = rtrim(str_replace('\\', '/', basepath('')), '/');
+    $validaciones = [
+        'App/Locations/Controllers/City.php' => ["array_map('intval', \$ids)"],
+        'App/Locations/Controllers/State.php' => ["array_map('intval', \$ids)"],
+        'App/Locations/Controllers/Country.php' => ["array_map('intval', \$ids)", 'p{L}\\p{N} \\-]{1,60}'],
+    ];
+
+    foreach ($validaciones as $relativo => $marcas) {
+        $codigo = (string) @file_get_contents($raizSrc . '/app/classes/' . $relativo);
+        foreach ($marcas as $marca) {
+            $check(
+                $codigo !== '' && mb_strpos($codigo, $marca) !== false,
+                basename($relativo) . ' conserva la validación «' . mb_substr($marca, 0, 34) . '»',
+                $codigo === '' ? 'no se pudo leer el archivo' : null
+            );
+        }
     }
     echoTerminal(' ');
 

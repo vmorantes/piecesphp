@@ -19,6 +19,7 @@ use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\ResponseRouteFactory;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
@@ -982,6 +983,16 @@ $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exce
             'success' => false,
             'error' => 'MISSING_REQUIRED_PARAMETER',
             //El mensaje ya lo construye `Parameters::validate()`, traducido y con los nombres.
+            'message' => $originalException->getMessage(),
+        ]);
+    } elseif ($originalException instanceof InvalidParameterValueException) {
+        //UN VALOR QUE NO PASA LA VALIDACIÓN TAMBIÉN ES DEL CLIENTE. `ParsedValueException` NO
+        //entra aquí y se queda en 500 a propósito: salta cuando el `parse()` del módulo devuelve
+        //algo que su propio `validate()` rechaza, y las dos son código del servidor. Ver T152.
+        $response = new ResponseRoute(StatusCode::HTTP_BAD_REQUEST);
+        return $response->withJson([
+            'success' => false,
+            'error' => 'INVALID_PARAMETER_VALUE',
             'message' => $originalException->getMessage(),
         ]);
     } else {

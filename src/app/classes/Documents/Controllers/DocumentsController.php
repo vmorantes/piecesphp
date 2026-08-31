@@ -17,6 +17,8 @@ use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PDOException;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Pagination\PageQuery;
@@ -980,13 +982,18 @@ class DocumentsController extends AdminPanelController
 
         if ($search !== null) {
 
-            $search = mb_strtolower($search);
-            $having = [
-                "LOWER(documentName) LIKE LOWER('{$search}%')",
-            ];
-            $having = trim(implode(' ', $having));
+            //`having(string)` CONCATENA igual que `where(string)`. Por marcador. Ver T152.
+            $havingSegment = new HavingSegment([
+                new HavingItem(
+                    'LOWER(documentName)',
+                    HavingItem::LIKE_OPERATOR,
+                    mb_strtolower($search) . '%',
+                    '',
+                    'LOWER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+                ),
+            ]);
 
-            $model->having($having);
+            $model->having($havingSegment);
 
             $model->execute();
 

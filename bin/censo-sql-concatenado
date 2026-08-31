@@ -379,20 +379,40 @@ foreach ($archivos as $p) {
     }
 }
 
-$por = ['CONFIRMADO' => [], 'REVISAR' => [], 'DESCARTADO' => []];
+//DECLARADAS: las que concatenan porque la comparacion es de LISTA y la biblioteca no
+//parametriza `IN`. No desaparecen: se separan, y cada una dice que validacion la cierra.
+$declaradasPath = dirname(__DIR__) . '/files/dev/sql-concat-declared.json';
+$declaradasRaw = @file_get_contents($declaradasPath);
+$declaradasJson = is_string($declaradasRaw) ? json_decode($declaradasRaw, true) : null;
+$declaradas = [];
+if (is_array($declaradasJson) && isset($declaradasJson['entries']) && is_array($declaradasJson['entries'])) {
+    foreach ($declaradasJson['entries'] as $entry) {
+        $declaradas[] = (string) ($entry['where'] ?? '');
+    }
+}
+
+$por = ['CONFIRMADO' => [], 'REVISAR' => [], 'DESCARTADO' => [], 'DECLARADO' => []];
+$declaradasVistas = [];
 foreach ($todos as $h) {
+    $clave = $h['ruta'] . '::' . $h['metodo'];
+    if ($h['veredicto'] === 'CONFIRMADO' && in_array($clave, $declaradas, true)) {
+        $por['DECLARADO'][] = $h;
+        $declaradasVistas[$clave] = true;
+        continue;
+    }
     $por[$h['veredicto']][] = $h;
 }
 
 printf("UNIVERSO: %d archivo(s) .php bajo `src/app`\n", count($archivos));
 printf("          excluidos por nombre: %s\n", implode(' ', EXCLUIDOS));
 printf("          %d llamada(s) a `->where(` y `->having(` halladas POR TOKENS\n\n", count($todos));
-foreach (['CONFIRMADO', 'REVISAR', 'DESCARTADO'] as $v) {
+foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR', 'DESCARTADO'] as $v) {
     printf("%-12s %d\n", $v, count($por[$v]));
 }
-echo "\n";
+printf("             (DECLARADO = concatena porque la comparación es de LISTA, con su validación\n");
+printf("              de dominio escrita en files/dev/sql-concat-declared.json)\n\n");
 
-foreach (['CONFIRMADO', 'REVISAR'] as $v) {
+foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR'] as $v) {
     if (count($por[$v]) === 0) {
         continue;
     }
@@ -400,7 +420,7 @@ foreach (['CONFIRMADO', 'REVISAR'] as $v) {
     foreach ($por[$v] as $h) {
         printf("  %s:%d  %s()\n", $h['ruta'], $h['linea'], $h['metodo']);
         printf("      %s(%s)\n", $h['llamada'], mb_substr($h['arg'], 0, 90));
-        if ($detalle || $v === 'CONFIRMADO') {
+        if ($detalle || $v === 'CONFIRMADO' || $v === 'DECLARADO') {
             foreach (array_slice($h['traza'], 0, 4) as $t) {
                 printf("        · %s\n", mb_substr($t, 0, 110));
             }
@@ -409,9 +429,14 @@ foreach (['CONFIRMADO', 'REVISAR'] as $v) {
     echo "\n";
 }
 
-echo "SU COTA, Y SE DICE: la traza NO cruza de método ni de clase. Una propiedad, un parámetro o\n";
-echo "                    el retorno de otro método caen en REVISAR A MANO, no en DESCARTADO.\n";
-echo "                    Tampoco resuelve índices de array ni variables variables.\n";
+echo "SU COTA, Y SE DICE:\n";
+echo "  · MIRA `->where(` y `->having(`, y NINGUNA otra familia. LEÍDO en el paquete, no supuesto:\n";
+echo "    `orderBy()` arma \"ORDER BY \$s\", `groupBy()` arma \"GROUP BY \$s\" y `join()` con \$on de\n";
+echo "    tipo string arma \"JOIN t ON (\$on)\". Los tres CONCATENAN y aquí NO se miran: hay 16\n";
+echo "    `->orderBy(`, 4 `->groupBy(` y 1 `->join(` en src/app sin censar.\n";
+echo "  · La traza NO cruza de método ni de clase: una propiedad, un parámetro o el retorno de\n";
+echo "    otro método caen en REVISAR A MANO, no en DESCARTADO.\n";
+echo "  · Tampoco resuelve índices de array ni variables variables.\n";
 
 if (!in_array('--trinquete', array_slice($argv, 1), true)) {
     exit(0);
@@ -435,6 +460,14 @@ $universo = (int) ($baseline['medido']['archivos'] ?? 0);
 if ($universo > 0 && $universo !== count($archivos)) {
     printf("TRINQUETE: el universo cambió — %d archivos al congelar, %d ahora. La cifra NO es comparable hasta declararlo.\n",
         $universo, count($archivos));
+}
+
+foreach ($declaradas as $clave) {
+    if (!isset($declaradasVistas[$clave])) {
+        printf("TRINQUETE ROTO: %s figura como declarada y ya no casa con ningún hallazgo.\n", $clave);
+        printf("                Quita la entrada: la lista solo puede encoger.\n");
+        exit(1);
+    }
 }
 
 $actual = count($por['CONFIRMADO']);

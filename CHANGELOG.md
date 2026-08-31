@@ -267,10 +267,24 @@ que **ya existía** en el paquete: la sentencia lleva un marcador y el valor via
 —que concatena igual— aparecieron cinco casos que no veía: el punto de partida real era **13**,
 no 8. Arregladas las cuatro búsquedas de `Locations`, quedan **10**, congeladas en un trinquete.
 
-**Lo que NO se ha podido arreglar y queda abierto**: los filtros `IN (...)` de
-`City::cities`, `Country::countries` y `State::states` —rutas **públicas**—. `WhereItem` no
-parametriza el operador `IN`: su `toString()` imprime el valor en crudo. La vía preparada no
-existe para ese caso.
+**Los filtros `IN (...)` van por validación de dominio, no por marcador.** `WhereItem` no
+parametriza `IN`, `NOT IN` ni `FIND_IN_SET` —los tres están en `NOT_ALIAS_OPERATORS` y
+`toString()` imprime el valor en crudo—, y el paquete `database` está etiquetado y no se toca
+aquí. Así que `ids` pasa por `array_map('intval')` con descarte de los `<= 0`, y `region` por un
+patrón estricto; **si la lista queda vacía, el criterio no se añade**, porque `IN ()` no compila.
+
+Las tres quedan declaradas, con la validación que cierra cada una, en
+`files/dev/sql-concat-declared.json`.
+
+**Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
+fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
+
+## Un valor de parámetro inválido también da 400
+
+Junto al parámetro obligatorio que falta, `InvalidParameterValueException` pasa a **400** con
+`INVALID_PARAMETER_VALUE`. `ParsedValueException` **se queda en 500 a propósito**: salta cuando
+el `parse()` de un módulo devuelve algo que su propio `validate()` rechaza, y las dos son
+código del servidor.
 
 ## Ninguna ruta nace pública sin decirlo
 

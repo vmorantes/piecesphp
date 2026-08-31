@@ -207,16 +207,25 @@ class Country extends AdminPanelController
     public function countries(Request $request, Response $response)
     {
         $region = $request->getQueryParam('region', null);
+        //`IN (...)` NO pasa por marcador —ver T152—, así que se valida el DOMINIO. Lista
+        //vacía = NO se añade el criterio: `IN ()` no compila.
         $ids = $request->getQueryParam('ids', []);
-        $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
+        $ids = is_array($ids) ? array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)) : [];
+        $ids = count($ids) > 0 ? implode(',', $ids) : null;
 
+        //`region` son NOMBRES: `intval` no aplica y se descarta lo que no case. El patrón es
+        //conservador porque el conjunto real NO se puede saber sin la base. Ver T152.
         if ($region !== null && is_string($region) && mb_strlen(trim($region)) > 0) {
-            $region = array_map(function ($e) {
-                $e = is_string($e) && mb_strlen(trim($e)) > 0 ? trim($e) : 'EMPTY';
-                return "UPPER('{$e}')";
-            }, explode(',', $region));
-            $region[] = "UPPER('NONE')";
-            $region = implode(',', $region);
+            $nombresRegion = [];
+            foreach (explode(',', $region) as $nombre) {
+                $nombre = trim($nombre);
+                if (preg_match('/^[\p{L}\p{N} \-]{1,60}$/u', $nombre) === 1) {
+                    $nombresRegion[] = "UPPER('{$nombre}')";
+                }
+            }
+            //`NONE` es de la casa y entra siempre: sin él, todo descartado dejaría `IN ()`.
+            $nombresRegion[] = "UPPER('NONE')";
+            $region = implode(',', $nombresRegion);
         } else {
             $region = null;
         }

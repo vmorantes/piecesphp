@@ -15720,3 +15720,169 @@ desplazamiento de línea**: mismo archivo, mismo mensaje. **Cero muertas, cero n
 Un matiz de método que casi me engaña: emparejando por mensaje TRUNCADO A 70 caracteres salían
 «3 muertas y 3 nacidas». Con el mensaje completo, cero. **La clave de comparación es parte del
 método**, y truncarla inventa muertes.
+
+---
+
+## T152 · AL · LAS LISTAS, Y EL HUECO DE LA BIBLIOTECA
+
+**Bloque AL.** Cierra los cuatro `IN (...)` que dejó abierta la parada de AK, sin tocar el
+paquete. Una parada nueva, pequeña y acotada, en el patrón de `region`.
+
+### El hueco, leído en el paquete y NO arreglado
+
+`src/vendor/piecesphp/database/.../Statements/Critery/WhereItem.php`:
+
+```php
+const NOT_ALIAS_OPERATORS = [
+    self::IS_NULL_OPERATOR, self::IS_NOT_NULL_OPERATOR,
+    self::IN_OPERATOR, self::NOT_IN_OPERATOR, self::FIND_IN_SET_OPERATOR,   // línea 36-42
+];
+…
+} elseif ($this->operator == self::IN_OPERATOR || $this->operator == self::NOT_IN_OPERATOR) {
+    $str = "{$this->leftMember} {$this->operator} {$this->rightMember}";     // línea 238-239
+} elseif ($this->operator == self::FIND_IN_SET_OPERATOR) {
+    …str_replace('{SEARCH}', (string) $this->rightMember, …)                 // línea 240-247
+```
+
+Los tres operadores de LISTA están en `NOT_ALIAS_OPERATORS`, así que **ni siquiera se les
+genera marcador**, y `toString()` imprime el valor en crudo. **La biblioteca no puede expresar
+hoy una comparación de lista con marcadores.**
+
+`findInSet` **no es la salida**: concatena igual. `CountryMapper::allByRegions()` la usa —
+`implode(',', $regions)` directo al `{SEARCH}`— y es inofensiva **solo porque tiene CERO
+consumidores**: medido, `allByRegions` aparece **1 vez en 1 archivo**, que es su propia
+declaración.
+
+**El paquete `database` está versionado y etiquetado: se anota y NO se toca.** Por eso el
+framework valida el DOMINIO en vez de parametrizar.
+
+### PASO 1 · Los tres `ids`, en rutas públicas
+
+`array_map('intval')`, descarte de los `<= 0`, y —lo que importa— **si la lista queda vacía NO
+se añade el criterio**, porque `IN ()` no compila.
+
+**Medido por HTTP, antes y después:**
+
+| Petición | Antes | Después |
+| :-- | :-- | :-- |
+| `/locations/countries/?ids[]=abc` | **500** · `Unknown column 'abc' in 'WHERE'` | **200**, lista completa: el criterio no se añade |
+| `/locations/states/?ids[]=abc` | **500** | **200** |
+| `/locations/cities/?ids[]=abc` | **500** | **200** |
+| `/locations/countries/?ids[]=1` | 200, un país | **200**, un país |
+| `/locations/countries/?ids[]=1&ids[]=abc` | — | **200**, solo el `1`: el inválido se descarta y el válido se conserva |
+
+El 500 anterior **era la prueba de que el valor llegaba crudo al SQL**: MySQL lo leía como
+nombre de columna. No hizo falta ninguna prueba de explotación.
+
+### PASO 2 · `region` · >>> PARADA PEQUEÑA <<<
+
+Cada elemento tiene que casar `^[\p{L}\p{N} \-]{1,60}$`; lo que no case se descarta. `UPPER('NONE')`
+entra siempre, así que la lista nunca queda vacía. Medido: `?region=Eur'opa` da **200** y `[]`
+en vez de llegar a la sentencia.
+
+> **NO SE PUEDE ELEGIR UNA LISTA BLANCA, y ese era el encargo.** El conjunto real de `region`
+> no se puede saber sin la base:
+>
+> - `databases/piecesphp_structure.sql:156` → `` `region` text DEFAULT NULL ``. Sin `ENUM`, sin
+>   restricción.
+> - **No hay `RegionMapper` ni constantes**: las regiones son los valores distintos de la
+>   columna. `CountryMapper:241` lo dice — `SELECT region AS name FROM locations_countries
+>   GROUP BY region`.
+> - El volcado versionado trae **dos países y los dos con `region` a NULL**.
+>
+> Así que el patrón es **conservador y deliberadamente no una lista blanca**. Cierra el
+> agujero; no cierra el dominio. **Si el PROPIETARIO autoriza una consulta**, se mira el
+> conjunto real y se cambia por lista blanca. Y se dice el efecto del patrón: un nombre de
+> región con apóstrofo o punto sería descartado.
+
+### PASO 3 · Las dos del cliente que seguían en 500
+
+| Excepción | Veredicto | Hoy |
+| :-- | :-- | :-- |
+| `MissingRequiredParameterException` | del CLIENTE | **400** (T151) |
+| `InvalidParameterValueException` | del CLIENTE | **400** — este bloque |
+| `ParsedValueException` | **del SERVIDOR**, decidido con el caso delante | **500, y está bien** |
+| `ParameterNotExistsException` | del SERVIDOR | 500 |
+
+**`ParsedValueException` no es «mixta», y la lectura lo zanja.** `parse()` se ejecuta DENTRO de
+`getValue()`, y solo **después** de que `validate($valueToAnalyze)` haya ACEPTADO el valor crudo.
+Salta cuando el `parse()` del módulo devuelve algo que su propio `validate()` rechaza: **las dos
+callbacks son código del servidor, y el cliente mandó un valor que el módulo declaró aceptable.**
+Es una incoherencia interna del módulo. 500.
+
+**Comprobado por HTTP**, abriendo la ruta temporalmente desde copia guardada porque el paso 1 de
+AK le puso sesión:
+
+```
+sin query      -> 400  {"error":"MISSING_REQUIRED_PARAMETER","message":"El parámetro query es obligatorio"}
+?query[]=x     -> 400  {"error":"INVALID_PARAMETER_VALUE","message":"El parámetro query ha recibido un tipo no permitido"}
+?query=col     -> 200  [{"id":1,"title":"Colombia"}]
+restaurada     -> 302
+```
+
+### PASO 4 · `DocumentsController::searchDropdown`
+
+Ruta **`documents-admin-search-dropdown`**, `requireLogin: true`, roles `[0, 1, 12, 2]`:
+**autenticada**, por eso venía aquí y no antes. Arreglada por `HavingSegment` con
+`LOWER({%VALUE%})`, igual que las otras.
+
+### PASO 5 · El trinquete, y una distinción que hay que decir
+
+| | |
+| :-- | --: |
+| CONFIRMADO | **6** |
+| DECLARADO | **3** |
+| REVISAR | 92 |
+| DESCARTADO | 95 |
+
+**Los 6 son SITIOS DE LLAMADA en los DOS métodos que ARQUITECTO nombró** —
+`UsersController::searchDropdown` (2) y `DataTablesHelper::process` (4)—. La instrucción decía
+«2» contando MÉTODOS; el censo cuenta LLAMADAS. Las dos cifras son la misma cosa.
+
+**Y los 3 DECLARADO no son un indulto.** `files/dev/sql-concat-declared.json` lista
+`City::cities`, `State::states` y `Country::countries` **con la validación que cierra cada
+una**. El censo los resta de CONFIRMADO y **los imprime aparte**: no desaparecen, se separan. Una
+entrada que ya no case con ningún hallazgo hace fallar la puerta.
+
+#### LA COTA DEL CENSO, AMPLIADA — y el instrumento lo imprime
+
+Hasta ahora decía que mira `where(` y `having(`. **Leído en el paquete, no supuesto:**
+
+| Constructor | Qué arma | ¿Concatena? | Llamadas en `src/app` |
+| :-- | :-- | :-- | --: |
+| `orderBy($s)` | `"ORDER BY $s"` | **sí** | 16 |
+| `groupBy($s)` | `"GROUP BY $s"` | **sí** | 4 |
+| `join($t, $on)` con `$on` string | `"JOIN $t ON ($on)"` | **sí** | 1 |
+
+*(No existe un método `on()`: es el argumento `$on` de `join()`.)* **Ninguna de las tres se
+censa todavía**, y el censo lo dice en su propia salida.
+
+### El cierre (LEY 24) · 14 comprobaciones
+
+La suite pasa de 10 a **14**: se añade `DocumentsController` a las que no pueden reaparecer en
+CONFIRMADO, y una sección que comprueba **en la fuente** que las tres validaciones de dominio
+siguen puestas.
+
+> **POR QUÉ ESA SECCIÓN MIRA LA FUENTE Y NO EL CENSO**, que es la lección del bloque:
+> **quitar la validación NO mueve el censo.** Lo provoqué: borrando el `array_map('intval')` de
+> `City::cities`, el censo siguió diciendo **6 CONFIRMADO y 3 DECLARADO** —porque la
+> concatenación sigue ahí, que es lo único que mide— mientras la ruta volvía a **500** con
+> `ids[]=abc`. El censo mide el MECANISMO; la validación es DOMINIO, y solo la suite la ve.
+
+| Provocación: fuera el `array_map('intval')` de `City::cities` | |
+| :-- | --: |
+| Suite | **14/14 → 13/14 → 14/14** |
+| Censo | **6 · 3 → 6 · 3 → 6 · 3** — no se mueve, y ese es el hallazgo |
+| HTTP `?ids[]=abc` | 200 → **500** → 200 |
+
+Restaurado con `sha256` idéntico y esperando fuera de `opcache.revalidate_freq`.
+
+### PHPStan
+
+**747 → 747.** Se mueven **24 tripletas y las 24 son desplazamiento de línea**.
+
+Y el método, otra vez, importa: comparando por `(archivo, línea, mensaje)` salían «3 muertas y
+3 nacidas», que era un artefacto de que **el mismo mensaje aparece dos veces en un archivo a
+líneas distintas** y el diccionario las colapsaba. Comparando **MULTICONJUNTOS de
+`(archivo, mensaje)` ignorando la línea**: 747 contra 747, **0 muertas y 0 nacidas**. La clave
+de comparación es parte del método.

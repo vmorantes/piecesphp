@@ -197,8 +197,11 @@ class State extends AdminPanelController
     public function states(Request $request, Response $response)
     {
         $country = $request->getQueryParam('country', null);
+        //`IN (...)` NO pasa por marcador —ver T152—, así que se valida el DOMINIO. Lista
+        //vacía = NO se añade el criterio: `IN ()` no compila.
         $ids = $request->getQueryParam('ids', []);
-        $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
+        $ids = is_array($ids) ? array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)) : [];
+        $ids = count($ids) > 0 ? implode(',', $ids) : null;
 
         if ($country !== null) {
             if (Validator::isInteger($country)) {

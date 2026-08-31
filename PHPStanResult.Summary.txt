@@ -70,19 +70,19 @@ project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
 project://src/app/classes/App/Locations/Controllers/City.php
-	method.nonObject (Líneas: 398, 430)
-	foreach.nonIterable (Líneas: 591)
+	method.nonObject (Líneas: 401, 433)
+	foreach.nonIterable (Líneas: 594)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	method.nonObject (Líneas: 395, 427)
-	foreach.nonIterable (Líneas: 512)
+	method.nonObject (Líneas: 404, 436)
+	foreach.nonIterable (Líneas: 521)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
 	method.nonObject (Líneas: 64, 65, 66)
 project://src/app/classes/App/Locations/Controllers/Point.php
 	method.nonObject (Líneas: 376, 407)
 	foreach.nonIterable (Líneas: 482)
 project://src/app/classes/App/Locations/Controllers/State.php
-	method.nonObject (Líneas: 365, 391)
-	foreach.nonIterable (Líneas: 467)
+	method.nonObject (Líneas: 368, 394)
+	foreach.nonIterable (Líneas: 470)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
 project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-org-card.php
@@ -108,9 +108,9 @@ project://src/app/classes/DataImportExportUtility/Controllers/HelperController.p
 project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
-	property.nonObject (Líneas: 280, 860)
-	argument.type (Líneas: 945, 1233)
-	offsetAccess.invalidOffset (Líneas: 1252)
+	property.nonObject (Líneas: 282, 862)
+	argument.type (Líneas: 947, 1240)
+	offsetAccess.invalidOffset (Líneas: 1259)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	argument.type (Líneas: 236)
 	property.nonObject (Líneas: 273, 299)
@@ -526,10 +526,10 @@ project://src/app/view/usuarios/utils/user-card.php
 	property.nonObject (Líneas: 12)
 	argument.type (Líneas: 13)
 project://src/index.php
-	property.notFound (Líneas: 385)
-	argument.type (Líneas: 607, 626, 662, 674, 751, 762, 876, 887)
-	property.nonObject (Líneas: 634)
-	variable.undefined (Líneas: 902)
+	property.notFound (Líneas: 386)
+	argument.type (Líneas: 608, 627, 663, 675, 752, 763, 877, 888)
+	property.nonObject (Líneas: 635)
+	variable.undefined (Líneas: 903)
 project://tasks/TasksManager.php
 	class.notFound (Líneas: 24, 35)
 	argument.type (Líneas: 81, 228, 228)
