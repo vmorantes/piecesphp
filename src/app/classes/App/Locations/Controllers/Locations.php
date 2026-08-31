@@ -291,7 +291,8 @@ class Locations extends AdminPanelController
                 "{$startRoute}/search[/]",
                 "{$handler}:search",
                 "{$namePrefix}-ajax-search",
-                'GET'
+                'GET',
+                true //requireLogin: decision del PROPIETARIO. Las `-ajax-all` siguen publicas.
             ),
         ];
     }
@@ -330,7 +331,8 @@ class Locations extends AdminPanelController
                 "{$startRoute}/search[/]",
                 "{$handler}:search",
                 "{$namePrefix}-ajax-search",
-                'GET'
+                'GET',
+                true //requireLogin: decision del PROPIETARIO. Las `-ajax-all` siguen publicas.
             ),
         ];
     }

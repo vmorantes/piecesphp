@@ -11,6 +11,8 @@ use App\Locations\LocationsLang;
 use App\Locations\Mappers\PointMapper;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
@@ -457,24 +459,23 @@ class Point extends AdminPanelController
 
         $result = [];
 
-        $where = [];
-        $whereString = null;
-
-        $and = 'AND';
-
         $table = PointMapper::PREFIX_TABLE . PointMapper::TABLE;
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
-        $where[] = "{$beforeOperator} ({$critery})";
 
-        if (!empty($where)) {
-            $whereString = implode(' ', $where);
-        }
+        //`where(string)` CONCATENA —`"WHERE ({$where})"`— y `clean_string()` no escapa comillas.
+        //Por marcador: `WhereSegment` arma `getReplacementValues()` y se prepara. Ver T151.
+        $whereSegment = new WhereSegment([
+            WhereItem::like(
+                "UPPER({$table}.name)",
+                $query . '%',
+                '',
+                'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+            ),
+        ]);
 
-        if (is_string($whereString)) {
+        if ($whereSegment->countCriteria() > 0) {
 
             $model = PointMapper::model();
-            $model->select()->where($whereString);
+            $model->select()->where($whereSegment);
             $model->execute(false, 1, 15);
             $queryResult = $model->result();
 

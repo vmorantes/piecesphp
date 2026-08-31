@@ -1714,6 +1714,7 @@
         "VerifyIntegrityTask::__construct",
         "VerifyIntegrityTask::calledFunctions",
         "VerifyIntegrityTask::checkClassesAreLoadable",
+        "VerifyIntegrityTask::checkConcatenatedSql",
         "VerifyIntegrityTask::checkDanglingDelegatedLinks",
         "VerifyIntegrityTask::checkDeclaredTypes",
         "VerifyIntegrityTask::checkDeprecatedFunctions",
@@ -1733,6 +1734,7 @@
         "VerifyIntegrityTask::checkSnapshotSeeding",
         "VerifyIntegrityTask::checkToolchainTracking",
         "VerifyIntegrityTask::checkTwinBranches",
+        "VerifyIntegrityTask::checkUndeclaredRoutesInGuardedModules",
         "VerifyIntegrityTask::checkViewTagBalance",
         "VerifyIntegrityTask::checkVolatileTablesMatchCode",
         "VerifyIntegrityTask::collectFiles",
@@ -3196,13 +3198,13 @@
         "InvalidParameterValueException::__construct",
         "InvalidParameterValueException::setMessage"
     ],
-    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/MissingRequiredParamaterException.php": [
-        "MissingRequiredParamaterException::__construct",
-        "MissingRequiredParamaterException::setMessage"
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/MissingRequiredParameterException.php": [
+        "MissingRequiredParameterException::__construct",
+        "MissingRequiredParameterException::setMessage"
     ],
-    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/ParamaterNotExistsException.php": [
-        "ParamaterNotExistsException::__construct",
-        "ParamaterNotExistsException::setMessage"
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/ParameterNotExistsException.php": [
+        "ParameterNotExistsException::__construct",
+        "ParameterNotExistsException::setMessage"
     ],
     "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/ParsedValueException.php": [
         "ParsedValueException::__construct",
@@ -3230,14 +3232,14 @@
     ],
     "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Parameters.php": [
         "Parameters::__construct",
-        "Parameters::addParamater",
+        "Parameters::addParameter",
         "Parameters::addParameters",
         "Parameters::getParameter",
         "Parameters::getParameters",
         "Parameters::getValue",
         "Parameters::getValues",
         "Parameters::jsonSerialize",
-        "Parameters::removeParamater",
+        "Parameters::removeParameter",
         "Parameters::setInputValues",
         "Parameters::setParameters",
         "Parameters::validate"

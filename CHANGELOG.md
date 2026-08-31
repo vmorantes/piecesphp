@@ -220,6 +220,41 @@ el idioma solo se usa como clave y el valor sale de la lista blanca de configura
 
 ---
 
+### 9 · Dos excepciones cambian de nombre: estaban mal escritas
+
+```diff
+-PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException
++PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException
+-PiecesPHP\Core\Validation\Parameters\Exceptions\ParamaterNotExistsException
++PiecesPHP\Core\Validation\Parameters\Exceptions\ParameterNotExistsException
+```
+
+*Paramater* con «a». Se renombran archivo, clase y los 113 usos. **Si tu despliegue tiene un
+`catch` de cualquiera de las dos, cámbialo.** Van también dos métodos con la misma errata:
+`Parameters::addParamater()` → `addParameter()` y `removeParamater()` → `removeParameter()`.
+
+La misma errata sigue en `src/vendor/php-ffmpeg`, que es de terceros y no se toca.
+
+### 10 · Un parámetro obligatorio que falta ahora da 400, no 500
+
+`Parameters::validate()` lanzaba y nadie lo traducía: cualquier petición sin un parámetro
+obligatorio salía como error del servidor. Se traduce en el manejador global de
+`src/index.php`, que es donde el framework ya separa 404, 405 y 403 del 500:
+
+```json
+400  {"success":false,"error":"MISSING_REQUIRED_PARAMETER","message":"El parámetro query es obligatorio"}
+```
+
+**Si tu despliegue detectaba estos casos por el 500**, ahora son 400.
+
+### 11 · Las búsquedas de ubicaciones piden sesión
+
+`locations-{countries,states,cities,points,regions}-ajax-search` pasan a `require_login`. Los
+listados `-ajax-all` y `-ajax-all2` **siguen siendo públicos**: sirven APIs públicas. Sin sesión,
+las cinco búsquedas redirigen al login.
+
+---
+
 ## La búsqueda de países manda el valor por marcador, no concatenado
 
 `Country::search()` —ruta pública, sin sesión— armaba su `WHERE` interpolando lo que llega por
@@ -228,9 +263,14 @@ el idioma solo se usa como clave y el valor sale de la lista blanca de configura
 que **ya existía** en el paquete: la sentencia lleva un marcador y el valor viaja en
 `getReplacementValues()`.
 
-`bin/censo-sql-concatenado` mide el resto y **dice su cota**: de 178 llamadas a `->where(`
-halladas por tokens, **8** siguen recibiendo un valor de la petición por concatenación. No se
-han tocado en esta tanda.
+`bin/censo-sql-concatenado` mide el resto y **dice su cota**. Al enseñarle también `->having(`
+—que concatena igual— aparecieron cinco casos que no veía: el punto de partida real era **13**,
+no 8. Arregladas las cuatro búsquedas de `Locations`, quedan **10**, congeladas en un trinquete.
+
+**Lo que NO se ha podido arreglar y queda abierto**: los filtros `IN (...)` de
+`City::cities`, `Country::countries` y `State::states` —rutas **públicas**—. `WhereItem` no
+parametriza el operador `IN`: su `toString()` imprime el valor en crudo. La vía preparada no
+existe para ese caso.
 
 ## Ninguna ruta nace pública sin decirlo
 

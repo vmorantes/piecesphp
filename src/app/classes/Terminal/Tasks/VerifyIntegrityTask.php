@@ -219,6 +219,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 23. Ninguna ruta de un módulo con control de acceso queda sin declarar ────
         $routeDeclFailures = self::checkUndeclaredRoutesInGuardedModules();
 
+        //──── 24. Las concatenaciones de SQL con valor de petición no han crecido ───────
+        $sqlFailures = self::checkConcatenatedSql();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -228,7 +231,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($orderFailures) + count($orphanFailures)
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
             + count($symlinkFailures) + count($langFailures) + count($tagFailures)
-            + count($routeDeclFailures);
+            + count($routeDeclFailures) + count($sqlFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -244,6 +247,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($routeDeclFailures as $line) {
             echoTerminal("\e[31mRUTA SIN DECLARAR:\e[39m {$line}");
+        }
+        foreach ($sqlFailures as $line) {
+            echoTerminal("\e[31mSQL CONCATENADO:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -2420,6 +2426,49 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'claves de traducción comprobadas.'));
+        return [];
+    }
+
+    /**
+     * Las concatenaciones de SQL con valor de petición no han crecido.
+     *
+     * `where(string)` y `having(string)` CONCATENAN; la vía preparada —array, `WhereSegment`,
+     * `HavingSegment`— ya existe. El censo tokeniza y traza hacia atrás dentro del método.
+     * Ver T150 y T151.
+     *
+     * @return string[]
+     */
+    protected static function checkConcatenatedSql(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $script = $root . '/bin/censo-sql-concatenado';
+
+        if (!is_file($script)) {
+            //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
+            return ['no existe ' . $script . ': el trinquete de SQL concatenado NO se ha comprobado'];
+        }
+
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
+        exec('cd ' . escapeshellarg($root) . ' && ' . escapeshellarg($script) . ' --trinquete 2>&1', $output, $status);
+
+        $line = '';
+        $extra = [];
+        foreach ($output as $candidate) {
+            if (mb_strpos($candidate, 'TRINQUETE') === 0) {
+                $line = $candidate;
+            }
+            if (mb_strpos($candidate, '                ') === 0 && mb_strpos($candidate, '.php:') !== false) {
+                $extra[] = trim($candidate);
+            }
+        }
+
+        if ($status !== 0) {
+            return array_merge([$line !== '' ? $line : 'el censo de SQL salió con código ' . $status], $extra);
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'SQL concatenado comprobado.'));
         return [];
     }
 

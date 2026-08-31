@@ -2,7 +2,9 @@
 
 //El valor de una búsqueda viaja como DATO, no como SQL. Ver T150 y la LEY 24.
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Terminal\CliActions;
 
@@ -73,8 +75,41 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     );
     echoTerminal(' ');
 
-    //──── 3. Que el arreglo siga puesto ─────────────────────────────────────────────────
-    echoTerminal('[3/3] `Country::search()` sigue por la vía parametrizada');
+    //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
+    echoTerminal('[3/4] HavingSegment deja la comilla FUERA del HAVING');
+
+    //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
+    //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
+    $criteria = [
+        new HavingItem(
+            "UPPER({$tabla}.name)",
+            HavingItem::LIKE_OPERATOR,
+            $conComilla . '%',
+            '',
+            'UPPER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+        ),
+        new HavingItem('countryID', HavingItem::EQUAL_OPERATOR, 5),
+    ];
+    $criteria[0]->setAfterOperator(HavingItem::AND_OPERATOR);
+    $having = new HavingSegment($criteria);
+
+    $sqlHaving = $having->toString();
+    $valoresHaving = $having->getReplacementValues();
+
+    $check(mb_strpos($sqlHaving, "'") === false, 'el HAVING generado NO contiene ninguna comilla simple', $sqlHaving);
+    $check(
+        in_array($conComilla . '%', array_values($valoresHaving), true),
+        'y el valor, con su comilla intacta, viaja en los valores de reemplazo'
+    );
+    $check(
+        mb_substr_count($sqlHaving, ':') === 2,
+        'los DOS criterios llevan marcador, no solo el del LIKE',
+        (string) json_encode($valoresHaving, JSON_UNESCAPED_UNICODE)
+    );
+    echoTerminal(' ');
+
+    //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
+    echoTerminal('[4/4] Las cuatro búsquedas de Locations siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -89,8 +124,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         //RETORNO-IGNORADO: `exec()` devuelve la última línea; aquí se lee $salida entera.
         exec('cd ' . escapeshellarg($raiz) . ' && ' . escapeshellarg($censo) . ' 2>&1', $salida, $estado);
 
+        $arregladas = ['Country.php', 'Point.php', 'State.php', 'City.php'];
         $seccion = '';
-        $enConfirmado = false;
+        $reaparecidas = [];
         foreach ($salida as $linea) {
             if (mb_strpos($linea, '── CONFIRMADO') === 0) {
                 $seccion = 'CONFIRMADO';
@@ -100,20 +136,23 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 $seccion = 'REVISAR';
                 continue;
             }
-            if ($seccion === 'CONFIRMADO'
-                && mb_strpos($linea, 'Locations/Controllers/Country.php') !== false
-                && mb_strpos($linea, 'search()') !== false) {
-                $enConfirmado = true;
+            if ($seccion !== 'CONFIRMADO' || mb_strpos($linea, 'search()') === false) {
+                continue;
+            }
+            foreach ($arregladas as $archivo) {
+                if (mb_strpos($linea, 'Locations/Controllers/' . $archivo) !== false) {
+                    $reaparecidas[] = mb_substr($archivo, 0, -4);
+                }
             }
         }
 
         $check($estado === 0, 'el censo corrió y su canario no cayó');
         $check(
-            !$enConfirmado,
-            '`Country::search()` NO figura entre los CONFIRMADO del censo',
-            $enConfirmado
-                ? 'VOLVIÓ LA CONCATENACIÓN: el valor de la petición llega a `where(string)`.'
-                : 'La búsqueda de países va por `WhereSegment`.'
+            count($reaparecidas) === 0,
+            'ninguna de las CUATRO búsquedas de Locations figura entre los CONFIRMADO',
+            count($reaparecidas) > 0
+                ? 'VOLVIÓ LA CONCATENACIÓN en: ' . implode(', ', $reaparecidas)
+                : 'Country, Point, State y City van por segmento preparado.'
         );
     }
     echoTerminal(' ');

@@ -23,7 +23,7 @@ use PiecesPHP\Core\Sitemap\SitemapItem;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
@@ -697,7 +697,7 @@ class AppConfigController extends AdminPanelController
                     log_exception($e);
                 }
 
-            } catch (MissingRequiredParamaterException $e) {
+            } catch (MissingRequiredParameterException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
                 log_exception($e);
@@ -938,7 +938,7 @@ class AppConfigController extends AdminPanelController
                     log_exception($e);
                 }
 
-            } catch (MissingRequiredParamaterException $e) {
+            } catch (MissingRequiredParameterException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
                 log_exception($e);
@@ -1077,7 +1077,7 @@ class AppConfigController extends AdminPanelController
                     log_exception($e);
                 }
 
-            } catch (MissingRequiredParamaterException $e) {
+            } catch (MissingRequiredParameterException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
                 log_exception($e);
@@ -1339,7 +1339,7 @@ class AppConfigController extends AdminPanelController
                     log_exception($e);
                 }
 
-            } catch (MissingRequiredParamaterException $e) {
+            } catch (MissingRequiredParameterException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
                 log_exception($e);

@@ -39,8 +39,10 @@
  * variables variables. Un censo que calle su ceguera miente.
  *
  * Uso:
- *   bin/censo-sql-concatenado            las tres listas
- *   bin/censo-sql-concatenado --detalle  con la traza de cada REVISAR
+ *   bin/censo-sql-concatenado             las tres listas
+ *   bin/censo-sql-concatenado --detalle   con la traza de cada REVISAR
+ *   bin/censo-sql-concatenado --trinquete compara CONFIRMADO contra la linea base y FALLA
+ *                                         si ha crecido
  */
 
 const RAIZ = __DIR__ . '/../src/app';
@@ -237,8 +239,10 @@ function resuelve(string $expresion, array $mapa, array $sucios, array &$vistas,
     }
     //LA VIA SEGURA CORTA LA TRAZA. Un valor que entra en un `WhereSegment` o un `WhereItem`
     //sale por marcador, venga de donde venga. Sin esto el censo marcaria el codigo ARREGLADO.
-    if (mb_strpos($expresion, 'WhereSegment') !== false || mb_strpos($expresion, 'WhereItem') !== false) {
-        return ['DESCARTADO', ['el valor entra en un WhereSegment/WhereItem: va por marcador']];
+    foreach (['WhereSegment', 'WhereItem', 'HavingSegment', 'HavingItem'] as $seguro) {
+        if (mb_strpos($expresion, $seguro) !== false) {
+            return ['DESCARTADO', ["el valor entra en un {$seguro}: va por marcador"]];
+        }
     }
     if (tieneFuente($expresion)) {
         return ['CONFIRMADO', ['fuente directa en: ' . trim($expresion)]];
@@ -288,9 +292,12 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
                 continue;
             }
             $sig = $tokens[$i + 1] ?? null;
-            if (!is_array($sig) || $sig[0] !== T_STRING || $sig[1] !== 'where') {
+            //`having(string)` CONCATENA IGUAL que `where(string)`: `"HAVING ({$having})"`. La
+            //primera version solo miraba `where(` y `City::search()` se colaba por eso. LEY 15.
+            if (!is_array($sig) || $sig[0] !== T_STRING || !in_array($sig[1], ['where', 'having'], true)) {
                 continue;
             }
+            $metodoLlamado = $sig[1];
             $abre = $i + 2;
             while (is_array($tokens[$abre] ?? null) && $tokens[$abre][0] === T_WHITESPACE) {
                 $abre++;
@@ -318,23 +325,27 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
 
             if ($argumento === '' || str_starts_with($argumento, '[') || str_starts_with($argumento, 'array(')
                 || mb_strpos($argumento, 'WhereSegment') !== false
-                || mb_strpos($argumento, 'WhereItem') !== false) {
+                || mb_strpos($argumento, 'WhereItem') !== false
+                || mb_strpos($argumento, 'HavingSegment') !== false
+                || mb_strpos($argumento, 'HavingItem') !== false) {
                 $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
                                 'arg' => $argumento, 'veredicto' => 'DESCARTADO',
-                                'traza' => ['array, WhereSegment o WhereItem: va por marcadores']];
+                                'llamada' => $metodoLlamado,
+                                'traza' => ['array o segmento preparado: va por marcadores']];
                 continue;
             }
             if (preg_match('/^([\'"]).*\1$/s', $argumento) === 1 && mb_strpos($argumento, '$') === false) {
                 $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
                                 'arg' => $argumento, 'veredicto' => 'DESCARTADO',
-                                'traza' => ['cadena literal constante']];
+                                'llamada' => $metodoLlamado, 'traza' => ['cadena literal constante']];
                 continue;
             }
 
             $vistas = [];
             [$veredicto, $traza] = resuelve($argumento, $mapa, $sucios, $vistas);
             $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
-                            'arg' => $argumento, 'veredicto' => $veredicto, 'traza' => $traza];
+                            'arg' => $argumento, 'veredicto' => $veredicto,
+                            'llamada' => $metodoLlamado, 'traza' => $traza];
         }
     }
     return $hallazgos;
@@ -375,7 +386,7 @@ foreach ($todos as $h) {
 
 printf("UNIVERSO: %d archivo(s) .php bajo `src/app`\n", count($archivos));
 printf("          excluidos por nombre: %s\n", implode(' ', EXCLUIDOS));
-printf("          %d llamada(s) a `->where(` halladas POR TOKENS\n\n", count($todos));
+printf("          %d llamada(s) a `->where(` y `->having(` halladas POR TOKENS\n\n", count($todos));
 foreach (['CONFIRMADO', 'REVISAR', 'DESCARTADO'] as $v) {
     printf("%-12s %d\n", $v, count($por[$v]));
 }
@@ -388,7 +399,7 @@ foreach (['CONFIRMADO', 'REVISAR'] as $v) {
     echo "── {$v} " . str_repeat('─', 60) . "\n";
     foreach ($por[$v] as $h) {
         printf("  %s:%d  %s()\n", $h['ruta'], $h['linea'], $h['metodo']);
-        printf("      where(%s)\n", mb_substr($h['arg'], 0, 90));
+        printf("      %s(%s)\n", $h['llamada'], mb_substr($h['arg'], 0, 90));
         if ($detalle || $v === 'CONFIRMADO') {
             foreach (array_slice($h['traza'], 0, 4) as $t) {
                 printf("        · %s\n", mb_substr($t, 0, 110));
@@ -401,4 +412,43 @@ foreach (['CONFIRMADO', 'REVISAR'] as $v) {
 echo "SU COTA, Y SE DICE: la traza NO cruza de método ni de clase. Una propiedad, un parámetro o\n";
 echo "                    el retorno de otro método caen en REVISAR A MANO, no en DESCARTADO.\n";
 echo "                    Tampoco resuelve índices de array ni variables variables.\n";
+
+if (!in_array('--trinquete', array_slice($argv, 1), true)) {
+    exit(0);
+}
+
+echo "\n";
+$baselinePath = dirname(__DIR__) . '/files/dev/sql-concat-baseline.json';
+$crudo = @file_get_contents($baselinePath);
+$baseline = is_string($crudo) ? json_decode($crudo, true) : null;
+if (!is_array($baseline) || !isset($baseline['cifras']['confirmado'])) {
+    //Sin linea base el trinquete no significa nada, y decirlo es mejor que pasar en verde.
+    echo "TRINQUETE: no se pudo leer files/dev/sql-concat-baseline.json. SIN LÍNEA BASE NO HAY TRINQUETE.\n";
+    exit(1);
+}
+
+$cota = (int) $baseline['cifras']['confirmado'];
+$universo = (int) ($baseline['medido']['archivos'] ?? 0);
+
+//EL UNIVERSO TAMBIÉN SE COMPARA: menos archivos mirados dan menos hallazgos sin que nadie haya
+//arreglado nada. LEY 15.
+if ($universo > 0 && $universo !== count($archivos)) {
+    printf("TRINQUETE: el universo cambió — %d archivos al congelar, %d ahora. La cifra NO es comparable hasta declararlo.\n",
+        $universo, count($archivos));
+}
+
+$actual = count($por['CONFIRMADO']);
+if ($actual > $cota) {
+    printf("TRINQUETE ROTO: %d concatenaciones con valor de petición contra una cota de %d (+%d).\n", $actual, $cota, $actual - $cota);
+    foreach ($por['CONFIRMADO'] as $h) {
+        printf("                %s:%d %s() — %s(%s)\n", $h['ruta'], $h['linea'], $h['metodo'], $h['llamada'], mb_substr($h['arg'], 0, 50));
+    }
+    exit(1);
+}
+if ($actual < $cota) {
+    printf("TRINQUETE: %d contra una cota de %d (-%d).\n", $actual, $cota, $cota - $actual);
+    printf("           Baja la cota en files/dev/sql-concat-baseline.json, con la fecha y el motivo.\n");
+    exit(1);
+}
+printf("TRINQUETE: %d concatenaciones con valor de petición, igual que la línea base.\n", $actual);
 exit(0);

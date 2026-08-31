@@ -1,0 +1,30 @@
+{
+    "why": "Llamadas a `->where(` o `->having(` que reciben un valor de la petición POR CONCATENACIÓN. `ActiveRecord::where(string)` hace `\"WHERE ({$where})\"` y `having(string)` hace `\"HAVING ({$having})\"`; la vía preparada —array, `WhereSegment`, `HavingSegment`— ya existe. Se congela la cifra para que no crezca mientras se triaja, que es trabajo de otros bloques. Ver T150 y T151.",
+    "rules": [
+        "LA CIFRA SOLO PUEDE BAJAR. Si sube, la comprobación falla y nombra la nueva.",
+        "Al bajar, se actualiza esta línea base con la fecha y el motivo. Bajar sin declararlo deja la puerta comparando contra un número que ya nadie sostiene.",
+        "El universo también se compara: menos archivos mirados dan menos hallazgos sin que nadie haya arreglado nada. LEY 15."
+    ],
+    "medido": {
+        "fecha": "2026-08-31",
+        "bloque": "AK",
+        "herramienta": "bin/censo-sql-concatenado",
+        "universo": "archivos .php bajo `src/app`, excluyendo /vendor/ /node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
+        "archivos": 675,
+        "llamadas_miradas": 196,
+        "canario": "dos caras — reconoce la forma de `Country::search()` como CONFIRMADO y NO marca un `where(['columna' => $valor])`. Si alguna falla, el censo no se hace.",
+        "cota_declarada": "la traza NO cruza de método ni de clase: una propiedad, un parámetro o el retorno de otro método caen en REVISAR A MANO, nunca en DESCARTADO"
+    },
+    "cifras": {
+        "confirmado": 10,
+        "revisar": 92,
+        "descartado": 94
+    },
+    "_historia": [
+        "AJ: 9 con el censo mirando SOLO `->where(`. Se arregló `Country::search()` y quedaron 8.",
+        "AK: al enseñarle `->having(` aparecieron CINCO más que el censo no veía —`City::search`, `DocumentsController::searchDropdown`, el `having` de `UsersController::searchDropdown` y dos de `DataTablesHelper::process`—. El punto de partida real era 13, no 8.",
+        "AK: se arreglan `Point::search`, `State::search` y `City::search`. 13 -> 10.",
+        "AK: NO se arreglan `City::cities`, `Country::countries` ni `State::states`. Sus valores peligrosos son LISTAS `IN (...)`, y `WhereItem::IN_OPERATOR` NO parametriza: su `toString()` imprime `$rightMember` en crudo e ignora el alias. La vía preparada no existe para ese caso. Ver la PARADA en T151.",
+        "AK: quedan además `UsersController::searchDropdown` (2), `DataTablesHelper::process` (4) y `DocumentsController::searchDropdown` (1), fuera del alcance declarado."
+    ]
+}

@@ -70,19 +70,19 @@ project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
 project://src/app/classes/App/Locations/Controllers/City.php
-	method.nonObject (Líneas: 396, 428)
-	foreach.nonIterable (Líneas: 587)
+	method.nonObject (Líneas: 398, 430)
+	foreach.nonIterable (Líneas: 591)
 project://src/app/classes/App/Locations/Controllers/Country.php
 	method.nonObject (Líneas: 395, 427)
 	foreach.nonIterable (Líneas: 512)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
 	method.nonObject (Líneas: 64, 65, 66)
 project://src/app/classes/App/Locations/Controllers/Point.php
-	method.nonObject (Líneas: 374, 405)
-	foreach.nonIterable (Líneas: 481)
+	method.nonObject (Líneas: 376, 407)
+	foreach.nonIterable (Líneas: 482)
 project://src/app/classes/App/Locations/Controllers/State.php
-	method.nonObject (Líneas: 363, 389)
-	foreach.nonIterable (Líneas: 466)
+	method.nonObject (Líneas: 365, 391)
+	foreach.nonIterable (Líneas: 467)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
 project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-org-card.php
@@ -299,7 +299,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 368)
 	method.deprecated (Líneas: 379)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 348)
+	argument.type (Líneas: 354)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
@@ -526,10 +526,10 @@ project://src/app/view/usuarios/utils/user-card.php
 	property.nonObject (Líneas: 12)
 	argument.type (Líneas: 13)
 project://src/index.php
-	property.notFound (Líneas: 384)
-	argument.type (Líneas: 606, 625, 661, 673, 750, 761, 875, 886)
-	property.nonObject (Líneas: 633)
-	variable.undefined (Líneas: 901)
+	property.notFound (Líneas: 385)
+	argument.type (Líneas: 607, 626, 662, 674, 751, 762, 876, 887)
+	property.nonObject (Líneas: 634)
+	variable.undefined (Líneas: 902)
 project://tasks/TasksManager.php
 	class.notFound (Líneas: 24, 35)
 	argument.type (Líneas: 81, 228, 228)

@@ -10,6 +10,8 @@ use App\Controller\AdminPanelController;
 use App\Locations\LocationsLang;
 use App\Locations\Mappers\CityMapper;
 use App\Locations\Mappers\StateMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -550,37 +552,39 @@ class City extends AdminPanelController
 
         $result = [];
 
-        $where = [];
-        $whereString = null;
-
-        $and = 'AND';
-
         $table = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
 
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
-        $where[] = "{$beforeOperator} ({$critery})";
+        //`having(string)` CONCATENA igual que `where(string)`; aquí es `having` porque el
+        //criterio usa `countryID`, un alias del SELECT. Por marcador. Ver T151.
+        $criteria = [
+            new HavingItem(
+                "UPPER({$table}.name)",
+                HavingItem::LIKE_OPERATOR,
+                $query . '%',
+                '',
+                'UPPER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+            ),
+        ];
 
         if ($country !== -10) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "countryID = {$country}";
-            $where[] = "{$beforeOperator} ({$critery})";
+            $criteria[] = new HavingItem('countryID', HavingItem::EQUAL_OPERATOR, $country);
         }
 
         if ($state !== -10) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.state = {$state}";
-            $where[] = "{$beforeOperator} ({$critery})";
+            $criteria[] = new HavingItem("{$table}.state", HavingItem::EQUAL_OPERATOR, $state);
         }
 
-        if (!empty($where)) {
-            $whereString = implode(' ', $where);
+        //El `AND` lo lleva cada criterio MENOS EL ÚLTIMO: es lo que `toString()` concatena.
+        foreach (array_slice($criteria, 0, -1) as $critery) {
+            $critery->setAfterOperator(HavingItem::AND_OPERATOR);
         }
 
-        if (is_string($whereString)) {
+        $havingSegment = new HavingSegment($criteria);
+
+        if ($havingSegment->countCriteria() > 0) {
 
             $model = CityMapper::model();
-            $model->select(CityMapper::fieldsToSelect())->having($whereString)->orderBy("{$table}.name ASC");
+            $model->select(CityMapper::fieldsToSelect())->having($havingSegment)->orderBy("{$table}.name ASC");
             $model->execute(false, 1, 50);
             $queryResult = $model->result();
 

@@ -15512,3 +15512,211 @@ El `Parameter` se declara **no opcional**, así que pedir la ruta sin `query` la
 LÍNEA —`Country.php` 393→395, 425→427, 511→512, y `VerifyIntegrityTask` desplazado por la
 comprobación nueva—. **Tripletas desplazadas no son tripletas muertas**: el reparto sigue siendo
 el de AI y no hay nada nuevo que declarar.
+
+---
+
+## T151 · AK · LOCATIONS CIERRA A MEDIAS, Y EL 400 QUE SALÍA 500
+
+**Bloque AK.** Tres partes. Dos cierran; **la segunda para en seco por una razón de la
+biblioteca**, y esa parada es lo que más enseña del bloque.
+
+### PARTE 1 · Las cinco búsquedas piden sesión
+
+Comprobado ANTES de tocar, como pedía la instrucción: **CERO consumidores** de `-ajax-search`
+en `src/statics` y en los `Statics/` de los módulos. La única aparición de la cadena está en
+`Locations.php`, donde se registran; el único `/search/` del árbol es de un plugin vendorizado.
+
+Se pone `requireLogin = true` —quinto argumento posicional de `Route`, **sin tocar
+`Route.php`**— en los DOS registradores genéricos, que es donde nacen las cinco.
+
+| Ruta | requireLogin | roles |
+| :-- | :-- | :-- |
+| `locations-cities-ajax-all` · `-ajax-all2` | false | `[]` |
+| `locations-cities-ajax-search` | **true** | `[]` |
+| `locations-countries-ajax-all` · `-ajax-all2` | false | `[]` |
+| `locations-countries-ajax-search` | **true** | `[]` |
+| `locations-points-ajax-all` · `-ajax-all2` | false | `[]` |
+| `locations-points-ajax-search` | **true** | `[]` |
+| `locations-regions-ajax-all` · `-ajax-all2` | false | `[]` |
+| `locations-regions-ajax-search` | **true** | `[]` |
+| `locations-states-ajax-all` · `-ajax-all2` | false | `[]` |
+| `locations-states-ajax-search` | **true** | `[]` |
+
+**Sin roles, a propósito**: «pide sesión» no es «pide rol». Con `require_login = true` la capa
+de `index.php` §8 para al anónimo, que era el objetivo. Comprobado por HTTP: la ruta pasa de
+200 a **302 al login**.
+
+*Nota de mecánica: `files/dev/route-inventory.json` **está en `.gitignore`**. La comprobación 23
+lee un artefacto que cada uno regenera en su máquina — no entra en el commit y no aparece en las
+cuatro cifras.*
+
+### PARTE 2 · Las concatenaciones · >>> PARADA <<<
+
+#### Primero, el censo tenía un punto ciego: `having(`
+
+`ActiveRecord::having(string)` hace `"HAVING ({$having})"` — **concatena exactamente igual que
+`where(string)`**— y mi censo solo miraba `->where(`. Al enseñarle `->having(`:
+
+| | |
+| :-- | --: |
+| CONFIRMADO con el censo de AJ | 8 |
+| **CONFIRMADO al mirar también `having(`** | **13** |
+
+Los cinco escondidos: **`City::search()`** —la que la instrucción daba por «mismo `LIKE`», y no
+salía porque usa `having`—, `DocumentsController::searchDropdown()`, el `having` de
+`UsersController::searchDropdown()` y dos de `DataTablesHelper::process()`.
+
+**El punto de partida real era 13, no 8.** LEY 15: el instrumento reportaba sobre el universo
+que miraba, no sobre el que su título sugería.
+
+#### Lo que sí se arregló: las tres búsquedas
+
+`Point::search` y `State::search` por `WhereSegment`, y `City::search` por **`HavingSegment`** —
+usa `having` porque filtra por `countryID`, que es un alias del SELECT—. Medido, componiendo
+sin tocar la base:
+
+```
+HAVING (UPPER(cities.name) LIKE UPPER(:WH…_UPPERCITIESNAME)
+        AND countryID = :WH…_COUNTRYID
+        AND cities.state = :WH…_CITIESSTATE)
+valores {":WH…_UPPERCITIESNAME":"O'Brien%",":WH…_COUNTRYID":5,":WH…_CITIESSTATE":7}
+```
+
+**13 → 10.**
+
+#### LA PARADA · `IN (...)` NO TIENE VÍA PARAMETRIZADA
+
+Las tres que quedaban —`City::cities`, `Country::countries`, `State::states`, **las públicas, las
+que más importaban**— NO se arreglaron. Leídas una a una, esto es lo que hay:
+
+| Método | Parámetro | Forma actual | ¿Inyectable? |
+| :-- | :-- | :-- | :-- |
+| `City::cities` | `state`, `country` | `Validator::isInteger` → `(int)` o `-1` | **NO** |
+| `State::states` | `country` | idem | **NO** |
+| `City::cities` · `Country::countries` · `State::states` | **`ids`** | `implode(',', $ids)` **sin validar los elementos** | **SÍ** |
+| `Country::countries` | **`region`** | `UPPER('{$e}')` con `trim()`, sin escapar | **SÍ** |
+
+**Los cuatro agujeros que quedan son LISTAS `IN (...)`.** Y la vía preparada no las cubre.
+Leído en la biblioteca, no supuesto — `WhereItem::toString()`:
+
+```php
+} elseif ($this->operator == self::IN_OPERATOR || $this->operator == self::NOT_IN_OPERATOR) {
+    $str = "{$this->leftMember} {$this->operator} {$this->rightMember}";
+}
+```
+
+**Imprime `$rightMember` EN CRUDO e ignora el alias.** `setWithAlias()` sí registra el valor en
+`replacementValues`, así que un `IN` por esa vía dejaría un parámetro ligado que no aparece en
+la sentencia: no es una solución a medias, es una rota.
+
+La instrucción dice «si alguna no se deja expresar sin forzarla, PARA Y REPÓRTALO. NO inventes
+escapado a mano». **Eso es exactamente este caso**, así que se para. Lo que NO he hecho, y digo
+por qué: aplicar `array_map('intval')` a `ids` —que es lo que el propio módulo ya hace con
+`state` y `country`— **no es escapado a mano, es validación**, y arreglaría tres de los cuatro
+en una línea cada uno. No lo he decidido yo.
+
+> **QUEDA ABIERTO Y ES UNA RUTA PÚBLICA.** `-ajax-all` y `-ajax-all2` siguen sin sesión por
+> decisión del PROPIETARIO, y son las que llevan `ids` y `region`.
+
+#### El trinquete, congelado en 10 y no en 2
+
+La instrucción preveía 2 al cerrar. Son **10**, y el desglose dice por qué:
+
+| | |
+| :-- | --: |
+| Las tres de `Locations` que la parada deja abiertas | 3 |
+| `UsersController::searchDropdown` (`where` + `having`) | 2 |
+| `DataTablesHelper::process` (2 `where` + 2 `having`) | 4 |
+| `DocumentsController::searchDropdown` — **hallazgo nuevo, fuera del alcance** | 1 |
+
+`bin/censo-sql-concatenado --trinquete` compara contra
+`files/dev/sql-concat-baseline.json` y **entra en `verify-integrity` como comprobación 24**. La
+cifra solo puede bajar; si sube, falla y nombra la nueva.
+
+#### El cierre (LEY 24)
+
+`UnitTest-SqlPlaceholders` pasa de 7 a **10 comprobaciones**: se añade el caso de
+`HavingSegment` y la tercera sección comprueba **las cuatro** búsquedas de Locations, no solo
+`Country`.
+
+| Provocación: se devuelve la interpolación a `Point::search()` | |
+| :-- | --: |
+| Suite | **10/10 → 9/10 → 10/10** |
+| Censo CONFIRMADO | **10 → 11 → 10** |
+| Trinquete | verde → **ROTO (+1), nombrando `Point.php:477`** → verde |
+
+Restaurado con `sha256` idéntico y esperando fuera de `opcache.revalidate_freq`.
+
+### PARTE 3 · El 400 que salía 500, y la errata
+
+#### (a) Un parámetro obligatorio que falta es error del CLIENTE
+
+Se traduce en **`$customGlobalExceptionHandler` de `src/index.php`**, que es donde el framework
+YA separa 404, 405 y 403 del 500 —**un solo sitio, no un `try/catch` en cada una de las 27
+controladoras**—. Devuelve 400 con el mensaje que `Parameters::validate()` ya construye,
+traducido y con los nombres dentro.
+
+**Comprobado**, y hubo que abrir la ruta temporalmente desde copia guardada porque la parte 1
+acababa de ponerle sesión:
+
+| | |
+| :-- | :-- |
+| `/locations/countries/search/` sin `query` | **400** · `{"success":false,"error":"MISSING_REQUIRED_PARAMETER","message":"El parámetro query es obligatorio"}` |
+| `…?query=col` | **200** · `[{"id":1,"title":"Colombia"}]` |
+| restaurada la sesión | **302** |
+
+**Las otras tres excepciones de la familia, leídas y NO tocadas**, con su clasificación:
+
+| Excepción | Quién se equivoca | Hoy |
+| :-- | :-- | :-- |
+| `MissingRequiredParameterException` | **el cliente** | ya da 400 |
+| `InvalidParameterValueException` — «recibió un tipo no permitido» | **el cliente** | sigue en 500 |
+| `ParsedValueException` — el `parse()` devolvió algo inválido | mixto | sigue en 500 |
+| `ParameterNotExistsException` — el CÓDIGO pide un parámetro no declarado | **el servidor** | 500, **y ahí está bien** |
+
+#### (b) La errata, y el CERO que no puede ser cero
+
+| Identificador | Ocurrencias | Qué se hizo |
+| :-- | --: | :-- |
+| `MissingRequiredParamaterException` | 106 en 31 archivos | renombrado, archivo incluido |
+| `ParamaterNotExistsException` | 7 en 2 | renombrado, archivo incluido |
+| `Parameters::addParamater()` | 2 | renombrado — **no estaba en la instrucción** |
+| `Parameters::removeParamater()` | 1 | renombrado — **no estaba en la instrucción** |
+
+Los dos últimos se renombran porque la instrucción exige **`Paramater` = CERO**, y sin ellos no
+lo sería. Son métodos públicos: es otro cambio incompatible más, y va a la MAJOR igual.
+
+**Y EL CERO NO PUEDE SER CERO EN TODO `src/`:**
+
+| Universo | Antes | Después |
+| :-- | --: | --: |
+| Nuestro código (`src/app` sin `logs/`, y `bin/`) | 74 | **0** |
+| `src/vendor/php-ffmpeg` — `$initialParamaters`, `$additionalParamaters` | 16 | **16** |
+
+**`src/vendor/` no se edita**: es un paquete de terceros y la regla 8 del proyecto lo prohíbe.
+La misma errata está ahí, y se dice en vez de tocarla.
+
+**No hay más erratas de esa familia**: buscadas `Parmeter`, `Paremeter`, `Parametter`,
+`Exeption`, `Vaule` y `Valeu` en todo `src/app` — **cero de cada una**.
+
+> #### UN ERROR MÍO, Y LO CUENTO ENTERO
+>
+> El reemplazo alcanzó **8 archivos de `src/app/logs/`** —los registros de errores de la
+> aplicación—, que no son código y guardan el nombre que la excepción TENÍA cuando se lanzó.
+> Reescribirlos falsifica el registro histórico.
+>
+> **Restaurados** con el reemplazo inverso exacto de los dos nombres de clase: `error.plain.log`
+> vuelve a tener sus 19 líneas con `MissingRequiredParamaterException`. Están en `.gitignore`,
+> así que nunca iban a entrar en el commit — pero el daño era al registro, no al commit.
+>
+> **La lección:** un renombrado global se acota al universo de CÓDIGO antes de ejecutarlo. Los
+> registros, los volcados y las cachés no son sitios donde renombrar nada.
+
+### PHPStan
+
+**747, igual que el baseline.** Los artefactos se mueven en 21 tripletas, y **las 21 son
+desplazamiento de línea**: mismo archivo, mismo mensaje. **Cero muertas, cero nacidas.**
+
+Un matiz de método que casi me engaña: emparejando por mensaje TRUNCADO A 70 caracteres salían
+«3 muertas y 3 nacidas». Con el mensaje completo, cero. **La clave de comparación es parte del
+método**, y truncarla inventa muertes.

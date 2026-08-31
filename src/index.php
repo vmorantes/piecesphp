@@ -19,6 +19,7 @@ use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\ResponseRouteFactory;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
@@ -972,6 +973,17 @@ $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exce
         ]);
     } elseif ($originalException instanceof HttpForbiddenException) {
         return get_router()->getDI()->get('forbiddenHandler')($originalException);
+    } elseif ($originalException instanceof MissingRequiredParameterException) {
+        //UN PARÁMETRO OBLIGATORIO QUE FALTA ES ERROR DEL CLIENTE, no del servidor. Aquí, que es
+        //donde el framework ya separa 404, 405 y 403 del 500, y no con un try/catch en cada una
+        //de las 27 controladoras: eso sería esparcir el arreglo, no hacerlo. Ver T151.
+        $response = new ResponseRoute(StatusCode::HTTP_BAD_REQUEST);
+        return $response->withJson([
+            'success' => false,
+            'error' => 'MISSING_REQUIRED_PARAMETER',
+            //El mensaje ya lo construye `Parameters::validate()`, traducido y con los nombres.
+            'message' => $originalException->getMessage(),
+        ]);
     } else {
         $errorContext = 'RouterSetErrorHandler';
         $contextsAvailables = [

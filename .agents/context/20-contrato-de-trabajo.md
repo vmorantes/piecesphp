@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-31, tras el BLOQUE AH.**
+**Ultima actualizacion: 2026-08-31, tras el BLOQUE AJ.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -752,6 +752,64 @@ DataImportExport comprobaria permisos con el stdClass; heredando el trait caeria
 concede». **Es un cambio de comportamiento en la rama de fallo, y en direccion permisiva.** Se
 declara, no se cuela: es el residuo de T26, y uniformar la semantica del trait es justamente el
 objetivo.
+
+### AJ CERRADO, Y EL PROPIETARIO CORRIGE EL ALCANCE
+
+**Por que el CODER no arreglo el 500: porque ARQUITECTO se lo prohibio.** El paso 5 decia
+literalmente *«dilo con el error exacto del log y NO lo persigas en este bloque»*. Obedecio. La
+cautela era de ARQUITECTO y sobraba.
+
+**Aclaracion del PROPIETARIO que cambia el calculo de TODO lo que queda**: *«todo lo que hemos
+hecho ya es rompedor. Todo esta en `dev`; nada esta en `last-stable`, que es la que dice lo actual;
+nada esta versionado; ergo todo esto quedara en la MAJOR.»* Comprobado: HEAD es `dev`, existen
+`last-stable`, `master` y 79 etiquetas hasta `v7.1.0`, y el trabajo de la campaña no esta en
+ninguna.
+
+> **Consecuencia**: «esto seria un cambio incompatible» DEJA DE SER UN FRENO. Renombrar clases
+> publicas, cambiar la declaracion de una ruta o mover una firma se decide por si mejora el
+> framework, no por compatibilidad. La MAJOR es el sitio donde eso se paga.
+
+### DECISION DEL PROPIETARIO SOBRE LAS 15 RUTAS AJAX DE LOCATIONS
+
+*«Las search esta bien que pidan sesion; las que solo listan quizas no, porque sirve para apis
+publicas.»* Medido, las 15 son hoy `requireLogin=False, rolesAllowed=[]`:
+
+| forma | cuantas | decision |
+| :-- | --: | :-- |
+| `-ajax-search` | **5** (countries, states, cities, points, regions) | **piden sesion** |
+| `-ajax-all` y `-ajax-all2` | **10** | **siguen publicas**: son API |
+
+**Y no rompe nada**: medido en `src/statics` y en los `Statics/` de los modulos, **CERO consumidores
+de `-ajax-search`**. `LocationsAdapter` usa las URL base (`/countries`, `/states`, `/cities`), que
+son las de listado. `Region` si tiene `search()` y `all()` (lineas 100 y 90): la ruta no cuelga.
+
+### LAS OCHO CONCATENACIONES QUE QUEDAN — seis en ruta publica
+
+`Country::search` quedo arreglado en AJ. Faltan, **todas medidas contra el inventario**:
+
+| metodo | ruta | hoy |
+| :-- | :-- | :-- |
+| `Point::search` `State::search` | `-ajax-search` | **el MISMO `LIKE` identico**, linea 467 y 453 |
+| `City::search` | `-ajax-search` | misma familia |
+| `City::cities` `Country::countries` `State::states` | `-ajax-all2` | `getQueryParam` directo; **siguen publicas por decision del PROPIETARIO** |
+| `UsersController::searchDropdown` | admin | `type NOT IN ({$ignoreTypes})` |
+| `DataTablesHelper::process` x2 | admin | el `$order` de DataTables, **compartido por 19 controladoras** |
+
+### DECIDIDO POR ARQUITECTO, que era su trabajo y no una pregunta
+
+El PROPIETARIO respondio *«no se que preguntas»* al trinquete: la pregunta estaba mal hecha, el
+diseño del instrumento es de ARQUITECTO. **El trinquete entra**: CONFIRMADO esta hoy en 8 y solo
+puede bajar. Y **las 90 de REVISAR A MANO no se atacan ampliando el censo** —cruzar de metodo es
+donde un instrumento empieza a mentir con seguridad—: se revisan por lotes, ordenadas por si la
+ruta es publica.
+
+### DOS CLASES CON EL NOMBRE MAL ESCRITO, y ahora se pueden renombrar
+
+`MissingRequiredParamaterException` (**27 archivos**) y `ParamaterNotExistsException`. *Paramater*.
+Son publicas y cada clon las hereda. Con la aclaracion del PROPIETARIO, se renombran.
+
+Y el defecto de fondo: **un parametro obligatorio que falta es error del CLIENTE y hoy sale 500.**
+No es de esa ruta: `Parameters::validate()` lanza y nadie lo traduce a 4xx.
 
 ### Abierto, sin decidir
 

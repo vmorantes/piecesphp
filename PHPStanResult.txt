@@ -152,11 +152,11 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/City.php                                          
  ------ -------------------------------------------------------------------------------------------- 
-  396    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  398    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  428    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  430    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  587    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  591    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -185,22 +185,22 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/Point.php                                         
  ------ -------------------------------------------------------------------------------------------- 
-  374    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  376    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  405    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  407    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  481    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  482    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/State.php                                         
  ------ -------------------------------------------------------------------------------------------- 
-  363    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  365    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  389    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  391    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  466    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  467    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -1146,7 +1146,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  348    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  354    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 
@@ -2333,28 +2333,28 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/index.php                                                                                                                                                                        
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  384    Access to an undefined property object::$iat.                                                                                                                                        
+  385    Access to an undefined property object::$iat.                                                                                                                                        
          🪪  property.notFound                                                                                                                                                                
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                                
-  606    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
+  607    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
          🪪  argument.type                                                                                                                                                                    
-  625    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
+  626    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
          🪪  argument.type                                                                                                                                                                    
-  633    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
+  634    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
          🪪  property.nonObject                                                                                                                                                               
-  661    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
+  662    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
          🪪  argument.type                                                                                                                                                                    
-  673    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
+  674    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
          🪪  argument.type                                                                                                                                                                    
-  750    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
+  751    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
          🪪  argument.type                                                                                                                                                                    
-  761    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
+  762    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
          🪪  argument.type                                                                                                                                                                    
-  875    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
+  876    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
          🪪  argument.type                                                                                                                                                                    
-  886    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
+  887    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
          🪪  argument.type                                                                                                                                                                    
-  901    Variable $actionName might not be defined.                                                                                                                                           
+  902    Variable $actionName might not be defined.                                                                                                                                           
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
