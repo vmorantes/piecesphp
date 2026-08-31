@@ -14950,3 +14950,167 @@ siendo LAXA; `routeName` sale de la lista de formas de fallo abierto entera.
   contara entradas, **borrar traducciones parecería progreso**: en AF se retiró
   `dynamic-translations/fr/global.php` y las entradas bajaron de 80 a 72 mientras la cota se
   quedaba en 53, porque las mismas 8 cadenas viven también en `es/global.php`.
+
+---
+
+## T148 · AH · SE MIDIÓ EL 302 QUE NADIE HABÍA COMPROBADO, Y APARECIERON DOS PUERTAS ABIERTAS
+
+**Bloque AH.** No se argumentó el resultado: se midió. Y el resultado **no es el que decía el
+aviso ni el que temía la instrucción**.
+
+### PASO 1 · Canario (LEY 16)
+
+| | |
+| :-- | --: |
+| Ruta PÚBLICA conocida — `/` | **200** |
+| Ruta INVENTADA — `/ruta-inventada-ah-que-no-existe/` | **404** |
+
+Sin esas dos líneas el recorrido no contaría. El inventario se regeneró con
+`bin/cli route-inventory` y **no cambió** respecto al versionado: 306 rutas, 251 con URL
+resoluble.
+
+### PASO 2A · El recorrido SIN sesión
+
+**EL UNIVERSO, porque un reparto sin denominador no dice nada (LEY 15):**
+
+| | |
+| :-- | --: |
+| Rutas registradas por el framework | 306 |
+| Con URL resoluble sin parámetros | 251 |
+| **GET recorridas de verdad** | **182** |
+| Omitidas, cada una con su razón | 124 |
+| De las recorridas, de los **22 módulos** que instalan `DefaultAccessControlModules` | 49 |
+| Del resto del framework | 133 |
+
+*(Las 182 filas contienen un nombre repetido, `terminal-help`, con la misma URL y el mismo 404
+las dos veces: 181 claves distintas. Se dice porque el primer cruce que hice colapsó por
+nombre y perdió una fila.)*
+
+**REPARTO SIN SESIÓN — las 182:**
+
+| Código | Cuántas |
+| :-- | --: |
+| 200 | **47** |
+| 302 | 93 |
+| 404 | 40 |
+| 403 | 1 |
+| 500 | 1 |
+
+**REPARTO SIN SESIÓN — solo las 49 de los 22 módulos:**
+
+| Código | Cuántas |
+| :-- | --: |
+| 302 | **47** |
+| **200** | **2** |
+
+### EL NÚMERO QUE ERA EL BLOQUE ENTERO
+
+**Rutas `/admin/*` que responden 200 SIN SESIÓN: 17.** Y clasificadas, que es lo que
+convierte un número en un hecho:
+
+| Qué son | Cuántas |
+| :-- | --: |
+| Resolutores de estáticos `globals-vars.css` | 15 |
+| `admin-global-variables-css` — también una hoja de estilos | 1 |
+| **Endpoints de verdad** | **1** |
+
+El único endpoint real es
+`localization-system-features-get-lang-messages-by-group`, y con él va
+`user-system-features-generate-otp`, que **también responde 200 sin sesión** aunque no cuelgue
+de `/admin/` sino de `/users/`. Las dos son de los 22 módulos. **No hay ninguna más.**
+
+### PASO 3 · La discriminante (LEY 24) — Y SÍ CAMBIA
+
+Cambiando **solo** `} else { $allowed = true; }` por `false` en `ControllerRoutingTrait`, con
+4 s de espera —más que `opcache.revalidate_freq`, que vale 2— y repitiendo el recorrido:
+
+| Código | 2A · sin sesión | 3.4 · rama en `false` |
+| :-- | --: | --: |
+| 200 | 47 | **45** |
+| 302 | 93 | 93 |
+| 403 | 1 | **3** |
+| 404 | 40 | 40 |
+| 500 | 1 | 1 |
+
+**Cambian EXACTAMENTE dos rutas, y son las dos:**
+
+```
+localization-system-features-get-lang-messages-by-group   200 -> 403
+user-system-features-generate-otp                         200 -> 403
+```
+
+El recorrido **VE la rama**. No es «no corrió»: es una medición válida. Y prueba dos cosas
+distintas:
+
+1. **Los 93 × 302 NO salen de esa rama.** No se movió ni uno.
+2. **Esos dos 200 salían de ella.** Sin usuario, `routeName()` concede, el middleware lee
+   cadena no vacía y deja pasar. Con la rama cerrada, `throw403()`.
+
+Restaurado con `git checkout --`, esperado otra vez fuera de la ventana, y comprobado por
+petición: los dos vuelven a 200 y la home sigue en 200.
+
+### DE DÓNDE SALE EL 302 — LA INSTRUCCIÓN DECÍA QUE NO SE HABÍA ENCONTRADO. ESTÁ AQUÍ
+
+`src/index.php`, sección 8, **«Capa de Restricción de Acceso y Reglas de Login»**, líneas
+655-696. No es un middleware de Slim —por eso una búsqueda de middlewares no lo encuentra—:
+es una comprobación del arranque, dentro del propio `index.php`, guardada por
+`get_config('control_access_login')`.
+
+```php
+if ($info_route['require_login']) {
+    if (!$isActiveSession) {
+        if ($request->isXhr()) { … 403 RESTRICTED_AREA … }
+        else { … return $emptyResponse->withRedirect(get_route('users-form-login')); }
+    }
+}
+```
+
+Comprobado por cabecera: `/admin/news/list/` y `/admin/publications/list/` devuelven
+`Location: …/users/login/`. Es del framework, no del servidor web.
+
+### POR QUÉ ESAS DOS SE ESCAPAN, Y NO ES UN MISTERIO
+
+Leído del inventario:
+
+| Ruta | `requireLogin` | `rolesAllowed` |
+| :-- | :-- | :-- |
+| `news-admin-list` | **true** | `[0,1,4,3]` |
+| `publications-admin-list` | **true** | `[0,1,4,3]` |
+| `localization-system-features-get-lang-messages-by-group` | **false** | `[]` |
+| `user-system-features-generate-otp` | **false** | `[]` |
+
+Las que declaran `require_login` las para `index.php` antes de llegar a ningún controlador.
+**Las que NO lo declaran quedan enteramente en manos de `DefaultAccessControlModules`**, y ahí
+el único juez es `routeName()` — que sin usuario CONCEDE.
+
+> **LAS DOS CAPAS NO SE SOLAPAN: SE REPARTEN.** Y el reparto lo decide un `require_login` que
+> se declara ruta a ruta, a mano. Una ruta nueva de uno de los 22 módulos que se declare sin
+> `require_login` y sin roles **queda abierta a cualquiera**, y nada avisa.
+
+### LO QUE ESTO SIGNIFICA PARA EL AVISO DEL RECORREDOR
+
+La frase «todo `/admin/*` dará 302» **es falsa**: 17 rutas bajo `/admin/` dan 200. Que 15 de
+ellas sean hojas de estilo no la salva — la afirmación era absoluta. Era **LEY 19**: el
+productor afirmando sobre el consumidor. `bin/walk-routes` ya imprime el reparto medido.
+
+### LO QUE NO SE PUDO HACER
+
+**El recorrido B, CON sesión, NO SE HIZO.** `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` **no están
+definidas en este entorno** —comprobado sin imprimir ningún valor— y `bin/walk-routes` las lee
+solo de ahí. No fui a buscarlas a ningún archivo: usar credenciales encontradas está prohibido.
+El cruce A contra B queda pendiente de que el PROPIETARIO exporte las dos variables.
+
+**Lo que el cruce habría añadido** —y lo que NO— conviene decirlo: el número del bloque, las
+rutas que responden 200 SIN sesión, **no depende de B**. B habría dicho cuántas de las 302 son
+302 solo por falta de sesión y cuántas lo serían igualmente con ella.
+
+### DOS COSAS MÁS QUE APARECIERON Y NO SE TOCARON
+
+- **`locations-countries-ajax-search` devuelve 500 sin sesión.** Una sola ruta, y es la única
+  5xx del recorrido.
+- **`user-problems-list`, `other-problems-form`, `recovery-form`, `user-forget-form` y
+  `pcsphp-testing-queue-request` responden 200 sin sesión**, fuera de los 22 módulos. Cuatro son
+  formularios de recuperación y probablemente deben ser públicos; `pcsphp-testing-queue-request`
+  no se ha juzgado.
+
+Ninguna se tocó: este bloque medía.

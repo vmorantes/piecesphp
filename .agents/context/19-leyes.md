@@ -949,3 +949,45 @@ suite lanza `bin/cli db-backup` en un subproceso mientras su usuario de prueba e
 Buscar «quién hace el INSERT» dentro de la suite no lo habría encontrado nunca: el INSERT
 está en el arranque. **Lo que una suite tiene que recoger no es lo que ella escribe, es lo
 que queda distinto por haber corrido.** Confirmado por ARQUITECTO en el bloque AA. Ver T141.
+
+
+### LEY 28 — UN BORRADO NO TERMINA EN EL CODIGO: TERMINA CUANDO NINGUN ARTEFACTO LO SIGUE NOMBRANDO
+
+**Nacida el 2026-08-30, de una observacion del PROPIETARIO**: *«porque siguen apareciendo cosas de
+experience. El borrado no fue confiable.»* Tenia razon, y la causa no era descuido: era que
+«borrado» estaba definido sobre un universo demasiado estrecho.
+
+E3 lote 1 se llevo las experiencias previas. El CHANGELOG declara **«Tablas 35 -> 29»**. Medido
+hoy sobre el arbol:
+
+- `databases/piecesphp_structure.sql` — **artefacto VERSIONADO** — tiene **32 `CREATE TABLE`**, y
+  entre ellas `previous_experiences`, `organization_previous_experiences` e
+  `interest_research_area`: **tres tablas de dos modulos borrados**, que ningun mapper nombra ni
+  entera ni partida.
+- `.agents/context/11-base-de-datos.md` sigue documentando dos de ellas.
+- `bin/tools/refactorization/Rector.php` sigue excluyendo **cuatro archivos que ya no existen**.
+- Cuatro `.scss` de MySpace y dos `.js` siguen con bloques del formulario muerto.
+
+**El «29» era cierto y estaba bien medido — sobre la base de datos VIVA.** El artefacto versionado
+nunca se toco. Es LEY 15 en su forma mas cara: *el instrumento informaba del universo que miraba,
+y ese universo no era el que el lector suponia.*
+
+> Un borrado se cierra cuando **ningun artefacto del repositorio sigue nombrando lo muerto**:
+> codigo, esquema versionado, listas de exclusion de herramientas, documentacion, hojas de estilo
+> y lineas base. **No basta con que la aplicacion funcione sin ello.**
+
+**La forma corta**: *lo que se borra, se borra de todas partes o no esta borrado.*
+
+**Mecanismo, porque una regla que falla deja de ser regla (LEY 11)**: el paso 6 gana un censo que
+cruza `databases/*.sql` contra las tablas que el codigo declara —contando que el nombre se compone
+con prefijo, o el censo miente—, y `bin/tools/refactorization/Rector.php` gana una guarda que
+falla si excluye una ruta inexistente.
+
+**Y su corolario, de la misma jornada** — la quinta clase del paso 6:
+
+> Un selector sin productor puede ser (a) residuo, (b) contrato con HTML de fuera del repo,
+> (c) gancho opcional documentado, o (d) **estar vivo dentro de un bloque muerto**. El caso (d)
+> es el traicionero: `element-location-module-data` es gancho legitimo en
+> `features/locations/js/locations-config.js:11` y residuo en `my-profile.js:216`, donde vive
+> dentro de un `locations2` cuyos cuatro atributos tienen cero productores. **El mismo atributo,
+> dos veredictos opuestos.** No lo decide el atributo: lo decide el bloque que lo rodea.

@@ -123,7 +123,13 @@ if (is_string($user) && $user !== '' && is_string($password) && $password !== ''
         echo "Sesión iniciada.\n";
     }
 } else {
-    echo "AVISO: sin PCSPHP_WALK_USER/PCSPHP_WALK_PASS. Se recorre SIN sesión: todo /admin/* dará 302.\n";
+    echo "AVISO: sin PCSPHP_WALK_USER/PCSPHP_WALK_PASS. Se recorre SIN sesión.\n";
+    echo "       MEDIDO en el bloque AH, no supuesto: de 182 rutas GET recorridas sin sesión,\n";
+    echo "       47 dieron 200, 93 dieron 302 al login, 40 dieron 404, una 403 y una 500.\n";
+    echo "       NO es cierto que «todo /admin/* dé 302»: 17 rutas bajo /admin/ dieron 200\n";
+    echo "       —15 resolutores de globals-vars.css, uno de variables.css y UN endpoint real—.\n";
+    echo "       El 302 lo produce index.php cuando la ruta declara require_login; las que no\n";
+    echo "       lo declaran quedan en manos de DefaultAccessControlModules. Ver T148.\n";
 }
 
 $headers = ['Referer: ' . $base . '/'];

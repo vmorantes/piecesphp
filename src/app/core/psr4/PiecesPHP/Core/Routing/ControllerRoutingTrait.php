@@ -89,9 +89,12 @@ trait ControllerRoutingTrait
     /**
      * Verificar si una ruta es permitida
      *
-     * Es lo que decide la visibilidad de un menú o un botón. **Descansa por completo en
-     * `routeName()`**, que devuelve cadena vacía cuando el usuario no tiene permiso — por eso
-     * una URL escrita a mano se salta el control de acceso: no pasa por aquí.
+     * Descansa por completo en `routeName()`, que devuelve cadena vacía cuando el usuario no
+     * tiene permiso.
+     *
+     * **22 controladoras instalan `DefaultAccessControlModules`**, cuyo veredicto de acceso es
+     * `routeName()` devolviendo cadena no vacía. En esos módulos este método NO decide
+     * visibilidad: **DECIDE EL ACCESO**. Fuera de ellos sí decide solo visibilidad. Ver T148.
      *
      * @param string $name
      * @param array $params

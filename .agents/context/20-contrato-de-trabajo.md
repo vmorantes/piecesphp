@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-29, tras el BLOQUE AE.**
+**Ultima actualizacion: 2026-08-30, tras el BLOQUE AG.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -348,6 +348,260 @@ que estaba capturada, **y no la metio en la instruccion durante tres bloques**. 
 la conversacion y NO EN DISCO. Lo que se escribe aqui sobrevive; lo que solo se dice se lo lleva el
 siguiente reporte. **Lo que ARQUITECTO promete se escribe en §7 en el momento, no en un mensaje.**
 
+### E4 arranco, y la regla de construccion se justifico el primer dia
+
+`UnitTest-AccessGuards`, 33/33. Seis de las ocho guardas de acceso, cada una con RECHAZO,
+DISCRIMINANTE y PROVOCACION.
+
+**LA PRIMERA PROVOCACION SALIO VERDE Y ESO ERA EL HALLAZGO.** Al quitar
+`empty(self::$supported_algs[$header->alg])` de `decode()`, la suite siguio en 33/33 — no porque
+la guarda no importe, sino porque **detras hay otra** (`!in_array($header->alg, $allowed_algs)`) y
+el caso tampoco pasaba esa. **Se estaba probando la segunda creyendo probar la primera.** LEY 24
+exacta, cazada por la regla «una prueba de guarda tiene que fallar si la guarda se quita».
+Aislada metiendo el alg inventado EN `$allowed_algs`, las cuatro provocaciones si caen:
+32/33 · 29/30 · 27/30 · 32/33.
+
+**Dos contratos congelados, de la clase «retorno no obvio»**: `BaseToken::check()` sobre un JWT sin
+`exp` devuelve **el objeto del payload**, no `true` —truthy pero no `true`: con `!== true` cierra,
+con `if (!$x)` abriria—; y `Roles::hasPermissions` con un rol inexistente **lanza**, no devuelve
+false.
+
+**El censo de guardas se corrigio una QUINTA vez, y cambio el corte de ARQUITECTO**: `VALID-TRUE`
+marcaba cualquier `$allowed = true;`, incluidos los que se ponen DENTRO de una rama —lo contrario
+de nacer en true—. 8 -> 6. `Roles::hasPermissions` y `ControllerRoutingTrait::routeName` arrancan
+en `false`: **llevaban una etiqueta falsa en el corte**. Las cinco correcciones fueron A LA BAJA
+(48 -> 19 -> 11 -> 9, y 8 -> 6). La primera cifra siempre fue la comoda (LEY 22).
+
+**Quedan 169 guardas sin prueba de rechazo.** El lote 2 son las ~22 restantes con FORMA DE FALLO
+ABIERTO (28 menos las hechas): es el marcador de mas senal que tenemos.
+
+### `routeName` NO decide solo visibilidad: en 22 modulos ES el control de acceso
+
+**ARQUITECTO se equivoco y lo escribio en un docblock del nucleo.** El docblock de T26 en
+`ControllerRoutingTrait` dice: *«una URL escrita a mano se salta el control de acceso: no pasa por
+aqui»*. **Es falso en 22 modulos.** El PROPIETARIO lo corrigio de memoria antes de que hubiera
+medicion: *«la definitiva es la que se aprovecha de _allowedRoute y allowedRoute»*.
+
+Medido, arbol de trabajo, `git grep` sobre HEAD:
+
+- `PiecesPHP\RoutingUtils\DefaultAccessControlModules` es un middleware de grupo. Su veredicto es
+  literalmente `mb_strlen($routeURL) > 0`, donde `$routeURL` es **el retorno de `routeName()`**.
+  Si sale vacio, `throw403`.
+- Lo instalan **22 controladoras** (News, Organizations, Documents, Publications, MySpace x5,
+  Forms x2, API, GeoJSONManager, SystemApprovals, ContentNavigationHub, ReportsManage,
+  DataImportExportUtility, Banner, GenericContent, UserSystemFeatures, LocalizationSystem).
+- Es decir: **para esos modulos `routeName()` no informa el acceso, LO DECIDE.**
+
+Y `require_login` **no es una puerta**: se guarda en el inventario de rutas y lo consumen
+`Roles::hasPermissions()` —para decidir si hace falta pertenecer a un rol— y el manejador de 404
+—para el boton «volver»—. `register_route()` no anade ningun middleware de sesion, el grupo
+administrativo no lleva ninguno, y los dos unicos `withRedirect` del proyecto estan en
+`MySpaceController` y en `RecoveryPasswordController`. **No se encontro el codigo que mandaria a
+login a un anonimo que pide `/admin/*`.**
+
+Sobre eso se apoya la rama que preocupa: en `routeName`, `getLoggedFrameworkUser() === null` cae en
+`else { $allowed = true; }`. Con el middleware puesto, esa rama es la que decide.
+
+**No se afirma nada mas: se provoca.** `bin/walk-routes:126` imprime «sin PCSPHP_WALK_USER/PASS se
+recorre SIN sesion: todo /admin/* dara 302». **Esa linea es una afirmacion sobre el consumidor
+escrita por el productor y nadie la ha comprobado nunca** (LEY 19). El bloque AH la mide.
+
+**Los generadores de Menu NO dependen de esa rama.** El PROPIETARIO lo sospechaba; medido, no:
+`MenuGroup` y `MenuItem` no consultan permisos, reciben `visible` ya calculado, y quien lo calcula
+—`config/menu.php` y los `*Routes::init()`— se autoprotege con `if ($currentUser === null) return
+null;` antes de tocar el menu. Con anonimo el menu **no se construye**. La sospecha era razonable y
+la medicion la descarta.
+
+### Los 9 selectores sin productor, con su insumo
+
+El PROPIETARIO pidio la lista para revisarlos: *«hay que listar los insumos para revisarlos bien»*.
+Universo: repo entero salvo `src/statics/plugins`, `node_modules`, `vendor`, `.min.*`, `.css`,
+`.map`. Instrumento validado con canario (LEY 16): `class=` da 216 pre-E3 / 187 hoy.
+
+| selector | quien lo busca | que hace | productor pre-E3 | hoy | veredicto |
+|---|---|---|---|---|---|
+| `options-order` | `core/js/helpers.js:965` | orden del listado | **2** (`ImagesRepository`) | 0 | **murio con E3, lote 1** |
+| `options-order-type` | `core/js/helpers.js:966` | asc/desc | **2** (`ImagesRepository`) | 0 | **murio con E3, lote 1** |
+| `see-more` | `MySpace/.../my-space.js:25` | boton de la tarjeta de noticia | 0 | 0 | productor murio en **v6.1.0**, no en E3 |
+| `container-colors` | `features/avatars/js/avatar.js:289` | paleta del avatar | 0 | 0 | **nunca** hubo productor PHP; hay SCSS que lo estiliza |
+| `container-steps` | `helpers-lib/GenericStepsViewHandler.js:6` | pasos de un asistente | 0 | 0 | **nunca**; la clase solo se referencia a si misma |
+| `data-to-step` | `helpers-lib/GenericStepsViewHandler.js:7` | disparador de paso | 0 | 0 | **nunca** |
+| `datatable-js` | `core/js/configurations.js:500` | monta DataTables | 0 | 0 | **nunca** en PHP; las tablas se montan por otra via |
+| `lang-group` | `core/js/configurations.js:1361` | **traduccion automatica de HTML** | 0 | 0 | **nunca**, y esta DOCUMENTADO en `files/Webflow/Intrucciones.md:39` |
+| `element-location-module-data` | `my-profile.js:216`, `my-organization-profile.js:298`, `features/locations/js/locations-config.js:11` | filtro opcional de paises/estados/ciudades | 0 | 0 | **nunca**; sus hermanos SI tienen productor |
+
+Tres cosas que cambian la decision y que **son del PROPIETARIO**:
+
+1. **Solo dos de los nueve son residuo de E3.** Los otros siete ya estaban sin productor antes, y
+   cinco no lo tuvieron nunca en toda la historia del repo (`git log -S` sobre `--all`).
+2. **`lang-group` es el mecanismo de traduccion de HTML que el PROPIETARIO quiere perfeccionar.**
+   `autoTranslateFromLangGroupHTML()` traduce por grupo pidiendo al backend. No tiene productor en
+   el repo **porque el productor es HTML importado de Webflow**, y las instrucciones de importacion
+   lo exigen. Retirarlo seria retirar la pieza que se quiere mejorar.
+3. **`element-location-module-data` es un gancho opcional, exactamente como dijo el PROPIETARIO.**
+   `if (dataElementLocation.length > 0)`: ausente, no filtra. Sus hermanos del mismo componente si
+   tienen productor —`locations-component-auto-filled-country` 10, `latitude-mapbox-handler` 6,
+   `set-satelital-view` 2—. El componente esta vivo; lo que no se usa es su filtro.
+
+> **CUARTA CLASE DEL PASO 6, candidata**: un selector sin productor puede ser (a) residuo,
+> (b) contrato para HTML de fuera del repo, o (c) gancho opcional documentado. **El censo no
+> distingue las tres, y (b) y (c) NO se retiran.** El paso 6 hoy las trataria igual.
+
+### Los 9 selectores: DECIDIDO por el PROPIETARIO (2026-08-30)
+
+Su criterio, textual: *«en lugar de matarlas hay que documentarlas y arreglar si esta dañado
+algo»*. Y aparte: *«el creador de muñequitos avatares si esta muerto hace muchisimos años y sus
+assets tambien»*.
+
+| selector | decision | por que |
+| :-- | :-- | :-- |
+| `lang-group` | **DOCUMENTAR** — contrato publico | `autoTranslateFromLangGroupHTML()` **si esta invocada** (`configurations.js:1649`). Mecanismo vivo y sano; su productor es HTML de Webflow |
+| `datatable-js` | **DOCUMENTAR** — gancho vivo | `configDataTables()` **si esta invocada** (`configurations.js:252`). Monta DataTables con la config de idioma del framework sobre cualquier tabla que lleve el atributo |
+| `container-steps`, `data-to-step` | **DOCUMENTAR** — utilidad | `GenericStepsViewHandler`: asistente por pasos, completo y sin usar |
+| `element-location-module-data` | **DOCUMENTAR** — gancho opcional | En `features/locations/js/locations-config.js:11` es el filtro opcional del componente vivo. **Pero ver abajo: sus otras dos apariciones NO son eso** |
+| `container-colors` | **MUERE** con todo el creador de avatares | Decision del PROPIETARIO |
+| `options-order`, `options-order-type` | **MUERE** — residuo de E3 lote 1 | Sus 2 productores eran `ImagesRepository` |
+| `see-more` | **SIN DECIDIR** | El PROPIETARIO no se pronuncio |
+
+### DOS BLOQUES DAÑADOS, del mismo sujeto que ya se llevo el boton `translate`
+
+Buscando lo dañado aparecio mas residuo del **formulario de experiencias previas** que mato E3
+lote 1 — el mismo sujeto de T147:
+
+1. **`experienceForm()`** en `MySpace/Statics/js/my-profile.js:155` y
+   `my-organization-profile.js:237`. Llama
+   `dataTablesServerProccesingOnCards('.table-to-cards', 20, …)`. **`.table-to-cards` tiene 3
+   productores en el arbol y NINGUNO esta en `MySpace/Views/`.** La funcion entera monta una tabla
+   que no existe.
+2. **`locations2`** dentro de `configurateMap()`, en los dos mismos archivos: un SEGUNDO componente
+   de ubicaciones con los atributos `...-country2`, `-state2`, `-city2`, `-point2`, **los cuatro
+   con 0 productores**. Era el mapa de cada experiencia previa.
+
+**Y aqui esta la finura que salva el criterio del PROPIETARIO**: `element-location-module-data`
+aparece en tres sitios. En `locations-config.js:11` es el gancho opcional vivo que hay que
+DOCUMENTAR. En `my-profile.js:216` y `my-organization-profile.js:298` esta DENTRO de `locations2`,
+o sea dentro de codigo muerto. **El mismo atributo, dos situaciones opuestas.** Un censo por
+atributo no puede distinguirlas: hay que mirar el bloque que lo rodea.
+
+### El lote del CREADOR DE AVATARES — medido, y NO es la foto de perfil
+
+Cuidado con LEY 17: «avatar» aparece en 40 archivos y **casi todos son la FOTO DE PERFIL, que esta
+viva y no se toca**. `AvatarModel` (subida de fichero, carpetas, `default-avatar.png`) y
+`AvatarController::register()` —ruta `push-avatars`, usada por `topbar.php:678` y
+`usuarios/form.php:29`— **SOBREVIVEN**.
+
+Lo que muere es el CREADOR de muñequitos:
+
+| pieza | medida |
+| :-- | :-- |
+| `src/statics/images/avatares/` | **162 archivos versionados, 888K** (hombre/mujer/all × cabello, ojo, ceja, nariz, boca, silueta, ropa) + un PDF de colores |
+| `src/statics/features/avatars/` | 3 archivos versionados, 116K (`avatar.js`, `canvg.min.js`, `style.scss`) |
+| `AvatarController::avatar()` + `listFiles()` | el metodo que arma el catalogo, y su ruta `avatars` (GET `/avatars/get`) |
+| `config/routes.php` | la ruta `avatars` del grupo `$sistema_avatares` (la otra, `push-avatars`, SE QUEDA) |
+| `config/roles.php:50` | la entrada `'avatars'` |
+| `UsersController` | **3 sitios** que importan `avatar.js` y `style.css` en formularios donde el componente nunca se dibuja |
+| `statics/admin-area/js/users-forms.js:102` | el bloque `.avatar-component` |
+| `src/gulpfile.js` | 3 entradas del pipeline de Sass |
+
+**`.avatar-component` tiene 0 productores en PHP/HTML en toda la historia del repo.** El creador se
+carga en tres formularios de usuario y no dibuja nada.
+
+### EL BORRADO NO FUE FIABLE — el PROPIETARIO tenia razon, y es peor que el JS
+
+*«Porque siguen apareciendo cosas de experience. El borrado no fue confiable.»* — 2026-08-30.
+
+Red ancha sobre `experience|experiencia`, repo entero salvo `node_modules`, `vendor`, `.min.*`,
+`.map`, `plugins`. **14 archivos.** Clasificados:
+
+| archivo | que es |
+| :-- | :-- |
+| `databases/piecesphp_structure.sql` | **DOS TABLAS ENTERAS** del modulo muerto |
+| `.agents/context/11-base-de-datos.md` | las documenta |
+| `bin/tools/refactorization/Rector.php:86-89` | excluye **4 archivos que ya no existen** |
+| `MySpace/Statics/js/my-profile.js`, `my-organization-profile.js` | `experienceForm()` y `locations2` |
+| 4 `.scss` de MySpace | estilos del formulario muerto |
+| `CHANGELOG.md`, `PHPStanResult.Summary.baseline.txt`, `.agents/rules/00-core.md`, `18-`, `20-` | historia y prosa: **se quedan** |
+
+**El hallazgo grande — el esquema versionado.** El CHANGELOG de E3 declara «Tablas 35 -> 29».
+`databases/piecesphp_structure.sql` tiene **32 `CREATE TABLE`**. Cruzadas las 32 contra el codigo
+que las declara, y corregido el instrumento (LEY 22: `locations_cities`, `locations_states`,
+`locations_points` y `pcsphp_jobs_queue` salieron como falsos positivos porque el nombre se compone
+con prefijo — `const TABLE = 'cities'` sobre `locations_`), quedan **TRES huerfanas reales**:
+
+- `previous_experiences` (E3 lote 1)
+- `organization_previous_experiences` (E3 lote 1)
+- `interest_research_area` (E3 lote 4)
+
+**El «29» era correcto y estaba bien medido — SOBRE LA BASE DE DATOS VIVA.** El artefacto
+versionado nunca se toco, y ninguna puerta lo mira. De ahi nace **LEY 28**.
+
+### `see-more`: DAÑADO, no sin proposito — se corrige
+
+Criterio del PROPIETARIO: *«si see-more no tiene proposito ni utilidad clara, muere; si esta
+dañada se corrige»*. Medido, tiene proposito y esta a medias:
+
+- `News/Views/news/public/util/item.php` **sigue emitiendo `data-content-b64`** con el contenido
+  completo, y muestra solo `excerpt(120)`.
+- `my-space.js:25` **sigue escuchando** `[see-more]` para abrir ese contenido en un modal.
+- **Falta el boton.** El contenido completo viaja al navegador en cada tarjeta y nadie puede
+  abrirlo.
+
+**Y hay un SEGUNDO defecto en el mismo mecanismo**: el manejador hace
+`parsed.find('>.header')` para el titulo del modal, pero la tarjeta tiene `.head`, no `.header`.
+Aunque se restaure el boton, el modal saldria sin titulo. Dos defectos, uno tapaba al otro.
+
+### LEY 28 escrita, y la quinta clase del paso 6 con ella
+
+El PROPIETARIO delego la eleccion: *«si es como regla o como ley no se, no soy tan bueno
+escogiendo esas cosas»*. **ARQUITECTO decide LEY**, y el criterio es el de siempre: una regla que
+ya fallo se convierte en mecanismo (LEY 11), y esta fallo en dos direcciones opuestas el mismo dia
+—casi retiro `lang-group`, que esta vivo, y casi documento un `element-location-module-data` que
+esta en codigo muerto—. `19-leyes.md` pasa a **28 leyes**.
+
+### ORM: aplazado por el PROPIETARIO, con un motivo nuevo
+
+*«Dejemoslo para despues de la major, quizas en otra mayor.»* Y añade una preocupacion que NO
+estaba en la medicion de ARQUITECTO: **«me preocupa como reemplazar el lenguaje de
+`ActiveRecordModel`, lo uso mucho»**. Es un punto real y no lo cubria el analisis: la migracion se
+midio por `$fields`, clases base y API de `EntityMapper`, **no por el vocabulario de consulta que
+el PROPIETARIO tiene en la cabeza**. Anotado en el roadmap como requisito de la guia de uso.
+
+### `files/API` y las plantillas de Postman — MEDIDO, y deja de ser un item vago
+
+Pedido del PROPIETARIO — 2026-08-30: *«al final tambien perfeccionemos la doc api rest publica
+(files/API), actualizando, corrigiendo y completando, asi como las plantillas de postman»*.
+
+Medido:
+
+| pieza | estado |
+| :-- | :-- |
+| `files/API/docs/` | **8 `.md`**: `index` + 7 modulos (Publications, News, Usuarios, Ubicaciones, Traducciones, Reportes, CronJobs) |
+| `files/API/docs-dist/` | **build de mkdocs COMMITEADO**: 7,7 MB, 60 archivos versionados, con fuentes, css, js y `search_index.json` |
+| `files/API/PiecesPHP.postman_collection.json` | **13 peticiones en 4 carpetas** |
+| `APIController` | **8 patrones de ruta**, **14 `actionType` distintos** |
+
+**Cuatro hallazgos concretos, no impresiones:**
+
+1. **`Reportes.md:9` sigue nombrando «convocatorias»** — modulo borrado en E3 lote 3. **LEY 28
+   exacta**: un artefacto que sigue nombrando lo muerto.
+2. **La ruta `external` esta COMENTADA** en el registro (`APIController.php:1650-1656`) y su
+   manejador `externalActions()` **sigue vivo** en la linea 1550, ~70 lineas. O es codigo muerto o
+   es un punto de extension deshabilitado a proposito, y hoy nada lo dice.
+3. **Postman no tiene paridad**: no hay carpeta `News` —aunque existe `News.md` y la ruta
+   `-news-actions`—, y las **siete peticiones de usuarios estan sueltas fuera de toda carpeta**.
+   4 carpetas para 7 modulos documentados.
+4. **La doc no dice que banderas gobiernan que.** El modulo se enciende por
+   `API_MODULE`, `API_CRONJOBS`, `API_TRANSLATION_MODULE`, `API_USERS`, `API_REPORTS`. **En una
+   plantilla que se clona, no decir que seccion desaparece con que bandera es una trampa de clon**,
+   la misma clase que la de los dos caminos del ORM.
+
+**Y una cuestion que es del PROPIETARIO**: `docs-dist/` es salida GENERADA y esta versionada — 7,7
+MB de fuentes y css en el repositorio del framework, que se clona. Puede ser deliberado (que el
+clon tenga la doc sin construirla) o inercia. **No lo decide ARQUITECTO.**
+
+**Reparto**: los puntos 1, 2 y 4 CORRIGEN —entran en E6, dentro de la campaña—. Completar lo no
+documentado y darle paridad a Postman EXTIENDE, y va con las guias, despues de la MAJOR.
+
 ### Abierto, sin decidir
 
 - **`profiles-translation-config.js` sigue nombrando `'fr'`.** Sus campos no existen en ninguna
@@ -369,7 +623,10 @@ siguiente reporte. **Lo que ARQUITECTO promete se escribe en §7 en el momento, 
 
 Silencios de Sass · el modulo como patron mecanizable · el skill de aterrizaje · una cache de
 verdad · la distribucion sin ruido · el versionado · las cuatro revisiones de seguridad y
-operacion · el GUI de traducciones · **y en la ventana de i18n: `es.js`/`en.js` pasan a ser
+operacion · el GUI de traducciones · **las guias de estilo por lenguaje, para humanos y para
+agentes** (`files/dev/roadmap/Guias de estilo por lenguaje.md`, pedidas el 2026-08-30: EXTIENDEN,
+asi que van despues de la MAJOR; lo descriptivo se queda en `16-frontend-arquitectura.md`, E6)
+· **y en la ventana de i18n: `es.js`/`en.js` pasan a ser
 ARTEFACTOS GENERADOS desde PHP.** El `Proxy` se queda; lo que cambia es que la base deja de
 mantenerse a mano, y entonces el conjunto de idiomas no puede divergir.
 
