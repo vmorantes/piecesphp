@@ -16,6 +16,11 @@ use PiecesPHP\Core\Roles;
  * compone en cualquier jerarquía, y dentro de él `self::` sigue resolviendo a la clase
  * que lo usa, así que `self::$baseRouteName` sigue siendo la del módulo.
  *
+ * `$baseRouteName` ES UN PREFIJO, NO UNA RUTA. Medido en AJ: de las 41 bases declaradas,
+ * **40 no tienen ruta homónima** — solo `locations` la tiene, por ser el índice de su
+ * módulo—. Por eso `X::routeName()` SIN ARGUMENTO lanza en 40 de 41, y siempre lo hizo:
+ * compone el prefijo a secas y se lo pide a `get_route()`. Ver T150.
+ *
  * Los tres métodos van juntos porque **no se pueden separar**: `routeName()` llama SIEMPRE
  * a `_allowedRoute()`, y `allowedRoute()` no hace más que preguntarle a `routeName()` si
  * devolvió cadena. Repartirlos en dos traits era una frontera inventada.

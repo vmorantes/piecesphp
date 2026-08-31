@@ -15339,3 +15339,176 @@ habría declarado «19 murieron», que es falso.
 
 El docblock de `_allowedRoute` en el trait decía «los 32 módulos que hoy lo declaran usan
 `private`». Eran **11**, y desde AI son **41**: 11 con regla y 30 con plantilla.
+
+---
+
+## T150 · AJ · EL SQL CONCATENADO DE UNA RUTA PÚBLICA, Y LA PUERTA DE `require_login`
+
+**Bloque AJ.** Rehace lo que el barrido de AI se llevó, y esta vez sale limpio.
+
+### La traza, leída y confirmada — NO se probó explotándola
+
+`Country::search()`, ruta `locations-countries-ajax-search`: GET, `requireLogin: false`,
+`rolesAllowed: []`.
+
+```php
+$query   = $expectedParameters->getValue('query');   // sale de getQueryParams()
+$critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
+$model->select()->where($whereString);
+```
+
+`clean_string()` quita tabuladores, saltos, `\x{00A0}` y espacios repetidos, **y su docblock
+enumera justo eso: las comillas no están en la lista**. `ActiveRecord::where(string)` hace
+`$this->whereSegment = "WHERE ({$where})"` — concatena. **NO se mandó una sola comilla contra la
+aplicación viva**: la traza estaba leída y una prueba de explotación no añadía nada.
+
+### PASO 1 · El censo, que es el mecanismo (LEY 11)
+
+`bin/censo-sql-concatenado`. **Cuenta por TOKENS, no por texto** — en AI una cifra salió inflada
+por los docblocks recién escritos, y esa lección viaja con el instrumento.
+
+**Su regla no obvia, y es la que caza este caso:** un objeto al que se le pasó una fuente de
+petición **ensucia lo que devuelve**. Así llega de
+`$expectedParameters->setInputValues($request->getQueryParams())` hasta
+`$query = $expectedParameters->getValue('query')`, que ninguna búsqueda por nombre habría unido.
+
+**CANARIO DE DOS CARAS**: reconoce la forma de `Country::search()` como CONFIRMADO, y **no**
+marca un `where(['columna' => $valor])`.
+
+| Universo y reparto | |
+| :-- | --: |
+| Archivos `.php` bajo `src/app` | 674 |
+| Llamadas a `->where(` halladas POR TOKENS | 178 |
+| **CONFIRMADO** | **9** → **8** tras el arreglo |
+| REVISAR A MANO | 90 |
+| DESCARTADO | 79 → 80 |
+
+Exclusiones, porque un filtro es parte del universo: `/vendor/ /node_modules/ /bin/tools/
+/logs/ /cache/ /dumps/`.
+
+**SU COTA, IMPRESA POR LA PROPIA HERRAMIENTA (LEY 15):** la traza **no cruza de método ni de
+clase**. Una propiedad, un parámetro o el retorno de otro método caen en REVISAR A MANO, nunca
+en DESCARTADO. Tampoco resuelve índices de array ni variables variables.
+
+*Contraste con lo que midió ARQUITECTO —177 llamadas, 19 interpoladas, 32 archivos con ambos
+ingredientes—: el censo ve 178 llamadas, y de esos 32 archivos sólo **9 llamadas** resisten la
+traza. La diferencia es exactamente lo que separa «tiene los ingredientes» de «llega de la
+petición».*
+
+#### Los otros ocho CONFIRMADO, que NO se tocaron
+
+| Dónde | |
+| :-- | :-- |
+| `City::cities()`, `Country::countries()`, `State::states()` | `getQueryParam` directo dentro del `WHERE` |
+| `Point::search()`, `State::search()` | **el mismo `LIKE` idéntico** que `Country::search()` |
+| `UsersController::searchDropdown()` | `type NOT IN ({$ignoreTypes})` |
+| `DataTablesHelper::process()` ×2 | el `$order` de DataTables |
+
+La instrucción acota este bloque a uno, y a uno se arregló.
+
+### PASO 2 · La corrección, por la vía que ya existía
+
+```php
+$whereSegment = new WhereSegment([
+    WhereItem::like("UPPER({$table}.name)", $query . '%', '',
+        'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'),
+]);
+$model->select()->where($whereSegment);
+```
+
+El `%` va **en el valor**, que es donde pertenece. **Medido**, componiendo el segmento sin tocar
+la base de datos:
+
+```
+SQL      WHERE (UPPER(countries.name) LIKE UPPER(:WH6A95BE980D4C0_UPPERCOUNTRIESNAME))
+valores  {":WH6A95BE980D4C0_UPPERCOUNTRIESNAME":"O'Brien%"}
+```
+
+**La comilla está en los VALORES, no en la sentencia.** No hizo falta forzar nada: `WhereItem`
+ya traía `LIKE_OPERATOR` y `rightWrapFunction` con `{%VALUE%}`, que es exactamente «envuelve el
+MARCADOR en `UPPER()`».
+
+#### El censo tuvo que aprender la vía segura
+
+Sin eso marcaría como CONFIRMADO el código **ya arreglado** —la traza ve que el valor de la
+petición llega al `where`, no que ahora entra por un `WhereSegment`—, que es un falso positivo
+de manual. Con la regla puesta, la cifra baja de 9 a 8 **exactamente al arreglar uno**.
+
+### El cierre (LEY 24) · `UnitTest-SqlPlaceholders`, 7 comprobaciones
+
+Con `O'Brien`, que es el carácter que decide. Tres partes: la vía parametrizada deja la comilla
+fuera del SQL; **la discriminante** —la vía de cadena SÍ la mete, sin la cual «no hay comillas»
+pasaría también con una cadena vacía—; y una tercera que **le pregunta al censo** si
+`Country::search()` volvió a la lista CONFIRMADO.
+
+| Provocación: se devuelve la interpolación a `Country::search()` | |
+| :-- | --: |
+| Suite antes | **7/7** |
+| Suite con el arreglo quitado | **6/7** |
+| Suite restaurada | **7/7** |
+| Censo: CONFIRMADO antes · sin arreglo · restaurado | **8 · 9 · 8** |
+
+Restaurado desde copia con `sha256` idéntico, y con espera fuera de `opcache.revalidate_freq`.
+
+### PASO 3 · La comprobación 23 — la puerta de `require_login`
+
+Una ruta de un módulo con `DefaultAccessControlModules` que no declare **ni `require_login` ni
+`roles_allowed`** no la ve ninguna de las dos capas de T148: **nace pública**.
+
+**Las bases salen del árbol, no de una lista escrita** — un módulo nuevo que instale el
+middleware entra solo. Medido: **306 rutas · 23 clases citan el middleware · 22 bases distintas
+· 95 sin declaración en todo el framework · 4 dentro de esos módulos**.
+
+Las cuatro coinciden exactamente con las que midió ARQUITECTO y van a
+**`files/dev/public-routes-in-guarded-modules.json`**, cada una con su razón en una línea. **NO
+como excepción dentro de la puerta**: una excusa escrita en el código de la comprobación no se
+lee al revisar una ruta nueva.
+
+**Provocada**: quitando la excusa de `user-system-features-check-totp`, la puerta la nombra y
+falla. Restaurada con `sha256` idéntico.
+
+`locations-countries-ajax-search` **no entra aquí**, y queda escrito en las reglas del propio
+archivo: `Locations` no instala el middleware. Su exposición es otro asunto.
+
+### PASO 4 · Las dos líneas que AI dejó pendientes
+
+**(a) `$baseRouteName` es un PREFIJO, no una ruta.** Medido: de las **41** bases declaradas por
+clases que usan el trait, **40 no tienen ruta homónima**; sólo `locations` la tiene, por ser el
+índice de su módulo. Por eso `X::routeName()` **sin argumento lanza en 40 de 41, y siempre lo
+hizo**: compone el prefijo a secas y se lo pide a `get_route()`. Escrito en el docblock del
+trait.
+
+**(b) EL INVENTARIO DE RUTAS NO ES DETERMINISTA.** `HelpTask.php:49` arma su ruta con
+`uniqid()` **en cada arranque**:
+
+```php
+$this->route = "{$startRoute}/" . uniqid() . "[/]";
+```
+
+Así que `terminal-help` cambia de URL entre dos ejecuciones cualesquiera. **No es una regresión
+y no se arregla aquí**: se anota para que la próxima comparación de rutas no lo persiga. Fue
+justo lo que apareció como séptima diferencia en la foto de AI.
+
+### PASO 5 · El 500
+
+| Petición sin sesión | Código |
+| :-- | :-- |
+| `/locations/countries/search/?query=col` | **200** — `[{"id":1,"title":"Colombia"}]` |
+| `/locations/countries/search/` *(como en el recorrido de AH)* | **500** |
+
+**El 500 sigue, y no era del SQL.** El log dice, exacto:
+
+```
+MissingRequiredParamaterException: El parámetro query es obligatorio
+Parameters.php:214
+```
+
+El `Parameter` se declara **no opcional**, así que pedir la ruta sin `query` lanza. Se dice y
+**no se persigue**, como pedía la instrucción.
+
+### PHPStan
+
+**747, igual que el baseline: no se movió.** Los artefactos sí cambian, y sólo en NÚMEROS DE
+LÍNEA —`Country.php` 393→395, 425→427, 511→512, y `VerifyIntegrityTask` desplazado por la
+comprobación nueva—. **Tripletas desplazadas no son tripletas muertas**: el reparto sigue siendo
+el de AI y no hay nada nuevo que declarar.

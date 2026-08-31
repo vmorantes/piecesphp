@@ -220,6 +220,25 @@ el idioma solo se usa como clave y el valor sale de la lista blanca de configura
 
 ---
 
+## La búsqueda de países manda el valor por marcador, no concatenado
+
+`Country::search()` —ruta pública, sin sesión— armaba su `WHERE` interpolando lo que llega por
+`getQueryParams()`. `clean_string()` quita espacios y saltos, **no comillas**, y
+`ActiveRecord::where(string)` concatena. Ahora va por `WhereSegment`/`WhereItem`, que es la vía
+que **ya existía** en el paquete: la sentencia lleva un marcador y el valor viaja en
+`getReplacementValues()`.
+
+`bin/censo-sql-concatenado` mide el resto y **dice su cota**: de 178 llamadas a `->where(`
+halladas por tokens, **8** siguen recibiendo un valor de la petición por concatenación. No se
+han tocado en esta tanda.
+
+## Ninguna ruta nace pública sin decirlo
+
+Comprobación 23 de `bin/cli verify-integrity`. Una ruta de un módulo con
+`DefaultAccessControlModules` que no declare ni `require_login` ni `roles_allowed` no la ve
+ninguna de las dos capas de acceso: **nace pública**. Son cuatro hoy, las cuatro a propósito, y
+están declaradas una a una en `files/dev/public-routes-in-guarded-modules.json`.
+
 ## Las guardas de acceso ya prueban que RECHAZAN
 
 `UnitTest-AccessGuards`, 33 comprobaciones sobre siete guardas del núcleo: verificación de

@@ -163,11 +163,11 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/Country.php                                       
  ------ -------------------------------------------------------------------------------------------- 
-  393    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  395    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  425    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  427    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  511    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  512    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -1146,7 +1146,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  341    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  348    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 

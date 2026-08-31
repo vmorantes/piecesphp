@@ -1,0 +1,404 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * SQL CONCATENADO QUE PUEDE VENIR DE LA PETICION.
+ *
+ * POR QUE EXISTE
+ * --------------
+ * `Country::search()` arma su `WHERE` interpolando un valor que sale de `getQueryParams()`:
+ *
+ *     $critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
+ *     $model->select()->where($whereString);
+ *
+ * `ActiveRecord::where(string)` CONCATENA —`$this->whereSegment = "WHERE ({$where})"`— mientras
+ * que `where(array)` y `where(WhereSegment)` arman marcadores y se preparan. La via segura ya
+ * existe; la sobrecarga de cadena la evita. Y `clean_string()` NO escapa comillas: su propio
+ * docblock enumera lo que quita, y las comillas no estan en la lista.
+ *
+ * LEY 11: la regla que fallo se convierte en mecanismo. Esto es el mecanismo.
+ *
+ * QUE MIDE
+ * --------
+ * Toda llamada `->where(...)` cuyo argumento NO sea una cadena literal constante, un array o un
+ * `WhereSegment`. Para las que quedan, traza hacia atras DENTRO DEL MISMO METODO buscando si la
+ * cadena se compone con algo que venga de la peticion.
+ *
+ * SE CUENTA POR TOKENS, NO POR TEXTO. Una llamada dentro de una cadena o de un comentario no es
+ * una llamada: en el bloque AI una cifra salio inflada por los docblocks recien escritos.
+ *
+ * Tres listas, y la clasificacion se dice, no se insinua:
+ *   CONFIRMADO ...... la cadena llega a una fuente de peticion por asignaciones del metodo
+ *   REVISAR A MANO .. no es literal y la traza no alcanza a decidir
+ *   DESCARTADO ...... literal constante, array, `WhereSegment` o `WhereItem`
+ *
+ * SU COTA, Y SE IMPRIME (LEY 15)
+ * ------------------------------
+ * NO sigue una variable que cruce de metodo o de clase: una propiedad, un parametro o el
+ * `return` de otro sitio se quedan en REVISAR A MANO. Tampoco resuelve indices de array ni
+ * variables variables. Un censo que calle su ceguera miente.
+ *
+ * Uso:
+ *   bin/censo-sql-concatenado            las tres listas
+ *   bin/censo-sql-concatenado --detalle  con la traza de cada REVISAR
+ */
+
+const RAIZ = __DIR__ . '/../src/app';
+
+//FUERA, y por su nombre: lo descargado, lo generado y los registros. Un filtro es parte del
+//universo, asi que se imprime junto al resultado.
+const EXCLUIDOS = ['/vendor/', '/node_modules/', '/bin/tools/', '/logs/', '/cache/', '/dumps/'];
+
+//Lo que trae datos de fuera. `getValue` NO esta aqui: se alcanza por el objeto contaminado.
+const FUENTES = ['getQueryParam', 'getQueryParams', 'getParsedBody', 'getAttribute',
+                 '$_GET', '$_POST', '$_REQUEST', '$_COOKIE'];
+
+function ficheros(string $raiz): array
+{
+    $salida = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if (!$f->isFile()) {
+            continue;
+        }
+        $p = str_replace('\\', '/', (string) (realpath($f->getPathname()) ?: $f->getPathname()));
+        if (!str_ends_with($p, '.php')) {
+            continue;
+        }
+        foreach (EXCLUIDOS as $x) {
+            if (mb_strpos($p, $x) !== false) {
+                continue 2;
+            }
+        }
+        $salida[] = $p;
+    }
+    sort($salida);
+    return $salida;
+}
+
+/** @return array<int,array{nombre:string,ini:int,fin:int}> */
+function metodos(array $tokens): array
+{
+    $total = count($tokens);
+    $salida = [];
+    for ($i = 0; $i < $total; $i++) {
+        if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_FUNCTION) {
+            continue;
+        }
+        $nombre = '(anonima)';
+        for ($j = $i + 1; $j < $total; $j++) {
+            $u = $tokens[$j];
+            if (is_array($u) && in_array($u[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                continue;
+            }
+            if (is_array($u) && $u[0] === T_STRING) {
+                $nombre = $u[1];
+            }
+            break;
+        }
+        $abierto = false;
+        $prof = 0;
+        $ini = $fin = null;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $texto = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+            if (!$abierto) {
+                if ($texto === ';') {
+                    break;
+                }
+                if ($texto === '{') {
+                    $abierto = true;
+                    $prof = 1;
+                    $ini = $j;
+                }
+                continue;
+            }
+            if ($texto === '{') {
+                $prof++;
+            }
+            if ($texto === '}') {
+                $prof--;
+                if ($prof === 0) {
+                    $fin = $j;
+                    break;
+                }
+            }
+        }
+        if ($ini !== null && $fin !== null) {
+            $salida[] = ['nombre' => $nombre, 'ini' => $ini, 'fin' => $fin];
+        }
+    }
+    return $salida;
+}
+
+function texto(array $tokens, int $desde, int $hasta): string
+{
+    $s = '';
+    $n = count($tokens);
+    for ($i = $desde; $i <= $hasta && $i < $n; $i++) {
+        $s .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+    }
+    return $s;
+}
+
+function tieneFuente(string $expresion): bool
+{
+    foreach (FUENTES as $f) {
+        if (mb_strpos($expresion, $f) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** @return array<string,string[]> */
+function asignaciones(array $tokens, int $ini, int $fin): array
+{
+    $mapa = [];
+    for ($i = $ini; $i <= $fin; $i++) {
+        if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_VARIABLE) {
+            continue;
+        }
+        $var = $tokens[$i][1];
+        $j = $i + 1;
+        if (($tokens[$j] ?? null) === '[' && (($tokens[$j + 1] ?? null) === ']')) {
+            $j += 2;
+        }
+        while (is_array($tokens[$j] ?? null) && $tokens[$j][0] === T_WHITESPACE) {
+            $j++;
+        }
+        $op = $tokens[$j] ?? null;
+        if ($op !== '=' && !(is_array($op) && $op[0] === T_CONCAT_EQUAL)) {
+            continue;
+        }
+        $k = $j + 1;
+        $prof = 0;
+        while ($k <= $fin) {
+            $t = is_array($tokens[$k]) ? $tokens[$k][1] : $tokens[$k];
+            if ($t === '(' || $t === '[') {
+                $prof++;
+            }
+            if ($t === ')' || $t === ']') {
+                $prof--;
+            }
+            if ($t === ';' && $prof <= 0) {
+                break;
+            }
+            $k++;
+        }
+        $mapa[$var][] = texto($tokens, $j + 1, $k - 1);
+    }
+    return $mapa;
+}
+
+/**
+ * Objetos a los que se les paso una fuente de peticion: lo que devuelvan se considera sucio.
+ * `Country::search()` pasa por aqui —`$expectedParameters->setInputValues($request->getQueryParams())`—
+ * y ninguna busqueda por nombre habria unido eso con `$query = $expectedParameters->getValue(...)`.
+ *
+ * @return string[]
+ */
+function objetosContaminados(array $tokens, int $ini, int $fin): array
+{
+    $sucios = [];
+    for ($i = $ini; $i <= $fin; $i++) {
+        if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_VARIABLE) {
+            continue;
+        }
+        if (!is_array($tokens[$i + 1] ?? null) || $tokens[$i + 1][0] !== T_OBJECT_OPERATOR) {
+            continue;
+        }
+        $k = $i + 1;
+        $prof = 0;
+        while ($k <= $fin) {
+            $t = is_array($tokens[$k]) ? $tokens[$k][1] : $tokens[$k];
+            if ($t === '(') {
+                $prof++;
+            }
+            if ($t === ')') {
+                $prof--;
+            }
+            if ($t === ';' && $prof <= 0) {
+                break;
+            }
+            $k++;
+        }
+        if (tieneFuente(texto($tokens, $i, $k))) {
+            $sucios[] = $tokens[$i][1];
+        }
+    }
+    return array_values(array_unique($sucios));
+}
+
+/** @return array{0:string,1:string[]} */
+function resuelve(string $expresion, array $mapa, array $sucios, array &$vistas, int $profundidad = 0): array
+{
+    if ($profundidad > 6) {
+        return ['REVISAR', ['traza cortada a profundidad 6']];
+    }
+    //LA VIA SEGURA CORTA LA TRAZA. Un valor que entra en un `WhereSegment` o un `WhereItem`
+    //sale por marcador, venga de donde venga. Sin esto el censo marcaria el codigo ARREGLADO.
+    if (mb_strpos($expresion, 'WhereSegment') !== false || mb_strpos($expresion, 'WhereItem') !== false) {
+        return ['DESCARTADO', ['el valor entra en un WhereSegment/WhereItem: va por marcador']];
+    }
+    if (tieneFuente($expresion)) {
+        return ['CONFIRMADO', ['fuente directa en: ' . trim($expresion)]];
+    }
+    foreach ($sucios as $obj) {
+        if (mb_strpos($expresion, $obj . '->') !== false) {
+            return ['CONFIRMADO', ["sale de {$obj}, que recibió una fuente de petición"]];
+        }
+    }
+    $traza = [];
+    $indeciso = false;
+    preg_match_all('/\$[A-Za-z_]\w*/', $expresion, $m);
+    foreach ($m[0] as $var) {
+        if (in_array($var, $vistas, true)) {
+            continue;
+        }
+        if (!array_key_exists($var, $mapa)) {
+            //LA COTA: parametro, propiedad o algo de fuera del metodo.
+            $indeciso = true;
+            $traza[] = "{$var} no se asigna en este método (parámetro, propiedad o llamada externa)";
+            continue;
+        }
+        $vistas[] = $var;
+        foreach ($mapa[$var] as $rhs) {
+            [$v, $t] = resuelve($rhs, $mapa, $sucios, $vistas, $profundidad + 1);
+            if ($v === 'CONFIRMADO') {
+                return ['CONFIRMADO', array_merge(["{$var} = " . trim($rhs)], $t)];
+            }
+            if ($v === 'REVISAR') {
+                $indeciso = true;
+                $traza = array_merge($traza, ["{$var} = " . trim($rhs)], $t);
+            }
+        }
+    }
+    return [$indeciso ? 'REVISAR' : 'DESCARTADO', $traza];
+}
+
+function analiza(string $codigo, string $ruta = '(fixture)'): array
+{
+    $tokens = token_get_all($codigo);
+    $hallazgos = [];
+    foreach (metodos($tokens) as $metodo) {
+        $mapa = asignaciones($tokens, $metodo['ini'], $metodo['fin']);
+        $sucios = objetosContaminados($tokens, $metodo['ini'], $metodo['fin']);
+        for ($i = $metodo['ini']; $i <= $metodo['fin']; $i++) {
+            if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_OBJECT_OPERATOR) {
+                continue;
+            }
+            $sig = $tokens[$i + 1] ?? null;
+            if (!is_array($sig) || $sig[0] !== T_STRING || $sig[1] !== 'where') {
+                continue;
+            }
+            $abre = $i + 2;
+            while (is_array($tokens[$abre] ?? null) && $tokens[$abre][0] === T_WHITESPACE) {
+                $abre++;
+            }
+            if (($tokens[$abre] ?? null) !== '(') {
+                continue;
+            }
+            $prof = 0;
+            $cierra = $abre;
+            for ($j = $abre; $j <= $metodo['fin']; $j++) {
+                $t = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+                if ($t === '(') {
+                    $prof++;
+                }
+                if ($t === ')') {
+                    $prof--;
+                    if ($prof === 0) {
+                        $cierra = $j;
+                        break;
+                    }
+                }
+            }
+            $argumento = trim(texto($tokens, $abre + 1, $cierra - 1));
+            $linea = $sig[2];
+
+            if ($argumento === '' || str_starts_with($argumento, '[') || str_starts_with($argumento, 'array(')
+                || mb_strpos($argumento, 'WhereSegment') !== false
+                || mb_strpos($argumento, 'WhereItem') !== false) {
+                $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                                'arg' => $argumento, 'veredicto' => 'DESCARTADO',
+                                'traza' => ['array, WhereSegment o WhereItem: va por marcadores']];
+                continue;
+            }
+            if (preg_match('/^([\'"]).*\1$/s', $argumento) === 1 && mb_strpos($argumento, '$') === false) {
+                $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                                'arg' => $argumento, 'veredicto' => 'DESCARTADO',
+                                'traza' => ['cadena literal constante']];
+                continue;
+            }
+
+            $vistas = [];
+            [$veredicto, $traza] = resuelve($argumento, $mapa, $sucios, $vistas);
+            $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                            'arg' => $argumento, 'veredicto' => $veredicto, 'traza' => $traza];
+        }
+    }
+    return $hallazgos;
+}
+
+//──── CANARIO DE DOS CARAS (LEY 16) ─────────────────────────────────────────────────────────
+$fixtureSucio = '<?php class C { public function search($request) {'
+    . ' $p = new Parameters([]); $p->setInputValues($request->getQueryParams());'
+    . ' $q = $p->getValue("query"); $c = "UPPER(t.name) LIKE UPPER(\'{$q}%\')";'
+    . ' $w = $c; $m->select()->where($w); } }';
+$fixtureLimpio = '<?php class C { public function ok($v) { $m->select()->where(["columna" => $v]); } }';
+$a = analiza($fixtureSucio);
+$b = analiza($fixtureLimpio);
+$okSucio = count($a) === 1 && $a[0]['veredicto'] === 'CONFIRMADO';
+$okLimpio = count($b) === 1 && $b[0]['veredicto'] === 'DESCARTADO';
+if (!$okSucio || !$okLimpio) {
+    fwrite(STDERR, 'CANARIO CAÍDO: ' . (!$okSucio
+        ? 'no reconoce la forma de `Country::search()` como CONFIRMADO.'
+        : "marca un `where(['columna' => \$valor])` que NO debe salir.") . "\n");
+    fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
+    exit(2);
+}
+echo "CANARIO VIVO: reconoce la forma de `Country::search()` y NO marca un `where(['columna' => \$valor])`.\n";
+
+$detalle = in_array('--detalle', array_slice($argv, 1), true);
+$archivos = ficheros(RAIZ);
+$todos = [];
+foreach ($archivos as $p) {
+    foreach (analiza((string) file_get_contents($p), str_replace(dirname(__DIR__) . '/', '', $p)) as $h) {
+        $todos[] = $h;
+    }
+}
+
+$por = ['CONFIRMADO' => [], 'REVISAR' => [], 'DESCARTADO' => []];
+foreach ($todos as $h) {
+    $por[$h['veredicto']][] = $h;
+}
+
+printf("UNIVERSO: %d archivo(s) .php bajo `src/app`\n", count($archivos));
+printf("          excluidos por nombre: %s\n", implode(' ', EXCLUIDOS));
+printf("          %d llamada(s) a `->where(` halladas POR TOKENS\n\n", count($todos));
+foreach (['CONFIRMADO', 'REVISAR', 'DESCARTADO'] as $v) {
+    printf("%-12s %d\n", $v, count($por[$v]));
+}
+echo "\n";
+
+foreach (['CONFIRMADO', 'REVISAR'] as $v) {
+    if (count($por[$v]) === 0) {
+        continue;
+    }
+    echo "── {$v} " . str_repeat('─', 60) . "\n";
+    foreach ($por[$v] as $h) {
+        printf("  %s:%d  %s()\n", $h['ruta'], $h['linea'], $h['metodo']);
+        printf("      where(%s)\n", mb_substr($h['arg'], 0, 90));
+        if ($detalle || $v === 'CONFIRMADO') {
+            foreach (array_slice($h['traza'], 0, 4) as $t) {
+                printf("        · %s\n", mb_substr($t, 0, 110));
+            }
+        }
+    }
+    echo "\n";
+}
+
+echo "SU COTA, Y SE DICE: la traza NO cruza de método ni de clase. Una propiedad, un parámetro o\n";
+echo "                    el retorno de otro método caen en REVISAR A MANO, no en DESCARTADO.\n";
+echo "                    Tampoco resuelve índices de array ni variables variables.\n";
+exit(0);

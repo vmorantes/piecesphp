@@ -73,8 +73,8 @@ project://src/app/classes/App/Locations/Controllers/City.php
 	method.nonObject (Líneas: 396, 428)
 	foreach.nonIterable (Líneas: 587)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	method.nonObject (Líneas: 393, 425)
-	foreach.nonIterable (Líneas: 511)
+	method.nonObject (Líneas: 395, 427)
+	foreach.nonIterable (Líneas: 512)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
 	method.nonObject (Líneas: 64, 65, 66)
 project://src/app/classes/App/Locations/Controllers/Point.php
@@ -299,7 +299,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 368)
 	method.deprecated (Líneas: 379)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 341)
+	argument.type (Líneas: 348)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php

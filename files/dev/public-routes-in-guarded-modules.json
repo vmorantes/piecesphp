@@ -1,0 +1,38 @@
+{
+    "why": "Rutas de un módulo que instala `DefaultAccessControlModules` y que NO declaran ni `require_login` ni `roles_allowed`. Sin ninguna de las dos, `src/index.php` §8 no las ve —esa capa solo mira `require_login`— y quedan enteramente en manos de `routeName()`, que SIN USUARIO CONCEDE. Es decir: son públicas. Las que lo son A PROPÓSITO se declaran aquí, una por una y con su razón. Ver T148 y T150.",
+    "rules": [
+        "LA LISTA SOLO PUEDE ENCOGER. Una ruta nueva sin declarar hace fallar la comprobación de `bin/cli verify-integrity`.",
+        "La excusa va AQUÍ y no dentro de la puerta: una excepción escrita en el código de la comprobación no se lee al revisar una ruta nueva.",
+        "Se declara por NOMBRE de ruta exacto, no por prefijo: un prefijo cubriría rutas que todavía no existen.",
+        "Una entrada que ya no case con ninguna ruta también hace fallar: encoger incluye vaciarse.",
+        "`locations-countries-ajax-search` NO entra aquí, y no por descuido: `Locations` no instala el middleware. Su exposición es otro asunto."
+    ],
+    "medido": {
+        "fecha": "2026-08-31",
+        "bloque": "AJ",
+        "metodo": "cruce de `files/dev/route-inventory.json` contra las clases que citan `DefaultAccessControlModules` y declaran `$baseRouteName`; se comparan `requireLogin` y `rolesAllowed`",
+        "rutas_registradas": 306,
+        "clases_que_citan_el_middleware": 23,
+        "bases_distintas_declaradas": 22,
+        "sin_declaracion_en_todo_el_framework": 95,
+        "sin_declaracion_dentro_de_esos_modulos": 4
+    },
+    "entries": [
+        {
+            "route": "localization-system-features-get-lang-messages-by-group",
+            "why": "Sirve las traducciones de la zona pública. Quien aún no ha entrado necesita ver la interfaz en su idioma."
+        },
+        {
+            "route": "user-system-features-generate-otp",
+            "why": "Genera el OTP de quien todavía no ha entrado: exigir sesión aquí haría imposible el segundo factor en el propio login."
+        },
+        {
+            "route": "user-system-features-check-totp",
+            "why": "Comprueba el TOTP durante el login, antes de que exista sesión."
+        },
+        {
+            "route": "user-system-features-two-factor-auth-status",
+            "why": "Dice si la cuenta pide segundo factor, y el formulario de login lo pregunta antes de autenticar."
+        }
+    ]
+}

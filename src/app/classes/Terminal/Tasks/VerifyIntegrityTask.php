@@ -216,6 +216,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 22. Las etiquetas de cada vista cuadran ──────────────────────────────────
         $tagFailures = self::checkViewTagBalance();
 
+        //──── 23. Ninguna ruta de un módulo con control de acceso queda sin declarar ────
+        $routeDeclFailures = self::checkUndeclaredRoutesInGuardedModules();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -224,7 +227,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
             + count($orderFailures) + count($orphanFailures)
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
-            + count($symlinkFailures) + count($langFailures) + count($tagFailures);
+            + count($symlinkFailures) + count($langFailures) + count($tagFailures)
+            + count($routeDeclFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -237,6 +241,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($tagFailures as $line) {
             echoTerminal("\e[31mETIQUETA:\e[39m {$line}");
+        }
+        foreach ($routeDeclFailures as $line) {
+            echoTerminal("\e[31mRUTA SIN DECLARAR:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -2416,6 +2423,106 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         return [];
     }
 
+    /** Rutas públicas declaradas dentro de un módulo con control de acceso. Solo encoge. */
+    const PUBLIC_ROUTES_RELATIVE_PATH = 'files/dev/public-routes-in-guarded-modules.json';
+
+    /**
+     * Ninguna ruta de un módulo con control de acceso queda sin declarar.
+     *
+     * `DefaultAccessControlModules` decide el acceso con `routeName()`, que SIN USUARIO CONCEDE.
+     * La otra capa —`src/index.php` §8— solo mira `require_login`. Una ruta que no declare ni
+     * `require_login` ni `roles_allowed` no la ve ninguna de las dos: NACE PÚBLICA, y nada avisa.
+     * Medido en AH y AJ: de 306 rutas, 95 no declaran nada, y dentro de los módulos con control
+     * son CUATRO. Ver T148 y T150.
+     *
+     * @return string[]
+     */
+    protected static function checkUndeclaredRoutesInGuardedModules(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+
+        $inventario = json_decode((string) @file_get_contents($root . '/files/dev/route-inventory.json'), true);
+        if (!is_array($inventario)) {
+            return ['no se pudo leer files/dev/route-inventory.json: la comprobación no miró nada'];
+        }
+        $registro = json_decode((string) @file_get_contents($root . '/' . self::PUBLIC_ROUTES_RELATIVE_PATH), true);
+        if (!is_array($registro) || !isset($registro['entries']) || !is_array($registro['entries'])) {
+            return ['no se pudo leer ' . self::PUBLIC_ROUTES_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+
+        //Las bases SALEN DEL ÁRBOL: un módulo nuevo que instale el middleware entra solo, y una
+        //clase que lo cite sin declarar `$baseRouteName` —el propio trait— no aporta base.
+        $bases = [];
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($repoRoot . '/app', \FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+            $p = str_replace('\\', '/', (string) $file->getPathname());
+            if (!str_ends_with($p, '.php') || mb_strpos($p, '/logs/') !== false) {
+                continue;
+            }
+            $contenido = (string) file_get_contents($p);
+            if (mb_strpos($contenido, 'DefaultAccessControlModules') === false) {
+                continue;
+            }
+            if (preg_match("/baseRouteName\s*=\s*'([^']+)'/", $contenido, $m) === 1) {
+                $bases[] = $m[1];
+            }
+        }
+        $bases = array_values(array_unique($bases));
+
+        if (count($bases) === 0) {
+            return ['ninguna clase declara base con DefaultAccessControlModules: el censo no vio nada'];
+        }
+
+        $declaradas = [];
+        foreach ($registro['entries'] as $entry) {
+            $declaradas[] = (string) ($entry['route'] ?? '');
+        }
+
+        $failures = [];
+        $sinDeclarar = [];
+        foreach ($inventario as $ruta) {
+            $nombre = (string) ($ruta['name'] ?? '');
+            $delModulo = false;
+            foreach ($bases as $base) {
+                if ($nombre === $base || str_starts_with($nombre, $base . '-')) {
+                    $delModulo = true;
+                    break;
+                }
+            }
+            if (!$delModulo) {
+                continue;
+            }
+            $pideLogin = ($ruta['requireLogin'] ?? false) === true;
+            $tieneRoles = is_array($ruta['rolesAllowed'] ?? null) && count($ruta['rolesAllowed']) > 0;
+            if ($pideLogin || $tieneRoles) {
+                continue;
+            }
+            $sinDeclarar[] = $nombre;
+            if (in_array($nombre, $declaradas, true)) {
+                continue;
+            }
+            $failures[] = $nombre . ' — está en un módulo que instala DefaultAccessControlModules y no'
+                . ' declara ni require_login ni roles_allowed: NACE PÚBLICA. Si es a propósito, va a '
+                . self::PUBLIC_ROUTES_RELATIVE_PATH . ' con su razón.';
+        }
+
+        foreach ($declaradas as $nombre) {
+            if (!in_array($nombre, $sinDeclarar, true)) {
+                $failures[] = $nombre . ' — figura como pública declarada y ya no lo es (o ya no existe).'
+                    . ' Quita la entrada: la lista solo puede encoger.';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($inventario) . ' ruta(s) del inventario contra '
+            . count($bases) . ' módulo(s) con control de acceso: ' . count($sinDeclarar)
+            . ' sin declaración, ' . count($declaradas) . ' declarada(s) como públicas.');
+
+        return $failures;
+    }
     /**
      * Las vistas cuyas etiquetas NO cuadran a propósito. Como `KNOWN_ECLIPSES`: solo encoge.
      */
