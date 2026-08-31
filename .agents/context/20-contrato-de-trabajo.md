@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-30, tras el BLOQUE AG.**
+**Ultima actualizacion: 2026-08-31, tras el BLOQUE AH.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -601,6 +601,157 @@ clon tenga la doc sin construirla) o inercia. **No lo decide ARQUITECTO.**
 
 **Reparto**: los puntos 1, 2 y 4 CORRIGEN —entran en E6, dentro de la campaña—. Completar lo no
 documentado y darle paridad a Postman EXTIENDE, y va con las guias, despues de la MAJOR.
+
+### PERDIDA DE §7, Y SU CAUSA — 2026-08-31
+
+**Se perdieron ~313 lineas que ARQUITECTO habia escrito en §7 DESPUES del commit de AH.** Estaban
+en el arbol de trabajo, sin commitear, cuando ARQUITECTO ordeno *«REVIERTE lo hecho en la parte 2»*
+sin enumerar archivos. El CODER barrio el arbol entero, que era lo razonable con esa redaccion.
+
+Sobrevive todo lo commiteado en AH: `19-leyes.md` con **LEY 28**, los dos roadmap nuevos y T148.
+
+> **La regla ya existia y ARQUITECTO la incumplio**: *lo que ARQUITECTO deja escrito entra en el
+> `git add` del bloque en curso*. Corolario nuevo, que es el que faltaba:
+> **UNA ORDEN DE REVERTIR ENUMERA LOS ARCHIVOS. «Revierte lo de la parte 2» no es una orden, es
+> una invitacion a barrer.** Y mientras haya trabajo de ARQUITECTO sin commitear, ninguna orden
+> puede contener un revert sin lista.
+
+Lo perdido se reescribe abajo, desde las mediciones, que no se han perdido.
+
+### AH CERRADO — el hallazgo no fue el que se fue a buscar
+
+Fallo de ARQUITECTO: la instruccion afirmaba que no existia el codigo que manda a login a un
+anonimo. Existe: `src/index.php` **seccion 8, lineas 655-696**, guardado por
+`control_access_login` (`config/roles.php:130`, hoy `true`). ARQUITECTO busco **middlewares de
+Slim** y llamo a eso «el universo». LEY 15 contra ARQUITECTO. Lo encontro el CODER.
+
+Medicion valida (la discriminante movio: 200 -> 403 en exactamente dos rutas; los 93 x 302 no se
+movieron). Universo: 306 rutas, 251 resolubles, **182 GET recorridas**, 124 omitidas con razon.
+
+**LAS DOS CAPAS NO SE SOLAPAN, SE REPARTEN**: lo que declara `require_login` lo para `index.php`;
+lo que no, queda entero en manos de `DefaultAccessControlModules`, cuyo unico juez es
+`routeName()`. De 17 rutas `/admin/*` con 200 sin sesion, **16 son hojas de estilo**; endpoints
+reales, **dos**.
+
+**Cerrar la rama `else` seria el arreglo equivocado**: las dos deben ser publicas
+—`get-lang-messages-by-group` es el motor de `lang-group`; `generate-otp` no puede exigir sesion—.
+
+### `generate-otp` — la asimetria
+
+El codigo se envia por correo y **nunca vuelve en la respuesta**: no hay fuga. Pero: **ningun
+limite de intentos** (`UsersController::login` SI tiene `MAX_ATTEMPTS = 4`), **enumeracion de
+usuarios** (responde `USER_NO_EXISTS`), **escritura sin sesion** (una fila en `login_attempts`) y
+es **GET**. **SI tiene consumidor**: `view/usuarios/login.php:63` y `login.js:170` — y apps
+headless, dicho por el PROPIETARIO.
+
+DECIDIDO por el PROPIETARIO: cerrojo por usuario e IP + respuesta uniforme; **sin pasar a POST**,
+que romperia a los headless. Y **documentado en `files/API/docs/modules/Usuarios.md`**.
+
+### MECANISMO — un filtro es parte del universo
+
+Tras dos fallos seguidos (*«no tolero esos errores»*): el cero de «`generate-otp` sin consumidores»
+salio de un `grep -v "UserSystemFeaturesController"`, que es justo la clase que compone la URL; y
+«la puerta fallara con `locations-countries-ajax-search`» se dedujo sin comprobar que Locations
+estuviera entre los 22 — no lo esta.
+
+> **Toda cifra de ARQUITECTO lleva escrito su universo y sus exclusiones. Un cero obtenido con
+> `grep -v` NO ES UN CERO. LEY 16 aplica a ARQUITECTO: ningun cero sin canario positivo y
+> negativo. Y una pertenencia no se deduce, se comprueba.**
+
+### SQL CONCATENADO — traza confirmada, sigue abierta
+
+`App/Locations/Controllers/Country.php:458`, `search()`, ruta `locations-countries-ajax-search`
+(GET, `requireLogin: false`, `rolesAllowed: []`):
+`$critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')"` con `$query` de `getQueryParams()`.
+`clean_string()` (`core/Utilities.php:518`) **no escapa comillas** —lo dice su docblock—, y
+`ActiveRecord::where(string)` **concatena**. La via parametrizada existe (`where(array)` ->
+`WhereSegment` -> marcadores) y la sobrecarga de cadena la evita.
+
+Censo de contraste: 177 `->where(`, 19 con cadena interpolada, **32 archivos** con ambos
+ingredientes. **NO son 32 hallazgos**: es donde mirar. Confirmada, UNA.
+
+### UPLOADS — `ProtectFileMiddleware` esta bien hecho; casi nadie esta enchufado
+
+`protect($dir,$validator)` escribe un `.htaccess` que reescribe a `index.php`;
+`ServerStatics:418` **se niega a delegar** un archivo protegido a Apache; `ServerStatics:544`
+devuelve **403** si el validador dice que no. La via delegada NO puede saltarse la proteccion.
+
+Pero `src/.htaccess:47-49` (`RewriteCond %{REQUEST_FILENAME} !-f`) hace que **un archivo que
+existe lo sirva Apache directo**, salvo que su carpeta tenga ese `.htaccess`. Y:
+**NUEVE modulos declaran `UPLOAD_DIR`** —documents, categories, document-types, news-categories,
+organizations, built-in-banner, helpers-system/generic, system-approval, publications— y **UNO
+SOLO esta registrado** (`publications`), con el **validador de ejemplo** y la comprobacion de
+sesion **comentada**.
+
+Correccion pendiente: enchufar los ocho + **una puerta que falle cuando un `UPLOAD_DIR` declarado
+no este en `protect()`**. El validador de cada modulo lo decide el PROPIETARIO. Y va a la **guia de
+creacion de modulos**.
+
+### `require_login`: la puerta no explota nada — 4, no 95
+
+306 rutas; **95** sin `require_login` ni `roles_allowed` en todo el framework, pero **acotado a los
+22 modulos: CUATRO** —`get-lang-messages-by-group`, `generate-otp`, `check-totp`,
+`two-factor-auth-status`—, las cuatro publicas a proposito. Van a un archivo de excusas declaradas.
+**`PiecesPHP\Core\Route` NO SE TOCA**: la comprobacion solo LEE el inventario. Linea roja del
+PROPIETARIO.
+
+### EL OBJETIVO, DICHO POR EL PROPIETARIO — la triada en todas, y `_allowedRoute` COMO PLANTILLA
+
+*«Busco estandarizacion, que todos tengan la triada `routeName`, `_allowedRoute`, `allowedRoute`.
+Y que en todos se abstraiga lo abstraible en el trait y se mantenga lo que difiere, que es el
+estrechamiento si aplica o como plantilla. Ademas de normalizar el estilo de los controladores.»*
+Y despues: *«Claro, `_allowedRoute` es plantilla. Procede.»*
+
+**De donde salio el error de ARQUITECTO**: optimizo para que la cadena de la URL no cambiara y
+trato la llamada sin argumento como un estorbo, en vez de darle DUEÑO a la ruta `locations`. El
+PROPIETARIO lo zanjo en una linea: *«la cadena URL no tiene por que cambiar si el ajuste se hace
+bien»*. Es cierto y esta trazado: `Locations::routeName()` con `$baseRouteName = 'locations'`
+produce `get_route('locations', [], false)`, exactamente lo que produce hoy `self::routeName()`.
+
+### EL TABLERO, medido (universo: `src/app`, sin exclusiones; canario: el trait no se cuenta a si mismo)
+
+**40 controladoras usan el trait.** (ARQUITECTO dijo 41 dos veces: eran 40.)
+
+| situacion | cuantas |
+| :-- | --: |
+| No declaran nada — heredan la triada | **20** |
+| Declaran `_allowedRoute` (el estrechamiento real) | **11** |
+| Sobreescriben `routeName` | **9** |
+| Sobreescribe `allowedRoute` | **1** (Terminal) |
+
+Las 9 sobreescrituras y por que existen:
+
+| clase | difiere en | base a declarar |
+| :-- | :-- | :-- |
+| `Point` `State` `Country` `City` `Region` | compone `prefixParentEntity-prefixEntity`; **y sin argumento devuelven `locations`** | `locations-points` … `locations-regions` |
+| `ContactFormsController` | compone `$prefixNameRoutes` | `contact-forms` |
+| `PublicAreaController` | idem | `public` |
+| `DataImportExportUtilityController` | **ya tiene `$baseRouteName`**; solo difiere en usar `get_config('current_user')` | (ninguna, ya esta) |
+| `TerminalController` | **otra firma** en los dos metodos | (ninguna, ya esta) |
+
+### TERMINAL: lo sui generis SI esta justificado, pero es `routeID`, no la triada
+
+| metodo | llamadas medidas |
+| :-- | :-- |
+| **`routeID()`** | **`src/index.php:875`** — descubrimiento de rutas en CLI. **NO SE TOCA.** |
+| `routeName()` | **una**, su propio `allowedRoute()` linea 54 |
+| `allowedRoute()` | **cero en todo el repositorio** |
+
+`routeID()` hace exactamente lo que el trait hace en linea, con `$baseRouteName = 'terminal'` ya
+declarado: misma cadena. Los otros dos son el cuerpo del trait con una firma mas estrecha, y
+`VerifyIntegrityTask:885-886` ya los tiene declarados como «OTRA FIRMA».
+
+### LA DIFERENCIA REAL DE `DataImportExportUtility`, y no es cosmetica
+
+`get_config('current_user')` devuelve el `\stdClass` crudo que escribe `index.php:631`.
+`getLoggedFrameworkUser()` construye un `UserDataPackage` a partir de el **y devuelve `null` si el
+constructor lanza** (lo captura y lo registra).
+
+**Difieren en un solo caso: cuando el constructor de `UserDataPackage` falla.** Hoy
+DataImportExport comprobaria permisos con el stdClass; heredando el trait caeria en «sin usuario,
+concede». **Es un cambio de comportamiento en la rama de fallo, y en direccion permisiva.** Se
+declara, no se cuela: es el residuo de T26, y uniformar la semantica del trait es justamente el
+objetivo.
 
 ### Abierto, sin decidir
 

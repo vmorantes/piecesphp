@@ -4,7 +4,7 @@
 171
 
 [TOTAL DE ERRORES VISIBLES]
-749
+747
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 740
+En las dos (8.4 y 8.5): 738
 Solo en 8.5: 9
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (315)
+argument.type (313)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -70,19 +70,19 @@ project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
 project://src/app/classes/App/Locations/Controllers/City.php
-	method.nonObject (Líneas: 391, 423)
-	foreach.nonIterable (Líneas: 582)
+	method.nonObject (Líneas: 396, 428)
+	foreach.nonIterable (Líneas: 587)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	method.nonObject (Líneas: 388, 420)
-	foreach.nonIterable (Líneas: 506)
+	method.nonObject (Líneas: 393, 425)
+	foreach.nonIterable (Líneas: 511)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
 	method.nonObject (Líneas: 64, 65, 66)
 project://src/app/classes/App/Locations/Controllers/Point.php
-	method.nonObject (Líneas: 369, 400)
-	foreach.nonIterable (Líneas: 476)
+	method.nonObject (Líneas: 374, 405)
+	foreach.nonIterable (Líneas: 481)
 project://src/app/classes/App/Locations/Controllers/State.php
-	method.nonObject (Líneas: 358, 384)
-	foreach.nonIterable (Líneas: 461)
+	method.nonObject (Líneas: 363, 389)
+	foreach.nonIterable (Líneas: 466)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
 project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-org-card.php
@@ -95,7 +95,7 @@ project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profi
 	property.nonObject (Líneas: 9)
 	argument.type (Líneas: 9)
 project://src/app/classes/DataImportExportUtility/Controllers/DataImportExportUtilityController.php
-	argument.type (Líneas: 158, 287, 391, 392, 393, 394, 465)
+	argument.type (Líneas: 158, 287, 391, 392, 393, 394)
 	foreach.nonIterable (Líneas: 228)
 	property.notFound (Líneas: 340, 351)
 project://src/app/classes/DataImportExportUtility/Controllers/ExportHandlers/BaseExportData.php
@@ -282,8 +282,8 @@ project://src/app/classes/SystemApprovals/Views/forms/approval-publications.php
 	argument.type (Líneas: 75, 84, 88)
 	property.nonObject (Líneas: 151, 156)
 project://src/app/classes/Terminal/Controllers/TerminalController.php
-	argument.type (Líneas: 70, 155)
-	method.notFound (Líneas: 158, 163)
+	argument.type (Líneas: 110)
+	method.notFound (Líneas: 113, 118)
 project://src/app/classes/Terminal/Tasks/BundleTask.php
 	argument.type (Líneas: 125)
 project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
@@ -320,7 +320,7 @@ project://src/app/controller/AppConfigController.php
 project://src/app/controller/AvatarController.php
 	argument.type (Líneas: 241, 248, 257)
 project://src/app/controller/ContactFormsController.php
-	argument.type (Líneas: 219, 224)
+	argument.type (Líneas: 224, 229)
 project://src/app/controller/GenericTokenController.php
 	method.nonObject (Líneas: 186, 356)
 	argument.type (Líneas: 298, 323, 323, 324, 324)

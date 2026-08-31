@@ -152,22 +152,22 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/City.php                                          
  ------ -------------------------------------------------------------------------------------------- 
-  391    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  396    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  423    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  428    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  582    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  587    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/Country.php                                       
  ------ -------------------------------------------------------------------------------------------- 
-  388    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  393    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  420    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  425    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  506    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  511    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -185,22 +185,22 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/Point.php                                         
  ------ -------------------------------------------------------------------------------------------- 
-  369    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  374    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  400    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  405    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  476    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  481    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/State.php                                         
  ------ -------------------------------------------------------------------------------------------- 
-  358    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  363    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  384    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  389    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  461    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  466    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -274,8 +274,6 @@
   393    Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string given.  
          🪪  argument.type                                                                                                                                                            
   394    Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string given.  
-         🪪  argument.type                                                                                                                                                            
-  465    Parameter Nr.1 $name of static method DataImportExportUtility\Controllers\DataImportExportUtilityController::_allowedRoute() expects string, string|null given.                
          🪪  argument.type                                                                                                                                                            
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1083,18 +1081,16 @@
          🪪  property.nonObject                                                                          
  ------ ------------------------------------------------------------------------------------------------ 
 
- ------ --------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/Terminal/Controllers/TerminalController.php                                                                
- ------ --------------------------------------------------------------------------------------------------------------------------- 
-  70     Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, string|null given.  
-         🪪  argument.type                                                                                                          
-  155    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string, 'route'} given.           
-         🪪  argument.type                                                                                                          
-  158    Call to an undefined method object::getDescription().                                                                      
-         🪪  method.notFound                                                                                                        
-  163    Call to an undefined method object::getName().                                                                             
-         🪪  method.notFound                                                                                                        
- ------ --------------------------------------------------------------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------------------------------------------------------ 
+  project://src/src/app/classes/Terminal/Controllers/TerminalController.php                                                       
+ ------ ------------------------------------------------------------------------------------------------------------------ 
+  110    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string, 'route'} given.  
+         🪪  argument.type                                                                                                 
+  113    Call to an undefined method object::getDescription().                                                             
+         🪪  method.notFound                                                                                               
+  118    Call to an undefined method object::getName().                                                                    
+         🪪  method.notFound                                                                                               
+ ------ ------------------------------------------------------------------------------------------------------------------ 
 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Terminal/Tasks/BundleTask.php                                                                                                             
@@ -1239,9 +1235,9 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/ContactFormsController.php                                                                                           
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  219    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
+  224    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
          🪪  argument.type                                                                                                                       
-  224    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  229    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2391,5 +2387,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 755 errors                                                                                               
+ [ERROR] Found 753 errors                                                                                               
 

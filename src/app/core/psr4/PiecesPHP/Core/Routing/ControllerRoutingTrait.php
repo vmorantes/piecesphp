@@ -114,8 +114,8 @@ trait ControllerRoutingTrait
      * que decidan ocultar una ruta que los roles sí permiten. El valor por defecto no
      * añade ninguna.
      *
-     * Es `protected` y no `private` porque es un punto de extensión: los 32 módulos que hoy
-     * lo declaran usan `private` y siguen ganando sobre este por ser declaración de clase.
+     * Es `protected` y no `private` porque es un punto de extensión, y desde AI lo declaran
+     * LAS 41 clases que usan el trait: 11 con regla y 30 con la plantilla neutra. Ver T149.
      *
      * @param string $name
      * @param string $route

@@ -95,6 +95,7 @@
     ],
     "app/classes/API/Controllers/APIController.php": [
         "APIController::__construct",
+        "APIController::_allowedRoute",
         "APIController::cronJobs",
         "APIController::externalActions",
         "APIController::news",
@@ -115,24 +116,24 @@
     "app/classes/App/Locations/Controllers/City.php": [
         "City::__construct",
         "City::_all",
+        "City::_allowedRoute",
         "City::action",
         "City::addForm",
         "City::all",
         "City::cities",
         "City::citiesDataTables",
         "City::editForm",
-        "City::routeName",
         "City::search"
     ],
     "app/classes/App/Locations/Controllers/Country.php": [
         "Country::__construct",
+        "Country::_allowedRoute",
         "Country::action",
         "Country::addForm",
         "Country::all",
         "Country::countries",
         "Country::countriesDataTables",
         "Country::editForm",
-        "Country::routeName",
         "Country::search"
     ],
     "app/classes/App/Locations/Controllers/HelperController.php": [
@@ -141,6 +142,7 @@
     ],
     "app/classes/App/Locations/Controllers/Locations.php": [
         "Locations::__construct",
+        "Locations::_allowedRoute",
         "Locations::generateLangFile",
         "Locations::genericManageRoutes",
         "Locations::genericManageRoutesRegions",
@@ -150,30 +152,30 @@
     "app/classes/App/Locations/Controllers/Point.php": [
         "Point::__construct",
         "Point::_all",
+        "Point::_allowedRoute",
         "Point::action",
         "Point::addForm",
         "Point::all",
         "Point::editForm",
         "Point::points",
         "Point::pointsDataTables",
-        "Point::routeName",
         "Point::search"
     ],
     "app/classes/App/Locations/Controllers/Region.php": [
         "Region::__construct",
+        "Region::_allowedRoute",
         "Region::all",
         "Region::regions",
-        "Region::routeName",
         "Region::search"
     ],
     "app/classes/App/Locations/Controllers/State.php": [
         "State::__construct",
         "State::_all",
+        "State::_allowedRoute",
         "State::action",
         "State::addForm",
         "State::all",
         "State::editForm",
-        "State::routeName",
         "State::search",
         "State::states",
         "State::statesDataTables"
@@ -242,6 +244,7 @@
     ],
     "app/classes/Components/Controllers/ComponentProvider.php": [
         "ComponentProvider::__construct",
+        "ComponentProvider::_allowedRoute",
         "ComponentProvider::pathJSModule",
         "ComponentProvider::provide",
         "ComponentProvider::routes"
@@ -260,6 +263,7 @@
     ],
     "app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php": [
         "ContentNavigationHubController::__construct",
+        "ContentNavigationHubController::_allowedRoute",
         "ContentNavigationHubController::contentsMapView",
         "ContentNavigationHubController::profileListView",
         "ContentNavigationHubController::render",
@@ -275,8 +279,8 @@
     ],
     "app/classes/DataImportExportUtility/Controllers/DataImportExportUtilityController.php": [
         "DataImportExportUtilityController::__construct",
+        "DataImportExportUtilityController::_allowedRoute",
         "DataImportExportUtilityController::getUsersImportGeneratedFiles",
-        "DataImportExportUtilityController::routeName",
         "DataImportExportUtilityController::routes",
         "DataImportExportUtilityController::showImportedGenerated",
         "DataImportExportUtilityController::showRoutes",
@@ -381,6 +385,7 @@
     ],
     "app/classes/EventsLog/Controllers/LogsController.php": [
         "LogsController::__construct",
+        "LogsController::_allowedRoute",
         "LogsController::dataTables",
         "LogsController::listView",
         "LogsController::routes",
@@ -417,6 +422,7 @@
     ],
     "app/classes/FileManager/Controllers/FileManagerController.php": [
         "FileManagerController::__construct",
+        "FileManagerController::_allowedRoute",
         "FileManagerController::accessElFinderHandler",
         "FileManagerController::fileManager",
         "FileManagerController::fileManagerConfiguration",
@@ -574,6 +580,7 @@
     ],
     "app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php": [
         "GeoJsonManagerController::__construct",
+        "GeoJsonManagerController::_allowedRoute",
         "GeoJsonManagerController::contentsGeoJsonFeatures",
         "GeoJsonManagerController::handleRequestContentsGeoJsonFeaturesParam",
         "GeoJsonManagerController::render",
@@ -614,6 +621,7 @@
     ],
     "app/classes/GoogleReCaptchaV3/Controllers/GoogleReCaptchaV3Controller.php": [
         "GoogleReCaptchaV3Controller::__construct",
+        "GoogleReCaptchaV3Controller::_allowedRoute",
         "GoogleReCaptchaV3Controller::action",
         "GoogleReCaptchaV3Controller::routes",
         "GoogleReCaptchaV3Controller::verifyTokenCaptcha"
@@ -662,6 +670,7 @@
     ],
     "app/classes/MySpace/Controllers/AllProfilesController.php": [
         "AllProfilesController::__construct",
+        "AllProfilesController::_allowedRoute",
         "AllProfilesController::dataTables",
         "AllProfilesController::render",
         "AllProfilesController::routes"
@@ -683,6 +692,7 @@
     ],
     "app/classes/MySpace/Controllers/MyProfileController.php": [
         "MyProfileController::__construct",
+        "MyProfileController::_allowedRoute",
         "MyProfileController::myProfileView",
         "MyProfileController::render",
         "MyProfileController::routes",
@@ -690,6 +700,7 @@
     ],
     "app/classes/MySpace/Controllers/MySpaceController.php": [
         "MySpaceController::__construct",
+        "MySpaceController::_allowedRoute",
         "MySpaceController::exampleResources",
         "MySpaceController::iframesSources",
         "MySpaceController::mySpaceView",
@@ -699,12 +710,14 @@
     ],
     "app/classes/MySpace/Controllers/OrganizationProfileController.php": [
         "OrganizationProfileController::__construct",
+        "OrganizationProfileController::_allowedRoute",
         "OrganizationProfileController::profileView",
         "OrganizationProfileController::render",
         "OrganizationProfileController::routes"
     ],
     "app/classes/MySpace/Controllers/ProfileController.php": [
         "ProfileController::__construct",
+        "ProfileController::_allowedRoute",
         "ProfileController::profileView",
         "ProfileController::render",
         "ProfileController::routes"
@@ -860,6 +873,7 @@
     "app/classes/Newsletter/Controllers/NewsletterController.php": [
         "NewsletterController::__construct",
         "NewsletterController::_all",
+        "NewsletterController::_allowedRoute",
         "NewsletterController::action",
         "NewsletterController::addForm",
         "NewsletterController::addSuscriber",
@@ -1007,6 +1021,7 @@
     ],
     "app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerPublicController.php": [
         "BuiltInBannerPublicController::__construct",
+        "BuiltInBannerPublicController::_allowedRoute",
         "BuiltInBannerPublicController::all",
         "BuiltInBannerPublicController::init",
         "BuiltInBannerPublicController::render",
@@ -1055,6 +1070,7 @@
     ],
     "app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php": [
         "GenericContentController::__construct",
+        "GenericContentController::_allowedRoute",
         "GenericContentController::action",
         "GenericContentController::allowedLangsForSelect",
         "GenericContentController::handlerUpload",
@@ -1105,6 +1121,7 @@
     ],
     "app/classes/PiecesPHP/LocalizationSystem/Controllers/LocalizationSystemController.php": [
         "LocalizationSystemController::__construct",
+        "LocalizationSystemController::_allowedRoute",
         "LocalizationSystemController::getLangMessagesByGroup",
         "LocalizationSystemController::render",
         "LocalizationSystemController::routes"
@@ -1159,6 +1176,7 @@
     ],
     "app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php": [
         "UserSystemFeaturesController::__construct",
+        "UserSystemFeaturesController::_allowedRoute",
         "UserSystemFeaturesController::checkTOTP",
         "UserSystemFeaturesController::checkTwoFactorAuthStatus",
         "UserSystemFeaturesController::configureTOTP",
@@ -1275,6 +1293,7 @@
     ],
     "app/classes/Publications/Controllers/PublicationsPublicController.php": [
         "PublicationsPublicController::__construct",
+        "PublicationsPublicController::_allowedRoute",
         "PublicationsPublicController::all",
         "PublicationsPublicController::init",
         "PublicationsPublicController::listView",
@@ -1420,6 +1439,7 @@
     ],
     "app/classes/ReportsManage/Controllers/ReportsManageController.php": [
         "ReportsManageController::__construct",
+        "ReportsManageController::_allowedRoute",
         "ReportsManageController::genericReportView",
         "ReportsManageController::render",
         "ReportsManageController::routes"
@@ -1568,9 +1588,8 @@
     ],
     "app/classes/Terminal/Controllers/TerminalController.php": [
         "TerminalController::__construct",
-        "TerminalController::allowedRoute",
+        "TerminalController::_allowedRoute",
         "TerminalController::routeID",
-        "TerminalController::routeName",
         "TerminalController::routes"
     ],
     "app/classes/Terminal/Jobs/PreferSlugsFiller.php": [
@@ -1705,6 +1724,7 @@
         "VerifyIntegrityTask::checkIgnoredReturns",
         "VerifyIntegrityTask::checkNarrativeComments",
         "VerifyIntegrityTask::checkOrphanDocblocks",
+        "VerifyIntegrityTask::checkOrphanLangKeys",
         "VerifyIntegrityTask::checkPackageEclipses",
         "VerifyIntegrityTask::checkPhpStanUniverse",
         "VerifyIntegrityTask::checkPropertiesBeforeMethods",
@@ -1713,6 +1733,7 @@
         "VerifyIntegrityTask::checkSnapshotSeeding",
         "VerifyIntegrityTask::checkToolchainTracking",
         "VerifyIntegrityTask::checkTwinBranches",
+        "VerifyIntegrityTask::checkViewTagBalance",
         "VerifyIntegrityTask::checkVolatileTablesMatchCode",
         "VerifyIntegrityTask::collectFiles",
         "VerifyIntegrityTask::collectNarrativeBlocks",
@@ -1731,6 +1752,7 @@
         "VerifyIntegrityTask::routeMethodBody",
         "VerifyIntegrityTask::routeMethodDecides",
         "VerifyIntegrityTask::snapshotPath",
+        "VerifyIntegrityTask::tagBalance",
         "VerifyIntegrityTask::toolchainAutoloadPath",
         "VerifyIntegrityTask::writeSnapshot"
     ],
@@ -1765,6 +1787,7 @@
     ],
     "app/controller/AppConfigController.php": [
         "AppConfigController::__construct",
+        "AppConfigController::_allowedRoute",
         "AppConfigController::actionGeneric",
         "AppConfigController::backgrounds",
         "AppConfigController::configurationsView",
@@ -1790,8 +1813,8 @@
         "AvatarController::register"
     ],
     "app/controller/ContactFormsController.php": [
+        "ContactFormsController::_allowedRoute",
         "ContactFormsController::contactMessage",
-        "ContactFormsController::routeName",
         "ContactFormsController::routes"
     ],
     "app/controller/GenericTokenController.php": [
@@ -1813,13 +1836,13 @@
     ],
     "app/controller/PublicAreaController.php": [
         "PublicAreaController::__construct",
+        "PublicAreaController::_allowedRoute",
         "PublicAreaController::contactView",
         "PublicAreaController::genericViewExists",
         "PublicAreaController::genericViews",
         "PublicAreaController::genericViewsConfigurations",
         "PublicAreaController::indexView",
         "PublicAreaController::init",
-        "PublicAreaController::routeName",
         "PublicAreaController::routes",
         "PublicAreaController::unsubscribeView"
     ],
@@ -2730,6 +2753,9 @@
         "Schema::setTemplateWithHumanReadable",
         "Schema::template",
         "Schema::update"
+    ],
+    "app/core/psr4/PiecesPHP/Core/LcTimeNamesTrait.php": [
+        "LcTimeNamesTrait::setLcTimeNamesOnce"
     ],
     "app/core/psr4/PiecesPHP/Core/Mailer.php": [
         "Mailer::__construct",

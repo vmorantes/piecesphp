@@ -44,57 +44,12 @@ class TerminalController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
+     * Compone el NOMBRE de la ruta de terminal, sin resolver URL ni permisos.
      *
-     * @param string $name
-     * @return bool
-     */
-    public static function allowedRoute(string $name)
-    {
-        $route = self::routeName($name, true);
-        $allow = (string) $route !== '';
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
+     * PÚBLICO A PROPÓSITO: lo llama `src/index.php:875` para descubrir qué ruta corresponde a
+     * la acción de CLI en curso, antes de que exista petición. No lo sustituye el trait: el
+     * trait compone el nombre DENTRO de `routeName()` y no lo expone. Ver T149.
      *
-     * @param string $name
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, bool $silentOnNotExists = false)
-    {
-
-        $simpleName = $name ?? '';
-        $name = self::routeID($name);
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                [],
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param string $name
      * @return string
      */
@@ -173,5 +128,26 @@ class TerminalController extends AdminPanelController
         }
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

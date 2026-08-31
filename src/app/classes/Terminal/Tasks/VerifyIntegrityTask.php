@@ -874,18 +874,6 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @var array<string,string>
      */
     const KNOWN_ROUTE_OVERRIDES = [
-        //──── Nombran la ruta de otra forma: el trait no puede servirles ────────────────
-        'App\\Locations\\Controllers\\City::routeName' => 'Prefijo de dos niveles ($prefixParentEntity + $prefixEntity). NO declara $baseRouteName, que es lo que usa el trait.',
-        'App\\Locations\\Controllers\\Country::routeName' => 'Ídem City.',
-        'App\\Locations\\Controllers\\Point::routeName' => 'Ídem City.',
-        'App\\Locations\\Controllers\\Region::routeName' => 'Ídem City.',
-        'App\\Locations\\Controllers\\State::routeName' => 'Ídem City.',
-        'App\\Controller\\ContactFormsController::routeName' => 'Usa self::$prefixNameRoutes. NO declara $baseRouteName.',
-        'App\\Controller\\PublicAreaController::routeName' => 'Usa self::$prefixNameRoutes. NO declara $baseRouteName.',
-        'Terminal\\Controllers\\TerminalController::routeName' => 'OTRA FIRMA: routeName(?string, bool), sin $params, y arma el nombre con self::routeID().',
-        'Terminal\\Controllers\\TerminalController::allowedRoute' => 'OTRA FIRMA: allowedRoute(string), coherente con su propio routeName de dos parámetros.',
-        'DataImportExportUtility\\Controllers\\DataImportExportUtilityController::routeName' => 'Toma el usuario de get_config(\'current_user\') en vez de getLoggedFrameworkUser(). NO se ha demostrado equivalente: si el constructor de UserDataPackage lanza, el trait trataría al usuario como anónimo y CONCEDERÍA, mientras esta copia sigue comprobando permisos. Es más restrictiva en ese borde. Módulo condenado (T6): se conserva hasta que muera con él.',
-
         //──── Propiedad del recurso ────────────────────────────────────────────────────
         'News\\Controllers\\NewsController::_allowedRoute' => 'actions-delete: solo el creador, o los tipos de NewsMapper::CAN_DELETE_ALL.',
         'PiecesPHP\\BuiltIn\\Banner\\Controllers\\BuiltInBannerController::_allowedRoute' => 'actions-delete: solo el creador, o BuiltInBannerMapper::CAN_DELETE_ALL.',
@@ -938,11 +926,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             return ['no se encontró ' . self::ROUTING_TRAIT_PATH . ': la comprobación no pudo mirar nada'];
         }
         $canonical = self::routeMethodBody($traitCode, 'routeName');
+        //El cuerpo EXACTO de la plantilla neutra sale del propio trait: si el trait cambia, la
+        //comparación cambia con él y ninguna copia queda exenta por parecerse.
+        $canonicalAllowed = self::routeMethodBody($traitCode, '_allowedRoute');
         if ($canonical === null) {
             return [self::ROUTING_TRAIT_PATH . ' ya no declara routeName(): la comprobación no pudo mirar nada'];
         }
 
         $found = [];
+        $plantillas = 0;
 
         foreach ($files as $relative) {
             $relative = str_replace('\\', '/', $relative);
@@ -968,6 +960,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 }
                 $key = $declared . '::' . $method;
                 $found[$key] = true;
+
+                //LA PLANTILLA NEUTRA NO SE REGISTRA: un cuerpo que no decide nada no tiene razón
+                //que declarar. Va en las 41 por decisión del PROPIETARIO. Ver T149.
+                if ($method === '_allowedRoute' && $canonicalAllowed !== null
+                    && trim($body['body']) === trim($canonicalAllowed['body'])) {
+                    $plantillas++;
+                    continue;
+                }
 
                 if (!array_key_exists($key, self::KNOWN_ROUTE_OVERRIDES)) {
                     $failures[] = $key . ' — sobreescribe un método del trait sin estar registrado.'
@@ -1007,7 +1007,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
 
-        echoTerminal("\e[94mINFO:\e[39m " . count($found) . " sobreescrituras de ruta comprobadas contra el registro.");
+        echoTerminal("\e[94mINFO:\e[39m " . count($found) . " sobreescritura(s) de ruta comprobadas contra el registro, "
+            . "de las que " . $plantillas . " son la plantilla neutra de `_allowedRoute`.");
 
         return $failures;
     }

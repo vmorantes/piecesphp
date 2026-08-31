@@ -33,6 +33,11 @@ class Region extends AdminPanelController
     /**
      * @var string
      */
+    protected static $baseRouteName = 'locations-regions';
+
+    /**
+     * @var string
+     */
     protected static $prefixParentEntity = 'locations';
     /**
      * @var string
@@ -134,40 +139,25 @@ class Region extends AdminPanelController
         return $response->withJson($result);
     }
 
+
     /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
      * @param string $name
+     * @param string $route
      * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
+     * @return bool
      */
-    protected static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = $name !== '' ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixParentEntity;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        if ($allowed) {
-            $routeResult = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            return is_string($routeResult) ? $routeResult : '';
-        } else {
-            return '';
-        }
-
+        return true;
     }
 }

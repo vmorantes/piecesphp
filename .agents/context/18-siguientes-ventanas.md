@@ -15114,3 +15114,228 @@ rutas que responden 200 SIN sesión, **no depende de B**. B habría dicho cuánt
   no se ha juzgado.
 
 Ninguna se tocó: este bloque medía.
+
+---
+
+## T149 · AI · LA TRÍADA EN LAS 41, Y `_allowedRoute` COMO PLANTILLA
+
+**Bloque AI.** Nueve clases copiaban `routeName()` entero para cambiar UNA línea. Ya no lo
+copia ninguna: `routeName` y `allowedRoute` se declaran **en el trait y en ningún otro sitio**.
+
+### PASO 1 · La foto de antes, 73 filas
+
+Sacada llamando a `routeName()` de las nueve para **todas** sus rutas del inventario, con los
+parámetros extraídos del PATRÓN —el inventario guarda `[null]` en `parameters`— y **capturando
+la excepción cuando la hay**, porque «lanza» también es un comportamiento que fotografiar.
+
+Tres cosas que la foto enseñó antes de tocar nada:
+
+- **`TerminalController::routeName()` sin argumento CRASHEA hoy**: `routeID(): Argument #1
+  ($name) must be of type string, null given`. No es una decisión, es un `TypeError`.
+- `ContactFormsController`, `PublicAreaController` y `DataImportExportUtility` **ya lanzaban**
+  con la llamada sin argumento: no existe una ruta llamada `contact-forms`, `public` ni
+  `data-import-export-utility-admin`.
+- **`DataImportExportUtility` no tiene NI UNA ruta en el inventario.** Su módulo está apagado,
+  así que su fila es solo la de sin argumento. Normalizarlo es invisible por definición.
+
+### PASO 2 · `Locations` pasa a ser dueña de su ruta
+
+`Locations.php` no usaba el trait y no tenía `routeName()`: los cinco de `Locations` son
+**hermanos** suyos, no hijos. Se le añade `use ControllerRoutingTrait;` y
+`protected static $baseRouteName = 'locations';`, y los cuatro `$back_link` pasan de
+`self::routeName()` a `Locations::routeName()`.
+
+**Comprobado antes de seguir**, que es de lo que se trataba:
+
+```
+Locations::routeName()  =>  http://localhost/locations/
+get_route('locations')  =>  http://localhost/locations/
+```
+
+Idéntico a lo que devolvían los cuatro. **Y los permisos coinciden**, medido sobre los seis
+roles: los únicos con `locations-*-list` son los dos que también tienen `locations`. Nadie
+pierde el enlace. `Locations::routeName()` **sí** consulta permisos, así que aquí ni siquiera
+hay la diferencia que habría tenido un `get_route()` pelado.
+
+### PASO 3 y 4 · Las nueve sobreescrituras, fuera
+
+Entre 35 y 51 líneas por clase. Las siete que no lo tenían declaran su `$baseRouteName`;
+`DataImportExportUtility` y `Terminal` ya lo tenían.
+
+**`TerminalController` era el caso delicado y salió limpio:**
+
+| Método | Quién lo llamaba | Qué se hizo |
+| :-- | :-- | :-- |
+| `routeID()` | `src/index.php:875` | **NO SE TOCA.** Docblock nuevo diciendo por qué es público y quién lo usa |
+| `routeName()` | solo su propio `allowedRoute()`, línea 54 | borrado |
+| `allowedRoute()` | **nadie en todo el repositorio** | borrado |
+
+Su `routeName()` tenía **otra firma** —`(?string, bool)`, sin `$params`—, y el único sitio que
+la usaba con dos argumentos era el `allowedRoute()` que se borra con ella. Comprobado que
+`routeID()` compone **exactamente** igual que el trait: `$baseRouteName . '-' . $name`.
+
+> **`DataImportExportUtility`, DECLARADO.** Su copia tomaba el usuario de
+> `get_config('current_user')` —el `stdClass` crudo de `index.php:631`— y el trait usa
+> `getLoggedFrameworkUser()`, que devuelve `null` si el constructor de `UserDataPackage` lanza.
+> **Difieren SOLO en ese borde**, y el trait cae entonces en «sin usuario, concede», que es más
+> permisivo. Se acepta a propósito: **uniformar la semántica del trait ES el objetivo**. Es el
+> residuo de T26 y no se disimula.
+
+### PASO 5 · `_allowedRoute` como plantilla en las 41
+
+No 40: **41**, porque el paso 2 metió a `Locations` en el trait.
+
+| | |
+| :-- | --: |
+| Ya lo tenían, `private` → `protected` (cuerpo intacto) | **11** |
+| Plantilla neutra añadida | **30** |
+| **Total con `_allowedRoute` protected y la firma del trait** | **41/41** |
+
+El docblock es **idéntico en las 30**, generado y no escrito a mano. `private` funcionaba
+porque la declaración de clase gana sobre el trait, pero **impide heredarlo**: por eso pasan a
+`protected`.
+
+### LA PUERTA SE PUSO ROJA, Y TENÍA RAZÓN A MEDIAS
+
+Al añadir las 30 plantillas, `checkRouteOverrides` las marcó todas: «sobreescribe un método del
+trait sin estar registrado». Su premisa era **«si no decide nada, se borra»**, y la decisión del
+PROPIETARIO es la contraria: la plantilla se queda.
+
+Se resuelve **sin heurística**: la comprobación compara el cuerpo con el del trait, **carácter a
+carácter**, y exime solo lo que es EXACTAMENTE la plantilla. El cuerpo canónico sale del propio
+trait, así que si el trait cambia, la comparación cambia con él y ninguna copia queda exenta por
+parecerse. Ahora imprime **41 sobreescrituras, de las que 30 son la plantilla neutra**.
+
+**PROVOCADA**: cambiando el cuerpo de una plantilla —`LogsController`— por algo que decide, la
+puerta la nombra y falla; restaurada con `sha256` idéntico, vuelve a 30.
+
+### PASO 6 · La verificación, que cuenta
+
+| | Esperado | Medido |
+| :-- | :-- | --: |
+| 1 · `_allowedRoute` protected con la firma del trait | 41 | **41/41** |
+| 2 · clases que declaran `routeName` | 1 | **1** — `ControllerRoutingTrait` |
+| 3 · clases que declaran `allowedRoute` | 1 | **1** — `ControllerRoutingTrait` |
+| 4 · `routeID` sigue, y `index.php:875` le apunta | sí | **sí**, único declarante |
+| 6 · entradas de `KNOWN_ROUTE_OVERRIDES` retiradas | 10 | **10**, y verify-integrity VERDE |
+
+#### 5 · El conteo de llamadas, y la primera medición estaba contaminada
+
+La primera pasada dijo **+69**, y era mentira: contaba el texto `routeName()` **dentro de los
+docblocks que yo acababa de escribir 30 veces**. Recontado por TOKENS —`T_STRING` precedido de
+`::` o `->` y seguido de `(`—:
+
+| | |
+| :-- | --: |
+| ANTES (HEAD) | **335** llamadas en 81 archivos |
+| DESPUÉS | **334** en 80 archivos |
+
+> **BAJA EN UNA, y la condición del paso 6.5 dice PARAR.** La diferencia está localizada: es el
+> `self::routeName($name, true)` que vivía dentro de `TerminalController::allowedRoute()`, **el
+> método que el paso 4b manda borrar**. No se desestandarizó nada — al contrario: `allowedRoute`
+> es ahora el del trait, que también llama a `routeName`. **Se reporta porque la condición se
+> cumplió, no porque haya un hallazgo detrás.**
+
+### PASO 7 · La comparación de las fotos
+
+**66 de 73 filas idénticas.** Las 7 que cambian, una por una:
+
+- **Cinco** son la llamada **sin argumento** de los cinco de `Locations`: devolvía `/locations/`
+  y ahora lanza, porque no existe ninguna ruta llamada `locations-points`. **Medido que nadie la
+  llama**: las cuatro que lo hacían son los `$back_link` del paso 2, y en todo `src/app` quedan
+  **cero** llamadas sin argumento.
+- **Una** es `Terminal` sin argumento: antes **TypeError**, ahora `RuntimeException`. Las dos
+  lanzan; nadie la llama.
+- **Una es `terminal-help`, y NO es de este bloque**: `HelpTask.php:49` arma su ruta con
+  `uniqid()` en cada arranque. Su URL cambia entre dos ejecuciones cualesquiera.
+
+| Clase | Sufijo | ANTES | DESPUÉS | |
+| :-- | :-- | :-- | :-- | :-- |
+| City | `(sin argumento)` | `/locations/` | LANZA: no existe la ruta `locations-cities` | **≠** |
+| City | `actions-add` | `/locations/cities/action/add/` | `/locations/cities/action/add/` |  |
+| City | `actions-edit` | `/locations/cities/action/edit/` | `/locations/cities/action/edit/` |  |
+| City | `ajax-all` | `/locations/cities/` | `/locations/cities/` |  |
+| City | `ajax-all2` | `/locations/cities/all/` | `/locations/cities/all/` |  |
+| City | `ajax-search` | `/locations/cities/search/` | `/locations/cities/search/` |  |
+| City | `datatables` | `/locations/cities/datatables/` | `/locations/cities/datatables/` |  |
+| City | `forms-add` | `/locations/cities/forms/add/` | `/locations/cities/forms/add/` |  |
+| City | `forms-edit` | `/locations/cities/forms/edit/1/` | `/locations/cities/forms/edit/1/` |  |
+| City | `list` | `/locations/cities/list/` | `/locations/cities/list/` |  |
+| Contact | `(sin argumento)` | LANZA: no existe la ruta `contact-forms` | LANZA: no existe la ruta `contact-forms` |  |
+| Contact | `general` | `/contact/general/` | `/contact/general/` |  |
+| Country | `(sin argumento)` | `/locations/` | LANZA: no existe la ruta `locations-countries` | **≠** |
+| Country | `actions-add` | `/locations/countries/action/add/` | `/locations/countries/action/add/` |  |
+| Country | `actions-edit` | `/locations/countries/action/edit/` | `/locations/countries/action/edit/` |  |
+| Country | `ajax-all` | `/locations/countries/` | `/locations/countries/` |  |
+| Country | `ajax-all2` | `/locations/countries/all/` | `/locations/countries/all/` |  |
+| Country | `ajax-search` | `/locations/countries/search/` | `/locations/countries/search/` |  |
+| Country | `datatables` | `/locations/countries/datatables/` | `/locations/countries/datatables/` |  |
+| Country | `forms-add` | `/locations/countries/forms/add/` | `/locations/countries/forms/add/` |  |
+| Country | `forms-edit` | `/locations/countries/forms/edit/1/` | `/locations/countries/forms/edit/1/` |  |
+| Country | `list` | `/locations/countries/list/` | `/locations/countries/list/` |  |
+| Import | `(sin argumento)` | LANZA: no existe la ruta `data-import-export-utility-admin` | LANZA: no existe la ruta `data-import-export-utility-admin` |  |
+| Point | `(sin argumento)` | `/locations/` | LANZA: no existe la ruta `locations-points` | **≠** |
+| Point | `actions-add` | `/locations/points/action/add/` | `/locations/points/action/add/` |  |
+| Point | `actions-edit` | `/locations/points/action/edit/` | `/locations/points/action/edit/` |  |
+| Point | `ajax-all` | `/locations/points/` | `/locations/points/` |  |
+| Point | `ajax-all2` | `/locations/points/all/` | `/locations/points/all/` |  |
+| Point | `ajax-search` | `/locations/points/search/` | `/locations/points/search/` |  |
+| Point | `datatables` | `/locations/points/datatables/` | `/locations/points/datatables/` |  |
+| Point | `forms-add` | `/locations/points/forms/add/` | `/locations/points/forms/add/` |  |
+| Point | `forms-edit` | `/locations/points/forms/edit/1/` | `/locations/points/forms/edit/1/` |  |
+| Point | `list` | `/locations/points/list/` | `/locations/points/list/` |  |
+| Public | `(sin argumento)` | LANZA: no existe la ruta `public` | LANZA: no existe la ruta `public` |  |
+| Public | `contact` | `/contact/` | `/contact/` |  |
+| Public | `generic` | `/1/` | `/1/` |  |
+| Public | `generic-2` | `/1/1/` | `/1/1/` |  |
+| Public | `index` | `/` | `/` |  |
+| Public | `unsubscribe` | `/unsubscribe/1/` | `/unsubscribe/1/` |  |
+| Region | `(sin argumento)` | `/locations/` | LANZA: no existe la ruta `locations-regions` | **≠** |
+| Region | `ajax-all` | `/locations/regions/` | `/locations/regions/` |  |
+| Region | `ajax-all2` | `/locations/regions/all/` | `/locations/regions/all/` |  |
+| Region | `ajax-search` | `/locations/regions/search/` | `/locations/regions/search/` |  |
+| State | `(sin argumento)` | `/locations/` | LANZA: no existe la ruta `locations-states` | **≠** |
+| State | `actions-add` | `/locations/states/action/add/` | `/locations/states/action/add/` |  |
+| State | `actions-edit` | `/locations/states/action/edit/` | `/locations/states/action/edit/` |  |
+| State | `ajax-all` | `/locations/states/` | `/locations/states/` |  |
+| State | `ajax-all2` | `/locations/states/all/` | `/locations/states/all/` |  |
+| State | `ajax-search` | `/locations/states/search/` | `/locations/states/search/` |  |
+| State | `datatables` | `/locations/states/datatables/` | `/locations/states/datatables/` |  |
+| State | `forms-add` | `/locations/states/forms/add/` | `/locations/states/forms/add/` |  |
+| State | `forms-edit` | `/locations/states/forms/edit/1/` | `/locations/states/forms/edit/1/` |  |
+| State | `list` | `/locations/states/list/` | `/locations/states/list/` |  |
+| Terminal | `(sin argumento)` | **LANZA TypeError** en `routeID()` | LANZA: no existe la ruta `terminal` | **≠** |
+| Terminal | `bundle` | `/terminal/bundle/` | `/terminal/bundle/` |  |
+| Terminal | `clean-all` | `/terminal/clean-all/` | `/terminal/clean-all/` |  |
+| Terminal | `clean-cache` | `/terminal/clean-cache/` | `/terminal/clean-cache/` |  |
+| Terminal | `clean-logs` | `/terminal/clean-logs/` | `/terminal/clean-logs/` |  |
+| Terminal | `db-backup` | `/terminal/db-backup/` | `/terminal/db-backup/` |  |
+| Terminal | `db-restore` | `/terminal/db-restore/` | `/terminal/db-restore/` |  |
+| Terminal | `fix-webm-duration` | `/terminal/fix-webm-duration/` | `/terminal/fix-webm-duration/` |  |
+| Terminal | `gates` | `/terminal/gates/` | `/terminal/gates/` |  |
+| Terminal | `help` | `/terminal/6a95b5365235d/` | `/terminal/6a95b6163e0df/` | **≠** |
+| Terminal | `process-queue` | `/terminal/process-queue/` | `/terminal/process-queue/` |  |
+| Terminal | `route-inventory` | `/terminal/route-inventory/` | `/terminal/route-inventory/` |  |
+| Terminal | `run-cronjobs` | `/terminal/run-cronjobs/` | `/terminal/run-cronjobs/` |  |
+| Terminal | `scan-invalid-utf8` | `/terminal/scan-invalid-utf8/` | `/terminal/scan-invalid-utf8/` |  |
+| Terminal | `scan-missing-lang` | `/terminal/scan-missing-lang/` | `/terminal/scan-missing-lang/` |  |
+| Terminal | `scheme-create` | `/terminal/scheme-create/` | `/terminal/scheme-create/` |  |
+| Terminal | `scheme-drop` | `/terminal/scheme-drop/` | `/terminal/scheme-drop/` |  |
+| Terminal | `snapshot` | `/terminal/snapshot/` | `/terminal/snapshot/` |  |
+| Terminal | `sync-otp-records` | `/terminal/sync-otp-records/` | `/terminal/sync-otp-records/` |  |
+| Terminal | `verify-integrity` | `/terminal/verify-integrity/` | `/terminal/verify-integrity/` |  |
+
+### PHPStan, con su reparto
+
+**749 → 747**, declarado en el baseline: `0 arreglos + 0 supresiones + 2 murieron + 0
+destapados`. Los dos estaban DENTRO de métodos borrados —`TerminalController:70`, que la
+instrucción predijo, y `DataImportExportUtilityController:465`—.
+
+**El método importa aquí**: aparecen 19 tripletas desaparecidas y 17 nuevas, pero **17 de las 19
+son el mismo error con la línea desplazada** por el borrado. Contar solo las desapariciones
+habría declarado «19 murieron», que es falso.
+
+### Una cifra rancia, corregida al pasar
+
+El docblock de `_allowedRoute` en el trait decía «los 32 módulos que hoy lo declaran usan
+`private`». Eran **11**, y desde AI son **41**: 11 con regla y 30 con plantilla.
