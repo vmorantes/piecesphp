@@ -176,9 +176,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
     echoTerminal('[5/5] Las tres listas `IN (...)` siguen validando el dominio');
 
-    //`WhereItem::toString()` imprime el valor en crudo para `IN`, así que aquí no hay marcador
-    //que comprobar: lo que cierra el agujero es la VALIDACIÓN, y eso se comprueba en la fuente.
-    //Si alguien la quita, el censo seguiría diciendo lo mismo y solo esto se pondría rojo.
+    //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
+    //censo. Por eso esto mira la FUENTE. Ver T152.
     $raizSrc = rtrim(str_replace('\\', '/', basepath('')), '/');
     $validaciones = [
         'App/Locations/Controllers/City.php' => ["array_map('intval', \$ids)"],
