@@ -86,6 +86,19 @@ const FAMILIAS = [
 ];
 
 /**
+ * LA NOVENA FAMILIA, QUE NO ES UNA LLAMADA.
+ *
+ * `DataTablesHelper::process()` recibe un ARRAY LITERAL, y tres de sus claves son fragmentos de
+ * SQL que el helper concatena tal cual: `"($where_string) AND $where"` (linea 277) y sus dos
+ * gemelas. Como no hay `->where(` en el sitio, las ocho familias de llamada NO LAS VEN — y por
+ * eso el bloque AN encontro a mano cuatro concatenaciones que el censo daba por inexistentes.
+ *
+ * Se busca la CLAVE, no la llamada que la envuelve: asi tambien entran los envoltorios como
+ * `dataTablesResponse()` de `config/functions.php`, que reenvia el array sin ser `process()`.
+ */
+const CLAVES_FRAGMENTO = ['where_string', 'having_string', 'group_string'];
+
+/**
  * LOS OPERADORES QUE NO SE PREPARAN NI DENTRO DE UN SEGMENTO.
  *
  * `WhereItem::NOT_ALIAS_OPERATORS` deja a estos tres SIN generar marcador, y `toString()`
@@ -505,6 +518,66 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
                             'arg' => $argumento, 'veredicto' => $veredicto,
                             'llamada' => $metodoLlamado, 'traza' => $traza];
         }
+
+        //──── LA NOVENA FAMILIA: la clave de un array, no una llamada ───────────────────────
+        for ($i = $metodo['ini']; $i <= $metodo['fin']; $i++) {
+            if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_CONSTANT_ENCAPSED_STRING) {
+                continue;
+            }
+            $clave = trim($tokens[$i][1], "'\"");
+            if (!in_array($clave, CLAVES_FRAGMENTO, true)) {
+                continue;
+            }
+            $flecha = $i + 1;
+            while (is_array($tokens[$flecha] ?? null) && $tokens[$flecha][0] === T_WHITESPACE) {
+                $flecha++;
+            }
+            if (!is_array($tokens[$flecha] ?? null) || $tokens[$flecha][0] !== T_DOUBLE_ARROW) {
+                continue;
+            }
+            //EL VALOR LLEGA HASTA LA COMA DE PRIMER NIVEL, o hasta que se cierra el array que lo
+            //contiene. Una coma dentro de una funcion anonima —y aqui las hay— no separa nada.
+            $prof = 0;
+            $fin = $flecha;
+            for ($j = $flecha + 1; $j <= $metodo['fin']; $j++) {
+                $t = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+                if ($t === '(' || $t === '[' || $t === '{') {
+                    $prof++;
+                }
+                if ($t === ')' || $t === ']' || $t === '}') {
+                    if ($prof === 0) {
+                        break;
+                    }
+                    $prof--;
+                }
+                if ($t === ',' && $prof === 0) {
+                    break;
+                }
+                $fin = $j;
+            }
+            $valor = trim(texto($tokens, $flecha + 1, $fin));
+            $linea = $tokens[$i][2];
+
+            //NO HAY SEGMENTO PREPARADO QUE VALGA AQUI: es un fragmento de SQL en crudo, y el
+            //helper lo interpola con `"($where_string) AND $where"`. La lista de seguros va vacia.
+            if ($valor === '' || (preg_match('/^([\'"]).*\1$/s', $valor) === 1 && mb_strpos($valor, '$') === false)
+                || (!tieneFuente($valor) && mb_strpos($valor, '$') === false)) {
+                $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                                'arg' => $valor, 'veredicto' => 'DESCARTADO',
+                                'llamada' => $clave, 'traza' => ['literal constante o sin variables']];
+                continue;
+            }
+
+            $vistas = [];
+            [$veredicto, $traza] = resuelve($valor, $mapa, $sucios, $vistas, []);
+            if ($veredicto === 'DESCARTADO' && $hayExtract) {
+                $veredicto = 'REVISAR';
+                $traza[] = 'el método usa extract(): el mapa de asignaciones está incompleto';
+            }
+            $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                            'arg' => $valor, 'veredicto' => $veredicto,
+                            'llamada' => $clave, 'traza' => $traza];
+        }
     }
     return $hallazgos;
 }
@@ -569,6 +642,25 @@ $canarios = [
     ['where · un WhereSegment con NOT_IN_OPERATOR y valor de la petición',
         '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
         . ' $m->where(new WhereSegment([new WhereItem("type", WhereItem::NOT_IN_OPERATOR, "({$t})")])); } }',
+        'CONFIRMADO'],
+    //LA NOVENA FAMILIA. La cara positiva copia la forma de `PublicationsController::dataTables`;
+    //la negativa es un fragmento SIN NADA DE LA PETICION, que es lo unico que este instrumento
+    //sabe reconocer como limpio. Ver la nota sobre `Organizations:1206` en T154.
+    ['having_string · un fragmento compuesto con la petición',
+        '<?php class C { public function dataTables($request) { $v = $request->getQueryParam("visibility");'
+        . ' $having = []; if ($v !== null) { $having[] = "visibility = {$v}"; }'
+        . ' $havingString = trim(implode(" ", $having));'
+        . ' return DataTablesHelper::process(["request" => $request, "having_string" => $havingString]); } }',
+        'CONFIRMADO'],
+    ['where_string · un fragmento que NO toca la petición',
+        '<?php class C { public function dataTables($request) { $t = M::TABLE;'
+        . ' $whereString = "{$t}.status = " . M::ACTIVE;'
+        . ' return DataTablesHelper::process(["request" => $request, "where_string" => $whereString]); } }',
+        'DESCARTADO'],
+    //`group_string` da CERO en el arbol. Un cero sin canario no es un resultado (LEY 16).
+    ['group_string · un fragmento compuesto con la petición',
+        '<?php class C { public function dataTables($request) { $g = $request->getQueryParam("g");'
+        . ' return DataTablesHelper::process(["request" => $request, "group_string" => "t.{$g}"]); } }',
         'CONFIRMADO'],
     ['where · el mismo WhereSegment con un operador que SÍ prepara',
         '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
@@ -645,10 +737,10 @@ printf("              de dominio escrita en files/dev/sql-concat-declared.json)\
 //EL REPARTO POR FAMILIA. Sin el, un total quieto puede esconder que una familia entera dejo
 //de mirarse: el agregado no distingue «limpia» de «no vista». LEY 15.
 echo "REPARTO POR FAMILIA:\n";
-printf("  %-10s %7s %11s %10s %8s %11s\n", '', 'halladas', 'confirmado', 'declarado', 'revisar', 'descartado');
-foreach (array_keys(FAMILIAS) as $f) {
+printf("  %-14s %7s %11s %10s %8s %11s\n", '', 'halladas', 'confirmado', 'declarado', 'revisar', 'descartado');
+foreach (array_merge(array_keys(FAMILIAS), CLAVES_FRAGMENTO) as $f) {
     $cuenta = static fn (string $v): int => count(array_filter($por[$v], static fn (array $h): bool => $h['llamada'] === $f));
-    printf("  %-10s %7d %11d %10d %8d %11d\n", $f,
+    printf("  %-14s %7d %11d %10d %8d %11d\n", $f,
         $cuenta('CONFIRMADO') + $cuenta('DECLARADO') + $cuenta('REVISAR') + $cuenta('DESCARTADO'),
         $cuenta('CONFIRMADO'), $cuenta('DECLARADO'), $cuenta('REVISAR'), $cuenta('DESCARTADO'));
 }
@@ -674,6 +766,14 @@ foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR'] as $v) {
 echo "SU COTA, Y SE DICE:\n";
 echo "  · MIRA las 8 familias del reparto de arriba. En `join` mira SOLO el `\$on`; la TABLA,\n";
 echo "    que es el primer argumento, también se concatena y aquí NO se mira.\n";
+echo "  · LA NOVENA FAMILIA busca las CLAVES `where_string`, `having_string` y `group_string`\n";
+echo "    en cualquier array literal, no solo en `DataTablesHelper::process(`. Del resto de\n";
+echo "    claves de `\$options`, LEÍDAS en `process()`, TRES acaban también en el SQL y aquí\n";
+echo "    NO se miran, porque son IDENTIFICADORES:\n";
+echo "      `select_fields` .. `\$limit->select(\$select_fields)` ............... línea 333/336\n";
+echo "      `columns_order` .. nombres de columna a generateOrderBy/generateHaving\n";
+echo "      `custom_order` ... `\$order_by[] = \$table . \"\$column \$direction\"` .... línea 1254,\n";
+echo "                         y ahí la DIRECCIÓN no pasa por el filtro ASC/DESC del `\$order`\n";
 echo "  · LAS FAMILIAS QUE SIGUEN SIN CENSAR, leídas en el paquete y no supuestas:\n";
 echo "      `prepare(\$sql)` ......... SQL entero en crudo ................ 71 llamadas en src/app\n";
 echo "      `select(\$campos)` ....... `\$this->selectQuery = trim(\$fields)` . 194 llamadas\n";

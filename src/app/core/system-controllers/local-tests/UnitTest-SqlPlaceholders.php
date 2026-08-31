@@ -157,8 +157,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 $seccion = '';
                 continue;
             }
-            if ($seccion === 'CONFIRMADO' && mb_strpos($linea, 'DocumentsController.php') !== false) {
-                $reaparecidas[] = 'DocumentsController';
+            //POR MÉTODO, NO POR ARCHIVO: `dataTablesExplorer` es otro sujeto y ponía roja la
+            //puerta sin que nadie hubiera roto `searchDropdown`. Ver T154.
+            if ($seccion === 'CONFIRMADO' && mb_strpos($linea, 'DocumentsController.php') !== false
+                && mb_strpos($linea, 'searchDropdown()') !== false) {
+                $reaparecidas[] = 'DocumentsController::searchDropdown';
             }
         }
 

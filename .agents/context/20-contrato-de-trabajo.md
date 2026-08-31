@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-31, tras el BLOQUE AL.**
+**Ultima actualizacion: 2026-08-31, tras la PARADA de AN.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -926,6 +926,129 @@ Y el metodo de PHPStan, afinado otra vez: comparar por `(archivo, LINEA, mensaje
 muertas y 3 nacidas» —un mismo mensaje repetido en dos lineas del mismo archivo que el diccionario
 colapsaba—. Por **multiconjunto de `(archivo, mensaje)` ignorando la linea**: 747 contra 747, cero
 muertas, cero nacidas, 24 desplazadas.
+
+### AM — Y EL HALLAZGO NO ERA SQL: ERA UN FILTRO QUE SE PISABA
+
+Buscando concatenaciones, el CODER encontro un **defecto funcional real** en
+`UsersController::searchDropdown`. Verificado por ARQUITECTO en `HEAD~1`:
+
+```
+310:  $model->having("status != " . STATUS_USER_DELETED); //No mostrar usuarios marcados eliminados
+330:  $model->having($having);                            // la busqueda
+```
+
+**`ActiveRecord::having()` SUSTITUYE, no acumula** (`ActiveRecord.php:485`,
+`$this->havingSegment = $having`). Al escribir cualquier texto en el desplegable, la segunda
+llamada borraba la primera y **reaparecian los usuarios marcados como eliminados** — con el
+comentario justo encima afirmando lo contrario.
+
+> **Un comentario que afirma un filtro no es el filtro.** Es LEY 24 en la naturaleza: la unica
+> comprobacion que existia era una frase.
+
+Arreglado moviendo `status != DELETED` al `where()` —es columna real, `fullname` es alias— y
+juntando ambos criterios en un solo `WhereSegment`.
+
+### LA DECISION DEL CODER SOBRE LA CONSTANTE: VALIDADA, y ARQUITECTO se equivoco
+
+La instruccion decia `UsersModel::TYPES_USERS`. **Es un mapa de ETIQUETAS** y tiene
+`TYPE_USER_GOOGLE_PLAY` (50) **comentado** en la linea 124. El CODER uso
+`TYPES_USER_PRIORITY`, el unico que enumera los siete.
+
+**La evidencia es mas fuerte de lo que el CODER dijo**: `config/roles.php:111-112` registra el rol
+50 y saca su nombre de `UsersModel::TYPES_USERS[TYPE_USER_GOOGLE_PLAY] ?? null` — **es decir, hay
+un rol registrado cuyo nombre resuelve a `null`**, porque la entrada esta comentada. El 50 es real
+en `roles.php`, en `TYPES_USER_DONT_REQUIRE_ORGANIZATION` y en `TYPES_WITH_EXTERNAL_LOGIN`.
+
+Y el razonamiento del CODER sobre la DIRECCION del fallo es el correcto: como `ignoreTypes`
+EXCLUYE, dejar el 50 fuera de la lista blanca habria hecho que el desplegable mostrara **MAS**
+usuarios. **Fallar hacia el lado que no toca.** Igual que `is_numeric` antes de `intval`, porque
+`intval('abc')` da 0 y 0 es `TYPE_USER_ROOT`.
+
+**Pendiente nuevo**: el rol 50 con nombre `null` en `roles.php`.
+
+### DOS DEFECTOS DEL INSTRUMENTO, encontrados provocando
+
+1. **`extract()` rompe el mapa de variables.** `DataTablesHelper::process` hace
+   `extract($parameters_expected->getValues())` (lineas 199 y 774): crea variables que ningun
+   token asigna, y `groupBy($group_string)` salia LIMPIO. Movio 2 llamadas.
+2. **El segmento que no salva.** Al meter el `NOT IN` en un `WhereSegment`, el censo lo dio por
+   limpio y **la cifra bajo sola**, con el `NOT IN` imprimiendose en crudo igual.
+   **Un instrumento que premia envolver el problema es peor que no tenerlo.** La unidad correcta
+   no es el argumento ni el metodo: es la CADENA DE VARIABLES.
+3. **Declarar por `archivo::metodo` dejaba entrar gratis** una concatenacion NUEVA en un metodo ya
+   declarado. Ahora cada entrada declarada lleva su `count`. **Lo vio provocando, no deduciendo**,
+   y la provocacion salio VERDE — que es un hallazgo, no un alivio.
+
+### LA COTA, OTRA VEZ MAS ANCHA — y ARQUITECTO la dio corta
+
+ARQUITECTO dijo 21 llamadas; son **24**: `leftJoin` (2) e `innerJoin` (1) reenvian a `join()` y
+comparten su rama de string. Van cuatro veces que el universo de ARQUITECTO sale corto.
+
+Trinquete: **CONFIRMADO 6 -> 5** (los 5 son `DataTablesHelper::process`), DECLARADO 3 -> 4,
+REVISAR 92 -> 99, DESCARTADO 95 -> 111, llamadas 196 -> 219.
+
+Sin mirar todavia, y **son IDENTIFICADORES, no valores** —piden lista blanca, no marcador—:
+`prepare($sql)` 71, `select($campos)` 194, el `$col`/`$cols` de `get()`, `setTable()` 6. El
+`LIMIT` NO entra: sale de dos `?int`, **cerrado por tipo**.
+
+### AN — PARADA CORRECTA, Y LA CLASIFICACION A/B DE ARQUITECTO ERA FALSA COMO HECHO
+
+ARQUITECTO escribio: *«`where_string`, `having_string`, `group_string` los pone la CONTROLADORA.
+No son de la peticion: son del programador.»* **Cierto como CONTRATO, FALSO COMO HECHO.**
+Verificado por ARQUITECTO linea a linea, no leido del reporte:
+
+| sitio | fuente | sumidero |
+| :-- | :-- | :-- |
+| `Country::countriesDataTables` | `:287` `getQueryParam('region')`, solo `trim` | `:330` `"UPPER(region) = UPPER('{$region}')"` |
+| `SystemApprovalsController::dataTables` | `:436` `getQueryParam('referenceAlias')` | `:482` `"{$table}.referenceAlias = '{$referenceAliasFilter}'"` |
+| idem | `:438` `getQueryParam('elapsedDays')` | `:488` `"elapsedDays >= {$elapsedDaysFilter}"` **SIN COMILLAS** |
+| `PublicationsController::dataTables` | `:1233` `getQueryParam('visibility')`, **cero validacion** | `:1269` `"visibility = {$visibility}"` **SIN COMILLAS** |
+
+Dos no necesitan ni un apostrofo. Y `elapsedDays` se valida como **cadena no vacia** y se usa como
+**numero**. **Van cinco veces que el universo de ARQUITECTO sale corto.**
+
+El `region` de `countriesDataTables` es **de los dos**: la instruccion de AL mandaba arreglar
+`Country::search` y ARQUITECTO nunca pregunto si `region` aparecia en otro metodo del mismo archivo.
+
+### `$order` YA ESTABA CERRADO — y no tocarlo vale tanto como un arreglo
+
+`DataTablesHelper:1223` hace `$columns_order[$column_index] ?? null` y la 1225 descarta el nulo:
+**el indice del visitante NUNCA llega a la cadena**, llega el nombre que puso la controladora. Y
+la 1222 colapsa la direccion con un ternario que solo devuelve `'ASC'` o `'DESC'`. Tres copias del
+mapeo (496, 992, 1217), las tres identicas. El censo lo marcaba CONFIRMADO **porque su traza no
+cruza de metodo — es la cota funcionando, no un fallo.**
+
+### EL HALLAZGO MAS PROFUNDO: EL UNICO ESCAPADO DEL FRAMEWORK DEPENDE DEL SERVIDOR AJENO
+
+`escapeString()` (`AppHelpers.php`) es **`addslashes(stripslashes($str))`**, y `generateHaving`
+lo usa para meter el valor de busqueda en la cadena.
+
+- El juego de caracteres es `utf8mb4` en las dos ramas de `config/database.php` (31 y 38): **la
+  via multibyte no aplica**. Medido.
+- **La aplicacion NO FIJA `sql_mode` NUNCA** —solo aparece en `Export/Plugins/SqlFormat.php`, que
+  es otra cosa—. Con `NO_BACKSLASH_ESCAPES` en el servidor, `addslashes` produce `\"` y **la
+  comilla sigue cerrando la cadena**.
+- Y `%` y `_` pasan crudos: el visitante controla el patron del `LIKE`.
+
+> **Un framework que se clona a destinos que no controlas y cuyo unico escapado depende de un
+> ajuste del destino QUE NO DECLARA NI COMPRUEBA, es la definicion de embarcar una trampa.**
+
+### DECISION DE ARQUITECTO: EL INSTRUMENTO PRIMERO, y no por la razon del CODER
+
+El CODER propuso la novena familia por LEY 11. La razon buena es otra y es mas fuerte:
+**«cuatro» es un CONTEO A MANO, no un universo medido.** Los encontro leyendo 19 controladoras.
+Si el censo no ve esa forma, no sabemos si son cuatro. Arreglar cuatro y construir el instrumento
+despues arriesga declarar cerrado lo que no lo esta. **Primero el instrumento, luego la cifra,
+luego el arreglo.**
+
+Y el CODER hizo bien en NO tocar `sql-concat-baseline.json`: escribir un 9 que ningun instrumento
+produce es exactamente lo que LEY 5 prohibe.
+
+### Anotado: un archivo modificado que el reporte no menciona
+
+`source-docs/project/docs/environments/content/vps/index.md`, +17 lineas de avisos de seguridad
+sobre el login de root por SSH. **No es de AN.** El reporte dijo «solo `20-contrato-de-trabajo.md`»
+y eran dos. No cambia nada del bloque, pero un reporte del estado del arbol se da COMPLETO.
 
 ### Abierto, sin decidir
 

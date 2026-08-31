@@ -8,21 +8,22 @@
     ],
     "medido": {
         "fecha": "2026-08-31",
-        "bloque": "AK; recontado en AL; ampliado a 8 familias en AM",
+        "bloque": "AK; recontado en AL; 8 familias en AM; novena familia en AÑ",
         "herramienta": "bin/censo-sql-concatenado",
         "universo": "archivos .php bajo `src/app`, excluyendo /vendor/ /node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
         "archivos": 675,
-        "llamadas_miradas": 219,
-        "canario": "17 caras sobre las 8 familias, dos por familia como minimo. Incluye las tres que separan casos que se confunden: un `orderBy([...])` con la peticion dentro SALE aunque el mismo array en `where` no; un `groupBy($v)` en un metodo con `extract()` sale a REVISAR; y un `WhereSegment` que lleva `NOT_IN_OPERATOR` NO se da por preparado. Si alguna falla, el censo no se hace.",
+        "llamadas_miradas": 250,
+        "canario": "20 caras. Dos por familia como minimo, y las que separan casos que se confunden: un `orderBy([...])` con la peticion dentro SALE aunque el mismo array en `where` no; un `groupBy($v)` en un metodo con `extract()` sale a REVISAR; un `WhereSegment` con `NOT_IN_OPERATOR` NO se da por preparado; y en la novena familia, un `having_string` compuesto con la peticion SALE mientras uno que no la toca NO. `group_string` da CERO en el arbol y por eso lleva canario propio (LEY 16).",
         "cota_declarada": "la traza NO cruza de metodo ni de clase: una propiedad, un parametro o el retorno de otro metodo caen en REVISAR A MANO, nunca en DESCARTADO. En `join` se mira SOLO el `$on`; la tabla, que es el primer argumento, tambien se concatena y NO se mira.",
-        "familias_miradas": "`where`, `having`, `orderBy`, `groupBy`, `join`, `leftJoin`, `rightJoin` e `innerJoin`. El reparto por familia se imprime siempre: un total quieto puede esconder que una familia entera dejo de mirarse.",
-        "familias_sin_censar": "`prepare($sql)` (71 llamadas), `select($campos)` (194), `get($v,$col,$cols)`, `setTable($tabla)` (6) y `rowCount($columna)` (0). Son IDENTIFICADORES, no valores de comparacion: no se arreglan con marcador sino con lista blanca, y es otro trabajo. El `LIMIT` NO esta en la lista: sale de dos parametros `?int` de `_executeSelect()` y esta cerrado por tipo."
+        "familias_miradas": "Las OCHO de llamada —`where`, `having`, `orderBy`, `groupBy`, `join`, `leftJoin`, `rightJoin`, `innerJoin`— mas la NOVENA, que no es una llamada: las claves `where_string`, `having_string` y `group_string` dentro de un array literal. El reparto por familia se imprime siempre.",
+        "familias_sin_censar": "`prepare($sql)` (71 llamadas), `select($campos)` (194), `get($v,$col,$cols)`, `setTable($tabla)` (6) y `rowCount($columna)` (0). Son IDENTIFICADORES, no valores de comparacion: no se arreglan con marcador sino con lista blanca, y es otro trabajo. El `LIMIT` NO esta en la lista: sale de dos parametros `?int` de `_executeSelect()` y esta cerrado por tipo.",
+        "claves_de_options_sin_censar": "LEIDAS en `process()`: `select_fields` (linea 333/336), `columns_order` y `custom_order` (linea 1254) tambien acaban en el SQL, pero como IDENTIFICADORES. En `custom_order` la DIRECCION no pasa por el filtro ASC/DESC que si se aplica al `$order` de la peticion."
     },
     "cifras": {
-        "confirmado": 5,
+        "confirmado": 13,
         "declarado": 4,
-        "revisar": 99,
-        "descartado": 111
+        "revisar": 100,
+        "descartado": 133
     },
     "_historia": [
         "AJ: 9 con el censo mirando SOLO `->where(`. Se arregló `Country::search()` y quedaron 8.",
@@ -35,6 +36,9 @@
         "AM: el censo pasa a mirar 8 familias. `leftJoin`, `rightJoin` e `innerJoin` NO estaban en la cota que se habia escrito (16+4+1=21): reenvian a `join()` y comparten su rama de string, asi que las llamadas sin censar eran 24, no 21.",
         "AM: DOS FALSOS DESCARTADO corregidos en el instrumento. (1) `extract()` deja el mapa de asignaciones incompleto y asi salia limpio el `groupBy($group_string)` de `DataTablesHelper`; ahora degrada a REVISAR. (2) un `WhereSegment` que lleve `IN`/`NOT IN`/`FIND_IN_SET` NO prepara nada, y sin esta correccion arreglar `UsersController` habria BORRADO su hallazgo en vez de declararlo.",
         "AM: `UsersController::searchDropdown`. El `having` de la busqueda pasa a `HavingSegment` con seis `LIKE` preparados: 6 -> 5 CONFIRMADO. El `where` sigue crudo porque es `NOT IN`, y se DECLARA con su validacion de dominio: 3 -> 4 DECLARADO.",
-        "AM: de las 24 llamadas de las familias nuevas, UNA sale CONFIRMADO —`DataTablesHelper::process:353`, que tiene bloque propio—. Las otras 5 de REVISAR se clasifican a mano en el reporte de T153 y ninguna llega a la peticion."
+        "AM: de las 24 llamadas de las familias nuevas, UNA sale CONFIRMADO —`DataTablesHelper::process:353`, que tiene bloque propio—. Las otras 5 de REVISAR se clasifican a mano en el reporte de T153 y ninguna llega a la peticion.",
+        "AÑ: EL NUMERO SUBE ANTES DE BAJAR, y sube porque el instrumento aprendio a ver, no porque nadie rompiera nada. La novena familia —las claves `where_string`/`having_string`/`group_string` de un array literal— destapa OCHO concatenaciones que las familias de llamada no podian ver: no hay `->where(` en el sitio, sino una pareja clave-valor que `DataTablesHelper` interpola despues. 5 -> 13 CONFIRMADO.",
+        "AÑ: de esas 8, CUATRO no validan nada —`Country::countriesDataTables` (region), `SystemApprovalsController::dataTables` (referenceAlias y elapsedDays) y `PublicationsController::dataTables` (visibility)— y CUATRO si validan pero el censo no puede verlo, porque mide el MECANISMO: `State` y `Users` con `Validator::isInteger`, `Documents` con `isInteger`, y `Organizations` con `in_array(...) ? : -1`. Esas cuatro son candidatas a DECLARADO, no a arreglo.",
+        "AÑ: `group_string` da CERO llamadas en el arbol. Solo aparece dentro de `DataTablesHelper`; ninguna controladora lo pasa. El cero lleva canario."
     ]
 }

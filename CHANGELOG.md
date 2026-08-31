@@ -279,6 +279,21 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Herramientas — el censo de SQL ve una novena familia, y la cifra sube de 5 a 13
+
+`DataTablesHelper::process()` recibe un **array literal**, y tres de sus claves —`where_string`,
+`having_string` y `group_string`— son fragmentos de SQL que el helper interpola. No hay `->where(`
+en el sitio, así que las ocho familias de llamada nunca las vieron. El censo busca ahora la clave.
+
+**La cifra sube porque el instrumento aprendió a ver, no porque nadie rompiera nada:** las ocho
+concatenaciones que aparecen llevaban ahí desde antes. Cuatro no validan nada
+—`Country::countriesDataTables`, `SystemApprovalsController::dataTables` (dos) y
+`PublicationsController::dataTables`— y cuatro sí, pero con validaciones que el censo no puede ver
+porque mide el mecanismo. Ninguna de las rutas es pública.
+
+Queda dicho además qué otras claves de `$options` acaban en el SQL —`select_fields`,
+`columns_order` y `custom_order`—, las tres como identificadores.
+
 ## Corregido — el desplegable de usuarios volvía a mostrar los eliminados al buscar
 
 `ActiveRecord::having()` **sustituye** el segmento, no lo acumula. `UsersController::searchDropdown`

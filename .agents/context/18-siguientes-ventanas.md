@@ -16044,3 +16044,138 @@ de sección estaban desincronizados desde antes (`[1/3]`, `[3/4]`, `[4/5]`) y se
   lista blanca de columnas que este bloque dejó sin sujeto.
 - Las **cinco familias de identificadores** sin censar, nombradas arriba.
 - El hueco del paquete `database`: parametrizar `IN` es su propio bloque.
+
+---
+
+## T154 · AN + AÑ · LA NOVENA FAMILIA, Y POR QUÉ EL NÚMERO SUBE ANTES DE BAJAR
+
+**Bloques AN y AÑ.** AN terminó en parada: leyendo las 19 controladoras a mano aparecieron
+cuatro concatenaciones que el censo no veía. AÑ construye el instrumento que las ve, y el
+instrumento encuentra **ocho**.
+
+### `$order` está cerrado, y no se tocó (AN, PASO 1)
+
+Las tres preguntas, con línea exacta de `DataTablesHelper.php`:
+
+| Pregunta | Respuesta |
+| :-- | :-- |
+| ¿el índice se comprueba contra `columns_order`? | **Sí**, y de la única forma que sirve: no lo compara, lo usa **como clave**. `1223` → `$columns_order[$column_index] ?? null`; `1225` → `if (!is_null($column_name))`. Lo que llega al SQL es `$name`, que sale de `columns_order`. |
+| ¿la dirección se compara o se interpola? | **Se compara.** `1222` → `trim(mb_strtoupper($d)) == 'ASC' ? 'ASC' : 'DESC'`. Un ternario que solo devuelve una de dos constantes. |
+| ¿y si falla? | no-array: `1214` salta el bucle y devuelve `''`. Índice inexistente: `?? null` y el `if` lo descarta. Vacío: el `foreach` no itera. |
+
+**Hay TRES copias del mapeo** —`496`, `992` y `1217`—, comprobadas las tres: validan idéntico,
+y las dos primeras ni siquiera llegan al SQL (ordenan en PHP).
+
+> El censo lo marcaba CONFIRMADO porque **su traza no cruza de método** —cota declarada—: ve
+> `$order_by = self::generateOrderBy(…, $order, …)` y no puede saber que el valor se lava
+> dentro. Es la cota funcionando, no un fallo.
+
+### La novena familia, que no es una llamada (AÑ, PASO 1)
+
+`DataTablesHelper::process()` recibe un **array literal**, y tres de sus claves son fragmentos
+de SQL que el helper interpola: `"($where_string) AND $where"` (línea 277) y sus dos gemelas.
+Como no hay `->where(` en el sitio, las ocho familias de llamada **no las ven**.
+
+El censo busca ahora la **clave**, no la llamada que la envuelve — así entran también los
+envoltorios como `dataTablesResponse()` de `config/functions.php`.
+
+**Canario:** 20 caras. La positiva copia la forma de `PublicationsController::dataTables`; la
+negativa es un fragmento que no toca la petición. `group_string` da **cero** en el árbol y por
+eso lleva canario propio (LEY 16).
+
+### El canario negativo que pedía la instrucción no se pudo usar · >>> se reporta <<<
+
+La instrucción de AÑ pedía que `Organizations:1206` —con su `in_array(...) ? $status : -1`—
+**no** saliera marcado, y que si salía, el censo estaría condenando validaciones buenas.
+
+**Sale marcado, y es correcto.** Medido: `OrganizationsController.php:1191` →
+`$status = $request->getQueryParam('status', null)`, y `1206` lo concatena. El valor **viene de
+la petición y se concatena**; el `in_array` cierra el RIESGO, no el MECANISMO. Desde T152 el
+instrumento mide el mecanismo, y ésa es la razón de que existan los DECLARADO y de que la suite
+compruebe las validaciones en la fuente. Un censo que aprendiera a reconocer `in_array(...) ? :`
+como saneante estaría adivinando.
+
+El canario negativo se escribió, por tanto, con un fragmento **limpio en el mecanismo**.
+
+### El número: OCHO, no cuatro · >>> PARADA DEL PASO 2 <<<
+
+| | llamadas | CONFIRMADO | DECLARADO | REVISAR | DESCARTADO |
+| :-- | --: | --: | --: | --: | --: |
+| las 8 familias de llamada | 219 | 5 | 4 | 99 | 111 |
+| `where_string` | 21 | 5 | 0 | 1 | 15 |
+| `having_string` | 10 | 3 | 0 | 0 | 7 |
+| `group_string` | 0 | 0 | 0 | 0 | 0 |
+| **total** | **250** | **13** | **4** | **100** | **133** |
+
+Las **ocho** de la novena familia, separadas por lo que de verdad las distingue:
+
+**Cuatro que NO validan nada** — son las que AN halló a mano:
+
+| Sitio | Fuente | Sumidero |
+| :-- | :-- | :-- |
+| `Country::countriesDataTables` | `Country.php:287` `getQueryParam('region')`, solo `trim` | `:330` `"UPPER(region) = UPPER('{$region}')"` — **entre comillas simples** |
+| `SystemApprovalsController::dataTables` | `:436-437` `getQueryParam('referenceAlias')` | `:482` `"referenceAlias = '{$…}'"` — **entre comillas simples** |
+| `SystemApprovalsController::dataTables` | `:438-439` `getQueryParam('elapsedDays')` | `:488` `"elapsedDays >= {$…}"` — **sin comillas**; y se valida como CADENA para usarse como NÚMERO |
+| `PublicationsController::dataTables` | `:1233` `getQueryParam('visibility')`, **cero validación** | `:1269` `"visibility = {$visibility}"` — **sin comillas** |
+
+Las tres rutas son **autenticadas** (`requireLogin: true` con lista de roles).
+
+**Cuatro que SÍ validan** y el censo no puede verlo, porque mide el mecanismo:
+
+| Sitio | Qué lo cierra |
+| :-- | :-- |
+| `State::statesDataTables:300` | `:258` `Validator::isInteger($country) ? (int) : -1` |
+| `UsersController::dataTablesRequestUsers:222` | `:179` `Validator::isInteger($filterStatus) ? (int) : null` |
+| `DocumentsController::dataTablesExplorer:927` | `:891` `Validator::isInteger($FIELD) ? (int) : null` |
+| `OrganizationsController::dataTables:1242` | `:1206` `in_array($status, array_keys(STATUSES)) ? $status : -1` |
+
+> **Mi «cuatro» de AN era un conteo de RIESGO; el trece del censo es un conteo de MECANISMO.**
+> Los dos son correctos sobre cosas distintas, y por eso el instrumento iba primero.
+
+### La cota, contestada leyendo `process()`
+
+Esta forma **no es la única de su clase**. De las quince claves de `$options`, tres más acaban
+en el SQL — y las tres como **identificadores**, que es la familia excluida de estos bloques:
+
+- `select_fields` → `$limit->select($select_fields)`, líneas `333` y `336`.
+- `columns_order` → nombres de columna hacia `generateOrderBy`/`generateHaving`.
+- `custom_order` → `$order_by[] = $table . "$column $direction"`, línea `1254`. **Y ahí la
+  dirección NO pasa por el filtro `ASC`/`DESC`** que sí se aplica al `$order` de la petición.
+
+Las demás son callables, banderas o listas de comparación, y no se concatenan.
+
+### `escapeString`, anotado y no arreglado (AN, PASO 4)
+
+`generateHaving` mete el valor de búsqueda en la cadena:
+
+```php
+:1102  $search_value = ... trim($search['value']);          // de la petición
+:1152  $_having_string = '(UPPER({FIELD_NAME}) LIKE "%{SEARCH_VALUE}%")';
+:1162  y :1174   escapeString($search_value)
+```
+
+`escapeString()` es `addslashes(stripslashes($str))` — `AppHelpers.php:2805`. **No está roto
+hoy**, y se midió antes de decirlo: el juego de caracteres es `utf8mb4` en las dos ramas de
+`config/database.php` (`31` y `38`), así que la vía multibyte no aplica. Pero **la aplicación
+nunca fija `sql_mode`**: con `NO_BACKSLASH_ESCAPES` en el destino, `addslashes` produce `\"` y
+la comilla sigue cerrando la cadena. Se sostiene sobre un ajuste de un servidor que este
+framework **no declara ni comprueba**, y es un framework que se clona. Además `%` y `_` pasan
+crudos: el visitante controla el patrón del `LIKE`.
+
+`escapeString` tiene **3 consumidores** en el árbol, nombrados y no tocados:
+`DataTablesHelper.php:1162`, `DataTablesHelper.php:1174` y su propia declaración.
+
+### El trinquete sube, y por qué
+
+`CONFIRMADO` pasa de **5 a 13**. **Sube porque el instrumento aprendió a ver, no porque nadie
+rompiera nada** — las ocho llevaban ahí desde antes de esta campaña. Bajar es el trabajo del
+bloque siguiente: cuatro por validación de dominio y cuatro por declaración.
+
+### Lo que queda abierto
+
+- **Las cuatro sin validar**, con su arreglo por dominio, y las **cuatro validadas** con su
+  entrada declarada y su `count`.
+- `generateHaving` a `HavingSegment` con `UPPER({%VALUE%})`.
+- El docblock de `process` diciendo dónde está la frontera del contrato. **Va después de
+  arreglarlas**: escribirlo mientras cuatro sitios lo incumplen sería documentar una ficción.
+- `select_fields`, `columns_order` y `custom_order`, con las cinco familias de identificadores.
