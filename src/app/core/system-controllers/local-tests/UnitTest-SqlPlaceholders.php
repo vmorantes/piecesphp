@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/3] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/6] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/3] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/6] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/4] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/6] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/5] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/6] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -174,7 +174,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/5] Las tres listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/6] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -194,6 +194,57 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 $codigo === '' ? 'no se pudo leer el archivo' : null
             );
         }
+    }
+    echoTerminal(' ');
+
+    //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
+    echoTerminal('[6/6] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+
+    //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
+    //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
+    $usersController = (string) @file_get_contents($raizSrc . '/app/controller/UsersController.php');
+
+    $marcasUsers = [
+        "array_filter(\$ignoreTypes, 'is_numeric')" => '`is_numeric` filtra ANTES de `intval`',
+        'TYPES_USER_PRIORITY' => 'la lista blanca son los SIETE tipos declarados',
+        'HavingSegment($criteriosHaving)' => 'la búsqueda va por HavingSegment',
+    ];
+    foreach ($marcasUsers as $marca => $porQue) {
+        $check(
+            $usersController !== '' && mb_strpos($usersController, $marca) !== false,
+            'searchDropdown: ' . $porQue,
+            $usersController === '' ? 'no se pudo leer UsersController.php' : null
+        );
+    }
+
+    //`ActiveRecord::having()` SUSTITUYE, no acumula: con el criterio de `status` en un `having`
+    //propio, el de la búsqueda lo borraba y reaparecían los usuarios eliminados.
+    $check(
+        $usersController !== '' && mb_strpos($usersController, 'having("status !=') === false,
+        'searchDropdown: el criterio de `status` YA NO va en un `having` aparte',
+        'Si vuelve, el `having` de la búsqueda lo pisa y los eliminados reaparecen al escribir.'
+    );
+
+    //La cara complementaria: si `searchDropdown` cae en CONFIRMADO es que se perdió su entrada
+    //declarada; si no aparece en NINGUNA de las dos, el censo dejó de verlo.
+    if (isset($salida) && is_array($salida)) {
+        $seccion = '';
+        $donde = '';
+        foreach ($salida as $linea) {
+            if (mb_strpos($linea, '── ') === 0) {
+                $seccion = mb_strpos($linea, '── CONFIRMADO') === 0 ? 'CONFIRMADO'
+                    : (mb_strpos($linea, '── DECLARADO') === 0 ? 'DECLARADO' : '');
+                continue;
+            }
+            if ($seccion !== '' && mb_strpos($linea, 'controller/UsersController.php') !== false) {
+                $donde = $seccion;
+            }
+        }
+        $check(
+            $donde === 'DECLARADO',
+            'searchDropdown figura entre los DECLARADO, no entre los CONFIRMADO',
+            $donde === '' ? 'el censo ya NO lo ve: revisa el instrumento.' : "el censo lo pone en {$donde}."
+        );
     }
     echoTerminal(' ');
 

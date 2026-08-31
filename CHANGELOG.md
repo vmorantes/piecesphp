@@ -279,6 +279,32 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Corregido — el desplegable de usuarios volvía a mostrar los eliminados al buscar
+
+`ActiveRecord::having()` **sustituye** el segmento, no lo acumula. `UsersController::searchDropdown`
+tenía dos: el de `status != STATUS_USER_DELETED` y el de la búsqueda, y **el segundo pisaba al
+primero**. Al escribir cualquier texto reaparecían los usuarios marcados como eliminados. El
+criterio de `status` pasa al `WHERE` —es columna real— junto al de `type`, en un solo `where()`.
+
+## La búsqueda de usuarios manda el valor por marcador, y `ignoreTypes` valida el dominio
+
+Los seis `LIKE` de `searchDropdown` pasan a `HavingSegment` con `LOWER({%VALUE%})`. El
+`type NOT IN (...)` **no se puede parametrizar** —los tres operadores de lista imprimen su valor
+en crudo—, así que valida contra `array_keys(UsersModel::TYPES_USER_PRIORITY)`, con `is_numeric`
+antes de `intval` porque `intval('abc')` da `0` y `0` es `TYPE_USER_ROOT`.
+
+## Herramientas — el censo de SQL concatenado pasa de 2 familias a 8
+
+`bin/censo-sql-concatenado` mira ahora también `orderBy`, `groupBy`, `join`, `leftJoin`,
+`rightJoin` e `innerJoin`. **Un array no salva a `orderBy` ni a `groupBy`**: la biblioteca lo
+recorre con `implode()` y acaba en la cadena igual. Imprime el reparto por familia y qué familias
+siguen sin mirarse. Canario de 17 caras.
+
+Dos **falsos DESCARTADO** corregidos: un método con `extract()` deja el mapa de asignaciones
+incompleto, y un `WhereSegment` que lleve `IN`, `NOT IN` o `FIND_IN_SET` **no prepara nada**.
+Cada entrada de `files/dev/sql-concat-declared.json` fija además su `count`, para que una
+concatenación nueva en un método ya declarado no entre gratis.
+
 ## Un valor de parámetro inválido también da 400
 
 Junto al parámetro obligatorio que falta, `InvalidParameterValueException` pasa a **400** con

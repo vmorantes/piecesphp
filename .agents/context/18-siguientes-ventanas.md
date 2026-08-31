@@ -15886,3 +15886,161 @@ Y el método, otra vez, importa: comparando por `(archivo, línea, mensaje)` sal
 líneas distintas** y el diccionario las colapsaba. Comparando **MULTICONJUNTOS de
 `(archivo, mensaje)` ignorando la línea**: 747 contra 747, **0 muertas y 0 nacidas**. La clave
 de comparación es parte del método.
+
+---
+
+## T153 · AM · LAS TRES FAMILIAS SIN CENSAR, Y DOS FALSOS LIMPIOS
+
+**Bloque AM.** El censo pasa de 2 familias a 8. Aparecen **dos falsos DESCARTADO** que el
+instrumento venía dando, y uno de ellos habría **borrado** el hallazgo que este mismo bloque
+arreglaba en vez de declararlo.
+
+### La cota escrita estaba corta: 21 no, 24
+
+La instrucción daba `16 orderBy + 4 groupBy + 1 join = 21` llamadas sin censar. Medido por
+tokens sobre `src/app`, son **24**: `leftJoin` (2) y `innerJoin` (1) **reenvían a `join()`**
+con el mismo `$on` —`ActiveRecord.php:350-379`— y comparten su rama de string. `rightJoin`
+existe en el paquete y tiene **cero** llamadas.
+
+### PASO 1 · Las 8 familias, y qué distingue a cada una
+
+`bin/censo-sql-concatenado` mira ahora `where`, `having`, `orderBy`, `groupBy`, `join`,
+`leftJoin`, `rightJoin` e `innerJoin`, con una tabla `FAMILIAS` que declara, por familia, cuál
+es el argumento peligroso y si un array la salva.
+
+**La trampa que obligó a la tabla:** en `where()` un array construye marcadores, pero
+`orderBy()` y `groupBy()` hacen `implode(', ', $array)` y **el array acaba en la cadena igual**
+(`ActiveRecord.php:702-733`). Un censo que reutilizara el atajo de `where` habría dado por
+limpias 4 llamadas sin mirarlas. En `join` el argumento peligroso es el **segundo**.
+
+**Canario: 17 caras, dos por familia como mínimo**, y tres que separan casos que se confunden:
+
+| Cara | Sin ella |
+| :-- | :-- |
+| `orderBy(["id DESC", "{$sucio} ASC"])` sale CONFIRMADO | el atajo de `where` calla la familia entera |
+| `join($sucio, ["a.id" => "b.id"])` sale DESCARTADO | el censo estaría mirando el argumento equivocado |
+| un `WhereSegment` con `NOT_IN_OPERATOR` sale CONFIRMADO | envolver el problema lo borra |
+
+### Los dos falsos DESCARTADO
+
+**(1) `extract()`.** `DataTablesHelper::process` hace `extract($parameters_expected->getValues())`
+(líneas 199 y 774). Eso **crea variables que ningún token asigna**, así que el mapa de
+asignaciones queda incompleto y `groupBy($group_string)` salía DESCARTADO: la única asignación
+visible de `$group_string` es la cadena vacía de la línea 106. Ahora, un método con `extract()`
+degrada a REVISAR cualquier DESCARTADO que venga del mapa; el estructural —array, segmento,
+literal— no depende del mapa y se queda. Movió 2 llamadas.
+
+**(2) El segmento que no salva.** Al arreglar `UsersController::searchDropdown` metiendo el
+`NOT IN` en un `WhereSegment`, **el censo lo dio por limpio y la cifra bajó sola** — y el
+`NOT IN` seguía imprimiéndose en crudo, que es justo lo que T152 dejó escrito. Corregido: un
+segmento que nombre `IN`, `NOT IN` o `FIND_IN_SET` pierde el atajo.
+
+Mirar solo el texto del argumento no bastaba —el operador vivía en la variable que se le pasa—
+y mirar todo el método condenaba de paso al `having`, que **sí** va por marcador. La unidad
+correcta es la **cadena de variables**, y eso es `crudoEnCadena()`.
+
+> **Un instrumento que premia envolver el problema es peor que no tenerlo.**
+
+### PASO 2 · Las 24 clasificadas · la lista blanca de columnas NO tiene sujeto
+
+| | llamadas | CONFIRMADO | REVISAR | DESCARTADO |
+| :-- | --: | --: | --: | --: |
+| `orderBy` | 16 | 1 | 4 | 11 |
+| `groupBy` | 4 | 0 | 2 | 2 |
+| `join` + `leftJoin` + `innerJoin` | 4 | 0 | 1 | 3 |
+
+**El único CONFIRMADO es `DataTablesHelper::process:353`**, que tiene bloque propio y no se
+toca aquí. Ruta: la de cada una de las 19 controladoras que lo usan, todas autenticadas.
+
+Las **7 de REVISAR, clasificadas a mano**, y ninguna llega a la petición:
+
+| Sitio | Veredicto a mano |
+| :-- | :-- |
+| `UsersModel::{allByMultipleCriteries,getBy,getByMultipleCriteries}` | `$orderBy` es **parámetro** y **los 9 consumidores pasan `[]` o lo omiten**. El `if (!empty($orderBy))` ni se entra. |
+| `SystemApprovalsMapper::getByMultipleCriteries` | igual: sus 4 consumidores pasan `[]`. |
+| `OTPSecretsUsersMapper::missingOTPRecords` | el `$on` se compone de `self::TABLE`, `UsersModel::TABLE` y `array_keys(self::METHODS)`: **tres constantes de clase**. |
+| `DataTablesHelper::process` `groupBy` ×2 | `group_string` llega en `$options`, que lo pone la **controladora**, no la petición. Es el falso limpio de `extract()`. |
+
+> **La lista blanca de columnas que pedía la parada no tiene sujeto en este bloque**: la única
+> llamada que la necesitaría es la de `DataTablesHelper`, que está excluida por la propia
+> instrucción. No se escribe nada.
+
+### PASO 3 · `UsersController::searchDropdown` — y un tercer defecto que no se buscaba
+
+Ruta `users-search-dropdown`, `requireLogin: true`, todos los roles. **Autenticada.**
+
+**El `having`, arreglado de verdad.** Seis `LIKE` que se interpolaban pasan a `HavingSegment`
+con `LOWER({%VALUE%})`. Comprobado componiendo el fragmento —constructores de cadena puros, sin
+base de datos—: `o'brien%` viaja **en los valores de reemplazo**, y el SQL no lleva ni una
+comilla.
+
+**El `NOT IN`, que no se puede arreglar.** Se valida el dominio y se DECLARA. Dos decisiones que
+hay que decir:
+
+- **`is_numeric` ANTES de `intval`.** `intval('abc')` da `0`, y `0` es `TYPE_USER_ROOT`: sin ese
+  orden, basura pedía ocultar al usuario principal.
+- **`TYPES_USER_PRIORITY`, no `TYPES_USERS`.** La instrucción nombraba la segunda, pero es un
+  **mapa de etiquetas** y trae `TYPE_USER_GOOGLE_PLAY` comentado (`UsersModel.php:124`), mientras
+  que el 50 es un tipo real: está en `roles.php:111`, en `TYPES_USER_DONT_REQUIRE_ORGANIZATION` y
+  en `TYPES_WITH_EXTERNAL_LOGIN`. Usar `TYPES_USERS` habría descartado un tipo legítimo, y como
+  `ignoreTypes` **excluye**, el fallo habría sido mostrar **más** usuarios. `TYPES_USER_PRIORITY`
+  es el único constante del modelo que enumera los siete.
+
+**El defecto que apareció al mirar.** `ActiveRecord::having()` **SUSTITUYE** `$this->havingSegment`,
+no acumula (`ActiveRecord.php:485-495`). El método tenía dos `having()`: el de
+`status != STATUS_USER_DELETED` —con su comentario *«No mostrar usuarios marcados eliminados»*—
+y el de la búsqueda. **El segundo pisaba al primero: al escribir cualquier texto reaparecían los
+usuarios eliminados.** Como `status` es columna real (`int`) y `fullname` es un alias calculado
+en `fieldsToSelect()`, el criterio de `status` se va al `WHERE`, y los dos criterios del WHERE
+van en **un solo** `where()` —que también sustituye—:
+
+```sql
+WHERE (type NOT IN (0, 1, 12)) AND (status != :WH…_STATUS)
+```
+
+### PASO 5 · El trinquete, y la puerta que faltaba
+
+| | antes | después |
+| :-- | --: | --: |
+| CONFIRMADO | 6 | **5** |
+| DECLARADO | 3 | **4** |
+| REVISAR | 92 | 99 |
+| DESCARTADO | 95 | 111 |
+| llamadas miradas | 196 | **219** |
+
+Los **5 restantes son los 5 sitios de llamada de `DataTablesHelper::process`**.
+
+**`count` en cada entrada declarada.** Se declara por `archivo::metodo`, así que una
+concatenación **nueva** en un método ya declarado entraba **gratis**. Se vio provocando: al
+romper el `having`, `DECLARADO` subía de 4 a 5 y `CONFIRMADO` **no se movía**. Ahora cada
+entrada fija su `count` y lo que pase de ahí va a CONFIRMADO y **rompe el trinquete por su
+nombre**.
+
+**La cota impresa, ampliada.** Lo que sigue sin mirarse, leído en el paquete: `prepare($sql)`
+(71 llamadas), `select($campos)` (194), el `$col`/`$cols` de `get()`, `setTable()` (6) y
+`rowCount()` (0 en `src/app`). **No son valores de comparación sino IDENTIFICADORES**: no se
+arreglan con marcador, piden lista blanca, y es otro trabajo. El `LIMIT` **no** entra en esa
+lista: sale de dos parámetros `?int` de `_executeSelect()` y **está cerrado por tipo**.
+
+### El cierre (LEY 24) · 19 comprobaciones, y las tres provocaciones
+
+`UnitTest-SqlPlaceholders` sube a **19** con una sección 6 para `searchDropdown`. Los rótulos
+de sección estaban desincronizados desde antes (`[1/3]`, `[3/4]`, `[4/5]`) y se cuadran a `/6`.
+
+| Provocación | Censo | Suite | Trinquete |
+| :-- | :-- | :-- | :-- |
+| quitar la validación de `ignoreTypes` | **5·4 → 5·4** | 19 → **18** | verde |
+| concatenar otra vez el `having` (antes del `count`) | 5·4 → **5·5** | 19 → **18** | **verde, y era un fallo** |
+| lo mismo (después del `count`) | 5·4 → **6·4** | 19 → 18 | **ROTO, por su nombre** |
+
+> **Quitar la validación no mueve el censo**, igual que en T152: el censo mide el MECANISMO, no
+> el riesgo. Por eso la suite la comprueba EN LA FUENTE. Y la segunda fila es la lección propia
+> de este bloque: **una provocación que sale verde es un hallazgo**, y ahí salió verde porque la
+> puerta tenía un hueco, no porque el código estuviera bien.
+
+### Lo que queda abierto
+
+- Los **5 CONFIRMADO** de `DataTablesHelper::process`, compartido por 19 controladoras, con la
+  lista blanca de columnas que este bloque dejó sin sujeto.
+- Las **cinco familias de identificadores** sin censar, nombradas arriba.
+- El hueco del paquete `database`: parametrizar `IN` es su propio bloque.

@@ -338,10 +338,10 @@ project://src/app/controller/RecoveryPasswordController.php
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
-	argument.type (Líneas: 488, 543, 889, 923, 1109, 1260, 1543, 1871)
-	method.resultUnused (Líneas: 1294, 1341, 1351, 1357, 1363, 1369, 1379, 1386, 1598, 1653, 1663, 1669, 1675, 1681, 1687, 1697, 1705, 1712)
-	method.nonObject (Líneas: 1337, 1649)
-	return.type (Líneas: 1891)
+	argument.type (Líneas: 510, 565, 911, 945, 1131, 1282, 1565, 1893)
+	method.resultUnused (Líneas: 1316, 1363, 1373, 1379, 1385, 1391, 1401, 1408, 1620, 1675, 1685, 1691, 1697, 1703, 1709, 1719, 1727, 1734)
+	method.nonObject (Líneas: 1359, 1671)
+	return.type (Líneas: 1913)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
 	argument.type (Líneas: 2247, 2305, 2322, 2322, 3245, 3246, 3247, 3347, 3348)

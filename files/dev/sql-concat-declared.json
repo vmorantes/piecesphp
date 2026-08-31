@@ -4,27 +4,37 @@
         "LA LISTA SOLO PUEDE ENCOGER. El día que la biblioteca parametrice `IN`, estas entradas se retiran y el código pasa a marcador.",
         "Declarar NO es eximir de pensar: cada entrada dice QUÉ validación cierra el agujero. Una entrada sin validación descrita no vale.",
         "Se declara por `archivo::metodo`. El censo las resta de CONFIRMADO y las imprime aparte: no desaparecen, se separan.",
-        "Una entrada que ya no case con ningún hallazgo hace fallar: encoger incluye vaciarse."
+        "Una entrada que ya no case con ningún hallazgo hace fallar: encoger incluye vaciarse.",
+        "CADA ENTRADA FIJA SU `count`. Declarar es por `archivo::metodo`, asi que sin esto una concatenacion NUEVA en un metodo ya declarado entraria gratis y el trinquete de CONFIRMADO no la veria. Se descubrio provocando en AM: al romper el `having` de `searchDropdown`, DECLARADO subio de 4 a 5 en vez de subir CONFIRMADO."
     ],
     "medido": {
         "fecha": "2026-08-31",
-        "bloque": "AL",
+        "bloque": "AL; ampliado en AM",
         "hueco_de_la_biblioteca": "src/vendor/piecesphp/database/.../Critery/WhereItem.php:238-241 — `IN`/`NOT IN` imprimen `{$rightMember}` en crudo y `FIND_IN_SET` lo sustituye en `{SEARCH}`. El paquete está versionado y etiquetado: se anota, no se toca.",
         "ids_antes": "`ids[]=abc` daba 500 con `Unknown column 'abc' in 'WHERE'`",
-        "ids_despues": "`ids[]=abc` da 200 y el criterio NO se añade; `ids[]=1&ids[]=abc` devuelve solo el 1"
+        "ids_despues": "`ids[]=abc` da 200 y el criterio NO se añade; `ids[]=1&ids[]=abc` devuelve solo el 1",
+        "not_in_dentro_de_segmento": "AM: envolver el `NOT IN` en un `WhereSegment` NO lo prepara, y el censo lo daba por limpio. Corregido: un segmento que nombre `IN`/`NOT IN`/`FIND_IN_SET` —siguiendo la cadena de variables, no solo el texto del argumento— pierde el atajo. Sin esa corrección, arreglar `UsersController::searchDropdown` habría BORRADO su hallazgo en vez de declararlo."
     },
     "entries": [
         {
             "where": "src/app/classes/App/Locations/Controllers/City.php::cities",
-            "validation": "`ids` pasa por `array_map('intval')` y se descartan los `<= 0`; si la lista queda vacía NO se añade el criterio, porque `IN ()` no compila. `state` y `country` ya eran enteros por `Validator::isInteger`."
+            "validation": "`ids` pasa por `array_map('intval')` y se descartan los `<= 0`; si la lista queda vacía NO se añade el criterio, porque `IN ()` no compila. `state` y `country` ya eran enteros por `Validator::isInteger`.",
+            "count": 1
         },
         {
             "where": "src/app/classes/App/Locations/Controllers/State.php::states",
-            "validation": "`ids` igual que en City. `country` ya era entero por `Validator::isInteger`."
+            "validation": "`ids` igual que en City. `country` ya era entero por `Validator::isInteger`.",
+            "count": 1
         },
         {
             "where": "src/app/classes/App/Locations/Controllers/Country.php::countries",
-            "validation": "`ids` igual que en City. `region` son NOMBRES, así que `intval` no aplica: cada elemento tiene que casar `^[\\p{L}\\p{N} \\-]{1,60}$` y lo que no case se descarta. `UPPER('NONE')` entra siempre, así que la lista nunca queda vacía."
+            "validation": "`ids` igual que en City. `region` son NOMBRES, así que `intval` no aplica: cada elemento tiene que casar `^[\\p{L}\\p{N} \\-]{1,60}$` y lo que no case se descarta. `UPPER('NONE')` entra siempre, así que la lista nunca queda vacía.",
+            "count": 1
+        },
+        {
+            "where": "src/app/controller/UsersController.php::searchDropdown",
+            "validation": "`ignoreTypes` pasa por `is_numeric` ANTES de `intval` —porque `intval('abc')` da 0 y 0 es `TYPE_USER_ROOT`— y luego se queda solo con lo que esté en `array_keys(UsersModel::TYPES_USER_PRIORITY)`, que es el único constante del modelo que enumera los SIETE tipos declarados. `TYPES_USERS` NO sirve: es un mapa de etiquetas y trae `TYPE_USER_GOOGLE_PLAY` comentado, así que descartaría un tipo real y el desplegable mostraría MÁS usuarios. Lista vacía = no se añade el criterio.",
+            "count": 1
         }
     ]
 }

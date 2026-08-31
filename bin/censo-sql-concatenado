@@ -20,23 +20,27 @@
  *
  * QUE MIDE
  * --------
- * Toda llamada `->where(...)` cuyo argumento NO sea una cadena literal constante, un array o un
- * `WhereSegment`. Para las que quedan, traza hacia atras DENTRO DEL MISMO METODO buscando si la
+ * Las OCHO familias de `const FAMILIAS`, que es donde esta escrito cual es el argumento
+ * peligroso de cada una y si un array la salva. De cada llamada cuyo argumento no sea literal,
+ * array seguro o segmento preparado, traza hacia atras DENTRO DEL MISMO METODO buscando si la
  * cadena se compone con algo que venga de la peticion.
  *
  * SE CUENTA POR TOKENS, NO POR TEXTO. Una llamada dentro de una cadena o de un comentario no es
  * una llamada: en el bloque AI una cifra salio inflada por los docblocks recien escritos.
  *
- * Tres listas, y la clasificacion se dice, no se insinua:
+ * Cuatro listas, y la clasificacion se dice, no se insinua:
  *   CONFIRMADO ...... la cadena llega a una fuente de peticion por asignaciones del metodo
+ *   DECLARADO ....... concatena porque la comparacion es de LISTA y la biblioteca no
+ *                     parametriza `IN`; su validacion de dominio esta escrita aparte
  *   REVISAR A MANO .. no es literal y la traza no alcanza a decidir
- *   DESCARTADO ...... literal constante, array, `WhereSegment` o `WhereItem`
+ *   DESCARTADO ...... literal constante, array seguro o segmento preparado
  *
  * SU COTA, Y SE IMPRIME (LEY 15)
  * ------------------------------
  * NO sigue una variable que cruce de metodo o de clase: una propiedad, un parametro o el
  * `return` de otro sitio se quedan en REVISAR A MANO. Tampoco resuelve indices de array ni
- * variables variables. Un censo que calle su ceguera miente.
+ * variables variables. Un censo que calle su ceguera miente. El listado de familias que
+ * SIGUEN sin mirarse se imprime al final, y sale de leer el paquete.
  *
  * Uso:
  *   bin/censo-sql-concatenado             las tres listas
@@ -54,6 +58,118 @@ const EXCLUIDOS = ['/vendor/', '/node_modules/', '/bin/tools/', '/logs/', '/cach
 //Lo que trae datos de fuera. `getValue` NO esta aqui: se alcanza por el objeto contaminado.
 const FUENTES = ['getQueryParam', 'getQueryParams', 'getParsedBody', 'getAttribute',
                  '$_GET', '$_POST', '$_REQUEST', '$_COOKIE'];
+
+/**
+ * LAS FAMILIAS QUE CONCATENAN, Y CUAL ES SU ARGUMENTO PELIGROSO.
+ *
+ * `arg`     indice del argumento que acaba en el SQL. En `join()` es el SEGUNDO: el primero
+ *           es la tabla, que tambien se concatena pero no es un valor de comparacion.
+ * `array`   si pasar un array corta el riesgo. AQUI ESTA LA TRAMPA Y POR ESO SE DECLARA:
+ *           en `where()` un array construye marcadores, pero en `orderBy()` y `groupBy()`
+ *           el array se recorre con `implode(', ', ...)` y ACABA EN LA CADENA IGUAL.
+ *           Un censo que reutilizara el atajo de `where` daria por limpias 4 llamadas.
+ * `seguros` clases cuyo uso desvia el valor a marcador. `orderBy` y `groupBy` NO TIENEN
+ *           NINGUNA: la biblioteca no ofrece segmento preparado para ordenar ni agrupar.
+ *
+ * `leftJoin`, `rightJoin` e `innerJoin` ENTRAN: `ActiveRecord.php:350-379` los reenvia a
+ * `join()` con el mismo `$on`, asi que comparten la rama de string.
+ */
+const FAMILIAS = [
+    'where'     => ['arg' => 0, 'array' => true,  'seguros' => ['WhereSegment', 'WhereItem', 'HavingSegment', 'HavingItem']],
+    'having'    => ['arg' => 0, 'array' => true,  'seguros' => ['WhereSegment', 'WhereItem', 'HavingSegment', 'HavingItem']],
+    'orderBy'   => ['arg' => 0, 'array' => false, 'seguros' => []],
+    'groupBy'   => ['arg' => 0, 'array' => false, 'seguros' => []],
+    'join'      => ['arg' => 1, 'array' => true,  'seguros' => ['JoinSegment', 'JoinItem']],
+    'leftJoin'  => ['arg' => 1, 'array' => true,  'seguros' => ['JoinSegment', 'JoinItem']],
+    'rightJoin' => ['arg' => 1, 'array' => true,  'seguros' => ['JoinSegment', 'JoinItem']],
+    'innerJoin' => ['arg' => 1, 'array' => true,  'seguros' => ['JoinSegment', 'JoinItem']],
+];
+
+/**
+ * LOS OPERADORES QUE NO SE PREPARAN NI DENTRO DE UN SEGMENTO.
+ *
+ * `WhereItem::NOT_ALIAS_OPERATORS` deja a estos tres SIN generar marcador, y `toString()`
+ * imprime su `$rightMember` EN CRUDO. Meterlos en un `WhereSegment` NO los salva.
+ *
+ * Sin esto, arreglar `UsersController::searchDropdown` habria BORRADO su hallazgo del censo
+ * en vez de declararlo: el `NOT IN` seguia crudo y la cifra bajaba sola. Un instrumento que
+ * premia envolver el problema es peor que no tenerlo.
+ */
+const OPERADORES_CRUDOS = ['IN_OPERATOR', 'NOT_IN_OPERATOR', 'FIND_IN_SET_OPERATOR'];
+
+function tieneOperadorCrudo(string $expresion): bool
+{
+    foreach (OPERADORES_CRUDOS as $op) {
+        if (mb_strpos($expresion, $op) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Igual que la anterior, pero SIGUIENDO LAS VARIABLES de la expresion.
+ *
+ * Hace falta porque el operador casi nunca esta en el argumento: en
+ * `UsersController::searchDropdown` el argumento es `new WhereSegment($criteriosWhere)` y el
+ * `NOT_IN_OPERATOR` vive en una de las asignaciones de esa variable. Mirar solo el texto del
+ * argumento dejaba pasar el atajo; mirar todo el metodo condenaba de paso al `having`, que SI
+ * va por marcador. La cadena de variables es la unidad correcta.
+ */
+function crudoEnCadena(string $expresion, array $mapa, array $vistas = [], int $profundidad = 0): bool
+{
+    if (tieneOperadorCrudo($expresion)) {
+        return true;
+    }
+    if ($profundidad > 6) {
+        return false;
+    }
+    preg_match_all('/\$[A-Za-z_]\w*/', $expresion, $m);
+    foreach ($m[0] as $var) {
+        if (in_array($var, $vistas, true) || !array_key_exists($var, $mapa)) {
+            continue;
+        }
+        $vistas[] = $var;
+        foreach ($mapa[$var] as $rhs) {
+            if (crudoEnCadena($rhs, $mapa, $vistas, $profundidad + 1)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Parte los argumentos de una llamada por las comas DE PRIMER NIVEL. Una coma dentro de un
+ * array, de otra llamada o de una cadena no separa argumentos.
+ *
+ * @return string[]
+ */
+function separaArgumentos(array $tokens, int $desde, int $hasta): array
+{
+    $partes = [];
+    $actual = '';
+    $prof = 0;
+    for ($i = $desde; $i <= $hasta && $i < count($tokens); $i++) {
+        $t = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+        if ($t === '(' || $t === '[' || $t === '{') {
+            $prof++;
+        }
+        if ($t === ')' || $t === ']' || $t === '}') {
+            $prof--;
+        }
+        if ($t === ',' && $prof === 0) {
+            $partes[] = $actual;
+            $actual = '';
+            continue;
+        }
+        $actual .= $t;
+    }
+    if (trim($actual) !== '' || count($partes) > 0) {
+        $partes[] = $actual;
+    }
+    return $partes;
+}
 
 function ficheros(string $raiz): array
 {
@@ -232,15 +348,17 @@ function objetosContaminados(array $tokens, int $ini, int $fin): array
 }
 
 /** @return array{0:string,1:string[]} */
-function resuelve(string $expresion, array $mapa, array $sucios, array &$vistas, int $profundidad = 0): array
+function resuelve(string $expresion, array $mapa, array $sucios, array &$vistas, array $seguros = [], int $profundidad = 0): array
 {
     if ($profundidad > 6) {
         return ['REVISAR', ['traza cortada a profundidad 6']];
     }
     //LA VIA SEGURA CORTA LA TRAZA. Un valor que entra en un `WhereSegment` o un `WhereItem`
     //sale por marcador, venga de donde venga. Sin esto el censo marcaria el codigo ARREGLADO.
-    foreach (['WhereSegment', 'WhereItem', 'HavingSegment', 'HavingItem'] as $seguro) {
-        if (mb_strpos($expresion, $seguro) !== false) {
+    //LA LISTA LA PONE LA FAMILIA: `orderBy` y `groupBy` la traen VACIA porque no existe
+    //segmento preparado para ellas, y heredar la de `where` habria callado sus hallazgos.
+    foreach ($seguros as $seguro) {
+        if (mb_strpos($expresion, $seguro) !== false && !crudoEnCadena($expresion, $mapa)) {
             return ['DESCARTADO', ["el valor entra en un {$seguro}: va por marcador"]];
         }
     }
@@ -267,7 +385,7 @@ function resuelve(string $expresion, array $mapa, array $sucios, array &$vistas,
         }
         $vistas[] = $var;
         foreach ($mapa[$var] as $rhs) {
-            [$v, $t] = resuelve($rhs, $mapa, $sucios, $vistas, $profundidad + 1);
+            [$v, $t] = resuelve($rhs, $mapa, $sucios, $vistas, $seguros, $profundidad + 1);
             if ($v === 'CONFIRMADO') {
                 return ['CONFIRMADO', array_merge(["{$var} = " . trim($rhs)], $t)];
             }
@@ -287,6 +405,13 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
     foreach (metodos($tokens) as $metodo) {
         $mapa = asignaciones($tokens, $metodo['ini'], $metodo['fin']);
         $sucios = objetosContaminados($tokens, $metodo['ini'], $metodo['fin']);
+        //`extract()` CREA VARIABLES QUE NINGUN TOKEN ASIGNA. Con el en el metodo, el mapa de
+        //asignaciones esta INCOMPLETO, y un DESCARTADO sacado de ese mapa es un falso limpio:
+        //asi salia limpio el `groupBy($group_string)` de `DataTablesHelper`. Se degrada a
+        //REVISAR. El DESCARTADO estructural —array, segmento, literal— no depende del mapa y
+        //se queda como esta.
+        $cuerpo = texto($tokens, $metodo['ini'], $metodo['fin']);
+        $hayExtract = preg_match('/\bextract\s*\(/', $cuerpo) === 1;
         for ($i = $metodo['ini']; $i <= $metodo['fin']; $i++) {
             if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_OBJECT_OPERATOR) {
                 continue;
@@ -294,10 +419,11 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
             $sig = $tokens[$i + 1] ?? null;
             //`having(string)` CONCATENA IGUAL que `where(string)`: `"HAVING ({$having})"`. La
             //primera version solo miraba `where(` y `City::search()` se colaba por eso. LEY 15.
-            if (!is_array($sig) || $sig[0] !== T_STRING || !in_array($sig[1], ['where', 'having'], true)) {
+            if (!is_array($sig) || $sig[0] !== T_STRING || !array_key_exists($sig[1], FAMILIAS)) {
                 continue;
             }
             $metodoLlamado = $sig[1];
+            $familia = FAMILIAS[$metodoLlamado];
             $abre = $i + 2;
             while (is_array($tokens[$abre] ?? null) && $tokens[$abre][0] === T_WHITESPACE) {
                 $abre++;
@@ -320,14 +446,33 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
                     }
                 }
             }
-            $argumento = trim(texto($tokens, $abre + 1, $cierra - 1));
             $linea = $sig[2];
+            $argumentos = separaArgumentos($tokens, $abre + 1, $cierra - 1);
+            $indice = $familia['arg'];
 
-            if ($argumento === '' || str_starts_with($argumento, '[') || str_starts_with($argumento, 'array(')
-                || mb_strpos($argumento, 'WhereSegment') !== false
-                || mb_strpos($argumento, 'WhereItem') !== false
-                || mb_strpos($argumento, 'HavingSegment') !== false
-                || mb_strpos($argumento, 'HavingItem') !== false) {
+            //`join($tabla)` a secas: el `$on` toma su `[]` por defecto y se va por JoinSegment.
+            if (!array_key_exists($indice, $argumentos)) {
+                $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                                'arg' => '(no se pasa)', 'veredicto' => 'DESCARTADO',
+                                'llamada' => $metodoLlamado,
+                                'traza' => ['el argumento no se pasa: toma su valor por defecto']];
+                continue;
+            }
+            $argumento = trim($argumentos[$indice]);
+
+            $esArray = str_starts_with($argumento, '[') || str_starts_with($argumento, 'array(');
+            $esSegmento = false;
+            foreach ($familia['seguros'] as $seguro) {
+                if (mb_strpos($argumento, $seguro) !== false) {
+                    $esSegmento = true;
+                }
+            }
+            //UN SEGMENTO CON `IN`, `NOT IN` o `FIND_IN_SET` NO SALVA NADA: esos tres imprimen
+            //su valor en crudo. El atajo se anula y la llamada se traza como cualquier otra.
+            if ($esSegmento && crudoEnCadena($argumento, $mapa)) {
+                $esSegmento = false;
+            }
+            if ($argumento === '' || $esSegmento || ($esArray && $familia['array'])) {
                 $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
                                 'arg' => $argumento, 'veredicto' => 'DESCARTADO',
                                 'llamada' => $metodoLlamado,
@@ -340,9 +485,22 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
                                 'llamada' => $metodoLlamado, 'traza' => ['cadena literal constante']];
                 continue;
             }
+            //SIN VARIABLES Y SIN FUENTE no hay por donde entre nada de la peticion. Hace falta
+            //para `orderBy(['a ASC','b DESC'])`, que es array pero NO va por marcador.
+            if (!tieneFuente($argumento) && mb_strpos($argumento, '$') === false) {
+                $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
+                                'arg' => $argumento, 'veredicto' => 'DESCARTADO',
+                                'llamada' => $metodoLlamado,
+                                'traza' => ['sin variables ni fuente de petición']];
+                continue;
+            }
 
             $vistas = [];
-            [$veredicto, $traza] = resuelve($argumento, $mapa, $sucios, $vistas);
+            [$veredicto, $traza] = resuelve($argumento, $mapa, $sucios, $vistas, $familia['seguros']);
+            if ($veredicto === 'DESCARTADO' && $hayExtract) {
+                $veredicto = 'REVISAR';
+                $traza[] = 'el método usa extract(): el mapa de asignaciones está incompleto';
+            }
             $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $linea,
                             'arg' => $argumento, 'veredicto' => $veredicto,
                             'llamada' => $metodoLlamado, 'traza' => $traza];
@@ -351,24 +509,88 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
     return $hallazgos;
 }
 
-//──── CANARIO DE DOS CARAS (LEY 16) ─────────────────────────────────────────────────────────
-$fixtureSucio = '<?php class C { public function search($request) {'
-    . ' $p = new Parameters([]); $p->setInputValues($request->getQueryParams());'
-    . ' $q = $p->getValue("query"); $c = "UPPER(t.name) LIKE UPPER(\'{$q}%\')";'
-    . ' $w = $c; $m->select()->where($w); } }';
-$fixtureLimpio = '<?php class C { public function ok($v) { $m->select()->where(["columna" => $v]); } }';
-$a = analiza($fixtureSucio);
-$b = analiza($fixtureLimpio);
-$okSucio = count($a) === 1 && $a[0]['veredicto'] === 'CONFIRMADO';
-$okLimpio = count($b) === 1 && $b[0]['veredicto'] === 'DESCARTADO';
-if (!$okSucio || !$okLimpio) {
-    fwrite(STDERR, 'CANARIO CAÍDO: ' . (!$okSucio
-        ? 'no reconoce la forma de `Country::search()` como CONFIRMADO.'
-        : "marca un `where(['columna' => \$valor])` que NO debe salir.") . "\n");
+//──── CANARIO DE DOS CARAS POR FAMILIA (LEY 16) ─────────────────────────────────────────────
+//Una cara que DEBE salir y otra que NO, para CADA familia. Sin las dos, un cero no significa
+//nada: podria ser que la familia esta limpia o que el censo no la mira.
+$canarios = [
+    ['where · la forma de `Country::search()`',
+        '<?php class C { public function search($request) {'
+        . ' $p = new Parameters([]); $p->setInputValues($request->getQueryParams());'
+        . ' $q = $p->getValue("query"); $c = "UPPER(t.name) LIKE UPPER(\'{$q}%\')";'
+        . ' $w = $c; $m->select()->where($w); } }', 'CONFIRMADO'],
+    ['where · un array, que va por marcadores',
+        '<?php class C { public function ok($v) { $m->select()->where(["columna" => $v]); } }', 'DESCARTADO'],
+    ['having · una cadena compuesta con la petición',
+        '<?php class C { public function f($request) { $s = $request->getQueryParam("s");'
+        . ' $m->having("LOWER(n) LIKE \'{$s}%\'"); } }', 'CONFIRMADO'],
+    ['having · un HavingSegment',
+        '<?php class C { public function f($request) { $s = $request->getQueryParam("s");'
+        . ' $m->having(new HavingSegment([new HavingItem("n", "LIKE", $s)])); } }', 'DESCARTADO'],
+    ['orderBy · una cadena compuesta con la petición',
+        '<?php class C { public function f($request) { $o = $request->getQueryParam("orden");'
+        . ' $m->orderBy("{$o} ASC"); } }', 'CONFIRMADO'],
+    ['orderBy · un literal constante',
+        '<?php class C { public function f() { $m->orderBy("fullname ASC, id DESC"); } }', 'DESCARTADO'],
+    //LA CARA QUE SEPARA LAS FAMILIAS. En `where` este array seria DESCARTADO; en `orderBy` la
+    //biblioteca lo hace `implode(", ", ...)` y acaba en la cadena. Si esto sale DESCARTADO, el
+    //censo ha heredado el atajo de `where` y estara callando lo que vino a buscar.
+    ['orderBy · un ARRAY con un valor de la petición dentro',
+        '<?php class C { public function f($request) { $o = $request->getQueryParam("orden");'
+        . ' $m->orderBy(["id DESC", "{$o} ASC"]); } }', 'CONFIRMADO'],
+    ['groupBy · una cadena compuesta con la petición',
+        '<?php class C { public function f($request) { $g = $request->getQueryParam("g");'
+        . ' $m->groupBy("t.{$g}"); } }', 'CONFIRMADO'],
+    ['groupBy · un literal constante',
+        '<?php class C { public function f() { $m->groupBy("users.id"); } }', 'DESCARTADO'],
+    //En `join` el argumento peligroso es el SEGUNDO. La cara limpia lleva la basura en el
+    //PRIMERO a proposito: si el censo mirase el argumento equivocado, saldria CONFIRMADO.
+    ['join · el `$on` de tipo string compuesto con la petición',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' $m->join("otra", "a.id = otra.{$c}"); } }', 'CONFIRMADO'],
+    ['join · el `$on` array, con la petición en la TABLA (arg. equivocado)',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->join($t, ["a.id" => "b.id"]); } }', 'DESCARTADO'],
+    ['leftJoin · reenvía a join() y comparte su rama de string',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' $m->leftJoin("otra", "a.id = otra.{$c}"); } }', 'CONFIRMADO'],
+    ['innerJoin · un JoinSegment',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' $m->innerJoin("otra", new JoinSegment([new JoinItem("a.id", "=", $c)])); } }', 'DESCARTADO'],
+    //LA CARA DE `extract()`. Sin la degradacion, esto sale DESCARTADO —el unico `$g` que el
+    //tokenizador ve asignado es la cadena vacia— y era un falso limpio de verdad, no de fixture:
+    //asi se colaba el `groupBy($group_string)` de `DataTablesHelper`.
+    ['groupBy · una variable en un método con extract()',
+        '<?php class C { public function f($opciones) { $g = ""; extract($opciones);'
+        . ' $m->groupBy($g); } }', 'REVISAR'],
+    ['groupBy · la misma variable SIN extract() en el método',
+        '<?php class C { public function f($opciones) { $g = ""; $m->groupBy($g); } }', 'DESCARTADO'],
+    //LA CARA DEL SEGMENTO QUE NO SALVA. `NOT IN` sigue imprimiendose en crudo dentro de un
+    //`WhereSegment`. Si esto sale DESCARTADO, envolver el problema lo borra del censo.
+    ['where · un WhereSegment con NOT_IN_OPERATOR y valor de la petición',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->where(new WhereSegment([new WhereItem("type", WhereItem::NOT_IN_OPERATOR, "({$t})")])); } }',
+        'CONFIRMADO'],
+    ['where · el mismo WhereSegment con un operador que SÍ prepara',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->where(new WhereSegment([new WhereItem("type", WhereItem::EQUAL_OPERATOR, $t)])); } }',
+        'DESCARTADO'],
+];
+$caido = null;
+foreach ($canarios as [$nombre, $fuente, $esperado]) {
+    $r = analiza($fuente);
+    if (count($r) !== 1 || $r[0]['veredicto'] !== $esperado) {
+        $obtenido = count($r) === 1 ? $r[0]['veredicto'] : (count($r) . ' hallazgos');
+        $caido = "{$nombre} — esperaba {$esperado}, obtuvo {$obtenido}";
+        break;
+    }
+}
+if ($caido !== null) {
+    fwrite(STDERR, "CANARIO CAÍDO: {$caido}\n");
     fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
     exit(2);
 }
-echo "CANARIO VIVO: reconoce la forma de `Country::search()` y NO marca un `where(['columna' => \$valor])`.\n";
+printf("CANARIO VIVO: %d caras sobre las 8 familias, y la que las separa —un `orderBy([...])`\n", count($canarios));
+echo "              con la petición dentro SALE, mientras el mismo array en `where` NO.\n";
 
 $detalle = in_array('--detalle', array_slice($argv, 1), true);
 $archivos = ficheros(RAIZ);
@@ -385,9 +607,14 @@ $declaradasPath = dirname(__DIR__) . '/files/dev/sql-concat-declared.json';
 $declaradasRaw = @file_get_contents($declaradasPath);
 $declaradasJson = is_string($declaradasRaw) ? json_decode($declaradasRaw, true) : null;
 $declaradas = [];
+//`count` ES PARTE DE LA DECLARACION. Se declara por `archivo::metodo`, asi que sin el una
+//concatenacion NUEVA en un metodo ya declarado entraria gratis. Se vio provocando en AM.
+$declaradasCota = [];
 if (is_array($declaradasJson) && isset($declaradasJson['entries']) && is_array($declaradasJson['entries'])) {
     foreach ($declaradasJson['entries'] as $entry) {
-        $declaradas[] = (string) ($entry['where'] ?? '');
+        $clave = (string) ($entry['where'] ?? '');
+        $declaradas[] = $clave;
+        $declaradasCota[$clave] = (int) ($entry['count'] ?? 1);
     }
 }
 
@@ -396,21 +623,36 @@ $declaradasVistas = [];
 foreach ($todos as $h) {
     $clave = $h['ruta'] . '::' . $h['metodo'];
     if ($h['veredicto'] === 'CONFIRMADO' && in_array($clave, $declaradas, true)) {
-        $por['DECLARADO'][] = $h;
-        $declaradasVistas[$clave] = true;
-        continue;
+        $declaradasVistas[$clave] = ($declaradasVistas[$clave] ?? 0) + 1;
+        //LO QUE PASE DE SU `count` NO ESTA DECLARADO: es un hallazgo nuevo y va a CONFIRMADO.
+        if ($declaradasVistas[$clave] <= ($declaradasCota[$clave] ?? 1)) {
+            $por['DECLARADO'][] = $h;
+            continue;
+        }
     }
     $por[$h['veredicto']][] = $h;
 }
 
 printf("UNIVERSO: %d archivo(s) .php bajo `src/app`\n", count($archivos));
 printf("          excluidos por nombre: %s\n", implode(' ', EXCLUIDOS));
-printf("          %d llamada(s) a `->where(` y `->having(` halladas POR TOKENS\n\n", count($todos));
+printf("          %d llamada(s) a las 8 familias que concatenan, halladas POR TOKENS\n\n", count($todos));
 foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR', 'DESCARTADO'] as $v) {
     printf("%-12s %d\n", $v, count($por[$v]));
 }
 printf("             (DECLARADO = concatena porque la comparación es de LISTA, con su validación\n");
 printf("              de dominio escrita en files/dev/sql-concat-declared.json)\n\n");
+
+//EL REPARTO POR FAMILIA. Sin el, un total quieto puede esconder que una familia entera dejo
+//de mirarse: el agregado no distingue «limpia» de «no vista». LEY 15.
+echo "REPARTO POR FAMILIA:\n";
+printf("  %-10s %7s %11s %10s %8s %11s\n", '', 'halladas', 'confirmado', 'declarado', 'revisar', 'descartado');
+foreach (array_keys(FAMILIAS) as $f) {
+    $cuenta = static fn (string $v): int => count(array_filter($por[$v], static fn (array $h): bool => $h['llamada'] === $f));
+    printf("  %-10s %7d %11d %10d %8d %11d\n", $f,
+        $cuenta('CONFIRMADO') + $cuenta('DECLARADO') + $cuenta('REVISAR') + $cuenta('DESCARTADO'),
+        $cuenta('CONFIRMADO'), $cuenta('DECLARADO'), $cuenta('REVISAR'), $cuenta('DESCARTADO'));
+}
+echo "\n";
 
 foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR'] as $v) {
     if (count($por[$v]) === 0) {
@@ -430,10 +672,19 @@ foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR'] as $v) {
 }
 
 echo "SU COTA, Y SE DICE:\n";
-echo "  · MIRA `->where(` y `->having(`, y NINGUNA otra familia. LEÍDO en el paquete, no supuesto:\n";
-echo "    `orderBy()` arma \"ORDER BY \$s\", `groupBy()` arma \"GROUP BY \$s\" y `join()` con \$on de\n";
-echo "    tipo string arma \"JOIN t ON (\$on)\". Los tres CONCATENAN y aquí NO se miran: hay 16\n";
-echo "    `->orderBy(`, 4 `->groupBy(` y 1 `->join(` en src/app sin censar.\n";
+echo "  · MIRA las 8 familias del reparto de arriba. En `join` mira SOLO el `\$on`; la TABLA,\n";
+echo "    que es el primer argumento, también se concatena y aquí NO se mira.\n";
+echo "  · LAS FAMILIAS QUE SIGUEN SIN CENSAR, leídas en el paquete y no supuestas:\n";
+echo "      `prepare(\$sql)` ......... SQL entero en crudo ................ 71 llamadas en src/app\n";
+echo "      `select(\$campos)` ....... `\$this->selectQuery = trim(\$fields)` . 194 llamadas\n";
+echo "      `get(\$v,\$col,\$cols)` .... el VALOR va por `:VALUE_WHERE`, pero `\$col` y `\$cols`\n";
+echo "                                se concatenan ...................... ver ActiveRecord:642\n";
+echo "      `setTable(\$tabla)` ...... la tabla entra en todas las cláusulas . 6 llamadas\n";
+echo "      `rowCount(\$columna)` .... `COUNT({\$column})` .................. 0 llamadas en src/app\n";
+echo "    NO son valores de comparación sino IDENTIFICADORES, y por eso no se arreglan con un\n";
+echo "    marcador: piden lista blanca. Es otro trabajo, y contarlo aquí sería mezclarlo.\n";
+echo "  · CERRADA POR TIPO, y por eso no aparece: el `LIMIT \$from, \$perPage` de\n";
+echo "    `_executeSelect()` sale de dos parámetros `?int`. PHP no deja pasar otra cosa.\n";
 echo "  · La traza NO cruza de método ni de clase: una propiedad, un parámetro o el retorno de\n";
 echo "    otro método caen en REVISAR A MANO, no en DESCARTADO.\n";
 echo "  · Tampoco resuelve índices de array ni variables variables.\n";
@@ -466,6 +717,12 @@ foreach ($declaradas as $clave) {
     if (!isset($declaradasVistas[$clave])) {
         printf("TRINQUETE ROTO: %s figura como declarada y ya no casa con ningún hallazgo.\n", $clave);
         printf("                Quita la entrada: la lista solo puede encoger.\n");
+        exit(1);
+    }
+    if ($declaradasVistas[$clave] > ($declaradasCota[$clave] ?? 1)) {
+        printf("TRINQUETE ROTO: %s declara %d concatenación(es) y hay %d.\n",
+            $clave, $declaradasCota[$clave] ?? 1, $declaradasVistas[$clave]);
+        printf("                Lo que pasa de la cota NO está declarado.\n");
         exit(1);
     }
 }

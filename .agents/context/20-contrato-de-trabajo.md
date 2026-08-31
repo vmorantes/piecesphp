@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-31, tras el BLOQUE AK.**
+**Ultima actualizacion: 2026-08-31, tras el BLOQUE AL.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -867,6 +867,65 @@ El CODER lo propuso y no lo decidio: hizo bien. **Es validacion, no escapado a m
 
 > **Regla nueva, de ahi**: preparar por estado con `grep "^ M"` PIERDE los renombrados. Cuando un
 > bloque renombre archivos, se prepara por RUTA EXPLICITA, que es lo que ya manda el contrato.
+
+### AL CERRADO — y la leccion es sobre el INSTRUMENTO, no sobre el SQL
+
+**QUITAR LA VALIDACION NO MUEVE EL CENSO.** Provocado: borrando el `array_map('intval')` de
+`City::cities`, la suite va 14/14 -> 13/14 -> 14/14 y HTTP va 200 -> 500 -> 200, pero el censo se
+queda en **6 · 3** las tres veces.
+
+> **El censo mide el MECANISMO —que hay concatenacion—, NO EL RIESGO.** La validacion de dominio
+> le es invisible. Por eso la unica red que se pone roja si alguien la quita es la suite
+> comprobandola EN LA FUENTE. Un trinquete que no se mueve cuando desaparece la proteccion no es
+> una proteccion: es un inventario.
+
+**El 500 anterior era la prueba y no hizo falta explotar nada**: `?ids[]=abc` daba
+`Unknown column 'abc' in 'WHERE'` — MySQL leia el valor como nombre de columna.
+
+Cerrado: los tres `ids` validados (lista vacia = no se añade el criterio, porque `IN ()` no
+compila), `InvalidParameterValueException` a 400, `DocumentsController::searchDropdown` por
+`HavingSegment`. Trinquete **6 CONFIRMADO + 3 DECLARADO**, comprobacion 24.
+
+**Precision del CODER que ARQUITECTO tenia mal**: los 6 son SITIOS DE LLAMADA en los DOS metodos
+que ARQUITECTO conto como «2». El censo cuenta llamadas. Es la misma cosa dicha en dos unidades.
+
+### EL HUECO DEL PAQUETE, CONFIRMADO EN LA FUENTE
+
+`WhereItem.php:36-42` — `NOT_ALIAS_OPERATORS` contiene `IN`, `NOT IN` y `FIND_IN_SET`: **ni
+siquiera se les GENERA marcador**, y `toString()` (238-247) imprime en crudo. No es que la
+sustitucion falle: es que no existe.
+
+`CountryMapper::allByRegions()` usa `findInSet` y concatena; inofensiva solo por tener **cero
+consumidores** (medido por ARQUITECTO y por el CODER, por separado).
+
+**La cota del censo se amplio y ahora se imprime**: `orderBy($s)` -> `"ORDER BY $s"`,
+`groupBy($s)` -> `"GROUP BY $s"` y `join($t, $on)` con `$on` string -> `"JOIN t ON ($on)"`. Los
+tres concatenan y **NO se miran**: **16 + 4 + 1 = 21 llamadas sin censar**.
+
+### `region`: LA LISTA BLANCA NO SE PUEDE, Y ADEMAS NO SE DEBE
+
+El CODER paro con tres pruebas: `structure.sql:156` dice `region` **text DEFAULT NULL** —sin
+ENUM—, no hay `RegionMapper` (los valores salen de un `GROUP BY region`), y el volcado versionado
+tiene **dos paises, los dos con `region = NULL`**.
+
+**Decision de ARQUITECTO, y es de diseño, no de falta de datos**: aunque el PROPIETARIO autorizara
+la consulta, **una lista blanca sacada de ESTA instalacion seria falsa para todos los clones**.
+`piecesphp` es plantilla: sus regiones las pone cada clon. El patron conservador es la respuesta
+correcta para una plantilla; la lista blanca, si acaso, es cosa del clon. **Se queda el patron, y
+se documenta su efecto**: un nombre con apostrofo o punto queda descartado.
+
+### TERCER ERROR DE ORDEN DEL CODER, contado por el
+
+`9423aa33` entro con `verify-integrity` en ROJO: añadio la seccion 5 de la suite DESPUES de la
+ultima pasada y solo volvio a correr la suite y `gates`. Lo cerro `dfdb47fb`.
+
+> **Regla**: `verify-integrity` se corre DESPUES del ULTIMO cambio del bloque, no antes. Si se
+> toca un archivo despues de la puerta, la puerta no ha corrido.
+
+Y el metodo de PHPStan, afinado otra vez: comparar por `(archivo, LINEA, mensaje)` invento «3
+muertas y 3 nacidas» —un mismo mensaje repetido en dos lineas del mismo archivo que el diccionario
+colapsaba—. Por **multiconjunto de `(archivo, mensaje)` ignorando la linea**: 747 contra 747, cero
+muertas, cero nacidas, 24 desplazadas.
 
 ### Abierto, sin decidir
 

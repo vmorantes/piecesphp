@@ -12,6 +12,10 @@ use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Roles;
@@ -299,6 +303,13 @@ class UsersController extends AdminPanelController
         $ignoreTypes = $request->getQueryParam('ignoreTypes', null);
         $ignoreTypes = is_string($ignoreTypes) && mb_strlen(trim($ignoreTypes)) > 0 ? trim($ignoreTypes) : null;
         $ignoreTypes = is_string($ignoreTypes) ? explode(',', $ignoreTypes) : [];
+        //`is_numeric` ANTES de `intval`: `intval('abc')` da 0, y 0 es `TYPE_USER_ROOT`.
+        //`TYPES_USER_PRIORITY` es el único que enumera los siete tipos. Ver T153.
+        $tiposConocidos = array_keys(UsersModel::TYPES_USER_PRIORITY);
+        $ignoreTypes = array_values(array_filter(
+            array_map('intval', array_filter($ignoreTypes, 'is_numeric')),
+            static fn (int $tipo): bool => in_array($tipo, $tiposConocidos, true)
+        ));
 
         $results = new \stdClass;
         $results->success = true;
@@ -307,27 +318,38 @@ class UsersController extends AdminPanelController
         $model = UsersModel::model();
         $model->select(UsersModel::fieldsToSelect());
         $model->orderBy('fullname ASC, username ASC, id DESC');
-        $model->having("status != " . UsersModel::STATUS_USER_DELETED); //No mostrar usuarios marcados eliminados
 
+        //UN SOLO `where()`: `where()` SUSTITUYE el segmento, no acumula — y por eso el `having`
+        //de la búsqueda borraba el de `status`. Ver T153.
+        $criteriosWhere = [];
         if (!empty($ignoreTypes)) {
-            $ignoreTypes = implode(', ', $ignoreTypes);
-            $model->where("type NOT IN ({$ignoreTypes})");
+            $criteriosWhere[] = new WhereItem(
+                'type',
+                WhereItem::NOT_IN_OPERATOR,
+                '(' . implode(', ', $ignoreTypes) . ')',
+                WhereItem::AND_OPERATOR
+            );
         }
+        $criteriosWhere[] = new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED);
+        $model->where(new WhereSegment($criteriosWhere));
 
         if ($search !== null) {
 
-            $search = mb_strtolower($search);
-            $having = [
-                "LOWER(fullname) LIKE '{$search}%'",
-                "OR LOWER(username) LIKE '{$search}%'",
-                "OR LOWER(firstname) LIKE '{$search}%'",
-                "OR LOWER(secondname) LIKE '{$search}%'",
-                "OR LOWER(second_lastname) LIKE '{$search}%'",
-                "OR LOWER(first_lastname) LIKE '{$search}%'",
-            ];
-            $having = trim(implode(' ', $having));
+            //`having(string)` CONCATENA igual que `where(string)`. Por marcador. `fullname` es
+            //un alias calculado en `fieldsToSelect()`, y por eso este criterio sigue en HAVING.
+            $patron = mb_strtolower($search) . '%';
+            $criteriosHaving = [];
+            foreach (['fullname', 'username', 'firstname', 'secondname', 'second_lastname', 'first_lastname'] as $columna) {
+                $criteriosHaving[] = new HavingItem(
+                    "LOWER({$columna})",
+                    HavingItem::LIKE_OPERATOR,
+                    $patron,
+                    HavingItem::OR_OPERATOR,
+                    'LOWER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+                );
+            }
 
-            $model->having($having);
+            $model->having(new HavingSegment($criteriosHaving));
 
             $model->execute();
 
