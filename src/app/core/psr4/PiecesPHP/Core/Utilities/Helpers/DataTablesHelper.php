@@ -663,7 +663,7 @@ class DataTablesHelper
 
             }
 
-            $filterCountSQLGenerated = $filterCount->getCompiledSQL();
+            $filterCountSQLGenerated = $filterCount->getCompiledSQL(true);
 
             $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $filterCountSQLGenerated . ") AS table_derivate";
 

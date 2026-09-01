@@ -279,16 +279,21 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
-## ⚠ Advertencia — los cuatro listados migrados a `where_segment` fallan en ejecución
+## Corregido — `DataTablesHelper` ejecutaba la forma de DEPURACIÓN de su SQL de conteo
 
-`Country::countriesDataTables`, `State::statesDataTables`,
-`UsersController::dataTablesRequestUsers` y `DocumentsController::dataTablesExplorer` devuelven
-**500** cuando se usa su filtro. Medido por HTTP: la misma ruta **sin** el filtro responde 200, y
-un listado hermano que sigue en la vía de cadena también. El marcador llega a MySQL sin sus dos
-puntos —`Unknown column 'WH…_UPPERREGION' in 'WHERE'`— y la causa está en la preparación del
-paquete `database`, no en el SQL que se compone.
+`process()` armaba su conteo filtrado con `getCompiledSQL()` **sin argumento** (línea 665), que es
+la forma de depuración: sustituye `:ALIAS` por `(ALIAS=valor)`, **sin los dos puntos**. Ese texto
+se envolvía en `SELECT COUNT(*) FROM (…)` y se ejecutaba, así que MySQL leía el alias como nombre
+de columna —`Unknown column 'WH…_UPPERREGION' in 'WHERE'`—. Sus dos líneas hermanas, la 450 y la
+686, ya llamaban con `true`.
 
-**Está pendiente de decisión si se revierten**; hasta entonces, esos cuatro filtros no funcionan.
+**Es un defecto preexistente, no una regresión**: con `where_string` no hay valores de reemplazo,
+el bucle de sustitución no hace nada y el SQL salía intacto. Sólo dispara cuando se pasa un
+segmento, y por eso apareció al migrar los primeros listados.
+
+Comprobado por HTTP en las tres rutas afectadas: **500 → 200**. Y los cinco arreglos de seguridad
+de bloques anteriores se ejecutaron uno a uno: **los seis sitios de búsqueda responden 200**,
+ninguno estaba roto.
 
 ## Eliminaciones — `datatables_proccessing_with_options()`
 

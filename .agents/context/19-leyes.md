@@ -991,3 +991,33 @@ falla si excluye una ruta inexistente.
 > `features/locations/js/locations-config.js:11` y residuo en `my-profile.js:216`, donde vive
 > dentro de un `locations2` cuyos cuatro atributos tienen cero productores. **El mismo atributo,
 > dos veredictos opuestos.** No lo decide el atributo: lo decide el bloque que lo rodea.
+
+
+### LEY 29 — UN FRAGMENTO COMPUESTO NO SUSTITUYE A UNA EJECUCION
+
+**Nacida el 2026-09-01, y el fallo es de ARQUITECTO.** Durante los bloques AJ, AL, AM, AO, AP y AQ
+la instruccion decia, literalmente: *«NINGUNA prueba de explotacion contra la aplicacion viva. EL
+FRAGMENTO COMPUESTO ES LA EVIDENCIA.»*
+
+La prohibicion era correcta. **La segunda frase nombraba la evidencia equivocada.**
+
+Componer un `WhereSegment` y leer su `toString()` demuestra que **el SQL se ARMA bien**. No
+demuestra que **se EJECUTE**. Y el defecto vivia justo ahi: el marcador llegaba a MySQL **sin sus
+dos puntos**, y cuatro rutas devolvian 500 mientras el fragmento compuesto salia impecable.
+
+> **Un fragmento compuesto prueba la composicion. Solo una ejecucion prueba la ejecucion.**
+> Y **una peticion normal con un valor normal NO es una prueba de explotacion**: `?region=Europa`
+> no ataca nada. ARQUITECTO confundio «no mandes un ataque» con «no ejecutes la consulta», y con
+> esa confusion firmo cuatro migraciones rotas.
+
+**La forma corta**: *si no corrio contra la base, no esta comprobado.*
+
+**Mecanismo (LEY 11)**: toda suite que compruebe SQL parametrizado lleva, ademas de la
+comparacion de cadenas, **una ejecucion real** —o, si la ruta pide sesion, una apertura temporal
+desde estado guardado, que es tecnica ya usada y restaurada con sha256—. Y el reporte de un
+bloque que toque SQL **publica codigos HTTP, no solo fragmentos**.
+
+**Corolario, del mismo dia**: `ReportsManageQueries` lleva NUEVE construcciones de segmento
+anteriores a esta campaña. Si el camino de marcadores estuviera roto de raiz, esos informes
+llevarian rotos desde siempre. **Que algo lleve tiempo funcionando es una medicion disponible y
+gratuita**, y ARQUITECTO no la uso.

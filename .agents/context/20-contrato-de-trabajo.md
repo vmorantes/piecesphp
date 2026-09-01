@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras el BLOQUE AR.**
+**Ultima actualizacion: 2026-09-01, tras el BLOQUE AS.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1361,6 +1361,59 @@ NADA SE EMPUJA, tampoco aqui.**
 Desbloquea: las dos controladoras, `generateHaving` con segmento aun habiendo `having_string`, la
 retirada de la via de cadena con sus 5 declarados, y **2 de las 23 `escapeString`** —las del
 helper—. Las otras 21 viven en los `search()` de los mappers y en JSON: **no caen por esto**.
+
+### AS — CUATRO MIGRACIONES ROTAS, Y LA CULPA ES DE LA INSTRUCCION
+
+**El CODER encontro y confeso que las migraciones de AP y AQ estan ROTAS**: cuatro rutas
+devuelven 500 con el filtro por segmento y 200 sin el. La discriminante es el segmento, no la ruta
+ni el entorno. El error, del registro:
+
+```
+SQLSTATE[42S22]: Unknown column 'WH6A971DCA36125_UPPERREGION' in 'WHERE'
+```
+
+**El marcador llega a MySQL SIN SUS DOS PUNTOS.**
+
+**Y corrigio a ARQUITECTO**: T158 decia que el 500 del explorador era «un segundo defecto, propio y
+ANTERIOR». **Anterior no: era suyo, de AQ, y no era una ruta sino cuatro.**
+
+**La causa de fondo es de ARQUITECTO y esta escrita como LEY 29**: seis instrucciones seguidas
+dijeron *«el fragmento compuesto es la evidencia»*. Componer prueba la composicion; solo ejecutar
+prueba la ejecucion. Y **una peticion normal con un valor normal no es una prueba de
+explotacion**.
+
+### EL ALCANCE ES MAYOR QUE CUATRO — medido por ARQUITECTO
+
+En `src/app` hay **SIETE sitios de produccion** que usan el envoltorio `{%VALUE%}`:
+`Point:471`, `State:466`, `Country:298`, `Country:517`, `City:568`, `Documents:982`,
+`UsersController:353`. **Cinco de ellos son los ARREGLOS DE SEGURIDAD de AJ, AL, AM y AO**, y
+ninguno se ejecuto nunca: su evidencia tambien fue el fragmento.
+
+Y una medicion gratuita que apunta a la causa: **`ReportsManageQueries` tiene NUEVE
+construcciones de segmento anteriores a la campaña**. Si el camino de marcadores estuviera roto de
+raiz, esos informes llevarian rotos desde siempre. **Eso separa la rama llana de la rama con
+envoltorio**, y hace del `rightWrapFunction` el sospechoso — pero **NO SE AFIRMA: se ejecuta.**
+
+Dato leido, para el que lo persiga: el alias se construye en
+`WhereItem::setWithAlias()` (`:168`) con `preg_replace("/[.|\(|\)|-|,]/", '', ':WH'.uniqid()."_{$base}")`.
+**Ese conjunto NO incluye los dos puntos**, asi que el alias nace con ellos. La perdida ocurre
+despues, y hay que encontrarla ejecutando.
+
+### `database` v4.1.0: HECHO, VERDE, Y SIN LLEGAR AL FRAMEWORK
+
+`HavingSegment` agrupa; no regresion comprobada por `diff` VACIO contra HEAD sobre cuatro formas
+existentes; `WhereItemGroup` intacto; 13 suites verdes; PHPStan 21 = base. Commit `e5602de`,
+**etiqueta v4.1.0 preparada y NO creada**, nada empujado.
+
+**Pero `src/vendor/piecesphp/database` NO es un symlink**: es instalacion de Composer fijada en
+`e9f5ac37` por `composer.lock`. `addGroup` esta 1 vez en el repo hermano y **0 en el instalado**.
+La parte 2 no se puede ejecutar sin etiqueta y publicacion — **decision del PROPIETARIO**.
+
+### `limitGeneratedSQL` no necesitaba ningun cambio
+
+`GenericHandler::logging()` ya vuelca `extraData` en `error.log.json` (`:167`), y los logs estan en
+`.gitignore`. **La decision de ARQUITECTO —registrar, no imprimir— resulto ser lo que ya existia.**
+De ahi salio el SQL exacto del fallo.
 
 ### Abierto, sin decidir
 

@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/8] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/9] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/8] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/9] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/8] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/9] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/8] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/9] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +177,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/8] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/9] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +201,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/8] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/9] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -252,7 +252,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/8] Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/9] Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
@@ -318,7 +318,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
-    echoTerminal('[8/8] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
+    echoTerminal('[8/9] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
 
     //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
     //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
@@ -381,6 +381,48 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             'process() se niega a: ' . mb_substr($guarda, 0, 46)
         );
     }
+    echoTerminal(' ');
+
+    //──── 9. LA QUE EJECUTA (LEY 29) ────────────────────────────────────────────────────
+    echoTerminal('[9/9] El SQL de `process()` con segmento se EJECUTA de verdad');
+
+    //LEY 29: las ocho secciones de arriba comparan CADENAS, y ninguna vio la 665. Ver T160.
+    $modelo = \App\Locations\Mappers\CountryMapper::model();
+    $segmentoEjecutable = new WhereSegment([
+        new WhereItem('UPPER(region)', WhereItem::EQUAL_OPERATOR, 'NONE', '',
+            'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'),
+    ]);
+    $modelo->select(['id'])->where($segmentoEjecutable);
+
+    //LA MISMA ENVOLTURA QUE ARMA `process()` para su conteo filtrado.
+    $sqlDerivado = 'SELECT COUNT(*) AS total FROM (' . $modelo->getCompiledSQL(true) . ') AS table_derivate';
+
+    $ejecutado = false;
+    $motivo = '';
+    try {
+        $sentencia = $modelo->prepare($sqlDerivado);
+        $sentencia->execute();
+        $sentencia->fetchAll();
+        $sentencia->closeCursor();
+        $ejecutado = true;
+    } catch (\Throwable $errorEjecucion) {
+        $motivo = $errorEjecucion->getMessage();
+    }
+
+    //SIN BASE NO HAY VEREDICTO, Y SE DICE. Un verde que no ejecutó es LEY 18.
+    $check(
+        $ejecutado,
+        'el SQL de conteo filtrado con segmento SE EJECUTA contra la base',
+        $ejecutado ? mb_substr($sqlDerivado, 0, 110) : "NO PUEDO EJECUTAR AQUÍ: {$motivo}"
+    );
+
+    //DISCRIMINANTE: sin esto, la comprobación de arriba no sabría qué está probando.
+    $sqlDepuracion = $modelo->getCompiledSQL();
+    $check(
+        mb_strpos($sqlDepuracion, ':WH') === false && mb_strpos($sqlDepuracion, 'WH') !== false,
+        'DISCRIMINANTE: `getCompiledSQL()` sin argumento deja el alias SIN los dos puntos',
+        'Por eso `process()` tiene que llamarla SIEMPRE con `true`.'
+    );
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

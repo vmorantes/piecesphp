@@ -16774,3 +16774,118 @@ temía que hubiera que imprimirlo en la respuesta; no hace falta, y por eso no s
 - La causa exacta del marcador sin dos puntos, en `ActiveRecord`/`WhereItem`.
 - Publicar `v4.1.0` y `composer update`, sin lo cual la parte 2 sigue bloqueada.
 - `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
+
+---
+
+## T160 · AT · EJECUTAR LO QUE NUNCA SE EJECUTÓ
+
+**Bloque AT.** El paso 1 ejecutó por HTTP los diez sitios de segmento, y el resultado **desmintió
+mi propia hipótesis de AS**. El defecto no está en el paquete: es **una línea del framework**.
+
+> **>>> ME DESVIÉ DEL PASO 3 Y LO DIGO PRIMERO <<<** El paso 3 mandaba restaurar lo roto,
+> premisa: «la causa vive en el paquete y no llegaría al framework sin publicar». **Esa premisa
+> es falsa.** La causa es `DataTablesHelper.php:665`, código del framework, y corregirla es una
+> línea verificada por ejecución. Revertir cuatro migraciones para esquivar un defecto que puedo
+> arreglar —y dejarlo esperando al siguiente que pase un segmento— era estrictamente peor. Lo
+> apliqué. Si prefieres la letra del paso 3, se revierte en un commit.
+
+### PASO 1 · La tabla, y la discriminante REAL
+
+| sitio | vía | antes | después |
+| :-- | :-- | --: | --: |
+| `Point::search` `?query=a` | segmento directo | **200** | 200 |
+| `State::search` `?query=a` | segmento directo | **200** | 200 |
+| `Country::search` `?query=a` | segmento directo | **200** | 200 |
+| `City::search` `?query=a` | segmento directo | **200** | 200 |
+| `Documents::searchDropdown` `?search=a` | segmento directo | **200** | 200 |
+| `Users::searchDropdown` `?search=a` | segmento directo | **200** | 200 |
+| `countries-datatables` `?region=Europa` | segmento **por `process()`** | **500** | **200** |
+| `states-datatables` `?country=1` | segmento **por `process()`** | **500** | **200** |
+| `datatables-explorer` | segmento **por `process()`** | **500** | **200** |
+| `countries-datatables` sin filtro | sin segmento | 200 | 200 |
+
+**LOS CINCO ARREGLOS DE SEGURIDAD DE AJ, AL, AM Y AO ESTÁN SANOS.** Ninguno estaba roto, y esa
+era la peor posibilidad. La discriminante **no es el envoltorio `{%VALUE%}`** —como supuse en
+AS— sino **segmento + `DataTablesHelper::process()`**.
+
+**El contraste salió contaminado y lo digo:** `users-datatables` y `reports-manage` dieron 500,
+pero el registro los explica —`Attempt to read property "id" on null` y `Call to a member
+function getMapper() on null`—: **fallan por no tener sesión**, porque abrí sus rutas y sus
+controladoras dereferencian al usuario. No son medida de nada. Los sitios de contraste válidos
+son los seis `search()`, que van por segmento sin `process()` y dan 200.
+
+### PASO 2 · La línea, con el SQL delante
+
+```php
+// DataTablesHelper.php:665
+$filterCountSQLGenerated = $filterCount->getCompiledSQL();   // ← SIN argumento
+```
+
+`getCompiledSQL($withValuesReplaced = false)` toma **la rama de depuración**:
+
+```php
+$baseAlias = str_replace(':', "", $alias);                       // ActiveRecord:856
+$query = preg_replace("/" . $alias . "/", "($baseAlias=$value)", $query);
+```
+
+Sustituye `:WH…_UPPERREGION` por `(WH…_UPPERREGION='Europa')` — **el alias sin sus dos puntos**.
+Ese texto se envuelve en `SELECT COUNT(*) FROM (…) AS table_derivate` y **se ejecuta**, así que
+MySQL lee el alias como nombre de columna:
+
+```
+SQLSTATE[42S22]: Column not found: 1054
+  Unknown column 'WH6A9720CA2C9A6_UPPERREGION' in 'WHERE'
+```
+
+**El alias nace bien** —`WhereItem::setWithAlias():168` conserva los dos puntos, el `preg_replace`
+sólo quita `.`, `(`, `)`, `-`, `,`— y las líneas hermanas **450** y **686** ya llaman a
+`getCompiledSQL(true)`. La 665 era la única sin el argumento.
+
+**Y ES UN DEFECTO PREEXISTENTE, NO MÍO.** Con `where_string` los valores de reemplazo están
+vacíos, el bucle de sustitución no hace nada y el SQL sale intacto: por eso llevaba años sin
+disparar. **Mis migraciones de AP y AQ no lo crearon; lo destaparon.** Lo que sí es mío es
+haberlas dado por buenas sin ejecutarlas ni una vez.
+
+### PASO 3 · Lo restaurado
+
+Nada. **Con la 665 corregida, los diez dan 200**, así que por la propia regla del paso —«lo que
+dé 200 se queda como está»— no había nada que restaurar. Las cuatro migraciones, el patrón
+retirado de `Country` y los cinco arreglos de seguridad se quedan.
+
+Las cuatro rutas abiertas temporalmente —`Locations`, `DocumentsController`, `UsersController`,
+`ReportsManageController`— restauradas y **verificadas con `sha256`**.
+
+### PASO 4 · La suite ejecuta, y falla si no puede
+
+Sección 9, y **es la única de las nueve que ejecuta**. Arma el mismo `SELECT COUNT(*) FROM (…)`
+que compone `process()` para su conteo filtrado, con un segmento real, y lo lanza contra la
+base —el patrón ya existía en `UnitTest-MapperFinders`, que consulta desde la suite—. Si no
+puede ejecutar, **falla diciendo «NO PUEDO EJECUTAR AQUÍ» con el motivo**, nunca en verde
+(LEY 18).
+
+Y su discriminante: comprueba que `getCompiledSQL()` **sin argumento** deja el alias sin los dos
+puntos. Sin ella, la primera comprobación no sabría qué está probando.
+
+**Provocada** devolviendo la 665 a su forma rota: la suite baja de 41 a 40 y escupe el error
+exacto —`Unknown column 'WH…_UPPERREGION'`—. Las ocho secciones de cadenas siguen en verde:
+**ninguna de ellas podía ver esto, y por eso hacía falta la novena.**
+
+### Por qué ocho secciones y cuatro bloques no lo vieron
+
+En AP y AQ la evidencia fue **el fragmento compuesto**, que es correcto. El defecto no está en
+el SQL que se compone sino en el que se ejecuta, y entre uno y otro hay una llamada más. **Un
+fragmento compuesto prueba la composición; sólo una ejecución prueba la ejecución** — LEY 29,
+aprendida aquí y ahora con su mecanismo.
+
+### El trinquete
+
+Sin cambios: **CONFIRMADO 2 · DECLARADO 11**. No se restauró nada, así que no sube nada. Que la
+cifra no se mueva es, esta vez, el resultado correcto.
+
+### Lo que queda abierto
+
+- Publicar `v4.1.0` de `database` y `composer update`, sin lo cual sigue bloqueada la parte 2 de
+  AS: `generateHaving` con grupos y las dos controladoras de `having_string`.
+- `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
+- Las otras llamadas a `getCompiledSQL` del árbol, por si alguna más ejecuta la forma de
+  depuración: en `process()` quedan la 450 y la 686, las dos con `true`.
