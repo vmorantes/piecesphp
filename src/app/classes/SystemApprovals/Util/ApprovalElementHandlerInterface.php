@@ -42,6 +42,17 @@ interface ApprovalElementHandlerInterface
     public static function getContentType(int | EntityMapper $reference): string;
 
     /**
+     * TODOS los textos que este handler puede llegar a escribir en `referenceAlias`.
+     *
+     * No es `[$BASE_TEXT]` por definición: `UsersApprovalHandler` devuelve DOS, y el segundo
+     * —'Usuario independiente'— vivía dentro de un método sin estar declarado en ninguna lista,
+     * así que cualquier lista blanca construida sin esto habría sido falsa. Ver T162.
+     *
+     * @return string[]
+     */
+    public static function getContentTypes(): array;
+
+    /**
      * Obtiene la tabla de referencia.
      *
      * @return string

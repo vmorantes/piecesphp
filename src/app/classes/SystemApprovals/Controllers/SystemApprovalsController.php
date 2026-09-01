@@ -13,6 +13,8 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
@@ -433,8 +435,12 @@ class SystemApprovalsController extends AdminPanelController
      */
     public function dataTables(Request $request, Response $response)
     {
+        //LISTA BLANCA REAL, y sale del CONTRATO de los handlers, no de la base: cada uno declara
+        //en `getContentTypes()` todos los textos que puede escribir. Ver T162.
         $referenceAliasFilter = $request->getQueryParam('referenceAlias', null);
         $referenceAliasFilter = is_string($referenceAliasFilter) && mb_strlen(trim($referenceAliasFilter)) > 0 ? trim($referenceAliasFilter) : null;
+        $tiposConocidos = SystemApprovalManager::getInstance()->getContentTypes();
+        $referenceAliasFilter = in_array($referenceAliasFilter, $tiposConocidos, true) ? $referenceAliasFilter : null;
         //SE VALIDABA COMO CADENA Y SE USABA COMO NÚMERO en `elapsedDays >= {$…}`, sin comillas.
         //Son dos defectos: el de tipo y el de SQL. `isInteger` cierra los dos. Ver T155.
         $elapsedDaysFilter = $request->getQueryParam('elapsedDays', null);
@@ -444,7 +450,6 @@ class SystemApprovalsController extends AdminPanelController
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationID = $currentUser->organization;
-        $whereString = null;
         $havingString = null;
         $and = 'AND';
         $table = SystemApprovalsMapper::TABLE;
@@ -453,8 +458,10 @@ class SystemApprovalsController extends AdminPanelController
         $approved = SystemApprovalsMapper::STATUS_APPROVED;
         $baseOrgID = OrganizationMapper::INITIAL_ID_GLOBAL;
         $userTypesThatCanApprovalSelf = implode(',', SystemApprovalsMapper::CAN_APPROVAL_SELF);
-        $where = [
-            "{$table}.status = '{$pending}'",
+        //POR MARCADOR, con `where_segment`. La lista blanca de arriba cierra el DOMINIO y el
+        //marcador cierra el MECANISMO: aquí hacen falta las dos.
+        $whereItems = [
+            new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $pending, WhereItem::AND_OPERATOR),
         ];
         $having = [
             //Verifica que la referencia se considere "activa"
@@ -479,10 +486,8 @@ class SystemApprovalsController extends AdminPanelController
             }
         }
 
-        if ($referenceAliasFilter !== null && $referenceAliasFilter != '-1') {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.referenceAlias = '{$referenceAliasFilter}'";
-            $where[] = "{$beforeOperator} ({$critery})";
+        if ($referenceAliasFilter !== null) {
+            $whereItems[] = new WhereItem("{$table}.referenceAlias", WhereItem::EQUAL_OPERATOR, $referenceAliasFilter, WhereItem::AND_OPERATOR);
         }
 
         if ($elapsedDaysFilter !== null && $elapsedDaysFilter != '-1') {
@@ -491,9 +496,7 @@ class SystemApprovalsController extends AdminPanelController
             $having[] = "{$beforeOperator} ({$critery})";
         }
 
-        if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-        }
+        $whereSegment = new WhereSegment($whereItems);
 
         if (!empty($having)) {
             $havingString = trim(implode(' ', $having));
@@ -517,7 +520,7 @@ class SystemApprovalsController extends AdminPanelController
 
         $result = DataTablesHelper::process([
 
-            'where_string' => $whereString,
+            'where_segment' => $whereSegment,
             'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,

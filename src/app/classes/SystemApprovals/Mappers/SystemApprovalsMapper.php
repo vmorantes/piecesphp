@@ -303,16 +303,27 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     }
 
     /**
-     * Obtiene los "nombres de contenido" desde la agrupación de referenceAlias en base de datos (los pasa por __())
+     * Los "nombres de contenido" de la base: CLAVE el valor CRUDO de la columna, TEXTO el
+     * traducido.
      *
-     * @return string[]
+     * Devolvía el traducido en las dos, y la columna guarda el crudo: en cualquier idioma que
+     * no fuera español el desplegable mandaba una etiqueta que el `WHERE` no encontraba nunca.
+     * Ver T162.
+     *
+     * @return array<string,string>
      */
     public static function getReferencesAliases()
     {
         $model = self::model();
         $model->select("referenceAlias")->groupBy('referenceAlias')->execute();
-        $elements = array_map(fn($e) => __(self::LANG_GROUP, $e->referenceAlias), $model->result());
-        return array_combine($elements, $elements);
+        $opciones = [];
+        $resultado = $model->result();
+        $resultado = is_array($resultado) ? $resultado : [];
+        foreach ($resultado as $elemento) {
+            $crudo = (string) $elemento->referenceAlias;
+            $opciones[$crudo] = __(self::LANG_GROUP, $crudo);
+        }
+        return $opciones;
     }
 
     /**

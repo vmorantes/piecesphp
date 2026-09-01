@@ -16972,3 +16972,114 @@ Sin cambios: **CONFIRMADO 2 · DECLARADO 11**. Este bloque no tocó SQL de produ
 - `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
 - La cota del censo nuevo: la traza mira el método que llama y no cruza de clase, y los
   sumideros son ocho y ningún otro. Ampliarla es trabajo, no descuido.
+
+---
+
+## T162 · AW · SYSTEMAPPROVALS, Y EL FILTRO QUE ESTABA ROTO POR IDIOMA
+
+**Bloque AW.** Los dos defectos iban juntos y por eso se hicieron juntos. **CONFIRMADO llega a
+cero.** Y una provocación salió verde, que es el otro hallazgo del bloque.
+
+### Corrijo lo que dije en AO sobre el registro
+
+Escribí que el registro de handlers «se carga con `require_once` dentro de un constructor privado
+y **nunca se expone**». La primera mitad es cierta; **la segunda no**:
+`SystemApprovalManager:88` guarda cada clase en `$this->configurations`, y **seis métodos ya la
+leen**. El `require_once` nunca fue el obstáculo — sólo faltaba un accesor. Paré en AO leyendo
+media pantalla.
+
+### PASO 1 · `getContentTypes()` en el contrato · sin PARADA
+
+| Dónde | Qué |
+| :-- | :-- |
+| `ApprovalElementHandlerInterface` | declara `getContentTypes(): array` |
+| `BaseApprovalHandler` | implementación por defecto: `[static::$BASE_TEXT]` |
+| `UsersApprovalHandler` | la sobreescribe con **DOS** |
+| `SystemApprovalManager` | `getContentTypes()`, la unión de los registrados |
+
+**Nada se rompe al tocar la interfaz**, y está medido: los **tres** handlers extienden
+`BaseApprovalHandler`, que da la implementación por defecto. Ningún otro implementa la interfaz
+directamente.
+
+**`'Usuario independiente'` era un literal suelto dentro de un método.** Ahora es
+`UsersApprovalHandler::TEXT_INDEPENDENT_USER`, y sale del **mismo sitio que lo escribe** — que es
+la única forma de que una lista blanca no mienta.
+
+**No hay cuarto texto.** El conjunto completo es `Elemento` (defecto de la base, inalcanzable
+mientras los tres sobreescriban), `Organización`, `Perfil`, `Publicación` y
+`Usuario independiente`. Comprobado ejecutando: el manager devuelve los cuatro alcanzables, y
+**todo alias guardado en la base está declarado por algún handler**.
+
+### PASO 2 · El desplegable, y el defecto ejecutado
+
+`getReferencesAliases()` devolvía `array_combine($traducidos, $traducidos)`. Ahora la **clave es
+el valor crudo** y el texto el traducido.
+
+**El consumidor no cambió, y eso es medición, no suerte**: `getReferencesAliasesForSelect()` ya
+hacía `foreach ($sourceOptions as $value => $text)`, o sea que **siempre esperó clave/valor
+distintos**. La red ancha da un solo consumidor —él— más la vista que lo pinta.
+
+Ejecutado en los dos idiomas desde la suite, que consulta:
+
+| | claves | textos |
+| :-- | :-- | :-- |
+| `es` | `Organización · Perfil · Usuario independiente` | iguales |
+| `en` | **las mismas** | `Organization · Profile · Independent user` |
+
+Con la forma vieja, en inglés **las claves eran `Organization/Profile/Independent user`** y la
+columna guarda el español: **el filtro no casaba nada**. Ése es el defecto entero, y sólo se ve
+ejecutando.
+
+> **NO se pudo medir por HTTP, y lo digo:** `dataTables` llama a
+> `getLoggedFrameworkUserOrFail()`, así que abrir la ruta no basta —da «No hay una sesión de
+> usuario activa»— y autenticarse exige credenciales, que están vetadas. La ejecución se hizo
+> desde la suite, que ya consultaba desde T160.
+
+### >>> LA PROVOCACIÓN SALIÓ VERDE, Y ERA MI PRUEBA <<<
+
+La primera versión de la comprobación usaba `set_config('lang', …)`. **La clave es `app_lang`**
+(`Config::i18n():575`), así que no cambiaba nada: `__()` devolvía el español en las dos vueltas,
+«claves iguales» pasaba trivialmente, **y con el defecto puesto la suite seguía en verde**.
+
+Lo cazó la provocación, no la lectura. Corregido a `app_lang`, y con una **discriminante**
+delante: los TEXTOS tienen que cambiar entre idiomas, porque si no cambian la comprobación de
+las claves no está probando nada. Con las dos, provocar tumba la suite de 46 a 45 y enseña las
+claves inglesas.
+
+### PASO 3 · La lista blanca, y el marcador
+
+`referenceAlias` se valida contra `SystemApprovalManager::getInstance()->getContentTypes()` y
+además **migra a `where_segment`**: la lista blanca cierra el DOMINIO y el marcador el
+MECANISMO, y aquí hacen falta las dos.
+
+`$where` quedó vacío y sin consumidores tras la migración: **retirado**.
+
+**El `having_string` NO migra**, y es la otra salida correcta: `columns_order` son columnas
+buscables reales —`referenceAlias`, `referenceDateFormat`, `referenceUserFullName`—, así que
+`generateHaving` produce contenido en cuanto alguien escribe y **la guarda de AP pararía el
+`having_segment`**. Se queda en cadena con su `isInteger` de AO, **declarado**.
+
+### La comprobación de AO se invierte, no se debilita
+
+AO exigía que `SystemApprovalsController::dataTables` **NO** estuviera declarado mientras
+`referenceAlias` siguiera abierto. Cerrado éste, el método tiene **un** hallazgo y declararlo ya
+no indulta a nadie: la comprobación pasa a exigir **que sí esté declarado** y que
+`referenceAlias` vaya por marcador. **La regla de AO era correcta y dejó de aplicar sola.**
+
+### PASO 4 · El trinquete
+
+| | AQ | AR | AW |
+| :-- | --: | --: | --: |
+| CONFIRMADO | 2 | 2 | **0** |
+| DECLARADO | 11 | 11 | **12** |
+
+> **Cero NO significa que no quede SQL concatenado.** Significa que **todo el que recibe valor de
+> petición está declarado con su validación, o va por marcador**. Los doce declarados siguen ahí,
+> y la cota impresa sigue nombrando lo que el censo no mira.
+
+### Lo que queda abierto
+
+- Publicar `v4.1.0` del paquete: desbloquea `generateHaving` con grupos, las dos controladoras
+  de `having_string` y este mismo `elapsedDays`.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+- Los 14 archivos de los cubos B y C, sin prisa y sin ganancia.

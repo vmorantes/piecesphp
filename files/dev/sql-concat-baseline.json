@@ -8,7 +8,7 @@
     ],
     "medido": {
         "fecha": "2026-08-31",
-        "bloque": "AK; recontado en AL; 8 familias en AM; novena en AÑ; cerrada en AO; segmentos en AP; primer lote en AQ",
+        "bloque": "AK..AQ; SystemApprovals cerrado en AW",
         "herramienta": "bin/censo-sql-concatenado",
         "universo": "archivos .php bajo `src/app`, excluyendo /vendor/ /node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
         "archivos": 675,
@@ -21,10 +21,10 @@
         "migracion": "AQ: 4 archivos que llaman a `process()` usan YA segmento y 14 siguen en cadena. La cifra la imprime el censo y sale del arbol, no de un conteo a mano. Un archivo con dos llamadas puede estar en las DOS columnas: `DocumentsController` lo esta, porque migro `dataTablesExplorer` y `dataTables` sigue en cadena."
     },
     "cifras": {
-        "confirmado": 2,
-        "declarado": 11,
-        "revisar": 104,
-        "descartado": 133
+        "confirmado": 0,
+        "declarado": 12,
+        "revisar": 103,
+        "descartado": 134
     },
     "_historia": [
         "AJ: 9 con el censo mirando SOLO `->where(`. Se arregló `Country::search()` y quedaron 8.",
@@ -52,6 +52,9 @@
         "AQ: CONFIRMADO se queda en 2 —los de SystemApprovals, fuera de alcance— y DECLARADO baja de 14 a 11: se migran TRES y sus tres entradas se retiran. Las llamadas miradas vuelven de 253 a 250 porque tres fragmentos de cadena dejan de existir.",
         "AQ: el cubo A tenia CINCO. Se migran las TRES que usan solo `where_string` —`State::statesDataTables`, `DocumentsController::dataTablesExplorer` y `UsersController::dataTablesRequestUsers`— y quedan DOS bloqueadas: `OrganizationsController::dataTables` y `PublicationsController::dataTables` meten su valor de peticion en `having_string` Y tienen columnas buscables, asi que la guarda de AP las pararia en cuanto alguien escribiera en el buscador. No migrables hasta que `HavingSegment` sepa agrupar.",
         "AQ: las tres entradas declaradas huerfanas las cazo EL TRINQUETE, no la memoria del CODER. El ciclo declarar->migrar->retirar funciona sin depender de que alguien se acuerde.",
-        "AQ: `escapeString` NO se mueve: siguen 23 llamadas en 13 archivos. Migrar los fragmentos de las controladoras y `escapeString` son cosas INDEPENDIENTES — sus dos consumidores en el helper viven en `generateHaving`, que por decision del PROPIETARIO no cambia su retorno por defecto."
+        "AQ: `escapeString` NO se mueve: siguen 23 llamadas en 13 archivos. Migrar los fragmentos de las controladoras y `escapeString` son cosas INDEPENDIENTES — sus dos consumidores en el helper viven en `generateHaving`, que por decision del PROPIETARIO no cambia su retorno por defecto.",
+        "AW: CONFIRMADO llega a CERO. `SystemApprovalsController::dataTables` tenia dos hallazgos: `referenceAlias` migra a `where_segment` —por marcador— y `elapsedDays` se declara con su `isInteger` de AO. El metodo ya no tiene ninguno abierto, asi que declararlo ya no indulta a nadie: la regla que lo impedia era correcta y deja de aplicar sola.",
+        "AW: el `having_string` NO migra, y se dice por que: `columns_order` son columnas buscables reales, asi que `generateHaving` produce contenido en cuanto alguien escribe y la guarda de AP pararia el `having_segment`. Migrara cuando `HavingSegment` agrupe.",
+        "AW: cero NO significa que no quede SQL concatenado. Significa que todo el que recibe valor de peticion esta DECLARADO con su validacion, o va por marcador. Los 12 declarados siguen ahi y la cota impresa sigue nombrando lo que no se mira."
     ]
 }

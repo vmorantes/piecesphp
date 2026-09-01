@@ -54,6 +54,12 @@
             "validation": "LOS CINCO son la VIA DE CADENA del helper, y las tres entradas de peticion que los alcanzan estan cerradas o acotadas, LEIDAS y no supuestas: (1) `order` no llega nunca al SQL —su indice se usa como CLAVE de `columns_order` (linea 1223) y la direccion colapsa a un ternario `ASC`/`DESC` (1222)—; (2) `columns` solo elige el indicador `searchable` entre columnas que pone la controladora; (3) el VALOR de busqueda pasa por `escapeString()` —`addslashes(stripslashes())`, AppHelpers.php:2805—, que se sostiene con `utf8mb4` pero NO con `NO_BACKSLASH_ESCAPES`, y eso esta escrito en T155. `where_string` y `having_string` son fragmentos del programador, no del visitante, y el docblock lo dice.",
             "count": 5,
             "salida": "Cada controladora que migre a `where_segment` deja de aportar su fragmento. Cuando las 19 hayan migrado, la via de cadena se puede retirar y estas cinco desaparecen. `generateHaving` no puede devolver segmento hoy sin cambiar el SQL de las 18 que no han migrado: ver la PARADA del paso 3 en T156."
+        },
+        {
+            "where": "src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php::dataTables",
+            "validation": "`elapsedDays` pasa por `Validator::isInteger($elapsedDaysFilter) ? (int) : null` en `SystemApprovalsController.php:441`, cerrado desde AO. Es el UNICO valor de peticion que queda en el `having_string` de este metodo: `referenceAlias` migro a `where_segment` en AW y va por marcador. NO se migra el `having`: `columns_order` son columnas buscables reales —`referenceAlias`, `referenceDateFormat`, `referenceUserFullName`—, asi que `generateHaving` produce contenido en cuanto alguien escribe y la guarda de AP pararia el `having_segment`. Ver T162.",
+            "count": 1,
+            "salida": "Cuando `HavingSegment` agrupe —v4.1.0 del paquete, sin publicar— este `having_string` puede migrar."
         }
     ]
 }

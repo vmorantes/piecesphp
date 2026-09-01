@@ -928,49 +928,43 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php                                                               
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  143    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
+  145    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
          🪪  staticMethod.nonObject                                                                                                              
-  366    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  368    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  366    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
+  368    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
          🪪  argument.type                                                                                                                       
-  373    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
+  375    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
          🪪  assign.propertyType                                                                                                                 
-  549    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
+  552    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
          🪪  method.nonObject                                                                                                                    
-  640    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
+  643    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php                                                                       
- ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  145    Property SystemApprovals\Mappers\SystemApprovalsMapper::$extendedRecord (stdClass) does not accept object|null.                         
-         🪪  assign.propertyType                                                                                                                 
-  206    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                
-         🪪  property.nonObject                                                                                                                  
-  314    Parameter Nr.2 $array of function array_map expects array, array|null given.                                                              
-         🪪  argument.type                                                                                                                       
-  315    Parameter Nr.1 $keys of function array_combine expects an array of values castable to string, array<array<string, string>|string> given.  
-         🪪  argument.type                                                                                                                       
-  315    Parameter Nr.1 $keys of function array_combine expects array<int|string>, array<array<string, string>|string> given.                      
-         🪪  argument.type                                                                                                                       
- ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------- 
+  project://src/src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php                                                
+ ------ ----------------------------------------------------------------------------------------------------------------- 
+  145    Property SystemApprovals\Mappers\SystemApprovalsMapper::$extendedRecord (stdClass) does not accept object|null.  
+         🪪  assign.propertyType                                                                                          
+  206    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                         
+         🪪  property.nonObject                                                                                           
+ ------ ----------------------------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php                                                                                                                       
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   62     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContentTypeSpeci…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  91     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'isAutoApprovalSpeci…'} given.  
+  101    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'isAutoApprovalSpeci…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  99     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onApprovedSpecificM…'} given.  
+  109    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onApprovedSpecificM…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  106    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onRejectedSpecificM…'} given.  
+  116    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onRejectedSpecificM…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  113    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onUpdatedRecordSpec…'} given.  
+  123    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onUpdatedRecordSpec…'} given.  
          🪪  argument.type                                                                                                                                                                           
-  120    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContactUserSpeci…'} given.  
+  130    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getContactUserSpeci…'} given.  
          🪪  argument.type                                                                                                                                                                           
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -991,9 +985,9 @@
  ------ ------------------------------------------------------------------------ 
   project://src/src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php  
  ------ ------------------------------------------------------------------------ 
-  49     Cannot access property $organization on App\Model\UsersModel|null.      
+  65     Cannot access property $organization on App\Model\UsersModel|null.      
          🪪  property.nonObject                                                  
-  53     Cannot access property $type on App\Model\UsersModel|null.              
+  69     Cannot access property $type on App\Model\UsersModel|null.              
          🪪  property.nonObject                                                  
  ------ ------------------------------------------------------------------------ 
 
@@ -2387,5 +2381,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 753 errors                                                                                               
+ [ERROR] Found 750 errors                                                                                               
 

@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras el BLOQUE AT.**
+**Ultima actualizacion: 2026-09-01, tras AU y AV.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1491,6 +1491,105 @@ Tres razones, y la tercera es de calendario:
    es lo que hace que esto se pueda arreglar sin coste.**
 
 Medido: `WhereItemGroup` no es `final`, y tiene **cero usos** en `piecesphp/src/app`.
+
+### AU — LA RESPUESTA ERA «UNA, Y YA ESTABA CERRADA»
+
+Verificado: `f1ea14c9`, 40 commits, `bin/censo-formas-de-lectura` creado, trinquete sin cambios
+(2 · 11), PHPStan 747.
+
+Criterio declarado antes de contar, y **la tercera regla es la que define la frontera**: una forma
+es «para leer» si SUSTITUYE MARCADORES POR VALORES. Por eso `toString()` de los segmentos **no
+entra**: emite marcadores, no valores. *Producir texto para USARLO no es una forma de lectura.*
+
+**El canario de cuatro caras cambio el resultado.** El primero probaba la DEFINICION; la
+instruccion pedia la LLAMADA. Sin la cuarta cara —`getCompiledSQL(true)` NO debe salir—,
+`DataTablesHelper` seguia apareciendo pese a estar ya corregido en AT.
+**Un censo que no mira el argumento no distingue el defecto de su arreglo.**
+
+Universo: 736 archivos, 5 repositorios, 22 formas. **EJECUTADA 1 · REVISAR 0 · SOLO LEIDA 17.**
+La unica ejecutada es `humanReadable()` y **no es defecto**: su destino es su proposito. El CODER
+la dejo marcada A PROPOSITO y explicada en la cota — *un falso positivo que se explica cuesta menos
+que un criterio que deje pasar el siguiente.*
+
+**Y `getCompiledSQL()` sale ahora en SOLO LEIDA**: confirmacion independiente de que el arreglo de
+AT esta puesto.
+
+### DOS LECCIONES DE METODO DE AU
+
+1. **Una puerta sin sujeto da VERDE.** La primera pasada de `verify-integrity` salio verde porque
+   el guion nuevo estaba SIN SEGUIR y la puerta no lo veia. **Hubo que prepararlo ANTES para que
+   la puerta tuviera a quien mirar.** Es LEY 18 por otra puerta: sin sujeto, no corrio.
+2. **Las cotas escritas se pudren.** El CODER cito «450, 665 y 686» en un docblock y **su propio
+   docblock las desplazo a 461/677/697 dentro del mismo bloque**. Lo cambio por «las tres llamadas
+   de este archivo». Referencia por descripcion, no por numero.
+
+### ARQUITECTO SE CORRIGE: EL CENSO SI SE CABLEA
+
+La instruccion de AU decia *«una puerta que nunca puede fallar es ruido»*. **El criterio estaba mal
+enunciado.** La prueba no es «informa cero hoy» sino **«puede un cambio futuro hacerla saltar»** —
+y esta salta el dia que alguien escriba `getCompiledSQL()` sin `true` y lo ejecute, que es
+exactamente el defecto que costo cuatro rutas rotas.
+
+Con ese criterio es un TRINQUETE, igual que el de SQL concatenado, que tambien vive en un numero.
+**Se cablea.**
+
+### AV — LA SIMETRIA, Y EL ARGUMENTO DE CALENDARIO CONFIRMADO
+
+Verificado en el paquete: `HavingItemGroup.php` existe, `HavingSegment` lo usa en las cuatro
+posiciones (34, 63, 77, 144), `WhereItemGroup` solo aparece en el `extends`, `aa64cf5` encima de
+`e5602de` sin reescribir, **sin etiqueta**, 13 suites verdes, PHPStan 21.
+
+La provocacion por tipo salio como debia: `addGroup(WhereItemGroup pelado)` -> **TypeError**;
+`HavingItemGroup instanceof WhereItemGroup` -> **true**. **La firma se estrecho de verdad**, y
+quedo fija en un TEST que cae de 7 a 6 si alguien devuelve la firma al padre.
+
+Y la entrada del CHANGELOG **se corrigio en vez de añadir otra**: no es una version nueva, es la
+misma antes de salir. **Estrecharlo ahora salio gratis, que era el argumento entero.**
+
+### EL PAQUETE ESTA EMPUJADO PERO **SIN ETIQUETA**, Y POR ESO NO LLEGA
+
+Medido el 2026-09-01: `database` en `master`, arbol limpio, **0 commits sin empujar** —el
+PROPIETARIO empujo—, pero:
+
+```
+etiqueta en HEAD:   (ninguna)
+ultimas etiquetas:  v3.8.1  v3.9.0  v4.0.0
+src/composer.json:  "piecesphp/database": "^4.0"
+src/composer.lock:  v4.0.0  ref=e9f5ac3728
+instalado:          addGroup 0 · HavingItemGroup NO
+```
+
+**Composer resuelve por ETIQUETA.** Con `^4.0` y sin `v4.1.0`, la mas alta sigue siendo `v4.0.0`:
+`composer update` no traeria nada. **Empujar los commits no desbloquea; lo que desbloquea es la
+etiqueta.**
+
+### SYSTEMAPPROVALS — MEDIDO ENTERO, y la lista blanca SI se puede construir
+
+Al leerlo, el registro resulto **mas accesible** de lo que decia AO:
+
+- `Util/configurations.php` devuelve un **array llano** de tres clases:
+  `OrganizationApprovalHandler`, `UsersApprovalHandler`, `PublicationsApprovalHandler`.
+  Lo carga `SystemApprovalManager:42` con `require_once` —y un segundo `require_once` devuelve
+  `true`, que es la razon real de que no se pueda releer—.
+- Cada handler declara `protected static $BASE_TEXT`: `'Perfil'`, `'Organización'`,
+  `'Publicación'`, y `BaseApprovalHandler` por defecto `'Elemento'`.
+- **`UsersApprovalHandler::getContentTypeSpecificMapper()` puede devolver
+  `'Usuario independiente'`** cuando el usuario es GENERAL y su organizacion es la global. **Ese
+  texto no esta en ninguna lista**, y por eso una lista blanca sacada solo de `$BASE_TEXT` lo
+  dejaria fuera y el filtro devolveria vacio en silencio.
+
+> Por eso `getContentTypes()` en el contrato de los handlers es la respuesta correcta y no un
+> capricho: **solo el handler sabe todos los textos que puede producir.**
+
+**Y el segundo defecto, que es el que obliga a hacerlo junto**: `getReferencesAliases()`
+(`SystemApprovalsMapper:310-316`) hace
+`array_map(fn($e) => __(self::LANG_GROUP, $e->referenceAlias), ...)` **mientras la columna guarda
+el texto SIN traducir**. El desplegable manda la etiqueta traducida y el `WHERE` compara contra el
+crudo: **en cualquier idioma que no sea español, el filtro no casa nada.** Arreglar la inyeccion
+sin arreglar esto seria pulir una funcion averiada.
+
+`elapsedDays` ya quedo cerrado en AO (`:441`, `Validator::isInteger`). Lo que sigue concatenando
+es `:484`, `"{$table}.referenceAlias = '{$referenceAliasFilter}'"`.
 
 ### Abierto, sin decidir
 

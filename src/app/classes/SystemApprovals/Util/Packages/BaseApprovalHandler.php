@@ -65,6 +65,16 @@ abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
         return $text;
     }
 
+    /**
+     * Por defecto, el unico texto que un handler escribe es su `$BASE_TEXT`.
+     *
+     * @return string[]
+     */
+    public static function getContentTypes(): array
+    {
+        return [static::$BASE_TEXT];
+    }
+
     public static function getReferenceTable(): string
     {
         return static::$REFERENCE_TABLE;

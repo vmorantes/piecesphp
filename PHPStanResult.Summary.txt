@@ -4,7 +4,7 @@
 171
 
 [TOTAL DE ERRORES VISIBLES]
-747
+744
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 738
+En las dos (8.4 y 8.5): 735
 Solo en 8.5: 9
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (313)
+argument.type (310)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -252,23 +252,22 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 143)
-	argument.type (Líneas: 366, 366, 640)
-	assign.propertyType (Líneas: 373)
-	method.nonObject (Líneas: 549)
-	offsetAccess.invalidOffset (Líneas: 659)
+	staticMethod.nonObject (Líneas: 145)
+	argument.type (Líneas: 368, 368, 643)
+	assign.propertyType (Líneas: 375)
+	method.nonObject (Líneas: 552)
+	offsetAccess.invalidOffset (Líneas: 662)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 145)
 	property.nonObject (Líneas: 206)
-	argument.type (Líneas: 314, 315, 315)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
-	argument.type (Líneas: 62, 91, 99, 106, 113, 120)
+	argument.type (Líneas: 62, 101, 109, 116, 123, 130)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
 	property.nonObject (Líneas: 62)
 project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php
 	property.nonObject (Líneas: 59)
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
-	property.nonObject (Líneas: 49, 53)
+	property.nonObject (Líneas: 65, 69)
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
 	assign.propertyType (Líneas: 88)
 project://src/app/classes/SystemApprovals/Views/forms/approval-profile-organization.php

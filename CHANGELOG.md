@@ -279,6 +279,30 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Corregido — el filtro de aprobaciones no encontraba nada fuera de español
+
+`SystemApprovalsMapper::getReferencesAliases()` devolvía la etiqueta **traducida** como clave del
+desplegable, mientras la columna `referenceAlias` guarda el texto sin traducir. En inglés el
+desplegable mandaba `Profile` y el `WHERE` comparaba contra `Perfil`: **el filtro no casaba
+nada**. Ahora la clave es el valor crudo y el texto el traducido, que es lo que un desplegable
+necesita; el consumidor no cambió porque ya esperaba clave y texto distintos.
+
+## Los handlers de aprobación declaran todos sus textos
+
+`ApprovalElementHandlerInterface` gana `getContentTypes()`, y `SystemApprovalManager` la unión de
+los registrados. Hacía falta porque `UsersApprovalHandler` escribe **dos** —`Perfil` y
+`Usuario independiente`—, y el segundo era un literal suelto dentro de un método: cualquier lista
+blanca construida sin él habría sido falsa. Ahora sale del mismo sitio que lo escribe.
+
+Con esa lista, el filtro `referenceAlias` valida su dominio **y** viaja por marcador con
+`where_segment`. El `elapsedDays` se queda en el fragmento de cadena con su validación de entero,
+declarado, porque el módulo tiene columnas buscables y un `having_segment` chocaría con la guarda
+que impide perder la búsqueda.
+
+**Con esto el censo de SQL concatenado llega a CERO confirmados.** No significa que no quede SQL
+concatenado: significa que todo el que recibe un valor de la petición está declarado con su
+validación, o va por marcador.
+
 ## Herramientas — `bin/censo-formas-de-lectura`, y la respuesta es que era única
 
 Busca en los cinco repositorios toda función cuyo propósito sea producir texto **para mirar** y

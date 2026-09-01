@@ -283,6 +283,23 @@ class SystemApprovalManager
     }
 
     /**
+     * La union de los textos que pueden acabar en `referenceAlias`, segun los handlers
+     * REGISTRADOS. Es la lista blanca del filtro, y sale del contrato, no de la base.
+     *
+     * @return string[]
+     */
+    public function getContentTypes(): array
+    {
+        $textos = [];
+        foreach ($this->configurations as $class) {
+            foreach ($class::getContentTypes() as $texto) {
+                $textos[] = $texto;
+            }
+        }
+        return array_values(array_unique($textos));
+    }
+
+    /**
      * Retorna una instancia única de SystemApprovalManager.
      *
      * Este método garantiza que solo haya una instancia de SystemApprovalManager en todo el sistema.

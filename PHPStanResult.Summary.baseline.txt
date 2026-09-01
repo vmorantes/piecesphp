@@ -65,6 +65,21 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 744 <- 747 = 0 arreglos + 0 supresiones + 3 murieron + 0 destapados
+
+    Bloque AW: las TRES mueren por reescribir `SystemApprovalsMapper::getReferencesAliases()`,
+    que deja de usar `array_map` sobre `result()` y `array_combine` sobre un array de arrays:
+
+        SystemApprovalsMapper.php   array_map espera array, array|null dado
+        SystemApprovalsMapper.php   array_combine, claves no castables a string  (x2)
+
+    NINGUNA se silencio: no se toco phpstan.neon, y el arreglo es de codigo.
+
+    UNA CUARTA APARECIO Y VOLVIO, y se cuenta porque explica la cifra: mientras dos docblocks
+    quedaron HUERFANOS —al insertar metodos entre un docblock y su funcion—, PHPStan dejaba de
+    ver `getContactUser()` en la interfaz y ese error moria. Al recolocarlos volvio. Un error
+    que muere porque el analizador pierde el hilo NO es un arreglo.
+
 [REPARTO] 747 <- 749 = 0 arreglos + 0 supresiones + 2 murieron + 0 destapados
 
     Bloque AI: las nueve sobreescrituras de `routeName()` se borran y las clases pasan a usar
