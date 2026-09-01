@@ -253,9 +253,15 @@ class State extends AdminPanelController
      */
     public function statesDataTables(Request $request, Response $response)
     {
+        //POR MARCADOR, con `where_segment`. El `isInteger` SE QUEDA aunque ya no haga falta para
+        //la seguridad: es lo que convierte un valor raro en `-1`, que no casa nada. Ver T157.
         $country = $request->getQueryParam('country', null);
+        $countrySegment = null;
         if ($country !== null) {
             $country = Validator::isInteger($country) ? (int) $country : -1;
+            $countrySegment = new WhereSegment([
+                new WhereItem('country', WhereItem::EQUAL_OPERATOR, $country),
+            ]);
         }
 
         $select_fields = StateMapper::fieldsToSelect();
@@ -297,7 +303,7 @@ class State extends AdminPanelController
                 ];
 
             },
-            'where_string' => is_null($country) ? null : "country = $country",
+            'where_segment' => $countrySegment,
         ]);
 
         return $response->withJson($result->getValues());

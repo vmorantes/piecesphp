@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras el BLOQUE AO.**
+**Ultima actualizacion: 2026-09-01, tras el BLOQUE AP.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1177,6 +1177,53 @@ idioma **el filtro no casa nada**.
 **Decision de ARQUITECTO**: `process()` acepta claves NUEVAS `where_segment` / `having_segment`, y
 los modulos migran uno a uno. Es **aditivo, no rompe a nadie**, y es el camino que acaba haciendo
 innecesarias las claves de cadena. Va con el bloque de `DataTablesHelper`, que es el mismo archivo.
+
+### AP — CONFIRMADO 13 -> 7 -> 2, y la mejor guarda del bloque NO ESTABA PEDIDA
+
+Verificado: `cifras {confirmado: 2, declarado: 14, revisar: 104, descartado: 133}`, PHPStan 747,
+`580c2c2e`, 35 sobre `origin/dev`, sin etiqueta, arbol con solo el `vps/index.md` declarado.
+Las tres guardas existen con mensaje claro (296-300 y 326-327) y `Country` migrada por
+`where_segment` (337).
+
+**LA TERCERA GUARDA LA PUSO EL CODER SIN QUE SE LE PIDIERA, y es la que salva el bloque**:
+`having_segment` + BUSQUEDA ACTIVA lanza. El segmento del programador **sustituiria** al HAVING
+que genera la busqueda de DataTables, y `HavingSegment` **no sabe agrupar** —`(a OR b) AND c` no
+es expresable—. Sin ella, **la primera controladora que migrara habria perdido su filtro de
+busqueda EN SILENCIO**.
+
+Y la migracion de `Country` sale **mejor que equivalente**: con marcador, `"Am'erica"` vuelve a
+buscarse, y el patron conservador de T152 ya no hace falta ahi. `regionNameOrNull()` sigue vivo
+porque `countries()` compara con `IN (...)`, que no admite marcador.
+
+**El ciclo de las declaradas funciona solo**: al migrar `Country`, el trinquete cazo que su
+entrada «figura como declarada y ya no casa con ningun hallazgo». *Se declara mientras concatena,
+DESAPARECE al migrar.*
+
+### LA PARADA DEL PASO 3: ARQUITECTO ELIGE ADITIVIDAD
+
+El CODER no rompio el empate y hizo bien: cambiar el retorno por defecto de `generateHaving`
+alteraria el SQL de **las 18 que no han migrado**, contra la garantia de aditividad que la propia
+instruccion exigia.
+
+**Gana la aditividad**, y la razon que lo zanja es la tercera:
+
+1. La garantia de aditividad es lo que protege a 18 controladoras que ARQUITECTO **no ha leido**.
+2. `escapeString` se sostiene HOY —`utf8mb4` medido en las dos ramas—; el riesgo es un `sql_mode`
+   del destino, y eso **no se cierra tocando `generateHaving`**: se cierra migrando, que es el
+   camino ya elegido.
+3. **Cambiar el defecto seria afirmar que ninguna de las 18 depende de la forma actual. Eso es
+   LEY 19** — afirmar sobre el consumidor desde el productor—, y esta campaña ha castigado esa
+   afirmacion **seis veces**, todas contra ARQUITECTO.
+
+> `escapeString` muere POR MIGRACION, no por cambio de defecto. Cada controladora que pasa a
+> `where_segment` / `having_segment` se lo lleva consigo.
+
+### GOTCHA DE INSTRUMENTAL, del CODER y aplicable a los dos
+
+`open(p, encoding='utf-8')` en Python usa **saltos de linea universales**: un `\r\n` llega como
+`\n`, detectar el final SIEMPRE da falso, y al reescribir sale LF. Por eso `normaliza-eol`
+encontraba algo despues de cada edicion suya. **ARQUITECTO no cae en esto porque lee con
+`open(...,'rb')` y decodifica a mano** — pero queda escrito para los dos.
 
 ### Abierto, sin decidir
 

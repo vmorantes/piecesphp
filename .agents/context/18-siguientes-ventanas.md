@@ -16424,3 +16424,129 @@ normaliza—, pero explica por qué aparecía siempre.
 - **`SystemApprovals`**: `referenceAlias` y `getReferencesAliases()`, en su bloque.
 - `escapeString` y el `sql_mode` no declarado.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+
+---
+
+## T157 · AQ · LA MIGRACIÓN, PRIMER LOTE
+
+**Bloque AQ.** Tres migradas de las cinco del cubo A. Dos quedan bloqueadas por la guarda que
+AP puso, y ése es el hallazgo del bloque, no un fracaso.
+
+### PASO 1 · Los tres cubos, con archivo y línea
+
+**El cubo A me lo dio el censo, no el ojo**: son exactamente sus DECLARADO de la novena familia.
+
+| Cubo | Sitios | Cuáles |
+| :-- | --: | :-- |
+| **A** · valor de la PETICIÓN | **5** | `State.php:300`, `DocumentsController.php:927`, `UsersController.php:222`, `OrganizationsController.php:1242`, `PublicationsController.php:1315` |
+| **B** · valor de la SESIÓN | **3** | `LoginAttemptsModel.php:199/200`, `:284/285`, `:364/365` — los tres con `$currentUser->organization ?? -1` |
+| **C** · literal, constante o muerto | **11** | `BuiltInBannerController:899`, `NewsletterController:775`, `NewsCategoryController:819`, `NewsController:1093`, `DocumentsController:841`, `AllProfilesController:165`, `DocumentTypesController:698`, `CategoriesController:697`, `PublicationsCategoryController:698`, `LogsController:146`, `config/functions.php:72` |
+
+(+ `SystemApprovalsController.php:520/521`, fuera de alcance por instrucción.)
+
+**B y C no ganan NADA por migrar** y pueden esperar a que alguien las toque por otra razón: en
+B el valor sale de la sesión del propio usuario y en C ni siquiera hay valor —tres de ellas
+(`Newsletter`, `NewsCategory`, `PublicationsCategory`) tienen el array de criterios **vacío
+siempre**, así que su fragmento nace y muere en `null`.
+
+**Y `config/functions.php:72` no lo toca nadie**: `datatables_proccessing()` tiene **cero
+consumidores** medidos en el árbol. Envoltorio muerto, como `allByRegions()` en T152 y
+`getAllUsers()` en T153.
+
+### PASO 2 · Las tres migradas
+
+| | ANTES | AHORA |
+| :-- | :-- | :-- |
+| `State::statesDataTables` `?country=5` | `WHERE (country = 5)` | `WHERE (country = :a)` · `[5]` |
+| idem, `?country=7' OR 1=1` | `WHERE (country = -1)` | `WHERE (country = :a)` · `[-1]` |
+| `UsersController::dataTablesRequestUsers` | `WHERE (id != 9 AND status != 6 AND type != 0 AND type != 1 AND status = 2)` | `WHERE (id != :a) AND (status != :b) AND (type != :c) AND (type != :d) AND (status = :e)` · `[9,6,0,1,2]` |
+| `DocumentsController::dataTablesExplorer` | `WHERE ( (pcsphp_documents.status = 1))` | `WHERE (pcsphp_documents.status = :a)` · `[1]` |
+
+Equivalentes: en `Users` cada criterio queda en su propio paréntesis en vez de todos en uno,
+y con `AND` puro eso es lo mismo. El `AND` del último criterio lo descarta
+`WhereSegment::toString()`, que usa `toString(false)` para el que cierra.
+
+**LA VALIDACIÓN SE QUEDA EN `State`, y digo por qué.** El `Validator::isInteger` ya no hace
+falta para la seguridad, pero es lo que convierte un valor raro en **`-1`**, que no casa nada.
+Quitarlo dejaría pasar la cadena al marcador y MySQL la coaccionaría — mismo resultado por
+casualidad, no por diseño. En `Country` (AP) sí se retiró, porque allí el patrón **descartaba
+nombres legítimos**.
+
+**Riesgo medido, no supuesto: `dataTablesRequestUsers` compara `status` y `type` DOS VECES cada
+una.** Si dos alias colisionaran se perdería un valor sin ruido. Comprobado: 5 criterios → 5
+alias distintos, y la suite lo fija.
+
+**Las tres entradas declaradas las cazó EL TRINQUETE**, no mi memoria:
+`TRINQUETE ROTO: … figura como declarada y ya no casa con ningún hallazgo`. El ciclo
+declarar → migrar → retirar no depende de que alguien se acuerde.
+
+### Las DOS que no se pueden migrar
+
+`OrganizationsController::dataTables` y `PublicationsController::dataTables` meten su valor de
+petición en **`having_string`** —`status` en `:1208`, `visibility` en `:1275`— y las dos tienen
+**columnas buscables reales** (`idPadding`, `nit`, `name`, `title`…). Así que en cuanto alguien
+escriba en el buscador, `generateHaving` produce contenido y **la guarda de AP las para**.
+
+No se fuerzan. **No migrables hasta que `HavingSegment` sepa agrupar**, porque
+`(a OR b) AND c` sigue sin ser expresable. Es el mismo muro del paso 3 de AP, ahora con dos
+sujetos concretos.
+
+### Un defecto encontrado al migrar, migrado tal cual
+
+`DocumentsController::dataTablesExplorer` filtra por **`FIELD_SAMPLE_FILTER`**, que **no es una
+columna**: cero ocurrencias en `DocumentsMapper`. Es plantilla heredada del módulo modelo, y la
+ruta `documents-datatables-explorer` **existe y está autenticada** (`:1438-1446`). Cualquiera
+que pase `?FIELD_SAMPLE_FILTER=1` provoca un `Unknown column`. Se migró **igual**, porque este
+bloque preserva comportamiento; borrarlo cambia un 500 por un 200 y es otra decisión.
+
+### PASO 3 · La cota y el trinquete
+
+| | AÑ | AO | AP | AQ |
+| :-- | --: | --: | --: | --: |
+| CONFIRMADO | 13 | 7 | 2 | **2** |
+| DECLARADO | 4 | 10 | 14 | **11** |
+| llamadas miradas | 250 | 250 | 253 | **250** |
+
+Las 253 vuelven a 250 porque **tres fragmentos de cadena dejan de existir**.
+
+Línea nueva en la cota impresa, y la calcula el censo recorriendo el árbol:
+
+```
+  · LA MIGRACIÓN: 4 archivo(s) que llaman a `process()` usan YA segmento y 14 siguen
+    pasando fragmentos de cadena — un archivo con dos llamadas puede estar en las DOS
+    columnas.
+```
+
+`DocumentsController` está en las dos: migró `dataTablesExplorer` y `dataTables` sigue en cadena.
+
+### PASO 4 · `escapeString` NO SE MOVIÓ, y era previsible
+
+**Siguen 23 llamadas en 13 archivos**, exactamente las de T155.
+
+| Archivo | llamadas |
+| :-- | --: |
+| `OrganizationMapper` | 5 |
+| `UsersModel` | 3 |
+| `DataTablesHelper`, `StateMapper`, `CountryMapper`, `CityMapper` | 2 cada uno |
+| `UsersController`, `SystemApprovalsMapper`, `PublicationMapper`, `PublicationCategoryMapper`, `NewsCategoryMapper`, `DocumentsMapper`, `PointMapper` | 1 cada uno |
+
+**Migrar los fragmentos y `escapeString` son cosas INDEPENDIENTES**, y conviene decirlo porque
+es fácil suponer lo contrario: los 21 usos de fuera del helper están en los `search()` de los
+mappers y en JSON, que nada de esto toca; y los 2 del helper viven en `generateHaving`, cuyo
+retorno por defecto **no cambia** por decisión del PROPIETARIO. Ese número no bajará por seguir
+migrando controladoras.
+
+### El cierre (LEY 24) · 39 comprobaciones
+
+Sección 8 gana la colisión de alias y las cuatro migradas por su clave `where_segment`. Si
+alguna volviera a `where_string`, **el censo no lo diría solo**: su entrada declarada ya no
+existe, así que la única red es esta comprobación.
+
+### Lo que queda abierto
+
+- **Las dos bloqueadas**, y con ellas la decisión sobre agrupación en `HavingSegment`.
+- **Los 14 archivos** de los cubos B y C, sin prisa y sin ganancia.
+- `FIELD_SAMPLE_FILTER`: borrar el filtro muerto, o la columna que falta.
+- `datatables_proccessing()`, envoltorio con cero consumidores.
+- `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.

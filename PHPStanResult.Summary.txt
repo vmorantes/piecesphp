@@ -81,8 +81,8 @@ project://src/app/classes/App/Locations/Controllers/Point.php
 	method.nonObject (Líneas: 376, 407)
 	foreach.nonIterable (Líneas: 482)
 project://src/app/classes/App/Locations/Controllers/State.php
-	method.nonObject (Líneas: 368, 394)
-	foreach.nonIterable (Líneas: 470)
+	method.nonObject (Líneas: 374, 400)
+	foreach.nonIterable (Líneas: 476)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
 project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profile-org-card.php
@@ -108,9 +108,9 @@ project://src/app/classes/DataImportExportUtility/Controllers/HelperController.p
 project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
-	property.nonObject (Líneas: 282, 862)
-	argument.type (Líneas: 947, 1240)
-	offsetAccess.invalidOffset (Líneas: 1259)
+	property.nonObject (Líneas: 284, 864)
+	argument.type (Líneas: 946, 1239)
+	offsetAccess.invalidOffset (Líneas: 1258)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	argument.type (Líneas: 236)
 	property.nonObject (Líneas: 273, 299)
@@ -338,10 +338,10 @@ project://src/app/controller/RecoveryPasswordController.php
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
-	argument.type (Líneas: 510, 565, 911, 945, 1131, 1282, 1565, 1893)
-	method.resultUnused (Líneas: 1316, 1363, 1373, 1379, 1385, 1391, 1401, 1408, 1620, 1675, 1685, 1691, 1697, 1703, 1709, 1719, 1727, 1734)
-	method.nonObject (Líneas: 1359, 1671)
-	return.type (Líneas: 1913)
+	argument.type (Líneas: 515, 570, 916, 950, 1136, 1287, 1570, 1898)
+	method.resultUnused (Líneas: 1321, 1368, 1378, 1384, 1390, 1396, 1406, 1413, 1625, 1680, 1690, 1696, 1702, 1708, 1714, 1724, 1732, 1739)
+	method.nonObject (Líneas: 1364, 1676)
+	return.type (Líneas: 1918)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
 	argument.type (Líneas: 2247, 2305, 2322, 2322, 3245, 3246, 3247, 3347, 3348)

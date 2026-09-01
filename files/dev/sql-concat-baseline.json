@@ -8,20 +8,21 @@
     ],
     "medido": {
         "fecha": "2026-08-31",
-        "bloque": "AK; recontado en AL; 8 familias en AM; novena en AÑ; cerrada en AO; segmentos en AP",
+        "bloque": "AK; recontado en AL; 8 familias en AM; novena en AÑ; cerrada en AO; segmentos en AP; primer lote en AQ",
         "herramienta": "bin/censo-sql-concatenado",
         "universo": "archivos .php bajo `src/app`, excluyendo /vendor/ /node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
         "archivos": 675,
-        "llamadas_miradas": 253,
+        "llamadas_miradas": 250,
         "canario": "20 caras. Dos por familia como minimo, y las que separan casos que se confunden: un `orderBy([...])` con la peticion dentro SALE aunque el mismo array en `where` no; un `groupBy($v)` en un metodo con `extract()` sale a REVISAR; un `WhereSegment` con `NOT_IN_OPERATOR` NO se da por preparado; y en la novena familia, un `having_string` compuesto con la peticion SALE mientras uno que no la toca NO. `group_string` da CERO en el arbol y por eso lleva canario propio (LEY 16).",
         "cota_declarada": "la traza NO cruza de metodo ni de clase: una propiedad, un parametro o el retorno de otro metodo caen en REVISAR A MANO, nunca en DESCARTADO. En `join` se mira SOLO el `$on`; la tabla, que es el primer argumento, tambien se concatena y NO se mira.",
         "familias_miradas": "Las OCHO de llamada —`where`, `having`, `orderBy`, `groupBy`, `join`, `leftJoin`, `rightJoin`, `innerJoin`— mas la NOVENA, que no es una llamada: las claves `where_string`, `having_string` y `group_string` dentro de un array literal. El reparto por familia se imprime siempre.",
         "familias_sin_censar": "`prepare($sql)` (71 llamadas), `select($campos)` (194), `get($v,$col,$cols)`, `setTable($tabla)` (6) y `rowCount($columna)` (0). Son IDENTIFICADORES, no valores de comparacion: no se arreglan con marcador sino con lista blanca, y es otro trabajo. El `LIMIT` NO esta en la lista: sale de dos parametros `?int` de `_executeSelect()` y esta cerrado por tipo.",
-        "claves_de_options_sin_censar": "LEIDAS en `process()`: `select_fields` (linea 333/336), `columns_order` y `custom_order` (linea 1254) tambien acaban en el SQL, pero como IDENTIFICADORES. En `custom_order` la DIRECCION no pasa por el filtro ASC/DESC que si se aplica al `$order` de la peticion."
+        "claves_de_options_sin_censar": "LEIDAS en `process()`: `select_fields` (linea 333/336), `columns_order` y `custom_order` (linea 1254) tambien acaban en el SQL, pero como IDENTIFICADORES. En `custom_order` la DIRECCION no pasa por el filtro ASC/DESC que si se aplica al `$order` de la peticion.",
+        "migracion": "AQ: 4 archivos que llaman a `process()` usan YA segmento y 14 siguen en cadena. La cifra la imprime el censo y sale del arbol, no de un conteo a mano. Un archivo con dos llamadas puede estar en las DOS columnas: `DocumentsController` lo esta, porque migro `dataTablesExplorer` y `dataTables` sigue en cadena."
     },
     "cifras": {
         "confirmado": 2,
-        "declarado": 14,
+        "declarado": 11,
         "revisar": 104,
         "descartado": 133
     },
@@ -47,6 +48,10 @@
         "AP: MIGRADA UNA SOLA, `Country::countriesDataTables`. Criterio: de las seis declaradas era la UNICA cuyo valor sigue siendo CADENA —las otras cinco ya son enteros por `Validator::isInteger` o por lista blanca, y ahi un marcador no cambia nada—. Su entrada declarada SE RETIRA: la declaracion desaparece cuando el valor pasa a marcador, y el trinquete lo caza si te olvidas.",
         "AP: los CINCO de `process()` se declaran con `count: 5` y con el camino de salida escrito. No se cierran en este bloque porque son la via de cadena, que existe mientras 18 controladoras no migren. Las tres entradas de peticion que los alcanzan estan cerradas o acotadas, y cada una dice cual.",
         "AP: quedan DOS, los de `SystemApprovalsController::dataTables`, fuera del alcance de este bloque por decision del PROPIETARIO: `referenceAlias` y `getReferencesAliases()` van juntos en el suyo.",
-        "AP: las llamadas miradas suben de 250 a 253 porque el helper tiene ahora cuatro llamadas mas con segmento y una menos de cadena en Country."
+        "AP: las llamadas miradas suben de 250 a 253 porque el helper tiene ahora cuatro llamadas mas con segmento y una menos de cadena en Country.",
+        "AQ: CONFIRMADO se queda en 2 —los de SystemApprovals, fuera de alcance— y DECLARADO baja de 14 a 11: se migran TRES y sus tres entradas se retiran. Las llamadas miradas vuelven de 253 a 250 porque tres fragmentos de cadena dejan de existir.",
+        "AQ: el cubo A tenia CINCO. Se migran las TRES que usan solo `where_string` —`State::statesDataTables`, `DocumentsController::dataTablesExplorer` y `UsersController::dataTablesRequestUsers`— y quedan DOS bloqueadas: `OrganizationsController::dataTables` y `PublicationsController::dataTables` meten su valor de peticion en `having_string` Y tienen columnas buscables, asi que la guarda de AP las pararia en cuanto alguien escribiera en el buscador. No migrables hasta que `HavingSegment` sepa agrupar.",
+        "AQ: las tres entradas declaradas huerfanas las cazo EL TRINQUETE, no la memoria del CODER. El ciclo declarar->migrar->retirar funciona sin depender de que alguien se acuerde.",
+        "AQ: `escapeString` NO se mueve: siguen 23 llamadas en 13 archivos. Migrar los fragmentos de las controladoras y `escapeString` son cosas INDEPENDIENTES — sus dos consumidores en el helper viven en `generateHaving`, que por decision del PROPIETARIO no cambia su retorno por defecto."
     ]
 }

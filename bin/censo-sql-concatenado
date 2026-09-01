@@ -766,6 +766,32 @@ foreach (['CONFIRMADO', 'DECLARADO', 'REVISAR'] as $v) {
 echo "SU COTA, Y SE DICE:\n";
 echo "  · MIRA las 8 familias del reparto de arriba. En `join` mira SOLO el `\$on`; la TABLA,\n";
 echo "    que es el primer argumento, también se concatena y aquí NO se mira.\n";
+//CUANTO FALTA PARA QUE `escapeString` DEJE DE SOSTENER NADA. Se cuenta sobre los archivos que
+//llaman a `process()`, no a mano: un archivo puede tener sitios de las dos clases y entonces
+//figura en las dos columnas, y decirlo es parte del numero.
+$conSegmento = [];
+$conCadena = [];
+foreach ($archivos as $ruta) {
+    $codigo = (string) file_get_contents($ruta);
+    if (mb_strpos($codigo, 'DataTablesHelper::process(') === false && mb_strpos($codigo, 'self::process(') === false) {
+        continue;
+    }
+    $corto = str_replace(dirname(__DIR__) . '/', '', $ruta);
+    if (mb_strpos($codigo, "'where_segment' =>") !== false || mb_strpos($codigo, "'having_segment' =>") !== false) {
+        $conSegmento[] = $corto;
+    }
+    foreach (CLAVES_FRAGMENTO as $clave) {
+        if (mb_strpos($codigo, "'{$clave}' =>") !== false) {
+            $conCadena[] = $corto;
+            break;
+        }
+    }
+}
+printf("  · LA MIGRACIÓN: %d archivo(s) que llaman a `process()` usan YA segmento y %d siguen\n",
+    count($conSegmento), count($conCadena));
+echo "    pasando fragmentos de cadena — un archivo con dos llamadas puede estar en las DOS\n";
+echo "    columnas. Mientras quede uno, `escapeString()` sigue sosteniendo\n";
+echo "    la búsqueda, y su límite es el `sql_mode` del destino. Ver T155 y T157.\n";
 echo "  · LA NOVENA FAMILIA busca las CLAVES `where_string`, `having_string` y `group_string`\n";
 echo "    en cualquier array literal, no solo en `DataTablesHelper::process(`. Del resto de\n";
 echo "    claves de `\$options`, LEÍDAS en `process()`, TRES acaban también en el SQL y aquí\n";

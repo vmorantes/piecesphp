@@ -269,6 +269,23 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         ],
     ];
 
+    //LAS MIGRADAS: si alguna volviera a `where_string`, su valor volvería a concatenarse y el
+    //censo NO lo diría solo, porque su entrada declarada ya no existe.
+    $migradas = [
+        'classes/App/Locations/Controllers/Country.php' => 'countriesDataTables',
+        'classes/App/Locations/Controllers/State.php' => 'statesDataTables',
+        'classes/Documents/Controllers/DocumentsController.php' => 'dataTablesExplorer',
+        'controller/UsersController.php' => 'dataTablesRequestUsers',
+    ];
+    foreach ($migradas as $relativo => $metodo) {
+        $codigo = (string) @file_get_contents($raizSrc . '/app/' . $relativo);
+        $check(
+            $codigo !== '' && mb_strpos($codigo, "'where_segment' =>") !== false,
+            basename($relativo) . "::{$metodo} sigue en `where_segment`",
+            $codigo === '' ? 'no se pudo leer el archivo' : null
+        );
+    }
+
     foreach ($fragmentos as $relativo => $marcas) {
         $codigo = (string) @file_get_contents($raizSrc . '/app/' . $relativo);
         foreach ($marcas as $marca => $porQue) {
@@ -322,7 +339,20 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(in_array($conComilla, array_values($valoresRegion), true), 'el valor viaja ENTERO en los reemplazos');
     $check(mb_strpos($sqlRegion, 'UPPER(:') !== false, 'el marcador va envuelto en UPPER(), como la cadena de antes');
 
-    //LO QUE PROTEGE A LAS 18 QUE NO HAN MIGRADO: sin las claves nuevas, la vía de cadena tiene
+    //COLUMNA REPETIDA, ALIAS DISTINTO. `dataTablesRequestUsers` compara `status` y `type` dos
+    //veces cada una; si dos alias colisionaran, se perdería un valor SIN ruido.
+    $itemsRepetidos = [];
+    foreach ([['id', 9], ['status', 6], ['type', 0], ['type', 1], ['status', 2]] as $par) {
+        $itemsRepetidos[] = new WhereItem($par[0], WhereItem::NOT_EQUAL_OPERATOR, $par[1], WhereItem::AND_OPERATOR);
+    }
+    $segmentoRepetidos = new WhereSegment($itemsRepetidos);
+    $check(
+        count($segmentoRepetidos->getReplacementValues()) === $segmentoRepetidos->countCriteria(),
+        'cinco criterios con columnas repetidas dan CINCO alias distintos',
+        'criterios: ' . $segmentoRepetidos->countCriteria() . ', alias: ' . count($segmentoRepetidos->getReplacementValues())
+    );
+
+    //LO QUE PROTEGE A LAS QUE NO HAN MIGRADO: sin las claves nuevas, la vía de cadena tiene
     //que seguir ahí, en los DOS modelos y para las DOS cláusulas.
     $helper = (string) @file_get_contents($raizSrc . '/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php');
     $ramas = [

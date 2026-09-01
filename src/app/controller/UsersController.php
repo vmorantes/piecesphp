@@ -181,24 +181,29 @@ class UsersController extends AdminPanelController
         $disallowedTypes = $currentUser->getHigherPriorityTypes();
         $canModify = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
 
-        $where = [
-            "id != {$this->user->id}",
-            "AND status != " . UsersModel::STATUS_USER_DELETED, //No mostrar usuarios marcados eliminados
+        //POR MARCADOR, con `where_segment`. El `AND` del último criterio lo descarta
+        //`WhereSegment::toString()`, que usa `toString(false)` para el que cierra. Ver T157.
+        $whereItems = [
+            new WhereItem('id', WhereItem::NOT_EQUAL_OPERATOR, $this->user->id, WhereItem::AND_OPERATOR),
+            //No mostrar usuarios marcados eliminados
+            new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR),
         ];
 
         if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
-            $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
+            foreach ($disallowedTypes as $disallowedType) {
+                $whereItems[] = new WhereItem('type', WhereItem::NOT_EQUAL_OPERATOR, $disallowedType, WhereItem::AND_OPERATOR);
+            }
         }
 
         if (!$canModify) {
-            $where[] = " AND organization = " . $currentUser->organization;
+            $whereItems[] = new WhereItem('organization', WhereItem::EQUAL_OPERATOR, $currentUser->organization, WhereItem::AND_OPERATOR);
         }
 
         if ($filterStatus !== null) {
-            $where[] = " AND status = {$filterStatus}";
+            $whereItems[] = new WhereItem('status', WhereItem::EQUAL_OPERATOR, $filterStatus, WhereItem::AND_OPERATOR);
         }
 
-        $whereString = trim(implode(' ', $where));
+        $whereSegment = new WhereSegment($whereItems);
 
         $selectFields = UsersModel::fieldsToSelect();
 
@@ -219,7 +224,7 @@ class UsersController extends AdminPanelController
         DataTablesHelper::setTablePrefixOnSearch(false);
 
         $result = DataTablesHelper::process([
-            'where_string' => $whereString,
+            'where_segment' => $whereSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,

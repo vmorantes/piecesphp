@@ -16,7 +16,7 @@
         "ids_despues": "`ids[]=abc` da 200 y el criterio NO se añade; `ids[]=1&ids[]=abc` devuelve solo el 1",
         "not_in_dentro_de_segmento": "AM: envolver el `NOT IN` en un `WhereSegment` NO lo prepara, y el censo lo daba por limpio. Corregido: un segmento que nombre `IN`/`NOT IN`/`FIND_IN_SET` —siguiendo la cadena de variables, no solo el texto del argumento— pierde el atajo. Sin esa corrección, arreglar `UsersController::searchDropdown` habría BORRADO su hallazgo en vez de declararlo.",
         "fragmentos_de_datatables": "AO: `where_string`, `having_string` y `group_string` son FRAGMENTOS DE SQL por diseno: `DataTablesHelper::process()` los interpola con `\"($where_string) AND $where\"` y NO existe via preparada para ellos —`havingReplacePrepareValues` solo se rellena desde un `HavingSegment`, ActiveRecord.php:491 y 556—. Las que validan su dominio se declaran aqui; las que no, se arreglaron o siguen abiertas.",
-        "migracion_a_segmento": "AO declaro `Country::countriesDataTables`; AP la MIGRO a `where_segment` y la entrada se retira. Ese es el ciclo previsto: se declara mientras se concatena, y la declaracion DESAPARECE cuando el valor pasa a marcador. La lista solo puede encoger, y encoger incluye por migracion, no solo por borrado."
+        "migracion_a_segmento": "AO declaro `Country::countriesDataTables`; AP la MIGRO a `where_segment` y la entrada se retira. Ese es el ciclo previsto: se declara mientras se concatena, y la declaracion DESAPARECE cuando el valor pasa a marcador. La lista solo puede encoger, y encoger incluye por migracion, no solo por borrado. AP+AQ: migradas CUATRO —`Country::countriesDataTables`, `State::statesDataTables`, `UsersController::dataTablesRequestUsers` y `DocumentsController::dataTablesExplorer`— y sus cuatro entradas retiradas. Las tres de AQ las cazo el trinquete al quedar huerfanas, no la memoria del CODER."
     },
     "entries": [
         {
@@ -37,21 +37,6 @@
         {
             "where": "src/app/controller/UsersController.php::searchDropdown",
             "validation": "`ignoreTypes` pasa por `is_numeric` ANTES de `intval` —porque `intval('abc')` da 0 y 0 es `TYPE_USER_ROOT`— y luego se queda solo con lo que esté en `array_keys(UsersModel::TYPES_USER_PRIORITY)`, que es el único constante del modelo que enumera los SIETE tipos declarados. `TYPES_USERS` NO sirve: es un mapa de etiquetas y trae `TYPE_USER_GOOGLE_PLAY` comentado, así que descartaría un tipo real y el desplegable mostraría MÁS usuarios. Lista vacía = no se añade el criterio.",
-            "count": 1
-        },
-        {
-            "where": "src/app/classes/App/Locations/Controllers/State.php::statesDataTables",
-            "validation": "`country` pasa por `Validator::isInteger($country) ? (int) $country : -1` en `State.php:258`. Cerrado por TIPO: al fragmento solo puede llegar un entero.",
-            "count": 1
-        },
-        {
-            "where": "src/app/controller/UsersController.php::dataTablesRequestUsers",
-            "validation": "`with-status` pasa por `Validator::isInteger($filterStatus) ? (int) $filterStatus : null` en `UsersController.php:179`. Los otros dos criterios del fragmento salen de la SESION —`$currentUser->organization`— y de `$disallowedTypes`, que es codigo.",
-            "count": 1
-        },
-        {
-            "where": "src/app/classes/Documents/Controllers/DocumentsController.php::dataTablesExplorer",
-            "validation": "`FIELD_SAMPLE_FILTER` pasa por `Validator::isInteger($FIELD) ? (int) $FIELD : null` en `DocumentsController.php:891`. El otro criterio es `DocumentsMapper::STATUS_ACTIVE`, constante de clase.",
             "count": 1
         },
         {

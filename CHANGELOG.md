@@ -279,6 +279,20 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Tres listados más mandan sus filtros por marcador
+
+`State::statesDataTables`, `UsersController::dataTablesRequestUsers` y
+`DocumentsController::dataTablesExplorer` pasan a `where_segment`. Con `Country`, van cuatro
+archivos de dieciocho; el censo imprime la cuenta y la saca del árbol.
+
+Dos no se pueden migrar todavía y queda dicho por qué: `OrganizationsController::dataTables` y
+`PublicationsController::dataTables` meten su filtro en `having_string` y tienen columnas
+buscables, así que chocan con la guarda que impide perder la búsqueda en silencio. Esperan a que
+`HavingSegment` sepa agrupar.
+
+En `State` la validación de entero **se queda**: ya no hace falta para la seguridad, pero es lo
+que convierte un valor raro en `-1`, que no encuentra nada.
+
 ## `DataTablesHelper::process()` acepta `where_segment` y `having_segment`
 
 Dos claves nuevas y **aditivas**: reciben un `WhereSegment` / `HavingSegment` ya construido y sus
