@@ -73,8 +73,8 @@ project://src/app/classes/App/Locations/Controllers/City.php
 	method.nonObject (Líneas: 401, 433)
 	foreach.nonIterable (Líneas: 594)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	method.nonObject (Líneas: 404, 436)
-	foreach.nonIterable (Líneas: 521)
+	method.nonObject (Líneas: 411, 443)
+	foreach.nonIterable (Líneas: 528)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
 	method.nonObject (Líneas: 64, 65, 66)
 project://src/app/classes/App/Locations/Controllers/Point.php
@@ -452,8 +452,8 @@ project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
 	argument.type (Líneas: 33)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php
-	clone.nonObject (Líneas: 351, 585, 631)
-	method.nonObject (Líneas: 402, 403, 404, 409)
+	clone.nonObject (Líneas: 395, 633, 683)
+	method.nonObject (Líneas: 450, 451, 452, 457)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/MetaTags.php
 	assign.propertyType (Líneas: 157)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ReturnTypes/ResultOperations.php

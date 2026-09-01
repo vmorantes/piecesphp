@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-31, tras la PARADA de AÑ.**
+**Ultima actualizacion: 2026-09-01, tras el BLOQUE AO.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1120,6 +1120,63 @@ guias —`16-frontend-arquitectura.md`, el modulo como patron—.
 > es arquitectura AFIRMADA, no medida. Dibuja lo que el agente cree. Solo entra si lo que dibuja
 > sale de artefactos MEDIDOS —`route-inventory.json`, los censos, la lista de modulos—, no de
 > prosa. **Un diagrama bonito y falso es peor que ninguno: parece autoridad.**
+
+### AO CERRADO — 13 -> 7, sin una sola cifra escrita a mano
+
+Verificado por ARQUITECTO: `cifras {confirmado: 7, declarado: 10, revisar: 100, descartado: 133}`,
+PHPStan 747, `c3f6cc82`, 34 sobre `origin/dev`, arbol con solo el `vps/index.md` declarado como
+PENDIENTE. `regionNameOrNull()` existe (`Country.php:570`) y la usan los DOS sitios (221 y 292).
+`PublicationMapper::VISIBILITIES` tiene las cuatro y **ninguna comentada** — el CODER lo comprobo
+por lo que paso con `TYPES_USERS` en T153: **la leccion viajo sola**.
+
+**Y corrigio su propia cifra de AN sin que nadie se lo pidiera**: dijo «3 consumidores de
+`escapeString`», eran los de UN archivo. **Son 23 llamadas en 13 archivos.** Verificado exacto por
+ARQUITECTO.
+
+### TRES DECISIONES DEL CODER QUE SON DISEÑO, NO EJECUCION
+
+1. **EL RECHAZO FALLA CERRADO.** Lo que no case el patron de `region` cae en `''` —que no
+   encuentra nada— y **no en `null`, que habria quitado el filtro y ENSANCHADO el resultado**.
+   Es «fallar hacia el lado que no toca», aplicado sin que se le dijera. Y conservo el `''`
+   legitimo de antes: no cambio comportamiento bueno.
+2. **`elapsedDays` son DOS defectos y los nombro aparte**: el de SQL (sin comillas) y **el de
+   TIPO** —se validaba con `is_string(...) && mb_strlen(trim(...))` y se usaba como numero—.
+   *El segundo habria sobrevivido a cualquier arreglo que solo pensara en el SQL.*
+3. **QUEDAN SIETE Y NO CINCO**, y la razon es sutil y correcta: `SystemApprovalsController::dataTables`
+   tiene DOS hallazgos en el mismo metodo y `referenceAlias` sigue abierto; **como se declara por
+   `archivo::metodo`, el `count` no puede decir a cual de los dos indulta** — lo decidiria el orden
+   de aparicion. Regla nueva del registro de declaradas, y la suite la vigila.
+
+Y no hay columna HTTP **por respetar la prohibicion**: las tres rutas piden sesion y mandar una
+comilla contra la aplicacion viva es una prueba de explotacion. La evidencia es el fragmento
+COMPUESTO. **Cero retrabajos** en este bloque.
+
+### `referenceAlias` — ARQUITECTO NO AUTORIZA EL CAMBIO DE CONTRATO, Y NO POR ALCANCE
+
+La parada esta bien fundada: el registro de handlers se carga con `require_once` dentro de un
+constructor privado (`SystemApprovalManager:42`) y nunca se expone; `$BASE_TEXT` es `protected`; y
+`UsersApprovalHandler:56` escribe **'Usuario independiente'** dentro de un metodo, fuera de toda
+lista. Una lista blanca sacada solo de `$BASE_TEXT` **dejaria fuera ese alias y el filtro
+devolveria vacio en silencio**.
+
+**La razon para no autorizar ahora es el defecto adyacente que el CODER encontro**:
+`SystemApprovalsMapper::getReferencesAliases()` (311-316) devuelve los alias **pasados por `__()`**
+mientras la columna guarda el texto **sin traducir**. En español coinciden; en cualquier otro
+idioma **el filtro no casa nada**.
+
+> **El filtro ya esta roto por semantica, no solo por inyeccion.** Cerrar la inyeccion sin cerrar
+> eso es pulir una funcion averiada. Los dos van juntos, en un bloque de SystemApprovals.
+
+### `generateHaving` — la salida es la ADITIVA, no tocar el paquete
+
+`havingReplacePrepareValues` solo se rellena desde un `HavingSegment` (`ActiveRecord.php:491` y
+`556`): en la via de cadena un marcador **nunca se ataria**. Y el HAVING final mezcla el
+`having_string` DEL PROGRAMADOR con lo que devuelve `generateHaving` (linea 268), y un
+`HavingSegment` no admite fragmentos en crudo ni grupos parentizados.
+
+**Decision de ARQUITECTO**: `process()` acepta claves NUEVAS `where_segment` / `having_segment`, y
+los modulos migran uno a uno. Es **aditivo, no rompe a nadie**, y es el camino que acaba haciendo
+innecesarias las claves de cadena. Va con el bloque de `DataTablesHelper`, que es el mismo archivo.
 
 ### Abierto, sin decidir
 

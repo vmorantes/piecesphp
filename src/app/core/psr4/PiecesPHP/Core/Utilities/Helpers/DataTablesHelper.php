@@ -9,6 +9,8 @@ use PDOException;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\ORM\ORM;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Exceptions\DataTablesHelperProcessException;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -49,10 +51,23 @@ class DataTablesHelper
      * valores de reemplazo cuando recibe un `HavingSegment` (`ActiveRecord.php:491` y `556`).
      *
      * **QUIEN META AHÍ UN VALOR DE LA PETICIÓN ABRE UN AGUJERO.** No es una recomendación de
-     * estilo: no hay marcador que lo salve. Si el filtro viene del visitante, se valida su
-     * DOMINIO antes —entero, lista blanca o patrón— y se declara en
-     * `files/dev/sql-concat-declared.json`, que es lo que vigila `bin/censo-sql-concatenado`.
-     * En AÑ se midieron ocho sitios que lo hacían; cuatro no validaban nada. Ver T154 y T155.
+     * estilo: no hay marcador que lo salve. En AÑ se midieron ocho sitios que lo hacían; cuatro
+     * no validaban nada. Ver T154 y T155.
+     *
+     * LA SALIDA, DESDE AP: `where_segment` y `having_segment`
+     * ------------------------------------------------------
+     * Reciben un `WhereSegment` / `HavingSegment` YA CONSTRUIDO, cuyos valores viajan por
+     * MARCADOR: `where()` copia sus reemplazos a `whereReplacePrepareValues`
+     * (`ActiveRecord.php:385`) y de ahí salen por `getReplaceWhereAndHavingValues()` al
+     * `execute()` del `prepare` (`ActiveRecord.php:1094`). No hay que hacer nada más.
+     *
+     * **Son EXCLUYENTES con su cadena**: pasar `where_string` y `where_segment` a la vez lanza,
+     * porque combinarlos obligaría a inventar en qué orden. Si no se pasa ninguno de los dos
+     * nuevos, el comportamiento es **idéntico** al de antes — es aditivo.
+     *
+     * Mientras un módulo siga en la vía de cadena, su filtro de petición se valida por DOMINIO
+     * y se declara en `files/dev/sql-concat-declared.json`, que es lo que vigila
+     * `bin/censo-sql-concatenado`.
      *
      * OTRAS TRES CLAVES ACABAN TAMBIÉN EN EL SQL, y como IDENTIFICADORES, que no admiten
      * marcador ni siquiera en teoría: `select_fields` (líneas 333 y 336), `columns_order`
@@ -63,7 +78,7 @@ class DataTablesHelper
      * El `order` de la petición SÍ está cerrado: su índice se usa como CLAVE de `columns_order`
      * y la dirección colapsa a un ternario de dos constantes.
      *
-     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string} $options
+     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string,where_segment:?WhereSegment,having_segment:?HavingSegment} $options
      * @return ResultOperations
      */
     public static function process(array $options)
@@ -127,6 +142,14 @@ class DataTablesHelper
              */
             $group_string = '';
             /**
+             * @var ?WhereSegment Alternativa PREPARADA a `where_string`. Ver el docblock.
+             */
+            $where_segment = null;
+            /**
+             * @var ?HavingSegment Alternativa PREPARADA a `having_string`. Ver el docblock.
+             */
+            $having_segment = null;
+            /**
              * @var bool
              */
             $ignore_table_in_order = false;
@@ -180,6 +203,12 @@ class DataTablesHelper
                 }, true),
                 new Parameter('group_string', null, function ($value) {
                     return is_string($value);
+                }, true),
+                new Parameter('where_segment', null, function ($value) {
+                    return $value instanceof WhereSegment;
+                }, true),
+                new Parameter('having_segment', null, function ($value) {
+                    return $value instanceof HavingSegment;
                 }, true),
                 new Parameter('ignore_table_in_order', false, function ($value) {
                     return is_bool($value);
@@ -262,6 +291,15 @@ class DataTablesHelper
              * @var int
              */
             $page = self::generatePage((int) $start, (int) $length);
+            //NO SE MEZCLAN. La cadena y el segmento son dos contratos distintos —uno concatena y
+            //el otro prepara—, y aceptar los dos obligaría a inventar cómo se combinan.
+            if ($where_segment !== null && is_string($where_string) && mb_strlen(trim($where_string)) > 0) {
+                throw new \Exception('DataTablesHelper::process(): `where_string` y `where_segment` son excluyentes. Usa uno de los dos.');
+            }
+            if ($having_segment !== null && is_string($having_string) && mb_strlen(trim($having_string)) > 0) {
+                throw new \Exception('DataTablesHelper::process(): `having_string` y `having_segment` son excluyentes. Usa uno de los dos.');
+            }
+
             /**
              * @var string Criterios de filtro
              */
@@ -282,6 +320,12 @@ class DataTablesHelper
                 $tableName,
                 $ignore_table_on_fields_in_where
             );
+
+            //`having_segment` SUSTITUIRÍA al HAVING que genera la BÚSQUEDA, y `HavingSegment` no
+            //sabe agrupar: `(a OR b) AND c` no es expresable. Antes que perderlo, se lanza.
+            if ($having_segment !== null && mb_strlen($having) > 0) {
+                throw new \Exception('DataTablesHelper::process(): `having_segment` no puede convivir con la búsqueda de DataTables, porque HavingSegment no admite agrupación. Ver T156.');
+            }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
             $having_string = is_string($having_string) ? trim($having_string) : "";
@@ -360,13 +404,17 @@ class DataTablesHelper
 
             /* Aplicar las diferentes cláusulas SQL y otras configuraciones*/
 
-            //WHERE
-            if (mb_strlen($where) > 0) {
+            //WHERE. El segmento GANA y la cadena se ignora: son excluyentes y ya se comprobó.
+            if ($where_segment !== null) {
+                $limit->where($where_segment);
+            } elseif (mb_strlen($where) > 0) {
                 $limit->where($where);
             }
 
             //HAVING
-            if (mb_strlen($having) > 0) {
+            if ($having_segment !== null) {
+                $limit->having($having_segment);
+            } elseif (mb_strlen($having) > 0) {
                 $limit->having($having);
             }
 
@@ -594,13 +642,17 @@ class DataTablesHelper
                 $filterCount->select($select_fields);
             }
 
-            //WHERE
-            if (mb_strlen($where) > 0) {
+            //WHERE. El mismo segmento sirve a los dos modelos: solo se lee, no se muta.
+            if ($where_segment !== null) {
+                $filterCount->where($where_segment);
+            } elseif (mb_strlen($where) > 0) {
                 $filterCount->where($where);
             }
 
             //HAVING
-            if (mb_strlen($having) > 0) {
+            if ($having_segment !== null) {
+                $filterCount->having($having_segment);
+            } elseif (mb_strlen($having) > 0) {
                 $filterCount->having($having);
             }
 

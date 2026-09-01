@@ -16306,3 +16306,121 @@ fuente**, que **una sola copia del patrón** de región sobreviva, y que `System
 - Los **5 de `DataTablesHelper::process`**, que son el helper mirándose a sí mismo.
 - `select_fields`, `columns_order` y `custom_order`, con las cinco familias de identificadores.
 - El desajuste de `getReferencesAliases()` entre la etiqueta traducida y la columna cruda.
+
+---
+
+## T156 · AP · `DataTablesHelper` SE MIRA A SÍ MISMO
+
+**Bloque AP.** El helper gana la vía preparada que le faltaba. Una migración, no diecinueve.
+Y una parada en el paso 3, que **no es un obstáculo de la biblioteca sino una contradicción
+dentro de la propia instrucción**.
+
+### PASO 1 · Las dos claves, y el camino de los valores
+
+`process()` acepta `where_segment` y `having_segment`. **El camino, leído antes de escribir:**
+
+```
+where($segmento)  ->  whereReplacePrepareValues        ActiveRecord.php:385
+                  ->  getReplaceWhereAndHavingValues()             929-933
+                  ->  $prepareStatement->execute($replaceValues)      1094
+```
+
+**No hay que hacer nada más**: basta con pasar el segmento a `where()`. El mismo objeto sirve a
+`$limit` y a `$filterCount` porque solo se lee.
+
+**Tres guardas, y las tres lanzan** en vez de adivinar:
+
+| Guarda | Por qué |
+| :-- | :-- |
+| `where_string` + `where_segment` | son dos contratos —uno concatena, otro prepara— y combinarlos obligaría a inventar el orden |
+| `having_string` + `having_segment` | igual |
+| `having_segment` + búsqueda activa | **ésta no estaba pedida y es la que evitaba una trampa**: el segmento del programador SUSTITUIRÍA al HAVING que genera la búsqueda, y `HavingSegment` no sabe agrupar, así que `(a OR b) AND c` no es expresable. Sin la guarda, migrar a `having_segment` **perdía el filtro de búsqueda en silencio** |
+
+**Es aditivo**: sin las claves nuevas, las cuatro ramas de cadena siguen en pie —dos en `$limit`
+y dos en `$filterCount`— y la suite las cuenta. Provocado: quitando una, la suite baja de 34 a 33.
+
+### PASO 2 · La migración, y por qué ésta
+
+**`Country::countriesDataTables`.** De las seis declaradas en AO era **la única cuyo valor sigue
+siendo una CADENA**: las otras cinco pasan por `Validator::isInteger` o por lista blanca de
+enteros, y sobre un entero un marcador no cambia absolutamente nada. Su sumidero era
+`Country.php:330`, `UPPER(region) = UPPER('{$region}')`.
+
+SQL compuesto, sin tocar la base:
+
+| entrada | ANTES | AHORA |
+| :-- | :-- | :-- |
+| `null` | (sin criterio) | (sin criterio) |
+| `Europa` | `WHERE (UPPER(region) = UPPER('Europa'))` | `WHERE (UPPER(region) = UPPER(:alias))` · valor `Europa` |
+| `''` | `WHERE (UPPER(region) = UPPER(''))` | igual · valor `''` |
+| `Am'erica` | `WHERE (UPPER(region) = UPPER(''))` — **descartado por el patrón** | igual · valor `Am'erica` — **vuelve a buscarse** |
+
+**Equivalente en los tres primeros casos y MEJOR en el cuarto**: el patrón conservador de T152
+descartaba nombres legítimos con apóstrofo, y con marcador ya no hace falta. `regionNameOrNull()`
+sigue vivo porque `countries()` compara con `IN (...)`, que **no** admite marcador.
+
+**La entrada declarada se retira**, y el trinquete lo cazó antes de que se me olvidara:
+`TRINQUETE ROTO: … figura como declarada y ya no casa con ningún hallazgo`. Ése es el ciclo:
+se declara mientras concatena, y la declaración **desaparece** al migrar.
+
+### PASO 3 · >>> PARADA <<< y no es la biblioteca
+
+Se puede: sin `having_string` del programador, el HAVING de la búsqueda es una lista de `LIKE`
+unidos por `OR`, y eso **sí** cabe en un `HavingSegment` sin necesidad de agrupación.
+
+**Pero hacerlo contradice el PASO 1 de esta misma instrucción.** El paso 1 exige que «sin las
+claves nuevas el SQL generado sea IDÉNTICO al de hoy», y pide una prueba que lo proteja. Cambiar
+el retorno por defecto de `generateHaving` **altera el SQL de las 18 controladoras que no han
+migrado** —todas las que no pasan `having_string`—, sin que ninguna haya pedido nada.
+
+No es un empate que me toque romper a mí: es elegir entre la garantía de aditividad y el arreglo
+del `escapeString`. **Lo reporto y no lo fuerzo.** La salida natural es hacerlo cuando las
+controladoras migren, una a una, junto con su `where_segment`.
+
+### PASO 4 · Los cinco de `process()`, medidos
+
+**Siguen siendo cinco.** No se mueven porque son **la vía de cadena**, que existe mientras 18
+controladoras no migren. Se declaran con `count: 5` y con la salida escrita, y las tres entradas
+de petición que los alcanzan quedan nombradas una a una:
+
+| Entrada | Estado |
+| :-- | :-- |
+| `order` | **no llega nunca al SQL**: índice usado como CLAVE de `columns_order` (`1223`), dirección por ternario `ASC`/`DESC` (`1222`) |
+| `columns` | solo elige el indicador `searchable` entre columnas que pone la controladora |
+| el valor de búsqueda | pasa por `escapeString()` — se sostiene con `utf8mb4`, **no** con `NO_BACKSLASH_ESCAPES`. Sigue abierto, T155 |
+
+### PASO 5 · El trinquete
+
+| | AÑ | AO | AP |
+| :-- | --: | --: | --: |
+| CONFIRMADO | 13 | 7 | **2** |
+| DECLARADO | 4 | 10 | **14** |
+| llamadas miradas | 250 | 250 | **253** |
+
+Las **253** —tres más— son las cuatro llamadas nuevas con segmento del helper menos la de cadena
+que `Country` deja de hacer. Los **2** que quedan son los de `SystemApprovalsController::dataTables`,
+fuera del alcance de este bloque por decisión del PROPIETARIO.
+
+La cota impresa sigue nombrando lo que no se mira: `select_fields`, `columns_order`,
+`custom_order`, `prepare`, `select`, `get` y `setTable`.
+
+### El cierre (LEY 24) · 34 comprobaciones
+
+Sección 8: el `WhereSegment` con `O'Brien` en la forma exacta que usa la controladora migrada,
+las cuatro ramas de cadena que protegen a las 18, y las tres guardas. Provocado quitando una
+rama: **34 → 33**.
+
+### Un gotcha del instrumental, anotado
+
+Leer un archivo con `open(p, encoding='utf-8')` en Python usa **saltos de línea universales**:
+un `\r\n` llega como `\n`, y al reescribir sale LF. Por eso `bin/normaliza-eol` encuentra
+«fuera de forma» todo archivo editado así. No hay daño mientras se normalice después —y se
+normaliza—, pero explica por qué aparecía siempre.
+
+### Lo que queda abierto
+
+- **Las 18 controladoras** por migrar, una a una, con su `having_segment` cuando toque.
+- `generateHaving` a segmento: es la decisión del paso 3.
+- **`SystemApprovals`**: `referenceAlias` y `getReferencesAliases()`, en su bloque.
+- `escapeString` y el `sql_mode` no declarado.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.

@@ -284,13 +284,20 @@ class Country extends AdminPanelController
     public function countriesDataTables(Request $request, Response $response)
     {
 
-        //`where_string` es un FRAGMENTO DE SQL: no pasa por marcador. Lo rechazado cae en `''`
-        //—que no casa nada— y NO en `null`, porque `null` quitaría el filtro y ENSANCHARÍA.
+        //POR MARCADOR, con `where_segment`: el valor viaja como DATO y ya no hace falta el
+        //patrón, así que un nombre con apóstrofo vuelve a poder buscarse. Ver T156.
         $region = $request->getQueryParam('region', null);
+        $regionSegment = null;
         if ($region !== null) {
-            $region = is_string($region) && mb_strlen(trim($region)) > 0
-                ? (self::regionNameOrNull($region) ?? '')
-                : '';
+            $regionSegment = new WhereSegment([
+                new WhereItem(
+                    'UPPER(region)',
+                    WhereItem::EQUAL_OPERATOR,
+                    is_string($region) ? trim($region) : '',
+                    '',
+                    'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+                ),
+            ]);
         }
 
         $columns_order = [
@@ -327,7 +334,7 @@ class Country extends AdminPanelController
                 ];
 
             },
-            'where_string' => is_null($region) ? null : "UPPER(region) = UPPER('{$region}')",
+            'where_segment' => $regionSegment,
         ]);
 
         return $response->withJson($result->getValues());

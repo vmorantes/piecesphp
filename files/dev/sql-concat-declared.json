@@ -15,7 +15,8 @@
         "ids_antes": "`ids[]=abc` daba 500 con `Unknown column 'abc' in 'WHERE'`",
         "ids_despues": "`ids[]=abc` da 200 y el criterio NO se añade; `ids[]=1&ids[]=abc` devuelve solo el 1",
         "not_in_dentro_de_segmento": "AM: envolver el `NOT IN` en un `WhereSegment` NO lo prepara, y el censo lo daba por limpio. Corregido: un segmento que nombre `IN`/`NOT IN`/`FIND_IN_SET` —siguiendo la cadena de variables, no solo el texto del argumento— pierde el atajo. Sin esa corrección, arreglar `UsersController::searchDropdown` habría BORRADO su hallazgo en vez de declararlo.",
-        "fragmentos_de_datatables": "AO: `where_string`, `having_string` y `group_string` son FRAGMENTOS DE SQL por diseno: `DataTablesHelper::process()` los interpola con `\"($where_string) AND $where\"` y NO existe via preparada para ellos —`havingReplacePrepareValues` solo se rellena desde un `HavingSegment`, ActiveRecord.php:491 y 556—. Las que validan su dominio se declaran aqui; las que no, se arreglaron o siguen abiertas."
+        "fragmentos_de_datatables": "AO: `where_string`, `having_string` y `group_string` son FRAGMENTOS DE SQL por diseno: `DataTablesHelper::process()` los interpola con `\"($where_string) AND $where\"` y NO existe via preparada para ellos —`havingReplacePrepareValues` solo se rellena desde un `HavingSegment`, ActiveRecord.php:491 y 556—. Las que validan su dominio se declaran aqui; las que no, se arreglaron o siguen abiertas.",
+        "migracion_a_segmento": "AO declaro `Country::countriesDataTables`; AP la MIGRO a `where_segment` y la entrada se retira. Ese es el ciclo previsto: se declara mientras se concatena, y la declaracion DESAPARECE cuando el valor pasa a marcador. La lista solo puede encoger, y encoger incluye por migracion, no solo por borrado."
     },
     "entries": [
         {
@@ -59,14 +60,15 @@
             "count": 1
         },
         {
-            "where": "src/app/classes/App/Locations/Controllers/Country.php::countriesDataTables",
-            "validation": "`region` pasa por `Country::regionNameOrNull()`, el MISMO patron `^[\\p{L}\\p{N} \\-]{1,60}$` que usa `countries()` —factorizado en AO para que no haya dos copias—. Lo rechazado cae en `''`, que no casa nada, y NO en `null`: `null` quitaria el filtro y ENSANCHARIA el resultado.",
-            "count": 1
-        },
-        {
             "where": "src/app/classes/Publications/Controllers/PublicationsController.php::dataTables",
             "validation": "`visibility` pasa por `Validator::isInteger` MAS `array_key_exists((int) $visibility, PublicationMapper::VISIBILITIES)` en `PublicationsController.php:1233-1238`. Es LISTA BLANCA sobre las cuatro visibilidades declaradas, no un entero suelto.",
             "count": 1
+        },
+        {
+            "where": "src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php::process",
+            "validation": "LOS CINCO son la VIA DE CADENA del helper, y las tres entradas de peticion que los alcanzan estan cerradas o acotadas, LEIDAS y no supuestas: (1) `order` no llega nunca al SQL —su indice se usa como CLAVE de `columns_order` (linea 1223) y la direccion colapsa a un ternario `ASC`/`DESC` (1222)—; (2) `columns` solo elige el indicador `searchable` entre columnas que pone la controladora; (3) el VALOR de busqueda pasa por `escapeString()` —`addslashes(stripslashes())`, AppHelpers.php:2805—, que se sostiene con `utf8mb4` pero NO con `NO_BACKSLASH_ESCAPES`, y eso esta escrito en T155. `where_string` y `having_string` son fragmentos del programador, no del visitante, y el docblock lo dice.",
+            "count": 5,
+            "salida": "Cada controladora que migre a `where_segment` deja de aportar su fragmento. Cuando las 19 hayan migrado, la via de cadena se puede retirar y estas cinco desaparecen. `generateHaving` no puede devolver segmento hoy sin cambiar el SQL de las 18 que no han migrado: ver la PARADA del paso 3 en T156."
         }
     ]
 }

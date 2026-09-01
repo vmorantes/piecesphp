@@ -279,6 +279,21 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## `DataTablesHelper::process()` acepta `where_segment` y `having_segment`
+
+Dos claves nuevas y **aditivas**: reciben un `WhereSegment` / `HavingSegment` ya construido y sus
+valores viajan **por marcador**. Sin ellas, el comportamiento es idéntico al de antes, así que
+ninguna controladora tiene que cambiar.
+
+Son **excluyentes** con su cadena equivalente, y `having_segment` **no puede convivir con la
+búsqueda de DataTables**: sustituiría al HAVING que ésta genera, y `HavingSegment` no admite
+agrupación, así que `(a OR b) AND c` no es expresable. Las tres situaciones lanzan con mensaje
+claro en vez de perder un filtro en silencio.
+
+`Country::countriesDataTables` es la primera migrada — de los filtros que quedaban era el único
+cuyo valor sigue siendo una cadena. Efecto secundario bueno: un nombre de región con apóstrofo
+vuelve a poder buscarse, porque el patrón conservador que lo descartaba ya no hace falta.
+
 ## Corregido — tres filtros de listado metían el valor de la petición en el SQL
 
 `Country::countriesDataTables` (`region`), `SystemApprovals::dataTables` (`elapsedDays`) y

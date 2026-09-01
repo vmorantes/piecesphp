@@ -163,11 +163,11 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/App/Locations/Controllers/Country.php                                       
  ------ -------------------------------------------------------------------------------------------- 
-  404    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  411    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  436    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
+  443    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.     
          🪪  method.nonObject                                                                        
-  521    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  528    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -1976,19 +1976,19 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php                                           
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  351    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  395    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  402    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
+  450    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
          🪪  method.nonObject                                                                                              
-  403    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
+  451    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
          🪪  method.nonObject                                                                                              
-  404    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
+  452    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
          🪪  method.nonObject                                                                                              
-  409    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
+  457    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
          🪪  method.nonObject                                                                                              
-  585    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  633    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  631    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  683    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------ 
 

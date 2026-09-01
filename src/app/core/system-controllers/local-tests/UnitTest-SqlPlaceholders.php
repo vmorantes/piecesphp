@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/7] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/8] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/7] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/8] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/7] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/8] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/7] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/8] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +177,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/7] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/8] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +201,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/7] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/8] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -252,14 +252,14 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/7] Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/8] Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
     $fragmentos = [
         'classes/App/Locations/Controllers/Country.php' => [
-            'regionNameOrNull($region) ?? \'\'' => 'countriesDataTables rechaza a `\'\'`, que no ensancha',
-            'self::regionNameOrNull($nombre)' => 'countries() usa el MISMO patrón factorizado',
+            "'where_segment' => \$regionSegment" => 'countriesDataTables ya va POR MARCADOR',
+            'self::regionNameOrNull($nombre)' => 'countries(), que sigue en `IN (...)`, conserva el patrón',
         ],
         'classes/SystemApprovals/Controllers/SystemApprovalsController.php' => [
             'Validator::isInteger($elapsedDaysFilter)' => 'elapsedDays es entero, no cadena',
@@ -298,6 +298,59 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         'SystemApprovalsController::dataTables sigue SIN declarar',
         'Tiene dos hallazgos y uno sigue abierto; declararlo indultaría al abierto.'
     );
+    echoTerminal(' ');
+
+    //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
+    echoTerminal('[8/8] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
+
+    //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
+    //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
+    $segmentoRegion = new WhereSegment([
+        new WhereItem(
+            'UPPER(region)',
+            WhereItem::EQUAL_OPERATOR,
+            $conComilla,
+            '',
+            'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+        ),
+    ]);
+    $sqlRegion = $segmentoRegion->toString();
+    $valoresRegion = $segmentoRegion->getReplacementValues();
+
+    $check(mb_strpos($sqlRegion, "'") === false, 'el WHERE de región NO lleva ninguna comilla', $sqlRegion);
+    $check(mb_strpos($sqlRegion, $conComilla) === false, 'el valor con comilla NO está en la sentencia');
+    $check(in_array($conComilla, array_values($valoresRegion), true), 'el valor viaja ENTERO en los reemplazos');
+    $check(mb_strpos($sqlRegion, 'UPPER(:') !== false, 'el marcador va envuelto en UPPER(), como la cadena de antes');
+
+    //LO QUE PROTEGE A LAS 18 QUE NO HAN MIGRADO: sin las claves nuevas, la vía de cadena tiene
+    //que seguir ahí, en los DOS modelos y para las DOS cláusulas.
+    $helper = (string) @file_get_contents($raizSrc . '/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php');
+    $ramas = [
+        '} elseif (mb_strlen($where) > 0) {' => 2,
+        '} elseif (mb_strlen($having) > 0) {' => 2,
+    ];
+    foreach ($ramas as $rama => $esperadas) {
+        $vistas = mb_substr_count($helper, $rama);
+        $check(
+            $vistas === $esperadas,
+            'la vía de cadena sigue en pie: ' . $esperadas . ' rama(s) de «' . mb_substr($rama, 9, 22) . '»',
+            "encontradas: {$vistas}"
+        );
+    }
+
+    //LAS TRES GUARDAS. Sin ellas se mezclarían dos contratos, o se perdería la búsqueda en
+    //silencio al pasar un `having_segment`.
+    $guardas = [
+        '`where_string` y `where_segment` son excluyentes',
+        '`having_string` y `having_segment` son excluyentes',
+        '`having_segment` no puede convivir con la búsqueda',
+    ];
+    foreach ($guardas as $guarda) {
+        $check(
+            mb_strpos($helper, $guarda) !== false,
+            'process() se niega a: ' . mb_substr($guarda, 0, 46)
+        );
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
