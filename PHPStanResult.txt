@@ -1162,7 +1162,7 @@
  ------ -------------------------------------------------------------------- 
   project://src/src/app/config/functions.php                                        
  ------ -------------------------------------------------------------------- 
-  215    Function getAllUsers() should return array but returns array|null.  
+  198    Function getAllUsers() should return array but returns array|null.  
          🪪  return.type                                                     
  ------ -------------------------------------------------------------------- 
 

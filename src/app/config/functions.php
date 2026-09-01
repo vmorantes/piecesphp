@@ -28,23 +28,6 @@ function menu_sidebar_items(\stdClass $user): string
 }
 
 /**
- * @param array{
- *  request: \PiecesPHP\Core\Routing\RequestRoute,
- *  mapper: \PiecesPHP\Core\Database\EntityMapper,
- *  columns_order: array,
- *  where_string:?string,
- *  on_set_data:?callable,
- *  as_mapper:?bool,
- *  on_set_model:?callable
- * } $options
- * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
- */
-function datatables_proccessing_with_options(array $options)
-{
-    return \PiecesPHP\Core\Utilities\Helpers\DataTablesHelper::process($options);
-}
-
-/**
  * Devuelve un string con la estructura de un orderBy para un EntityMapper
  *
  * @param array $values

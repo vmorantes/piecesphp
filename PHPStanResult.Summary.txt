@@ -303,7 +303,7 @@ project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
-	return.type (Líneas: 215)
+	return.type (Líneas: 198)
 project://src/app/config/roles.php
 	nullCoalesce.offset (Líneas: 112)
 project://src/app/controller/AdminPanelController.php

@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras el BLOQUE AQ.**
+**Ultima actualizacion: 2026-09-01, tras el BLOQUE AR.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1287,6 +1287,80 @@ Migrarlas habria metido **un fallo latente que solo aparece cuando un usuario es
 
 **B y C no migran**, confirmado: en B el valor sale de la sesion del propio usuario; en C tres
 tienen el array de criterios **vacio siempre**.
+
+### AR — TRES PIEZAS MUERTAS QUE SE TAPABAN ENTRE SI
+
+Verificado: `cifras {confirmado: 2, declarado: 11, revisar: 104, descartado: 133}`, PHPStan 747,
+`afbc0692`, 37 sobre `origin/dev`.
+
+**`FIELD_SAMPLE_FILTER` no era una pieza, eran tres**, y encajadas de forma que se cubrian:
+
+| pieza | estado |
+| :-- | :-- |
+| el criterio PHP | columna que NO existe en `DocumentsMapper` |
+| el JS que lo dispara | manda **`FIELD_SAMPLE_FILTER_LOAD`**, CON SUFIJO |
+| el desplegable | **no existe**: `explorer.php` no tiene ni un `dropdown` |
+
+**Los dos nombres nunca casaron.** Por eso nadie se topo jamas con el `Unknown column` desde la
+interfaz: el parametro que el JS envia no lo lee nadie, y el que el PHP lee no lo envia nadie.
+
+**ARQUITECTO comprobo el «cero ocurrencias» y encontro UNA**: esta en
+`src/app/logs/olds/error.log...json`, que es **un registro de lo que paso**, no codigo — y
+reescribirlo seria justo el error que el CODER cometio y conto en AK. **Su cero era correcto sobre
+el codigo; el grep de ARQUITECTO era mas ancho que su afirmacion.** Por una vez, al reves.
+
+### EL HTTP NO DIO LO ESPERADO Y ESO FUE EL HALLAZGO
+
+Esperabamos 500 -> 200. Salio 500 -> 500. En vez de maquillarlo, el CODER **aislo el entorno**
+pidiendo la ruta hermana `documents-admin-datatables` con los mismos parametros: **200**. Base,
+tabla y entorno bien.
+
+> **`dataTablesExplorer` tiene un SEGUNDO defecto, propio y anterior, que este bloque no toca.**
+> Para nombrarlo hace falta el `limitGeneratedSQL` que la excepcion ya lleva dentro y que el
+> manejador no imprime.
+
+### DECISION DE ARQUITECTO: SE REGISTRA, NO SE IMPRIME
+
+El CODER propuso imprimir el `limitGeneratedSQL` en el manejador, «solo en local». **No.**
+
+> Imprimir SQL en una respuesta de error crea una superficie de fuga cuya unica cerradura es una
+> comprobacion de «local» **que cada clon hereda**. Diagnosticar un defecto viejo creando una fuga
+> nueva es un mal cambio. **Va al REGISTRO** —`log_exception`, que ya existe, y los logs estan en
+> `.gitignore`—: mismo diagnostico, superficie cero.
+
+### EL GEMELO, Y LA DISCIPLINA DE NO DECIDIRLO
+
+La red ancha destapo `datatables_proccessing_with_options()` (`config/functions.php:42`), **tambien
+con cero consumidores**. El CODER **no lo borro**: no estaba en la instruccion.
+*Lo que la red destapa se reporta, no se decide.* **Decidido ahora: muere, con la misma red ancha
+delante.**
+
+### EL PAQUETE `database`: MEDIDO, AUTORIZADO Y ADITIVO
+
+`WhereItemGroup::addCritery(WhereItem $critery)` esta tipado a `WhereItem`, y
+`HavingItem extends WhereItem {}` tiene el cuerpo vacio: **un `HavingItem` ES un `WhereItem` y
+pasa el tipo sin cambiar una linea.** Nada lo impide.
+
+Lo que le falta a `HavingSegment` (114) frente a `WhereSegment` (143): `$groups`,
+`addGroup(WhereItemGroup)`, `addCriteria(array)`, y las versiones por grupos de `addCritery`,
+`countCriteria`, `getReplacementValues` y `toString`.
+
+**Y NO es copiar `WhereSegment` encima**, aviso del CODER que hay que respetar: `HavingSegment`
+emite hoy UNA envoltura plana con el operador dentro; adoptar su `addCritery` convertiria un `OR`
+existente en `(a OR) (b OR) (c)`, que es basura. **La forma segura es ADITIVA**: `$groups` y
+`addGroup()` nuevos, y `toString()` emite grupos **solo si se añadio alguno**.
+
+Coste medido: `WhereSegment` 38 usos en `src/app` y 5 en el paquete; `HavingSegment` 23 en 7
+archivos y 1 en el paquete; **`WhereItemGroup` CERO en `src/app`** — nada existente puede romperse
+por añadirlo.
+
+**Estado del paquete**: limpio, `v4.0.0` en HEAD, 13 suites, PHPStan 21. Aditivo y sin romper nada
+= **MINOR**, con su CHANGELOG y su etiqueta. **La version y la etiqueta las decide el PROPIETARIO;
+NADA SE EMPUJA, tampoco aqui.**
+
+Desbloquea: las dos controladoras, `generateHaving` con segmento aun habiendo `having_string`, la
+retirada de la via de cadena con sus 5 declarados, y **2 de las 23 `escapeString`** —las del
+helper—. Las otras 21 viven en los `search()` de los mappers y en JSON: **no caen por esto**.
 
 ### Abierto, sin decidir
 

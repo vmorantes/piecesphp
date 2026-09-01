@@ -16678,3 +16678,99 @@ de la columna de cadena al morir su envoltorio.
 - El bloque del paquete `database`: `$groups` y `addGroup()` en `HavingSegment`, aditivos.
 - `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+
+---
+
+## T159 · AS · EL PAQUETE APRENDE A AGRUPAR, Y UNA REGRESIÓN MÍA SALE A LA LUZ
+
+**Bloque AS.** La parte 1 salió entera y verde. La parte 2 está **bloqueada por el
+empaquetado**. Y al medir la parte 3 apareció lo importante: **las cuatro migraciones de AP y
+AQ están rotas en ejecución, y el defecto es mío.**
+
+### PARTE 1 · `database` v4.1.0 — aditivo y comprobado en ese orden
+
+`HavingSegment` gana `$groups`, `addGroup(WhereItemGroup)` y `addCriteria(array)`.
+`WhereItemGroup` **no se tocó**: su `addCritery()` está tipado a `WhereItem` y
+`HavingItem extends WhereItem {}` tiene el cuerpo vacío, así que pasa el tipo tal cual.
+
+**La no regresión, PRIMERO y byte a byte.** Se compuso la salida de cuatro formas existentes
+—una sola, dos con `OR`, seis con `OR`, y vacía— contra la de `HEAD`, y el `diff` salió vacío.
+Sólo entonces se escribió la capacidad nueva.
+
+**La regla que lo hace posible:** `toString()` emite grupos **sólo si se añadió alguno**. La
+forma plana se movió a un método privado y el camino existente no la comparte. Adoptar el
+`addCritery` de `WhereSegment` habría convertido un `OR` existente en `(a OR) (b OR) (c)`.
+
+```
+HAVING (visibility = :a) AND (fullname LIKE UPPER(:b) OR username LIKE UPPER(:c))
+valores: {…VISIBILITY:1, …FULLNAME:"O'Brien%", …USERNAME:"O'Brien%"}
+```
+
+Provocado neutralizando `addCriteria()`: la prueba nueva cae de 6 a 5 y la de no regresión
+aguanta. **13 suites verdes, PHPStan 21 = línea base**, 0 muertas, 0 nacidas, 0 desplazadas.
+Etiqueta preparada, **no creada**: `v4.1.0`.
+
+### PARTE 2 · >>> PARADA <<< el paquete no llega al framework
+
+`src/vendor/piecesphp/database` **no es un symlink**: es una instalación de Composer desde
+`https://bitbucket.org/piecesphp/database.git` en la referencia `e9f5ac37` (`composer.lock`).
+Medido: `addGroup` aparece **1 vez** en el repo hermano y **0 veces** en el instalado.
+
+Para que el framework lo vea harían falta: commit, etiqueta, **push a Bitbucket** y
+`composer update`. **Empujar está prohibido y la etiqueta la pone el PROPIETARIO**, y editar
+`src/vendor/` está prohibido por la regla 8 del proyecto. Así que la parte 2 —`generateHaving`
+con grupos y las dos controladoras bloqueadas— **no se puede ejecutar en este bloque**.
+
+### >>> LO GRAVE: LAS CUATRO MIGRACIONES DE AP Y AQ ESTÁN ROTAS <<<
+
+Medido abriendo las rutas **temporalmente** desde copia guardada y restaurando con `sha256`:
+
+| ruta | con `where_segment` | sin él |
+| :-- | :-- | :-- |
+| `locations-countries-datatables` `?region=Europa` | **500** | **200** |
+| `locations-states-datatables` `?country=1` | **500** | — |
+| `documents-admin-datatables-explorer` | **500** | — |
+| `documents-admin-datatables` (sin migrar, cadena) | — | **200** |
+
+**La discriminante es el segmento, no la ruta ni el entorno.** La misma tabla, los mismos
+parámetros de DataTables y la misma sesión: con filtro por segmento revienta, sin él responde.
+
+El SQL exacto, sacado del registro —`extraData` **ya se escribía** en `error.log.json`, así que
+el paso 3b no necesitaba tocar nada—:
+
+```
+SQLSTATE[42S22]: Column not found: 1054
+  Unknown column 'WH6A971DCA36125_UPPERREGION' in 'WHERE'
+```
+
+**El marcador llega a MySQL sin sus dos puntos**, así que lo lee como nombre de columna. El
+`getCompiledSQL(true)` del registro sí muestra la forma correcta —`WHERE (UPPER(region) =
+UPPER('Europa'))`—, de modo que la composición del segmento está bien y lo que falla es el
+camino de preparación. La causa vive en `ActiveRecord`/`WhereItem` del paquete.
+
+> **CORRIJO T158.** Escribí que el 500 de `dataTablesExplorer` era «un segundo defecto, propio y
+> anterior». **Anterior no: es mío**, introducido al migrar en AQ. Y no afecta a una ruta, sino
+> a las cuatro que migré. Lo dije sin haber comparado contra el estado previo a mi propio
+> cambio, que es exactamente lo que LEY 24 existe para impedir.
+
+**Ninguna de las cuatro se probó por HTTP al migrarla.** La evidencia de AP y AQ fue el
+fragmento compuesto, que es correcto —y por eso no lo vio—: el defecto no está en el SQL que se
+compone sino en el que se ejecuta. **Un fragmento compuesto no sustituye a una ejecución.**
+
+### PARTE 3 · Lo que sí se cerró
+
+**`datatables_proccessing_with_options()` fuera.** Red ancha sobre todo el repositorio: 7
+menciones y **cero llamadas**. Tras el borrado, cero en `src/`. Las menciones del registro
+histórico se quedan: son lo que era cierto entonces.
+
+**`limitGeneratedSQL` no necesitaba cambio alguno.** `GenericHandler::logging()` ya vuelca
+`extraData` en `error.log.json` (línea 167), y los logs están en `.gitignore`. La instrucción
+temía que hubiera que imprimirlo en la respuesta; no hace falta, y por eso no se tocó nada.
+
+### Lo que queda abierto
+
+- **DECIDIR SOBRE LAS CUATRO MIGRACIONES ROTAS.** Recomiendo revertirlas hasta que el paquete
+  esté publicado y el defecto del marcador, cerrado.
+- La causa exacta del marcador sin dos puntos, en `ActiveRecord`/`WhereItem`.
+- Publicar `v4.1.0` y `composer update`, sin lo cual la parte 2 sigue bloqueada.
+- `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.

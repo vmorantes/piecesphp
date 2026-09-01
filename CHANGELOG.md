@@ -279,6 +279,21 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## ⚠ Advertencia — los cuatro listados migrados a `where_segment` fallan en ejecución
+
+`Country::countriesDataTables`, `State::statesDataTables`,
+`UsersController::dataTablesRequestUsers` y `DocumentsController::dataTablesExplorer` devuelven
+**500** cuando se usa su filtro. Medido por HTTP: la misma ruta **sin** el filtro responde 200, y
+un listado hermano que sigue en la vía de cadena también. El marcador llega a MySQL sin sus dos
+puntos —`Unknown column 'WH…_UPPERREGION' in 'WHERE'`— y la causa está en la preparación del
+paquete `database`, no en el SQL que se compone.
+
+**Está pendiente de decisión si se revierten**; hasta entonces, esos cuatro filtros no funcionan.
+
+## Eliminaciones — `datatables_proccessing_with_options()`
+
+Cero llamadas en todo el repositorio, gemelo del que ya se retiró. Muere con él.
+
 ## Eliminaciones — el filtro de plantilla del explorador de documentos y un envoltorio muerto
 
 `FIELD_SAMPLE_FILTER` era un residuo de **tres piezas**: un criterio en PHP sobre una columna que
