@@ -889,9 +889,6 @@ class DocumentsController extends AdminPanelController
     public function dataTablesExplorer(Request $request, Response $response)
     {
 
-        $FIELD = $request->getQueryParam('FIELD_SAMPLE_FILTER');
-        $FIELD = Validator::isInteger($FIELD) ? (int) $FIELD : null;
-
         $table = DocumentsMapper::TABLE;
 
         //POR MARCADOR, con `where_segment`. El `AND` del último criterio lo descarta
@@ -901,12 +898,6 @@ class DocumentsController extends AdminPanelController
         $status = DocumentsMapper::STATUS_ACTIVE;
         if ($status !== null && $status !== -1) {
             $whereItems[] = new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $status, WhereItem::AND_OPERATOR);
-        }
-
-        //`FIELD_SAMPLE_FILTER` NO ES UNA COLUMNA: cero ocurrencias en `DocumentsMapper`. Es
-        //plantilla heredada y revienta cuando el filtro llega. Se migra igual. Ver T157.
-        if ($FIELD !== null && $FIELD !== -1) {
-            $whereItems[] = new WhereItem("{$table}.FIELD_SAMPLE_FILTER", WhereItem::EQUAL_OPERATOR, $FIELD, WhereItem::AND_OPERATOR);
         }
 
         $whereSegment = count($whereItems) > 0 ? new WhereSegment($whereItems) : null;

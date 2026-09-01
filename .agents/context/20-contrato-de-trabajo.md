@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras el BLOQUE AP.**
+**Ultima actualizacion: 2026-09-01, tras el BLOQUE AQ.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1224,6 +1224,69 @@ instruccion exigia.
 `\n`, detectar el final SIEMPRE da falso, y al reescribir sale LF. Por eso `normaliza-eol`
 encontraba algo despues de cada edicion suya. **ARQUITECTO no cae en esto porque lee con
 `open(...,'rb')` y decodifica a mano** — pero queda escrito para los dos.
+
+### AQ — Y EL MURO TIENE NOMBRE: `HavingSegment` NO AGRUPA Y `WhereSegment` SI
+
+Verificado: `cifras {confirmado: 2, declarado: 11, revisar: 104, descartado: 133}`, PHPStan 747,
+`66e9b645`, 36 sobre `origin/dev`.
+
+**ARQUITECTO fue a medir el muro antes de autorizar un `HavingGroup` propio, y el muro no es el
+que pareciamos tener:**
+
+| | agrupa | estructura |
+| :-- | :--: | :-- |
+| `WhereSegment` (143) | **SI** | `WhereItemGroup[]`, con `addGroup()`, y hasta envuelve un critery suelto en un grupo |
+| `HavingSegment` (114) | **NO** | `HavingItem[]` PLANO, solo `addCritery(HavingItem)` |
+| `WhereItemGroup` (149) | — | existe |
+| **`HavingItem`** | — | **`class HavingItem extends WhereItem {}` — QUINCE LINEAS, CUERPO VACIO** |
+
+**`(a OR b) AND c` SI es expresable en WHERE. En HAVING no, y la unica diferencia es que
+`HavingSegment` es de UN nivel y `WhereSegment` de DOS.**
+
+> **ARQUITECTO NO AUTORIZA un `HavingGroup` dentro del framework.** Seria reimplementar
+> `WhereItemGroup` fuera del paquete que ya lo tiene: **la trampa de los dos caminos**, la misma
+> que se diagnostico con `EntityMapper` contra `ORM`. El arreglo es dar a `HavingSegment` la
+> estructura de dos niveles que `WhereSegment` ya tiene, **con la implementacion de referencia al
+> lado**.
+
+**Y eso RECOLOCA LA COLA**: el bloque del paquete `database` deja de ser una tarea de cierre y pasa
+a ser **lo que desbloquea tres cosas a la vez** — las dos controladoras bloqueadas
+(`Organizations` y `Publications`), `generateHaving`, y con el la dependencia de `escapeString` en
+el helper.
+
+### LO QUE EL CODER MIDIO ANTES DE FIARSE
+
+- **El cubo A se lo dio el censo, no el ojo**: son exactamente los DECLARADO de la novena familia.
+- **Colision de alias**: `dataTablesRequestUsers` compara `status` y `type` DOS VECES cada una; si
+  dos alias colisionaran se perderia un valor **sin ruido**. Comprobado: 5 criterios, 5 alias
+  distintos, y la suite lo fija.
+- **La validacion se queda en `State` y se retiro en `Country`, y NO es incoherencia**: en `State`
+  el `isInteger` es lo que convierte lo raro en `-1`, que no casa nada; sin el, MySQL coaccionaria
+  la cadena y daria **el mismo resultado POR CASUALIDAD, no por diseño**. En `Country` el patron
+  descartaba **nombres legitimos**. No es la misma situacion.
+- **`escapeString` no se movio y NO SE MOVERA migrando**: 21 de las 23 llamadas viven en los
+  `search()` de los mappers y en JSON, que esto no toca; las 2 del helper estan en
+  `generateHaving`, cuyo defecto **no cambia por decision de ARQUITECTO**. Lo dijo para impedir la
+  inferencia equivocada, que es LEY 19 aplicada contra ARQUITECTO.
+
+### LAS DOS BLOQUEADAS, Y POR QUE NO FORZARLAS ERA LO CORRECTO
+
+`OrganizationsController::dataTables` y `PublicationsController::dataTables` meten su valor de
+peticion en `having_string` (`:1208` y `:1275`) **y tienen columnas buscables reales**. En cuanto
+alguien escriba en el buscador, `generateHaving` produce contenido y **la guarda de AP las para**.
+Migrarlas habria metido **un fallo latente que solo aparece cuando un usuario escribe**.
+
+### DOS RESIDUOS EN LA ORBITA DEL HELPER — DECIDIDO: MUEREN
+
+1. **`FIELD_SAMPLE_FILTER`** en `DocumentsController::dataTablesExplorer`: **no es una columna**
+   —cero ocurrencias en `DocumentsMapper`—, es plantilla heredada del modulo modelo, y la ruta
+   `documents-datatables-explorer` existe y esta autenticada. Quien pase `?FIELD_SAMPLE_FILTER=1`
+   se lleva un `Unknown column`. **Se borra**: cambiar ese 500 por un 200 es un arreglo, no una
+   regresion. El CODER hizo bien en migrarlo tal cual y no decidirlo el.
+2. **`datatables_proccessing()`** (`config/functions.php:72`): **cero consumidores**. Muere con el.
+
+**B y C no migran**, confirmado: en B el valor sale de la sesion del propio usuario; en C tres
+tienen el array de criterios **vacio siempre**.
 
 ### Abierto, sin decidir
 

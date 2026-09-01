@@ -16550,3 +16550,131 @@ existe, así que la única red es esta comprobación.
 - `datatables_proccessing()`, envoltorio con cero consumidores.
 - `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+
+---
+
+## T158 · AR · LOS DOS RESIDUOS, Y EL PUENTE AL PAQUETE
+
+**Bloque AR.** Dos borrados y una medición. El HTTP del paso 1 salió distinto de lo esperado,
+y eso destapó un defecto que no estaba en el guion.
+
+### PASO 1 · `FIELD_SAMPLE_FILTER` era un residuo de TRES piezas, no de una
+
+La red ancha sobre `FIELD_*_FILTER` en **todo el repositorio** —no solo en `src/`— dio **una
+pieza que no sabía que existía**:
+
+| Pieza | Dónde | Qué pasaba |
+| :-- | :-- | :-- |
+| el parámetro y el criterio | `DocumentsController.php:892` y `:906-910` | filtra por una columna que **no existe**: cero ocurrencias en `DocumentsMapper` |
+| el JS que lo dispara | `Statics/js/documents/explorer.js:13` | manda **`FIELD_SAMPLE_FILTER_LOAD`**, con sufijo `_LOAD` — **un nombre que el PHP nunca lee** |
+| el `.ui.dropdown` que lo bindea | **no existe** | `explorer.php` (58 líneas) no tiene ni un `dropdown`: el `configFomanticDropdown` bindeaba al vacío |
+
+> **Los dos nombres nunca casaron.** Por eso nadie se topó jamás con el `Unknown column` desde
+> la interfaz: el parámetro que el JS envía no lo lee nadie, y el que el PHP lee no lo envía
+> nadie. Tres piezas muertas encajadas de forma que se tapaban entre sí.
+
+**No es un patrón copiado**: `FIELD_*_FILTER` aparece en **un solo módulo**. Uno es residuo, y
+se fue entero. Tras el borrado, **cero ocurrencias en `src/`**.
+
+### El HTTP no dio lo esperado, y ahí está el hallazgo
+
+Medido abriendo la ruta **temporalmente** desde copia guardada —no se usan credenciales, que
+están vetadas— y restaurando con `sha256` verificado. Con los parámetros que DataTables genera:
+
+| | sin el parámetro | con `FIELD_SAMPLE_FILTER=1` |
+| :-- | :-- | :-- |
+| ANTES | **500** | **500** |
+| DESPUÉS | **500** | **500** |
+
+**El 200 esperado no llega, y no es por el filtro borrado**: la ruta ya fallaba sin él. Para
+saber si era el entorno, abrí igual su hermana `documents-admin-datatables`, **con los mismos
+parámetros**: devuelve **200**.
+
+> Así que la base responde, la tabla existe y el entorno está bien. **`dataTablesExplorer` tiene
+> un segundo defecto, propio y anterior**, que este bloque no toca. Nombrarlo exige el
+> `limitGeneratedSQL` que la excepción lleva dentro y que el manejador de errores **no imprime**.
+
+### PASO 2 · `datatables_proccessing()`
+
+Cero consumidores, confirmado con red ancha sobre **todo el repositorio** antes de borrar: 11
+menciones, y **ninguna es una llamada** — seis en el registro histórico, dos en el propio
+archivo, dos en la instantánea de firmas y una en la instrucción de ARQUITECTO.
+
+**La puerta lo cazó por su nombre**: `FIRMA: app/config/functions.php: desapareció
+datatables_proccessing()`. Instantánea regenerada por su vía prevista —2.778 firmas en 368
+archivos—, y el artefacto ya no lo nombra (LEY 28). Las menciones del registro histórico **se
+quedan**: son lo que era cierto entonces, y reescribirlas sería falsificar el diario.
+
+**Y la red ancha destapó un GEMELO**: `datatables_proccessing_with_options()`
+(`config/functions.php:42`), **también con cero consumidores**. No lo borré: no estaba en la
+instrucción, y lo que la red ancha destapa se reporta, no se decide.
+
+### PASO 3 · El puente al paquete, medido y no tocado
+
+**`WhereItemGroup` funcionaría TAL CUAL en un HAVING, y eso está leído:**
+`WhereItemGroup::addCritery(WhereItem $critery)` está tipado a `WhereItem`, y
+`HavingItem extends WhereItem {}` tiene el **cuerpo vacío** — así que un `HavingItem` **es** un
+`WhereItem` y pasa el tipo sin cambiar una línea. **Nada lo impide.**
+
+Lo que le falta a `HavingSegment` (114 líneas) frente a `WhereSegment` (143), método a método:
+
+| | `WhereSegment` | `HavingSegment` |
+| :-- | :-- | :-- |
+| `$groups` | ✔ | **ausente** |
+| `addGroup(WhereItemGroup)` | ✔ | **ausente** |
+| `addCriteria(array)` — un grupo de varios | ✔ | **ausente** |
+| `addCritery()` | envuelve cada uno en su grupo | lista plana |
+| `countCriteria()` | suma entre grupos | cuenta la lista |
+| `getReplacementValues()` | recorre grupos | recorre criterios |
+| `toString()` | `WHERE (g1) AND (g2)` | `HAVING (c1 c2 c3)` plano |
+| `__construct`, `setCriteria`, `__toString` | ✔ | ✔ |
+
+**NO es copiar `WhereSegment` encima.** `HavingSegment` emite hoy **una sola envoltura plana**
+con el operador dentro; adoptar la forma de `WhereSegment` convertiría un `OR` existente en
+`(a OR) (b OR) (c)`, que es basura. La forma segura es **aditiva**: `$groups` y `addGroup()`
+nuevos, y un `toString()` que emita grupos **solo si se añadió alguno**, conservando el
+comportamiento plano cuando no.
+
+**Coste, medido en los cinco repositorios:**
+
+| | `WhereSegment` | `HavingSegment` | `WhereItemGroup` |
+| :-- | --: | --: | --: |
+| `piecesphp` (`src/app`) | 38 | 23 en 7 archivos | **0** |
+| `database` | 5 | 1 | 13 |
+| `datastructures`, `html`, `geojson` | 0 | 0 | 0 |
+
+El cambio vive en **dos repositorios**, y el framework **no usa agrupación hoy** —cero
+menciones de `WhereItemGroup` en `src/app`—, así que nada existente puede romperse por añadirla.
+
+**Qué se desbloquea exactamente:**
+
+1. **Las dos controladoras bloqueadas** — `OrganizationsController::dataTables` y
+   `PublicationsController::dataTables`—, que es el único camino para bajar de 2 CONFIRMADO.
+2. **`generateHaving`** puede devolver segmento incluso con `having_string` presente, porque
+   `(a OR b) AND c` pasa a ser expresable.
+3. Y con ello, **el resto de controladoras** puede migrar y la vía de cadena retirarse, lo que
+   cierra los **5 declarados** de `process()`.
+4. **De las 23 llamadas a `escapeString` caerían DOS** — las de `DataTablesHelper`. Las otras
+   21 viven en los `search()` de los mappers y en JSON, y **no las toca nada de esto**.
+
+### PASO 4 · El trinquete y la cota
+
+| | AP | AQ | AR |
+| :-- | --: | --: | --: |
+| CONFIRMADO | 2 | 2 | **2** |
+| DECLARADO | 14 | 11 | **11** |
+| llamadas miradas | 253 | 250 | **249** |
+
+Una menos: el `where_string` de `datatables_proccessing()` deja de existir. **Ninguna cifra de
+CONFIRMADO o DECLARADO se mueve**, así que no hay nada que declarar.
+
+La línea de migración se actualizó sola: **4 de 13** —era 4 de 14— porque `functions.php` sale
+de la columna de cadena al morir su envoltorio.
+
+### Lo que queda abierto
+
+- **El segundo defecto de `dataTablesExplorer`**, que la deja en 500 mientras su hermana da 200.
+- **`datatables_proccessing_with_options()`**, gemelo con cero consumidores.
+- El bloque del paquete `database`: `$groups` y `addGroup()` en `HavingSegment`, aditivos.
+- `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.

@@ -279,6 +279,18 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Eliminaciones — el filtro de plantilla del explorador de documentos y un envoltorio muerto
+
+`FIELD_SAMPLE_FILTER` era un residuo de **tres piezas**: un criterio en PHP sobre una columna que
+no existe, un JS que enviaba `FIELD_SAMPLE_FILTER_LOAD` —con sufijo, así que el PHP nunca lo
+leía— y un `configFomanticDropdown` que bindeaba a un desplegable ausente de la vista. Las tres
+fuera; cero ocurrencias en `src/`. Aparece en un solo módulo, así que era residuo y no patrón.
+
+`datatables_proccessing()` se retira de `config/functions.php`: cero consumidores en todo el
+repositorio. La comprobación de firmas de `verify-integrity` lo cazó por su nombre y la
+instantánea se regeneró por su vía. Queda vivo su gemelo `datatables_proccessing_with_options()`,
+también sin consumidores, a la espera de decisión.
+
 ## Tres listados más mandan sus filtros por marcador
 
 `State::statesDataTables`, `UsersController::dataTablesRequestUsers` y

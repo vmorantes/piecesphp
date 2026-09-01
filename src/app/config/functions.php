@@ -47,38 +47,6 @@ function datatables_proccessing_with_options(array $options)
 /**
  * Devuelve un string con la estructura de un orderBy para un EntityMapper
  *
- * @param \PiecesPHP\Core\Routing\RequestRoute $request
- * @param \PiecesPHP\Core\Database\EntityMapper $mapper
- * @param array $columns_order
- * @param string $where_string
- * @param callable $on_set_data Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
- * @param bool $as_mapper
- * @param callable $on_set_model
- * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
- */
-function datatables_proccessing(
-    \PiecesPHP\Core\Routing\RequestRoute $request,
-    \PiecesPHP\Core\Database\EntityMapper $mapper,
-    array $columns_order,
-    ?string $where_string = null,
-    ?callable $on_set_data = null,
-    bool $as_mapper = false,
-    ?callable $on_set_model = null
-): \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations {
-    return \PiecesPHP\Core\Utilities\Helpers\DataTablesHelper::process([
-        'request' => $request,
-        'mapper' => $mapper,
-        'columns_order' => $columns_order,
-        'where_string' => $where_string,
-        'on_set_data' => $on_set_data,
-        'as_mapper' => $as_mapper,
-        'on_set_model' => $on_set_model,
-    ]);
-}
-
-/**
- * Devuelve un string con la estructura de un orderBy para un EntityMapper
- *
  * @param array $values
  * @param mixed $selected_values
  * @param bool $multiple

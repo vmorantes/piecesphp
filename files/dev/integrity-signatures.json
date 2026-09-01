@@ -134,6 +134,7 @@
         "Country::countries",
         "Country::countriesDataTables",
         "Country::editForm",
+        "Country::regionNameOrNull",
         "Country::search"
     ],
     "app/classes/App/Locations/Controllers/HelperController.php": [
@@ -1764,7 +1765,6 @@
     "app/config/functions.php": [
         "addElementInPosition",
         "array_to_html_options",
-        "datatables_proccessing",
         "datatables_proccessing_with_options",
         "genericViewRoute",
         "genericViewRouteExists",

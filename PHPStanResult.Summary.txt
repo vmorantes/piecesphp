@@ -109,8 +109,8 @@ project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
 	property.nonObject (Líneas: 284, 864)
-	argument.type (Líneas: 946, 1239)
-	offsetAccess.invalidOffset (Líneas: 1258)
+	argument.type (Líneas: 937, 1230)
+	offsetAccess.invalidOffset (Líneas: 1249)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	argument.type (Líneas: 236)
 	property.nonObject (Líneas: 273, 299)
@@ -303,7 +303,7 @@ project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
-	return.type (Líneas: 247)
+	return.type (Líneas: 215)
 project://src/app/config/roles.php
 	nullCoalesce.offset (Líneas: 112)
 project://src/app/controller/AdminPanelController.php
