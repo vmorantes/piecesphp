@@ -53,6 +53,27 @@ desordenado:
 - **La instrucción es lo único que se pega**; el resto es conversación entre PROPIETARIO y
   ARQUITECTO.
 
+### LAS PREGUNTAS VAN LAS PRIMERAS — corregido el 2026-09-01, y el fallo es de ARQUITECTO
+
+«Explícitas, fuera del recuadro, marcadas» **no bastó**. El 2026-09-01 ARQUITECTO mandó tres
+preguntas bajo un encabezado propio, entre la valoración y el recuadro, y el PROPIETARIO
+respondió: *«No vi pregunta P3. No me fijé ningún lugar evidente de preguntas.»* Un apartado a
+media altura, entre una tabla y un recuadro de cien líneas, **es invisible**.
+
+Se convierte en mecanismo (LEY 11), y cambia el orden de §2:
+
+1. **Las preguntas van ARRIBA DEL TODO**, antes de la valoración. Si no hay, se dice que no hay.
+2. **Numeradas `P1`, `P2`, `Pn`** y correlativas dentro del mismo mensaje.
+3. **Cada una lleva su PREDETERMINADO**: qué hace ARQUITECTO si el PROPIETARIO no contesta. El
+   silencio no puede bloquear un bloque; y una pregunta sin predeterminado obliga al PROPIETARIO
+   a contestar aunque le dé igual, que es hacerle trabajar de más.
+4. **Una pregunta que aún no se ha respondido SE REPITE** en el mensaje siguiente, con el mismo
+   número. No se da por perdida ni por concedida.
+
+**LO QUE ESTO NO CAMBIA**: si la respuesta hace falta ANTES de la instrucción, el recuadro no se
+manda. Eso sigue igual. Lo que se arregla aquí es el caso contrario: preguntas que acompañan a un
+bloque que sí puede avanzar sin ellas.
+
 ---
 
 ## 3. Reglas permanentes de las instrucciones al CODER
@@ -267,7 +288,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras AU y AV.**
+**Ultima actualizacion: 2026-09-01, tras AW y con AX en vuelo.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1590,6 +1611,147 @@ sin arreglar esto seria pulir una funcion averiada.
 
 `elapsedDays` ya quedo cerrado en AO (`:441`, `Validator::isInteger`). Lo que sigue concatenando
 es `:484`, `"{$table}.referenceAlias = '{$referenceAliasFilter}'"`.
+
+### LA ETIQUETA `v4.1.0` YA EXISTE — medido el 2026-09-01, y corrige la seccion anterior
+
+`git cat-file -t v4.1.0` -> `tag`. Es ANOTADA y apunta a `aa64cf5`, que es HEAD de `master` en
+`database`, con **0 commits sin empujar**. La seccion de arriba —«EL PAQUETE ESTA EMPUJADO PERO
+SIN ETIQUETA»— **queda cerrada**: el PROPIETARIO la creo.
+
+**Lo que ARQUITECTO NO puede medir**: si la etiqueta esta en el remoto. `git ls-remote --tags
+origin` devuelve `HTTP code 403 from proxy after CONNECT` desde esta maquina. **No se afirma que
+este empujada.** Lo dice una linea que corre en la maquina del CODER, y por eso va en el bloque.
+
+**Y el arbol ya lo estaba avisando**: `collectPackageVersions()` (comprobacion 17) compara la
+version del `lock` contra la ultima etiqueta LOCAL del paquete clonado al lado, y emite
+`piecesphp/database — INSTALADA v4.0.0, ETIQUETADA v4.1.0. Puede ser deliberado; queda dicho.`
+Es AVISO, no fallo, y por eso el bloque AW paso verde con la etiqueta ya creada. **La comprobacion
+hizo su trabajo: dijo la verdad sin bloquear.**
+
+`src/vendor/` **no esta versionado** —`git ls-files src/vendor` da 0—, asi que el `composer update`
+mueve **un solo archivo del arbol**: `src/composer.lock`.
+
+### EL OPERADOR QUE UNE UN GRUPO CON LO SIGUIENTE LO PONE SU ULTIMO CRITERIO
+
+Medido en `WhereItemGroup::toString()`, que es lo que `HavingItemGroup` hereda entero:
+
+```php
+if ($countCriteria === 1 || $isLast) {
+    $afterOperator = $critery->getAfterOperator();   //<- el del ULTIMO, y solo el del ultimo
+    $criteria[] = $critery->toString(false);
+}
+...
+$str = "({$criteria}) {$afterOperator}";
+```
+
+**Un grupo no declara como se une a lo que viene detras: lo HEREDA de su ultimo miembro.** Y el
+grupo de la busqueda de DataTables se compone de criterios unidos por `OR`. Si ese grupo no fuera
+el ultimo, o si el ultimo criterio conservara su `OR`, el SQL saldria
+
+    HAVING (organizationID = 12) OR (UPPER(title) LIKE ... OR UPPER(autor) LIKE ...)
+
+es decir: **cualquier busqueda de texto ANULARIA la restriccion de organizacion**. No es un
+detalle de estilo. Es un ensanchamiento de visibilidad producido por un operador heredado.
+
+`HavingSegment::toString()` lo tapa hoy por ORDEN —llama `withAfterOperator(false)` sobre la
+ultima parte—, y eso es una coincidencia de colocacion, no un contrato. **Por eso el ultimo
+criterio del grupo de busqueda fija su `afterOperator` a `AND` explicitamente**, que es correcto
+en las dos posiciones: si va ultimo, se suprime; si no, une con `AND`.
+
+La afirmacion **no se deduce del codigo: se comprueba ejecutando** y mirando que entre los dos
+parentesis diga `) AND (` y no `) OR (`. LEY 29.
+
+### `LIKE` SI LLEVA MARCADOR — y eso es lo que hace posible el bloque
+
+`WhereItem::NOT_ALIAS_OPERATORS` son cinco: `IS NULL`, `IS NOT NULL`, `IN`, `NOT IN` y
+`FIND_IN_SET`. **`LIKE` no esta.** Luego `new HavingItem('UPPER(campo)', LIKE_OPERATOR, '%v%')`
+genera alias y viaja por `getReplacementValues()`.
+
+Y el miembro izquierdo es un `string` libre: `UPPER(tabla.campo)` es valido. El alias se deriva de
+el quitando puntos, parentesis y comas (`setWithAlias()`), asi que no colisiona.
+
+**Consecuencia**: la busqueda de DataTables —que hoy concatena el valor de la peticion pasandolo
+por `escapeString()`, que es `addslashes(stripslashes())` y depende de un `sql_mode` que el
+framework nunca fija— **puede dejar de concatenar**. Es la ultima concatenacion grande del helper.
+
+### LO QUE `generateHaving()` NO PUEDE DEJAR DE SER
+
+`generateHaving()` tiene DOS consumidores y solo uno puede recibir un segmento:
+
+- `process()` (`:322`) construye con el ORM -> **si puede** tomar un `HavingSegment`.
+- `dataTablesExplorer()` (`:907`) arma SQL crudo: `"SELECT ... {$having} {$order_by}"` (`:994`).
+  **Necesita un string y lo seguira necesitando.**
+
+Por eso el bloque **no cambia `generateHaving()`**: extrae de el la decision de QUE COLUMNAS son
+buscables a un solo sitio, y añade `generateHavingGroup()` al lado. Dos formas, **una sola
+verdad sobre el universo**. Si cada una decidiera sus columnas por su cuenta, divergirian, y una
+divergencia entre el filtro que se aplica y el que se cree aplicar no la ve nadie hasta que
+alguien busca. LEY 11.
+
+### `processFromQuery()` TIENE UN SOLO CONSUMIDOR, y ARQUITECTO nombro el sujeto equivocado
+
+ARQUITECTO escribio en la pregunta P3 que la forma de cadena sobrevive por `dataTablesExplorer`.
+**Falso.** `dataTablesExplorer` es un METODO DE CONTROLADORA —`DocumentsController:889`, ruta
+`documents-datatables-explorer`— y **usa `process()`**, ya migrado a `where_segment`.
+
+El metodo del helper que arma SQL crudo es **`processFromQuery()`** (`:740`), y su universo de
+consumidores es **UNO**: `MySpace\Controllers\AllProfilesController:162`. Medido con
+`grep -rn "processFromQuery" src/app`.
+
+Es el mismo defecto de metodo de siempre: **nombrar un sujeto por parecido en vez de comprobarlo**
+(§5). Y cambia la decision entera: no es «rediseñar el explorador», es **un metodo con un
+consumidor**.
+
+### EL DEFECTO DE PRECEDENCIA EN `AllProfilesController::dataTables` — hallazgo nuevo
+
+`:83-86` construye el HAVING como lista de fragmentos y los une con `implode(' ')`:
+
+```php
+$having = [
+    "systemApprovalStatus = '" . SystemApprovalsMapper::STATUS_APPROVED . "'",
+    "AND userType IS NULL OR userType IN ({$allowedUserTypes})",
+];
+```
+
+Resultado: `systemApprovalStatus = 'APPROVED' AND userType IS NULL OR userType IN (1,2)`. En SQL
+`AND` liga mas fuerte que `OR`, asi que **se lee `(aprobado AND userType IS NULL) OR (userType IN
+(1,2))`**. En esa consulta `userType` es `NULL` para ORGANIZACIONES y el tipo real para USUARIOS
+—se ve en los dos `SELECT` de la union, `:128` y `:110`—, luego:
+
+- **las organizaciones** se filtran por aprobacion,
+- **los usuarios NO**: entran por la segunda rama sin mirar `systemApprovalStatus`.
+
+**SU COTA, y se dice**: la ruta declara `require_login` = true y lleva lista de roles
+(`AllProfilesController:248-256`). **No es una fuga publica.** Es que quien ya puede ver el
+listado ve tambien perfiles de usuario sin aprobar. Y **no esta comprobado ejecutando**: es
+lectura de precedencia SQL. Antes de arreglarlo se mide contra la base (LEY 29).
+
+### EL `if (false)` DE `AllProfilesController:89` SI ES PLANTILLA — y el de Publications NO
+
+`AllProfilesController:89-93` es, literal:
+
+```php
+if (false) {
+    $beforeOperator = !empty($having) ? $and : '';
+    $critery = "FIELD = VALUE";
+    $having[] = "{$beforeOperator} ({$critery})";
+}
+```
+
+`FIELD = VALUE` en mayusculas y sin sujeto: **es un molde, y se lee como molde.** El de
+`PublicationsController:1264` no lo es: dice `if ((...) !== $currentUserID && false)` sobre una
+regla REAL —«si no es el administrador, solo ver las propias»— con `//NOTE: Desactivado`. Uno
+enseña la forma; el otro es una regla de negocio apagada.
+
+**El criterio que los separa, y sirve para los que aparezcan**: una plantilla no nombra datos del
+dominio; una regla apagada si. Si al leer la rama sabes QUE decidiria, no es plantilla.
+
+### EL PUNTERO DE `phpstan.neon` APUNTA A UNA ETAPA CERRADA
+
+La nota de los 85 del «grupo B» dice *«Van a E2. Ver T41.»* y **E2 esta cerrada** (§7, arriba).
+O se miraron y nadie actualizo la nota, o se cayeron. **No se afirma cual**: es una comprobacion
+barata y entra en el bloque de PHPStan. Es exactamente lo que el CODER llamo «las cotas escritas
+se pudren», ahora en un archivo de configuracion.
 
 ### Abierto, sin decidir
 

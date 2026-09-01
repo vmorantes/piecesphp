@@ -17,6 +17,8 @@ use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -1230,8 +1232,7 @@ class PublicationsController extends AdminPanelController
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;
         $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper)? $currentOrganizationMapper->administrator : null;
-        //`having_string` es un FRAGMENTO DE SQL y no pasa por marcador. `VISIBILITIES` enumera
-        //las CUATRO visibilidades declaradas, así que aquí hay lista blanca de verdad. Ver T155.
+        //Lista blanca sobre `VISIBILITIES`, que enumera las cuatro declaradas. Ver T155 y T163.
         $visibility = $request->getQueryParam('visibility', null);
         $visibility = Validator::isInteger($visibility)
             && array_key_exists((int) $visibility, PublicationMapper::VISIBILITIES)
@@ -1239,7 +1240,6 @@ class PublicationsController extends AdminPanelController
             : null;
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = PublicationMapper::TABLE;
         $inactive = PublicationMapper::INACTIVE;
@@ -1247,7 +1247,9 @@ class PublicationsController extends AdminPanelController
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
+        //POR MARCADOR: los dos valores son de SESION o de lista blanca, y ahora ademas viajan
+        //como dato. Ver T163.
+        $havingItems = [];
 
         //Restricciones según organización (a menos que pueda verlas todas por PublicationMapper::CAN_VIEW_ALL)
         if (!in_array($currentUserType, PublicationMapper::CAN_VIEW_ALL)) {
@@ -1255,33 +1257,25 @@ class PublicationsController extends AdminPanelController
             if ($currentOrganizationMapper !== null) {
 
                 //Ver solo las de su organización
-                $beforeOperator = !empty($having) ? $and : '';
-                $critery = "organizationID = {$currentOrganizationMapper->id}";
-                $having[] = "{$beforeOperator} ({$critery})";
+                $havingItems[] = new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, $currentOrganizationMapper->id, HavingItem::AND_OPERATOR);
 
                 //Si no es el adminstrador, solo ver las propias
                 //NOTE: Desactivado
                 if (($organizationAdmin->id ?? null) !== $currentUserID && false) {
-                    $beforeOperator = !empty($having) ? $and : '';
-                    $critery = "createdBy = {$currentUserID}";
-                    $having[] = "{$beforeOperator} ({$critery})";
+                    $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
                 }
             }
 
         }
 
         if ($visibility !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "visibility = {$visibility}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingItems[] = new HavingItem('visibility', HavingItem::EQUAL_OPERATOR, $visibility, HavingItem::AND_OPERATOR);
         }
+
+        $havingSegment = count($havingItems) > 0 ? new HavingSegment($havingItems) : null;
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $selectFields = PublicationMapper::fieldsToSelect();
@@ -1312,7 +1306,7 @@ class PublicationsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,

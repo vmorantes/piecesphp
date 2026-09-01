@@ -17083,3 +17083,151 @@ no indulta a nadie: la comprobación pasa a exigir **que sí esté declarado** y
   de `having_string` y este mismo `elapsedDays`.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
 - Los 14 archivos de los cubos B y C, sin prisa y sin ganancia.
+
+---
+
+## T163 · AX · LA BÚSQUEDA DEJA DE CONCATENAR, Y LA GUARDA DE AP SE SUSTITUYE
+
+**Bloque AX.** `v4.1.0` llega al framework, el HAVING de la búsqueda pasa a marcador, y la
+guarda que escribí en AP se retira **porque hay una ejecución que falla si vuelve el defecto**
+(LEY 30). Dos provocaciones salieron verdes por el camino, y las dos eran mías.
+
+### PASO 1 · La etiqueta ya estaba, y `v4.1.0` es aditiva
+
+```
+$ git ls-remote --tags origin v4.1.0
+8167e161636ec9911206e8be3789db6fdc5f28af  refs/tags/v4.1.0
+aa64cf53d0c0dd7679259088452263e0cfd59e62  refs/tags/v4.1.0^{}
+```
+
+**No hizo falta ningún push**: la etiqueta ya estaba publicada y su commit es el esperado. Tras
+`composer update piecesphp/database`, el lock dice **`v4.1.0` / `aa64cf53d0c0dd7679259088452263e0cfd59e62`**.
+
+| comprobación 17 | |
+| :-- | :-- |
+| ANTES | `piecesphp/database — INSTALADA v4.0.0, ETIQUETADA v4.1.0. Puede ser deliberado; queda dicho.` |
+| DESPUÉS | *(no aparece)* · `4 paquete(s) comparado(s), 4 al día.` |
+
+**Con el código intacto: 25 suites verdes, `verify-integrity` verde, PHPStan 744 → 744 con
+0 muertas, 0 nacidas y 0 DESPLAZADAS.** Cero desplazadas es lo que prueba la aditividad: ni una
+línea se movió.
+
+> **UN EFECTO COLATERAL QUE HUBO QUE REVERTIR.** El `post-install` de `src` disparó un update en
+> `bin/tools` y subió **PHPStan de 2.2.9 a 2.2.12 y Rector de 2.6.4 a 2.6.5**. Un cambio de
+> instrumento no puede viajar en la misma tanda que un cambio de código: se revirtió el lock y
+> se reinstaló con `php8.5 composer install` —el `composer` del sistema arranca con 8.1.34 y por
+> eso el `install` fallaba, que es la nota de `composer-platform-y-el-binario`—. La subida del
+> analizador queda como decisión aparte.
+
+### PASO 2 · Una sola verdad sobre qué columnas son buscables
+
+`searchableFieldsForHaving()` extrae de `generateHaving()` **el universo**: el recorrido de
+`columns_order`, los ocho literales de `searchable`, el salto de `INGNORE`/`ONLY_ORDER`, el
+aplanado del array y el prefijo de tabla. **No sabe nada del valor buscado.**
+
+`generateHaving()` no cambia de firma ni de salida. Las tres formas congeladas, **byte a byte
+iguales antes y después**:
+
+| caso | salida |
+| :-- | :-- |
+| búsqueda vacía | *(cadena vacía)* |
+| una columna con prefijo | `((UPPER(tabla.title) LIKE "%ANA%"))` |
+| mezcla `false` + `ONLY_ORDER` + ignorada | `((UPPER(tabla.title) LIKE "%O\'BRIEN%") OR (UPPER(sinprefijo) LIKE "%O\'BRIEN%"))` |
+
+Se comparte el **universo**, no el **renderizado**: la cadena escapa, el grupo pone marcadores.
+
+### PASO 3 · `generateHavingGroup()`
+
+Consume el mismo universo y devuelve `?HavingItemGroup`. Sin búsqueda o sin campos → `null`,
+no un grupo vacío. `LIKE` no está en `NOT_ALIAS_OPERATORS`, así que genera alias. **Cero
+`escapeString()` dentro, comprobado por conteo.**
+
+Y el detalle que costaba visibilidad de datos: al último criterio se le fija
+`setAfterOperator('AND')`, porque un grupo hereda de su último criterio cómo se une a lo que
+venga detrás.
+
+### >>> DOS PROVOCACIONES VERDES, Y LAS DOS ERAN MÍAS <<<
+
+**La primera.** Mi comprobación de sustitución ponía el grupo de búsqueda **el último** del
+segmento. `HavingSegment::toString()` **suprime el operador del último**, así que en esa
+posición el defecto es invisible: quité el `setAfterOperator('AND')` y la suite siguió en 51/51.
+Corregido añadiendo un grupo detrás, que es la única posición donde el operador importa.
+
+**La segunda** fue de instrumental: `ReflectionMethod::setAccessible()` es deprecación en 8.5 y
+aquí las deprecaciones son fatales. Desde 8.1 no hace nada; se retiró la llamada.
+
+### PASO 4 · La guarda sustituida, en verde y en rojo
+
+**VERDE**, con el código bueno:
+
+```sql
+HAVING (organizationID = :A_ORGANIZATIONID)
+   AND (UPPER(tabla.title) LIKE :B OR UPPER(tabla.autor) LIKE :C)
+   AND (status = :D)
+```
+4 criterios · 4 marcadores · 4 valores · el valor buscado **no aparece literal**.
+
+**ROJO**, quitando el `setAfterOperator('AND')`:
+
+```sql
+HAVING (organizationID = :A) AND (UPPER(…) LIKE :B OR UPPER(…) LIKE :C)
+   OR (status = :D)
+```
+`50/51`, y el fallo nombra el `) OR (`. **Ese `OR` habría anulado la restricción de
+organización en cuanto alguien buscara.**
+
+Con eso, y sólo con eso, se retira el `throw` de AP. **La guarda de exclusión mutua
+`having_string` + `having_segment` NO se toca**: son dos guardas distintas y sólo muere una. La
+sección 8 de la suite pasa de vigilar tres a vigilar dos, apuntando a su sustituta.
+
+### PASO 5 · Las dos controladoras
+
+`OrganizationsController::dataTables` y `PublicationsController::dataTables` pasan a
+`having_segment`. **La validación de dominio se queda en las dos** —el `in_array(...) ? : -1` y
+la lista blanca de `VISIBILITIES`—: el marcador es la segunda línea de defensa, no la sustituta
+de la primera. La rama `&& false` de Publications **no se tocó**.
+
+Sus dos entradas declaradas se retiran, y **las cazó el trinquete**, no mi memoria.
+DECLARADO **12 → 10**.
+
+**El `count: 5` de `process` NO se toca y explico por qué**: sus cinco sitios —`439`, `446`,
+`451`, `677`, `684`— siguen recibiendo cadena, porque el camino de cadena sigue vivo para
+`dataTablesExplorer` y para las controladoras sin migrar. Bajarlo a mano sería una trampa.
+
+### PASO 6 · HTTP, con valores normales
+
+| | HTTP | filas |
+| :-- | --: | :-- |
+| a) organizaciones sin filtro | **200** | 1 · recordsTotal 1 |
+| b) `search[value]=a` | **200** | 1 · subconjunto coherente |
+| c) `status=1` | **200** | 1 |
+| d) `status=abc` | **200** | **0** — el `-1` hace su trabajo |
+| f) `news`, NO migrada, con búsqueda | **200** | camino de cadena vivo |
+
+**(e) no se pudo medir en Publications**: `dataTables:1230` llama a
+`getLoggedFrameworkUserOrFail()`, y autenticarse exige credenciales, que están vetadas. **La
+misma semántica se midió donde sí se puede**, combinando los dos filtros de organizaciones:
+
+| | filas |
+| :-- | --: |
+| `status=1` solo | 1 |
+| búsqueda que no casa, sola | 0 |
+| **las dos juntas** | **0** |
+
+Si la unión fuera `OR`, habría dado 1. **Dio 0: es intersección.**
+
+### El trinquete
+
+| | AW | AX |
+| :-- | --: | --: |
+| CONFIRMADO | 0 | **0** |
+| DECLARADO | 12 | **10** |
+
+PHPStan **744 ← 744**: 0 murieron, 0 nacieron, 0 silenciadas, 32 desplazadas.
+
+### Lo que queda abierto
+
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+- La subida de PHPStan 2.2.9 → 2.2.12 y Rector 2.6.4 → 2.6.5, revertida aquí y pendiente de
+  decidirse en su propio bloque.
+- Los 14 archivos de los cubos B y C, sin prisa y sin ganancia.

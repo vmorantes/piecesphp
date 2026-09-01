@@ -40,16 +40,6 @@
             "count": 1
         },
         {
-            "where": "src/app/classes/Organizations/Controllers/OrganizationsController.php::dataTables",
-            "validation": "`status` pasa por `in_array($status, array_keys(OrganizationMapper::STATUSES)) ? $status : -1` en `OrganizationsController.php:1206`. Es LISTA BLANCA sobre el conjunto declarado de estados; lo que no este en el se convierte en -1, que no casa nada.",
-            "count": 1
-        },
-        {
-            "where": "src/app/classes/Publications/Controllers/PublicationsController.php::dataTables",
-            "validation": "`visibility` pasa por `Validator::isInteger` MAS `array_key_exists((int) $visibility, PublicationMapper::VISIBILITIES)` en `PublicationsController.php:1233-1238`. Es LISTA BLANCA sobre las cuatro visibilidades declaradas, no un entero suelto.",
-            "count": 1
-        },
-        {
             "where": "src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php::process",
             "validation": "LOS CINCO son la VIA DE CADENA del helper, y las tres entradas de peticion que los alcanzan estan cerradas o acotadas, LEIDAS y no supuestas: (1) `order` no llega nunca al SQL —su indice se usa como CLAVE de `columns_order` (linea 1223) y la direccion colapsa a un ternario `ASC`/`DESC` (1222)—; (2) `columns` solo elige el indicador `searchable` entre columnas que pone la controladora; (3) el VALOR de busqueda pasa por `escapeString()` —`addslashes(stripslashes())`, AppHelpers.php:2805—, que se sostiene con `utf8mb4` pero NO con `NO_BACKSLASH_ESCAPES`, y eso esta escrito en T155. `where_string` y `having_string` son fragmentos del programador, no del visitante, y el docblock lo dice.",
             "count": 5,

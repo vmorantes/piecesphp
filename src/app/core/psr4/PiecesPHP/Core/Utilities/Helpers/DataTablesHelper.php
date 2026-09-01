@@ -9,6 +9,8 @@ use PDOException;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\ORM\ORM;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Exceptions\DataTablesHelperProcessException;
@@ -332,10 +334,25 @@ class DataTablesHelper
                 $ignore_table_on_fields_in_where
             );
 
-            //`having_segment` SUSTITUIRÍA al HAVING que genera la BÚSQUEDA, y `HavingSegment` no
-            //sabe agrupar: `(a OR b) AND c` no es expresable. Antes que perderlo, se lanza.
-            if ($having_segment !== null && mb_strlen($having) > 0) {
-                throw new \Exception('DataTablesHelper::process(): `having_segment` no puede convivir con la búsqueda de DataTables, porque HavingSegment no admite agrupación. Ver T156.');
+            //LA BÚSQUEDA SE UNE AL SEGMENTO COMO GRUPO, desde v4.1.0 del paquete. Sustituye a la
+            //guarda de AP, que prohibía convivir porque `(a OR b) AND c` no era expresable.
+            if ($having_segment !== null) {
+                $having_group = self::generateHavingGroup(
+                    array_filter(
+                        $columns_order,
+                        function ($v) use ($ignore_fields_in_where) {
+                            return !in_array($v, $ignore_fields_in_where);
+                        }
+                    ),
+                    $columns,
+                    $search,
+                    $tableName,
+                    $ignore_table_on_fields_in_where
+                );
+
+                if ($having_group !== null) {
+                    $having_segment->addGroup($having_group);
+                }
             }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
@@ -1170,6 +1187,121 @@ class DataTablesHelper
     }
 
     /**
+     * QUE COLUMNAS entran en la busqueda, ya con su prefijo de tabla resuelto.
+     *
+     * UNA SOLA VERDAD, y por eso existe: `generateHaving()` la renderiza escapando y
+     * `generateHavingGroup()` la renderiza por marcador. Si cada una decidiera sus columnas,
+     * divergirian, y una divergencia entre el filtro que se aplica y el que se cree aplicar no
+     * la nota nadie hasta que alguien busca. LEY 11. Ver T163.
+     *
+     * NO sabe nada del valor buscado: solo del universo.
+     *
+     * @param array $columns_order
+     * @param array $columns
+     * @param string $table
+     * @param string[] $ignore_table_on_fields
+     * @return string[]
+     */
+    protected static function searchableFieldsForHaving(array $columns_order, array $columns, string $table = '', array $ignore_table_on_fields = []): array
+    {
+        $campos = [];
+        $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
+
+        foreach ($columns_order as $index => $column_name) {
+
+            $column = $columns[$index] ?? null;
+
+            if (!is_null($column)) {
+
+                $searchable = true;
+
+                if (isset($column['searchable'])) {
+
+                    $searchable_value = $column['searchable'];
+
+                    if ($searchable_value === 'true' || $searchable_value === '1' || $searchable_value === 'yes' || $searchable_value === 'on') {
+                        $searchable_value = true;
+                    }
+
+                    if ($searchable_value === 'false' || $searchable_value === '0' || $searchable_value === 'no' || $searchable_value === 'off') {
+                        $searchable_value = false;
+                    }
+
+                    $searchable = $searchable_value === true;
+
+                }
+
+                if ($searchable) {
+
+                    $column_name = is_array($column_name) ? $column_name : [$column_name];
+
+                    foreach ($column_name as $name) {
+
+                        $skip_values = [
+                            self::INGNORE,
+                            self::ONLY_ORDER,
+                        ];
+
+                        if (in_array($name, $skip_values)) {
+                            continue;
+                        }
+
+                        if (in_array($name, $ignore_table_on_fields) || !self::$tableOnSearch) {
+                            $campos[] = $name;
+                        } else {
+                            $campos[] = $table . $name;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $campos;
+    }
+
+    /**
+     * El mismo HAVING de busqueda, pero POR MARCADOR: un `HavingItemGroup` en vez de una cadena.
+     *
+     * `LIKE` no esta en `NOT_ALIAS_OPERATORS` —los cinco son `IS NULL`, `IS NOT NULL`, `IN`,
+     * `NOT IN` y `FIND_IN_SET`—, asi que genera alias y el valor viaja como dato. Aqui NO hay
+     * ningun `escapeString()`, y si aparece uno esta mal. Ver T163.
+     *
+     * @param array $columns_order
+     * @param array $columns
+     * @param mixed $search
+     * @param string $table
+     * @param string[] $ignore_table_on_fields
+     * @return HavingItemGroup|null
+     */
+    protected static function generateHavingGroup(array $columns_order, array $columns, $search, string $table = '', array $ignore_table_on_fields = []): ?HavingItemGroup
+    {
+        $search_value = is_array($search) && isset($search['value']) ? trim($search['value']) : '';
+
+        if (mb_strlen($search_value) === 0) {
+            return null;
+        }
+
+        $campos = self::searchableFieldsForHaving($columns_order, $columns, $table, $ignore_table_on_fields);
+
+        if (count($campos) === 0) {
+            return null;
+        }
+
+        $patron = '%' . mb_strtoupper($search_value) . '%';
+        $criterios = [];
+
+        foreach ($campos as $campo) {
+            $criterios[] = new HavingItem("UPPER({$campo})", HavingItem::LIKE_OPERATOR, $patron, HavingItem::OR_OPERATOR);
+        }
+
+        //EL ULTIMO FIJA `AND` A PROPOSITO: un grupo hereda de su ultimo criterio como se une a
+        //lo que venga detras, y con `OR` cualquier busqueda anularia la restriccion anterior.
+        $criterios[count($criterios) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+
+        return new HavingItemGroup($criterios);
+    }
+
+    /**
      * Devuelve un array con la estructura de un HAVING para un EntityMapper
      *
      * @param array $columns_order
@@ -1187,85 +1319,29 @@ class DataTablesHelper
         $search_value = is_array($search) && isset($search['value']) ? trim($search['value']) : '';
         $has_search = mb_strlen($search_value) > 0;
 
-        $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
-
         if ($has_search) {
 
-            foreach ($columns_order as $index => $column_name) {
+            foreach (self::searchableFieldsForHaving($columns_order, $columns, $table, $ignore_table_on_fields) as $campo) {
 
-                $column = $columns[$index] ?? null;
-
-                if (!is_null($column)) {
-
-                    $searchable = true;
-
-                    if (isset($column['searchable'])) {
-
-                        $searchable_value = $column['searchable'];
-
-                        if ($searchable_value === 'true' || $searchable_value === '1' || $searchable_value === 'yes' || $searchable_value === 'on') {
-                            $searchable_value = true;
-                        }
-
-                        if ($searchable_value === 'false' || $searchable_value === '0' || $searchable_value === 'no' || $searchable_value === 'off') {
-                            $searchable_value = false;
-                        }
-
-                        $searchable = $searchable_value === true;
-
-                    }
-
-                    if ($searchable) {
-
-                        $column_name = is_array($column_name) ? $column_name : [$column_name];
-
-                        foreach ($column_name as $name) {
-
-                            $skip_values = [
-                                self::INGNORE,
-                                self::ONLY_ORDER,
-                            ];
-
-                            if (in_array($name, $skip_values)) {
-                                continue;
-                            }
-
-                            if (is_string($search_value)) {
-                                $search_value = mb_strtoupper($search_value);
-                            }
-
-                            $_having_string = '(UPPER({FIELD_NAME}) LIKE "%{SEARCH_VALUE}%")';
-
-                            if (in_array($name, $ignore_table_on_fields) || !self::$tableOnSearch) {
-                                $_having_string = str_replace(
-                                    [
-                                        '{FIELD_NAME}',
-                                        '{SEARCH_VALUE}',
-                                    ],
-                                    [
-                                        $name,
-                                        escapeString($search_value),
-                                    ],
-                                    $_having_string
-                                );
-                            } else {
-                                $_having_string = str_replace(
-                                    [
-                                        '{FIELD_NAME}',
-                                        '{SEARCH_VALUE}',
-                                    ],
-                                    [
-                                        $table . $name,
-                                        escapeString($search_value),
-                                    ],
-                                    $_having_string
-                                );
-                            }
-
-                            $having[] = $_having_string;
-                        }
-                    }
+                if (is_string($search_value)) {
+                    $search_value = mb_strtoupper($search_value);
                 }
+
+                $_having_string = '(UPPER({FIELD_NAME}) LIKE "%{SEARCH_VALUE}%")';
+
+                $_having_string = str_replace(
+                    [
+                        '{FIELD_NAME}',
+                        '{SEARCH_VALUE}',
+                    ],
+                    [
+                        $campo,
+                        escapeString($search_value),
+                    ],
+                    $_having_string
+                );
+
+                $having[] = $_having_string;
             }
         }
 

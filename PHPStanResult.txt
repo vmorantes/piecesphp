@@ -653,17 +653,17 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Organizations/Controllers/OrganizationsController.php                                       
  ------ ------------------------------------------------------------------------------------------------------------ 
-  216    Cannot access property $id on App\Model\UsersModel|int|null.                                                
+  218    Cannot access property $id on App\Model\UsersModel|int|null.                                                
          🪪  property.nonObject                                                                                      
-  825    Parameter Nr.2 $array of function array_key_exists expects array, array|object|null given.                    
+  827    Parameter Nr.2 $array of function array_key_exists expects array, array|object|null given.                    
          🪪  argument.type                                                                                           
-  1278   Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                
+  1279   Cannot access property $id on Organizations\Mappers\OrganizationMapper|null.                                
          🪪  property.nonObject                                                                                      
-  1296   Parameter Nr.1 $string of function str_pad expects string, int given.                                         
+  1297   Parameter Nr.1 $string of function str_pad expects string, int given.                                         
          🪪  argument.type                                                                                           
-  1501   Cannot access property $meta on stdClass|null.                                                              
+  1502   Cannot access property $meta on stdClass|null.                                                              
          🪪  property.nonObject                                                                                      
-  1557   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1558   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -817,39 +817,39 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Publications/Controllers/PublicationsController.php                                                                             
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
-  141    Parameter Nr.1 $url of static method Spatie\Url\Url::fromString() expects string, string|null given.                                              
+  143    Parameter Nr.1 $url of static method Spatie\Url\Url::fromString() expects string, string|null given.                                              
          🪪  argument.type                                                                                                                               
-  237    Cannot access property $id on int|Publications\Mappers\PublicationCategoryMapper.                                                               
+  239    Cannot access property $id on int|Publications\Mappers\PublicationCategoryMapper.                                                               
          🪪  property.nonObject                                                                                                                          
-  651    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
+  653    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
          🪪  assign.propertyType                                                                                                                         
-  707    Cannot clone stdClass|null.                                                                                                                     
+  709    Cannot clone stdClass|null.                                                                                                                     
          🪪  clone.nonObject                                                                                                                             
-  1200   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
+  1202   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
-  1328   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1322   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1338   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1332   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1345   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+  1339   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1521   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
+  1515   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1528   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1522   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1529   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1523   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1530   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1524   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1603   Cannot access property $organization on stdClass|null.                                                                                          
+  1597   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1605   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1599   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1628   Cannot access property $organization on stdClass|null.                                                                                          
+  1622   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1630   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1624   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1681   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1675   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -1970,19 +1970,19 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php                                           
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  406    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  423    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  461    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
+  478    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
          🪪  method.nonObject                                                                                              
-  462    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
+  479    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
          🪪  method.nonObject                                                                                              
-  463    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
+  480    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
          🪪  method.nonObject                                                                                              
-  468    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
+  485    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
          🪪  method.nonObject                                                                                              
-  644    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  661    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  694    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  711    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------ 
 

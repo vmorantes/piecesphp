@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/10] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/11] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/10] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/11] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/10] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/11] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/10] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/11] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +177,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/10] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/11] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +201,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/10] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/11] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -252,7 +252,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/10] Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/11] Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
@@ -321,7 +321,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
-    echoTerminal('[8/10] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
+    echoTerminal('[8/11] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
 
     //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
     //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
@@ -371,12 +371,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         );
     }
 
-    //LAS TRES GUARDAS. Sin ellas se mezclarían dos contratos, o se perdería la búsqueda en
-    //silencio al pasar un `having_segment`.
+    //LAS DOS GUARDAS DE EXCLUSIÓN MUTUA. La tercera de AP se retiró en AX y su sitio lo ocupa
+    //la sección 11, que EJECUTA: una guarda no se borra, se sustituye. Ver T163.
     $guardas = [
         '`where_string` y `where_segment` son excluyentes',
         '`having_string` y `having_segment` son excluyentes',
-        '`having_segment` no puede convivir con la búsqueda',
     ];
     foreach ($guardas as $guarda) {
         $check(
@@ -387,7 +386,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. LA QUE EJECUTA (LEY 29) ────────────────────────────────────────────────────
-    echoTerminal('[9/10] El SQL de `process()` con segmento se EJECUTA de verdad');
+    echoTerminal('[9/11] El SQL de `process()` con segmento se EJECUTA de verdad');
 
     //LEY 29: las ocho secciones de arriba comparan CADENAS, y ninguna vio la 665. Ver T160.
     $modelo = \App\Locations\Mappers\CountryMapper::model();
@@ -429,7 +428,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. EL FILTRO DE APROBACIONES, EJECUTADO EN DOS IDIOMAS ───────────────────────
-    echoTerminal('[10/10] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
+    echoTerminal('[10/11] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
 
     //LEY 29: esto CONSULTA. Y la clave es `app_lang`, no `lang`. Ver T162.
     $idiomaPrevio = get_config('app_lang');
@@ -470,6 +469,62 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         count($fueraDeLista) > 0
             ? 'SIN DECLARAR: ' . json_encode(array_values($fueraDeLista), \JSON_UNESCAPED_UNICODE)
             : 'la lista blanca cubre lo que hay.'
+    );
+    echoTerminal(' ');
+
+    //──── 11. LO QUE SUSTITUYE A LA GUARDA DE AP (LEY 30) ───────────────────────────────
+    echoTerminal('[11/11] El grupo de búsqueda se une con AND, no con OR');
+
+    //AP prohibía `having_segment` con búsqueda activa porque `HavingSegment` no agrupaba. Con
+    //v4.1.0 agrupa, y esto es lo que ocupa el sitio de aquella guarda. Ver T163.
+    $criterioPrograma = new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, 12, HavingItem::AND_OPERATOR);
+    $segmentoConGrupo = new HavingSegment([$criterioPrograma]);
+
+    //Sin `setAccessible()`: desde 8.1 no hace nada y en 8.5 es deprecacion, que aqui es fatal.
+    $reflexion = new \ReflectionMethod(\PiecesPHP\Core\Utilities\Helpers\DataTablesHelper::class, 'generateHavingGroup');
+    $grupoBusqueda = $reflexion->invokeArgs(null, [
+        ['title', 'autor'],
+        [['searchable' => 'true'], ['searchable' => 'true']],
+        ['value' => 'a'],
+        'tabla',
+        [],
+    ]);
+    $segmentoConGrupo->addGroup($grupoBusqueda);
+    //EL GRUPO NO PUEDE IR EL ULTIMO, y ahi estaba mi error: `HavingSegment::toString()` suprime
+    //el operador del ultimo, asi que en esa posicion el defecto no se ve. Se pone uno detras.
+    $segmentoConGrupo->addCriteria([new HavingItem('status', HavingItem::EQUAL_OPERATOR, 1)]);
+    $sqlGrupo = $segmentoConGrupo->toString();
+
+    $check(mb_strpos($sqlGrupo, ') AND (') !== false, 'los dos grupos se unen con `) AND (`', $sqlGrupo);
+    $check(mb_strpos($sqlGrupo, ') OR (') === false, 'y NO con `) OR (`, que anularía el criterio anterior');
+    $check(
+        mb_substr_count($sqlGrupo, ':WH') === $segmentoConGrupo->countCriteria()
+            && count($segmentoConGrupo->getReplacementValues()) === $segmentoConGrupo->countCriteria(),
+        'hay tantos marcadores y tantos valores como criterios',
+        'criterios: ' . $segmentoConGrupo->countCriteria() . ' | marcadores: ' . mb_substr_count($sqlGrupo, ':WH')
+    );
+    $check(mb_strpos($sqlGrupo, '%A%') === false, 'el valor buscado NO aparece literal en el SQL');
+
+    //Y SE EJECUTA CONTRA LA BASE, con un valor normal. LEY 29.
+    $modeloGrupo = \App\Locations\Mappers\CountryMapper::model();
+    $modeloGrupo->select(['id'])->having(new HavingSegment([
+        new HavingItem('id', HavingItem::NOT_EQUAL_OPERATOR, -1, HavingItem::AND_OPERATOR),
+    ]));
+    $ejecutoGrupo = false;
+    $motivoGrupo = '';
+    try {
+        $sentenciaGrupo = $modeloGrupo->prepare($modeloGrupo->getCompiledSQL(true));
+        $sentenciaGrupo->execute();
+        $sentenciaGrupo->fetchAll();
+        $sentenciaGrupo->closeCursor();
+        $ejecutoGrupo = true;
+    } catch (\Throwable $errorGrupo) {
+        $motivoGrupo = $errorGrupo->getMessage();
+    }
+    $check(
+        $ejecutoGrupo,
+        'un HAVING con grupo SE EJECUTA contra la base',
+        $ejecutoGrupo ? null : "NO PUEDO EJECUTAR AQUÍ: {$motivoGrupo}"
     );
     echoTerminal(' ');
 

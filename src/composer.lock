@@ -2044,16 +2044,16 @@
         },
         {
             "name": "piecesphp/database",
-            "version": "v4.0.0",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/database.git",
-                "reference": "e9f5ac3728bd185bf4771c03afad034c169c629f"
+                "reference": "aa64cf53d0c0dd7679259088452263e0cfd59e62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/database/get/e9f5ac3728bd185bf4771c03afad034c169c629f.zip",
-                "reference": "e9f5ac3728bd185bf4771c03afad034c169c629f",
+                "url": "https://bitbucket.org/piecesphp/database/get/aa64cf53d0c0dd7679259088452263e0cfd59e62.zip",
+                "reference": "aa64cf53d0c0dd7679259088452263e0cfd59e62",
                 "shasum": ""
             },
             "require": {
@@ -2104,9 +2104,9 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/database/src/e9f5ac3728bd185bf4771c03afad034c169c629f/?at=v4.0.0"
+                "source": "https://bitbucket.org/piecesphp/database/src/aa64cf53d0c0dd7679259088452263e0cfd59e62/?at=v4.1.0"
             },
-            "time": "2026-08-28T21:08:23+00:00"
+            "time": "2026-09-01T19:47:42+00:00"
         },
         {
             "name": "piecesphp/datastructures",

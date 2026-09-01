@@ -13,6 +13,8 @@ use MySpace\Controllers\OrganizationProfileController;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\Exceptions\SafeException;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use Organizations\OrganizationsLang;
 use Organizations\OrganizationsRoutes;
 use PiecesPHP\Core\Config;
@@ -1191,7 +1193,6 @@ class OrganizationsController extends AdminPanelController
         $status = $request->getQueryParam('status', null);
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = OrganizationMapper::TABLE;
         $active = OrganizationMapper::ACTIVE;
@@ -1200,22 +1201,22 @@ class OrganizationsController extends AdminPanelController
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
+        //POR MARCADOR. La validación de dominio SE QUEDA: el `-1` cierra el dominio y el
+        //marcador es la segunda línea de defensa, no la sustituta de la primera. Ver T163.
+        $havingSegment = null;
 
         if ($status !== null) {
             $statusToCritery = in_array($status, array_keys(OrganizationMapper::STATUSES)) ? $status : -1;
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "{$table}.status = {$statusToCritery}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment = new HavingSegment([
+                new HavingItem("{$table}.status", HavingItem::EQUAL_OPERATOR, $statusToCritery, HavingItem::AND_OPERATOR),
+            ]);
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
+
 
         $selectFields = OrganizationMapper::fieldsToSelect();
 
@@ -1239,7 +1240,7 @@ class OrganizationsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,

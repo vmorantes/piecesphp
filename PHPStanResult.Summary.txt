@@ -182,9 +182,9 @@ project://src/app/classes/Newsletter/Controllers/NewsletterController.php
 project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
 	method.nonObject (Líneas: 137, 146)
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
-	property.nonObject (Líneas: 216, 1278, 1501)
-	argument.type (Líneas: 825, 1296, 1557)
-	offsetAccess.invalidOffset (Líneas: 1576)
+	property.nonObject (Líneas: 218, 1279, 1502)
+	argument.type (Líneas: 827, 1297, 1558)
+	offsetAccess.invalidOffset (Líneas: 1577)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	argument.type (Líneas: 437, 867, 869, 985)
 	offsetAccess.invalidOffset (Líneas: 986)
@@ -226,12 +226,12 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 141, 1200, 1521, 1681)
-	property.nonObject (Líneas: 237, 1345, 1603, 1605, 1628, 1630)
-	assign.propertyType (Líneas: 651)
-	clone.nonObject (Líneas: 707)
-	method.nonObject (Líneas: 1328, 1338, 1528, 1529, 1530)
-	offsetAccess.invalidOffset (Líneas: 1698)
+	argument.type (Líneas: 143, 1202, 1515, 1675)
+	property.nonObject (Líneas: 239, 1339, 1597, 1599, 1622, 1624)
+	assign.propertyType (Líneas: 653)
+	clone.nonObject (Líneas: 709)
+	method.nonObject (Líneas: 1322, 1332, 1522, 1523, 1524)
+	offsetAccess.invalidOffset (Líneas: 1692)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
@@ -451,8 +451,8 @@ project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
 	argument.type (Líneas: 33)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php
-	clone.nonObject (Líneas: 406, 644, 694)
-	method.nonObject (Líneas: 461, 462, 463, 468)
+	clone.nonObject (Líneas: 423, 661, 711)
+	method.nonObject (Líneas: 478, 479, 480, 485)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/MetaTags.php
 	assign.propertyType (Líneas: 157)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ReturnTypes/ResultOperations.php

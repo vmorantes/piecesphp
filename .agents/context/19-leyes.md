@@ -1021,3 +1021,32 @@ bloque que toque SQL **publica codigos HTTP, no solo fragmentos**.
 anteriores a esta campaña. Si el camino de marcadores estuviera roto de raiz, esos informes
 llevarian rotos desde siempre. **Que algo lleve tiempo funcionando es una medicion disponible y
 gratuita**, y ARQUITECTO no la uso.
+
+
+### LEY 30 — UNA GUARDA NO SE RETIRA, SE SUSTITUYE
+
+**Nacida el 2026-09-01, del bloque que retira la guarda de AP.**
+
+Una guarda existe porque alguien midio un defecto y lo detuvo. El dia que la limitacion que la
+motivo desaparece, la tentacion es borrarla: ya no puede saltar, luego sobra. **Y con ella se
+borra la unica frase del arbol que decia por que hacia falta.** Lo siguiente que ocurre es que
+alguien vuelve a escribir el defecto, esta vez sin nada que lo pare, porque nada quedo que lo
+nombrara.
+
+> **Una guarda se retira cuando existe una EJECUCION que falla si vuelve el defecto que la guarda
+> impedia. Sin esa ejecucion, la guarda se queda.**
+
+No basta con un comentario que explique la historia: un comentario no falla. No basta con que el
+codigo nuevo «ya no pueda» producir el defecto: eso es exactamente lo que se creia de lo viejo.
+Lo que sustituye a una guarda es **otra cosa que se pone roja**.
+
+**La forma corta**: *el reemplazo de una guarda tiene que poder fallar.*
+
+**Mecanismo (LEY 11)**: todo bloque que borre un `throw`, una comprobacion de `verify-integrity` o
+un canario **publica, en el mismo reporte, la prueba que lo sustituye y la salida de esa prueba
+CON EL DEFECTO PUESTO** —roja— y sin el —verde—. Dos estados, no uno (LEY 13). Un bloque que
+retire una guarda y solo publique el verde **no ha retirado nada: ha borrado**.
+
+**Relacion con LEY 11**: LEY 11 convierte una regla que fallo en mecanismo. LEY 30 es su vuelta:
+un mecanismo no vuelve a ser regla, ni comentario, ni nada. **O lo sustituye otro mecanismo, o se
+queda.**
