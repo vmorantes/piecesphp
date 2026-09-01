@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/6] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/7] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/6] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/7] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/6] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/7] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/6] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/7] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +177,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/6] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/7] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +201,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/6] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/7] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -249,6 +249,55 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $donde === '' ? 'el censo ya NO lo ve: revisa el instrumento.' : "el censo lo pone en {$donde}."
         );
     }
+    echoTerminal(' ');
+
+    //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
+    echoTerminal('[7/7] Los fragmentos `where_string`/`having_string` validan su dominio');
+
+    //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
+    //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
+    $fragmentos = [
+        'classes/App/Locations/Controllers/Country.php' => [
+            'regionNameOrNull($region) ?? \'\'' => 'countriesDataTables rechaza a `\'\'`, que no ensancha',
+            'self::regionNameOrNull($nombre)' => 'countries() usa el MISMO patrón factorizado',
+        ],
+        'classes/SystemApprovals/Controllers/SystemApprovalsController.php' => [
+            'Validator::isInteger($elapsedDaysFilter)' => 'elapsedDays es entero, no cadena',
+        ],
+        'classes/Publications/Controllers/PublicationsController.php' => [
+            'PublicationMapper::VISIBILITIES)' => 'visibility va contra la lista blanca declarada',
+        ],
+    ];
+
+    foreach ($fragmentos as $relativo => $marcas) {
+        $codigo = (string) @file_get_contents($raizSrc . '/app/' . $relativo);
+        foreach ($marcas as $marca => $porQue) {
+            $check(
+                $codigo !== '' && mb_strpos($codigo, $marca) !== false,
+                basename($relativo) . ': ' . $porQue,
+                $codigo === '' ? 'no se pudo leer el archivo' : null
+            );
+        }
+    }
+
+    //UNA SOLA COPIA DEL PATRÓN. Si reaparece una segunda, la factorización se deshizo y las
+    //dos comparaciones por nombre vuelven a poder divergir.
+    $country = (string) @file_get_contents($raizSrc . '/app/classes/App/Locations/Controllers/Country.php');
+    $copiasPatron = mb_substr_count($country, 'p{L}');
+    $check(
+        $copiasPatron === 1,
+        'el patrón de región existe UNA sola vez en Country.php',
+        "copias encontradas: {$copiasPatron}"
+    );
+
+    //`SystemApprovalsController::dataTables` NO puede declararse mientras `referenceAlias` siga
+    //sin lista blanca: se declara por método, y su `count` no sabría a cuál de los dos indulta.
+    $declaradas = (string) @file_get_contents($raizSrc . '/../files/dev/sql-concat-declared.json');
+    $check(
+        $declaradas !== '' && mb_strpos($declaradas, 'SystemApprovalsController.php::dataTables') === false,
+        'SystemApprovalsController::dataTables sigue SIN declarar',
+        'Tiene dos hallazgos y uno sigue abierto; declararlo indultaría al abierto.'
+    );
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@
     ],
     "medido": {
         "fecha": "2026-08-31",
-        "bloque": "AK; recontado en AL; 8 familias en AM; novena familia en AÑ",
+        "bloque": "AK; recontado en AL; 8 familias en AM; novena en AÑ; cerrada en AO",
         "herramienta": "bin/censo-sql-concatenado",
         "universo": "archivos .php bajo `src/app`, excluyendo /vendor/ /node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
         "archivos": 675,
@@ -20,8 +20,8 @@
         "claves_de_options_sin_censar": "LEIDAS en `process()`: `select_fields` (linea 333/336), `columns_order` y `custom_order` (linea 1254) tambien acaban en el SQL, pero como IDENTIFICADORES. En `custom_order` la DIRECCION no pasa por el filtro ASC/DESC que si se aplica al `$order` de la peticion."
     },
     "cifras": {
-        "confirmado": 13,
-        "declarado": 4,
+        "confirmado": 7,
+        "declarado": 10,
         "revisar": 100,
         "descartado": 133
     },
@@ -39,6 +39,9 @@
         "AM: de las 24 llamadas de las familias nuevas, UNA sale CONFIRMADO —`DataTablesHelper::process:353`, que tiene bloque propio—. Las otras 5 de REVISAR se clasifican a mano en el reporte de T153 y ninguna llega a la peticion.",
         "AÑ: EL NUMERO SUBE ANTES DE BAJAR, y sube porque el instrumento aprendio a ver, no porque nadie rompiera nada. La novena familia —las claves `where_string`/`having_string`/`group_string` de un array literal— destapa OCHO concatenaciones que las familias de llamada no podian ver: no hay `->where(` en el sitio, sino una pareja clave-valor que `DataTablesHelper` interpola despues. 5 -> 13 CONFIRMADO.",
         "AÑ: de esas 8, CUATRO no validan nada —`Country::countriesDataTables` (region), `SystemApprovalsController::dataTables` (referenceAlias y elapsedDays) y `PublicationsController::dataTables` (visibility)— y CUATRO si validan pero el censo no puede verlo, porque mide el MECANISMO: `State` y `Users` con `Validator::isInteger`, `Documents` con `isInteger`, y `Organizations` con `in_array(...) ? : -1`. Esas cuatro son candidatas a DECLARADO, no a arreglo.",
-        "AÑ: `group_string` da CERO llamadas en el arbol. Solo aparece dentro de `DataTablesHelper`; ninguna controladora lo pasa. El cero lleva canario."
+        "AÑ: `group_string` da CERO llamadas en el arbol. Solo aparece dentro de `DataTablesHelper`; ninguna controladora lo pasa. El cero lleva canario.",
+        "AO: 13 -> 7. NO baja porque el censo mire menos: baja porque de las ocho de la novena familia, DOS se arreglan por dominio y se declaran —`Country::countriesDataTables` con el patron factorizado y `PublicationsController::dataTables` con la lista blanca de `VISIBILITIES`—, y CUATRO se declaran sin tocarlas porque ya validaban: `State`, `Users` y `Documents` con `Validator::isInteger`, `Organizations` con `in_array`.",
+        "AO: `SystemApprovalsController::dataTables` NO se declara aunque su `elapsedDays` quedo arreglado. Tiene DOS hallazgos en el mismo metodo y `referenceAlias` sigue abierto; como se declara por `archivo::metodo`, el `count` no podria decir a cual de los dos indulta. Por eso quedan 7 y no 5: los 5 de `DataTablesHelper::process` mas los 2 de SystemApprovals.",
+        "AO: `referenceAlias` PARO. La lista de alias existe conceptualmente —los handlers registrados en `SystemApprovals/Util/configurations.php:9-11` y su `$BASE_TEXT`— pero NO es alcanzable: el registro se carga con `require_once` dentro de un constructor privado y nunca se expone, `$BASE_TEXT` es `protected`, y un valor legitimo mas —'Usuario independiente'— esta escrito dentro de un metodo y no declarado en ningun sitio. Construir la lista blanca pide anadir API al contrato de los handlers."
     ]
 }

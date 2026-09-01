@@ -5,15 +5,17 @@
         "Declarar NO es eximir de pensar: cada entrada dice QUÉ validación cierra el agujero. Una entrada sin validación descrita no vale.",
         "Se declara por `archivo::metodo`. El censo las resta de CONFIRMADO y las imprime aparte: no desaparecen, se separan.",
         "Una entrada que ya no case con ningún hallazgo hace fallar: encoger incluye vaciarse.",
-        "CADA ENTRADA FIJA SU `count`. Declarar es por `archivo::metodo`, asi que sin esto una concatenacion NUEVA en un metodo ya declarado entraria gratis y el trinquete de CONFIRMADO no la veria. Se descubrio provocando en AM: al romper el `having` de `searchDropdown`, DECLARADO subio de 4 a 5 en vez de subir CONFIRMADO."
+        "CADA ENTRADA FIJA SU `count`. Declarar es por `archivo::metodo`, asi que sin esto una concatenacion NUEVA en un metodo ya declarado entraria gratis y el trinquete de CONFIRMADO no la veria. Se descubrio provocando en AM: al romper el `having` de `searchDropdown`, DECLARADO subio de 4 a 5 en vez de subir CONFIRMADO.",
+        "NO SE DECLARA UN METODO QUE AUN TENGA UN HALLAZGO SIN CERRAR. Se declara por `archivo::metodo` con un `count`, y en un metodo con dos hallazgos el `count` no puede decir CUAL de los dos indulta: el orden decidiria. `SystemApprovalsController::dataTables` se queda entero en CONFIRMADO hasta que `referenceAlias` tenga su lista blanca."
     ],
     "medido": {
         "fecha": "2026-08-31",
-        "bloque": "AL; ampliado en AM",
+        "bloque": "AL; ampliado en AM; novena familia declarada en AO",
         "hueco_de_la_biblioteca": "src/vendor/piecesphp/database/.../Critery/WhereItem.php:238-241 — `IN`/`NOT IN` imprimen `{$rightMember}` en crudo y `FIND_IN_SET` lo sustituye en `{SEARCH}`. El paquete está versionado y etiquetado: se anota, no se toca.",
         "ids_antes": "`ids[]=abc` daba 500 con `Unknown column 'abc' in 'WHERE'`",
         "ids_despues": "`ids[]=abc` da 200 y el criterio NO se añade; `ids[]=1&ids[]=abc` devuelve solo el 1",
-        "not_in_dentro_de_segmento": "AM: envolver el `NOT IN` en un `WhereSegment` NO lo prepara, y el censo lo daba por limpio. Corregido: un segmento que nombre `IN`/`NOT IN`/`FIND_IN_SET` —siguiendo la cadena de variables, no solo el texto del argumento— pierde el atajo. Sin esa corrección, arreglar `UsersController::searchDropdown` habría BORRADO su hallazgo en vez de declararlo."
+        "not_in_dentro_de_segmento": "AM: envolver el `NOT IN` en un `WhereSegment` NO lo prepara, y el censo lo daba por limpio. Corregido: un segmento que nombre `IN`/`NOT IN`/`FIND_IN_SET` —siguiendo la cadena de variables, no solo el texto del argumento— pierde el atajo. Sin esa corrección, arreglar `UsersController::searchDropdown` habría BORRADO su hallazgo en vez de declararlo.",
+        "fragmentos_de_datatables": "AO: `where_string`, `having_string` y `group_string` son FRAGMENTOS DE SQL por diseno: `DataTablesHelper::process()` los interpola con `\"($where_string) AND $where\"` y NO existe via preparada para ellos —`havingReplacePrepareValues` solo se rellena desde un `HavingSegment`, ActiveRecord.php:491 y 556—. Las que validan su dominio se declaran aqui; las que no, se arreglaron o siguen abiertas."
     },
     "entries": [
         {
@@ -34,6 +36,36 @@
         {
             "where": "src/app/controller/UsersController.php::searchDropdown",
             "validation": "`ignoreTypes` pasa por `is_numeric` ANTES de `intval` —porque `intval('abc')` da 0 y 0 es `TYPE_USER_ROOT`— y luego se queda solo con lo que esté en `array_keys(UsersModel::TYPES_USER_PRIORITY)`, que es el único constante del modelo que enumera los SIETE tipos declarados. `TYPES_USERS` NO sirve: es un mapa de etiquetas y trae `TYPE_USER_GOOGLE_PLAY` comentado, así que descartaría un tipo real y el desplegable mostraría MÁS usuarios. Lista vacía = no se añade el criterio.",
+            "count": 1
+        },
+        {
+            "where": "src/app/classes/App/Locations/Controllers/State.php::statesDataTables",
+            "validation": "`country` pasa por `Validator::isInteger($country) ? (int) $country : -1` en `State.php:258`. Cerrado por TIPO: al fragmento solo puede llegar un entero.",
+            "count": 1
+        },
+        {
+            "where": "src/app/controller/UsersController.php::dataTablesRequestUsers",
+            "validation": "`with-status` pasa por `Validator::isInteger($filterStatus) ? (int) $filterStatus : null` en `UsersController.php:179`. Los otros dos criterios del fragmento salen de la SESION —`$currentUser->organization`— y de `$disallowedTypes`, que es codigo.",
+            "count": 1
+        },
+        {
+            "where": "src/app/classes/Documents/Controllers/DocumentsController.php::dataTablesExplorer",
+            "validation": "`FIELD_SAMPLE_FILTER` pasa por `Validator::isInteger($FIELD) ? (int) $FIELD : null` en `DocumentsController.php:891`. El otro criterio es `DocumentsMapper::STATUS_ACTIVE`, constante de clase.",
+            "count": 1
+        },
+        {
+            "where": "src/app/classes/Organizations/Controllers/OrganizationsController.php::dataTables",
+            "validation": "`status` pasa por `in_array($status, array_keys(OrganizationMapper::STATUSES)) ? $status : -1` en `OrganizationsController.php:1206`. Es LISTA BLANCA sobre el conjunto declarado de estados; lo que no este en el se convierte en -1, que no casa nada.",
+            "count": 1
+        },
+        {
+            "where": "src/app/classes/App/Locations/Controllers/Country.php::countriesDataTables",
+            "validation": "`region` pasa por `Country::regionNameOrNull()`, el MISMO patron `^[\\p{L}\\p{N} \\-]{1,60}$` que usa `countries()` —factorizado en AO para que no haya dos copias—. Lo rechazado cae en `''`, que no casa nada, y NO en `null`: `null` quitaria el filtro y ENSANCHARIA el resultado.",
+            "count": 1
+        },
+        {
+            "where": "src/app/classes/Publications/Controllers/PublicationsController.php::dataTables",
+            "validation": "`visibility` pasa por `Validator::isInteger` MAS `array_key_exists((int) $visibility, PublicationMapper::VISIBILITIES)` en `PublicationsController.php:1233-1238`. Es LISTA BLANCA sobre las cuatro visibilidades declaradas, no un entero suelto.",
             "count": 1
         }
     ]

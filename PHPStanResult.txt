@@ -827,29 +827,29 @@
          🪪  clone.nonObject                                                                                                                             
   1200   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
-  1322   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1328   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1332   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1338   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1339   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+  1345   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1515   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
+  1521   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1522   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1528   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1523   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1529   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1524   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1530   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1597   Cannot access property $organization on stdClass|null.                                                                                          
+  1603   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1599   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1605   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1622   Cannot access property $organization on stdClass|null.                                                                                          
+  1628   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1624   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1630   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1675   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1681   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -936,9 +936,9 @@
          🪪  argument.type                                                                                                                       
   373    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
          🪪  assign.propertyType                                                                                                                 
-  547    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
+  549    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
          🪪  method.nonObject                                                                                                                    
-  638    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
+  640    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1976,19 +1976,19 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php                                           
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  329    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  351    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  380    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
+  402    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
          🪪  method.nonObject                                                                                              
-  381    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
+  403    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
          🪪  method.nonObject                                                                                              
-  382    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
+  404    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
          🪪  method.nonObject                                                                                              
-  387    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
+  409    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
          🪪  method.nonObject                                                                                              
-  563    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  585    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  609    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  631    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------ 
 

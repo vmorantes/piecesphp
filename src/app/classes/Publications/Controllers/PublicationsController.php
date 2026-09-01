@@ -1230,7 +1230,13 @@ class PublicationsController extends AdminPanelController
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;
         $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper)? $currentOrganizationMapper->administrator : null;
+        //`having_string` es un FRAGMENTO DE SQL y no pasa por marcador. `VISIBILITIES` enumera
+        //las CUATRO visibilidades declaradas, así que aquí hay lista blanca de verdad. Ver T155.
         $visibility = $request->getQueryParam('visibility', null);
+        $visibility = Validator::isInteger($visibility)
+            && array_key_exists((int) $visibility, PublicationMapper::VISIBILITIES)
+            ? (int) $visibility
+            : null;
 
         $whereString = null;
         $havingString = null;

@@ -279,6 +279,28 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Corregido — tres filtros de listado metían el valor de la petición en el SQL
+
+`Country::countriesDataTables` (`region`), `SystemApprovals::dataTables` (`elapsedDays`) y
+`PublicationsController::dataTables` (`visibility`) interpolaban el parámetro en un fragmento de
+SQL sin validar nada. Las tres rutas son autenticadas. Ahora `region` pasa por el patrón de
+`Country::regionNameOrNull()` —factorizado, una sola copia para los dos sitios que comparan por
+nombre—, `visibility` por la lista blanca de `PublicationMapper::VISIBILITIES`, y `elapsedDays`
+por `Validator::isInteger`, que además cierra un defecto de tipo: se validaba como cadena no
+vacía y se usaba como número.
+
+**El rechazo no ensancha:** un `region` que no case cae en `''`, que no encuentra nada, y no en
+`null`, que habría quitado el filtro.
+
+## `DataTablesHelper::process()` dice dónde está la frontera de su contrato
+
+`where_string`, `having_string` y `group_string` son fragmentos de SQL **del programador**, y no
+existe vía preparada para ellos: `having()` solo rellena sus valores de reemplazo cuando recibe
+un `HavingSegment`. Queda escrito en el docblock que meter ahí un valor de la petición abre un
+agujero, junto con las tres claves de identificador —`select_fields`, `columns_order` y
+`custom_order`—, y con el aviso de que en `custom_order` la dirección no pasa por el filtro
+`ASC`/`DESC`.
+
 ## Herramientas — el censo de SQL ve una novena familia, y la cifra sube de 5 a 13
 
 `DataTablesHelper::process()` recibe un **array literal**, y tres de sus claves —`where_string`,

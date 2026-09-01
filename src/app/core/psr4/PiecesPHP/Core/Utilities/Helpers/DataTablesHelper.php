@@ -41,6 +41,28 @@ class DataTablesHelper
     private static $tableOnSearch = true;
 
     /**
+     * LA FRONTERA DEL CONTRATO, Y DÓNDE SE ROMPE
+     * ------------------------------------------
+     * `where_string`, `having_string` y `group_string` son **fragmentos de SQL escritos por el
+     * programador del módulo**. Este helper los interpola tal cual —`"($where_string) AND
+     * $where"`, línea 277— y **no existe vía preparada para ellos**: `having()` solo rellena sus
+     * valores de reemplazo cuando recibe un `HavingSegment` (`ActiveRecord.php:491` y `556`).
+     *
+     * **QUIEN META AHÍ UN VALOR DE LA PETICIÓN ABRE UN AGUJERO.** No es una recomendación de
+     * estilo: no hay marcador que lo salve. Si el filtro viene del visitante, se valida su
+     * DOMINIO antes —entero, lista blanca o patrón— y se declara en
+     * `files/dev/sql-concat-declared.json`, que es lo que vigila `bin/censo-sql-concatenado`.
+     * En AÑ se midieron ocho sitios que lo hacían; cuatro no validaban nada. Ver T154 y T155.
+     *
+     * OTRAS TRES CLAVES ACABAN TAMBIÉN EN EL SQL, y como IDENTIFICADORES, que no admiten
+     * marcador ni siquiera en teoría: `select_fields` (líneas 333 y 336), `columns_order`
+     * —nombres de columna hacia `generateOrderBy`/`generateHaving`— y `custom_order`. **En
+     * `custom_order` la DIRECCIÓN no pasa por el filtro `ASC`/`DESC`** que sí se aplica al
+     * `order` de la petición (línea 1254): lo que se escriba ahí llega entero al `ORDER BY`.
+     *
+     * El `order` de la petición SÍ está cerrado: su índice se usa como CLAVE de `columns_order`
+     * y la dirección colapsa a un ternario de dos constantes.
+     *
      * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string} $options
      * @return ResultOperations
      */

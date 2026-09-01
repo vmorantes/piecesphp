@@ -213,13 +213,13 @@ class Country extends AdminPanelController
         $ids = is_array($ids) ? array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)) : [];
         $ids = count($ids) > 0 ? implode(',', $ids) : null;
 
-        //`region` son NOMBRES: `intval` no aplica y se descarta lo que no case. El patrón es
-        //conservador porque el conjunto real NO se puede saber sin la base. Ver T152.
+        //`region` son NOMBRES: `intval` no aplica y se descarta lo que no case. El patrón vive
+        //en `regionNameOrNull()`, que comparten los dos sitios que comparan por nombre.
         if ($region !== null && is_string($region) && mb_strlen(trim($region)) > 0) {
             $nombresRegion = [];
             foreach (explode(',', $region) as $nombre) {
-                $nombre = trim($nombre);
-                if (preg_match('/^[\p{L}\p{N} \-]{1,60}$/u', $nombre) === 1) {
+                $nombre = self::regionNameOrNull($nombre);
+                if ($nombre !== null) {
                     $nombresRegion[] = "UPPER('{$nombre}')";
                 }
             }
@@ -284,13 +284,13 @@ class Country extends AdminPanelController
     public function countriesDataTables(Request $request, Response $response)
     {
 
+        //`where_string` es un FRAGMENTO DE SQL: no pasa por marcador. Lo rechazado cae en `''`
+        //—que no casa nada— y NO en `null`, porque `null` quitaría el filtro y ENSANCHARÍA.
         $region = $request->getQueryParam('region', null);
         if ($region !== null) {
-            if (is_string($region) && mb_strlen(trim($region))) {
-                $region = trim($region);
-            } else {
-                $region = "";
-            }
+            $region = is_string($region) && mb_strlen(trim($region)) > 0
+                ? (self::regionNameOrNull($region) ?? '')
+                : '';
         }
 
         $columns_order = [
@@ -551,5 +551,25 @@ class Country extends AdminPanelController
     protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
         return true;
+    }
+
+    /**
+     * Valida UN nombre de región contra el patrón, y devuelve `null` si no casa.
+     *
+     * `region` es la única columna de este módulo que se compara por NOMBRE y no por entero, y
+     * se compara desde DOS sitios: `countries()` con `IN (...)` y `countriesDataTables()` con
+     * `=`. Ninguno de los dos pasa por marcador, así que lo que cierra el agujero es esto.
+     *
+     * El patrón es conservador porque **el conjunto real no se puede saber sin la base**:
+     * `structure.sql:156` declara `region text DEFAULT NULL`, sin ENUM ni tabla de regiones.
+     * Un nombre con apóstrofo o con punto queda descartado, y eso se sabe. Ver T152 y T155.
+     *
+     * @param string $nombre
+     * @return string|null
+     */
+    protected static function regionNameOrNull(string $nombre): ?string
+    {
+        $nombre = trim($nombre);
+        return preg_match('/^[\p{L}\p{N} \-]{1,60}$/u', $nombre) === 1 ? $nombre : null;
     }
 }

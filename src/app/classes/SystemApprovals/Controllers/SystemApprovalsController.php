@@ -435,8 +435,10 @@ class SystemApprovalsController extends AdminPanelController
     {
         $referenceAliasFilter = $request->getQueryParam('referenceAlias', null);
         $referenceAliasFilter = is_string($referenceAliasFilter) && mb_strlen(trim($referenceAliasFilter)) > 0 ? trim($referenceAliasFilter) : null;
+        //SE VALIDABA COMO CADENA Y SE USABA COMO NÚMERO en `elapsedDays >= {$…}`, sin comillas.
+        //Son dos defectos: el de tipo y el de SQL. `isInteger` cierra los dos. Ver T155.
         $elapsedDaysFilter = $request->getQueryParam('elapsedDays', null);
-        $elapsedDaysFilter = is_string($elapsedDaysFilter) && mb_strlen(trim($elapsedDaysFilter)) > 0 ? trim($elapsedDaysFilter) : null;
+        $elapsedDaysFilter = Validator::isInteger($elapsedDaysFilter) ? (int) $elapsedDaysFilter : null;
 
         $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;

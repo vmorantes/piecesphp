@@ -16179,3 +16179,130 @@ bloque siguiente: cuatro por validación de dominio y cuatro por declaración.
 - El docblock de `process` diciendo dónde está la frontera del contrato. **Va después de
   arreglarlas**: escribirlo mientras cuatro sitios lo incumplen sería documentar una ficción.
 - `select_fields`, `columns_order` y `custom_order`, con las cinco familias de identificadores.
+
+---
+
+## T155 · AO · LAS OCHO DE LA NOVENA FAMILIA, Y DOS PARADAS
+
+**Bloque AO.** Cierra lo que AÑ midió. Dos paradas: `referenceAlias`, porque su lista blanca
+no es alcanzable sin cambiar el contrato del módulo, y `generateHaving`, porque la vía preparada
+que pedía el paso 4 **no existe** para un fragmento de cadena.
+
+### PASO 1 · `referenceAlias` · >>> PARADA <<<
+
+La lista **existe conceptualmente y no es alcanzable**. Las tres piezas, medidas:
+
+| Pieza | Dónde | Por qué no sirve hoy |
+| :-- | :-- | :-- |
+| el registro de handlers | `SystemApprovals/Util/configurations.php:9-11` | se carga con `require_once` dentro de un **constructor privado** (`SystemApprovalManager.php:42`) y **nunca se expone**; un segundo `require_once` devuelve `true`, no el array |
+| el texto de cada alias | `$BASE_TEXT` de cada handler | es **`protected static`**: `'Organización'`, `'Perfil'`, `'Publicación'`, y `'Elemento'` en la base |
+| un valor legítimo más | `UsersApprovalHandler.php:56` | `'Usuario independiente'` está **escrito dentro de un método**, no declarado en ninguna lista |
+
+Construir la lista blanca pide **añadir API al contrato de los handlers** —un `getContentTypes()`
+público y un accesor en `SystemApprovalManager`—, y eso es un cambio de contrato del módulo, no
+la validación de un parámetro. **No se inventa un patrón donde puede haber lista blanca real.**
+
+Y un defecto adyacente que apareció al mirar, **no arreglado**: `getReferencesAliases()`
+(`SystemApprovalsMapper.php:311-316`) devuelve los alias **pasados por `__()`**, mientras la
+columna guarda el texto sin traducir. En español coinciden; en otro idioma el desplegable
+enviaría la etiqueta traducida y el filtro no casaría nada.
+
+### PASO 2 · Las tres que sí se cerraron
+
+**`Country::countriesDataTables` — `region`, con el patrón FACTORIZADO.** El patrón vivía en
+`countries()`; ahora vive una sola vez en `Country::regionNameOrNull()` y lo usan los dos sitios
+que comparan por nombre. **El rechazo cae en `''`, no en `null`**: `null` quitaría el filtro y
+**ensancharía** el resultado, que es la dirección equivocada para una guarda. Y el `''` de antes
+—que filtraba por región vacía— se conserva.
+
+Compuesto el fragmento sin ejecutar nada contra la aplicación viva:
+
+| entrada | ANTES | AHORA |
+| :-- | :-- | :-- |
+| `Europa` | `UPPER(region) = UPPER('Europa')` | igual |
+| `''` | `UPPER(region) = UPPER('')` | igual |
+| `Am'erica` | `UPPER(region) = UPPER('Am'erica')` | `UPPER(region) = UPPER('')` |
+| `x') OR 1=1 -- ` | `UPPER(region) = UPPER('x') OR 1=1 --')` | `UPPER(region) = UPPER('')` |
+
+**`SystemApprovals` — `elapsedDays`: DOS defectos, no uno.** El de SQL —iba sin comillas en
+`elapsedDays >= {$…}`— y **el de tipo**: se validaba como `is_string(...) && mb_strlen(trim(...)) > 0`
+y se usaba como número. `Validator::isInteger` cierra los dos, y el segundo se nombra aparte
+porque habría sobrevivido a cualquier arreglo que solo pensara en el SQL.
+
+**`PublicationsController` — `visibility`: LISTA BLANCA, no entero suelto.**
+`PublicationMapper::VISIBILITIES` (`182-187`) enumera las **cuatro** visibilidades y coincide con
+`VISIBILITIES_COLORS`; ninguna entrada comentada, al contrario que `TYPES_USERS` en T153. Se
+valida con `isInteger` **más** `array_key_exists`.
+
+### PASO 3 · Las cuatro que ya validaban: declaradas, no tocadas
+
+`State:300` (`isInteger`, `State.php:258`), `UsersController:222` (`isInteger`, `:179`),
+`DocumentsController:927` (`isInteger`, `:891`) y `Organizations:1242` (`in_array` sobre
+`STATUSES`, `:1206`). Cada una con su `count`.
+
+### Por qué quedan SIETE y no cinco
+
+`SystemApprovalsController::dataTables` **no se declara**, aunque su `elapsedDays` quedó cerrado.
+Tiene **dos hallazgos en el mismo método** y `referenceAlias` sigue abierto; como se declara por
+`archivo::metodo`, el `count` **no puede decir a cuál de los dos indulta** — lo decidiría el
+orden. Es la regla nueva del registro de declaradas, y la suite la vigila.
+
+> **7 = los 5 de `DataTablesHelper::process` + los 2 de `SystemApprovals`.**
+
+### PASO 4 · `generateHaving` · >>> PARADA <<<
+
+**No se puede hacer lo que pedía el paso**, y la razón está leída, no supuesta:
+`havingReplacePrepareValues` **solo se rellena desde un `HavingSegment`** —`ActiveRecord.php:491`
+y `556`—. En la vía de cadena un marcador escrito en el texto **nunca se ataría**. Y el HAVING
+final es la mezcla del `having_string` del programador con lo que devuelve `generateHaving`:
+
+```php
+$having = "($having_string) AND $having";     // línea 268
+```
+
+Un `HavingSegment` **no admite un fragmento en crudo** —solo `HavingItem`— ni grupos
+parentizados (T153). Así que devolver un segmento obligaría a **tirar el `having_string` del
+programador**, que lo usan 10 sitios. Las dos salidas reales son cambiar el paquete `database`
+—prohibido en este bloque— o que `process()` acepte claves `where_segment`/`having_segment` y
+los módulos migren una a una. **Es su propio bloque.**
+
+**`escapeString`, anotado y no arreglado.** Es `addslashes(stripslashes($str))` —
+`AppHelpers.php:2805`. No está roto hoy: el juego de caracteres es `utf8mb4` en las dos ramas de
+`config/database.php` (`31` y `38`). Pero **la aplicación nunca fija `sql_mode`**, y con
+`NO_BACKSLASH_ESCAPES` en el destino `addslashes` produce `\"` y la comilla sigue cerrando. Se
+sostiene sobre un ajuste de un servidor que este framework **no declara ni comprueba**.
+
+> **CORRECCIÓN a lo que dije en AN:** conté **3** consumidores de `escapeString`. Eran los de un
+> solo archivo. Son **23 llamadas en 13 archivos**: `DataTablesHelper` (2), `OrganizationMapper`
+> (5), `UsersModel` (3), `CountryMapper`, `StateMapper` y `CityMapper` (2 cada uno),
+> `DocumentsMapper`, `PublicationMapper`, `PublicationCategoryMapper`, `NewsCategoryMapper`,
+> `PointMapper`, `SystemApprovalsMapper` y `UsersController` (1 cada uno). Ninguno tocado.
+
+### PASO 5 · El docblock de `process`, que ya no es ficción
+
+Dice ahora que los tres fragmentos son **SQL del programador**, que no hay marcador que los
+salve, y que quien meta ahí un valor de la petición abre un agujero. Y nombra las tres claves de
+identificador —`select_fields`, `columns_order`, `custom_order`— con la advertencia de que **en
+`custom_order` la dirección no pasa por el filtro `ASC`/`DESC`** que sí se aplica al `order`.
+
+### El cierre (LEY 24) · 25 comprobaciones, y la provocación
+
+`UnitTest-SqlPlaceholders` sube a **25** con una sección 7. Comprueba las validaciones **en la
+fuente**, que **una sola copia del patrón** de región sobreviva, y que `SystemApprovals` siga
+**sin declarar** mientras tenga un hallazgo abierto.
+
+| Provocación | Censo | Suite |
+| :-- | :-- | :-- |
+| quitar la lista blanca de `visibility` | **7·10 → 7·10** | 25 → **24** |
+| quitar la validación de `region` | **7·10 → 7·10** | 25 → **24** |
+
+> **El censo no se mueve, y ese sigue siendo el hallazgo**: mide el MECANISMO. Lo único que se
+> pone rojo si alguien quita una validación es la suite mirando la fuente.
+
+### Lo que queda abierto
+
+- **`referenceAlias`**: la lista blanca pide API nueva en el contrato de los handlers.
+- **`generateHaving`**: pide o el paquete `database` o una clave `having_segment` en `process()`.
+- Los **5 de `DataTablesHelper::process`**, que son el helper mirándose a sí mismo.
+- `select_fields`, `columns_order` y `custom_order`, con las cinco familias de identificadores.
+- El desajuste de `getReferencesAliases()` entre la etiqueta traducida y la columna cruda.

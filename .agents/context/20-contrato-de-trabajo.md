@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-08-31, tras la PARADA de AN.**
+**Ultima actualizacion: 2026-08-31, tras la PARADA de AÑ.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1049,6 +1049,77 @@ produce es exactamente lo que LEY 5 prohibe.
 `source-docs/project/docs/environments/content/vps/index.md`, +17 lineas de avisos de seguridad
 sobre el login de root por SSH. **No es de AN.** El reporte dijo «solo `20-contrato-de-trabajo.md`»
 y eran dos. No cambia nada del bloque, pero un reporte del estado del arbol se da COMPLETO.
+
+### AÑ — EL INSTRUMENTO PRIMERO ERA LO CORRECTO, Y EL NUMERO NO ERA CUATRO: ES TRECE
+
+Verificado por ARQUITECTO: `cifras {confirmado: 13, declarado: 4, revisar: 100, descartado: 133}`,
+PHPStan 747, commit `ac48f1a9`, 33 sobre `origin/dev`, arbol con solo el `vps/index.md` que la
+instruccion mandaba NO tocar —declarado como PENDIENTE en la guarda, 6 + 1 = 7—.
+
+La novena familia no es una llamada: son **claves de un array literal** que `process()` interpola
+(`DataTablesHelper.php:277`). Ninguna de las ocho familias de llamada podia verlas. Aporta **8**:
+las 4 que el CODER hallo a mano y **4 mas que si validan** —`State:300`, `UsersController:222`,
+`DocumentsController:927`, `Organizations:1242`—.
+
+> **El «cuatro» del CODER era RIESGO. El «trece» del censo es MECANISMO.** Los dos son correctos
+> sobre cosas distintas, y por eso el instrumento tenia que ir primero.
+
+### EL CANARIO NEGATIVO QUE PIDIO ARQUITECTO ERA INCOHERENTE — y el CODER hizo bien en no parar
+
+La instruccion decia: *«`Organizations:1206` NO debe salir marcado; si sale, el censo esta
+condenando validaciones buenas y PARAS»*. Medido:
+
+```
+:1191  $status = $request->getQueryParam('status', null);
+:1206  $statusToCritery = in_array($status, array_keys(STATUSES)) ? $status : -1;
+:1208  $critery = "{$table}.status = {$statusToCritery}";
+```
+
+**El valor viene de la peticion y se concatena.** El `in_array` cierra el RIESGO, no el MECANISMO
+— y desde T152 este instrumento mide el mecanismo. **ARQUITECTO le pidio al censo que fuera
+incoherente con su proposito declarado.** El CODER no paro, y tenia razon.
+
+Y su argumento de fondo es el que hay que conservar: *un censo que aprendiera a reconocer
+`in_array(...) ? :` como saneante estaria ADIVINANDO, y el siguiente que no reconociera pasaria
+por limpio.* Por eso existen los DECLARADO y por eso la suite comprueba las validaciones EN LA
+FUENTE.
+
+**Van seis veces que ARQUITECTO se equivoca sobre el universo o el instrumento.**
+
+### LA COTA, CONTESTADA LEYENDO `process()`
+
+De las quince claves de `$options`, **tres mas** acaban en el SQL, **las tres como
+IDENTIFICADORES**: `select_fields` (333 y 336), `columns_order` y `custom_order` (1254). Y en
+`custom_order` **la direccion NO pasa por el filtro ASC/DESC** que si se aplica al `$order` de la
+peticion; hoy viene de la controladora, y esta escrito en la cota por si deja de venir de ahi.
+
+### UNA COMPROBACION DE LA SUITE ESTABA ESCRITA POR ARCHIVO
+
+Al crecer el universo, `DocumentsController::dataTablesExplorer` entro en CONFIRMADO y la
+comprobacion 4 se puso ROJA — pero su sujeto es `searchDropdown`, que sigue bien. **Miraba el
+ARCHIVO; pasa a mirar el METODO.** Provocado: rompiendo `searchDropdown`, suite 19 -> 18 y censo
+13 -> 14.
+
+### EL TRINQUETE SUBE 5 -> 13, Y ESO NO ES UNA REGRESION
+
+Sube **porque el instrumento aprendio a ver**. Las ocho llevaban ahi desde antes de la campaña.
+El CODER lo subio aunque el bloque parase, porque dejarlo en 5 ponia roja la puerta y con ella las
+25 suites. **Registrar una medicion no es arreglar nada; escribir un 9 a mano si habria sido
+inventar (LEY 5).**
+
+### `archify` — pregunta del PROPIETARIO, 2026-09
+
+Herramienta Node/npm, MIT, que genera diagramas HTML interactivos de arquitectura a partir de una
+descripcion, pensada para agentes. **NO es dependencia del framework**: no entra en `composer.json`
+ni viaja al clon. Riesgo tecnico para `piecesphp`: **cero**.
+
+Por la regla del PROPIETARIO **EXTIENDE, no corrige**: fuera de la campaña. Encaja en E6 y en las
+guias —`16-frontend-arquitectura.md`, el modulo como patron—.
+
+> **Con una condicion que es la de esta campaña entera**: un diagrama generado de una DESCRIPCION
+> es arquitectura AFIRMADA, no medida. Dibuja lo que el agente cree. Solo entra si lo que dibuja
+> sale de artefactos MEDIDOS —`route-inventory.json`, los censos, la lista de modulos—, no de
+> prosa. **Un diagrama bonito y falso es peor que ninguno: parece autoridad.**
 
 ### Abierto, sin decidir
 
