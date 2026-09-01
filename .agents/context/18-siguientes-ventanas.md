@@ -16889,3 +16889,86 @@ cifra no se mueva es, esta vez, el resultado correcto.
 - `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
 - Las otras llamadas a `getCompiledSQL` del árbol, por si alguna más ejecuta la forma de
   depuración: en `process()` quedan la 450 y la 686, las dos con `true`.
+
+---
+
+## T161 · AU · LAS FORMAS «PARA LEER» QUE SE EJECUTAN
+
+**Bloque AU.** La generalización del defecto de AT, medida sobre los cinco repositorios. La
+respuesta corta: **era única**. Y por eso **no hay puerta nueva**, que también es un resultado.
+
+### PASO 1 · El criterio, declarado antes de contar
+
+`bin/censo-formas-de-lectura` marca una función como «para leer» si cumple **una** de tres:
+
+1. **El nombre lo anuncia**: `dump`, `debug`, `preview`, `inspect`, `compiled`, `pretty`,
+   `readable`.
+2. **El docblock lo dice**: «depuración», «legible», «para leer», «no ejecutar», «inspección».
+3. **Sustituye marcadores por valores**: toca los valores de reemplazo **y** los mete en el
+   texto con `str_replace`/`preg_replace`/`strtr`; o quita el `:` de un alias.
+
+**La tercera es la que importa**, porque es lo que vuelve el texto no ejecutable como preparado.
+Y define la frontera entera del bloque: **`toString()` de los segmentos NO entra**, porque emite
+**marcadores**, no valores. Una función que produce texto para USARLO no es una forma de lectura.
+
+**Canario de cuatro caras**, y hubo que corregirlo: el primero probaba la **definición**, y la
+instrucción lo pedía sobre la **llamada**.
+
+| cara | debe |
+| :-- | :-- |
+| definición de `getCompiledSQL()` | **salir** |
+| definición de `WhereSegment::toString()` | **no salir** |
+| llamada `getCompiledSQL()` | **salir** |
+| llamada `getCompiledSQL(true)` | **no salir** |
+
+La cuarta cambió el resultado: sin ella, `DataTablesHelper` seguía apareciendo pese a estar ya
+corregido en AT. **Un censo que no mira el argumento no distingue el defecto de su arreglo.**
+
+### PASO 2 · Dónde acaba su salida
+
+**736 archivos** en los cinco repositorios, **22 formas** halladas por tokens.
+
+| | |
+| :-- | --: |
+| EJECUTADA | **1** |
+| REVISAR A MANO | **0** |
+| SOLO LEÍDA | **17** |
+
+**La única EJECUTADA es `humanReadable()`, y NO es un defecto.** Sale porque su nombre casa la
+regla 1 y porque `withJson(` está en la lista de sumideros. Pero devuelve **los datos legibles
+de la entidad** y su destino son tres endpoints de `APIController` —`publications()`, `news()`,
+`usersActions()`—: **su destino es su propósito**. Se deja marcada a propósito y explicada en la
+cota impresa: un falso positivo que se explica cuesta menos que un criterio que deje pasar el
+siguiente.
+
+**`getCompiledSQL()` sale ahora en SOLO LEÍDA**, y eso es la confirmación independiente de que
+el arreglo de AT está puesto: sus tres llamadas en `DataTablesHelper` pasan `true`.
+
+Dos entradas que conviene nombrar porque parecen alarmantes y no lo son:
+`ExifHelper::getOriginalDate()` y `getDigitizedDate()` casan «quita los dos puntos de un alias»
+porque parsean fechas EXIF del tipo `2020:01:01`. Firma idéntica, dominio distinto.
+
+### PASO 3 · NO se construye puerta, y por qué
+
+Sólo había una, y ya está cerrada. **Una puerta que nunca puede fallar es ruido**, así que el
+censo queda como **instrumento de medición y no se cablea a `gates`**: correrlo es barato y
+cazaría una reaparición, pero un verde permanente sobre un cero no prueba nada. Cablearlo es una
+línea el día que haya un segundo caso.
+
+Lo que sí es obligatorio y está escrito: el docblock de `process()` dice ahora que **el argumento
+por defecto de `getCompiledSQL()` produce SQL que no se puede ejecutar**, con el error que
+provoca y con la razón de que durmiera años —sin valores de reemplazo el bucle no sustituye
+nada—. **Sin números de línea**: los tres sitios se nombran como «las tres llamadas de este
+archivo», porque las cotas escritas se pudren y mi propio docblock ya desplazó las que había
+puesto.
+
+### PASO 4 · El trinquete
+
+Sin cambios: **CONFIRMADO 2 · DECLARADO 11**. Este bloque no tocó SQL de producción.
+
+### Lo que queda abierto
+
+- Publicar `v4.1.0` de `database` y `composer update`.
+- `SystemApprovals`, con `referenceAlias` y `getReferencesAliases()`.
+- La cota del censo nuevo: la traza mira el método que llama y no cruza de clase, y los
+  sumideros son ocho y ningún otro. Ampliarla es trabajo, no descuido.

@@ -267,7 +267,7 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 
 *La escribe ARQUITECTO, en cada pausa.*
 
-**Ultima actualizacion: 2026-09-01, tras el BLOQUE AS.**
+**Ultima actualizacion: 2026-09-01, tras el BLOQUE AT.**
 
 > **ALCANCE**: la MAJOR depende de la campana ENTERA. Reparto del PROPIETARIO: **lo que CORRIGE
 > una trampa entra; lo que EXTIENDE una capacidad, no.**
@@ -1414,6 +1414,83 @@ La parte 2 no se puede ejecutar sin etiqueta y publicacion — **decision del PR
 `GenericHandler::logging()` ya vuelca `extraData` en `error.log.json` (`:167`), y los logs estan en
 `.gitignore`. **La decision de ARQUITECTO —registrar, no imprimir— resulto ser lo que ya existia.**
 De ahi salio el SQL exacto del fallo.
+
+### AT — LA CAUSA ERA UNA LINEA DEL FRAMEWORK, Y LOS CINCO ARREGLOS DE SEGURIDAD ESTABAN SANOS
+
+Verificado por ARQUITECTO: las TRES llamadas del helper ahora son iguales —450, 666 y 686 con
+`getCompiledSQL(true)`—, `feca9ef4`, 39 commits, arbol con solo el `vps/index.md` declarado.
+
+```
+DataTablesHelper.php:666   $filterCount->getCompiledSQL();   ← SIN `true`, la forma de DEPURACION
+ActiveRecord:856           $baseAlias = str_replace(':', "", $alias);
+                           preg_replace("/{$alias}/", "($baseAlias=$value)", $query);
+```
+
+Esa forma **quita los dos puntos a proposito** —es para leerla— y ese texto se envolvia en
+`SELECT COUNT(*) FROM (…)` **y se ejecutaba**. Las hermanas 450 y 686 ya pasaban `true`. **La 666
+era la unica sin el argumento.**
+
+**Y es PREEXISTENTE**: con `where_string` los valores de reemplazo estan vacios, el bucle no hace
+nada y el SQL sale intacto. Llevaba años dormido. **Las migraciones no lo crearon: lo destaparon.**
+
+### DOS HIPOTESIS DE ARQUITECTO, LAS DOS FALSAS
+
+1. **«La discriminante es el envoltorio `{%VALUE%}`»** — NO. Es **segmento + `process()`**. Los
+   seis `search()` van por segmento SIN `process()` y dan 200.
+2. **«La causa vive en el paquete y no llegaria al framework sin publicar»** — NO. Vive en
+   `DataTablesHelper`, codigo del framework, y son **cuatro caracteres**.
+
+> **LOS CINCO ARREGLOS DE SEGURIDAD DE AJ, AL, AM Y AO ESTAN SANOS.** Era la peor posibilidad y
+> no se dio.
+
+### LA DESVIACION DEL PASO 3: VALIDADA, con una precision
+
+El paso 3 mandaba restaurar cuatro migraciones. El CODER **no lo hizo**, porque la premisa de
+ARQUITECTO era falsa y arreglar la linea dejaba los diez en 200 — y el propio paso decia *«lo que
+de 200 se queda como esta»*. **Revertir para esquivar un defecto que se puede arreglar, y dejarlo
+esperando al siguiente que pase un segmento, era estrictamente peor.**
+
+**ARQUITECTO la valida.** Lo declaro EN LA PRIMERA LINEA del reporte, nombro la premisa falsa en
+vez de rodearla, y ofrecio la reversion.
+
+> **Precision que igual importa**: la regla dice *para y reporta*, no *arregla y reporta*. Aqui
+> el arreglo eran cuatro caracteres verificados por ejecucion y salio bien. **La proxima vez el
+> arreglo puede no ser de una linea, y entonces la diferencia entre las dos formas es todo.**
+> Se valida el caso, no se cambia la regla.
+
+### EL CONTRASTE CONTAMINADO, declarado por el CODER
+
+`users-datatables` y `reports-manage` dieron 500, pero por **falta de sesion** —«read property id
+on null»—, no por el segmento. **No miden nada**, y lo dijo en vez de sumarlos a la tabla. El
+contraste valido son los seis `search()`.
+
+### LA PREGUNTA QUE ABRE EL SIGUIENTE BLOQUE
+
+*«Hay mas sitios en el arbol que EJECUTEN una forma de depuracion?»* — Es la generalizacion
+correcta del defecto y es LEY 11: la regla que fallo se convierte en mecanismo. En el arbol hay
+tres llamadas a `getCompiledSQL` en el helper, dos en la suite, y **nadie ha mirado si hay otras
+funciones «para leer» que acaben ejecutandose**.
+
+### ERROR DE ARQUITECTO EN AS: rompio una convencion del PROPIETARIO en su propio archivo
+
+El PROPIETARIO pregunto: *«Por que `WhereItemGroup` y no su propio `HavingItemGroup`?»*
+**Tiene razon y la instruccion de AS estaba mal.**
+
+El paquete YA tiene la convencion, escrita por el mismo: `class HavingItem extends WhereItem {}`
+—subclase marcadora, cuerpo vacio—. La simetria completa es
+`WhereSegment`/`HavingSegment`, `WhereItem`/`HavingItem`, y faltaba `WhereItemGroup`/`HavingItemGroup`.
+**ARQUITECTO leyo `HavingItem` entero en AR y aun asi mando saltarse el par.**
+
+Tres razones, y la tercera es de calendario:
+
+1. La firma dice la verdad: hoy `HavingSegment` expone publicamente un `WhereItemGroup`.
+2. Es el punto de extension para cuando HAVING diverja —agregados, alias del SELECT—, y diverge
+   por naturaleza.
+3. **`e5602de` esta sin etiqueta y sin empujar**: estrechar la firma ahora es GRATIS; despues de
+   publicar `v4.1.0` seria incompatible, una MAJOR. **Que la etiqueta este preparada y NO creada
+   es lo que hace que esto se pueda arreglar sin coste.**
+
+Medido: `WhereItemGroup` no es `final`, y tiene **cero usos** en `piecesphp/src/app`.
 
 ### Abierto, sin decidir
 

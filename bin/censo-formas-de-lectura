@@ -1,0 +1,389 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * FORMAS «PARA LEER» QUE ACABAN EJECUTANDOSE.
+ *
+ * POR QUE EXISTE
+ * --------------
+ * `ActiveRecord::getCompiledSQL()` sin argumento quita los dos puntos del marcador A PROPOSITO:
+ * es la forma PARA MIRAR. `DataTablesHelper:665` la ejecutaba, y MySQL leia el alias como
+ * nombre de columna. Nadie lo vio en anos porque SOLO SE NOTA CUANDO HAY VALORES DE REEMPLAZO.
+ *
+ * LEY 11: la regla que fallo se convierte en mecanismo. Esto es el mecanismo.
+ *
+ * EL CRITERIO, Y SE DECLARA
+ * -------------------------
+ * Una funcion es «para leer» si cumple UNA de las tres:
+ *   1. SU NOMBRE lo anuncia: dump, debug, preview, inspect, compiled, pretty, readable.
+ *   2. SU DOCBLOCK lo dice: depuracion, debug, legible, para leer, no ejecutar, inspeccion.
+ *   3. SUSTITUYE MARCADORES POR VALORES: toca los valores de reemplazo Y los mete en el texto
+ *      con `str_replace`/`preg_replace`/interpolacion, o quita el `:` de un alias.
+ * La 3 es la que importa: es lo que vuelve el texto NO EJECUTABLE como preparado.
+ *
+ * `toString()` de los segmentos NO entra, y esa es la distincion entera: emite MARCADORES,
+ * no valores. Una funcion que produce texto para USARLO no es una forma de lectura.
+ *
+ * DUDAR CUESTA UN REVISAR, NO UN DESCARTADO.
+ *
+ * SU COTA, Y SE IMPRIME (LEY 15)
+ * ------------------------------
+ * La traza de consumo mira el METODO que llama, no mas alla: si la salida se guarda en una
+ * propiedad o se devuelve, cae en REVISAR. Y los sumideros son los que se listan abajo: lo que
+ * no este ahi no se detecta.
+ *
+ * Uso:
+ *   bin/censo-formas-de-lectura            las tres listas
+ *   bin/censo-formas-de-lectura --detalle  con los sitios de llamada
+ */
+
+const REPOS = [
+    'piecesphp'      => __DIR__ . '/../src/app',
+    'database'       => __DIR__ . '/../src/vendor/piecesphp/database/src',
+    'datastructures' => __DIR__ . '/../src/vendor/piecesphp/datastructures/src',
+    'html'           => __DIR__ . '/../src/vendor/piecesphp/html/src',
+    'geojson'        => __DIR__ . '/../src/vendor/piecesphp/geojson/src',
+];
+
+const EXCLUIDOS = ['/node_modules/', '/bin/tools/', '/logs/', '/cache/', '/dumps/'];
+
+//1. EL NOMBRE LO ANUNCIA.
+const NOMBRES = ['dump', 'debug', 'preview', 'inspect', 'compiled', 'pretty', 'readable'];
+
+//2. EL DOCBLOCK LO DICE.
+const DOCBLOCK = ['depuraci', 'debug', 'legible', 'para leer', 'no ejecut', 'inspecci', 'para mirar'];
+
+//3. SUSTITUYE MARCADORES POR VALORES. Las dos mitades tienen que darse a la vez.
+const VALORES = ['ReplacementValues', 'replacePrepareValues', 'replaceValues', 'ReplaceValues'];
+const SUSTITUYE = ['str_replace', 'preg_replace', 'strtr'];
+
+//LOS SUMIDEROS. Lo que no este aqui NO se detecta, y por eso se imprime.
+const SUMIDEROS = ['->prepare(', '->query(', '->exec(', '->execute(', 'file_put_contents',
+                   '->write(', 'withJson(', 'eval('];
+
+function ficheros(string $raiz): array
+{
+    if (!is_dir($raiz)) {
+        return [];
+    }
+    $salida = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if (!$f->isFile()) {
+            continue;
+        }
+        $p = str_replace('\\', '/', (string) (realpath($f->getPathname()) ?: $f->getPathname()));
+        if (!str_ends_with($p, '.php')) {
+            continue;
+        }
+        foreach (EXCLUIDOS as $x) {
+            if (mb_strpos($p, $x) !== false) {
+                continue 2;
+            }
+        }
+        $salida[] = $p;
+    }
+    sort($salida);
+    return $salida;
+}
+
+function texto(array $tokens, int $desde, int $hasta): string
+{
+    $s = '';
+    $n = count($tokens);
+    for ($i = $desde; $i <= $hasta && $i < $n; $i++) {
+        $s .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+    }
+    return $s;
+}
+
+function contiene(string $texto, array $agujas): bool
+{
+    $bajo = mb_strtolower($texto);
+    foreach ($agujas as $a) {
+        if (mb_strpos($bajo, mb_strtolower($a)) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** @return array<int,array{nombre:string,linea:int,cuerpo:string,doc:string}> */
+function funciones(string $codigo): array
+{
+    $tokens = token_get_all($codigo);
+    $total = count($tokens);
+    $salida = [];
+    for ($i = 0; $i < $total; $i++) {
+        if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_FUNCTION) {
+            continue;
+        }
+        //EL DOCBLOCK ANTERIOR, si lo hay: se busca hacia atras saltando modificadores.
+        $doc = '';
+        for ($k = $i - 1; $k >= 0 && $k > $i - 12; $k--) {
+            if (!is_array($tokens[$k])) {
+                break;
+            }
+            if ($tokens[$k][0] === T_DOC_COMMENT) {
+                $doc = $tokens[$k][1];
+                break;
+            }
+            if (!in_array($tokens[$k][0], [T_WHITESPACE, T_PUBLIC, T_PROTECTED, T_PRIVATE, T_STATIC, T_ABSTRACT, T_FINAL], true)) {
+                break;
+            }
+        }
+        $nombre = '(anonima)';
+        $linea = is_array($tokens[$i]) ? $tokens[$i][2] : 0;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $u = $tokens[$j];
+            if (is_array($u) && in_array($u[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                continue;
+            }
+            if (is_array($u) && $u[0] === T_STRING) {
+                $nombre = $u[1];
+            }
+            break;
+        }
+        $abierto = false;
+        $prof = 0;
+        $ini = $fin = null;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $t = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+            if (!$abierto) {
+                if ($t === ';') {
+                    break;
+                }
+                if ($t === '{') {
+                    $abierto = true;
+                    $prof = 1;
+                    $ini = $j;
+                }
+                continue;
+            }
+            if ($t === '{') {
+                $prof++;
+            }
+            if ($t === '}') {
+                $prof--;
+                if ($prof === 0) {
+                    $fin = $j;
+                    break;
+                }
+            }
+        }
+        if ($ini !== null && $fin !== null && $nombre !== '(anonima)') {
+            $salida[] = ['nombre' => $nombre, 'linea' => $linea,
+                         'cuerpo' => texto($tokens, $ini, $fin), 'doc' => $doc];
+        }
+    }
+    return $salida;
+}
+
+/** @return array{0:bool,1:string} */
+function esFormaDeLectura(array $fn): array
+{
+    if (contiene($fn['nombre'], NOMBRES)) {
+        return [true, 'el NOMBRE lo anuncia'];
+    }
+    if ($fn['doc'] !== '' && contiene($fn['doc'], DOCBLOCK)) {
+        return [true, 'el DOCBLOCK lo dice'];
+    }
+    //LA TERCERA Y LA QUE IMPORTA: toca los valores de reemplazo Y los mete en el texto.
+    if (contiene($fn['cuerpo'], VALORES) && contiene($fn['cuerpo'], SUSTITUYE)) {
+        return [true, 'SUSTITUYE marcadores por valores'];
+    }
+    //Quitar los dos puntos de un alias es la firma exacta del defecto de AT.
+    if (preg_match("/str_replace\\(\\s*['\\\"]:['\\\"]/", $fn['cuerpo']) === 1) {
+        return [true, 'quita los dos puntos de un alias'];
+    }
+    return [false, ''];
+}
+
+//──── CANARIO DE DOS CARAS (LEY 16) ─────────────────────────────────────────────────────────
+$caraSucia = '<?php class C {
+    public function getCompiledSQL(bool $withValuesReplaced = false) {
+        $replaceValues = $this->replacePrepareValues;
+        foreach ($replaceValues as $alias => $value) {
+            $baseAlias = str_replace(":", "", $alias);
+            $query = preg_replace("/" . $alias . "/", "($baseAlias=$value)", $query);
+        }
+        return $query;
+    }
+}';
+$caraLimpia = '<?php class C {
+    public function toString() {
+        $criteria = [];
+        foreach ($this->criteria as $c) { $criteria[] = "{$c}"; }
+        return "WHERE (" . implode(" ", $criteria) . ")";
+    }
+}';
+$a = funciones($caraSucia);
+$b = funciones($caraLimpia);
+$okSucia = count($a) === 1 && esFormaDeLectura($a[0])[0] === true;
+$okLimpia = count($b) === 1 && esFormaDeLectura($b[0])[0] === false;
+if (!$okSucia || !$okLimpia) {
+    fwrite(STDERR, 'CANARIO CAIDO: ' . (!$okSucia
+        ? 'no reconoce `getCompiledSQL()` como forma de lectura.'
+        : 'marca un `toString()` de segmento, que emite MARCADORES y no valores.') . "\n");
+    fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
+    exit(2);
+}
+//LA SEGUNDA CARA, Y ES SOBRE LA LLAMADA: `getCompiledSQL()` sale, `getCompiledSQL(true)` NO.
+$sinArg = 'x = $m->getCompiledSQL(); $q = "SELECT COUNT(*) FROM (" . $x . ")";';
+$conArg = 'x = $m->getCompiledSQL(true); $q = "SELECT COUNT(*) FROM (" . $x . ")";';
+$neutraliza = function (string $c): string {
+    return preg_replace('/(?:->|::)getCompiledSQL\s*\(\s*(?!\)|false)/i', '->__CON_ARGUMENTO__(', $c) ?? $c;
+};
+$okLlamadaSucia = mb_strpos($neutraliza($sinArg), '->getCompiledSQL(') !== false;
+$okLlamadaLimpia = mb_strpos($neutraliza($conArg), '->getCompiledSQL(') === false;
+if (!$okLlamadaSucia || !$okLlamadaLimpia) {
+    fwrite(STDERR, 'CANARIO CAIDO: ' . (!$okLlamadaSucia
+        ? 'no ve la llamada SIN argumento.'
+        : 'marca `getCompiledSQL(true)`, que SI es ejecutable.') . "\n");
+    exit(2);
+}
+echo "CANARIO VIVO, CUATRO CARAS:\n";
+echo "  definicion: reconoce `getCompiledSQL()` y NO el `toString()` de un segmento\n";
+echo "  llamada   : sale `getCompiledSQL()` y NO sale `getCompiledSQL(true)`\n\n";
+
+$detalle = in_array('--detalle', array_slice($argv, 1), true);
+$formas = [];
+$archivosTotales = 0;
+foreach (REPOS as $repo => $raiz) {
+    foreach (ficheros($raiz) as $p) {
+        $archivosTotales++;
+        $codigo = (string) file_get_contents($p);
+        foreach (funciones($codigo) as $fn) {
+            [$esLectura, $motivo] = esFormaDeLectura($fn);
+            if (!$esLectura) {
+                continue;
+            }
+            $formas[] = ['repo' => $repo, 'ruta' => str_replace(dirname(__DIR__) . '/', '', $p),
+                         'nombre' => $fn['nombre'], 'linea' => $fn['linea'], 'motivo' => $motivo];
+        }
+    }
+}
+
+//──── PASO 2: DONDE ACABA SU SALIDA ─────────────────────────────────────────────────────────
+$porNombre = [];
+foreach ($formas as $f) {
+    $porNombre[$f['nombre']][] = $f;
+}
+
+$veredictos = [];
+foreach (array_keys($porNombre) as $nombre) {
+    $ejecutada = [];
+    $revisar = [];
+    foreach (REPOS as $repo => $raiz) {
+        foreach (ficheros($raiz) as $p) {
+            $codigo = (string) file_get_contents($p);
+            if (mb_strpos($codigo, "->{$nombre}(") === false && mb_strpos($codigo, "::{$nombre}(") === false) {
+                continue;
+            }
+            $corto = str_replace(dirname(__DIR__) . '/', '', $p);
+            foreach (funciones($codigo) as $fn) {
+                $cuerpo = $fn['cuerpo'];
+                if (mb_strpos($cuerpo, "->{$nombre}(") === false && mb_strpos($cuerpo, "::{$nombre}(") === false) {
+                    continue;
+                }
+                //LA VARIABLE QUE RECIBE LA SALIDA, y si esa variable llega a un sumidero.
+                //EL ARGUMENTO DECIDE. `getCompiledSQL(true)` NO es una forma de lectura: interpola
+                //el valor real ya escapado. Solo la llamada SIN argumento —o con `false`— lo es.
+                $cuerpo = preg_replace(
+                    '/(?:->|::)' . preg_quote($nombre, '/') . '\s*\(\s*(?!\)|false)/i',
+                    '->__LLAMADA_CON_ARGUMENTO__(',
+                    $cuerpo
+                ) ?? $cuerpo;
+                if (mb_strpos($cuerpo, "->{$nombre}(") === false && mb_strpos($cuerpo, "::{$nombre}(") === false) {
+                    continue;
+                }
+                if (preg_match_all('/(\$[A-Za-z_]\w*)\s*=\s*[^;]*(?:->|::)' . preg_quote($nombre, '/') . '\s*\(/', $cuerpo, $m) === 0) {
+                    //Se llama pero no se guarda: puede ir directa a un sumidero en la misma linea.
+                    if (preg_match('/(?:' . implode('|', array_map(fn ($s) => preg_quote($s, '/'), SUMIDEROS)) . ')[^;]*(?:->|::)' . preg_quote($nombre, '/') . '\s*\(/', $cuerpo) === 1) {
+                        $ejecutada[] = "{$corto}::{$fn['nombre']}() — directa a un sumidero";
+                    }
+                    continue;
+                }
+                foreach ($m[1] as $var) {
+                    $llega = false;
+                    foreach (SUMIDEROS as $s) {
+                        if (preg_match('/' . preg_quote($s, '/') . '[^;]*' . preg_quote($var, '/') . '/', $cuerpo) === 1) {
+                            $llega = true;
+                            break;
+                        }
+                    }
+                    //Interpolada dentro de una cadena que luego va a un sumidero.
+                    if (!$llega && preg_match('/\.\s*' . preg_quote($var, '/') . '\s*\./', $cuerpo) === 1) {
+                        $revisar[] = "{$corto}::{$fn['nombre']}() — {$var} se concatena en otra cadena";
+                        continue;
+                    }
+                    if ($llega) {
+                        $ejecutada[] = "{$corto}::{$fn['nombre']}() — {$var}";
+                    }
+                }
+            }
+        }
+    }
+    $veredictos[$nombre] = ['ejecutada' => array_values(array_unique($ejecutada)),
+                            'revisar' => array_values(array_unique($revisar))];
+}
+
+printf("UNIVERSO: %d archivo(s) .php en los CINCO repositorios\n", $archivosTotales);
+printf("          %d forma(s) «para leer» halladas POR TOKENS\n\n", count($formas));
+
+$conEjecucion = [];
+$soloRevisar = [];
+$soloLeidas = [];
+foreach ($porNombre as $nombre => $lista) {
+    if (count($veredictos[$nombre]['ejecutada']) > 0) {
+        $conEjecucion[$nombre] = $lista;
+    } elseif (count($veredictos[$nombre]['revisar']) > 0) {
+        $soloRevisar[$nombre] = $lista;
+    } else {
+        $soloLeidas[$nombre] = $lista;
+    }
+}
+
+printf("EJECUTADA        %d\n", count($conEjecucion));
+printf("REVISAR A MANO   %d\n", count($soloRevisar));
+printf("SOLO LEIDA       %d\n\n", count($soloLeidas));
+
+foreach (['EJECUTADA' => $conEjecucion, 'REVISAR A MANO' => $soloRevisar] as $titulo => $grupo) {
+    if (count($grupo) === 0) {
+        continue;
+    }
+    echo "── {$titulo} " . str_repeat('─', 58) . "\n";
+    foreach ($grupo as $nombre => $lista) {
+        foreach ($lista as $f) {
+            printf("  %s()  %s:%d  [%s]  (%s)\n", $nombre, $f['ruta'], $f['linea'], $f['repo'], $f['motivo']);
+        }
+        foreach ($veredictos[$nombre]['ejecutada'] as $d) {
+            printf("      -> EJECUTA: %s\n", $d);
+        }
+        foreach ($veredictos[$nombre]['revisar'] as $d) {
+            printf("      -> REVISAR: %s\n", $d);
+        }
+    }
+    echo "\n";
+}
+
+if ($detalle && count($soloLeidas) > 0) {
+    echo "── SOLO LEIDA " . str_repeat('─', 58) . "\n";
+    foreach ($soloLeidas as $nombre => $lista) {
+        foreach ($lista as $f) {
+            printf("  %s()  %s:%d  [%s]  (%s)\n", $nombre, $f['ruta'], $f['linea'], $f['repo'], $f['motivo']);
+        }
+    }
+    echo "\n";
+}
+
+echo "SU COTA, Y SE DICE:\n";
+echo "  - La traza mira EL METODO QUE LLAMA, no mas alla. Si la salida se guarda en una\n";
+echo "    propiedad, se devuelve, o cruza de clase, NO se sigue.\n";
+echo "  - LOS SUMIDEROS SON ESTOS Y NINGUN OTRO: " . implode(' ', SUMIDEROS) . "\n";
+echo "  - `toString()` de los segmentos NO entra por decision: emite MARCADORES, no valores.\n";
+echo "    Si algun dia uno interpolara valores, la regla 3 lo cazaria.\n";
+echo "  - CLASIFICADA A MANO: `humanReadable()` sale EJECUTADA porque su nombre casa la regla 1\n";
+echo "    y `withJson(` es sumidero. NO ES UN DEFECTO: devuelve datos legibles de la entidad y\n";
+echo "    su destino es una respuesta de API, que es su proposito. Se deja marcada a proposito:\n";
+echo "    un falso positivo que se explica cuesta menos que un criterio que la deje pasar.\n";

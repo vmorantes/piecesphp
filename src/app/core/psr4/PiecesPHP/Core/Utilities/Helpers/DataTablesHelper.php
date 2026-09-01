@@ -78,6 +78,17 @@ class DataTablesHelper
      * El `order` de la petición SÍ está cerrado: su índice se usa como CLAVE de `columns_order`
      * y la dirección colapsa a un ternario de dos constantes.
      *
+     * `getCompiledSQL()` SIN ARGUMENTO PRODUCE SQL QUE NO SE PUEDE EJECUTAR
+     * --------------------------------------------------------------------
+     * Su valor por defecto es la forma **PARA LEER**: sustituye `:ALIAS` por `(ALIAS=valor)`,
+     * **sin los dos puntos** (`ActiveRecord.php:856`). Quien ejecute esa cadena se lleva un
+     * `Unknown column 'WH…' in 'WHERE'`, y **sólo cuando hay valores de reemplazo** — con un
+     * fragmento de cadena no hay ninguno, el bucle no sustituye nada y el SQL sale intacto. Por
+     * eso el defecto durmió años y despertó al migrar el primer listado a `where_segment`.
+     *
+     * **Las TRES llamadas de este archivo pasan `true`**, que interpola el valor real ya
+     * escapado por `quote()`. Si añades una cuarta, pásale `true` también. Ver T160 y T161.
+     *
      * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string,where_segment:?WhereSegment,having_segment:?HavingSegment} $options
      * @return ResultOperations
      */

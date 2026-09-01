@@ -279,6 +279,23 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
 
+## Herramientas — `bin/censo-formas-de-lectura`, y la respuesta es que era única
+
+Busca en los cinco repositorios toda función cuyo propósito sea producir texto **para mirar** y
+traza si su salida acaba ejecutándose. Criterio declarado: el nombre, el docblock, o —la que
+importa— **sustituir marcadores por valores**. El `toString()` de los segmentos queda fuera por
+decisión, porque emite marcadores y no valores.
+
+**736 archivos, 22 formas, y ninguna ejecutándose además de la que ya se corrigió.** La única
+que sale marcada es `humanReadable()`, que devuelve datos legibles de la entidad y acaba en una
+respuesta de API: su destino es su propósito, y queda explicado en la cota impresa.
+
+**No se añade ninguna puerta.** Una comprobación que nunca puede fallar es ruido; el censo queda
+como instrumento y cablearlo es una línea el día que aparezca un segundo caso.
+
+El docblock de `DataTablesHelper::process()` deja escrito que `getCompiledSQL()` sin argumento
+produce SQL que no se puede ejecutar, y por qué el defecto durmió años.
+
 ## Corregido — `DataTablesHelper` ejecutaba la forma de DEPURACIÓN de su SQL de conteo
 
 `process()` armaba su conteo filtrado con `getCompiledSQL()` **sin argumento** (línea 665), que es
