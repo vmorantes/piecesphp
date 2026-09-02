@@ -1050,3 +1050,81 @@ retire una guarda y solo publique el verde **no ha retirado nada: ha borrado**.
 **Relacion con LEY 11**: LEY 11 convierte una regla que fallo en mecanismo. LEY 30 es su vuelta:
 un mecanismo no vuelve a ser regla, ni comentario, ni nada. **O lo sustituye otro mecanismo, o se
 queda.**
+
+
+### LEY 31 — LA VERDAD ESTA AQUI. UN REGISTRO EXTERNO ES SUBSIDIARIO
+
+**Dictada por el PROPIETARIO el 2026-09-02**, en sus palabras: *«NUNCA JAMAS CONFIAR EN LOGS
+EXTERNOS DE FORMA ABSOLUTA, SOLO SUBSIDIARIA, LA VERDAD ESTA AQUI.»*
+
+Nacio hablando de Mailjet y Mailgun, y no es una regla de correo. Es una regla sobre **la
+custodia del registro**. Un panel de proveedor es comodo y por eso es tentador: ya tiene tablas,
+graficas y filtros, y no hay que escribir nada. Y es de otro. Puede borrarlo, cambiar su
+retencion, subir el plan que hace falta para verlo, caerse, cerrar, o simplemente no dejarte
+exportarlo. **El dia que necesitas el registro es exactamente el dia en que no lo controlas.**
+
+> **Lo que no esta escrito en nuestro almacen NO HA OCURRIDO.** El registro del proveedor sirve
+> para CONCILIAR —contrastar, completar, detectar una discrepancia—, nunca como fuente.
+
+**Se aplica a todo lo que salga de la casa**, no solo al correo: en `src/composer.json` ya hay
+Mailjet, Mailgun, Mautic, HubSpot, OpenAI y Azure Blob. Cada uno tiene su panel, y ninguno es
+nuestro registro.
+
+**Mecanismo (LEY 11)**, y es de orden, que es lo unico que lo hace cierto:
+
+1. **Se escribe ANTES de llamar**: la fila local nace con estado `enviando` antes de que salga la
+   peticion al proveedor. Escribir despues significa que un proceso que muere a mitad no deja
+   rastro de lo que intento.
+2. **Se completa DESPUES**: codigo, texto de respuesta, identificador del proveedor, intento.
+3. **Una fila sin cierre es un hallazgo**, no ruido: alguien llamo y nadie sabe que paso.
+4. **El identificador del proveedor se guarda para PODER CONCILIAR**, y la conciliacion es una
+   tarea que se corre y se reporta, no una pestana que alguien mira.
+5. **Ninguna decision del producto lee del proveedor en vivo.** Si una vista necesita un dato que
+   solo esta alli, ese dato le falta a nuestro registro.
+
+**La forma corta**: *si solo existe en su panel, no existe.*
+
+**Corolario, y vale para esta campana entera**: lo mismo se le exige a un instrumento que a un
+proveedor. Una cifra que solo vive en la salida de una herramienta que puede cambiar de version
+—y en AY se descubrio que la nuestra se actualizaba sola— no es una medicion: es una captura de
+pantalla. Por eso las lineas base viven en el repositorio.
+
+
+### LEY 32 — UNA MEDICION DEL CODIGO NO VE LAS DECISIONES
+
+**Nacida el 2026-09-02, de un fallo de ARQUITECTO que el propio arbol habia predicho.**
+
+ARQUITECTO conto las columnas del esquema, saco «64 en camelCase contra 8 con guion bajo», y
+propuso normalizar las ocho. Las ocho estaban nombradas una por una en
+`.agents/context/12-convenciones.md` como **DECISION CERRADA**, y el documento terminaba asi:
+
+> *«Esto esta escrito porque es lo unico que impide que dentro de seis meses alguien vea ocho
+> columnas con guion bajo, las tome por un rezago y las "arregle".»*
+
+Tardo doce dias, no seis meses. **El arbol no dice que se decidio sobre el arbol.**
+
+> **El universo de una propuesta de CAMBIO DE FORMA —normalizar, renombrar, unificar, borrar por
+> coherencia— incluye las DECISIONES, no solo el codigo. Una cifra sacada del arbol demuestra
+> COMO ESTA; no demuestra que nadie haya decidido que se quede asi.**
+
+**Mecanismo, y es un `grep`**: antes de que una propuesta de normalizacion entre en un recuadro,
+se busca la forma vieja en `.agents/context/`. Si aparece con una razon, la propuesta **cita esa
+razon y dice por que ya no vale**, o no se hace. Descubrirla despues, por boca del PROPIETARIO,
+no cuenta.
+
+**LA SEGUNDA MITAD, y es del SISTEMA, no de la persona.** La razon que sostenia aquella decision
+—«no compensa una migracion contra despliegues congelados»— **ya estaba invalidada** por una
+decision posterior del PROPIETARIO, escrita en el contrato: *«todo lo que hemos hecho ya es
+rompedor… ergo todo esto quedara en la MAJOR»*, con su consecuencia literal, *«"esto seria un
+cambio incompatible" DEJA DE SER UN FRENO»*. Nadie la propago. El documento de convenciones
+seguia diciendo lo contrario y era la unica fuente que alguien consultaria.
+
+> **Una decision que invalida lo escrito en otro documento SE ESCRIBE EN ESE DOCUMENTO**, con el
+> puntero de vuelta al sitio donde se tomo. Registrarla solo donde se hablo la deja invisible
+> justo para quien la necesita.
+
+**Y su corolario de calendario**: toda decision marcada «CERRADA, sin condicion de retirada» se
+RELEE cuando se declara una MAJOR. Una MAJOR es, por definicion, el momento en que las razones
+que dependian de la compatibilidad dejan de valer.
+
+**La forma corta**: *el codigo dice como esta; solo los documentos dicen si es a proposito.*

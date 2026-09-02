@@ -17315,3 +17315,85 @@ T163 no se reescribe: la corrección vive aquí y enlazada.
 - La subida de PHPStan y Rector, detenida en el paso 2 y pendiente de tu decisión.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
 - Los 14 archivos de los cubos B y C, sin prisa y sin ganancia.
+
+---
+
+## T165 · BA · QUE TODA HERRAMIENTA DIGA LA VERDAD
+
+**Bloque BA.** Ni una línea de producción. Cuatro instrumentos, y el que mentía llevaba
+acertando **por suerte**.
+
+### PASO 1 · `latestLocalTag()` veía tres partes o nada
+
+El filtro exigía `^v?\d+\.\d+\.\d+$` — **exactamente tres**—, así que descartaba `v3`, `v4` y
+las `vX.Y` **sin decir cuántas**. Acertaba porque hoy la última superviviente coincide con la
+real; **el día que la mayor se etiquete `v8` habría dicho `v7.1.0`, en silencio.**
+
+Ahora acepta `vX`, `vX.Y` y `vX.Y.Z`, **normaliza a tres partes antes de comparar**, e ignora
+los pre-lanzamientos **a propósito y contándolos**. Ignorar por decisión y descartar por
+descuido se ven igual en el resultado; lo que los separa es que uno está escrito.
+
+Provocado en un repositorio **de usar y tirar** —ninguna etiqueta de los cinco se creó, borró
+ni movió—, con `v1.0.0`, `v1.5`, `v2`, `v2.0.0-beta.1` y `no-es-version`:
+
+| | devuelve |
+| :-- | :-- |
+| **ROJO**, filtro viejo | `v1.0.0` |
+| **VERDE**, filtro nuevo | **`v2`** · descartes `{forma:1, prelanzamiento:1, aceptadas:3}` |
+
+### PASO 2 · Las tres que no decían nada
+
+El cribado por `continue` daba tres candidatas; **leyéndolas, las tres eran ciertas y ninguna
+cuarta lo era**. Las 18 funciones sin línea INFO son en su mayoría auxiliares cuyo llamador sí
+publica —`collectFiles`, `tagBalance`, `nextName`…—; las que descartaban de verdad eran:
+
+| función | qué descartaba en silencio | ahora dice |
+| :-- | :-- | :-- |
+| `checkDocblocks` | archivos ilegibles | `676 archivo(s) con sus docblocks comprobados, ninguno ilegible.` |
+| `checkToolchainTracking` | paquetes sin `.git` o sin registro de seguimiento | `…, todos con su estado de seguimiento.` |
+| `collectPackageVersions` | etiquetas por forma y por pre-lanzamiento | `88 etiqueta(s) … aceptadas; 5 descartada(s) por forma y 1 por ser pre-lanzamiento` |
+
+**Las 88 aceptadas y las 6 descartadas eran invisibles hasta hoy.** Y el veredicto no cambió
+—«4 paquete(s) comparado(s), 4 al día»—, que es lo que confirma que la corrección no movió
+ninguna respuesta, solo la hizo comprobable.
+
+### PASO 3 · El analizador sube y la cifra NO se mueve
+
+`phpstan/phpstan` **2.2.9 → 2.2.12** y `rector/rector` **2.6.4 → 2.6.6** —no 2.6.5: hay una más
+reciente—. El diff del lock son esas dos versiones y sus referencias, nada más.
+
+```
+[REPARTO] 744 <- 744 = 0 arreglos + 0 supresiones + 0 murieron + 0 destapados
+          ANALIZADOR: phpstan 2.2.12 (venía de 2.2.9)
+```
+
+**Cero destapadas**, así que no hubo nada que clasificar y el umbral de 25 no se acercó.
+**2.2.12 ve exactamente lo mismo que 2.2.9 en este árbol**, y esa es la única vez en la campaña
+en que la atribución es limpia por construcción: el bloque no toca producción, así que
+cualquier diferencia habría sido del instrumento y de nadie más. No la hubo.
+
+**La versión va al lado de la cifra a partir de aquí.** Rector no se ejecutó.
+
+### PASO 4 · El instrumental vigila versiones, no solo marcas
+
+`shared-toolchain.json` gana `analyzers`, con los cinco repositorios **declarados en su versión
+actual**: `piecesphp` 2.2.12, `database` 2.1.44, los otros tres 2.1.42. **No se nivelan** —eso
+es BB, y son cuatro líneas base—: quedan declarados con fecha y motivo, porque **que una deriva
+esté declarada es lo único que la distingue de un descuido**.
+
+La comprobación 7 los mira y falla si uno se mueve. Provocada cambiando `database` a `2.1.99`:
+
+```
+INSTRUMENTAL: database — phpstan DECLARADO 2.1.99 e INSTALADO 2.1.44.
+              Una cifra medida con otro analizador no es comparable.
+```
+
+> **Y la comprobación se cazó a sí misma al nacer**: la primera versión buscaba `bin/tools`
+> bajo `$repoRoot`, que es `src/`, y salió roja con «SIN COMPROBAR». Es exactamente lo que se
+> le pide —fallar cuando no puede mirar— aplicado a ella misma.
+
+### Lo que queda abierto
+
+- **BB**: nivelar los cuatro paquetes a un analizador común, con sus cuatro líneas base.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+- Un archivo suelto en la raíz, `tags.txt`, que no es de ningún bloque y no se ha commiteado.

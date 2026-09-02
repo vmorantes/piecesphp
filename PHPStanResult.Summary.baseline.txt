@@ -65,6 +65,17 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 744 <- 744 = 0 arreglos + 0 supresiones + 0 murieron + 0 destapados
+          ANALIZADOR: phpstan 2.2.12 (venia de 2.2.9). Rector sube a 2.6.6 y NO se ejecuta.
+
+    Bloque BA: el analizador sube y la cifra NO SE MUEVE. Cero destapadas, cero muertas, cero
+    desplazadas. Es la unica vez en la campana en que la atribucion es limpia por construccion
+    —el bloque no toca produccion—, asi que 2.2.12 ve EXACTAMENTE lo mismo que 2.2.9 aqui.
+
+    LA VERSION VA AL LADO DE LA CIFRA A PARTIR DE AQUI: una cifra sin su instrumento no es
+    comparable con la siguiente, y los cinco repositorios miden hoy con tres analizadores
+    distintos —piecesphp 2.2.12, database 2.1.44, los otros tres 2.1.42—. Nivelarlos es BB.
+
 [REPARTO] 744 <- 747 = 0 arreglos + 0 supresiones + 3 murieron + 0 destapados
 
     Bloque AW: las TRES mueren por reescribir `SystemApprovalsMapper::getReferencesAliases()`,

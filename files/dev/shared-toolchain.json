@@ -9,7 +9,16 @@
     "",
     "Existe porque los cuatro paquetes se declararon verdes sobre EXACTAMENTE la misma",
     "configuración que había cegado a piecesphp —`phpVersion` como rango— y nadie lo",
-    "comprobó. La pregunta no puede depender de que alguien se acuerde."
+    "comprobó. La pregunta no puede depender de que alguien se acuerde.",
+    "",
+    "DESDE BA VIGILA TAMBIEN LA VERSION DEL ANALIZADOR. Comprobar solo las MARCAS dejaba pasar",
+    "que los cinco repositorios midieran con TRES phpstan distintos: una marca presente no dice",
+    "con que se midio. Cada entrada de `analyzers` es la version DECLARADA, y la comprobacion 7",
+    "falla si un repositorio se mueve de ella.",
+    "",
+    "LOS CUATRO PAQUETES QUEDAN DECLARADOS EN SU VERSION ACTUAL, no nivelados: nivelar son",
+    "cuatro lineas base y es el bloque BB. Que una deriva este DECLARADA es lo unico que la",
+    "distingue de un descuido, igual que en `sql-concat-declared.json`."
   ],
   "packagesRoot": "../..",
   "packages": [
@@ -73,6 +82,35 @@
     "executable": {
       "bin/phpstan": "Un script del instrumental sin el bit de ejecución NO SE PUEDE CORRER, y el fallo es «Permiso denegado», que nadie relaciona con una divergencia de repositorio. Ya pasó en database y geojson: estaban en 100644 mientras los otros dos estaban en 100755.",
       "bin/cli": "Ídem. Opcional: solo se comprueba en los paquetes que lo tengan."
+    }
+  },
+  "analyzers": {
+    "_regla": "Version de `phpstan/phpstan` con la que mide cada repositorio. Si uno se mueve de lo declarado, la comprobacion 7 falla y lo nombra.",
+    "_medido": "2026-09-02, bloque BA",
+    "piecesphp": {
+      "version": "2.2.12",
+      "desde": "bin/tools/composer.lock",
+      "motivo": "sube en BA de 2.2.9; la cifra no se movio (744 <- 744, cero destapadas)."
+    },
+    "database": {
+      "version": "2.1.44",
+      "desde": "composer.lock raiz",
+      "motivo": "nivelacion pendiente, bloque BB."
+    },
+    "datastructures": {
+      "version": "2.1.42",
+      "desde": "composer.lock raiz",
+      "motivo": "nivelacion pendiente, bloque BB."
+    },
+    "html": {
+      "version": "2.1.42",
+      "desde": "composer.lock raiz",
+      "motivo": "nivelacion pendiente, bloque BB."
+    },
+    "geojson": {
+      "version": "2.1.42",
+      "desde": "composer.lock raiz",
+      "motivo": "nivelacion pendiente, bloque BB."
     }
   }
 }

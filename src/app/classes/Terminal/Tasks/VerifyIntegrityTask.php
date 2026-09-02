@@ -383,9 +383,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $failures = [];
         $base = rtrim(str_replace('\\', '/', basepath('')), '/');
 
+        $ilegibles = 0;
+
         foreach ($files as $relative) {
             $content = @file_get_contents($base . '/' . $relative);
             if (!is_string($content)) {
+                //NO SE DESCARTA EN SILENCIO: se cuenta y se publica abajo. LEY 15.
+                $ilegibles++;
                 continue;
             }
 
@@ -414,6 +418,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 }
             }
         }
+
+        echoTerminal("\e[94mINFO:\e[39m " . (count($files) - $ilegibles) . " archivo(s) con sus docblocks comprobados"
+            . ($ilegibles > 0 ? ", {$ilegibles} ilegible(s) y por tanto SIN comprobar." : ", ninguno ilegible."));
 
         return $failures;
     }
@@ -1375,6 +1382,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $packagesRoot = dirname(dirname($repoRoot));
         $present = 0;
+        $sinSeguimiento = 0;
 
         foreach ((array) ($registry['packages'] ?? []) as $package) {
             $packageRoot = $packagesRoot . '/' . $package;
@@ -1383,7 +1391,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
             $present++;
 
-            $failures = array_merge($failures, self::checkToolchainTracking($package, $packageRoot, $registry));
+            $omitidoSeguimiento = 0;
+            $failures = array_merge($failures, self::checkToolchainTracking($package, $packageRoot, $registry, $omitidoSeguimiento));
+            $sinSeguimiento += $omitidoSeguimiento;
 
             foreach ($registry['files'] as $relative => $entry) {
                 $file = $packageRoot . '/' . $relative;
@@ -1413,7 +1423,29 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             return $failures;
         }
 
-        echoTerminal("\e[94mINFO:\e[39m {$present} paquetes comprobados contra el instrumental común.");
+        //LA VERSION DEL ANALIZADOR, no solo la marca: una marca presente no dice CON QUE se
+        //midio, y los cinco repositorios miden hoy con tres phpstan distintos. Ver T165.
+        $analizadores = 0;
+        foreach ((array) ($registry['analyzers'] ?? []) as $repo => $declarado) {
+            if (!is_array($declarado) || !isset($declarado['version'])) {
+                continue;
+            }
+            $raiz = $repo === 'piecesphp' ? dirname($repoRoot) . '/bin/tools' : $packagesRoot . '/' . $repo;
+            $instalado = self::installedAnalyzerVersion($raiz);
+            if ($instalado === null) {
+                $failures[] = $repo . ' — no se pudo leer la versión de phpstan en ' . $raiz . ': SIN COMPROBAR';
+                continue;
+            }
+            $analizadores++;
+            if ($instalado !== (string) $declarado['version']) {
+                $failures[] = $repo . ' — phpstan DECLARADO ' . $declarado['version'] . ' e INSTALADO ' . $instalado
+                    . '. Una cifra medida con otro analizador no es comparable.';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$present} paquetes comprobados contra el instrumental común"
+            . ($sinSeguimiento > 0 ? ", {$sinSeguimiento} sin estado de seguimiento comprobable." : ", todos con su estado de seguimiento.")
+            . " {$analizadores} analizador(es) contra su versión declarada.");
 
         return $failures;
     }
@@ -2243,14 +2275,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @param array<string, mixed> $registry
      * @return string[]
      */
-    protected static function checkToolchainTracking(string $package, string $packageRoot, array $registry): array
+    protected static function checkToolchainTracking(string $package, string $packageRoot, array $registry, ?int &$omitido = null): array
     {
+        $omitido = 0;
         $tracking = $registry['tracking'] ?? null;
         if (!is_array($tracking)) {
+            $omitido = 1;
             return [];
         }
         if (!is_dir($packageRoot . '/.git')) {
-            return []; //Sin repositorio no hay estado de seguimiento que comprobar.
+            //Sin repositorio no hay estado de seguimiento que comprobar. SE CUENTA, no se calla.
+            $omitido = 1;
+            return [];
         }
 
         $failures = [];
@@ -2329,6 +2365,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $comparados = 0;
         $alDia = 0;
+        $descartadasForma = 0;
+        $descartadasPre = 0;
+        $etiquetasVistas = 0;
         foreach ($instalados as $nombre => $instalada) {
             $directorio = $packagesRoot . '/' . substr($nombre, strlen('piecesphp/'));
             if (!is_dir($directorio . '/.git')) {
@@ -2336,7 +2375,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 $avisos[] = $nombre . ' — instalada ' . $instalada . '; sin veredicto: no está clonado al lado.';
                 continue;
             }
-            $etiqueta = self::latestLocalTag($directorio);
+            $descartes = null;
+            $etiqueta = self::latestLocalTag($directorio, $descartes);
+            $descartadasForma += (int) ($descartes['forma'] ?? 0);
+            $descartadasPre += (int) ($descartes['prelanzamiento'] ?? 0);
+            $etiquetasVistas += (int) ($descartes['aceptadas'] ?? 0);
             if ($etiqueta === null) {
                 $avisos[] = $nombre . ' — instalada ' . $instalada . '; sin veredicto: no tiene ninguna etiqueta con forma de versión.';
                 continue;
@@ -2351,17 +2394,34 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         $avisos[] = $comparados . ' paquete(s) comparado(s), ' . $alDia . ' al día.';
+        //LO QUE SE TIRA SE DICE: el filtro anterior descartaba `v3`, `v4` y las `vX.Y` sin
+        //contarlas, y acertaba por suerte. Ver T165.
+        $avisos[] = $etiquetasVistas . ' etiqueta(s) con forma de versión aceptadas; '
+            . $descartadasForma . ' descartada(s) por forma y '
+            . $descartadasPre . ' por ser pre-lanzamiento, que se ignoran a propósito.';
         return ['avisos' => $avisos, 'fallos' => $fallos];
     }
 
     /**
-     * Última etiqueta local con forma `vX.Y.Z`, ordenada por versión y no alfabéticamente.
+     * Última etiqueta local con forma de versión, ordenada por versión y no alfabéticamente.
+     *
+     * ACEPTA `vX`, `vX.Y` y `vX.Y.Z`, y NORMALIZA a tres partes antes de comparar. El filtro
+     * anterior exigía exactamente tres, así que descartaba `v3`, `v4` y las dieciocho `vX.Y`
+     * de `piecesphp` **sin decirlo**: acertaba por suerte, y el día que la mayor se etiquetara
+     * `v8` habría dicho que la última es `v7.1.0`. Ver la sección «Etiquetas de versión» de
+     * `.agents/context/12-convenciones.md` y T165.
+     *
+     * LOS PRE-LANZAMIENTOS SE IGNORAN A PROPÓSITO —`-beta`, `-beta.N`—: una etiqueta de prueba
+     * no es la última publicada. Ignorar por decisión y descartar por descuido se ven igual en
+     * el resultado; lo que los separa es que uno está escrito y contado.
      *
      * @param string $directorio Raíz del repositorio del paquete.
+     * @param array<string,int>|null $descartes Recibe `forma` y `prelanzamiento` si se pasa.
      * @return string|null
      */
-    protected static function latestLocalTag(string $directorio): ?string
+    protected static function latestLocalTag(string $directorio, ?array &$descartes = null): ?string
     {
+        $descartes = ['forma' => 0, 'prelanzamiento' => 0, 'aceptadas' => 0];
         $salida = [];
         $estado = 0;
         exec('git -C ' . escapeshellarg($directorio) . ' tag --list 2>/dev/null', $salida, $estado);
@@ -2371,16 +2431,32 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $versiones = [];
         foreach ($salida as $linea) {
             $etiqueta = trim((string) $linea);
-            if (preg_match('/^v?\d+\.\d+\.\d+$/', $etiqueta) !== 1) {
+            if ($etiqueta === '') {
                 continue;
             }
-            $versiones[] = $etiqueta;
+            if (preg_match('/^v?\d+(\.\d+){0,2}$/', $etiqueta) !== 1) {
+                if (preg_match('/^v?\d+(\.\d+){0,2}-/', $etiqueta) === 1) {
+                    $descartes['prelanzamiento']++;
+                } else {
+                    $descartes['forma']++;
+                }
+                continue;
+            }
+            //A TRES PARTES ANTES DE COMPARAR: `v3` es `3.0.0`, y sin esto `version_compare`
+            //ordenaría `3` por debajo de `3.0.1` de forma que nadie espera.
+            $partes = explode('.', ltrim($etiqueta, 'v'));
+            while (count($partes) < 3) {
+                $partes[] = '0';
+            }
+            $versiones[] = ['etiqueta' => $etiqueta, 'normal' => implode('.', $partes)];
         }
+        $descartes['aceptadas'] = count($versiones);
         if (count($versiones) === 0) {
             return null;
         }
-        usort($versiones, static fn (string $a, string $b): int => version_compare(ltrim($a, 'v'), ltrim($b, 'v')));
-        return (string) end($versiones);
+        usort($versiones, static fn (array $a, array $b): int => version_compare($a['normal'], $b['normal']));
+        $ultima = end($versiones);
+        return is_array($ultima) ? (string) $ultima['etiqueta'] : null;
     }
 
     /**
@@ -2391,6 +2467,32 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function toolchainAutoloadPath(): string
     {
         return dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/bin/tools/vendor/autoload.php';
+    }
+
+    /**
+     * Versión de `phpstan/phpstan` instalada bajo una raíz, leída de su `installed.json`.
+     *
+     * @param string $raiz Directorio que contiene `vendor/`.
+     * @return string|null
+     */
+    protected static function installedAnalyzerVersion(string $raiz): ?string
+    {
+        $ruta = $raiz . '/vendor/composer/installed.json';
+        $crudo = @file_get_contents($ruta);
+        if (!is_string($crudo)) {
+            return null;
+        }
+        $json = json_decode($crudo, true);
+        if (!is_array($json)) {
+            return null;
+        }
+        $paquetes = isset($json['packages']) && is_array($json['packages']) ? $json['packages'] : $json;
+        foreach ($paquetes as $paquete) {
+            if (is_array($paquete) && ($paquete['name'] ?? '') === 'phpstan/phpstan') {
+                return (string) ($paquete['version'] ?? '');
+            }
+        }
+        return null;
     }
 
     /**

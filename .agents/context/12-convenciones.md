@@ -71,7 +71,33 @@ y estas funciones **viven al lado de `array_map` y `file_get_contents`** en el m
 global. **PSR-1 exige `camelCase` para MÉTODOS y no dice nada de funciones.** Normalizarlas
 rompería la API pública que cada despliegue usa en sus vistas.
 
+> ## ⚠ ANULADA EL 2026-09-02 POR EL PROPIETARIO — LÉASE ESTO ANTES QUE LO DE ABAJO
+>
+> **Las ocho columnas con guion bajo SÍ SE RENOMBRAN**, en un bloque propio al final de la
+> campaña, justo antes de la MAJOR.
+>
+> **La razón que sostenía la decisión de abajo era la compatibilidad** —«una migración contra
+> cada despliegue congelado»—, y esa razón **ya estaba muerta cuando se escribió esto**: el
+> PROPIETARIO había decidido que *«todo lo que hemos hecho ya es rompedor… ergo todo esto quedará
+> en la MAJOR»*, con su consecuencia literal, *«"esto sería un cambio incompatible" DEJA DE SER
+> UN FRENO»*. Está en `20-contrato-de-trabajo.md`, sección «Aclaración del PROPIETARIO que cambia
+> el cálculo de TODO lo que queda». **Nadie la propagó hasta aquí, y por eso ARQUITECTO propuso
+> el renombrado sin saber que contradecía una decisión cerrada. Ver LEY 32.**
+>
+> **Lo que SOBREVIVE de lo de abajo, y sigue vigente:**
+>
+> - **Toda columna NUEVA se escribe en `camelCase`.** Sin excepción.
+> - **La medición descuenta las tablas de las suites** y dice cuántas descontó.
+> - **La lista de ocho no crece.** Ahora, además, encoge a cero.
+>
+> **Lo que CAMBIA**: la lista deja de ser una excepción permanente y pasa a ser el inventario del
+> bloque de renombrado. Migrar los despliegues anteriores a la campaña queda como trabajo
+> posterior, decidido así por el PROPIETARIO: *«no veo problema en hacer al final un migrado de
+> versiones anteriores a esta nueva, pero es problema del futuro»*.
+
 **Columnas de base de datos: `camelCase`. DECISIÓN CERRADA, sin condición de retirada.**
+*(Superada. Se conserva porque su medición y su razonamiento siguen siendo la fuente del bloque
+de renombrado — LEY 14: la corrección se escribe aparte y enlazada, no se borra el original.)*
 
 Las ocho con guion bajo son estas, y **la lista está cerrada**:
 
@@ -114,6 +140,42 @@ coherencia no compensa el de una migración que hay que ejecutar en sitios que n
 
 *(Ojo, son cosas distintas: las PROPIEDADES de los mappers también son `camelCase`, y ahí no
 hay excepciones.)*
+
+## Etiquetas de versión
+
+**Aprobado por el PROPIETARIO el 2026-09-02.** Mirando las 79 etiquetas de `piecesphp` preguntó
+si el versionado estaba mal. Estaba mezclado, que no es lo mismo.
+
+**HACIA ADELANTE, Y SIN EXCEPCIONES:**
+
+```
+vX.Y.Z          siempre TRES partes, siempre con la `v`
+vX.Y.Z-beta.N   pre-lanzamiento
+```
+
+**La MAJOR de esta campaña será `v8.0.0`. Nunca `v8`** — que es exactamente lo que se hizo con
+`v3` y con `v4`, y es lo que ciega a las herramientas.
+
+**LAS 79 ETIQUETAS EXISTENTES NO SE TOCAN.** Son el registro, alguien puede haber fijado una, y
+reescribirlas sería rehacer la historia para que cuadre con la regla nueva. Se documentan:
+
+| Forma histórica | Ejemplos | Qué hacer |
+| :-- | :-- | :-- |
+| `vX.Y.Z` | `v7.1.0`, `v5.20.1` | es la buena |
+| `vX.Y` | `v2.7`, `v4.1`, `v5.18`, `v5.2` | se deja; equivale a `X.Y.0` |
+| `vX` | `v3`, `v4` | se deja; equivale a `X.0.0` |
+| sin prefijo | `4.0.1`, `5.2` | se deja |
+| `-beta` | `v6.4.2-beta`, `v7.0.0-beta` | **correctas**, y así se seguirán haciendo |
+
+**LA ANOMALÍA, y se nombra para que nadie la tome por un patrón**: `v6.4.200001`,
+`v6.4.200002` y `v6.4.201`. Bajo `version_compare`, **`v6.4.201` es MAYOR que `v6.4.4`**:
+invierten el orden de su propia serie. Sean lo que fueran —número de compilación, una fecha—,
+**no se repiten**.
+
+**Y LO QUE ESTO OBLIGA EN LAS HERRAMIENTAS** (LEY 15 y LEY 16): cualquier herramienta que elija
+«la última etiqueta» **acepta las cinco formas, las normaliza a tres partes antes de comparar,
+ignora los pre-lanzamientos a propósito, y DICE CUÁNTAS DESCARTÓ Y POR QUÉ**. Una que filtre en
+silencio da la respuesta correcta hasta el día que no.
 
 ### CÓMO SE APLICA: al pasar, nunca en barrido
 
