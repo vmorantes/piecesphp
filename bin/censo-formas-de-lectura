@@ -56,7 +56,11 @@ const NOMBRES = ['dump', 'debug', 'preview', 'inspect', 'compiled', 'pretty', 'r
 const DOCBLOCK = ['depuraci', 'debug', 'legible', 'para leer', 'no ejecut', 'inspecci', 'para mirar'];
 
 //3. SUSTITUYE MARCADORES POR VALORES. Las dos mitades tienen que darse a la vez.
-const VALORES = ['ReplacementValues', 'replacePrepareValues', 'replaceValues', 'ReplaceValues'];
+//`ReplacementValues` NO entra: es la API de ATADO —devuelve alias=>valor para el `execute()`—
+//y quien la usa esta PREPARANDO, no interpolando. `replacePrepareValues` si, que es de donde
+//`getCompiledSQL()` saca los valores para meterlos en el texto. Sin este corte salian
+//`WhereItem::toString()`, que inserta el ALIAS, y cualquier metodo que ate valores.
+const VALORES = ['replacePrepareValues', 'replaceValues', 'ReplaceValues'];
 const SUSTITUYE = ['str_replace', 'preg_replace', 'strtr'];
 
 //LOS SUMIDEROS. Lo que no este aqui NO se detecta, y por eso se imprime.

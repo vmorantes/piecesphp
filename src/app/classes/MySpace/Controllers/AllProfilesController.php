@@ -81,11 +81,14 @@ class AllProfilesController extends AdminPanelController
         $allowedUserTypes = implode(',', self::ONLY_TYPES);
 
         $where = [];
+        //PARENTIZADO: sin ellos sale `A AND B OR C` y los usuarios se listan sin comprobar su
+        //aprobación, porque `AND` liga más fuerte. Ver T166.
         $having = [
-            "systemApprovalStatus = '" . SystemApprovalsMapper::STATUS_APPROVED . "'",
-            "AND userType IS NULL OR userType IN ({$allowedUserTypes})",
+            "(systemApprovalStatus = '" . SystemApprovalsMapper::STATUS_APPROVED . "')",
+            "AND (userType IS NULL OR userType IN ({$allowedUserTypes}))",
         ];
 
+        //PLANTILLA, no una regla apagada: `FIELD = VALUE` no tiene sujeto y está en mayúsculas.
         if (false) {
             $beforeOperator = !empty($having) ? $and : '';
             $critery = "FIELD = VALUE";

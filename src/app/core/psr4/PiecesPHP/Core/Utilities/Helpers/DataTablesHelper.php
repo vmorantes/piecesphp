@@ -45,51 +45,24 @@ class DataTablesHelper
     private static $tableOnSearch = true;
 
     /**
-     * LA FRONTERA DEL CONTRATO, Y DÓNDE SE ROMPE
-     * ------------------------------------------
-     * `where_string`, `having_string` y `group_string` son **fragmentos de SQL escritos por el
-     * programador del módulo**. Este helper los interpola tal cual —`"($where_string) AND
-     * $where"`, línea 277— y **no existe vía preparada para ellos**: `having()` solo rellena sus
-     * valores de reemplazo cuando recibe un `HavingSegment` (`ActiveRecord.php:491` y `556`).
+     * Procesa una peticion de DataTables sobre un mapper y devuelve su respuesta.
      *
-     * **QUIEN META AHÍ UN VALOR DE LA PETICIÓN ABRE UN AGUJERO.** No es una recomendación de
-     * estilo: no hay marcador que lo salve. En AÑ se midieron ocho sitios que lo hacían; cuatro
-     * no validaban nada. Ver T154 y T155.
+     * CLAVES DE `$options`, y cual es de quien:
+     *   `request`, `mapper`, `columns_order` .. obligatorias.
+     *   `where_string`, `having_string`, `group_string` .. FRAGMENTOS DE SQL DEL PROGRAMADOR:
+     *      se interpolan tal cual. Meter ahi un valor de la peticion abre un agujero, porque
+     *      no hay marcador que los salve.
+     *   `where_segment`, `having_segment` .. la via PREPARADA de las dos primeras. Son
+     *      EXCLUYENTES con su cadena: pasar las dos lanza. La busqueda de DataTables se une al
+     *      `having_segment` como grupo.
+     *   `select_fields`, `custom_order` .. IDENTIFICADORES, no admiten marcador. En
+     *      `custom_order` la direccion NO pasa por el filtro `ASC`/`DESC`.
+     *   `on_set_data`, `on_set_model`, `config_result_model`, `as_mapper` .. callables y bandera.
      *
-     * LA SALIDA, DESDE AP: `where_segment` y `having_segment`
-     * ------------------------------------------------------
-     * Reciben un `WhereSegment` / `HavingSegment` YA CONSTRUIDO, cuyos valores viajan por
-     * MARCADOR: `where()` copia sus reemplazos a `whereReplacePrepareValues`
-     * (`ActiveRecord.php:385`) y de ahí salen por `getReplaceWhereAndHavingValues()` al
-     * `execute()` del `prepare` (`ActiveRecord.php:1094`). No hay que hacer nada más.
+     * `getCompiledSQL()` SIN ARGUMENTO NO PRODUCE SQL EJECUTABLE: deja el marcador sin sus dos
+     * puntos. Las tres llamadas de este archivo pasan `true`; si anades una cuarta, tambien.
      *
-     * **Son EXCLUYENTES con su cadena**: pasar `where_string` y `where_segment` a la vez lanza,
-     * porque combinarlos obligaría a inventar en qué orden. Si no se pasa ninguno de los dos
-     * nuevos, el comportamiento es **idéntico** al de antes — es aditivo.
-     *
-     * Mientras un módulo siga en la vía de cadena, su filtro de petición se valida por DOMINIO
-     * y se declara en `files/dev/sql-concat-declared.json`, que es lo que vigila
-     * `bin/censo-sql-concatenado`.
-     *
-     * OTRAS TRES CLAVES ACABAN TAMBIÉN EN EL SQL, y como IDENTIFICADORES, que no admiten
-     * marcador ni siquiera en teoría: `select_fields` (líneas 333 y 336), `columns_order`
-     * —nombres de columna hacia `generateOrderBy`/`generateHaving`— y `custom_order`. **En
-     * `custom_order` la DIRECCIÓN no pasa por el filtro `ASC`/`DESC`** que sí se aplica al
-     * `order` de la petición (línea 1254): lo que se escriba ahí llega entero al `ORDER BY`.
-     *
-     * El `order` de la petición SÍ está cerrado: su índice se usa como CLAVE de `columns_order`
-     * y la dirección colapsa a un ternario de dos constantes.
-     *
-     * `getCompiledSQL()` SIN ARGUMENTO PRODUCE SQL QUE NO SE PUEDE EJECUTAR
-     * --------------------------------------------------------------------
-     * Su valor por defecto es la forma **PARA LEER**: sustituye `:ALIAS` por `(ALIAS=valor)`,
-     * **sin los dos puntos** (`ActiveRecord.php:856`). Quien ejecute esa cadena se lleva un
-     * `Unknown column 'WH…' in 'WHERE'`, y **sólo cuando hay valores de reemplazo** — con un
-     * fragmento de cadena no hay ninguno, el bucle no sustituye nada y el SQL sale intacto. Por
-     * eso el defecto durmió años y despertó al migrar el primer listado a `where_segment`.
-     *
-     * **Las TRES llamadas de este archivo pasan `true`**, que interpola el valor real ya
-     * escapado por `quote()`. Si añades una cuarta, pásale `true` también. Ver T160 y T161.
+     * El porque de cada decision esta en el registro, de T150 a T166.
      *
      * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string,where_segment:?WhereSegment,having_segment:?HavingSegment} $options
      * @return ResultOperations
@@ -921,7 +894,9 @@ class DataTablesHelper
             /**
              * @var string Criterios del input de búsqueda de datatables
              */
-            $having = self::generateHaving(
+            //LA BUSQUEDA POR MARCADOR. Los valores se atan SOLO a las dos sentencias con
+            //HAVING: atar uno a la que no lo lleva es HY093. Ver T166.
+            $havingGroup = self::generateHavingGroup(
                 array_filter(
                     $columns_order,
                     function ($v) use ($ignore_fields_in_where) {
@@ -933,6 +908,16 @@ class DataTablesHelper
                 $tableName,
                 $ignore_table_on_fields_in_where
             );
+
+            $havingValores = [];
+            $having = '';
+            if ($havingGroup instanceof HavingItemGroup) {
+                //SIN OPERADOR DE COLA: aquí nadie lo suprime y quedaba un `AND` colgando
+                //delante del `ORDER BY`. Ver T166.
+                $havingGroup->withAfterOperator(false);
+                $having = $havingGroup->toString(false);
+                $havingValores = $havingGroup->getReplacementValues();
+            }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
             $having_string = is_string($having_string) ? trim($having_string) : "";
@@ -1028,7 +1013,7 @@ class DataTablesHelper
             $limitPrepared = $modelToPrepare->prepare($sqlLimitQuery);
             $limitGeneratedSQL = $sqlLimitQuery;
             $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $sqlLimitQuery));
-            $limitPrepared->execute();
+            $limitPrepared->execute($havingValores);
             /**
              * @var array Resultado de la consulta principal
              */
@@ -1158,7 +1143,7 @@ class DataTablesHelper
             $filterCountPrepared = $modelToPrepare->prepare($filterCountSQL);
             $fiterCountGeneratedSQL = $filterCountSQL;
             $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCountSQL));
-            $filterCountPrepared->execute();
+            $filterCountPrepared->execute($havingValores);
             $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
             $filterCountTotal = !empty($filterCountResult) ? (int) $filterCountResult[0]->total : 0;
             $result->setValue('recordsFiltered', $filterCountTotal);

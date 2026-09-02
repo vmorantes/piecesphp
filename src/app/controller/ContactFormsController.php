@@ -261,9 +261,11 @@ class ContactFormsController extends PublicAreaController
 
             } catch (\Exception $e) {
 
+                //EL LOG SMTP NO SALE AL CLIENTE: `SMTPDebug = 2` lo llena con el banner del
+                //servidor y el texto del fallo de autenticacion, y esta ruta es PUBLICA.
                 $resultOperation->setMessage($e->getMessage());
-                $resultOperation->setValue('logMailer', $mailer->log());
-                log_exception($e);
+                $logSmtp = json_encode($mailer->log(), \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+                log_exception(new \Exception('Log SMTP del formulario de contacto: ' . (is_string($logSmtp) ? $logSmtp : '(no serializable)'), 0, $e));
 
             }
 

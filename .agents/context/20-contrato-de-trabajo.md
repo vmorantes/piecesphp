@@ -53,6 +53,31 @@ desordenado:
 - **La instrucción es lo único que se pega**; el resto es conversación entre PROPIETARIO y
   ARQUITECTO.
 
+### UN RECUADRO POR VEZ, Y CADA UNO DICE SI ES EL VIGENTE — 2026-09-02
+
+El PROPIETARIO lo dijo como una suposicion suya y **es la regla correcta**: *«siempre asumo que
+el ultimo recuadro que mandas es el final consolidado»*.
+
+**ARQUITECTO la rompio sin darse cuenta.** Emitio el recuadro de AZ mientras BA seguia en vuelo,
+luego lo RETIRO, y luego lo reemitio. Tres recuadros con el mismo nombre en la conversacion, y el
+PROPIETARIO no supo cual estaba vivo, asi que no copio ninguno. **Un recuadro retirado es
+exactamente lo que la regla «se consolida, no se parchea» existe para evitar**, y ARQUITECTO lo
+produjo.
+
+**DOS REGLAS, y la segunda hace innecesario recordar la primera:**
+
+1. **NO SE EMITE EL RECUADRO SIGUIENTE HASTA QUE EL ACTUAL HAYA CERRADO CON SU REPORTE.** Un
+   bloque en vuelo y otro escrito es una invitacion a que se ejecute el equivocado.
+2. **CADA RECUADRO ABRE DECLARANDO SU ESTADO**, en su primera linea, dentro del propio recuadro:
+
+       VIGENTE · BLOQUE XX · sustituye a: (nada | BLOQUE XX de <fecha>, RETIRADO)
+
+   Con esa linea, el PROPIETARIO no tiene que recordar el orden de la conversacion **ni leer
+   nada mas que esa linea** para saber si lo que tiene delante es lo que hay que pegar.
+
+**Y SI HAY QUE RETIRAR UNO YA ENVIADO**: se dice EN PROSA, en la primera frase del mensaje, no
+dentro del recuadro nuevo. El PROPIETARIO no lee los recuadros.
+
 ### ANTES DE UN PUNTO SERIO SE HABLA, NO SE MANDA RECUADRO — regla del PROPIETARIO, 2026-09-02
 
 *«Eso me iba a tomar por sorpresa. Recomiendo que cuando lleguemos a un punto tan serio no me

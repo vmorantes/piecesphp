@@ -17397,3 +17397,136 @@ INSTRUMENTAL: database — phpstan DECLARADO 2.1.99 e INSTALADO 2.1.44.
 - **BB**: nivelar los cuatro paquetes a un analizador común, con sus cuatro líneas base.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
 - Un archivo suelto en la raíz, `tags.txt`, que no es de ningún bloque y no se ha commiteado.
+
+---
+
+## T166 · AZ · MYSPACE: LA PRECEDENCIA, EL ÚLTIMO SQL CONCATENADO Y UN LOG QUE SALÍA FUERA
+
+**Bloque AZ.** Tres defectos que ensanchan lo que alguien puede ver, y el hueco que dejó AX.
+Uno resultó **latente por datos**, otro **se rompió al arreglarlo** y lo cazó la ejecución, y el
+tercero estaba **en una ruta pública**.
+
+### PASO 1 · La precedencia · el defecto es real y HOY no tiene efecto
+
+`$having = ["A", "AND B OR C"]` sale `A AND B OR C`, y `AND` liga más fuerte:
+`(aprobado AND userType IS NULL) OR (userType IN (2,12))`. `userType` es `NULL` para
+organizaciones y el tipo real para usuarios, así que **las organizaciones se filtraban por
+aprobación y los usuarios no**.
+
+| medición | antes | después |
+| :-- | --: | --: |
+| (a) filas sin filtro | **2** | **2** |
+| (b) USUARIOS con `systemApprovalStatus != APPROVED` | **0** | **0** |
+
+**(b) = 0, así que el defecto es LATENTE.** Y una tercera medición dice por qué: retirando el
+criterio de aprobación por completo **siguen saliendo las mismas 2 filas, las dos APPROVED**. La
+base no tiene hoy ningún perfil sin aprobar ni ninguna organización visible, de modo que **no hay
+población que exponga el fallo**. El SQL estaba mal igual.
+
+La diferencia entre antes y después es **0, que es exactamente (b)**. Nada más desapareció.
+
+El `if (false)` de `:89` **no se toca**: `FIELD = VALUE`, en mayúsculas y sin sujeto, es una
+PLANTILLA. Lleva ya una línea que lo dice, para que el próximo no lo confunda con el `&& false`
+de Publications, que sí es una regla apagada.
+
+### PASO 2 · `processFromQuery()`, y el `AND` que quedó colgando
+
+`processFromQuery()` es el método del helper para **tablas derivadas** —`AllProfiles` le pasa un
+`UNION ALL`—, y su propósito es legítimo: no se retira. Lo que se retira es la concatenación de
+la búsqueda, que pasa a `generateHavingGroup()`.
+
+**Los valores se atan por sentencia**, que era la trampa anunciada: de los tres `prepare()`, el
+HAVING solo está en `limit` y `filterCount`. El tercero, `totalCount`, usa
+`$sqlBaseQueryNoHavingNoWhere`, y atarle un marcador que no tiene es **HY093**. Cada `execute()`
+recibe solo los suyos.
+
+> **Y LA PRIMERA VERSIÓN ROMPIÓ LA BÚSQUEDA ENTERA.** Los cuatro casos dieron **500**. El SQL del
+> registro lo dijo en una línea:
+> ```
+> ... LIKE :b) AND ORDER BY name ASC ...
+> ```
+> Un `AND` colgando. Es el `setAfterOperator('AND')` que puse en AX: cuando el grupo se convierte
+> a texto **dentro de un `HavingSegment`**, éste suprime el operador del último; convertido
+> **solo**, no lo suprime nadie. Y `toString(false)` tampoco basta, porque
+> `WhereItemGroup::toString()` hace `$this->withAfterOperator() || $withAfterOperator` y la
+> propiedad viene en `true`. Hay que llamar a `withAfterOperator(false)`, que es justo lo que
+> hace `HavingSegment` con su último grupo.
+
+Corregido, los cuatro casos:
+
+| | HTTP | filas |
+| :-- | --: | :-- |
+| sin búsqueda | **200** | 2 |
+| `search[value]=a` | **200** | 2 |
+| `search[value]=%` | **200** | 2 — no 500: el `%` ya no entra crudo |
+| `search[value]=$1` **canario** | **200** | 0 — **no reventó** |
+
+**El canario aguanta**: `getCompiledSQL(true)` hace `preg_replace(..., $value, ...)`, donde `$1`
+sería una referencia de captura, y aun así no falló. No hay nada que anotar contra el paquete.
+
+Y el SQL ejecutado:
+`HAVING ((systemApprovalStatus = 'APPROVED') AND (userType IS NULL OR userType IN (2,12))) AND (UPPER(name) LIKE :a OR UPPER(fullLocation) LIKE :b)`
+— **el valor no aparece literal**.
+
+> **EL CENSO NUNCA VIO ESTA CONCATENACIÓN, y conviene decirlo**: `CONFIRMADO` estaba en 0
+> mientras el defecto seguía vivo. No hay `->having(` en `processFromQuery`: la búsqueda se
+> interpolaba dentro de `$sqlBaseQuery`, una cadena que el censo no mira. Es la misma clase de
+> punto ciego que obligó a la novena familia en AÑ. **Nada sale de la lista declarada porque
+> nunca estuvo en ella.**
+
+El docblock de `process()` baja de **50 líneas a 22** y solo describe la función: sus claves y
+qué hace cada una. El porqué vive en el registro.
+
+### PASO 3 · El log SMTP salía por una ruta pública
+
+**El veredicto de acceso primero (3.1b)**: `contact-forms-general` es `requireLogin: false` con
+`roles: []`, y **no está** entre las cuatro excepciones declaradas de la comprobación 23. **Nada
+la da por cubierta por error**: `ContactFormsController extends PublicAreaController` y **no
+instala `DefaultAccessControlModules`**, así que queda fuera del universo de esa comprobación —y
+eso es correcto, porque un formulario de contacto es público por diseño. **Sin parada.**
+
+**Y (a) confirma el defecto**, medido abriendo el captcha temporalmente desde estado guardado:
+
+```
+success: false | message: SMTP Error: Could not connect to SMTP host.
+¿logMailer en el cuerpo?: SÍ  ·  227 caracteres
+   {'1': ['SMTP ERROR: Failed to connect to server: Connection refused (111)', …
+```
+
+Con `SMTPDebug = 2` ese log lleva la conversación entera. Retirado de la respuesta; **el log no
+se pierde**: va a `log_exception()` y aparece en `error.log.json`, que está en `.gitignore`.
+
+Después, por la misma vía: **`logMailer` NO está**, `values` solo trae `redirect`, `redirect_to`
+y `reload`, y el usuario sigue recibiendo su mensaje.
+
+**Un tropiezo propio**: `Mailer::log()` devuelve un ARRAY, no una cadena, y mi primera versión lo
+concatenaba. La petición dejó de ser JSON y lo vi al medir. Va serializado con `json_encode`.
+
+### PASO 4 · El hueco de AX, ejecutado
+
+Abierto desde estado guardado —ruta y usuario de medición—, **sin tocar ninguna credencial**:
+
+```
+SHA256 ANTES   01ee30a9c1a45c23db3fbb87ab01b91652654bdd5a0ab18e41d085deccedca6c
+SHA256 DESPUÉS 01ee30a9c1a45c23db3fbb87ab01b91652654bdd5a0ab18e41d085deccedca6c   ✓
+```
+
+| | HTTP | filas |
+| :-- | --: | --: |
+| sin filtro | 200 | 0 |
+| búsqueda que no casa | 200 | 0 |
+| `visibility=1` | 200 | 0 |
+| `visibility=1` + búsqueda | 200 | 0 |
+
+**La tabla de publicaciones está VACÍA —`recordsTotal 0`—, así que la intersección no se puede
+demostrar con filas.** Se demuestra con el SQL ejecutado, que es lo que había que ver:
+
+```
+HAVING (visibility = :a) AND (UPPER(idPadding) LIKE :b OR UPPER(title) LIKE :c)
+```
+`) AND (` sí · `) OR (` no · el valor buscado no aparece literal.
+
+### Lo que queda abierto
+
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+- La intersección de Publications **con datos**, cuando la tabla los tenga.
