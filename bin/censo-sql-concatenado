@@ -582,6 +582,14 @@ function analiza(string $codigo, string $ruta = '(fixture)'): array
     return $hallazgos;
 }
 
+//EJECUTADO O REQUERIDO. Todo lo de arriba son FUNCIONES, y `bin/censo-sql-interpolado` las
+//necesita —`FUENTES`, `resuelve()`, `metodos()`—: sin esta puerta, requerir este archivo
+//lanzaria el censo entero y habria DOS definiciones de que es «un valor de la peticion».
+//Lo que sigue es el censo, y solo corre si este archivo es el que se invoco.
+if (realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? '')) !== __FILE__) {
+    return;
+}
+
 //──── CANARIO DE DOS CARAS POR FAMILIA (LEY 16) ─────────────────────────────────────────────
 //Una cara que DEBE salir y otra que NO, para CADA familia. Sin las dos, un cero no significa
 //nada: podria ser que la familia esta limpia o que el censo no la mira.

@@ -17530,3 +17530,153 @@ HAVING (visibility = :a) AND (UPPER(idPadding) LIKE :b OR UPPER(title) LIKE :c)
 
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
 - La intersección de Publications **con datos**, cuando la tabla los tenga.
+
+## T167 · La ceguera del censo: se declara, se mide, y se para
+
+**Bloque BB.** AZ destapó lo más serio de la campaña: **`CONFIRMADO` estaba en 0 mientras el
+defecto seguía vivo.** `processFromQuery()` no tenía ningún `->having(`; la búsqueda se
+interpolaba dentro de `$sqlBaseQuery`. El censo mira LLAMADAS y CLAVES DE ARRAY, y **no mira la
+interpolación directa en una variable que acaba siendo SQL**. Este bloque no arregla nada:
+nombra la ceguera, la mide, y para.
+
+### La ceguera, escrita en la línea base
+
+`files/dev/sql-concat-baseline.json` gana dos campos junto a los que ya declaran lo no mirado:
+
+- **`forma_sin_censar`** — qué no ve, y **el caso que lo probó**, con nombre y método.
+- **`significado_del_cero`** — *«`CONFIRMADO 0` significa que no quedan concatenaciones DE LAS
+  FORMAS QUE EL CENSO MIRA»*. Un cero cuyo alcance no está escrito es peor que no tener el cero.
+
+### El instrumento: `bin/censo-sql-interpolado`
+
+Guion aparte, **sin trinquete y sin puerta**. Hasta que se decida si nace una décima familia, la
+cifra de `CONFIRMADO` no cambia de significado a mitad de camino.
+
+**Requiere al censo hermano y usa sus `FUENTES`, su `resuelve()` y sus objetos contaminados.**
+Para eso `censo-sql-concatenado` gana una puerta de tres líneas que separa «ejecutado» de
+«requerido». **Es neutra y está medido**: su salida completa da el mismo sha256 antes y después
+(`18ab49c8e5c233221867f69695ca9b2cc5253ec6ff8b82838aa98d338a8d8379`). Dos instrumentos con dos
+definiciones de «valor de la petición» son dos verdades, y una de las dos se pudre.
+
+### Los sumideros salen del árbol
+
+Inventario por tokens de todo método con `sql|query|exec|prepare|statement|raw` en el nombre:
+
+| | |
+| :-- | --: |
+| `execute` | 284 |
+| `prepare` | 73 |
+| `query` | 43 |
+| `exec` | 35 |
+| `getCompiledSQL` | 6 |
+
+**`execute()`, el más numeroso, NO es un sumidero**: recibe los VALORES, no el texto.
+`getCompiledSQL()` tampoco: produce, no ejecuta. Quedan **tres**.
+
+### Las tres cifras
+
+```
+A  cadenas SQL armadas con una VARIABLE dentro ................  223
+B  de A, las que alcanzan un sumidero EN EL MISMO MÉTODO ......   38
+C  de B, las que interpolan un valor de la PETICIÓN ...........    6
+   de B, indecisas (la traza no alcanza a decidir) ...........   16
+   de A, la cadena SALE DEL MÉTODO — a REVISAR, no a limpio ...  126  (0 con petición)
+```
+
+**LAS SEIS SON UNA SOLA CADENA, EN UN SOLO MÉTODO**: `DataTablesHelper::processFromQuery()`,
+líneas 982, 987, 996, 997, 1142 y 1151. Y su raíz, que es lo que decide el tamaño del trabajo:
+
+```
+$having    = $havingGroup->toString(false)
+$havingGroup = self::generateHavingGroup($columns_order, $columns, $search, …)
+$columns   = $request->getQueryParam('columns', [])
+```
+
+**Lo que la petición aporta ahí no es un valor, es un IDENTIFICADOR.** El nombre de columna sale
+de `$columns_order`, que es del servidor; de `$columns` solo se lee la bandera `searchable`
+(`searchableFieldsForHaving()`, línea 1195). El valor buscado va por marcador desde AX/AZ. Lo
+mismo `$order_by`, que sale de `generateOrderBy($columns_order, $order, $custom_order, …)`.
+
+> **C NO DESTAPA NINGUNA INYECCIÓN DE VALOR NUEVA.** Destapa, por otro camino, el trabajo de
+> IDENTIFICADORES que ya estaba declarado en `claves_de_options_sin_censar`. Eso es un resultado,
+> no un cero vacío: el camino nuevo y el declarado llegan al mismo sitio.
+
+### Su cota, y se imprime
+
+- **La traza no cruza de método.** Si la variable sale —`return`, `$this->algo`, o pasada como
+  argumento— va a **REVISAR A MANO, nunca a DESCARTADO**. Son **126 de 223**, el 57%.
+- `B` mira sólo el PRIMER argumento del sumidero, que es donde va la sentencia.
+- No resuelve índices de array ni variables variables, igual que el censo hermano.
+
+### El canario, en cinco caras, y las tres que cazó
+
+| cara | espera |
+| :-- | :-- |
+| petición interpolada y ejecutada aquí | `ALCANZA` / `CONFIRMADO` |
+| la misma con un valor CONSTANTE | **ningún hallazgo** |
+| una variable que NO es de la petición | `ALCANZA` / `DESCARTADO` |
+| una palabra SQL suelta en un literal que no lo es | **ningún hallazgo** |
+| armada en un método y ejecutada en OTRO | `SALE DEL MÉTODO` / `REVISAR` |
+
+**Las cinco caras cazaron tres defectos míos antes de publicar número alguno:**
+
+1. `separaArgumentos()` devuelve **cadenas**, no arrays. Leía `$args[0]['texto']` y **ningún
+   sumidero se detectaba**: B habría salido 0 con los sumideros invisibles.
+2. **Un `(` DENTRO de un literal contaba como paréntesis** y tapaba el `;`: la sentencia se comía
+   el bloque siguiente. Así entró `$update = $r->getQueryParam('update') === 'yes'`, que no es
+   SQL ninguno.
+3. **Una palabra SQL suelta no es una sentencia.** El literal `'update'` casaba con la palabra
+   `UPDATE`. Cada palabra exige ahora lo que la sigue —y la variable interpolada cuenta como
+   «lo que la sigue», porque `"WHERE {$where}"` **sí** es SQL.
+
+### UN HALLAZGO EN EL CENSO HERMANO, MEDIDO Y NO ARREGLADO
+
+El defecto (2) **vive también en `asignaciones()` de `censo-sql-concatenado`**, que es el mapa
+del que se alimenta `resuelve()`. Medido en una copia con la profundidad corregida:
+
+| | actual | corregido |
+| :-- | --: | --: |
+| CONFIRMADO | 0 | **0** |
+| DECLARADO | 10 | 8 |
+| REVISAR | 103 | 105 |
+| DESCARTADO | 135 | 135 |
+
+**El trinquete no está en riesgo: `CONFIRMADO` sigue en 0 por los dos métodos.** Lo que cambia es
+que dos entradas de `DataTablesHelper::process()` (líneas 412 y 650) **parecen más decididas de
+lo que están**: con el corte correcto son indecisas. Arreglarlo mueve `DECLARADO` y deja rancio
+el `count` de `sql-concat-declared.json`, así que **no se toca aquí**: es una decisión, no una
+medición.
+
+> **Un aviso de método**: la primera vez que medí esto salió `DECLARADO 10 → 0`, y era artefacto
+> mío — puse `RAIZ` en ruta absoluta en la copia y la clave de casación es `ruta::metodo`.
+> **Una medición que sorprende acusa primero al instrumento.**
+
+### Y OTRO: LA LÍNEA BASE DE PHPSTAN LLEVA CUATRO BLOQUES RANCIA
+
+`bin/phpstan` cierra con *«744 contra un baseline de 747 (-3). Actualiza el baseline»*, y esa
+línea lleva ahí desde **`b870cc98` (bloque AW)**. Los tres son `argument.type` —`313 → 310`, el
+único identificador que se mueve— y murieron **por arreglo**: AW añadió `getContentTypes()` al
+contrato con implementación por defecto.
+
+**Es un fallo mío de LEY 5**: en AW, AX, AY, BA y AZ reporté *«igual que la línea base»* cuando
+lo que había comparado era **una ejecución contra la anterior**, no contra la línea base. La
+línea base es la que responde, y llevaba cuatro bloques sin que nadie la mirase. No se reescribe
+aquí —el `[REPARTO]` es del trinquete de ARQUITECTO— pero queda con su commit y su motivo.
+
+### Lo que decide el tamaño
+
+**¿Es detectable con la maquinaria que ya hay, o hace falta seguir la variable entre métodos?**
+
+> **Con la que hay basta para el caso que nos engañó, y no basta para el resto.** El defecto de
+> `processFromQuery` era intra-método y sale sin inventar nada; pero **126 de las 223 cadenas
+> (el 57%) se van del método**, y ahí esta traza sólo sabe decir «revisar». Una décima familia
+> honesta sobre esta maquinaria mediría el 43% del árbol y tendría que declararlo en su cota.
+
+### Lo que queda abierto
+
+- La décima familia: **decisión de ARQUITECTO y PROPIETARIO**, con C = 6 delante.
+- Las **16 indecisas** de B: doce son los plugins de exportación (`getTableData()`), que reciben
+  su `$table` y su `$options['where']` de quien llame, no de la petición.
+- El defecto de profundidad de `asignaciones()` en el censo hermano.
+- La línea base de PHPStan, rancia desde AW.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.

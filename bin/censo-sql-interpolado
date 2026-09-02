@@ -1,0 +1,468 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * SQL ARMADO POR INTERPOLACION EN UNA VARIABLE.
+ *
+ * POR QUE EXISTE
+ * --------------
+ * `bin/censo-sql-concatenado` mira LLAMADAS —las ocho familias— y CLAVES DE ARRAY —la
+ * novena—. NO mira un valor de la peticion metido en una VARIABLE de PHP que despues se
+ * ejecuta como SQL: ni es una llamada ni es una clave, asi que no tiene por donde entrar.
+ *
+ * `DataTablesHelper::processFromQuery()` lo probo. El HAVING de la busqueda se interpolaba
+ * dentro de `$sqlBaseQuery` y salia por `prepare()`. Vivio ahi desde siempre, y el censo dio
+ * CERO todo ese tiempo. Un cero cuyo alcance no esta escrito es peor que no tener el cero.
+ *
+ * ESTE INSTRUMENTO SOLO MIDE. No tiene trinquete, no cuelga de ninguna puerta y no cambia el
+ * significado de `CONFIRMADO`. Sirve para decidir, con el numero delante, si nace una decima
+ * familia y con que forma.
+ *
+ * QUE MIDE — tres cifras, y la tercera es la que importa
+ * -----------------------------------------------------
+ *   A .. asignaciones que arman una cadena SQL metiendo dentro una VARIABLE
+ *   B .. de A, las que alcanzan un SUMIDERO —`prepare`, `query`, `exec`— en el MISMO metodo
+ *   C .. de B, las que interpolan un valor de la PETICION
+ *
+ * QUE ES UN VALOR DE LA PETICION NO SE DECIDE AQUI: se requiere `censo-sql-concatenado` y se
+ * usan su `FUENTES`, su `resuelve()` y su `objetosContaminados()`. Dos instrumentos con dos
+ * definiciones de lo mismo son dos verdades, y una de las dos se pudre.
+ *
+ * SU COTA, Y SE IMPRIME (LEY 15)
+ * ------------------------------
+ * LA TRAZA NO CRUZA DE METODO. Una cadena armada en un metodo y ejecutada en otro NO se puede
+ * seguir: si la variable SALE del metodo —`return`, `$this->algo`, o pasada como argumento—
+ * cuenta como B INDECISA y va a REVISAR A MANO, nunca a DESCARTADO. Esa es exactamente la
+ * forma que nos engano, asi que tiene canario propio.
+ *
+ * Uso:
+ *   bin/censo-sql-interpolado             las tres cifras y el reparto
+ *   bin/censo-sql-interpolado --detalle   con el sitio y la traza de cada C y cada indecisa
+ */
+
+require __DIR__ . '/censo-sql-concatenado';
+
+//SUMIDEROS: donde una cadena de PHP acaba ejecutandose como SQL. Salen de inventariar el arbol
+//por tokens —todo metodo con `sql|query|exec|prepare|statement|raw` en el nombre— y quedarse
+//con los que reciben la sentencia como PRIMER argumento. `execute()`, con 284 llamadas, NO es
+//uno: recibe los VALORES, no el texto. `getCompiledSQL()` tampoco: produce, no ejecuta.
+const SUMIDEROS = ['prepare', 'query', 'exec'];
+
+//Lo que hace que una cadena sea SQL. Dentro de un literal, nunca en un identificador, y CADA
+//palabra EXIGE LO QUE LA SIGUE. Sin esa exigencia, un `$update = $r->getQueryParam('update')`
+//entraba en la lista: el literal `'update'` casaba con la palabra UPDATE y ahi no hay SQL
+//ninguno. Una palabra suelta no es una sentencia. Tiene canario propio.
+const PALABRAS_SQL = '/(\bSELECT\s+\S|\bINSERT\s+INTO\s+\S|\bUPDATE\s+\S+\s+SET\b|\bDELETE\s+FROM\s+\S|\bFROM\s+\S|\bWHERE\s+\S|\bHAVING\s+\S|\bGROUP\s+BY\s+\S|\bORDER\s+BY\s+\S|\bJOIN\s+\S)/i';
+
+/**
+ * Los literales de un tramo de tokens, incluidos los de heredoc.
+ *
+ * @param mixed[] $tokens
+ */
+function literales(array $tokens, int $ini, int $fin): string
+{
+    $s = '';
+    for ($i = $ini; $i <= $fin && $i < count($tokens); $i++) {
+        $t = $tokens[$i];
+        if (!is_array($t)) {
+            continue;
+        }
+        if ($t[0] === T_CONSTANT_ENCAPSED_STRING || $t[0] === T_ENCAPSED_AND_WHITESPACE) {
+            $s .= $t[1] . ' ';
+            continue;
+        }
+        //LA VARIABLE INTERPOLADA OCUPA UN SITIO. `"WHERE {$where}"` deja el literal acabado en
+        //espacio, y una regla que exige algo detras de la palabra lo daba por no-SQL. Se pone
+        //una `X` en su lugar: lo que se mide es la FORMA de la sentencia, no su contenido.
+        if ($t[0] === T_VARIABLE || $t[0] === T_CURLY_OPEN || $t[0] === T_DOLLAR_OPEN_CURLY_BRACES) {
+            $s .= 'X ';
+        }
+    }
+    return $s;
+}
+
+/**
+ * Asignaciones con su LINEA. `asignaciones()` del censo devuelve solo el mapa var=>expresiones
+ * y aqui hace falta senalar el sitio.
+ *
+ * @param mixed[] $tokens
+ * @return array<int,array{var:string,linea:int,ini:int,fin:int,acumula:bool}>
+ */
+function sitiosDeAsignacion(array $tokens, int $ini, int $fin): array
+{
+    $sitios = [];
+    for ($i = $ini; $i <= $fin; $i++) {
+        if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_VARIABLE) {
+            continue;
+        }
+        $j = $i + 1;
+        if (($tokens[$j] ?? null) === '[' && (($tokens[$j + 1] ?? null) === ']')) {
+            $j += 2;
+        }
+        while (is_array($tokens[$j] ?? null) && $tokens[$j][0] === T_WHITESPACE) {
+            $j++;
+        }
+        $op = $tokens[$j] ?? null;
+        $esConcat = is_array($op) && $op[0] === T_CONCAT_EQUAL;
+        if ($op !== '=' && !$esConcat) {
+            continue;
+        }
+        $k = $j + 1;
+        $prof = 0;
+        while ($k <= $fin) {
+            //SOLO LA PUNTUACION CUENTA. Un `(` DENTRO de un literal llega como
+            //T_ENCAPSED_AND_WHITESPACE —un token ARRAY— y comparando su texto subia la
+            //profundidad: el `;` quedaba tapado y la sentencia se comia el `else` siguiente.
+            //Asi entro en la lista un `$update = ... === 'yes'`, que no es SQL ninguno.
+            if (is_array($tokens[$k])) {
+                $k++;
+                continue;
+            }
+            $t = $tokens[$k];
+            if ($t === '(' || $t === '[' || $t === '{') {
+                $prof++;
+            }
+            if ($t === ')' || $t === ']' || $t === '}') {
+                $prof--;
+            }
+            if ($t === ';' && $prof <= 0) {
+                break;
+            }
+            $k++;
+        }
+        $sitios[] = ['var' => $tokens[$i][1], 'linea' => $tokens[$i][2],
+                     'ini' => $j + 1, 'fin' => $k - 1, 'acumula' => $esConcat];
+    }
+    return $sitios;
+}
+
+/**
+ * EL MAPA, CON LA PROFUNDIDAD BIEN CONTADA. `asignaciones()` del censo hermano cuenta como
+ * paréntesis los que van DENTRO de un literal, asi que su lado derecho se come el resto del
+ * bloque: alimentar `resuelve()` con eso hace que un `getQueryParam` que esta veinte lineas
+ * mas abajo, y que no tiene nada que ver, contamine la expresion. Este mapa sale de
+ * `sitiosDeAsignacion()`, que ya solo mira la puntuacion. Ver T167.
+ *
+ * @param mixed[] $tokens
+ * @return array<string,string[]>
+ */
+function mapaDeAsignaciones(array $tokens, int $ini, int $fin): array
+{
+    $mapa = [];
+    foreach (sitiosDeAsignacion($tokens, $ini, $fin) as $sitio) {
+        $mapa[$sitio['var']][] = texto($tokens, $sitio['ini'], $sitio['fin']);
+    }
+    return $mapa;
+}
+
+/**
+ * Las variables que alimentan una expresion, siguiendo el mapa del metodo.
+ *
+ * @param array<string,string[]> $mapa
+ * @return string[]
+ */
+function variablesQueAlimentan(string $expresion, array $mapa, int $profundidad = 0): array
+{
+    if ($profundidad > 6) {
+        return [];
+    }
+    $encontradas = [];
+    preg_match_all('/\$[A-Za-z_]\w*/', $expresion, $m);
+    foreach ($m[0] as $var) {
+        if (in_array($var, $encontradas, true)) {
+            continue;
+        }
+        $encontradas[] = $var;
+        foreach ($mapa[$var] ?? [] as $rhs) {
+            foreach (variablesQueAlimentan($rhs, $mapa, $profundidad + 1) as $v) {
+                if (!in_array($v, $encontradas, true)) {
+                    $encontradas[] = $v;
+                }
+            }
+        }
+    }
+    return $encontradas;
+}
+
+/**
+ * Si la variable SALE del metodo. Es la cota: lo que sale puede acabar en un sumidero que esta
+ * traza no ve, y por eso es INDECISO y no limpio.
+ *
+ * @param mixed[] $tokens
+ */
+function saleDelMetodo(array $tokens, int $ini, int $fin, string $var): bool
+{
+    for ($i = $ini; $i <= $fin; $i++) {
+        if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_VARIABLE || $tokens[$i][1] !== $var) {
+            continue;
+        }
+        //A la izquierda de un `=` esta siendo escrita, no leida.
+        $j = $i + 1;
+        while (is_array($tokens[$j] ?? null) && $tokens[$j][0] === T_WHITESPACE) {
+            $j++;
+        }
+        if (($tokens[$j] ?? null) === '=') {
+            continue;
+        }
+        //`return $var` o `return ... $var ...`
+        for ($k = $i - 1; $k > $ini; $k--) {
+            $t = $tokens[$k];
+            if (is_array($t) && $t[0] === T_WHITESPACE) {
+                continue;
+            }
+            if (is_array($t) && $t[0] === T_RETURN) {
+                return true;
+            }
+            if ($t === ';' || $t === '{' || $t === '}') {
+                break;
+            }
+        }
+        //`$this->algo = $var` o `algo($var)`: cualquier `(` abierto delante en la sentencia.
+        for ($k = $i - 1; $k > $ini; $k--) {
+            $t = is_array($tokens[$k]) ? $tokens[$k][1] : $tokens[$k];
+            if ($t === ';' || $t === '{' || $t === '}') {
+                break;
+            }
+            if ($t === '(') {
+                return true;
+            }
+        }
+        for ($k = $i - 1; $k > $ini; $k--) {
+            $t = is_array($tokens[$k]) ? $tokens[$k][1] : $tokens[$k];
+            if ($t === ';' || $t === '{' || $t === '}') {
+                break;
+            }
+            if ($t === '=' ) {
+                //`$this->x = $var` / `$obj->x = $var`
+                for ($z = $k - 1; $z > $ini; $z--) {
+                    $tz = $tokens[$z];
+                    if (is_array($tz) && $tz[0] === T_WHITESPACE) {
+                        continue;
+                    }
+                    if (is_array($tz) && $tz[0] === T_STRING
+                        && is_array($tokens[$z - 1] ?? null)
+                        && $tokens[$z - 1][0] === T_OBJECT_OPERATOR) {
+                        return true;
+                    }
+                    break;
+                }
+                break;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * @return array<int,array{ruta:string,metodo:string,linea:int,var:string,alcanza:string,veredicto:string,traza:string[],sql:string}>
+ */
+function analizaInterpolado(string $codigo, string $ruta = '(fixture)'): array
+{
+    $tokens = token_get_all($codigo);
+    $hallazgos = [];
+
+    foreach (metodos($tokens) as $metodo) {
+        $mapa = mapaDeAsignaciones($tokens, $metodo['ini'], $metodo['fin']);
+        $sucios = objetosContaminados($tokens, $metodo['ini'], $metodo['fin']);
+        $cuerpo = texto($tokens, $metodo['ini'], $metodo['fin']);
+        $hayExtract = preg_match('/\bextract\s*\(/', $cuerpo) === 1;
+
+        //LAS VARIABLES QUE ALIMENTAN A UN SUMIDERO DE ESTE METODO.
+        $alimentanSumidero = [];
+        for ($i = $metodo['ini']; $i <= $metodo['fin']; $i++) {
+            if (!is_array($tokens[$i])
+                || ($tokens[$i][0] !== T_OBJECT_OPERATOR && $tokens[$i][0] !== T_DOUBLE_COLON)) {
+                continue;
+            }
+            $sig = $tokens[$i + 1] ?? null;
+            if (!is_array($sig) || $sig[0] !== T_STRING || !in_array($sig[1], SUMIDEROS, true)) {
+                continue;
+            }
+            $abre = $i + 2;
+            while (is_array($tokens[$abre] ?? null) && $tokens[$abre][0] === T_WHITESPACE) {
+                $abre++;
+            }
+            if (($tokens[$abre] ?? null) !== '(') {
+                continue;
+            }
+            $prof = 0;
+            $cierra = $abre;
+            for ($j = $abre; $j <= $metodo['fin']; $j++) {
+                $t = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+                if ($t === '(') {
+                    $prof++;
+                }
+                if ($t === ')') {
+                    $prof--;
+                    if ($prof === 0) {
+                        $cierra = $j;
+                        break;
+                    }
+                }
+            }
+            $args = separaArgumentos($tokens, $abre + 1, $cierra - 1);
+            $primero = (string) ($args[0] ?? '');
+            foreach (variablesQueAlimentan($primero, $mapa) as $v) {
+                $alimentanSumidero[$v] = true;
+            }
+        }
+
+        foreach (sitiosDeAsignacion($tokens, $metodo['ini'], $metodo['fin']) as $sitio) {
+            $lit = literales($tokens, $sitio['ini'], $sitio['fin']);
+            if (preg_match(PALABRAS_SQL, $lit) !== 1) {
+                continue;
+            }
+            //INTERPOLACION: una VARIABLE participa en la cadena. Sin variable no hay por donde
+            //entre nada, y un `. self::TABLE` es una constante.
+            $hayVariable = false;
+            for ($i = $sitio['ini']; $i <= $sitio['fin']; $i++) {
+                if (is_array($tokens[$i]) && $tokens[$i][0] === T_VARIABLE) {
+                    $hayVariable = true;
+                    break;
+                }
+            }
+            if (!$hayVariable) {
+                continue;
+            }
+
+            $expresion = texto($tokens, $sitio['ini'], $sitio['fin']);
+            $var = $sitio['var'];
+
+            if (isset($alimentanSumidero[$var])) {
+                $alcanza = 'ALCANZA';
+            } elseif (saleDelMetodo($tokens, $metodo['ini'], $metodo['fin'], $var)) {
+                //LA COTA. La cadena se va del metodo y esta traza no la sigue.
+                $alcanza = 'SALE DEL MÉTODO';
+            } else {
+                $alcanza = 'NO ALCANZA';
+            }
+
+            $veredicto = 'DESCARTADO';
+            $traza = [];
+            if ($alcanza !== 'NO ALCANZA') {
+                $vistas = [];
+                [$veredicto, $traza] = resuelve($expresion, $mapa, $sucios, $vistas, []);
+                if ($veredicto === 'DESCARTADO' && $hayExtract) {
+                    $veredicto = 'REVISAR';
+                    $traza[] = 'el método usa extract(): el mapa de asignaciones está incompleto';
+                }
+                if ($alcanza === 'SALE DEL MÉTODO' && $veredicto === 'DESCARTADO') {
+                    $veredicto = 'REVISAR';
+                    $traza[] = 'la cadena sale del método: puede ejecutarse donde esta traza no llega';
+                }
+            }
+
+            $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $sitio['linea'],
+                            'var' => $var, 'alcanza' => $alcanza, 'veredicto' => $veredicto,
+                            'traza' => $traza, 'sql' => trim(preg_replace('/\s+/', ' ', $expresion) ?? '')];
+        }
+    }
+    return $hallazgos;
+}
+
+//──── CANARIO DE CUATRO CARAS (LEY 16) ──────────────────────────────────────────────────────
+//Dos como minimo pedia el bloque. Van cuatro, porque la que enseña algo es la tercera: una
+//cadena CON variable que NO viene de la peticion tiene que salir en A y en B, y NO en C. Sin
+//esa cara, un instrumento que marcase toda variable daria el mismo verde.
+$canarios = [
+    ['la forma de `processFromQuery` · petición interpolada y ejecutada aquí',
+        '<?php class C { public function f() { $sql = "SELECT * FROM t WHERE x = {$_GET[\'a\']}";'
+        . ' $this->pdo->prepare($sql); } }', 'ALCANZA', 'CONFIRMADO'],
+    ['la misma cadena con un valor CONSTANTE · no es interpolación',
+        '<?php class C { public function f() { $sql = "SELECT * FROM t WHERE x = 5";'
+        . ' $this->pdo->prepare($sql); } }', null, null],
+    ['una variable que NO es de la petición · sale en A y B, NO en C',
+        '<?php class C { public function f() { $t = "users"; $sql = "SELECT * FROM {$t}";'
+        . ' $this->pdo->prepare($sql); } }', 'ALCANZA', 'DESCARTADO'],
+    ['una palabra SQL suelta en un literal que no es SQL · no entra',
+        '<?php class C { public function f($request) { $u = $request->getQueryParam("update") === "yes";'
+        . ' $this->pdo->prepare($u); } }', null, null],
+    ['armada en un método y ejecutada en OTRO · la cota, y va a REVISAR',
+        '<?php class C { public function arma($q) { $sql = "SELECT * FROM t WHERE x = {$q}";'
+        . ' return $sql; } public function corre() { $this->pdo->prepare($this->arma(1)); } }',
+        'SALE DEL MÉTODO', 'REVISAR'],
+];
+$caido = null;
+foreach ($canarios as [$nombre, $fuente, $alcanzaEsperado, $veredictoEsperado]) {
+    $r = analizaInterpolado($fuente);
+    if ($alcanzaEsperado === null) {
+        if (count($r) !== 0) {
+            $caido = "{$nombre} — esperaba NINGÚN hallazgo, obtuvo " . count($r);
+            break;
+        }
+        continue;
+    }
+    if (count($r) !== 1 || $r[0]['alcanza'] !== $alcanzaEsperado || $r[0]['veredicto'] !== $veredictoEsperado) {
+        $obtenido = count($r) === 1 ? "{$r[0]['alcanza']}/{$r[0]['veredicto']}" : (count($r) . ' hallazgos');
+        $caido = "{$nombre} — esperaba {$alcanzaEsperado}/{$veredictoEsperado}, obtuvo {$obtenido}";
+        break;
+    }
+}
+if ($caido !== null) {
+    fwrite(STDERR, "CANARIO CAÍDO: {$caido}\n");
+    fwrite(STDERR, "               LA MEDICIÓN NO SE HACE.\n");
+    exit(2);
+}
+printf("CANARIO VIVO: %d caras. La que separa: una variable que NO es de la petición sale en\n", count($canarios));
+echo "              A y en B, pero NO en C; y la que cruza de método va a REVISAR, no a limpio.\n\n";
+
+$detalle = in_array('--detalle', array_slice($argv, 1), true);
+$archivos = ficheros(RAIZ);
+$todos = [];
+foreach ($archivos as $p) {
+    foreach (analizaInterpolado((string) file_get_contents($p), str_replace(dirname(__DIR__) . '/', '', $p)) as $h) {
+        $todos[] = $h;
+    }
+}
+
+$A = $todos;
+$B = array_values(array_filter($A, fn ($h) => $h['alcanza'] === 'ALCANZA'));
+$sale = array_values(array_filter($A, fn ($h) => $h['alcanza'] === 'SALE DEL MÉTODO'));
+$C = array_values(array_filter($B, fn ($h) => $h['veredicto'] === 'CONFIRMADO'));
+$Brevisar = array_values(array_filter($B, fn ($h) => $h['veredicto'] === 'REVISAR'));
+$saleConfirmado = array_values(array_filter($sale, fn ($h) => $h['veredicto'] === 'CONFIRMADO'));
+
+echo "SQL ARMADO POR INTERPOLACIÓN — LO QUE `censo-sql-concatenado` NO MIRA\n";
+echo str_repeat('=', 92) . "\n";
+printf("UNIVERSO: %d archivos .php bajo `src/app`, excluyendo %s\n", count($archivos), implode(' ', EXCLUIDOS));
+printf("SUMIDEROS: %s. `execute()` NO es uno: recibe los valores, no el texto.\n\n", implode(', ', SUMIDEROS));
+
+printf("  A  cadenas SQL armadas con una VARIABLE dentro ................ %4d\n", count($A));
+printf("  B  de A, las que alcanzan un sumidero EN EL MISMO MÉTODO ...... %4d\n", count($B));
+printf("  C  de B, las que interpolan un valor de la PETICIÓN ........... %4d   <- LA QUE IMPORTA\n\n", count($C));
+printf("     de B, INDECISAS (la traza no alcanza a decidir) ........... %4d\n", count($Brevisar));
+printf("     de A, la cadena SALE DEL MÉTODO — a REVISAR, no a limpio ... %4d", count($sale));
+printf("  (%d de ellas CON petición)\n\n", count($saleConfirmado));
+
+$listar = function (string $titulo, array $lista) use ($detalle): void {
+    if (count($lista) === 0) {
+        return;
+    }
+    echo "{$titulo}\n" . str_repeat('-', 92) . "\n";
+    foreach ($lista as $h) {
+        printf("  %s:%d  %s()  %s\n", $h['ruta'], $h['linea'], $h['metodo'], $h['var']);
+        printf("      %s\n", mb_substr($h['sql'], 0, 150));
+        if ($detalle) {
+            foreach ($h['traza'] as $t) {
+                echo "        · {$t}\n";
+            }
+        }
+    }
+    echo "\n";
+};
+$listar('C — INTERPOLAN UN VALOR DE LA PETICIÓN Y SE EJECUTAN AQUÍ', $C);
+$listar('B INDECISAS — REVISAR A MANO', $Brevisar);
+$listar('SALEN DEL MÉTODO CON PETICIÓN DENTRO — REVISAR A MANO', $saleConfirmado);
+if (!$detalle) {
+    echo "Con `--detalle` sale la traza de cada una, y también las que salen del método sin petición.\n\n";
+}
+
+echo "SU COTA, Y SE IMPRIME (LEY 15)\n" . str_repeat('-', 92) . "\n";
+echo "  · LA TRAZA NO CRUZA DE MÉTODO. Una cadena armada aquí y ejecutada allá NO se sigue:\n";
+echo "    si la variable sale del método va a REVISAR A MANO, nunca a DESCARTADO.\n";
+echo "  · Tampoco resuelve índices de array ni variables variables, igual que el censo hermano.\n";
+echo "  · `B` mira sólo el PRIMER argumento del sumidero, que es donde va la sentencia.\n";
+echo "  · Qué es «un valor de la petición» lo decide `censo-sql-concatenado`: se requiere y se\n";
+echo "    usan sus `FUENTES` y su `resuelve()`. Una sola definición, no dos.\n";
+echo "  · ESTE INSTRUMENTO NO TIENE TRINQUETE y no cuelga de ninguna puerta. Sólo mide.\n";
+exit(0);
