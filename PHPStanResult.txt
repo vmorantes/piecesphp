@@ -1140,7 +1140,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                              
  ------ ------------------------------------------------------------------------------------ 
-  354    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  360    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 
@@ -2364,9 +2364,9 @@
          💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                                                                 
   81     Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, non-falsy-string given.                                 
          🪪  argument.type                                                                                                                    
-  228    Parameter Nr.1 $path of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string, string|false given.       
+  226    Parameter Nr.1 $path of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string, string|false given.       
          🪪  argument.type                                                                                                                    
-  228    Parameter Nr.2 $root of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string|null, string|false given.  
+  226    Parameter Nr.2 $root of class PiecesPHP\Core\Helpers\Directories\DirectoryObject constructor expects string|null, string|false given.  
          🪪  argument.type                                                                                                                    
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
 

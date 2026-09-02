@@ -95,14 +95,12 @@ class TasksManager
 
         if ($toolsDir && is_dir($toolsDir)) {
 
-            // 1. Instalar tools si no están instaladas
-            $isInstalled = is_dir($toolsDir . '/vendor');
+            // 1. Instalar tools segun el lock. SIEMPRE `install`: `update` ignoraria
+            //`bin/tools/composer.lock`, que esta versionado, y dos clones medirian con
+            //analizadores distintos. Subir una herramienta se hace a mano en `bin/tools`.
             chdir($toolsDir);
-            $action = $isInstalled ? 'update' : 'install';
-            echo $isInstalled
-                ? "[PiecesPHP] Actualizando herramientas de desarrollo...\n"
-                : "[PiecesPHP] Instalando herramientas de desarrollo...\n";
-            self::runComposer($action);
+            echo "[PiecesPHP] Instalando herramientas de desarrollo segun su lock...\n";
+            self::runComposer('install');
 
             // 2. Instalar repositorio de phpstan para intellisense
             $phpstanRepoDir = $toolsDir . '/phpstan-src';

@@ -1,0 +1,27 @@
+{
+    "why": "Funciones cuyo proposito es PRODUCIR TEXTO PARA MIRAR y cuya salida acaba ejecutandose, escribiendose o saliendo por una respuesta. `getCompiledSQL()` sin argumento quita los dos puntos del marcador A PROPOSITO —es la forma para leer— y `DataTablesHelper` la ejecutaba: MySQL leia el alias como nombre de columna. Nadie lo vio en anos porque solo se nota cuando hay valores de reemplazo. Ver T160 y T161.",
+    "rules": [
+        "LA LISTA SOLO PUEDE ENCOGER, y encoger incluye vaciarse. Una EJECUTADA que no este aqui hace fallar la puerta y se nombra.",
+        "Una entrada que ya no case con ningun hallazgo TAMBIEN hace fallar: quitarla es parte de cerrar el caso.",
+        "Declarar NO es eximir de pensar: cada entrada dice POR QUE su salida puede llegar a un sumidero sin que sea un defecto.",
+        "El universo tambien se compara: menos archivos mirados dan menos hallazgos sin que nadie haya arreglado nada. LEY 15."
+    ],
+    "medido": {
+        "fecha": "2026-09-01",
+        "bloque": "AU; con trinquete desde AY",
+        "herramienta": "bin/censo-formas-de-lectura",
+        "universo": "los CINCO repositorios: src/app de piecesphp y el src/ de database, datastructures, html y geojson, tal como estan instalados en src/vendor/piecesphp AL CONGELAR eran 736; sube a 737 con `HavingItemGroup.php`, que llega en la v4.1.0 del paquete.",
+        "excluidos": "/node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
+        "archivos": 737,
+        "formas_halladas": 22,
+        "canario": "cuatro caras: la DEFINICION de `getCompiledSQL()` sale y la del `toString()` de un segmento no; la LLAMADA `getCompiledSQL()` sale y `getCompiledSQL(true)` no. Sin la cuarta, el censo no distingue el defecto de su arreglo. Y la PUERTA se provoco en AY plantando una forma de lectura ejecutada en un archivo propio: salio ROJA nombrandola. Sin ese rojo, cablearla no habria probado nada.",
+        "cota_declarada": "la traza mira EL METODO QUE LLAMA y no cruza de clase: si la salida se guarda en una propiedad o se devuelve, no se sigue. Los sumideros son ocho y ningun otro."
+    },
+    "entries": [
+        {
+            "forma": "humanReadable",
+            "sumidero": "withJson( en APIController::publications(), ::news() y ::usersActions()",
+            "por_que": "NO ES UN DEFECTO. Sale marcada porque su nombre casa la regla 1 —`readable`— y porque una respuesta HTTP es sumidero. Pero devuelve los datos LEGIBLES de la entidad y su destino es una respuesta de API: su destino es su proposito. Se deja marcada a proposito, porque un falso positivo que se explica cuesta menos que un criterio que deje pasar el siguiente."
+        }
+    ]
+}

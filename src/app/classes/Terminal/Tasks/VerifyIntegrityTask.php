@@ -222,6 +222,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 24. Las concatenaciones de SQL con valor de petición no han crecido ───────
         $sqlFailures = self::checkConcatenatedSql();
 
+        //──── 25. Ninguna forma «para leer» acaba ejecutándose sin declararlo ───────────
+        $readingFailures = self::checkReadingForms();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -231,7 +234,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($orderFailures) + count($orphanFailures)
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
             + count($symlinkFailures) + count($langFailures) + count($tagFailures)
-            + count($routeDeclFailures) + count($sqlFailures);
+            + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -250,6 +253,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($sqlFailures as $line) {
             echoTerminal("\e[31mSQL CONCATENADO:\e[39m {$line}");
+        }
+        foreach ($readingFailures as $line) {
+            echoTerminal("\e[31mFORMA DE LECTURA:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -2426,6 +2432,50 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'claves de traducción comprobadas.'));
+        return [];
+    }
+
+    /**
+     * Ninguna función «para leer» acaba ejecutándose sin estar declarada.
+     *
+     * `getCompiledSQL()` sin argumento produce SQL NO EJECUTABLE —quita los dos puntos del
+     * marcador a propósito—, y `DataTablesHelper` la ejecutaba. Solo se nota cuando hay valores
+     * de reemplazo, y por eso durmió años. El censo mira las 22 formas de los cinco
+     * repositorios; la lista de EJECUTADA declaradas solo puede encoger. Ver T160, T161 y T164.
+     *
+     * @return string[]
+     */
+    protected static function checkReadingForms(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $script = $root . '/bin/censo-formas-de-lectura';
+
+        if (!is_file($script)) {
+            //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
+            return ['no existe ' . $script . ': el trinquete de formas de lectura NO se ha comprobado'];
+        }
+
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
+        exec('cd ' . escapeshellarg($root) . ' && ' . escapeshellarg($script) . ' --trinquete 2>&1', $output, $status);
+
+        $line = '';
+        $extra = [];
+        foreach ($output as $candidate) {
+            if (mb_strpos($candidate, 'TRINQUETE') === 0) {
+                $line = $candidate;
+            }
+            if (mb_strpos($candidate, '                ') === 0 && mb_strpos($candidate, '.php:') !== false) {
+                $extra[] = trim($candidate);
+            }
+        }
+
+        if ($status !== 0) {
+            return array_merge([$line !== '' ? $line : 'el censo de formas de lectura salió con código ' . $status], $extra);
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'formas de lectura comprobadas.'));
         return [];
     }
 

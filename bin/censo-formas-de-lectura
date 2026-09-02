@@ -35,6 +35,8 @@
  * Uso:
  *   bin/censo-formas-de-lectura            las tres listas
  *   bin/censo-formas-de-lectura --detalle  con los sitios de llamada
+ *   bin/censo-formas-de-lectura --trinquete  compara EJECUTADA contra la linea base y FALLA
+ *                                            si aparece una no declarada
  */
 
 const REPOS = [
@@ -58,6 +60,9 @@ const VALORES = ['ReplacementValues', 'replacePrepareValues', 'replaceValues', '
 const SUSTITUYE = ['str_replace', 'preg_replace', 'strtr'];
 
 //LOS SUMIDEROS. Lo que no este aqui NO se detecta, y por eso se imprime.
+//LAS FORMAS EN LAS QUE EL ARGUMENTO CAMBIA LA NATURALEZA DE LA LLAMADA. Solo estas.
+const ARGUMENTO_DECIDE = ['getCompiledSQL'];
+
 const SUMIDEROS = ['->prepare(', '->query(', '->exec(', '->execute(', 'file_put_contents',
                    '->write(', 'withJson(', 'eval('];
 
@@ -185,7 +190,14 @@ function esFormaDeLectura(array $fn): array
     if (contiene($fn['nombre'], NOMBRES)) {
         return [true, 'el NOMBRE lo anuncia'];
     }
-    if ($fn['doc'] !== '' && contiene($fn['doc'], DOCBLOCK)) {
+    //SOLO EL RESUMEN, que es donde una funcion declara LO QUE ES. Mirar el docblock entero
+    //marcaba `DataTablesHelper::process()`, cuyo cuerpo de prosa HABLA de formas de lectura sin
+    //serlo: la regla casaba el tema, no el sujeto. Se vio en AY al arreglar la del argumento.
+    $resumen = '';
+    foreach (array_slice(explode("\n", $fn['doc']), 0, 4) as $linea) {
+        $resumen .= ' ' . trim(ltrim(trim($linea), '/*'));
+    }
+    if ($resumen !== '' && contiene($resumen, DOCBLOCK)) {
         return [true, 'el DOCBLOCK lo dice'];
     }
     //LA TERCERA Y LA QUE IMPORTA: toca los valores de reemplazo Y los mete en el texto.
@@ -287,13 +299,17 @@ foreach (array_keys($porNombre) as $nombre) {
                     continue;
                 }
                 //LA VARIABLE QUE RECIBE LA SALIDA, y si esa variable llega a un sumidero.
-                //EL ARGUMENTO DECIDE. `getCompiledSQL(true)` NO es una forma de lectura: interpola
-                //el valor real ya escapado. Solo la llamada SIN argumento —o con `false`— lo es.
-                $cuerpo = preg_replace(
-                    '/(?:->|::)' . preg_quote($nombre, '/') . '\s*\(\s*(?!\)|false)/i',
-                    '->__LLAMADA_CON_ARGUMENTO__(',
-                    $cuerpo
-                ) ?? $cuerpo;
+                //EL ARGUMENTO DECIDE, PERO SOLO EN LAS QUE LO DECLARAN. `getCompiledSQL(true)` no
+                //es forma de lectura porque interpola el valor real; en las demas, un argumento no
+                //dice nada, y aplicar la regla a todas cegaba el censo para cualquier forma que
+                //recibiera parametros. Se vio plantando una a proposito en AY.
+                if (in_array($nombre, ARGUMENTO_DECIDE, true)) {
+                    $cuerpo = preg_replace(
+                        '/(?:->|::)' . preg_quote($nombre, '/') . '\s*\(\s*(?!\)|false)/i',
+                        '->__LLAMADA_CON_ARGUMENTO__(',
+                        $cuerpo
+                    ) ?? $cuerpo;
+                }
                 if (mb_strpos($cuerpo, "->{$nombre}(") === false && mb_strpos($cuerpo, "::{$nombre}(") === false) {
                     continue;
                 }
@@ -387,3 +403,65 @@ echo "  - CLASIFICADA A MANO: `humanReadable()` sale EJECUTADA porque su nombre 
 echo "    y `withJson(` es sumidero. NO ES UN DEFECTO: devuelve datos legibles de la entidad y\n";
 echo "    su destino es una respuesta de API, que es su proposito. Se deja marcada a proposito:\n";
 echo "    un falso positivo que se explica cuesta menos que un criterio que la deje pasar.\n";
+
+if (!in_array('--trinquete', array_slice($argv, 1), true)) {
+    exit(0);
+}
+
+echo "\n";
+$baselinePath = dirname(__DIR__) . '/files/dev/reading-forms-baseline.json';
+$crudo = @file_get_contents($baselinePath);
+$baseline = is_string($crudo) ? json_decode($crudo, true) : null;
+if (!is_array($baseline) || !isset($baseline['entries'])) {
+    //Sin linea base el trinquete no significa nada, y decirlo es mejor que pasar en verde.
+    echo "TRINQUETE: no se pudo leer files/dev/reading-forms-baseline.json. SIN LINEA BASE NO HAY TRINQUETE.\n";
+    exit(1);
+}
+
+$declaradas = [];
+foreach ($baseline['entries'] as $entry) {
+    $declaradas[] = (string) ($entry['forma'] ?? '');
+}
+
+//EL UNIVERSO TAMBIEN SE COMPARA: menos archivos mirados dan menos hallazgos sin que nadie haya
+//arreglado nada. LEY 15.
+$universo = (int) ($baseline['medido']['archivos'] ?? 0);
+if ($universo > 0 && $universo !== $archivosTotales) {
+    printf("TRINQUETE: el universo cambio — %d archivos al congelar, %d ahora. La cifra NO es comparable hasta declararlo.\n",
+        $universo, $archivosTotales);
+}
+
+$sinDeclarar = [];
+foreach (array_keys($conEjecucion) as $nombre) {
+    if (!in_array($nombre, $declaradas, true)) {
+        $sinDeclarar[] = $nombre;
+    }
+}
+$declaradasHuerfanas = [];
+foreach ($declaradas as $nombre) {
+    if (!array_key_exists($nombre, $conEjecucion)) {
+        $declaradasHuerfanas[] = $nombre;
+    }
+}
+
+if (count($sinDeclarar) > 0) {
+    printf("TRINQUETE ROTO: %d forma(s) de lectura EJECUTADA(s) sin declarar.\n", count($sinDeclarar));
+    foreach ($sinDeclarar as $nombre) {
+        foreach ($conEjecucion[$nombre] as $f) {
+            printf("                %s()  %s:%d  [%s]\n", $nombre, $f['ruta'], $f['linea'], $f['repo']);
+        }
+        foreach ($veredictos[$nombre]['ejecutada'] as $d) {
+            printf("                  -> EJECUTA: %s\n", $d);
+        }
+    }
+    exit(1);
+}
+
+if (count($declaradasHuerfanas) > 0) {
+    printf("TRINQUETE ROTO: %s figura(n) como declarada(s) y ya no casa(n) con ningun hallazgo.\n", implode(', ', $declaradasHuerfanas));
+    echo "                Quita la entrada: la lista solo puede encoger.\n";
+    exit(1);
+}
+
+printf("TRINQUETE: %d forma(s) de lectura ejecutada(s), todas declaradas. Igual que la linea base.\n", count($conEjecucion));
+exit(0);

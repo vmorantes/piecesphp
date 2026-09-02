@@ -17231,3 +17231,87 @@ PHPStan **744 ← 744**: 0 murieron, 0 nacieron, 0 silenciadas, 32 desplazadas.
 - La subida de PHPStan 2.2.9 → 2.2.12 y Rector 2.6.4 → 2.6.5, revertida aquí y pendiente de
   decidirse en su propio bloque.
 - Los 14 archivos de los cubos B y C, sin prisa y sin ganancia.
+
+---
+
+## T164 · AY · EL INSTRUMENTO DEJA DE MOVERSE SOLO
+
+**Bloque AY.** Tres cosas del mismo sujeto —las herramientas— y ninguna toca producción. El
+paso 2 **se detuvo** por lo que midió, y la puerta 25 destapó **dos defectos del propio censo**
+al provocarla.
+
+### PASO 1 · El lock vuelve a mandar
+
+`TasksManager::setupDevTools()` hacía `update` cuando `vendor/` ya existía. `bin/tools/composer.lock`
+**está versionado**, así que ese `update` lo ignoraba: quien clone y corra `composer install` dos
+veces mide con dos analizadores distintos sin enterarse. Pasa a `install` siempre.
+
+| | `git diff -- bin/tools/composer.lock` |
+| :-- | :-- |
+| **VERDE**, con `install` | *(vacío)* · imprime `Instalando herramientas de desarrollo segun su lock...` |
+| **ROJO**, volviendo a `update` | `11 insertions(+), 14 deletions(-)` · `Upgrading phpstan/phpstan (2.2.9 => 2.2.12)` y `Upgrading rector/rector (2.6.4 => 2.6.5)` |
+
+Ese rojo es exactamente lo que me pasó en AX sin querer. Restaurado y reinstalado a 2.2.9 / 2.6.4.
+
+### PASO 2 · >>> DETENIDO <<< y con la medición delante
+
+**Cada paquete trae su propio PHPStan por su lock raíz. NO comparten el de `piecesphp`.**
+
+| repo | de dónde | versión |
+| :-- | :-- | --: |
+| `piecesphp` | `bin/tools/composer.lock` | **2.2.9** |
+| `database` | su `composer.lock` raíz | **2.1.44** |
+| `datastructures`, `html`, `geojson` | su `composer.lock` raíz | **2.1.42** |
+
+Comprobado en el `installed.json` de cada uno, no solo en el lock: `database` usa 2.1.44 y
+`piecesphp` 2.2.9.
+
+> **Y añado lo que la medición dice y la pregunta no anticipaba: la comparabilidad NO EXISTE
+> HOY.** Tres versiones distintas de analizador reparten los cinco repositorios, y cada uno tiene
+> su propia línea base. Subir `piecesphp` no rompe nada que estuviera entero. La decisión —subir
+> solo aquí, subir los cinco, o dejarlo— es tuya, y ahora tiene los números delante.
+
+### PASO 3 · La puerta 25, y los DOS defectos que destapó al provocarla
+
+`bin/censo-formas-de-lectura` gana `--trinquete` contra `files/dev/reading-forms-baseline.json`,
+con su universo declarado (737 archivos; eran 736 y sube por `HavingItemGroup.php`, que llega con
+`v4.1.0`). `checkReadingForms()` entra como comprobación 25, modelada sobre `checkConcatenatedSql()`:
+si no encuentra el guion **devuelve fallo**, nunca silencio.
+
+**Provocar la puerta —plantar una forma de lectura ejecutada— no la puso roja.** Y ahí estaban
+los dos defectos, los dos míos:
+
+1. **La regla del argumento cegaba el censo entero.** La escribí en AU para distinguir
+   `getCompiledSQL()` de `getCompiledSQL(true)`, y la apliqué a **todas** las formas: cualquiera
+   que reciba parámetros quedaba invisible en la traza de consumo. Ahora solo se aplica a las que
+   lo declaran, en `ARGUMENTO_DECIDE`.
+2. **Mi propio docblock de AU convertía a `process()` en falso positivo.** La regla del docblock
+   miraba el bloque entero, y el de `process()` —50 líneas— *habla* de formas de lectura sin
+   serlo: casaba el tema, no el sujeto. Ahora mira solo el **resumen**, que es donde una función
+   declara lo que es.
+
+> Los dos son la misma lección desde dos lados: **una regla escrita para un caso concreto,
+> aplicada a todos, deja de medir**. Y ninguno se habría visto sin el rojo.
+
+Con las dos corregidas, la puerta:
+
+| | |
+| :-- | :-- |
+| **VERDE** | `INFO: 1 forma(s) de lectura ejecutada(s), todas declaradas.` |
+| **ROJO** | `FORMA DE LECTURA: TRINQUETE ROTO: 1 forma(s) … sin declarar.` + `dumpQuery() … PruebaFormaLectura.php:9` + `-> EJECUTA: …::corre() — $texto` |
+
+### PASO 4 · Corrección de sujeto (LEY 14)
+
+En T163 escribí que «el camino de cadena sigue vivo para `dataTablesExplorer`». **El sujeto es
+`processFromQuery()`**, y está medido: tiene **un** consumidor,
+`MySpace\Controllers\AllProfilesController:162`. `DocumentsController::dataTablesExplorer` es una
+controladora y usa `process()` —líneas 842 y 915—, no `processFromQuery()`.
+
+**El error nació en la instrucción de ARQUITECTO y yo lo copié sin comprobarlo.** La entrada de
+T163 no se reescribe: la corrección vive aquí y enlazada.
+
+### Lo que queda abierto
+
+- La subida de PHPStan y Rector, detenida en el paso 2 y pendiente de tu decisión.
+- `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+- Los 14 archivos de los cubos B y C, sin prisa y sin ganancia.

@@ -1679,8 +1679,11 @@ framework nunca fija— **puede dejar de concatenar**. Es la ultima concatenacio
 `generateHaving()` tiene DOS consumidores y solo uno puede recibir un segmento:
 
 - `process()` (`:322`) construye con el ORM -> **si puede** tomar un `HavingSegment`.
-- `dataTablesExplorer()` (`:907`) arma SQL crudo: `"SELECT ... {$having} {$order_by}"` (`:994`).
+- `processFromQuery()` (`:740`) arma SQL crudo: `"SELECT ... {$having} {$order_by}"` (`:994`).
   **Necesita un string y lo seguira necesitando.**
+  *(Esta linea decia `dataTablesExplorer()`. ERROR DE ARQUITECTO, corregido el 2026-09-02: ese es
+  un metodo de CONTROLADORA que usa `process()`. Ver la seccion «`processFromQuery()` TIENE UN
+  SOLO CONSUMIDOR» mas abajo. El CODER heredo el nombre equivocado en su reporte de AX.)*
 
 Por eso el bloque **no cambia `generateHaving()`**: extrae de el la decision de QUE COLUMNAS son
 buscables a un solo sitio, y añade `generateHavingGroup()` al lado. Dos formas, **una sola
@@ -1752,6 +1755,54 @@ La nota de los 85 del «grupo B» dice *«Van a E2. Ver T41.»* y **E2 esta cerr
 O se miraron y nadie actualizo la nota, o se cayeron. **No se afirma cual**: es una comprobacion
 barata y entra en el bloque de PHPStan. Es exactamente lo que el CODER llamo «las cotas escritas
 se pudren», ahora en un archivo de configuracion.
+
+### LOS COMENTARIOS «CUENTAN LA CAMPANA» — medido el 2026-09-02, y el PROPIETARIO lo ha dicho DOS veces
+
+Queja literal: *«Los comentarios de CODER me siguen pareciendo super extensos y como que cuentan
+la campana en lugar de contar el codigo.»* Segunda vez. Una queja que se repite es una regla que
+fallo, y una regla que fallo se convierte en mecanismo (LEY 11).
+
+**MEDIDO, y una parte NO le da la razon —se dice igual—:**
+
+- `src/app` tiene **25.937 lineas de comentario**. Las que citan la campana —`T##`, `LEY ##`,
+  `bloque AX`— son **201: el 0,8%**. La version fuerte de la queja, «el codigo esta lleno de
+  relato de campana», **no la sostiene la medicion**.
+- La comprobacion 8 (`checkNarrativeComments`) **esta verde y tiene razon**: en
+  `DataTablesHelper.php` la racha mas larga de `//` seguidos es **2**. Cero bloques narrativos.
+  El CODER cumple LEY 7 al pie de la letra.
+
+**Y AQUI ESTA DONDE SI TIENE RAZON, que es lo que su ojo estaba viendo:**
+
+1. **LA PROSA SE MUDO AL DOCBLOCK, donde el instrumento no mira.** LEY 15 en estado puro. La
+   comprobacion 8 exige «mas de dos lineas de prosa Y NINGUNA anotacion»; un docblock con un
+   `@param` al final puede llevar cincuenta lineas de relato y pasa. El de `process()`
+   (`DataTablesHelper:47`) tiene **50 lineas** y es **el segundo mas largo de `src/app`**, solo
+   detras de uno heredado de 168. **Lo escribimos nosotros, en AP.**
+2. **DENSIDAD**: 88 comentarios `//` sobre 822 lineas de codigo en ese archivo. Uno cada 9.
+
+**EL DEFECTO DURO, que convierte una queja de estilo en una de correccion:**
+
+**177 sitios en `src/` citan el registro** (`Ver T152`, `Ver T156`…), con **68 claves `T`
+distintas**. Hoy **resuelven todas** —163 entradas en `18-siguientes-ventanas.md`—. Y el registro
+**esta en la lista de borrado**: «los 81 bloques del registro: el borrado espera al cierre de E6».
+
+> **El dia que se borre el registro, 177 punteros del producto apuntan al vacio.** Y el framework
+> SE CLONA: quien reciba el clon lee `Ver T156` y no tiene forma de saber que era.
+
+Es LEY 28 con el sujeto cambiado: un borrado no termina cuando el archivo se va, sino cuando nada
+lo sigue nombrando. Aqui el borrado esta PLANIFICADO y los punteros ya estan escritos.
+
+**LA REGLA QUE PROPONE ARQUITECTO** (pendiente de decision del PROPIETARIO):
+
+> En codigo de PRODUCCION, un comentario dice **QUE hace el codigo y QUE se rompe si cambia**.
+> Nunca **CUANDO se decidio ni en que bloque**. El «cuando» vive en el registro; el codigo dice
+> el «que». Los INSTRUMENTOS DE CAMPANA —`VerifyIntegrityTask` (26 citas), las suites
+> `UnitTest-*` (17 en `SqlPlaceholders`)— quedan fuera: ahi el sujeto ES la campana.
+
+**Y ARQUITECTO ES LA FUENTE, no el CODER.** Mis recuadros piden el motivo escrito en el codigo
+—«con su motivo escrito en dos lineas», «una linea de comentario, no tres»— y a la vez exigen que
+cada decision quede trazada. El CODER escribe lo que le pido. **La verbosidad se corrige en la
+instruccion, no en el revisor.**
 
 ### Abierto, sin decidir
 
