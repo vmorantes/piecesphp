@@ -15,8 +15,6 @@ use Forms\Categories\Exceptions\SafeException;
 use Forms\Categories\Mappers\CategoriesMapper;
 use PDOException;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
-use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -68,15 +66,7 @@ class CategoriesController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadDir = '';
-    /**
-     * @var string
-     */
     protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirURL = '';
     /**
      * @var string
      */
@@ -89,7 +79,6 @@ class CategoriesController extends AdminPanelController
     const BASE_VIEW_DIR = '';
     const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
-    const UPLOAD_DIR = 'categories';
     const UPLOAD_DIR_TMP = 'categories/tmp';
     const LANG_GROUP = CategoriesLang::LANG_GROUP;
 
@@ -107,9 +96,7 @@ class CategoriesController extends AdminPanelController
         $pcsUploadDir = get_config('upload_dir');
         $pcsUploadDirURL = get_config('upload_dir_url');
 
-        $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
         $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
-        $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
         $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
@@ -925,111 +912,6 @@ class CategoriesController extends AdminPanelController
         }
 
         return $allow;
-    }
-
-    /**
-     * @param string $nameOnFiles
-     * @param string $folder
-     * @param string $currentRoute
-     * @param array $allowedTypes
-     * @param bool $setNameByInput
-     * @param string $name
-     * @return string
-     * @throws \Exception
-     */
-    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
-    {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
-        }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name ??= 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new CategoriesController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-
-                if ($valid) {
-
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-                    if (!empty($locations)) {
-
-                        $url = $locations[0];
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
     }
 
     /**

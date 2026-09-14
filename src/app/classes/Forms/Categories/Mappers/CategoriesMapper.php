@@ -9,7 +9,6 @@ namespace Forms\Categories\Mappers;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Model\UsersModel;
 use Forms\Categories\CategoriesLang;
-use Forms\Categories\Controllers\CategoriesController;
 use Forms\Categories\Exceptions\DuplicateException;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
@@ -163,17 +162,6 @@ class CategoriesMapper extends EntityMapperExtensible
                 }
             }
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function folderRemove()
-    {
-        $pcsUploadDir = get_config('upload_dir');
-        $folder = append_to_url(append_to_url($pcsUploadDir, CategoriesController::UPLOAD_DIR), $this->folder);
-        $removed = @rmdir($folder);
-        return $removed;
     }
 
     /**

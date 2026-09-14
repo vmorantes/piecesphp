@@ -8,7 +8,6 @@ namespace Forms\DocumentTypes\Mappers;
 
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Model\UsersModel;
-use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use Forms\DocumentTypes\DocumentTypesLang;
 use Forms\DocumentTypes\Exceptions\DuplicateException;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -163,17 +162,6 @@ class DocumentTypesMapper extends EntityMapperExtensible
                 }
             }
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function folderRemove()
-    {
-        $pcsUploadDir = get_config('upload_dir');
-        $folder = append_to_url(append_to_url($pcsUploadDir, DocumentTypesController::UPLOAD_DIR), $this->folder);
-        $removed = @rmdir($folder);
-        return $removed;
     }
 
     /**

@@ -1,0 +1,28 @@
+{
+    "why": "Toda carpeta de subidas —el valor de una constante UPLOAD_DIR de un controlador de src/app— está protegida en src/app/config/final-configurations-includes/protected-files.php o declarada aquí con su motivo. Una carpeta sin proteger la sirve Apache directo, sin pasar por ningún validador. Es la comprobación 29 de bin/cli verify-integrity. Decisión del PO: P24, 2026-09-14.",
+    "rules": [
+        "LA LISTA SOLO PUEDE ENCOGER. Un UPLOAD_DIR nuevo que no se proteja ni se declare hace fallar la comprobación 29.",
+        "Se declara por el VALOR del UPLOAD_DIR, con la constante que lo define y el motivo.",
+        "Una entrada que ya no case con ningún UPLOAD_DIR también hace fallar: encoger incluye vaciarse.",
+        "Una carpeta protegida Y declarada aquí también falla: serían dos verdades sobre la misma carpeta.",
+        "`publicas`: se sirven sin validador a propósito. `sin_archivos`: la constante existe, pero nada vivo escribe en esa carpeta."
+    ],
+    "medido": {
+        "fecha": "2026-09-14",
+        "bloque": "BK",
+        "metodo": "tokens: `const UPLOAD_DIR = '<literal>'` en los .php de src/app, sin vendor",
+        "upload_dirs": 6,
+        "protegidas": 4
+    },
+    "publicas": {
+        "built-in-banner": {
+            "constante": "PiecesPHP\\BuiltIn\\Banner\\Controllers\\BuiltInBannerController::UPLOAD_DIR",
+            "why": "la portada lo muestra; los borrados no se listan desde #032"
+        },
+        "helpers-system/generic": {
+            "constante": "PiecesPHP\\BuiltIn\\Helpers\\Controllers\\GenericContentController::UPLOAD_DIR",
+            "why": "imagen de inicio pensada para la zona pública de los clones"
+        }
+    },
+    "sin_archivos": {}
+}
