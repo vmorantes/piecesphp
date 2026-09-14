@@ -46,3 +46,6 @@ files/dev/last-restore.json
 #Bytecode de los guiones de agentes. La guarda corre con `python3 -B` y no lo genera; esto es
 #la red para quien la ejecute sin la opción. Ver ADR 0003.
 **/__pycache__/
+
+#Build de la documentación de la API: se genera con `cd src && gulp api-build` y no se versiona. Ver ADR 0006.
+source-docs/api/docs-dist/
