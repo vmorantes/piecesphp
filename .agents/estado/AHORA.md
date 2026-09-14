@@ -1,8 +1,13 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 15:21 (medido con `date`), tras la interrupción de las 15:18, en
-  la que no se perdió nada.
-- **Último mensaje:** `#020 · ARQ`, en vuelo: lote 2, bloque 1. El próximo número es `#021`.
+- **Actualizado:** 2026-09-14 15:38 (medido con `date`). A las 15:18 hubo una interrupción, sin
+  pérdidas. El PO delegó P22 y P23: «Resuelve P22 y P23 como tu prefieras».
+- **Último mensaje:** `#022 · ARQ`, en vuelo: lote 2, bloque 2, y la nivelación de html. El
+  próximo número es `#023`.
+- **`#021` (lote 2, bloque 1): completado**, en `1184f229`.
+  - `bin/censo-sql-identificadores` da 0 CONFIRMADO, 8 REVISAR y 102 DESCARTADO en 138
+    posiciones. Ningún identificador llega de la petición.
+  - Canario de 27 caras; la provocación se vio fallar.
 - **Tramo en curso:** [`tramos/2026-09-14-1441-mapa-a-la-major.md`](tramos/2026-09-14-1441-mapa-a-la-major.md).
 - **Tramo anterior:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md),
   cerrado.
@@ -38,38 +43,56 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
-1. **P23 — html sin nivelar.**
-   - El lock local de html, que no se versiona, fija `piecesphp/datastructures` v3.1.0, y su
-     `composer.json` pide `^4.0` desde su versión 3.0.0.
-   - Para pasar html a phpstan 2.2.12 hay que actualizar también `piecesphp/datastructures`,
-     que no es una herramienta de análisis.
-   - *Predeterminado*: html sigue con phpstan 2.1.42, declarado así en el registro. Es lo único
-     que queda de BD.
-2. **Subir cuando quieras**: los commits de hoy aquí y en los cuatro paquetes, y las dos ramas
+1. **Subir cuando quieras**: los commits de hoy aquí y en los cuatro paquetes, y las dos ramas
    `dev` nuevas.
-3. **P22**: `TokenModel` firma sus tokens genéricos con una constante del código y no con
-   `app_key` (las sesiones sí usan `app_key`). *Predeterminado*: queda anotado y no se toca.
+
+**Resueltas por delegación (2026-09-14).** Ya están en `pendientes.md`, en el mapa (lote 5b) y en
+el ADR 0008. Se commitean en el PASO 1 de `#022`.
+
+- **P23 → ADR 0008.** En los cuatro paquetes hermanos, y solo ahí (su lock no se versiona), la
+  guarda dejará actualizar `piecesphp/*` con `--working-dir`. Después, una ronda nivela html:
+  `composer update piecesphp/datastructures phpstan/phpstan:2.2.12 rector/rector:2.6.6`.
+- **P22 → lote 5b, «Tokens genéricos»**, a continuación de OTP. Medido:
+  - **La constante no es la frontera de confianza.** Todo JWT de `TokenModel` y de
+    `GenericTokenController` se lee de la fila de la base de datos, nunca de la petición.
+    Pasar las dos constantes (`KEY_BASE_JWT`, `KEY_JWT`) a `app_key` es higiene y entra en el
+    lote.
+  - **El defecto real es otro:**
+    - la URL genérica lleva el `id` cifrado con `BaseHashEncryption::encrypt($id, self::class)`,
+      un cifrado aditivo con una clave pública: los `id` se pueden calcular;
+    - la ruta es pública (`validate_session` es falso en `commentary`);
+    - `entryPoint()` carga la fila sin mirar su tipo y, si el JWT no verifica, la **borra**
+      (`GenericTokenController.php:205`).
+  - **SOSPECHA fuerte, sin provocar**: un anónimo podría borrar filas de tokens de cualquier
+    tipo, incluidas las recuperaciones de contraseña pendientes. Depende de que
+    `BaseToken::isExpire()` devuelva algo verdadero ante una firma ajena (`return $exp;`, línea
+    del `else`). Se confirma con una prueba sin base de datos.
+  - En el framework nadie crea tokens genéricos (`createTokenURL()` no tiene llamadores), pero
+    la función viaja a cada clon.
 
 Siguen abiertas en `docs/pendientes.md`: qué es el geovisor, el francés, el rol 50 con nombre
 `null` y `Components`.
 
 ## En curso
 
-**`#020` — lote 2, bloque 1: `bin/censo-sql-identificadores`.**
-- Mide las posiciones de identificador que ningún censo mira: `select`, `get` (argumentos 2 y
-  3), `setTable`, `rowCount`, la tabla de `join` y sus variantes, y las claves `select_fields`,
-  `columns_order` y `custom_order`.
-- Sin trinquete y sin arreglos. Queda registrado en `sql-concat-baseline.json`.
-- El PASO 1 commitea lo del arquitecto: la bitácora 0005, el mapa, `pendientes.md` y el estado.
+**`#022`**, en tres pasos:
+1. Commitear lo del arquitecto: el ADR 0008 con su guarda, el mapa, `pendientes.md` y el estado.
+2. Nivelar html (P23, ADR 0008).
+3. Lote 2, bloque 2: normalizar la dirección de `custom_order` en
+   `DataTablesHelper::generateOrderBy()` a ASC o DESC, con su prueba de rechazo en
+   `UnitTest-SqlPlaceholders`.
 
-Si se corta ahora: puede quedar el censo a medio escribir en `bin/`, o el registro a medias.
-Nada del producto.
+Si se corta ahora: html puede quedar con el `vendor/` actualizado y sin registrar, y la
+comprobación 7 lo diría. O `DataTablesHelper` a medio cambiar.
 
 ## Siguiente
 
-Con la cifra del censo: decidir los arreglos del lote 2. Candidato claro: la dirección de
-`custom_order`. Y decidir si el lote cruza al paquete database, donde viven `select`, `get`,
-`rowCount` y `setTable`.
+- Al recibir `#023`: la entrada de `CHANGELOG.md` para `custom_order`, que la escribe el
+  arquitecto.
+- Después, el bloque 3 del lote 2: los trinquetes de `censo-sql-identificadores` y
+  `censo-sql-interpolado` (con las seis C de `processFromQuery()` declaradas: son
+  identificadores del servidor), y el doble conteo de `metodos()`.
+- El lote 2 no cruza al paquete database: con 0 CONFIRMADO no hay nada que cerrar allí.
 
 ## Para una sesión nueva
 
