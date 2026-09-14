@@ -112,8 +112,8 @@ project://src/app/classes/Documents/Controllers/DocumentsController.php
 	argument.type (Líneas: 937, 1233)
 	offsetAccess.invalidOffset (Líneas: 1252)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
-	argument.type (Líneas: 236)
-	property.nonObject (Líneas: 273, 299)
+	argument.type (Líneas: 238)
+	property.nonObject (Líneas: 275, 301)
 project://src/app/classes/EventsLog/Views/log/list.php
 	property.nonObject (Líneas: 10)
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
@@ -165,7 +165,7 @@ project://src/app/classes/News/Controllers/NewsController.php
 	property.nonObject (Líneas: 188, 1117, 1308, 1309, 1310, 1311)
 	argument.type (Líneas: 569, 570, 600, 601, 1300, 1308)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
-	argument.type (Líneas: 445)
+	argument.type (Líneas: 447)
 project://src/app/classes/News/Mappers/NewsMapper.php
 	return.type (Líneas: 282)
 	argument.type (Líneas: 293)
@@ -182,8 +182,8 @@ project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	argument.type (Líneas: 827, 1297, 1561)
 	offsetAccess.invalidOffset (Líneas: 1580)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
-	argument.type (Líneas: 437, 867, 869, 985)
-	offsetAccess.invalidOffset (Líneas: 986)
+	argument.type (Líneas: 439, 869, 871, 987)
+	offsetAccess.invalidOffset (Líneas: 988)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	property.nonObject (Líneas: 107, 110)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
@@ -232,11 +232,11 @@ project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
-	argument.type (Líneas: 402)
+	argument.type (Líneas: 404)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
-	return.type (Líneas: 403)
-	argument.type (Líneas: 441, 453)
-	property.nonObject (Líneas: 547, 575)
+	return.type (Líneas: 405)
+	argument.type (Líneas: 443, 455)
+	property.nonObject (Líneas: 549, 577)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
@@ -253,8 +253,8 @@ project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.
 	assign.propertyType (Líneas: 362)
 	method.nonObject (Líneas: 539)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
-	assign.propertyType (Líneas: 145)
-	property.nonObject (Líneas: 206)
+	assign.propertyType (Líneas: 147)
+	property.nonObject (Líneas: 208)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
 	argument.type (Líneas: 62, 101, 109, 116, 123, 130)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
@@ -332,10 +332,10 @@ project://src/app/controller/RecoveryPasswordController.php
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
-	argument.type (Líneas: 515, 570, 916, 950, 1136, 1287, 1570, 1898)
-	method.resultUnused (Líneas: 1321, 1368, 1378, 1384, 1390, 1396, 1406, 1413, 1625, 1680, 1690, 1696, 1702, 1708, 1714, 1724, 1732, 1739)
-	method.nonObject (Líneas: 1364, 1676)
-	return.type (Líneas: 1918)
+	argument.type (Líneas: 515, 570, 917, 951, 1137, 1288, 1571, 1899)
+	method.resultUnused (Líneas: 1322, 1369, 1379, 1385, 1391, 1397, 1407, 1414, 1626, 1681, 1691, 1697, 1703, 1709, 1715, 1725, 1733, 1740)
+	method.nonObject (Líneas: 1365, 1677)
+	return.type (Líneas: 1919)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
 	argument.type (Líneas: 2247, 2305, 2322, 2322, 3245, 3246, 3247, 3347, 3348)
@@ -480,10 +480,10 @@ project://src/app/model/TokenModel.php
 project://src/app/model/UserProblemsModel.php
 	property.notFound (Líneas: 86)
 project://src/app/model/UsersModel.php
-	argument.type (Líneas: 248, 919)
-	return.type (Líneas: 390, 448, 465, 471, 487, 502, 517, 532, 547, 562, 577, 611, 617, 631)
-	property.notFound (Líneas: 593, 596)
-	foreach.nonIterable (Líneas: 823, 1050)
+	argument.type (Líneas: 250, 921)
+	return.type (Líneas: 392, 450, 467, 473, 489, 504, 519, 534, 549, 564, 579, 613, 619, 633)
+	property.notFound (Líneas: 595, 598)
+	foreach.nonIterable (Líneas: 825, 1051)
 project://src/app/view/layout/menu.php
 	property.nonObject (Líneas: 65)
 	method.nonObject (Líneas: 68, 70)

@@ -323,11 +323,11 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Documents/Mappers/DocumentsMapper.php                                          
  ------ ----------------------------------------------------------------------------------------------- 
-  236    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  238    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  273    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  275    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  299    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  301    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -602,7 +602,7 @@
  ------ ----------------------------------------------------------------------- 
   project://src/src/app/classes/News/Mappers/NewsCategoryMapper.php                    
  ------ ----------------------------------------------------------------------- 
-  445    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
+  447    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
          🪪  argument.type                                                      
  ------ ----------------------------------------------------------------------- 
 
@@ -666,15 +666,15 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Organizations/Mappers/OrganizationMapper.php                                                                         
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
-  437    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                                        
-         🪪  argument.type                                                                                                                    
-  867    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
+  439    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                                        
          🪪  argument.type                                                                                                                    
   869    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
          🪪  argument.type                                                                                                                    
-  985    Parameter Nr.1 $key of function array_key_exists expects int|string, bool|float|int|string given.                                      
+  871    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
          🪪  argument.type                                                                                                                    
-  986    Possibly invalid array key type bool|float|int|string.                                                                               
+  987    Parameter Nr.1 $key of function array_key_exists expects int|string, bool|float|int|string given.                                      
+         🪪  argument.type                                                                                                                    
+  988    Possibly invalid array key type bool|float|int|string.                                                                               
          🪪  offsetAccess.invalidOffset                                                                                                       
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -865,22 +865,22 @@
  ------ ----------------------------------------------------------------------- 
   project://src/src/app/classes/Publications/Mappers/PublicationCategoryMapper.php     
  ------ ----------------------------------------------------------------------- 
-  402    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
+  404    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
          🪪  argument.type                                                      
  ------ ----------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Publications/Mappers/PublicationMapper.php                                               
  ------ --------------------------------------------------------------------------------------------------------- 
-  403    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
+  405    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
          🪪  return.type                                                                                          
-  441    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  443    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  453    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  455    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  547    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  549    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
-  575    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  577    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
  ------ --------------------------------------------------------------------------------------------------------- 
 
@@ -939,9 +939,9 @@
  ------ ----------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php                                                
  ------ ----------------------------------------------------------------------------------------------------------------- 
-  145    Property SystemApprovals\Mappers\SystemApprovalsMapper::$extendedRecord (stdClass) does not accept object|null.  
+  147    Property SystemApprovals\Mappers\SystemApprovalsMapper::$extendedRecord (stdClass) does not accept object|null.  
          🪪  assign.propertyType                                                                                          
-  206    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                         
+  208    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                         
          🪪  property.nonObject                                                                                           
  ------ ----------------------------------------------------------------------------------------------------------------- 
 
@@ -1355,59 +1355,59 @@
          🪪  argument.type                                                                                                                              
   570    Parameter Nr.1 $type of static method App\Model\UsersModel::getTypeUserName() expects int, string given.                                         
          🪪  argument.type                                                                                                                              
-  916    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
+  917    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
          🪪  argument.type                                                                                                                              
-  950    Parameter Nr.1 $id of static method App\Model\AvatarModel::getAvatar() expects int, int|null given.                                              
+  951    Parameter Nr.1 $id of static method App\Model\AvatarModel::getAvatar() expects int, int|null given.                                              
          🪪  argument.type                                                                                                                              
-  1136   Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
+  1137   Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
          🪪  argument.type                                                                                                                              
-  1287   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1288   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1321   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1322   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1364   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1365   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1368   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1369   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1378   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1379   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1384   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1385   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1390   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1391   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1396   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1397   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1406   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1407   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1413   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1414   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1570   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1571   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1625   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1626   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1676   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1677   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1680   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1681   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1690   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1691   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1696   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1697   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1702   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1703   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1708   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1709   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1714   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1715   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1724   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1725   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1732   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1733   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1739   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1740   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1898   Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, int|string given.                           
+  1899   Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, int|string given.                           
          🪪  argument.type                                                                                                                              
-  1918   Method App\Controller\UsersController::getMessage() should return string but returns array<string, string>|string.                             
+  1919   Method App\Controller\UsersController::getMessage() should return string but returns array<string, string>|string.                             
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2124,47 +2124,47 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/model/UsersModel.php                                                                                
  ------ ------------------------------------------------------------------------------------------------------------ 
-  248    Parameter Nr.2 $id of static method App\Model\UsersModel::isDuplicateUsername() expects int, int|null given.  
+  250    Parameter Nr.2 $id of static method App\Model\UsersModel::isDuplicateUsername() expects int, int|null given.  
          🪪  argument.type                                                                                           
-  390    Method App\Model\UsersModel::getWhere() should return stdClass|null but returns object|null.                
+  392    Method App\Model\UsersModel::getWhere() should return stdClass|null but returns object|null.                
          🪪  return.type                                                                                             
-  448    Method App\Model\UsersModel::changeUsername() should return bool but returns bool|null.                     
+  450    Method App\Model\UsersModel::changeUsername() should return bool but returns bool|null.                     
          🪪  return.type                                                                                             
-  465    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
+  467    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
          🪪  return.type                                                                                             
-  471    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
+  473    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
          🪪  return.type                                                                                             
-  487    Method App\Model\UsersModel::changeFirstName() should return bool but returns bool|null.                    
+  489    Method App\Model\UsersModel::changeFirstName() should return bool but returns bool|null.                    
          🪪  return.type                                                                                             
-  502    Method App\Model\UsersModel::changeSecondName() should return bool but returns bool|null.                   
+  504    Method App\Model\UsersModel::changeSecondName() should return bool but returns bool|null.                   
          🪪  return.type                                                                                             
-  517    Method App\Model\UsersModel::changeFirstLastname() should return bool but returns bool|null.                
+  519    Method App\Model\UsersModel::changeFirstLastname() should return bool but returns bool|null.                
          🪪  return.type                                                                                             
-  532    Method App\Model\UsersModel::changeSecondLastname() should return bool but returns bool|null.               
+  534    Method App\Model\UsersModel::changeSecondLastname() should return bool but returns bool|null.               
          🪪  return.type                                                                                             
-  547    Method App\Model\UsersModel::changeEmail() should return bool but returns bool|null.                        
+  549    Method App\Model\UsersModel::changeEmail() should return bool but returns bool|null.                        
          🪪  return.type                                                                                             
-  562    Method App\Model\UsersModel::changeType() should return bool but returns bool|null.                         
+  564    Method App\Model\UsersModel::changeType() should return bool but returns bool|null.                         
          🪪  return.type                                                                                             
-  577    Method App\Model\UsersModel::changeStatus() should return bool but returns bool|null.                       
+  579    Method App\Model\UsersModel::changeStatus() should return bool but returns bool|null.                       
          🪪  return.type                                                                                             
-  593    Access to an undefined property object::$failed_attempts.                                                   
+  595    Access to an undefined property object::$failed_attempts.                                                   
          🪪  property.notFound                                                                                       
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                       
-  596    Access to an undefined property object::$failed_attempts.                                                   
+  598    Access to an undefined property object::$failed_attempts.                                                   
          🪪  property.notFound                                                                                       
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                       
-  611    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
+  613    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
          🪪  return.type                                                                                             
-  617    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
+  619    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
          🪪  return.type                                                                                             
-  631    Method App\Model\UsersModel::resetAttempts() should return bool but returns bool|null.                      
+  633    Method App\Model\UsersModel::resetAttempts() should return bool but returns bool|null.                      
          🪪  return.type                                                                                             
-  823    Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
+  825    Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
          🪪  foreach.nonIterable                                                                                     
-  919    Parameter Nr.1 $string of function addslashes expects string, string|false given.                             
+  921    Parameter Nr.1 $string of function addslashes expects string, string|false given.                             
          🪪  argument.type                                                                                           
-  1050   Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
+  1051   Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
          🪪  foreach.nonIterable                                                                                     
  ------ ------------------------------------------------------------------------------------------------------------ 
 
