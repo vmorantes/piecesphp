@@ -30,3 +30,4 @@ entrada nombra el bloque (letras) y los mensajes (`#NNN`) que abarca. Plantilla:
 | --- | --- | --- | --- |
 | [0001](0001-arranque-del-modelo-arquitecto-coder.md) | Arranque del modelo arquitecto-coder y herencia de la campaña | — | 2026-09-14 |
 | [0002](0002-bc-linea-base-y-censo.md) | La línea base dice una cifra, y el censo deja de exagerar | BC | 2026-09-14 |
+| [0003](0003-lote-0b-orden-de-directorios.md) | Una razón de ser por carpeta | 0b | 2026-09-14 |
