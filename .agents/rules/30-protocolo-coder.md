@@ -52,6 +52,12 @@ versiona** (18 T129). En los paquetes se etiqueta con soltura (PO, 2026-08-27, c
   `master`; en `database` y `geojson`, `dev` y `master` ya apuntan al mismo commit (medido:
   `git rev-list --left-right --count master...dev` da 0 y 0). La guarda deja crear `dev` en los
   paquetes y ninguna otra rama.
+
+  **Homologación hecha el 2026-09-14** (bitácora 0004): en los cuatro, `dev` = `master`. Pero
+  el árbol activo de cada paquete sigue en `master`. Por eso, **la instrucción que toque un
+  paquete empieza con `git -C <ruta> switch dev`** y lo comprueba con
+  `git -C <ruta> branch --show-current`. La guarda deja cambiar de rama; lo que no deja es
+  crearla.
 - **Verificación de cada paquete.** La instrucción la saca del `.agents/context/04-desarrollo.md`
   de ese paquete: cada uno tiene su `bin/phpstan` y su línea base.
   - Pruebas: `datastructures` y `html` tienen `phpunit.xml`; `database`, `unit-tests/`;
