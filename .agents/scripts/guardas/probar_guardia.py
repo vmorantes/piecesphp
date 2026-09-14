@@ -108,6 +108,13 @@ BASH_BLOQUEA = [
     "composer update -d /var/www/html/vicsen/database phpstan/phpstan",
     "composer update phpstan/phpstan:2.2.12 monolog/monolog:3.0.0",
     "composer update monolog/monolog > /tmp/composer.txt 2>&1",
+    # ADR 0008: `piecesphp/*` solo con --working-dir en un paquete hermano.
+    "composer update piecesphp/datastructures",
+    f"composer update piecesphp/datastructures --working-dir={RAIZ}",
+    f"composer update piecesphp/datastructures --working-dir={RAIZ}/src",
+    f"composer update piecesphp/datastructures --working-dir={AJENO}",
+    f"composer update piecesphp/datastructures monolog/monolog --working-dir={HTML}",
+    f"composer require piecesphp/datastructures --working-dir={HTML}",
     "composer update phpstan/phpstan:2.2.12 > /tmp/c.txt 2>&1 monolog/monolog",
     # Composer lanzado a través de php sigue siendo composer.
     "php8.5 /usr/bin/composer update",
@@ -177,6 +184,9 @@ BASH_PERMITE = [
     # Capturar la salida no convierte la redirección en un paquete (H1 de #017).
     "composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir=/var/www/html/vicsen/html > /tmp/composer-html.txt 2>&1",
     "composer update rector/rector:2.6.6 2> /tmp/err.txt",
+    # ADR 0008: sincronizar el entorno local de un paquete hermano.
+    f"composer update piecesphp/datastructures phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir={HTML}",
+    f"composer update piecesphp/datastructures:4.0.0 --working-dir={HTML} > /tmp/c.txt 2>&1",
     "php8.5 bin/cli verify-integrity",
     "bin/cli verify-integrity",
     "bin/cli gates",

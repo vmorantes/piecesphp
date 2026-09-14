@@ -52,6 +52,8 @@ ENVOLTORIOS = {"env", "nohup", "time", "command", "exec", "nice", "timeout", "xa
 # Lo único que un agente puede actualizar con Composer: la instrumentación de análisis que el
 # PO delegó en el arquitecto (ADR 0007).
 HERRAMIENTAS_DE_ANALISIS = {"phpstan/phpstan", "phpstan/phpstan-deprecation-rules", "rector/rector"}
+# Y las dependencias entre paquetes hermanos, solo dentro de uno de ellos (ADR 0008).
+PAQUETES_HERMANOS_COMPOSER = {"piecesphp/" + p for p in PAQUETES}
 # Guiones del repositorio que no ejecuta un agente: uno sube los cinco
 # repositorios, el otro cambia propietarios y permisos del sistema.
 GUIONES_VETADOS = re.compile(r"(^|/)(push-all|permissions-and-property\.sh)$")
@@ -311,7 +313,16 @@ def revisar_bash(comando):
             # `phpstan/phpstan:2.2.12` fija la versión: cuenta el nombre. Una redirección
             # (`> ruta`, `2>&1`) no es un paquete.
             paquetes = [a.split(":", 1)[0] for a in sin_redirecciones(args[1:]) if not a.startswith("-")]
-            if not (args[:1] == ["update"] and paquetes and all(p in HERRAMIENTAS_DE_ANALISIS for p in paquetes)):
+            permitido = args[:1] == ["update"] and paquetes and all(
+                p in HERRAMIENTAS_DE_ANALISIS or p in PAQUETES_HERMANOS_COMPOSER for p in paquetes
+            )
+            # ADR 0008: `piecesphp/*` solo dentro de un paquete hermano, cuyo lock no se versiona.
+            # En este repositorio `src/composer.lock` SÍ se versiona: sería una dependencia del producto.
+            if permitido and any(p in PAQUETES_HERMANOS_COMPOSER for p in paquetes):
+                dirs = [a.split("=", 1)[1] for a in args if a.startswith("--working-dir=")]
+                destino = os.path.realpath(os.path.join(RAIZ, os.path.expanduser(dirs[-1]))) if dirs else None
+                permitido = destino is not None and any(destino == os.path.realpath(h) for h in HERMANOS)
+            if not permitido:
                 bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md; excepción de análisis: ADR 0007).")
         if cmd == "chmod" and any(RUTAS_DEL_SISTEMA.search(" " + a) for a in args):
             bloquear("cambiar permisos en rutas del sistema está prohibido.")

@@ -57,3 +57,4 @@ procedencia.
 | [0005](0005-el-coder-commitea-sin-permiso-commit-a-commit.md) | Excepción de este repositorio: el coder commitea sin pedir permiso commit a commit | sí | Aceptada |
 | [0006](0006-una-razon-de-ser-por-carpeta.md) | Una razón de ser por carpeta, y fuera el build de la documentación de la API | sí | Aceptada |
 | [0007](0007-actualizar-herramientas-de-analisis.md) | Excepción: los agentes actualizan las herramientas de análisis con Composer | sí | Aceptada |
+| [0008](0008-sincronizar-entorno-local-de-paquetes.md) | Excepción: los agentes sincronizan el entorno local de los paquetes hermanos | sí | Aceptada |

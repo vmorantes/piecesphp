@@ -41,7 +41,9 @@ autoriza: la regla es esta, la guarda es una red.
   la propuesta y sus alternativas delante. **Única excepción (ADR 0007)**: `composer update` de
   las herramientas de análisis (`phpstan/phpstan`, `phpstan/phpstan-deprecation-rules`,
   `rector/rector`), nombradas una a una, porque el PO delegó la instrumentación en el
-  arquitecto.
+  arquitecto. **Y la del ADR 0008**: en los cuatro paquetes hermanos, y solo con
+  `--working-dir` apuntando a uno de ellos, también `piecesphp/*`, porque allí el
+  `composer.lock` no se versiona y lo que cambia es el entorno local.
 - Solo se escribe dentro del repositorio, en el scratchpad de la sesión, en `/tmp` y en la
   memoria nativa de la herramienta. Los cuatro paquetes hermanos
   (`/var/www/html/vicsen/{database,datastructures,geojson,html}`) solo cuando la instrucción
