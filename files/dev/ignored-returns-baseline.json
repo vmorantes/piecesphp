@@ -11,7 +11,7 @@
         "bloque": "AB",
         "herramienta": "bin/censo-retornos-ignorados",
         "universo": "archivos .php bajo `src/app` y `bin`, excluyendo /vendor/ /node_modules/ /.git/ /bin/tools/ /app/logs/ /dumps/",
-        "archivos_en_el_universo": 790,
+        "archivos_en_el_universo": 678,
         "patron": "llamada que es la SENTENCIA ENTERA —el resultado no se asigna, ni se compara, ni entra en otra expresión— y cuyo nombre está en la lista de los que señalan fallo por valor devuelto. Se tokeniza con `token_get_all()`: una llamada dentro de una cadena o un comentario no es una llamada.",
         "canario": "cuatro caras: ve la descartada, NO ve la que se lee, SÍ ve la declarada con motivo, y NO acepta una marca vacía. Si alguna falla, el censo no se hace."
     },
@@ -25,7 +25,8 @@
         "_historia": [
             "195 al congelar (2026-08-29, bloque AB0).",
             "193 tras el lote 3 de E3 (2026-08-29, bloque AB1): DOS murieron con `ApplicationCalls`, no se arreglaron ni se declararon. La cota baja porque el codigo que las contenia ya no existe.",
-            "187 tras el bloque BK (2026-09-14, #034): SEIS murieron al retirar `handlerUpload()`, sin llamadores, de DocumentTypesController, CategoriesController y SystemApprovalsController —dos `unlink()` en cada uno—. No se arreglaron ni se declararon: el codigo que las contenia ya no existe."
+            "187 tras el bloque BK (2026-09-14, #034): SEIS murieron al retirar `handlerUpload()`, sin llamadores, de DocumentTypesController, CategoriesController y SystemApprovalsController —dos `unlink()` en cada uno—. No se arreglaron ni se declararon: el codigo que las contenia ya no existe.",
+            "Universo 790 -> 678 archivos, DECLARADO en BK (2026-09-14, #034). Lo movieron los borrados de E3 y, en uno, la suite `UnitTest-ProtectFileMiddleware.php` de #033: atribucion del arquitecto en #034, no re-medida archivo a archivo. La cifra no cambia por declararlo: 187 ya se contaba sobre estos 678."
         ]
     },
     "por_que_290_no_cuentan": "Son de PDO. La conexión va en ERRMODE_EXCEPTION —lo fija `Database::connect()` del paquete `piecesphp/database`, y PHP 8 ya lo trae por defecto—, así que `->execute()`, `->exec()`, `->commit()` y compañía LANZAN. Descartar su retorno no pierde información. Distinguir la FORMA de la llamada fue necesario: `exec(` a secas es el de procesos y devuelve `string|false`.",
