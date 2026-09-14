@@ -1,8 +1,9 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 13:32 (medido con `date`)
-- **Último mensaje:** `#012 · ARQ`, commitear todo lo pendiente del arquitecto, incluido el
-  informe del estado del proyecto. En vuelo.
+- **Actualizado:** 2026-09-14 13:55 (medido con `date`)
+- **Último mensaje:** `#014 · ARQ`, commitear las lecturas de proyectos derivados, P22 y la regla
+  «una pregunta se contesta, no se ejecuta». En vuelo. Antes de ella iban 26 commits sin empujar
+  en `dev` desde BC.
 - **Tramo anterior:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md),
   cerrado.
 - **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md)
@@ -36,14 +37,15 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 1. **La orden de trabajar sobre el framework.** El mapa empieza por BD (delegado en el
    arquitecto) y por los identificadores de SQL.
 2. **Subir cuando quieras**: las dos ramas `dev` nuevas de los paquetes y los commits de hoy.
+3. **P22**: `TokenModel` firma sus tokens genéricos con una constante del código y no con
+   `app_key` (las sesiones sí usan `app_key`). *Predeterminado*: queda anotado y no se toca.
 
 Siguen abiertas en `docs/pendientes.md`, sin bloquear nada: qué es el geovisor, el francés, el
 rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-`#012`: el coder commitea la regla 30, la bitácora 0004, el mapa con los lotes 7b y 7c,
-`pendientes.md`, el cierre del tramo, el informe y este archivo.
+`#014`: el coder commitea `pendientes.md`, el informe, la regla 30 y este archivo.
 
 ## Siguiente
 

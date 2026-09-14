@@ -206,3 +206,24 @@ Con tu orden:
 2. Me detengo solo para lo tuyo: push, versionar `piecesphp`, dependencias y servicios (el
    correo), bases de datos, ramas y puntos serios.
 3. En cada cierre de tramo te dejo el resumen en `.agents/estado/tramos/`.
+
+---
+
+## 10. Lecciones de proyectos derivados (añadido el 2026-09-14)
+
+Leídos en solo lectura, a petición tuya, para aprender de la experiencia y no para copiar:
+el geovisor de `espacio-publico-backend`, el backoffice de `stc-website-2026` y el log de tokens
+de `localizometro-stc`. El detalle está en `.agents/docs/pendientes.md`, «Lecturas de proyectos
+derivados». Lo esencial:
+
+- **P22, corregido:** las sesiones firman con `app_key` de `config.php`. Solo los tokens
+  genéricos de `TokenModel` usan una constante del código en lugar de `app_key`. El impacto es
+  menor porque se comprueban en base de datos (sin verificar). Espera tu decisión.
+- **Geovisor:** la lección es de cliente. Clústeres, marcadores solo para lo visible y datos
+  sin HTML. En el servidor tampoco allí está resuelto (carga por encuadre, paginación, caché).
+- **Registros:** registrar el ciclo de vida de cada credencial es una idea que el plan de cuatro
+  registros no tenía.
+- **Correo:** vista previa con el mismo código que envía, envío de prueba registrado y escáner
+  de correos sin catalogar.
+- **Tres sospechas sobre nuestro código**, por verificar en sus lotes: rutas con `{x:regex}`,
+  decodificar imágenes por su extensión y `withPersonsProfiles`.
