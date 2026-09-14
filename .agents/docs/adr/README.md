@@ -58,3 +58,4 @@ procedencia.
 | [0006](0006-una-razon-de-ser-por-carpeta.md) | Una razón de ser por carpeta, y fuera el build de la documentación de la API | sí | Aceptada |
 | [0007](0007-actualizar-herramientas-de-analisis.md) | Excepción: los agentes actualizan las herramientas de análisis con Composer | sí | Aceptada |
 | [0008](0008-sincronizar-entorno-local-de-paquetes.md) | Excepción: los agentes sincronizan el entorno local de los paquetes hermanos | sí | Aceptada |
+| [0009](0009-escapestring-cede-al-marcador.md) | `escapeString()` cede al marcador y queda obsoleta; no se toca `sql_mode` | sí | Aceptada |
