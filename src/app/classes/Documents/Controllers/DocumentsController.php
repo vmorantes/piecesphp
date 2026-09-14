@@ -1023,10 +1023,13 @@ class DocumentsController extends AdminPanelController
         $jsonExtractExists = DocumentsMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
-        $where = [
-            "{$table}.status" => DocumentsMapper::STATUS_ACTIVE,
-        ];
+        $where = [];
         $and = 'AND';
+
+        //Criterio, no par clave-valor: `implode(' ', $where)` descarta la clave y quedaba `WHERE 1`.
+        $beforeOperator = !empty($where) ? $and : '';
+        $critery = "{$table}.status = " . DocumentsMapper::STATUS_ACTIVE;
+        $where[] = "{$beforeOperator} ({$critery})";
 
         //Verificación de idioma
         $defaultLang = Config::get_default_lang();

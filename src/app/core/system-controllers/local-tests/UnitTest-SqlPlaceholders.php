@@ -674,6 +674,28 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     } catch (\Throwable $errorGeo) {
         $check(false, 'geojson · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', 'EXCEPCIÓN: ' . $errorGeo->getMessage());
     }
+
+    //DOCUMENTS: el listado filtra por estado. Un par clave-valor en `implode()` dejaba `WHERE 1`.
+    $fuenteDocs = (string) @file_get_contents($raizSrc . '/app/classes/Documents/Controllers/DocumentsController.php');
+    $check($fuenteDocs !== '' && mb_strpos($fuenteDocs, '"{$table}.status" => DocumentsMapper::STATUS_ACTIVE') === false
+        && mb_strpos($fuenteDocs, '$critery = "{$table}.status = " . DocumentsMapper::STATUS_ACTIVE;') !== false,
+        'documents, sin base: el estado del listado es un criterio, no un par clave-valor');
+    try {
+        $tablaDocs = \Documents\Mappers\DocumentsMapper::TABLE;
+        $estadoActivo = \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE;
+        $docsActivos = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaDocs} WHERE status = {$estadoActivo}");
+        $docsOtros = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaDocs} WHERE status != {$estadoActivo}");
+        $docsListados = \Documents\Controllers\DocumentsController::_all(1, 1000)->totalElements();
+        if ($docsOtros === 0) {
+            //SIN INACTIVOS NO HAY VEREDICTO: `WHERE 1` y `WHERE status = 1` cuentan lo mismo.
+            echoTerminal("   [NO DISCRIMINA] documents · estado: la base local no tiene documentos inactivos (activos: {$docsActivos}, listados: {$docsListados})");
+        } else {
+            $check($docsListados === $docsActivos, 'documents: el listado solo cuenta los activos',
+                "activos: {$docsActivos} · otros: {$docsOtros} · listados: {$docsListados}");
+        }
+    } catch (\Throwable $errorDocs) {
+        $check(false, 'documents: el listado filtra por estado', 'EXCEPCIÓN: ' . $errorDocs->getMessage());
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
