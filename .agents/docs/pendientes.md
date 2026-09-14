@@ -70,6 +70,7 @@ esta descrito en ninguna parte.** Necesita que el PROPIETARIO diga que es antes 
 | ~~`P15`~~ | `source-docs/…/vps/index.md`, modificado sin dueno | bloque AN | **RESUELTO el 2026-09-14**: el PROPIETARIO lo deja «entre ustedes». Es documentacion, asi que es del arquitecto: se adopta (avisos de seguridad correctos sobre el acceso de root por SSH), corrigiendo su remision a una «seccion 5» que no existe, y entra en el commit de documentacion |
 | ~~`P16`~~ | **BD** — nivelar los analizadores de los 4 paquetes | 02-09 | **YA NO ESPERA AL PROPIETARIO**: el 2026-09-02 a las 17:42 delegó la instrumentación de análisis en ARQUITECTO («Todo la instrumentación de analisís en desarrollo está en tus manos»). Recuperado en el cruce del 2026-09-14 |
 | ~~`P19`~~ | `master` y etiquetas en los cuatro paquetes | 14-09 | **RESUELTO el 2026-09-14**: en los paquetes se etiqueta, y «esta bien»; `master` sigue siendo su estable; todos llevan `dev`, se homologan `dev` y `master` y desde ahi se trabaja en `dev`. Regla 30 y guarda al dia |
+| `P23` | **html se queda sin nivelar**: su `composer.lock` local (ignorado por git, de antes de su 3.0.0) fija `piecesphp/datastructures` v3.1.0, y su `composer.json` pide `^4.0`. Un update parcial de las herramientas no resuelve. Hace falta actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007) | 14-09 | **Predeterminado**: html sigue midiendo con phpstan 2.1.42 contra datastructures 3.1.0, declarado así en `shared-toolchain.json`. Opciones: el PO autoriza al coder una vez, o lo ejecuta él |
 | — | Los 9 selectores: DOCUMENTAR, decidido el 30-08, **sin lote asignado** | 30-08 | entra en E6 |
 | — | El frances: `profiles-translation-config.js`, `dynamic-translations/fr/`, carpetas `de/it/pt` | — | «Del PROPIETARIO» en §7 |
 | — | El rol 50 con nombre `null` (`roles.php:112`) | — | — |
@@ -441,3 +442,18 @@ historia de git los conserva.
     composer.json.
   - Hueco en la guarda: no veía Composer lanzado a través de PHP (`php8.5 /usr/bin/composer …`).
     Cerrado con el ADR 0007.
+- **El procesador de resultados de PHPStan de los paquetes iba por detrás del de piecesphp.**
+  - El archivo es el mismo en los cuatro paquetes, y su trinquete no aceptaba «destapados» ni
+    «murieron». Así, una bajada causada por el analizador no se podía registrar sin mentir.
+  - Se nivela en `#018`, solo ese bloque.
+  - El resto del archivo sigue sin comparar con el de piecesphp: 493 líneas de diff, en parte
+    por finales de línea.
+- **database: con phpstan 2.2.12 desaparecen tres errores sin tocar el código.**
+  - Los tres son `function.alreadyNarrowedType`: `return is_string($e);` dentro de callbacks de
+    array_filter, en ActiveRecord.php, líneas 709, 728 y 785.
+  - Las comprobaciones redundantes siguen en el código; es el analizador el que dejó de verlas.
+  - Causa en PHPStan: SIN VERIFICAR.
+- **PHPStan 2.2.12 imprime un bloque nuevo**, «Instructions for interpreting errors», dirigido a
+  quien lea la salida.
+- **El mensaje del trinquete no distingue el motivo.** Imprime «murieron con el código borrado»
+  también cuando mueren por el analizador. Es texto de piecesphp, heredado tal cual.
