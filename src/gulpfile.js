@@ -406,7 +406,7 @@ task("init-project:watch", (done) => {
 //Compilar documentación de api
 task("api-build", (done) => {
 	//En estructura normal debe subir solo un directorio
-	exec('cd ../files/API && mkdocs build --clean', (error, stdout, stderr) => {
+	exec('cd ../source-docs/api && mkdocs build --clean', (error, stdout, stderr) => {
 		done()
 	})
 })

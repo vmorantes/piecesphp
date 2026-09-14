@@ -26,7 +26,7 @@ use PiecesPHP\TerminalData;
  * sintaxis— y las pruebas tampoco, porque no había ninguna que llamara a ese método.
  *
  * CUÁNTAS COMPROBACIONES HAY LO DICE `main()`, no este comentario: decía «cuatro» mientras
- * enumeraba ocho y corrían diecisiete. La lista completa y al día vive en `files/dev/tests.md`.
+ * enumeraba ocho y corrían diecisiete. La lista completa y al día vive en `.agents/context/21-pruebas-y-puertas.md`.
  * Aquí van solo las que explican POR QUÉ existe esto — las dos primeras son las que habrían
  * servido en aquel incidente, y el resto salió de fallos posteriores del mismo tipo:
  * estructurales, silenciosos y que ninguna prueba de comportamiento alcanza.
@@ -54,7 +54,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /**
      * Instantánea de firmas, relativa a la RAÍZ DEL REPOSITORIO, no a `src/`.
      * `basepath()` resuelve dentro de `src/`, y `files/dev/` vive un nivel por encima,
-     * junto a `tests.md`.
+     * en la raíz del repositorio.
      *
      * Se versiona a propósito: sin ella en el repositorio, la comprobación no puede
      * detectar nada en una máquina limpia ni en CI.
