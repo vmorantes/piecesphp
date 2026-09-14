@@ -1,10 +1,15 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 18:07 (medido con `date`). **Tramo sin el PO**: «Puedes trabajar
+- **Actualizado:** 2026-09-14 18:35 (medido con `date`). **Tramo sin el PO**: «Puedes trabajar
   unas tres o cinco rondas, pero toma en cuenta que no estaré así que no responderé nada».
-  Rondas hechas en este tramo: 2 de entre 3 y 5.
-- **Último mensaje:** `#034 · ARQ`, en vuelo: lote 3, bloque 2 (P24). El próximo número es
-  `#035`.
+  Rondas hechas en este tramo: 3 de entre 3 y 5. La `#036` es la 4.ª y la `#038`, el cierre.
+- **Último mensaje:** `#036 · ARQ`, en vuelo: el lote 4 (ADR 0009) y la medición de H1 de
+  `#035`. El próximo número es `#037`.
+- **`#035`: lote 3, bloque 2, completado.**
+  - Cuatro carpetas protegidas; dos declaradas públicas.
+  - Comprobación 29.
+  - PHPStan pasa a 738: murieron 6 errores con el código retirado.
+  - Ruptura 17 en el `CHANGELOG.md`; la guía de subidas, reescrita.
 - **`#033`: completado.**
   - Las rutas públicas ya no devuelven borradores ni borrados sin permiso.
   - La clave de caché de publications refleja los valores efectivos.
@@ -61,7 +66,15 @@ francés, el rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-**`#034` — lote 3, bloque 2 (P24 aprobada).** Tareas:
+**`#036`**, en tres tareas:
+- T1: commitear lo del arquitecto: el ADR 0009, el `CHANGELOG.md`, la guía de subidas,
+  `pendientes.md`, el mapa y el estado.
+- T2: lote 4. Los 23 usos de `escapeString()` pasan a marcador, o se declaran; la función queda
+  `@deprecated`; una prueba falla si reaparece un uso.
+- T3: medir si alguna vista PÚBLICA muestra archivos de documents, organizations o
+  news-categories. Si alguna lo hace, PARA y lo reporta: es una decisión.
+
+**Hecho en `#034` (histórico de la ronda anterior)** — lote 3, bloque 2 (P24 aprobada). Tareas:
 - T1: commitear lo del arquitecto: el `CHANGELOG.md` (rupturas 15 y 16, y `protect()`),
   `pendientes.md` y el estado.
 - T2: Publications como arquetipo. Su validador sirve un archivo si la publicación es visible al
@@ -138,6 +151,20 @@ dicen.
    - Sin arreglar todavía: los huérfanos al borrar (H8), los nombres adivinables (H5) y el SVG
      (H6). Una vez protegidos, pesan menos; se reevalúan con la tabla delante.
 5. El mapa, en su orden.
+
+## Plan de las rondas que quedan en este tramo (máximo 5; van 3 con `#034`)
+
+- **`#036` — lote 4, `escapeString()`.** El borrador del ADR 0009 está en el scratchpad del
+  arquitecto y se deposita al recibir `#035`.
+  - Los 23 usos de 13 archivos pasan a marcador, o se declaran con su motivo.
+  - `escapeString()` queda `@deprecated`, y una prueba falla si reaparece un uso.
+  - No se toca `sql_mode`: vive en el paquete, cambiaría todas las consultas y trata el
+    síntoma.
+  - Medido hoy: la conexión solo fija `SET NAMES` y `time_zone`
+    (`database/src/Core/Database/Database.php:240`).
+- **`#038` — cierre del tramo.** Solo commitea documentos: la bitácora 0008 del lote 3, la guía
+  de subidas en `source-docs/project/docs/piecesphp/new-features/protected-files.md`, el
+  `CHANGELOG.md` y el estado.
 
 ## Para una sesión nueva
 
