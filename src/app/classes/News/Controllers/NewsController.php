@@ -989,7 +989,7 @@ class NewsController extends AdminPanelController
                     $valid = is_array($value);
                     if ($valid) {
                         foreach ($value as $slug) {
-                            $valid = is_scalar($slug) && mb_strlen((string) $slug) > 0;
+                            $valid = $valid && is_scalar($slug) && mb_strlen((string) $slug) > 0;
                         }
                     }
                     return $valid;
@@ -1208,12 +1208,17 @@ class NewsController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if (!empty($ignoreSlugs)) {
 
             $beforeOperator = !empty($where) ? $and : '';
-            $ignoreSlugs = implode('","', $ignoreSlugs);
-            $ignoreSlugs = '"' . $ignoreSlugs . '"';
-            $critery = "{$table}.preferSlug NOT IN ({$ignoreSlugs})";
+            //Valor de la petición: va por marcador.
+            $placeholders = [];
+            foreach (array_values($ignoreSlugs) as $index => $slug) {
+                $placeholders[] = ":ignoreSlug{$index}";
+                $boundValues[":ignoreSlug{$index}"] = $slug;
+            }
+            $critery = "{$table}.preferSlug NOT IN (" . implode(', ', $placeholders) . ")";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1222,7 +1227,9 @@ class NewsController extends AdminPanelController
 
             $beforeOperator = !empty($where) ? $and : '';
             $newsTitleField = NewsMapper::fieldCurrentLangForSQL('newsTitle');
-            $critery = "UPPER({$newsTitleField}) LIKE UPPER('%{$newsTitle}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$newsTitleField}) LIKE UPPER(:newsTitle)";
+            $boundValues[':newsTitle'] = "%{$newsTitle}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1285,7 +1292,7 @@ class NewsController extends AdminPanelController
         $sqlSelect .= " ORDER BY " . implode(', ', NewsMapper::ORDER_BY_PREFERENCE);
         $sqlCount = "SELECT COUNT(mainQuery.id) AS total " . "FROM ({$sqlSelect}) AS mainQuery";
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $controller = new NewsController;
         $parser = function ($element) use ($controller) {

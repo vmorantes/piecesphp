@@ -16,6 +16,9 @@ use GeoJSONManager\Util\FeaturesCollection;
 use GeoJSONManager\Util\GeoJSONFactory;
 use GeoJSONManager\Util\GeometryPackage;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -121,47 +124,32 @@ class GeoJsonManagerController extends AdminPanelController
         $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $where = [];
-        $having = [
-            "userStatus != " . UsersModel::STATUS_USER_INACTIVE,
-            "AND userStatus != " . UsersModel::STATUS_USER_DELETED,
-        ];
         $table = UserProfileMapper::TABLE;
+
+        $havingCriteria = [
+            new HavingItem('userStatus', HavingItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_INACTIVE, HavingItem::AND_OPERATOR),
+            new HavingItem('userStatus', HavingItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, HavingItem::AND_OPERATOR),
+        ];
 
         $approvedValue = SystemApprovalsRoutes::ENABLE ? SystemApprovalsMapper::STATUS_APPROVED : null;
         if ($approvedValue !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "systemApprovalStatus = '{$approvedValue}'";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingCriteria[] = new HavingItem('systemApprovalStatus', HavingItem::EQUAL_OPERATOR, $approvedValue, HavingItem::AND_OPERATOR);
         }
 
+        $havingSegment = new HavingSegment($havingCriteria);
+
         if ($search !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [
-                "UPPER(fullname) LIKE UPPER('%{$search}%')",
-                "UPPER(fullLocation) LIKE UPPER('%{$search}%')",
-            ];
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
+            //Valor de la petición: va por marcador.
+            $havingSegment->addGroup(self::searchHavingGroup(['fullname', 'fullLocation'], $search));
         }
 
         if (!empty($organizations)) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [];
-            foreach ($organizations as $organization) {
-                $critery[] = "organizationID = {$organization}";
-            }
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment->addGroup(self::idsHavingGroup('organizationID', $organizations));
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $model = UserProfileMapper::model();
@@ -169,9 +157,7 @@ class GeoJsonManagerController extends AdminPanelController
         if ($whereString !== null) {
             $model->where($whereString);
         }
-        if ($havingString !== null) {
-            $model->having($havingString);
-        }
+        $model->having($havingSegment);
         $model->execute();
         $result = $model->result();
         foreach ($result as $profile) {
@@ -225,8 +211,6 @@ class GeoJsonManagerController extends AdminPanelController
         $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $where = [
             "id != " . OrganizationMapper::INITIAL_ID_GLOBAL,
             'AND status IN (' . implode(',', [
@@ -234,41 +218,28 @@ class GeoJsonManagerController extends AdminPanelController
                 OrganizationMapper::PENDING_APPROVAL,
             ]) . ')',
         ];
-        $having = [];
         $table = OrganizationMapper::TABLE;
+
+        $havingCriteria = [];
 
         $approvedValue = SystemApprovalsRoutes::ENABLE ? SystemApprovalsMapper::STATUS_APPROVED : null;
         if ($approvedValue !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "systemApprovalStatus = '{$approvedValue}'";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingCriteria[] = new HavingItem('systemApprovalStatus', HavingItem::EQUAL_OPERATOR, $approvedValue, HavingItem::AND_OPERATOR);
         }
 
+        $havingSegment = new HavingSegment($havingCriteria);
+
         if ($search !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [
-                "UPPER(name) LIKE UPPER('%{$search}%')",
-                "UPPER(fullLocation) LIKE UPPER('%{$search}%')",
-            ];
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
+            //Valor de la petición: va por marcador.
+            $havingSegment->addGroup(self::searchHavingGroup(['name', 'fullLocation'], $search));
         }
 
         if (!empty($organizations)) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [];
-            foreach ($organizations as $organization) {
-                $critery[] = "id = {$organization}";
-            }
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment->addGroup(self::idsHavingGroup('id', $organizations));
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $model = OrganizationMapper::model();
@@ -276,8 +247,8 @@ class GeoJsonManagerController extends AdminPanelController
         if ($whereString !== null) {
             $model->where($whereString);
         }
-        if ($havingString !== null) {
-            $model->having($havingString);
+        if ($havingSegment->countCriteria() > 0) {
+            $model->having($havingSegment);
         }
         $model->execute();
         $result = $model->result();
@@ -310,6 +281,41 @@ class GeoJsonManagerController extends AdminPanelController
         }
 
         return $geometries;
+    }
+
+    /**
+     * `(UPPER(a) LIKE UPPER(:x) OR UPPER(b) LIKE UPPER(:y))`, con el valor de la búsqueda por marcador.
+     *
+     * @param string[] $fields
+     * @param string $search
+     * @return HavingItemGroup
+     */
+    protected static function searchHavingGroup(array $fields, string $search): HavingItemGroup
+    {
+        $criteria = [];
+        foreach ($fields as $field) {
+            $criteria[] = new HavingItem("UPPER({$field})", HavingItem::LIKE_OPERATOR, "%{$search}%", HavingItem::OR_OPERATOR, 'UPPER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')');
+        }
+        //EL ULTIMO FIJA `AND`: un grupo se une a lo que venga detras con el operador de su ultimo criterio.
+        $criteria[count($criteria) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+        return new HavingItemGroup($criteria);
+    }
+
+    /**
+     * `(campo = :a OR campo = :b ...)` para una lista de ids que el parser ya dejo en enteros.
+     *
+     * @param string $field
+     * @param int[] $ids
+     * @return HavingItemGroup
+     */
+    protected static function idsHavingGroup(string $field, array $ids): HavingItemGroup
+    {
+        $criteria = [];
+        foreach ($ids as $id) {
+            $criteria[] = new HavingItem($field, HavingItem::EQUAL_OPERATOR, $id, HavingItem::OR_OPERATOR);
+        }
+        $criteria[count($criteria) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+        return new HavingItemGroup($criteria);
     }
 
     /**

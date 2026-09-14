@@ -1343,11 +1343,14 @@ class OrganizationsController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if ($name !== null) {
 
             $beforeOperator = !empty($where) ? $and : '';
             $nameField = OrganizationMapper::fieldCurrentLangForSQL('name');
-            $critery = "UPPER({$nameField}) LIKE UPPER('%{$name}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$nameField}) LIKE UPPER(:name)";
+            $boundValues[':name'] = "%{$name}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1385,7 +1388,7 @@ class OrganizationsController extends AdminPanelController
 
         $sqlSelect .= " ORDER BY " . implode(', ', OrganizationMapper::ORDER_BY_PREFERENCE);
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $parser = function ($element) {
             $element = OrganizationMapper::objectToMapper($element);

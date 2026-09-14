@@ -655,6 +655,25 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $viaRechazo('publications · title', fn (?string $v): int => \Publications\Controllers\PublicationsController::_all(1, 50, null, null, null, $v)->totalElements(), $cargaLike, "'", false);
     $viaRechazo('publications · ignoreSlugs', fn (?string $v): int => \Publications\Controllers\PublicationsController::_all(1, 50, null, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
     $viaRechazo('banner · title', fn (?string $v): int => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
+    $viaRechazo('news · newsTitle', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, $v)->totalElements(), $cargaLike, "'", false);
+    $viaRechazo('news · ignoreSlugs', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
+    $viaRechazo('organizations · name', fn (?string $v): int => \Organizations\Controllers\OrganizationsController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
+    //EN GEOJSON EL VALOR SALE DOS VECES en el mismo HAVING: dos comillas sueltas se emparejan y el
+    //SQL concatenado sigue siendo válido. `'(` no se empareja.
+    $contarRasgos = static fn ($coleccion): int => is_countable($coleccion) ? count($coleccion) : (is_iterable($coleccion) ? iterator_count($coleccion) : -1);
+    $viaRechazo('geojson · search (personas)', fn (?string $v): int => $contarRasgos(\GeoJSONManager\Controllers\GeoJsonManagerController::withPersonsProfiles(new \GeoJSONManager\Util\FeaturesCollection(), $v === null ? [] : ['search' => $v])), $cargaLike, "'(", false);
+    $viaRechazo('geojson · search (organizaciones)', fn (?string $v): int => $contarRasgos(\GeoJSONManager\Controllers\GeoJsonManagerController::withOrganizationsProfiles(new \GeoJSONManager\Util\FeaturesCollection(), $v === null ? [] : ['search' => $v])), $cargaLike, "'(", false);
+
+    //SIN BASE: el grupo de búsqueda de GeoJSON deja la comilla fuera del SQL y el valor en los reemplazos.
+    try {
+        $grupoGeo = (new \ReflectionMethod(\GeoJSONManager\Controllers\GeoJsonManagerController::class, 'searchHavingGroup'))->invokeArgs(null, [['fullname', 'fullLocation'], $conComilla]);
+        $sqlGeo = $grupoGeo->toString();
+        $check(mb_strpos($sqlGeo, "'") === false && in_array('%' . $conComilla . '%', array_values($grupoGeo->getReplacementValues()), true),
+            'geojson · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', $sqlGeo);
+        $check(mb_substr_count($sqlGeo, ' OR ') === 1, 'geojson · search, sin base: fullname y fullLocation siguen unidos con OR', $sqlGeo);
+    } catch (\Throwable $errorGeo) {
+        $check(false, 'geojson · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', 'EXCEPCIÓN: ' . $errorGeo->getMessage());
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
