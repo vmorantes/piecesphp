@@ -12,15 +12,16 @@ anterior. Compartido por todas las herramientas; Claude Code lo ve además a tra
 | `docs/adr/` | Por qué se decidió así. Inmutables. **Lo más importante para un agente** |
 | `docs/bitacora/` | Cómo se llegó hasta ahí, una entrada por tarea cerrada |
 | `docs/roadmap.md` | El mapa de lo que falta hasta la MAJOR, en orden |
+| `docs/pendientes.md` | Encargos y decisiones del PO que aún no son trabajo (LEY 33) |
+| `docs/roadmap-posterior/` | Lo que va después de la MAJOR: 16 documentos |
 | `HERENCIA.md` | **Borrable.** El traspaso de la campaña anterior al modelo de tres roles |
 | `personas/` | **Fuente** de los subagentes: cuerpo del prompt, sin frontmatter |
 | `agents/` | Subagentes para Antigravity, **generados** (no editar) |
 | `skills/` | Skills compartidas; `.claude/skills/` enlaza aquí |
 | `scripts/` | Generador de agentes, verificación del andamiaje, guarda de hooks, hook de git |
 
-Fuera de aquí: `AGENTS.md` (entrada genérica), `CLAUDE.md` (reglas del proyecto),
-`.claude/CLAUDE.md` (entrada de Claude Code), `files/dev/PENDIENTES.md` (encargos y decisiones
-del PO, LEY 33) y `files/dev/roadmap/` (lo que va después de la MAJOR).
+Fuera de aquí: `AGENTS.md` (entrada genérica), `CLAUDE.md` (reglas del proyecto) y
+`.claude/CLAUDE.md` (entrada de Claude Code).
 
 ## Orden de lectura para una sesión nueva
 
@@ -32,16 +33,16 @@ del PO, LEY 33) y `files/dev/roadmap/` (lo que va después de la MAJOR).
    - **mantenerlo** (la campaña hacia la MAJOR): `context/20` (cómo se trabaja, §3 y §5),
      `context/19` (las leyes) y, cuando haga falta el detalle de una tarea, `context/18`.
 5. `docs/adr/README.md` — el índice; los ADR que toque tu tarea, enteros.
-6. `docs/roadmap.md` y `files/dev/PENDIENTES.md` — si toca elegir, proponer o instruir.
+6. `docs/roadmap.md` y `docs/pendientes.md` — si toca elegir, proponer o instruir.
 
 ## Documentación para agentes y para personas
 
 | Para | Dónde | Qué |
 | :-- | :-- | :-- |
-| Quien usa el framework | `README.md`, `source-docs/`, `files/API/docs/`, `context/01`–`15` | Qué es, cómo se instala y se usa |
+| Quien usa el framework | `README.md`, `source-docs/` (la API en `source-docs/api/`), `context/01`–`15` | Qué es, cómo se instala y se usa |
 | Quien clona y actualiza | `CHANGELOG.md` | Qué cambió para él, rupturas incluidas |
 | Quien lo mantiene | `context/18`, `19`, `20`, `historico/` | La campaña, sus leyes y su contrato |
-| El PO | `estado/`, `files/dev/PENDIENTES.md` | Qué se hizo y qué espera de él |
+| El PO | `estado/`, `docs/pendientes.md` | Qué se hizo y qué espera de él |
 | Agentes | `docs/adr/`, `docs/bitacora/`, `docs/roadmap.md` | Por qué, cómo se llegó, qué falta |
 
 Una sola regla los mantiene sanos: **ninguno puede mentir.** Si un cambio de código invalida un

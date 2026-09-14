@@ -39,7 +39,7 @@ mkdocs build --clean #para compilar y eliminar archivos que ya no deberían exis
 ## MkDocs en este proyecto
 
 Existen dos proyectos de documentación de MkDocs en este repositorio:
-- **API:** En el directorio `files/API`.
+- **API:** En el directorio `source-docs/api`. Se construye con `cd src && gulp api-build`; el resultado queda en su carpeta `docs-dist`, que no se versiona.
 - **Desarrollo:** En el directorio `source-docs/project`.
 
 Para compilar cualquiera de ellos, entra al directorio correspondiente y ejecuta el comando:

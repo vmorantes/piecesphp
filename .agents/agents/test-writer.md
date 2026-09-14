@@ -22,7 +22,7 @@ Escribes pruebas para código ya implementado en PiecesPHP y las corres.
 ## Alcance
 
 - Las pruebas viven en las suites del framework y se corren con `bin/cli` (convención en
-  `files/dev/tests.md` y `.agents/context/10-cli-y-tareas.md`). `bin/cli gates` enumera las
+  `.agents/context/21-pruebas-y-puertas.md` y `.agents/context/10-cli-y-tareas.md`). `bin/cli gates` enumera las
   suites que existen.
 - Datos sintéticos y archivos propios en temporales. Nunca datos reales ni servidores. La base
   de datos local, solo si la tarea lo autoriza.

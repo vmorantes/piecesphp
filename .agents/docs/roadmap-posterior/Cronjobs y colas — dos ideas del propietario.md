@@ -1,6 +1,6 @@
 # Dos ideas sobre cronjobs y colas
 
-Registradas, **no ejecutadas**. Van aquí, en `files/dev/roadmap/`, y no en
+Registradas, **no ejecutadas**. Van aquí, en `.agents/docs/roadmap-posterior/`, y no en
 `18-siguientes-ventanas.md`: ese documento es el registro de lo que se ha hecho y medido, y esto
 es lo contrario — trabajo que todavía no existe.
 

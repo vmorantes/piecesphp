@@ -1146,7 +1146,8 @@ Ninguna ley cubria eso. LEY 32 cubre lo contrario —lo escrito que no se leyo�
 que no se escribio.
 
 > **Toda peticion, decision o «recuerdame» del PROPIETARIO produce una linea en
-> `files/dev/PENDIENTES.md` ANTES de que ARQUITECTO le conteste.** No cuando tenga bloque, no
+> `.agents/docs/pendientes.md` (antes `files/dev/PENDIENTES.md`; ADR 0006) ANTES de que
+> ARQUITECTO le conteste.** No cuando tenga bloque, no
 > cuando se decida: en el turno. **Un encargo que solo vive en la conversacion esta a una
 > compactacion de no haber existido nunca.**
 

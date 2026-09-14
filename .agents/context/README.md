@@ -41,6 +41,7 @@ framework, qué convenciones son obligatorias y dónde vive cada cosa.
 | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Backlog actual**: qué queda, en qué orden y qué desbloquea cada cosa |
 | [19-leyes.md](./19-leyes.md) | **Las leyes**, con el caso que funda cada una. DURABLE: no se disuelve con el 18 |
 | [20-contrato-de-trabajo.md](./20-contrato-de-trabajo.md) | Cómo se trabaja aquí: los tres roles, el formato de las instrucciones, el estado abierto |
+| [21-pruebas-y-puertas.md](./21-pruebas-y-puertas.md) | Cómo se corren las pruebas y qué comprueban `verify-integrity` y `gates`. Hasta el 2026-09-14 era `files/dev/tests.md` (ADR 0006). **Desfasado**: dice «dieciséis» comprobaciones y hay 26 |
 | [historico/](./historico/) | Documentos **ejecutados y cerrados**. Nada de ahí es trabajo pendiente |
 
 ## Reglas rápidas (el TL;DR que casi siempre aplica)

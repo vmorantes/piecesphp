@@ -21,8 +21,8 @@ muera. No editas: propones.
 ## Alcance
 
 - Contra el código actual: `.agents/context/`, `.agents/docs/roadmap.md`,
-  `files/dev/PENDIENTES.md`, `.agents/estado/`, `.agents/HERENCIA.md` (mientras exista),
-  `CHANGELOG.md`, `source-docs/` y `files/API/docs/`.
+  `.agents/docs/pendientes.md`, `.agents/estado/`, `.agents/HERENCIA.md` (mientras exista),
+  `CHANGELOG.md` y `source-docs/` (con la API en `source-docs/api/`).
 - Cada afirmación verificable (ruta, clase, método, comando, tabla, cifra) se comprueba en el
   árbol. `grep` en esta máquina es ugrep: el `$` ancla incluso en medio del patrón; busca con
   `grep -F` o escápalo.

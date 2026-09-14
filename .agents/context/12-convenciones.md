@@ -307,7 +307,7 @@ porque el momento en que se entiende es justo ese.
 - `bin/phpstan` antes de dar por cerrado un cambio grande; revisar
   `PHPStanResult.Summary.txt`.
 - `bin/rector` para refactors automatizados.
-- Pruebas: `bin/cli unit-tests:<suite>` (ver `files/dev/tests.md`).
+- Pruebas: `bin/cli unit-tests:<suite>` (ver `.agents/context/21-pruebas-y-puertas.md`).
 - Al terminar una funcionalidad, **añadir la entrada en `CHANGELOG.md`** con el
   formato existente (encabezado `# X.Y.Z (DD-MM-AAAA)` y viñetas por área en
   negrita).

@@ -367,7 +367,7 @@ sobrevive: PARA QUIÉN se escribe.** Un archivo se ubica cruzando los dos.
 | **El contrato de trabajo** | Este archivo | **Mantenedor** | **Sí** |
 | **Pendiente** — ventana, peldaño, backlog | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Mantenedor** | **NO: nació para morir** |
 | **Lo hecho** — medición, hallazgo, error corregido | [`historico/`](./historico/) | **Mantenedor** | Sí, como explicación de por qué algo es como es |
-| **Intención declarada del PROPIETARIO, sin resolver** | `files/dev/roadmap/` | **PROPIETARIO** | Hasta que se decida |
+| **Intención declarada del PROPIETARIO, sin resolver** | `.agents/docs/roadmap-posterior/` (antes `files/dev/roadmap/`; ADR 0006) | **PROPIETARIO** | Hasta que se decida |
 
 **Las dos audiencias no se mezclan**, y el `README.md` de `.agents/context/` abre con esa
 bifurcación: quien viene a escribir un módulo **no pasa por el 18**.

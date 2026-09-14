@@ -229,7 +229,7 @@ Si el `composer.json` cambia, ese es el piso real: manda sobre este documento.
   con código 1 si falla.
 - **Las suites**: `bin/cli unit-tests:core/mapper-finders` y
   `bin/cli unit-tests:core/session-user`, más las que apliquen a lo que tocaste.
-  `files/dev/tests.md` tiene el listado.
+  `.agents/context/21-pruebas-y-puertas.md` tiene el listado.
 - **`bin/phpstan`**, comparando contra `PHPStanResult.Summary.baseline.txt`. No lo dejes
   peor que como estaba. Ojo: el número visible oculta lo silenciado por `ignoreErrors`,
   y PHPStan **no** reporta deprecaciones del motor — para eso están el lint con

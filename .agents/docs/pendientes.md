@@ -1,5 +1,8 @@
 # PENDIENTES — semilla
 
+> **Vive en `.agents/docs/pendientes.md` desde el 2026-09-14** (ADR 0006); antes estaba en
+> `files/dev/PENDIENTES.md`. Los registros históricos citan la ruta vieja.
+
 *Creado el 2026-09-13 por ARQUITECTO, en aplicacion de LEY 33 y en su primera oportunidad.*
 
 > **QUE ES ESTO Y QUE NO ES.** Es una SEMILLA, no el inventario. El inventario completo sale del
@@ -100,7 +103,7 @@ que el corpus vive ahi y no en `docs/`.
 ## LO QUE NO ESTA AQUI, Y DONDE MIRAR
 
 El mapa de lotes hasta la MAJOR y el roadmap posterior viven en `20-contrato-de-trabajo.md` §7 y
-en `files/dev/roadmap/` (16 documentos). **Esta hoja no los duplica**: duplicar un inventario es
+en `.agents/docs/roadmap-posterior/` (16 documentos). **Esta hoja no los duplica**: duplicar un inventario es
 fabricar dos verdades, y eso es lo que la campana lleva un mes retirando.
 
 **Lo que falta de verdad**: el cruce completo de la sesion del CODER
@@ -217,11 +220,11 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
   configuracion de agentes: trabajo del arquitecto.
 - **Requisito de entorno**: la suite `core/database-exporter` necesita `zlib`, `bz2` y `zip`; sin
   ellas se salta en vez de fallar. El PROPIETARIO instalo `bz2` el 2026-08-21. Va a
-  `files/dev/tests.md`.
+  `.agents/context/21-pruebas-y-puertas.md`.
 - **La puerta de columnas** que el PROPIETARIO aplazo el 2026-08-22: tras el renombrado, cero
   columnas con guion bajo en `$fields`. Va con el lote de renombrado.
 
-**Despues de la MAJOR** (extienden; van a `files/dev/roadmap/`, donde hoy faltan):
+**Despues de la MAJOR** (extienden; van a `.agents/docs/roadmap-posterior/`, donde hoy faltan):
 
 - **Registros: la pieza 0 es el inventario de TODO lo logueable** —que sucesos merecen fila y en
   que registro, cuales no, su clave de catalogo y su retencion—, y va **antes** que el
@@ -284,7 +287,7 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
 | `roadmap/EventsLog…md:120` | «LA DECISION YA ESTA TOMADA: (a)» | fue (b) (su linea 63) y despues cuatro registros | pendiente |
 | `roadmap/Los registros…md` | el registro unico, propuesta del arquitecto | lo impulso el PROPIETARIO (2026-09-02) | pendiente |
 | `12-convenciones.md:291` | «PHP 8.1+ compatible hasta 8.4» | 100 % 8.5; 8.4 es un extra (T122) | pendiente |
-| `files/dev/tests.md:109` | `core/http-client` sin cobertura | probablemente rancio (T130 da 10/10) | sin verificar |
+| `.agents/context/21-pruebas-y-puertas.md:109` (antes `files/dev/tests.md`) | `core/http-client` sin cobertura | probablemente rancio (T130 da 10/10) | sin verificar |
 | `18` T34 | «E0 cierra al empujar» | nada de push (20 §3) | pendiente |
 | `18` bloque M | `isset`: «no lo decide ARQUITECTO» | delegado con condicion | pendiente |
 | `14-deuda-y-limpieza.md` (Components) | «Stub. Eliminar o promover» | el PROPIETARIO se inclina por conservar | pendiente |
@@ -293,7 +296,9 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
 
 | Encargo | Estado |
 | :-- | :-- |
-| Montar el modelo arquitecto-coder con la skill, tomando lo mejor de lo copiado de otro proyecto y adaptandolo | hecho (bitacora 0001) |
+| Montar el modelo arquitecto-coder con la skill, tomando lo mejor de lo copiado de otro proyecto y adaptandolo | hecho y commiteado: diez commits, de `1c92eee0` a `1a2d1ec8` (`#006`→`#007`, bitacora 0001) |
+| El PROPIETARIO reabrio el chat del coder y lo renombro: para el es la misma sesion | escrito en la regla 30, «Reabrir un chat no es la misma sesion tecnica». Solo avisa si lo reabre con un mensaje sin responder |
+| Recordarle las dos ordenes de `/rename` en cada inicio de dia de trabajo | ya estaba en la skill y en la regla 30; ademas, primer paso de «Para una sesion nueva» en `.agents/estado/AHORA.md` |
 | Sin commits en este proceso inicial | cumplido: todo queda sin commitear hasta su permiso |
 | Usar la conversacion entera del arquitecto saliente para la herencia; el archivo muere tras su uso | hecho: fuera del repositorio, no se versiona |
 | Decidir si hace falta un coder nuevo | hecho: el PO abrio la sesion `PiecesPHPUpgrade-Coder-Main` (P17) |

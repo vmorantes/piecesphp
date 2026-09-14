@@ -19,7 +19,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 | --: | :-- | :-- | :-- | :-- |
 | 0a | **Homologar `dev` en los paquetes** | Crear `dev` en `master` en `datastructures` y `html`; en `database` y `geojson` ya coinciden | Regla 30, «Los cuatro paquetes hermanos» | Decidido por el PO el 2026-09-14 (P19). Una ronda corta |
 | 0b | **Orden de directorios y builds** | Una razón de ser por carpeta; fuera los builds versionados que sobren (`files/API/docs-dist/`, 7,7 MB) | Propuesta en el tramo del 2026-09-14 | Aceptado por el PO el 2026-09-14. Estructural: ADR antes. Mueve rutas que leen los instrumentos: el censo de referencias va dentro de la instrucción (LEY 17, LEY 28) |
-| 1 | **BD** | Nivelar los analizadores de los cuatro paquetes (2.1.4x → 2.2.12) | `files/dev/PENDIENTES.md` (P16) | Delegado en el arquitecto (PO, 2026-09-02). Pide `composer update` en `bin/tools` de cada paquete, que la guarda bloquea (ADR 0003): se resuelve al instruirlo |
+| 1 | **BD** | Nivelar los analizadores de los cuatro paquetes (2.1.4x → 2.2.12) | `docs/pendientes.md` (P16) | Delegado en el arquitecto (PO, 2026-09-02). Pide `composer update` en `bin/tools` de cada paquete, que la guarda bloquea (ADR 0003): se resuelve al instruirlo |
 | 2 | **Identificadores** | Lo último grande de SQL: `prepare`, `select`, `setTable`, `custom_order`, con lista blanca | `18` T167 y T168; `files/dev/sql-concat-baseline.json` (`forma_sin_censar`) | 2-3 bloques. Aquí se cablea `bin/censo-sql-interpolado` |
 | 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `PENDIENTES.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta |
 | 4 | **`escapeString`** | Depende de un `sql_mode` que nadie fija | `20` §7, «EL HALLAZGO MÁS PROFUNDO» | 1 bloque |
@@ -27,7 +27,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 | 6 | **E3 / experience** | El borrado no terminó: tablas, JS y SCSS residuales | `20` §7, «EL BORRADO NO FUE FIABLE» | LEY 28 |
 | 7 | **Avatares y `see-more`** | Muere el creador de avatares; `see-more` se restaura | `20` §7, «El lote del CREADOR DE AVATARES» y «`see-more`: DAÑADO» | `see-more`, decidido por el PO el 2026-08-31 |
 | 8 | **E5 · `DataImportExportUtility`** | Consolidación y arquetipo, absorbiendo `Importers` | `20` §7, «Abierto, sin decidir»; `18`, «La fusión … es una REFACTORIZACIÓN PLANIFICADA»; `PENDIENTES.md` (cruce) | `Importers` **no** se borra. Se unifica y se optimiza como base de la que se parte, con ejemplos que funcionan (PO, 2026-09-14). La dirección la dijo el PO el 2026-08-29: hacia `DataImportExportUtility`. El 18 dice la contraria |
-| 9 | **E6 · documentación** | `source-docs/` completo; `16-frontend-arquitectura.md`; `files/API` y Postman; los 9 selectores; la protección de módulos en la guía; los seis módulos sin punto de extensión (P4); el cierre de PHPStan en dos listas; `processFromQuery` documentado antes de que muera el 18 | `20` §7, «Abierto, sin decidir»; `PENDIENTES.md` (cruce) | 2-3 bloques |
+| 9 | **E6 · documentación** | `source-docs/` completo; `16-frontend-arquitectura.md`; la documentación de la API (`source-docs/api/`) y Postman; los 9 selectores; la protección de módulos en la guía; los seis módulos sin punto de extensión (P4); el cierre de PHPStan en dos listas; `processFromQuery` documentado antes de que muera el 18 | `20` §7, «Abierto, sin decidir»; `PENDIENTES.md` (cruce) | 2-3 bloques |
 | 10 | **Residuos con nombre** | Barrido final | Solo en el mapa del 2026-09-13 | 1-2 bloques. Incluye `SOLO_PROPIAS` (P2) |
 | 11 | **Usuarios a `classes/`** | El núcleo sale de la disposición vieja | `PENDIENTES.md` §1 | **Rompe**. «Al final» (PO, 2026-09-13). Sin medir |
 | 12 | **Renombrado de columnas** | 8 columnas y 247 referencias, con `column-renames.json` | `20` §7, «EL RENOMBRADO DE COLUMNAS» | **Rompe**. Con la puerta de columnas (`PENDIENTES.md`, cruce) |
@@ -36,8 +36,8 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 ## Después de la MAJOR
 
-`files/dev/roadmap/` (16 documentos) y la sección «Después de la MAJOR» del cruce en
-`files/dev/PENDIENTES.md`. No se copian aquí.
+`roadmap-posterior/` (16 documentos) y la sección «Después de la MAJOR» del cruce en
+`pendientes.md`. No se copian aquí.
 
 ## Fuera del repositorio
 

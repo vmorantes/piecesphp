@@ -4,7 +4,7 @@
 >
 > 1. ~~El reporte de BC está recibido, evaluado y con su entrada de bitácora.~~ **Cumplida el
 >    2026-09-14**: bitácora 0002. La sección «El bloque en vuelo», abajo, ya no hace falta.
-> 2. La tabla «Correcciones al registro» de `files/dev/PENDIENTES.md` no tiene filas
+> 2. La tabla «Correcciones al registro» de `docs/pendientes.md` no tiene filas
 >    pendientes.
 > 3. Las preguntas del traspaso están contestadas. P15, P17, P19 y P20 lo están desde el
 >    2026-09-14. P18 (el commit del andamiaje) la contesta el PO justo antes de empezar a
@@ -30,8 +30,8 @@ estado destilado, no los transcritos (2026-09-13), y que el archivo muriera tras
   - 33 leyes (`context/19`).
   - El contrato (`context/20`).
   - 168 entradas T (`context/18`).
-  - `files/dev/PENDIENTES.md` (LEY 33).
-  - 16 documentos de roadmap posterior (`files/dev/roadmap/`).
+  - `PENDIENTES.md` (LEY 33), hoy en `docs/pendientes.md` (ADR 0006).
+  - 16 documentos de roadmap posterior, hoy en `docs/roadmap-posterior/`.
   - Los instrumentos. Según el arquitecto saliente, el 2026-09-13: 26 comprobaciones en
     `verify-integrity`, 25 suites en `gates` y 10 censos. **Sin re-medir aquí.**
 - **2026-09-13 y 14.** El PO decide jubilar al arquitecto y traspasar a uno nuevo con la skill

@@ -1,6 +1,6 @@
 ---
 name: doc-writer
-description: "Redacta documentación por encargo del arquitecto (el coder no escribe documentación). Use cuando un cambio deje desactualizado CHANGELOG.md, .agents/context/, source-docs/ o files/API/docs/."
+description: "Redacta documentación por encargo del arquitecto (el coder no escribe documentación). Use cuando un cambio deje desactualizado CHANGELOG.md, .agents/context/ o source-docs/ (incluida la API, en source-docs/api/)."
 tools: Read, Grep, Glob, Write, Edit
 model: sonnet
 effort: medium
@@ -15,8 +15,8 @@ documentación (ADR 0001). Nunca tocas código.
 
 ## Alcance
 
-- Para quien **usa** el framework: `.agents/context/01`–`15`, `source-docs/`,
-  `files/API/docs/`, `README.md`.
+- Para quien **usa** el framework: `.agents/context/01`–`15`, `source-docs/` (con la API en
+  `source-docs/api/`), `README.md`.
 - Para quien lo **mantiene**: `19-leyes.md`, `20-contrato-de-trabajo.md`, borradores de ADR y
   de bitácora. El 18 nació para morir: no se amplía.
 - Para quien **clona**: `CHANGELOG.md`, en lenguaje de producto: qué cambia para él, no qué

@@ -191,7 +191,7 @@ Los **contextos** agrupan eventos por dominio y evitan colisiones de nombres.
 
 ## Pruebas
 
-Ver `files/dev/tests.md` y
+Ver `.agents/context/21-pruebas-y-puertas.md` y
 `source-docs/project/docs/piecesphp/new-features/unit-testing.md`.
 Se ejecutan como acciones CLI, p. ej.:
 
@@ -214,7 +214,8 @@ Comprueba **dieciséis** cosas, numeradas en `VerifyIntegrityTask::run()` —que
 docblocks sin cerrar, firmas desaparecidas, que **toda clase bajo una raíz PSR-4 se llame como
 su ruta manda y se pueda cargar**, que el núcleo **no ECLIPSE una clase de ningún paquete
 `piecesphp/*`**, y doce más. La lista entera, con lo que motivó cada una, está en
-`files/dev/tests.md`; **no se duplica aquí para que no vuelva a quedarse corta.**
+`.agents/context/21-pruebas-y-puertas.md`; **no se duplica aquí para que no vuelva a quedarse
+corta.**
 
 El eclipse es el que menos se sospecha y el más difícil de ver: PSR-4 resuelve por prefijo
 más largo, los paquetes registran `PiecesPHP\` y el proyecto `PiecesPHP\Core\`, así que
@@ -224,7 +225,7 @@ condición que los retira; uno que no esté ahí hace fallar la tarea, y una ent
 cuyo eclipse ya no exista, también.
 
 Cubre un hueco real: ni un docblock sin cerrar ni un `namespace` perdido son errores de
-sintaxis, así que `php -l` los da por buenos. Ver `files/dev/tests.md` y, para lo que la
+sintaxis, así que `php -l` los da por buenos. Ver `.agents/context/21-pruebas-y-puertas.md` y, para lo que la
 puerta **no** atrapa, `.agents/context/18-siguientes-ventanas.md` (T10).
 
 ## Recorrido de rutas — la puerta que sustituye al paseo humano

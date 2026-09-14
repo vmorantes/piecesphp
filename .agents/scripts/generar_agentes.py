@@ -99,7 +99,7 @@ AGENTES = {
         "antigravity": {"model": "flash"},
     },
     "doc-writer": {
-        "description": "Redacta documentación por encargo del arquitecto (el coder no escribe documentación). Use cuando un cambio deje desactualizado CHANGELOG.md, .agents/context/, source-docs/ o files/API/docs/.",
+        "description": "Redacta documentación por encargo del arquitecto (el coder no escribe documentación). Use cuando un cambio deje desactualizado CHANGELOG.md, .agents/context/ o source-docs/ (incluida la API, en source-docs/api/).",
         "herramientas": ESCRITURA_DOCS,
         "claude": {"model": "sonnet", "effort": "medium"},
         "antigravity": {"model": "flash"},

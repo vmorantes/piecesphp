@@ -11,8 +11,8 @@ la documentación, y se corrige ahí.
 | ¿Qué pasa ahora? ¿Qué número de mensaje toca? ¿Qué espera al PO? | `.agents/estado/AHORA.md` | Se reescribe en cada ronda |
 | ¿Qué se hizo en este tramo? | `.agents/estado/tramos/AAAA-MM-DD-HHMM-<tema>.md` | Volátil: se poda |
 | ¿Qué falta hasta la MAJOR, y en qué orden? | `.agents/docs/roadmap.md` | Lo cerrado sale |
-| ¿Qué pidió o decidió el PO que aún no es trabajo? | `files/dev/PENDIENTES.md` (LEY 33) | Se tacha al resolverse |
-| ¿Qué viene después de la MAJOR? | `files/dev/roadmap/` | Hasta que se decida |
+| ¿Qué pidió o decidió el PO que aún no es trabajo? | `.agents/docs/pendientes.md` (LEY 33) | Se tacha al resolverse |
+| ¿Qué viene después de la MAJOR? | `.agents/docs/roadmap-posterior/` | Hasta que se decida |
 | ¿Por qué se decidió así? | `.agents/docs/adr/`; antes del 2026-09-14, `18`, `19` y `20` | Inmutable |
 | ¿Cómo se llegó aquí? | `.agents/docs/bitacora/`; hasta BC, las entradas T del `18` | Crece |
 | ¿Qué me muerde si toco esto? | `.agents/context/` | Verdad hoy; se corrige y se poda |
@@ -31,7 +31,7 @@ No copia descripciones. Si un lote aparece en dos documentos, uno describe y el 
   lo que espera al PO y, al cerrar, la duración.
 - **Lo que necesite al PO** va arriba en `AHORA.md`, bajo «Espera al PO», con su número `P<n>` y
   su predeterminado, además de en el chat.
-- **Todo encargo, decisión o «recuérdame» del PO** produce su línea en `files/dev/PENDIENTES.md`
+- **Todo encargo, decisión o «recuérdame» del PO** produce su línea en `.agents/docs/pendientes.md`
   en el mismo turno (LEY 33).
 - `.agents/estado/` es la excepción a «no escribir con tanda en vuelo»: solo lo escribe el
   arquitecto y el coder la excluye de sus criterios de `git status`. Se commitea en commits

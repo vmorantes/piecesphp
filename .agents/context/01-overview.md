@@ -108,8 +108,10 @@ tener las ramas que quieran. Ver `.agents/rules/30-protocolo-coder.md`, «Ramas�
   database-exporter, unit-testing).
 - `CHANGELOG.md` — historial detallado por versión. **Es la mejor fuente para
   saber qué cambió recientemente.**
-- `files/API/` — documentación y colección Postman de la API.
-- `files/dev/tests.md` — pruebas unitarias/de desarrollo.
+- `source-docs/api/` — documentación y colección Postman de la API (hasta el 2026-09-14 en
+  `files/API/`; ADR 0006).
+- `.agents/context/21-pruebas-y-puertas.md` — pruebas unitarias/de desarrollo (antes
+  `files/dev/tests.md`).
 - `TODO.md` / `IGNORE.md` — notas del autor (pendientes, snippets de comandos).
 
 ## Estado y trabajo en curso (a la fecha de este documento)

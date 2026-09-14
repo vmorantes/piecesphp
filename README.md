@@ -173,8 +173,8 @@ git branch --set-upstream-to=origin/dev dev
 | [`source-docs/project/docs/piecesphp/`](./source-docs/project/docs/piecesphp/) | Guías del framework: estructura, rutas, mappers, terminal, permisos, Gulp |
 | [DeepWiki](https://deepwiki.com/vmorantes/piecesphp) | Recorrido del código generado automáticamente |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Historial de versiones |
-| [`files/dev/tests.md`](./files/dev/tests.md) | Pruebas unitarias y de desarrollo |
-| [`files/API/`](./files/API) | Documentación de la API y colección de Postman |
+| [`.agents/context/21-pruebas-y-puertas.md`](./.agents/context/21-pruebas-y-puertas.md) | Pruebas unitarias y de desarrollo |
+| [`source-docs/api/`](./source-docs/api) | Documentación de la API y colección de Postman |
 
 La documentación se publica como sitio estático con MkDocs a partir de
 `source-docs/project`.

@@ -245,9 +245,9 @@ ciego.**
 | 24 `HelperController.php` triviales — copia y pega | **`src/statics/wf/`** (20 KB) — css, js, fuentes e imágenes del kit |
 | `scssphp/scssphp` — dependencia sin uso real | **`files/Webflow/`** (32 KB) — export base, «Pedazos» reutilizables y su `Intrucciones.md` |
 | `PDFManager` + `mpdf/mpdf` | **`Components/Views/sample/components.php`** (16 líneas) — **no es *lorem ipsum* de relleno: es la referencia del formato `<components>`/`<component>`** que `ComponentProvider` consume |
-| El módulo `Components` en sí — decisión aparte | `files/API/` — documentación mkdocs y una colección de Postman |
+| El módulo `Components` en sí — decisión aparte | `source-docs/api/` (antes `files/API/`) — documentación mkdocs y una colección de Postman |
 | | `files/CliScripts/` — dos guiones sueltos que se lanzan a mano |
-| | `files/dev/roadmap`, `TODO.md`, `IGNORE.md` — notas del autor |
+| | `.agents/docs/roadmap-posterior/` (antes `files/dev/roadmap`), `TODO.md`, `IGNORE.md` — notas del autor |
 | | `source-docs/` (320 KB) — documentación de producto |
 
 **Los tres directorios de Webflow suman 80 KB.** No son código de ejecución, y por eso ningún
