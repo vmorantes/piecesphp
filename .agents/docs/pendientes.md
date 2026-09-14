@@ -456,4 +456,13 @@ historia de git los conserva.
 - **PHPStan 2.2.12 imprime un bloque nuevo**, «Instructions for interpreting errors», dirigido a
   quien lea la salida.
 - **El mensaje del trinquete no distingue el motivo.** Imprime «murieron con el código borrado»
-  también cuando mueren por el analizador. Es texto de piecesphp, heredado tal cual.
+  también cuando mueren por el analizador. Es texto de piecesphp, y desde `#018` está en los
+  cinco repositorios. Se arregla en una ronda de instrumental, en los cinco a la vez.
+- **Corrección:** `files/dev/shared-toolchain.json` **no** es ASCII. El arquitecto lo afirmó en
+  `#016` sin medirlo: la sección `analyzers` sí es ASCII, pero 16 de sus 116 líneas llevan
+  tildes, rayas o comillas angulares. Lo detectó el coder en `#019`.
+- **En los paquetes, los resúmenes de PHPStan se escriben en LF** aunque tienen `crlf`
+  declarado. Git lo normaliza, así que es cosmético. La línea base, en CRLF, no coincide con el
+  resumen byte a byte.
+- **La cota del `.neon`**, que ya está en los paquetes, solo actúa si su línea base declara
+  `[ENTRADAS-NEON]`, y ninguna lo declara. Queda inerte hasta que alguien la cablee.

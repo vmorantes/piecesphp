@@ -17,7 +17,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
-| 1 | **BD** | Nivelar los analizadores de los cuatro paquetes (2.1.4x → 2.2.12) | `docs/pendientes.md` (P16) | Delegado en el arquitecto (PO, 2026-09-02). Pide `composer update` en la raíz de cada paquete, donde está su `require-dev`; la guarda lo deja pasar solo para las herramientas de análisis (ADR 0007). En curso: `#016` |
+| 1 | **BD · html** | Lo único que queda de BD: html sigue con phpstan 2.1.42 | `docs/pendientes.md` (P23); bitácora 0005 | Espera al PO: hay que actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007). El resto de BD está cerrado |
 | 2 | **Identificadores** | Lo último grande de SQL: `prepare`, `select`, `setTable`, `custom_order`, con lista blanca | `18` T167 y T168; `files/dev/sql-concat-baseline.json` (`forma_sin_censar`) | 2-3 bloques. Aquí se cablea `bin/censo-sql-interpolado` |
 | 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `PENDIENTES.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta |
 | 4 | **`escapeString`** | Depende de un `sql_mode` que nadie fija | `20` §7, «EL HALLAZGO MÁS PROFUNDO» | 1 bloque |
