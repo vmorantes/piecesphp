@@ -1,0 +1,79 @@
+#!/bin/bash
+# Verificación del ANDAMIAJE DE AGENTES. La corre el coder antes de cada reporte.
+#
+# No verifica el producto: eso lo hacen bin/phpstan, bin/cli verify-integrity y
+# bin/cli gates, que nombra cada instrucción (.agents/rules/30-protocolo-coder.md).
+# No escribe en el repositorio ni fuera de él. Sale con 1 si algo falla.
+#
+# Uso: bash .agents/scripts/verificar.sh
+
+set -u
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$RAIZ" || exit 1
+export PYTHONDONTWRITEBYTECODE=1
+
+fallos=0
+paso() { printf '\n== %s\n' "$1"; }
+fallo() { printf 'FALLO: %s\n' "$1"; fallos=$((fallos + 1)); }
+
+paso "Sintaxis bash de los guiones de agentes (bash -n)"
+n=0
+for f in .agents/scripts/*.sh .agents/scripts/git-hooks/*; do
+    [ -f "$f" ] || continue
+    n=$((n + 1))
+    bash -n "$f" || fallo "bash -n $f"
+done
+echo "guiones bash revisados: $n"
+
+paso "Sintaxis Python de los guiones de agentes"
+n=0
+for f in .agents/scripts/*.py .agents/scripts/guardas/*.py; do
+    [ -f "$f" ] || continue
+    n=$((n + 1))
+    python3 -c 'import ast,sys; ast.parse(open(sys.argv[1], encoding="utf-8").read(), sys.argv[1])' "$f" || fallo "python $f"
+done
+echo "guiones Python revisados: $n"
+
+paso "Finales de línea del hook de git (LF: con CRLF el shebang no arranca)"
+for f in .agents/scripts/git-hooks/*; do
+    [ -f "$f" ] || continue
+    [ "$(tr -d '\r' < "$f" | wc -c)" = "$(wc -c < "$f")" ] || fallo "$f tiene CRLF"
+done
+echo "hooks revisados: $(ls -1 .agents/scripts/git-hooks | wc -l)"
+
+paso "Subagentes generados al día"
+python3 -B .agents/scripts/generar_agentes.py --check || fallo "agentes desfasados"
+
+paso "Puente de reglas y skills (.claude -> .agents)"
+for enlace in .claude/rules/* .claude/skills/*; do
+    if [ ! -L "$enlace" ]; then
+        fallo "$enlace no es un symlink (se materializó como copia)"
+    elif [ ! -e "$enlace" ]; then
+        fallo "$enlace apunta a algo que no existe"
+    fi
+done
+for regla in .agents/rules/*.md; do
+    [ -L ".claude/rules/$(basename "$regla")" ] || fallo "falta el symlink .claude/rules/$(basename "$regla")"
+done
+# Una skill es una carpeta con SKILL.md; una carpeta vacía no es una skill.
+for skill in .agents/skills/*/; do
+    [ -f "${skill}SKILL.md" ] || continue
+    [ -L ".claude/skills/$(basename "$skill")" ] || fallo "falta el symlink .claude/skills/$(basename "$skill")"
+done
+modos=$(git ls-files -s .claude/rules .claude/skills | awk '$1 != "120000" {print $4}')
+[ -z "$modos" ] || fallo "en el índice sin modo 120000: $modos"
+echo "enlaces revisados: $(ls -1 .claude/rules .claude/skills | grep -vc ':$')"
+
+paso "Guarda de hooks"
+python3 -B .agents/scripts/guardas/probar_guardia.py || fallo "la guarda no se comporta como se espera"
+
+paso "Atribución a IA en entregables y commits"
+python3 -B .agents/scripts/menciones_ia.py || fallo "hay atribuciones a IA"
+
+printf '\n'
+if [ "$fallos" -eq 0 ]; then
+    echo "ANDAMIAJE OK"
+else
+    echo "ANDAMIAJE CON FALLOS: $fallos"
+    exit 1
+fi

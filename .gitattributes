@@ -20,6 +20,9 @@
 #──── Excepciones en LF, tal como las declara .editorconfig ──────────────────────────────
 *.sh            text eol=lf
 bin/*           text eol=lf
+# Los hooks de git no llevan extensión y git los ejecuta por su shebang: con CRLF
+# no arrancan. Ver ADR 0003.
+.agents/scripts/git-hooks/*  text eol=lf
 
 # Archivos generados por herramientas que siempre escriben LF. Forzar CRLF aquí sería
 # pelearse con la herramienta en cada ejecución.

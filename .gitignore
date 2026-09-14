@@ -42,3 +42,7 @@ files/dev/last-restore.json
 #Se ignoraba solo por el ignore global de una máquina, y un ignore que no viaja no es una regla:
 #en otro clon aparecía sin seguimiento. Ver bloque U.
 .claude/settings.local.json
+
+#Bytecode de los guiones de agentes. La guarda corre con `python3 -B` y no lo genera; esto es
+#la red para quien la ejecute sin la opción. Ver ADR 0003.
+**/__pycache__/
