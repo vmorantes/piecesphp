@@ -1,5 +1,14 @@
 # 18 — Siguientes ventanas
 
+> ## CONGELADO PARA ENTRADAS NUEVAS — 2026-09-14
+>
+> La última entrada es **T168 (bloque BC)**. Desde el cambio al modelo de tres roles
+> (ADR 0001 y 0002), la historia de cada tarea nueva va a
+> [`../docs/bitacora/`](../docs/bitacora/), el mapa de lo que falta a
+> [`../docs/roadmap.md`](../docs/roadmap.md) y el estado vivo a
+> [`../estado/AHORA.md`](../estado/AHORA.md). Este documento se sigue consultando, y su
+> cláusula de disolución sigue en pie.
+
 > ## CLÁUSULA DE DISOLUCIÓN
 >
 > **Este registro nació para morir.** Se disuelve cuando E2–E6 cierren: lo durable se promociona
@@ -4787,13 +4796,16 @@ despliegues, y el peor momento para descubrirlo es el día que hace falta el res
 Volcado, restaurado en una base de usar y tirar, e intentado el login:
 
 ```
-  password de root VIVO      : $2y$10$5KEzolPgoFt/ZwykXvzJ9usmCzFgcY8H5UiyJV5rmHPJkrZoHl20u
-  password de root EN VOLCADO: fXfHZ4OJdImUlMjOt5XAtJS3gbPHzbSnxNmVfs64u4bMn7e3ooeWlKCu0o-…
-  password_verify("123456", VIVO)    : TRUE   <- se entra
-  password_verify("123456", VOLCADO) : false  <- NO SE ENTRA
+  password de root VIVO      : «hash bcrypt, omitido»
+  password de root EN VOLCADO: «valor cifrado, omitido»
+  password_verify(«contraseña de prueba», VIVO)    : TRUE   <- se entra
+  password_verify(«contraseña de prueba», VOLCADO) : false  <- NO SE ENTRA
 
-  password de root RESTAURADO: fXfHZ4OJdImUlMjOt5XAtJS3gbPHzbSnxNmVfs64u4bM…
-  INTENTO DE LOGIN password_verify("123456", …) -> FALSE — NO SE PUEDE ENTRAR
+  password de root RESTAURADO: «valor cifrado, omitido»
+  INTENTO DE LOGIN password_verify(«contraseña de prueba», …) -> FALSE — NO SE PUEDE ENTRAR
+
+  (Valores retirados el 2026-09-14 por higiene, con permiso del PROPIETARIO; la historia de
+  git los conserva.)
 ```
 
 ### Por qué cifraba, que era la pregunta correcta
@@ -4816,7 +4828,7 @@ puede restaurarlo. **Protección cero, restauración rota.**
 Comprobado además que es perfectamente reversible:
 
 ```
-  decrypt(VOLCADO, "ENCRYPTION_KEY")  : $2y$10$5KEzolPgoFt/ZwykXvzJ9usmCzFgcY8H5UiyJV5rmHPJkrZoHl20u
+  decrypt(VOLCADO, "ENCRYPTION_KEY")  : «el mismo hash bcrypt, omitido»
   ¿coincide con el hash vivo?         : SÍ
 ```
 
@@ -5981,7 +5993,12 @@ Sale hacia el usuario **en cada correo que manda el sistema**, en los seis idiom
    ningún listado de vistas, así que apagarlo por accidente no se vería: el formulario seguiría
    pintándose y dejaría de enviar.
 
-### La primera forma estaba mal, y el error de diseño fue del propietario
+### La primera forma estaba mal, y el error de diseño fue de ARQUITECTO
+
+> **CORREGIDO el 2026-09-14.** Este encabezado decía que el error fue del propietario. Es falso:
+> la lista `PUBLIC_AREA_ROUTES` la propuso ARQUITECTO, el PROPIETARIO la **rechazó** (le
+> disgustaba lo hardcodeado y quería un solo interruptor en `constants.php`), y ARQUITECTO lo
+> reconoció entonces. Encontrado en el cruce de la bitácora 0001.
 
 Se implementó y se deshizo (`git reset --hard`, sin empujar, sin commit de reversión). Era una
 **lista** —`PUBLIC_AREA_ROUTES`— que alimentaba `$ignoreRoutes`. El defecto:

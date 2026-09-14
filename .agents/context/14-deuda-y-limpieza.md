@@ -36,7 +36,7 @@ Ya eliminados en ramas anteriores: chat interno, presentaciones de capacitación
 | DataImportExportUtility | 1.226 | 0 | 0 | **Hoja totalmente aislada** |
 | EventsLog | 1.210 | 1 | 0 | Hoja |
 | ReportsManage | 1.195 | 2 | 5 | Base válida (acople en `Queries/`) |
-| Importers | 1.129 | 0 | 0 | **Duplicado. Eliminar** |
+| Importers | 1.129 | 0 | 0 | **Se conserva y se consolida** con `DataImportExportUtility` (decisión del PROPIETARIO, ver §1) |
 | Components | 489 | 1 | 1 | **Stub. Eliminar o promover** |
 | GoogleReCaptchaV3 | 386 | 2 | 0 | Pequeño y útil. Conservar |
 
@@ -59,7 +59,15 @@ Dos módulos de importación conviviendo, y ambos empiezan por usuarios:
 
 `DataImportExportUtility` es el reemplazo y es un superconjunto.
 
-**Acción**: eliminar `Importers` (1.129 LOC) + la constante `IMPORTS_MODULE_ENABLED`
+> **CORREGIDO el 2026-09-14 — `Importers` NO se borra.** El PROPIETARIO lo decidió el
+> 2026-08-21 y lo confirmó el 2026-08-29: `Importers` se usa y es buena implementación para
+> proyectos; se **consolida** con `DataImportExportUtility` sin perder la extensibilidad, la
+> portabilidad ni el boilerplate, y mejorando su estilo. El importador histórico de usuarios
+> es el modelo de las importaciones interactivas, y `databases/Utilidades_Datos_iniciales/Tablas.sql`
+> es el origen de la importación exógena. Va en E5 (`../docs/roadmap.md`). La «Acción» de abajo
+> queda **superada**; se conserva como la propuesta que fue.
+
+**Acción (superada)**: eliminar `Importers` (1.129 LOC) + la constante `IMPORTS_MODULE_ENABLED`
 + su línea en `routes.php` (`ImporterController::routes($importadores)`) + el grupo
 `$importadores`. Antes: migrar `ImporterUsers` a un handler de
 `DataImportExportUtility` si aún se usa la importación de usuarios.
@@ -233,7 +241,7 @@ ciego.**
 
 | CÓDIGO que ningún código llama → candidato real | MATERIAL que ningún código llama porque NO ES CÓDIGO → se conserva |
 | :-- | :-- |
-| `Importers` — duplicado de `DataImportExportUtility` | **`src/app/view/webflow/`** (28 KB) — esqueleto de layout del kit de Webflow |
+| ~~`Importers` — duplicado de `DataImportExportUtility`~~ (se conserva y se consolida: ver §1) | **`src/app/view/webflow/`** (28 KB) — esqueleto de layout del kit de Webflow |
 | 24 `HelperController.php` triviales — copia y pega | **`src/statics/wf/`** (20 KB) — css, js, fuentes e imágenes del kit |
 | `scssphp/scssphp` — dependencia sin uso real | **`files/Webflow/`** (32 KB) — export base, «Pedazos» reutilizables y su `Intrucciones.md` |
 | `PDFManager` + `mpdf/mpdf` | **`Components/Views/sample/components.php`** (16 líneas) — **no es *lorem ipsum* de relleno: es la referencia del formato `<components>`/`<component>`** que `ComponentProvider` consume |
@@ -261,7 +269,7 @@ propio archivo de instrucciones, es HTML o assets en vez de PHP con lógica, o s
 
 | Qué | LOC | Por qué |
 | :-- | --: | :-- |
-| **`Importers`** | 1.129 | Duplicado de `DataImportExportUtility`. 0 acoplamiento |
+| ~~**`Importers`**~~ | 1.129 | **No se borra**: se consolida con `DataImportExportUtility` (ver §1) |
 | **24 `HelperController.php` triviales** | ~1.000 | Copia y pega; reemplazables por una clase base |
 | **`Components`** | 489 | Stub con un solo consumidor (`PublicAreaController`). O se completa o se borra. **`Views/sample/` NO cuenta**: ver la tabla de abajo |
 | **`scssphp/scssphp`** | — | **Dependencia directa que nadie usa.** Ver abajo |
@@ -425,7 +433,7 @@ versión de lenguaje.
 ## Orden sugerido
 
 1. `HelperController` → clase base *(bajo riesgo, ~1.000 LOC, mejora todos los módulos)*
-2. Borrar `Importers` *(bajo riesgo, ~1.129 LOC)*
+2. ~~Borrar `Importers`~~ — superado: se consolida en E5 (ver §1)
 3. Decidir sobre `Components` *(completar o borrar)*
 4. Invertir la dependencia `BaseEntityMapper` → `SystemApprovals` *(desbloquea todo lo demás)*
 5. Decidir el destino de ~~`ImagesRepository`~~ *(borrado, bloque AA)* / `FileManager` /

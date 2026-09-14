@@ -5,7 +5,7 @@
 > | Vienes a… | Lee |
 > | :-- | :-- |
 > | **USAR el framework** — crear un módulo, tocar rutas, mappers, vistas, traducciones | **`01`–`15`**. Empieza por el índice de abajo |
-> | **MANTENERLO** — trabajar sobre la campaña de calidad, con o sin agente | **`18`** (pendiente), **`19`** (las leyes), **`20`** (el contrato) e [`historico/`](./historico/) |
+> | **MANTENERLO** — trabajar sobre la campaña de calidad, con o sin agente | [`../estado/AHORA.md`](../estado/AHORA.md) (dónde estamos), [`../docs/roadmap.md`](../docs/roadmap.md) (qué falta), **`19`** (las leyes), **`20`** (el contrato), **`18`** (el registro hasta T168) e [`historico/`](./historico/) |
 >
 > **No las mezcles.** `18` es un registro que **nació para morir** y no es material de
 > aterrizaje; `19` es durable y **no** se disuelve. Si has venido a escribir un módulo, tu

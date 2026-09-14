@@ -84,16 +84,20 @@ archivos), `spatie/url`, `pragmarx/google2fa` (OTP/2FA),
 | :-- | :-- |
 | `dev` | Rama de integración / trabajo diario |
 | `limpieza-modulos` | Rama de trabajo actual (limpieza y depuración de módulos) |
-| `master` | Se sincroniza desde `dev` |
-| `last-stable` | Versión estable publicada (la que se descarga para desplegar) |
+| `master` | **Estable sin versionar**, la general. Se sincroniza desde `dev` |
+| `last-stable` | **Estable con etiqueta de versión**: la publicada, la que se descarga para desplegar. Las etiquetas apuntan aquí |
 | `modificacion-docs` | Trabajo sobre documentación |
-| `redesign` | Rediseño de UI |
+| `redesign` | Rediseño de UI. **Sin rama local** al 2026-09-14 (`git branch`); no se comprobó el remoto |
 | ~~`updagre-to-php84`~~ | Marcador vacío, 0 commits por delante de `dev`. Retirar |
 | `upgrade-to-php85` | Migración al rango 8.4.1–8.5. **Ejecutada** el 2026-08-20, mergeada a `dev` |
 
 Flujo habitual (documentado en `IGNORE.md`): se trabaja en `dev` y se mergea hacia
 las ramas temáticas (`git checkout <rama> && git merge dev`), y finalmente
 `master` y `last-stable`. Hay tres remotos (`origin`, `origin2`, `origin3`).
+
+**Política del PROPIETARIO (2026-09-14):** el resto de ramas son de trabajo, y **ninguna rama se
+crea sin su permiso**. En los cuatro paquetes `piecesphp/*`, `master` es su estable y pueden
+tener las ramas que quieran. Ver `.agents/rules/30-protocolo-coder.md`, «Ramas».
 
 ## Documentación existente en el repo
 

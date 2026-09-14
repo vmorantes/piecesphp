@@ -11,6 +11,24 @@
 
 *Creado el 2026-08-25 a petición del PROPIETARIO. Lo mantiene ARQUITECTO en cada pausa.*
 
+> ## DESDE EL 2026-09-14 EL MODELO DE TRABAJO LO RIGE `.agents/rules/30-protocolo-coder.md`
+>
+> El PROPIETARIO adoptó el modelo de tres roles con **canal directo** entre sesiones (ADR 0001).
+> Lo que cambia de este documento, y se marca en cada sección:
+>
+> - **§1**: el PROPIETARIO ya no es el mensajero. Arquitecto y coder se hablan directamente.
+> - **§2**: la primera línea de cada recuadro es ahora `[#NNN · ARQ · fecha]`; la línea
+>   `VIGENTE · BLOQUE XX` pasa a la segunda. Lo demás de §2 (las preguntas arriba, numeradas y
+>   con predeterminado; los puntos serios; un recuadro por vez) **sigue vigente**.
+> - **§4**: el arquitecto trabaja en la misma máquina, sin puente; sigue sin commitear.
+> - **§7**: el estado vivo sale a `.agents/estado/AHORA.md` y el mapa a la MAJOR a
+>   `.agents/docs/roadmap.md` (ADR 0002). §7 queda como está al 2026-09-01, como procedencia.
+> - **Documentación**: la escribe el arquitecto, CHANGELOG incluido; el coder ya no escribe
+>   entradas T ni CHANGELOG.
+>
+> **§3 (oficio de las instrucciones) y §5 (defectos recurrentes) siguen enteros.** Ante
+> contradicción con `30-protocolo-coder.md`, gana la regla y este documento se corrige.
+
 ---
 
 ## 1. Los tres roles
@@ -23,6 +41,10 @@
 
 **El PROPIETARIO es el mensajero entre ARQUITECTO y CODER.** No hay canal directo. Eso gobierna
 casi todo lo que sigue.
+
+> **SUPERADO el 2026-09-14** (ADR 0001): hay canal directo y el PROPIETARIO ya no transporta.
+> Lo que de aquí se deduce sobre él —que no lee los recuadros, que lee los reportes en diagonal—
+> sigue siendo cierto y sigue gobernando las preguntas de §2.
 
 Cómo se definió el reparto, con sus palabras: *«Yo no tengo decidido nada, solo soy el "ideador",
 tú el jefe de desarrollo.»*
@@ -381,6 +403,10 @@ registro no tenía**, empezando por el caso que fundó la regla del `git add`.
 ## 7. Estado abierto
 
 *La escribe ARQUITECTO, en cada pausa.*
+
+> **SUPERADO el 2026-09-14** (ADR 0002): el estado vivo está en `.agents/estado/AHORA.md` y el
+> mapa a la MAJOR en `.agents/docs/roadmap.md`. Lo que sigue se conserva **como procedencia**
+> de las decisiones que cita; sus cifras son del 2026-09-01 y no se actualizan aquí.
 
 **Ultima actualizacion: 2026-09-01, tras AW y con AX en vuelo.**
 
