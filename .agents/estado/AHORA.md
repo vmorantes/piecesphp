@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 14:40
-- **Último mensaje:** `#008 · ARQ`, lote 0b: orden de directorios (ADR 0006) y commit de la
-  documentación pendiente del arquitecto. En vuelo.
+- **Actualizado:** 2026-09-14 15:20
+- **Último mensaje:** `#010 · ARQ`, lote 0a (`dev` en los paquetes) y commit de la documentación
+  del lote 0b. En vuelo.
 - **Tramo en curso:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md)
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-- **Rama:** `dev`, `HEAD` en `1a2d1ec8` antes de `#008`.
+- **Rama:** `dev`, `HEAD` en `45d1a84f` antes de `#010`.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -27,43 +27,38 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 **Trabajo nombrado por el PO:**
 
 - ~~el commit del andamiaje~~, hecho;
-- el lote 0b, orden de directorios y builds (P21). **En curso.**
-- después, el mapa `../docs/roadmap.md`, cuando el PO dé la orden de trabajar sobre el
-  framework.
+- ~~el lote 0b~~, hecho (bitácora 0003);
+- el lote 0a, `dev` en los paquetes (P19). **En curso**;
+- después, el mapa `../docs/roadmap.md`, **cuando el PO dé la orden de trabajar sobre el
+  framework**.
 
 ## Espera al PO
 
-Nada que bloquee.
+- **Tras `#010`: la orden de trabajar sobre el framework.** El mapa empieza por BD (delegado en
+  el arquitecto) y por los identificadores de SQL.
+- **Las ramas `dev` nuevas de `datastructures` y `html` quedan solo en local**; subirlas es
+  cosa tuya.
 
-**Aviso, no pregunta:** el censo cambió dos puntos de la propuesta de carpetas que el PO aceptó.
-
-- **`PHPStanResult.*` se quedan en la raíz.** Moverlos rompía 14 líneas en cuatro instrumentos y
-  el instrumental común de los cinco repositorios.
-- **`tests.md` va a `.agents/context/` y no a `source-docs/`.** En `source-docs/` pondría rojo
-  un censo.
-
-Motivos en el ADR 0006. Si el PO prefiere lo contrario, se reabre.
-
-Siguen abiertas en `docs/pendientes.md` (tras `#008`), sin bloquear nada: qué es el geovisor, el
-francés, el rol 50 con nombre `null` y `Components`.
+Siguen abiertas en `docs/pendientes.md`, sin bloquear nada: qué es el geovisor, el francés, el
+rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-`#008`, que el coder hace en este orden:
+`#010`:
 
-1. mueve los archivos del ADR 0006;
-2. saca del repositorio el build de la documentación de la API;
-3. arregla el fallo silencioso de `gulp api-build`;
-4. commitea la documentación del arquitecto que quedó pendiente.
+1. crea `dev`, apuntando a `master`, en `datastructures` y `html`, y comprueba que en los cuatro
+   paquetes `dev` y `master` coinciden;
+2. commitea la documentación del lote 0b (`files/` en `02-estructura.md`, la bitácora 0003, el
+   mapa, los pendientes y el estado).
 
-Si se corta a medias, habrá commits hechos y archivos aún sin preparar. `git log` y
-`git status` dicen dónde quedó.
+Si se corta a medias, `git branch` en cada paquete y `git log` aquí dicen dónde quedó.
 
 ## Siguiente
 
-1. Evaluar el reporte de `#008`.
-2. **Lote 0a**: `dev` en `datastructures` y `html`.
-3. El mapa, cuando el PO dé la orden de trabajar sobre el framework.
+Con el reporte de `#010`:
+
+1. cerrar el tramo, con su resumen;
+2. esperar la orden del PO para empezar el mapa.
 
 ## Para una sesión nueva
 
