@@ -18,8 +18,8 @@ Qué es de quién:
 | Del arquitecto | Del coder |
 | --- | --- |
 | `.agents/` entero, `.claude/`, `AGENTS.md`, `CLAUDE.md` | `src/` (nunca `src/vendor/`), `bin/`, `databases/` |
-| `CHANGELOG.md`, `README.md`, `source-docs/`, `files/API/docs/` | Líneas base y artefactos de instrumentos: `files/dev/*.json`, `PHPStanResult.*` |
-| `files/dev/*.md` y `files/dev/roadmap/` | Configuración del repositorio (`.gitignore`, `.gitattributes`, `.editorconfig`), cuando la instrucción lo diga |
+| `CHANGELOG.md`, `README.md`, `source-docs/` (con la API en `source-docs/api/`) | Líneas base y artefactos de instrumentos: `files/dev/`, que solo guarda datos de máquina (ADR 0006), y `PHPStanResult.*` |
+| Los textos de `files/` (por ejemplo `files/Webflow/Intrucciones.md`) | Configuración del repositorio (`.gitignore`, `.gitattributes`, `.editorconfig`), cuando la instrucción lo diga |
 
 La configuración del repositorio que solo sirve al andamiaje de agentes (el `.gitignore` de
 la guarda, el final de línea del hook de git) la escribe el arquitecto con su ADR.
@@ -133,6 +133,12 @@ identificación.
 la sesión abierta, esa sesión las relee del disco (el saludo lo exige) y, ante duda, gana el
 disco.
 
+**Reabrir un chat no es la misma sesión técnica.** Conserva la conversación, pero arranca un
+proceso nuevo: cambia su identificador interno, pierde el nombre (vuelve a `/rename`) y recarga
+las reglas del disco. No hace falta volver a saludar. El PO avisa al arquitecto solo si reabre
+el chat del coder con un mensaje sin responder. *Sin verificar*: si un mensaje enviado mientras
+el proceso está cerrado se pierde. Visto el 2026-09-14.
+
 ### Cuándo se detiene el trabajo y se consulta al PO
 
 Solo en estos casos:
@@ -182,7 +188,7 @@ El PO nombra la tarea (o una lista, o «el mapa hasta la MAJOR»). A partir de a
 instruye sin pedir más permiso, dentro de los límites de arriba. El arquitecto **no** elige en
 qué se trabaja: detectar que algo conviene y decirlo en prosa (y en `AHORA.md`) es su trabajo;
 convertirlo en un recuadro sin que el PO lo haya nombrado, no. Todo encargo del PO produce su
-línea en `files/dev/PENDIENTES.md` en el mismo turno (LEY 33).
+línea en `.agents/docs/pendientes.md` en el mismo turno (LEY 33).
 
 ## Identificación de los mensajes
 
@@ -312,7 +318,10 @@ reporta: instalarla es cosa del PO.
 - Atómicos: un commit = una unidad coherente. Árbol sano después de cada uno.
 - Conventional Commits, en español. **Cero atribución a IA** (`40-salvaguardas.md` §5).
 - `git add` con rutas explícitas, nunca `.` ni `-A`, y `bin/guarda-add` antes de cada commit.
-- Un archivo **nuevo** pasa por `bin/normaliza-eol` antes de añadirse.
+- Un archivo **nuevo** pasa por `bin/normaliza-eol` antes de añadirse. **Nunca con `--arregla`
+  sobre `.agents/estado/`**: el arquitecto puede estar escribiendo ahí, y `normaliza-eol` lee y
+  reescribe el archivo entero, así que una escritura suya en medio se perdería (hallazgo H2 de
+  `#007`).
 - `git push`, **nunca**. Ninguna etiqueta **en este repositorio**; en los paquetes, ver «Los
   cuatro paquetes hermanos».
 
