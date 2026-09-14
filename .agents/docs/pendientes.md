@@ -70,7 +70,7 @@ esta descrito en ninguna parte.** Necesita que el PROPIETARIO diga que es antes 
 | ~~`P15`~~ | `source-docs/…/vps/index.md`, modificado sin dueno | bloque AN | **RESUELTO el 2026-09-14**: el PROPIETARIO lo deja «entre ustedes». Es documentacion, asi que es del arquitecto: se adopta (avisos de seguridad correctos sobre el acceso de root por SSH), corrigiendo su remision a una «seccion 5» que no existe, y entra en el commit de documentacion |
 | ~~`P16`~~ | **BD** — nivelar los analizadores de los 4 paquetes | 02-09 | **YA NO ESPERA AL PROPIETARIO**: el 2026-09-02 a las 17:42 delegó la instrumentación de análisis en ARQUITECTO («Todo la instrumentación de analisís en desarrollo está en tus manos»). Recuperado en el cruce del 2026-09-14 |
 | ~~`P19`~~ | `master` y etiquetas en los cuatro paquetes | 14-09 | **RESUELTO el 2026-09-14**: en los paquetes se etiqueta, y «esta bien»; `master` sigue siendo su estable; todos llevan `dev`, se homologan `dev` y `master` y desde ahi se trabaja en `dev`. Regla 30 y guarda al dia |
-| `P23` | **html se queda sin nivelar**: su `composer.lock` local (ignorado por git, de antes de su 3.0.0) fija `piecesphp/datastructures` v3.1.0, y su `composer.json` pide `^4.0`. Un update parcial de las herramientas no resuelve. Hace falta actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007) | 14-09 | **Predeterminado**: html sigue midiendo con phpstan 2.1.42 contra datastructures 3.1.0, declarado así en `shared-toolchain.json`. Opciones: el PO autoriza al coder una vez, o lo ejecuta él |
+| ~~`P23`~~ | **RESUELTO el 2026-09-14, por delegación** («Resuelve P22 y P23 como tu prefieras»): ADR 0008, y html se nivela en `#022`. Texto original: **html se queda sin nivelar**: su `composer.lock` local (ignorado por git, de antes de su 3.0.0) fija `piecesphp/datastructures` v3.1.0, y su `composer.json` pide `^4.0`. Un update parcial de las herramientas no resuelve. Hace falta actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007) | 14-09 | **Predeterminado**: html sigue midiendo con phpstan 2.1.42 contra datastructures 3.1.0, declarado así en `shared-toolchain.json`. Opciones: el PO autoriza al coder una vez, o lo ejecuta él |
 | — | Los 9 selectores: DOCUMENTAR, decidido el 30-08, **sin lote asignado** | 30-08 | entra en E6 |
 | — | El frances: `profiles-translation-config.js`, `dynamic-translations/fr/`, carpetas `de/it/pt` | — | «Del PROPIETARIO» en §7 |
 | — | El rol 50 con nombre `null` (`roles.php:112`) | — | — |
@@ -318,6 +318,7 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
 | «Comitea todo» (2026-09-14, al cerrar el tramo) | hecho: `#012`→`#013`, cuatro commits hasta `56d47137` |
 | Leer, en solo lectura y como fuente independiente de ideas (no para unificar), los proyectos hechos con versiones anteriores del framework que hay en la maquina | **El PROPIETARIO los nombro el 2026-09-14**, en solo lectura: (1) el geovisor de `/var/www/html/espacio-publico/espacio-publico-backend`, que es **el geovisor de su pendiente «perfeccionar geovisor»**; (2) «alguna cosita interesante» del backoffice de `/var/www/html/STC/stc-website-2026`; (3) como resuelve el log de tokens la rama `logs-personas-habilitadas-inicio-y-log-tokens` de `/var/www/html/STC/localizometro-stc`, frente a los cuatro registros planificados. En curso, con tres subagentes de solo lectura. Antes de nombrarlos:  El arquitecto se adelanto: lanzo la lectura de los 28 que encontro en `/var/www/html/` sin preguntar, y la paro el mismo dia al senalarlo el PROPIETARIO («Ni siquiera te he dicho que proyectos»). Solo uno de los cinco subagentes llego a terminar (glu-dashboard, zegu-platform y KataApp); su informe esta en el scratchpad de la sesion, fuera del repositorio |
 | Informe detallado del estado antes de trabajar: plan, lo que se lleva, lo que falta, lo que son solo ideas, fases y tareas previstas | hecho: `.agents/estado/informe-2026-09-14-estado-del-proyecto.md`. Al hacerlo aparecio que el mapa heredado omitia dos trabajos de E4 (lote 2 de guardas y ventana de correo); anadidos como lotes 7b y 7c |
+| «Resuelve P22 y P23 como tu prefieras» (2026-09-14) | **HECHO**. P23: ADR 0008, y la nivelación de html va en `#022`. P22: la clave constante no es la frontera; lo serio está en `GenericTokenController`, que va al lote 5b del mapa. Detalle en «Lecturas de proyectos derivados», P22 |
 | ¿Que pasa con `files/` y `files/dev/`? ¿Se quedan y se documentan bien en algun lado? | Se quedan (ADR 0006): `files/` guarda los recursos para quien clona y `files/dev/` solo datos de instrumentos. Documentado en `.agents/context/02-estructura.md`, «`files/` y `files/dev/`», con una tabla de que instrumento usa cada archivo |
 
 ### Hallazgos de BC — 2026-09-14 (bitacora 0002)
@@ -354,6 +355,30 @@ Para aprender de la experiencia, **no para copiar**: el PROPIETARIO lo preciso a
     `TokenController`) usan una constante del codigo, que es publica y la misma en todos los
     despliegues. Se guardan en base de datos y se comprueba que existan, lo que limita el
     impacto (**sin verificar**).
+  - **Medido el 2026-09-14, al resolverla por delegación** («Resuelve P22 y P23 como tu
+    prefieras»):
+    - **La constante no es la frontera.** El JWT se lee siempre de la fila de la base de datos,
+      nunca de la petición:
+      - `TokenModel.php:136-178` usa `getRecord()`;
+      - `GenericTokenController.php:79-108` busca la fila por `id`.
+      Fabricar un JWT con la clave conocida no da nada. Pasar `KEY_BASE_JWT` y `KEY_JWT`
+      (`'GenericTokenController'`) a `app_key` es higiene.
+    - **La recuperación de contraseña es segura.** El enlace entero tiene que existir en la base
+      de datos, se borra al usarse (`RecoveryPasswordController.php:280-291`) y el JWT se firma
+      con la clave por defecto, que es `app_key` (`bootstrap.php:313`).
+    - **Lo serio está en `GenericTokenController`:**
+      - La URL lleva el `id` pasado por `BaseHashEncryption::encrypt($id, self::class)`
+        (`:414`; se descifra en `:82`), que es aditivo carácter a carácter (`BaseHashEncryption.php:90-102`) y con
+        una clave pública: los `id` se pueden calcular.
+      - La ruta es pública: `commentary` tiene `validate_session` en falso.
+      - `entryPoint()` no comprueba el TIPO de la fila y, si el JWT no verifica o ha caducado,
+        la BORRA (`:198` y `:205`).
+      - `BaseToken::isExpire()` devuelve `$exp` crudo cuando no hay `exp`.
+      - **SOSPECHA fuerte**: un anónimo podría borrar filas de tokens de cualquier tipo,
+        incluidas las recuperaciones de contraseña pendientes.
+      - En el framework nadie crea tokens genéricos (`createTokenURL()` no tiene llamadores),
+        pero la función viaja a cada clon.
+      - Es el **lote 5b** del mapa.
   - Arreglo candidato: que usen `app_key`.
   - `config.php` esta versionado. Sus claves (`app_key`, `CronJobKey`, `apiKey`, `secretKey`)
     miden de 7 a 11 caracteres: por la longitud parecen valores de ejemplo que cada despliegue
@@ -466,3 +491,21 @@ historia de git los conserva.
   resumen byte a byte.
 - **La cota del `.neon`**, que ya está en los paquetes, solo actúa si su línea base declara
   `[ENTRADAS-NEON]`, y ninguna lo declara. Queda inerte hasta que alguien la cablee.
+
+### Hallazgos del lote 2, bloque 1 — 2026-09-14 (`#021`)
+
+- **`metodos()` cuenta dos veces lo que va dentro de una función anónima.** Devuelve también la
+  anónima, y su rango está dentro del método que la contiene.
+  - En `censo-sql-identificadores`: 2 posiciones duplicadas, las dos literales (138 vistas, 136
+    distintas).
+  - En `censo-sql-concatenado`: 248 registros y 247 distintos, porque se repite
+    `ImporterUsers.php:144`. SIN VERIFICAR si el duplicado está en REVISAR o en DESCARTADO.
+  - Se arregla en el bloque 3 del lote 2, con los trinquetes. Mueve cifras registradas.
+- **`familias_sin_censar` dice «`select($campos)` (194)» sin método.** Por texto hoy salen 196
+  `->select(`, 65 de ellas con argumento. SIN VERIFICAR si la diferencia es de unidad o de
+  árbol.
+- **Los 15 controladores que pasan `custom_order` usan ASC o DESC literales**, así que normalizar
+  la dirección no cambia nada de lo que funciona. Medido por el arquitecto. El censo cuenta 16
+  sitios con la clave: los 15 y uno de una prueba (`UnitTest-ReadPathsSurvive.php:59`).
+  `UsersExporter.php:52` tiene una `$customOrder` de otra forma, una lista `'idPadding ASC'`,
+  que no llega a esa clave.

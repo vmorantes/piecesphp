@@ -17,11 +17,12 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
-| 1 | **BD · html** | Lo único que queda de BD: html sigue con phpstan 2.1.42 | `docs/pendientes.md` (P23); bitácora 0005 | Espera al PO: hay que actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007). El resto de BD está cerrado |
-| 2 | **Identificadores** | Lo último grande de SQL: `prepare`, `select`, `setTable`, `custom_order`, con lista blanca | `18` T167 y T168; `files/dev/sql-concat-baseline.json` (`forma_sin_censar`) | 2-3 bloques. Aquí se cablea `bin/censo-sql-interpolado` |
+| 1 | **BD · html** | Lo único que queda de BD: html sigue con phpstan 2.1.42 | `docs/pendientes.md` (P23); bitácora 0005 | P23, resuelto por delegación del PO: el ADR 0008 deja actualizar `piecesphp/*` en los paquetes hermanos. La ronda de nivelación, en `#022`. El resto de BD está cerrado |
+| 2 | **Identificadores** | Lo último grande de SQL | `18` T167 y T168; `files/dev/sql-concat-baseline.json` (`resultado_identificadores`) | **Bloque 1 (BE, `#020`) hecho**: `bin/censo-sql-identificadores` da 0 CONFIRMADO en 138 posiciones, así que no hay lista blanca que construir. Bloque 2 (`#022`): la dirección de `custom_order`. Bloque 3: trinquetes de los dos censos nuevos y el doble conteo de `metodos()` |
 | 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `PENDIENTES.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta |
 | 4 | **`escapeString`** | Depende de un `sql_mode` que nadie fija | `20` §7, «EL HALLAZGO MÁS PROFUNDO» | 1 bloque |
 | 5 | **OTP** | Cerrojo por usuario e IP, respuesta uniforme, documentado | `20` §7, «`generate-otp` — la asimetría» | Sin pasar a POST: lo consumen apps headless |
+| 5b | **Tokens genéricos** | La URL de `GenericTokenController` lleva un `id` enumerable; la ruta es pública y `entryPoint()` borra filas de cualquier tipo. Las claves JWT constantes pasan a `app_key` | `docs/pendientes.md` (P22) | Nace el 2026-09-14 de P22, resuelto por delegación. Corrige una trampa, así que entra en la campaña. Primero se confirma la SOSPECHA con una prueba sin base de datos |
 | 6 | **E3 / experience** | El borrado no terminó: tablas, JS y SCSS residuales | `20` §7, «EL BORRADO NO FUE FIABLE» | LEY 28 |
 | 7 | **Avatares y `see-more`** | Muere el creador de avatares; `see-more` se restaura | `20` §7, «El lote del CREADOR DE AVATARES» y «`see-more`: DAÑADO» | `see-more`, decidido por el PO el 2026-08-31 |
 | 7b | **E4 · lote 2 de guardas** | Pruebas de rechazo para las ~22 guardas con forma de fallo abierto. Quedan 169 guardas sin prueba de rechazo | `20` §7, «E4 arrancó»; `18` T146–T147 | **Faltaba en el mapa del 2026-09-13**; lo exige la escalera (`18` T34) |
