@@ -613,6 +613,32 @@ historia de git los conserva.
   - **Los universos de los censos no están declarados** desde hace varios bloques (retornos:
     790 al congelar, 678 hoy; los de SQL, 675 → 676 por la suite nueva). La cifra sale igual,
     pero el instrumento dice que no es comparable hasta declararlo (LEY 15). Va en `#034`.
+- **`#034`/`#035`, 2026-09-14: lote 3, bloque 2 hecho (P24).**
+  - Los archivos de publications se sirven sin sesión solo si la publicación es visible:
+    `isVisibleToPublic()`, extraído de `singleView()`.
+  - documents, organizations y news-categories piden sesión.
+  - banner y generic, declarados públicos en `files/dev/upload-dirs.json`.
+  - Retirados los tres `UPLOAD_DIR` muertos. Con ellos murieron 6 errores de PHPStan (744 →
+    738) y 6 retornos ignorados (193 → 187).
+  - La comprobación 29 está activa. Los universos de los censos, declarados.
+  Lo abierto:
+  - **H1 de `#035`, SIN MEDIR:** si alguna vista PÚBLICA muestra archivos de organizations,
+    documents o news-categories, por ejemplo un logo. Si lo hace, desde `4ca2e99d` da 403 sin
+    sesión. Se mide en `#036`.
+  - **H2 de `#035`, DECISIÓN PENDIENTE (candidata a P25):** `singleView()` NO mira la aprobación
+    de SystemApprovals, y el listado público sí (`_all()`, con `validateSystemApprovals`). Una
+    publicación sin aprobar no sale en la lista, pero se ve por su enlace directo y sus
+    archivos se sirven. `isVisibleToPublic()` copia a `singleView()` a propósito. Si la
+    aprobación debe contar, cambia en los dos sitios a la vez. **Predeterminado**: se queda como
+    está, anotado, hasta que el PO lo diga.
+  - **H3 de `#035`:** `DocumentsMapper::folderRemove()` no tiene llamadores. Va con el lote 10.
+  - **H4 de `#035`:** `protect()` corre en cada arranque, también en `bin/cli`, y crea el
+    `.htaccess` que falte en `src/statics/uploads`, que git ignora.
+  - **H5 de `#035`:** `UPLOAD_DIR_TMP`, `uploadTmpDir` y `uploadDirTmpURL` siguen en ocho
+    controladores: se asignan y nadie los lee. Van con el lote 10.
+  - **D2 de `#035`:** `files/dev/integrity-signatures.json` llevaba varias rondas sin regenerarse
+    porque añadir firmas no hace fallar nada: entraron unas 30 de golpe. Es el mismo hueco de
+    «el count mayor pasa en silencio», en otro instrumento.
 - **H2. El mismo patrón tras sesión**, verificado en el código por el arquitecto:
   - `NewsController.php:1225` (`newsTitle`), en `news-admin-ajax-all`;
   - `OrganizationsController.php:1350` (`name`), en `organizations-admin-ajax-all`;

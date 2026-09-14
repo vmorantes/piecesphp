@@ -302,7 +302,35 @@ texto, así que el `WHERE` se quedaba sin filtro y `/documents/all` devolvía ta
 inactivos, es decir, los borrados. Ahora filtra por estado. **Quien viera documentos borrados en
 ese listado deja de verlos.**
 
+### 17 · Los archivos subidos dejan de servirse a cualquiera
+
+Hasta ahora Apache servía directamente, a quien tuviera la URL, los archivos subidos de casi todos
+los módulos. Publicaciones estaba «protegida» con un validador que dejaba pasar a todos.
+- **Publicaciones:** sus imágenes y adjuntos se sirven sin sesión solo si la publicación está
+  publicada y en fecha, con el mismo criterio que su vista pública (`isVisibleToPublic()`). Los
+  de borradores, programadas, caducadas o desactivadas piden sesión.
+- **Documentos, organizaciones (RUT y logo) y categorías de noticias** piden sesión.
+- **Banners y la imagen de inicio** siguen públicos a propósito, declarados en
+  `files/dev/upload-dirs.json` con su motivo.
+- Los tipos de documento, las categorías de formularios y las aprobaciones tenían una carpeta de
+  subidas que nada usaba: se retiró.
+
+**Si una vista pública tuya enlaza archivos de esos módulos, sin sesión darán 403.** Declara esa
+carpeta como pública, con su motivo, o dale un validador como el de publicaciones.
+
 ---
+
+## Herramientas — `verify-integrity` exige que toda carpeta de subidas esté protegida o declarada
+
+Comprobación 29. Toda constante `UPLOAD_DIR` de `src/app` tiene que cumplir una de dos cosas:
+- estar registrada en `ProtectFileMiddleware::protect()`, lo que se lee en tiempo de ejecución
+  con `getProtectedDirectories()`;
+- estar declarada en `files/dev/upload-dirs.json`, como `publicas` o `sin_archivos`, con su
+  motivo.
+
+También falla si una entrada del registro ya no casa con ninguna constante, porque el registro
+solo encoge, o si una carpeta está en dos sitios a la vez. Un módulo nuevo con subidas no puede
+nacer servible a cualquiera sin decirlo.
 
 ## Corregido — `ProtectFileMiddleware::protect()` no protegía una carpeta que aún no existía
 
