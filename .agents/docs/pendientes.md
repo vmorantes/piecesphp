@@ -314,7 +314,8 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
 | Recordatorio: nunca abrio sesion en los paquetes; el arquitecto y el coder anteriores trabajaban en ellos desde aqui | coincide con la regla 30: se trabaja en ellos desde la sesion de este repositorio |
 | Politica de ramas: en este repositorio `master` es la estable sin versionar y `last-stable` la estable con etiqueta; el resto son de trabajo. En los paquetes, `master` es su estable y pueden tener las ramas que quieran. **Ninguna rama se crea sin su permiso** | escrito en las reglas 30 y 40; la guarda bloquea crear ramas (ADR 0003) |
 | Proponer un orden de directorios: «siento que ese `files/*` y demas se esta enredando. Es solo un comentario» | **HECHO el 2026-09-14**: lote 0b, ADR 0006, bitacora 0003 |
-| «Comitea todo» (2026-09-14, al cerrar el tramo) | instruido en `#012` |
+| «Comitea todo» (2026-09-14, al cerrar el tramo) | hecho: `#012`→`#013`, cuatro commits hasta `56d47137` |
+| Leer, en solo lectura y como fuente independiente de ideas (no para unificar), los proyectos hechos con versiones anteriores del framework que hay en la maquina | **El PROPIETARIO los nombro el 2026-09-14**, en solo lectura: (1) el geovisor de `/var/www/html/espacio-publico/espacio-publico-backend`, que es **el geovisor de su pendiente «perfeccionar geovisor»**; (2) «alguna cosita interesante» del backoffice de `/var/www/html/STC/stc-website-2026`; (3) como resuelve el log de tokens la rama `logs-personas-habilitadas-inicio-y-log-tokens` de `/var/www/html/STC/localizometro-stc`, frente a los cuatro registros planificados. En curso, con tres subagentes de solo lectura. Antes de nombrarlos:  El arquitecto se adelanto: lanzo la lectura de los 28 que encontro en `/var/www/html/` sin preguntar, y la paro el mismo dia al senalarlo el PROPIETARIO («Ni siquiera te he dicho que proyectos»). Solo uno de los cinco subagentes llego a terminar (glu-dashboard, zegu-platform y KataApp); su informe esta en el scratchpad de la sesion, fuera del repositorio |
 | Informe detallado del estado antes de trabajar: plan, lo que se lleva, lo que falta, lo que son solo ideas, fases y tareas previstas | hecho: `.agents/estado/informe-2026-09-14-estado-del-proyecto.md`. Al hacerlo aparecio que el mapa heredado omitia dos trabajos de E4 (lote 2 de guardas y ventana de correo); anadidos como lotes 7b y 7c |
 | ¿Que pasa con `files/` y `files/dev/`? ¿Se quedan y se documentan bien en algun lado? | Se quedan (ADR 0006): `files/` guarda los recursos para quien clona y `files/dev/` solo datos de instrumentos. Documentado en `.agents/context/02-estructura.md`, «`files/` y `files/dev/`», con una tabla de que instrumento usa cada archivo |
 
@@ -335,6 +336,73 @@ Trabajo planificado, sin bloque todavia:
   normaliza; `bin/normaliza-eol` lo señala.
 - **H2 · El bloque «CAMBIOS INCOMPATIBLES» del CHANGELOG esta partido** (`---` entre la ruptura 8
   y la 9). Documentacion: del arquitecto.
+
+### Lecturas de proyectos derivados — 2026-09-14 (pedidas por el PROPIETARIO, solo lectura)
+
+Para aprender de la experiencia, **no para copiar**: el PROPIETARIO lo preciso asi.
+
+**Hallazgos que afectan al framework actual** (comprobados en su codigo, salvo lo marcado):
+
+- **P22 · `TokenModel` firma con una clave propia escrita en el codigo, y no con `app_key`**:
+  `src/app/model/TokenModel.php:23`, `const KEY_BASE_JWT`.
+  - **Corregido tras la pregunta del PROPIETARIO**: las sesiones NO la usan. Firman con
+    `app_key` de `config.php` (`src/app/core/bootstrap.php:313`, `BaseToken::setSecretKey(Config::app_key())`;
+    tambien `SessionTokenIsolated`). El primer aviso del arquitecto («se pueden fabricar sesiones»)
+    era falso.
+  - Lo que queda: los tokens genericos de `TokenModel` (`GenericTokenController`,
+    `TokenController`) usan una constante del codigo, que es publica y la misma en todos los
+    despliegues. Se guardan en base de datos y se comprueba que existan, lo que limita el
+    impacto (**sin verificar**).
+  - Arreglo candidato: que usen `app_key`.
+  - `config.php` esta versionado. Sus claves (`app_key`, `CronJobKey`, `apiKey`, `secretKey`)
+    miden de 7 a 11 caracteres: por la longitud parecen valores de ejemplo que cada despliegue
+    cambia (no se miro el contenido).
+  - **Espera al PROPIETARIO.**
+- **SOSPECHA · `RouteAdapter`** (`src/app/core/psr4/PiecesPHP/Core/Routing/RouteAdapter.php`,
+  hacia la linea 225) extrae los parametros con `/\{[a-z|A-Z|0-9|_|-]*\}/`, que no admite dos
+  puntos. No reconoce `{params:.*}`, que el framework usa en muchas rutas de estaticos. En
+  `stc-website-2026` eso da un 500 en `/configurations/routes/`. **Aqui, sin verificar.**
+- **SOSPECHA · Decodificar imagenes por su extension**: el recorte (`AppConfigController`,
+  `Utilities::` hacia la linea 1581) elige `imagecreatefromjpeg/png/webp` por la extension. En STC,
+  un `.jpg` que en realidad es WebP tumba la pagina. Va con el lote de subidas.
+- **SOSPECHA · `GeoJsonManagerController::withPersonsProfiles`** lee `featuresType` de la
+  peticion y arma el `where` uniendo criterios. No se verifico si el valor llega sin validar, y el
+  censo de SQL da 0. Va con el lote de identificadores.
+
+**Ideas y lecciones para la campaña y el roadmap:**
+
+- **Geovisor** (`espacio-publico-backend`: la vista de mapa de `FileDossier`, con Mapbox GL
+  3.4.0). En el cliente gana:
+  - agrupa en clusteres;
+  - crea marcadores solo para los puntos sueltos que estan en pantalla;
+  - recibe datos sin HTML.
+
+  El framework no agrupa, crea un marcador por punto, y el servidor pinta dos vistas HTML por
+  cada punto. En el servidor el geovisor no gana: no pagina, no carga por encuadre y no tiene
+  cache ni limite. Aporta tambien capas GeoJSON subidas, capas fijas en JSON, el cambio de
+  satelital a vectorial que conserva las capas, reparacion de geometrias y contadores de lo
+  visible. En su SQL de busqueda hay concatenacion probable (no es nuestro codigo). **Sirve para
+  «perfeccionar el geovisor»**, sin fecha.
+- **Log de tokens** (`localizometro-stc`, en su rama; es una propuesta, no desarrollo).
+  - Aporta la idea de registrar el **ciclo de vida de cada credencial** emitida (emitida,
+    usada, caducada, revocada), que el plan de cuatro registros no contempla. Tambien trae un
+    productor real para el registro de acceso: acceso concedido, denegado y correo no registrado.
+  - Lo que NO hay que hacer:
+    - mostrar codigos OTP vigentes en claro;
+    - registrar un evento de acceso a nombre del usuario 1 cuando no hay usuario;
+    - escribir «codigo emitido» antes de saber si el correo salio;
+    - mezclar los accesos con el registro de acciones.
+  - Va al documento de los cuatro registros cuando se trabaje.
+- **Backoffice** (`stc-website-2026`):
+  - un modulo `Mailing` en el que la vista previa usa el mismo codigo que envia, con envio de
+    prueba registrado y un escaner de correos sin catalogar. Va con el correo;
+  - un cuadro de mando que solo consulta lo que el rol puede ver;
+  - `addLogSafe()`, borrado suave con una sola condicion activa, consentimiento con version del
+    documento aceptado, limitador por IP (su docblock admite que no es atomico), interruptor de
+    captcha completo y un comparador de esquema.
+  - Su nucleo es un fork antiguo: casi todo lo demas, el framework ya lo tiene mejor.
+
+Los informes completos quedaron en el scratchpad de la sesion, fuera del repositorio.
 
 ### Hallazgos del lote 0b — 2026-09-14 (bitacora 0003)
 
