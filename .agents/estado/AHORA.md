@@ -1,13 +1,14 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 14:52 (medido con `date`)
-- **Último mensaje:** `#016 · ARQ`, en vuelo: lote BD. El próximo número es `#017`.
+- **Actualizado:** 2026-09-14 15:05 (medido con `date`)
+- **Último mensaje:** `#018 · ARQ`, en vuelo: cierre de BD. El próximo número es `#019`.
 - **Tramo en curso:** [`tramos/2026-09-14-1441-mapa-a-la-major.md`](tramos/2026-09-14-1441-mapa-a-la-major.md).
 - **Tramo anterior:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md),
   cerrado.
 - **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md)
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-- **Rama:** `dev`, con `HEAD` en `bb58e8d8` antes de `#016`. Hay 29 commits sin empujar.
+- **Rama:** `dev`, con `HEAD` en `7332f4b9` antes de `#018`. Hay 32 commits sin empujar.
+- **Paquetes:** los cuatro, en `dev` desde `#016` (antes estaban en `master`). Sin commits nuevos.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -32,10 +33,15 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
-No bloquea nada:
-
-1. **Subir cuando quieras**: las dos ramas `dev` nuevas de los paquetes y los commits de hoy.
-2. **P22**: `TokenModel` firma sus tokens genéricos con una constante del código y no con
+1. **P23 — html sin nivelar.**
+   - El lock local de html, que no se versiona, fija `piecesphp/datastructures` v3.1.0, y su
+     `composer.json` pide `^4.0` desde su versión 3.0.0.
+   - Para pasar html a phpstan 2.2.12 hay que actualizar también `piecesphp/datastructures`,
+     que no es una herramienta de análisis.
+   - *Predeterminado*: html sigue con phpstan 2.1.42, declarado así en el registro, y BD se
+     cierra con html pendiente.
+2. **Subir cuando quieras**: las dos ramas `dev` nuevas de los paquetes y los commits de hoy.
+3. **P22**: `TokenModel` firma sus tokens genéricos con una constante del código y no con
    `app_key` (las sesiones sí usan `app_key`). *Predeterminado*: queda anotado y no se toca.
 
 Siguen abiertas en `docs/pendientes.md`: qué es el geovisor, el francés, el rol 50 con nombre
@@ -43,18 +49,21 @@ Siguen abiertas en `docs/pendientes.md`: qué es el geovisor, el francés, el ro
 
 ## En curso
 
-**`#016` — lote BD**: los cuatro paquetes pasan a phpstan 2.2.12 y rector 2.6.6, se miden
-contra su línea base (21, 0, 0 y 3) y se actualiza `analyzers` en
-`files/dev/shared-toolchain.json`. El coder commitea primero lo del arquitecto (ADR 0007,
-guarda, reglas, mapa, pendientes y estado).
+**`#018` — cierre de BD.** Consta de:
+- el arreglo de la guarda (redirecciones);
+- el bloque del trinquete de los cuatro paquetes, igualado con el de piecesphp;
+- la línea base de database a 18, con «3 murieron» por el analizador;
+- `shared-toolchain.json` con database, datastructures y geojson en 2.2.12 y html en 2.1.42
+  (P23).
 
-Si se corta ahora: puede quedar un paquete en `dev` con el `vendor/` actualizado y sin
-registrar. Se ve con `bin/cli verify-integrity` (comprobación 7).
+Si se corta ahora: `verify-integrity` sigue con 3 fallos en la comprobación 7, y database tiene
+los tres `PHPStanResult.*` modificados sin commitear. Los dos arreglan el paso 4 y el paso 3
+de `#018`.
 
 ## Siguiente
 
-Al recibir `#017`: bitácora 0005, BD sale del mapa y se pasa al lote 2, identificadores de SQL
-(`18` T167 y T168).
+Al recibir `#019`: bitácora 0005 y BD sale del mapa. Si P23 sigue abierta, queda como línea
+propia. Después, el lote 2: identificadores de SQL (`18` T167 y T168).
 
 ## Para una sesión nueva
 
