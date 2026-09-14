@@ -109,8 +109,8 @@ project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
 	property.nonObject (Líneas: 284, 864)
-	argument.type (Líneas: 937, 1230)
-	offsetAccess.invalidOffset (Líneas: 1249)
+	argument.type (Líneas: 937, 1233)
+	offsetAccess.invalidOffset (Líneas: 1252)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	argument.type (Líneas: 236)
 	property.nonObject (Líneas: 273, 299)
@@ -193,9 +193,9 @@ project://src/app/classes/Organizations/OrganizationsRoutes.php
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	property.nonObject (Líneas: 11)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
-	property.nonObject (Líneas: 922)
-	argument.type (Líneas: 1183)
-	offsetAccess.invalidOffset (Líneas: 1202)
+	property.nonObject (Líneas: 928)
+	argument.type (Líneas: 1201)
+	offsetAccess.invalidOffset (Líneas: 1220)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	return.type (Líneas: 247)
 	argument.type (Líneas: 258)
@@ -226,12 +226,12 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 143, 1202, 1522, 1682)
-	property.nonObject (Líneas: 239, 1339, 1604, 1606, 1629, 1631)
+	argument.type (Líneas: 143, 1206, 1567, 1727)
+	property.nonObject (Líneas: 239, 1343, 1649, 1651, 1674, 1676)
 	assign.propertyType (Líneas: 653)
 	clone.nonObject (Líneas: 709)
-	method.nonObject (Líneas: 1322, 1332, 1529, 1530, 1531)
-	offsetAccess.invalidOffset (Líneas: 1699)
+	method.nonObject (Líneas: 1326, 1336, 1574, 1575, 1576)
+	offsetAccess.invalidOffset (Líneas: 1744)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
