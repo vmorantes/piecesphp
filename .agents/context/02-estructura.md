@@ -6,10 +6,10 @@
 .agents/            Skills y contexto para agentes de IA (este directorio)
 bin/                Ejecutables y herramientas de desarrollo
 databases/          Scripts SQL (estructura, datos, vistas, funciones, locations)
-files/              Recursos auxiliares (docs API, scripts CLI sueltos, Webflow, dev)
+files/              Recursos que acompañan al framework; files/dev/, solo datos de instrumentos (ver abajo)
 node_modules/       Dependencias front (no versionado en despliegue)
 secure-keys/        Llaves/secretos leídos con getKeyFromSecureKeys()
-source-docs/        Fuentes MkDocs de la documentación del proyecto
+source-docs/        Fuentes MkDocs de la documentación del proyecto y de la API (source-docs/api/)
 src/                RAÍZ DE LA APLICACIÓN WEB (document root de Apache)
 tasks/              TasksManager.php — tareas post-install/post-update de Composer
 CHANGELOG.md        Historial de versiones (muy detallado)
@@ -18,6 +18,47 @@ PHPStanResult*.txt  Salida del análisis estático
 package.json        Dependencias y scripts de front
 permissions-and-property.sh  Ajuste de permisos/propiedad en despliegue
 ```
+
+### `files/` y `files/dev/` (ADR 0006)
+
+Una sola razón de ser por carpeta:
+
+- **`files/`**: recursos que acompañan al framework y usa quien lo clona.
+- **`files/dev/`**: solo datos que escriben o leen instrumentos. **Ningún documento para
+  personas**: esos van a `source-docs/`, o a `.agents/` si son para agentes o para el PO.
+
+Lo que se añada a `files/dev/` tiene que tener un instrumento que lo escriba o lo lea.
+
+| Ruta | Qué es |
+| :-- | :-- |
+| `files/Webflow/` | Esqueleto e instrucciones (`Intrucciones.md`) para integrar un export de Webflow |
+| `files/CliScripts/` | Guiones PHP sueltos. Resuelven la raíz con `__DIR__ . '/../../'`: **no se cambian de profundidad** |
+| `files/TraduccionesPublicas.json` | Contiene `{}` y nadie lo nombra literalmente. Sin verificar si se carga por un nombre compuesto |
+| `files/dev/` | Datos de instrumentos: tabla siguiente |
+
+`files/dev/`, medido el 2026-09-14 buscando el nombre de cada archivo en `bin/` y `src/` con
+`git grep -l`. La columna dice quién lo usa, no si lo escribe o lo lee:
+
+| Archivo | Quién lo usa |
+| :-- | :-- |
+| `deprecated-functions.json` | `bin/cli verify-integrity` |
+| `forbidden-routes.json` | `bin/tools/forbidden-routes.php`, `bin/walk-routes`, `verify-integrity` |
+| `ignored-returns-baseline.json` | `bin/censo-retornos-ignorados` |
+| `integrity-signatures.json` | `verify-integrity` (firmas de funciones y métodos) |
+| `narrative-comments.json` | `verify-integrity` (comentarios narrativos) |
+| `orphan-lang-keys-baseline.json` | `bin/censo-claves-huerfanas` |
+| `phpstan-universe.json` | `verify-integrity` (universo de PHPStan) |
+| `public-routes-in-guarded-modules.json` | `verify-integrity` |
+| `reading-forms-baseline.json` | `bin/censo-formas-de-lectura` |
+| `shared-toolchain.json` | `verify-integrity` (instrumental común de los cinco repositorios) |
+| `sql-concat-baseline.json`, `sql-concat-declared.json` | `bin/censo-sql-concatenado`. El segundo, también la suite `UnitTest-SqlPlaceholders` |
+| `volatile-state.json` | `bin/walk-attribute`, `verify-integrity` (tablas volátiles) |
+| `route-inventory.json` (ignorado) | `RouteInventoryTask` de `bin/cli`, `bin/walk-routes`, `bin/walk-attribute`, `verify-integrity` |
+| `last-restore.json` (ignorado) | `DbRestoreTask` de `bin/cli`, `bin/walk-attribute` |
+| `snapshots/` (contenido ignorado) | La foto de E3, `bin/cli snapshot` (18, T44). Solo se versiona su `.gitignore` |
+
+Quedan en la raíz a propósito, y no en `files/dev/`, los `PHPStanResult.*`: son el instrumental
+común de los cinco repositorios (ADR 0006).
 
 ### `bin/`
 
