@@ -313,7 +313,8 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
 | Recordatorio: el trabajo incluye los cuatro paquetes hermanos (`database`, `datastructures`, `geojson`, `html`) | escrito en `.agents/rules/30-protocolo-coder.md`, «Los cuatro paquetes hermanos». Su andamiaje de agentes es el viejo: llevarles el modelo nuevo es trabajo que el PROPIETARIO puede nombrar |
 | Recordatorio: nunca abrio sesion en los paquetes; el arquitecto y el coder anteriores trabajaban en ellos desde aqui | coincide con la regla 30: se trabaja en ellos desde la sesion de este repositorio |
 | Politica de ramas: en este repositorio `master` es la estable sin versionar y `last-stable` la estable con etiqueta; el resto son de trabajo. En los paquetes, `master` es su estable y pueden tener las ramas que quieran. **Ninguna rama se crea sin su permiso** | escrito en las reglas 30 y 40; la guarda bloquea crear ramas (ADR 0003) |
-| Proponer un orden de directorios: «siento que ese `files/*` y demas se esta enredando. Es solo un comentario» | **ACEPTADA el 2026-09-14**, junto con eliminar los builds innecesarios. Se hace al terminar el acuerdo: lote 0b del mapa. Es estructural, con su ADR. La propuesta esta en `.agents/estado/tramos/2026-09-14-1105-traspaso-y-andamiaje.md` |
+| Proponer un orden de directorios: «siento que ese `files/*` y demas se esta enredando. Es solo un comentario» | **HECHO el 2026-09-14**: lote 0b, ADR 0006, bitacora 0003 |
+| ¿Que pasa con `files/` y `files/dev/`? ¿Se quedan y se documentan bien en algun lado? | Se quedan (ADR 0006): `files/` guarda los recursos para quien clona y `files/dev/` solo datos de instrumentos. Documentado en `.agents/context/02-estructura.md`, «`files/` y `files/dev/`», con una tabla de que instrumento usa cada archivo |
 
 ### Hallazgos de BC — 2026-09-14 (bitacora 0002)
 
@@ -333,6 +334,24 @@ Trabajo planificado, sin bloque todavia:
 - **H2 · El bloque «CAMBIOS INCOMPATIBLES» del CHANGELOG esta partido** (`---` entre la ruptura 8
   y la 9). Documentacion: del arquitecto.
 
-**Y un secreto**: `18-siguientes-ventanas.md` lleva en claro la contrasena de prueba del usuario
-root local y su hash (bloque de `password_verify`, hacia la linea 4790). Espera al PROPIETARIO:
-ver `.agents/estado/AHORA.md`.
+### Hallazgos del lote 0b — 2026-09-14 (bitacora 0003)
+
+Declarado y aparcado, sin bloque:
+
+- `TODO.md` sigue en la raiz: es una lista del PROPIETARIO (PayU, modulos por rehacer, encuestas).
+- `files/TraduccionesPublicas.json` vale `{}` y nadie lo nombra literalmente. Sin verificar si
+  se carga por un nombre compuesto.
+- `bin/Preview/`: su limpieza (`bin/phpstan-process-result.php`) solo borra los `*.md`. Las
+  copias sin extension y las carpetas vacias no se borran nunca.
+- `permissions-and-property.sh:77` busca `bin/node/copyDependencies.sh` despues de hacer `cd` a
+  `bin/`, asi que nunca lo encuentra.
+- Conviven los lockfiles de npm y de pnpm (ambos ignorados). Sin verificar cual es el canonico.
+- `files/CliScripts/CorregirTiempoDuraciónWebm.php` podria duplicar `FixWebmDurationTask`. Sin
+  verificar.
+- `.agents/context/21-pruebas-y-puertas.md` esta desfasado: dice «dieciseis» comprobaciones y
+  hay 26. Va con E6.
+
+**Y un secreto, RESUELTO**: `18-siguientes-ventanas.md` llevaba en claro la contrasena de prueba
+del usuario root local y su hash (bloque de `password_verify`, hacia la linea 4790). El
+PROPIETARIO dijo que no afecta y que se borrara por higiene (P20): sustituidos el 2026-09-14. La
+historia de git los conserva.

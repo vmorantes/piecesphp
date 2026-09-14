@@ -18,7 +18,6 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
 | 0a | **Homologar `dev` en los paquetes** | Crear `dev` en `master` en `datastructures` y `html`; en `database` y `geojson` ya coinciden | Regla 30, «Los cuatro paquetes hermanos» | Decidido por el PO el 2026-09-14 (P19). Una ronda corta |
-| 0b | **Orden de directorios y builds** | Una razón de ser por carpeta; fuera los builds versionados que sobren (`files/API/docs-dist/`, 7,7 MB) | Propuesta en el tramo del 2026-09-14 | Aceptado por el PO el 2026-09-14. Estructural: ADR antes. Mueve rutas que leen los instrumentos: el censo de referencias va dentro de la instrucción (LEY 17, LEY 28) |
 | 1 | **BD** | Nivelar los analizadores de los cuatro paquetes (2.1.4x → 2.2.12) | `docs/pendientes.md` (P16) | Delegado en el arquitecto (PO, 2026-09-02). Pide `composer update` en `bin/tools` de cada paquete, que la guarda bloquea (ADR 0003): se resuelve al instruirlo |
 | 2 | **Identificadores** | Lo último grande de SQL: `prepare`, `select`, `setTable`, `custom_order`, con lista blanca | `18` T167 y T168; `files/dev/sql-concat-baseline.json` (`forma_sin_censar`) | 2-3 bloques. Aquí se cablea `bin/censo-sql-interpolado` |
 | 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `PENDIENTES.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta |
