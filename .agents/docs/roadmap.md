@@ -17,7 +17,6 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
-| 0a | **Homologar `dev` en los paquetes** | Crear `dev` en `master` en `datastructures` y `html`; en `database` y `geojson` ya coinciden | Regla 30, «Los cuatro paquetes hermanos» | Decidido por el PO el 2026-09-14 (P19). Una ronda corta |
 | 1 | **BD** | Nivelar los analizadores de los cuatro paquetes (2.1.4x → 2.2.12) | `docs/pendientes.md` (P16) | Delegado en el arquitecto (PO, 2026-09-02). Pide `composer update` en `bin/tools` de cada paquete, que la guarda bloquea (ADR 0003): se resuelve al instruirlo |
 | 2 | **Identificadores** | Lo último grande de SQL: `prepare`, `select`, `setTable`, `custom_order`, con lista blanca | `18` T167 y T168; `files/dev/sql-concat-baseline.json` (`forma_sin_censar`) | 2-3 bloques. Aquí se cablea `bin/censo-sql-interpolado` |
 | 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `PENDIENTES.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta |
@@ -25,6 +24,8 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 | 5 | **OTP** | Cerrojo por usuario e IP, respuesta uniforme, documentado | `20` §7, «`generate-otp` — la asimetría» | Sin pasar a POST: lo consumen apps headless |
 | 6 | **E3 / experience** | El borrado no terminó: tablas, JS y SCSS residuales | `20` §7, «EL BORRADO NO FUE FIABLE» | LEY 28 |
 | 7 | **Avatares y `see-more`** | Muere el creador de avatares; `see-more` se restaura | `20` §7, «El lote del CREADOR DE AVATARES» y «`see-more`: DAÑADO» | `see-more`, decidido por el PO el 2026-08-31 |
+| 7b | **E4 · lote 2 de guardas** | Pruebas de rechazo para las ~22 guardas con forma de fallo abierto. Quedan 169 guardas sin prueba de rechazo | `20` §7, «E4 arrancó»; `18` T146–T147 | **Faltaba en el mapa del 2026-09-13**; lo exige la escalera (`18` T34) |
+| 7c | **E4 · ventana de correo** | Pruebas de los 10 envíos de correo, en tres capas: composición sin red, sumidero SMTP local y entrega real revisada a mano | `18` T7 | **Faltaba en el mapa del 2026-09-13.** Sin empezar. La capa 2 pide Mailpit o MailHog, que son dependencia y servicio: los autoriza el PO |
 | 8 | **E5 · `DataImportExportUtility`** | Consolidación y arquetipo, absorbiendo `Importers` | `20` §7, «Abierto, sin decidir»; `18`, «La fusión … es una REFACTORIZACIÓN PLANIFICADA»; `PENDIENTES.md` (cruce) | `Importers` **no** se borra. Se unifica y se optimiza como base de la que se parte, con ejemplos que funcionan (PO, 2026-09-14). La dirección la dijo el PO el 2026-08-29: hacia `DataImportExportUtility`. El 18 dice la contraria |
 | 9 | **E6 · documentación** | `source-docs/` completo; `16-frontend-arquitectura.md`; la documentación de la API (`source-docs/api/`) y Postman; los 9 selectores; la protección de módulos en la guía; los seis módulos sin punto de extensión (P4); el cierre de PHPStan en dos listas; `processFromQuery` documentado antes de que muera el 18 | `20` §7, «Abierto, sin decidir»; `PENDIENTES.md` (cruce) | 2-3 bloques |
 | 10 | **Residuos con nombre** | Barrido final | Solo en el mapa del 2026-09-13 | 1-2 bloques. Incluye `SOLO_PROPIAS` (P2) |
