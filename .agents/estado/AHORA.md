@@ -1,10 +1,16 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 17:50 (medido con `date`). **Tramo sin el PO**: «Puedes trabajar
+- **Actualizado:** 2026-09-14 18:07 (medido con `date`). **Tramo sin el PO**: «Puedes trabajar
   unas tres o cinco rondas, pero toma en cuenta que no estaré así que no responderé nada».
-  Rondas hechas en este tramo: 1 de entre 3 y 5.
-- **Último mensaje:** `#032 · ARQ`, en vuelo: H3, la caché de publications, H10 y Documents. El
-  próximo número es `#033`.
+  Rondas hechas en este tramo: 2 de entre 3 y 5.
+- **Último mensaje:** `#034 · ARQ`, en vuelo: lote 3, bloque 2 (P24). El próximo número es
+  `#035`.
+- **`#033`: completado.**
+  - Las rutas públicas ya no devuelven borradores ni borrados sin permiso.
+  - La clave de caché de publications refleja los valores efectivos.
+  - `protect()` crea la carpeta que falta y exige el separador.
+  - Documents filtra por estado.
+  - Rupturas 15 y 16 en el `CHANGELOG.md`.
 - **`#031`: lote 3a CERRADO** (bitácora 0007). Siete vías por marcador, tres de ellas públicas;
   `sql-placeholders` pasa a 73/73; todo en verde, 744.
 - **Tramo en curso:** [`tramos/2026-09-14-1726-desatendido-lote-3a.md`](tramos/2026-09-14-1726-desatendido-lote-3a.md).
@@ -55,16 +61,18 @@ francés, el rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-**`#032`**, en cinco tareas:
-- T1: commitear lo del arquitecto: la bitácora 0007, el `CHANGELOG.md`, el mapa, `pendientes.md`
-  y el estado.
-- T2: H3. Sin sesión con permiso, las rutas públicas ya no devuelven borradores ni borrados.
-  En publications, el permiso es `CAN_VIEW_DRAFT`; en el banner, `allowedRoute('list')`.
-- T3: la clave de caché de publications refleja los parámetros EFECTIVOS: el estado,
-  `ignoreSlugs`, `random` y el privilegio.
-- T4: H10 en `ProtectFileMiddleware`: la carpeta que falta se crea y la comparación exige el
-  separador.
-- T5: H1 de `#031`. Documents filtra de verdad por estado.
+**`#034` — lote 3, bloque 2 (P24 aprobada).** Tareas:
+- T1: commitear lo del arquitecto: el `CHANGELOG.md` (rupturas 15 y 16, y `protect()`),
+  `pendientes.md` y el estado.
+- T2: Publications como arquetipo. Su validador sirve un archivo si la publicación es visible al
+  público (el mismo criterio que `singleView()`, extraído a un método del mapper) o si hay
+  sesión.
+- T3: documents, organizations y news-categories, con sesión. El banner y el `homeImage` de
+  generic, declarados públicos con su motivo en un registro de `files/dev/`. Los `UPLOAD_DIR`
+  sin archivos (document-types, categories y system-approval) se retiran solo si todo lo que
+  los usa está muerto; si no, se declaran.
+- T4: la comprobación 29 de verify-integrity: todo `UPLOAD_DIR` está protegido o declarado.
+- T5: se declaran los universos de los censos (H3 de `#033`).
 
 Si se corta ahora: puede quedar código a medio cambiar. `git status` y `verify-integrity` lo
 dicen.
@@ -107,6 +115,19 @@ dicen.
      `PublicationMapper:109`) de la ruta del archivo, busca la publicación con `getBy($folder,
      'folder')` y sirve el archivo si es visible al público (ACTIVE, `isActiveByDates()`,
      aprobada) o si hay sesión.
+     - **Verificado por el arquitecto:** `folder` NO está en `$translatableProperties`
+       (`PublicationMapper:248-255`), así que es una columna y `getBy()` sirve. Los adjuntos van
+       en `<folder>/attachments` (`PublicationsController.php:656`), y la misma carpeta los
+       cubre.
+     - **La sesión llega también por cookie:** `SessionToken::getJWTReceived()` lee la cabecera
+       `JWTAuth` o la cookie del mismo nombre (`SessionToken.php:99-115`). Un `<img src>` del
+       panel lleva la cookie, así que el validador de «sesión activa» no deja sin imágenes al
+       administrador. Validador de sesión:
+       `SessionToken::isActiveSession(SessionToken::getJWTReceived())`, la línea que ya estaba
+       comentada en `protected-files.php:11`.
+     - **El validador corre en `ServerStatics::verifyFile()`** (`:543-546`), dentro de la
+       petición de la aplicación: sin el `.htaccess` de `protect()`, Apache sirve el archivo
+       sin pasar por él.
    - **Después:** documents, organizations y news-categories, con sesión; el banner y generic,
      declarados públicos con su motivo.
    - **Se retiran** los `UPLOAD_DIR` sin archivos (document-types, categories y

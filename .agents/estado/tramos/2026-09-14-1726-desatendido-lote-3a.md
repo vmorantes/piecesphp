@@ -14,7 +14,8 @@
 | # | Qué | Resultado | Commits |
 | --- | --- | --- | --- |
 | #030 / #031 | ⚠ Lote 3a: `PageQuery` con valores ligados; el valor de la petición va por marcador en los 14 usuarios de `PageQuery` y en GeoJSON; pruebas de rechazo | **Completado.** 7 vías por marcador; cada una, vista caer con la carga de sintaxis; 73/73; 744. Bitácora 0007 | `8aa50fe6` `50a3faf8` `2bd68526` `62de7073` `3fa32294` `c7eae5a1` |
-| #032 | H3 (`status` en rutas públicas), la clave de caché de publications, H10 (`ProtectFileMiddleware`) y el filtro de estado de Documents | en vuelo | — |
+| #032 / #033 | H3 (`status` en rutas públicas), la clave de caché de publications, H10 (`ProtectFileMiddleware`) y el filtro de estado de Documents | **Completado.** Todo visto fallar en la provocación; gates 26/26; 744; suite nueva `core/protect-file-middleware` | `f0acfc7a` `962f6baf` `18bdf1b0` `b0f04ce4` `5ff91984` `87559cc5` `43ba6169` `0761bc1b` |
+| #034 | Lote 3, bloque 2 (P24): validadores de las carpetas de subidas con Publications como arquetipo; registro y comprobación 29; universos de los censos declarados | en vuelo | — |
 
 ## Encontrado y decidido
 
