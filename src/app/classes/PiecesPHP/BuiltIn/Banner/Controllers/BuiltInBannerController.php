@@ -989,11 +989,14 @@ class BuiltInBannerController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if ($title !== null) {
 
             $beforeOperator = !empty($where) ? $and : '';
             $titleField = BuiltInBannerMapper::fieldCurrentLangForSQL('title');
-            $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$titleField}) LIKE UPPER(:title)";
+            $boundValues[':title'] = "%{$title}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1041,7 +1044,7 @@ class BuiltInBannerController extends AdminPanelController
 
         $sqlSelect .= " ORDER BY " . implode(', ', BuiltInBannerMapper::ORDER_BY_PREFERENCE);
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $parser = function ($element) {
             $element = BuiltInBannerMapper::objectToMapper($element);

@@ -622,6 +622,39 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     } catch (\Throwable $errorPageQuery) {
         $check(false, 'PageQuery con valores ligados se ejecuta contra la base', 'NO PUEDO EJECUTAR AQUÍ: ' . $errorPageQuery->getMessage());
     }
+
+    //DOS CARGAS POR VÍA. La comilla suelta discrimina SIN FILAS: concatenada rompe el SQL, por
+    //marcador es un dato. La otra, concatenada, cambiaría el resultado, y solo discrimina con filas.
+    $cargaLike = "%') OR 1=1 OR ('";
+    $cargaNotIn = 'x") AND 1=0 AND ("';
+    $viaRechazo = function (string $nombre, callable $contar, string $carga, string $comilla, bool $esLista) use ($check): void {
+        try {
+            $conComilla = $contar($comilla);
+            $todos = $contar(null);
+            $check($esLista ? $conComilla === $todos : $conComilla <= $todos, "{$nombre}: una comilla suelta va como dato y no rompe el SQL",
+                "sin filtro: {$todos} · con la comilla: {$conComilla}");
+        } catch (\Throwable $errorComilla) {
+            $check(false, "{$nombre}: una comilla suelta va como dato y no rompe el SQL", 'EXCEPCIÓN: ' . mb_substr($errorComilla->getMessage(), 0, 140));
+            return;
+        }
+        try {
+            $conCarga = $contar($carga);
+        } catch (\Throwable $errorVia) {
+            $check(false, "{$nombre}: la carga se toma literal", 'EXCEPCIÓN: ' . mb_substr($errorVia->getMessage(), 0, 140));
+            return;
+        }
+        if ($todos === 0) {
+            //SIN FILAS NO HAY VEREDICTO: la carga concatenada tampoco cambiaría nada.
+            echoTerminal("   [NO DISCRIMINA] {$nombre}: la base local no tiene filas con las que la carga cambiaría el resultado");
+            return;
+        }
+        $esperado = $esLista ? $todos : 0;
+        $check($conCarga === $esperado, "{$nombre}: la carga se toma literal",
+            "sin filtro: {$todos} · con la carga: {$conCarga} · tomada literal: {$esperado}");
+    };
+    $viaRechazo('publications · title', fn (?string $v): int => \Publications\Controllers\PublicationsController::_all(1, 50, null, null, null, $v)->totalElements(), $cargaLike, "'", false);
+    $viaRechazo('publications · ignoreSlugs', fn (?string $v): int => \Publications\Controllers\PublicationsController::_all(1, 50, null, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
+    $viaRechazo('banner · title', fn (?string $v): int => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

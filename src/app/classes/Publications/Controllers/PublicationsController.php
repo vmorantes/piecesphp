@@ -1093,7 +1093,7 @@ class PublicationsController extends AdminPanelController
                     $valid = is_array($value);
                     if ($valid) {
                         foreach ($value as $slug) {
-                            $valid = is_scalar($slug) && mb_strlen((string) $slug) > 0;
+                            $valid = $valid && is_scalar($slug) && mb_strlen((string) $slug) > 0;
                         }
                     }
                     return $valid;
@@ -1421,12 +1421,17 @@ class PublicationsController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if (!empty($ignoreSlugs)) {
 
             $beforeOperator = !empty($where) ? $and : '';
-            $ignoreSlugs = implode('","', $ignoreSlugs);
-            $ignoreSlugs = '"' . $ignoreSlugs . '"';
-            $critery = "{$table}.preferSlug NOT IN ({$ignoreSlugs})";
+            //Valor de la petición: va por marcador.
+            $placeholders = [];
+            foreach (array_values($ignoreSlugs) as $index => $slug) {
+                $placeholders[] = ":ignoreSlug{$index}";
+                $boundValues[":ignoreSlug{$index}"] = $slug;
+            }
+            $critery = "{$table}.preferSlug NOT IN (" . implode(', ', $placeholders) . ")";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1435,7 +1440,9 @@ class PublicationsController extends AdminPanelController
 
             $beforeOperator = !empty($where) ? $and : '';
             $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
-            $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$titleField}) LIKE UPPER(:title)";
+            $boundValues[':title'] = "%{$title}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1508,7 +1515,7 @@ class PublicationsController extends AdminPanelController
         }
         $sqlSelect .= " ORDER BY " . implode(', ', $orderBy);
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $parser = function ($element) {
             $element = PublicationMapper::objectToMapper($element);
