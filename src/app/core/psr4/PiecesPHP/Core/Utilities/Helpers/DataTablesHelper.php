@@ -56,7 +56,7 @@ class DataTablesHelper
      *      EXCLUYENTES con su cadena: pasar las dos lanza. La busqueda de DataTables se une al
      *      `having_segment` como grupo.
      *   `select_fields`, `custom_order` .. IDENTIFICADORES, no admiten marcador. En
-     *      `custom_order` la direccion NO pasa por el filtro `ASC`/`DESC`.
+     *      `custom_order` la direccion SI se normaliza a `ASC` o `DESC`; la columna no.
      *   `on_set_data`, `on_set_model`, `config_result_model`, `as_mapper` .. callables y bandera.
      *
      * `getCompiledSQL()` SIN ARGUMENTO NO PRODUCE SQL EJECUTABLE: deja el marcador sin sus dos
@@ -1389,6 +1389,9 @@ class DataTablesHelper
         $custom_order = is_array($custom_order) ? $custom_order : [];
 
         foreach ($custom_order as $column => $direction) {
+            //La direccion se normaliza como la de la peticion: `custom_order` no debe poder meter SQL
+            //aunque algun dia no venga del programador.
+            $direction = trim(mb_strtoupper((string) $direction)) === 'ASC' ? 'ASC' : 'DESC';
             $exists_order = false;
             foreach ($order_by as $order_item) {
                 if (mb_strpos($order_item, $column) !== false) {
