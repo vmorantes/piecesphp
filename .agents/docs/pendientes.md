@@ -600,6 +600,19 @@ historia de git los conserva.
   - **H4 de `#031`:** la base local no tiene filas con las que una prueba por resultado
     discrimine. Una semilla de lectura lo permitiría, pero escribir en la base pide
     autorización.
+- **`#032`/`#033`, 2026-09-14: cerrados H3 de `#027` y H2 y H1 de `#031`, y H10 de `#027`.**
+  - Las rutas públicas de publications y banner fuerzan lo publicado sin sesión con permiso.
+  - La clave de caché de publications refleja los valores efectivos. Hoy la caché está apagada
+    (`ENABLE_CACHE = false`, `PublicationsController.php:109`), pero con la clave vieja, al
+    activarla, un listado privilegiado se habría servido a un anónimo.
+  - `protect()` crea la carpeta que falta y exige el separador al comparar.
+  - Documents filtra por estado.
+  Quedan dos cosas:
+  - **Banner:** su listado de admin admite `$allRoles`, así que el permiso de «ver borrados»
+    equivale a «cualquier sesión». Es la política del propio módulo; no se toca.
+  - **Los universos de los censos no están declarados** desde hace varios bloques (retornos:
+    790 al congelar, 678 hoy; los de SQL, 675 → 676 por la suite nueva). La cifra sale igual,
+    pero el instrumento dice que no es comparable hasta declararlo (LEY 15). Va en `#034`.
 - **H2. El mismo patrón tras sesión**, verificado en el código por el arquitecto:
   - `NewsController.php:1225` (`newsTitle`), en `news-admin-ajax-all`;
   - `OrganizationsController.php:1350` (`name`), en `organizations-admin-ajax-all`;

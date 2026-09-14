@@ -283,7 +283,34 @@ distintos. **Ahora hace siempre `install`.**
 lock**: dejan de instalarse solas, porque composer instala lo que dice el lock y avisa de que va
 desfasado. Actualiza el lock a mano dentro de `bin/tools` y versiónalo.
 
+### 15 · Los listados públicos de publicaciones y banners solo devuelven lo publicado
+
+`publications-ajax-all` y `built-in-banner-ajax-all` aceptaban `?status=ANY` (o un estado
+concreto) sin mirar quién preguntaba: un visitante sin cuenta podía listar borradores y elementos
+borrados. **Ahora, sin sesión con permiso, el estado pedido se ignora y se devuelve lo publicado.**
+- **En publicaciones**, el permiso es el tipo de usuario de `PublicationMapper::CAN_VIEW_DRAFT`,
+  el mismo criterio que la vista individual.
+- **En banners**, poder ver su listado de administración.
+
+Con permiso, todo sigue igual. **Si un cliente sin interfaz leía borradores por esa ruta sin
+autenticarse, deja de recibirlos.**
+
+### 16 · El listado de documentos deja de mostrar los inactivos
+
+`DocumentsController::_all()` construía su filtro de estado como par clave-valor y lo unía como
+texto, así que el `WHERE` se quedaba sin filtro y `/documents/all` devolvía también los documentos
+inactivos, es decir, los borrados. Ahora filtra por estado. **Quien viera documentos borrados en
+ese listado deja de verlos.**
+
 ---
+
+## Corregido — `ProtectFileMiddleware::protect()` no protegía una carpeta que aún no existía
+
+Si la carpeta no existía al arrancar, `protect()` volvía sin registrar nada, y cuando después se
+creaba, Apache la servía entera sin validador. **Ahora la crea, escribe su `.htaccess` y la
+registra.** Si no puede crearla, lanza una excepción con la ruta: una carpeta que no se puede
+proteger no se deja servible en silencio. Además, proteger `…/publications` ya no protege por
+error `…/publications-x`: la comparación exige el separador.
 
 ## ⚠ Corregido — inyección SQL en las búsquedas de los listados paginados, dos de ellos públicos
 
