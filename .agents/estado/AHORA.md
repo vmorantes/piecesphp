@@ -1,28 +1,19 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 16:07 (medido con `date`). A las 15:18 hubo una interrupción, sin
-  pérdidas. El PO delegó P22 y P23: «Resuelve P22 y P23 como tu prefieras».
-- **Último mensaje:** `#026 · ARQ`, en vuelo: lote 3, bloque 1, la auditoría de datos de las
-  subidas. El próximo número es `#027`.
-- **`#025`: BD y el lote 2, cerrados.**
-  - Comprobaciones 27 y 28 en verify-integrity, las dos vistas fallar.
-  - Todo en verde; PHPStan en 744.
-  - Bitácora 0006. Los dos lotes salen del mapa.
-- **`#021` (lote 2, bloque 1): completado**, en `1184f229`.
-  - `bin/censo-sql-identificadores` da 0 CONFIRMADO, 8 REVISAR y 102 DESCARTADO en 138
-    posiciones. Ningún identificador llega de la petición.
-  - Canario de 27 caras; la provocación se vio fallar.
-- **Tramo en curso:** [`tramos/2026-09-14-1441-mapa-a-la-major.md`](tramos/2026-09-14-1441-mapa-a-la-major.md).
-- **Tramo anterior:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md),
-  cerrado.
-- **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md)
+- **Actualizado:** 2026-09-14 16:26 (medido con `date`). **Jornada cerrada** por orden del PO:
+  «ve terminando la jornada por hoy apenas puedas, claro sin dejar nada roto ni a medias».
+- **Último mensaje:** `#028 · ARQ`, la ronda de cierre, que solo commitea documentos. El próximo
+  número es `#029`, el reporte del cierre. Después viene `#030`.
+- **Tramo:** [`tramos/2026-09-14-1441-mapa-a-la-major.md`](tramos/2026-09-14-1441-mapa-a-la-major.md),
+  cerrado a las 16:26, con su resumen.
+- **Informe del estado del proyecto**, actualizado al cierre:
+  [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md).
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-- **Rama:** `dev`, en `7b45c761`. Hay 36 commits sin empujar.
-- **Paquetes:** los cuatro, en `dev`, cada uno con commits de instrumental sin empujar:
-  - database, 2;
-  - datastructures, 1;
-  - geojson, 1;
-  - html, 1.
+- **Rama:** `dev`, en `9e708797` antes de `#028`.
+  - Sin empujar, según la referencia local de `origin/dev`: 24 commits en piecesphp, 2 en
+    database y 1 en geojson.
+  - En datastructures y html, `dev` aún no existe en el remoto.
+  - Los cuatro paquetes están en `dev`.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -37,8 +28,8 @@ que el PO nombra y el arquitecto instruye, sin pedir permiso commit a commit.
 - reescribir historia;
 - escribir o destruir datos de una base de datos, salvo lo que nombre la instrucción con su
   autorización;
-- dependencias, builds, servidores y credenciales. Excepción: las herramientas de análisis
-  (ADR 0007).
+- dependencias, builds, servidores y credenciales. Excepciones: las herramientas de análisis
+  (ADR 0007) y `piecesphp/*` dentro de los paquetes hermanos (ADR 0008).
 
 Si la herramienta del coder pide confirmación al commitear, la da el PO en esa sesión.
 
@@ -47,66 +38,44 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
-1. **Subir cuando quieras**: los commits de hoy aquí y en los cuatro paquetes, y las dos ramas
-   `dev` nuevas.
+1. **⚠ Saber lo de la inyección SQL**, por si hay despliegues en producción con
+   `publications-ajax-all` o `built-in-banner-ajax-all` (informe, sección 8).
+2. **P24 — qué control de acceso lleva cada carpeta de subidas.** La tabla y el predeterminado
+   están en `docs/pendientes.md`. Si no contesta, se aplica el predeterminado en el bloque 2 de
+   subidas.
+3. **Subir cuando quiera.**
 
-**Resueltas por delegación (2026-09-14).** Ya están en `pendientes.md`, en el mapa (lote 5b) y en
-el ADR 0008. Se commitean en el PASO 1 de `#022`.
-
-- **P23 → ADR 0008.** En los cuatro paquetes hermanos, y solo ahí (su lock no se versiona), la
-  guarda dejará actualizar `piecesphp/*` con `--working-dir`. Después, una ronda nivela html:
-  `composer update piecesphp/datastructures phpstan/phpstan:2.2.12 rector/rector:2.6.6`.
-- **P22 → lote 5b, «Tokens genéricos»**, a continuación de OTP. Medido:
-  - **La constante no es la frontera de confianza.** Todo JWT de `TokenModel` y de
-    `GenericTokenController` se lee de la fila de la base de datos, nunca de la petición.
-    Pasar las dos constantes (`KEY_BASE_JWT`, `KEY_JWT`) a `app_key` es higiene y entra en el
-    lote.
-  - **El defecto real es otro:**
-    - la URL genérica lleva el `id` cifrado con `BaseHashEncryption::encrypt($id, self::class)`,
-      un cifrado aditivo con una clave pública: los `id` se pueden calcular;
-    - la ruta es pública (`validate_session` es falso en `commentary`);
-    - `entryPoint()` carga la fila sin mirar su tipo y, si el JWT no verifica, la **borra**
-      (`GenericTokenController.php:205`).
-  - **SOSPECHA fuerte, sin provocar**: un anónimo podría borrar filas de tokens de cualquier
-    tipo, incluidas las recuperaciones de contraseña pendientes. Depende de que
-    `BaseToken::isExpire()` devuelva algo verdadero ante una firma ajena (`return $exp;`, línea
-    del `else`). Se confirma con una prueba sin base de datos.
-  - En el framework nadie crea tokens genéricos (`createTokenURL()` no tiene llamadores), pero
-    la función viaja a cada clon.
-
-Siguen abiertas en `docs/pendientes.md`: qué es el geovisor, el francés, el rol 50 con nombre
-`null` y `Components`.
+Siguen abiertas en `docs/pendientes.md`: qué perfeccionar del geovisor (ya se sabe cuál es), el
+francés, el rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-**`#026` — lote 3, bloque 1: auditoría de los DATOS de las subidas.**
-- Solo lectura: el coder mide y reporta una tabla por módulo, sin tocar código.
-- Además commitea lo del arquitecto: la bitácora 0006, el mapa, `CHANGELOG.md` (BD y
-  trinquetes 27 y 28), `pendientes.md` y el estado.
+`#028`, cierre: el coder commitea el mapa, `pendientes.md`, el informe y el estado. Nada del
+producto. Si se corta, quedan documentos sin commitear, y basta con commitearlos.
 
-Si se corta ahora, no hay nada del producto en juego. Como mucho, quedan sin commitear los
-documentos del arquitecto.
+## Siguiente — la próxima jornada
 
-## Siguiente
-
-- `.agents/context/21-pruebas-y-puertas.md` sigue enumerando 16 comprobaciones y hay 28. Va con
-  E6 (lote 9).
-- **El lote 3: subidas.** Medido por el arquitecto en solo lectura:
-  - hay nueve `UPLOAD_DIR` (documents, document-types, categories, news-categories,
-    organizations, built-in-banner, helpers-system/generic, system-approval y publications);
-  - solo publications está en `protect()` (`config/final-configurations-includes/protected-files.php`),
-    y con un validador que devuelve `true` y la sesión comentada;
-  - el validador recibe `(Request, string $filePath)` y devuelve `bool`.
-  **Plan:**
-  - Bloque 1: auditar los DATOS, que es lo que pidió el PO. Por módulo: qué guarda, quién llega
-    hoy a sus archivos (sin `.htaccess`, Apache los sirve directo: `src/.htaccess:47-49`), si
-    los nombres se adivinan y si quedan restos en `tmp/`. Solo medir.
-  - Con esa tabla, **P24 al PO**: qué validador lleva cada módulo. El 20 §7 dice que lo decide
-    él. Predeterminado a proponer: sesión y permiso de la ruta del módulo para los privados;
-    los que muestra la zona pública, sin proteger.
-  - Bloque 2: enchufar los validadores y una puerta que falle si un `UPLOAD_DIR` declarado no
-    está en `protect()`.
-- El lote 2 no cruza al paquete database: con 0 CONFIRMADO no hay nada que cerrar allí.
+1. **Las dos órdenes `/rename`**, antes que nada.
+2. **`#030` — ⚠ Lote 3a (urgente): las búsquedas concatenadas.**
+   - `PageQuery` gana un parámetro opcional de valores ligados, que usan `getTotal()`,
+     `getResult()` y `getPageResult()` (hoy hacen `prepare()` y `execute()` sin nada).
+   - Van por marcador:
+     - `title` en `PublicationsController::_all()` (`:1438`) y en
+       `BuiltInBannerController::_all()` (`:996`);
+     - `newsTitle` en `NewsController.php:1225`;
+     - `name` en `OrganizationsController.php:1350`;
+     - `search` en `GeoJsonManagerController.php:143-144` y `250-251`, que pasa a
+       `HavingSegment`.
+   - El coder audita además cada criterio de esos `_all()` que venga de la petición (por
+     ejemplo, `ignoreSlugs` y `category` en publications).
+   - Una prueba de rechazo por sitio, vista fallar al quitar el arreglo. Si los datos locales
+     no la hacen discriminar, se prueba el texto SQL y los valores sin base de datos.
+   - Los comodines `%` y `_` del `LIKE` siguen en manos del visitante: van con el lote 4.
+   - CHANGELOG: «⚠ Corregido», que escribe el arquitecto.
+3. **H3**: las dos rutas públicas aceptan `status=ANY`. Antes de tocarlo, medir sus
+   consumidores públicos.
+4. **Lote 3, bloque 2**, con P24 o su predeterminado.
+5. El mapa, en su orden.
 
 ## Para una sesión nueva
 
@@ -114,5 +83,5 @@ documentos del arquitecto.
    de renombrado (regla 30, «Nombres de sesión»):
    `/rename PiecesPHPUpgrade-Arquitecto-Main` y `/rename PiecesPHPUpgrade-Coder-Main`. Después
    se comprueba en la lista de sesiones que están puestas.
-2. Lee `../HERENCIA.md` y el informe del estado del proyecto.
+2. Lee `../HERENCIA.md`, el informe del estado del proyecto y el último tramo.
 3. **Las horas de este archivo salen de `date`**, no de una estimación.
