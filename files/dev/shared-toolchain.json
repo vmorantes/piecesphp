@@ -103,9 +103,9 @@
       "motivo": "sube en BD de 2.1.42; la cifra no se movio (0 <- 0)."
     },
     "html": {
-      "version": "2.1.42",
+      "version": "2.2.12",
       "desde": "vendor/composer/installed.json de la raiz (lo que lee la comprobacion 7)",
-      "motivo": "sin nivelar: su composer.lock local fija piecesphp/datastructures v3.1.0 contra el ^4.0 de su composer.json, y un update parcial no resuelve. Espera P23."
+      "motivo": "sube en BD de 2.1.42 tras sincronizar piecesphp/datastructures a v4 (ADR 0008); la cifra baja de 3 a 1: 2 murieron, sin cambio de codigo."
     },
     "geojson": {
       "version": "2.2.12",
