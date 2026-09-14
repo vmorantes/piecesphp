@@ -18,6 +18,8 @@
 
 | #003→#004 | Saludo al coder nuevo (`PiecesPHPUpgrade-Coder-Main`) | Completado: identificado, reglas leídas del disco. Seis dudas; dos eran defectos de la regla 30, ya corregidos: quién autoriza los commits y el «ninguna etiqueta» sin matiz | — |
 | #005 | Respuestas a sus dudas | Enviado; no es una instrucción de trabajo | — |
+| #008 | Lote 0b, orden de directorios (ADR 0006), más la documentación pendiente del arquitecto | en vuelo | — |
+| #006→#007 | Commit del andamiaje en diez commits atómicos | Completado. Árbol limpio, `ANDAMIAJE OK`, sin push. Hallazgos H1–H3; H2 pasa a la regla 30 | `1c92eee0` `c6c4e525` `4034f4ba` `479a0114` `47811b2c` `36e7f72b` `879a99cd` `28021619` `7dd5eeb9` `1a2d1ec8` |
 
 **Añadido después del primer informe, a raíz de mensajes del PO:**
 

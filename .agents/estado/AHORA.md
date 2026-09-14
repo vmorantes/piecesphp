@@ -1,13 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 13:45
-- **Último mensaje:** `#006 · ARQ`, commit del andamiaje. En vuelo.
+- **Actualizado:** 2026-09-14 14:40
+- **Último mensaje:** `#008 · ARQ`, lote 0b: orden de directorios (ADR 0006) y commit de la
+  documentación pendiente del arquitecto. En vuelo.
 - **Tramo en curso:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md)
-- **Sesiones:**
-  - Arquitecto: `PiecesPHPUpgrade-Arquitecto-Main`.
-  - Coder: `PiecesPHPUpgrade-Coder-Main`.
-  - La sesión anterior del coder, `piecesphp-trabajador-experimentado`, está retirada.
-- **Rama:** `dev`, `HEAD` en `0c1af05a` (BC) antes de `#006`.
+- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
+- **Rama:** `dev`, `HEAD` en `1a2d1ec8` antes de `#008`.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -28,33 +26,49 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 **Trabajo nombrado por el PO:**
 
-- el commit del andamiaje (2026-09-14: «Comitea andamiaje»);
-- el lote 0b, orden de directorios y builds (P21: «Así es», va antes de trabajar en el
-  framework);
-- después, el mapa `../docs/roadmap.md`, cuando dé la orden de trabajar sobre el framework.
+- ~~el commit del andamiaje~~, hecho;
+- el lote 0b, orden de directorios y builds (P21). **En curso.**
+- después, el mapa `../docs/roadmap.md`, cuando el PO dé la orden de trabajar sobre el
+  framework.
 
 ## Espera al PO
 
-Nada.
+Nada que bloquee.
 
-Siguen abiertas en `files/dev/PENDIENTES.md`, sin bloquear nada: qué es el geovisor, el
+**Aviso, no pregunta:** el censo cambió dos puntos de la propuesta de carpetas que el PO aceptó.
+
+- **`PHPStanResult.*` se quedan en la raíz.** Moverlos rompía 14 líneas en cuatro instrumentos y
+  el instrumental común de los cinco repositorios.
+- **`tests.md` va a `.agents/context/` y no a `source-docs/`.** En `source-docs/` pondría rojo
+  un censo.
+
+Motivos en el ADR 0006. Si el PO prefiere lo contrario, se reabre.
+
+Siguen abiertas en `docs/pendientes.md` (tras `#008`), sin bloquear nada: qué es el geovisor, el
 francés, el rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-`#006`: el coder commitea el andamiaje en commits atómicos, sin push.
+`#008`, que el coder hace en este orden:
 
-Si se corta a medias, habrá commits hechos y archivos aún sin preparar. El reporte, o
-`git log` y `git status`, dicen dónde quedó; nada se pierde.
+1. mueve los archivos del ADR 0006;
+2. saca del repositorio el build de la documentación de la API;
+3. arregla el fallo silencioso de `gulp api-build`;
+4. commitea la documentación del arquitecto que quedó pendiente.
+
+Si se corta a medias, habrá commits hechos y archivos aún sin preparar. `git log` y
+`git status` dicen dónde quedó.
 
 ## Siguiente
 
-1. Evaluar el reporte de `#006`.
-2. **Lote 0b**, orden de directorios y builds: medir las rutas que se mueven, escribir el ADR y
-   después instruir. Lo mido ya, en solo lectura, mientras el coder trabaja.
-3. **Lote 0a**: `dev` en `datastructures` y `html`.
-4. El mapa, cuando el PO dé la orden de trabajar sobre el framework.
+1. Evaluar el reporte de `#008`.
+2. **Lote 0a**: `dev` en `datastructures` y `html`.
+3. El mapa, cuando el PO dé la orden de trabajar sobre el framework.
 
 ## Para una sesión nueva
 
-Lee `../HERENCIA.md` antes que nada: explica el traspaso.
+1. **Lo primero que se da al PO** al empezar o retomar el trabajo, cada día, son las dos órdenes
+   de renombrado (regla 30, «Nombres de sesión»):
+   `/rename PiecesPHPUpgrade-Arquitecto-Main` y `/rename PiecesPHPUpgrade-Coder-Main`. Después
+   se comprueba en la lista de sesiones que están puestas.
+2. Lee `../HERENCIA.md`: explica el traspaso.
