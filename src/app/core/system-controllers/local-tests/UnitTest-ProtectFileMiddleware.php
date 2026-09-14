@@ -34,7 +34,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //EL BANCO VIVE FUERA DE src/: el registro de carpetas protegidas es estático y global.
     $banco = append_to_path_system(sys_get_temp_dir(), 'pcsphp-protect-' . bin2hex(random_bytes(4)));
-    mkdir($banco, 0775, true);
+    $check(mkdir($banco, 0775, true), 'el banco se crea en el temporal');
     $banco = (string) realpath($banco);
     $sep = \DIRECTORY_SEPARATOR;
     //validateAccess() solo le pasa la petición al validador, y este no la mira.
@@ -61,10 +61,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $uno = "{$banco}{$sep}uno";
     $unoDos = "{$banco}{$sep}uno-dos";
-    mkdir($uno, 0775, true);
-    mkdir($unoDos, 0775, true);
-    file_put_contents("{$uno}{$sep}a.txt", 'a');
-    file_put_contents("{$unoDos}{$sep}a.txt", 'a');
+    $check(mkdir($uno, 0775, true) && mkdir($unoDos, 0775, true)
+        && file_put_contents("{$uno}{$sep}a.txt", 'a') !== false && file_put_contents("{$unoDos}{$sep}a.txt", 'a') !== false,
+        'el banco de `…/uno` y `…/uno-dos` queda preparado');
     ProtectFileMiddleware::protect($uno, $niega);
 
     $check(ProtectFileMiddleware::validateAccess("{$unoDos}{$sep}a.txt", $peticion) === null, '`…/uno-dos/a.txt`: validateAccess() → null, no pasa por el validador de `…/uno`');
@@ -82,8 +81,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     foreach ($iterador as $elemento) {
         $elemento->isDir() ? rmdir($elemento->getPathname()) : unlink($elemento->getPathname());
     }
-    rmdir($banco);
-    $check(!file_exists($banco), 'el banco se borra al acabar');
+    $check(rmdir($banco) && !file_exists($banco), 'el banco se borra al acabar');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
     echoTerminal(str_repeat('=', 80));
