@@ -509,3 +509,18 @@ historia de git los conserva.
   sitios con la clave: los 15 y uno de una prueba (`UnitTest-ReadPathsSurvive.php:59`).
   `UsersExporter.php:52` tiene una `$customOrder` de otra forma, una lista `'idPadding ASC'`,
   que no llega a esa clave.
+
+### Hallazgos del lote 2, bloque 2 — 2026-09-14 (`#023`)
+
+- **`bin/cli unit-tests:<suite>` sale con 0 aunque la suite falle.** En la provocación de `#022`
+  dio 56/58 con salida 0. `gates` lee el balance, no el código de salida (LEY 19), así que la
+  puerta no se engaña. Un guion que mirase `$?` daría verde.
+- **`generateOrderBy()` descarta una entrada de `custom_order` si su columna es una SUBCADENA
+  de algún orden ya puesto**: `mb_strpos($order_item, $column)`. Un `custom_order` con `id` se
+  pierde si la petición ordena por `user_id`. El orden por defecto no se aplica y no da error.
+  No es inyección. SIN VERIFICAR si alguno de los 15 controladores combina columnas así. Sin
+  lote asignado; candidato al barrido de residuos (lote 10).
+- **html, 3 → 1 al nivelar:** desaparecen los dos `function.alreadyNarrowedType` de
+  `Attribute.php:73` sin cambio de código. Cambiaron a la vez el analizador (2.1.42 → 2.2.12) y
+  la API analizada (datastructures 3.1.0 → 4.0.0). Cuál los mata está SIN VERIFICAR. Se
+  registran como «murieron» en `#024`.

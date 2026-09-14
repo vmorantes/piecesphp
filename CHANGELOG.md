@@ -285,6 +285,27 @@ desfasado. Actualiza el lock a mano dentro de `bin/tools` y versiónalo.
 
 ---
 
+## Corregido — la dirección de `custom_order` se normaliza a `ASC` o `DESC`
+
+`DataTablesHelper::process()` y `processFromQuery()` metían la dirección de cada entrada de
+`custom_order` en el `ORDER BY` tal cual llegaba. Ahora sale `ASC` si lo es (sin distinguir
+mayúsculas) y `DESC` en cualquier otro caso, igual que el orden que pide el navegador. Los
+listados del framework no cambian: todos pasaban `ASC` o `DESC`. **Si un módulo tuyo pasaba otra
+cosa como dirección, ahora ordena `DESC`.** La columna sigue siendo un identificador que pones tú:
+no la construyas con datos de la petición.
+
+## Herramientas — `bin/censo-sql-identificadores`: tablas, columnas y campos
+
+Mide lo que ningún otro censo de SQL miraba: los argumentos que acaban en la sentencia como
+identificador y no como valor.
+- **Qué mira:**
+  - el argumento de `select()`, `setTable()` y `rowCount()`;
+  - los dos últimos de `get()`;
+  - la tabla de `join()` y sus variantes;
+  - las claves `select_fields`, `columns_order` y `custom_order` de `DataTablesHelper`.
+- **Resultado:** ninguno trae un valor de la petición. Para un identificador no existe marcador,
+  así que esa es la única cifra que protege. Dice su cota al ejecutarse.
+
 ## La búsqueda de países manda el valor por marcador, no concatenado
 
 `Country::search()` —ruta pública, sin sesión— armaba su `WHERE` interpolando lo que llega por
