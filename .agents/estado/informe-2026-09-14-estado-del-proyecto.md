@@ -154,7 +154,7 @@ son del mapa del 2026-09-13.
 
 | Qué | Desde | Qué hago si no contestas |
 | --- | --- | --- |
-| **P24 · Qué control de acceso lleva cada carpeta de subidas.** Hoy Apache sirve directamente, a quien tenga la URL, los archivos de `documents` (cualquier tipo, con el nombre original), `organizations` (el RUT y el logo) y `news-categories`. `publications` está «protegida» con un validador que deja pasar a todos | 2026-09-14 | Sesión activa para `documents`, `organizations` y `news-categories`. En `publications`, el archivo se sirve si su publicación es visible al público o hay sesión. El banner, sin proteger, porque lo muestra la portada, pero sin devolver borrados. La imagen de inicio de `generic`, sin proteger. Se retiran las tres carpetas que no guardan nada, y entra una puerta que falle si una carpeta queda sin declarar |
+| ~~**P24**~~ **APROBADA el 2026-09-14**, tal como estaba el predeterminado, y con Publications como arquetipo de los demás. Texto original: **Qué control de acceso lleva cada carpeta de subidas.** Hoy Apache sirve directamente, a quien tenga la URL, los archivos de `documents` (cualquier tipo, con el nombre original), `organizations` (el RUT y el logo) y `news-categories`. `publications` está «protegida» con un validador que deja pasar a todos | 2026-09-14 | Sesión activa para `documents`, `organizations` y `news-categories`. En `publications`, el archivo se sirve si su publicación es visible al público o hay sesión. El banner, sin proteger, porque lo muestra la portada, pero sin devolver borrados. La imagen de inicio de `generic`, sin proteger. Se retiran las tres carpetas que no guardan nada, y entra una puerta que falle si una carpeta queda sin declarar |
 | **El geovisor**: ya sé cuál es (`espacio-publico-backend`); falta qué quieres perfeccionar de él | 2026-08-29 | Nada: sin tu descripción no se puede medir |
 | **El francés**: restos en `profiles-translation-config.js` y en `dynamic-translations/fr/` | 2026-08-30 | Quedan como están |
 | **El rol 50 con nombre `null`** (`roles.php`) | — | Queda como está |
@@ -225,10 +225,9 @@ son del mapa del 2026-09-13.
   - Tras sesión, el mismo patrón en tres sitios: News, Organizations y GeoJSON.
   - **Si tienes un despliegue en producción con estas rutas, conviene saberlo ya.** El arreglo
     es lo primero de la próxima jornada (lote 3a).
-- **Se sube cuando tú quieras.** Hay 24 commits sin empujar en `piecesphp`, según la referencia
-  local de `origin/dev`.
-  - `database` tiene 2 y `geojson` tiene 1.
-  - En `datastructures` y `html`, la rama `dev` aún no existe en el remoto.
+- **Subido todo** el 2026-09-14: `origin/dev..dev` da 0 en los cinco repositorios.
+- **Versiones viejas del framework, sin soporte**: tu idea de una guía de «parches» de seguridad
+  va después de la MAJOR. Tengo la historia del framework, pero no la de cada implementación.
 - **Los lotes 11 y 12 rompen compatibilidad.** Van al final y con su entrada de CHANGELOG.
 - **La capa 2 de la ventana de correo** necesita un servicio nuevo (Mailpit o MailHog), y la
   capa 3 buzones públicos: nunca con credenciales vivas (`18` T7).
