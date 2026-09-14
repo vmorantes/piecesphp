@@ -36,9 +36,14 @@ class ProtectFileMiddleware
      */
     public static function protect(string $directory, ?callable $validator = null, ?string $indexFile = null): void
     {
+        //UNA CARPETA QUE NO SE PUEDE PROTEGER NO SE DEJA SERVIBLE: si falta se crea, y si no se puede
+        //crear o resolver, se lanza en vez de salir callado.
+        if (!is_dir($directory) && !@mkdir($directory, 0755, true) && !is_dir($directory)) {
+            throw new \RuntimeException("No se pudo crear la carpeta protegida {$directory}.");
+        }
         $realDirectory = realpath($directory);
         if ($realDirectory === false || !is_dir($realDirectory)) {
-            return;
+            throw new \RuntimeException("No se pudo resolver la carpeta protegida {$directory}.");
         }
 
         $indexFile = $indexFile ?: basepath('index.php');
@@ -71,7 +76,7 @@ class ProtectFileMiddleware
         }
 
         foreach (self::$protectedDirectories as $dir => $validator) {
-            if (mb_strpos($realFilePath, $dir) === 0) {
+            if (self::isInside($realFilePath, $dir)) {
                 return (bool) call_user_func($validator, $request, $realFilePath);
             }
         }
@@ -93,7 +98,7 @@ class ProtectFileMiddleware
             //Usamos la ruta tal cual, normalizando separadores
             $path = str_replace(['/', '\\'], \DIRECTORY_SEPARATOR, $filePath);
             foreach (self::$protectedDirectories as $dir => $validator) {
-                if (mb_strpos($path, $dir) === 0) {
+                if (self::isInside($path, $dir)) {
                     return true;
                 }
             }
@@ -101,12 +106,26 @@ class ProtectFileMiddleware
         }
 
         foreach (self::$protectedDirectories as $dir => $validator) {
-            if (mb_strpos($realFilePath, $dir) === 0) {
+            if (self::isInside($realFilePath, $dir)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Si la ruta es la carpeta o está dentro de ella.
+     *
+     * @param string $path
+     * @param string $directory
+     * @return bool
+     */
+    private static function isInside(string $path, string $directory): bool
+    {
+        //EL SEPARADOR ES OBLIGATORIO: sin él, `…/uno` cubriría también `…/uno-dos`.
+        $directory = rtrim($directory, \DIRECTORY_SEPARATOR);
+        return $path === $directory || mb_strpos($path, $directory . \DIRECTORY_SEPARATOR) === 0;
     }
 
     /**
