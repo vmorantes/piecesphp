@@ -425,3 +425,19 @@ Declarado y aparcado, sin bloque:
 del usuario root local y su hash (bloque de `password_verify`, hacia la linea 4790). El
 PROPIETARIO dijo que no afecta y que se borrara por higiene (P20): sustituidos el 2026-09-14. La
 historia de git los conserva.
+
+### Hallazgos de BD — 2026-09-14 (tramo 2026-09-14-1441)
+
+- **Los cuatro paquetes tienen el mismo 04-desarrollo.md** en su .agents/context: el mismo
+  `md5sum`.
+  - El texto describe las diez suites de la carpeta unit-tests de database.
+  - datastructures y html usan phpunit.xml, y geojson no tiene pruebas: para esos tres, el
+    documento no es cierto.
+  - Los .agents de los paquetes son del modelo anterior (ADR 0003).
+  - Va con E6, o cuando el modelo de trabajo se instale en los paquetes.
+- **Composer y el PHP del sistema.**
+  - `/usr/bin/composer` arranca con el php del sistema, el 8.1.34.
+  - Los paquetes resuelven contra 8.5 porque lo fijan en la clave config.platform de su
+    composer.json.
+  - Hueco en la guarda: no veía Composer lanzado a través de PHP (`php8.5 /usr/bin/composer …`).
+    Cerrado con el ADR 0007.
