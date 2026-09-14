@@ -2,6 +2,14 @@
 
 Muchos proveedores de nube (como AWS, Google Cloud, OVH o DigitalOcean) entregan las instancias de VPS con configuraciones restrictivas o predefinidas que pueden dificultar la administración habitual. Esta guía recopila soluciones a problemas comunes y pasos para una configuración base robusta.
 
+> [!CAUTION]
+> **Antes de continuar — lee esto.**
+> Las secciones 1-3 muestran cómo habilitar el login de `root` por contraseña vía SSH. Esto es **la configuración más atacada de internet**: cualquier bot que escanee tu IP va a probar `root` + contraseñas comunes en cuestión de minutos.
+>
+> - Si solo necesitas esto **temporalmente** para debug o recuperación de emergencia, hazlo, pero **revierte los tres cambios apenas termines** (vuelve `PermitRootLogin` y `PasswordAuthentication` a `no`).
+> - Si tu plan es dejarlo así de forma permanente, como mínimo instala y activa **Fail2Ban** antes de terminar esta guía (no después). Esta guía no cubre su instalación: ver el aviso del final.
+> - La alternativa recomendada, que evita este riesgo por completo, es usar un usuario sudoer con llave SSH en vez de root con contraseña. No se cubre en esta guía porque parte de un objetivo distinto (acceso rápido de root), pero es la opción más segura para el día a día.
+
 ---
 
 ## 🛠️ 1. Habilitar la Cuenta Root
@@ -15,6 +23,9 @@ sudo su -
 # Asignar contraseña a root
 passwd root
 ```
+
+> [!TIP]
+> Usa una contraseña larga y única aquí, no la reutilices de otro sitio. Este es el usuario con más privilegios del sistema.
 
 ---
 
@@ -38,6 +49,9 @@ Por defecto, el servidor SSH suele rechazar el acceso directo a `root`. Para hab
     systemctl restart ssh
     ```
 
+> [!NOTE]
+> **Para revertir esto más tarde:** repite estos pasos cambiando el valor a `PermitRootLogin no` y reinicia el servicio de nuevo.
+
 ---
 
 ## 🔐 3. Habilitar Autenticación por Contraseña
@@ -53,6 +67,9 @@ Si desea poder conectarse sin usar su llave `.pem` o `.pub`, debe habilitar la a
     ```bash
     systemctl restart ssh
     ```
+
+> [!NOTE]
+> **Para revertir esto más tarde:** cambia el valor a `PasswordAuthentication no` y reinicia el servicio. Verifica primero que puedas entrar con tu llave, para no quedarte fuera.
 
 ---
 
