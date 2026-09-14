@@ -1,12 +1,13 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 15:50 (medido con `date`). A las 15:18 hubo una interrupción, sin
+- **Actualizado:** 2026-09-14 16:07 (medido con `date`). A las 15:18 hubo una interrupción, sin
   pérdidas. El PO delegó P22 y P23: «Resuelve P22 y P23 como tu prefieras».
-- **Último mensaje:** `#024 · ARQ`, en vuelo: html registrado, el doble conteo de `metodos()` y
-  los trinquetes de los dos censos nuevos. El próximo número es `#025`.
-- **`#023`:** T1 y T3 completadas; `custom_order` normalizada (`19204809`). T2 detenida: html
-  da 1 frente a 3. verify-integrity queda en rojo solo por html, hasta que T1 de `#024` lo
-  registre.
+- **Último mensaje:** `#026 · ARQ`, en vuelo: lote 3, bloque 1, la auditoría de datos de las
+  subidas. El próximo número es `#027`.
+- **`#025`: BD y el lote 2, cerrados.**
+  - Comprobaciones 27 y 28 en verify-integrity, las dos vistas fallar.
+  - Todo en verde; PHPStan en 744.
+  - Bitácora 0006. Los dos lotes salen del mapa.
 - **`#021` (lote 2, bloque 1): completado**, en `1184f229`.
   - `bin/censo-sql-identificadores` da 0 CONFIRMADO, 8 REVISAR y 102 DESCARTADO en 138
     posiciones. Ningún identificador llega de la petición.
@@ -78,29 +79,19 @@ Siguen abiertas en `docs/pendientes.md`: qué es el geovisor, el francés, el ro
 
 ## En curso
 
-**`#024`**, en cinco tareas:
-- **T1.** Línea base de html: `1 <- 3 = 0 + 0 + 0 destapados + 2 murieron`, y el registro con
-  html en 2.2.12. BD queda cerrado del todo.
-- **T2.** `metodos()` deja de contar dos veces lo que hay dentro de una función anónima: se
-  queda con el rango más externo, y lleva una cara de canario.
-- **T3.** Re-medición de los tres censos y registro.
-- **T4.** `--trinquete` en `censo-sql-identificadores` y `censo-sql-interpolado`, con las seis C
-  de `processFromQuery()` declaradas, y las comprobaciones 27 y 28 de verify-integrity.
-- **T5.** Commitear lo del arquitecto: `CHANGELOG.md` (`custom_order` y el censo nuevo),
-  `pendientes.md` y el estado.
+**`#026` — lote 3, bloque 1: auditoría de los DATOS de las subidas.**
+- Solo lectura: el coder mide y reporta una tabla por módulo, sin tocar código.
+- Además commitea lo del arquitecto: la bitácora 0006, el mapa, `CHANGELOG.md` (BD y
+  trinquetes 27 y 28), `pendientes.md` y el estado.
 
-Si se corta ahora: la línea base de html o los censos pueden quedar a medias. verify-integrity
-lo dice.
+Si se corta ahora, no hay nada del producto en juego. Como mucho, quedan sin commitear los
+documentos del arquitecto.
 
 ## Siguiente
 
-- Al recibir `#025`:
-  - bitácora 0006 (el lote 2 entero);
-  - la entrada de BD en el `CHANGELOG.md`;
-  - las cifras de las comprobaciones en `.agents/context/21-pruebas-y-puertas.md`, que dice 16
-    y serán 28;
-  - el lote 2 sale del mapa.
-- **Después, el lote 3: subidas.** Medido por el arquitecto en solo lectura:
+- `.agents/context/21-pruebas-y-puertas.md` sigue enumerando 16 comprobaciones y hay 28. Va con
+  E6 (lote 9).
+- **El lote 3: subidas.** Medido por el arquitecto en solo lectura:
   - hay nueve `UPLOAD_DIR` (documents, document-types, categories, news-categories,
     organizations, built-in-banner, helpers-system/generic, system-approval y publications);
   - solo publications está en `protect()` (`config/final-configurations-includes/protected-files.php`),
