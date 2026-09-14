@@ -58,17 +58,27 @@ class PageQuery
      * @var int
      */
     protected $lastTotal = 0;
+    /**
+     * Valores ligados por marcador con nombre, `:nombre` => valor
+     *
+     * @var array<string,mixed>
+     */
+    protected $values = [];
 
     /**
      * @param string $selectQuery Consulta para obtener los elementos
      * @param string $countQuery Consulta para obtener el total de elementos
      * @param string $fieldTotalName Nombre del campo en $countQuery que representa el conteo
+     * @param array<string,mixed> $values Valores de los marcadores con nombre (`:nombre`) de las dos
+     * consultas. No se admiten marcadores posicionales `?`. Sin valores, el SQL tiene que ser del servidor.
      */
-    public function __construct(string $selectQuery, string $countQuery, int $page = 1, int $perPage = 10, string $fieldTotalName = 'total')
+    public function __construct(string $selectQuery, string $countQuery, int $page = 1, int $perPage = 10, string $fieldTotalName = 'total', array $values = [])
     {
         $this->dataQuery = $selectQuery;
         $this->totalQuery = $countQuery;
         $this->fieldTotalName = $fieldTotalName;
+        //Sin valores, el SQL tiene que ser del servidor: lo que venga de la petición va por marcador.
+        $this->values = $values;
         $this->activeRecord = new BaseModel();
 
         $this->setPage($page);
@@ -93,7 +103,7 @@ class PageQuery
 
         $prepared = $this->activeRecord->prepare($query);
 
-        $prepared->execute();
+        $prepared->execute($this->valuesFor($query));
 
         return $prepared->fetchAll(\PDO::FETCH_OBJ);
 
@@ -117,7 +127,7 @@ class PageQuery
 
         $prepared = $this->activeRecord->prepare($query);
 
-        $prepared->execute();
+        $prepared->execute($this->valuesFor($query));
 
         return $prepared->fetchAll(\PDO::FETCH_OBJ);
 
@@ -144,7 +154,7 @@ class PageQuery
         $this->activeRecord->resetAll();
         $query = "($this->totalQuery)";
         $prepared = $this->activeRecord->prepare($query);
-        $prepared->execute();
+        $prepared->execute($this->valuesFor($query));
         $result = $prepared->fetchAll(\PDO::FETCH_OBJ);
         $totalName = $this->fieldTotalName;
         $total = !empty($result) ? (int) $result[0]->$totalName : 0;
@@ -211,6 +221,25 @@ class PageQuery
         $perPage = $perPage === null ? $this->perPage : $perPage;
 
         return ($page - 1) * $perPage;
+    }
+
+    /**
+     * Los valores cuyo marcador aparece en la consulta. Con PDO una clave de más da HY093, y la
+     * consulta de conteo no siempre lleva los mismos marcadores que la de datos.
+     *
+     * @return array<string,mixed>
+     */
+    protected function valuesFor(string $query): array
+    {
+        $values = [];
+        foreach ($this->values as $name => $value) {
+            $marker = ':' . ltrim((string) $name, ':');
+            //PALABRA COMPLETA: `:slug1` no puede casar dentro de `:slug10`.
+            if (preg_match('/' . preg_quote($marker, '/') . '(?![A-Za-z0-9_])/', $query) === 1) {
+                $values[$marker] = $value;
+            }
+        }
+        return $values;
     }
 
 }
