@@ -1154,17 +1154,19 @@ class PublicationsController extends AdminPanelController
                     $lastModification = $lastModified;
                 }
             }
-            $checksumData = [
+            $checksum = self::listCacheChecksum(
                 $currentLang,
                 $page,
                 $perPage,
                 $category,
                 $status,
+                $ignoreStatus,
                 $title,
                 $featured,
-                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
-            ];
-            $checksum = sha1(json_encode($checksumData, \JSON_THROW_ON_ERROR));
+                $ignoreSlugs,
+                $request->getQueryParam('random', null) === 'yes',
+                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp())
+            );
 
             //Validar cacheo por cabeceras
             $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
@@ -1367,6 +1369,29 @@ class PublicationsController extends AdminPanelController
         ]);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * La clave de caché del listado, con el estado ya filtrado por publicStatusFilter().
+     *
+     * @param string $lang
+     * @param int $page
+     * @param int $perPage
+     * @param int|null $category
+     * @param int|null $status
+     * @param bool $ignoreStatus
+     * @param string|null $title
+     * @param int|null $featured
+     * @param string[] $ignoreSlugs
+     * @param bool $random
+     * @param string $dataStamp
+     * @return string
+     */
+    protected static function listCacheChecksum(string $lang, int $page, int $perPage, ?int $category, ?int $status, bool $ignoreStatus, ?string $title, ?int $featured, array $ignoreSlugs, bool $random, string $dataStamp): string
+    {
+        //TODO LO QUE CAMBIA LA RESPUESTA ENTRA EN LA CLAVE. Sin `ignoreStatus`, el `status=ANY` de quien
+        //tiene permiso y el listado por defecto compartían respuesta, y se la llevaba un anónimo.
+        return sha1(json_encode([$lang, $page, $perPage, $category, $status, $ignoreStatus, $title, $featured, array_values($ignoreSlugs), $random, $dataStamp], \JSON_THROW_ON_ERROR));
     }
 
     /**

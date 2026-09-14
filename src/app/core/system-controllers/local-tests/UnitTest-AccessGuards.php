@@ -353,6 +353,19 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $permisoBanner = new \ReflectionMethod(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::class, 'canListAnyStatus');
     $check($permisoBanner->invokeArgs(null, [null]) === false, 'banner: sin sesión no se puede pedir cualquier estado', 'routeName() concede sin usuario: la guarda exige la sesión.');
     $check($permisoBanner->invokeArgs(null, [\App\Model\UsersModel::TYPE_USER_ROOT]) === true, 'DISCRIMINANTE: banner, con sesión y permiso de listado, se respeta');
+
+    //LA CACHÉ DEL LISTADO: todo lo que cambia la respuesta cambia la clave.
+    $claveCache = new \ReflectionMethod(\Publications\Controllers\PublicationsController::class, 'listCacheChecksum');
+    $claveBase = ['es', 1, 10, null, null, false, null, null, [], false, 'sello'];
+    $claveCon = static function (int $posicion, $valor) use ($claveBase): array {
+        $partes = $claveBase;
+        $partes[$posicion] = $valor;
+        return $partes;
+    };
+    $check($claveCache->invokeArgs(null, $claveBase) === $claveCache->invokeArgs(null, $claveBase), 'DISCRIMINANTE: caché, el mismo listado da la misma clave');
+    $check($claveCache->invokeArgs(null, $claveBase) !== $claveCache->invokeArgs(null, $claveCon(8, ['un-slug'])), 'caché: dos listados que solo difieren en ignoreSlugs tienen clave distinta');
+    $check($claveCache->invokeArgs(null, $claveBase) !== $claveCache->invokeArgs(null, $claveCon(9, true)), 'caché: el orden aleatorio tiene su propia clave');
+    $check($claveCache->invokeArgs(null, $claveBase) !== $claveCache->invokeArgs(null, $claveCon(5, true)), 'caché: status=ANY con permiso no comparte clave con el listado por defecto');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
