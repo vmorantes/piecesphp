@@ -1,9 +1,12 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 15:38 (medido con `date`). A las 15:18 hubo una interrupción, sin
+- **Actualizado:** 2026-09-14 15:50 (medido con `date`). A las 15:18 hubo una interrupción, sin
   pérdidas. El PO delegó P22 y P23: «Resuelve P22 y P23 como tu prefieras».
-- **Último mensaje:** `#022 · ARQ`, en vuelo: lote 2, bloque 2, y la nivelación de html. El
-  próximo número es `#023`.
+- **Último mensaje:** `#024 · ARQ`, en vuelo: html registrado, el doble conteo de `metodos()` y
+  los trinquetes de los dos censos nuevos. El próximo número es `#025`.
+- **`#023`:** T1 y T3 completadas; `custom_order` normalizada (`19204809`). T2 detenida: html
+  da 1 frente a 3. verify-integrity queda en rojo solo por html, hasta que T1 de `#024` lo
+  registre.
 - **`#021` (lote 2, bloque 1): completado**, en `1184f229`.
   - `bin/censo-sql-identificadores` da 0 CONFIRMADO, 8 REVISAR y 102 DESCARTADO en 138
     posiciones. Ningún identificador llega de la petición.
@@ -75,23 +78,43 @@ Siguen abiertas en `docs/pendientes.md`: qué es el geovisor, el francés, el ro
 
 ## En curso
 
-**`#022`**, en tres pasos:
-1. Commitear lo del arquitecto: el ADR 0008 con su guarda, el mapa, `pendientes.md` y el estado.
-2. Nivelar html (P23, ADR 0008).
-3. Lote 2, bloque 2: normalizar la dirección de `custom_order` en
-   `DataTablesHelper::generateOrderBy()` a ASC o DESC, con su prueba de rechazo en
-   `UnitTest-SqlPlaceholders`.
+**`#024`**, en cinco tareas:
+- **T1.** Línea base de html: `1 <- 3 = 0 + 0 + 0 destapados + 2 murieron`, y el registro con
+  html en 2.2.12. BD queda cerrado del todo.
+- **T2.** `metodos()` deja de contar dos veces lo que hay dentro de una función anónima: se
+  queda con el rango más externo, y lleva una cara de canario.
+- **T3.** Re-medición de los tres censos y registro.
+- **T4.** `--trinquete` en `censo-sql-identificadores` y `censo-sql-interpolado`, con las seis C
+  de `processFromQuery()` declaradas, y las comprobaciones 27 y 28 de verify-integrity.
+- **T5.** Commitear lo del arquitecto: `CHANGELOG.md` (`custom_order` y el censo nuevo),
+  `pendientes.md` y el estado.
 
-Si se corta ahora: html puede quedar con el `vendor/` actualizado y sin registrar, y la
-comprobación 7 lo diría. O `DataTablesHelper` a medio cambiar.
+Si se corta ahora: la línea base de html o los censos pueden quedar a medias. verify-integrity
+lo dice.
 
 ## Siguiente
 
-- Al recibir `#023`: la entrada de `CHANGELOG.md` para `custom_order`, que la escribe el
-  arquitecto.
-- Después, el bloque 3 del lote 2: los trinquetes de `censo-sql-identificadores` y
-  `censo-sql-interpolado` (con las seis C de `processFromQuery()` declaradas: son
-  identificadores del servidor), y el doble conteo de `metodos()`.
+- Al recibir `#025`:
+  - bitácora 0006 (el lote 2 entero);
+  - la entrada de BD en el `CHANGELOG.md`;
+  - las cifras de las comprobaciones en `.agents/context/21-pruebas-y-puertas.md`, que dice 16
+    y serán 28;
+  - el lote 2 sale del mapa.
+- **Después, el lote 3: subidas.** Medido por el arquitecto en solo lectura:
+  - hay nueve `UPLOAD_DIR` (documents, document-types, categories, news-categories,
+    organizations, built-in-banner, helpers-system/generic, system-approval y publications);
+  - solo publications está en `protect()` (`config/final-configurations-includes/protected-files.php`),
+    y con un validador que devuelve `true` y la sesión comentada;
+  - el validador recibe `(Request, string $filePath)` y devuelve `bool`.
+  **Plan:**
+  - Bloque 1: auditar los DATOS, que es lo que pidió el PO. Por módulo: qué guarda, quién llega
+    hoy a sus archivos (sin `.htaccess`, Apache los sirve directo: `src/.htaccess:47-49`), si
+    los nombres se adivinan y si quedan restos en `tmp/`. Solo medir.
+  - Con esa tabla, **P24 al PO**: qué validador lleva cada módulo. El 20 §7 dice que lo decide
+    él. Predeterminado a proponer: sesión y permiso de la ruta del módulo para los privados;
+    los que muestra la zona pública, sin proteger.
+  - Bloque 2: enchufar los validadores y una puerta que falle si un `UPLOAD_DIR` declarado no
+    está en `protect()`.
 - El lote 2 no cruza al paquete database: con 0 CONFIRMADO no hay nada que cerrar allí.
 
 ## Para una sesión nueva
