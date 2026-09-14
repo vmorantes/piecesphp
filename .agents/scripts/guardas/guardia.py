@@ -114,6 +114,22 @@ def segmentos(comando):
     return resultado
 
 
+def sin_redirecciones(args):
+    """Quita las redirecciones: shlex deja `2>&1` como `2`, `>&`, `1`, y `> f` como `>`, `f`."""
+    limpio, saltar = [], False
+    for k, a in enumerate(args):
+        if saltar:
+            saltar = False
+            continue
+        if re.fullmatch(r"[<>&]+", a):
+            saltar = True
+            continue
+        if a.isdigit() and k + 1 < len(args) and re.fullmatch(r"[<>&]+", args[k + 1]):
+            continue
+        limpio.append(a)
+    return limpio
+
+
 def tokens(partes):
     partes = [p for p in partes if p]
     # Quita asignaciones de entorno iniciales y envoltorios (env, nohup...).
@@ -292,8 +308,9 @@ def revisar_bash(comando):
             bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md).")
         if cmd == "composer" and args[:1] in (["global"], ["require"], ["install"], ["update"], ["remove"], ["upgrade"]):
             # Excepción (ADR 0007): actualizar las herramientas de análisis, nombradas una a una.
-            # `phpstan/phpstan:2.2.12` fija la versión: cuenta el nombre.
-            paquetes = [a.split(":", 1)[0] for a in args[1:] if not a.startswith("-")]
+            # `phpstan/phpstan:2.2.12` fija la versión: cuenta el nombre. Una redirección
+            # (`> ruta`, `2>&1`) no es un paquete.
+            paquetes = [a.split(":", 1)[0] for a in sin_redirecciones(args[1:]) if not a.startswith("-")]
             if not (args[:1] == ["update"] and paquetes and all(p in HERRAMIENTAS_DE_ANALISIS for p in paquetes)):
                 bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md; excepción de análisis: ADR 0007).")
         if cmd == "chmod" and any(RUTAS_DEL_SISTEMA.search(" " + a) for a in args):

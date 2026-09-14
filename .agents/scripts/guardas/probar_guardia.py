@@ -107,6 +107,8 @@ BASH_BLOQUEA = [
     "composer install",
     "composer update -d /var/www/html/vicsen/database phpstan/phpstan",
     "composer update phpstan/phpstan:2.2.12 monolog/monolog:3.0.0",
+    "composer update monolog/monolog > /tmp/composer.txt 2>&1",
+    "composer update phpstan/phpstan:2.2.12 > /tmp/c.txt 2>&1 monolog/monolog",
     # Composer lanzado a través de php sigue siendo composer.
     "php8.5 /usr/bin/composer update",
     "php -d memory_limit=-1 /usr/bin/composer require vendor/x",
@@ -172,6 +174,9 @@ BASH_PERMITE = [
     "composer update rector/rector -W --working-dir=bin/tools",
     "composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --with-dependencies --working-dir=/var/www/html/vicsen/html",
     "php8.5 /usr/bin/composer update phpstan/phpstan:2.2.12 --working-dir=/var/www/html/vicsen/geojson",
+    # Capturar la salida no convierte la redirección en un paquete (H1 de #017).
+    "composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir=/var/www/html/vicsen/html > /tmp/composer-html.txt 2>&1",
+    "composer update rector/rector:2.6.6 2> /tmp/err.txt",
     "php8.5 bin/cli verify-integrity",
     "bin/cli verify-integrity",
     "bin/cli gates",
