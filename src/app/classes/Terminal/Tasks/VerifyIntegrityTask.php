@@ -228,6 +228,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 26. Las tres cifras de la línea base de PHPStan dicen lo mismo ────────────
         $baselineFailures = self::checkPhpStanBaselineAgrees();
 
+        //──── 27. Ningún identificador de SQL viene de la petición ──────────────────────
+        $identifierFailures = self::checkSqlIdentifiers();
+
+        //──── 28. La interpolación de SQL con valor de petición no ha crecido ───────────
+        $interpolationFailures = self::checkInterpolatedSql();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -238,7 +244,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
             + count($symlinkFailures) + count($langFailures) + count($tagFailures)
             + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures)
-            + count($baselineFailures);
+            + count($baselineFailures) + count($identifierFailures) + count($interpolationFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -263,6 +269,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($baselineFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE:\e[39m {$line}");
+        }
+        foreach ($identifierFailures as $line) {
+            echoTerminal("\e[31mSQL IDENTIFICADOR:\e[39m {$line}");
+        }
+        foreach ($interpolationFailures as $line) {
+            echoTerminal("\e[31mSQL INTERPOLADO:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -2677,12 +2689,45 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      */
     protected static function checkConcatenatedSql(): array
     {
+        return self::runSqlCensusRatchet('censo-sql-concatenado', 'SQL concatenado', 'SQL concatenado comprobado.');
+    }
+
+    /**
+     * Ningún identificador de SQL (tabla, columna, lista de campos) viene de la petición. Para
+     * un identificador no hay marcador: la cota es cero. Ver #020 y #024.
+     *
+     * @return string[]
+     */
+    protected static function checkSqlIdentifiers(): array
+    {
+        return self::runSqlCensusRatchet('censo-sql-identificadores', 'identificadores de SQL', 'identificadores de SQL comprobados.');
+    }
+
+    /**
+     * La interpolación de SQL con valor de petición no ha crecido: la forma que el censo de
+     * concatenaciones no ve. Las C de `processFromQuery()` se declaran con `count` EXACTO (#024).
+     *
+     * @return string[]
+     */
+    protected static function checkInterpolatedSql(): array
+    {
+        return self::runSqlCensusRatchet('censo-sql-interpolado', 'SQL interpolado', 'SQL interpolado comprobado.');
+    }
+
+    /**
+     * Corre un censo de SQL con `--trinquete`: si falla, devuelve su línea TRINQUETE y los sitios
+     * que lista; si pasa, imprime esa línea como INFO.
+     *
+     * @return string[]
+     */
+    protected static function runSqlCensusRatchet(string $scriptName, string $what, string $infoFallback): array
+    {
         $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
-        $script = $root . '/bin/censo-sql-concatenado';
+        $script = $root . '/bin/' . $scriptName;
 
         if (!is_file($script)) {
             //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
-            return ['no existe ' . $script . ': el trinquete de SQL concatenado NO se ha comprobado'];
+            return ['no existe ' . $script . ': el trinquete de ' . $what . ' NO se ha comprobado'];
         }
 
         $output = [];
@@ -2702,10 +2747,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         if ($status !== 0) {
-            return array_merge([$line !== '' ? $line : 'el censo de SQL salió con código ' . $status], $extra);
+            return array_merge([$line !== '' ? $line : 'el censo de ' . $what . ' salió con código ' . $status], $extra);
         }
 
-        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'SQL concatenado comprobado.'));
+        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : $infoFallback));
         return [];
     }
 

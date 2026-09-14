@@ -14,9 +14,8 @@
  * dentro de `$sqlBaseQuery` y salia por `prepare()`. Vivio ahi desde siempre, y el censo dio
  * CERO todo ese tiempo. Un cero cuyo alcance no esta escrito es peor que no tener el cero.
  *
- * ESTE INSTRUMENTO SOLO MIDE. No tiene trinquete, no cuelga de ninguna puerta y no cambia el
- * significado de `CONFIRMADO`. Sirve para decidir, con el numero delante, si nace una decima
- * familia y con que forma.
+ * No cambia el significado de `CONFIRMADO`. Con `--trinquete` compara las C contra su cota y
+ * sus declaradas: es la comprobacion 28 de verify-integrity.
  *
  * QUE MIDE — tres cifras, y la tercera es la que importa
  * -----------------------------------------------------
@@ -38,6 +37,7 @@
  * Uso:
  *   bin/censo-sql-interpolado             las tres cifras y el reparto
  *   bin/censo-sql-interpolado --detalle   con el sitio y la traza de cada C y cada indecisa
+ *   bin/censo-sql-interpolado --trinquete separa las C declaradas y FALLA si las demas crecen
  */
 
 require __DIR__ . '/censo-sql-concatenado';
@@ -464,5 +464,73 @@ echo "  · Tampoco resuelve índices de array ni variables variables, igual que 
 echo "  · `B` mira sólo el PRIMER argumento del sumidero, que es donde va la sentencia.\n";
 echo "  · Qué es «un valor de la petición» lo decide `censo-sql-concatenado`: se requiere y se\n";
 echo "    usan sus `FUENTES` y su `resuelve()`. Una sola definición, no dos.\n";
-echo "  · ESTE INSTRUMENTO NO TIENE TRINQUETE y no cuelga de ninguna puerta. Sólo mide.\n";
+echo "  · Con `--trinquete` separa las C declaradas en `cifras_interpolado` de\n";
+echo "    files/dev/sql-concat-baseline.json. Es la comprobación 28 de verify-integrity.\n";
+
+if (!in_array('--trinquete', array_slice($argv, 1), true)) {
+    exit(0);
+}
+
+echo "\n";
+$baselinePath = dirname(__DIR__) . '/files/dev/sql-concat-baseline.json';
+$crudo = @file_get_contents($baselinePath);
+$baseline = is_string($crudo) ? json_decode($crudo, true) : null;
+if (!is_array($baseline) || !isset($baseline['cifras_interpolado']['c_sin_declarar'])
+    || !is_array($baseline['cifras_interpolado']['declaradas'] ?? null)) {
+    //Sin linea base el trinquete no significa nada, y decirlo es mejor que pasar en verde. LEY 18.
+    echo "TRINQUETE: no se pudo leer `cifras_interpolado` en files/dev/sql-concat-baseline.json. SIN LÍNEA BASE NO HAY TRINQUETE.\n";
+    exit(1);
+}
+$cota = (int) $baseline['cifras_interpolado']['c_sin_declarar'];
+$declaradas = $baseline['cifras_interpolado']['declaradas'];
+$universo = (int) ($baseline['medido']['archivos'] ?? 0);
+if ($universo > 0 && $universo !== count($archivos)) {
+    printf("TRINQUETE: el universo cambió — %d archivos al congelar, %d ahora. La cifra NO es comparable hasta declararlo.\n",
+        $universo, count($archivos));
+}
+
+$porDeclarada = [];
+$sinDeclarar = [];
+foreach ($C as $h) {
+    $clave = $h['ruta'] . '::' . $h['metodo'];
+    if (array_key_exists($clave, $declaradas)) {
+        $porDeclarada[$clave] = ($porDeclarada[$clave] ?? 0) + 1;
+        continue;
+    }
+    $sinDeclarar[] = $h;
+}
+foreach ($declaradas as $clave => $entrada) {
+    $cuenta = (int) ($entrada['count'] ?? 0);
+    $vistas = $porDeclarada[$clave] ?? 0;
+    if ($vistas === 0) {
+        printf("TRINQUETE ROTO: %s figura como declarada y ya no casa con ninguna C.\n", $clave);
+        printf("                Quita la entrada: la lista solo puede encoger.\n");
+        exit(1);
+    }
+    //EL COUNT ES EXACTO, NO UN TECHO. Con un techo, una C nueva en un metodo declarado entra gratis
+    //si otra se arregla: es el hueco del censo hermano, donde el count mayor pasa en silencio (T168).
+    if ($vistas !== $cuenta) {
+        printf("TRINQUETE ROTO: %s declara %d C y hay %d.\n", $clave, $cuenta, $vistas);
+        printf("                El count es EXACTO: lo que sobra no está declarado, y si falta, la declaración miente.\n");
+        exit(1);
+    }
+}
+
+$actual = count($sinDeclarar);
+if ($actual > $cota) {
+    printf("TRINQUETE ROTO: %d interpolaciones con valor de petición sin declarar contra una cota de %d (+%d).\n",
+        $actual, $cota, $actual - $cota);
+    foreach ($sinDeclarar as $h) {
+        printf("                %s:%d %s() — %s\n", $h['ruta'], $h['linea'], $h['metodo'], $h['var']);
+    }
+    exit(1);
+}
+if ($actual < $cota) {
+    printf("TRINQUETE: %d contra una cota de %d (-%d).\n", $actual, $cota, $cota - $actual);
+    printf("           Baja la cota en files/dev/sql-concat-baseline.json, con la fecha y el motivo.\n");
+    exit(1);
+}
+$metodosDeclarados = count($declaradas);
+printf("TRINQUETE: %d interpolaciones con valor de petición sin declarar; %d declaradas en %d %s, igual que la línea base.\n",
+    $actual, array_sum($porDeclarada), $metodosDeclarados, $metodosDeclarados === 1 ? 'método' : 'métodos');
 exit(0);

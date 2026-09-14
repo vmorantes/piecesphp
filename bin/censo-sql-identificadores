@@ -18,8 +18,8 @@
  * Para un identificador NO EXISTE MARCADOR: no se arregla preparando, sino con lista blanca. Por
  * eso ninguna familia de aqui tiene «seguros».
  *
- * ESTE INSTRUMENTO SOLO MIDE. No tiene trinquete y no cuelga de ninguna puerta. Primero el
- * instrumento, luego la cifra, luego el arreglo (20 §7, bloque AN).
+ * Primero el instrumento, luego la cifra, luego el arreglo (20 §7, bloque AN). Con `--trinquete`
+ * compara los CONFIRMADO contra su cota: es la comprobacion 27 de verify-integrity.
  *
  * QUE ES UN HALLAZGO
  * ------------------
@@ -36,6 +36,8 @@
  * Uso:
  *   bin/censo-sql-identificadores             la tabla y los CONFIRMADO
  *   bin/censo-sql-identificadores --detalle   tambien los REVISAR, con su traza
+ *   bin/censo-sql-identificadores --trinquete compara CONFIRMADO contra la linea base y FALLA
+ *                                             si ha crecido
  */
 
 require __DIR__ . '/censo-sql-concatenado';
@@ -379,5 +381,51 @@ echo "    objeto con dos o más argumentos también entra.\n";
 echo "  · `prepare`, `query` y `exec` (SQL crudo) son de `censo-sql-interpolado`.\n";
 echo "  · `orderBy`, `groupBy` y el arg 1 de `join` son de `censo-sql-concatenado`.\n";
 echo "  · Qué es «un valor de la petición» lo decide `censo-sql-concatenado`.\n";
-echo "  · ESTE INSTRUMENTO NO TIENE TRINQUETE y no cuelga de ninguna puerta. Sólo mide.\n";
+echo "  · Con `--trinquete` compara los CONFIRMADO contra `cifras_identificadores` de\n";
+echo "    files/dev/sql-concat-baseline.json. Es la comprobación 27 de verify-integrity.\n";
+
+if (!in_array('--trinquete', array_slice($argv, 1), true)) {
+    exit(0);
+}
+
+echo "\n";
+$baselinePath = dirname(__DIR__) . '/files/dev/sql-concat-baseline.json';
+$crudo = @file_get_contents($baselinePath);
+$baseline = is_string($crudo) ? json_decode($crudo, true) : null;
+if (!is_array($baseline) || !isset($baseline['cifras_identificadores']['confirmado'])) {
+    //Sin linea base el trinquete no significa nada, y decirlo es mejor que pasar en verde. LEY 18.
+    echo "TRINQUETE: no se pudo leer `cifras_identificadores` en files/dev/sql-concat-baseline.json. SIN LÍNEA BASE NO HAY TRINQUETE.\n";
+    exit(1);
+}
+$cota = (int) $baseline['cifras_identificadores']['confirmado'];
+$universo = (int) ($baseline['medido']['archivos'] ?? 0);
+$posiciones = (int) ($baseline['cifras_identificadores']['posiciones'] ?? 0);
+
+//MENOS UNIVERSO O MENOS POSICIONES dan menos hallazgos sin que nadie haya arreglado nada. Se
+//dice, aunque no falle. LEY 15.
+if ($universo > 0 && $universo !== count($archivos)) {
+    printf("TRINQUETE: el universo cambió — %d archivos al congelar, %d ahora. La cifra NO es comparable hasta declararlo.\n",
+        $universo, count($archivos));
+}
+if ($posiciones > 0 && $posiciones !== $suma['vistas']) {
+    printf("TRINQUETE: las posiciones vistas cambiaron — %d al congelar, %d ahora.\n", $posiciones, $suma['vistas']);
+}
+
+$confirmados = $porVeredicto('CONFIRMADO');
+$actual = count($confirmados);
+if ($actual > $cota) {
+    printf("TRINQUETE ROTO: %d identificadores con valor de petición contra una cota de %d (+%d).\n",
+        $actual, $cota, $actual - $cota);
+    foreach ($confirmados as $h) {
+        printf("                %s:%d %s() — %s %s: %s\n", $h['ruta'], $h['linea'], $h['metodo'], $h['familia'],
+            $h['posicion'], mb_substr(preg_replace('/\s+/', ' ', $h['arg']) ?? '', 0, 50));
+    }
+    exit(1);
+}
+if ($actual < $cota) {
+    printf("TRINQUETE: %d contra una cota de %d (-%d).\n", $actual, $cota, $cota - $actual);
+    printf("           Baja la cota en files/dev/sql-concat-baseline.json, con la fecha y el motivo.\n");
+    exit(1);
+}
+printf("TRINQUETE: %d identificadores con valor de petición, igual que la línea base.\n", $actual);
 exit(0);

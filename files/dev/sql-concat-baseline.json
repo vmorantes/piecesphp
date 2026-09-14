@@ -27,15 +27,15 @@
       "que_es_cada_una": "A: asignaciones que arman una cadena SQL metiendo una VARIABLE. B: de A, las que alcanzan `prepare`, `query` o `exec` en el MISMO metodo. C: de B, las que interpolan un valor de la PETICION. Que es un valor de la peticion lo decide este censo: el guion lo requiere y usa sus `FUENTES` y su `resuelve()`.",
       "cota": "LA TRAZA NO CRUZA DE METODO. Si la variable sale —`return`, `$this->algo` o pasada como argumento— va a REVISAR A MANO, nunca a DESCARTADO, y son 118 de 213. Una decima familia construida sobre esta traza mediria el 45% del arbol y tendria que decirlo.",
       "las_seis_de_C": "UNA SOLA CADENA en `DataTablesHelper::processFromQuery()`, lineas 982, 987, 996, 997, 1142 y 1151. Lo que la peticion aporta ahi es un IDENTIFICADOR, no un valor: el nombre de columna sale de `$columns_order`, del servidor, y de `columns` solo se lee la bandera `searchable`. Es el trabajo de `claves_de_options_sin_censar`: el lote de identificadores.",
-      "por_que_no_se_cablea": "Su unico hallazgo es justo lo que el lote de identificadores va a mover, y cablearlo ahora congelaria una cifra a punto de cambiar. Se cablea CON ese lote, cuando su cifra deje de estar a punto de moverse. La decima familia NO nace ahora: decision de ARQUITECTO en BC, con C = 6 delante."
+      "por_que_no_se_cablea": "Cableado en #024: comprobacion 28 de verify-integrity, contra cifras_interpolado, con las seis C de processFromQuery() declaradas con count EXACTO. Hasta entonces no se cableaba porque su unico hallazgo era lo que el lote de identificadores iba a mover."
     },
     "resultado_identificadores": {
       "herramienta": "bin/censo-sql-identificadores",
       "medido": "2026-09-14, bloque BE (#020), sobre el mismo universo: 675 archivos; re-medido en #024 sin el doble conteo de metodos()",
       "cifras": "Por familia, vistas/literal/confirmado/revisar/descartado: select 65/22/0/6/37; get 0/0/0/0/0; setTable 6/1/0/2/3; rowCount 0/0/0/0/0; join 1/0/0/0/1; leftJoin 2/0/0/0/2; rightJoin 0/0/0/0/0; innerJoin 1/0/0/0/1; select_fields 22/1/0/0/21; columns_order 23/1/0/0/22; custom_order 16/1/0/0/15. TOTAL 136/26/0/8/102. Unidad: posiciones de identificador, no llamadas (un get() aporta hasta dos). Hasta #024 eran 138/28: 2 posiciones de select se contaban dos veces por estar en una funcion anonima dentro de un metodo (UnitTest-MapperFinders.php:154 y UnitTest-OTPWriteSeparation.php:169); metodos() ya no lo hace.",
       "que_es_cada_una": "vistas: posiciones de identificador halladas por tokens. literal: vistas con un literal, una constante o un array de literales; no son hallazgo. CONFIRMADO: la expresion llega a una fuente de peticion por asignaciones del metodo. REVISAR: la traza no alcanza a decidir (propiedad, parametro, retorno de otro metodo, o extract() en el metodo). DESCARTADO: la traza acaba en literales o constantes. Que es un valor de la peticion lo decide bin/censo-sql-concatenado: el guion lo requiere y usa sus FUENTES y su resuelve().",
-      "cota": "LA TRAZA NO CRUZA DE METODO: una propiedad, un parametro o el retorno de otro metodo caen en REVISAR, nunca en DESCARTADO. No resuelve indices de array ni variables variables. La familia se reconoce por el NOMBRE del metodo, no por la clase: un ->get() de otro objeto con dos o mas argumentos tambien entra. prepare, query y exec son de bin/censo-sql-interpolado; orderBy, groupBy y el arg 1 de join, de bin/censo-sql-concatenado. NO TIENE TRINQUETE.",
-      "por_que_no_se_cablea": "Mide antes de arreglar: la cifra es la que el lote 2 va a mover. Se cablea con su trinquete cuando deje de estar a punto de moverse."
+      "cota": "LA TRAZA NO CRUZA DE METODO: una propiedad, un parametro o el retorno de otro metodo caen en REVISAR, nunca en DESCARTADO. No resuelve indices de array ni variables variables. La familia se reconoce por el NOMBRE del metodo, no por la clase: un ->get() de otro objeto con dos o mas argumentos tambien entra. prepare, query y exec son de bin/censo-sql-interpolado; orderBy, groupBy y el arg 1 de join, de bin/censo-sql-concatenado. Trinquete desde #024: comprobacion 27 de verify-integrity, contra cifras_identificadores.",
+      "por_que_no_se_cablea": "Cableado en #024: comprobacion 27 de verify-integrity, con la cota de CONFIRMADO en 0. Hasta entonces se medía antes de arreglar, porque su cifra era la que el lote 2 iba a mover."
     },
     "migracion": "AQ: 4 archivos que llaman a `process()` usan YA segmento y 14 siguen en cadena. La cifra la imprime el censo y sale del arbol, no de un conteo a mano. Un archivo con dos llamadas puede estar en las DOS columnas: `DocumentsController` lo esta, porque migro `dataTablesExplorer` y `dataTables` sigue en cadena."
   },
@@ -44,6 +44,19 @@
     "declarado": 8,
     "revisar": 104,
     "descartado": 135
+  },
+  "cifras_identificadores": {
+    "confirmado": 0,
+    "posiciones": 136
+  },
+  "cifras_interpolado": {
+    "c_sin_declarar": 0,
+    "declaradas": {
+      "src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php::processFromQuery": {
+        "count": 6,
+        "why": "Las seis son una sola cadena de processFromQuery() y lo que la peticion aporta es acotado: de `columns` solo se lee la bandera searchable (el valor buscado va por marcador desde AZ, T167) y de `order` el indice de columna, que se busca en columns_order del servidor, y la direccion, que se normaliza a ASC o DESC."
+      }
+    }
   },
   "_historia": [
     "AJ: 9 con el censo mirando SOLO `->where(`. Se arregló `Country::search()` y quedaron 8.",
