@@ -69,6 +69,18 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 738 <- 744 = 0 arreglos + 0 supresiones + 6 murieron + 0 destapados
+
+    Bloque BK: las SEIS mueren al retirar `handlerUpload()`, que no tenia llamadores, de los
+    tres controladores cuyo UPLOAD_DIR no usaba nada vivo: DocumentTypes, Categories y
+    SystemApprovals. Dos por archivo:
+
+        FileUpload::__construct(), $name espera string, string|null dado
+        clave de array posiblemente invalida, string|null
+
+    NINGUNA se silencio: no se toco phpstan.neon. Ningun archivo ajeno al bloque movio su
+    cifra (diff por ruta y mensaje del JSON: 6 solo antes, 0 solo despues).
+
 [REPARTO] 744 <- 744 = 0 arreglos + 0 supresiones + 0 murieron + 0 destapados
           ANALIZADOR: phpstan 2.2.12 (venia de 2.2.9). Rector sube a 2.6.6 y NO se ejecuta.
 
@@ -282,7 +294,7 @@ HISTORIA DE ESTE BASELINE
 171
 
 [TOTAL DE ERRORES VISIBLES]
-744
+738
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -290,12 +302,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 735
-Solo en 8.5: 9
+En las dos (8.4 y 8.5): 732
+Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (310)
+argument.type (307)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -303,7 +315,7 @@ assign.propertyType (32)
 method.resultUnused (26)
 property.notFound (18)
 foreach.nonIterable (17)
-offsetAccess.invalidOffset (12)
+offsetAccess.invalidOffset (9)
 nullCoalesce.variable (7)
 variable.undefined (4)
 clone.nonObject (4)
@@ -387,8 +399,8 @@ project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
 	property.nonObject (Líneas: 284, 864)
-	argument.type (Líneas: 937, 1230)
-	offsetAccess.invalidOffset (Líneas: 1249)
+	argument.type (Líneas: 937, 1233)
+	offsetAccess.invalidOffset (Líneas: 1252)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	argument.type (Líneas: 236)
 	property.nonObject (Líneas: 273, 299)
@@ -397,21 +409,17 @@ project://src/app/classes/EventsLog/Views/log/list.php
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
 	assign.propertyType (Líneas: 62)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
-	property.nonObject (Líneas: 717)
-	argument.type (Líneas: 947)
-	offsetAccess.invalidOffset (Líneas: 966)
+	property.nonObject (Líneas: 704)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
-	argument.type (Líneas: 217)
-	property.nonObject (Líneas: 254, 281)
+	argument.type (Líneas: 205)
+	property.nonObject (Líneas: 242, 269)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
-	property.nonObject (Líneas: 718)
-	argument.type (Líneas: 948)
-	offsetAccess.invalidOffset (Líneas: 967)
+	property.nonObject (Líneas: 705)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
-	argument.type (Líneas: 217)
-	property.nonObject (Líneas: 254, 281)
+	argument.type (Líneas: 205)
+	property.nonObject (Líneas: 242, 269)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
-	foreach.nonIterable (Líneas: 177, 284)
+	foreach.nonIterable (Líneas: 163, 255)
 project://src/app/classes/Importers/Controller/ImporterController.php
 	assign.propertyType (Líneas: 91, 121)
 	argument.type (Líneas: 115, 144, 155, 165, 290, 297)
@@ -444,8 +452,8 @@ project://src/app/classes/News/Controllers/NewsCategoryController.php
 	property.nonObject (Líneas: 843, 919)
 	nullCoalesce.variable (Líneas: 877, 878)
 project://src/app/classes/News/Controllers/NewsController.php
-	property.nonObject (Líneas: 188, 1117, 1301, 1302, 1303, 1304)
-	argument.type (Líneas: 569, 570, 600, 601, 1293, 1301)
+	property.nonObject (Líneas: 188, 1117, 1308, 1309, 1310, 1311)
+	argument.type (Líneas: 569, 570, 600, 601, 1300, 1308)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	argument.type (Líneas: 445)
 project://src/app/classes/News/Mappers/NewsMapper.php
@@ -460,9 +468,9 @@ project://src/app/classes/Newsletter/Controllers/NewsletterController.php
 project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
 	method.nonObject (Líneas: 137, 146)
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
-	property.nonObject (Líneas: 218, 1279, 1502)
-	argument.type (Líneas: 827, 1297, 1558)
-	offsetAccess.invalidOffset (Líneas: 1577)
+	property.nonObject (Líneas: 218, 1279, 1505)
+	argument.type (Líneas: 827, 1297, 1561)
+	offsetAccess.invalidOffset (Líneas: 1580)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	argument.type (Líneas: 437, 867, 869, 985)
 	offsetAccess.invalidOffset (Líneas: 986)
@@ -471,9 +479,9 @@ project://src/app/classes/Organizations/OrganizationsRoutes.php
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	property.nonObject (Líneas: 11)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
-	property.nonObject (Líneas: 922)
-	argument.type (Líneas: 1180)
-	offsetAccess.invalidOffset (Líneas: 1199)
+	property.nonObject (Líneas: 928)
+	argument.type (Líneas: 1201)
+	offsetAccess.invalidOffset (Líneas: 1220)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	return.type (Líneas: 247)
 	argument.type (Líneas: 258)
@@ -504,12 +512,12 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 143, 1202, 1515, 1675)
-	property.nonObject (Líneas: 239, 1339, 1597, 1599, 1622, 1624)
-	assign.propertyType (Líneas: 653)
-	clone.nonObject (Líneas: 709)
-	method.nonObject (Líneas: 1322, 1332, 1522, 1523, 1524)
-	offsetAccess.invalidOffset (Líneas: 1692)
+	argument.type (Líneas: 144, 1207, 1614, 1774)
+	property.nonObject (Líneas: 240, 1344, 1696, 1698, 1721, 1723)
+	assign.propertyType (Líneas: 654)
+	clone.nonObject (Líneas: 710)
+	method.nonObject (Líneas: 1327, 1337, 1621, 1622, 1623)
+	offsetAccess.invalidOffset (Líneas: 1791)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
@@ -517,8 +525,8 @@ project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	argument.type (Líneas: 402)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
 	return.type (Líneas: 403)
-	argument.type (Líneas: 430, 442)
-	property.nonObject (Líneas: 536, 564)
+	argument.type (Líneas: 441, 453)
+	property.nonObject (Líneas: 547, 575)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
@@ -530,11 +538,10 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 145)
-	argument.type (Líneas: 368, 368, 643)
-	assign.propertyType (Líneas: 375)
-	method.nonObject (Líneas: 552)
-	offsetAccess.invalidOffset (Líneas: 662)
+	staticMethod.nonObject (Líneas: 132)
+	argument.type (Líneas: 355, 355)
+	assign.propertyType (Líneas: 362)
+	method.nonObject (Líneas: 539)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 145)
 	property.nonObject (Líneas: 206)
@@ -576,7 +583,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 368)
 	method.deprecated (Líneas: 379)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 367)
+	argument.type (Líneas: 379)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php

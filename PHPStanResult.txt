@@ -345,43 +345,39 @@
          🪪  assign.propertyType                                                                                                                           
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ------------------------------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/Forms/Categories/Controllers/CategoriesController.php                                       
- ------ ------------------------------------------------------------------------------------------------------------ 
-  717    Cannot access property $id on Forms\Categories\Mappers\CategoriesMapper|null.                               
-         🪪  property.nonObject                                                                                      
-  947    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
-         🪪  argument.type                                                                                           
- ------ ------------------------------------------------------------------------------------------------------------ 
+ ------ ------------------------------------------------------------------------------- 
+  project://src/src/app/classes/Forms/Categories/Controllers/CategoriesController.php          
+ ------ ------------------------------------------------------------------------------- 
+  704    Cannot access property $id on Forms\Categories\Mappers\CategoriesMapper|null.  
+         🪪  property.nonObject                                                         
+ ------ ------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php                                  
  ------ ----------------------------------------------------------------------------------------------- 
-  217    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  205    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  254    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  242    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  281    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  269    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
- ------ ------------------------------------------------------------------------------------------------------------ 
-  project://src/src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php                                 
- ------ ------------------------------------------------------------------------------------------------------------ 
-  718    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.                         
-         🪪  property.nonObject                                                                                      
-  948    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
-         🪪  argument.type                                                                                           
- ------ ------------------------------------------------------------------------------------------------------------ 
+ ------ ------------------------------------------------------------------------------------- 
+  project://src/src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php          
+ ------ ------------------------------------------------------------------------------------- 
+  705    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.  
+         🪪  property.nonObject                                                               
+ ------ ------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php                            
  ------ ----------------------------------------------------------------------------------------------- 
-  217    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  205    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  254    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  242    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  281    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  269    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -817,39 +813,39 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/Publications/Controllers/PublicationsController.php                                                                             
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
-  143    Parameter Nr.1 $url of static method Spatie\Url\Url::fromString() expects string, string|null given.                                              
+  144    Parameter Nr.1 $url of static method Spatie\Url\Url::fromString() expects string, string|null given.                                              
          🪪  argument.type                                                                                                                               
-  239    Cannot access property $id on int|Publications\Mappers\PublicationCategoryMapper.                                                               
+  240    Cannot access property $id on int|Publications\Mappers\PublicationCategoryMapper.                                                               
          🪪  property.nonObject                                                                                                                          
-  653    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
+  654    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
          🪪  assign.propertyType                                                                                                                         
-  709    Cannot clone stdClass|null.                                                                                                                     
+  710    Cannot clone stdClass|null.                                                                                                                     
          🪪  clone.nonObject                                                                                                                             
-  1206   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
+  1207   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
-  1326   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1327   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1336   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1337   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1343   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+  1344   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1567   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
+  1614   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1574   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1621   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1575   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1622   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1576   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1623   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1649   Cannot access property $organization on stdClass|null.                                                                                          
+  1696   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1651   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1698   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1674   Cannot access property $organization on stdClass|null.                                                                                          
+  1721   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1676   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1723   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1727   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1774   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -878,13 +874,13 @@
  ------ --------------------------------------------------------------------------------------------------------- 
   403    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
          🪪  return.type                                                                                          
-  430    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  441    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  442    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  453    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  536    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  547    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
-  564    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  575    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
  ------ --------------------------------------------------------------------------------------------------------- 
 
@@ -928,18 +924,16 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php                                                               
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  145    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
+  132    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
          🪪  staticMethod.nonObject                                                                                                              
-  368    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  355    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  368    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
+  355    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
          🪪  argument.type                                                                                                                       
-  375    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
+  362    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
          🪪  assign.propertyType                                                                                                                 
-  552    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
+  539    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
          🪪  method.nonObject                                                                                                                    
-  643    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                              
-         🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------------------------- 
@@ -2381,5 +2375,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 750 errors                                                                                               
+ [ERROR] Found 747 errors                                                                                               
 

@@ -4,7 +4,7 @@
 171
 
 [TOTAL DE ERRORES VISIBLES]
-744
+738
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 735
-Solo en 8.5: 9
+En las dos (8.4 y 8.5): 732
+Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (310)
+argument.type (307)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -25,7 +25,7 @@ assign.propertyType (32)
 method.resultUnused (26)
 property.notFound (18)
 foreach.nonIterable (17)
-offsetAccess.invalidOffset (12)
+offsetAccess.invalidOffset (9)
 nullCoalesce.variable (7)
 variable.undefined (4)
 clone.nonObject (4)
@@ -119,19 +119,15 @@ project://src/app/classes/EventsLog/Views/log/list.php
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
 	assign.propertyType (Líneas: 62)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
-	property.nonObject (Líneas: 717)
-	argument.type (Líneas: 947)
-	offsetAccess.invalidOffset (Líneas: 966)
+	property.nonObject (Líneas: 704)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
-	argument.type (Líneas: 217)
-	property.nonObject (Líneas: 254, 281)
+	argument.type (Líneas: 205)
+	property.nonObject (Líneas: 242, 269)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
-	property.nonObject (Líneas: 718)
-	argument.type (Líneas: 948)
-	offsetAccess.invalidOffset (Líneas: 967)
+	property.nonObject (Líneas: 705)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
-	argument.type (Líneas: 217)
-	property.nonObject (Líneas: 254, 281)
+	argument.type (Líneas: 205)
+	property.nonObject (Líneas: 242, 269)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 163, 255)
 project://src/app/classes/Importers/Controller/ImporterController.php
@@ -226,12 +222,12 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 143, 1206, 1567, 1727)
-	property.nonObject (Líneas: 239, 1343, 1649, 1651, 1674, 1676)
-	assign.propertyType (Líneas: 653)
-	clone.nonObject (Líneas: 709)
-	method.nonObject (Líneas: 1326, 1336, 1574, 1575, 1576)
-	offsetAccess.invalidOffset (Líneas: 1744)
+	argument.type (Líneas: 144, 1207, 1614, 1774)
+	property.nonObject (Líneas: 240, 1344, 1696, 1698, 1721, 1723)
+	assign.propertyType (Líneas: 654)
+	clone.nonObject (Líneas: 710)
+	method.nonObject (Líneas: 1327, 1337, 1621, 1622, 1623)
+	offsetAccess.invalidOffset (Líneas: 1791)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
@@ -239,8 +235,8 @@ project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	argument.type (Líneas: 402)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
 	return.type (Líneas: 403)
-	argument.type (Líneas: 430, 442)
-	property.nonObject (Líneas: 536, 564)
+	argument.type (Líneas: 441, 453)
+	property.nonObject (Líneas: 547, 575)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
@@ -252,11 +248,10 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 145)
-	argument.type (Líneas: 368, 368, 643)
-	assign.propertyType (Líneas: 375)
-	method.nonObject (Líneas: 552)
-	offsetAccess.invalidOffset (Líneas: 662)
+	staticMethod.nonObject (Líneas: 132)
+	argument.type (Líneas: 355, 355)
+	assign.propertyType (Líneas: 362)
+	method.nonObject (Líneas: 539)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 145)
 	property.nonObject (Líneas: 206)
