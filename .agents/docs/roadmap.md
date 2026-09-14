@@ -17,6 +17,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
+| 3a | **⚠ Búsquedas concatenadas** | Inyección SQL confirmada por lectura en dos rutas PÚBLICAS (`publications-ajax-all` y `built-in-banner-ajax-all`, parámetro `title`), y el mismo patrón tras sesión en News, Organizations y GeoJSON. `PageQuery` no admite valores ligados | `docs/pendientes.md`, «Hallazgos del lote 3, bloque 1» (H1 y H2 de `#027`) | **Urgente**: va antes del bloque 2 de subidas (`#028`). Nace el 2026-09-14. Ningún censo lo veía: la traza no cruza de método |
 | 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `docs/pendientes.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta |
 | 4 | **`escapeString`** | Depende de un `sql_mode` que nadie fija | `20` §7, «EL HALLAZGO MÁS PROFUNDO» | 1 bloque |
 | 5 | **OTP** | Cerrojo por usuario e IP, respuesta uniforme, documentado | `20` §7, «`generate-otp` — la asimetría» | Sin pasar a POST: lo consumen apps headless |

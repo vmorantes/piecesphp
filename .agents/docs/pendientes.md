@@ -71,6 +71,7 @@ esta descrito en ninguna parte.** Necesita que el PROPIETARIO diga que es antes 
 | ~~`P16`~~ | **BD** — nivelar los analizadores de los 4 paquetes | 02-09 | **YA NO ESPERA AL PROPIETARIO**: el 2026-09-02 a las 17:42 delegó la instrumentación de análisis en ARQUITECTO («Todo la instrumentación de analisís en desarrollo está en tus manos»). Recuperado en el cruce del 2026-09-14 |
 | ~~`P19`~~ | `master` y etiquetas en los cuatro paquetes | 14-09 | **RESUELTO el 2026-09-14**: en los paquetes se etiqueta, y «esta bien»; `master` sigue siendo su estable; todos llevan `dev`, se homologan `dev` y `master` y desde ahi se trabaja en `dev`. Regla 30 y guarda al dia |
 | ~~`P23`~~ | **RESUELTO el 2026-09-14, por delegación** («Resuelve P22 y P23 como tu prefieras»): ADR 0008, y html se nivela en `#022`. Texto original: **html se queda sin nivelar**: su `composer.lock` local (ignorado por git, de antes de su 3.0.0) fija `piecesphp/datastructures` v3.1.0, y su `composer.json` pide `^4.0`. Un update parcial de las herramientas no resuelve. Hace falta actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007) | 14-09 | **Predeterminado**: html sigue midiendo con phpstan 2.1.42 contra datastructures 3.1.0, declarado así en `shared-toolchain.json`. Opciones: el PO autoriza al coder una vez, o lo ejecuta él |
+| `P24` | **Qué control de acceso lleva cada carpeta de subidas.** El 20 §7 dice que el validador de cada módulo lo decide el PROPIETARIO. Tabla en «Hallazgos del lote 3, bloque 1» | 14-09 | **Predeterminado del arquitecto**: documents, organizations y news-categories, sesión activa; publications, el archivo se sirve si su publicación es visible al público (activa, en fecha y aprobada) o si hay sesión; built-in-banner, sin proteger, porque la portada lo muestra, pero sin devolver borrados; el homeImage de generic, sin proteger. Los tres UPLOAD_DIR sin archivos se retiran. Y una puerta que falle si un UPLOAD_DIR no está protegido ni declarado público con su motivo |
 | — | Los 9 selectores: DOCUMENTAR, decidido el 30-08, **sin lote asignado** | 30-08 | entra en E6 |
 | — | El frances: `profiles-translation-config.js`, `dynamic-translations/fr/`, carpetas `de/it/pt` | — | «Del PROPIETARIO» en §7 |
 | — | El rol 50 con nombre `null` (`roles.php:112`) | — | — |
@@ -543,3 +544,73 @@ historia de git los conserva.
   tiempo, sigue yendo con E6.
 - **En la provocación 27, «FALLOS: 2» para un solo sitio.** El recuento suma la línea TRINQUETE
   y cada línea de sitio, igual que ya hacía la 24.
+
+### Hallazgos del lote 3, bloque 1 — 2026-09-14 (`#027`, auditoría de subidas en solo lectura)
+
+**⚠ Fuera del alcance de las subidas, y lo más grave:**
+
+- **H1. INYECCIÓN SQL EN DOS RUTAS PÚBLICAS: CONFIRMADA POR LECTURA**, por el coder y después
+  por el arquitecto. Sin provocar: no hay permiso de HTTP ni de base de datos.
+  - Rutas: `publications-ajax-all` y `built-in-banner-ajax-all`, las dos con
+    `requireLogin: false`.
+  - El recorrido:
+    - el parámetro `title` se valida como «escalar no vacío» y se parsea con
+      `(string) $value` (`PublicationsController.php:1067-1077`;
+      `BuiltInBannerController.php:806-815`);
+    - `_all()` lo interpola en `UPPER(…) LIKE UPPER('%{$title}%')`
+      (`PublicationsController.php:1438`; `BuiltInBannerController.php:996`, y su `PageQuery` en
+      `:1038-1044`);
+    - la cadena va a `new PageQuery(...)`, que hace `prepare()` y `execute()` SIN valores
+      (`PageQuery.php:92-96`, `116-120` y `146-147`).
+  - **Por qué ningún censo lo vio:** `$title` entra en `_all()` como parámetro, y la traza no
+    cruza de método (la cota, LEY 15). `PageQuery` no es un sumidero de ningún censo. Las
+    comprobaciones 24, 27 y 28 en verde no cubren esta forma.
+  - Va al lote 3a del mapa (`#028`).
+- **H2. El mismo patrón tras sesión**, verificado en el código por el arquitecto:
+  - `NewsController.php:1225` (`newsTitle`), en `news-admin-ajax-all`;
+  - `OrganizationsController.php:1350` (`name`), en `organizations-admin-ajax-all`;
+  - `GeoJsonManagerController.php:143-144` y `250-251` (`search`, que va a
+    `->having($havingString)`), en `geojson-manager-admin-contents-geojson-features`.
+- **H3. Exposición por estado en rutas públicas:**
+  - `publications-ajax-all` acepta `status=ANY/0/2` sin mirar el usuario y devuelve borradores
+    y borradas;
+  - `built-in-banner-ajax-all` acepta `status=ANY/0` y devuelve banners borrados.
+  SIN MEDIR qué consumidores públicos usan ese parámetro.
+
+**Subidas (la tabla completa está en el reporte de `#027`):**
+
+| módulo | qué guarda | nombre en disco | quién emite la URL | cómo se sirve hoy | sensibilidad |
+| :-- | :-- | :-- | :-- | :-- | :-- |
+| documents | cualquier archivo (`TYPE_ANY`) y una imagen | carpeta `uniqid`, nombre ORIGINAL | solo rutas con sesión | Apache directo | PRIVADA |
+| organizations | RUT y logo, cualquier archivo | carpeta `uniqid`, nombre ORIGINAL | solo rutas con sesión | Apache directo | PRIVADA |
+| news-categories | icono (imágenes, SVG incluido) | carpeta `uniqid`, archivo `random_bytes` | solo rutas con sesión | Apache directo | PRIVADA |
+| helpers-system/generic | `homeImage` por idioma | `uniqid` | solo el formulario del admin | Apache directo | PRIVADA aquí; en los clones, SIN VERIFICAR |
+| publications | tres imágenes y adjuntos (pdf, doc, xls) | carpeta `uniqid`, nombre ORIGINAL | la zona pública y el admin | `protect()`, pero el validador devuelve `true` | MIXTA: depende de estado, fechas y aprobación |
+| built-in-banner | dos imágenes | carpeta `uniqid`, nombre ORIGINAL | la portada (pública) | Apache directo | PÚBLICA, pero devuelve borrados (H3) |
+| document-types · categories · system-approval | nada: `handlerUpload()` sin llamadores | — | — | — | andamiaje muerto |
+
+- **H4.** Los PRIVADOS se sirven por Apache directo, y publications está protegido solo de
+  nombre.
+- **H5.** Los nombres se pueden adivinar: `uniqid` va por tiempo y el nombre original es
+  predecible.
+- **H6. Tipos.**
+  - `TYPE_ANY` en documents y organizations.
+  - SVG servido desde el mismo origen en banner, news-categories, publications y generic.
+  - `src/.htaccess:59` bloquea solo 8 extensiones. SIN VERIFICAR si `.phtml` se ejecuta.
+- **H7.** Ningún `UPLOAD_DIR_TMP` se escribe ni se limpia: es configuración muerta.
+- **H8. Huérfanos.**
+  - Al borrar, ningún módulo borra su archivo, que sigue servible.
+  - Publications no deja borrar un adjunto.
+  - Generic borra el archivo anterior antes de persistir el nuevo.
+- **H9.** Andamiaje muerto: `handlerUpload()` sin llamadores en document-types, categories,
+  system-approval y generic.
+- **H10. `ProtectFileMiddleware`.**
+  - `protect()` no registra nada si la carpeta no existe al arrancar.
+  - `isProtected()` y `validateAccess()` casan por PREFIJO sin separador: `…/publications`
+    cubre también `…/publications-x`.
+- **H11.** El tamaño por defecto compara cadenas de `php.ini` (`FileValidator.php:399-404`): un
+  `1G` se lee como 1 MB. Por lectura.
+- **H12.** Traídos por subagentes, SIN VERIFICAR:
+  - `UploadedFileAdapter::validate` sin la rama final (un código de error desconocido deja el
+    archivo como válido);
+  - `unlink()` sobre un directorio en documents.
