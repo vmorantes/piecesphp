@@ -388,9 +388,9 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php                     
  ------ -------------------------------------------------------------------------------------------- 
-  177    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  163    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
-  284    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
+  255    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -589,17 +589,17 @@
          🪪  argument.type                                                                                                                      
   1117   Cannot access property $id on News\Mappers\NewsMapper|null.                                                                            
          🪪  property.nonObject                                                                                                                 
-  1293   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
+  1300   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
          🪪  argument.type                                                                                                                      
-  1301   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
+  1308   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                 
-  1301   Parameter Nr.1 $value of class News\Mappers\NewsCategoryMapper constructor expects int|null, int|News\Mappers\NewsCategoryMapper given.  
+  1308   Parameter Nr.1 $value of class News\Mappers\NewsCategoryMapper constructor expects int|null, int|News\Mappers\NewsCategoryMapper given.  
          🪪  argument.type                                                                                                                      
-  1302   Cannot access property $profilesTarget on News\Mappers\NewsMapper|null.                                                                
+  1309   Cannot access property $profilesTarget on News\Mappers\NewsMapper|null.                                                                
          🪪  property.nonObject                                                                                                                 
-  1303   Cannot access property $createdBy on News\Mappers\NewsMapper|null.                                                                     
+  1310   Cannot access property $createdBy on News\Mappers\NewsMapper|null.                                                                     
          🪪  property.nonObject                                                                                                                 
-  1304   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.                                                                    
+  1311   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.                                                                    
          🪪  property.nonObject                                                                                                                 
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -661,9 +661,9 @@
          🪪  property.nonObject                                                                                      
   1297   Parameter Nr.1 $string of function str_pad expects string, int given.                                         
          🪪  argument.type                                                                                           
-  1502   Cannot access property $meta on stdClass|null.                                                              
+  1505   Cannot access property $meta on stdClass|null.                                                              
          🪪  property.nonObject                                                                                      
-  1558   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1561   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -703,7 +703,7 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   922    Cannot access property $id on PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper|null.                    
          🪪  property.nonObject                                                                                      
-  1180   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1183   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -833,23 +833,23 @@
          🪪  method.nonObject                                                                                                                            
   1339   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1515   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
+  1522   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1522   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1529   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1523   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1530   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1524   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1531   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1597   Cannot access property $organization on stdClass|null.                                                                                          
+  1604   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1599   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1606   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1622   Cannot access property $organization on stdClass|null.                                                                                          
+  1629   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1624   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1631   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1675   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1682   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
