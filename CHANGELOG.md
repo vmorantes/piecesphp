@@ -285,6 +285,33 @@ desfasado. Actualiza el lock a mano dentro de `bin/tools` y versiónalo.
 
 ---
 
+## Herramientas — `verify-integrity` pone trinquete a los censos de identificadores e interpolación
+
+Dos comprobaciones nuevas, la 27 y la 28, que fallan y no solo avisan:
+- **La 27: ningún identificador de SQL viene de la petición.** Lo mide
+  `bin/censo-sql-identificadores --trinquete`.
+- **La 28: la interpolación de SQL con valor de petición no crece.** Lo mide
+  `bin/censo-sql-interpolado --trinquete`.
+  - Las seis de `DataTablesHelper::processFromQuery()` quedan declaradas con un `count` exacto:
+    un sitio de más o de menos, falla.
+  - Lo que aporta ahí la petición está acotado: la bandera `searchable` de `columns` y el índice
+    y la dirección de `order`.
+
+Los tres censos de SQL dejan además de contar dos veces lo que hay dentro de una función anónima.
+
+## Herramientas — los cuatro paquetes `piecesphp/*` miden con el mismo analizador que el framework
+
+`database`, `datastructures`, `geojson` y `html` pasan a phpstan 2.2.12 y rector 2.6.6, los
+mismos que usa el framework. Una cifra medida con otro analizador no es comparable, y
+`verify-integrity` lo vigila en su comprobación 7.
+- **El trinquete de los cuatro** acepta ahora «destapados» y «murieron», como el del framework.
+  Así se registra sin llamarla arreglo una bajada que causa el analizador: 21 → 18 en `database`,
+  3 → 1 en `html`.
+- **Si mantienes un clon de uno de los paquetes:** su `composer.lock` no se versiona. Si es
+  anterior a su última mayor, puede estar anclado a una versión que su `composer.json` ya no
+  admite; así estaba `html`. Actualízalo con Composer nombrando también la dependencia
+  `piecesphp/*`.
+
 ## Corregido — la dirección de `custom_order` se normaliza a `ASC` o `DESC`
 
 `DataTablesHelper::process()` y `processFromQuery()` metían la dirección de cada entrada de

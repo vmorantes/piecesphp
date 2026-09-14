@@ -522,5 +522,24 @@ historia de git los conserva.
   lote asignado; candidato al barrido de residuos (lote 10).
 - **html, 3 → 1 al nivelar:** desaparecen los dos `function.alreadyNarrowedType` de
   `Attribute.php:73` sin cambio de código. Cambiaron a la vez el analizador (2.1.42 → 2.2.12) y
-  la API analizada (datastructures 3.1.0 → 4.0.0). Cuál los mata está SIN VERIFICAR. Se
-  registran como «murieron» en `#024`.
+  la API analizada (datastructures 3.1.0 → 4.0.0). Cuál los mata está SIN VERIFICAR.
+  Registrado como «murieron» en `#024` (html `8d61814`).
+
+### Hallazgos del lote 2, bloque 3 — 2026-09-14 (`#025`)
+
+- **Corrección del arquitecto.** La decisión D-c de `#024` decía que las seis C de
+  `processFromQuery()` llegaban por `columns`. Tres llegan por `columns` (982, 996 y 1142) y
+  tres por `order` (987, 997 y 1151), vía `generateOrderBy()`, que toma la columna del índice
+  en `columns_order` y normaliza la dirección. Las dos vías están acotadas, y el `why` del
+  registro ya nombra las dos.
+- **Todo commit que añade líneas por encima de un error de PHPStan desplaza el artefacto.** Sin
+  volver a ejecutar `bin/phpstan`, `PHPStanResult.*` queda rancio en silencio. Es la memoria
+  «el artefacto puede quedar rancio». Nada ata el artefacto al código.
+- **Al quitar las anónimas anidadas, queda el registro del método externo**, cuyo mapa de
+  asignaciones incluye el cuerpo de la anónima. Los 10 del interpolado tenían su gemelo
+  externo. SIN VERIFICAR si algún veredicto cambia por el ámbito en otro sitio.
+- **`verify-integrity` tiene 28 comprobaciones.** Los documentos que dicen otra cifra se corrigen
+  al depositar el cierre del lote 2. El `21-pruebas-y-puertas.md`, que enumera las de hace
+  tiempo, sigue yendo con E6.
+- **En la provocación 27, «FALLOS: 2» para un solo sitio.** El recuento suma la línea TRINQUETE
+  y cada línea de sitio, igual que ya hacía la 24.

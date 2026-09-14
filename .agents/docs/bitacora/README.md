@@ -33,3 +33,4 @@ entrada nombra el bloque (letras) y los mensajes (`#NNN`) que abarca. Plantilla:
 | [0003](0003-lote-0b-orden-de-directorios.md) | Una razón de ser por carpeta | 0b | 2026-09-14 |
 | [0004](0004-lote-0a-dev-en-los-paquetes.md) | `dev` en los cuatro paquetes | 0a | 2026-09-14 |
 | [0005](0005-bd-analizadores-nivelados.md) | Los paquetes miden con el mismo analizador que el framework | BD | 2026-09-14 |
+| [0006](0006-lote-2-identificadores-de-sql.md) | Identificadores de SQL: un censo y un trinquete en vez de una lista blanca; cierre de BD | BE, BF, BG | 2026-09-14 |
