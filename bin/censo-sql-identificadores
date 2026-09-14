@@ -1,0 +1,383 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * IDENTIFICADORES DE SQL QUE PUEDEN VENIR DE LA PETICION.
+ *
+ * POR QUE EXISTE
+ * --------------
+ * `bin/censo-sql-concatenado` mira VALORES que acaban en el SQL y `bin/censo-sql-interpolado`
+ * mira SQL crudo armado en una variable. Ninguno mira donde entra un IDENTIFICADOR: la tabla, una
+ * columna, una lista de campos. En el paquete `database` esas posiciones se interpolan tal cual:
+ *
+ *     select($fields)          `$this->selectQuery = trim($fields)`          ActiveRecord:191
+ *     get($v, $col, $cols)     `"SELECT {$columnsOnSelect} FROM ..."`         ActiveRecord:642
+ *     rowCount($column)        `"SELECT COUNT({$column}) AS total ..."`       ActiveRecord:756
+ *     setTable($table)         la tabla entra en todas las clausulas          ActiveRecord:770
+ *
+ * Para un identificador NO EXISTE MARCADOR: no se arregla preparando, sino con lista blanca. Por
+ * eso ninguna familia de aqui tiene «seguros».
+ *
+ * ESTE INSTRUMENTO SOLO MIDE. No tiene trinquete y no cuelga de ninguna puerta. Primero el
+ * instrumento, luego la cifra, luego el arreglo (20 §7, bloque AN).
+ *
+ * QUE ES UN HALLAZGO
+ * ------------------
+ * Una posicion de identificador cuyo argumento tiene una VARIABLE o una FUENTE de peticion. Un
+ * literal, una constante o un array de literales no tiene por donde traer nada: se cuenta como
+ * VISTA, no como hallazgo. Una llamada sin el argumento usa su valor por defecto y tampoco lo es.
+ * La unidad es la POSICION: un `get()` aporta hasta dos.
+ *
+ * QUE ES UN VALOR DE LA PETICION NO SE DECIDE AQUI: se requiere `censo-sql-concatenado` y se usan
+ * su `FUENTES`, su `resuelve()` y su `objetosContaminados()`. Una sola definicion, no dos.
+ *
+ * SU COTA, Y SE IMPRIME (LEY 15): al final de la salida.
+ *
+ * Uso:
+ *   bin/censo-sql-identificadores             la tabla y los CONFIRMADO
+ *   bin/censo-sql-identificadores --detalle   tambien los REVISAR, con su traza
+ */
+
+require __DIR__ . '/censo-sql-concatenado';
+
+/**
+ * LAS FAMILIAS DE LLAMADA Y SUS POSICIONES DE IDENTIFICADOR.
+ *
+ * En `get()` el argumento 0 es el VALOR, va por `:VALUE_WHERE` y NO se mira: mirarlo marcaria
+ * como identificador lo que ya esta preparado. En `join()` y sus tres alias la posicion es la
+ * TABLA; el `$on` lo mira `censo-sql-concatenado`, y contarlo aqui seria contarlo dos veces.
+ * `select()` acepta tambien un ARRAY de campos, y el array NO corta el riesgo: los campos se
+ * imprimen igual.
+ */
+const FAMILIAS_IDENTIFICADOR = [
+    'select'    => [0],
+    'get'       => [1, 2],
+    'setTable'  => [0],
+    'rowCount'  => [0],
+    'join'      => [0],
+    'leftJoin'  => [0],
+    'rightJoin' => [0],
+    'innerJoin' => [0],
+];
+
+/**
+ * CLAVES DE `$options` DE `DataTablesHelper::process()` QUE ACABAN EN EL SQL COMO IDENTIFICADOR.
+ * Se busca la CLAVE, no la llamada que la envuelve, igual que `CLAVES_FRAGMENTO` en el censo
+ * hermano: asi entran tambien los envoltorios que reenvian el array.
+ */
+const CLAVES_IDENTIFICADOR = ['select_fields', 'columns_order', 'custom_order'];
+
+/**
+ * El veredicto de una expresion en posicion de identificador, o `null` si no es hallazgo.
+ *
+ * @param array<string,string[]> $mapa
+ * @param string[] $sucios
+ * @return array{0:string,1:string[]}|null
+ */
+function veredictoIdentificador(string $expresion, array $mapa, array $sucios, bool $hayExtract): ?array
+{
+    if ($expresion === '' || (!tieneFuente($expresion) && mb_strpos($expresion, '$') === false)) {
+        return null;
+    }
+    $vistas = [];
+    //SIN SEGUROS: para un identificador no hay marcador que desvie el valor.
+    [$veredicto, $traza] = resuelve($expresion, $mapa, $sucios, $vistas, []);
+    //`extract()` crea variables que ningun token asigna: un DESCARTADO sacado de ese mapa es un
+    //falso limpio. Misma degradacion que `analiza()` del censo hermano.
+    if ($veredicto === 'DESCARTADO' && $hayExtract) {
+        $veredicto = 'REVISAR';
+        $traza[] = 'el método usa extract(): el mapa de asignaciones está incompleto';
+    }
+    return [$veredicto, $traza];
+}
+
+/**
+ * @return array{hallazgos:array<int,array{ruta:string,metodo:string,linea:int,familia:string,posicion:string,arg:string,veredicto:string,traza:string[]}>,vistas:array<string,int>}
+ */
+function analizaIdentificadores(string $codigo, string $ruta = '(fixture)'): array
+{
+    $tokens = token_get_all($codigo);
+    $hallazgos = [];
+    $vistas = [];
+    foreach (metodos($tokens) as $metodo) {
+        $mapa = asignaciones($tokens, $metodo['ini'], $metodo['fin']);
+        $sucios = objetosContaminados($tokens, $metodo['ini'], $metodo['fin']);
+        $hayExtract = preg_match('/\bextract\s*\(/', texto($tokens, $metodo['ini'], $metodo['fin'])) === 1;
+
+        for ($i = $metodo['ini']; $i <= $metodo['fin']; $i++) {
+            if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_OBJECT_OPERATOR) {
+                continue;
+            }
+            $sig = $tokens[$i + 1] ?? null;
+            if (!is_array($sig) || $sig[0] !== T_STRING || !array_key_exists($sig[1], FAMILIAS_IDENTIFICADOR)) {
+                continue;
+            }
+            $abre = $i + 2;
+            while (is_array($tokens[$abre] ?? null) && $tokens[$abre][0] === T_WHITESPACE) {
+                $abre++;
+            }
+            if (($tokens[$abre] ?? null) !== '(') {
+                continue;
+            }
+            $prof = 0;
+            $cierra = $abre;
+            for ($j = $abre; $j <= $metodo['fin']; $j++) {
+                $t = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+                if ($t === '(') {
+                    $prof++;
+                }
+                if ($t === ')') {
+                    $prof--;
+                    if ($prof === 0) {
+                        $cierra = $j;
+                        break;
+                    }
+                }
+            }
+            $argumentos = separaArgumentos($tokens, $abre + 1, $cierra - 1);
+            foreach (FAMILIAS_IDENTIFICADOR[$sig[1]] as $indice) {
+                if (!array_key_exists($indice, $argumentos)) {
+                    continue;
+                }
+                $argumento = trim($argumentos[$indice]);
+                $vistas[$sig[1]] = ($vistas[$sig[1]] ?? 0) + 1;
+                $v = veredictoIdentificador($argumento, $mapa, $sucios, $hayExtract);
+                if ($v === null) {
+                    continue;
+                }
+                $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $sig[2],
+                                'familia' => $sig[1], 'posicion' => "arg {$indice}", 'arg' => $argumento,
+                                'veredicto' => $v[0], 'traza' => $v[1]];
+            }
+        }
+
+        for ($i = $metodo['ini']; $i <= $metodo['fin']; $i++) {
+            if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_CONSTANT_ENCAPSED_STRING) {
+                continue;
+            }
+            $clave = trim($tokens[$i][1], "'\"");
+            if (!in_array($clave, CLAVES_IDENTIFICADOR, true)) {
+                continue;
+            }
+            $flecha = $i + 1;
+            while (is_array($tokens[$flecha] ?? null) && $tokens[$flecha][0] === T_WHITESPACE) {
+                $flecha++;
+            }
+            if (!is_array($tokens[$flecha] ?? null) || $tokens[$flecha][0] !== T_DOUBLE_ARROW) {
+                continue;
+            }
+            //Hasta la coma de primer nivel o el cierre del array que la contiene.
+            $prof = 0;
+            $fin = $flecha;
+            for ($j = $flecha + 1; $j <= $metodo['fin']; $j++) {
+                $t = is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
+                if ($t === '(' || $t === '[' || $t === '{') {
+                    $prof++;
+                }
+                if ($t === ')' || $t === ']' || $t === '}') {
+                    if ($prof === 0) {
+                        break;
+                    }
+                    $prof--;
+                }
+                if ($t === ',' && $prof === 0) {
+                    break;
+                }
+                $fin = $j;
+            }
+            $valor = trim(texto($tokens, $flecha + 1, $fin));
+            $vistas[$clave] = ($vistas[$clave] ?? 0) + 1;
+            $v = veredictoIdentificador($valor, $mapa, $sucios, $hayExtract);
+            if ($v === null) {
+                continue;
+            }
+            $hallazgos[] = ['ruta' => $ruta, 'metodo' => $metodo['nombre'], 'linea' => $tokens[$i][2],
+                            'familia' => $clave, 'posicion' => 'clave', 'arg' => $valor,
+                            'veredicto' => $v[0], 'traza' => $v[1]];
+        }
+    }
+    return ['hallazgos' => $hallazgos, 'vistas' => $vistas];
+}
+
+//──── CANARIO (LEY 16) ──────────────────────────────────────────────────────────────────────
+//Dos caras por familia: una que SALE con la petición y otra DESCARTADO. La DESCARTADO pasa por
+//una variable con un literal o una constante: el literal directo no es hallazgo y daría cero.
+//Después, las cinco que separan: si fallan, el censo mira la posición equivocada o se deja
+//engañar por un array o por `extract()`.
+$canarios = [
+    ['select · una lista de campos compuesta con la petición',
+        '<?php class C { public function f($request) { $f = $request->getQueryParam("f");'
+        . ' $m->select("id, {$f}"); } }', 'CONFIRMADO'],
+    ['select · una variable con un literal',
+        '<?php class C { public function f() { $f = "id, name"; $m->select($f); } }', 'DESCARTADO'],
+    ['get · la columna (arg 1) de la petición',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' $m->get(1, $c); } }', 'CONFIRMADO'],
+    ['get · los campos (arg 2) de la petición',
+        '<?php class C { public function f($request) { $s = $request->getQueryParam("s");'
+        . ' $m->get(1, "id", $s); } }', 'CONFIRMADO'],
+    ['get · una variable con un literal en la columna',
+        '<?php class C { public function f($v) { $c = "slug"; $m->get($v, $c); } }', 'DESCARTADO'],
+    ['setTable · la tabla de la petición',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->setTable($t); } }', 'CONFIRMADO'],
+    ['setTable · una variable con una constante',
+        '<?php class C { public function f() { $t = self::TABLE; $m->setTable($t); } }', 'DESCARTADO'],
+    ['rowCount · la columna de la petición',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' $m->rowCount($c); } }', 'CONFIRMADO'],
+    ['rowCount · una variable con un literal',
+        '<?php class C { public function f() { $c = "id"; $m->rowCount($c); } }', 'DESCARTADO'],
+    ['join · la tabla de la petición',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->join($t, ["a.id" => "b.id"]); } }', 'CONFIRMADO'],
+    ['join · una variable con una constante',
+        '<?php class C { public function f() { $t = Otra::TABLE; $m->join($t, "a.id = b.id"); } }', 'DESCARTADO'],
+    ['leftJoin · la tabla de la petición',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->leftJoin($t, ["a.id" => "b.id"]); } }', 'CONFIRMADO'],
+    ['leftJoin · una variable con una constante',
+        '<?php class C { public function f() { $t = Otra::TABLE; $m->leftJoin($t, "a.id = b.id"); } }', 'DESCARTADO'],
+    ['rightJoin · la tabla de la petición',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->rightJoin($t, ["a.id" => "b.id"]); } }', 'CONFIRMADO'],
+    ['rightJoin · una variable con una constante',
+        '<?php class C { public function f() { $t = Otra::TABLE; $m->rightJoin($t, "a.id = b.id"); } }', 'DESCARTADO'],
+    ['innerJoin · la tabla de la petición',
+        '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
+        . ' $m->innerJoin($t, ["a.id" => "b.id"]); } }', 'CONFIRMADO'],
+    ['innerJoin · una variable con una constante',
+        '<?php class C { public function f() { $t = Otra::TABLE; $m->innerJoin($t, "a.id = b.id"); } }', 'DESCARTADO'],
+    ['select_fields · los campos de la petición',
+        '<?php class C { public function f($request) { $f = $request->getQueryParam("f");'
+        . ' return DataTablesHelper::process(["request" => $request, "select_fields" => $f]); } }', 'CONFIRMADO'],
+    ['select_fields · una variable con un array de literales',
+        '<?php class C { public function f($request) { $f = ["id", "name"];'
+        . ' return DataTablesHelper::process(["request" => $request, "select_fields" => $f]); } }', 'DESCARTADO'],
+    ['columns_order · una columna de la petición',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' return DataTablesHelper::process(["request" => $request, "columns_order" => [$c, "name"]]); } }', 'CONFIRMADO'],
+    ['columns_order · una variable con un array de literales',
+        '<?php class C { public function f($request) { $cols = ["id", "name"];'
+        . ' return DataTablesHelper::process(["request" => $request, "columns_order" => $cols]); } }', 'DESCARTADO'],
+    ['custom_order · una variable con un array de literales',
+        '<?php class C { public function f($request) { $o = ["id" => "DESC"];'
+        . ' return DataTablesHelper::process(["request" => $request, "custom_order" => $o]); } }', 'DESCARTADO'],
+    //a. El VALOR de `get()` va por marcador. Si esto da un hallazgo, el censo mira el arg 0.
+    ['get · la petición en el VALOR (arg 0) y literales en 1 y 2',
+        '<?php class C { public function f($request) { $v = $request->getQueryParam("v");'
+        . ' $m->get($v, "slug", "id, name"); } }', null],
+    //b. El `$on` es del censo hermano. Si esto da un hallazgo, se cuenta dos veces.
+    ['join · la petición en el `$on` (arg 1) y un literal en la tabla',
+        '<?php class C { public function f($request) { $c = $request->getQueryParam("c");'
+        . ' $m->join("otra", "a.id = otra.{$c}"); } }', null],
+    //c. El array de campos NO corta el riesgo: si esto sale limpio, se heredó el atajo de `where`.
+    ['select · un ARRAY con un valor de la petición dentro',
+        '<?php class C { public function f($request) { $o = $request->getQueryParam("c");'
+        . ' $m->select(["id", $o]); } }', 'CONFIRMADO'],
+    //d. La dirección de `custom_order` no pasa por el filtro ASC/DESC de `process()`.
+    ['custom_order · un array literal con la dirección de la petición',
+        '<?php class C { public function f($request) { $dir = $request->getQueryParam("dir");'
+        . ' return DataTablesHelper::process(["request" => $request, "custom_order" => ["id" => $dir]]); } }', 'CONFIRMADO'],
+    //e. Con `extract()` el mapa está incompleto: DESCARTADO sería un falso limpio.
+    ['select · una variable en un método con extract()',
+        '<?php class C { public function f($opciones) { $f = ""; extract($opciones); $m->select($f); } }', 'REVISAR'],
+];
+$caido = null;
+foreach ($canarios as [$nombre, $fuente, $esperado]) {
+    $r = analizaIdentificadores($fuente)['hallazgos'];
+    if ($esperado === null) {
+        if (count($r) !== 0) {
+            $caido = "{$nombre} — esperaba NINGÚN hallazgo, obtuvo " . count($r);
+            break;
+        }
+        continue;
+    }
+    if (count($r) !== 1 || $r[0]['veredicto'] !== $esperado) {
+        $obtenido = count($r) === 1 ? $r[0]['veredicto'] : (count($r) . ' hallazgos');
+        $caido = "{$nombre} — esperaba {$esperado}, obtuvo {$obtenido}";
+        break;
+    }
+}
+if ($caido !== null) {
+    fwrite(STDERR, "CANARIO CAÍDO: {$caido}\n");
+    fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
+    exit(2);
+}
+$familias = array_merge(array_keys(FAMILIAS_IDENTIFICADOR), CLAVES_IDENTIFICADOR);
+printf("CANARIO VIVO: %d caras sobre las %d familias. Las que separan: la petición en el VALOR de\n",
+    count($canarios), count($familias));
+echo "              `get()` o en el `\$on` de `join()` NO sale, y un array de campos NO la limpia.\n\n";
+
+$detalle = in_array('--detalle', array_slice($argv, 1), true);
+$archivos = ficheros(RAIZ);
+$todos = [];
+$vistas = [];
+foreach ($archivos as $p) {
+    $r = analizaIdentificadores((string) file_get_contents($p), str_replace(dirname(__DIR__) . '/', '', $p));
+    foreach ($r['hallazgos'] as $h) {
+        $todos[] = $h;
+    }
+    foreach ($r['vistas'] as $f => $n) {
+        $vistas[$f] = ($vistas[$f] ?? 0) + $n;
+    }
+}
+
+echo "IDENTIFICADORES DE SQL — LO QUE NINGÚN OTRO CENSO MIRA\n";
+echo str_repeat('=', 92) . "\n";
+printf("UNIVERSO: %d archivo(s) .php bajo `src/app`, excluyendo %s\n", count($archivos), implode(' ', EXCLUIDOS));
+echo "          (el de `censo-sql-concatenado`: se requiere y se usa su `ficheros()`)\n";
+echo "UNIDAD:   posiciones de identificador, no llamadas: un `get()` aporta hasta dos.\n\n";
+
+printf("  %-14s %7s %9s %11s %8s %11s\n", '', 'vistas', 'literal', 'confirmado', 'revisar', 'descartado');
+$suma = ['vistas' => 0, 'literal' => 0, 'CONFIRMADO' => 0, 'REVISAR' => 0, 'DESCARTADO' => 0];
+foreach ($familias as $f) {
+    $cuenta = static fn (string $v): int => count(array_filter($todos,
+        static fn (array $h): bool => $h['familia'] === $f && $h['veredicto'] === $v));
+    $c = ['CONFIRMADO' => $cuenta('CONFIRMADO'), 'REVISAR' => $cuenta('REVISAR'), 'DESCARTADO' => $cuenta('DESCARTADO')];
+    $n = $vistas[$f] ?? 0;
+    $literal = $n - array_sum($c);
+    printf("  %-14s %7d %9d %11d %8d %11d\n", $f, $n, $literal, $c['CONFIRMADO'], $c['REVISAR'], $c['DESCARTADO']);
+    $suma['vistas'] += $n;
+    $suma['literal'] += $literal;
+    foreach ($c as $v => $x) {
+        $suma[$v] += $x;
+    }
+}
+printf("  %-14s %7d %9d %11d %8d %11d\n", 'TOTAL', $suma['vistas'], $suma['literal'],
+    $suma['CONFIRMADO'], $suma['REVISAR'], $suma['DESCARTADO']);
+echo "  (literal = vista con un literal, una constante o un array de literales: no es hallazgo)\n\n";
+
+$porVeredicto = static fn (string $v): array => array_values(array_filter($todos, static fn (array $h): bool => $h['veredicto'] === $v));
+$listas = ['CONFIRMADO' => $porVeredicto('CONFIRMADO')];
+if ($detalle) {
+    $listas['REVISAR'] = $porVeredicto('REVISAR');
+}
+foreach ($listas as $v => $lista) {
+    echo "── {$v} (" . count($lista) . ') ' . str_repeat('─', 60) . "\n";
+    foreach ($lista as $h) {
+        printf("  %s:%d  %s()\n", $h['ruta'], $h['linea'], $h['metodo']);
+        printf("      %s %s: %s\n", $h['familia'], $h['posicion'], mb_substr(preg_replace('/\s+/', ' ', $h['arg']) ?? '', 0, 110));
+        if ($detalle || $v === 'CONFIRMADO') {
+            foreach (array_slice($h['traza'], 0, 4) as $t) {
+                printf("        · %s\n", mb_substr($t, 0, 110));
+            }
+        }
+    }
+    echo "\n";
+}
+if (!$detalle) {
+    echo "Con `--detalle` salen también los REVISAR, con su traza.\n\n";
+}
+
+echo "SU COTA, Y SE IMPRIME (LEY 15)\n" . str_repeat('-', 92) . "\n";
+echo "  · LA TRAZA NO CRUZA DE MÉTODO: una propiedad, un parámetro o el retorno de otro método\n";
+echo "    caen en REVISAR, nunca en DESCARTADO.\n";
+echo "  · No resuelve índices de array ni variables variables.\n";
+echo "  · La familia se reconoce por el NOMBRE del método, no por la clase: un `->get()` de otro\n";
+echo "    objeto con dos o más argumentos también entra.\n";
+echo "  · `prepare`, `query` y `exec` (SQL crudo) son de `censo-sql-interpolado`.\n";
+echo "  · `orderBy`, `groupBy` y el arg 1 de `join` son de `censo-sql-concatenado`.\n";
+echo "  · Qué es «un valor de la petición» lo decide `censo-sql-concatenado`.\n";
+echo "  · ESTE INSTRUMENTO NO TIENE TRINQUETE y no cuelga de ninguna puerta. Sólo mide.\n";
+exit(0);
