@@ -13,7 +13,8 @@
 
 | # | Qué | Resultado | Commits |
 | --- | --- | --- | --- |
-| #030 | ⚠ Lote 3a: `PageQuery` con valores ligados; el valor de la petición va por marcador en los 14 usuarios de `PageQuery` y en GeoJSON; pruebas de rechazo | en vuelo | — |
+| #030 / #031 | ⚠ Lote 3a: `PageQuery` con valores ligados; el valor de la petición va por marcador en los 14 usuarios de `PageQuery` y en GeoJSON; pruebas de rechazo | **Completado.** 7 vías por marcador; cada una, vista caer con la carga de sintaxis; 73/73; 744. Bitácora 0007 | `8aa50fe6` `50a3faf8` `2bd68526` `62de7073` `3fa32294` `c7eae5a1` |
+| #032 | H3 (`status` en rutas públicas), la clave de caché de publications, H10 (`ProtectFileMiddleware`) y el filtro de estado de Documents | en vuelo | — |
 
 ## Encontrado y decidido
 

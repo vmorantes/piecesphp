@@ -1,8 +1,12 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 17:26 (medido con `date`). **Tramo sin el PO**: «Puedes trabajar
+- **Actualizado:** 2026-09-14 17:50 (medido con `date`). **Tramo sin el PO**: «Puedes trabajar
   unas tres o cinco rondas, pero toma en cuenta que no estaré así que no responderé nada».
-- **Último mensaje:** `#030 · ARQ`, en vuelo: lote 3a. El próximo número es `#031`.
+  Rondas hechas en este tramo: 1 de entre 3 y 5.
+- **Último mensaje:** `#032 · ARQ`, en vuelo: H3, la caché de publications, H10 y Documents. El
+  próximo número es `#033`.
+- **`#031`: lote 3a CERRADO** (bitácora 0007). Siete vías por marcador, tres de ellas públicas;
+  `sql-placeholders` pasa a 73/73; todo en verde, 744.
 - **Tramo en curso:** [`tramos/2026-09-14-1726-desatendido-lote-3a.md`](tramos/2026-09-14-1726-desatendido-lote-3a.md).
 - **Tramo anterior:** [`tramos/2026-09-14-1441-mapa-a-la-major.md`](tramos/2026-09-14-1441-mapa-a-la-major.md),
   cerrado a las 16:26, con su resumen.
@@ -51,16 +55,19 @@ francés, el rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-**`#030` — ⚠ lote 3a.** Tareas:
-- T1: commitear lo del arquitecto.
-- T2: `PageQuery` gana valores ligados, opcionales y compatibles con los 14 usuarios actuales.
-- T3: auditar los 14 usuarios de `PageQuery` y GeoJSON; todo valor de la petición que acabe en
-  su SQL pasa a marcador. Incluye `title` y `ignoreSlugs` (públicas), `newsTitle`, `name` y
-  `search`.
-- T4: pruebas de rechazo, vistas fallar.
+**`#032`**, en cinco tareas:
+- T1: commitear lo del arquitecto: la bitácora 0007, el `CHANGELOG.md`, el mapa, `pendientes.md`
+  y el estado.
+- T2: H3. Sin sesión con permiso, las rutas públicas ya no devuelven borradores ni borrados.
+  En publications, el permiso es `CAN_VIEW_DRAFT`; en el banner, `allowedRoute('list')`.
+- T3: la clave de caché de publications refleja los parámetros EFECTIVOS: el estado,
+  `ignoreSlugs`, `random` y el privilegio.
+- T4: H10 en `ProtectFileMiddleware`: la carpeta que falta se crea y la comparación exige el
+  separador.
+- T5: H1 de `#031`. Documents filtra de verdad por estado.
 
 Si se corta ahora: puede quedar código a medio cambiar. `git status` y `verify-integrity` lo
-dicen, y la ronda se termina antes de seguir.
+dicen.
 
 ## Siguiente — la próxima jornada
 
