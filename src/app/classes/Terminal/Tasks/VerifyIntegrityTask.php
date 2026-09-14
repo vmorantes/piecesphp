@@ -83,6 +83,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         'index.php',
     ];
 
+    /**
+     * Carpetas de subidas públicas o sin archivos, relativo a la raíz del repositorio.
+     *
+     * @var string
+     */
+    const UPLOAD_DIRS_RELATIVE_PATH = 'files/dev/upload-dirs.json';
+
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
     {
         //Procesar entrada
@@ -234,6 +241,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 28. La interpolación de SQL con valor de petición no ha crecido ───────────
         $interpolationFailures = self::checkInterpolatedSql();
 
+        //──── 29. Toda carpeta de subidas está protegida o declarada ────────────────────
+        $uploadFailures = self::checkUploadDirsProtected();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -244,7 +254,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
             + count($symlinkFailures) + count($langFailures) + count($tagFailures)
             + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures)
-            + count($baselineFailures) + count($identifierFailures) + count($interpolationFailures);
+            + count($baselineFailures) + count($identifierFailures) + count($interpolationFailures)
+            + count($uploadFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -275,6 +286,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($interpolationFailures as $line) {
             echoTerminal("\e[31mSQL INTERPOLADO:\e[39m {$line}");
+        }
+        foreach ($uploadFailures as $line) {
+            echoTerminal("\e[31mSUBIDAS:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -3062,6 +3076,100 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'retornos ignorados comprobados.'));
         return [];
+    }
+
+    /**
+     * Toda carpeta de subidas —el valor de una constante `UPLOAD_DIR` de `src/app`— está
+     * registrada en `ProtectFileMiddleware::protect()` o declarada en `files/dev/upload-dirs.json`.
+     *
+     * Lo protegido se lee de `getProtectedDirectories()` y no del texto de `protected-files.php`:
+     * `bin/cli` arranca por `src/index.php`, que ya lo incluyó, y leer el texto daría por buena
+     * una línea comentada.
+     *
+     * @return string[]
+     */
+    protected static function checkUploadDirsProtected(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+
+        $registro = json_decode((string) @file_get_contents($root . '/' . self::UPLOAD_DIRS_RELATIVE_PATH), true);
+        $publicas = is_array($registro) ? ($registro['publicas'] ?? null) : null;
+        $sinArchivos = is_array($registro) ? ($registro['sin_archivos'] ?? null) : null;
+        if (!is_array($publicas) || !is_array($sinArchivos)) {
+            return ['no se pudo leer ' . self::UPLOAD_DIRS_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+        $protegidas = array_keys(\PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware::getProtectedDirectories());
+        if (count($protegidas) === 0) {
+            //SIN REGISTRACIONES NO HAY CON QUÉ COMPARAR: no es «nada protegido», es no haber mirado. LEY 18.
+            return ['ProtectFileMiddleware no tiene ninguna carpeta registrada: protected-files.php no se cargó y la comprobación no miró nada'];
+        }
+        $uploadsDir = (string) get_config('upload_dir');
+
+        //El universo SALE DEL ÁRBOL, por tokens: un UPLOAD_DIR nuevo entra solo, y un comentario no cuenta.
+        $constantes = [];
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($repoRoot . '/app', \FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            $p = str_replace('\\', '/', (string) $file->getPathname());
+            if (!$file->isFile() || !str_ends_with($p, '.php') || mb_strpos($p, '/vendor/') !== false || mb_strpos($p, '/logs/') !== false) {
+                continue;
+            }
+            $contenido = (string) file_get_contents($p);
+            if (mb_strpos($contenido, 'UPLOAD_DIR') === false) {
+                continue;
+            }
+            $tokens = array_values(array_filter(token_get_all($contenido), fn ($t) => !is_array($t) || !in_array($t[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)));
+            foreach ($tokens as $i => $token) {
+                $nombre = $tokens[$i + 1] ?? null;
+                if (!is_array($token) || $token[0] !== \T_CONST || !is_array($nombre) || $nombre[1] !== 'UPLOAD_DIR') {
+                    continue;
+                }
+                $sitio = mb_substr($p, mb_strlen($repoRoot) + 1) . ':' . $nombre[2];
+                $valor = $tokens[$i + 3] ?? null;
+                $esLiteral = ($tokens[$i + 2] ?? null) === '=' && is_array($valor) && $valor[0] === \T_CONSTANT_ENCAPSED_STRING;
+                $constantes[] = ['sitio' => $sitio, 'valor' => $esLiteral ? stripslashes(mb_substr($valor[1], 1, -1)) : null];
+            }
+        }
+        if (count($constantes) === 0) {
+            return ['ninguna constante UPLOAD_DIR en src/app: el censo no vio nada'];
+        }
+
+        $failures = [];
+        $vistos = [];
+        $cuenta = ['protegidas' => 0, 'publicas' => 0, 'sin_archivos' => 0];
+        foreach ($constantes as $constante) {
+            $valor = $constante['valor'];
+            if ($valor === null) {
+                $failures[] = "{$constante['sitio']}: UPLOAD_DIR no es un literal y no se puede resolver";
+                continue;
+            }
+            $vistos[] = $valor;
+            $real = realpath(append_to_path_system($uploadsDir, $valor));
+            $protegida = $real !== false && in_array($real, $protegidas, true);
+            $esPublica = array_key_exists($valor, $publicas);
+            $esSinArchivos = array_key_exists($valor, $sinArchivos);
+            if ((int) $protegida + (int) $esPublica + (int) $esSinArchivos > 1) {
+                $failures[] = "{$constante['sitio']}: `{$valor}` está en más de un sitio a la vez (protegida, pública o sin archivos)";
+            } elseif ($protegida) {
+                $cuenta['protegidas']++;
+            } elseif ($esPublica) {
+                $cuenta['publicas']++;
+            } elseif ($esSinArchivos) {
+                $cuenta['sin_archivos']++;
+            } else {
+                $failures[] = "{$constante['sitio']}: la carpeta de subidas `{$valor}` no está protegida ni declarada en " . self::UPLOAD_DIRS_RELATIVE_PATH;
+            }
+        }
+        foreach (array_merge(array_keys($publicas), array_keys($sinArchivos)) as $declarada) {
+            if (!in_array((string) $declarada, $vistos, true)) {
+                $failures[] = self::UPLOAD_DIRS_RELATIVE_PATH . ": `{$declarada}` ya no casa con ningún UPLOAD_DIR; la lista solo encoge";
+            }
+        }
+
+        if (count($failures) === 0) {
+            echoTerminal("\e[94mINFO:\e[39m " . count($constantes) . " carpeta(s) de subidas: {$cuenta['protegidas']} protegida(s), {$cuenta['publicas']} pública(s) y {$cuenta['sin_archivos']} sin archivos, declaradas.");
+        }
+        return $failures;
     }
 
     /**
