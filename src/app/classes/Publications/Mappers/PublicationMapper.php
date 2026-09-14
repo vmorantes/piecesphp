@@ -420,6 +420,17 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Si la ve un visitante sin permiso de borradores: existe, está activa y está en fecha.
+     *
+     * @return bool
+     */
+    public function isVisibleToPublic(): bool
+    {
+        //Lo usan singleView() y el validador de la carpeta de subidas: relajarlo aquí los relaja a los dos.
+        return $this->id !== null && $this->status == self::ACTIVE && $this->isActiveByDates();
+    }
+
+    /**
      * @param string $format
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string

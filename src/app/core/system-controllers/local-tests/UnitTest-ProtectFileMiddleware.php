@@ -4,11 +4,14 @@
 
 use PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use Publications\Controllers\PublicationsController;
+use Publications\Mappers\PublicationMapper;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/protect-file-middleware';
-$cliTaskDescription = 'protect() crea la carpeta que falta, y el prefijo protegido exige separador';
+$cliTaskDescription = 'protect() crea la carpeta que falta, el prefijo protegido exige separador y publications sirve sin sesión solo lo visible';
 
 CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
@@ -42,7 +45,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $niega = static fn (): bool => false;
 
     //──── 1. La carpeta que falta ───────────────────────────────────────────────────────
-    echoTerminal('[1/2] Una carpeta que no existe queda creada, protegida y con su .htaccess');
+    echoTerminal('[1/4] Una carpeta que no existe queda creada, protegida y con su .htaccess');
 
     $nueva = "{$banco}{$sep}no-existe{$sep}aun";
     $check(!is_dir($nueva), 'DISCRIMINANTE: la carpeta no existe antes de protegerla');
@@ -57,7 +60,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. El prefijo exige separador ─────────────────────────────────────────────────
-    echoTerminal('[2/2] `…/uno` protegida no protege `…/uno-dos`');
+    echoTerminal('[2/4] `…/uno` protegida no protege `…/uno-dos`');
 
     $uno = "{$banco}{$sep}uno";
     $unoDos = "{$banco}{$sep}uno-dos";
@@ -71,6 +74,74 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(ProtectFileMiddleware::isProtected("{$unoDos}{$sep}no-existe.txt") === false, '`…/uno-dos/no-existe.txt`: tampoco por la rama de la ruta que no existe');
     $check(ProtectFileMiddleware::validateAccess("{$uno}{$sep}a.txt", $peticion) === false, 'DISCRIMINANTE: `…/uno/a.txt` sí pasa por su validador, que dice que no');
     $check(ProtectFileMiddleware::isProtected("{$uno}{$sep}a.txt") === true, 'DISCRIMINANTE: `…/uno/a.txt` sí está protegido');
+    echoTerminal(' ');
+
+    //──── 3. Publications: lo visible al público ───────────────────────────────────────
+    echoTerminal('[3/4] isVisibleToPublic() dice lo mismo que singleView() para un visitante sin permiso');
+
+    $publicacion = function (?int $id, int $status, ?\DateTime $inicio = null, ?\DateTime $fin = null): PublicationMapper {
+        //SIN BASE: sin valor de comparación, el constructor no consulta.
+        $mapper = new PublicationMapper();
+        if ($id !== null) {
+            $mapper->id = $id;
+        }
+        $mapper->status = $status;
+        $mapper->startDate = $inicio;
+        $mapper->endDate = $fin;
+        return $mapper;
+    };
+    //La rama de singleView() para quien no tiene permiso, tal como estaba antes de extraerla.
+    $criterioAnterior = static function (PublicationMapper $m): bool {
+        $programada = $m->status == PublicationMapper::ACTIVE && !$m->isActiveByDates();
+        if ($m->isDraft() || $programada) {
+            return false;
+        }
+        return $m->id !== null && $m->status == PublicationMapper::ACTIVE && $m->isActiveByDates();
+    };
+    $casos = [
+        'activa' => [$publicacion(1, PublicationMapper::ACTIVE), true],
+        'borrador' => [$publicacion(1, PublicationMapper::DRAFT), false],
+        'programada' => [$publicacion(1, PublicationMapper::ACTIVE, new \DateTime('+1 day')), false],
+        'caducada' => [$publicacion(1, PublicationMapper::ACTIVE, null, new \DateTime('-1 day')), false],
+        'inactiva' => [$publicacion(1, PublicationMapper::INACTIVE), false],
+        'inexistente' => [$publicacion(null, PublicationMapper::ACTIVE), false],
+    ];
+    foreach ($casos as $nombre => [$mapper, $esperado]) {
+        $visible = $mapper->isVisibleToPublic();
+        $check($visible === $esperado && $visible === $criterioAnterior($mapper), "{$nombre}: isVisibleToPublic() → " . var_export($esperado, true) . ', igual que el criterio anterior de singleView()');
+    }
+    $fuenteVista = (string) @file_get_contents(basepath('app/classes/Publications/Controllers/PublicationsPublicController.php'));
+    $check(mb_strpos($fuenteVista, '$allowShow = $element->isVisibleToPublic();') !== false, 'singleView() usa isVisibleToPublic() en la rama sin permiso');
+    echoTerminal(' ');
+
+    //──── 4. Publications: el validador de su carpeta ───────────────────────────────────
+    echoTerminal('[4/4] La carpeta de publications: sin sesión, solo los archivos de una publicación visible');
+
+    $check(SessionToken::getJWTReceived() === '', 'DISCRIMINANTE: la suite corre sin sesión, no llega ningún JWT');
+    $carpetaPublicaciones = append_to_path_system(get_config('upload_dir'), PublicationsController::UPLOAD_DIR);
+    $check(PublicationsController::uploadedFileValidator($peticion, "{$banco}{$sep}a.txt") === false, 'sin sesión, una ruta fuera de la carpeta → false');
+    $check(PublicationsController::uploadedFileValidator($peticion, $carpetaPublicaciones . "{$sep}no-existe-" . bin2hex(random_bytes(4)) . "{$sep}a.jpg") === false, 'sin sesión, una carpeta que no es de ninguna publicación → false (SELECT)');
+
+    $decide = new \ReflectionMethod(PublicationsController::class, 'publicFileIsServable');
+    $base = "{$banco}{$sep}pub";
+    $check(mkdir($base, 0775, true), 'el banco de publications queda preparado');
+    $pedida = null;
+    $encuentra = static function (?PublicationMapper $resultado) use (&$pedida): \Closure {
+        return static function (string $folder) use ($resultado, &$pedida): ?PublicationMapper {
+            $pedida = $folder;
+            return $resultado;
+        };
+    };
+    $visible = $publicacion(7, PublicationMapper::ACTIVE);
+    $borrador = $publicacion(7, PublicationMapper::DRAFT);
+    $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra($visible)) === true && $pedida === 'abc', 'DISCRIMINANTE: publicación visible → true, buscada por su carpeta `abc`');
+    $check($decide->invoke(null, "{$base}{$sep}abc{$sep}attachments{$sep}f.pdf", $base, $encuentra($visible)) === true && $pedida === 'abc', 'los adjuntos (<folder>/attachments) se atribuyen a la carpeta de su publicación');
+    $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra($borrador)) === false, 'publicación en borrador → false');
+    $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra(null)) === false, 'publicación inexistente → false');
+    $pedida = null;
+    $check($decide->invoke(null, "{$base}{$sep}a.jpg", $base, $encuentra($visible)) === false && $pedida === null, 'un archivo suelto en la raíz no es de ninguna publicación → false, sin buscar');
+    $check($decide->invoke(null, "{$banco}{$sep}pub-x{$sep}abc{$sep}a.jpg", $base, $encuentra($visible)) === false && $pedida === null, '`…/pub-x` no es `…/pub`: ruta fuera → false, sin buscar');
+    $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", "{$banco}{$sep}no-existe", $encuentra($visible)) === false, 'si la carpeta de publications no existe → false');
     echoTerminal(' ');
 
     //──── Limpieza del banco ────────────────────────────────────────────────────────────

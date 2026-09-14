@@ -175,7 +175,7 @@ class PublicationsPublicController extends BaseController
             }
 
         } else {
-            $allowShow = $exists && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+            $allowShow = $element->isVisibleToPublic();
         }
 
         if (!$allowWithoutTranslation && !$element->hasLang($currentLang)) {

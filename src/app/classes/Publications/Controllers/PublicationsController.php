@@ -26,6 +26,7 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
@@ -1410,6 +1411,52 @@ class PublicationsController extends AdminPanelController
             return [null, false];
         }
         return [$status, $ignoreStatus];
+    }
+
+    /**
+     * Validador de la carpeta de subidas (protected-files.php): con sesión, todo; sin ella, solo
+     * los archivos de una publicación visible al público.
+     *
+     * @param Request $request
+     * @param string $filePath Ruta real del archivo pedido
+     * @return bool
+     */
+    public static function uploadedFileValidator(Request $request, string $filePath): bool
+    {
+        if (SessionToken::isActiveSession((string) SessionToken::getJWTReceived())) {
+            return true;
+        }
+        return self::publicFileIsServable($filePath, append_to_path_system(get_config('upload_dir'), self::UPLOAD_DIR), function (string $folder): ?PublicationMapper {
+            return PublicationMapper::getBy($folder, 'folder', true);
+        });
+    }
+
+    /**
+     * Sin sesión: el archivo se sirve si la carpeta de su primer segmento es de una publicación visible.
+     *
+     * @param string $filePath Ruta real del archivo pedido
+     * @param string $publicationsDir Carpeta de subidas de publicaciones
+     * @param callable(string): (PublicationMapper|null) $findByFolder
+     * @return bool
+     */
+    protected static function publicFileIsServable(string $filePath, string $publicationsDir, callable $findByFolder): bool
+    {
+        //FALLA CERRADO: lo que no se pueda atribuir a una publicación visible no se sirve sin sesión.
+        $base = realpath($publicationsDir);
+        if ($base === false) {
+            return false;
+        }
+        $base = rtrim($base, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR;
+        if (mb_strpos($filePath, $base) !== 0) {
+            return false;
+        }
+        //Un archivo suelto en la raíz no está en la carpeta de ninguna publicación.
+        $segments = explode(\DIRECTORY_SEPARATOR, mb_substr($filePath, mb_strlen($base)));
+        if (count($segments) < 2 || $segments[0] === '') {
+            return false;
+        }
+        $publication = $findByFolder($segments[0]);
+        return $publication instanceof PublicationMapper && $publication->isVisibleToPublic();
     }
 
     /**
