@@ -639,6 +639,24 @@ historia de git los conserva.
   - **D2 de `#035`:** `files/dev/integrity-signatures.json` llevaba varias rondas sin regenerarse
     porque añadir firmas no hace fallar nada: entraron unas 30 de golpe. Es el mismo hueco de
     «el count mayor pasa en silencio», en otro instrumento.
+- **`#036`/`#037`, 2026-09-14.**
+  - **Lote 3 CERRADO** (bitácora 0008). H1 de `#035`, medido: ninguna ruta ni vista pública
+    muestra archivos de documents, organizations ni news-categories; protegerlos no rompió nada
+    visible. SIN VERIFICAR: enlaces a esos archivos guardados DENTRO de la base (contenido de
+    publicaciones, correos, boletines).
+  - **Lote 4, bloque 1** (bitácora 0009): 17 de 22 usos de `escapeString()`, por marcador. Lo
+    abierto:
+    - **⚠ El mensaje del commit `a5e5e231` dice «la funcion queda obsoleta», y NO lo está.**
+      Corregido aquí, en la bitácora 0009 y en el `CHANGELOG.md`. La historia no se reescribe.
+    - **Los dos sitios parados:** `OrganizationMapper.php:664-667` (etiquetas del servidor en un
+      JSON literal del `SELECT`) y `DataTablesHelper.php:1324` (la búsqueda de `process()`; hace
+      falta migrar sus 14 llamadores, así que el PO ve el plan antes, por la regla de los diez).
+    - **`@deprecated`, al final.** Decisión del arquitecto: primero se resuelven los 5 usos. Ni
+      supresiones ni subir la línea base (camino «a» del reporte).
+    - **Comodines `%` y `_`** en la búsqueda del panel (`DataTablesHelper:1324` y su gemelo
+      `generateHavingGroup()`). **Predeterminado: se quedan**, porque es una búsqueda de
+      administración con sesión. Se revisa si el PO lo pide.
+    - **`OrganizationMapper::getLogoURL()` (`:356`)** sin llamadores. Lote 10.
 - **H2. El mismo patrón tras sesión**, verificado en el código por el arquitecto:
   - `NewsController.php:1225` (`newsTitle`), en `news-admin-ajax-all`;
   - `OrganizationsController.php:1350` (`name`), en `organizations-admin-ajax-all`;

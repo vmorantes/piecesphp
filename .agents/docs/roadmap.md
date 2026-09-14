@@ -17,8 +17,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
-| 3 | **Subidas** | `UPLOAD_DIR` sin puerta y `ProtectFileMiddleware`, y los datos de los módulos privados | `20` §7, «UPLOADS»; `docs/pendientes.md`, «Subidas» | 2 bloques. El PO pidió auditar los **datos**, no solo la puerta. **Bloque 1 (auditoría) hecho** (`#027`). **P24, aprobada el 2026-09-14**: Publications primero, como arquetipo de los demás. **Bloque 2 hecho** (`#035`): cuatro protegidas, dos declaradas públicas y la comprobación 29. Falta medir si alguna vista pública muestra archivos de las protegidas (`#036`) |
-| 4 | **`escapeString`** | Depende de un `sql_mode` que nadie fija | `20` §7, «EL HALLAZGO MÁS PROFUNDO»; ADR 0009 | 1 bloque. Decidido: los 23 usos pasan a marcador y la función queda obsoleta; no se toca `sql_mode`. En `#036` |
+| 4 | **`escapeString`** | Depende de un `sql_mode` que nadie fija | `20` §7, «EL HALLAZGO MÁS PROFUNDO»; ADR 0009; bitácora 0009 | **Bloque 1 hecho** (`#037`): 17 de 22 usos, por marcador. **Queda el bloque 2**: las etiquetas de `OrganizationMapper:664-667` (del servidor; pasarlas a PHP o un literal hexadecimal), la búsqueda de `DataTablesHelper:1324` (migrar los 14 llamadores de `process()`: **regla de los diez**, el PO ve el plan antes) y, al final, `@deprecated` |
 | 5 | **OTP** | Cerrojo por usuario e IP, respuesta uniforme, documentado | `20` §7, «`generate-otp` — la asimetría» | Sin pasar a POST: lo consumen apps headless |
 | 5b | **Tokens genéricos** | La URL de `GenericTokenController` lleva un `id` enumerable; la ruta es pública y `entryPoint()` borra filas de cualquier tipo. Las claves JWT constantes pasan a `app_key` | `docs/pendientes.md` (P22) | Nace el 2026-09-14 de P22, resuelto por delegación. Corrige una trampa, así que entra en la campaña. Primero se confirma la SOSPECHA con una prueba sin base de datos |
 | 6 | **E3 / experience** | El borrado no terminó: tablas, JS y SCSS residuales | `20` §7, «EL BORRADO NO FUE FIABLE» | LEY 28 |
@@ -42,5 +41,6 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 - La evaluación personal que pidió el PO: no entra en el registro, por su orden del 2026-08-29.
   Incluye explicarle sus instrumentos (`verify-integrity` y compañía).
-- «Perfeccionar geovisor»: un recordatorio suyo sin contenido. Qué es el geovisor lo tiene que
-  decir él (`docs/pendientes.md`).
+- «Perfeccionar geovisor»: ya se sabe cuál es (`/var/www/html/espacio-publico/espacio-publico-backend`,
+  nombrado por el PO el 2026-09-14). Falta que diga qué quiere perfeccionar
+  (`docs/pendientes.md`).

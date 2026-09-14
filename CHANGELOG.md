@@ -320,6 +320,26 @@ carpeta como pública, con su motivo, o dale un validador como el de publicacion
 
 ---
 
+## Corregido — 17 comparaciones dejan de depender de `escapeString()`
+
+`escapeString()` es `addslashes(stripslashes())`. Con `NO_BACKSLASH_ESCAPES` activo en el
+servidor, la comilla sigue cerrando la cadena, y el framework no fija nunca `sql_mode`.
+- **Pasan a marcador 17 de sus 22 usos:**
+  - el login;
+  - las búsquedas de usuarios por criterios;
+  - las de aprobaciones;
+  - las comprobaciones de nombre o código duplicado de países, estados, ciudades, puntos,
+    organizaciones (NIT), categorías de noticias, documentos, categorías de publicaciones y
+    publicaciones.
+- **Para el usuario no cambia nada, salvo en los bordes:**
+  - un nombre de usuario con comilla o barra ahora entra en el login;
+  - un nombre con barra ya no choca por error con otro parecido.
+- **`escapeString()` todavía NO está marcada como obsoleta**, aunque el mensaje del commit
+  `a5e5e231` lo diga. Le quedan dos usos sin vía directa a marcador: las etiquetas de
+  organizaciones dentro de su `SELECT` y la búsqueda de las tablas del panel en
+  `DataTablesHelper::process()`. Se marcará cuando no quede ninguno. **No la uses en código
+  nuevo:** manda el valor por marcador.
+
 ## Herramientas — `verify-integrity` exige que toda carpeta de subidas esté protegida o declarada
 
 Comprobación 29. Toda constante `UPLOAD_DIR` de `src/app` tiene que cumplir una de dos cosas:

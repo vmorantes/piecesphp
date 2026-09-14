@@ -33,5 +33,7 @@ entrada nombra el bloque (letras) y los mensajes (`#NNN`) que abarca. Plantilla:
 | [0003](0003-lote-0b-orden-de-directorios.md) | Una razón de ser por carpeta | 0b | 2026-09-14 |
 | [0004](0004-lote-0a-dev-en-los-paquetes.md) | `dev` en los cuatro paquetes | 0a | 2026-09-14 |
 | [0005](0005-bd-analizadores-nivelados.md) | Los paquetes miden con el mismo analizador que el framework | BD | 2026-09-14 |
+| [0009](0009-lote-4-escapestring-primer-bloque.md) | Lote 4, bloque 1: 17 de 22 usos de `escapeString()` por marcador; `@deprecated`, pendiente | BL | 2026-09-14 |
+| [0008](0008-lote-3-subidas.md) | Las subidas dejan de servirse a cualquiera: Publications como arquetipo y la comprobación 29 | BH, BJ, BK | 2026-09-14 |
 | [0007](0007-lote-3a-busquedas-por-marcador.md) | ⚠ Las búsquedas de los listados paginados van por marcador: siete vías, tres de ellas públicas | BI | 2026-09-14 |
 | [0006](0006-lote-2-identificadores-de-sql.md) | Identificadores de SQL: un censo y un trinquete en vez de una lista blanca; cierre de BD | BE, BF, BG | 2026-09-14 |
