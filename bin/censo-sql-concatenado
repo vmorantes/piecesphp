@@ -258,7 +258,17 @@ function metodos(array $tokens): array
             $salida[] = ['nombre' => $nombre, 'ini' => $ini, 'fin' => $fin];
         }
     }
-    return $salida;
+    //UNA ANONIMA DENTRO DE UN METODO YA LA RECORRE EL METODO. Devolverla tambien contaba dos
+    //veces lo de dentro. Tiene canario. Ver #021 (H1).
+    return array_values(array_filter($salida, static function (array $m) use ($salida): bool {
+        foreach ($salida as $otro) {
+            $mismo = $otro['ini'] === $m['ini'] && $otro['fin'] === $m['fin'];
+            if (!$mismo && $otro['ini'] <= $m['ini'] && $m['fin'] <= $otro['fin']) {
+                return false;
+            }
+        }
+        return true;
+    }));
 }
 
 function texto(array $tokens, int $desde, int $hasta): string
@@ -685,6 +695,10 @@ $canarios = [
     ['mapa · un `(` dentro de un literal no es un parentesis',
         '<?php class C { public function f($request) { $a = 1; $w = "($a) AND x = 1";'
         . ' $q = $request->getQueryParam("q"); $m->select()->where($w); } }', 'DESCARTADO'],
+    //UNA ANONIMA DENTRO DE UN METODO: si metodos() la devuelve tambien, lo de dentro sale dos veces.
+    ['metodos · una funcion anonima dentro de un metodo se cuenta UNA vez',
+        '<?php class C { public function f($request) { $cb = function () use ($request) {'
+        . ' $q = $request->getQueryParam("q"); $m->where("a = \'{$q}\'"); }; } }', 'CONFIRMADO'],
 ];
 $caido = null;
 foreach ($canarios as [$nombre, $fuente, $esperado]) {
