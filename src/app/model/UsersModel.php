@@ -6,6 +6,8 @@
 
 namespace App\Model;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -1011,11 +1013,11 @@ class UsersModel extends EntityMapperExtensible
                 $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
-                    $isNumber = is_double($value) || is_int($value);
-                    $criteryValue = $isNumber ? $value : "'" . escapeString($value) . "'";
-                    $beforeOperator = !empty($where) ? $beforeOperatorBase : '';
-                    $critery = "{$column}  = {$criteryValue}";
-                    $where[] = "{$beforeOperator} ({$critery})";
+                    //Por marcador (ADR 0009). El operador que lo une al anterior es el `after` de ese.
+                    if (!empty($where)) {
+                        $where[count($where) - 1]->setAfterOperator($beforeOperatorBase);
+                    }
+                    $where[] = WhereItem::isEqual($column, $value);
                     $criteriesAdded++;
                 }
             }
@@ -1026,16 +1028,15 @@ class UsersModel extends EntityMapperExtensible
             if ($currentUser !== null) {
                 $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
                 if (!$canModifyOrganizations) {
-                    $criteryValue = $currentOrganizationID;
-                    $beforeOperator = !empty($where) ? 'AND' : '';
-                    $critery = "organization = {$criteryValue}";
-                    $where[] = "{$beforeOperator} ({$critery})";
+                    if (!empty($where)) {
+                        $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+                    }
+                    $where[] = WhereItem::isEqual('organization', $currentOrganizationID);
                 }
             }
 
             if (!empty($where)) {
-                $whereString = trim(implode(' ', $where));
-                $model->where($whereString);
+                $model->where(new WhereSegment($where));
             }
 
             if (!empty($orderBy)) {
@@ -1078,25 +1079,23 @@ class UsersModel extends EntityMapperExtensible
         $selectFields = self::fieldsToSelect();
         $model->select($selectFields);
 
-        $isNumber = is_double($value) || is_int($value);
-        $value = $isNumber ? $value : "'" . escapeString($value) . "'";
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "{$column} = {$value}",
+            WhereItem::isEqual($column, $value),
         ];
 
         if ($currentUser !== null) {
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
             if (!$canModifyOrganizations) {
-                $criteryValue = $currentOrganizationID;
-                $beforeOperator = !empty($where) ? 'AND' : '';
-                $critery = "organization = {$criteryValue}";
-                $where[] = "{$beforeOperator} ({$critery})";
+                if (!empty($where)) {
+                    $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+                }
+                $where[] = WhereItem::isEqual('organization', $currentOrganizationID);
             }
         }
 
         if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-            $model->where($whereString);
+            $model->where(new WhereSegment($where));
         }
 
         if (!empty($orderBy)) {
@@ -1142,11 +1141,11 @@ class UsersModel extends EntityMapperExtensible
                 $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
-                    $isNumber = is_double($value) || is_int($value);
-                    $criteryValue = $isNumber ? $value : "'" . escapeString($value) . "'";
-                    $beforeOperator = !empty($where) ? $beforeOperatorBase : '';
-                    $critery = "{$column}  = {$criteryValue}";
-                    $where[] = "{$beforeOperator} ({$critery})";
+                    //Por marcador (ADR 0009). El operador que lo une al anterior es el `after` de ese.
+                    if (!empty($where)) {
+                        $where[count($where) - 1]->setAfterOperator($beforeOperatorBase);
+                    }
+                    $where[] = WhereItem::isEqual($column, $value);
                     $criteriesAdded++;
                 }
             }
@@ -1157,16 +1156,15 @@ class UsersModel extends EntityMapperExtensible
             if ($currentUser !== null) {
                 $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
                 if (!$canModifyOrganizations) {
-                    $criteryValue = $currentOrganizationID;
-                    $beforeOperator = !empty($where) ? 'AND' : '';
-                    $critery = "organization = {$criteryValue}";
-                    $where[] = "{$beforeOperator} ({$critery})";
+                    if (!empty($where)) {
+                        $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+                    }
+                    $where[] = WhereItem::isEqual('organization', $currentOrganizationID);
                 }
             }
 
             if (!empty($where)) {
-                $whereString = trim(implode(' ', $where));
-                $model->where($whereString);
+                $model->where(new WhereSegment($where));
             }
 
             if (!empty($orderBy)) {

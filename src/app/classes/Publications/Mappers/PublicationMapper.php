@@ -6,6 +6,8 @@
 
 namespace Publications\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -1186,20 +1188,21 @@ class PublicationMapper extends EntityMapperExtensible
         $ignoreID ??= -1;
         $model = self::model();
 
-        $title = escapeString($title);
         $statusInactive = self::INACTIVE;
 
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "title = '{$title}' AND",
-            "category = {$categoryID} AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('title', $title, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('category', $categoryID, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
         if ($onlyActives) {
-            $where[] = "AND status != {$statusInactive}";
+            $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+            $where[] = WhereItem::isNotEqual('status', $statusInactive);
         }
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 

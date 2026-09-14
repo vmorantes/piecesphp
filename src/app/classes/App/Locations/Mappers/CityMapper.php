@@ -6,6 +6,8 @@
 
 namespace App\Locations\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 
@@ -285,15 +287,13 @@ class CityMapper extends BaseEntityMapper
     public static function isDuplicateName(string $name, int $state_id, int $ignore_id)
     {
         $model = self::model();
-        $name = escapeString($name);
 
-        $where = trim(implode(' ', [
-            "name = '$name' AND ",
-            "state = $state_id AND ",
-            "id != $ignore_id",
-        ]));
-
-        $model->select()->where($where)->execute();
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('name', $name, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('state', $state_id, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignore_id),
+        ]))->execute();
 
         $result = $model->result();
 
@@ -312,15 +312,13 @@ class CityMapper extends BaseEntityMapper
         if ($code !== null) {
 
             $model = self::model();
-            $code = escapeString($code);
 
-            $where = trim(implode(' ', [
-                "code = '$code' AND ",
-                "state = $state_id AND ",
-                "id != $ignore_id",
-            ]));
-
-            $model->select()->where($where)->execute();
+            //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
+            $model->select()->where(new WhereSegment([
+                WhereItem::isEqual('code', $code, WhereItem::AND_OPERATOR),
+                WhereItem::isEqual('state', $state_id, WhereItem::AND_OPERATOR),
+                WhereItem::isNotEqual('id', $ignore_id),
+            ]))->execute();
 
             $result = $model->result();
 

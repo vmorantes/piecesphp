@@ -6,6 +6,8 @@
 
 namespace App\Locations\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 
@@ -327,15 +329,13 @@ class PointMapper extends BaseEntityMapper
     public static function isDuplicate(string $name, int $city_id, int $ignore_id)
     {
         $model = self::model();
-        $name = escapeString($name);
 
-        $where = trim(implode(' ', [
-            "name = '$name' AND ",
-            "city = $city_id AND ",
-            "id != $ignore_id",
-        ]));
-
-        $model->select()->where($where)->execute();
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('name', $name, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('city', $city_id, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignore_id),
+        ]))->execute();
 
         $result = $model->result();
 

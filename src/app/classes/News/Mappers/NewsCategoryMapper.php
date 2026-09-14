@@ -6,6 +6,8 @@
 
 namespace News\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use News\Exceptions\DuplicateException;
 use News\NewsLang;
@@ -612,14 +614,13 @@ class NewsCategoryMapper extends EntityMapperExtensible
         $ignoreID ??= -1;
         $model = self::model();
 
-        $name = escapeString($name);
-
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "name = '{$name}' AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('name', $name, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 

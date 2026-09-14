@@ -6,6 +6,8 @@
 
 namespace SystemApprovals\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
@@ -510,11 +512,11 @@ class SystemApprovalsMapper extends EntityMapperExtensible
                 $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
-                    $isNumber = is_double($value) || is_int($value);
-                    $criteryValue = $isNumber ? $value : "'" . escapeString($value) . "'";
-                    $beforeOperator = !empty($where) ? $beforeOperatorBase : '';
-                    $critery = "{$column}  = {$criteryValue}";
-                    $where[] = "{$beforeOperator} ({$critery})";
+                    //Por marcador (ADR 0009). El operador que lo une al anterior es el `after` de ese.
+                    if (!empty($where)) {
+                        $where[count($where) - 1]->setAfterOperator($beforeOperatorBase);
+                    }
+                    $where[] = WhereItem::isEqual($column, $value);
                     $criteriesAdded++;
                 }
             }
@@ -523,8 +525,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         if ($criteriesAdded > 0) {
 
             if (!empty($where)) {
-                $whereString = trim(implode(' ', $where));
-                $model->where($whereString);
+                $model->where(new WhereSegment($where));
             }
 
             if (!empty($orderBy)) {

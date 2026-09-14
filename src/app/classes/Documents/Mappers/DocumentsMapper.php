@@ -6,6 +6,8 @@
 
 namespace Documents\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Model\UsersModel;
 use Documents\Controllers\DocumentsController;
@@ -761,19 +763,20 @@ class DocumentsMapper extends EntityMapperExtensible
         $ignoreID ??= -1;
         $model = self::model();
 
-        $documentName = escapeString($documentName);
         $statusActive = self::STATUS_ACTIVE;
 
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "documentName = '{$documentName}' AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('documentName', $documentName, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
         if ($onlyActives) {
-            $where[] = "AND status = {$statusActive}";
+            $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+            $where[] = WhereItem::isEqual('status', $statusActive);
         }
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 

@@ -886,7 +886,8 @@ class UsersController extends AdminPanelController
             if (!SessionToken::isActiveSession($JWT) || $overwriteSession) {
 
                 //Se selecciona un elemento que concuerde con el usuario
-                $username = escapeString($usernameParameter->getValue());
+                //Sin escapeString(): where() con array ya liga el valor, y escapar lo alteraba (ADR 0009).
+                $username = $usernameParameter->getValue();
                 $password = $passwordParameter->getValue();
 
                 $user = $this->model->select()->where([

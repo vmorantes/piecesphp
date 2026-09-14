@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/14] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/15] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/14] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/15] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/14] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/15] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/14] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/15] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +177,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/14] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/15] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +201,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/14] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/15] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -252,7 +252,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/14] Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/15] Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
@@ -321,7 +321,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
-    echoTerminal('[8/14] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
+    echoTerminal('[8/15] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
 
     //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
     //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
@@ -386,7 +386,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. LA QUE EJECUTA (LEY 29) ────────────────────────────────────────────────────
-    echoTerminal('[9/14] El SQL de `process()` con segmento se EJECUTA de verdad');
+    echoTerminal('[9/15] El SQL de `process()` con segmento se EJECUTA de verdad');
 
     //LEY 29: las ocho secciones de arriba comparan CADENAS, y ninguna vio la 665. Ver T160.
     $modelo = \App\Locations\Mappers\CountryMapper::model();
@@ -428,7 +428,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. EL FILTRO DE APROBACIONES, EJECUTADO EN DOS IDIOMAS ───────────────────────
-    echoTerminal('[10/14] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
+    echoTerminal('[10/15] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
 
     //LEY 29: esto CONSULTA. Y la clave es `app_lang`, no `lang`. Ver T162.
     $idiomaPrevio = get_config('app_lang');
@@ -473,7 +473,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 11. LO QUE SUSTITUYE A LA GUARDA DE AP (LEY 30) ───────────────────────────────
-    echoTerminal('[11/14] El grupo de búsqueda se une con AND, no con OR');
+    echoTerminal('[11/15] El grupo de búsqueda se une con AND, no con OR');
 
     //AP prohibía `having_segment` con búsqueda activa porque `HavingSegment` no agrupaba. Con
     //v4.1.0 agrupa, y esto es lo que ocupa el sitio de aquella guarda. Ver T163.
@@ -529,7 +529,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 12. MySpace: precedencia, y la búsqueda de la tabla derivada ──────────────────
-    echoTerminal('[12/14] `AllProfiles` parentiza, y `processFromQuery` va por marcador');
+    echoTerminal('[12/15] `AllProfiles` parentiza, y `processFromQuery` va por marcador');
 
     //`A AND B OR C` se lee `(A AND B) OR C`: sin los paréntesis, los usuarios se listaban sin
     //comprobar su aprobación. Ver T166.
@@ -570,7 +570,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. La dirección de `custom_order` ────────────────────────────────────────────
-    echoTerminal('[13/14] La dirección de `custom_order` se normaliza a ASC o DESC');
+    echoTerminal('[13/15] La dirección de `custom_order` se normaliza a ASC o DESC');
 
     //Sin la normalización, la dirección de `custom_order` entra en el ORDER BY tal cual: es
     //SQL de quien la escriba. `$table = ''` evita depender de `setTablePrefixOnOrder()`.
@@ -586,7 +586,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 14. Los listados paginados van por marcador ────────────────────────────────
-    echoTerminal('[14/14] Los listados paginados (`PageQuery`) mandan la petición por marcador');
+    echoTerminal('[14/15] Los listados paginados (`PageQuery`) mandan la petición por marcador');
 
     //PageQuery ejecuta el SQL tal cual: sin valores ligados, lo que se interpole llega crudo.
     $tablaPaises = \App\Locations\Mappers\CountryMapper::PREFIX_TABLE . \App\Locations\Mappers\CountryMapper::TABLE;
@@ -696,6 +696,109 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     } catch (\Throwable $errorDocs) {
         $check(false, 'documents: el listado filtra por estado', 'EXCEPCIÓN: ' . $errorDocs->getMessage());
     }
+    echoTerminal(' ');
+
+    //──── 15. escapeString() cede al marcador (ADR 0009) ─────────────────────────────
+    echoTerminal('[15/15] Los usos de escapeString() van por marcador, y no reaparecen');
+
+    //LA SONDA QUE DISCRIMINA sin tocar sql_mode: escapeString() hace stripslashes(), así que un valor
+    //que existe, con una barra metida, sigue casando concatenado y deja de casar ligado.
+    $conBarra = static fn (string $v): string => mb_substr($v, 0, 1) . '\\' . mb_substr($v, 1);
+    $primera = function (string $sql): ?array {
+        $sentencia = (new \PiecesPHP\Core\BaseModel())->prepare($sql);
+        $sentencia->execute();
+        $fila = $sentencia->fetch(\PDO::FETCH_ASSOC);
+        $sentencia->closeCursor();
+        return is_array($fila) ? $fila : null;
+    };
+    $sonda = function (string $nombre, string $sql, string $campo, callable $existe) use ($check, $conBarra, $primera): void {
+        try {
+            $fila = $primera($sql);
+            $existe("O'Brien" . bin2hex(random_bytes(3)), $fila ?? []);
+            $check(true, "{$nombre}: una comilla suelta va como dato y no rompe el SQL");
+        } catch (\Throwable $e) {
+            $check(false, "{$nombre}: una comilla suelta va como dato y no rompe el SQL", 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 140));
+            return;
+        }
+        $valor = $fila !== null ? (string) ($fila[$campo] ?? '') : '';
+        if (mb_strlen($valor) < 2 || mb_strpos($valor, '\\') !== false) {
+            //SIN FILAS NO HAY VEREDICTO: sin un valor que exista, las dos vías dicen «no existe».
+            echoTerminal("   [NO DISCRIMINA] {$nombre}: la base local no tiene una fila con la que la barra cambie el resultado");
+            return;
+        }
+        try {
+            $exacto = $existe($valor, $fila);
+            $alterado = $existe($conBarra($valor), $fila);
+            $check($exacto === true && $alterado === false, "{$nombre}: el valor viaja literal, y con una barra metida ya no casa",
+                'exacto: ' . var_export($exacto, true) . ' · con barra: ' . var_export($alterado, true));
+        } catch (\Throwable $e) {
+            $check(false, "{$nombre}: el valor viaja literal", 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 140));
+        }
+    };
+    $pais = \App\Locations\Mappers\CountryMapper::PREFIX_TABLE . \App\Locations\Mappers\CountryMapper::TABLE;
+    $estado = \App\Locations\Mappers\StateMapper::PREFIX_TABLE . \App\Locations\Mappers\StateMapper::TABLE;
+    $ciudad = \App\Locations\Mappers\CityMapper::PREFIX_TABLE . \App\Locations\Mappers\CityMapper::TABLE;
+    $punto = \App\Locations\Mappers\PointMapper::PREFIX_TABLE . \App\Locations\Mappers\PointMapper::TABLE;
+    $sonda('countries · isDuplicateName', "SELECT name FROM {$pais} LIMIT 1", 'name', fn (string $v, array $f): bool => \App\Locations\Mappers\CountryMapper::isDuplicateName($v, -1));
+    $sonda('countries · isDuplicateCode', "SELECT code FROM {$pais} WHERE code IS NOT NULL AND code != '' LIMIT 1", 'code', fn (string $v, array $f): bool => \App\Locations\Mappers\CountryMapper::isDuplicateCode($v, -1));
+    $sonda('states · isDuplicateName', "SELECT name, country FROM {$estado} LIMIT 1", 'name', fn (string $v, array $f): bool => \App\Locations\Mappers\StateMapper::isDuplicateName($v, (int) ($f['country'] ?? 0), -1));
+    $sonda('states · isDuplicateCode', "SELECT code, country FROM {$estado} WHERE code IS NOT NULL AND code != '' LIMIT 1", 'code', fn (string $v, array $f): bool => \App\Locations\Mappers\StateMapper::isDuplicateCode($v, (int) ($f['country'] ?? 0), -1));
+    $sonda('cities · isDuplicateName', "SELECT name, state FROM {$ciudad} LIMIT 1", 'name', fn (string $v, array $f): bool => \App\Locations\Mappers\CityMapper::isDuplicateName($v, (int) ($f['state'] ?? 0), -1));
+    $sonda('cities · isDuplicateCode', "SELECT code, state FROM {$ciudad} WHERE code IS NOT NULL AND code != '' LIMIT 1", 'code', fn (string $v, array $f): bool => \App\Locations\Mappers\CityMapper::isDuplicateCode($v, (int) ($f['state'] ?? 0), -1));
+    $sonda('points · isDuplicate', "SELECT name, city FROM {$punto} LIMIT 1", 'name', fn (string $v, array $f): bool => \App\Locations\Mappers\PointMapper::isDuplicate($v, (int) ($f['city'] ?? 0), -1));
+    $sonda('organizations · existsByNit', 'SELECT nit FROM ' . \Organizations\Mappers\OrganizationMapper::TABLE . ' WHERE status != ' . \Organizations\Mappers\OrganizationMapper::DELETED . " AND nit IS NOT NULL AND nit != '' LIMIT 1", 'nit', fn (string $v, array $f): bool => \Organizations\Mappers\OrganizationMapper::existsByNit($v, -1, true));
+    $sonda('news categories · existsByName', 'SELECT name FROM ' . \News\Mappers\NewsCategoryMapper::TABLE . ' LIMIT 1', 'name', fn (string $v, array $f): bool => \News\Mappers\NewsCategoryMapper::existsByName($v, -1));
+    $sonda('documents · existsByDocumentName', 'SELECT documentName FROM ' . \Documents\Mappers\DocumentsMapper::TABLE . ' WHERE status = ' . \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE . ' LIMIT 1', 'documentName', fn (string $v, array $f): bool => \Documents\Mappers\DocumentsMapper::existsByDocumentName($v, -1, true));
+    $sonda('publication categories · existsByName', 'SELECT name FROM ' . \Publications\Mappers\PublicationCategoryMapper::TABLE . ' LIMIT 1', 'name', fn (string $v, array $f): bool => \Publications\Mappers\PublicationCategoryMapper::existsByName($v, -1));
+    $sonda('publications · existsByTitle', 'SELECT title, category FROM ' . \Publications\Mappers\PublicationMapper::TABLE . ' WHERE status != ' . \Publications\Mappers\PublicationMapper::INACTIVE . ' LIMIT 1', 'title', fn (string $v, array $f): bool => \Publications\Mappers\PublicationMapper::existsByTitle($v, (int) ($f['category'] ?? 0), -1, true));
+    $usuarios = 'SELECT username FROM ' . \App\Model\UsersModel::TABLE . ' LIMIT 1';
+    $sonda('users · getBy', $usuarios, 'username', fn (string $v, array $f): bool => \App\Model\UsersModel::getBy($v, 'username') !== null);
+    $sonda('users · allByMultipleCriteries', $usuarios, 'username', fn (string $v, array $f): bool => !empty(\App\Model\UsersModel::allByMultipleCriteries([['column' => 'username', 'value' => $v]])));
+    $sonda('users · getByMultipleCriteries', $usuarios, 'username', fn (string $v, array $f): bool => \App\Model\UsersModel::getByMultipleCriteries([['column' => 'username', 'value' => $v]]) !== null);
+    $sonda('system approvals · getByMultipleCriteries', 'SELECT referenceTable FROM ' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . ' LIMIT 1', 'referenceTable', fn (string $v, array $f): bool => \SystemApprovals\Mappers\SystemApprovalsMapper::getByMultipleCriteries([['column' => 'referenceTable', 'value' => $v]]) !== null);
+
+    //LA FUENTE, por tokens: una llamada es `escapeString` seguido de `(`, que no sea su definición.
+    //Los cinco que quedan están PARADOS en #037 a la espera de decisión: no tienen segmento donde ir.
+    $pendientes = [
+        'app/classes/Organizations/Mappers/OrganizationMapper.php' => 4,
+        'app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php' => 1,
+    ];
+    $raizApp = rtrim(str_replace('\\', '/', basepath('')), '/');
+    $llamadas = [];
+    $archivos = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($raizApp . '/app', \FilesystemIterator::SKIP_DOTS));
+    foreach ($archivos as $archivo) {
+        $ruta = str_replace('\\', '/', (string) $archivo->getPathname());
+        if (!str_ends_with($ruta, '.php') || mb_strpos($ruta, '/vendor/') !== false) {
+            continue;
+        }
+        $fuente = (string) file_get_contents($ruta);
+        if (mb_strpos($fuente, 'escapeString') === false) {
+            continue;
+        }
+        $sig = array_values(array_filter(token_get_all($fuente), fn ($x) => !is_array($x) || !in_array($x[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)));
+        foreach ($sig as $i => $x) {
+            if (!is_array($x) || $x[0] !== \T_STRING || $x[1] !== 'escapeString' || ($sig[$i + 1] ?? null) !== '(') {
+                continue;
+            }
+            $antes = $sig[$i - 1] ?? null;
+            if (is_array($antes) && $antes[0] === \T_FUNCTION) {
+                continue;
+            }
+            $llamadas[] = mb_substr($ruta, mb_strlen($raizApp) + 1) . ':' . $x[2];
+        }
+    }
+    $porArchivo = [];
+    foreach ($llamadas as $sitio) {
+        $clave = explode(':', $sitio)[0];
+        $porArchivo[$clave] = ($porArchivo[$clave] ?? 0) + 1;
+    }
+    ksort($porArchivo);
+    ksort($pendientes);
+    $fuera = array_diff_key($porArchivo, $pendientes);
+    $check(count($fuera) === 0, 'fuente: ninguna llamada a escapeString() en src/app fuera de su definición y de los cinco parados',
+        count($fuera) === 0 ? count($llamadas) . ' llamadas, todas en los sitios parados' : 'fuera: ' . implode(', ', array_filter($llamadas, fn ($s) => array_key_exists(explode(':', $s)[0], $fuera))));
+    $check($porArchivo === $pendientes, 'fuente: los parados son exactamente 4 en OrganizationMapper y 1 en DataTablesHelper',
+        implode(', ', $llamadas));
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
