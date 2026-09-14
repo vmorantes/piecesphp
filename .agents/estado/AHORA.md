@@ -1,11 +1,13 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 15:20
-- **Último mensaje:** `#010 · ARQ`, lote 0a (`dev` en los paquetes) y commit de la documentación
-  del lote 0b. En vuelo.
-- **Tramo en curso:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md)
+- **Actualizado:** 2026-09-14 13:32 (medido con `date`)
+- **Último mensaje:** `#012 · ARQ`, commitear todo lo pendiente del arquitecto, incluido el
+  informe del estado del proyecto. En vuelo.
+- **Tramo anterior:** [`tramos/2026-09-14-1105-traspaso-y-andamiaje.md`](tramos/2026-09-14-1105-traspaso-y-andamiaje.md),
+  cerrado.
+- **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md)
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-- **Rama:** `dev`, `HEAD` en `45d1a84f` antes de `#010`.
+- **Rama:** `dev`, `HEAD` en `dc389e1f` antes de `#012`.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -26,39 +28,26 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 **Trabajo nombrado por el PO:**
 
-- ~~el commit del andamiaje~~, hecho;
-- ~~el lote 0b~~, hecho (bitácora 0003);
-- el lote 0a, `dev` en los paquetes (P19). **En curso**;
-- después, el mapa `../docs/roadmap.md`, **cuando el PO dé la orden de trabajar sobre el
-  framework**.
+- «Comitea todo» (2026-09-14). **En curso**.
+- El mapa `../docs/roadmap.md`, **cuando el PO dé la orden de trabajar sobre el framework**.
 
 ## Espera al PO
 
-- **Tras `#010`: la orden de trabajar sobre el framework.** El mapa empieza por BD (delegado en
-  el arquitecto) y por los identificadores de SQL.
-- **Las ramas `dev` nuevas de `datastructures` y `html` quedan solo en local**; subirlas es
-  cosa tuya.
+1. **La orden de trabajar sobre el framework.** El mapa empieza por BD (delegado en el
+   arquitecto) y por los identificadores de SQL.
+2. **Subir cuando quieras**: las dos ramas `dev` nuevas de los paquetes y los commits de hoy.
 
 Siguen abiertas en `docs/pendientes.md`, sin bloquear nada: qué es el geovisor, el francés, el
 rol 50 con nombre `null` y `Components`.
 
 ## En curso
 
-`#010`:
-
-1. crea `dev`, apuntando a `master`, en `datastructures` y `html`, y comprueba que en los cuatro
-   paquetes `dev` y `master` coinciden;
-2. commitea la documentación del lote 0b (`files/` en `02-estructura.md`, la bitácora 0003, el
-   mapa, los pendientes y el estado).
-
-Si se corta a medias, `git branch` en cada paquete y `git log` aquí dicen dónde quedó.
+`#012`: el coder commitea la regla 30, la bitácora 0004, el mapa con los lotes 7b y 7c,
+`pendientes.md`, el cierre del tramo, el informe y este archivo.
 
 ## Siguiente
 
-Con el reporte de `#010`:
-
-1. cerrar el tramo, con su resumen;
-2. esperar la orden del PO para empezar el mapa.
+Con la orden del PO: medir BD, instruirlo y seguir el mapa en su orden.
 
 ## Para una sesión nueva
 
@@ -66,4 +55,5 @@ Con el reporte de `#010`:
    de renombrado (regla 30, «Nombres de sesión»):
    `/rename PiecesPHPUpgrade-Arquitecto-Main` y `/rename PiecesPHPUpgrade-Coder-Main`. Después
    se comprueba en la lista de sesiones que están puestas.
-2. Lee `../HERENCIA.md`: explica el traspaso.
+2. Lee `../HERENCIA.md` y el informe del estado del proyecto.
+3. **Las horas de este archivo salen de `date`**, no de una estimación.
