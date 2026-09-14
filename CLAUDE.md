@@ -15,6 +15,7 @@ vive en `.agents/context/historico/`, y no es trabajo pendiente.
 | Clonar un módulo desde Publications | `.agents/context/15-plantilla-clonar-publications.md` |
 | Entender la migración de PHP, ya ejecutada | `.agents/context/historico/` |
 | Entender por qué algo está como está | `.agents/context/14-deuda-y-limpieza.md` |
+| Trabajar como arquitecto o coder de este repositorio | `.agents/estado/AHORA.md` y `.agents/rules/30-protocolo-coder.md` |
 
 ## Reglas que no se negocian
 
@@ -54,6 +55,7 @@ bin/phpstan             # análisis estático (nivel 8) -> PHPStanResult.Summary
 bin/phpstan-deadcode    # mide las ramas muertas que phpstan.neon silencia
 bin/rector              # refactor automatizado, configurado en bin/tools/refactorization
 cd src && gulp init-project   # compilar SASS y TypeScript
+bash .agents/scripts/verificar.sh   # andamiaje de agentes: guarda, generados, enlaces
 ```
 
 Ejecuta `bin/phpstan` antes de dar por cerrado cualquier cambio de tamaño y compara
@@ -61,6 +63,7 @@ contra `PHPStanResult.Summary.baseline.txt`.
 
 ## Al terminar una funcionalidad
 
-Añade la entrada en `CHANGELOG.md` con el formato existente. Si el cambio invalida un
+Añade la entrada en `CHANGELOG.md` con el formato existente (en el modelo de tres roles la
+escribe el arquitecto: `.agents/rules/30-protocolo-coder.md`). Si el cambio invalida un
 documento de `.agents/context/` o de `source-docs/`, corrígelo **en el mismo commit**:
 ninguno de los dos puede mentir.

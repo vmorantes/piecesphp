@@ -1,30 +1,58 @@
 # .agents
 
-Notas de trabajo para agentes de IA que operan sobre este repositorio. **No es la
-documentación del framework.**
+Todo lo que un agente necesita para trabajar en este repositorio sin depender de ninguna sesión
+anterior. Compartido por todas las herramientas; Claude Code lo ve además a través de `.claude/`
+(symlinks y generados).
 
-| Directorio | Contenido |
+| Ruta | Contenido |
 | :-- | :-- |
-| `context/` | Contexto técnico del proyecto: arquitectura, convenciones, recetas y planes de trabajo. Ver [`context/README.md`](./context/README.md) |
-| `skills/` | Habilidades invocables durante el desarrollo |
-| `agents/`, `personas/` | Perfiles de agente para tareas concretas |
+| `estado/` | **Qué pasa ahora**: `AHORA.md` y los tramos. Para el PO y para la siguiente sesión |
+| `rules/` | Reglas de comportamiento. Todas se aplican siempre |
+| `context/` | Qué hay y qué muerde. Denso, verdad **hoy**. Tiene dos puertas: usar el framework o mantenerlo |
+| `docs/adr/` | Por qué se decidió así. Inmutables. **Lo más importante para un agente** |
+| `docs/bitacora/` | Cómo se llegó hasta ahí, una entrada por tarea cerrada |
+| `docs/roadmap.md` | El mapa de lo que falta hasta la MAJOR, en orden |
+| `HERENCIA.md` | **Borrable.** El traspaso de la campaña anterior al modelo de tres roles |
+| `personas/` | **Fuente** de los subagentes: cuerpo del prompt, sin frontmatter |
+| `agents/` | Subagentes para Antigravity, **generados** (no editar) |
+| `skills/` | Skills compartidas; `.claude/skills/` enlaza aquí |
+| `scripts/` | Generador de agentes, verificación del andamiaje, guarda de hooks, hook de git |
 
-## Relación con `source-docs/`
+Fuera de aquí: `AGENTS.md` (entrada genérica), `CLAUDE.md` (reglas del proyecto),
+`.claude/CLAUDE.md` (entrada de Claude Code), `files/dev/PENDIENTES.md` (encargos y decisiones
+del PO, LEY 33) y `files/dev/roadmap/` (lo que va después de la MAJOR).
 
-Son dos públicos distintos y ambos se mantienen:
+## Orden de lectura para una sesión nueva
 
-- **`source-docs/`** — documentación para personas. Se publica como sitio MkDocs.
-  Explica cómo desplegar, cómo usar el framework y cómo funcionan sus subsistemas.
-- **`.agents/context/`** — contexto para agentes. Más denso, con rutas de archivo,
-  números de línea, inventarios y decisiones de diseño que a una persona le sobran pero
-  a un agente le ahorran una exploración completa del repositorio.
+1. `estado/AHORA.md` y el último archivo de `estado/tramos/` — dónde estamos.
+2. `rules/` — lo que no se hace nunca y cómo se colabora.
+3. `HERENCIA.md` — mientras exista: qué cambió de modelo, qué exige el PO y qué quedó abierto.
+4. `context/README.md` — y por la puerta que te toque:
+   - **usar el framework** (un módulo, rutas, mappers, vistas): `context/01`–`15`;
+   - **mantenerlo** (la campaña hacia la MAJOR): `context/20` (cómo se trabaja, §3 y §5),
+     `context/19` (las leyes) y, cuando haga falta el detalle de una tarea, `context/18`.
+5. `docs/adr/README.md` — el índice; los ADR que toque tu tarea, enteros.
+6. `docs/roadmap.md` y `files/dev/PENDIENTES.md` — si toca elegir, proponer o instruir.
 
-Se solapan a propósito. La regla que los mantiene sanos es una sola:
+## Documentación para agentes y para personas
 
-> **Ninguno de los dos puede mentir.** Si un cambio de código invalida un documento de
-> cualquiera de los dos, se corrige en el mismo commit. Si se contradicen entre sí, gana
-> el código y se arreglan los dos.
+| Para | Dónde | Qué |
+| :-- | :-- | :-- |
+| Quien usa el framework | `README.md`, `source-docs/`, `files/API/docs/`, `context/01`–`15` | Qué es, cómo se instala y se usa |
+| Quien clona y actualiza | `CHANGELOG.md` | Qué cambió para él, rupturas incluidas |
+| Quien lo mantiene | `context/18`, `19`, `20`, `historico/` | La campaña, sus leyes y su contrato |
+| El PO | `estado/`, `files/dev/PENDIENTES.md` | Qué se hizo y qué espera de él |
+| Agentes | `docs/adr/`, `docs/bitacora/`, `docs/roadmap.md` | Por qué, cómo se llegó, qué falta |
 
-Los documentos de `context/` que describen planes de trabajo llevan su estado en la
-cabecera; cuando el trabajo se completa, el documento se marca como ejecutado en vez de
-borrarse: el registro de por qué se tomó una decisión vale más que el plan.
+Una sola regla los mantiene sanos: **ninguno puede mentir.** Si un cambio de código invalida un
+documento, se corrige en el mismo commit. Si dos se contradicen, gana el código y se arreglan
+los dos. Y lo que ya no sirve se poda (`rules/60-estado.md`).
+
+## Cambiar un agente, una regla o una skill
+
+- **Agente**: edita `personas/<nombre>.md` (o `AGENTES` en `scripts/generar_agentes.py` para
+  modelo, esfuerzo, herramientas y descripción) y regenera con
+  `python3 -B .agents/scripts/generar_agentes.py`. `verificar.sh` falla si quedó desfasado.
+- **Regla**: archivo en `rules/` + symlink en `.claude/rules/`.
+- **Skill**: carpeta con `SKILL.md` en `skills/` + symlink en `.claude/skills/`.
+- Si cambia cómo se trabaja, es estructural: ADR.
