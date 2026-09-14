@@ -12,13 +12,13 @@ lleva, qué falta hasta la MAJOR, qué va después y qué son solo ideas.
 - Las cifras de git, medidas hoy con `git log --since=2026-08-19`.
 
 **Límites:**
-- **Actualizado al cierre de la jornada, 2026-09-14 16:26.** Las cifras de las puertas son del
-  último reporte del coder (`#027`).
+- **Actualizado al cierre del tramo sin el PO, 2026-09-14 18:52.** Las cifras de las puertas son
+  del último reporte del coder (`#037`).
 - Nada del mapa está re-medido: cada lote se mide al instruirlo (LEY 17).
 
-> **LO PRIMERO, LEE ESTO:** hay una **inyección SQL confirmada por lectura en dos rutas públicas**
-> del framework (`publications-ajax-all` y `built-in-banner-ajax-all`, parámetro `title`). Viaja
-> a cada clon. Su arreglo es lo primero de la próxima jornada (lote 3a). Detalle en la sección 8.
+> **LO PRIMERO:** la **inyección SQL de las dos rutas públicas quedó CORREGIDA** en el tramo sin ti
+> (lote 3a, bitácora 0007). Eran siete vías, tres de ellas públicas, y todas van ya por marcador.
+> Para las versiones viejas de los clientes queda tu idea de la guía de parches.
 
 ---
 
@@ -34,12 +34,14 @@ lleva, qué falta hasta la MAJOR, qué va después y qué son solo ideas.
   - **E4** (pruebas) está abierta: tiene hecho su primer lote y dos trabajos pendientes.
   - Por el camino se hizo una larga serie de seguridad de acceso y de SQL (bloques AH a BC).
   - Faltan **E5** (refactorizaciones), **E6** (documentación) y los lotes rompedores del final.
-- **Lo que queda hasta la MAJOR: 16 lotes** (entraron el 3a y el 5b; salieron el 1 y el 2),
-  de unos 20 a 25 bloques de trabajo según las estimaciones del mapa; sin fechas, por tu regla.
+- **Lo que queda hasta la MAJOR: 14 lotes**, contando el 4 a medias y el 5b, que es nuevo.
+  Salieron hoy el 1, el 2, el 3a y el 3. Sin fechas, por tu regla.
 - **Hoy:**
   - empezó el modelo de tres roles;
-  - se cerraron los lotes 1 (BD) y 2 (identificadores de SQL);
-  - se hizo el primer bloque del 3 (la auditoría de las subidas).
+  - con tu presencia, se cerraron los lotes 1 (BD) y 2 (identificadores de SQL), y la
+    auditoría de subidas;
+  - sin ti, en cinco rondas, se cerraron el 3a (la inyección) y el 3 (subidas protegidas), y se
+    hizo medio lote 4 (`escapeString()`).
 
 ---
 
@@ -69,13 +71,13 @@ lotes 2 a 5 del mapa.
 
 | Qué | Cifra |
 | --- | --- |
-| Commits en `piecesphp` desde el 2026-08-19 | 401, 54 de ellos hoy |
+| Commits en `piecesphp` desde el 2026-08-19 | 430, 83 de ellos hoy. 27 sin empujar desde tu última subida |
 | Commits en los paquetes, en el mismo periodo | 82: `database` 33, `datastructures` 16, `geojson` 16 y `html` 17 |
 | Leyes escritas, cada una con el fallo que la fundó | 33 (`context/19-leyes.md`) |
-| Comprobaciones de `bin/cli verify-integrity` | **28**, en verde. Hoy entraron la 27 (identificadores de SQL) y la 28 (interpolación) |
-| Suites de `bin/cli gates` | 25 (2 no corren porque declaran efectos externos) |
-| Errores de PHPStan (nivel 8) | 744, igual a la línea base. Eran 877 el 2026-08-21 (`18` T0). Los cuatro paquetes miden ya con la misma versión, la 2.2.12 |
-| SQL con valor de la petición, en las formas que miden los censos | 0 concatenaciones, 0 identificadores y 6 interpolaciones declaradas, las tres cifras bajo trinquete. **Pero los censos no siguen un valor de un método a otro, y así se escapó la inyección de la sección 8** |
+| Comprobaciones de `bin/cli verify-integrity` | **29**, en verde. Hoy entraron la 27 (identificadores de SQL), la 28 (interpolación) y la 29 (toda carpeta de subidas protegida o declarada) |
+| Suites de `bin/cli gates` | 26 (2 no corren porque declaran efectos externos). Hoy: sql-placeholders pasa de 55 a 103; access-guards, a 43; y la suite nueva protect-file-middleware tiene 30 |
+| Errores de PHPStan (nivel 8) | **738**, igual a la línea base: murieron 6 con el código retirado. Eran 877 el 2026-08-21 (`18` T0). Los cuatro paquetes miden ya con la misma versión, la 2.2.12 |
+| SQL con valor de la petición, en las formas que miden los censos | 0 concatenaciones, 0 identificadores y 6 interpolaciones declaradas, las tres bajo trinquete. **Los censos no siguen un valor de un método a otro**: por eso se escapó la inyección del lote 3a, que ahora cierran las pruebas de la sección 14 |
 | Rupturas registradas para la MAJOR | 14 (`CHANGELOG.md`, «CAMBIOS INCOMPATIBLES») |
 
 **Lo más importante que se hizo:**
@@ -115,9 +117,9 @@ son del mapa del 2026-09-13.
 | --: | --- | --- | --: | --- |
 | ~~1~~ | ~~BD~~ | **Cerrado hoy** (bitácora 0005) | — | — |
 | ~~2~~ | ~~Identificadores~~ | **Cerrado hoy** (bitácora 0006). No hizo falta lista blanca: la cifra es 0 y la vigila la comprobación 27 | — | — |
-| **3a** | **⚠ Búsquedas concatenadas** | **Nuevo y urgente.** La inyección de la sección 8: `PageQuery` pasa a admitir valores ligados, y las cinco búsquedas van por marcador | 1 | No |
-| 3 | **Subidas** | Bloque 1 hecho (la auditoría). Falta el bloque 2: enchufar el control de acceso de cada carpeta y una puerta que falle si una queda sin declarar | 1 | **Sí: P24** |
-| 4 | **`escapeString`** | El único escapado del framework depende de un `sql_mode` que nadie fija | 1 | No |
+| ~~3a~~ | ~~Búsquedas concatenadas~~ | **Cerrado hoy** (bitácora 0007) | — | — |
+| ~~3~~ | ~~Subidas~~ | **Cerrado hoy** (bitácora 0008), con P24 aprobada | — | — |
+| 4 | **`escapeString`** | **Bloque 1 hecho** (17 de 22 usos, por marcador). Quedan dos sitios y el `@deprecated` | 1 | **Sí**: el plan de migrar los 14 llamadores de `DataTablesHelper::process()` (regla de los diez) |
 | 5 | **OTP** | Límite de intentos por usuario e IP y respuesta uniforme, sin pasar a POST | 1 | No |
 | **5b** | **Tokens genéricos** | **Nuevo** (de P22). Los enlaces de `GenericTokenController` llevan un número calculable; la ruta es pública y borra tokens de cualquier tipo (SOSPECHA fuerte) | 1 | No |
 | 6 | **Residuos de E3** | Tablas y código del módulo de experiencias que el borrado dejó | 1 | No |
@@ -154,7 +156,10 @@ son del mapa del 2026-09-13.
 
 | Qué | Desde | Qué hago si no contestas |
 | --- | --- | --- |
-| ~~**P24**~~ **APROBADA el 2026-09-14**, tal como estaba el predeterminado, y con Publications como arquetipo de los demás. Texto original: **Qué control de acceso lleva cada carpeta de subidas.** Hoy Apache sirve directamente, a quien tenga la URL, los archivos de `documents` (cualquier tipo, con el nombre original), `organizations` (el RUT y el logo) y `news-categories`. `publications` está «protegida» con un validador que deja pasar a todos | 2026-09-14 | Sesión activa para `documents`, `organizations` y `news-categories`. En `publications`, el archivo se sirve si su publicación es visible al público o hay sesión. El banner, sin proteger, porque lo muestra la portada, pero sin devolver borrados. La imagen de inicio de `generic`, sin proteger. Se retiran las tres carpetas que no guardan nada, y entra una puerta que falle si una carpeta queda sin declarar |
+| **El plan del lote 4, bloque 2**: la búsqueda de las tablas del panel necesita migrar los 14 llamadores de `DataTablesHelper::process()`. Pasa de diez archivos, así que lo ves antes | 2026-09-14 | Nada hasta que lo veas. El resto del lote avanza: las etiquetas de organizaciones y, al final, `@deprecated` |
+| **P25 (candidata)**: una publicación SIN APROBAR no sale en el listado público, pero se ve por su enlace directo y sus archivos se sirven | 2026-09-14 | Se queda así, anotado |
+| **Locations**: los listados públicos de puntos, ciudades y estados enseñan tablas enteras sin sesión. No son inyectables | 2026-09-14 | Se quedan públicos, como datos de referencia |
+| ~~**P24**~~ **APROBADA y HECHA el 2026-09-14**, tal como estaba el predeterminado, y con Publications como arquetipo de los demás. Texto original: **Qué control de acceso lleva cada carpeta de subidas.** Hoy Apache sirve directamente, a quien tenga la URL, los archivos de `documents` (cualquier tipo, con el nombre original), `organizations` (el RUT y el logo) y `news-categories`. `publications` está «protegida» con un validador que deja pasar a todos | 2026-09-14 | Sesión activa para `documents`, `organizations` y `news-categories`. En `publications`, el archivo se sirve si su publicación es visible al público o hay sesión. El banner, sin proteger, porque lo muestra la portada, pero sin devolver borrados. La imagen de inicio de `generic`, sin proteger. Se retiran las tres carpetas que no guardan nada, y entra una puerta que falle si una carpeta queda sin declarar |
 | **El geovisor**: ya sé cuál es (`espacio-publico-backend`); falta qué quieres perfeccionar de él | 2026-08-29 | Nada: sin tu descripción no se puede medir |
 | **El francés**: restos en `profiles-translation-config.js` y en `dynamic-translations/fr/` | 2026-08-30 | Quedan como están |
 | **El rol 50 con nombre `null`** (`roles.php`) | — | Queda como está |
@@ -213,6 +218,9 @@ son del mapa del 2026-09-13.
 
 ## 8. Riesgos y deuda que conviene tener presentes
 
+- **✔ CORREGIDA el 2026-09-14 en el tramo sin ti** (lote 3a, bitácora 0007): las siete vías van
+  por marcador y cada una tiene su prueba de rechazo, vista fallar. Queda como historia lo que
+  había:
 - **⚠ Inyección SQL en rutas públicas: CONFIRMADA POR LECTURA.** Sin provocar, porque no hay
   permiso de peticiones HTTP ni de base de datos.
   - `publications-ajax-all` y `built-in-banner-ajax-all` no piden sesión.
@@ -225,7 +233,8 @@ son del mapa del 2026-09-13.
   - Tras sesión, el mismo patrón en tres sitios: News, Organizations y GeoJSON.
   - **Si tienes un despliegue en producción con estas rutas, conviene saberlo ya.** El arreglo
     es lo primero de la próxima jornada (lote 3a).
-- **Subido todo** el 2026-09-14: `origin/dev..dev` da 0 en los cinco repositorios.
+- **Sin subir:** 27 commits de `piecesphp` desde tu última subida, los del tramo sin ti. Los
+  paquetes no se tocaron.
 - **Versiones viejas del framework, sin soporte**: tu idea de una guía de «parches» de seguridad
   va después de la MAJOR. Tengo la historia del framework, pero no la de cada implementación.
 - **Los lotes 11 y 12 rompen compatibilidad.** Van al final y con su entrada de CHANGELOG.
@@ -238,11 +247,10 @@ son del mapa del 2026-09-13.
 
 ## 9. Cómo se sigue
 
-1. **Próxima jornada, lo primero, el lote 3a**: `PageQuery` admite valores ligados y las cinco
-   búsquedas van por marcador, cada una con su prueba de rechazo vista fallar. Al empezar, las
-   dos órdenes `/rename`.
-2. Después, **el bloque 2 de subidas** con tu respuesta a P24, o con el predeterminado si no la
-   hay. Y el mapa en su orden.
+1. **Próxima jornada**: primero, las dos órdenes `/rename`. Después, el lote 4, bloque 2: las
+   etiquetas de organizaciones sin `escapeString()` y el plan de los 14 llamadores de
+   `process()`, que ves antes de ejecutarse.
+2. Luego el mapa en su orden: OTP (5) y tokens genéricos (5b).
 3. Me detengo solo para lo tuyo: push, versionar `piecesphp`, dependencias y servicios (el
    correo), bases de datos, ramas y puntos serios.
 4. En cada cierre de tramo te dejo el resumen en `.agents/estado/tramos/`.
