@@ -5,6 +5,19 @@ description: Contrato de memoria persistente entre sesiones, agnóstico del back
 
 # Memoria persistente
 
+> **El repositorio manda.** La memoria nativa de cada herramienta vive en una máquina y en
+> un proveedor; el repositorio viaja con el proyecto. Nada que otra sesión necesite para
+> trabajar puede vivir **solo** en la memoria nativa: decisiones van a un ADR, trampas a
+> `.agents/context/`, el estado a `estado/` (regla `60-estado.md`). La memoria nativa es un
+> atajo personal, nunca la fuente.
+>
+> En este repositorio, además (`CLAUDE.md` regla 9, `20-contrato-de-trabajo.md` §6): lo que se
+> guarde en memoria solo puede ser algo que **ya viva** en `.agents/context/` o en
+> `.agents/docs/`, con el puntero a su sección. Si la memoria tiene algo que el registro no
+> tiene, **eso es el hallazgo**: se sube al registro. Arquitecto y coder de Claude Code en esta
+> máquina **comparten la misma carpeta de memoria nativa**: se añade, no se sobrescribe lo que
+> escribió el otro.
+
 Este proyecto usa memoria persistente entre sesiones y compactaciones. No dependas de ningún MCP ni servicio externo de memoria: usa el motor de memoria persistente NATIVO de la herramienta en la que estés corriendo ahora mismo — cada una ya trae uno propio, sin instalar nada. Este archivo define SOLO el contrato de comportamiento: cuándo guardar, qué guardar, cuándo buscar. El mecanismo exacto para escribir y leer es el que tu motor nativo exponga.
 
 ## Cuándo guardar (proactivo — no esperes a que se te pida)

@@ -8,6 +8,7 @@ description: Reglas núcleo de comportamiento — git, verificación, idioma, pe
 ## Git y operaciones destructivas
 
 - Nunca hagas `git add`, `git commit`, `git push`, ni ninguna otra operación que modifique el estado de git (reset, rebase, borrar ramas, forzar push, etc.) sin pedírmelo primero explícitamente. Esto aplica a CUALQUIER cambio de estado o acción destructiva, no solo a add/commit.
+- **Excepción de este repositorio (ADR 0005, 2026-09-14):** el coder prepara y commitea, en commits atómicos, el trabajo que yo nombro y el arquitecto instruye, sin pedírmelo commit a commit; la autorización consta en `.agents/estado/AHORA.md`. `git push` y lo demás reservado siguen necesitando mi permiso.
 - Usa únicamente Conventional Commits.
 - Nunca ejecutes un build después de hacer cambios, salvo que yo lo pida explícitamente.
 
