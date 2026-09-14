@@ -99,6 +99,11 @@ la ligereza de mi lenguaje»* (2026-08-24). Su frase textual solo se cita como f
   reconstruirlo (2026-09-13).
 - **Todo lo decidido queda documentado**, porque al final él tiene que reaprenderlo
   (2026-08-31), y porque quiere seguir gobernando el framework (2026-08-24).
+- **Una pregunta del PO se contesta; no se ejecuta.** «¿Podrías…?» pide una respuesta, no un
+  encargo. Nada se lanza (subagentes, lecturas masivas, instrucciones) hasta que él lo pida
+  explícitamente. Si hace falta concretar el alcance, se le pregunta y se espera. Nace el
+  2026-09-14: preguntó si se podían leer sus proyectos antiguos, pidiendo concisión, y el
+  arquitecto lanzó la lectura de 28 sin preguntar cuáles.
 - **Una pregunta rápida se contesta corta.** Un comentario suyo de seguimiento no obliga a
   reemitir la instrucción (2026-08-26, 2026-08-27).
 - **Si un bloque cambia lógica del producto, se le explica en términos de lógica** en el resumen
