@@ -49,6 +49,9 @@ PROHIBIDOS = {
     "usermod", "passwd", "visudo", "iptables", "ufw", "nft",
 }
 ENVOLTORIOS = {"env", "nohup", "time", "command", "exec", "nice", "timeout", "xargs", "watch"}
+# Lo único que un agente puede actualizar con Composer: la instrumentación de análisis que el
+# PO delegó en el arquitecto (ADR 0007).
+HERRAMIENTAS_DE_ANALISIS = {"phpstan/phpstan", "phpstan/phpstan-deprecation-rules", "rector/rector"}
 # Guiones del repositorio que no ejecuta un agente: uno sube los cinco
 # repositorios, el otro cambia propietarios y permisos del sistema.
 GUIONES_VETADOS = re.compile(r"(^|/)(push-all|permissions-and-property\.sh)$")
@@ -268,6 +271,12 @@ def revisar_bash(comando):
             continue
         cmd = os.path.basename(partes[0])
         args = partes[1:]
+        # `php8.5 /usr/bin/composer update` es composer: sin esto, la regla de dependencias no lo ve.
+        if cmd.startswith("php"):
+            for k, a in enumerate(args):
+                if os.path.basename(a) in ("composer", "composer.phar"):
+                    cmd, args = "composer", args[k + 1:]
+                    break
 
         if cmd in PROHIBIDOS or cmd.startswith("mkfs"):
             bloquear(f"'{cmd}' está prohibido para agentes (40-salvaguardas.md). Pídeselo al PO.")
@@ -282,7 +291,11 @@ def revisar_bash(comando):
         ):
             bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md).")
         if cmd == "composer" and args[:1] in (["global"], ["require"], ["install"], ["update"], ["remove"], ["upgrade"]):
-            bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md).")
+            # Excepción (ADR 0007): actualizar las herramientas de análisis, nombradas una a una.
+            # `phpstan/phpstan:2.2.12` fija la versión: cuenta el nombre.
+            paquetes = [a.split(":", 1)[0] for a in args[1:] if not a.startswith("-")]
+            if not (args[:1] == ["update"] and paquetes and all(p in HERRAMIENTAS_DE_ANALISIS for p in paquetes)):
+                bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md; excepción de análisis: ADR 0007).")
         if cmd == "chmod" and any(RUTAS_DEL_SISTEMA.search(" " + a) for a in args):
             bloquear("cambiar permisos en rutas del sistema está prohibido.")
         if cmd == "git":

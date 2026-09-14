@@ -58,8 +58,10 @@ versiona** (18 T129). En los paquetes se etiqueta con soltura (PO, 2026-08-27, c
   paquete empieza con `git -C <ruta> switch dev`** y lo comprueba con
   `git -C <ruta> branch --show-current`. La guarda deja cambiar de rama; lo que no deja es
   crearla.
-- **Verificación de cada paquete.** La instrucción la saca del `.agents/context/04-desarrollo.md`
-  de ese paquete: cada uno tiene su `bin/phpstan` y su línea base.
+- **Verificación de cada paquete.** Cada uno tiene su `bin/phpstan` y su línea base, en
+  `PHPStanResult.Summary.baseline.txt`, con el mismo trinquete que aquí. Su
+  `.agents/context/04-desarrollo.md` **no sirve de fuente**: los cuatro son el mismo archivo,
+  el de `database` (medido el 2026-09-14 con `md5sum`; `pendientes.md`, «Hallazgos de BD»).
   - Pruebas: `datastructures` y `html` tienen `phpunit.xml`; `database`, `unit-tests/`;
     `geojson`, ninguna.
   - Desde este repositorio los vigila `bin/cli verify-integrity`: la comprobación 7 (el

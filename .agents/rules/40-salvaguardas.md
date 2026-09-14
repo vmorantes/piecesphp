@@ -38,7 +38,10 @@ autoriza: la regla es esta, la guarda es una red.
 - **Nunca ejecutar** `permissions-and-property.sh` (cambia propietarios y permisos) ni builds
   (`gulp`, `bin/package-css`) sin orden explícita.
 - Dependencias (`composer install|update|require`, `npm install`, `pip install`): el PO, con
-  la propuesta y sus alternativas delante.
+  la propuesta y sus alternativas delante. **Única excepción (ADR 0007)**: `composer update` de
+  las herramientas de análisis (`phpstan/phpstan`, `phpstan/phpstan-deprecation-rules`,
+  `rector/rector`), nombradas una a una, porque el PO delegó la instrumentación en el
+  arquitecto.
 - Solo se escribe dentro del repositorio, en el scratchpad de la sesión, en `/tmp` y en la
   memoria nativa de la herramienta. Los cuatro paquetes hermanos
   (`/var/www/html/vicsen/{database,datastructures,geojson,html}`) solo cuando la instrucción
