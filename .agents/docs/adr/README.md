@@ -51,7 +51,8 @@ procedencia.
 | # | Decisión | Estructural | Estado |
 | --- | --- | --- | --- |
 | [0001](0001-tres-roles-con-canal-directo.md) | Tres roles con canal directo, sobre el registro existente | sí | Aceptada |
-| [0002](0002-donde-viven-estado-mapa-e-historia.md) | Dónde viven el estado, el mapa a la MAJOR y la historia | sí | Aceptada |
+| [0002](0002-donde-viven-estado-mapa-e-historia.md) | Dónde viven el estado, el mapa a la MAJOR y la historia | sí | Aceptada; en parte reemplazada por 0006 |
 | [0003](0003-salvaguardas-forzadas-por-maquina.md) | Salvaguardas forzadas por máquina, adaptadas a PiecesPHP | sí | Aceptada |
 | [0004](0004-subagentes-generados-desde-personas.md) | Subagentes generados desde personas, con modelo por coste del error | sí | Aceptada |
 | [0005](0005-el-coder-commitea-sin-permiso-commit-a-commit.md) | Excepción de este repositorio: el coder commitea sin pedir permiso commit a commit | sí | Aceptada |
+| [0006](0006-una-razon-de-ser-por-carpeta.md) | Una razón de ser por carpeta, y fuera el build de la documentación de la API | sí | Aceptada |

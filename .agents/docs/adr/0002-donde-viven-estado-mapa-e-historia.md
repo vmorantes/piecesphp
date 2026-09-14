@@ -1,6 +1,6 @@
 # 0002 — Dónde viven el estado, el mapa a la MAJOR y la historia
 
-- **Estado:** Aceptada
+- **Estado:** Aceptada. La ubicación de `PENDIENTES.md` y del roadmap posterior la reemplaza el ADR 0006
 - **Fecha:** 2026-09-14
 - **Decide:** Arquitecto
 - **Estructural:** sí (dónde vive algo)
