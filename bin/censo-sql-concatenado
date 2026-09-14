@@ -304,7 +304,13 @@ function asignaciones(array $tokens, int $ini, int $fin): array
         $k = $j + 1;
         $prof = 0;
         while ($k <= $fin) {
-            $t = is_array($tokens[$k]) ? $tokens[$k][1] : $tokens[$k];
+            //SOLO LA PUNTUACION CUENTA. El `(` de `"($a) AND ..."` llega como token ARRAY, subia la
+            //profundidad y tapaba el `;`: la expresion se comia el metodo. Tiene canario. Ver T168.
+            if (is_array($tokens[$k])) {
+                $k++;
+                continue;
+            }
+            $t = $tokens[$k];
             if ($t === '(' || $t === '[') {
                 $prof++;
             }
@@ -674,6 +680,11 @@ $canarios = [
         '<?php class C { public function f($request) { $t = $request->getQueryParam("t");'
         . ' $m->where(new WhereSegment([new WhereItem("type", WhereItem::EQUAL_OPERATOR, $t)])); } }',
         'DESCARTADO'],
+    //EL QUE ENGAÑABA AL MAPA: un `(` suelto dentro de un literal interpolado. Con el defecto, `$w`
+    //se comia la linea del `getQueryParam` y salia CONFIRMADO; es una constante y es DESCARTADO.
+    ['mapa · un `(` dentro de un literal no es un parentesis',
+        '<?php class C { public function f($request) { $a = 1; $w = "($a) AND x = 1";'
+        . ' $q = $request->getQueryParam("q"); $m->select()->where($w); } }', 'DESCARTADO'],
 ];
 $caido = null;
 foreach ($canarios as [$nombre, $fuente, $esperado]) {

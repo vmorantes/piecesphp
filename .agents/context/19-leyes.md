@@ -1128,3 +1128,32 @@ RELEE cuando se declara una MAJOR. Una MAJOR es, por definicion, el momento en q
 que dependian de la compatibilidad dejan de valer.
 
 **La forma corta**: *el codigo dice como esta; solo los documentos dicen si es a proposito.*
+
+### LEY 33 — LO QUE PIDE EL PROPIETARIO SE ESCRIBE EN EL MISMO TURNO
+
+**Nacida el 2026-09-13, y confirmada el 14 con la prueba delante.**
+
+El PROPIETARIO reclamo tres encargos suyos ausentes del mapa. Dos —migrar el modulo de usuarios a
+`classes/` y el mantenimiento del bloque de rupturas del CHANGELOG— **no estaban en el corpus, ni
+en el registro, ni en el resumen de compactacion que hizo de puente entre dos sesiones.** Se
+dijeron, se entendieron, se contestaron, y desaparecieron.
+
+> **Un resumen de compactacion es un puente CON PERDIDA.** Lo que cruza por el pierde lo que el
+> resumidor juzgo prescindible — y lo prescindible, visto desde fuera, es justo lo que aun no
+> tiene bloque asignado: **los encargos a futuro del PROPIETARIO.**
+
+Ninguna ley cubria eso. LEY 32 cubre lo contrario —lo escrito que no se leyo—; esto es lo dicho
+que no se escribio.
+
+> **Toda peticion, decision o «recuerdame» del PROPIETARIO produce una linea en
+> `files/dev/PENDIENTES.md` ANTES de que ARQUITECTO le conteste.** No cuando tenga bloque, no
+> cuando se decida: en el turno. **Un encargo que solo vive en la conversacion esta a una
+> compactacion de no haber existido nunca.**
+
+**Mecanismo (LEY 11)**: si el turno no produjo linea, no se leyo bien. Y la comprobacion que lo
+sostiene: **nada de lo declarado abierto en `.agents/context/` puede faltar en `PENDIENTES.md`.**
+
+**Corolario, medido el 2026-09-14**: recuperado el registro completo de eventos —13.999 eventos,
+del 19-08 al 14-09, **458 turnos del PROPIETARIO**— bastaron DIEZ de esos turnos, los que dicen
+«recuerdame» o «para el final», para sacar **dos encargos que no estaban en ninguna parte**. El
+coste de escribirlos el dia que se dijeron habria sido una linea cada uno.

@@ -7,26 +7,35 @@
     "`DECLARADO` no cuenta en la cota: son las que concatenan porque la comparación es de LISTA y la biblioteca no parametriza `IN`. Viven en `files/dev/sql-concat-declared.json` con la validación de dominio que las cierra."
   ],
   "medido": {
-    "fecha": "2026-08-31",
-    "bloque": "AK..AQ; SystemApprovals cerrado en AW",
+    "fecha": "2026-09-14",
+    "bloque": "AK..AQ; SystemApprovals cerrado en AW; el mapa de asignaciones corregido en BC",
     "herramienta": "bin/censo-sql-concatenado",
     "universo": "archivos .php bajo `src/app`, excluyendo /vendor/ /node_modules/ /bin/tools/ /logs/ /cache/ /dumps/",
     "archivos": 675,
-    "llamadas_miradas": 250,
-    "canario": "20 caras. Dos por familia como minimo, y las que separan casos que se confunden: un `orderBy([...])` con la peticion dentro SALE aunque el mismo array en `where` no; un `groupBy($v)` en un metodo con `extract()` sale a REVISAR; un `WhereSegment` con `NOT_IN_OPERATOR` NO se da por preparado; y en la novena familia, un `having_string` compuesto con la peticion SALE mientras uno que no la toca NO. `group_string` da CERO en el arbol y por eso lleva canario propio (LEY 16).",
+    "llamadas_miradas": 248,
+    "canario": "21 caras. Dos por familia como minimo, y las que separan casos que se confunden: un `orderBy([...])` con la peticion dentro SALE aunque el mismo array en `where` no; un `groupBy($v)` en un metodo con `extract()` sale a REVISAR; un `WhereSegment` con `NOT_IN_OPERATOR` NO se da por preparado; y en la novena familia, un `having_string` compuesto con la peticion SALE mientras uno que no la toca NO. `group_string` da CERO en el arbol y por eso lleva canario propio (LEY 16). Y en el MAPA, la cara que engañaba: un `(` suelto dentro de un literal interpolado —`\"($a) AND x = 1\"`— NO es un parentesis; con el defecto, la expresion se comia la linea del `getQueryParam` y salia CONFIRMADO.",
     "cota_declarada": "la traza NO cruza de metodo ni de clase: una propiedad, un parametro o el retorno de otro metodo caen en REVISAR A MANO, nunca en DESCARTADO. En `join` se mira SOLO el `$on`; la tabla, que es el primer argumento, tambien se concatena y NO se mira.",
     "familias_miradas": "Las OCHO de llamada —`where`, `having`, `orderBy`, `groupBy`, `join`, `leftJoin`, `rightJoin`, `innerJoin`— mas la NOVENA, que no es una llamada: las claves `where_string`, `having_string` y `group_string` dentro de un array literal. El reparto por familia se imprime siempre.",
     "familias_sin_censar": "`prepare($sql)` (71 llamadas), `select($campos)` (194), `get($v,$col,$cols)`, `setTable($tabla)` (6) y `rowCount($columna)` (0). Son IDENTIFICADORES, no valores de comparacion: no se arreglan con marcador sino con lista blanca, y es otro trabajo. El `LIMIT` NO esta en la lista: sale de dos parametros `?int` de `_executeSelect()` y esta cerrado por tipo.",
     "claves_de_options_sin_censar": "LEIDAS en `process()`: `select_fields` (linea 333/336), `columns_order` y `custom_order` (linea 1254) tambien acaban en el SQL, pero como IDENTIFICADORES. En `custom_order` la DIRECCION no pasa por el filtro ASC/DESC que si se aplica al `$order` de la peticion.",
     "forma_sin_censar": "LA INTERPOLACION DIRECTA EN UNA VARIABLE. El censo mira LLAMADAS —las ocho familias— y CLAVES DE ARRAY —la novena—. NO mira un valor de la peticion metido en una VARIABLE de PHP que despues se ejecuta como SQL: ni es una llamada ni es una clave, asi que no tiene por donde entrar. EL CASO QUE LO PROBO: `DataTablesHelper::processFromQuery()`, donde el HAVING de la busqueda se interpolaba dentro de `$sqlBaseQuery` y salia por `prepare()`. Vivio ahi desde siempre y el censo dio CERO todo ese tiempo. Ver T166 y T167.",
     "significado_del_cero": "`CONFIRMADO 0` significa que no quedan concatenaciones DE LAS FORMAS QUE EL CENSO MIRA. NO significa que no quede SQL concatenado en el arbol: `forma_sin_censar`, `familias_sin_censar` y `claves_de_options_sin_censar` dicen que se queda fuera. Un cero cuyo alcance no esta escrito es peor que no tener el cero. LEY 15 y LEY 16.",
+    "resultado_interpolado": {
+      "herramienta": "bin/censo-sql-interpolado",
+      "medido": "2026-09-14, sobre el mismo universo: 675 archivos",
+      "cifras": "A 223 · B 38 · C 6 · indecisas 16 · salen del metodo 126, el 57%",
+      "que_es_cada_una": "A: asignaciones que arman una cadena SQL metiendo una VARIABLE. B: de A, las que alcanzan `prepare`, `query` o `exec` en el MISMO metodo. C: de B, las que interpolan un valor de la PETICION. Que es un valor de la peticion lo decide este censo: el guion lo requiere y usa sus `FUENTES` y su `resuelve()`.",
+      "cota": "LA TRAZA NO CRUZA DE METODO. Si la variable sale —`return`, `$this->algo` o pasada como argumento— va a REVISAR A MANO, nunca a DESCARTADO, y son 126 de 223. Una decima familia construida sobre esta traza mediria el 43% del arbol y tendria que decirlo.",
+      "las_seis_de_C": "UNA SOLA CADENA en `DataTablesHelper::processFromQuery()`, lineas 982, 987, 996, 997, 1142 y 1151. Lo que la peticion aporta ahi es un IDENTIFICADOR, no un valor: el nombre de columna sale de `$columns_order`, del servidor, y de `columns` solo se lee la bandera `searchable`. Es el trabajo de `claves_de_options_sin_censar`: el lote de identificadores.",
+      "por_que_no_se_cablea": "Su unico hallazgo es justo lo que el lote de identificadores va a mover, y cablearlo ahora congelaria una cifra a punto de cambiar. Se cablea CON ese lote, cuando su cifra deje de estar a punto de moverse. La decima familia NO nace ahora: decision de ARQUITECTO en BC, con C = 6 delante."
+    },
     "migracion": "AQ: 4 archivos que llaman a `process()` usan YA segmento y 14 siguen en cadena. La cifra la imprime el censo y sale del arbol, no de un conteo a mano. Un archivo con dos llamadas puede estar en las DOS columnas: `DocumentsController` lo esta, porque migro `dataTablesExplorer` y `dataTables` sigue en cadena."
   },
   "cifras": {
     "confirmado": 0,
-    "declarado": 12,
-    "revisar": 103,
-    "descartado": 134
+    "declarado": 8,
+    "revisar": 105,
+    "descartado": 135
   },
   "_historia": [
     "AJ: 9 con el censo mirando SOLO `->where(`. Se arregló `Country::search()` y quedaron 8.",
@@ -58,6 +67,7 @@
     "AW: CONFIRMADO llega a CERO. `SystemApprovalsController::dataTables` tenia dos hallazgos: `referenceAlias` migra a `where_segment` —por marcador— y `elapsedDays` se declara con su `isInteger` de AO. El metodo ya no tiene ninguno abierto, asi que declararlo ya no indulta a nadie: la regla que lo impedia era correcta y deja de aplicar sola.",
     "AW: el `having_string` NO migra, y se dice por que: `columns_order` son columnas buscables reales, asi que `generateHaving` produce contenido en cuanto alguien escribe y la guarda de AP pararia el `having_segment`. Migrara cuando `HavingSegment` agrupe.",
     "AW: cero NO significa que no quede SQL concatenado. Significa que todo el que recibe valor de peticion esta DECLARADO con su validacion, o va por marcador. Los 12 declarados siguen ahi y la cota impresa sigue nombrando lo que no se mira.",
-    "BB: se declara la CEGUERA de forma, que AZ probo: el censo no ve la interpolacion directa en una variable. Este bloque solo la nombra y la mide; NO cambia el trinquete ni nace familia decima. Ver `forma_sin_censar`, `significado_del_cero` y T167."
+    "BB: se declara la CEGUERA de forma, que AZ probo: el censo no ve la interpolacion directa en una variable. Este bloque solo la nombra y la mide; NO cambia el trinquete ni nace familia decima. Ver `forma_sin_censar`, `significado_del_cero` y T167.",
+    "BC: `asignaciones()` contaba el `(` de un literal interpolado como parentesis, y la expresion se comia el resto del metodo. Corregido: DECLARADO 10 -> 8 y REVISAR 103 -> 105, y NO ES UNA MEJORA: las dos entradas de `process()` —hoy 412 y 650— nunca estuvieron tan decididas como decia el instrumento. CONFIRMADO sigue en 0. Y esta linea base estaba rancia por su lado: `cifras` decia 12 declaradas y 134 descartadas con el censo midiendo 10 y 135, y `llamadas_miradas` 250 con 248. Se reconcilian con esta medicion. Ver T168."
   ]
 }

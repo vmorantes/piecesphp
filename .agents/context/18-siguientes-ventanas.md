@@ -17680,3 +17680,173 @@ aquí —el `[REPARTO]` es del trinquete de ARQUITECTO— pero queda con su comm
 - El defecto de profundidad de `asignaciones()` en el censo hermano.
 - La línea base de PHPStan, rancia desde AW.
 - `select_fields`, `columns_order`, `custom_order` y las cinco familias de identificadores.
+
+## T168 · BC · La línea base dice una cifra, y un censo deja de parecer más decidido de lo que está
+
+**Bloque BC.** Dos instrumentos que exageraban, cada uno a su manera, y una deuda de registro que
+se reabre. **Ni una línea de código de producción.** Decisión de ARQUITECTO, tomada antes del
+bloque: **la décima familia no nace ahora** —C = 6, las seis en un método, y lo que llega de la
+petición es un identificador—.
+
+### Antes de empezar: tres errores de T167, medidos
+
+- **El `[REPARTO] 744 <- 747` SÍ estaba escrito**: línea 79 de la línea base, lo escribí yo en AW,
+  y BA añadió `744 <- 744` encima. En T167 dije que la línea base «llevaba cuatro bloques sin que
+  nadie la mirase». Lo que nunca se regeneró fue **el campo y la instantánea**, no los repartos.
+- **Los tres no murieron por `getContentTypes()`.** El reparto de AW dice que mueren al reescribir
+  `SystemApprovalsMapper::getReferencesAliases()`, y la instantánea lo confirma: el único par que
+  cambia de cuenta es `SystemApprovalsMapper.php · argument.type`. `getContentTypes()` vive en la
+  interfaz y en los handlers. **El recuadro de BC repitió ese origen porque lo copió de T167: el
+  error es mío.** T167 no se reescribe.
+- **Las rupturas numeradas del CHANGELOG eran 11, no 12.** Y la sección está partida: entre la 8 y
+  la 9 hay un `---` y una entrada `## lc_time_names`. No se re-audita aquí (3.3).
+
+### PASO 1 · La línea base vuelve a ser una
+
+| | antes | después |
+| :-- | --: | --: |
+| la cabecera, en prosa | 749 | **no nombra cifra** |
+| el campo `[TOTAL DE ERRORES VISIBLES]` | 747 | **744** |
+| el `[REPARTO]` más reciente, lado izquierdo | 744 | 744 |
+| el árbol, con phpstan 2.2.12 | 744 | 744 |
+
+**La regeneración no trae nada más que los tres (1.4).** Comparando la instantánea por pares
+(archivo, identificador) y sin números de línea, **cambia de cuenta un solo par**:
+`SystemApprovalsMapper.php · argument.type`, 3 → 0. Son 171 archivos antes y después; lo demás son
+desplazamientos. Sin parada.
+
+**La cabecera dice de dónde sale la cifra, no la repite**: *«UNIVERSO COMPLETO, en TRIPLETAS. Sale
+de `bin/phpstan` —dos pasadas, 8.4 y 8.5, y su unión— y se midió con phpstan 2.2.12 el 2026-09-14.
+LA CIFRA VIVE EN UN SOLO SITIO: el campo del [RESUMEN] del final.»*
+
+**El reparto no nace aquí: ya estaba.** `bin/phpstan` pasa de *«744 contra un baseline de 747 (-3).
+Actualiza el baseline»* a **«744, igual que el baseline»**, con el reparto cuadrado 747 → 744.
+
+**Un desplazamiento propio**: la comprobación 26 añade siete líneas por encima de un
+`argument.type` de `VerifyIntegrityTask.php`, que pasa de la 360 a la 367. Es la misma tripleta, y
+por eso los tres artefactos cambian una línea cada uno. **La instantánea se volvió a copiar después
+del último PHPStan**: si no, habría nacido un desplazamiento por detrás del árbol, que es justo el
+vicio que este paso corrige.
+
+#### La comprobación 26
+
+Compara las tres fuentes del archivo —el campo, el lado izquierdo del `[REPARTO]` más reciente y la
+cabecera si nombra alguna cifra— y **falla si no existe el archivo** (LEY 18). Lee con las
+convenciones de `bin/phpstan-process-result.php`: el campo es la ÚLTIMA coincidencia, porque la
+nota de método cita la cabecera del campo, y los repartos van del más reciente al más antiguo.
+**Ese orden no se supone: se comprueba que cada reparto parta de donde llega el siguiente.** Los 14
+forman cadena.
+
+**ROJA CONTRA LA LÍNEA BASE REAL, sin provocar nada**, antes de reconciliar:
+
+```
+LÍNEA BASE: el campo [TOTAL DE ERRORES VISIBLES] dice 747 y el [REPARTO] más reciente llega a 744
+LÍNEA BASE: la cabecera nombra 749 y el campo [TOTAL DE ERRORES VISIBLES] dice 747
+```
+
+**VERDE**, reconciliada: *«744 en el campo, igual que el [REPARTO] más reciente (744 <- 744); 14
+reparto(s) encadenados; la cabecera no nombra cifra.»*
+
+| provocación | rojo |
+| :-- | :-- |
+| el campo cambiado a mano, 744 → 745 | «el campo … dice 745 y el [REPARTO] más reciente llega a 744» |
+| la cabecera vuelve a decir `749 tripletas` | «la cabecera nombra 749 y el campo … dice 744» |
+| el archivo no existe | «no existe …: la línea base de PHPStan NO se ha comprobado» |
+
+sha256 idéntico antes y después de las tres.
+
+> **UN TROPIEZO MÍO**: la primera versión de la provocación del campo usaba `\R` en una expresión
+> regular de Python, que no la entiende. **Abortó sin tocar el archivo, y su ejecución salió
+> VERDE**: un verde que no probaba nada. Se repitió con `\r?\n`. Una provocación que no comprueba
+> que provocó es un verde más.
+
+### PASO 2 · `asignaciones()` deja de contar paréntesis dentro de literales
+
+| | antes | después |
+| :-- | --: | --: |
+| CONFIRMADO | 0 | **0** |
+| DECLARADO | 10 | 8 |
+| REVISAR | 103 | 105 |
+| DESCARTADO | 135 | 135 |
+
+> **DECLARADO 10 → 8 NO ES UNA MEJORA.** Era una cifra inflada: los sitios de
+> `DataTablesHelper::process()` que hoy son las líneas 412 y 650 salían decididos porque el mapa
+> contaba el `(` de `"($a) AND …"` como paréntesis, y la expresión se comía el resto del método.
+> Con el corte correcto son indecisos. **Nunca estuvieron tan decididos como decía el instrumento.**
+
+`sql-concat-declared.json`: el `count` de `process()` pasa de 5 a 3, con un campo `recuento` que
+lo dice en esos términos. Siguen declarados los tres de las líneas 419, 424 y 657.
+
+**EL CANARIO GANA LA CARA QUE ENGAÑABA**, y ya son 21: un `(` suelto dentro de un literal
+interpolado no es un paréntesis. **PROVOCADO** quitando solo el arreglo y dejando la cara:
+
+```
+CANARIO CAÍDO: mapa · un `(` dentro de un literal no es un parentesis — esperaba DESCARTADO, obtuvo CONFIRMADO
+```
+
+Restaurado con el mismo sha256 (`e3c2d1d5…`). Trinquete verde, `CONFIRMADO` en 0.
+
+**Y LA LÍNEA BASE DEL CENSO TAMBIÉN ESTABA RANCIA, por su lado**: `cifras` decía 12 declaradas y
+134 descartadas con el censo midiendo 10 y 135, y `llamadas_miradas` decía 250 con 248. El trinquete
+solo compara `CONFIRMADO` y el universo, así que nadie lo veía. Reconciliadas con esta medición.
+
+> **UN HUECO QUE SE REPORTA Y NO SE TOCA.** El trinquete de declaradas solo falla si hay MÁS
+> concatenaciones que su `count`. Un `count` mayor que lo visto pasa en silencio: con 5 declaradas
+> y 3 vistas, **dos concatenaciones nuevas en `process()` habrían entrado gratis**. Bajar el `count`
+> cierra este caso; cerrar la forma cambia la semántica de una guarda, y eso es una decisión.
+
+### PASO 3 · El CHANGELOG vuelve al procedimiento
+
+Entran **tres rupturas**, numeradas 12, 13 y 14:
+
+- **`contact-forms-general` deja de devolver `logMailer`**: ruta pública, y su respuesta cambia.
+- **El listado de perfiles de `MySpace` deja de mostrar usuarios sin aprobar.** Aquí eran 0
+  —medido en AZ—; en un clon con datos, no tienen por qué.
+- **`bin/tools` se instala siempre desde su lock.** Acotada: solo rompe a quien añadió o subió
+  herramientas en `bin/tools/composer.json` sin actualizar el lock.
+
+**Lo que NO cuento como ruptura, con su motivo:**
+
+- **`having_segment` con búsqueda** (la guarda de AP retirada): antes LANZABA, ahora funciona.
+  **Ninguna llamada que funcionaba cambia de resultado**, y la guarda era interna al helper. Entra
+  como entrada normal, y dice que las dos exclusiones siguen lanzando.
+- **Las comprobaciones 25 y 26**: son puertas de desarrollo. El precedente del CHANGELOG las pone en
+  «Herramientas».
+- **La vigilancia de la versión del analizador** (BA): también es puerta de desarrollo, pero **falla,
+  no avisa** —medido: `$failures[]` en `checkSharedToolchain()`—, así que su entrada lo dice.
+
+Y las entradas normales de AX, AY, BA, AZ, BB y este bloque. **Cada una dice qué cambia para quien
+clona, no qué hicimos.**
+
+### PASO 4 · `censo-sql-interpolado` se declara, no se cablea
+
+Medido otra vez antes de escribirlo, no copiado: **A 223 · B 38 · C 6 · indecisas 16 · salen del
+método 126, el 57%**. En `sql-concat-baseline.json`, junto a `forma_sin_censar`, entra
+`resultado_interpolado`: sus cifras, qué es cada una, **su cota**, que las seis de C son una sola
+cadena en `processFromQuery()` donde llega un IDENTIFICADOR, y **por qué no se cablea**. Se cablea con
+el lote de identificadores, cuando su cifra deje de estar a punto de moverse.
+
+### LEY 33
+
+Apareció en `19-leyes.md` con el bloque en vuelo, como anunciaba el recuadro. **Leída entera antes
+de prepararla**, y va dentro del commit. Su mecanismo —*nada de lo declarado abierto en
+`.agents/context/` puede faltar en `PENDIENTES.md`*— **no existe todavía como comprobación.**
+
+### Cierre
+
+- `verify-integrity`: **26 comprobaciones**, 26 líneas INFO, verde.
+- `gates`: 25 suites, 0 sin veredicto, 2 fuera declaradas. `sql-placeholders` 55/55.
+- PHPStan: **744, igual que la línea base**, phpstan 2.2.12. Reparto: 0 murieron · 0 nacieron ·
+  0 silenciadas · 0 destapadas · 1 desplazada, la mía.
+- Censo SQL: CONFIRMADO 0 · DECLARADO 8. Censo interpolado: 223 · 38 · 6.
+- **Cuatro números**: previsto 7 (+3 artefactos +2 de ARQUITECTO) · cambiado 13 · añadido 12 ·
+  pendientes 1 (`vps/index.md`). **`tags.txt` salió del árbol con el bloque en vuelo, y no por mí**:
+  no estaba versionado y nadie del bloque lo tocó. Era el pendiente `P15`, con «borrarlo» por
+  predeterminado. El recuadro preveía 2 pendientes, y la guarda cuadra con 1.
+
+### Lo que queda abierto
+
+- El hueco del `count` mayor que lo visto en el trinquete de declaradas.
+- La comprobación que sostiene LEY 33.
+- La sección de rupturas partida entre la 8 y la 9.
+- El lote de identificadores, que es donde se cablea `censo-sql-interpolado`.

@@ -253,6 +253,36 @@ obligatorio salía como error del servidor. Se traduce en el manejador global de
 listados `-ajax-all` y `-ajax-all2` **siguen siendo públicos**: sirven APIs públicas. Sin sesión,
 las cinco búsquedas redirigen al login.
 
+### 12 · `contact-forms-general` deja de devolver el registro SMTP
+
+La respuesta JSON del formulario de contacto —una ruta **pública**— llevaba en `values.logMailer`
+el registro de la conversación SMTP cuando el envío fallaba: con `SMTPDebug = 2`, el banner del
+servidor y el texto del fallo, a la vista de cualquiera. **Esa clave ya no existe.** El registro
+va a `log_exception()`, al registro de errores del servidor.
+
+`values` trae ahora solo `redirect`, `redirect_to` y `reload`, y `message` sigue diciendo por qué
+falló. **Si tu cliente leía `logMailer`, léelo del registro de errores.**
+
+### 13 · El listado de perfiles de `MySpace` deja de mostrar usuarios sin aprobar
+
+`AllProfilesController` armaba el `HAVING` como `A AND B OR C`, y `AND` liga más fuerte: se leía
+`(aprobado AND sin tipo) OR (tipo permitido)`, así que **las organizaciones se filtraban por
+aprobación y los usuarios no**. Ahora va entre paréntesis y la aprobación se exige a los dos.
+
+**Si tu instalación tiene usuarios sin aprobar de un tipo permitido, desaparecen del listado.** En
+la instalación de referencia no había ninguno —2 filas antes y 2 después, medido—, así que ahí no
+se nota; en la tuya puede.
+
+### 14 · Las herramientas de desarrollo se instalan siempre desde su lock
+
+Al instalar, `TasksManager` hacía `composer update` en `bin/tools` si ya existía `vendor/`, y eso
+ignoraba `bin/tools/composer.lock`, que está versionado: dos clones podían medir con analizadores
+distintos. **Ahora hace siempre `install`.**
+
+**Solo te afecta si añadiste o subiste herramientas en `bin/tools/composer.json` sin actualizar su
+lock**: dejan de instalarse solas, porque composer instala lo que dice el lock y avisa de que va
+desfasado. Actualiza el lock a mano dentro de `bin/tools` y versiónalo.
+
 ---
 
 ## La búsqueda de países manda el valor por marcador, no concatenado
@@ -278,6 +308,69 @@ Las tres quedan declaradas, con la validación que cierra cada una, en
 
 **Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
 fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
+
+## Herramientas — `verify-integrity` comprueba que la línea base de PHPStan dice una sola cifra
+
+`PHPStanResult.Summary.baseline.txt` nombraba la cifra vigente en tres sitios —la cabecera, el
+campo `[TOTAL DE ERRORES VISIBLES]` y el `[REPARTO]` más reciente—, y cada uno derivó por su lado
+hasta decir 749, 747 y 744. La comprobación 26 falla si no concuerdan, si la cadena de repartos se
+rompe o si el archivo no existe. La cabecera ya no repite la cifra: dice de dónde sale y con qué
+analizador se midió.
+
+**Si mantienes tu propia línea base**, escribe la cifra en el campo y en su `[REPARTO]`, y en
+ningún otro sitio.
+
+## Herramientas — el censo de SQL deja de contar paréntesis dentro de un literal
+
+El mapa de asignaciones de `bin/censo-sql-concatenado` contaba el `(` de `"($a) AND …"` como un
+paréntesis, y la expresión se comía el resto del método. Dos sitios de `DataTablesHelper::process()`
+salían decididos sin estarlo, y pasan de declarados a revisar a mano. **`DECLARADO` baja de 10 a 8
+y no es una mejora: era una cifra inflada.** `CONFIRMADO` sigue en 0, y un canario nuevo cae si el
+defecto vuelve.
+
+## Herramientas — `bin/censo-sql-interpolado`: lo que el censo de SQL no mira
+
+`bin/censo-sql-concatenado` mira llamadas y claves de array; no ve un valor de la petición metido
+en una variable que después se ejecuta como SQL. El guion nuevo lo mide: 223 cadenas SQL armadas
+con una variable, 38 llegan a `prepare`, `query` o `exec` en su propio método, y 6 llevan algo de
+la petición —las seis son una sola cadena en `processFromQuery()`, y lo que llega es un nombre de
+columna, no un valor—. **No es una puerta**: su traza no cruza de método, y 126 de las 223 cadenas
+salen del suyo. `files/dev/sql-concat-baseline.json` dice ahora qué significa `CONFIRMADO 0`: que no
+quedan concatenaciones **de las formas que el censo mira**.
+
+## Corregido — la búsqueda de `processFromQuery()` metía el texto buscado en el SQL
+
+`DataTablesHelper::processFromQuery()` —la que usa el listado de perfiles de `MySpace`— interpolaba
+el HAVING de la búsqueda en la sentencia. Ahora el texto buscado viaja por marcador. Los resultados
+no cambian.
+
+## Herramientas — `verify-integrity` vigila la versión del analizador
+
+`files/dev/shared-toolchain.json` declara con qué versión de PHPStan mide cada repositorio, y
+**`verify-integrity` falla si la instalada es otra**. Si subes PHPStan en `bin/tools`, declara la
+versión nueva en el mismo cambio. El analizador pasa a phpstan 2.2.12 y Rector a 2.6.6, y la cifra
+de errores no se movió con la subida.
+
+La comparación de etiquetas acepta ya `vX`, `vX.Y` y `vX.Y.Z`: antes descartaba en silencio las que
+no tenían tres partes.
+
+## Herramientas — el censo de formas de lectura pasa a ser puerta
+
+`bin/censo-formas-de-lectura --trinquete` entra en `verify-integrity` como comprobación 25: falla si
+una forma «para leer» —como `getCompiledSQL()` sin argumento, que produce SQL no ejecutable— acaba
+ejecutándose sin estar declarada en `files/dev/reading-forms-baseline.json`.
+
+## `having_segment` convive con la búsqueda de DataTables
+
+`piecesphp/database` sube a **4.1.0**, que es aditiva: `HavingSegment::addGroup()` y
+`HavingItemGroup` permiten expresar `(a OR b) AND c`. Con eso, cuando un listado pasa
+`having_segment`, `DataTablesHelper::process()` le añade la búsqueda como un grupo unido con `AND`,
+y el texto buscado viaja por marcador. Sin `having_segment`, todo sigue como estaba.
+
+**Pasar `having_segment` en un listado con búsqueda ya no lanza**: antes lanzaba porque la búsqueda
+se habría perdido. Las dos exclusiones —cadena y segmento a la vez— siguen lanzando.
+`OrganizationsController` y `PublicationsController` pasan a `having_segment` y conservan la
+validación de dominio de sus filtros.
 
 ## Corregido — el filtro de aprobaciones no encontraba nada fuera de español
 

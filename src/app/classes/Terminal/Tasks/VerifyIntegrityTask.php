@@ -225,6 +225,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 25. Ninguna forma «para leer» acaba ejecutándose sin declararlo ───────────
         $readingFailures = self::checkReadingForms();
 
+        //──── 26. Las tres cifras de la línea base de PHPStan dicen lo mismo ────────────
+        $baselineFailures = self::checkPhpStanBaselineAgrees();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
@@ -234,7 +237,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($orderFailures) + count($orphanFailures)
             + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
             + count($symlinkFailures) + count($langFailures) + count($tagFailures)
-            + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures);
+            + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures)
+            + count($baselineFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -256,6 +260,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($readingFailures as $line) {
             echoTerminal("\e[31mFORMA DE LECTURA:\e[39m {$line}");
+        }
+        foreach ($baselineFailures as $line) {
+            echoTerminal("\e[31mLÍNEA BASE:\e[39m {$line}");
         }
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -316,7 +323,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks y ramas gemelas sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas y línea base de PHPStan sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -2579,6 +2586,84 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'formas de lectura comprobadas.'));
         return [];
+    }
+
+    /** La línea base de PHPStan. Su cifra vive en el campo; los otros dos sitios tienen que coincidir. */
+    const PHPSTAN_BASELINE_RELATIVE_PATH = 'PHPStanResult.Summary.baseline.txt';
+
+    /**
+     * Las tres cifras de la línea base de PHPStan dicen lo mismo.
+     *
+     * El archivo nombra la cifra vigente en TRES sitios: el campo `[TOTAL DE ERRORES VISIBLES]`
+     * de su instantánea, el lado izquierdo del `[REPARTO]` más reciente, y la cabecera si nombra
+     * alguna. Derivaban cada uno por su lado —749 en la cabecera, 747 en el campo, 744 en el
+     * reparto, que era la verdad—, y `bin/phpstan-process-result.php` solo mira el campo.
+     *
+     * Lee con las convenciones de ese guion: el campo es la ÚLTIMA coincidencia y los repartos
+     * van del más reciente al más antiguo. Ese orden no se supone: se comprueba que cada reparto
+     * parta de donde llega el siguiente. Ver T168.
+     *
+     * @return string[]
+     */
+    protected static function checkPhpStanBaselineAgrees(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $path = $root . '/' . self::PHPSTAN_BASELINE_RELATIVE_PATH;
+
+        if (!is_file($path)) {
+            //Una comprobación que no encuentra lo que compara NO reporta «todo bien». LEY 18.
+            return ['no existe ' . self::PHPSTAN_BASELINE_RELATIVE_PATH . ': la línea base de PHPStan NO se ha comprobado'];
+        }
+        $text = (string) file_get_contents($path);
+
+        if (preg_match_all('/\[TOTAL DE ERRORES VISIBLES\]\s*\R\s*(\d+)/u', $text, $campos) < 1) {
+            return [self::PHPSTAN_BASELINE_RELATIVE_PATH . ': no tiene campo [TOTAL DE ERRORES VISIBLES]; sin él no hay cifra que comparar'];
+        }
+        $campo = (int) $campos[1][count($campos[1]) - 1];
+
+        if (preg_match_all('/\[REPARTO\]\s*(\d+)\s*<-\s*(\d+)/u', $text, $repartos, \PREG_SET_ORDER) < 1) {
+            return [self::PHPSTAN_BASELINE_RELATIVE_PATH . ': no tiene ningún [REPARTO]; sin él la cifra no dice de dónde viene'];
+        }
+
+        $failures = [];
+        $total = count($repartos);
+        for ($i = 0; $i < $total - 1; $i++) {
+            //LA CADENA PRUEBA EL ORDEN: sin ella, «el primero es el más reciente» sería una suposición.
+            if ((int) $repartos[$i][2] !== (int) $repartos[$i + 1][1]) {
+                $failures[] = 'la cadena de [REPARTO] se rompe: «' . trim($repartos[$i][0]) . '» parte de '
+                    . $repartos[$i][2] . ' y el siguiente, «' . trim($repartos[$i + 1][0]) . '», llega a '
+                    . $repartos[$i + 1][1] . '. Sin cadena no se sabe cuál es el más reciente.';
+            }
+        }
+
+        $ultimo = (int) $repartos[0][1];
+        if ($campo !== $ultimo) {
+            $failures[] = 'el campo [TOTAL DE ERRORES VISIBLES] dice ' . $campo . ' y el [REPARTO] más reciente llega a '
+                . $ultimo . ' («' . trim($repartos[0][0]) . '»). Son la misma cifra y no concuerdan.';
+        }
+
+        $cabecera = '';
+        if (preg_match('/\[NOTA DE MEDICIÓN\][^\n]*\R\s*(.+?)(?:\R[ \t]*\R|\z)/su', $text, $nota) === 1) {
+            $cabecera = $nota[1];
+        }
+        $enCabecera = [];
+        if (preg_match_all('/(\d{1,3}(?:\.\d{3})+|\d+)\s+(?:tripletas?|errores)\b/iu', $cabecera, $nombradas) > 0) {
+            $enCabecera = array_map(fn ($n) => (int) str_replace('.', '', $n), $nombradas[1]);
+        }
+        foreach ($enCabecera as $nombrada) {
+            if ($nombrada !== $campo) {
+                $failures[] = 'la cabecera nombra ' . $nombrada . ' y el campo [TOTAL DE ERRORES VISIBLES] dice ' . $campo
+                    . '. La cabecera dice DE DÓNDE sale la cifra, no la repite.';
+            }
+        }
+
+        if (count($failures) === 0) {
+            echoTerminal("\e[94mINFO:\e[39m línea base de PHPStan: " . $campo . ' en el campo, igual que el [REPARTO] más reciente ('
+                . $ultimo . ' <- ' . $repartos[0][2] . '); ' . $total . ' reparto(s) encadenados; la cabecera '
+                . (count($enCabecera) > 0 ? 'nombra la misma cifra.' : 'no nombra cifra.'));
+        }
+
+        return $failures;
     }
 
     /**
