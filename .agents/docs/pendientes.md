@@ -577,6 +577,29 @@ historia de git los conserva.
     Newsletter, NewsCategory, News, Organizations, Point, City, State, Documents, DocumentTypes,
     Categories, PublicationsCategory, Publications y Users. Todos tienen la misma forma. `#030`
     los audita todos.
+- **CERRADO el 2026-09-14 en `#030`/`#031`** (bitácora 0007). Van por marcador las siete vías:
+  - `title` de publications y del banner, e `ignoreSlugs` de publications, que son públicas;
+  - `newsTitle` e `ignoreSlugs` de news, `name` de organizations y `search` de GeoJSON, tras
+    sesión.
+  Lo que sigue abierto:
+  - **Los comodines `%` y `_` del LIKE**, con el lote 4.
+  - **Un instrumento que vea esta forma**: el censo interpolado no toma `PageQuery` como
+    sumidero y la traza no cruza de método. Hoy la cierran las pruebas de la sección 14.
+    Candidato: un censo por FORMA, «un valor interpolado ENTRE COMILLAS en una cadena SQL»,
+    venga de donde venga, con trinquete a 0 o declarado.
+  - **H1 de `#031`:** `DocumentsController.php:1026-1028` pasa `["status" => …]` por
+    `implode(' ', …)` y deja solo el valor: `/documents/all` lista también los inactivos. Es un
+    fallo de lógica, no una inyección. SIN VERIFICAR por el arquitecto.
+  - **H2 de `#031`:** la clave de caché de `PublicationsController::all` (`:1155-1164`) no
+    incluye `ignoreSlugs` ni `random`, así que dos peticiones que solo difieren en eso comparten
+    respuesta. Va en `#032`.
+  - **H3 de `#031`, DECISIÓN DEL PO (P25):** `/points/all`, `/cities/all` y `/states/all` listan
+    tablas enteras sin sesión (`Locations.php:295`). No son inyectables. **Predeterminado**: se
+    quedan públicas, porque son datos de referencia geográfica que usan los formularios
+    públicos. SIN VERIFICAR qué formularios los usan.
+  - **H4 de `#031`:** la base local no tiene filas con las que una prueba por resultado
+    discrimine. Una semilla de lectura lo permitiría, pero escribir en la base pide
+    autorización.
 - **H2. El mismo patrón tras sesión**, verificado en el código por el arquitecto:
   - `NewsController.php:1225` (`newsTitle`), en `news-admin-ajax-all`;
   - `OrganizationsController.php:1350` (`name`), en `organizations-admin-ajax-all`;

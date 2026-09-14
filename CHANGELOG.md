@@ -285,6 +285,31 @@ desfasado. Actualiza el lock a mano dentro de `bin/tools` y versiónalo.
 
 ---
 
+## ⚠ Corregido — inyección SQL en las búsquedas de los listados paginados, dos de ellos públicos
+
+Estas rutas metían en su SQL, sin escapar, un valor que manda quien pide:
+- **Sin sesión:**
+  - `publications-ajax-all`, en sus parámetros `title` e `ignoreSlugs`;
+  - `built-in-banner-ajax-all`, en `title`.
+- **Con sesión:**
+  - `news-admin-ajax-all`, en `newsTitle` e `ignoreSlugs`;
+  - `organizations-admin-ajax-all`, en `name`;
+  - `geojson-manager-admin-contents-geojson-features`, en `search`.
+
+Ahora esos valores viajan por marcador. **Las búsquedas legítimas devuelven lo mismo que antes.**
+`ignoreSlugs` valida además todos sus elementos; antes solo miraba el último.
+
+**Si tu despliegue tiene alguna de estas rutas, actualiza.** Y si copiaste el patrón a un módulo
+tuyo, búscalo: una cadena SQL que mete `{$variable}` entre comillas y acaba en `PageQuery` o en
+`prepare()` sin valores.
+
+## `PageQuery` acepta valores ligados
+
+`new PageQuery($select, $count, $page, $perPage, 'total', [':nombre' => $valor])`. El sexto
+parámetro es opcional; sin él, todo sigue igual. Cada consulta recibe solo los valores cuyos
+marcadores lleva. Solo se admiten marcadores con nombre, no `?`. **Sin valores, el SQL tiene que
+ser tuyo, nunca de la petición.**
+
 ## Herramientas — `verify-integrity` pone trinquete a los censos de identificadores e interpolación
 
 Dos comprobaciones nuevas, la 27 y la 28, que fallan y no solo avisan:
