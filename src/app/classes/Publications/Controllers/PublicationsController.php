@@ -1134,6 +1134,8 @@ class PublicationsController extends AdminPanelController
 
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
+        $currentUser = getLoggedFrameworkUser();
+        [$status, $ignoreStatus] = self::publicStatusFilter($status, $ignoreStatus, $currentUser !== null ? (int) $currentUser->type : null);
 
         if (self::ENABLE_CACHE) {
 
@@ -1365,6 +1367,24 @@ class PublicationsController extends AdminPanelController
         ]);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * El estado que puede pedir quien consulta el listado. Sin permiso de borradores, el pedido no
+     * cuenta y se aplica ACTIVE, con el mismo criterio que singleView().
+     *
+     * @param int|null $status
+     * @param bool $ignoreStatus
+     * @param int|null $userType Tipo del usuario con sesión, o null sin sesión
+     * @return array{0:int|null,1:bool}
+     */
+    protected static function publicStatusFilter(?int $status, bool $ignoreStatus, ?int $userType): array
+    {
+        //La ruta es pública: el `status` de la petición solo cuenta con permiso de borradores.
+        if ($userType === null || !in_array($userType, PublicationMapper::CAN_VIEW_DRAFT, true)) {
+            return [null, false];
+        }
+        return [$status, $ignoreStatus];
     }
 
     /**

@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $mensaje = 'mensaje-de-control';
 
     //──── 1. BaseHashEncryption::hashVerify ─────────────────────────────────────────────
-    echoTerminal('[1/6] hashVerify() RECHAZA una firma que no es la suya');
+    echoTerminal('[1/7] hashVerify() RECHAZA una firma que no es la suya');
 
     $firmaBuena = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -77,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. BaseToken::verify, y el valor que NO es falsy ──────────────────────────────
-    echoTerminal('[2/6] verify() rechaza, y su código de error SÍ es truthy');
+    echoTerminal('[2/7] verify() rechaza, y su código de error SÍ es truthy');
 
     $firmaToken = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -104,7 +104,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. decode() no entrega el contenido de un token con firma alterada ────────────
-    echoTerminal('[3/6] decode() y check() RECHAZAN un token manipulado');
+    echoTerminal('[3/7] decode() y check() RECHAZAN un token manipulado');
 
     $tokenBueno = BaseToken::encode(['dato' => 'valor-original'], $llave, 'HS256');
     $partes = explode('.', $tokenBueno);
@@ -186,7 +186,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Roles::hasPermissions ──────────────────────────────────────────────────────
-    echoTerminal('[4/6] hasPermissions() niega lo que no está concedido');
+    echoTerminal('[4/7] hasPermissions() niega lo que no está concedido');
 
     $roles = Roles::getRoles();
     $rutas = get_routes();
@@ -258,7 +258,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. get_route_roles_allowed y su cadena sin `else` ─────────────────────────────
-    echoTerminal('[5/6] get_route_roles_allowed() con un `$type` que no contempla');
+    echoTerminal('[5/7] get_route_roles_allowed() con un `$type` que no contempla');
 
     //Hace falta una ruta que DECLARE roles: con la lista vacía, la rama sin `else` no se
     //distingue de la buena y la comprobación no significaría nada.
@@ -308,7 +308,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. Parameter: el acumulador que NACE en `true` ────────────────────────────────
-    echoTerminal('[6/6] Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
+    echoTerminal('[6/7] Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
 
     //RECHAZO: con validador y NO opcional, un valor que no pasa tiene que LANZAR.
     $soloEnteros = new Parameter('edad', null, static fn ($v): bool => is_int($v), false);
@@ -339,6 +339,20 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         'El acumulador nace en `true` y solo baja si hay un `validate` invocable. '
         . 'Quien declare un parámetro sin validador NO está validando nada.'
     );
+    echoTerminal(' ');
+
+    //──── 7. Las rutas públicas de listado no devuelven borradores sin permiso ─────────
+    echoTerminal('[7/7] Las rutas públicas de listado solo devuelven lo publicado sin permiso');
+
+    //Sin sesión, pedir un estado no cuenta; con permiso, sí. Si esto cae, un anónimo lista borradores.
+    $filtroPub = new \ReflectionMethod(\Publications\Controllers\PublicationsController::class, 'publicStatusFilter');
+    $check($filtroPub->invokeArgs(null, [null, true, null]) === [null, false], 'publications: sin sesión, status=ANY se reduce a lo publicado');
+    $check($filtroPub->invokeArgs(null, [\Publications\Mappers\PublicationMapper::DRAFT, false, null]) === [null, false], 'publications: sin sesión, pedir borradores se reduce a lo publicado');
+    $check($filtroPub->invokeArgs(null, [null, true, \App\Model\UsersModel::TYPE_USER_GOOGLE_PLAY]) === [null, false], 'publications: un tipo sin permiso de borradores tampoco elige estado');
+    $check($filtroPub->invokeArgs(null, [null, true, \App\Model\UsersModel::TYPE_USER_ROOT]) === [null, true], 'DISCRIMINANTE: publications, con permiso de borradores, status=ANY se respeta');
+    $permisoBanner = new \ReflectionMethod(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::class, 'canListAnyStatus');
+    $check($permisoBanner->invokeArgs(null, [null]) === false, 'banner: sin sesión no se puede pedir cualquier estado', 'routeName() concede sin usuario: la guarda exige la sesión.');
+    $check($permisoBanner->invokeArgs(null, [\App\Model\UsersModel::TYPE_USER_ROOT]) === true, 'DISCRIMINANTE: banner, con sesión y permiso de listado, se respeta');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

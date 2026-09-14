@@ -831,6 +831,12 @@ class BuiltInBannerController extends AdminPanelController
         $title = $expectedParameters->getValue('title');
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
+        $currentUser = getLoggedFrameworkUser();
+        if (!self::canListAnyStatus($currentUser !== null ? (int) $currentUser->type : null)) {
+            //La ruta es pública: el `status` de la petición solo cuenta con sesión y permiso de listado.
+            $status = null;
+            $ignoreStatus = false;
+        }
 
         $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
         $result = self::_all($page, $perPage, $status, $title, $ignoreStatus);
@@ -951,6 +957,18 @@ class BuiltInBannerController extends AdminPanelController
         ]);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * Si quien consulta puede pedir cualquier estado: el que puede ver el listado de admin.
+     *
+     * @param int|null $userType Tipo del usuario con sesión, o null sin sesión
+     * @return bool
+     */
+    protected static function canListAnyStatus(?int $userType): bool
+    {
+        //routeName() SIN USUARIO CONCEDE: por eso se exige la sesión y se pregunta al rol directamente.
+        return $userType !== null && Roles::hasPermissions(self::$baseRouteName . '-list', $userType, true);
     }
 
     /**
