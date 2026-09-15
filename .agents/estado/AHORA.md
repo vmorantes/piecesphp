@@ -1,8 +1,26 @@
 # Ahora
 
 - **Actualizado:** 2026-09-15 10:56 (medido con `date`).
-- **Último mensaje:** `#042 · ARQ`, en vuelo: el buscador de `process()` pasa a marcador. El
-  próximo número es `#043`.
+- **Actualizado:** 2026-09-15 11:09 (medido con `date`). **Decisión del PO sobre `process()` y
+  las pruebas:**
+  - aplicar las mejoras y probarlo todo contra la aplicación local, con navegador simulado,
+    credenciales de prueba y registros creados;
+  - todo tiene que seguir funcionando como está programado;
+  - las mejoras de rendimiento y seguridad son bienvenidas.
+  Queda en el **ADR 0010** y en la regla 40 §2. En vuelo: **`#045`**, el buscador de
+  `process()` con la opción B, probado de punta a punta.
+- **Último mensaje enviado:** `#045 · ARQ`. El próximo número es `#046`.
+- **`#044 · COD`** (11:04):
+  - T1 de `#042`, commiteada (`b52172f8`, `dd07e06e`).
+  - T2 solo llegó a medir, con una sonda temporal que se borró: `generateHaving()` y
+    `generateHavingGroup()` dan **las mismas filas** en `locations_countries`,
+    `locations_states` y `publications_elements`, y también en una búsqueda sin resultados.
+  - No se tocó ningún archivo de producción. El coder espera instrucción.
+- **`#043 · ARQ`** retiró T2 y T3 de `#042`.
+  - `#042` tocaba `DataTablesHelper::process()`, un elemento transversal del núcleo, sin haberlo
+    hablado con el PO.
+  - El PO: esos cambios se conversan primero. Queda en la regla 30, puntos serios.
+  - Solo sigue T1 de `#042`, los commits de documentación.
 - **`#041`: completado.**
   - `sqlStringLiteral()` en 11 etiquetas de seis mappers (`c250c2ee`); PHPStan 737.
   - El plan de `process()`, medido.
@@ -40,27 +58,23 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 1. **⚠ P28 — quién puede editar las traducciones.**
    - Hoy puede cualquier usuario con sesión, de cualquier rol (`APIController.php:1611`).
    - Lo que guarda se imprime sin escapar, así que es un XSS almacenado.
-   - *Predeterminado*: solo administración (root y admin), una lista blanca de grupos y de
-     idiomas, y el texto sin HTML salvo en los grupos declarados.
+   - *Predeterminado, corregido tras la observación del PO*: solo administración (root y
+     admin), con una lista blanca de grupos y de idiomas. El HTML se sigue permitiendo, porque
+     `__()` lo genera a propósito: 15 valores de los archivos de idioma y los `.html` de
+     `lang/files/`.
    - Es el lote 3b del mapa y espera la respuesta.
-2. **El plan de `process()`**, presentado en el chat: la contrapropuesta del arquitecto toca un
-   archivo, más los llamadores con `having_string`. Va en `#042` salvo que el PO diga lo
-   contrario.
+2. **El plan de `process()`: se conversa con el PO antes de instruirlo** (regla 30, núcleo
+   transversal). Hay dos propuestas: la del coder (migrar llamador a llamador, 18 archivos en
+   tres tandas) y la del arquitecto (`process()` crea el segmento; un archivo más los
+   llamadores con `having_string`).
 3. **P26 (FileManager), P25 (candidata) y Locations:** con predeterminado.
 4. **Subir cuando quiera:** 33 commits.
 
 ## En curso
 
-**`#042`**, en tres tareas:
-- T1: commitear lo del arquitecto: el `CHANGELOG.md`, `pendientes.md`, el mapa y el estado.
-- T2: el buscador de `DataTablesHelper::process()` pasa a marcador. Si el llamador no pasa un
-  `having_string` con contenido, `process()` crea el `HavingSegment` y le une el grupo de
-  búsqueda. Primero se comprueba que `generateHavingGroup()` da lo mismo que `generateHaving()`.
-- T3: los llamadores con `having_string`: SystemApprovals (`elapsedDays`, de la petición, a
-  marcador) y los que lo pasan vacío o muerto.
-
-Si se corta ahora: puede quedar `DataTablesHelper` a medio cambiar. `git status` y `gates` lo
-dicen.
+**`#042` con `#043`:** solo T1, que commitea el `CHANGELOG.md`, `pendientes.md`, el mapa y el
+estado. T2 y T3 están retiradas hasta hablarlo con el PO. Si el coder ya había empezado, deja el
+árbol como esté, sin commitear ni revertir, y lo reporta en `#044`.
 
 ## Siguiente
 
