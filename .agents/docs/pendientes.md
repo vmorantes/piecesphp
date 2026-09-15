@@ -811,6 +811,17 @@ historia de git los conserva.
     - Si un despliegue copia sin conservar los enlaces (un zip, o `rsync` sin `-l`), se vuelven
       copias que ya no siguen al original.
     - Y `createDynamicSymlink()` aparta como `.backup` un archivo real que encuentre en su sitio.
+- **Decisión del PO sobre el buscador de `process()` y las pruebas (2026-09-15).** Tras la
+  explicación del arquitecto (opciones A, B y C), el PO pidió aplicar las mejoras necesarias y
+  probarlo todo exhaustivamente contra la aplicación local: navegador simulado, credenciales de
+  prueba y creación de registros, porque la base es de prueba. Todo tiene que seguir funcionando
+  como está programado, y las mejoras de rendimiento y seguridad son bienvenidas.
+  - **ADR 0010** y la regla 40 §2.
+  - **Se aplica la opción B** (`process()` usa la vía segura) en `#045`, con la equivalencia
+    medida en los 19 listados antes de cambiar nada.
+  - **P28 sigue abierta:** restringir quién edita traducciones cambia lo que hoy pueden hacer
+    usuarios que no son administradores, y el PO pide que todo siga funcionando como está
+    programado.
 - **⚠ H1 de `#041`: TRADUCCIONES DINÁMICAS. Control de acceso roto y XSS almacenado.
   CONFIRMADO POR LECTURA, SIN PROVOCAR** (verificado por el coder y por el arquitecto).
   - **Quién puede:** CUALQUIER usuario con sesión, de cualquier rol. La ruta es
@@ -828,9 +839,19 @@ historia de git los conserva.
   - **La inyección SQL por esta vía ya quedó cerrada** en `c250c2ee` (literales hexadecimales).
     El control de acceso y el XSS siguen abiertos.
   - **P28 al PO:** ¿quién debe poder editar traducciones?
-    - **Predeterminado del arquitecto:** solo los roles de administración (root y admin), una
-      lista blanca de grupos y de idiomas (los configurados en `config/lang.php`), y el texto
-      guardado sin HTML (`strip_tags`) salvo en los grupos que se declaren con HTML permitido.
+    - **Corrección del PO (2026-09-15):** `__()` tiene que poder generar HTML. Verificado por el
+      arquitecto:
+      - 15 valores de los archivos de idioma llevan etiquetas a propósito, como encabezados
+        (`<h1>¡Hola!</h1>`) o iconos (`<i class="globe icon"></i>`);
+      - existen traducciones en archivos `.html` (`src/app/lang/files/usersProblems/PROBLEMS_LIST-{es,en}.html`).
+      Quitar el HTML de lo guardado rompería usos legítimos. **La propuesta de `strip_tags` del
+      arquitecto era un error**: la hizo sin comprobar ese uso.
+    - **Predeterminado corregido:** el problema no es el HTML, sino QUIÉN lo escribe. Solo los
+      roles de administración (root y admin) pueden guardar traducciones, con una lista blanca
+      de grupos y de idiomas (los configurados). El HTML se sigue permitiendo para ellos, como
+      en un gestor de contenido.
+    - **Filtrar el HTML con una lista de etiquetas permitidas** (por ejemplo, con HTMLPurifier)
+      sería una dependencia nueva: la decide el PO, y no entra por defecto.
     - Es el lote 3b del mapa: urgente, antes del 4b.
 - **`#040`/`#041`, 2026-09-15.**
   - **Hecho:** `sqlStringLiteral()` y las 11 etiquetas de seis mappers (`c250c2ee`).
