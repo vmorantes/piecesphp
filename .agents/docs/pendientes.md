@@ -853,6 +853,33 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#069`/`#070`, 2026-09-15: el 3b, cerrado.**
+  - `7c9e0126`: `saveGroup` responde 410. `gulp js-vendor` compiló en local (sin versionar) y
+    `translateGroup` ya está en el `.min.js`.
+  - En navegador automático: 0 llamadas a `translate` y a `saveGroup`, nada guardado, la página
+    no se rompe y 0 tokens. La clave de IA local es de relleno, así que solo se probó el camino de
+    fallo.
+  - Datos de prueba fuera. `current-translations.json` sigue igual a HEAD tras varios arranques.
+  - **H2, abierto:** en el navegador automático la página se cargó DOS veces y hubo dos POST a
+    `translateGroup`. La segunda dio 403 (capa 8 de `index.php`, sin sesión). Causa sin
+    verificar; sospecha, la cookie de idioma en el modo headless. Se investiga en la ronda
+    siguiente, solo midiendo.
+- **Respuesta del PO a A-005 (2026-09-15):**
+  1. Fomantic-UI, sí, **pero conservando la estética que ya hay**. La referencia es
+     Publications, que usa Fomantic con retoques pequeños: breadcrumbs y una forma fija de
+     botones y títulos. Todo pensado para documentarse bien.
+  2. **Capas de documentación**, todas en el lote 9:
+     - para agentes: existe (`.agents/context/`);
+     - para desarrolladores y mantenedores, que enseñe a extender el framework: NO existe;
+     - para desarrolladores e implementadores: parcial, en `source-docs/project/docs/`;
+     - las guías pequeñas (Hestia en `environments/content/hestiacp/`, LAMP en
+       `environments/content/lamp/`, y `performance/`): existen, hay que revisarlas. La de Hestia,
+       al cerrar el 4b.
+  3. **(A-007) Documentar el árbol del proyecto** para quien desarrolla. Para agentes existe
+     (`02-estructura.md`); en `source-docs/` no hay nada.
+- **A-008, sobre las compactaciones:** el arquitecto no mandó su resumen tras compactarse. El PO:
+  no hace falta ahora; se tiene en cuenta. Queda en la regla 30: cada instrucción y cada reporte
+  dicen si su sesión se compactó.
 - **Directriz del PO para el backoffice (2026-09-15): Fomantic-UI primero.**
   - El backoffice usa la mayor cantidad posible de componentes y elementos estándar de
     Fomantic-UI, que es la base del front, salvo donde no aplica: los sidebars de las

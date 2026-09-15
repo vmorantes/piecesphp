@@ -341,7 +341,30 @@ los módulos. Publicaciones estaba «protegida» con un validador que dejaba pas
 **Si una vista pública tuya enlaza archivos de esos módulos, sin sesión darán 403.** Declara esa
 carpeta como pública, con su motivo, o dale un validador como el de publicaciones.
 
+### 18 · `saveGroup` de traducciones responde 410: usa `translateGroup`, y recompila el JS
+
+Hasta ahora cualquier usuario con sesión podía guardar el texto que quisiera como traducción de
+cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía sin escapar.
+- **`saveGroup` responde 410 y no escribe nada.**
+- **Lo sustituye `translateGroup`** (solo POST). Recibe el idioma, el grupo y las claves que
+  faltan, NUNCA sus textos.
+  - El servidor pide la traducción a la IA y guarda solo lo que conserva las mismas etiquetas
+    HTML que la clave y no trae nada ejecutable.
+  - Nunca sobrescribe una traducción existente.
+  - Topes: 100 claves por grupo y 1.400 caracteres por clave.
+- **Recompila el JS al actualizar:** `cd src && gulp js-vendor`. `configurations.min.js` no se
+  versiona. Si no recompilas, el navegador seguirá llamando a `saveGroup`, recibirá 410 y la
+  traducción automática no guardará nada. La página no se rompe.
+- **Si tu proyecto llamaba a `saveGroup` desde su propio JS**, cámbialo por `translateGroup` con
+  las claves.
+
 ---
+
+## ⚠ Corregido — cualquier usuario con sesión podía reescribir cualquier traducción
+
+Era a la vez un control de acceso roto y un XSS almacenado: lo guardado se imprime sin escapar,
+porque las traducciones pueden llevar HTML a propósito. Ahora el servidor traduce y valida lo que
+guarda. Detalle y migración en la ruptura 18.
 
 ## Corregido — el buscador de las tablas del panel manda el texto por marcador
 

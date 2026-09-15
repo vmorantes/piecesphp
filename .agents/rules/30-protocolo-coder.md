@@ -217,6 +217,11 @@ La sesión compactada envía a la otra, antes de seguir, el resumen con el que s
 paso estaba. La otra lo contrasta con lo que sabe y con `AHORA.md`, y señala lo que falte o
 esté mal. El resumen no consume número y nunca lleva secretos.
 
+**Cada instrucción y cada reporte dicen en una línea, tras la cabecera, si su sesión se ha
+compactado desde el mensaje anterior**: `compactación: no` o `compactación: sí, resumen
+enviado`. Nace el 2026-09-15 (A-008): el arquitecto se compactó, no mandó su resumen y nada lo
+delató.
+
 ## Quién decide qué se construye
 
 El PO nombra la tarea (o una lista, o «el mapa hasta la MAJOR»). A partir de ahí el arquitecto
