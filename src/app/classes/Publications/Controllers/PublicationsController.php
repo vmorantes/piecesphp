@@ -731,6 +731,11 @@ class PublicationsController extends AdminPanelController
                             $mapper->status = PublicationMapper::ACTIVE;
                         }
 
+                        if (!is_string($mapper->folder) || trim($mapper->folder) === '') {
+                            //Sin carpeta, las subidas irían a la raíz de publications/: se le asigna una, como en el alta.
+                            $mapper->folder = str_replace('.', '', uniqid());
+                        }
+
                         $mainImageSetted = $translationExists ? $mapper->getLangData($lang, 'mainImage', false, null) : null;
                         $thumbImageSetted = $translationExists ? $mapper->getLangData($lang, 'thumbImage', false, null) : null;
                         $ogImageSetted = $translationExists ? $mapper->getLangData($lang, 'ogImage', false, null) : null;
@@ -740,20 +745,21 @@ class PublicationsController extends AdminPanelController
                             $ogImageSetted = null;
                         }
 
+                        //Al reemplazar, la nueva va SIEMPRE a la carpeta de la publicación, aunque la vieja estuviera en otra.
                         if ($mainImageSetted !== null) {
-                            $mainImage = self::handlerUpload('mainImage', '', $mainImageSetted);
+                            $mainImage = self::handlerUpload('mainImage', $mapper->folder, $mainImageSetted);
                         } else {
                             $mainImage = self::handlerUpload('mainImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if ($thumbImageSetted !== null) {
-                            $thumbImage = self::handlerUpload('thumbImage', '', $thumbImageSetted);
+                            $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, $thumbImageSetted);
                         } else {
                             $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if ($ogImageSetted !== null) {
-                            $ogImage = self::handlerUpload('ogImage', '', $ogImageSetted);
+                            $ogImage = self::handlerUpload('ogImage', $mapper->folder, $ogImageSetted);
                         } else {
                             $ogImage = self::handlerUpload('ogImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
@@ -783,7 +789,7 @@ class PublicationsController extends AdminPanelController
 
                             if ($attachMapper->id !== null) {
                                 if ($attachmentUploaded['nameOnFiles'] !== null) {
-                                    $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], '', $attachMapper->fileLocation, [
+                                    $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], $attachMapper->folder, $attachMapper->fileLocation, [
                                         FileValidator::TYPE_ALL_IMAGES,
                                         FileValidator::TYPE_PDF,
                                         FileValidator::TYPE_DOC,
@@ -1440,8 +1446,9 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
-     * Pone la carpeta de subidas de la publicación en la visibilidad que le toca: con su nombre real si se ve sin sesión
-     * (la sirve el servidor web directamente) y con el sufijo de lo privado si no (la sirve PHP tras validar).
+     * Pone las subidas de la publicación en la visibilidad que le toca: con su nombre real si se ve sin sesión (las sirve
+     * el servidor web directamente) y con el sufijo de lo privado si no (las sirve PHP tras validar). Cubre su carpeta y,
+     * además, lo que referencia fuera de ella dentro de publications/ (imágenes de todos los idiomas y adjuntos).
      *
      * @param PublicationMapper $publication
      * @param bool|null $visible Si ya se sabe (el cambio de una aprobación aún sin guardar); si no, isVisibleToPublic()
@@ -1449,17 +1456,58 @@ class PublicationsController extends AdminPanelController
      */
     public static function syncUploadsVisibility(PublicationMapper $publication, ?bool $visible = null): array
     {
+        $visible ??= $publication->isVisibleToPublic();
+        $publicationsDir = append_to_path_system((string) get_config('upload_dir'), self::UPLOAD_DIR);
+        $report = ['renamed' => 0, 'unchanged' => 0, 'conflicts' => [], 'failed' => []];
         $folder = is_string($publication->folder) ? trim($publication->folder) : '';
-        if ($folder === '' || str_contains($folder, '..') || str_contains($folder, '/') || str_contains($folder, '\\')) {
-            return ['renamed' => 0, 'unchanged' => 0, 'conflicts' => [], 'failed' => []];
+        $folderDir = null;
+        if ($folder !== '' && !str_contains($folder, '..') && !str_contains($folder, '/') && !str_contains($folder, '\\')) {
+            $folderDir = append_to_path_system($publicationsDir, $folder);
+            $report = \PiecesPHP\Core\Statics\ProtectedUploads::setFolderVisibility($folderDir, $visible);
         }
-        $directory = append_to_path_system(append_to_path_system((string) get_config('upload_dir'), self::UPLOAD_DIR), $folder);
-        $report = \PiecesPHP\Core\Statics\ProtectedUploads::setFolderVisibility($directory, $visible ?? $publication->isVisibleToPublic());
+        $outside = array_filter(self::referencedUploads($publication), function (string $path) use ($folderDir): bool {
+            return $folderDir === null || !str_starts_with($path, $folderDir . \DIRECTORY_SEPARATOR);
+        });
+        $loose = \PiecesPHP\Core\Statics\ProtectedUploads::setFilesVisibility($outside, $publicationsDir, $visible);
+        $report['renamed'] += $loose['renamed'];
+        $report['unchanged'] += $loose['unchanged'];
+        $report['conflicts'] = array_merge($report['conflicts'], $loose['conflicts']);
+        $report['failed'] = array_merge($report['failed'], $loose['failed']);
         if ($report['conflicts'] !== [] || $report['failed'] !== []) {
-            log_exception(new \RuntimeException("publications: la carpeta {$folder} no cambió del todo de visibilidad: "
+            log_exception(new \RuntimeException("publications: las subidas de la publicación {$publication->id} no cambiaron del todo de visibilidad: "
                 . count($report['conflicts']) . ' conflicto(s) y ' . count($report['failed']) . ' fallo(s).'));
         }
         return $report;
+    }
+
+    /**
+     * Las rutas en disco, por su nombre público, de lo que la publicación referencia: sus imágenes en todos los
+     * idiomas y los archivos de sus adjuntos.
+     *
+     * @param PublicationMapper $publication
+     * @return string[]
+     */
+    protected static function referencedUploads(PublicationMapper $publication): array
+    {
+        $references = [];
+        foreach (['mainImage', 'thumbImage', 'ogImage'] as $property) {
+            $references[] = $publication->$property;
+            foreach ((array) ($publication->langData ?? []) as $data) {
+                $references[] = is_object($data) ? ($data->$property ?? null) : null;
+            }
+        }
+        if ($publication->id !== null) {
+            foreach (AttachmentPublicationMapper::allBy('publication', $publication->id, true) as $attachment) {
+                $references[] = $attachment instanceof AttachmentPublicationMapper ? $attachment->fileLocation : null;
+            }
+        }
+        $paths = [];
+        foreach ($references as $reference) {
+            if (is_string($reference) && trim($reference) !== '') {
+                $paths[] = basepath(ltrim($reference, '/'));
+            }
+        }
+        return array_values(array_unique($paths));
     }
 
     /**
@@ -1871,22 +1919,16 @@ class PublicationsController extends AdminPanelController
 
                     if ($valid) {
 
-                        $uploadPath = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                        //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                        //lleva el sufijo. Tras guardar, syncUploadsVisibility() la libera si la publicación se ve sin sesión.
+                        $information = $handler->getFileInformation();
+                        $uploadPath = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate($information['tmp_name'], $uploadDirPath, $name, pathinfo($information['name'], \PATHINFO_EXTENSION));
                         if (mb_strlen($uploadPath) > 0) {
                             $nameCurrent = basename($uploadPath);
                             $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-                            //Eliminar archivo anterior
-                            if (!is_null($oldFile)) {
-                                if (basename($oldFile) != $nameCurrent) {
-                                    unlink($oldFile);
-                                }
-                            }
-                            //NACE PRIVADO: en disco lleva el sufijo; la ruta que se guarda, no. Tras guardar, syncUploadsVisibility()
-                            //la libera si la publicación se ve sin sesión. Si no se puede proteger, no se deja pública.
-                            if (\PiecesPHP\Core\Statics\ProtectedUploads::setFileVisibility($uploadPath, false) !== \PiecesPHP\Core\Statics\ProtectedUploads::VISIBILITY_RENAMED) {
-                                //RETORNO-IGNORADO: la copia pública que no se pudo proteger se retira si se puede; la subida ya falla.
-                                @unlink($uploadPath);
-                                $relativeURL = '';
+                            //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
+                            if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($uploadPath)) {
+                                unlink($oldFile);
                             }
                         }
 

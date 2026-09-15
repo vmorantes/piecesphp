@@ -47,7 +47,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 1. Resolución ────────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/6] resolve():se pide el nombre público; en disco puede estar tal cual o con el sufijo');
+    echoTerminal('[1/8] resolve():se pide el nombre público; en disco puede estar tal cual o con el sufijo');
 
     $publico = "{$banco}{$sep}publico.pdf";
     $privado = "{$banco}{$sep}privado.pdf";
@@ -59,7 +59,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Un archivo ────────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/6] setFileVisibility():renombrado atómico en los dos sentidos, sin pisar nada');
+    echoTerminal('[2/8] setFileVisibility():renombrado atómico en los dos sentidos, sin pisar nada');
 
     $archivo = "{$banco}{$sep}foto.jpg";
     $check($escribe($archivo, str_repeat('x', 1000)), 'el archivo de prueba queda preparado');
@@ -77,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Una carpeta ───────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/6] setFolderVisibility():toda la carpeta, subcarpetas incluidas, sin tocar lo oculto');
+    echoTerminal('[3/8] setFolderVisibility():toda la carpeta, subcarpetas incluidas, sin tocar lo oculto');
 
     $carpeta = "{$banco}{$sep}carpeta";
     $check(mkdir("{$carpeta}{$sep}attachments", 0775, true) && $escribe("{$carpeta}{$sep}a.jpg", 'a') && $escribe("{$carpeta}{$sep}b.png", 'b')
@@ -91,7 +91,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. El .htaccess de uploads ───────────────────────────────────────────────────────────
-    echoTerminal('[4/6] writeDenyHtaccess():niega el sufijo, es idempotente y no pisa un .htaccess ajeno');
+    echoTerminal('[4/8] writeDenyHtaccess():niega el sufijo, es idempotente y no pisa un .htaccess ajeno');
 
     $uploads = "{$banco}{$sep}uploads";
     $check(mkdir($uploads, 0775, true), 'la carpeta de uploads de prueba queda preparada');
@@ -105,7 +105,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. El orden de la migración ──────────────────────────────────────────────────────────
-    echoTerminal('[5/6] ProtectedUploadsMigration::plan(): primero lo privado y el .htaccess al final; la vuelta, al revés');
+    echoTerminal('[5/8] ProtectedUploadsMigration::plan(): primero lo privado y el .htaccess al final; la vuelta, al revés');
 
     $orden = static fn (array $pasos): array => array_column($pasos, 'step');
     $carpetasPlan = [
@@ -122,7 +122,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. La migración en un banco ──────────────────────────────────────────────────────────
-    echoTerminal('[6/6] La migración: nada privado queda servible entre pasos, las huérfanas son privadas y la vuelta deja todo igual');
+    echoTerminal('[6/8] La migración: nada privado queda servible entre pasos, las huérfanas son privadas y la vuelta deja todo igual');
 
     $migra = "{$banco}{$sep}migra";
     $docs = "{$migra}{$sep}docs";
@@ -179,6 +179,55 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $informeAjeno = ProtectedUploadsMigration::execute(ProtectedUploadsMigration::plan($carpetas, $raices, false), false, null, $sufijo);
     $check(is_file("{$docs}{$sep}.htaccess") && in_array("{$docs}{$sep}.htaccess", $informeAjeno['docs']['failed'], true),
         'un .htaccess que no es el de protect() no se retira: se informa como fallo');
+    echoTerminal(' ');
+
+    //──── 7. La subida nace privada, directamente ──────────────────────────────────────────────
+    echoTerminal('[7/8] moveUploadedToPrivate(): va a su nombre de disco sin pasar nunca por el público');
+
+    $subidas = "{$banco}{$sep}subidas";
+    $temporal = "{$banco}{$sep}php-subida.tmp";
+    $destinos = [];
+    $mover = static function (string $desde, string $hacia) use (&$destinos): bool {
+        $destinos[] = $hacia;
+        return rename($desde, $hacia);
+    };
+    $check($escribe($temporal, 'imagen subida'), 'la subida de prueba queda preparada en un temporal');
+    $movida = ProtectedUploads::moveUploadedToPrivate($temporal, $subidas, 'foto', 'png', true, $mover, $sufijo);
+    $check($movida === "{$subidas}{$sep}foto.png" && is_file($movida . $sufijo) && !is_file($movida) && !is_file($temporal),
+        'devuelve el nombre público, que es el que se guarda, y en disco solo existe el privado', $movida);
+    $check($destinos === ["{$subidas}{$sep}foto.png{$sufijo}"],
+        'DISCRIMINANTE: el único destino del movimiento es el nombre privado; el público no existe ni un instante', implode(', ', $destinos));
+    $check($escribe($temporal, 'otra') && $escribe("{$subidas}{$sep}foto.png", 'pública vieja'), 'otra subida con el mismo nombre, con una versión pública y otra privada ya en disco');
+    $check(ProtectedUploads::moveUploadedToPrivate($temporal, $subidas, 'foto', 'png', true, $mover, $sufijo) === "{$subidas}{$sep}foto.png"
+        && !is_file("{$subidas}{$sep}foto.png") && file_get_contents("{$subidas}{$sep}foto.png{$sufijo}") === 'otra',
+        'al sustituir se retiran las dos versiones del nombre y queda solo la nueva, privada: no deja un conflicto');
+    $check($escribe($temporal, 'tercera'), 'una tercera subida queda preparada');
+    $check(ProtectedUploads::moveUploadedToPrivate($temporal, $subidas, 'foto', 'png', false, $mover, $sufijo) === ''
+        && file_get_contents("{$subidas}{$sep}foto.png{$sufijo}") === 'otra' && is_file($temporal),
+        'sin sustituir y con el nombre ocupado: no se mueve, y lo que había queda intacto');
+    $check(ProtectedUploads::moveUploadedToPrivate($temporal, $subidas, 'larga', 'extension-larga', true, $mover, $sufijo) === "{$subidas}{$sep}larga.extensio",
+        'la extensión se corta a 8 caracteres, como en moveFileTo()');
+    $falla = static fn (string $desde, string $hacia): bool => false;
+    $check(ProtectedUploads::moveUploadedToPrivate($temporal, $subidas, 'nada', 'png', true, $falla, $sufijo) === ''
+        && !is_file("{$subidas}{$sep}nada.png") && !is_file("{$subidas}{$sep}nada.png{$sufijo}"), 'si el movimiento falla, no hay ruta ni archivo');
+    echoTerminal(' ');
+
+    //──── 8. Lo referenciado fuera de su carpeta ───────────────────────────────────────────────
+    echoTerminal('[8/8] setFilesVisibility(): archivos sueltos en la visibilidad pedida, y solo dentro de la raíz');
+
+    $raizPubs = "{$banco}{$sep}raiz-pubs";
+    $fuera = "{$banco}{$sep}fuera-de-la-raiz.png";
+    $check(mkdir("{$raizPubs}{$sep}otra", 0775, true) && $escribe("{$raizPubs}{$sep}suelta.png{$sufijo}", 's')
+        && $escribe("{$raizPubs}{$sep}otra{$sep}ajena.png", 'a') && $escribe($fuera, 'f'),
+        'preparado: una privada suelta en la raíz, una pública en otra carpeta y un archivo fuera de la raíz');
+    $sueltos = ["{$raizPubs}{$sep}suelta.png", "{$raizPubs}{$sep}otra{$sep}ajena.png", $fuera, "{$raizPubs}{$sep}..{$sep}fuera-de-la-raiz.png", "{$raizPubs}{$sep}falta.png"];
+    $aPublico = ProtectedUploads::setFilesVisibility($sueltos, $raizPubs, true, $sufijo);
+    $check($aPublico['renamed'] === 1 && $aPublico['unchanged'] === 1 && $aPublico['missing'] === 1 && is_file("{$raizPubs}{$sep}suelta.png"),
+        'a pública: la suelta de la raíz se renombra, la ya pública queda y la que falta se cuenta', json_encode($aPublico, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+    $check($aPublico['outside'] === 2 && is_file($fuera) && !is_file($fuera . $sufijo), 'DISCRIMINANTE: lo de fuera de la raíz, también por «..», no se toca');
+    $aPrivado = ProtectedUploads::setFilesVisibility($sueltos, $raizPubs, false, $sufijo);
+    $check($aPrivado['renamed'] === 2 && is_file("{$raizPubs}{$sep}suelta.png{$sufijo}") && is_file("{$raizPubs}{$sep}otra{$sep}ajena.png{$sufijo}")
+        && is_file($fuera) && !is_file($fuera . $sufijo), 'y a privada: las dos de dentro, y la de fuera sigue igual');
     echoTerminal(' ');
 
     //──── Limpieza del banco ────────────────────────────────────────────────────────────────────

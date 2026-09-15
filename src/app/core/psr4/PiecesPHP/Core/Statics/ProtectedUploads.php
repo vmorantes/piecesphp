@@ -175,6 +175,78 @@ class ProtectedUploads
     }
 
     /**
+     * Mueve un archivo subido DIRECTAMENTE a su nombre privado: el nombre público no existe en disco ni un instante.
+     * El nombre sigue la regla de moveFileTo() de FileUpload: «nombre.extensión», con la extensión cortada a 8 caracteres.
+     *
+     * @param string $temporaryFile El tmp_name de la subida
+     * @param string $directory
+     * @param string|null $basename Sin extensión; null, uno aleatorio
+     * @param string|null $extension Null, la del temporal
+     * @param bool $overwrite Si el nombre ya existe, público o privado, se retiran los dos; si no, no se mueve
+     * @param (callable(string, string): bool)|null $mover Por defecto move_uploaded_file(); las pruebas pasan rename()
+     * @param string|null $suffix
+     * @return string La ruta del nombre PÚBLICO, que es la que se guarda; vacía si no se movió
+     */
+    public static function moveUploadedToPrivate(string $temporaryFile, string $directory, ?string $basename = null, ?string $extension = null, bool $overwrite = true, ?callable $mover = null, ?string $suffix = null): string
+    {
+        $suffix ??= self::suffix();
+        if (!is_dir($directory) && !@mkdir($directory, 0755, true) && !is_dir($directory)) {
+            return '';
+        }
+        $extension ??= pathinfo($temporaryFile, \PATHINFO_EXTENSION);
+        $basename ??= bin2hex(random_bytes(8));
+        $publicPath = str_replace(['//', '\\\\'], ['/', '\\'], $directory . \DIRECTORY_SEPARATOR . sprintf('%s.%0.8s', $basename, $extension));
+        $privatePath = self::privatePath($publicPath, $suffix);
+        foreach ([$publicPath, $privatePath] as $existing) {
+            if (is_file($existing) && (!$overwrite || !@unlink($existing))) {
+                return '';
+            }
+        }
+        $mover ??= static fn (string $from, string $to): bool => move_uploaded_file($from, $to);
+        return $mover($temporaryFile, $privatePath) ? $publicPath : '';
+    }
+
+    /**
+     * Pone archivos sueltos, dados por su nombre público, en la visibilidad pedida, pero solo los que están dentro de
+     * $rootDirectory. Lo de fuera (una imagen por defecto, una ruta con «..») no se toca y se cuenta en `outside`.
+     *
+     * @param string[] $publicPaths
+     * @param string $rootDirectory
+     * @param bool $public
+     * @param string|null $suffix
+     * @return array{renamed: int, unchanged: int, missing: int, outside: int, conflicts: string[], failed: string[]}
+     */
+    public static function setFilesVisibility(array $publicPaths, string $rootDirectory, bool $public, ?string $suffix = null): array
+    {
+        $suffix ??= self::suffix();
+        $report = ['renamed' => 0, 'unchanged' => 0, 'missing' => 0, 'outside' => 0, 'conflicts' => [], 'failed' => []];
+        $root = realpath($rootDirectory);
+        foreach (array_unique($publicPaths) as $publicPath) {
+            $directory = realpath(dirname($publicPath));
+            //SOLO DENTRO DE LA RAÍZ: realpath() resuelve «..» y los enlaces antes de comparar.
+            if ($root === false || $directory === false || str_ends_with($publicPath, $suffix)
+                || !str_starts_with($directory . \DIRECTORY_SEPARATOR, $root . \DIRECTORY_SEPARATOR)) {
+                $report['outside']++;
+                continue;
+            }
+            $path = $directory . \DIRECTORY_SEPARATOR . basename($publicPath);
+            $result = self::setFileVisibility($path, $public, $suffix);
+            if ($result === self::VISIBILITY_RENAMED) {
+                $report['renamed']++;
+            } elseif ($result === self::VISIBILITY_UNCHANGED) {
+                $report['unchanged']++;
+            } elseif ($result === self::VISIBILITY_MISSING) {
+                $report['missing']++;
+            } elseif ($result === self::VISIBILITY_CONFLICT) {
+                $report['conflicts'][] = $path;
+            } else {
+                $report['failed'][] = $path;
+            }
+        }
+        return $report;
+    }
+
+    /**
      * El .htaccess de uploads que niega pedir un archivo por su nombre de disco. Idempotente y atómico; un
      * .htaccess que no lleve la marca del subsistema no se pisa.
      *
