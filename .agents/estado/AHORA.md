@@ -12,8 +12,37 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#073 · ARQ` (cierre del 4c, y el commit de la guarda y del hook).
-  El próximo número es `#074`.
+- **Último mensaje enviado:** `#075 · ARQ` (4b-1, el cron, con el commit previo del andamiaje:
+  AGENTS.md como fuente y las comprobaciones del hook y del espejo). El próximo número es `#076`.
+  - `#074 · COD`: el 4c, cerrado (`2fcb1f5b` P25, `17ca919d` y `1132ea87`), más la guarda
+    (`b8728777`) y el hook a 100755 (`fcf5acf6`). Suites 60/60 y 33/33. H4: el desplegable de
+    tipos es global.
+  - **ADR 0014, aplicado por el arquitecto:** `AGENTS.md` es la fuente, `CLAUDE.md` solo
+    importa `@AGENTS.md` y `.claude/CLAUDE.md` queda con lo propio de Claude Code. Referencias
+    cambiadas y agentes regenerados.
+    - `verificar.sh` comprueba ahora el hook (`core.hooksPath` y `100755`) y el espejo. Las
+      dos comprobaciones se provocaron y caen como deben. ANDAMIAJE OK.
+    - **SIN VERIFICAR:** que Claude Code resuelva `@AGENTS.md`. Se ve en la próxima sesión
+      nueva.
+  - La ruptura 20 (P25) está en el `CHANGELOG`.
+  - Ronda del tirón: 13 de 20.
+  - **Comentario del PO (2026-09-15, A-015): los clones.** Un clon no debe heredar el contexto de
+    IA que solo sirve para desarrollar y mantener el framework, pero sí la metodología y lo que
+    enseña a desarrollar SOBRE el framework. Desplegar solo la plantilla del andamiaje perdería
+    lo segundo.
+    - Afina `roadmap-posterior/El framework como paquete y su despliegue.md`, que decía que
+      `.agents/` viaja entero.
+    - Ese documento dice además que el repositorio va en CRLF: falso desde el ADR 0012. Se
+      corrige al depositar.
+    - Se pasa a `pendientes.md` tras `#076`.
+    - **El PO acepta A-015 §3:** capas A, B y C, un manifiesto con comprobación y una orden de
+      clonado.
+      - Predeterminado aceptado: el marcado por capas en el lote 9, y la orden de clonado
+        después de la MAJOR, con la rutina de instalación.
+      - **Pregunta del PO:** ¿puede el repositorio ser privado y publicarse un `.zip` clonable?
+        Contestada en A-016, con opciones. Lo decide él.
+    - Último mensaje al PO: **A-016**.
+- *(histórico)* **Último mensaje enviado:** `#073 · ARQ`.
   - `#072 · COD`: el tipo 12 entra en Aprobaciones (`cf6803dd` y `cadf95c3`). P25 se paró por
     una contradicción de mi instrucción con `singleView()`. H1: un tipo 12 puede volver a
     resolver lo ya resuelto. La doble carga era del arnés.
