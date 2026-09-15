@@ -18,16 +18,17 @@
     "cifras": {
         "descartadas_total": 485,
         "senalan_por_excepcion": 290,
-        "senalan_por_valor": 186,
+        "senalan_por_valor": 184,
         "declaradas": 0,
-        "sin_declarar": 186,
+        "sin_declarar": 184,
         "_nota": "`declaradas` es el valor EN EL MOMENTO DE CONGELAR y NO participa en el trinquete: sube al declarar, y eso es progreso. La única cifra que el trinquete compara es `sin_declarar`.",
         "_historia": [
             "195 al congelar (2026-08-29, bloque AB0).",
             "193 tras el lote 3 de E3 (2026-08-29, bloque AB1): DOS murieron con `ApplicationCalls`, no se arreglaron ni se declararon. La cota baja porque el codigo que las contenia ya no existe.",
             "187 tras el bloque BK (2026-09-14, #034): SEIS murieron al retirar `handlerUpload()`, sin llamadores, de DocumentTypesController, CategoriesController y SystemApprovalsController —dos `unlink()` en cada uno—. No se arreglaron ni se declararon: el codigo que las contenia ya no existe.",
             "Universo 790 -> 678 archivos, DECLARADO en BK (2026-09-14, #034). Lo movieron los borrados de E3 y, en uno, la suite `UnitTest-ProtectFileMiddleware.php` de #033: atribucion del arquitecto en #034, no re-medida archivo a archivo. La cifra no cambia por declararlo: 187 ya se contaba sobre estos 678.",
-            "186 tras el bloque BS parte B (2026-09-15, #081): UNA murio al retirar de `ProtectFileMiddleware::protect()` la escritura del .htaccess de «reescribir todo» (`file_put_contents()`), porque la proteccion pasa al sufijo del nombre. No se arreglo ni se declaro: el codigo que la contenia ya no existe."
+            "186 tras el bloque BS parte B (2026-09-15, #081): UNA murio al retirar de `ProtectFileMiddleware::protect()` la escritura del .htaccess de «reescribir todo» (`file_put_contents()`), porque la proteccion pasa al sufijo del nombre. No se arreglo ni se declaro: el codigo que la contenia ya no existe.",
+            "184 tras el bloque BT parte 1 (2026-09-15, #083): DOS murieron al mover las subidas de Documents y Organizations directamente a su nombre protegido (H-C). El bucle «Se elimina cualquier otro archivo» —un `unlink()` en cada uno— sobra, porque ya no hay una lista de destinos. No se arreglaron ni se declararon: el codigo que las contenia ya no existe."
         ]
     },
     "por_que_290_no_cuentan": "Son de PDO. La conexión va en ERRMODE_EXCEPTION —lo fija `Database::connect()` del paquete `piecesphp/database`, y PHP 8 ya lo trae por defecto—, así que `->execute()`, `->exec()`, `->commit()` y compañía LANZAN. Descartar su retorno no pierde información. Distinguir la FORMA de la llamada fue necesario: `exec(` a secas es el de procesos y devuelve `string|false`.",

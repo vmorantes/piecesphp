@@ -435,16 +435,15 @@ class NewsCategoryController extends AdminPanelController
 
                     if ($fileManagerIconImage->hasInput()) {
 
-                        $destinations = $fileManagerIconImage->moveTo(append_to_path_system($this->uploadDir, uniqid()));
+                        //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                        //lleva el sufijo. Si no se puede mover, el icono queda sin subir.
+                        $information = $fileManagerIconImage->getFileInformation();
+                        $destination = $fileManagerIconImage->validate()
+                            ? \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], append_to_path_system($this->uploadDir, uniqid()), null, pathinfo((string) $information['name'], \PATHINFO_EXTENSION))
+                            : '';
 
-                        if (count($destinations) > 0) {
-                            //NACE PRIVADO: en disco lleva el sufijo; la ruta que se guarda, no. Si no se puede, no se deja público.
-                            if (\PiecesPHP\Core\Statics\ProtectedUploads::setFileVisibility($destinations[0], false) === \PiecesPHP\Core\Statics\ProtectedUploads::VISIBILITY_RENAMED) {
-                                $iconImage = trim(str_replace(basepath(), '', $destinations[0]), \DIRECTORY_SEPARATOR);
-                            } else {
-                                //RETORNO-IGNORADO: la copia pública que no se pudo proteger se retira si se puede; el icono queda sin subir.
-                                @unlink($destinations[0]);
-                            }
+                        if ($destination !== '') {
+                            $iconImage = trim(str_replace(basepath(), '', $destination), \DIRECTORY_SEPARATOR);
                         }
 
                     }
@@ -494,19 +493,16 @@ class NewsCategoryController extends AdminPanelController
                                 $oldDirectory = $oldFile !== null ? dirname($oldFile) . \DIRECTORY_SEPARATOR : null;
                             }
 
-                            $destinations = $fileManagerIconImage->moveTo(append_to_path_system($this->uploadDir, uniqid()));
+                            //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público. Si no se puede
+                            //mover, el icono anterior se conserva.
+                            $information = $fileManagerIconImage->getFileInformation();
+                            $destination = $fileManagerIconImage->validate()
+                                ? \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], append_to_path_system($this->uploadDir, uniqid()), null, pathinfo((string) $information['name'], \PATHINFO_EXTENSION))
+                                : '';
 
-                            //NACE PRIVADO: en disco lleva el sufijo; la ruta que se guarda, no. Si no se puede, no se deja público
-                            //y el icono anterior se conserva.
-                            if (count($destinations) > 0 && \PiecesPHP\Core\Statics\ProtectedUploads::setFileVisibility($destinations[0], false) !== \PiecesPHP\Core\Statics\ProtectedUploads::VISIBILITY_RENAMED) {
-                                //RETORNO-IGNORADO: la copia pública que no se pudo proteger se retira si se puede.
-                                @unlink($destinations[0]);
-                                $destinations = [];
-                            }
+                            if ($destination !== '') {
 
-                            if (count($destinations) > 0) {
-
-                                $iconImage = trim(str_replace(basepath(), '', $destinations[0]), \DIRECTORY_SEPARATOR);
+                                $iconImage = trim(str_replace(basepath(), '', $destination), \DIRECTORY_SEPARATOR);
 
                                 if (!is_null($oldFile) && file_exists($oldFile)) {
                                     unlink($oldFile);

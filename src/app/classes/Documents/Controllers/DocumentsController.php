@@ -1276,37 +1276,19 @@ class DocumentsController extends AdminPanelController
 
                 if ($valid) {
 
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                    //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                    //lleva el sufijo. Si no se puede mover, no hay ruta y la subida falla.
+                    $information = $handler->getFileInformation();
+                    $url = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], $uploadDirPath, $name, pathinfo((string) $information['name'], \PATHINFO_EXTENSION));
 
-                    if (!empty($locations)) {
+                    if ($url !== '') {
 
-                        $url = $locations[0];
                         $nameCurrent = basename($url);
                         $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
 
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //NACE PRIVADO: en disco lleva el sufijo; la ruta que se guarda, no. Si no se puede, no se deja público.
-                        if (\PiecesPHP\Core\Statics\ProtectedUploads::setFileVisibility($url, false) !== \PiecesPHP\Core\Statics\ProtectedUploads::VISIBILITY_RENAMED) {
-                            //RETORNO-IGNORADO: la copia pública que no se pudo proteger se retira si se puede; la subida ya falla.
-                            @unlink($url);
-                            $relativeURL = '';
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
+                        //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
+                        if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($url)) {
+                            unlink($oldFile);
                         }
 
                     }
