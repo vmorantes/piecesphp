@@ -853,6 +853,50 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#089`/`#090`, 2026-09-15: el 7b, tanda A (13 de 19 guardas).**
+  - Commits: `779890c1` (los cuatro `Roles`, `getAttribute` y `Parameter`), `07068319` (subidas y
+    validación, en la suite nueva `UnitTest-InputGuards`) y `9af1845e` (documentación).
+    `access-guards` 83/83 e `input-guards` 34/34, cada guarda con su rechazo, su discriminante y
+    su provocación por archivo.
+  - El censo, al cerrar: las que pueden fallar abiertas y ninguna suite llama bajan de **19 a
+    11**. De esas 11, cuatro sí se ejercen en esta ronda pero el cruce POR NOMBRE no puede verlo
+    (una solo por HTTP, dos constructores y una protegida).
+  - **⚠ DOS GUARDAS FALLAN ABIERTAS DE VERDAD, sin prueba en verde a propósito:**
+    1. **`UploadedFileAdapter::validate()`** (`UploadedFileAdapter.php:204`): **sin archivo
+       devuelve TRUE.** Es la forma de T135 (`'FAKE_ERROR' == 0` es false en PHP 8, la cadena de
+       `elseif` no tiene `else` y el acumulador nace en `true`), la misma que ya se arregló en
+       `FileUpload::validate()`.
+       - Medido en sus tres consumidores: Publications y GenericContent preguntan antes por
+         `hasInput()`, así que no entran; `TestQueueRequest.php:62` la llama sin preguntar y
+         descarta el retorno.
+       - Hoy no causa daño en producción, pero la guarda dice sí donde debe decir no.
+    2. **`Roles::addPermission()` con `IDENTIFIER_TYPE_CODE` y un NOMBRE** (`Roles.php:225`): no
+       lanza. `(int) 'nombre'` es 0, y `getRole(0)` devuelve el rol de código 0 (root), así que
+       **la ruta se concede a root en silencio** y el rol nombrado no recibe nada. Medido: 212 →
+       213 rutas permitidas en el rol «Principal».
+    - **Decisión del arquitecto:** las dos se arreglan en la ronda 20, que falle cerrado, con sus
+      pruebas de rechazo pasando a verde. No hay decisión de diseño que tomar: una guarda que
+      concede por un error de tipo es lo contrario de una guarda.
+  - **Tanda B sin empezar** (6 guardas: `has_global_asset`, `add_global_asset`, `register_route`,
+    `RouteAdapter::__construct`, `MenuGroup::isCurrent` y `processFromQuery`). Medido de paso: la
+    laxa de `processFromQuery` no está en la línea 718 sino en 1089, 1092 y 1125, y decide la
+    DIRECCIÓN del orden, no un acceso.
+  - Hallazgos que van a los residuos:
+    - **H-Z:** el permiso de desarrollo de `requestIsSameDomain` solo cubre `localhost`,
+      `127.0.0.1`, `[::1]` y `192.168.*`. Con el host `85.localhost`, una petición sin `Origin`
+      ni `Referer` se rechaza. Una app sin interfaz no pasa salvo que el host sea exactamente uno
+      de esos;
+    - **H-AA:** `FileValidator::$ignoreMimeType` es pública y ESTÁTICA: quien la ponga en `true`
+      la deja puesta para toda la petición y salta el MIME de todas las validaciones siguientes;
+    - **H-AB:** un `Parameter` opcional NUNCA falla: cualquier valor inválido se sustituye por el
+      default y `validate()` devuelve true;
+    - **H-AC:** `FileUpload::validate()` LANZA si el archivo no llegó por POST, en vez de
+      devolver false;
+    - **H-AD:** `verify_expected_file()` no tiene ningún llamador en `src/`;
+    - **H-AE:** `getAttribute('route')` antes del enrutado lanza `RuntimeException` de Slim, no
+      `HttpNotFoundException`.
+  - **Desviación del coder, declarada:** para separar C0 tuvo que sacar del índice los dos
+    archivos de estado con `git restore --staged` (solo el índice; el árbol no se toca).
 - **`#087`/`#088`, 2026-09-15: E3 cerrado; H-L parado con la causa medida.**
   - **E3, commiteado:** `16bd8a39` (el JS sin sujeto), `bd8ddfa7` (los SCSS), `27a6b8b4` (las dos
     tablas del esquema versionado) y `ea6e514d` (el skip de Rector).
