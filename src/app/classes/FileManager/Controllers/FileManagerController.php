@@ -261,6 +261,15 @@ class FileManagerController extends AdminPanelController
                     'allow',
                 ],
                 'accessControl' => $accessControlDefault,
+                //Lo privado lleva el sufijo en disco: elFinder no deja renombrarlo, moverlo ni quitárselo.
+                'attributes' => [
+                    [
+                        'pattern' => '/' . preg_quote(\PiecesPHP\Core\Statics\ProtectedUploads::suffix(), '/') . '$/',
+                        'read' => true,
+                        'write' => false,
+                        'locked' => true,
+                    ],
+                ],
             ];
 
             foreach ($expectedOptions as $expectedOption => $defaultOptionValue) {
