@@ -392,7 +392,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. canManage(): el alcance de las aprobaciones, en el servidor (#071) ─────────
-    echoTerminal('[10/10] SystemApprovalsController::canManage() aplica C3 y C5 del listado');
+    echoTerminal('[10/10] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
 
     //Si esto cae, un administrador de organización aprueba lo de otra, o lo suyo, con un POST directo.
     $usuario = static function (int $id, int $type, ?int $organization): \PiecesPHP\UserSystem\UserDataPackage {
@@ -403,13 +403,18 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         }
         return $paquete;
     };
-    $elemento = static function (int $createdBy, int $organization, ?int $administrator): \SystemApprovals\Mappers\SystemApprovalsMapper {
+    $elemento = static function (int $createdBy, int $organization, ?int $administrator, string $status = \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_PENDING,
+        string $referenceTable = \Publications\Mappers\PublicationMapper::TABLE, string $isActive = '1', ?string $organizationApproval = null): \SystemApprovals\Mappers\SystemApprovalsMapper {
         //SIN BASE: sin id el constructor no consulta; los alias de fieldsToSelect() van en el registro extendido, como texto.
         $mapper = new \SystemApprovals\Mappers\SystemApprovalsMapper();
         (new \ReflectionProperty(\SystemApprovals\Mappers\SystemApprovalsMapper::class, 'extendedRecord'))->setValue($mapper, (object) [
             'referenceCreatedBy' => (string) $createdBy,
             'referenceOrganization' => (string) $organization,
             'referenceOrganizationAdministrator' => $administrator !== null ? (string) $administrator : null,
+            'status' => $status,
+            'referenceTable' => $referenceTable,
+            'referenceIsActive' => $isActive,
+            'referenceOrtanizationApprovalValue' => $organizationApproval,
         ]);
         return $mapper;
     };
@@ -422,6 +427,16 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($puede(new \SystemApprovals\Mappers\SystemApprovalsMapper(), $adminA) === false, 'sin registro extendido, como un id inexistente → false');
     $root = $usuario(90000, \App\Model\UsersModel::TYPE_USER_ROOT, -10);
     $check($puede($elemento(90020, 2, 90002), $root) === true && $puede($elemento(90000, -10, 3), $root) === true, 'DISCRIMINANTE: root resuelve lo de cualquier organización y lo suyo');
+    //Estados (#073): el limitado por C5 solo resuelve lo pendiente; los que lo aprueban todo pueden volver a resolver.
+    $pendiente = \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_PENDING;
+    $aprobado = \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_APPROVED;
+    $check($puede($elemento(90010, 1, 90001, $aprobado), $adminA) === false, 'el administrador de A NO vuelve a resolver lo de A ya APPROVED');
+    $check($puede($elemento(90010, 1, 90001, \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_REJECTED), $adminA) === false, 'ni lo de A ya REJECTED');
+    $check($puede($elemento(90010, 1, 90001, \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_DELETED), $adminA) === false, 'ni lo de A ya DELETED');
+    $check($puede($elemento(90010, 1, 90001, $pendiente, \Publications\Mappers\PublicationMapper::TABLE, '0'), $adminA) === false, 'ni lo de A con la referencia inactiva (C1)');
+    $check($puede($elemento(90010, 1, 90001, $pendiente, \App\Model\UsersModel::TABLE, '1', $aprobado), $adminA) === false, 'ni el perfil de un miembro de A si A ya está aprobada (C4)');
+    $check($puede($elemento(90010, 1, 90001, $pendiente, \App\Model\UsersModel::TABLE, '1', $pendiente), $adminA) === true, 'DISCRIMINANTE: el perfil de un miembro de A con A pendiente, sí (C4)');
+    $check($puede($elemento(90020, 2, 90002, $aprobado), $root) === true, 'DISCRIMINANTE: root sí vuelve a resolver lo ya APPROVED, como hoy');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

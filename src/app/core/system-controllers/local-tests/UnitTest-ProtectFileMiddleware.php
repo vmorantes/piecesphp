@@ -79,9 +79,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── 3. Publications: lo visible al público ───────────────────────────────────────
     echoTerminal('[3/4] isVisibleToPublic() dice lo mismo que singleView() para un visitante sin permiso');
 
-    $publicacion = function (?int $id, int $status, ?\DateTime $inicio = null, ?\DateTime $fin = null): PublicationMapper {
-        //SIN BASE: sin valor de comparación, el constructor no consulta.
-        $mapper = new PublicationMapper();
+    $publicacion = function (?int $id, int $status, ?\DateTime $inicio = null, ?\DateTime $fin = null, bool $aprobada = true): PublicationMapper {
+        //SIN BASE: sin valor de comparación, el constructor no consulta; la aprobación la pone la prueba, no la tabla.
+        $mapper = new class extends PublicationMapper {
+            public bool $aprobadaEnPrueba = true;
+
+            public function isApprovedForPublic(): bool
+            {
+                return $this->aprobadaEnPrueba;
+            }
+        };
+        $mapper->aprobadaEnPrueba = $aprobada;
         if ($id !== null) {
             $mapper->id = $id;
         }
@@ -110,6 +118,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $visible = $mapper->isVisibleToPublic();
         $check($visible === $esperado && $visible === $criterioAnterior($mapper), "{$nombre}: isVisibleToPublic() → " . var_export($esperado, true) . ', igual que el criterio anterior de singleView()');
     }
+    //P25: activa y en fecha no basta; sin aprobación no se ve sin sesión.
+    $check($publicacion(1, PublicationMapper::ACTIVE, null, null, false)->isVisibleToPublic() === false, 'activa, en fecha y PENDIENTE de aprobación: isVisibleToPublic() → false (P25)');
+    $check($publicacion(1, PublicationMapper::ACTIVE, null, null, true)->isVisibleToPublic() === true, 'DISCRIMINANTE: la misma, aprobada → true');
     $fuenteVista = (string) @file_get_contents(basepath('app/classes/Publications/Controllers/PublicationsPublicController.php'));
     $check(mb_strpos($fuenteVista, '$allowShow = $element->isVisibleToPublic();') !== false, 'singleView() usa isVisibleToPublic() en la rama sin permiso');
     echoTerminal(' ');
@@ -137,6 +148,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra($visible)) === true && $pedida === 'abc', 'DISCRIMINANTE: publicación visible → true, buscada por su carpeta `abc`');
     $check($decide->invoke(null, "{$base}{$sep}abc{$sep}attachments{$sep}f.pdf", $base, $encuentra($visible)) === true && $pedida === 'abc', 'los adjuntos (<folder>/attachments) se atribuyen a la carpeta de su publicación');
     $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra($borrador)) === false, 'publicación en borrador → false');
+    $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra($publicacion(7, PublicationMapper::ACTIVE, null, null, false))) === false, 'publicación activa pero pendiente de aprobación → false (P25)');
     $check($decide->invoke(null, "{$base}{$sep}abc{$sep}a.jpg", $base, $encuentra(null)) === false, 'publicación inexistente → false');
     $pedida = null;
     $check($decide->invoke(null, "{$base}{$sep}a.jpg", $base, $encuentra($visible)) === false && $pedida === null, 'un archivo suelto en la raíz no es de ninguna publicación → false, sin buscar');
