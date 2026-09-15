@@ -12,7 +12,22 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#057 · ARQ`. El próximo número es `#058`.
+- **Último mensaje enviado:** `#061 · ARQ`. El próximo número es `#062`.
+  - `#060 · COD`: `#059` parado a propósito en T3 de piecesphp, sin commits.
+    - `bin/normaliza-eol` falla con 10 rutas no ASCII, porque git las cita.
+    - `git status` marca 1511 archivos, pero solo 9 cambian de contenido: el índice quedó con
+      el `stat` sucio tras cambiar la política.
+    - Las pruebas pasan.
+  - `#061`: `normaliza-eol` con `-z` y su prueba; `git add --renormalize` solo de lo que no
+    cambia de contenido, exigiendo `diff --cached` vacío; después C1 y C2, y los paquetes en la
+    misma ronda.
+- *(histórico)* **Último mensaje enviado:** `#059 · ARQ` (LF, ADR 0012).
+  - `#058 · COD`: `#057` cerrado (`445713f9`, `c047f1c6` y `c5fefcbc`).
+    - `/users/all/` pasa de 30 a 0 hashes, también con un usuario general, al que la fuga
+      alcanzaba.
+    - No hay otras rutas con contraseñas.
+    - H1: el login escribe `organization = -10`.
+- *(histórico)* **Último mensaje enviado:** `#057 · ARQ`.
   - `#056 · COD`: `#055` cerrado (`ae869246`, `1eb497a3`, `77c32b17` y `f352f3a9`).
     - `fieldsToSelect()` ya no selecciona `password`. Los informes de accesos pasan de 6 a 0
       hashes y de 9 a 0.
