@@ -12,9 +12,11 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#077 · ARQ` (4b-2: cabeceras privadas, `Vary`, streaming,
-  `Range` y caché de WebP; y la tarea «Ejemplo» del cron, comentada). El próximo número es
-  `#078`.
+- **Último mensaje enviado:** `#079 · ARQ` (ronda **14** de 20: el 4b-3, con la compresión
+  solo del texto y la purga de la caché WebP delante). El próximo número es `#080`.
+  - `#078 · COD`: el 4b-2, cerrado (`0b10eeaa`, `6128eb33` y `f98110a1`). H1 (con un navegador
+    se comprimía todo) queda decidido: solo se comprime el texto.
+- *(histórico)* **Último mensaje enviado:** `#077 · ARQ` (4b-2).
   - `#076 · COD`: el andamiaje del ADR 0014 y el cron, cerrados (`dc0b8def` a `0586a1b1`).
     Suite 39/39, gates 28/0 y phpstan 735. Documentado en `10-cli-y-tareas.md` y en la ruptura
     21.
