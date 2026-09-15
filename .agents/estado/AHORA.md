@@ -12,8 +12,15 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#083 · ARQ` (ronda **16** de 20: H-B y H-C del 4b-3 delante, y el
-  OTP). El próximo número es `#084`.
+- **Último mensaje enviado:** `#085 · ARQ` (ronda **17** de 20: ⚠ la inyección SQL de
+  `OTPHandler` primero, y después el 5b, los tokens y el aviso de `app_key`). El próximo número
+  es `#086`.
+  - `#084 · COD`: H-B, H-C y el OTP, cerrados (`0f4de0b7`, `a06eaa71`, `0b1113a0` y
+    `46d2bbf8`).
+  - **⚠ GRAVE, 4.º: inyección SQL sin sesión en `OTPHandler::getUserDataByUsername()` (:251).**
+    La verificó el arquitecto y se avisó al PO al móvil.
+  - Quedan tras `#085`: 3 rondas, que son E3, 7b y 7c.
+- *(histórico)* **Último mensaje enviado:** `#083 · ARQ` (ronda 16).
   - `#082 · COD`: el 4b-3 cerrado (`215d91d7` a `f89c91cd`), con la migración real probada de
     ida, vuelta e ida. H-B: al reemplazar una imagen, la nueva iba a la raíz de
     `publications/`.
