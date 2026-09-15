@@ -3,6 +3,8 @@
 //Lo privado de uploads lo decide el nombre en disco: resolución por sufijo, renombrado y el .htaccess que niega el sufijo.
 
 use PiecesPHP\Core\Statics\ProtectedUploads;
+use PiecesPHP\Core\Statics\ProtectedUploadsMigration;
+use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use PiecesPHP\Terminal\CliActions;
 
 $cliTaskName = 'unit-tests';
@@ -45,7 +47,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 1. Resolución ────────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/4] resolve(): se pide el nombre público; en disco puede estar tal cual o con el sufijo');
+    echoTerminal('[1/6] resolve():se pide el nombre público; en disco puede estar tal cual o con el sufijo');
 
     $publico = "{$banco}{$sep}publico.pdf";
     $privado = "{$banco}{$sep}privado.pdf";
@@ -57,7 +59,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Un archivo ────────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/4] setFileVisibility(): renombrado atómico en los dos sentidos, sin pisar nada');
+    echoTerminal('[2/6] setFileVisibility():renombrado atómico en los dos sentidos, sin pisar nada');
 
     $archivo = "{$banco}{$sep}foto.jpg";
     $check($escribe($archivo, str_repeat('x', 1000)), 'el archivo de prueba queda preparado');
@@ -75,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Una carpeta ───────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/4] setFolderVisibility(): toda la carpeta, subcarpetas incluidas, sin tocar lo oculto');
+    echoTerminal('[3/6] setFolderVisibility():toda la carpeta, subcarpetas incluidas, sin tocar lo oculto');
 
     $carpeta = "{$banco}{$sep}carpeta";
     $check(mkdir("{$carpeta}{$sep}attachments", 0775, true) && $escribe("{$carpeta}{$sep}a.jpg", 'a') && $escribe("{$carpeta}{$sep}b.png", 'b')
@@ -89,7 +91,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. El .htaccess de uploads ───────────────────────────────────────────────────────────
-    echoTerminal('[4/4] writeDenyHtaccess(): niega el sufijo, es idempotente y no pisa un .htaccess ajeno');
+    echoTerminal('[4/6] writeDenyHtaccess():niega el sufijo, es idempotente y no pisa un .htaccess ajeno');
 
     $uploads = "{$banco}{$sep}uploads";
     $check(mkdir($uploads, 0775, true), 'la carpeta de uploads de prueba queda preparada');
@@ -100,6 +102,83 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $ajeno = "{$banco}{$sep}ajeno";
     $check(mkdir($ajeno, 0775, true) && $escribe("{$ajeno}{$sep}.htaccess", "RewriteEngine On\n"), 'un .htaccess ajeno queda preparado');
     $check(ProtectedUploads::writeDenyHtaccess($ajeno, $sufijo) === false && file_get_contents("{$ajeno}{$sep}.htaccess") === "RewriteEngine On\n", 'DISCRIMINANTE: un .htaccess sin la marca del subsistema no se pisa');
+    echoTerminal(' ');
+
+    //──── 5. El orden de la migración ──────────────────────────────────────────────────────────
+    echoTerminal('[5/6] ProtectedUploadsMigration::plan(): primero lo privado y el .htaccess al final; la vuelta, al revés');
+
+    $orden = static fn (array $pasos): array => array_column($pasos, 'step');
+    $carpetasPlan = [
+        ['module' => 'm', 'directory' => '/banco/a', 'public' => false],
+        ['module' => 'm', 'directory' => '/banco/b', 'public' => true],
+    ];
+    $raicesPlan = [['module' => 'm', 'directory' => '/banco/a']];
+    $pasosIda = $orden(ProtectedUploadsMigration::plan($carpetasPlan, $raicesPlan, false));
+    $check($pasosIda === [ProtectedUploadsMigration::STEP_PRIVATE, ProtectedUploadsMigration::STEP_PUBLIC, ProtectedUploadsMigration::STEP_REMOVE_HTACCESS],
+        'DISCRIMINANTE: ida, los renombrados antes que retirar el .htaccess', implode(' → ', $pasosIda));
+    $pasosVuelta = $orden(ProtectedUploadsMigration::plan($carpetasPlan, $raicesPlan, true));
+    $check($pasosVuelta === [ProtectedUploadsMigration::STEP_RESTORE_HTACCESS, ProtectedUploadsMigration::STEP_PUBLIC, ProtectedUploadsMigration::STEP_PUBLIC],
+        'vuelta: primero se repone el .htaccess, y después todo vuelve a su nombre público', implode(' → ', $pasosVuelta));
+    echoTerminal(' ');
+
+    //──── 6. La migración en un banco ──────────────────────────────────────────────────────────
+    echoTerminal('[6/6] La migración: nada privado queda servible entre pasos, las huérfanas son privadas y la vuelta deja todo igual');
+
+    $migra = "{$banco}{$sep}migra";
+    $docs = "{$migra}{$sep}docs";
+    $pubs = "{$migra}{$sep}pubs";
+    $preparado = mkdir("{$docs}{$sep}a", 0775, true) && mkdir("{$pubs}{$sep}visible", 0775, true)
+        && mkdir("{$pubs}{$sep}oculta", 0775, true) && mkdir("{$pubs}{$sep}huerfana", 0775, true);
+    $docs = (string) realpath($docs);
+    $pubs = (string) realpath($pubs);
+    foreach (["{$docs}{$sep}a{$sep}uno.pdf", "{$docs}{$sep}dos.txt", "{$pubs}{$sep}visible{$sep}v.jpg", "{$pubs}{$sep}oculta{$sep}o.jpg",
+        "{$pubs}{$sep}huerfana{$sep}h.jpg", "{$pubs}{$sep}suelto.png"] as $ruta) {
+        $preparado = $preparado && $escribe($ruta, 'contenido de ' . basename($ruta));
+    }
+    foreach ([$docs, $pubs] as $raiz) {
+        $preparado = $preparado && $escribe("{$raiz}{$sep}.htaccess", ProtectFileMiddleware::rewriteHtaccessContent($raiz));
+    }
+    $check($preparado, 'el banco de la migración queda preparado: dos raíces protegidas con su .htaccess y 6 archivos');
+    $foto = static function () use ($migra): array {
+        $sumas = [];
+        $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($migra, \FilesystemIterator::SKIP_DOTS));
+        foreach ($iterador as $archivo) {
+            if ($archivo instanceof \SplFileInfo && $archivo->isFile()) {
+                $sumas[mb_substr($archivo->getPathname(), mb_strlen($migra))] = hash_file('sha256', $archivo->getPathname());
+            }
+        }
+        ksort($sumas);
+        return $sumas;
+    };
+    $antesMigra = $foto();
+    $carpetas = [
+        ['module' => 'docs', 'directory' => $docs, 'public' => false],
+        ['module' => 'pubs', 'directory' => $pubs, 'public' => false, 'recursive' => false],
+        ['module' => 'pubs', 'directory' => "{$pubs}{$sep}visible", 'public' => true],
+        ['module' => 'pubs', 'directory' => "{$pubs}{$sep}oculta", 'public' => false],
+        ['module' => 'pubs', 'directory' => "{$pubs}{$sep}huerfana", 'public' => false],
+    ];
+    $raices = [['module' => 'docs', 'directory' => $docs], ['module' => 'pubs', 'directory' => $pubs]];
+
+    $simulacro = ProtectedUploadsMigration::execute(ProtectedUploadsMigration::plan($carpetas, $raices, false), true, null, $sufijo);
+    $check($foto() === $antesMigra && $simulacro['docs']['toPrivate'] === 2 && $simulacro['pubs']['toPrivate'] === 3 && $simulacro['docs']['htaccess'] === 1,
+        'el simulacro cuenta lo que haría y no toca nada', json_encode($simulacro, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+
+    $servibles = [];
+    $informeIda = ProtectedUploadsMigration::execute(ProtectedUploadsMigration::plan($carpetas, $raices, false), false,
+        function (array $paso) use (&$servibles, $carpetas, $raices, $sufijo): void {
+            $servibles = array_merge($servibles, ProtectedUploadsMigration::servablePrivates($carpetas, $raices, $sufijo));
+        }, $sufijo);
+    $check($servibles === [], 'DISCRIMINANTE: entre paso y paso, nada privado quedó servible', count($servibles) . ' servible(s)');
+    $check(is_file("{$docs}{$sep}a{$sep}uno.pdf{$sufijo}") && is_file("{$pubs}{$sep}huerfana{$sep}h.jpg{$sufijo}") && is_file("{$pubs}{$sep}suelto.png{$sufijo}")
+        && is_file("{$pubs}{$sep}visible{$sep}v.jpg") && !is_file("{$docs}{$sep}.htaccess") && !is_file("{$pubs}{$sep}.htaccess"),
+        'lo privado lleva el sufijo, la huérfana y el suelto también, lo visible no, y los dos .htaccess se retiraron', json_encode($informeIda, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+    ProtectedUploadsMigration::execute(ProtectedUploadsMigration::plan($carpetas, $raices, true), false, null, $sufijo);
+    $check($foto() === $antesMigra, 'la vuelta atrás deja el árbol igual: mismos nombres y mismas sumas, .htaccess incluidos');
+    $check($escribe("{$docs}{$sep}.htaccess", "Require all denied\n"), 'un .htaccess ajeno queda preparado en docs');
+    $informeAjeno = ProtectedUploadsMigration::execute(ProtectedUploadsMigration::plan($carpetas, $raices, false), false, null, $sufijo);
+    $check(is_file("{$docs}{$sep}.htaccess") && in_array("{$docs}{$sep}.htaccess", $informeAjeno['docs']['failed'], true),
+        'un .htaccess que no es el de protect() no se retira: se informa como fallo');
     echoTerminal(' ');
 
     //──── Limpieza del banco ────────────────────────────────────────────────────────────────────

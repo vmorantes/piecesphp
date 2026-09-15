@@ -45,15 +45,19 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $niega = static fn (): bool => false;
 
     //──── 1. La carpeta que falta ───────────────────────────────────────────────────────
-    echoTerminal('[1/4] Una carpeta que no existe queda creada, protegida y con su .htaccess');
+    echoTerminal('[1/4] Una carpeta que no existe queda creada y protegida, sin .htaccess; sin validador, cerrada');
 
     $nueva = "{$banco}{$sep}no-existe{$sep}aun";
     $check(!is_dir($nueva), 'DISCRIMINANTE: la carpeta no existe antes de protegerla');
     try {
         ProtectFileMiddleware::protect($nueva, $niega);
         $check(is_dir($nueva), 'protect() la crea');
-        $check(is_file("{$nueva}{$sep}.htaccess"), 'y le escribe su .htaccess');
+        $check(!is_file("{$nueva}{$sep}.htaccess"), 'y ya no le escribe .htaccess: la protección es el sufijo del nombre');
         $check(ProtectFileMiddleware::isProtected("{$nueva}{$sep}x.txt"), 'y queda registrada como protegida');
+        $sinValidador = "{$banco}{$sep}sin-validador";
+        ProtectFileMiddleware::protect($sinValidador);
+        $check(file_put_contents("{$sinValidador}{$sep}x.txt", 'x') !== false && ProtectFileMiddleware::validateAccess("{$sinValidador}{$sep}x.txt", $peticion) === false,
+            'DISCRIMINANTE: protect() sin validador falla cerrado, validateAccess() → false');
     } catch (\Throwable $e) {
         $check(false, 'protect() la crea', 'EXCEPCIÓN: ' . $e->getMessage());
     }
