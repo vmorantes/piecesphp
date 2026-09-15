@@ -468,7 +468,7 @@ project://src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php
 project://src/app/model/AvatarModel.php
 	return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
-	property.nonObject (Líneas: 164, 244, 329)
+	property.nonObject (Líneas: 166, 247, 329)
 project://src/app/model/RecoveryPasswordModel.php
 	property.notFound (Líneas: 86, 102)
 project://src/app/model/TimeOnPlatformModel.php
