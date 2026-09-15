@@ -34,6 +34,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Mappers\PublicationMapper;
 use SystemApprovals\Exceptions\DuplicateException;
 use SystemApprovals\Exceptions\SafeException;
@@ -135,7 +136,7 @@ class SystemApprovalsController extends AdminPanelController
         $contactUser = $approvalHandler::getContactUser($referenceMapper);
         $isSameUser = $contactUser !== null && $contactUser->id == $currentUserID && $currenUserType != UsersModel::TYPE_USER_ROOT;
 
-        if ($approvalMapperExists && $hasApprovalHandler && $hasReferenceMapper && !$isSameUser) {
+        if ($approvalMapperExists && $hasApprovalHandler && $hasReferenceMapper && !$isSameUser && self::canManage($approvalMapper, $currentUser)) {
 
             set_custom_assets([
                 SystemApprovalsRoutes::staticRoute(self::BASE_JS_DIR . '/approval-form.js'),
@@ -236,6 +237,13 @@ class SystemApprovalsController extends AdminPanelController
      */
     public function approvalAction(Request $request, Response $response)
     {
+
+        //El alcance, ANTES del try: fuera de él, 404 como el formulario, sin escribir ni enviar correo.
+        $approvalID = $request->getAttribute('id', null);
+        $approvalElement = new SystemApprovalsMapper(Validator::isInteger($approvalID) ? (int) $approvalID : -1);
+        if ($approvalElement->id !== null && !self::canManage($approvalElement, getLoggedFrameworkUserOrFail())) {
+            throw new NotFoundException($request, $response);
+        }
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
 
@@ -562,6 +570,39 @@ class SystemApprovalsController extends AdminPanelController
     }
 
     /**
+     * Si el usuario puede ver y resolver el elemento: los criterios C3 y C5 del listado, aplicados en PHP.
+     *
+     * Las rutas dejan entrar a más tipos de los que pueden aprobarlo todo: el alcance lo pone esto.
+     *
+     * @param SystemApprovalsMapper $element Cargado por id, con los campos de fieldsToSelect()
+     * @param UserDataPackage $user
+     * @return bool
+     */
+    public static function canManage(SystemApprovalsMapper $element, UserDataPackage $user): bool
+    {
+        $record = $element->getExtendedElement();
+        if ($record === null) {
+            return false;
+        }
+        $userType = (int) $user->type;
+        //C3: lo propio, solo CAN_APPROVAL_SELF.
+        if (!in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_SELF, true) && (string) $record->referenceCreatedBy === (string) $user->id) {
+            return false;
+        }
+        //C5: sin permiso global, la organización del creador es la suya y él es su administrador.
+        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($userType);
+        $canApprovalAll = in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
+        if (!$canModifyOrganizations && !$canApprovalAll) {
+            //En dos pasos: `??` sobre la propiedad mágica pregunta a __isset, que UserDataPackage no tiene.
+            $organizationID = $user->organization;
+            $organizationID ??= -1;
+            return (string) $record->referenceOrganization === (string) $organizationID
+                && (string) $record->referenceOrganizationAdministrator === (string) $user->id;
+        }
+        return true;
+    }
+
+    /**
      * @inheritDoc
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
@@ -643,10 +684,12 @@ class SystemApprovalsController extends AdminPanelController
 
         //Permisos
         $list = $allRoles;
+        //El administrador de organización entra; su alcance lo pone canManage(), no la ruta.
         $approval = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
         ];
         $routes = [
 
