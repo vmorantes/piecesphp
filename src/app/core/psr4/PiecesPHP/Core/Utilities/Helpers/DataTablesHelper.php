@@ -291,25 +291,16 @@ class DataTablesHelper
              */
             $where = '';
 
+            //Trim ANTES: decide si hay having_string CON CONTENIDO, para elegir la vía del buscador.
+            $having_string = is_string($having_string) ? trim($having_string) : "";
+
             /**
              * @var string Criterios del input de búsqueda de datatables
              */
-            $having = self::generateHaving(
-                array_filter(
-                    $columns_order,
-                    function ($v) use ($ignore_fields_in_where) {
-                        return !in_array($v, $ignore_fields_in_where);
-                    }
-                ),
-                $columns,
-                $search,
-                $tableName,
-                $ignore_table_on_fields_in_where
-            );
+            $having = '';
 
-            //LA BÚSQUEDA SE UNE AL SEGMENTO COMO GRUPO, desde v4.1.0 del paquete. Sustituye a la
-            //guarda de AP, que prohibía convivir porque `(a OR b) AND c` no era expresable.
-            if ($having_segment !== null) {
+            //POR MARCADOR, y el segmento se crea SOLO si hay grupo: uno vacío deja `HAVING ()` (T163, #045).
+            if ($having_segment !== null || mb_strlen($having_string) === 0) {
                 $having_group = self::generateHavingGroup(
                     array_filter(
                         $columns_order,
@@ -324,12 +315,26 @@ class DataTablesHelper
                 );
 
                 if ($having_group !== null) {
+                    $having_segment ??= new HavingSegment();
                     $having_segment->addGroup($having_group);
                 }
+            } else {
+                //having_string CON CONTENIDO y sin segmento: la vía de cadena, con escapeString() (T3 la migra).
+                $having = self::generateHaving(
+                    array_filter(
+                        $columns_order,
+                        function ($v) use ($ignore_fields_in_where) {
+                            return !in_array($v, $ignore_fields_in_where);
+                        }
+                    ),
+                    $columns,
+                    $search,
+                    $tableName,
+                    $ignore_table_on_fields_in_where
+                );
             }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
-            $having_string = is_string($having_string) ? trim($having_string) : "";
             if (mb_strlen($having_string) > 0) {
                 if (mb_strlen($having) > 0) {
                     $having = "($having_string) AND $having";

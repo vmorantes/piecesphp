@@ -6,7 +6,12 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Terminal\CliActions;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/sql-placeholders';
@@ -39,7 +44,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/16] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/17] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +69,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/16] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/17] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +81,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/16] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/17] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +114,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/16] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/17] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +182,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/16] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/17] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +206,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/16] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/17] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -252,7 +257,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/16] Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/17] Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
@@ -321,7 +326,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
-    echoTerminal('[8/16] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
+    echoTerminal('[8/17] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
 
     //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
     //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
@@ -386,7 +391,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. LA QUE EJECUTA (LEY 29) ────────────────────────────────────────────────────
-    echoTerminal('[9/16] El SQL de `process()` con segmento se EJECUTA de verdad');
+    echoTerminal('[9/17] El SQL de `process()` con segmento se EJECUTA de verdad');
 
     //LEY 29: las ocho secciones de arriba comparan CADENAS, y ninguna vio la 665. Ver T160.
     $modelo = \App\Locations\Mappers\CountryMapper::model();
@@ -428,7 +433,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. EL FILTRO DE APROBACIONES, EJECUTADO EN DOS IDIOMAS ───────────────────────
-    echoTerminal('[10/16] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
+    echoTerminal('[10/17] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
 
     //LEY 29: esto CONSULTA. Y la clave es `app_lang`, no `lang`. Ver T162.
     $idiomaPrevio = get_config('app_lang');
@@ -473,7 +478,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 11. LO QUE SUSTITUYE A LA GUARDA DE AP (LEY 30) ───────────────────────────────
-    echoTerminal('[11/16] El grupo de búsqueda se une con AND, no con OR');
+    echoTerminal('[11/17] El grupo de búsqueda se une con AND, no con OR');
 
     //AP prohibía `having_segment` con búsqueda activa porque `HavingSegment` no agrupaba. Con
     //v4.1.0 agrupa, y esto es lo que ocupa el sitio de aquella guarda. Ver T163.
@@ -529,7 +534,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 12. MySpace: precedencia, y la búsqueda de la tabla derivada ──────────────────
-    echoTerminal('[12/16] `AllProfiles` parentiza, y `processFromQuery` va por marcador');
+    echoTerminal('[12/17] `AllProfiles` parentiza, y `processFromQuery` va por marcador');
 
     //`A AND B OR C` se lee `(A AND B) OR C`: sin los paréntesis, los usuarios se listaban sin
     //comprobar su aprobación. Ver T166.
@@ -570,7 +575,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. La dirección de `custom_order` ────────────────────────────────────────────
-    echoTerminal('[13/16] La dirección de `custom_order` se normaliza a ASC o DESC');
+    echoTerminal('[13/17] La dirección de `custom_order` se normaliza a ASC o DESC');
 
     //Sin la normalización, la dirección de `custom_order` entra en el ORDER BY tal cual: es
     //SQL de quien la escriba. `$table = ''` evita depender de `setTablePrefixOnOrder()`.
@@ -586,7 +591,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 14. Los listados paginados van por marcador ────────────────────────────────
-    echoTerminal('[14/16] Los listados paginados (`PageQuery`) mandan la petición por marcador');
+    echoTerminal('[14/17] Los listados paginados (`PageQuery`) mandan la petición por marcador');
 
     //PageQuery ejecuta el SQL tal cual: sin valores ligados, lo que se interpole llega crudo.
     $tablaPaises = \App\Locations\Mappers\CountryMapper::PREFIX_TABLE . \App\Locations\Mappers\CountryMapper::TABLE;
@@ -699,7 +704,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 15. escapeString() cede al marcador (ADR 0009) ─────────────────────────────
-    echoTerminal('[15/16] Los usos de escapeString() van por marcador, y no reaparecen');
+    echoTerminal('[15/17] Los usos de escapeString() van por marcador, y no reaparecen');
 
     //LA SONDA QUE DISCRIMINA sin tocar sql_mode: escapeString() hace stripslashes(), así que un valor
     //que existe, con una barra metida, sigue casando concatenado y deja de casar ligado.
@@ -801,7 +806,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 16. Las etiquetas del SERVIDOR en literal hexadecimal (ADR 0009, T2 de #040) 
-    echoTerminal('[16/16] sqlStringLiteral(): las etiquetas del SERVIDOR entran en el SELECT sin depender de sql_mode');
+    echoTerminal('[16/17] sqlStringLiteral(): las etiquetas del SERVIDOR entran en el SELECT sin depender de sql_mode');
 
     //Un SELECT sin tabla evalúa la expresión tal como sale de fieldsToSelect(), sin tocar sql_mode.
     $valorSQL = function (string $json, $clave): ?string {
@@ -893,6 +898,71 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         count($sinElViejo) === 0 ? '11 variables, ninguna con el patrón viejo' : 'con el patrón viejo: ' . implode(', ', $sinElViejo));
     $check(count($sinElNuevo) === 0, 'fuente: las once pasan por sqlStringLiteral()',
         count($sinElNuevo) === 0 ? '11 variables, las 11 por sqlStringLiteral()' : 'sin sqlStringLiteral(): ' . implode(', ', $sinElNuevo));
+    echoTerminal(' ');
+
+    //──── 17. process(): el buscador va por marcador sin having_string (T3 de #045) ───
+    echoTerminal('[17/17] process(): sin having_string, el buscador va por marcador; con contenido, sigue por cadena');
+
+    //Una RequestRoute de verdad: `process()` valida el tipo, así que un doble no sirve.
+    $peticionDataTables = function (string $termino): RequestRoute {
+        $request = new RequestRoute(
+            'GET',
+            (new UriFactory())->createUri('http://localhost/datatables'),
+            new Headers(),
+            [],
+            [],
+            (new StreamFactory())->createStream('')
+        );
+        $conQuery = $request->withQueryParams([
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [['searchable' => 'true'], ['searchable' => 'true']],
+            'search' => ['value' => $termino, 'regex' => 'false'],
+        ]);
+        return $conQuery instanceof RequestRoute ? $conQuery : $request;
+    };
+
+    DataTablesHelper::setTablePrefixOnOrder(false);
+    DataTablesHelper::setTablePrefixOnSearch(false);
+
+    //17a. SIN having_string ni having_segment: el buscador va por marcador.
+    $opcionesBase = [
+        'select_fields' => ["{$tablaPaises}.*"],
+        'columns_order' => ['name', 'code'],
+        'mapper' => new \App\Locations\Mappers\CountryMapper(),
+        'on_set_data' => fn ($e) => [$e->id],
+    ];
+    try {
+        $resultado = DataTablesHelper::process(array_merge($opcionesBase, [
+            'request' => $peticionDataTables($conComilla),
+        ]));
+        $valores = $resultado->getValues();
+        $sqlEjecutado = (string) ($valores['SQL_MAIN_EXECUTED'] ?? '');
+        $check(mb_strpos($sqlEjecutado, ':WH') !== false, 'sin having_string: el HAVING lleva un marcador (:WH…)', $sqlEjecutado);
+        $check(mb_strpos($sqlEjecutado, $conComilla) === false, 'sin having_string: la comilla del buscador NO está en el SQL');
+        $directo = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaPaises} WHERE UPPER(name) LIKE UPPER(:v) OR UPPER(code) LIKE UPPER(:v)", [':v' => "%{$conComilla}%"]);
+        $check(($valores['recordsFiltered'] ?? null) === $directo, 'sin having_string: recordsFiltered cuadra con la cuenta directa',
+            'proceso: ' . var_export($valores['recordsFiltered'] ?? null, true) . ' · directo: ' . $directo);
+    } catch (\Throwable $e) {
+        $check(false, 'sin having_string: el HAVING lleva un marcador (:WH…)', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 140));
+        $check(false, 'sin having_string: la comilla del buscador NO está en el SQL');
+        $check(false, 'sin having_string: recordsFiltered cuadra con la cuenta directa');
+    }
+
+    //17b. CON having_string CON CONTENIDO: sigue por cadena, sin marcador para el buscador.
+    try {
+        $resultado2 = DataTablesHelper::process(array_merge($opcionesBase, [
+            'request' => $peticionDataTables($conComilla),
+            'having_string' => '1=1',
+        ]));
+        $sqlEjecutado2 = (string) ($resultado2->getValues()['SQL_MAIN_EXECUTED'] ?? '');
+        $check(mb_strpos($sqlEjecutado2, '1=1') !== false, 'con having_string: el criterio fijo sigue en el SQL', $sqlEjecutado2);
+        $check(mb_strpos($sqlEjecutado2, ':WH') === false, 'con having_string: el buscador NO lleva marcador (sigue por cadena)');
+    } catch (\Throwable $e) {
+        $check(false, 'con having_string: el criterio fijo sigue en el SQL', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 140));
+        $check(false, 'con having_string: el buscador NO lleva marcador (sigue por cadena)');
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
