@@ -853,6 +853,37 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#053`/`#054`, 2026-09-15: LoginAttempts y la medición de H1.**
+  - Cerrado: LoginAttempts va por marcador (`7a8d0ca6`), y la prueba rota de `0bff44c4` está
+    arreglada (`d9b5f3a8`). `gates` da 26/0 sobre el estado final.
+  - **⚠ GRAVE, H1 de `#054`:** los informes de accesos (`admin/reports-access/logged/` y
+    `not-logged/`) mandaban al navegador, en `rawData`, el hash bcrypt de la contraseña de
+    cada usuario listado (15 de 15 filas con esa forma, contadas sin imprimirlas).
+    - La causa: `UsersModel::fieldsToSelect()` (`UsersModel.php:912`) selecciona todas las
+      columnas de `getFields()`, contraseña incluida.
+    - **Decisión del arquitecto:** se arregla en la raíz. `fieldsToSelect()` deja de
+      seleccionar `password`, con censo de consumidores y parada si alguno lo lee. Se instruye
+      en `#055`, junto con un barrido de todas las respuestas JSON en busca de hashes.
+    - Por lectura, ningún consumidor usa ese hash:
+      - la línea 818 recarga al usuario por su id;
+      - `getAllUsers()` devuelve filas;
+      - el inicio de sesión no pasa por ahí.
+    - Se avisó al PO con una notificación, según 2.9.
+  - **H2, que se habla con el PO porque toca el núcleo transversal:** los 21 listados de
+    `DataTablesHelper` mandan `SQL_*` y `rawData`, y `rawData` lleva datos personales o de
+    negocio (el email del newsletter, la IP de los intentos, y el teléfono, la dirección, el NIT
+    y los correos de las organizaciones).
+    - `SQL_*` no tiene ningún consumidor.
+    - `rawData` tiene 5: las vistas de tarjetas, que usan `dataTablesServerProccesingOnCards()`
+      en `helpers.js:1047`, y cuyos controladores lo reescriben con HTML.
+    - Opciones medidas:
+      1. quitar `SQL_*` fuera de `is_local()`;
+      2. filtrar `rawData` por una lista blanca de columnas en cada mapper;
+      3. mandar `rawData` solo en los listados de tarjetas.
+    - **Predeterminado del arquitecto:** la 1 ya, porque no tiene consumidores, y la 3 con una
+      opción explícita en `process()` que activen solo los listados de tarjetas. Espera al PO.
+  - H4: `$config['developer']` es un texto de relleno, no un interruptor de entorno. El que
+    existe es `is_local()` (`Utilities.php:599`).
 - **Respuestas del PO a la batería para 20 rondas sin él (2026-09-15, durante `#051`):**
   1. **2.1, sí.** Los lotes del núcleo con diseño ya acordado (3b, 4b y 5b) se ejecutan sin
      volver a consultar. El trabajo se detiene solo si aparece algo que cambie ese diseño.

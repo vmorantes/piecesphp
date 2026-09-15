@@ -331,8 +331,24 @@ escapado con `escapeString()`, que depende del `sql_mode` del servidor.
   uno y comparando antes y después.
 - **Un solo cambio visible:** buscar una barra invertida (`\`) antes no filtraba nada, porque
   `escapeString()` la convertía en una búsqueda vacía. Ahora se trata como texto.
-- **Siguen por la vía antigua** los listados que pasan su propio filtro con contenido: el de
-  aprobaciones y dos de los intentos de acceso. `escapeString()` conserva ese único uso.
+- **Los tres listados que pasaban su propio filtro de texto** (el de aprobaciones y dos de los
+  intentos de acceso) también van ya por marcador (`having_segment`), con el mismo resultado.
+- **`having_string` sigue admitido como legado**, para los módulos de proyectos clonados: si un
+  listado lo pasa, el buscador vuelve a la vía antigua con `escapeString()`. Se recomienda pasar
+  a `having_segment`.
+
+## ⚠ Corregido — los informes de accesos enviaban al navegador el hash de las contraseñas
+
+La respuesta de los informes de accesos del panel (usuarios que han entrado y que no) incluía,
+en `rawData`, **todas las columnas de cada usuario, con el hash de su contraseña**. La causa era
+que `UsersModel::fieldsToSelect()` seleccionaba la tabla entera.
+- **Ahora:** `fieldsToSelect()` ya no selecciona `password`. Ningún listado ni ninguna
+  consulta que lo use devuelve el hash.
+- **Si en tu proyecto leías `password` de una fila obtenida con `fieldsToSelect()`**, ya no
+  llega. Carga el usuario con su mapper cuando necesites comprobar la contraseña, como hace el
+  inicio de sesión.
+- **Si tu instalación ha estado expuesta**, cualquiera con acceso a esos informes pudo ver los
+  hashes. No son las contraseñas en claro, pero conviene pedir que las cambien.
 
 ## Corregido — las etiquetas traducidas entran en el SQL como literal hexadecimal
 
