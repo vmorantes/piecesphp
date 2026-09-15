@@ -64,8 +64,8 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	argument.type (Líneas: 582, 912, 1277, 1319, 1319, 1383, 1410, 1476, 1568, 1568)
-	assign.propertyType (Líneas: 1327)
+	argument.type (Líneas: 582, 875, 1224, 1266, 1266, 1330, 1357, 1423, 1515, 1515)
+	assign.propertyType (Líneas: 1274)
 project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)

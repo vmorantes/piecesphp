@@ -114,25 +114,25 @@
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
   582    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  912    Parameter Nr.2 $array of function implode expects array, array<string>|string given.                                                             
+  875    Parameter Nr.2 $array of function implode expects array, array<string>|string given.                                                             
          🪪  argument.type                                                                                                                              
-  1277   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
+  1224   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
-  1319   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.         
+  1266   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.         
          🪪  argument.type                                                                                                                              
-  1319   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.            
+  1266   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.            
          🪪  argument.type                                                                                                                              
-  1327   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                            
+  1274   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                            
          🪪  assign.propertyType                                                                                                                        
-  1383   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
+  1330   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
-  1410   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
+  1357   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
          🪪  argument.type                                                                                                                              
-  1476   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
+  1423   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
          🪪  argument.type                                                                                                                              
-  1568   Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                        
+  1515   Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                        
          🪪  argument.type                                                                                                                              
-  1568   Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                           
+  1515   Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                           
          🪪  argument.type                                                                                                                              
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
