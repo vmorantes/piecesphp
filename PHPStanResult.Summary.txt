@@ -483,7 +483,7 @@ project://src/app/model/UsersModel.php
 	argument.type (Líneas: 250)
 	return.type (Líneas: 392, 450, 467, 473, 489, 504, 519, 534, 549, 564, 579, 613, 619, 633)
 	property.notFound (Líneas: 595, 598)
-	foreach.nonIterable (Líneas: 825, 1051)
+	foreach.nonIterable (Líneas: 825, 1053)
 project://src/app/view/layout/menu.php
 	property.nonObject (Líneas: 65)
 	method.nonObject (Líneas: 68, 70)
