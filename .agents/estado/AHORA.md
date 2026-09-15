@@ -12,7 +12,17 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#055 · ARQ`. El próximo número es `#056`.
+- **Último mensaje enviado:** `#057 · ARQ`. El próximo número es `#058`.
+  - `#056 · COD`: `#055` cerrado (`ae869246`, `1eb497a3`, `77c32b17` y `f352f3a9`).
+    - `fieldsToSelect()` ya no selecciona `password`. Los informes de accesos pasan de 6 a 0
+      hashes y de 9 a 0.
+    - El censo de los 44 accesos a `password`: ninguno lo lee de una fila de `fieldsToSelect()`.
+      El login, el cambio de contraseña y el 2FA cargan el mapper completo.
+    - **⚠ GRAVE, abierto:** `/users/all/` (`users-ajax-all`, `UsersController::_all()`
+      1852-1890) hace `SELECT pcsphp_users.*` y devuelve 20 hashes. Según el inventario, la
+      piden los tipos 0, 1, 12, 2, 3 y 4. No tiene consumidores en el repositorio.
+  - `#057`: `_all()` deja de devolver `password`, se mide con la sesión de un usuario general y
+    se censan otros `SELECT` de la tabla entera de usuarios que acaben en una respuesta.
   - `#054 · COD`: `#053` y `#051` cerrados, con 5 commits y `gates` 26/0 al final.
     **⚠ GRAVE:** los informes de accesos mandaban al navegador el hash de cada contraseña. Se
     avisó al PO al móvil.
@@ -154,6 +164,20 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
+0. **⚠ GRAVE — `app_key` con valor de relleno (verificado por el arquitecto, 2026-09-15).**
+   - `config.php:81` la trae con un texto de relleno público. `Config::app_key()`
+     (`Config.php:1063-1067`) la devuelve tal cual, y `bootstrap.php:313/316` firma con ella
+     las sesiones (`BaseToken`) y el cifrado (`BaseHashEncryption`). Nada la sobrescribe.
+   - **Todo clon que no la cambie tiene sesiones falsificables:** cualquiera puede fabricar una
+     sesión de administrador. En esta instalación local vale el relleno.
+   - Toca `Config` y `bootstrap`, que son núcleo transversal: **se habla con el PO antes.**
+   - *Predeterminado propuesto:*
+     1. leerla de `secure-keys/app_key` como las otras claves (`api-keys.php`);
+     2. fuera de `is_local()`, si está vacía o es el relleno, la aplicación se niega a arrancar
+        con un mensaje claro;
+     3. una tarea `bin/cli` para generarla.
+   - Cambiarla cierra todas las sesiones abiertas. Encaja con 5b, cuya decisión es derivar las
+     claves JWT fijas de `app_key`.
 1. **H1 de `#050`: el SQL y las filas crudas viajan al navegador** en todos los listados de
    `DataTablesHelper`. Es núcleo transversal y su diseño no está acordado: se le presenta con la
    medición de `#052` delante.
