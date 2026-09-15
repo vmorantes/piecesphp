@@ -1931,9 +1931,9 @@
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/Statics/ServerStatics.php                                                                             
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
-  556    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\Statics\ServerStatics::buildBasicHeaders() expects string, string|false given.  
+  563    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\Statics\ServerStatics::buildBasicHeaders() expects string, string|false given.  
          🪪  argument.type                                                                                                                      
-  949    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                         
+  956    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                         
          🪪  argument.type                                                                                                                      
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
 
