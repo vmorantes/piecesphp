@@ -439,8 +439,8 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Router.php
 project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/NotFoundException.php
 	argument.type (Líneas: 41)
 	assign.propertyType (Líneas: 51)
-project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
-	argument.type (Líneas: 564, 957)
+project://src/app/core/psr4/PiecesPHP/Core/Statics/ServerStatics.php
+	argument.type (Líneas: 556, 949)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	argument.type (Líneas: 111, 162, 163, 179)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
