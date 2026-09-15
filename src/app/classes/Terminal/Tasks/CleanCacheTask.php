@@ -82,6 +82,10 @@ class CleanCacheTask extends TerminalTaskAbstract
                 $message[] = "\e[34mCaché de enlaces simbólicos eliminada\e[39m";
             }
 
+            if ($responseJSON['values']['webpCachePurged'] ?? false) {
+                $message[] = "\e[34mCaché de conversiones a WebP purgada\e[39m";
+            }
+
         } catch (\Exception $e) {
             $message[] = "\e[31mHa ocurrido un error: {$e->getMessage()}\e[39m";
             log_exception($e);

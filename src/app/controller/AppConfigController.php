@@ -15,6 +15,7 @@ use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
+use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -1753,6 +1754,21 @@ class AppConfigController extends AdminPanelController
             $publicationsCache = new DirectoryObject(basepath('app/cache/Publications'));
             $publicationsCache->process();
             $publicationsCache->delete();
+
+            //La caché de conversiones a WebP de ServerStatics. Sin permiso de escritura (la creó otro usuario con 0755) no se
+            //toca: delete() haría un unlink que falla con un aviso, y aquí un aviso aborta la limpieza entera.
+            $webpCacheDirectory = basepath(ServerStatics::WEBP_CACHE_DIRECTORY);
+            $result->setValue('webpCachePurged', false);
+            if (is_dir($webpCacheDirectory)) {
+                if (is_writable($webpCacheDirectory)) {
+                    $webpCache = new DirectoryObject($webpCacheDirectory);
+                    $webpCache->process();
+                    $webpCache->delete();
+                    $result->setValue('webpCachePurged', true);
+                } else {
+                    log_exception(new \RuntimeException("clean-cache: sin permiso para purgar {$webpCacheDirectory}; la creó otro usuario."));
+                }
+            }
 
             //Caché de enlaces simbólicos
             $result->setValue('serverDelegatedSymLinksRemoved', false);
