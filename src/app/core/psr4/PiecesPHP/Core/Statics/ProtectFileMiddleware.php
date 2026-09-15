@@ -37,11 +37,11 @@ class ProtectFileMiddleware
     private static array $policies = [];
 
     /**
-     * Protege un directorio creando un .htaccess y registrándolo en el middleware.
+     * Registra un directorio protegido y su validador. Lo privado de la carpeta lleva el sufijo en disco (ProtectedUploads).
      *
      * @param string $directory Ruta absoluta del directorio a proteger
-     * @param callable|null $validator Función de validación (opcional). Recibe (Request $request, string $filePath) y debe devolver bool.
-     * @param string|null $indexFile Ruta absoluta de index.php (opcional)
+     * @param callable|null $validator Función de validación. Recibe (Request $request, string $filePath) y debe devolver bool. Sin ella, nadie entra.
+     * @param string|null $indexFile Sin uso: se conserva la firma. El .htaccess de la vuelta atrás lo da rewriteHtaccessContent()
      * @param string $policy POLICY_SESSION o POLICY_VALIDATOR: la política que ve quien lee la configuración
      * @return void
      */
@@ -57,18 +57,10 @@ class ProtectFileMiddleware
             throw new \RuntimeException("No se pudo resolver la carpeta protegida {$directory}.");
         }
 
-        $indexFile = $indexFile ?: basepath('index.php');
-        $htaccess = rtrim($realDirectory, DIRECTORY_SEPARATOR) . '/.htaccess';
-
-        if (!file_exists($htaccess)) {
-            $indexFileRelative = getRelativePath($realDirectory, $indexFile);
-            $htaccessContent = "RewriteEngine On\n";
-            $htaccessContent .= "RewriteRule ^(.*)$ {$indexFileRelative} [L]\n";
-            file_put_contents($htaccess, $htaccessContent);
-        }
-
-        self::$protectedDirectories[$realDirectory] = $validator ?: function (Request $request, string $filePath) {
-            return true;
+        //Aquí NO se escribe .htaccess: protege el sufijo, y el siguiente arranque repondría los que retira statics-protect-migrate.
+        //SIN VALIDADOR, FALLA CERRADO: una carpeta registrada sin decir quién entra no se sirve a nadie.
+        self::$protectedDirectories[$realDirectory] = $validator ?: static function (Request $request, string $filePath): bool {
+            return false;
         };
         self::$policies[$realDirectory] = $policy;
     }
@@ -148,6 +140,20 @@ class ProtectFileMiddleware
     public static function getProtectedDirectories(): array
     {
         return self::$protectedDirectories;
+    }
+
+    /**
+     * El .htaccess de «reescribir todo» que protect() escribía en cada carpeta. Solo lo usa la vuelta atrás de
+     * statics-protect-migrate, para reponerlo tal cual era.
+     *
+     * @param string $realDirectory
+     * @param string|null $indexFile Ruta absoluta de index.php; por defecto, la del framework
+     * @return string
+     */
+    public static function rewriteHtaccessContent(string $realDirectory, ?string $indexFile = null): string
+    {
+        $indexFileRelative = getRelativePath($realDirectory, $indexFile ?: basepath('index.php'));
+        return "RewriteEngine On\nRewriteRule ^(.*)$ {$indexFileRelative} [L]\n";
     }
 
     /**
