@@ -1620,17 +1620,23 @@ class APIController extends AdminPanelController
         $request = $request->withHeader('Accept', 'application/json');
 
         /**
-         * Ejemplo para programar cron job:
+         * Ejemplo para programar cron job (la clave, en la cabecera: el parámetro GET queda en los logs de acceso):
          * Contenido: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
-         * Tiempo: 0 * * * *
+         * Tiempo: * * * * * (cada minuto: la franja, los reintentos y la ventana los pone cada tarea)
          */
         $actionType = $request->getAttribute('actionType');
         $method = mb_strtoupper($request->getMethod());
 
         $CronJobKey = get_config('CronJobKey');
-        $cronJobKeyOnRequest = $request->getHeaderLine('Cron-Job-Key');
-        $cronJobKeyOnGet = $request->getQueryParam('Cron-Job-Key');
-        $cronJobKeyIsValid = $cronJobKeyOnRequest === $CronJobKey || $cronJobKeyOnGet === $CronJobKey;
+        //FALLA CERRADA: sin secure-keys/cronjob la clave es '', y '' === '' dejaba pasar una petición sin cabecera.
+        if (!is_string($CronJobKey) || $CronJobKey === '') {
+            log_exception(new \RuntimeException('cron-jobs: CronJobKey no está configurada; la ruta responde 403.'));
+            return throw403($request, [
+                'line' => __LINE__,
+                'file' => __FILE__,
+            ]);
+        }
+        $cronJobKeyIsValid = self::cronJobKeyAccepted($CronJobKey, $request->getHeaderLine('Cron-Job-Key'), $request->getQueryParam('Cron-Job-Key'));
 
         if (!$cronJobKeyIsValid) {
             return throw403($request, [
@@ -1654,10 +1660,10 @@ class APIController extends AdminPanelController
             $responseJSON['TasksRuns']["CheckWorking"] = true;
 
             $systemCronjobs = CronJobTask::getCronJobs();
-            if (is_array($systemCronjobs)) {
-                foreach ($systemCronjobs as $cronTask) {
-                    $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->execute();
-                }
+            $now = new \DateTime();
+            foreach ($systemCronjobs as $cronTask) {
+                //run(): franja, ventana, intentos, bloqueo y estado. La respuesta no lleva la traza.
+                $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->run($now);
             }
 
         } else {
@@ -1665,6 +1671,24 @@ class APIController extends AdminPanelController
         }
 
         return $response->withJson($responseJSON);
+    }
+
+    /**
+     * Si la petición trae la clave del cron. Falla cerrada: sin clave configurada no pasa nada.
+     *
+     * @param mixed $configuredKey get_config('CronJobKey')
+     * @param string $headerKey La cabecera Cron-Job-Key, que es la recomendada
+     * @param mixed $queryKey El parámetro GET Cron-Job-Key, por compatibilidad
+     * @return bool
+     */
+    protected static function cronJobKeyAccepted($configuredKey, string $headerKey, $queryKey): bool
+    {
+        if (!is_string($configuredKey) || $configuredKey === '') {
+            return false;
+        }
+        $headerMatches = $headerKey !== '' && hash_equals($configuredKey, $headerKey);
+        $queryMatches = is_string($queryKey) && $queryKey !== '' && hash_equals($configuredKey, $queryKey);
+        return $headerMatches || $queryMatches;
     }
 
     /**
