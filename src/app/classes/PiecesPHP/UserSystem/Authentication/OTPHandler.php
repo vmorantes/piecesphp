@@ -8,6 +8,8 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
@@ -248,7 +250,11 @@ class OTPHandler
     public static function getUserDataByUsername(string $username)
     {
         $model = UsersModel::model();
-        $model->select()->where("username = '{$username}' OR email = '{$username}'")->execute();
+        //POR MARCADOR: el nombre llega sin sesión desde la petición (generate-otp, check-totp, el login) y viaja como dato.
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('username', $username, WhereItem::OR_OPERATOR),
+            WhereItem::isEqual('email', $username),
+        ]))->execute();
         $result = $model->result();
         return !empty($result) ? $result[0] : null;
     }
