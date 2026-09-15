@@ -248,10 +248,10 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 135)
-	argument.type (Líneas: 358, 358)
-	assign.propertyType (Líneas: 365)
-	method.nonObject (Líneas: 551)
+	staticMethod.nonObject (Líneas: 136)
+	argument.type (Líneas: 366, 366)
+	assign.propertyType (Líneas: 373)
+	method.nonObject (Líneas: 559)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 147)
 	property.nonObject (Líneas: 208)
