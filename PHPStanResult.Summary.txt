@@ -4,7 +4,7 @@
 171
 
 [TOTAL DE ERRORES VISIBLES]
-738
+737
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 732
+En las dos (8.4 y 8.5): 731
 Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (307)
+argument.type (306)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -182,8 +182,8 @@ project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	argument.type (Líneas: 827, 1297, 1561)
 	offsetAccess.invalidOffset (Líneas: 1580)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
-	argument.type (Líneas: 439, 869, 871, 987)
-	offsetAccess.invalidOffset (Líneas: 988)
+	argument.type (Líneas: 439, 870, 872, 988)
+	offsetAccess.invalidOffset (Líneas: 989)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	property.nonObject (Líneas: 107, 110)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
@@ -338,9 +338,9 @@ project://src/app/controller/UsersController.php
 	return.type (Líneas: 1919)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
-	argument.type (Líneas: 2247, 2305, 2322, 2322, 3245, 3246, 3247, 3347, 3348)
+	argument.type (Líneas: 2247, 2305, 2322, 2322, 3264, 3265, 3266, 3366, 3367)
 	offsetAccess.invalidOffset (Líneas: 2346)
-	offsetAccess.notFound (Líneas: 3140, 3141)
+	offsetAccess.notFound (Líneas: 3159, 3160)
 project://src/app/core/Config.php
 	argument.type (Líneas: 815, 1094)
 	assign.propertyType (Líneas: 931)
@@ -480,7 +480,7 @@ project://src/app/model/TokenModel.php
 project://src/app/model/UserProblemsModel.php
 	property.notFound (Líneas: 86)
 project://src/app/model/UsersModel.php
-	argument.type (Líneas: 250, 921)
+	argument.type (Líneas: 250)
 	return.type (Líneas: 392, 450, 467, 473, 489, 504, 519, 534, 549, 564, 579, 613, 619, 633)
 	property.notFound (Líneas: 595, 598)
 	foreach.nonIterable (Líneas: 825, 1051)
