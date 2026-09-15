@@ -15,6 +15,8 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Validation\Validator;
 
 /**
@@ -740,13 +742,11 @@ class DocumentTypesMapper extends EntityMapperExtensible
         $ignoreID ??= -1;
         $model = self::model();
 
-        $where = [
-            "documentTypeName = '{$name}' AND",
-            "id != {$ignoreID}",
-        ];
-        $where = trim(implode(' ', $where));
-
-        $model->select()->where($where);
+        //Por marcador: el nombre llega del formulario y viaja como dato (ADR 0009).
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('documentTypeName', $name, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
+        ]));
 
         $model->execute();
 

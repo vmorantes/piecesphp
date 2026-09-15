@@ -44,7 +44,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/18]WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/19]WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -69,7 +69,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/18]DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/19]DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -81,7 +81,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/18]HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/19]HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -114,7 +114,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/18]Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/19]Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -182,7 +182,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/18]Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/19]Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -206,7 +206,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/18]El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/19]El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -257,7 +257,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/18]Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/19]Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
@@ -326,7 +326,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
-    echoTerminal('[8/18]`where_segment` prepara, y sin él la vía de cadena sigue intacta');
+    echoTerminal('[8/19]`where_segment` prepara, y sin él la vía de cadena sigue intacta');
 
     //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
     //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
@@ -391,7 +391,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. LA QUE EJECUTA (LEY 29) ────────────────────────────────────────────────────
-    echoTerminal('[9/18]El SQL de `process()` con segmento se EJECUTA de verdad');
+    echoTerminal('[9/19]El SQL de `process()` con segmento se EJECUTA de verdad');
 
     //LEY 29: las ocho secciones de arriba comparan CADENAS, y ninguna vio la 665. Ver T160.
     $modelo = \App\Locations\Mappers\CountryMapper::model();
@@ -433,7 +433,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. EL FILTRO DE APROBACIONES, EJECUTADO EN DOS IDIOMAS ───────────────────────
-    echoTerminal('[10/18]El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
+    echoTerminal('[10/19]El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
 
     //LEY 29: esto CONSULTA. Y la clave es `app_lang`, no `lang`. Ver T162.
     $idiomaPrevio = get_config('app_lang');
@@ -478,7 +478,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 11. LO QUE SUSTITUYE A LA GUARDA DE AP (LEY 30) ───────────────────────────────
-    echoTerminal('[11/18]El grupo de búsqueda se une con AND, no con OR');
+    echoTerminal('[11/19]El grupo de búsqueda se une con AND, no con OR');
 
     //AP prohibía `having_segment` con búsqueda activa porque `HavingSegment` no agrupaba. Con
     //v4.1.0 agrupa, y esto es lo que ocupa el sitio de aquella guarda. Ver T163.
@@ -534,7 +534,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 12. MySpace: precedencia, y la búsqueda de la tabla derivada ──────────────────
-    echoTerminal('[12/18]`AllProfiles` parentiza, y `processFromQuery` va por marcador');
+    echoTerminal('[12/19]`AllProfiles` parentiza, y `processFromQuery` va por marcador');
 
     //`A AND B OR C` se lee `(A AND B) OR C`: sin los paréntesis, los usuarios se listaban sin
     //comprobar su aprobación. Ver T166.
@@ -575,7 +575,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. La dirección de `custom_order` ────────────────────────────────────────────
-    echoTerminal('[13/18]La dirección de `custom_order` se normaliza a ASC o DESC');
+    echoTerminal('[13/19]La dirección de `custom_order` se normaliza a ASC o DESC');
 
     //Sin la normalización, la dirección de `custom_order` entra en el ORDER BY tal cual: es
     //SQL de quien la escriba. `$table = ''` evita depender de `setTablePrefixOnOrder()`.
@@ -591,7 +591,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 14. Los listados paginados van por marcador ────────────────────────────────
-    echoTerminal('[14/18]Los listados paginados (`PageQuery`) mandan la petición por marcador');
+    echoTerminal('[14/19]Los listados paginados (`PageQuery`) mandan la petición por marcador');
 
     //PageQuery ejecuta el SQL tal cual: sin valores ligados, lo que se interpole llega crudo.
     $tablaPaises = \App\Locations\Mappers\CountryMapper::PREFIX_TABLE . \App\Locations\Mappers\CountryMapper::TABLE;
@@ -704,7 +704,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 15. escapeString() cede al marcador (ADR 0009) ─────────────────────────────
-    echoTerminal('[15/18]Los usos de escapeString() van por marcador, y no reaparecen');
+    echoTerminal('[15/19]Los usos de escapeString() van por marcador, y no reaparecen');
 
     //LA SONDA QUE DISCRIMINA sin tocar sql_mode: escapeString() hace stripslashes(), así que un valor
     //que existe, con una barra metida, sigue casando concatenado y deja de casar ligado.
@@ -806,7 +806,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 16. Las etiquetas del SERVIDOR en literal hexadecimal (ADR 0009, T2 de #040) 
-    echoTerminal('[16/18]sqlStringLiteral(): las etiquetas del SERVIDOR entran en el SELECT sin depender de sql_mode');
+    echoTerminal('[16/19]sqlStringLiteral(): las etiquetas del SERVIDOR entran en el SELECT sin depender de sql_mode');
 
     //Un SELECT sin tabla evalúa la expresión tal como sale de fieldsToSelect(), sin tocar sql_mode.
     $valorSQL = function (string $json, $clave): ?string {
@@ -901,7 +901,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 17. process(): el buscador va por marcador sin having_string (T3 de #045) ───
-    echoTerminal('[17/18]process(): sin having_string, el buscador va por marcador; con contenido, sigue por cadena');
+    echoTerminal('[17/19]process(): sin having_string, el buscador va por marcador; con contenido, sigue por cadena');
 
     //Una RequestRoute de verdad: `process()` valida el tipo, así que un doble no sirve.
     $peticionDataTables = function (string $termino): RequestRoute {
@@ -966,7 +966,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 18. Aprobaciones y LoginAttempts pasan su HAVING por marcador (#049) ─────────
-    echoTerminal('[18/18] Aprobaciones y LoginAttempts: el HAVING va por marcador, y nadie pasa having_string');
+    echoTerminal('[18/19] Aprobaciones y LoginAttempts: el HAVING va por marcador, y nadie pasa having_string');
 
     $peticionListado = function (array $query): RequestRoute {
         $request = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/datatables'), new Headers(), [], [], (new StreamFactory())->createStream(''));
@@ -1053,6 +1053,33 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //Sin llamadas vistas no hay veredicto: un instrumento ciego no puede pasar.
     $check($vistas > 0 && count($conCadena) === 0, 'fuente: ningún llamador de DataTablesHelper::process() en src/app pasa having_string',
         "{$vistas} llamadas vistas; " . (count($conCadena) === 0 ? 'ninguna con having_string' : 'con having_string: ' . implode(', ', $conCadena)));
+    echoTerminal(' ');
+
+    //──── 19. La búsqueda del usuario del OTP y los nombres de Forms, por marcador (#085) ──
+    echoTerminal('[19/19] getUserDataByUsername() y existsByName(): el valor de la petición viaja como dato');
+
+    try {
+        //El usuario 1 existe en toda instalación: por nombre y por correo es la misma fila.
+        $usuarioUno = \App\Model\UsersModel::getBy(1);
+        $check($usuarioUno !== null, 'el usuario 1 existe, como en toda instalación');
+        if ($usuarioUno !== null) {
+            $porNombre = \PiecesPHP\UserSystem\Authentication\OTPHandler::getUserDataByUsername((string) $usuarioUno->username);
+            $porCorreo = \PiecesPHP\UserSystem\Authentication\OTPHandler::getUserDataByUsername((string) $usuarioUno->email);
+            $check($porNombre !== null && (int) $porNombre->id === 1, 'getUserDataByUsername(): por nombre, el usuario 1');
+            $check($porCorreo !== null && (int) $porCorreo->id === 1, 'getUserDataByUsername(): por correo, el mismo usuario 1');
+        }
+        foreach (["' OR '1'='1", "zz-no-existe\\", "{$conComilla}' OR ''='"] as $inyectado) {
+            $check(\PiecesPHP\UserSystem\Authentication\OTPHandler::getUserDataByUsername($inyectado) === null,
+                "DISCRIMINANTE: getUserDataByUsername() con «{$inyectado}» no devuelve ninguna fila, ni lanza");
+        }
+        $check(\PiecesPHP\UserSystem\Authentication\OTPHandler::getUserDataByUsername('zz-no-existe-' . bin2hex(random_bytes(4))) === null,
+            'getUserDataByUsername(): un usuario inexistente da null');
+        $check(\Forms\DocumentTypes\Mappers\DocumentTypesMapper::existsByName("' OR '1'='1") === false
+            && \Forms\Categories\Mappers\CategoriesMapper::existsByName("' OR '1'='1") === false,
+            'existsByName() de DocumentTypes y Categories: con la comilla, «no existe», sin error de SQL');
+    } catch (\Throwable $e) {
+        $check(false, 'las búsquedas por marcador se ejecutan', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 200));
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

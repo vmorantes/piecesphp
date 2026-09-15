@@ -116,7 +116,8 @@ class TokenModel extends BaseModel
     public static function deleteByToken(string $token)
     {
         $model = new static();
-        return $model->delete("token = '{$token}'")->execute();
+        //Por marcador, como exists(): el token llega de la URL (RecoveryPasswordController) y viaja como dato.
+        return $model->delete(['token' => $token])->execute();
     }
 
     /**
