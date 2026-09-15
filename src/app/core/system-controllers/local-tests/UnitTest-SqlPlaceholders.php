@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $tabla = 'countries';
 
     //──── 1. La vía parametrizada ───────────────────────────────────────────────────────
-    echoTerminal('[1/15] WhereSegment deja la comilla FUERA del SQL');
+    echoTerminal('[1/16] WhereSegment deja la comilla FUERA del SQL');
 
     $segmento = new WhereSegment([
         WhereItem::like(
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. La discriminante ───────────────────────────────────────────────────────────
-    echoTerminal('[2/15] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
+    echoTerminal('[2/16] DISCRIMINANTE: la vía de cadena mete la comilla en el SQL');
 
     //Esto es lo que hacía `Country::search()`. Solo se compone: no se ejecuta contra nada.
     $comoAntes = "UPPER({$tabla}.name) LIKE UPPER('{$conComilla}%')";
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. `having()` concatena igual, y su segmento también prepara ──────────────────
-    echoTerminal('[3/15] HavingSegment deja la comilla FUERA del HAVING');
+    echoTerminal('[3/16] HavingSegment deja la comilla FUERA del HAVING');
 
     //`City::search()` usa `having` y no `where` porque filtra por `countryID`, un alias del
     //SELECT. `having(string)` concatena igual: `"HAVING ({$having})"`.
@@ -109,7 +109,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Que los arreglos sigan puestos ─────────────────────────────────────────────
-    echoTerminal('[4/15] Las búsquedas arregladas siguen por la vía parametrizada');
+    echoTerminal('[4/16] Las búsquedas arregladas siguen por la vía parametrizada');
 
     //Se pregunta al censo, que tokeniza. Si vuelve la interpolación, `Country.php` reaparece
     //en la lista CONFIRMADO y esta comprobación se pone roja.
@@ -177,7 +177,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Las listas `IN (...)`, que no se pueden parametrizar, validan el dominio ───
-    echoTerminal('[5/15] Las cuatro listas `IN (...)` siguen validando el dominio');
+    echoTerminal('[5/16] Las cuatro listas `IN (...)` siguen validando el dominio');
 
     //`IN` no lleva marcador: lo que cierra el agujero es la VALIDACIÓN, y quitarla NO mueve el
     //censo. Por eso esto mira la FUENTE. Ver T152.
@@ -201,7 +201,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. `UsersController::searchDropdown` ──────────────────────────────────────────
-    echoTerminal('[6/15] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
+    echoTerminal('[6/16] El desplegable de usuarios: `having` preparado y `NOT IN` validado');
 
     //El `having` se arregló de verdad y el `NOT IN` NO puede arreglarse: solo se valida. Quitar
     //la validación NO mueve el censo, así que esto mira la FUENTE. Ver T153.
@@ -252,7 +252,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Los fragmentos de DataTables, que no admiten marcador ──────────────────────
-    echoTerminal('[7/15] Los fragmentos `where_string`/`having_string` validan su dominio');
+    echoTerminal('[7/16] Los fragmentos `where_string`/`having_string` validan su dominio');
 
     //No hay vía preparada para un fragmento de SQL, así que lo que cierra el agujero es la
     //VALIDACIÓN — y quitarla NO mueve el censo. Por eso esto mira la FUENTE. Ver T155.
@@ -321,7 +321,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. Las claves de segmento de DataTablesHelper ─────────────────────────────────
-    echoTerminal('[8/15] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
+    echoTerminal('[8/16] `where_segment` prepara, y sin él la vía de cadena sigue intacta');
 
     //La forma EXACTA que usa `Country::countriesDataTables` tras migrar. Si el valor dejara de
     //viajar por reemplazo, la comilla volvería a la sentencia. Ver T156.
@@ -386,7 +386,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. LA QUE EJECUTA (LEY 29) ────────────────────────────────────────────────────
-    echoTerminal('[9/15] El SQL de `process()` con segmento se EJECUTA de verdad');
+    echoTerminal('[9/16] El SQL de `process()` con segmento se EJECUTA de verdad');
 
     //LEY 29: las ocho secciones de arriba comparan CADENAS, y ninguna vio la 665. Ver T160.
     $modelo = \App\Locations\Mappers\CountryMapper::model();
@@ -428,7 +428,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. EL FILTRO DE APROBACIONES, EJECUTADO EN DOS IDIOMAS ───────────────────────
-    echoTerminal('[10/15] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
+    echoTerminal('[10/16] El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
 
     //LEY 29: esto CONSULTA. Y la clave es `app_lang`, no `lang`. Ver T162.
     $idiomaPrevio = get_config('app_lang');
@@ -473,7 +473,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 11. LO QUE SUSTITUYE A LA GUARDA DE AP (LEY 30) ───────────────────────────────
-    echoTerminal('[11/15] El grupo de búsqueda se une con AND, no con OR');
+    echoTerminal('[11/16] El grupo de búsqueda se une con AND, no con OR');
 
     //AP prohibía `having_segment` con búsqueda activa porque `HavingSegment` no agrupaba. Con
     //v4.1.0 agrupa, y esto es lo que ocupa el sitio de aquella guarda. Ver T163.
@@ -529,7 +529,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 12. MySpace: precedencia, y la búsqueda de la tabla derivada ──────────────────
-    echoTerminal('[12/15] `AllProfiles` parentiza, y `processFromQuery` va por marcador');
+    echoTerminal('[12/16] `AllProfiles` parentiza, y `processFromQuery` va por marcador');
 
     //`A AND B OR C` se lee `(A AND B) OR C`: sin los paréntesis, los usuarios se listaban sin
     //comprobar su aprobación. Ver T166.
@@ -570,7 +570,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. La dirección de `custom_order` ────────────────────────────────────────────
-    echoTerminal('[13/15] La dirección de `custom_order` se normaliza a ASC o DESC');
+    echoTerminal('[13/16] La dirección de `custom_order` se normaliza a ASC o DESC');
 
     //Sin la normalización, la dirección de `custom_order` entra en el ORDER BY tal cual: es
     //SQL de quien la escriba. `$table = ''` evita depender de `setTablePrefixOnOrder()`.
@@ -586,7 +586,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 14. Los listados paginados van por marcador ────────────────────────────────
-    echoTerminal('[14/15] Los listados paginados (`PageQuery`) mandan la petición por marcador');
+    echoTerminal('[14/16] Los listados paginados (`PageQuery`) mandan la petición por marcador');
 
     //PageQuery ejecuta el SQL tal cual: sin valores ligados, lo que se interpole llega crudo.
     $tablaPaises = \App\Locations\Mappers\CountryMapper::PREFIX_TABLE . \App\Locations\Mappers\CountryMapper::TABLE;
@@ -699,7 +699,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 15. escapeString() cede al marcador (ADR 0009) ─────────────────────────────
-    echoTerminal('[15/15] Los usos de escapeString() van por marcador, y no reaparecen');
+    echoTerminal('[15/16] Los usos de escapeString() van por marcador, y no reaparecen');
 
     //LA SONDA QUE DISCRIMINA sin tocar sql_mode: escapeString() hace stripslashes(), así que un valor
     //que existe, con una barra metida, sigue casando concatenado y deja de casar ligado.
@@ -758,9 +758,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $sonda('system approvals · getByMultipleCriteries', 'SELECT referenceTable FROM ' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . ' LIMIT 1', 'referenceTable', fn (string $v, array $f): bool => \SystemApprovals\Mappers\SystemApprovalsMapper::getByMultipleCriteries([['column' => 'referenceTable', 'value' => $v]]) !== null);
 
     //LA FUENTE, por tokens: una llamada es `escapeString` seguido de `(`, que no sea su definición.
-    //Los cinco que quedan están PARADOS en #037 a la espera de decisión: no tienen segmento donde ir.
+    //El que queda está PARADO en #037 y #040 a la espera de decisión: no tiene segmento donde ir.
     $pendientes = [
-        'app/classes/Organizations/Mappers/OrganizationMapper.php' => 4,
         'app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php' => 1,
     ];
     $raizApp = rtrim(str_replace('\\', '/', basepath('')), '/');
@@ -795,10 +794,105 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     ksort($porArchivo);
     ksort($pendientes);
     $fuera = array_diff_key($porArchivo, $pendientes);
-    $check(count($fuera) === 0, 'fuente: ninguna llamada a escapeString() en src/app fuera de su definición y de los cinco parados',
+    $check(count($fuera) === 0, 'fuente: ninguna llamada a escapeString() en src/app fuera de su definición y del sitio parado',
         count($fuera) === 0 ? count($llamadas) . ' llamadas, todas en los sitios parados' : 'fuera: ' . implode(', ', array_filter($llamadas, fn ($s) => array_key_exists(explode(':', $s)[0], $fuera))));
-    $check($porArchivo === $pendientes, 'fuente: los parados son exactamente 4 en OrganizationMapper y 1 en DataTablesHelper',
+    $check($porArchivo === $pendientes, 'fuente: el parado es exactamente 1, en DataTablesHelper',
         implode(', ', $llamadas));
+    echoTerminal(' ');
+
+    //──── 16. Las etiquetas del SERVIDOR en literal hexadecimal (ADR 0009, T2 de #040) 
+    echoTerminal('[16/16] sqlStringLiteral(): las etiquetas del SERVIDOR entran en el SELECT sin depender de sql_mode');
+
+    //Un SELECT sin tabla evalúa la expresión tal como sale de fieldsToSelect(), sin tocar sql_mode.
+    $valorSQL = function (string $json, $clave): ?string {
+        $claveSQL = is_int($clave) ? (string) $clave : "'" . str_replace("'", "''", (string) $clave) . "'";
+        $sql = "SELECT JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($json) . ", CONCAT('$.', {$claveSQL}))) AS valor";
+        $sentencia = (new \PiecesPHP\Core\BaseModel())->prepare($sql);
+        $sentencia->execute();
+        $fila = $sentencia->fetch(\PDO::FETCH_ASSOC);
+        return $fila !== false ? ($fila['valor'] ?? null) : null;
+    };
+
+    //16a. El literal hexadecimal da la MISMA etiqueta que leer el array en PHP, para las once
+    //fuentes de los seis mappers (T2 de #040).
+    $fuentesEtiquetas = [
+        'organizations · statuses' => \Organizations\Mappers\OrganizationMapper::statuses(),
+        'organizations · sizes' => \Organizations\Mappers\OrganizationMapper::sizes(),
+        'organizations · actionLines' => \Organizations\Mappers\OrganizationMapper::actionLines(),
+        'organizations · esalOptions' => \Organizations\Mappers\OrganizationMapper::esalOptions(),
+        'users · TYPES_USERS' => \App\Model\UsersModel::TYPES_USERS,
+        'users · statusesForDisplayQuery' => \App\Model\UsersModel::statusesForDisplayQuery(),
+        'banner · statuses' => \PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper::statuses(),
+        'news · statuses' => \News\Mappers\NewsMapper::statuses(),
+        'system approvals · statuses' => \SystemApprovals\Mappers\SystemApprovalsMapper::statuses(),
+        'publications · statuses' => \Publications\Mappers\PublicationMapper::statuses(),
+        'publications · visibilities' => \Publications\Mappers\PublicationMapper::visibilities(),
+    ];
+    foreach ($fuentesEtiquetas as $nombre => $opciones) {
+        $primeraClave = array_key_first($opciones);
+        if ($primeraClave === null) {
+            $check(false, "{$nombre}: tiene al menos una etiqueta");
+            continue;
+        }
+        $json = json_encode((object) $opciones, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        try {
+            $valor = $valorSQL($json, $primeraClave);
+            $check($valor === $opciones[$primeraClave], "{$nombre}: el literal hexadecimal da la misma etiqueta que PHP",
+                'clave: ' . var_export($primeraClave, true) . ' · SQL: ' . var_export($valor, true) . ' · PHP: ' . var_export($opciones[$primeraClave], true));
+        } catch (\Throwable $e) {
+            $check(false, "{$nombre}: el literal hexadecimal da la misma etiqueta que PHP", 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 140));
+        }
+    }
+    echoTerminal(' ');
+
+    //16b. Etiqueta con comilla y barra invertida: SQL válido y el texto EXACTO.
+    $etiquetaHostil = "O'Brien\\" . '"' . "();DROP";
+    $jsonHostil = json_encode(['x' => $etiquetaHostil], \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+    try {
+        $valorHostil = $valorSQL($jsonHostil, 'x');
+        $check($valorHostil === $etiquetaHostil, 'una etiqueta con comilla y barra invertida da SQL válido y el texto exacto',
+            'obtenido: ' . var_export($valorHostil, true));
+    } catch (\Throwable $e) {
+        $check(false, 'una etiqueta con comilla y barra invertida da SQL válido y el texto exacto', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 140));
+    }
+
+    //16c. SIN BASE: solo dígitos hexadecimales — no puede colar comilla ni barra, sea cual sea sql_mode.
+    $expresionHostil = sqlStringLiteral($jsonHostil);
+    $match = [];
+    $tieneForma = preg_match("/^CONVERT\\(X'([0-9a-f]*)' USING utf8mb4\\)$/", $expresionHostil, $match) === 1;
+    $check($tieneForma, 'sin base: sqlStringLiteral() tiene la forma CONVERT(X\'...\' USING utf8mb4)', $expresionHostil);
+    $check($tieneForma && preg_match('/^[0-9a-f]*$/', $match[1]) === 1, 'sin base: la parte de datos son solo dígitos hexadecimales, sin comillas ni barras posibles');
+    $check($tieneForma && hex2bin($match[1]) === $jsonHostil, 'sin base: los dígitos hexadecimales, decodificados, son el JSON exacto');
+    $check(sqlStringLiteral('') === "''", "sqlStringLiteral('') es el literal vacío, sin CONVERT");
+    echoTerminal(' ');
+
+    //16d. Por variable, no por archivo: OrganizationMapper tiene un JSON_EXTRACT('{$json}'...) AJENO
+    //(jsonExtractExistsMySQL(), fuera de #040) que un `mb_strpos` de archivo completo confundiría.
+    $variablesPorArchivo = [
+        'app/model/UsersModel.php' => ['typesJSON', 'statusDisplayJSON'],
+        'app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php' => ['statusesJSON'],
+        'app/classes/News/Mappers/NewsMapper.php' => ['statusesJSON'],
+        'app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php' => ['statusesJSON'],
+        'app/classes/Publications/Mappers/PublicationMapper.php' => ['statusesJSON', 'visibilitiesJSON'],
+        'app/classes/Organizations/Mappers/OrganizationMapper.php' => ['statusesJSON', 'sizesJSON', 'actionLinesJSON', 'esalOptionsJSON'],
+    ];
+    $sinElViejo = [];
+    $sinElNuevo = [];
+    foreach ($variablesPorArchivo as $rutaRelativa => $variables) {
+        $fuenteMapper = (string) @file_get_contents($raizApp . '/' . $rutaRelativa);
+        foreach ($variables as $variable) {
+            if ($fuenteMapper === '' || mb_strpos($fuenteMapper, "'{\${$variable}}'") !== false) {
+                $sinElViejo[] = "{$rutaRelativa}::{$variable}";
+            }
+            if ($fuenteMapper === '' || mb_strpos($fuenteMapper, "sqlStringLiteral(\${$variable})") === false) {
+                $sinElNuevo[] = "{$rutaRelativa}::{$variable}";
+            }
+        }
+    }
+    $check(count($sinElViejo) === 0, 'fuente: ninguna de las once variables *JSON se interpola ya entre comillas',
+        count($sinElViejo) === 0 ? '11 variables, ninguna con el patrón viejo' : 'con el patrón viejo: ' . implode(', ', $sinElViejo));
+    $check(count($sinElNuevo) === 0, 'fuente: las once pasan por sqlStringLiteral()',
+        count($sinElNuevo) === 0 ? '11 variables, las 11 por sqlStringLiteral()' : 'sin sqlStringLiteral(): ' . implode(', ', $sinElNuevo));
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

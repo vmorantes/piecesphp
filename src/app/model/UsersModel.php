@@ -915,10 +915,10 @@ class UsersModel extends EntityMapperExtensible
         $table = self::TABLE;
         $secondNameSegment = "IF({$table}.secondname IS NOT NULL, CONCAT(' ', {$table}.secondname), '')";
         $secondLastNameSegment = "IF({$table}.second_lastname IS NOT NULL, CONCAT(' ', {$table}.second_lastname), '')";
-        $typesJSON = json_encode((object) self::TYPES_USERS, \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $typesJSON = json_encode((object) self::TYPES_USERS, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
         $statusDisplay = self::statusesForDisplayQuery();
-        $statusDisplayJSON = json_encode((object) $statusDisplay, \JSON_UNESCAPED_UNICODE);
-        $statusDisplayJSON = addslashes($statusDisplayJSON);
+        $statusDisplayJSON = json_encode((object) $statusDisplay, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $fields = array_map(function ($f) use ($table) {
             return "{$table}.{$f}";
@@ -928,8 +928,8 @@ class UsersModel extends EntityMapperExtensible
             "TRIM(CONCAT(TRIM(CONCAT({$table}.firstname, {$secondNameSegment})), ' ', TRIM(CONCAT({$table}.first_lastname, {$secondLastNameSegment})))) AS fullname",
             "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment})) AS names",
             "TRIM(CONCAT({$table}.first_lastname, {$secondLastNameSegment})) AS lastNames",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$typesJSON}', CONCAT('$.', {$table}.type))) AS typeName",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusDisplayJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($typesJSON) . ", CONCAT('$.', {$table}.type))) AS typeName",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusDisplayJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
         ];
 
         foreach ($fieldsToAdd as $fieldToAdd) {

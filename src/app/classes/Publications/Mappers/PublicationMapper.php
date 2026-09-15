@@ -777,8 +777,9 @@ class PublicationMapper extends EntityMapperExtensible
         $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
         $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
-        $visibilitiesJSON = json_encode((object) self::visibilities(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $visibilitiesJSON = json_encode((object) self::visibilities(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $yesText = __(self::LANG_GROUP, 'Sí');
         $noText = __(self::LANG_GROUP, 'No');
@@ -812,10 +813,10 @@ class PublicationMapper extends EntityMapperExtensible
             "({$categoryNameSubQuery}) AS categoryName",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.author) AS authorUser",
             "IF({$table}.featured, '{$yesText}', '{$noText}') AS featuredDisplay",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$isActiveByDate} AS isActiveByDate",
             "$visibilityConditions AS visibility",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$visibilitiesJSON}', CONCAT('$.', $visibilityConditions))) AS visibilityText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($visibilitiesJSON) . ", CONCAT('$.', $visibilityConditions))) AS visibilityText",
             "DATE_FORMAT({$table}.publicDate, '{$formatDate}') AS publicDateFormat",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",

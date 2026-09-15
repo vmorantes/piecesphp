@@ -272,7 +272,8 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         $referenceOrganizationAdministrator = "(SELECT JSON_UNQUOTE(JSON_EXTRACT({$tableOrganizations}.meta, '$.administrator')) FROM {$tableOrganizations} WHERE {$tableOrganizations}.id = (SELECT referenceOrganization))";
         $referenceOrtanizationApprovalValue = "(SELECT subMain.status FROM {$table} AS subMain WHERE subMain.referenceTable = '{$tableOrganizations}' AND subMain.referenceValue = (SELECT referenceOrganization))";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
@@ -293,7 +294,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             "TRIM(CONCAT((SELECT referenceUserFirstLastName), ' ', (SELECT referenceUserSecondLastName))) AS referenceUserLastNames",
             "TRIM(CONCAT((SELECT referenceUserNames), ' ', (SELECT referenceUserLastNames))) AS referenceUserFullName",
             "IF({$referenceIsActive} IS NULL, 1, {$referenceIsActive}) AS referenceIsActive",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
         ];
 
         //Multi-idioma

@@ -2808,6 +2808,25 @@ function escapeString(string $str)
 }
 
 /**
+ * Literal SQL de un valor del SERVIDOR (una etiqueta traducida, una constante), para que entre
+ * DENTRO del texto de la consulta sin depender de `sql_mode`. Un valor de la PETICIÓN va por
+ * marcador (WhereItem, HavingItem o los valores de PageQuery/prepare), no por aquí (ADR 0009).
+ *
+ * `CONVERT(X'<hex>' USING utf8mb4)` no interpreta el contenido: son bytes, no texto SQL, así
+ * que ninguna comilla ni barra invertida puede cerrar la cadena ni escapar nada.
+ *
+ * @param string $str Cadena en UTF-8
+ * @return string La expresión SQL, lista para pegar en el SELECT
+ */
+function sqlStringLiteral(string $str): string
+{
+    if ($str === '') {
+        return "''";
+    }
+    return "CONVERT(X'" . bin2hex($str) . "' USING utf8mb4)";
+}
+
+/**
  * @param string $str
  * @param array $template
  * @return string

@@ -663,20 +663,21 @@ class OrganizationMapper extends EntityMapperExtensible
         $cityName = "SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city";
 
         //Otros
-        $statusesJSON = escapeString(json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
-        $sizesJSON = escapeString(json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
-        $actionLinesJSON = escapeString(json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
-        $esalOptionsJSON = escapeString(json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $sizesJSON = json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $actionLinesJSON = json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $esalOptionsJSON = json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "({$countryName}) AS countryName",
             "({$cityName}) AS cityName",
             "CONCAT((SELECT countryName), '{$locationSeparator}', (SELECT cityName)) AS fullLocation",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$sizesJSON}', CONCAT('$.', {$table}.size))) AS sizeText",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$actionLinesJSON}', CONCAT('$.', {$table}.actionLines))) AS actionLinesText",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$esalOptionsJSON}', CONCAT('$.', {$table}.esal))) AS esalText",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($sizesJSON) . ", CONCAT('$.', {$table}.size))) AS sizeText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($actionLinesJSON) . ", CONCAT('$.', {$table}.actionLines))) AS actionLinesText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($esalOptionsJSON) . ", CONCAT('$.', {$table}.esal))) AS esalText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$table}.meta",
         ];
 

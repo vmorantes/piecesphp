@@ -572,7 +572,8 @@ class NewsMapper extends EntityMapperExtensible
         $categoryNameCurrentLang = NewsCategoryMapper::fieldCurrentLangForSQL('name');
         $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $isActiveByDate = "(SELECT COUNT({$tableView}.id) > 0 FROM {$tableView} WHERE {$tableView}.id = {$table}.id)";
 
@@ -583,10 +584,10 @@ class NewsMapper extends EntityMapperExtensible
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "({$categoryNameSubQuery}) AS categoryName",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$isActiveByDate} AS isActiveByDate",
             "(SELECT IF(isActiveByDate, {$active}, {$inactive})) AS activeStatus",
-            "(SELECT JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', activeStatus)))) AS activeText",
+            "(SELECT JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', activeStatus)))) AS activeText",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
             "{$endDateExtention} AS endDateExtention",
