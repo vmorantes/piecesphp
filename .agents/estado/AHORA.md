@@ -1,15 +1,18 @@
 # Ahora
 
-- **Actualizado:** 2026-09-15 10:22 (medido con `date`).
-- **Último mensaje:** `#040 · ARQ`, en vuelo: lote 4, bloque 2, y el estudio del 4b. El próximo
-  número es `#041`.
+- **Actualizado:** 2026-09-15 10:56 (medido con `date`).
+- **Último mensaje:** `#042 · ARQ`, en vuelo: el buscador de `process()` pasa a marcador. El
+  próximo número es `#043`.
+- **`#041`: completado.**
+  - `sqlStringLiteral()` en 11 etiquetas de seis mappers (`c250c2ee`); PHPStan 737.
+  - El plan de `process()`, medido.
+  - El estudio del 4b, hecho.
+  - **H1: las traducciones dinámicas tienen el control de acceso roto y un XSS almacenado**
+    (P28).
 - **Tramo en curso:** [`tramos/2026-09-15-1022-lote-4-y-estudio-4b.md`](tramos/2026-09-15-1022-lote-4-y-estudio-4b.md).
-- **Tramo anterior:** [`tramos/2026-09-14-1726-desatendido-lote-3a.md`](tramos/2026-09-14-1726-desatendido-lote-3a.md),
-  cerrado.
 - **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md).
-- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`,
-  los dos renombrados hoy.
-- **Rama:** `dev`, en `08a3c2e6`. Hay 29 commits sin empujar en piecesphp.
+- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
+- **Rama:** `dev`, en `4b3d3d58`. Hay 33 commits sin empujar en piecesphp.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -34,33 +37,36 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
-Nada bloquea. Abiertas, con predeterminado, en `docs/pendientes.md`:
-1. **P26 — FileManager.** Los archivos del editor irían a la carpeta de su registro, el
-   FileManager general pediría sesión y lo existente quedaría declarado.
-2. **P25 (candidata)** — una publicación sin aprobar se ve por su enlace directo.
-3. **Locations** — los listados públicos se quedan públicos.
-4. **El plan de los 14 llamadores de `process()`** (regla de los diez): se le presenta al
-   recibir `#041`.
-5. **Subir cuando quiera**: 29 commits.
+1. **⚠ P28 — quién puede editar las traducciones.**
+   - Hoy puede cualquier usuario con sesión, de cualquier rol (`APIController.php:1611`).
+   - Lo que guarda se imprime sin escapar, así que es un XSS almacenado.
+   - *Predeterminado*: solo administración (root y admin), una lista blanca de grupos y de
+     idiomas, y el texto sin HTML salvo en los grupos declarados.
+   - Es el lote 3b del mapa y espera la respuesta.
+2. **El plan de `process()`**, presentado en el chat: la contrapropuesta del arquitecto toca un
+   archivo, más los llamadores con `having_string`. Va en `#042` salvo que el PO diga lo
+   contrario.
+3. **P26 (FileManager), P25 (candidata) y Locations:** con predeterminado.
+4. **Subir cuando quiera:** 33 commits.
 
 ## En curso
 
-**`#040`**, en cuatro tareas:
-- T1: commitear lo del arquitecto: `pendientes.md`, el mapa y el estado.
-- T2: la familia de las etiquetas en literal JSON del `SELECT`, en seis mappers, con un ayudante
-  que emite literales hexadecimales. Salen los cuatro `escapeString()` de `OrganizationMapper`.
-- T3: medir, sin cambiar nada, el plan de los 14 llamadores de `DataTablesHelper::process()`.
-- T4: estudiar el 4b en solo lectura: las opciones de elFinder (detectar el tipo por contenido,
-  bloquear por patrón, servir por el conector) y lo que `ServerStatics` necesita para lo
-  protegido.
+**`#042`**, en tres tareas:
+- T1: commitear lo del arquitecto: el `CHANGELOG.md`, `pendientes.md`, el mapa y el estado.
+- T2: el buscador de `DataTablesHelper::process()` pasa a marcador. Si el llamador no pasa un
+  `having_string` con contenido, `process()` crea el `HavingSegment` y le une el grupo de
+  búsqueda. Primero se comprueba que `generateHavingGroup()` da lo mismo que `generateHaving()`.
+- T3: los llamadores con `having_string`: SystemApprovals (`elapsedDays`, de la petición, a
+  marcador) y los que lo pasan vacío o muerto.
 
-Si se corta ahora: puede quedar código a medio cambiar en los mappers. `git status` y
-`verify-integrity` lo dicen.
+Si se corta ahora: puede quedar `DataTablesHelper` a medio cambiar. `git status` y `gates` lo
+dicen.
 
 ## Siguiente
 
-- Con `#041`: presentar al PO el plan de los 14 llamadores; con el estudio, el ADR del 4b.
-- Después, el lote 5 (OTP) y el 5b (tokens genéricos).
+- Con P28: el lote 3b (traducciones).
+- El ADR del 4b, con el estudio de `#041` delante: la decisión por el nombre (el sufijo
+  `.protected`), `Core/Statics/`, `Range`, `Cache-Control: private`, `Vary` y elFinder.
 
 ## Para una sesión nueva
 
