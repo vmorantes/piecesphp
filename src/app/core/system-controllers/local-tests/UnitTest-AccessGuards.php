@@ -369,7 +369,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. El SELECT de listado de usuarios no trae la contraseña (#055) ──────────────
-    echoTerminal('[8/8] UsersModel::fieldsToSelect() no selecciona la contraseña');
+    echoTerminal('[8/9]UsersModel::fieldsToSelect() no selecciona la contraseña');
 
     //Si esto cae, getBy(), all() y los informes de accesos vuelven a mandar el hash en la respuesta.
     $camposUsuarios = (new \ReflectionMethod(\App\Model\UsersModel::class, 'fieldsToSelect'))->invoke(null);
@@ -377,6 +377,18 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(count($camposUsuarios) > 0 && count($conPassword) === 0, 'usuarios: ningún campo de fieldsToSelect() termina en .password',
         count($conPassword) === 0 ? count($camposUsuarios) . ' campos' : 'con password: ' . implode(', ', $conPassword));
     $check(in_array(\App\Model\UsersModel::TABLE . '.username', $camposUsuarios, true), 'DISCRIMINANTE: usuarios, fieldsToSelect() sigue trayendo las demás columnas');
+    echoTerminal(' ');
+
+    //──── 9. /users/all/ no devuelve la contraseña (#057) ─────────────────────────────
+    echoTerminal('[9/9] UsersController::_all() no devuelve la contraseña');
+
+    //Si esto cae, cualquier usuario con sesión vuelve a poder pedir el hash de todos.
+    $filasTodos = \App\Controller\UsersController::_all(1, 5)->elements();
+    $clavesDe = static fn ($fila): array => is_object($fila) ? array_keys(get_object_vars($fila)) : (is_array($fila) ? array_keys($fila) : []);
+    $conClave = array_values(array_filter($filasTodos, fn ($fila) => in_array('password', $clavesDe($fila), true)));
+    $check(count($filasTodos) > 0 && count($conClave) === 0, 'usuarios: ninguna fila de _all() trae la clave password',
+        count($filasTodos) === 0 ? 'SIN FILAS: sin usuarios en local no hay veredicto' : count($filasTodos) . ' filas, ' . count($conClave) . ' con password');
+    $check(count($filasTodos) > 0 && in_array('username', $clavesDe($filasTodos[0]), true), 'DISCRIMINANTE: usuarios, las filas de _all() siguen trayendo username');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

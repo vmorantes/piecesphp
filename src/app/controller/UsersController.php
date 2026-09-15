@@ -1852,9 +1852,9 @@ class UsersController extends AdminPanelController
     public static function _all(int $page = 1, int $perPage = 10, ?int $type = null, array $ignore = [])
     {
         $table = 'pcsphp_users';
-        $fields = [
-            "{$table}.*",
-        ];
+        //Sin password: esta ruta la pide cualquier usuario con sesión (#056).
+        $columns = array_values(array_filter(array_keys((new UsersModel)->getFields()), fn ($f) => $f !== 'password'));
+        $fields = array_map(fn ($f) => "{$table}.{$f}", $columns);
 
         $whereString = null;
         $where = [
@@ -1866,7 +1866,7 @@ class UsersController extends AdminPanelController
         });
 
         if (!empty($ignore)) {
-            $ignore = implode(', ', $ignore);
+            $ignore = implode(', ', array_map(fn ($i) => (int) $i, $ignore));
             $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
         }
 
