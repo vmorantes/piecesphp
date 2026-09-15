@@ -14,8 +14,8 @@
 # se toca igual en los cuatro paquetes: la política es común a los cinco repositorios.
 
 #──── Por defecto ────────────────────────────────────────────────────────────────────────
-# Coincide con `[*] end_of_line = crlf` de .editorconfig.
-* text=auto eol=crlf
+# Coincide con `[*] end_of_line = lf` de .editorconfig (ADR 0012 de piecesphp).
+* text=auto eol=lf
 
 #──── Excepciones en LF, tal como las declara .editorconfig ──────────────────────────────
 *.sh            text eol=lf
@@ -29,12 +29,8 @@ bin/*           text eol=lf
 *.lock          text eol=lf
 PHPStanResult.*  text eol=lf
 
-# MEDIDO, para que nadie los mueva creyendo que arregla algo: con `text` puesto, git
-# normaliza a LF en el índice en LOS DOS SENTIDOS, así que un artefacto en LF NO produce
-# diff aunque el checkout declare CRLF. Lo que estas dos líneas quitan es el aviso «LF
-# will be replaced by CRLF» de cada `git add` y la reescritura que git haría al tocarlos.
-# Los `.md` NO necesitan nada: los 118 versionados están 65 en CRLF y 53 en LF, y git no
-# ve modificado ni uno. Ver T131.
+# Desde el ADR 0012 todo es LF: las líneas eol=lf de arriba son redundantes y se quedan
+# por si la política vuelve a cambiar.
 
 #──── Binarios: git nunca debe tocarles un byte ──────────────────────────────────────────
 *.png    binary

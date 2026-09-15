@@ -2,7 +2,7 @@
 #
 # Anexa un fragmento al final de un documento RESPETANDO SUS FINALES DE LÍNEA.
 #
-# Existe por la LEY 11: los documentos del registro van en CRLF, los heredocs y los
+# Existe por la LEY 11: los documentos van en LF (ADR 0012), los heredocs y los
 # editores de un agente escriben LF, y anexar sin convertir produce un archivo con los
 # dos finales mezclados. Eso ya rompió un docblock por desplazamiento de índices (LEY 20)
 # y ensucia cualquier conteo posterior. El guion vivía FUERA del repositorio, en un bloc
