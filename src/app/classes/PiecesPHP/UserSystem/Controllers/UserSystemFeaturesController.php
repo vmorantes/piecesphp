@@ -8,7 +8,6 @@ namespace PiecesPHP\UserSystem\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Controller\UsersController;
-use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use MySpace\MySpaceLang;
 use PiecesPHP\Core\Roles;
@@ -21,6 +20,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
@@ -62,6 +62,12 @@ class UserSystemFeaturesController extends AdminPanelController
     }
 
     /**
+     * Genera el código de un uso y lo envía al correo del usuario. Sin sesión y por GET: la usan apps sin interfaz.
+     *
+     * Límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP bloqueados responde 429 con Retry-After,
+     * antes de comprobar nada del usuario. Con `uniformResponse` responde lo mismo exista o no el usuario, y solo genera
+     * y envía el código si existe; sin él, un inexistente da USER_NO_EXISTS. Cada intento queda en login_attempts con su vía.
+     *
      * @param Request $request
      * @param Response $response
      * @return void
@@ -70,6 +76,12 @@ class UserSystemFeaturesController extends AdminPanelController
     {
         $username = $request->getQueryParam('username', null);
         $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
+
+        $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
+        if ($secondsToUnlock > 0) {
+            return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_GENERATE_OTP, $username, $secondsToUnlock);
+        }
+        $uniformResponse = OTPRateLimiter::config()['uniformResponse'];
 
         $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Generación de OTP'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
@@ -85,21 +97,24 @@ class UserSystemFeaturesController extends AdminPanelController
         try {
             OTPHandler::generateOTP($this, $username);
             $resultOperation->setSuccessOnSingleOperation(true);
-            $resultOperation->setMessage(__(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
+            $resultOperation->setMessage($uniformResponse ? OTPRateLimiter::uniformOTPMessage() : __(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
+            OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, true, '');
         } catch (SafeException $exception) {
             if ($exception->getCode() == SafeException::USER_NOT_EXISTS) {
                 $usersController = new UsersController();
-                $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
-                $resultOperation->setValue('message', vsprintf($usersController->getMessage(UsersController::USER_NO_EXISTS), [$username]));
-                LoginAttemptsModel::addLogin(
-                    null,
-                    $username,
-                    false,
-                    $resultOperation->getValue('message'),
-                    []
-                );
+                $notExistsMessage = vsprintf($usersController->getMessage(UsersController::USER_NO_EXISTS), [$username]);
+                if ($uniformResponse) {
+                    //UNIFORME: el mismo estado y el mismo cuerpo que con un usuario que existe; no dice si existe.
+                    $resultOperation->setSuccessOnSingleOperation(true);
+                    $resultOperation->setMessage(OTPRateLimiter::uniformOTPMessage());
+                } else {
+                    $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
+                    $resultOperation->setValue('message', $notExistsMessage);
+                }
+                OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, $notExistsMessage);
             } else {
                 $resultOperation->setMessage($exception->getMessage());
+                OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, $exception->getMessage());
             }
         }
 
@@ -205,6 +220,11 @@ class UserSystemFeaturesController extends AdminPanelController
     }
 
     /**
+     * Comprueba un TOTP o código de seguridad. Sin sesión. Un usuario que no existe recibe el mismo «Código inválido».
+     *
+     * Límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP bloqueados responde 429 con Retry-After,
+     * antes de comprobar nada del usuario. Cada intento queda en login_attempts con su vía.
+     *
      * @param Request $request
      * @param Response $response
      * @return void
@@ -215,6 +235,10 @@ class UserSystemFeaturesController extends AdminPanelController
         $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
         $totp = $request->getParsedBodyParam('totp', null);
         $totp = is_string($totp) && mb_strlen($totp) > 0 ? $totp : '';
+        $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
+        if ($secondsToUnlock > 0) {
+            return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_CHECK_TOTP, $username, $secondsToUnlock);
+        }
         $valid = OTPHandler::checkValidityTOTP($totp, $username);
         $okMessage = __(self::LANG_GROUP, 'Código aceptado.');
         $badMessage = __(self::LANG_GROUP, 'Código inválido.');
@@ -226,11 +250,18 @@ class UserSystemFeaturesController extends AdminPanelController
         $resultOperation->setValue('reload', false);
         $resultOperation->setSuccessOnSingleOperation($valid);
         $resultOperation->setMessage($valid ? $okMessage : $badMessage);
+        OTPRateLimiter::record(OTPRateLimiter::VIA_CHECK_TOTP, null, $username, $valid, $valid ? '' : $badMessage);
 
         return $response->withJson($resultOperation);
     }
 
     /**
+     * Si el usuario tiene el segundo factor activo. Sin sesión: la interfaz del login lo consulta antes de pedir el código.
+     *
+     * RESIDUO DOCUMENTADO: revela si un usuario existe y si tiene el segundo factor (un inexistente da required false).
+     * La interfaz lo necesita. Lo acota el límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP
+     * bloqueados, 429 con Retry-After. Un usuario que no existe se registra como fallo: sondear nombres agota el límite.
+     *
      * @param Request $request
      * @param Response $response
      * @return void
@@ -238,10 +269,16 @@ class UserSystemFeaturesController extends AdminPanelController
     public function checkTwoFactorAuthStatus(Request $request, Response $response)
     {
         $username = $request->getParsedBodyParam('username', null);
-        $username = is_string($username) && mb_strlen($username) > 0 ? $username : uniqid();
+        $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
+        $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
+        if ($secondsToUnlock > 0) {
+            return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_TWO_FACTOR_STATUS, $username, $secondsToUnlock);
+        }
 
-        $userData = OTPHandler::getUserDataByUsername($username);
+        //Sin nombre no se consulta: username = '' OR email = '' podría dar con un usuario sin correo.
+        $userData = $username !== '' ? OTPHandler::getUserDataByUsername($username) : null;
         $userID = $userData !== null ? (int) $userData->id : -1;
+        OTPRateLimiter::record(OTPRateLimiter::VIA_TWO_FACTOR_STATUS, $userData !== null ? $userID : null, $username, $userData !== null, '');
 
         return $response->withJson([
             'required' => OTPHandler::isEnabled2FA($userID) && OTPHandler::wasViewedCurrentUserQRData($userID),

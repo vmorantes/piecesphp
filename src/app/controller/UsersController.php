@@ -34,6 +34,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -929,6 +930,11 @@ class UsersController extends AdminPanelController
                             if (password_verify($password, $user->password) || $otpIsValid) {
 
                                 $require2FA = OTPHandler::isEnabled2FA($userMapper->id) && OTPHandler::wasViewedCurrentUserQRData($userMapper->id);
+                                //LÍMITE DEL SEGUNDO FACTOR (otp_security): con el usuario o la IP bloqueados, 429 antes de mirar el código.
+                                $secondsToUnlock = $require2FA ? OTPRateLimiter::secondsToUnlock($user->username, OTPRateLimiter::clientIP()) : 0;
+                                if ($secondsToUnlock > 0) {
+                                    return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_LOGIN_TOTP, $user->username, $secondsToUnlock);
+                                }
                                 $twoFactorCodeValue = $twoFactorCode->getValue();
                                 $twoFactorCodeValue = is_string($twoFactorCodeValue) ? $twoFactorCodeValue : '';
                                 $twoFactorIsValid = OTPHandler::checkValidityTOTP($twoFactorCodeValue, $username);
@@ -976,12 +982,13 @@ class UsersController extends AdminPanelController
 
                                     $resultOperation->setValue('error', self::INVALID_TWO_FACTOR_CODE);
                                     $resultOperation->setValue('message', $this->getMessage(self::INVALID_TWO_FACTOR_CODE));
+                                    //El fallo del segundo factor no suma failed_attempts: lo cuenta el límite de OTPRateLimiter, por su vía.
                                     LoginAttemptsModel::addLogin(
                                         (int) $user->id,
                                         $user->username,
                                         false,
                                         $resultOperation->getValue('message'),
-                                        $extraDataLog
+                                        $extraDataLog + [OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_TOTP]
                                     );
 
                                 }

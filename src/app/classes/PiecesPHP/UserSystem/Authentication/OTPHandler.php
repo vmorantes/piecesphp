@@ -112,14 +112,15 @@ class OTPHandler
 
             $code = generate_code(6, true);
 
-            $OTPCreated = OTPSecretsUsersMapper::setOTP($userData->id, $code, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE, 20);
+            $minutes = OTPRateLimiter::config()['oneUseCodeMinutes'];
+            $OTPCreated = OTPSecretsUsersMapper::setOTP($userData->id, $code, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE, $minutes);
 
             if ($OTPCreated) {
 
                 $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . Config::app_title();
                 $bodyMessage = $controller->render($relativeView, [
                     'text' => __(self::LANG_GROUP, 'Contraseña de un solo uso'),
-                    'note' => __(self::LANG_GROUP, 'Tiene una validez de 20 minutos'),
+                    'note' => vsprintf(__(self::LANG_GROUP, 'Tiene una validez de %s minutos'), [$minutes]),
                     'code' => $code,
                 ], false);
                 $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');

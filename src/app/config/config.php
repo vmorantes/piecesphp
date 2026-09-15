@@ -80,6 +80,16 @@ $config['CronJobKey'] = 'TODO:secret';
 
 $config['app_key'] = 'TODO:secret';
 $config['check_aud_on_auth'] = true;
+//Límite de intentos de generate-otp, check-totp, two-factor-auth-status y del segundo factor del login (OTPRateLimiter).
+//uniformResponse: generate-otp responde lo mismo exista o no el usuario. oneUseCodeMinutes: la validez del código de un uso.
+$config['otp_security'] = [
+    'maxFailuresPerUser' => 5,
+    'maxFailuresPerIP' => 20,
+    'windowMinutes' => 15,
+    'lockMinutes' => 15,
+    'uniformResponse' => true,
+    'oneUseCodeMinutes' => 20,
+];
 
 //──── Statics ───────────────────────────────────────────────────────────────────────────
 $config['statics_path'] = __DIR__ . '/../../statics';
