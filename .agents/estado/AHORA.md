@@ -12,8 +12,15 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#081 · ARQ` (ronda **15** de 20: la parte B del 4b-3, que hace
-  la migración, con D1, H1, H2, H5 y H8 decididos). El próximo número es `#082`.
+- **Último mensaje enviado:** `#083 · ARQ` (ronda **16** de 20: H-B y H-C del 4b-3 delante, y el
+  OTP). El próximo número es `#084`.
+  - `#082 · COD`: el 4b-3 cerrado (`215d91d7` a `f89c91cd`), con la migración real probada de
+    ida, vuelta e ida. H-B: al reemplazar una imagen, la nueva iba a la raíz de
+    `publications/`.
+  - Documentación del 4b depositada: la guía de `protected-files`, la ruptura 22, `10-cli`,
+    `13-recetas`, `09-frontend` y la guía de HestiaCP.
+  - Quedan tras `#083`: 4 rondas, que son 5b, E3, 7b y 7c.
+- *(histórico)* **Último mensaje enviado:** `#081 · ARQ` (ronda 15).
   - `#080 · COD`: el 4b-3 A0 y A, commiteados y en verde (`18f86d32` a `f9681853`). Paró antes
     de B, con criterio.
   - Quedan tras `#081`: 5 rondas, que son OTP, 5b, E3, 7b y 7c. La reserva se consumió en
