@@ -12,9 +12,20 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#085 · ARQ` (ronda **17** de 20: ⚠ la inyección SQL de
-  `OTPHandler` primero, y después el 5b, los tokens y el aviso de `app_key`). El próximo número
-  es `#086`.
+- **Último mensaje enviado:** `#087 · ARQ` (ronda **18** de 20: H-L delante y el lote 6, E3).
+  El próximo número es `#088`.
+  - `#086 · COD`: la inyección de `OTPHandler` cerrada, y tres más del barrido
+    (`fce8ec9c`, `7d4c723e`); el 5b entero (`fa911716`, `700d5167`, `66305d39`, `8fde8816`).
+    Suites: `sql-placeholders` 148/148 y `generic-tokens` 15/15, todas provocadas.
+  - **La pregunta del PO sobre el ORM (A-020), contestada con el código delante:**
+    `ActiveRecord::where()` liga valores solo con `WhereSegment` o array; con una CADENA la
+    mete tal cual (`"WHERE ({$where})"`). La interpolación ocurre antes de llegar al ORM, así
+    que el valor viaja como SQL. La prueba: con la forma vieja, `zz-no-existe\` daba error 1064,
+    y un valor ligado no puede provocar un error de sintaxis.
+  - **⚠ H-L:** el límite por usuario del OTP no casa con nombres con comilla, porque
+    `login_attempts` los guarda escapados. Se arregla al principio de la ronda 18.
+  - Quedan tras `#087`: 2 rondas, que son 7b y 7c. Después, el GRAN RESUMEN.
+- *(histórico)* **Último mensaje enviado:** `#085 · ARQ` (ronda 17).
   - `#084 · COD`: H-B, H-C y el OTP, cerrados (`0f4de0b7`, `a06eaa71`, `0b1113a0` y
     `46d2bbf8`).
   - **⚠ GRAVE, 4.º: inyección SQL sin sesión en `OTPHandler::getUserDataByUsername()` (:251).**
