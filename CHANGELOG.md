@@ -452,6 +452,31 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - Guía completa: `source-docs/project/docs/piecesphp/new-features/protected-files.md`.
 - **Si sirves con nginx sin Apache detrás,** añade una regla que niegue `\.protected$` y deje
   pasar a PHP lo que no existe.
+- Al reemplazar la imagen o un adjunto de una publicación, el archivo nuevo va a la carpeta de su
+  publicación. Antes caía en la raíz de `publications/` y, desde el lote 3, no se veía sin
+  sesión aunque la publicación fuera pública. Los que ya estaban sueltos siguen la visibilidad
+  de su publicación.
+
+### 23 · OTP: límite de intentos y respuesta que no revela si el usuario existe
+
+- **Límite de intentos:** `generate-otp`, `check-totp`, `two-factor-auth-status` y el segundo
+  factor del login bloquean tras 5 fallos por usuario o 20 por IP en 15 minutos, con **429** y
+  `Retry-After`.
+- Todo se configura en `$config['otp_security']` (`config.php`):
+  - `maxFailuresPerUser`;
+  - `maxFailuresPerIP`;
+  - `windowMinutes`;
+  - `lockMinutes`;
+  - `uniformResponse`;
+  - `oneUseCodeMinutes`.
+- **`generate-otp` ya no dice si el usuario existe:** responde siempre «Si el usuario existe,
+  recibirá un código en su correo.». Con `uniformResponse = false` vuelve a responder como antes.
+  **Si tu app leía el error `USER_NO_EXISTS`, ya no llega.**
+- **Detrás de un proxy o de un balanceador,** todas las peticiones pueden llegar con la misma IP
+  (`REMOTE_ADDR`), y el límite por IP bloquearía a todos a la vez. En ese caso, sube
+  `maxFailuresPerIP`.
+- `two-factor-auth-status` sigue diciendo si un usuario tiene activo el segundo factor, porque la
+  interfaz lo necesita, pero ahora tiene límite de ritmo.
 
 ---
 

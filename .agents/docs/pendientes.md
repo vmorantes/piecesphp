@@ -853,6 +853,34 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#083`/`#084`, 2026-09-15: H-B, H-C y el lote 5 (OTP), cerrados.**
+  - Commits:
+    - `0f4de0b7`: las imágenes reemplazadas van a su carpeta, y la visibilidad cubre lo
+      referenciado fuera de ella;
+    - `a06eaa71`: las subidas privadas se mueven directo a su nombre protegido, con
+      `moveUploadedToPrivate`, porque `moveFileTo` corta la extensión a 8 caracteres;
+    - `0b1113a0`: el OTP, con `OTPRateLimiter`, la configuración `otp_security` y la respuesta
+      uniforme;
+    - `46d2bbf8`: la suite, 23/23 y provocada.
+  - Documentado en la ruptura 23 del `CHANGELOG`.
+  - **⚠ GRAVE, H-D, anterior a la campaña, verificado por el arquitecto:**
+    `OTPHandler::getUserDataByUsername()` (`OTPHandler.php:251`) hace
+    `where("username = '{$username}' OR email = '{$username}'")` con el usuario recibido.
+    - Lo alcanzan sin sesión `generate-otp`, `check-totp`, `two-factor-auth-status` y el login
+      (`checkValidityOTP`, `UsersController.php:928`).
+    - El censo no lo ve, porque el valor entra por un parámetro de función.
+    - Se avisó al PO al móvil (2.9). **Se arregla primero en la ronda 17**, por marcador
+      (`WhereSegment`), con un barrido de la misma forma en todo el sistema de usuarios.
+    - El barrido del arquitecto dio un solo candidato más: `AttachmentPublicationMapper.php:533`
+      (`lang = '{$lang}'`), de origen por medir.
+  - Hallazgos que van a los residuos:
+    - **H-E:** `extra_data` no está en el esquema declarado. Donde falte, el limitador cuenta
+      todos los fallos, pero falla cerrado;
+    - **H-F:** el tiempo de respuesta de `generate-otp` sigue revelando si el usuario existe,
+      porque con un existente se envía un correo;
+    - **H-G:** detrás de un proxy, la IP es compartida (documentado en el `CHANGELOG`);
+    - **H-H:** un archivo compartido por dos publicaciones;
+    - **H-I:** las filas con `user_id` NULL las ve cualquier administrador de organización.
 - **`#081`/`#082`, 2026-09-15: el 4b-3, parte B, cerrado.**
   - Commits:
     - `215d91d7`: `src/.htaccess` solo texto;
