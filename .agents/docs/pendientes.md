@@ -853,6 +853,47 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **Directriz del PO para el backoffice (2026-09-15): Fomantic-UI primero.**
+  - El backoffice usa la mayor cantidad posible de componentes y elementos estándar de
+    Fomantic-UI, que es la base del front, salvo donde no aplica: los sidebars de las
+    herramientas y lo demás que ya existe con su propio diseño.
+  - Motivos:
+    - reducir al mínimo el código de estética personalizado;
+    - poder documentar bien los recursos gráficos;
+    - facilitar la migración a otro framework de front cuando haga falta.
+  - Se relaciona con lo que ya pidió: rehacer las vistas de LoginAttempts dentro de la
+    unificación de los registros, y todas las vistas de configuración (SMTP, SEO…).
+  - **Cómo se aplica:**
+    - toda vista del panel nueva o rehecha se construye con componentes de Fomantic-UI;
+    - el CSS propio solo va donde Fomantic no llega, y se justifica;
+    - se documenta en `.agents/context/09-frontend-assets.md` y en la guía de front (lote 9,
+      `16-frontend-arquitectura.md`), con el catálogo de componentes que usa el panel.
+  - Las rondas que toquen vistas del panel (4c, el formulario de usuario del lote 7) la
+    respetan desde ya.
+- **`#067`/`#068`, 2026-09-15: el cierre del 3b, parado con criterio.**
+  - **H1:** los compilados de JS no se versionan (`src/statics/core/js/.gitignore`). El
+    ADR 0013 lo suponía al revés, y se le añade una fe de erratas.
+    - **Decisión del arquitecto:** el 410 de `saveGroup` va en el código, se compila en local
+      con `gulp js-vendor` para probar, y el `CHANGELOG` avisa de que hay que recompilar al
+      actualizar.
+    - Los clones ya compilan para tener el `.min.js`, y la traducción automática viene apagada
+      por defecto.
+  - **H2:** el compilado arrastra `6df4e815`, que borra los mensajes de cliente de fr, de, it y
+    pt. Es la decisión del PO del 2026-08-29 de dejar la aplicación en es y en (ruptura 8):
+    entra tal cual.
+  - **H3:** `current-translations.json` está versionado y la aplicación lo reescribe en cualquier
+    arranque, web o CLI, si hay algo pendiente en la base más nuevo que el JSON. Es a propósito:
+    es donde el clon guarda sus traducciones para versionarlas.
+    - **Decisión del arquitecto** (corrige la de `#066`, que decía que la clave de prueba se
+      quedaba): la clave `zz-prueba-3b` sale de la base y el JSON vuelve a HEAD.
+    - Los datos de prueba no pueden acabar en un archivo versionado de la plantilla.
+  - **Respuestas del PO a A-003 (2026-09-15):**
+    - gulp, como haga falta;
+    - `app_key`: cambiarla es cosa del clon; si no se cambia, **opción B** (avisar, sin negarse a
+      arrancar);
+    - **idea del PO:** una rutina de instalación que genere `app_key` y pregunte colores,
+      títulos, propietario, etc., recomendada en la documentación. Va después de la MAJOR, salvo
+      que diga lo contrario.
 - **`#063`-`#066`, 2026-09-15: lote 3b en el servidor.**
   - **Cerrado:** `19efdc1a`, `0bd37936`, `a6cbb1aa` y `b6e2f5f8`.
     - `translateGroup` es solo POST: el servidor traduce, valida con `acceptTranslations()` y

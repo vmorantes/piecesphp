@@ -67,3 +67,21 @@ revisar qué fuentes arrastra.
 
 Cada instrucción que compila nombra la tarea. Cada reporte enumera las fuentes arrastradas e
 incluye la prueba en navegador de lo compilado.
+
+## Fe de erratas (2026-09-15, `#068`)
+
+La decisión no cambia. Cambian dos hechos que el arquitecto dio por supuestos sin verificar:
+
+- **Los compilados de JS NO se versionan:** `src/statics/core/js/.gitignore` ignora `*.min.js`
+  y `*.js.map`, y `configurations.min.js` no tiene ningún commit en ninguna rama. Cada
+  instalación compila el suyo. Por eso:
+  - la fila «Dejar de versionar los compilados» de la tabla de alternativas describe algo que ya
+    es así;
+  - la condición «el resultado compilado entra en su propio commit» no aplica al JS: se compila
+    en local para probar, y el `CHANGELOG` avisa a los clones cuando hay que recompilar al
+    actualizar.
+- **La tarea es `js-vendor`** (`src/gulpfile.js:124-128`): `jsTask()` es una función, no una
+  tarea.
+- **El PO amplió después la excepción** (A-004, 2026-09-15): «es un entorno de pruebas y gulp no
+  es destructivo: úsalo como quieras». Las instrucciones siguen nombrando la tarea, para que el
+  reporte diga qué se compiló.
