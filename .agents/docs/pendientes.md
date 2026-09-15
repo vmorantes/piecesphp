@@ -71,7 +71,7 @@ esta descrito en ninguna parte.** Necesita que el PROPIETARIO diga que es antes 
 | ~~`P16`~~ | **BD** — nivelar los analizadores de los 4 paquetes | 02-09 | **YA NO ESPERA AL PROPIETARIO**: el 2026-09-02 a las 17:42 delegó la instrumentación de análisis en ARQUITECTO («Todo la instrumentación de analisís en desarrollo está en tus manos»). Recuperado en el cruce del 2026-09-14 |
 | ~~`P19`~~ | `master` y etiquetas en los cuatro paquetes | 14-09 | **RESUELTO el 2026-09-14**: en los paquetes se etiqueta, y «esta bien»; `master` sigue siendo su estable; todos llevan `dev`, se homologan `dev` y `master` y desde ahi se trabaja en `dev`. Regla 30 y guarda al dia |
 | ~~`P23`~~ | **RESUELTO el 2026-09-14, por delegación** («Resuelve P22 y P23 como tu prefieras»): ADR 0008, y html se nivela en `#022`. Texto original: **html se queda sin nivelar**: su `composer.lock` local (ignorado por git, de antes de su 3.0.0) fija `piecesphp/datastructures` v3.1.0, y su `composer.json` pide `^4.0`. Un update parcial de las herramientas no resuelve. Hace falta actualizar también `piecesphp/datastructures`, que no es herramienta de análisis (ADR 0007) | 14-09 | **Predeterminado**: html sigue midiendo con phpstan 2.1.42 contra datastructures 3.1.0, declarado así en `shared-toolchain.json`. Opciones: el PO autoriza al coder una vez, o lo ejecuta él |
-| ~~`P24`~~ | **APROBADO el 2026-09-14 tal como está el predeterminado**: «P24 me parece bien. Es logico que las de publications no pueden ser privadas. Pero no está de más que sirva de arquetipo en todo como se ha venido haciendo». Publications se hace primero y queda como el ejemplo que copian los demás y la guía de módulos. Texto original: **Qué control de acceso lleva cada carpeta de subidas.** El 20 §7 dice que el validador de cada módulo lo decide el PROPIETARIO. Tabla en «Hallazgos del lote 3, bloque 1» | 14-09 | **Predeterminado del arquitecto**: documents, organizations y news-categories, sesión activa; publications, el archivo se sirve si su publicación es visible al público (activa, en fecha y aprobada) o si hay sesión; built-in-banner, sin proteger, porque la portada lo muestra, pero sin devolver borrados; el homeImage de generic, sin proteger. Los tres UPLOAD_DIR sin archivos se retiran. Y una puerta que falle si un UPLOAD_DIR no está protegido ni declarado público con su motivo |
+| ~~`P24`~~ | **APROBADO el 2026-09-14 tal como está el predeterminado.** El PO añadió que los archivos de Publications no pueden ser privados y que Publications debe servir de arquetipo, como en todo lo demás. Publications se hace primero y queda como el ejemplo que copian los demás y la guía de módulos. Texto original: **Qué control de acceso lleva cada carpeta de subidas.** El 20 §7 dice que el validador de cada módulo lo decide el PROPIETARIO. Tabla en «Hallazgos del lote 3, bloque 1» | 14-09 | **Predeterminado del arquitecto**: documents, organizations y news-categories, sesión activa; publications, el archivo se sirve si su publicación es visible al público (activa, en fecha y aprobada) o si hay sesión; built-in-banner, sin proteger, porque la portada lo muestra, pero sin devolver borrados; el homeImage de generic, sin proteger. Los tres UPLOAD_DIR sin archivos se retiran. Y una puerta que falle si un UPLOAD_DIR no está protegido ni declarado público con su motivo |
 | — | Los 9 selectores: DOCUMENTAR, decidido el 30-08, **sin lote asignado** | 30-08 | entra en E6 |
 | — | El frances: `profiles-translation-config.js`, `dynamic-translations/fr/`, carpetas `de/it/pt` | — | «Del PROPIETARIO» en §7 |
 | — | El rol 50 con nombre `null` (`roles.php:112`) | — | — |
@@ -319,7 +319,7 @@ Las **preferencias de trabajo** que faltaban estan ya en `.agents/rules/30-proto
 | «Comitea todo» (2026-09-14, al cerrar el tramo) | hecho: `#012`→`#013`, cuatro commits hasta `56d47137` |
 | Leer, en solo lectura y como fuente independiente de ideas (no para unificar), los proyectos hechos con versiones anteriores del framework que hay en la maquina | **El PROPIETARIO los nombro el 2026-09-14**, en solo lectura: (1) el geovisor de `/var/www/html/espacio-publico/espacio-publico-backend`, que es **el geovisor de su pendiente «perfeccionar geovisor»**; (2) «alguna cosita interesante» del backoffice de `/var/www/html/STC/stc-website-2026`; (3) como resuelve el log de tokens la rama `logs-personas-habilitadas-inicio-y-log-tokens` de `/var/www/html/STC/localizometro-stc`, frente a los cuatro registros planificados. En curso, con tres subagentes de solo lectura. Antes de nombrarlos:  El arquitecto se adelanto: lanzo la lectura de los 28 que encontro en `/var/www/html/` sin preguntar, y la paro el mismo dia al senalarlo el PROPIETARIO («Ni siquiera te he dicho que proyectos»). Solo uno de los cinco subagentes llego a terminar (glu-dashboard, zegu-platform y KataApp); su informe esta en el scratchpad de la sesion, fuera del repositorio |
 | Informe detallado del estado antes de trabajar: plan, lo que se lleva, lo que falta, lo que son solo ideas, fases y tareas previstas | hecho: `.agents/estado/informe-2026-09-14-estado-del-proyecto.md`. Al hacerlo aparecio que el mapa heredado omitia dos trabajos de E4 (lote 2 de guardas y ventana de correo); anadidos como lotes 7b y 7c |
-| **Guía de «parches» de seguridad para versiones viejas del framework** (2026-09-14, al saber de la inyección del lote 3a): «hay muchos ya viejos y sin soporte. No puedo hacer mucho. Al final quizás se puede hacer una guia de "parches" de seguridad para versiones viejas del framework por amabilidad con los clientes pero poco más. Luego veremos a cuales aplican» | **IDEA, después de la MAJOR.** Límite que él mismo señala: el registro tiene la historia del framework, pero no las implementaciones de cada cliente. Material de partida: los «⚠ Corregido» de seguridad del `CHANGELOG.md`, cada uno con desde qué versión existe el defecto (sale de `git log`/`git blame`). **Precisado por el PO el mismo día**: «un documento para agentes que los libre de tener todo lo que hemos producido pero le informe de los hallazgos de seguridad critico que pueden resolver en sus propios proyectos. Preparado para que ese mismo documento sea extensible y abstracto de versiones de modo que lo voy rotando a cada proyecto distinto». Forma que se deduce: un solo archivo autocontenido, portátil entre proyectos. Por hallazgo, **cómo detectarlo** en el código (el patrón que hay que buscar, no un número de versión), por qué es crítico, **cómo arreglarlo** y cómo comprobar que quedó arreglado. Extensible: se añade una entrada por hallazgo nuevo |
+| **Guía de «parches» de seguridad para versiones viejas del framework** (2026-09-14, al saber de la inyección del lote 3a). Hay muchos despliegues viejos y sin soporte, en los que el PO puede hacer poco. Propone, por cortesía con los clientes, una guía de parches de seguridad para versiones antiguas; más adelante se verá a cuáles aplica | **IDEA, después de la MAJOR.** Límite que él mismo señala: el registro tiene la historia del framework, pero no las implementaciones de cada cliente. Material de partida: los «⚠ Corregido» de seguridad del `CHANGELOG.md`, cada uno con desde qué versión existe el defecto (sale de `git log`/`git blame`). **Precisado por el PO el mismo día**: un documento para agentes que no les obligue a cargar todo lo producido en la campaña, pero que les informe de los hallazgos de seguridad críticos que pueden resolver en sus propios proyectos. Tiene que ser extensible e independiente de las versiones, para que el PO lo lleve de un proyecto a otro. Forma que se deduce: un solo archivo autocontenido, portátil entre proyectos. Por hallazgo, **cómo detectarlo** en el código (el patrón que hay que buscar, no un número de versión), por qué es crítico, **cómo arreglarlo** y cómo comprobar que quedó arreglado. Extensible: se añade una entrada por hallazgo nuevo |
 | «Resuelve P22 y P23 como tu prefieras» (2026-09-14) | **HECHO**. P23: ADR 0008, y la nivelación de html va en `#022`. P22: la clave constante no es la frontera; lo serio está en `GenericTokenController`, que va al lote 5b del mapa. Detalle en «Lecturas de proyectos derivados», P22 |
 | ¿Que pasa con `files/` y `files/dev/`? ¿Se quedan y se documentan bien en algun lado? | Se quedan (ADR 0006): `files/` guarda los recursos para quien clona y `files/dev/` solo datos de instrumentos. Documentado en `.agents/context/02-estructura.md`, «`files/` y `files/dev/`», con una tabla de que instrumento usa cada archivo |
 
@@ -657,6 +657,164 @@ historia de git los conserva.
       `generateHavingGroup()`). **Predeterminado: se quedan**, porque es una búsqueda de
       administración con sesión. Se revisa si el PO lo pide.
     - **`OrganizationMapper::getLogoURL()` (`:356`)** sin llamadores. Lote 10.
+- **Rendimiento de los archivos protegidos** (encargo del PO, 2026-09-15). Lote 4b del mapa.
+  - **El problema:** desde `95758ca3`, cada archivo de una carpeta protegida arranca el
+    framework, y sin sesión los de Publications hacen además una consulta por archivo. Antes
+    los servía Apache directamente.
+  - **El encargo:** incluir lo que dé mejor rendimiento y sea comprensible para quien use el
+    framework.
+  - **El diseño, propuesto por el PO y aceptado:** el `.htaccess` de protección se genera por
+    registro. La carpeta de una publicación visible no lo lleva y Apache la sirve directamente;
+    la de una no visible sí, y pasa por el validador. Se regenera al crear, editar o borrar, y
+    con un cronjob para lo que cambia por fecha. El validador actual sigue como red y falla
+    cerrado.
+  - **Por atar:**
+    - la ventana del cron: una publicación que caduca sigue pública hasta la siguiente pasada;
+    - una comprobación que compare la base con los `.htaccess` y los corrija;
+    - solo sirve con Apache, igual que el resto del framework.
+  - **Descartado por ahora:** caché HTTP de las respuestas, caché de visibilidad y X-Sendfile.
+    Se reevalúan si la medición lo pide.
+  - **La postura del PO sobre Publications:** es el arquetipo porque ha cubierto muchos casos
+    con el tiempo. Una propuesta mejor se acepta.
+  - **Revisión de `ServerStatics.php` por el arquitecto (2026-09-15), por lectura.** Van con el
+    4b:
+    - **⚠ CONFIRMADO: los archivos protegidos salen con `Cache-Control: public`.**
+      `buildCacheHeaders()` (`:709-713`) no distingue, y `verifyFile()` solo añade
+      `PiecesPHP-Protected-File` (`:557`). Una caché compartida (un proxy o una CDN) podría
+      guardar un documento privado y dárselo a otro. Lo protegido debe salir `private`.
+    - **CONFIRMADO: no hay ningún `Vary`.** La conversión a WebP (`:875-883`) cambia el cuerpo
+      según `Accept`, y una caché intermedia podría dar WebP a quien no lo admite.
+    - **`readFile()` carga el archivo entero en memoria** (`file_get_contents`, `:801`) antes de
+      decidir si hace streaming. Un PDF o un vídeo grande protegido ocupa su tamaño en RAM en
+      cada petición.
+    - **La conversión a WebP se repite en cada petición** (`convertImageToWebP`, `:900`), con GD
+      y sin guardar el resultado. Es CPU por cada imagen.
+    - **El `ETag` es `sha1` de la fecha de modificación, sin ruta ni tamaño** (`:700`): dos
+      archivos con la misma fecha comparten ETag. Y si no casa, la respuesta sale con
+      `no-store`, así que la versión nueva tampoco se guarda en caché (`:752-756` y `:776-779`).
+    - **Lo delegado cuesta un salto más**: arranque de PHP, redirección 302 y enlace simbólico
+      (`:436-468`). Y el enlace se reescribe en cada petición (memoria «server-delegated escribe
+      al servir»).
+    - **Lo bueno:** la delegación a Apache para lo no protegido, el enlace simbólico atómico
+      (T108) y el streaming cuando el archivo no cambia.
+  - **⚠ HestiaCP cambia el diseño del 4b (2026-09-15).**
+    - La guía del framework ya lo decía (`source-docs/project/docs/environments/content/hestiacp/index.md:277-304`):
+      Nginx sirve directamente las extensiones de su lista («Proxy Static Extensions») y NO lee
+      el `.htaccess`.
+    - **Consecuencia:** en un servidor HestiaCP, si `jpg`, `png` o `pdf` están en esa lista, la
+      protección del lote 3 (el `.htaccess` de `protect()`) no actúa: Nginx sirve el archivo
+      antes. Y el diseño del «`.htaccess` por registro» tampoco serviría allí. SIN VERIFICAR
+      qué extensiones trae la lista por defecto.
+    - **Restricción del PO:** no modificar la configuración de Nginx ni tocar los archivos uno a
+      uno, y no perder el rendimiento de Nginx.
+    - **Dirección propuesta por el arquitecto: que decida DÓNDE está el archivo, no un
+      `.htaccess`.**
+      - Lo privado, fuera de la raíz web: Nginx no puede servir lo que no está, y lo sirve una
+        ruta de PHP que valida.
+      - Lo público, dentro: Nginx lo sirve a toda velocidad.
+      - Lo mixto (Publications): el archivo vive en la zona privada y se expone en la raíz solo
+        mientras el registro es visible.
+      Depende de que la plantilla de Nginx de Hestia pase a Apache cuando el archivo no existe
+      (`try_files $uri @fallback`), lo que está SIN VERIFICAR. Si no pasa, los archivos privados
+      necesitan una URL que no acabe en una extensión estática.
+    - **Una comprobación que el PO puede hacer en un servidor, en solo lectura:** mirar en la
+      configuración de Nginx de un dominio si el bloque de extensiones estáticas tiene
+      `try_files`.
+  - **Decisión del PO sobre dónde vive (2026-09-15):** todo lo que salga del 4b (servir
+    estáticos, archivos protegidos, delegación al servidor web) va reunido en **su propia
+    carpeta dentro de `src/app/core/psr4/PiecesPHP/Core/`**. Nombre por decidir, en inglés como
+    todo identificador; candidato: `Statics/`, con su espacio de nombres
+    `PiecesPHP\Core\Statics`.
+    - Hoy esas piezas están repartidas: `ServerStatics.php` en la raíz de `Core/` y
+      `ProtectFileMiddleware.php` en `Helpers/Directories/`.
+    - Moverlas cambia su espacio de nombres, así que es una ruptura para los clones: la usan los
+      21 `*Routes.php` de los módulos y `protected-files.php`. Va al CHANGELOG, con
+      `class_alias` para la transición si hace falta.
+  - **Precisiones del PO (2026-09-15), que ajustan la dirección:**
+    - **El `try_files` de Hestia existe, deducido.** Los estáticos de los módulos
+      (`/statics/<módulo>/…js|css`) no existen físicamente en esa ruta y los resuelve PHP. Si
+      Nginx no pasara a Apache el archivo que no encuentra, darían 404 en todos los servidores
+      Hestia, y funcionan. Además, sin eso el `.htaccess` no serviría para las reescrituras.
+    - **El framework es 100 % autocontenido: nada sale de `public_html`.** Se descarta sacar lo
+      privado fuera de la raíz web.
+      - **Nueva dirección del arquitecto: que decida el NOMBRE del archivo, no su ubicación.**
+        Un archivo privado se guarda con un sufijo que Nginx no sirve (por ejemplo,
+        `foto.jpg.protected`). Nginx no lo encuentra con su nombre público y pasa a Apache. Un
+        `.htaccess` en `uploads` niega el acceso directo a ese sufijo, y la ruta de PHP lo sirve
+        tras validar.
+      - Uno visible lleva su nombre real, y Nginx lo sirve a toda velocidad.
+      - Lo mixto (Publications) se renombra al cambiar de visibilidad, y con un cronjob para lo
+        que cambia por fecha. La URL no cambia.
+    - **Si algo tiene una carpeta especial, es la carpeta `uploads` entera**: el subsistema de
+      `Core/` gobierna todo `uploads`, no carpeta a carpeta.
+  - **Requisito del PO para el diseño del nombre (2026-09-15):** le gusta, con tres
+    condiciones. Tiene que quedar bien documentado para las máquinas (`.agents/context/`) y para
+    quien desarrolle (`source-docs/`), y tiene que ser configurable.
+  - **FileManager (pregunta del PO, 2026-09-15).** Medido por el arquitecto:
+    - elFinder guarda en `src/statics/filemanager` (`FileManagerController.php:236`,
+      `structureOptions()`), FUERA de `uploads`. Está ignorado por git
+      (`src/statics/filemanager/.gitignore`).
+    - Sus rutas de gestión piden sesión (`require_login` true, `:424-460`), pero los archivos
+      los sirve Apache o Nginx a cualquiera con la URL.
+    - **La comprobación 29 no lo ve**, porque no es un `UPLOAD_DIR`. Es un punto ciego de su
+      universo (LEY 15).
+    - Su uso principal, el editor enriquecido, incrusta imágenes en contenido público. Moverlo
+      rompería las URL ya guardadas dentro de la base. Por decidir con el PO: declararlo en el
+      registro (y el universo de la 29 lo incluye), o llevarlo a `uploads` con la migración de
+      esas URL.
+    - **El PO no sabe qué decidir, y el motivo es el importante:** elFinder con CKEditor se usa
+      en Publications, que es pública, pero también en noticias internas y en cualquier módulo
+      que integre esa pareja. Una sola política para toda la carpeta no sirve. **P26 abierta**,
+      con la propuesta del arquitecto en el chat del 2026-09-15:
+      - los archivos del editor de cada registro van a la carpeta del propio registro y heredan
+        su visibilidad;
+      - el FileManager general, con sesión;
+      - lo que ya existe, declarado, para no romper las URL guardadas.
+    - **Medido para P26 (2026-09-15):**
+      - Hoy el editor tiene UNA sola raíz para todos los módulos: «Documentos»,
+        `statics/filemanager/documents` (`FileManagerController::fileManagerConfigurationRichEditor()`,
+        `:196-225`).
+      - `structureOptions()` ya acepta la carpeta base como parámetro (`$base`, `:235`).
+      - La URL del conector la pone la vista (`data-route`, `file-manager-rich-editor.js:21`), y
+        el archivo elegido vuelve a CKEditor por `getFileCallback` con `file.url` (`:26-29`).
+      - **Viable sin romper la integración:** cada módulo pasa su contexto en la URL del conector,
+        y el conector elige la raíz. **Condición de seguridad:** el contexto se valida en el
+        servidor, con la lista de módulos y el permiso sobre ese registro. Si no, quien use el
+        editor podría apuntar a carpetas ajenas.
+      - **Compartir en público:** elFinder admite varias raíces. Una raíz «Público», anunciada así
+        en su vista, junto a las privadas.
+      - **SIN RESOLVER:** lo privado de elFinder choca con el diseño del sufijo. elFinder lista y
+        gestiona los nombres reales, y bajo Nginx un archivo privado con extensión estática
+        dentro de `public_html` se sirve si se adivina su ruta. Hay que estudiar las opciones de
+        elFinder (servir por el conector, plugins de nombres) antes de prometer nada.
+      - SIN VERIFICAR qué módulos integran hoy el editor: la búsqueda de sus rutas fuera de
+        FileManager no dio resultados, y puede que lo haga un componente genérico.
+    - **Visto por el PO en el panel (2026-09-15): el FileManager general tiene acceso a todo.**
+      - Raíces: Archivos; Documentos (el editor de texto); Cargas (`uploads`: documents,
+        news-categories, organizations y publications); Temporales (database-exporter-tests,
+        mpdf y process_queue_locks); y Papelera.
+      - Lo configuró así a propósito, y cada cosa conserva su visibilidad al servirse.
+    - **Encargo del PO: estudiar el caso de los privados de `uploads` vistos desde FileManager**
+      con el diseño del sufijo. A estudiar en el 4b:
+      - **La vista previa.** elFinder decide el tipo por la extensión, y con `.protected` la
+        perdería. Su opción de detectar el tipo por contenido (`mimeDetect`, con `finfo`) podría
+        conservarla. SIN VERIFICAR.
+      - **Que un renombrado desde FileManager no rompa la protección.** Si alguien renombra
+        `foto.jpg.protected` a `foto.jpg`, bajo Nginx pasa a ser pública. elFinder permite
+        bloquear por patrón (`attributes`: `locked` o `hidden`). SIN VERIFICAR.
+      - **Si conviene mostrar el nombre sin el sufijo:** exigiría un controlador de volumen
+        propio. Solo si lo anterior no basta.
+  - **Los enlaces de `server-delegated` se desincronizan: no es una impresión del PO.**
+    - Se crean al servir (memoria «server-delegated escribe al servir»).
+    - Si el destino se mueve o se borra, quedan colgando. `verify-integrity` detecta los enlaces
+      rotos del árbol servido, pero no los arregla.
+    - Si un despliegue copia sin conservar los enlaces (un zip, o `rsync` sin `-l`), se vuelven
+      copias que ya no siguen al original.
+    - Y `createDynamicSymlink()` aparta como `.backup` un archivo real que encuentre en su sitio.
+- **Criterio del PO sobre el código muerto de andamiaje** (2026-09-15, a propósito de `4ca2e99d`,
+  que retiró `handlerUpload()` y `folderRemove()` de DocumentTypes, Categories y
+  SystemApprovals): el andamiaje sin uso se retira cuando lo que enseña ya se puede deducir del
+  módulo de referencia (Publications). Solo se conserva si aporta algo que no esté allí.
 - **H2. El mismo patrón tras sesión**, verificado en el código por el arquitecto:
   - `NewsController.php:1225` (`newsTitle`), en `news-admin-ajax-all`;
   - `OrganizationsController.php:1350` (`name`), en `organizations-admin-ajax-all`;
