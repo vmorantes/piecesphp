@@ -358,6 +358,19 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - **Si tu proyecto llamaba a `saveGroup` desde su propio JS**, cámbialo por `translateGroup` con
   las claves.
 
+### 19 · Los administradores de organización entran a Aprobaciones
+
+- Hasta ahora, Aprobaciones solo admitía a root, al administrador general y al institucional.
+- **Ahora también entra el administrador de organización (tipo 12)**, con alcance limitado en
+  el SERVIDOR:
+  - solo ve y resuelve lo creado por usuarios de su organización, y solo si él es el
+    administrador de esa organización;
+  - nunca lo suyo propio.
+- El formulario y la acción de aprobar responden 404 fuera de ese alcance, aunque se llamen a
+  mano.
+- **Si tu proyecto daba por hecho que el tipo 12 no entraba**, revisa tus menús: la ruta ya lo
+  admite.
+
 ---
 
 ## ⚠ Corregido — cualquier usuario con sesión podía reescribir cualquier traducción

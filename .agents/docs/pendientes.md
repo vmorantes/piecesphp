@@ -853,6 +853,45 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **Aviso del arquitecto de `andamiaje-arquitecto-coder` (2026-09-15), verificado aquí:**
+  1. **El hook `commit-msg` no es ejecutable** (`100644` en git y `-rw-rw-r--` en disco): git lo
+     ignoraría. Además, `core.hooksPath` NO está puesto, así que hoy no actúa de ninguna forma.
+     Se arregla el modo en `#073`. **Activarlo es del PO** (`40-salvaguardas.md` §5):
+     `git config core.hooksPath .agents/scripts/git-hooks`.
+  2. **La guarda dejaba borrar la raíz de las zonas escribibles:** el repositorio, `/tmp`,
+     `~/.claude/projects` y los hermanos. Comprobado con la guarda y el JSON por stdin, que da
+     código 0. **Arreglado por el arquitecto** en `guardia.py`
+     (`RAICES_PROTEGIDAS` y `revisar_rm`), siguiendo la plantilla. Borrar dentro sigue
+     permitido.
+  3. **`secure-keys/` se podía leer desde Bash** (`cat`, con `..` o tras un `cd`). **Arreglado**
+     con `SECRETOS`, `_toca_secretos()` y el seguimiento de `cd` en `revisar_bash`. La
+     herramienta Read la sigue negando `settings.json`.
+  - `probar_guardia.py`: 198/198, con los casos nuevos y sus parejas legítimas. Antes del arreglo,
+    esos casos pasaban (medido).
+  - **Opción de fondo, del PO:** adoptar la plantilla completa
+    (`/var/www/html/vicsen/andamiaje-arquitecto-coder/docs/adoptar.md`).
+- **`#071`/`#072`, 2026-09-15: el 4c, a medias.**
+  - **Cerrado:** `cf6803dd` y `cadf95c3`. El tipo 12 entra y `canManage()` aplica C3 y C5 en el
+    servidor, con 404 fuera de su alcance. Probado por HTTP con 7 elementos y 5 perfiles, y con
+    un correo a Mailinator. La suite queda en 53/53, provocada por C3 y por C5.
+  - **D1, P25 parado:** la instrucción se contradecía con `singleView()` (163-179). Una
+    publicación ACTIVE va por `isVisibleToPublic()` para todos, con sesión o sin ella.
+    **Decisión del arquitecto:** la rama else de `singleView()` admite también `CAN_VIEW_DRAFT`,
+    que la ve como vista previa, igual que un borrador. Sin sesión, 404.
+  - **H1:** `canManage()` no exige PENDING, C1 ni C4, así que un tipo 12 puede volver a resolver
+    lo ya resuelto. **Decisión:** para los usuarios limitados por C5, `canManage()` exige
+    además PENDING, C1 y C4, con las mismas condiciones del listado. Para 0, 1 y 3, igual que hoy.
+  - **H2:** un POST repetido reenvía el correo. **Decisión:** el correo solo se envía si el
+    estado cambia.
+  - **H3:** `approvalForm` con un id inexistente da 500. **Decisión:** 404.
+  - **H4 (SOSPECHA):** los desplegables de `listView` salen de consultas globales. Se mide.
+  - **H5:** `_allowedRoute` (652) compara ids distintos. Solo restringe. Va a los residuos.
+  - **T4 (H2 de `#070`):** la doble carga era del arnés. `verify()` manda un JWT vacío si
+    `localStorage` no lo tiene, `deleteSession()` recarga (`PiecesPHPSystemUserHelper.js:246`) y la
+    segunda carga ya es anónima. En uso normal no pasa; pero una sesión con cookie y sin
+    `localStorage` se cierra y recarga sola. Va a los residuos.
+  - **El coder se compactó una vez sin mandar su resumen** (entre `#069` y `#070`). Queda
+    declarado.
 - **`#069`/`#070`, 2026-09-15: el 3b, cerrado.**
   - `7c9e0126`: `saveGroup` responde 410. `gulp js-vendor` compiló en local (sin versionar) y
     `translateGroup` ya está en el `.min.js`.
