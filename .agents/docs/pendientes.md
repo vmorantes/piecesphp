@@ -853,6 +853,32 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#079`/`#080`, 2026-09-15: el 4b-3, partes A0 y A.**
+  - Commits:
+    - `18f86d32`: solo se comprime el texto;
+    - `c9bac28c`: la caché WebP con umask 0002 y la purga en `clean-cache`;
+    - `7b6209d2`: `Core/Statics`, con alias;
+    - `2695277f`: la resolución por sufijo, `ProtectedUploads`, las políticas de carpeta y el
+      `.htaccess` de `uploads`;
+    - `f9681853`: la suite 25/25, provocada.
+  - Parado antes de la parte B, con criterio: renombra 1.649 archivos reales.
+  - **Decisiones del arquitecto para B:**
+    - **D1:** `src/.htaccess` (94-126) solo comprime texto. Fuera `SetOutputFilter DEFLATE` y el
+      DEFLATE de los tipos binarios. Afecta a todo lo que Apache sirve, pero sin pérdida:
+      comprimir binarios no ahorra nada y anula el streaming;
+    - **H1:** `protect()` deja de escribir el `.htaccess` de «reescribir todo» de cada carpeta; si
+      no, la migración lo retira y el siguiente arranque lo recrea;
+    - **H2:** los `handlerUpload()` que borran el archivo viejo lo buscan con
+      `ProtectedUploads::resolve()`, porque el privado no está con su nombre público;
+    - **H5:** las 204 carpetas huérfanas de publications (sin publicación que las nombre) se
+      migran como PRIVADAS;
+    - **H8:** `protect()` sin validador falla CERRADO. Hoy concede todo, y nadie lo usa así.
+  - **H6, para el PO:** la carpeta `src/app/cache/statics-webp` que creó Apache en `#077`
+    (www-data, 2755) no la puede borrar la CLI. Si quiere limpiarla:
+    `sudo rm -r src/app/cache/statics-webp`. No es urgente: la purga nueva la vacía cuando
+    los permisos lo dejen.
+  - D3: la instantánea de firmas estaba rancia desde `#065` (solo altas); regenerada.
+  - H7: el 2777 de `server-delegated`, de origen sin verificar. Va a los residuos.
 - **`#077`/`#078`, 2026-09-15: el 4b-2, cerrado.**
   - Commits:
     - `0b10eeaa`: streaming, `Range`, caché privada con `Vary`, ETag por archivo y WebP en disco;

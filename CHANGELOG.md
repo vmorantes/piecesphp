@@ -409,6 +409,35 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   `Cron-Job-Key`: el parámetro GET sigue funcionando, pero queda en los logs de acceso.
 - La respuesta de la ruta ya no incluye la traza de la pila cuando una tarea falla.
 
+### 22 · Los archivos protegidos se deciden por su NOMBRE (`.protected`), y el subsistema vive en `Core/Statics`
+
+- **Por qué:** bajo HestiaCP, nginx sirve directamente los archivos que existen y no lee el
+  `.htaccess`, así que la protección por carpeta no protegía los archivos existentes de las
+  subidas.
+- **Ahora:**
+  - un archivo PRIVADO se guarda en disco con el sufijo AL FINAL: `foto.jpg.protected`. Su URL
+    no cambia (`…/foto.jpg`);
+  - quien pide `foto.jpg` y no existe, llega a PHP. Si existe `foto.jpg.protected`, se valida
+    con la política de su carpeta y se sirve con el tipo de `foto.jpg`;
+  - pedir el nombre de disco (`….protected`) da 403 o 404 siempre: lo niega
+    `statics/uploads/.htaccess`, que escribe el subsistema;
+  - lo PÚBLICO lleva su nombre real y lo sirven Apache o nginx directamente, sin PHP.
+- **`ServerStatics` y `ProtectFileMiddleware` viven en `PiecesPHP\Core\Statics`.** Los nombres
+  viejos siguen funcionando con `class_alias`. Cambia tus `use` cuando puedas.
+- **La política de cada carpeta:**
+  - `ProtectFileMiddleware::protectWithSession()`: se sirve solo con sesión;
+  - `protect(…, validador)`: decide un validador;
+  - lo que no se declara, es público.
+
+  El sufijo se configura en `protected_uploads_suffix` (por defecto `.protected`).
+- **Solo se comprime el texto** (css, js, json, csv, svg, txt, html, xml, map). PDF, imágenes,
+  audio, vídeo y fuentes no se comprimen, así que van en streaming y admiten `Range`.
+- **Pendiente en la ronda siguiente, y se documentará aquí:** que las subidas nazcan
+  protegidas, que Publications cambie la protección con su visibilidad, y la migración de lo
+  existente (`bin/cli statics-protect-migrate`).
+- **Si sirves con nginx sin Apache detrás,** añade una regla que niegue `\.protected$` y deje
+  pasar a PHP lo que no existe.
+
 ---
 
 ## Corregido — los archivos protegidos se servían como públicos para las cachés
