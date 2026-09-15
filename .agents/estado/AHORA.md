@@ -9,10 +9,51 @@
   - las mejoras de rendimiento y seguridad son bienvenidas.
   Queda en el **ADR 0010** y en la regla 40 §2. En vuelo: **`#045`**, el buscador de
   `process()` con la opción B, probado de punta a punta.
-- **Actualizado:** 2026-09-15 12:11 (medido con `date`).
-- **Último mensaje enviado:** `#049 · ARQ`, SystemApprovals y LoginAttempts, fase 2: aplicar la
-  propuesta revisada, retirar `generateHaving()` y poner `@deprecated` en `escapeString()`, con
-  la foto de después comparada con la de antes. El próximo número es `#050`.
+- **Último mensaje enviado:** `#053 · ARQ`. El próximo número es `#054`.
+  - `#052 · COD`: `#051` **bloqueado en el PASO 0**, con criterio. `gates` da 135/136 porque
+    `0bff44c4` retiró la entrada de SystemApprovals de `sql-concat-declared.json` después de
+    correr las pruebas, y la sección 7 de la suite exige que esté.
+  - `#053`: invertir esa comprobación (exige que ya NO esté), con provocación y en su propio
+    commit. Después sigue `#051` (documentación, LoginAttempts sin mover la foto y la medición de
+    H1), con el plan del coder.
+  - Ya están depositados en el árbol: tus respuestas en `pendientes.md`, el mapa (con el lote
+    nuevo 4c, Aprobaciones) y la regla 30 (`A-NNN` y verificar después del último cambio).
+- **`#050 · COD`:** SystemApprovals commiteado (`0bff44c4`), con 50/50 y 72/72. LoginAttempts
+  parado con criterio, porque la foto vieja no servía por los datos nuevos.
+- **Actualizado:** 2026-09-15 12:36 (medido con `date`). **El PO contestó la batería para 20
+  rondas** (2.1-2.9). Se depositan en `pendientes.md`, el mapa y la regla 30 al recibir `#052`;
+  el borrador está en el scratchpad (`deposito-tras-052.md`). En corto:
+  - 2.1: los lotes de núcleo con diseño acordado (3b, 4b y 5b) van sin reconsultar;
+  - 2.2: sí al 4b, más un cron con reintentos y ventanas de recuperación, documentado; el diseño
+    lo decide el arquitecto;
+  - 2.3: OTP con bloqueo y respuesta uniforme, los dos configurables;
+  - 2.4: sí a los tokens genéricos; 2.5: sí a E3, y si pasa de diez archivos el plan se enseña
+    al final, sin commitear; 2.6: sí a los avatares y a `see-more`;
+  - 2.7: Mailpit o MailHog, si es local, seguro y sin registro (se verifica al instruir 7c);
+  - 2.8: P25 cambia (lo no aprobado no se ve por su enlace); Locations, a criterio del
+    arquitecto y documentado; idea del PO: la aprobación, encendible por módulo;
+  - 2.9: las condiciones de parada, como se propusieron.
+  **El tirón de hasta 20 rondas arranca al recibir `#052`.**
+- **Nueva convención del PO:** cada mensaje del arquitecto al PO lleva un identificador `A-NNN`
+  en su primera línea, para que pueda citarlo. **Último usado: `A-001`.**
+- **Respuestas del PO (2026-09-15, con `#049` en vuelo).** Se depositan en `pendientes.md` al
+  recibir `#050`; los borradores están en el scratchpad.
+  1. **5.1: se mantiene el soporte legado de `having_string`.** `process()` lo sigue aceptando
+     para los clones, y `escapeString()` vive solo en ese camino. Se documenta como legado en el
+     `CHANGELOG.md` y en el docblock, con la guía para pasar a `having_segment`.
+  2. **5.2: los administradores de organización (tipo 12) pueden entrar a Aprobaciones y
+     administrar lo que les compete.** Es trabajo nuevo, que se mide y se instruye después de
+     `#050`. Con eso C3 y C5 pasan a actuar. La acción de aprobar tiene que limitarse en el
+     servidor a su organización, no solo en el listado.
+  3. **3.3: el correo real se permite, solo a direcciones `@mailinator.com`,** y el coder dice a
+     cuáles para que el PO los revise. Irá en el ADR 0011, cuyo borrador está en el scratchpad,
+     y sirve también para la ventana de correo (7c). La idea de un «Mailinator propio» queda
+     como idea.
+  4. **Comentario, no trabajo inmediato:**
+     - las vistas de LoginAttempts se rehacen de cero, con la estética del resto y dentro de la
+       unificación de los registros;
+     - lo mismo con todas las vistas de configuración (SMTP, SEO, etc.). SMTP tiene que poder
+       probarse.
 - **`#048 · COD`:** la propuesta es equivalente en 72 de 72 casos, y la foto de antes está hecha
   (50 capturas). El arquitecto la revisó: C1 agrupado con el `IS NULL` conservado, C3 con
   `(int)`, y LoginAttempts incluido para poder retirar `generateHaving()`.
@@ -76,31 +117,14 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
-1. **⚠ P28 — quién puede editar las traducciones.**
-   - Hoy puede cualquier usuario con sesión, de cualquier rol (`APIController.php:1611`).
-   - Lo que guarda se imprime sin escapar, así que es un XSS almacenado.
-   - **✔ RESUELTA por el PO (2026-09-15): opción B aprobada.**
-     - El servidor traduce y guarda en una sola petición. El navegador solo pide las claves
-       que faltan; el servidor saca los textos originales de sus archivos de idioma, llama a la
-       IA, comprueba que vuelvan esas mismas claves y guarda. `saveGroup` deja de aceptar texto
-       del navegador.
-     - Sin límite de uso de la IA por ahora: el PO está centrado en la MAJOR y sus problemas.
-     - Es el lote 3b. Se instruye después de `#048`, con pruebas en el navegador simulado para
-       cada idioma.
-     - Al recibir `#048` se deposita en `pendientes.md` y en el mapa.
-   - **El predeterminado anterior («solo administración») queda DESCARTADO.** La ruta la usa
-     la traducción automática de `configurations.js`: el navegador de cualquier usuario guarda
-     lo que traduce la IA. Restringirla rompería esa función.
-   - *Predeterminado nuevo, que se habla con el PO*: el servidor deja de aceptar el texto del
-     navegador. Solo acepta claves que existen, en idiomas y grupos reales, o, mejor, traduce
-     él mismo. El HTML se conserva.
-   - Es el lote 3b del mapa y espera la respuesta.
-2. **El plan de `process()`: se conversa con el PO antes de instruirlo** (regla 30, núcleo
-   transversal). Hay dos propuestas: la del coder (migrar llamador a llamador, 18 archivos en
-   tres tandas) y la del arquitecto (`process()` crea el segmento; un archivo más los
-   llamadores con `having_string`).
-3. **P26 (FileManager), P25 (candidata) y Locations:** con predeterminado.
-4. **Subir cuando quiera:** 33 commits.
+1. **H1 de `#050`: el SQL y las filas crudas viajan al navegador** en todos los listados de
+   `DataTablesHelper`. Es núcleo transversal y su diseño no está acordado: se le presenta con la
+   medición de `#052` delante.
+2. **La aprobación encendible por módulo** (su idea en 2.8). *Predeterminado:* va después de la
+   MAJOR, porque amplía una capacidad. Si la quiere dentro, lo dice.
+3. **Subir cuando quiera:** los commits sin empujar de `dev`.
+
+P28 y el plan de `process()` ya están resueltos (opción B en los dos).
 
 ## En curso
 
