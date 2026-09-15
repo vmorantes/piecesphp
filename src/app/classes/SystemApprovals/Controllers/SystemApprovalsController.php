@@ -124,6 +124,10 @@ class SystemApprovalsController extends AdminPanelController
         $elementID = $request->getAttribute('id', -1);
         $elementID = Validator::isInteger($elementID) ? (int) $elementID : -1;
         $approvalMapper = new SystemApprovalsMapper($elementID);
+        //Sin registro, 404 aquí: más abajo getMapperInstance() recibiría null y daría 500.
+        if ($approvalMapper->id === null) {
+            throw new NotFoundException($request, $response);
+        }
         $referenceMapper = SystemApprovalManager::getInstance()->getMapperInstance($approvalMapper->referenceTable, $approvalMapper->referenceValue);
         $approvalHandler = SystemApprovalManager::getInstance()->getHandler($approvalMapper->referenceTable);
         $currentUser = getLoggedFrameworkUserOrFail();
@@ -344,7 +348,8 @@ class SystemApprovalsController extends AdminPanelController
 
                     if ($updated) {
                         //Envío de correo - INICIO
-                        if ($contactUser !== null) {
+                        //Solo si el estado cambia: un POST repetido no repite el correo.
+                        if ($contactUser !== null && $previousStatus != $approvalStatus) {
                             $message = '';
                             $contentName = __(self::LANG_GROUP, $mapper->referenceAlias);
                             if ($mapper->status == SystemApprovalsMapper::STATUS_APPROVED) {
@@ -570,7 +575,8 @@ class SystemApprovalsController extends AdminPanelController
     }
 
     /**
-     * Si el usuario puede ver y resolver el elemento: los criterios C3 y C5 del listado, aplicados en PHP.
+     * Si el usuario puede ver y resolver el elemento: C3 y C5 del listado, aplicados en PHP; a los limitados por C5,
+     * además lo pendiente, C1 y C4.
      *
      * Las rutas dejan entrar a más tipos de los que pueden aprobarlo todo: el alcance lo pone esto.
      *
@@ -593,6 +599,17 @@ class SystemApprovalsController extends AdminPanelController
         $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($userType);
         $canApprovalAll = in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
         if (!$canModifyOrganizations && !$canApprovalAll) {
+            //Y lo que el listado exige a todos: pendiente, C1 (referencia activa) y C4 (perfiles de organizaciones sin aprobar).
+            //Los que lo aprueban todo quedan fuera a propósito: pueden volver a resolver.
+            $isPending = $record->status == SystemApprovalsMapper::STATUS_PENDING;
+            $isActive = $record->referenceIsActive === null || (int) $record->referenceIsActive === 1;
+            $passesC4 = $record->referenceTable != UsersModel::TABLE
+                || $record->referenceOrganization === null
+                || (string) $record->referenceOrganization === (string) OrganizationMapper::INITIAL_ID_GLOBAL
+                || ($record->referenceOrtanizationApprovalValue !== null && $record->referenceOrtanizationApprovalValue != SystemApprovalsMapper::STATUS_APPROVED);
+            if (!$isPending || !$isActive || !$passesC4) {
+                return false;
+            }
             //En dos pasos: `??` sobre la propiedad mágica pregunta a __isset, que UserDataPackage no tiene.
             $organizationID = $user->organization;
             $organizationID ??= -1;
