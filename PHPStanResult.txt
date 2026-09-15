@@ -351,11 +351,11 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php                                  
  ------ ----------------------------------------------------------------------------------------------- 
-  205    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  207    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  242    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  244    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  269    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  271    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -369,11 +369,11 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php                            
  ------ ----------------------------------------------------------------------------------------------- 
-  205    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  207    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  242    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  244    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  269    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  271    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -748,9 +748,9 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php                                                                      
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  126    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
+  128    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
          🪪  argument.type                                                                                                                       
-  131    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  133    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1228,29 +1228,29 @@
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/GenericTokenController.php                                                                                                      
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
-  186    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                            
+  179    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                            
          🪪  method.nonObject                                                                                                                               
-  298    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.      
+  291    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.      
          🪪  argument.type                                                                                                                                  
-  323    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.             
+  308    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.             
          🪪  argument.type                                                                                                                                  
-  323    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                
+  308    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                
          🪪  argument.type                                                                                                                                  
-  324    Parameter Nr.1 $address of method PHPMailer\PHPMailer\PHPMailer::addAddress() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  309    Parameter Nr.1 $address of method PHPMailer\PHPMailer\PHPMailer::addAddress() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                                  
-  324    Parameter Nr.2 $name of method PHPMailer\PHPMailer\PHPMailer::addAddress() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
+  309    Parameter Nr.2 $name of method PHPMailer\PHPMailer\PHPMailer::addAddress() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
          🪪  argument.type                                                                                                                                  
-  335    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                                
+  320    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                                
          🪪  assign.propertyType                                                                                                                            
-  356    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                            
+  341    Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                            
          🪪  method.nonObject                                                                                                                               
-  363    Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                                
+  347    Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                                
          🪪  method.resultUnused                                                                                                                            
-  371    Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                                
+  355    Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                                
          🪪  method.resultUnused                                                                                                                            
-  378    Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                                
+  362    Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                                
          🪪  method.resultUnused                                                                                                                            
-  416    Method App\Controller\GenericTokenController::createTokenURL() should return string but returns string|null.                                       
+  465    Method App\Controller\GenericTokenController::createTokenURL() should return string but returns string|null.                                       
          🪪  return.type                                                                                                                                    
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1447,7 +1447,7 @@
          🪪  argument.type                                                                      
   931    Static property PiecesPHP\Core\Config::$appLang (string) does not accept string|null.  
          🪪  assign.propertyType                                                                
-  1094   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                 
+  1134   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                 
          🪪  argument.type                                                                      
  ------ --------------------------------------------------------------------------------------- 
 
@@ -2101,11 +2101,11 @@
  ------ ------------------------------------------------------------------------------------------------ 
   project://src/src/app/model/TokenModel.php                                                                    
  ------ ------------------------------------------------------------------------------------------------ 
-  119    Method App\Model\TokenModel::deleteByToken() should return bool but returns bool|null.          
+  129    Method App\Model\TokenModel::deleteByToken() should return bool but returns bool|null.          
          🪪  return.type                                                                                 
-  129    Method App\Model\TokenModel::deleteByID() should return bool but returns bool|null.             
+  139    Method App\Model\TokenModel::deleteByID() should return bool but returns bool|null.             
          🪪  return.type                                                                                 
-  158    Method App\Model\TokenModel::checkTokenIsExpired() should return bool but returns bool|string.  
+  168    Method App\Model\TokenModel::checkTokenIsExpired() should return bool but returns bool|string.  
          🪪  return.type                                                                                 
  ------ ------------------------------------------------------------------------------------------------ 
 
@@ -2206,7 +2206,7 @@
          🪪  property.nonObject                                                                              
   35     Parameter Nr.1 $url of static method Spatie\Url\Url::fromString() expects string, string|null given.  
          🪪  argument.type                                                                                   
-  679    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                            
+  686    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                            
          🪪  property.nonObject                                                                              
  ------ ---------------------------------------------------------------------------------------------------- 
 

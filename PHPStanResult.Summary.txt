@@ -121,13 +121,13 @@ project://src/app/classes/FileManager/Controllers/FileManagerController.php
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 	property.nonObject (Líneas: 704)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
-	argument.type (Líneas: 205)
-	property.nonObject (Líneas: 242, 269)
+	argument.type (Líneas: 207)
+	property.nonObject (Líneas: 244, 271)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
 	property.nonObject (Líneas: 705)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
-	argument.type (Líneas: 205)
-	property.nonObject (Líneas: 242, 269)
+	argument.type (Líneas: 207)
+	property.nonObject (Líneas: 244, 271)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 163, 255)
 project://src/app/classes/Importers/Controller/ImporterController.php
@@ -207,7 +207,7 @@ project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
 	argument.type (Líneas: 49, 49, 51)
 	return.type (Líneas: 61)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
-	argument.type (Líneas: 126, 131)
+	argument.type (Líneas: 128, 133)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 	return.type (Líneas: 65)
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
@@ -316,11 +316,11 @@ project://src/app/controller/AvatarController.php
 project://src/app/controller/ContactFormsController.php
 	argument.type (Líneas: 224, 229)
 project://src/app/controller/GenericTokenController.php
-	method.nonObject (Líneas: 186, 356)
-	argument.type (Líneas: 298, 323, 323, 324, 324)
-	assign.propertyType (Líneas: 335)
-	method.resultUnused (Líneas: 363, 371, 378)
-	return.type (Líneas: 416)
+	method.nonObject (Líneas: 179, 341)
+	argument.type (Líneas: 291, 308, 308, 309, 309)
+	assign.propertyType (Líneas: 320)
+	method.resultUnused (Líneas: 347, 355, 362)
+	return.type (Líneas: 465)
 project://src/app/controller/LoginAttemptsController.php
 	argument.type (Líneas: 198, 246, 333)
 	method.nonObject (Líneas: 235)
@@ -342,7 +342,7 @@ project://src/app/core/AppHelpers.php
 	offsetAccess.invalidOffset (Líneas: 2346)
 	offsetAccess.notFound (Líneas: 3159, 3160)
 project://src/app/core/Config.php
-	argument.type (Líneas: 815, 1094)
+	argument.type (Líneas: 815, 1134)
 	assign.propertyType (Líneas: 931)
 project://src/app/core/Utilities.php
 	return.type (Líneas: 328, 591)
@@ -476,7 +476,7 @@ project://src/app/model/TimeOnPlatformModel.php
 	argument.type (Líneas: 153)
 	return.type (Líneas: 155)
 project://src/app/model/TokenModel.php
-	return.type (Líneas: 119, 129, 158)
+	return.type (Líneas: 129, 139, 168)
 project://src/app/model/UserProblemsModel.php
 	property.notFound (Líneas: 86)
 project://src/app/model/UsersModel.php
@@ -492,7 +492,7 @@ project://src/app/view/panel/layout/header.php
 project://src/app/view/panel/layout/menu.php
 	argument.type (Líneas: 35, 72, 99)
 project://src/app/view/panel/layout/topbar.php
-	property.nonObject (Líneas: 21, 22, 679)
+	property.nonObject (Líneas: 21, 22, 686)
 	argument.type (Líneas: 35)
 project://src/app/view/panel/pages/about-framework.php
 	property.nonObject (Líneas: 4)
