@@ -13,6 +13,7 @@
 
 namespace PiecesPHP\Core;
 
+use GuzzleHttp\Psr7\LimitStream;
 use PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware;
 use Slim\Psr7\Factory\StreamFactory;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -43,6 +44,11 @@ class ServerStatics
         'default_max_age' => 5256000, // 2 meses
         'revalidate_max_age' => 5256000, // 2 meses con must-revalidate
     ];
+
+    /**
+     * @var string Carpeta de la caché de conversiones a WebP, relativa a basepath()
+     */
+    const WEBP_CACHE_DIRECTORY = 'app/cache/statics-webp';
 
     /**
      * @var array Configuración de delegación a servidor web
@@ -557,8 +563,13 @@ class ServerStatics
             $headers['PiecesPHP-Protected-File'] = 'true';
         }
 
+        //LO QUE SALE SE DECIDE ANTES DE LEER: sin conversión ni compresión va en streaming y admite Range.
+        $isPrivate = $access === true;
+        $convertTo = self::conversionTarget($extension, $request);
+        $compressionAlgorithm = self::compressionAlgorithmFor($extension, $request);
+
         //Procesar cache
-        $cacheResult = self::processCache($request, $filePath, $extension, $mustValidate);
+        $cacheResult = self::processCache($request, $filePath, $extension, $mustValidate, $isPrivate, $convertTo);
         $headers = array_merge($headers, $cacheResult['headers']);
         $status = $cacheResult['status'];
 
@@ -569,10 +580,15 @@ class ServerStatics
 
         //Si es 304, no cargar el archivo
         if ($status === 304) {
-            return $response->withStatus(304);
+            return self::withVary($response->withStatus(304), self::varyValues($isPrivate, $convertTo !== null, $compressionAlgorithm !== null));
         }
 
-        //Leer y procesar archivo (modo stream o data)
+        if ($convertTo === null && $compressionAlgorithm === null) {
+            $eTag = $cacheResult['headers']['ETag'] ?? '';
+            return self::withVary(self::streamFile($response, $request, $filePath, is_string($eTag) ? $eTag : ''), self::varyValues($isPrivate, false, false));
+        }
+
+        //Con conversión o compresión: en memoria, como siempre (la conversión sale de su caché en disco)
         $readingResult = self::readFile($filePath, $status, $extension, $request);
 
         foreach ($readingResult['headers'] as $name => $values) {
@@ -587,7 +603,9 @@ class ServerStatics
             }
         }
 
-        return $response->withStatus($status);
+        $converted = isset($readingResult['headers']['Content-Type']);
+        $compressed = isset($readingResult['headers']['Content-Encoding']);
+        return self::withVary($response->withStatus($status), self::varyValues($isPrivate, $converted, $compressed));
     }
 
     /**
@@ -639,9 +657,11 @@ class ServerStatics
      * @param string $filePath Ruta del archivo
      * @param string $extension Extensión del archivo
      * @param bool $mustValidate Si debe validar cache
+     * @param bool $private Si se sirve tras validar el acceso
+     * @param string|null $convertTo El tipo al que se convierte, o null
      * @return array Resultado del procesamiento de cache
      */
-    private static function processCache(Request $request, string $filePath, string $extension, bool $mustValidate): array
+    private static function processCache(Request $request, string $filePath, string $extension, bool $mustValidate, bool $private = false, ?string $convertTo = null): array
     {
         $headers = [];
         $status = 200;
@@ -665,7 +685,7 @@ class ServerStatics
         }
 
         if ($allowCaching) {
-            $cacheHeaders = self::buildCacheHeaders($request, $filePath, $extension, $mustValidate);
+            $cacheHeaders = self::buildCacheHeaders($request, $filePath, $extension, $mustValidate, $private, $convertTo);
             $headers = $cacheHeaders['headers'];
             $status = $cacheHeaders['status'];
         }
@@ -683,9 +703,11 @@ class ServerStatics
      * @param string $filePath Ruta del archivo
      * @param string $extension Extensión del archivo
      * @param bool $mustValidate Si debe validar cache
+     * @param bool $private Si se sirve tras validar el acceso
+     * @param string|null $convertTo El tipo al que se convierte, o null
      * @return array Headers de cache
      */
-    private static function buildCacheHeaders(Request $request, string $filePath, string $extension, bool $mustValidate): array
+    private static function buildCacheHeaders(Request $request, string $filePath, string $extension, bool $mustValidate, bool $private = false, ?string $convertTo = null): array
     {
         $headers = [];
         $status = 200;
@@ -697,7 +719,8 @@ class ServerStatics
         $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification !== false ? $lastModification : time());
         $expiresGMT = gmdate('D, d M Y H:i:s', strtotime('+1 year')) . ' GMT';
 
-        $eTag = 'PCSPHP_' . sha1($lastModification !== false ? (string) $lastModification : '...');
+        //Con el tamaño y el tipo de salida: dos archivos de la misma fecha ya no comparten ETag, ni el PNG y su WebP.
+        $eTag = self::eTagFor($lastModification, filesize($filePath), $convertTo);
 
         //Configurar cache control
         if (!$mustValidate) {
@@ -706,11 +729,7 @@ class ServerStatics
             $mustRevalidateExtensions = self::MUST_REVALIDATE_EXTENSIONS;
         }
 
-        if (in_array($extension, $mustRevalidateExtensions)) {
-            $headers['Cache-Control'] = "max-age=" . self::CACHE_CONFIG['revalidate_max_age'] . ", public, must-revalidate";
-        } else {
-            $headers['Cache-Control'] = "max-age=" . self::CACHE_CONFIG['default_max_age'] . ", public";
-        }
+        $headers['Cache-Control'] = self::cacheControlValue($private, in_array($extension, $mustRevalidateExtensions));
 
         $headers['Last-Modified'] = $lastModificationGMT;
         $headers['ETag'] = $eTag;
@@ -876,7 +895,7 @@ class ServerStatics
             $acceptConvertType = self::typeIsAllowed($convertTo, $request);
 
             if ($acceptConvertType) {
-                $conversionResult = self::convertImageToWebP($path, $codeType);
+                $conversionResult = self::convertImageToWebPCached($path, $codeType);
                 if ($conversionResult !== null) {
                     $fileData = $conversionResult;
                     $headers['Content-Type'] = [self::CONTENT_TYPE_WEBP];
@@ -1143,6 +1162,233 @@ class ServerStatics
     public static function getDelegatedExtensions(): array
     {
         return self::DELEGATE_TO_WEB_SERVER['extensions'];
+    }
+
+    /**
+     * El tramo pedido en una cabecera Range, para un archivo de $size bytes.
+     *
+     * Un solo tramo: «bytes=a-b», «a-» o «-n». Varios tramos, una unidad que no es bytes o ninguna
+     * cabecera dan null: va el archivo entero (200).
+     *
+     * @param string $rangeHeader
+     * @param int $size
+     * @return array{0: int, 1: int}|false|null [inicio, fin] inclusivos; false si el tramo es inválido o cae fuera (416)
+     */
+    public static function resolveRange(string $rangeHeader, int $size): array|false|null
+    {
+        $rangeHeader = trim($rangeHeader);
+        if ($rangeHeader === '' || stripos($rangeHeader, 'bytes=') !== 0) {
+            return null;
+        }
+        $spec = trim(substr($rangeHeader, 6));
+        if (str_contains($spec, ',')) {
+            return null;
+        }
+        if ($size <= 0 || preg_match('/^(\d*)-(\d*)$/', $spec, $parts) !== 1 || ($parts[1] === '' && $parts[2] === '')) {
+            return false;
+        }
+        if ($parts[1] === '') {
+            //Sufijo: los últimos n bytes.
+            $suffix = (int) $parts[2];
+            return $suffix > 0 ? [max(0, $size - $suffix), $size - 1] : false;
+        }
+        $start = (int) $parts[1];
+        $end = $parts[2] === '' ? $size - 1 : min((int) $parts[2], $size - 1);
+        if ($start >= $size || $start > $end) {
+            return false;
+        }
+        return [$start, $end];
+    }
+
+    /**
+     * El Cache-Control de lo servido por PHP. Lo validado es privado: una caché compartida no lo guarda.
+     *
+     * @param bool $private Si se sirve tras validar el acceso
+     * @param bool $mustRevalidate
+     * @return string
+     */
+    public static function cacheControlValue(bool $private, bool $mustRevalidate): string
+    {
+        if ($private) {
+            return 'private, max-age=' . self::CACHE_CONFIG['default_max_age'] . ', must-revalidate';
+        }
+        return $mustRevalidate
+            ? 'max-age=' . self::CACHE_CONFIG['revalidate_max_age'] . ', public, must-revalidate'
+            : 'max-age=' . self::CACHE_CONFIG['default_max_age'] . ', public';
+    }
+
+    /**
+     * De qué depende la respuesta, para una caché intermedia.
+     *
+     * @param bool $private Si se sirve tras validar el acceso (depende de la sesión)
+     * @param bool $converted Si se convirtió según Accept
+     * @param bool $compressed Si se comprimió según Accept-Encoding
+     * @return string[]
+     */
+    public static function varyValues(bool $private, bool $converted, bool $compressed): array
+    {
+        $vary = $private ? ['Cookie', 'Authorization'] : [];
+        if ($converted) {
+            $vary[] = 'Accept';
+        }
+        if ($compressed) {
+            $vary[] = 'Accept-Encoding';
+        }
+        return $vary;
+    }
+
+    /**
+     * @param int|false $lastModification
+     * @param int|false $size
+     * @param string|null $outputType El tipo de salida si hay conversión
+     * @return string
+     */
+    public static function eTagFor(int|false $lastModification, int|false $size, ?string $outputType = null): string
+    {
+        $mtime = $lastModification !== false ? (string) $lastModification : '...';
+        $bytes = $size !== false ? (string) $size : '...';
+        return 'PCSPHP_' . sha1("{$mtime}|{$bytes}|" . ($outputType ?? ''));
+    }
+
+    /**
+     * Añade los Vary sin quitar los que ya traiga la respuesta (el de CORS, Origin).
+     *
+     * @param Response $response
+     * @param string[] $values
+     * @return Response
+     */
+    private static function withVary(Response $response, array $values): Response
+    {
+        foreach ($values as $value) {
+            $response = $response->withAddedHeader('Vary', $value);
+        }
+        return $response;
+    }
+
+    /**
+     * Sirve el archivo en streaming, sin cargarlo en memoria, con Range de un solo tramo.
+     * Un If-Range con otro ETag da el archivo entero.
+     *
+     * @param Response $response
+     * @param Request $request
+     * @param string $filePath
+     * @param string $eTag
+     * @return Response
+     */
+    private static function streamFile(Response $response, Request $request, string $filePath, string $eTag): Response
+    {
+        $size = filesize($filePath);
+        $resource = @fopen($filePath, 'rb');
+        if ($resource === false || $size === false) {
+            return $response->withStatus(500)->write('<h1>500 Error interno del servidor.</h1>');
+        }
+        $stream = (new StreamFactory())->createStreamFromResource($resource);
+        $response = $response->withHeader('Accept-Ranges', 'bytes');
+        $ifRange = $request->getHeaderLine('If-Range');
+        $range = $ifRange === '' || $ifRange === $eTag ? self::resolveRange($request->getHeaderLine('Range'), $size) : null;
+        if ($range === false) {
+            $stream->close();
+            return $response->withHeader('Content-Range', "bytes */{$size}")->withStatus(416);
+        }
+        if ($range === null) {
+            return $response->withHeader('Content-Length', (string) $size)->withBody($stream)->withStatus(200);
+        }
+        [$start, $end] = $range;
+        $length = $end - $start + 1;
+        //LimitStream: el emisor de Slim rebobina el cuerpo antes de enviarlo, y así rebobina al inicio del tramo.
+        return $response
+            ->withHeader('Content-Range', "bytes {$start}-{$end}/{$size}")
+            ->withHeader('Content-Length', (string) $length)
+            ->withBody(new LimitStream($stream, $length, $start))
+            ->withStatus(206);
+    }
+
+    /**
+     * El tipo al que se convierte según la extensión y el Accept de la petición, o null.
+     *
+     * @param string $extension
+     * @param Request $request
+     * @return string|null
+     */
+    private static function conversionTarget(string $extension, Request $request): ?string
+    {
+        if (!self::allowConvertion($extension)) {
+            return null;
+        }
+        $dataType = self::getDataTypeByExtension($extension);
+        $convertTo = $dataType['convertTo'] ?? null;
+        return is_string($convertTo) && self::typeIsAllowed($convertTo, $request) ? $convertTo : null;
+    }
+
+    /**
+     * El algoritmo de compresión según la extensión y el Accept-Encoding de la petición, o null.
+     *
+     * @param string $extension
+     * @param Request $request
+     * @return string|null
+     */
+    private static function compressionAlgorithmFor(string $extension, Request $request): ?string
+    {
+        if (!self::allowCompression($extension)) {
+            return null;
+        }
+        $acceptEncoding = $request->getHeaderLine('Accept-Encoding');
+        return $acceptEncoding !== '' ? self::selectCompressionAlgorithm($acceptEncoding) : null;
+    }
+
+    /**
+     * La conversión a WebP, guardada en disco por ruta real, fecha y tamaño. Si no se puede guardar, se sirve
+     * la de memoria, como antes, con una línea en el log.
+     *
+     * @param string $path Ruta del archivo
+     * @param string $codeType Tipo de código de imagen
+     * @return string|null Datos convertidos o null si falla
+     */
+    private static function convertImageToWebPCached(string $path, string $codeType): ?string
+    {
+        $realPath = realpath($path);
+        $key = sha1(($realPath !== false ? $realPath : $path) . '|' . filemtime($path) . '|' . filesize($path));
+        $directory = basepath(self::WEBP_CACHE_DIRECTORY);
+        $cached = append_to_path_system($directory, "{$key}.webp");
+        if (is_file($cached)) {
+            $data = file_get_contents($cached);
+            if (is_string($data) && $data !== '') {
+                return $data;
+            }
+        }
+        $data = self::convertImageToWebP($path, $codeType);
+        if (!is_string($data) || $data === '') {
+            return null;
+        }
+        if (!self::writeAtomically($directory, $cached, $data)) {
+            log_exception(new \RuntimeException("statics: no se pudo guardar la conversión a WebP en {$cached}; se sirve la de memoria."));
+        }
+        return $data;
+    }
+
+    /**
+     * Escribe con un temporal y rename(): quien lee ve el archivo entero o ninguno.
+     *
+     * @param string $directory
+     * @param string $target
+     * @param string $data
+     * @return bool
+     */
+    private static function writeAtomically(string $directory, string $target, string $data): bool
+    {
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            return false;
+        }
+        $temporary = $target . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        if (file_put_contents($temporary, $data) === false) {
+            return false;
+        }
+        if (!rename($temporary, $target)) {
+            //RETORNO-IGNORADO: el temporal que no se pudo renombrar se retira si se puede; el fallo ya lo dice el rename.
+            @unlink($temporary);
+            return false;
+        }
+        return true;
     }
 
     /**
