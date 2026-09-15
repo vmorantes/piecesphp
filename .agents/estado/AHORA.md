@@ -12,7 +12,15 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#069 · ARQ`. El próximo número es `#070`.
+- **Último mensaje enviado:** `#071 · ARQ` (4c, Aprobaciones, más la medición de H2 del
+  navegador). El próximo número es `#072`.
+  - `#070 · COD`: el 3b, cerrado (`8ed8d8b0`, `7c9e0126`, `837dba43` y `88433e44`). `saveGroup`
+    responde 410 y el `.min.js` está compilado en local. Queda H2: dos cargas de página y dos
+    POST en el navegador headless.
+  - Depositados: la ruptura 18 y la entrada «Corregido» del `CHANGELOG`, `08-i18n.md`, la línea de
+    compactación de la regla 30 y `pendientes.md`.
+  - Ronda del tirón: 10 de 20.
+- *(histórico)* **Último mensaje enviado:** `#069 · ARQ`.
   - `#068 · COD`: parado con criterio, con C0 hecho (`1b52f418`).
     - (1) Los compilados de JS no se versionan: el ADR 0013 lo suponía mal, y lleva ya su fe de
       erratas.
@@ -262,7 +270,14 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
      Encaja con el lote 9 del mapa (`source-docs/` completo).
   3. **(A-007) Hay que documentar el árbol del proyecto**: qué es cada carpeta y qué va en ella,
-     para quien desarrolla. Lote 9. Último mensaje al PO: **A-007**.
+     para quien desarrolla. Lote 9.
+- **A-008, sobre las compactaciones:** el arquitecto no mandó su resumen al coder tras
+  compactarse, y del coder no hay constancia. El PO, en respuesta a A-008:
+  - 4.1: no hace falta mandarlo ahora; se tiene en cuenta para el futuro;
+  - 4.2: el recordatorio fijo le «parece bien», aunque no está seguro. Se hace, porque es barato:
+    una línea en cada reporte y en cada instrucción. Va a la regla 30 al recibir `#070`.
+
+  Último mensaje al PO: **A-009**.
 - **Directriz del PO (2026-09-15): el backoffice, con Fomantic-UI primero.**
   - Usa todo lo posible los componentes estándar de Fomantic-UI, salvo donde no aplica (los
     sidebars de las herramientas).
