@@ -45,10 +45,14 @@ Configuración en `src/app/config/database.php` (multi-grupo, grupo `default`).
 | `newsletter_sucribers` | Newsletter *(sic — el nombre tiene la errata en el esquema)* |
 | `forms_categories`, `forms_document_types` | Forms |
 
-### Organizaciones y experiencia
+### Organizaciones
 
-`organizations_elements`, `organization_previous_experiences`,
-`previous_experiences`.
+`organizations_elements`.
+
+> Hasta el lote 6 (E3), el esquema versionado creaba además
+> `organization_previous_experiences` y `previous_experiences`, del módulo `experience`, que se
+> borró hace tiempo. **Ya no las crea.** Ningún mapper las declaraba. En una instalación que las
+> tenga, siguen ahí: no hay migración que las borre.
 
 ### Ubicaciones
 

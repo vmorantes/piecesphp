@@ -512,6 +512,21 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 
 ---
 
+## Eliminado — los restos del módulo de experiencias (E3)
+
+El módulo `experience` se borró hace tiempo, pero quedaban piezas sin sujeto. Se retiran:
+- el JavaScript que montaba un formulario que ya no existe, en los dos perfiles de MySpace
+  (`experienceForm()` y su escucha `wasDeletedPreviousExperience`);
+- sus estilos, en los cuatro SCSS de MySpace;
+- las dos tablas que `databases/piecesphp_structure.sql` todavía creaba
+  (`organization_previous_experiences` y `previous_experiences`), sin mapper que las usara;
+- una exclusión de Rector que apuntaba a dos vistas inexistentes.
+
+**Si tu instalación tiene esas dos tablas, siguen ahí:** no hay migración que las borre, porque
+pueden contener datos tuyos. El archivo de estructura ya no las crea en una instalación nueva.
+**Recompila los estilos** (`gulp`) para que el CSS deje de llevar las reglas muertas; mientras
+tanto son inofensivas.
+
 ## ⚠ Corregido — el nombre de usuario entraba tal cual en el SQL del OTP y del login
 
 `OTPHandler::getUserDataByUsername()` construía su filtro pegando el nombre recibido:

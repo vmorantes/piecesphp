@@ -853,6 +853,57 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#087`/`#088`, 2026-09-15: E3 cerrado; H-L parado con la causa medida.**
+  - **E3, commiteado:** `16bd8a39` (el JS sin sujeto), `bd8ddfa7` (los SCSS), `27a6b8b4` (las dos
+    tablas del esquema versionado) y `ea6e514d` (el skip de Rector).
+    - 8 archivos, así que la regla de los diez no se activó.
+    - Las dos tablas NO existen en la base local: no hubo DROP.
+    - Navegador simulado antes y después en los dos perfiles: HTML idéntico una vez enmascarados
+      los identificadores que se generan en cada carga, y los mismos 2 errores ajenos (Mapbox).
+    - Documentado en el `CHANGELOG` («Eliminado — los restos del módulo de experiencias») y en
+      `11-base-de-datos.md`.
+  - **⚠⚠ H-R, PUNTO SERIO, verificado y DEMOSTRADO por el arquitecto. Espera al PO.**
+    - `EntityMapper::castPHPToSQLTypes()` (paquete `piecesphp/database`,
+      `src/Core/Database/EntityMapper.php:1678-1690`) aplica a todo campo de texto (`varchar`,
+      `text`, `mediumtext`, `longtext`), al ESCRIBIR:
+      `$value = stripslashes($value); return addslashes($value);`
+      y al LEER (`:1780`, con `$revert`), solo `stripslashes`. Lo mismo en
+      `ORM/Fields/DataProcess.php:134-156`.
+    - **El INSERT y el UPDATE ya ligan valores** (`ActiveRecord::insert():212-221`, con
+      `InsertSegment` y marcadores `:INSERT…`). El escape es DOBLE y sobra.
+    - **Demostrado por el arquitecto** (`php` sobre las mismas dos funciones, en seco):
+
+      | entrada | en disco | al leer |
+      | --- | --- | --- |
+      | `O'Brien` | `O\'Brien` | `O'Brien`, igual |
+      | `C:\ruta\archivo.txt` | `C:rutaarchivo.txt` | **se pierden las barras** |
+      | `patron \d+ y \w` | `patron d+ y w` | **se pierden** |
+
+    - **Dos daños distintos:**
+      1. **Pérdida de datos irreversible:** el `stripslashes` previo borra las barras invertidas
+         legítimas al guardar. Afecta a rutas, expresiones regulares y fragmentos de código
+         dentro de cualquier texto de cualquier mapper;
+      2. **la columna guarda `O\'Brien`**, así que todo lo que lea por fuera del mapper (SQL
+         crudo, exportaciones, listados que seleccionan la columna) ve la barra de más, y toda
+         comparación por valor exacto falla. **H-L es un caso de esto**, no la causa.
+    - **Por qué no se instruye:** es el ORM (núcleo transversal, punto serio de la regla 30) y
+      vive en un paquete hermano, que solo se toca si la instrucción lo nombra. **Lo decide el
+      PO.**
+    - En esta base no quedan filas con el valor escapado (0 de 85 en `login_attempts`).
+  - **H-L queda abierto** hasta que se decida H-R: el límite por usuario del OTP no casa con
+    nombres con comilla. El límite por IP sí actúa.
+  - Hallazgos que van a los residuos:
+    - **H-T:** quedan tres entradas muertas más en el skip de Rector (`:85-87`), y ese skip ya no
+      es idéntico en los cinco repositorios, aunque su comentario dice que lo es;
+    - **H-U:** el CSS compilado de MySpace conserva las reglas muertas hasta que el PO recompile.
+      Hay además un `my-organization-profile copy.css` ignorado por git;
+    - **H-V:** una instalación que tenga las dos tablas las conserva: no hay migración;
+    - **H-W:** los eventos `canDeletePreviousExperience` y su gemelo se quedaron sin emisor y sin
+      oyente;
+    - **H-X, útil para las pruebas:** el navegador simulado necesita la sesión en la CABECERA
+      `JWTAuth`; con la cookie sola, el servidor sirve la página de login.
+  - **Desviación declarada del coder:** repuso las claves `zz-prueba-` (escritura en la base) sin
+    hacer un `db-backup` nuevo en esa ronda, apoyándose en el de `#085`. Lo declara él mismo.
 - **`#085`/`#086`, 2026-09-15: la inyección de `OTPHandler` y el lote 5b, cerrados.**
   - Commits:
     - `fce8ec9c`: `getUserDataByUsername()` por marcador (`WhereSegment` + `WhereItem::isEqual`);
