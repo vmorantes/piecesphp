@@ -1048,7 +1048,6 @@ class NewsController extends AdminPanelController
     {
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = NewsMapper::TABLE;
         $inactive = NewsMapper::INACTIVE;
@@ -1056,16 +1055,12 @@ class NewsController extends AdminPanelController
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
+        //SIN having_string: no había ningún criterio, y el buscador ya va por marcador solo (T3 de #045).
         $selectFields = NewsMapper::fieldsToSelect();
 
         $columnsOrder = [
@@ -1091,7 +1086,6 @@ class NewsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,

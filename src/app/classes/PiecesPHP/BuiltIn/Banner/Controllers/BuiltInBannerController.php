@@ -857,30 +857,19 @@ class BuiltInBannerController extends AdminPanelController
     {
 
         $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $table = BuiltInBannerMapper::TABLE;
         $inactive = BuiltInBannerMapper::INACTIVE;
 
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
-
-        if (false) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "CRITERY = VALUE";
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
+        //SIN having_string: no había ningún criterio (el bloque muerto nunca se ejecutaba), y el
+        //buscador ya va por marcador solo (T3 de #045).
         $selectFields = BuiltInBannerMapper::fieldsToSelect();
 
         $columnsOrder = [
@@ -903,7 +892,6 @@ class BuiltInBannerController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
