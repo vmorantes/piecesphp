@@ -237,7 +237,8 @@ Los **contextos** agrupan eventos por dominio y evitan colisiones de nombres.
 | `PiecesPHP\Core\PDFManager` | PDFs (mPDF) |
 | `PiecesPHP\Core\Mailer` / `MailjetHandler` / `Email\Mailgun` | Correo |
 | `PiecesPHP\Core\Forms\{FileUpload, FileValidator, UploadedFileAdapter}` | Subida y validación de archivos |
-| `PiecesPHP\Core\Helpers\Directories\*` | `DirectoryObject`, `ProtectFileMiddleware`, symlinks y borrado seguro |
+| `PiecesPHP\Core\Helpers\Directories\*` | `DirectoryObject`, symlinks y borrado seguro. `ProtectFileMiddleware` se movió a `PiecesPHP\Core\Statics` (alias en el nombre viejo) |
+| `PiecesPHP\Core\Statics\*` | `ServerStatics`, `ProtectFileMiddleware` y `ProtectedUploads`: la protección de las subidas por el sufijo `.protected` (lote 4b; guía en `source-docs/…/protected-files.md`). Tarea: `bin/cli statics-protect-migrate` |
 | `PiecesPHP\Core\FlashMessages` | Mensajes flash (`set_flash_message()`, `get_flash_messages()`) |
 
 ## Pruebas

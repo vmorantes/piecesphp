@@ -102,9 +102,13 @@ return $server->serve($request, $response, $args, __DIR__ . '/Statics');
 > El CSS de los módulos lo genera **Gulp** (`gulp sass-modules`), con Dart Sass,
 > en tiempo de desarrollo. No hay compilación en servidor.
 
-`ServerStatics::protectFileMiddleware` aplica las restricciones registradas con
-`ProtectFileMiddleware::protect($dir, fn(Request $r, string $path) => bool)` desde
-`config/final-configurations-includes/protected-files.php`.
+Las subidas protegidas se deciden por el NOMBRE en disco (`foto.jpg.protected`; lote 4b). Si
+se pide `foto.jpg` y no existe, `PiecesPHP\Core\Statics\ServerStatics` busca el privado, aplica
+la política de su carpeta y lo sirve con caché privada.
+- Las políticas se registran en `config/final-configurations-includes/protected-files.php` con
+  `ProtectFileMiddleware::protectWithSession($dir)` o `protect($dir, $validador)`.
+- Solo se comprime el texto; lo demás va en streaming y admite `Range`.
+- Guía: `source-docs/project/docs/piecesphp/new-features/protected-files.md`.
 
 ## Variables CSS
 

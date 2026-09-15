@@ -853,6 +853,40 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#081`/`#082`, 2026-09-15: el 4b-3, parte B, cerrado.**
+  - Commits:
+    - `215d91d7`: `src/.htaccess` solo texto;
+    - `df18e20c`: `protect()` falla cerrado y ya no escribe el `.htaccess`;
+    - `0bcd07f4`: las subidas nacen protegidas;
+    - `fdde5571`: Publications, por visibilidad;
+    - `254cd961`: el cron de fechas;
+    - `a624e929`: `statics-protect-migrate`;
+    - `d7b89b91`: elFinder bloquea `.protected`;
+    - `f89c91cd`: las pruebas (34/34, provocada la guarda del orden).
+  - **Migración real en local:** copia de 229 MB con sha256; simulacro, ida, vuelta e ida otra
+    vez. Quedan 1.655 archivos con sufijo, 0 servibles entre pasos y el contenido intacto. La
+    copia sigue en `/tmp/4b3-uploads-antes.tgz` y se borra al cerrar el tirón.
+  - Documentado en la guía para desarrolladores (`source-docs/…/protected-files.md`, reescrita),
+    en la ruptura 22 del `CHANGELOG` y en `10-cli-y-tareas.md`.
+  - **⚠ H-B, pérdida de funcionalidad, anterior al lote:** al reemplazar la imagen de una
+    publicación (`PublicationsController.php:744`), la nueva va a la RAÍZ de `publications/`,
+    porque `handlerUpload` recibe la carpeta vacía.
+    - Desde el lote 3 (validador sin carpeta) esas imágenes ya daban 403 sin sesión, aunque la
+      publicación fuera pública.
+    - **Decisión:** se arregla al principio de la ronda 16. La subida va a la carpeta de la
+      publicación, y la sincronización cubre también los archivos que la publicación referencia
+      fuera de su carpeta (datos existentes), sin cambiar URLs.
+  - **H-C:** entre `moveTo()` y el `rename()` a `.protected`, el archivo existe milisegundos con su
+    nombre público. **Decisión:** `moveTo()` directo al nombre privado. Va en la ronda 16.
+  - Hallazgos que van a los residuos:
+    - **H-A:** `--revert` deja público lo que ya nació privado. Documentado. Mejora posible: un
+      registro de lo que renombró `--run`;
+    - **H-D:** el alta llama a `SystemApprovalManager::init()`, que inserta todas las
+      aprobaciones que falten y autoaprueba las de root y admin. El efecto es más ancho que la
+      publicación creada;
+    - **H-E:** volver a PENDING también quita la visibilidad. Es correcto.
+  - **El coder volvió a compactarse sin mandar su resumen antes de seguir** (desviación 6).
+    Lo declara la línea de compactación y lo manda en el reporte.
 - **`#079`/`#080`, 2026-09-15: el 4b-3, partes A0 y A.**
   - Commits:
     - `18f86d32`: solo se comprime el texto;

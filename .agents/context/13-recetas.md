@@ -305,18 +305,24 @@ rompen nada.
 ## Receta 8 — Proteger archivos estáticos
 
 En `final-configurations-includes/protected-files.php`
-(clase: `PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware`):
+(clase: `PiecesPHP\Core\Statics\ProtectFileMiddleware`; el nombre viejo, en
+`Helpers\Directories`, es un alias). La protección la da el NOMBRE en disco: un privado se
+guarda como `foto.jpg.protected` y su URL no cambia (lote 4b; guía completa en
+`source-docs/project/docs/piecesphp/new-features/protected-files.md`).
 
 ```php
-use PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware;
-use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 
-ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, 'ruta/al/directorio'),
-    function (Request $request, string $filePath) {
-        return SessionToken::isActiveSession(SessionToken::getJWTReceived());
-    }
-);
+// Solo con sesión:
+ProtectFileMiddleware::protectWithSession(append_to_path_system($uploadsDir, 'ruta/al/directorio'));
+
+// Con un validador propio (falla cerrado si no se da ninguno):
+ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, 'otra/ruta'), [MiController::class, 'miValidador']);
 ```
+
+Y el módulo guarda sus subidas privadas con `ProtectedUploads::privatePath()`, y las mixtas
+según la visibilidad de su registro (`ProtectedUploads::setFolderVisibility()`, como
+Publications).
 
 ## Receta 9 — Reglas de autorización propias con `_allowedRoute()`
 

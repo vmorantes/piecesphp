@@ -297,11 +297,24 @@ O:
 Estas extensiones deben ser manejadas por Apache para que el `.htaccess` o el framework (**ServerStatics**) puedan protegerlas:
 `json, xml, txt, gz, zip, rar, 7z, tar, tgz, sql, log, doc, docx, xls, xlsx, pdf`
 
-### Interacción con ServerStatics.php
+### Archivos subidos protegidos (PiecesPHP 8)
 
-La clase `ServerStatics.php` de PiecesPHP tiene su propio sistema de delegación. Si desea seguridad máxima para archivos específicos (por ejemplo, PDFs protegidos por login):
-1. Asegúrese de que la extensión **NO** esté en la lista de Nginx del panel.
-2. La clase detectará si el archivo está en una ruta protegida y lo servirá vía PHP mediante el `ProtectFileMiddleware`, ignorando la delegación web.
+Las subidas privadas **ya no dependen de esta lista**. PiecesPHP las guarda en disco con el
+sufijo `.protected` al final (`documento.pdf.protected`), una extensión que Nginx no reconoce:
+- `…/documento.pdf` no existe con ese nombre, así que Nginx lo pasa a Apache, y PiecesPHP lo sirve
+  tras validar;
+- `…/documento.pdf.protected` lo niega el `.htaccess` de `statics/uploads`.
+
+Lo público lleva su nombre real y Nginx lo sirve directamente, así que puede quedarse en la
+lista sin riesgo.
+
+Tras actualizar una instalación existente, migra las subidas con
+`bin/cli statics-protect-migrate` (primero el simulacro, luego `--run`). La guía completa está en
+«Archivos protegidos», en la documentación del framework.
+
+La recomendación de arriba **sigue valiendo** para lo que no son subidas: `composer.json`, los
+respaldos `.sql.gz`, los logs y demás archivos sensibles que un `.htaccess` protege y Nginx no
+lee.
 
 ---
 

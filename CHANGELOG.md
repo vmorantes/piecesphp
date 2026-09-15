@@ -432,9 +432,24 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   El sufijo se configura en `protected_uploads_suffix` (por defecto `.protected`).
 - **Solo se comprime el texto** (css, js, json, csv, svg, txt, html, xml, map). PDF, imágenes,
   audio, vídeo y fuentes no se comprimen, así que van en streaming y admiten `Range`.
-- **Pendiente en la ronda siguiente, y se documentará aquí:** que las subidas nazcan
-  protegidas, que Publications cambie la protección con su visibilidad, y la migración de lo
-  existente (`bin/cli statics-protect-migrate`).
+- **Las subidas de documentos, organizaciones y categorías de noticias nacen protegidas.**
+  La carpeta de cada publicación se protege o se libera con su visibilidad: al crear, al editar,
+  al aprobar o rechazar, y por fecha, con una tarea del cron.
+- **`protect()` sin validador falla cerrado.** Ya no escribe un `.htaccess` en cada carpeta.
+- **`src/.htaccess` solo comprime texto:** ya no comprime imágenes, PDF, audio, vídeo ni
+  fuentes.
+- **MIGRA tu instalación tras actualizar**, con una copia de `src/statics/uploads` hecha antes:
+
+  ```bash
+  bin/cli statics-protect-migrate            # simulacro
+  bin/cli statics-protect-migrate --run      # primero renombra lo privado, después retira los .htaccess viejos
+  bin/cli statics-protect-migrate --revert   # vuelta atrás, si hiciera falta
+  ```
+
+  **Sin migrar,** los archivos privados existentes siguen con su nombre público, y bajo nginx se
+  sirven a cualquiera, como antes de esta versión. `--revert` deja también con su nombre
+  público lo que ya nació privado antes de migrar.
+- Guía completa: `source-docs/project/docs/piecesphp/new-features/protected-files.md`.
 - **Si sirves con nginx sin Apache detrás,** añade una regla que niegue `\.protected$` y deje
   pasar a PHP lo que no existe.
 
