@@ -12,8 +12,33 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#075 · ARQ` (4b-1, el cron, con el commit previo del andamiaje:
-  AGENTS.md como fuente y las comprobaciones del hook y del espejo). El próximo número es `#076`.
+- **Último mensaje enviado:** `#077 · ARQ` (4b-2: cabeceras privadas, `Vary`, streaming,
+  `Range` y caché de WebP; y la tarea «Ejemplo» del cron, comentada). El próximo número es
+  `#078`.
+  - `#076 · COD`: el andamiaje del ADR 0014 y el cron, cerrados (`dc0b8def` a `0586a1b1`).
+    Suite 39/39, gates 28/0 y phpstan 735. Documentado en `10-cli-y-tareas.md` y en la ruptura
+    21.
+  - **Ronda del tirón, RECONTADA el 2026-09-15:** `#077` es la ronda **13** de 20. Las
+    instrucciones del tirón son `#053`, `#055`, `#057`, `#059`, `#061`, `#063`, `#065`, `#067`,
+    `#069`, `#071`, `#073`, `#075` y `#077`. En `#073`, `#075` y `#077` se apuntó una de más.
+    **Quedan 7 rondas tras `#077`.**
+  - **El PO pide, al terminar el tirón, un GRAN RESUMEN**: en la forma fija de la regla 30, con
+    las secciones numeradas y el identificador `A-NNN`. No se puede olvidar.
+  - *(plan anterior, para 6 rondas; con 7 se añade el 7c, el correo)*
+  - **Plan para las rondas que quedan del tirón (2.9: se para al llegar a 20):**
+    1. `#077`: 4b-2, los archivos servidos por PHP (en vuelo);
+    2. 4b-3: el sufijo `.protected`, `Core/Statics/` y la migración. Mapa del explorador en
+       curso;
+    3. 5: OTP (`recuadro-5-otp.md`);
+    4. 5b: tokens y el aviso de `app_key` (`recuadro-5b-tokens.md`);
+    5. 6: E3 (`recuadro-6-e3.md`);
+    6. 7b: las 19 guardas (`recuadro-7b-guardas.md`).
+    - Quedan para el tirón siguiente: 7c (correo con Mailpit, `recuadro-7c-correo.md`), el
+      lote 7 (avatares y `see-more`, `plan-7-avatares.md`, con el plan enseñado al PO por la
+      regla de los diez), 4b-4 (FileManager) y los residuos.
+    - Si una ronda se para y necesita una correctiva, esa correctiva cuenta, y lo último de la
+      lista pasa al tirón siguiente.
+- *(histórico)* **Último mensaje enviado:** `#075 · ARQ`.
   - `#074 · COD`: el 4c, cerrado (`2fcb1f5b` P25, `17ca919d` y `1132ea87`), más la guarda
     (`b8728777`) y el hook a 100755 (`fcf5acf6`). Suites 60/60 y 33/33. H4: el desplegable de
     tipos es global.
@@ -41,7 +66,14 @@
         después de la MAJOR, con la rutina de instalación.
       - **Pregunta del PO:** ¿puede el repositorio ser privado y publicarse un `.zip` clonable?
         Contestada en A-016, con opciones. Lo decide él.
-    - Último mensaje al PO: **A-016**.
+    - Respuesta del PO a A-016:
+      - §3: que un `.zip` no se pueda actualizar es un problema para otros, no para él, que es
+        hoy el usuario principal;
+      - §4 A le gusta, pero vigilar dos repositorios le parece un fastidio.
+      - Propuesta de A-017: la B por ahora (el privado más un `.zip` por versión, generado por la
+        orden de clonado), y la A cuando haya terceros, automatizada para que no haya que
+        vigilar nada. Después de la MAJOR.
+    - Último mensaje al PO: **A-017**.
 - *(histórico)* **Último mensaje enviado:** `#073 · ARQ`.
   - `#072 · COD`: el tipo 12 entra en Aprobaciones (`cf6803dd` y `cadf95c3`). P25 se paró por
     una contradicción de mi instrucción con `singleView()`. H1: un tipo 12 puede volver a
