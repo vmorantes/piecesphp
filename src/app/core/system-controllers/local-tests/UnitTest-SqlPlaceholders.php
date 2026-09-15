@@ -312,12 +312,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         "copias encontradas: {$copiasPatron}"
     );
 
-    //EN AO EXIGÍA LO CONTRARIO, y la regla dejó de aplicar sola. Ver T162.
+    //Desde #049 exige que NO esté: el HAVING va por segmento y ya no concatena. En AO exigía lo contrario (T162).
     $declaradas = (string) @file_get_contents($raizSrc . '/../files/dev/sql-concat-declared.json');
     $aprobaciones = (string) @file_get_contents($raizSrc . '/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php');
     $check(
-        $declaradas !== '' && mb_strpos($declaradas, 'SystemApprovalsController.php::dataTables') !== false,
-        'SystemApprovalsController::dataTables está declarado, con su `elapsedDays` validado'
+        $declaradas !== '' && mb_strpos($declaradas, 'SystemApprovalsController.php::dataTables') === false,
+        'SystemApprovalsController::dataTables ya NO está declarado: su HAVING va por segmento desde #049'
     );
     $check(
         $aprobaciones !== '' && mb_strpos($aprobaciones, "'where_segment' => \$whereSegment") !== false,
