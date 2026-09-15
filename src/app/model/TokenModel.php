@@ -7,6 +7,7 @@ namespace App\Model;
 use App\Controller\TokenController;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\Config;
 
 /**
  * TokenModel.
@@ -20,8 +21,6 @@ use PiecesPHP\Core\BaseToken;
 class TokenModel extends BaseModel
 {
 
-    const KEY_BASE_JWT = 'IVNTMTYTEOGRAFBPPTHGEAWIIEMGNMEOMHKI';
-
     /** @ignore */
     protected $table = 'pcsphp_tokens';
 
@@ -29,6 +28,16 @@ class TokenModel extends BaseModel
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * La clave de los JWT del modelo: derivada de app_key para este uso, sin literales.
+     * @param string|null $appKey Null: la de la app
+     * @return string
+     */
+    public static function baseJWTKey(?string $appKey = null)
+    {
+        return Config::app_key_derived('token-model-base-jwt', $appKey);
     }
 
     /**
@@ -139,8 +148,8 @@ class TokenModel extends BaseModel
         $tokenRecord = self::getRecord($token);
         if ($tokenRecord !== null) {
             $jwt = $tokenRecord->token;
-            $tokenData = BaseToken::getData($jwt, self::KEY_BASE_JWT, null, true);
-            $tokenExpired = BaseToken::isExpire($jwt, self::KEY_BASE_JWT, null);
+            $tokenData = BaseToken::getData($jwt, self::baseJWTKey(), null, true);
+            $tokenExpired = BaseToken::isExpire($jwt, self::baseJWTKey(), null);
             return !$tokenExpired ? $tokenData : null;
         }
         return null;
@@ -155,7 +164,7 @@ class TokenModel extends BaseModel
         $tokenRecord = self::getRecord($token);
         if ($tokenRecord !== null) {
             $jwt = $tokenRecord->token;
-            $tokenExpired = BaseToken::isExpire($jwt, self::KEY_BASE_JWT, null);
+            $tokenExpired = BaseToken::isExpire($jwt, self::baseJWTKey(), null);
             return $tokenExpired;
         }
         return false;
@@ -171,8 +180,8 @@ class TokenModel extends BaseModel
         $tokenRecord = self::getRecord($token);
         if ($tokenRecord !== null) {
             $jwt = $tokenRecord->token;
-            $tokenData = BaseToken::getData($jwt, self::KEY_BASE_JWT, null, true);
-            $tokenExpired = BaseToken::isExpire($jwt, self::KEY_BASE_JWT, null);
+            $tokenData = BaseToken::getData($jwt, self::baseJWTKey(), null, true);
+            $tokenExpired = BaseToken::isExpire($jwt, self::baseJWTKey(), null);
             $tokenCode = property_exists($tokenData, 'code') ? $tokenData->code : uniqid();
             return $tokenCode == $code && !$tokenExpired;
         }
@@ -210,7 +219,7 @@ class TokenModel extends BaseModel
     {
         $time = time();
         $duration = $duration * 60 + $time;
-        $token = BaseToken::setToken($data, self::KEY_BASE_JWT, $time, $duration);
+        $token = BaseToken::setToken($data, self::baseJWTKey(), $time, $duration);
         return $token;
     }
 
