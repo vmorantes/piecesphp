@@ -9,7 +9,24 @@
   - las mejoras de rendimiento y seguridad son bienvenidas.
   Queda en el **ADR 0010** y en la regla 40 §2. En vuelo: **`#045`**, el buscador de
   `process()` con la opción B, probado de punta a punta.
-- **Último mensaje enviado:** `#045 · ARQ`. El próximo número es `#046`.
+- **Último mensaje enviado:** `#047 · ARQ`, SystemApprovals, fase 1: la propuesta de traducción
+  a marcador de las cinco reglas y los datos de prueba con la foto de antes, sin tocar código de
+  producción. El próximo número es `#048`.
+- **`#046 · COD`** (recibido a las 11:40, medido con `date`):
+  - **Completado:** el buscador de `process()` por marcador en 18 de 21 listados, con la misma
+    respuesta en las búsquedas normales. El arquitecto lo verificó por su cuenta: 105
+    comparaciones sin diferencias.
+  - **Queda:** el filtro de SystemApprovals, que son reglas de acceso y se hablan con el PO.
+  - El coder espera instrucción.
+- **Respuestas del PO (11:47, medido con `date`):**
+  1. **SystemApprovals: aceptado.** Confía en que no se perderá funcionalidad. Va en `#047`
+     como una propuesta que el arquitecto revisa antes de aplicarla.
+  2. **P28:** el PO entiende que las traducciones son estáticas, y dinámicas en
+     `configurations.js`. El arquitecto verificó que esa función de `configurations.js` (línea
+     1501) es la que llama a la ruta de guardado. Se le explica con contexto.
+  3. **La poda:** la decide el arquitecto. Irá al cierre de este tramo, con el curador.
+  4. **Queja del PO:** los resúmenes al detenerse no seguían la forma acordada. Queda en la
+     regla 30, en «Tramos y rondas».
 - **`#044 · COD`** (11:04):
   - T1 de `#042`, commiteada (`b52172f8`, `dd07e06e`).
   - T2 solo llegó a medir, con una sonda temporal que se borró: `generateHaving()` y
@@ -58,10 +75,12 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 1. **⚠ P28 — quién puede editar las traducciones.**
    - Hoy puede cualquier usuario con sesión, de cualquier rol (`APIController.php:1611`).
    - Lo que guarda se imprime sin escapar, así que es un XSS almacenado.
-   - *Predeterminado, corregido tras la observación del PO*: solo administración (root y
-     admin), con una lista blanca de grupos y de idiomas. El HTML se sigue permitiendo, porque
-     `__()` lo genera a propósito: 15 valores de los archivos de idioma y los `.html` de
-     `lang/files/`.
+   - **El predeterminado anterior («solo administración») queda DESCARTADO.** La ruta la usa
+     la traducción automática de `configurations.js`: el navegador de cualquier usuario guarda
+     lo que traduce la IA. Restringirla rompería esa función.
+   - *Predeterminado nuevo, que se habla con el PO*: el servidor deja de aceptar el texto del
+     navegador. Solo acepta claves que existen, en idiomas y grupos reales, o, mejor, traduce
+     él mismo. El HTML se conserva.
    - Es el lote 3b del mapa y espera la respuesta.
 2. **El plan de `process()`: se conversa con el PO antes de instruirlo** (regla 30, núcleo
    transversal). Hay dos propuestas: la del coder (migrar llamador a llamador, 18 archivos en
