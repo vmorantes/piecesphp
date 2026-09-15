@@ -52,31 +52,32 @@ def forma_en_disco(ruta):
 
 def eol_declarado(ruta):
     """Lo que `.gitattributes` dice para esta ruta. Vale para archivos SIN versionar."""
-    salida = subprocess.run(['git', 'check-attr', 'eol', '--', ruta], capture_output=True, text=True)
+    #Con -z la salida es ruta\0eol\0valor\0: la ruta no llega citada aunque no sea ASCII.
+    salida = subprocess.run(['git', 'check-attr', '-z', 'eol', '--', ruta], capture_output=True, text=True)
     if salida.returncode != 0:
         return None
-    valor = salida.stdout.strip().rsplit(': ', 1)[-1]
+    partes = salida.stdout.split('\0')
+    valor = partes[2] if len(partes) >= 3 else ''
     return valor if valor in FORMAS else None
 
 
 def candidatos(rutas):
-    orden = ['git', 'ls-files', '--eol', '--'] + rutas
+    #SIEMPRE con -z: sin él, git cita las rutas no ASCII («\303\263») y open() no las encuentra.
+    orden = ['git', 'ls-files', '-z', '--eol', '--'] + rutas
     salida = subprocess.run(orden, capture_output=True, text=True)
     if salida.returncode != 0:
         print('ERROR: `git ls-files` falló. ¿Es esto un repositorio?', file=sys.stderr)
         sys.exit(2)
+    registros = []
+    for registro in salida.stdout.split('\0'):
+        #Cada registro es «campos\truta»; se parte por el PRIMER tabulador, que la ruta puede llevar otros.
+        campos, separador, ruta = registro.partition('\t')
+        if separador:
+            registros.append((campos.split(), ruta))
     fuera = []
     vistos = 0
-    conocidos = set()
-    for linea in salida.stdout.splitlines():
-        partes = linea.split('\t')
-        if len(partes) == 2:
-            conocidos.add(partes[1])
-    for linea in salida.stdout.splitlines():
-        partes = linea.split('\t')
-        if len(partes) != 2:
-            continue
-        campos, ruta = partes[0].split(), partes[1]
+    conocidos = {ruta for _, ruta in registros}
+    for campos, ruta in registros:
         arbol = next((c[2:] for c in campos if c.startswith('w/')), None)
         declarado = next((c.split('=')[1] for c in campos if c.startswith('eol=')), None)
         # `none` = sin un solo salto de línea. `-text` = binario. Ninguno se toca.
@@ -97,10 +98,10 @@ def candidatos(rutas):
     # Los NO versionados: los explícitos, y los que cuelguen de un directorio pedido.
     # `--exclude-standard` respeta `.gitignore`, así que no entran los generados.
     sueltos = list(rutas)
-    otros = subprocess.run(['git', 'ls-files', '--others', '--exclude-standard', '--'] + rutas,
+    otros = subprocess.run(['git', 'ls-files', '-z', '--others', '--exclude-standard', '--'] + rutas,
                            capture_output=True, text=True)
     if otros.returncode == 0:
-        sueltos.extend(otros.stdout.splitlines())
+        sueltos.extend(r for r in otros.stdout.split('\0') if r)
 
     for ruta in sueltos:
         if not os.path.isfile(ruta) or ruta in conocidos:
