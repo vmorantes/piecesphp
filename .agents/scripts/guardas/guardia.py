@@ -35,6 +35,17 @@ HERMANOS = tuple(os.path.join(os.path.dirname(RAIZ), p) + os.sep for p in PAQUET
 # Claude Code y en los repositorios hermanos.
 ESCRIBIBLES_EXTRA = ("/tmp/", os.path.join(HOME, ".claude", "projects") + os.sep) + HERMANOS
 
+# Dentro de estas zonas se borra; la zona ENTERA, no. Sin esto, `rm -rf /tmp` o
+# `rm -rf <raíz del repositorio>` pasaban, porque la raíz también es escribible
+# (aviso de la plantilla andamiaje-arquitecto-coder, verificado aquí el 2026-09-15).
+RAICES_PROTEGIDAS = tuple(
+    os.path.realpath(p) for p in (RAIZ, "/tmp", os.path.join(HOME, ".claude", "projects"), HOME)
+) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS)
+
+# Las claves del producto no las lee un agente, tampoco desde Bash (40-salvaguardas.md §7):
+# settings.json solo niega la herramienta Read.
+SECRETOS = (os.path.join(RAIZ, "secure-keys"),)
+
 PROHIBIDOS = {
     # Escalada de privilegios.
     "sudo", "su", "pkexec", "doas",
@@ -80,6 +91,23 @@ def dentro_de(ruta, base):
 def ruta_escribible(ruta):
     absoluta = os.path.realpath(os.path.expanduser(ruta))
     return dentro_de(absoluta, RAIZ) or any((absoluta + os.sep).startswith(p) for p in ESCRIBIBLES_EXTRA)
+
+
+def _toca_secretos(arg, base):
+    """True si el argumento, o lo que va tras un `=`, apunta dentro de SECRETOS desde `base`."""
+    candidatos = []
+    if "=" in arg:
+        candidatos.append(arg.split("=", 1)[1])
+    if not arg.startswith("-"):
+        candidatos.append(arg)
+    for c in candidatos:
+        if not c:
+            continue
+        absoluta = os.path.normpath(os.path.join(base, os.path.expanduser(c)))
+        for ruta in (absoluta, os.path.realpath(absoluta)):
+            if any(ruta == s or ruta.startswith(s + os.sep) for s in SECRETOS):
+                return True
+    return False
 
 
 SEPARADORES = {";", "&&", "||", "|", "&", "|&", ";;", "(", ")"}
@@ -258,6 +286,13 @@ def revisar_rm(args):
             bloquear(f"rm sobre {o!r}: prohibido.")
         if o.startswith("$"):
             bloquear(f"rm sobre una ruta en variable ({o!r}): no se puede comprobar, prohibido.")
+        if os.path.isabs(o):
+            r = os.path.realpath(o)
+            if r in RAICES_PROTEGIDAS or (os.path.realpath(RAIZ) + os.sep).startswith(r + os.sep):
+                bloquear(
+                    f"rm sobre la raíz de una zona escribible o sobre un directorio que contiene "
+                    f"el proyecto ({o!r}): prohibido."
+                )
         if os.path.isabs(o) and not ruta_escribible(o):
             bloquear(f"rm fuera del repositorio y de /tmp ({o!r}): prohibido.")
         if o == ".git" or o.startswith(".git/"):
@@ -283,6 +318,8 @@ def revisar_bash(comando):
     if re.search(r"\$\(\s*(sudo|su|ssh|scp|sftp|sshpass|rsync|mysql|mariadb|psql|gh)\b", comando):
         bloquear("sustitución de comandos con un comando prohibido.")
 
+    # Directorio desde el que se resuelven las rutas relativas; los `cd` de la misma orden lo mueven.
+    base = os.getcwd() if dentro_de(os.path.realpath(os.getcwd()), RAIZ) else RAIZ
     for seg in segmentos(comando):
         partes = tokens(seg)
         if not partes:
@@ -296,6 +333,10 @@ def revisar_bash(comando):
                     cmd, args = "composer", args[k + 1:]
                     break
 
+        if cmd == "cd":
+            base = os.path.normpath(os.path.join(base, os.path.expanduser(args[0]))) if args else HOME
+        if cmd not in ("echo", "printf") and any(_toca_secretos(a, base) for a in [partes[0]] + args):
+            bloquear("secure-keys/ guarda claves del producto: un agente no la lee ni la lista (40-salvaguardas.md §7).")
         if cmd in PROHIBIDOS or cmd.startswith("mkfs"):
             bloquear(f"'{cmd}' está prohibido para agentes (40-salvaguardas.md). Pídeselo al PO.")
         if cmd == "rsync" and any(re.match(r"^[^/\s]+:", a) for a in args):
