@@ -47,6 +47,10 @@ autoriza: la regla es esta, la guarda es una red.
 - Nada de `sudo`, `su`, `pkexec`, gestores de paquetes, `systemctl`, `crontab`, `chown`.
 - **Nunca ejecutar** `permissions-and-property.sh` (cambia propietarios y permisos) ni builds
   (`gulp`, `bin/package-css`) sin orden explícita.
+  - **Excepción del ADR 0013** (PO, 2026-09-15): las tareas de `src/gulpfile.js` que nombre la
+    instrucción se ejecutan sin pedir permiso por ronda.
+  - Antes se enumeran las fuentes que arrastra el compilado.
+  - Si faltan `node_modules`, se para: instalarlos sigue siendo del PO.
 - Dependencias (`composer install|update|require`, `npm install`, `pip install`): el PO, con
   la propuesta y sus alternativas delante. **Única excepción (ADR 0007)**: `composer update` de
   las herramientas de análisis (`phpstan/phpstan`, `phpstan/phpstan-deprecation-rules`,

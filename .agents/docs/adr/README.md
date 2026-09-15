@@ -62,3 +62,4 @@ procedencia.
 | [0010](0010-pruebas-contra-la-aplicacion-local.md) | Pruebas contra la aplicación local: navegador simulado y escrituras en la base de prueba | sí | Aceptada |
 | [0011](0011-correo-real-a-mailinator.md) | Correo real de prueba, solo a buzones públicos de Mailinator | sí | Aceptada |
 | [0012](0012-lf-en-los-cinco-repositorios.md) | Finales de línea LF en los cinco repositorios | sí | Aceptada |
+| [0013](0013-gulp-sin-permiso-por-ronda.md) | Excepción: el coder compila con gulp cuando la instrucción lo dice | sí | Aceptada |

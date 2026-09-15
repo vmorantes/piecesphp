@@ -853,6 +853,29 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#063`-`#066`, 2026-09-15: lote 3b en el servidor.**
+  - **Cerrado:** `19efdc1a`, `0bd37936`, `a6cbb1aa` y `b6e2f5f8`.
+    - `translateGroup` es solo POST: el servidor traduce, valida con `acceptTranslations()` y
+      guarda sin sobrescribir.
+    - `saveGroup` sigue vivo en transición, pero valida y filtra lo que recibe y no sobrescribe.
+    - La fuente de `configurations.js` ya usa `translateGroup`; el `.min.js` no, hasta compilar.
+    - Suite `UnitTest-DynamicTranslations` 11/11, provocada. PHPStan de 737 a 735.
+    - Topes: 1.400 caracteres por clave y 100 claves por grupo, el doble de lo medido en los 17
+      JSON guardados. Grupo: `^[A-Za-z0-9_\\-]{1,64}$`.
+  - **Decisión del PO (A-003): la compilación con gulp no necesita permiso.** Queda en el
+    ADR 0013 y en `40-salvaguardas.md` §3. El 3b se cierra compilando `jsTask`, con `saveGroup`
+    a 410 y la prueba en navegador.
+  - Hallazgos:
+    - **H1:** la clave de OpenAI en local es un marcador falso, así que la prueba con la IA real
+      no se puede hacer aquí;
+    - **H2:** `add-dynamic-translations.php` solo vuelca la base al JSON si la fecha de la base
+      es MAYOR, al segundo. Dos guardados en el mismo segundo dejan el segundo pendiente.
+      Anterior al lote. Va a los residuos;
+    - **D1:** `src/app/lang/dynamic-translations/current-translations.json` está versionado y la
+      aplicación lo reescribe al volcar. Decisión del arquitecto: se restaura desde HEAD y se
+      declara volátil en `files/dev/volatile-state.json`.
+  - **Pregunta al PO (A-003 §3): `app_key`.** Las opciones son A (falla cerrada fuera de local,
+    `secure-keys` y generador), B (solo aviso) o C (solo documentarlo). El 5b espera.
 - **`#057`/`#058`, 2026-09-15: `/users/all/` sin el hash.**
   - **Cerrado:** `445713f9`. Con root y con un usuario general, 30→0 hashes.
     - **La fuga estaba confirmada por HTTP:** antes, el usuario general
