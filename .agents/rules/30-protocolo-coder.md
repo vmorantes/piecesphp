@@ -106,6 +106,8 @@ la ligereza de mi lenguaje»* (2026-08-24). Su frase textual solo se cita como f
   explícitamente. Si hace falta concretar el alcance, se le pregunta y se espera. Nace el
   2026-09-14: preguntó si se podían leer sus proyectos antiguos, pidiendo concisión, y el
   arquitecto lanzó la lectura de 28 sin preguntar cuáles.
+- **Respuestas en secciones numeradas** (1, 1.1, 2…), para que pueda citarlas en su respuesta
+  («en 2.1…»). Vale para las explicaciones y los resúmenes al PO (2026-09-15).
 - **Una pregunta rápida se contesta corta.** Un comentario suyo de seguimiento no obliga a
   reemitir la instrucción (2026-08-26, 2026-08-27).
 - **Si un bloque cambia lógica del producto, se le explica en términos de lógica** en el resumen

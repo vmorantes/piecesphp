@@ -853,6 +853,31 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#047`/`#048`, 2026-09-15: SystemApprovals, fase 1.**
+  - **La propuesta de traducción a marcador de sus cinco criterios es equivalente en 72 de 72
+    casos**: seis usuarios reales, tres valores de `elapsedDays` y cuatro búsquedas, por una
+    sonda que ejecuta las dos formas.
+  - **Decisiones del arquitecto:**
+    - C1 se agrupa explícitamente, `(A IS NULL OR A = 1) AND …`, conservando el `IS NULL`. Hoy,
+      sin paréntesis, se lee `A IS NULL OR (A = 1 AND todo lo demás)`, pero `A` nunca es NULL
+      por su `IF()`;
+    - C3 compara con `(int) $currentUserType`;
+    - LoginAttempts (`wasLogged = 1`, `wasLogged = 0` y el filtro por organización de
+      `getAttempts()`) también pasa a `having_segment`, para que `generateHaving()` pueda
+      retirarse. Todo va en `#049`, la fase 2.
+  - **Pregunta de producto para el PO, sin prisa:** C3 y C5 (ocultar lo propio a quien no se
+    autoaprueba; limitar a los administradores de organización a su organización) nunca actúan
+    por HTTP. La ruta solo admite los tipos 0, 1 y 3, que lo ven todo. ¿Deberían entrar a esa
+    pantalla los administradores de organización (tipo 12)? **Predeterminado:** se queda como
+    está.
+  - **Datos de prueba:**
+    - usuarios `zz-prueba-*` del 495 al 501;
+    - organizaciones del 1 al 4;
+    - publicaciones del 153 al 156;
+    - aprobaciones del 175 al 189.
+    Copia previa: `src/dumps/15-09-2026_11-55-24-AM.sql.gz`.
+    - `approvalAction` no se usó, porque envía un correo real. Los estados se fijaron por el
+      mapper.
 - **⚠ H1 de `#041`: TRADUCCIONES DINÁMICAS. Control de acceso roto y XSS almacenado.
   CONFIRMADO POR LECTURA, SIN PROVOCAR** (verificado por el coder y por el arquitecto).
   - **Quién puede:** CUALQUIER usuario con sesión, de cualquier rol. La ruta es
@@ -886,7 +911,15 @@ historia de git los conserva.
       - y, mejor todavía, traduce él mismo: el navegador solo pide «traduce el grupo X al idioma
         Y», y el servidor llama a la IA y guarda. Así nadie puede inyectar un texto propio. El
         HTML de las traducciones se conserva, porque viene de la IA sobre el texto original.
-  - **P28 al PO:** ¿quién debe poder editar traducciones?
+  - **✔ P28 RESUELTA por el PO (2026-09-15): opción B.**
+    - El servidor traduce y guarda en una sola petición. El navegador solo pide las claves que
+      faltan de un grupo; el servidor saca los textos originales de sus archivos de idioma,
+      llama a la IA, comprueba que vuelvan esas mismas claves y guarda. `saveGroup` deja de
+      aceptar texto del navegador.
+    - El HTML se conserva, porque la IA traduce el original con sus etiquetas.
+    - Sin límite de uso de la IA por ahora: el PO está centrado en la MAJOR.
+    - Es el lote 3b, con pruebas en el navegador simulado para cada idioma.
+  - **P28 al PO (historia):** ¿quién debe poder editar traducciones?
     - **Corrección del PO (2026-09-15):** `__()` tiene que poder generar HTML. Verificado por el
       arquitecto:
       - 15 valores de los archivos de idioma llevan etiquetas a propósito, como encabezados
