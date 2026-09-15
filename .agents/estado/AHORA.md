@@ -12,7 +12,24 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#065 · ARQ`. El próximo número es `#066`.
+- **Último mensaje enviado:** `#069 · ARQ`. El próximo número es `#070`.
+  - `#068 · COD`: parado con criterio, con C0 hecho (`1b52f418`).
+    - (1) Los compilados de JS no se versionan: el ADR 0013 lo suponía mal, y lleva ya su fe de
+      erratas.
+    - (2) `current-translations.json` se reescribe mientras quede la clave de prueba pendiente
+      en la base.
+  - `#069`:
+    - el 410 de `saveGroup`, en el código;
+    - `gulp js-vendor` en local, sin commitear el compilado, y la prueba en navegador;
+    - fuera de la base la clave `zz-prueba-3b` y el JSON a HEAD;
+    - `6df4e815` entra tal cual (ruptura 8).
+- *(histórico)* **Último mensaje enviado:** `#067 · ARQ`.
+  - `#066 · COD`: `#065` cerrado (`19efdc1a`, `0bd37936`, `a6cbb1aa`, `b6e2f5f8` y
+    `dc6e767b`). La IA real no se probó, porque la clave local es de relleno.
+    `current-translations.json` quedó sucio por la aplicación (D1).
+  - Depositados: el ADR 0013 (gulp), `40-salvaguardas.md` §3 y `pendientes.md`.
+  - Ronda del tirón: 8 de 20.
+- *(histórico)* **Último mensaje enviado:** `#065 · ARQ`.
   - `#064 · COD`: `#063` parado en el PASO 2, con C0 hecho (`7d82e4f7`).
     - El navegador carga `configurations.min.js`, que sale de gulp (`gulpfile.js:88-120`,
       `assets.php:444`); `configurations.js` no se sirve nunca. Compilar necesita la orden del
@@ -232,7 +249,41 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
    - Con la compilación irían el 410 de `saveGroup` y la prueba en navegador.
    - *Predeterminado:* no se compila; el filtro del servidor protege mientras tanto.
    - Lo mismo pasará con E3 si el CSS de MySpace está compilado y versionado.
-0. **⚠ GRAVE — `app_key` con valor de relleno (verificado por el arquitecto, 2026-09-15).**
+- **Respuesta del PO a A-005 (2026-09-15).** Se pasa a `pendientes.md` al recibir `#070`.
+  1. **Fomantic-UI, sí, pero conservando la estética que ya hay.** La referencia es Publications,
+     que usa Fomantic con retoques pequeños: breadcrumbs y una forma fija de poner botones y
+     títulos. Todo pensado para documentarse bien.
+  2. **Las capas de documentación:**
+     - para agentes: existe (`.agents/context/`);
+     - para desarrolladores y mantenedores, que enseñe a extender el framework: NO existe, se hace
+       después;
+     - para desarrolladores e implementadores;
+     - las guías pequeñas asociadas (Hestia, LAMP, etc.): existen, pero hay que revisarlas.
+
+     Encaja con el lote 9 del mapa (`source-docs/` completo).
+  3. **(A-007) Hay que documentar el árbol del proyecto**: qué es cada carpeta y qué va en ella,
+     para quien desarrolla. Lote 9. Último mensaje al PO: **A-007**.
+- **Directriz del PO (2026-09-15): el backoffice, con Fomantic-UI primero.**
+  - Usa todo lo posible los componentes estándar de Fomantic-UI, salvo donde no aplica (los
+    sidebars de las herramientas).
+  - Así se reduce el CSS propio, se pueden documentar los recursos gráficos y se facilita
+    migrar de framework de front.
+  - Registrada en `pendientes.md`. Aplica a toda vista del panel nueva o rehecha: 4c, lote 7 y
+    las vistas de configuración.
+  - Último mensaje al PO: **A-005**.
+- **Respuestas del PO a A-003 (2026-09-15).** Se depositan en `pendientes.md` al recibir `#068`.
+  1. **§2 gulp:** «es un entorno de pruebas y gulp no es destructivo: úsalo como quieras». Es
+     compatible con el ADR 0013, que exige que la instrucción nombre la tarea. Se amplía en su
+     línea de `pendientes`.
+  2. **§2.3:** de acuerdo; se revisa lo que arrastra el compilado.
+  3. **§3 `app_key`:** es cosa de quien haga el clon. **Si no se cambia, opción B**: avisar, sin
+     negarse a arrancar.
+     - **Idea del PO:** una rutina de «instalación» que genere `app_key` y pregunte colores,
+       títulos, propietario, etc., recomendada en la documentación. *Predeterminado:* amplía una
+       capacidad, así que va después de la MAJOR, salvo que diga lo contrario.
+     - **Consecuencia:** el 5b se desbloquea. Deriva de `app_key` las claves de los tokens, y la
+       opción B avisa si `app_key` es el relleno. Último mensaje al PO: **A-004**.
+0. **✔ Decidido (B), ver arriba. ⚠ GRAVE — `app_key` con valor de relleno (verificado por el arquitecto, 2026-09-15).**
    - `config.php:81` la trae con un texto de relleno público. `Config::app_key()`
      (`Config.php:1063-1067`) la devuelve tal cual, y `bootstrap.php:313/316` firma con ella
      las sesiones (`BaseToken`) y el cifrado (`BaseHashEncryption`). Nada la sobrescribe.
