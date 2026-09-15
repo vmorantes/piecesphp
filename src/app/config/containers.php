@@ -261,7 +261,8 @@ $container_configurations = [
             ->withHeader('Access-Control-Allow-Credentials', 'true')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT')
             ->withHeader('Access-Control-Allow-Headers', $allowedHeaders)
-            ->withHeader('Vary', 'Origin');
+            //AÑADE, no sustituye: corre tras la ruta, y ServerStatics ya puede traer su Vary (Cookie, Accept…).
+            ->withAddedHeader('Vary', 'Origin');
         if ($request->getMethod() == 'OPTIONS') {
             $response = $response->withStatus(204);
         }
