@@ -9,7 +9,44 @@
   - las mejoras de rendimiento y seguridad son bienvenidas.
   Queda en el **ADR 0010** y en la regla 40 §2. En vuelo: **`#045`**, el buscador de
   `process()` con la opción B, probado de punta a punta.
-- **Último mensaje enviado:** `#053 · ARQ`. El próximo número es `#054`.
+- **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
+  - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
+    scratchpad y la ronda irá tras `#055`.
+- **Último mensaje enviado:** `#055 · ARQ`. El próximo número es `#056`.
+  - `#054 · COD`: `#053` y `#051` cerrados, con 5 commits y `gates` 26/0 al final.
+    **⚠ GRAVE:** los informes de accesos mandaban al navegador el hash de cada contraseña. Se
+    avisó al PO al móvil.
+  - `#055`: `fieldsToSelect()` deja de seleccionar `password`, y se barren las respuestas JSON
+    en busca de hashes.
+- **Cola del tirón, en orden:**
+  1. `#055`;
+  2. LF (ADR 0012);
+  3. 3b, las traducciones;
+  4. 4c, Aprobaciones;
+  5. 4b, con el cron;
+  6. OTP;
+  7. 5b, los tokens;
+  8. E3;
+  9. los avatares;
+  10. 7b y 7c.
+  Ronda del tirón: 1 de 20, contando desde `#053`.
+- **Borradores listos en el scratchpad del arquitecto**, por si la sesión muere: el ADR 0012
+  (LF), `instruccion-lf.md`, `instruccion-3b.md` (opción B: acción `translateGroup`, solo POST,
+  sin valores del navegador, sin sobrescribir y con validación de las etiquetas) e
+  `instruccion-4c.md` (el tipo 12 en las rutas, `canManage()` en el servidor y P25 en
+  `isVisibleToPublic()`).
+  - Una sesión nueva no puede leerlos: son una ayuda, no la fuente. Las decisiones que llevan
+    están en `pendientes.md` y en el mapa.
+  - El diseño del cron del 4b está en `diseno-4b-cron.md`: franjas, estado en
+    `app/cache/cronjobs/`, reintentos, ventana de recuperación y `flock`.
+  - **⚠ Hallazgo del arquitecto, verificado por lectura:** la ruta HTTP del cron falla
+    abierta.
+    - Sin `secure-keys/cronjob`, `getKeyFromSecureKeys()` devuelve `''`, y una petición sin
+      cabecera la iguala: el cron corre sin clave.
+    - En esta instalación el archivo existe; no se leyó.
+    - Se arregla en el 4b (fallar cerrado y `hash_equals`). Se registra en `pendientes.md` al
+      recibir `#056`.
+- *(histórico)* **Último mensaje enviado:** `#053 · ARQ`.
   - `#052 · COD`: `#051` **bloqueado en el PASO 0**, con criterio. `gates` da 135/136 porque
     `0bff44c4` retiró la entrada de SystemApprovals de `sql-concat-declared.json` después de
     correr las pruebas, y la sección 7 de la suite exige que esté.
