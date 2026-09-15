@@ -308,40 +308,6 @@ CREATE TABLE `organizations_elements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
-DROP TABLE IF EXISTS `organization_previous_experiences`;
-CREATE TABLE `organization_previous_experiences` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `profile` int(11) NOT NULL,
-  `experienceName` text NOT NULL,
-  `experienceType` text NOT NULL,
-  `researchAreas` longtext NOT NULL,
-  `institutionsParticipated` longtext NOT NULL,
-  `country` int(11) NOT NULL,
-  `city` int(11) NOT NULL,
-  `startDate` date NOT NULL,
-  `endDate` date NOT NULL,
-  `description` text NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `status` int(11) NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `profile` (`profile`),
-  KEY `country` (`country`),
-  KEY `city` (`city`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `organization_previous_experiences_ibfk_1` FOREIGN KEY (`profile`) REFERENCES `organizations_elements` (`id`),
-  CONSTRAINT `organization_previous_experiences_ibfk_2` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
-  CONSTRAINT `organization_previous_experiences_ibfk_3` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
-  CONSTRAINT `organization_previous_experiences_ibfk_4` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `organization_previous_experiences_ibfk_5` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-
 DROP TABLE IF EXISTS `pcsphp_app_config`;
 CREATE TABLE `pcsphp_app_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -456,40 +422,6 @@ CREATE TABLE `pcsphp_user_problems` (
   `expired` datetime NOT NULL,
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-
-DROP TABLE IF EXISTS `previous_experiences`;
-CREATE TABLE `previous_experiences` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `profile` int(11) NOT NULL,
-  `experienceName` text NOT NULL,
-  `experienceType` text NOT NULL,
-  `researchAreas` longtext NOT NULL,
-  `institutionsParticipated` longtext NOT NULL,
-  `country` int(11) NOT NULL,
-  `city` int(11) NOT NULL,
-  `startDate` date NOT NULL,
-  `endDate` date NOT NULL,
-  `description` text NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `status` int(11) NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `profile` (`profile`),
-  KEY `country` (`country`),
-  KEY `city` (`city`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `previous_experiences_ibfk_1` FOREIGN KEY (`profile`) REFERENCES `user_system_profile` (`id`),
-  CONSTRAINT `previous_experiences_ibfk_2` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
-  CONSTRAINT `previous_experiences_ibfk_3` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
-  CONSTRAINT `previous_experiences_ibfk_4` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `previous_experiences_ibfk_5` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
