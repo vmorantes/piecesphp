@@ -139,6 +139,10 @@ class SystemApprovalManager
                 } elseif ($mapper->status == SystemApprovalsMapper::STATUS_REJECTED) {
                     $class::onRejected($elementMapper);
                 }
+                //Cualquier cambio, no solo aprobar o rechazar: volver a PENDING también quita la visibilidad.
+                if (method_exists($class, 'onStatusChanged')) {
+                    $class::onStatusChanged($elementMapper, (string) $mapper->status);
+                }
                 break;
             }
         }

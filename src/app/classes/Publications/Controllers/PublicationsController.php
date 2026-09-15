@@ -673,6 +673,11 @@ class PublicationsController extends AdminPanelController
 
                         }
 
+                        //La carpeta nace privada y queda pública solo si la publicación ya se ve sin sesión (una aprobada al
+                        //crearse, por ejemplo). init() crea aquí su fila de aprobación, para que isVisibleToPublic() la vea.
+                        \SystemApprovals\Util\SystemApprovalManager::init();
+                        self::syncUploadsVisibility($mapper);
+
                         if ($toTranslation) {
                             $toLang = $baseLang;
                             $allowedLangs = array_filter(Config::get_allowed_langs(), function ($lang) use ($toLang) {
@@ -811,6 +816,9 @@ class PublicationsController extends AdminPanelController
                         $resultOperation->setSuccessOnSingleOperation($updated);
 
                         if ($updated) {
+
+                            //La carpeta pasa a la visibilidad que le toca tras la edición: estado, fechas y aprobación.
+                            self::syncUploadsVisibility($mapper);
 
                             $resultOperation
                                 ->setMessage($successEditMessage)
@@ -1432,6 +1440,51 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
+     * Pone la carpeta de subidas de la publicación en la visibilidad que le toca: con su nombre real si se ve sin sesión
+     * (la sirve el servidor web directamente) y con el sufijo de lo privado si no (la sirve PHP tras validar).
+     *
+     * @param PublicationMapper $publication
+     * @param bool|null $visible Si ya se sabe (el cambio de una aprobación aún sin guardar); si no, isVisibleToPublic()
+     * @return array{renamed: int, unchanged: int, conflicts: string[], failed: string[]}
+     */
+    public static function syncUploadsVisibility(PublicationMapper $publication, ?bool $visible = null): array
+    {
+        $folder = is_string($publication->folder) ? trim($publication->folder) : '';
+        if ($folder === '' || str_contains($folder, '..') || str_contains($folder, '/') || str_contains($folder, '\\')) {
+            return ['renamed' => 0, 'unchanged' => 0, 'conflicts' => [], 'failed' => []];
+        }
+        $directory = append_to_path_system(append_to_path_system((string) get_config('upload_dir'), self::UPLOAD_DIR), $folder);
+        $report = \PiecesPHP\Core\Statics\ProtectedUploads::setFolderVisibility($directory, $visible ?? $publication->isVisibleToPublic());
+        if ($report['conflicts'] !== [] || $report['failed'] !== []) {
+            log_exception(new \RuntimeException("publications: la carpeta {$folder} no cambió del todo de visibilidad: "
+                . count($report['conflicts']) . ' conflicto(s) y ' . count($report['failed']) . ' fallo(s).'));
+        }
+        return $report;
+    }
+
+    /**
+     * Para el cron: sincroniza las carpetas de todas las publicaciones ACTIVE, que son las que cambian de visibilidad
+     * con la fecha (startDate y endDate). Las demás cambian al editarlas o al resolver su aprobación.
+     *
+     * @return array{publications: int, renamed: int, conflicts: int, failed: int}
+     */
+    public static function syncAllUploadsVisibility(): array
+    {
+        $summary = ['publications' => 0, 'renamed' => 0, 'conflicts' => 0, 'failed' => 0];
+        $model = (new PublicationMapper())->getModel();
+        $model->select('id')->where(['status' => PublicationMapper::ACTIVE])->execute();
+        $rows = $model->result();
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $report = self::syncUploadsVisibility(new PublicationMapper((int) $row->id));
+            $summary['publications']++;
+            $summary['renamed'] += $report['renamed'];
+            $summary['conflicts'] += count($report['conflicts']);
+            $summary['failed'] += count($report['failed']);
+        }
+        return $summary;
+    }
+
+    /**
      * Sin sesión: el archivo se sirve si la carpeta de su primer segmento es de una publicación visible.
      *
      * @param string $filePath Ruta real del archivo pedido
@@ -1798,9 +1851,8 @@ class PublicationsController extends AdminPanelController
                     }
 
                     if (!is_null($currentRoute)) {
-                        //Si ya existe
-                        $oldFile = append_to_url(basepath(), $currentRoute);
-                        $oldFile = file_exists($oldFile) ? $oldFile : null;
+                        //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
+                        [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
 
                         if (mb_strlen(trim($folder)) < 1) {
                             //Si folder está vacío
@@ -1828,6 +1880,13 @@ class PublicationsController extends AdminPanelController
                                 if (basename($oldFile) != $nameCurrent) {
                                     unlink($oldFile);
                                 }
+                            }
+                            //NACE PRIVADO: en disco lleva el sufijo; la ruta que se guarda, no. Tras guardar, syncUploadsVisibility()
+                            //la libera si la publicación se ve sin sesión. Si no se puede proteger, no se deja pública.
+                            if (\PiecesPHP\Core\Statics\ProtectedUploads::setFileVisibility($uploadPath, false) !== \PiecesPHP\Core\Statics\ProtectedUploads::VISIBILITY_RENAMED) {
+                                //RETORNO-IGNORADO: la copia pública que no se pudo proteger se retira si se puede; la subida ya falla.
+                                @unlink($uploadPath);
+                                $relativeURL = '';
                             }
                         }
 

@@ -95,6 +95,21 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
     {}
 
     /**
+     * Con cada cambio de estado de la aprobación, la carpeta de subidas pasa a la visibilidad que le toca. Se calcula con
+     * el estado NUEVO: updateStatus() corre antes de guardar la aprobación, y isVisibleToPublic() aún leería el viejo.
+     *
+     * @param PublicationMapper $element
+     * @param string $status El estado nuevo de la aprobación
+     * @return void
+     */
+    public static function onStatusChanged(PublicationMapper $element, string $status): void
+    {
+        $visible = $status === SystemApprovalsMapper::STATUS_APPROVED && $element->id !== null
+            && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+        \Publications\Controllers\PublicationsController::syncUploadsVisibility($element, $visible);
+    }
+
+    /**
      * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
      * cambio NO es una edición. Ver T87.
      *
