@@ -868,15 +868,15 @@
  ------ --------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Publications/Mappers/PublicationMapper.php                                               
  ------ --------------------------------------------------------------------------------------------------------- 
-  405    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
+  407    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
          🪪  return.type                                                                                          
-  443    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  460    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  455    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  472    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  549    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  566    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
-  577    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  594    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
  ------ --------------------------------------------------------------------------------------------------------- 
 
@@ -920,15 +920,15 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php                                                               
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  136    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
+  140    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
          🪪  staticMethod.nonObject                                                                                                              
-  366    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  371    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  366    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
+  371    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
          🪪  argument.type                                                                                                                       
-  373    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
+  378    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
          🪪  assign.propertyType                                                                                                                 
-  559    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
+  564    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
          🪪  method.nonObject                                                                                                                    
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 

@@ -234,9 +234,9 @@ project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	argument.type (Líneas: 404)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
-	return.type (Líneas: 405)
-	argument.type (Líneas: 443, 455)
-	property.nonObject (Líneas: 549, 577)
+	return.type (Líneas: 407)
+	argument.type (Líneas: 460, 472)
+	property.nonObject (Líneas: 566, 594)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
@@ -248,10 +248,10 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 136)
-	argument.type (Líneas: 366, 366)
-	assign.propertyType (Líneas: 373)
-	method.nonObject (Líneas: 559)
+	staticMethod.nonObject (Líneas: 140)
+	argument.type (Líneas: 371, 371)
+	assign.propertyType (Líneas: 378)
+	method.nonObject (Líneas: 564)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 147)
 	property.nonObject (Líneas: 208)
