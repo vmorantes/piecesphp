@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $mensaje = 'mensaje-de-control';
 
     //──── 1. BaseHashEncryption::hashVerify ─────────────────────────────────────────────
-    echoTerminal('[1/8]hashVerify() RECHAZA una firma que no es la suya');
+    echoTerminal('[1/13]hashVerify() RECHAZA una firma que no es la suya');
 
     $firmaBuena = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -77,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. BaseToken::verify, y el valor que NO es falsy ──────────────────────────────
-    echoTerminal('[2/8]verify() rechaza, y su código de error SÍ es truthy');
+    echoTerminal('[2/13]verify() rechaza, y su código de error SÍ es truthy');
 
     $firmaToken = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -104,7 +104,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. decode() no entrega el contenido de un token con firma alterada ────────────
-    echoTerminal('[3/8]decode() y check() RECHAZAN un token manipulado');
+    echoTerminal('[3/13]decode() y check() RECHAZAN un token manipulado');
 
     $tokenBueno = BaseToken::encode(['dato' => 'valor-original'], $llave, 'HS256');
     $partes = explode('.', $tokenBueno);
@@ -186,7 +186,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Roles::hasPermissions ──────────────────────────────────────────────────────
-    echoTerminal('[4/8]hasPermissions() niega lo que no está concedido');
+    echoTerminal('[4/13]hasPermissions() niega lo que no está concedido');
 
     $roles = Roles::getRoles();
     $rutas = get_routes();
@@ -258,7 +258,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. get_route_roles_allowed y su cadena sin `else` ─────────────────────────────
-    echoTerminal('[5/8]get_route_roles_allowed() con un `$type` que no contempla');
+    echoTerminal('[5/13]get_route_roles_allowed() con un `$type` que no contempla');
 
     //Hace falta una ruta que DECLARE roles: con la lista vacía, la rama sin `else` no se
     //distingue de la buena y la comprobación no significaría nada.
@@ -308,7 +308,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. Parameter: el acumulador que NACE en `true` ────────────────────────────────
-    echoTerminal('[6/8]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
+    echoTerminal('[6/13]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
 
     //RECHAZO: con validador y NO opcional, un valor que no pasa tiene que LANZAR.
     $soloEnteros = new Parameter('edad', null, static fn ($v): bool => is_int($v), false);
@@ -342,7 +342,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Las rutas públicas de listado no devuelven borradores sin permiso ─────────
-    echoTerminal('[7/8]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
+    echoTerminal('[7/13]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
 
     //Sin sesión, pedir un estado no cuenta; con permiso, sí. Si esto cae, un anónimo lista borradores.
     $filtroPub = new \ReflectionMethod(\Publications\Controllers\PublicationsController::class, 'publicStatusFilter');
@@ -369,7 +369,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. El SELECT de listado de usuarios no trae la contraseña (#055) ──────────────
-    echoTerminal('[8/10]UsersModel::fieldsToSelect() no selecciona la contraseña');
+    echoTerminal('[8/13]UsersModel::fieldsToSelect() no selecciona la contraseña');
 
     //Si esto cae, getBy(), all() y los informes de accesos vuelven a mandar el hash en la respuesta.
     $camposUsuarios = (new \ReflectionMethod(\App\Model\UsersModel::class, 'fieldsToSelect'))->invoke(null);
@@ -380,7 +380,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. /users/all/ no devuelve la contraseña (#057) ─────────────────────────────
-    echoTerminal('[9/10] UsersController::_all() no devuelve la contraseña');
+    echoTerminal('[9/13] UsersController::_all() no devuelve la contraseña');
 
     //Si esto cae, cualquier usuario con sesión vuelve a poder pedir el hash de todos.
     $filasTodos = \App\Controller\UsersController::_all(1, 5)->elements();
@@ -392,7 +392,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. canManage(): el alcance de las aprobaciones, en el servidor (#071) ─────────
-    echoTerminal('[10/10] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
+    echoTerminal('[10/13] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
 
     //Si esto cae, un administrador de organización aprueba lo de otra, o lo suyo, con un POST directo.
     $usuario = static function (int $id, int $type, ?int $organization): \PiecesPHP\UserSystem\UserDataPackage {
@@ -437,6 +437,140 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($puede($elemento(90010, 1, 90001, $pendiente, \App\Model\UsersModel::TABLE, '1', $aprobado), $adminA) === false, 'ni el perfil de un miembro de A si A ya está aprobada (C4)');
     $check($puede($elemento(90010, 1, 90001, $pendiente, \App\Model\UsersModel::TABLE, '1', $pendiente), $adminA) === true, 'DISCRIMINANTE: el perfil de un miembro de A con A pendiente, sí (C4)');
     $check($puede($elemento(90020, 2, 90002, $aprobado), $root) === true, 'DISCRIMINANTE: root sí vuelve a resolver lo ya APPROVED, como hoy');
+    echoTerminal(' ');
+
+    //──── 11. Roles: registrar, conceder y fijar el rol actual (#089) ───────────────────
+    echoTerminal('[11/13] Roles RECHAZA lo duplicado, lo que no existe y el código que no está');
+
+    //EL BANCO ES EL ESTADO ESTÁTICO: se fotografía y se repone. gates corre cada suite en su proceso, pero aquí no se confía en eso.
+    $propiedadRoles = new \ReflectionProperty(Roles::class, 'roles');
+    $propiedadActual = new \ReflectionProperty(Roles::class, 'currentRole');
+    $rolesAntes = $propiedadRoles->getValue();
+    $actualAntes = $propiedadActual->getValue();
+
+    try {
+
+        $codigos = array_map(fn (array $rol) => $rol['code'], Roles::getRoles());
+        $check(Roles::roleExists(987654) === false, 'roleExists(): un código que no está registrado da false, ESTRICTO');
+        $check(count($codigos) > 0 && Roles::roleExists((int) $codigos[0]) === true, 'DISCRIMINANTE: roleExists() con un código del árbol da true, ESTRICTO',
+            json_encode($codigos, JSON_THROW_ON_ERROR));
+
+        Roles::registerRole('zz-prueba-rol-bp', 770001, ['zz-prueba-ruta-bp']);
+        $check(Roles::roleExists(770001) === true, 'DISCRIMINANTE: registerRole() deja el rol nuevo registrado');
+        foreach ([['zz-prueba-rol-bp', 770002, 'el nombre'], ['zz-prueba-rol-bp-otro', 770001, 'el código']] as [$nombre, $codigo, $que]) {
+            $lanzo = false;
+            try {
+                Roles::registerRole($nombre, $codigo);
+            } catch (\Throwable $e) {
+                $lanzo = $e instanceof \PiecesPHP\Core\Exceptions\RoleDuplicateException;
+            }
+            $check($lanzo, "registerRole(): repetir {$que} lanza RoleDuplicateException");
+        }
+
+        //NO SE PRUEBA AQUÍ el tipo CODE con un nombre: castea a 0 y acaba en el rol de código 0. Falla ABIERTA; ver el reporte de #089.
+        $lanzo = false;
+        try {
+            Roles::addPermission('zz-prueba-ruta-bp2', 'rol-que-no-existe-bp', Roles::IDENTIFIER_TYPE_NAME);
+        } catch (\Throwable $e) {
+            $lanzo = $e instanceof \PiecesPHP\Core\Exceptions\RoleNotExistsException;
+        }
+        $check($lanzo, 'addPermission(): por nombre, un rol que no existe lanza RoleNotExistsException');
+
+        //La ruta tiene que EXISTIR en el árbol: hasPermissions() no concede lo que no conoce (sección 4). Se reusa la de allí.
+        $rutaReal = $rutaElegida ?? array_key_first($rutas);
+        Roles::addPermission((string) $rutaReal, 'zz-prueba-rol-bp', Roles::IDENTIFIER_TYPE_NAME);
+        $rolNuevo = Roles::getRole('zz-prueba-rol-bp');
+        $check(is_array($rolNuevo) && in_array((string) $rutaReal, $rolNuevo['allowed_routes'], true), 'DISCRIMINANTE: addPermission() con el rol bueno añade la ruta', (string) $rutaReal);
+        $check(Roles::hasPermissions((string) $rutaReal, 770001) === true, 'y hasPermissions() se la concede a ese rol, ESTRICTO');
+        $check(Roles::hasPermissions('zz-prueba-ruta-bp-jamas-concedida', 770001) === false, 'y NO concede una ruta que nadie le añadió');
+
+        $lanzo = false;
+        try {
+            Roles::setCurrentRole('rol-que-no-existe-bp');
+        } catch (\Throwable $e) {
+            $lanzo = $e instanceof \PiecesPHP\Core\Exceptions\RoleNotExistsException;
+        }
+        $check($lanzo, 'setCurrentRole(): un rol que no existe lanza RoleNotExistsException, y el actual no cambia');
+        Roles::setCurrentRole('zz-prueba-rol-bp');
+        $actual = Roles::getCurrentRole();
+        $check(is_array($actual) && $actual['code'] === 770001, 'DISCRIMINANTE: setCurrentRole() fija el rol que sí existe');
+        //La comparación es laxa (`==`), y el 0 es el caso que cambió en PHP 8: un nombre no se confunde con el código 0.
+        Roles::setCurrentRole(0);
+        $actualCero = Roles::getCurrentRole();
+        $check(is_array($actualCero) && $actualCero['code'] === 0, 'setCurrentRole(0) fija el rol de código 0, no el primer rol con nombre que se cruce');
+
+    } finally {
+        $propiedadRoles->setValue(null, $rolesAntes);
+        $propiedadActual->setValue(null, $actualAntes);
+    }
+
+    $check(count(Roles::getRoles()) === count($rolesAntes) && Roles::roleExists(770001) === false, 'el estado de Roles queda como estaba al acabar');
+    echoTerminal(' ');
+
+    //──── 12. RequestRoute::getAttribute (#089) ─────────────────────────────────────────
+    echoTerminal('[12/13] getAttribute() no se inventa la ruta, y devuelve el valor por defecto de lo que no está');
+
+    $peticion = new \PiecesPHP\Core\Routing\RequestRoute(
+        'GET',
+        (new \Slim\Psr7\Factory\UriFactory())->createUri('http://localhost/zz-prueba-bp'),
+        new \Slim\Psr7\Headers(),
+        [],
+        [],
+        (new \Slim\Psr7\Factory\StreamFactory())->createStream('')
+    );
+
+    $claseLanzada = null;
+    $devuelto = 'no-lanzó';
+    try {
+        $devuelto = $peticion->getAttribute('route');
+    } catch (\Throwable $e) {
+        $claseLanzada = get_class($e);
+    }
+    $check($claseLanzada !== null, "getAttribute('route') sin enrutado hecho LANZA: no devuelve una ruta ni null",
+        $claseLanzada ?? 'devolvió ' . var_export($devuelto, true) . ' — SI DEVUELVE null, el llamador cree que no hay ruta y sigue');
+    $peticion->silenceOnUnexistingRoute = true;
+    $silenciada = 'lanzó';
+    try {
+        $silenciada = $peticion->getAttribute('route');
+    } catch (\Throwable $e) {
+        $silenciada = 'lanzó ' . get_class($e);
+    }
+    $check($silenciada === null || is_string($silenciada), 'con silenceOnUnexistingRoute no devuelve una Route inventada', var_export($silenciada, true));
+    $check($peticion->getAttribute('zz-no-esta-bp', 'porDefecto') === 'porDefecto', 'DISCRIMINANTE: un atributo que no está devuelve el valor por defecto');
+    $conAtributo = $peticion->withAttribute('zz-bp', 'valor');
+    $check($conAtributo->getAttribute('zz-bp') === 'valor', 'DISCRIMINANTE: un atributo puesto se devuelve tal cual');
+    //La comparación es laxa (`$name == 'route'`), pero la FIRMA pide string: un int no llega nunca a compararse, y '0' == 'route' es false.
+    $check($peticion->getAttribute('0', 'porDefecto') === 'porDefecto', 'pedir el atributo «0» no entra en la rama de «route»: la laxa no tiene por dónde morder');
+    echoTerminal(' ');
+
+    //──── 13. Parameter: lo obligatorio rechaza; lo opcional se queda en su default (#089) ──
+    echoTerminal('[13/13] Parameter RECHAZA cuando es obligatorio, y lo opcional NUNCA falla: cae al valor por defecto');
+
+    $obligatorio = new Parameter('zz-bp', 0, static fn ($v): bool => is_int($v), false);
+    $lanzoObligatorio = false;
+    try {
+        $obligatorio->validate('abc');
+    } catch (\Throwable $e) {
+        $lanzoObligatorio = $e instanceof InvalidParameterValueException;
+    }
+    $check($lanzoObligatorio, 'obligatorio: un valor que el validador rechaza lanza InvalidParameterValueException');
+
+    $valido = new Parameter('zz-bp', 0, static fn ($v): bool => is_int($v), false);
+    $check($valido->validate(7) === true && $valido->getValue() === 7, 'DISCRIMINANTE: el valor válido pasa y se guarda tal cual, ESTRICTO');
+
+    //CONTRATO MEDIDO: con `optional`, validate() SIEMPRE devuelve true y el valor inválido se sustituye por el default, sin avisar.
+    $opcional = new Parameter('zz-bp', 0, static fn ($v): bool => is_int($v), true);
+    $check($opcional->validate('abc') === true && $opcional->getValue() === 0,
+        'CONTRATO: opcional con un valor inválido devuelve TRUE y deja el valor por defecto',
+        'validate() solo falla si NO es opcional. Quien declare un parámetro opcional no recibe error: recibe el default.');
+    $vacia = new Parameter('zz-bp', 0, static fn ($v): bool => is_int($v), true);
+    $check($vacia->validate('') === true && $vacia->getValue() === null,
+        'CONTRATO: la cadena vacía se convierte en null antes de validar (nullable()), y el opcional la acepta');
+    //La comparación laxa de isValid solo interviene en el camino opcional: acepta un valor que el validador rechazó si == al default.
+    $laxa = new Parameter('zz-bp', '0', static fn ($v): bool => is_string($v), true);
+    $check($laxa->validate(0) === true && $laxa->getValue() === 0,
+        'CONTRATO: opcional con default «0» acepta el ENTERO 0 por la comparación laxa, y lo guarda como entero',
+        'Es el único efecto medible de la laxa: `$value == $this->getDefaultValue()`. Con === ese 0 caería al default «0».');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
