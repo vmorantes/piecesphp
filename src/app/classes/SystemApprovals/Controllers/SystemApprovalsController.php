@@ -12,7 +12,10 @@ use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
@@ -437,29 +440,41 @@ class SystemApprovalsController extends AdminPanelController
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationID = $currentUser->organization;
-        $havingString = null;
-        $and = 'AND';
         $table = SystemApprovalsMapper::TABLE;
         $tableUsers = UsersModel::TABLE;
         $pending = SystemApprovalsMapper::STATUS_PENDING;
         $approved = SystemApprovalsMapper::STATUS_APPROVED;
         $baseOrgID = OrganizationMapper::INITIAL_ID_GLOBAL;
-        $userTypesThatCanApprovalSelf = implode(',', SystemApprovalsMapper::CAN_APPROVAL_SELF);
         //POR MARCADOR, con `where_segment`. La lista blanca de arriba cierra el DOMINIO y el
         //marcador cierra el MECANISMO: aquí hacen falta las dos.
         $whereItems = [
             new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $pending, WhereItem::AND_OPERATOR),
         ];
-        $having = [
-            //Verifica que la referencia se considere "activa"
-            "referenceIsActive IS NULL OR referenceIsActive = 1",
-            //Verifica que exista la referencia
-            "AND referenceCreatedBy IS NOT NULL",
-            //Oculta lo que sea del mismo usuario que está viendo (a menos que sea que se incluya en SystemApprovalsMapper::CAN_APPROVAL_SELF)
-            "AND (referenceCreatedBy != {$currentUserID} OR {$currentUserType} IN ({$userTypesThatCanApprovalSelf}))",
-            //Oculta los perfiles que sean de organizaciones ya aprobadas
-            "AND ( ( {$table}.referenceTable != '{$tableUsers}' OR referenceOrganization IS NULL OR referenceOrganization = {$baseOrgID} ) OR (referenceOrtanizationApprovalValue != '{$approved}') )",
-        ];
+        //Un grupo por criterio, todos por marcador: HAVING (C1) AND (C2) AND …
+        $havingSegment = new HavingSegment();
+        //AGRUPADO a propósito: sin paréntesis, el AND de los demás criterios se pegaba solo a `= 1`
+        //y un NULL se los saltaba todos. El IS NULL se queda por si el alias llega a poder serlo.
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem('referenceIsActive', HavingItem::IS_NULL_OPERATOR, '', HavingItem::OR_OPERATOR),
+            new HavingItem('referenceIsActive', HavingItem::EQUAL_OPERATOR, 1, HavingItem::AND_OPERATOR),
+        ]));
+        //Verifica que exista la referencia
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem('referenceCreatedBy', HavingItem::IS_NOT_NULL_OPERATOR, '', HavingItem::AND_OPERATOR),
+        ]));
+        //Oculta lo propio salvo a CAN_APPROVAL_SELF. El (int) hace falta: la comparación es estricta.
+        if (!in_array((int) $currentUserType, SystemApprovalsMapper::CAN_APPROVAL_SELF, true)) {
+            $havingSegment->addGroup(new HavingItemGroup([
+                new HavingItem('referenceCreatedBy', HavingItem::NOT_EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR),
+            ]));
+        }
+        //Oculta los perfiles que sean de organizaciones ya aprobadas
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem("{$table}.referenceTable", HavingItem::NOT_EQUAL_OPERATOR, $tableUsers, HavingItem::OR_OPERATOR),
+            new HavingItem('referenceOrganization', HavingItem::IS_NULL_OPERATOR, '', HavingItem::OR_OPERATOR),
+            new HavingItem('referenceOrganization', HavingItem::EQUAL_OPERATOR, $baseOrgID, HavingItem::OR_OPERATOR),
+            new HavingItem('referenceOrtanizationApprovalValue', HavingItem::NOT_EQUAL_OPERATOR, $approved, HavingItem::AND_OPERATOR),
+        ]));
 
         //Verificar permisos sobre organization
         if ($currentUser !== null) {
@@ -467,9 +482,10 @@ class SystemApprovalsController extends AdminPanelController
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUserType);
             $canApprovalAll = in_array($currentUserType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
             if (!$canModifyOrganizations && !$canApprovalAll) {
-                $beforeOperator = !empty($having) ? $and : '';
-                $critery = "referenceOrganization = {$currentOrganizationID} AND referenceOrganizationAdministrator = {$currentUser->id}";
-                $having[] = "{$beforeOperator} ({$critery})";
+                $havingSegment->addGroup(new HavingItemGroup([
+                    new HavingItem('referenceOrganization', HavingItem::EQUAL_OPERATOR, $currentOrganizationID, HavingItem::AND_OPERATOR),
+                    new HavingItem('referenceOrganizationAdministrator', HavingItem::EQUAL_OPERATOR, $currentUser->id, HavingItem::AND_OPERATOR),
+                ]));
             }
         }
 
@@ -478,16 +494,12 @@ class SystemApprovalsController extends AdminPanelController
         }
 
         if ($elapsedDaysFilter !== null && $elapsedDaysFilter != '-1') {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "elapsedDays >= {$elapsedDaysFilter}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment->addGroup(new HavingItemGroup([
+                new HavingItem('elapsedDays', HavingItem::GREATER_OR_EQUAL_OPERATOR, $elapsedDaysFilter, HavingItem::AND_OPERATOR),
+            ]));
         }
 
         $whereSegment = new WhereSegment($whereItems);
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
 
         $selectFields = SystemApprovalsMapper::fieldsToSelect('%Y-%m-%d %h:%i:%s %p');
 
@@ -508,7 +520,7 @@ class SystemApprovalsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_segment' => $whereSegment,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
