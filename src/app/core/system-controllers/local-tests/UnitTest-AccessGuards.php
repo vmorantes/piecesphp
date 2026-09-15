@@ -369,7 +369,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. El SELECT de listado de usuarios no trae la contraseña (#055) ──────────────
-    echoTerminal('[8/9]UsersModel::fieldsToSelect() no selecciona la contraseña');
+    echoTerminal('[8/10]UsersModel::fieldsToSelect() no selecciona la contraseña');
 
     //Si esto cae, getBy(), all() y los informes de accesos vuelven a mandar el hash en la respuesta.
     $camposUsuarios = (new \ReflectionMethod(\App\Model\UsersModel::class, 'fieldsToSelect'))->invoke(null);
@@ -380,7 +380,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. /users/all/ no devuelve la contraseña (#057) ─────────────────────────────
-    echoTerminal('[9/9] UsersController::_all() no devuelve la contraseña');
+    echoTerminal('[9/10] UsersController::_all() no devuelve la contraseña');
 
     //Si esto cae, cualquier usuario con sesión vuelve a poder pedir el hash de todos.
     $filasTodos = \App\Controller\UsersController::_all(1, 5)->elements();
@@ -389,6 +389,39 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(count($filasTodos) > 0 && count($conClave) === 0, 'usuarios: ninguna fila de _all() trae la clave password',
         count($filasTodos) === 0 ? 'SIN FILAS: sin usuarios en local no hay veredicto' : count($filasTodos) . ' filas, ' . count($conClave) . ' con password');
     $check(count($filasTodos) > 0 && in_array('username', $clavesDe($filasTodos[0]), true), 'DISCRIMINANTE: usuarios, las filas de _all() siguen trayendo username');
+    echoTerminal(' ');
+
+    //──── 10. canManage(): el alcance de las aprobaciones, en el servidor (#071) ─────────
+    echoTerminal('[10/10] SystemApprovalsController::canManage() aplica C3 y C5 del listado');
+
+    //Si esto cae, un administrador de organización aprueba lo de otra, o lo suyo, con un POST directo.
+    $usuario = static function (int $id, int $type, ?int $organization): \PiecesPHP\UserSystem\UserDataPackage {
+        //SIN BASE: el constructor carga el usuario; aquí solo cuentan id, tipo y organización.
+        $paquete = (new \ReflectionClass(\PiecesPHP\UserSystem\UserDataPackage::class))->newInstanceWithoutConstructor();
+        foreach (['id' => $id, 'type' => $type, 'organization' => $organization] as $propiedad => $valor) {
+            (new \ReflectionProperty(\PiecesPHP\UserSystem\UserDataPackage::class, $propiedad))->setValue($paquete, $valor);
+        }
+        return $paquete;
+    };
+    $elemento = static function (int $createdBy, int $organization, ?int $administrator): \SystemApprovals\Mappers\SystemApprovalsMapper {
+        //SIN BASE: sin id el constructor no consulta; los alias de fieldsToSelect() van en el registro extendido, como texto.
+        $mapper = new \SystemApprovals\Mappers\SystemApprovalsMapper();
+        (new \ReflectionProperty(\SystemApprovals\Mappers\SystemApprovalsMapper::class, 'extendedRecord'))->setValue($mapper, (object) [
+            'referenceCreatedBy' => (string) $createdBy,
+            'referenceOrganization' => (string) $organization,
+            'referenceOrganizationAdministrator' => $administrator !== null ? (string) $administrator : null,
+        ]);
+        return $mapper;
+    };
+    $puede = [\SystemApprovals\Controllers\SystemApprovalsController::class, 'canManage'];
+    $adminA = $usuario(90001, \App\Model\UsersModel::TYPE_USER_ADMIN_ORG, 1);
+    $check($puede($elemento(90010, 1, 90001), $adminA) === true, 'DISCRIMINANTE: el administrador de A resuelve lo de un miembro de A');
+    $check($puede($elemento(90020, 2, 90002), $adminA) === false, 'el administrador de A NO resuelve lo de B (C5)');
+    $check($puede($elemento(90011, 1, 90099), $adminA) === false, 'ni lo de A si en meta el administrador de A es otro (C5)');
+    $check($puede($elemento(90001, 1, 90001), $adminA) === false, 'ni lo suyo propio, aunque sea de A y él la administre (C3)');
+    $check($puede(new \SystemApprovals\Mappers\SystemApprovalsMapper(), $adminA) === false, 'sin registro extendido, como un id inexistente → false');
+    $root = $usuario(90000, \App\Model\UsersModel::TYPE_USER_ROOT, -10);
+    $check($puede($elemento(90020, 2, 90002), $root) === true && $puede($elemento(90000, -10, 3), $root) === true, 'DISCRIMINANTE: root resuelve lo de cualquier organización y lo suyo');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
