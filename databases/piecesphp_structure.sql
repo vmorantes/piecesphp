@@ -399,7 +399,9 @@ CREATE TABLE `pcsphp_tokens` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` text NOT NULL,
   `type` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  `selector` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `selector` (`selector`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 

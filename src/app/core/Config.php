@@ -1068,6 +1068,46 @@ class Config
     }
 
     /**
+     * Si la llave de la app es la de relleno: vacía o empezada por «TODO» (la de config.php al clonar).
+     * @param string|null $appKey Null: la de la app
+     * @return bool
+     */
+    public static function app_key_is_placeholder(?string $appKey = null)
+    {
+        $appKey = trim($appKey ?? (string) self::app_key());
+        return $appKey === '' || str_starts_with($appKey, 'TODO');
+    }
+
+    /**
+     * Una clave derivada de la llave de la app para un uso: cada uso tiene la suya, y todas cambian con app_key.
+     * @param string $purpose Etiqueta del uso (no es un secreto)
+     * @param string|null $appKey Null: la de la app
+     * @return string
+     */
+    public static function app_key_derived(string $purpose, ?string $appKey = null)
+    {
+        return hash_hmac('sha256', $purpose, $appKey ?? (string) self::app_key());
+    }
+
+    /**
+     * Con la llave de relleno, AVISA en el log (una vez al día, con una marca en app/cache); nunca impide arrancar.
+     * @return void
+     */
+    public static function warn_placeholder_app_key()
+    {
+        if (!self::app_key_is_placeholder()) {
+            return;
+        }
+        $marker = basepath('app/cache/app-key-placeholder.marker');
+        if (is_file($marker) && (int) filemtime($marker) > time() - 86400) {
+            return;
+        }
+        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. Genere una con `bin/cli generate-app-key` y póngala en config.php.'), true);
+        //RETORNO-IGNORADO: sin la marca el aviso solo se repite; no impide nada.
+        @touch($marker);
+    }
+
+    /**
      * Devuelve el título de la app
      * @return string
      */

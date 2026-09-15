@@ -6,8 +6,8 @@
 namespace App\Controller;
 
 use App\Model\TokenModel;
-use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Route;
@@ -31,7 +31,6 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class GenericTokenController extends AdminPanelController
 {
-    const KEY_JWT = 'GenericTokenController';
 
     const TYPES_HANDLER = [
         'commentary' => [
@@ -54,6 +53,11 @@ class GenericTokenController extends AdminPanelController
      */
     protected $tokenData = [];
 
+    /**
+     * @var string
+     */
+    protected $selector = '';
+
     /** @ignore */
     public function __construct()
     {
@@ -73,30 +77,19 @@ class GenericTokenController extends AdminPanelController
 
         $handler = $req->getAttribute('handler');
         $token = null;
-        $tokenID = $req->getAttribute('token', '');
+        $selector = $req->getAttribute('token', '');
 
         if ($is_post) {
-            $tokenID = $req->getParsedBodyParam('token', '');
+            $selector = $req->getParsedBodyParam('token', '');
         }
 
-        $tokenID = BaseHashEncryption::decrypt($tokenID, self::class);
-        $tokenID = Validator::isInteger($tokenID) ? (int) $tokenID : null;
+        //SOLO POR SELECTOR Y DE SU TIPO: un id que se pueda calcular ya no alcanza ninguna fila, y menos de otro tipo.
+        $tokenElement = self::tokenBySelector(is_string($selector) ? $selector : '');
 
-        if ($tokenID !== null) {
-
-            $tokenModel = new TokenModel();
-            $tokenModel->select()->where([
-                'id' => $tokenID,
-            ]);
-            $tokenModel->execute();
-            $tokenElement = $tokenModel->result();
-            $tokenElement = !empty($tokenElement) ? $tokenElement[0] : null;
-
-            if ($tokenElement !== null) {
-                $token = $tokenElement->token;
-                $this->tokenID = (int) $tokenElement->id;
-            }
-
+        if ($tokenElement !== null) {
+            $token = $tokenElement->token;
+            $this->tokenID = (int) $tokenElement->id;
+            $this->selector = (string) $tokenElement->selector;
         }
 
         $handler = is_string($handler) ? $handler : '';
@@ -104,8 +97,8 @@ class GenericTokenController extends AdminPanelController
 
         $exists = array_key_exists($handler, self::TYPES_HANDLER);
 
-        $tokenData = BaseToken::getData($token, self::KEY_JWT, null, true);
-        $tokenExpired = BaseToken::isExpire($token, self::KEY_JWT, null);
+        $tokenData = BaseToken::getData($token, self::jwtKey(), null, true);
+        $tokenExpired = BaseToken::isExpire($token, self::jwtKey(), null);
         $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass  ? (array) $tokenData : [];
 
         $tokenController = new TokenController();
@@ -195,14 +188,14 @@ class GenericTokenController extends AdminPanelController
 
             } else {
 
-                $tokenController->deleteTokenByID($this->tokenID);
+                self::deleteOwnToken($tokenElement);
 
                 return throw403($req, []);
             }
 
         } else {
 
-            $tokenController->deleteTokenByID($this->tokenID);
+            self::deleteOwnToken($tokenElement);
             throw new NotFoundException($req, $res);
         }
 
@@ -224,7 +217,7 @@ class GenericTokenController extends AdminPanelController
             $this->render('panel/pages/generic_token/commentary', [
                 'action' => get_route('generic-token-action', ['handler' => 'commentary']),
                 'method_action' => 'POST',
-                'token' => $this->tokenID,
+                'token' => $this->selector,
                 'tokenData' => $this->tokenData,
             ]);
             $this->render('layout/footer-for-token');
@@ -280,11 +273,11 @@ class GenericTokenController extends AdminPanelController
 
             $token->setValidator(function ($value) {
 
-                return Validator::isInteger($value);
+                return is_string($value) && self::isSelector($value);
 
             })->setParser(function ($value) {
 
-                return (int) $value;
+                return (string) $value;
 
             });
 
@@ -300,19 +293,11 @@ class GenericTokenController extends AdminPanelController
             try {
 
                 $parametersExcepted->validate();
-                $this->tokenID = $token->getValue();
-
-                $tokenModel = new TokenModel();
-                $tokenModel->select()->where([
-                    'id' => $this->tokenID,
-                ]);
-                $tokenModel->execute();
-                $tokenElement = $tokenModel->result();
-                $tokenElement = !empty($tokenElement) ? $tokenElement[0] : null;
+                $tokenElement = self::tokenBySelector((string) $token->getValue());
 
                 if ($tokenElement !== null) {
 
-                    $tokenData = BaseToken::getData($tokenElement->token, self::KEY_JWT, null, true);
+                    $tokenData = BaseToken::getData($tokenElement->token, self::jwtKey(), null, true);
                     $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass  ? (array) $tokenData : [];
 
                     //ACCIONES AL ENVIAR
@@ -355,8 +340,7 @@ class GenericTokenController extends AdminPanelController
                         ->operation($operation_name)
                         ->setSuccess(true);
 
-                    $tokenController = new TokenController();
-                    $tokenController->deleteTokenByID($this->tokenID);
+                    self::deleteOwnToken($tokenElement);
 
                 } else {
 
@@ -394,6 +378,71 @@ class GenericTokenController extends AdminPanelController
     }
 
     /**
+     * Un selector nuevo: 16 bytes aleatorios en hexadecimal. Es lo único que viaja en la URL.
+     * @return string
+     */
+    public static function newSelector(): string
+    {
+        return bin2hex(random_bytes(16));
+    }
+
+    /**
+     * @param string $selector
+     * @return bool
+     */
+    public static function isSelector(string $selector): bool
+    {
+        return preg_match('/^[0-9a-f]{32}$/', $selector) === 1;
+    }
+
+    /**
+     * La fila de un token genérico por su selector, y solo si es de TOKEN_GENERIC_CONTROLLER.
+     * @param string $selector
+     * @return \stdClass|null
+     */
+    public static function tokenBySelector(string $selector): ?\stdClass
+    {
+        if (!self::isSelector($selector)) {
+            return null;
+        }
+        $tokenModel = new TokenModel();
+        $tokenModel->select()->where([
+            'selector' => $selector,
+            'type' => TokenController::TOKEN_GENERIC_CONTROLLER,
+        ])->execute();
+        $result = $tokenModel->result();
+        return is_array($result) && isset($result[0]) && $result[0] instanceof \stdClass ? $result[0] : null;
+    }
+
+    /**
+     * Borra un token genérico, y solo ese: la fila existe, es de su tipo y su selector es válido. Si no, no toca nada.
+     * @param \stdClass|null $tokenElement La fila que devolvió tokenBySelector()
+     * @return bool
+     */
+    public static function deleteOwnToken(?\stdClass $tokenElement): bool
+    {
+        if ($tokenElement === null || ($tokenElement->type ?? null) !== TokenController::TOKEN_GENERIC_CONTROLLER || !self::isSelector((string) ($tokenElement->selector ?? ''))) {
+            return false;
+        }
+        $tokenModel = new TokenModel();
+        return (bool) $tokenModel->delete([
+            'id' => (int) $tokenElement->id,
+            'selector' => (string) $tokenElement->selector,
+            'type' => TokenController::TOKEN_GENERIC_CONTROLLER,
+        ])->execute();
+    }
+
+    /**
+     * La clave de los JWT de los tokens genéricos: derivada de app_key para este uso, sin literales.
+     * @param string|null $appKey Null: la de la app
+     * @return string
+     */
+    public static function jwtKey(?string $appKey = null): string
+    {
+        return Config::app_key_derived('generic-token-controller-jwt', $appKey);
+    }
+
+    /**
      * @param string $handlerName
      * @param array $data
      * @param int $duration Minutos
@@ -403,19 +452,19 @@ class GenericTokenController extends AdminPanelController
     {
         $token = self::createToken($data, $duration);
 
+        //LA URL LLEVA UN SELECTOR OPACO, no el id: el id iba cifrado con una clave pública y se podía calcular.
+        $selector = self::newSelector();
         $tokenModel = new TokenModel();
 
         $tokenModel->insert([
             'token' => $token,
             'type' => TokenController::TOKEN_GENERIC_CONTROLLER,
+            'selector' => $selector,
         ])->execute();
-
-        $tokenID = $tokenModel->lastInsertId();
-        $tokenID = BaseHashEncryption::encrypt($tokenID, self::class);
 
         return get_route('generic-token-view', [
             'handler' => $handlerName,
-            'token' => $tokenID,
+            'token' => $selector,
         ]);
     }
 
@@ -428,7 +477,7 @@ class GenericTokenController extends AdminPanelController
     {
         $time = time();
         $duration = $duration * 60 + $time;
-        $token = BaseToken::setToken($data, self::KEY_JWT, $time, $duration);
+        $token = BaseToken::setToken($data, self::jwtKey(), $time, $duration);
         return $token;
     }
 
