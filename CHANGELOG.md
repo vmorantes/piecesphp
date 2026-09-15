@@ -478,7 +478,50 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - `two-factor-auth-status` sigue diciendo si un usuario tiene activo el segundo factor, porque la
   interfaz lo necesita, pero ahora tiene límite de ritmo.
 
+### 24 · Los enlaces de token ya no se pueden adivinar, y las claves salen de `app_key`
+
+- **Antes:** la URL de `GenericTokenController` llevaba el `id` de la fila cifrado con el nombre
+  de la clase, que es público, y con un cifrado que suma byte a byte. Cualquiera podía calcular
+  la URL de cualquier token. Además, al entrar con un token que no valía, el controlador
+  **borraba esa fila sin mirar su tipo**: se podían destruir enlaces de recuperación de
+  contraseña ajenos.
+- **Ahora:**
+  - la URL lleva un **selector opaco** (`random_bytes(16)` en hexadecimal), guardado en la
+    columna nueva `selector`;
+  - se busca por selector **y** por tipo, y solo se borra lo que es suyo;
+  - un selector que no casa da 404, sin tocar nada.
+- **Los enlaces genéricos ya emitidos dejan de valer.** Los de recuperación de contraseña siguen.
+- **AÑADE LA COLUMNA al actualizar:**
+
+  ```sql
+  ALTER TABLE `pcsphp_tokens`
+    ADD COLUMN `selector` varchar(32) DEFAULT NULL AFTER `type`,
+    ADD UNIQUE KEY `selector` (`selector`);
+  ```
+
+- **`GenericTokenController::KEY_JWT` y `TokenModel::KEY_BASE_JWT` desaparecen.** Eran constantes
+  públicas con un valor fijo, igual en todos los despliegues. Ahora las claves se derivan de
+  `app_key` con `hash_hmac`, una por uso. **Si tu proyecto las usaba, cámbialas por
+  `Config::app_key_derived('<uso>')`.**
+- **Aviso de `app_key`:** si sigue con el valor de ejemplo (vacío o empezando por `TODO`), el
+  framework lo apunta en el log una vez al día y lo muestra en el panel a root y a los
+  administradores generales. **No impide arrancar.**
+  - `bin/cli generate-app-key` imprime una clave nueva para pegarla en `config.php`.
+  - **Cambiar `app_key` cierra todas las sesiones abiertas e invalida los tokens**, porque con
+    ella se firman.
+
 ---
+
+## ⚠ Corregido — el nombre de usuario entraba tal cual en el SQL del OTP y del login
+
+`OTPHandler::getUserDataByUsername()` construía su filtro pegando el nombre recibido:
+`where("username = '{$usuario}' OR email = '{$usuario}'")`. Como el ORM trata una cadena como
+SQL literal, ese valor llegaba a la base como código, no como dato.
+- **Se alcanzaba sin sesión** desde `generate-otp`, `check-totp`, `two-factor-auth-status` y el
+  propio inicio de sesión.
+- **Ahora va por marcador**, y lo vigila una prueba que falla si vuelve la forma vieja.
+- **En la misma revisión se cerraron tres más**, menos graves: los nombres de tipos de documento
+  y de categorías de formularios, y el borrado del token de recuperación por su valor.
 
 ## Corregido — los archivos protegidos se servían como públicos para las cachés
 

@@ -853,6 +853,42 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#085`/`#086`, 2026-09-15: la inyección de `OTPHandler` y el lote 5b, cerrados.**
+  - Commits:
+    - `fce8ec9c`: `getUserDataByUsername()` por marcador (`WhereSegment` + `WhereItem::isEqual`);
+    - `7d4c723e`: tres más del barrido (DocumentTypes, Categories y
+      `TokenModel::deleteByToken`);
+    - `fa911716`: el selector opaco y el borrado solo del suyo;
+    - `700d5167`: las claves derivadas de `app_key`;
+    - `66305d39`: el aviso de `app_key` y `generate-app-key`;
+    - `8fde8816`: la suite `generic-tokens`, 15/15, con las cuatro guardas provocadas a la vez.
+  - **El barrido, con método declarado** (grep de las tres formas más el censo de interpolación,
+    leyendo el origen de cada variable): 4 casos de petición, los 4 arreglados; el resto son
+    nombres de tabla, idiomas del servidor o constantes.
+    - `sql-placeholders` pasa de 141 a 148, con la sección 19 provocada: con la forma vieja,
+      `' OR '1'='1` devolvía una fila y `zz-no-existe\` daba error 1064.
+  - **El punto del censo NO se hizo**, con razón: declarar este caso pide rediseñar el
+    instrumento, porque el valor entra por un parámetro y la traza no cruza de método. Lo vigila
+    la suite. **Queda como mejora del censo, en los residuos.**
+  - **H-J y H-K, cerrados de paso:** la URL del token era el `id` cifrado con el nombre de la
+    clase, calculable por cualquiera; y el POST de `commentary` cargaba y borraba cualquier token
+    por su `id`.
+  - **⚠ H-L, defecto de lo que entregamos en `#083`:** `login_attempts` guarda
+    `username_attempt` ESCAPADO, y `OTPRateLimiter` compara con el nombre crudo. Con nombres que
+    llevan comilla o barra invertida, **el límite por usuario no casa nunca**; el de IP sí.
+    - **Decisión:** se arregla al principio de la ronda 18. Primero se mide DÓNDE se escapa al
+      escribir: si es un `escapeString()` heredado en el camino de escritura, sobra, porque el
+      ORM ya liga los valores, y se quita ahí. Si no se puede, el limitador compara con la misma
+      transformación.
+  - Hallazgos que van a los residuos:
+    - **H-M:** `createTokenURL()`, `TOKEN_PASSWORD_RECOVERY_CODE` y los ayudantes JWT de
+      `TokenModel` no tienen llamadores;
+    - **H-N:** `AttachmentPublicationMapper::existsByPublication()` es código muerto con
+      interpolación;
+    - **H-O:** el token de recuperación se firma con `app_key` tal cual, que en local es la de
+      relleno. Lo cubre el aviso;
+    - **H-P:** si `app/cache` no es escribible, el aviso del log sale en cada petición;
+    - **H-Q:** cambiar `app_key` invalida sesiones y tokens. Está en el `CHANGELOG`.
 - **`#083`/`#084`, 2026-09-15: H-B, H-C y el lote 5 (OTP), cerrados.**
   - Commits:
     - `0f4de0b7`: las imágenes reemplazadas van a su carpeta, y la visibilidad cubre lo
