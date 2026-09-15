@@ -120,9 +120,10 @@ class ProtectedUploads
      * @param string $directory
      * @param bool $public
      * @param string|null $suffix
+     * @param bool $recursive Con sus subcarpetas (por defecto) o solo los archivos de la carpeta
      * @return array{renamed: int, unchanged: int, conflicts: string[], failed: string[]}
      */
-    public static function setFolderVisibility(string $directory, bool $public, ?string $suffix = null): array
+    public static function setFolderVisibility(string $directory, bool $public, ?string $suffix = null, bool $recursive = true): array
     {
         $suffix ??= self::suffix();
         $report = ['renamed' => 0, 'unchanged' => 0, 'conflicts' => [], 'failed' => []];
@@ -130,12 +131,7 @@ class ProtectedUploads
             return $report;
         }
         $publicNames = [];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
-        foreach ($iterator as $file) {
-            if (!$file instanceof \SplFileInfo || !$file->isFile() || str_starts_with($file->getFilename(), '.')) {
-                continue;
-            }
-            $path = $file->getPathname();
+        foreach (self::listFiles($directory, $recursive) as $path) {
             $publicNames[str_ends_with($path, $suffix) ? mb_substr($path, 0, -mb_strlen($suffix)) : $path] = true;
         }
         foreach (array_keys($publicNames) as $publicPath) {
@@ -151,6 +147,31 @@ class ProtectedUploads
             }
         }
         return $report;
+    }
+
+    /**
+     * Los archivos de una carpeta, sin los ocultos (.htaccess y compañía), en orden.
+     *
+     * @param string $directory
+     * @param bool $recursive Con sus subcarpetas o solo los archivos de la carpeta
+     * @return string[]
+     */
+    public static function listFiles(string $directory, bool $recursive = true): array
+    {
+        if (!is_dir($directory)) {
+            return [];
+        }
+        $iterator = $recursive
+            ? new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS))
+            : new \FilesystemIterator($directory, \FilesystemIterator::SKIP_DOTS);
+        $files = [];
+        foreach ($iterator as $file) {
+            if ($file instanceof \SplFileInfo && $file->isFile() && !str_starts_with($file->getFilename(), '.')) {
+                $files[] = $file->getPathname();
+            }
+        }
+        sort($files);
+        return $files;
     }
 
     /**
