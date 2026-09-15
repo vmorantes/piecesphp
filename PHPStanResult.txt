@@ -112,31 +112,27 @@
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/API/Controllers/APIController.php                                                                                              
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
-  580    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  582    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  703    Parameter Nr.2 $array of function implode expects array, array<string>|string given.                                                             
+  912    Parameter Nr.2 $array of function implode expects array, array<string>|string given.                                                             
          🪪  argument.type                                                                                                                              
-  808    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1277   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
-  849    Parameter Nr.2 ...$arrays of function array_merge expects array, array<string, string>|null given.                                               
+  1319   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.         
          🪪  argument.type                                                                                                                              
-  1099   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
+  1319   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.            
          🪪  argument.type                                                                                                                              
-  1141   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.         
-         🪪  argument.type                                                                                                                              
-  1141   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.            
-         🪪  argument.type                                                                                                                              
-  1149   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                            
+  1327   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                            
          🪪  assign.propertyType                                                                                                                        
-  1205   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
+  1383   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
-  1232   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
+  1410   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
          🪪  argument.type                                                                                                                              
-  1298   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
+  1476   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
          🪪  argument.type                                                                                                                              
-  1390   Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                        
+  1568   Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                        
          🪪  argument.type                                                                                                                              
-  1390   Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                           
+  1568   Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                           
          🪪  argument.type                                                                                                                              
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -728,7 +724,7 @@
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php                                                                          
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  36     Parameter Nr.1 $json of static method PiecesPHP\LocalizationSystem\Packages\JSONTranslationsPackage::createFromJSON() expects string, string|false given.  
+  129    Parameter Nr.1 $json of static method PiecesPHP\LocalizationSystem\Packages\JSONTranslationsPackage::createFromJSON() expects string, string|false given.  
          🪪  argument.type                                                                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2373,5 +2369,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 746 errors                                                                                               
+ [ERROR] Found 744 errors                                                                                               
 

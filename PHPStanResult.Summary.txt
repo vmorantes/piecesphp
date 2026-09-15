@@ -4,7 +4,7 @@
 171
 
 [TOTAL DE ERRORES VISIBLES]
-737
+735
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 731
+En las dos (8.4 y 8.5): 729
 Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (306)
+argument.type (304)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -64,8 +64,8 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	argument.type (Líneas: 580, 703, 808, 849, 1099, 1141, 1141, 1205, 1232, 1298, 1390, 1390)
-	assign.propertyType (Líneas: 1149)
+	argument.type (Líneas: 582, 912, 1277, 1319, 1319, 1383, 1410, 1476, 1568, 1568)
+	assign.propertyType (Líneas: 1327)
 project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
@@ -201,7 +201,7 @@ project://src/app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentCo
 	argument.type (Líneas: 561)
 	offsetAccess.invalidOffset (Líneas: 580)
 project://src/app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php
-	argument.type (Líneas: 36)
+	argument.type (Líneas: 129)
 project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
 	method.nonObject (Líneas: 44, 45)
 	argument.type (Líneas: 49, 49, 51)

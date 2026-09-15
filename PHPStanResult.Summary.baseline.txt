@@ -69,6 +69,17 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 735 <- 737 = 0 arreglos + 0 supresiones + 2 murieron + 0 destapados
+
+    Bloque BJ (#065): mueren con el saveGroup viejo de `APIController::translations()`, que
+    se reescribe para filtrar lo que recibe (DynamicTranslationsHelper::acceptTranslations()).
+
+        APIController.php   setInputValues() espera array, array|object|null dado
+        APIController.php   array_merge() espera array, array<string, string>|null dado
+
+    Un tercero, el implode() de las entradas HTML segmentadas, NO muere: se mueve con su
+    codigo a APIController::translateWithAI(). NO SE SILENCIO: no se toco phpstan.neon.
+
 [REPARTO] 737 <- 738 = 0 arreglos + 0 supresiones + 1 murieron + 0 destapados
 
     Bloque BM: muere al retirar `addslashes($statusDisplayJSON)` de `UsersModel.php`. La
@@ -306,7 +317,7 @@ HISTORIA DE ESTE BASELINE
 171
 
 [TOTAL DE ERRORES VISIBLES]
-737
+735
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -314,12 +325,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 731
+En las dos (8.4 y 8.5): 729
 Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (306)
+argument.type (304)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -366,8 +377,8 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	argument.type (Líneas: 580, 703, 808, 849, 1099, 1141, 1141, 1205, 1232, 1298, 1390, 1390)
-	assign.propertyType (Líneas: 1149)
+	argument.type (Líneas: 582, 912, 1277, 1319, 1319, 1383, 1410, 1476, 1568, 1568)
+	assign.propertyType (Líneas: 1327)
 project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
@@ -461,11 +472,11 @@ project://src/app/classes/MySpace/Views/user-security.php
 project://src/app/classes/News/Controllers/NewsCategoryController.php
 	assign.propertyType (Líneas: 446)
 	method.nonObject (Líneas: 669, 676, 681, 691)
-	property.nonObject (Líneas: 843, 919)
-	nullCoalesce.variable (Líneas: 877, 878)
+	property.nonObject (Líneas: 837, 913)
+	nullCoalesce.variable (Líneas: 871, 872)
 project://src/app/classes/News/Controllers/NewsController.php
-	property.nonObject (Líneas: 188, 1117, 1308, 1309, 1310, 1311)
-	argument.type (Líneas: 569, 570, 600, 601, 1300, 1308)
+	property.nonObject (Líneas: 188, 1111, 1302, 1303, 1304, 1305)
+	argument.type (Líneas: 569, 570, 600, 601, 1294, 1302)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	argument.type (Líneas: 447)
 project://src/app/classes/News/Mappers/NewsMapper.php
@@ -491,9 +502,9 @@ project://src/app/classes/Organizations/OrganizationsRoutes.php
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	property.nonObject (Líneas: 11)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
-	property.nonObject (Líneas: 928)
-	argument.type (Líneas: 1201)
-	offsetAccess.invalidOffset (Líneas: 1220)
+	property.nonObject (Líneas: 916)
+	argument.type (Líneas: 1189)
+	offsetAccess.invalidOffset (Líneas: 1208)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	return.type (Líneas: 247)
 	argument.type (Líneas: 258)
@@ -503,7 +514,7 @@ project://src/app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentCo
 	argument.type (Líneas: 561)
 	offsetAccess.invalidOffset (Líneas: 580)
 project://src/app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php
-	argument.type (Líneas: 36)
+	argument.type (Líneas: 129)
 project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
 	method.nonObject (Líneas: 44, 45)
 	argument.type (Líneas: 49, 49, 51)
@@ -550,10 +561,10 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 132)
-	argument.type (Líneas: 355, 355)
-	assign.propertyType (Líneas: 362)
-	method.nonObject (Líneas: 539)
+	staticMethod.nonObject (Líneas: 135)
+	argument.type (Líneas: 358, 358)
+	assign.propertyType (Líneas: 365)
+	method.nonObject (Líneas: 551)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 147)
 	property.nonObject (Líneas: 208)
@@ -748,8 +759,8 @@ project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
 	argument.type (Líneas: 33)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php
-	clone.nonObject (Líneas: 396, 634, 684)
-	method.nonObject (Líneas: 451, 452, 453, 458)
+	clone.nonObject (Líneas: 401, 639, 689)
+	method.nonObject (Líneas: 456, 457, 458, 463)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/MetaTags.php
 	assign.propertyType (Líneas: 157)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ReturnTypes/ResultOperations.php
@@ -770,7 +781,7 @@ project://src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php
 project://src/app/model/AvatarModel.php
 	return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
-	property.nonObject (Líneas: 164, 244, 329)
+	property.nonObject (Líneas: 166, 247, 329)
 project://src/app/model/RecoveryPasswordModel.php
 	property.notFound (Líneas: 86, 102)
 project://src/app/model/TimeOnPlatformModel.php
@@ -785,7 +796,7 @@ project://src/app/model/UsersModel.php
 	argument.type (Líneas: 250)
 	return.type (Líneas: 392, 450, 467, 473, 489, 504, 519, 534, 549, 564, 579, 613, 619, 633)
 	property.notFound (Líneas: 595, 598)
-	foreach.nonIterable (Líneas: 825, 1051)
+	foreach.nonIterable (Líneas: 825, 1053)
 project://src/app/view/layout/menu.php
 	property.nonObject (Líneas: 65)
 	method.nonObject (Líneas: 68, 70)
