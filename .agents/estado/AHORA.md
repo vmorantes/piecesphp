@@ -12,8 +12,34 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#071 · ARQ` (4c, Aprobaciones, más la medición de H2 del
-  navegador). El próximo número es `#072`.
+- **Último mensaje enviado:** `#073 · ARQ` (cierre del 4c, y el commit de la guarda y del hook).
+  El próximo número es `#074`.
+  - `#072 · COD`: el tipo 12 entra en Aprobaciones (`cf6803dd` y `cadf95c3`). P25 se paró por
+    una contradicción de mi instrucción con `singleView()`. H1: un tipo 12 puede volver a
+    resolver lo ya resuelto. La doble carga era del arnés.
+  - **Aviso de la plantilla, verificado y arreglado por el arquitecto:** la guarda dejaba borrar
+    las raíces de las zonas escribibles y leer `secure-keys/` desde Bash. `probar_guardia.py` da
+    198/198.
+    - El hook `commit-msg` era `100644`: el coder lo arregla en `#073`.
+    - `core.hooksPath` no está puesto: activarlo es del PO.
+  - Ronda del tirón: 12 de 20.
+  - **El PO activó `core.hooksPath` en esta máquina** (A-010 §1.1; el arquitecto lo comprobó:
+    vale `.agents/scripts/git-hooks`).
+  - A-011: para no olvidarlo en otras máquinas, **opción A**:
+    - `verificar.sh` falla si falta o si el hook no es ejecutable;
+    - la orden va en `.claude/CLAUDE.md` y en la guía de clonado (a criterio del arquitecto);
+    - el borrador está en `deposito-hooks-a011.md` y se deposita tras `#074`.
+
+    Último mensaje al PO: **A-012**.
+  - **Principio del PO (sobre A-012, 2026-09-15):** el estándar es `AGENTS.md` y `.agents/`.
+    `CLAUDE.md` es propio de Anthropic: se ESPEJA desde ahí, y solo lleva contenido directo lo
+    que no se puede espejar.
+    - Hoy está al revés: `AGENTS.md` remite a `CLAUDE.md` como fuente de las reglas.
+    - Plan en `plan-agents-md.md` (ADR 0014); se aplica tras `#074`.
+    - La línea de `core.hooksPath` va a `AGENTS.md`, no a `.claude/CLAUDE.md`.
+
+    Último mensaje al PO: **A-013**.
+- *(histórico)* **Último mensaje enviado:** `#071 · ARQ`.
   - `#070 · COD`: el 3b, cerrado (`8ed8d8b0`, `7c9e0126`, `837dba43` y `88433e44`). `saveGroup`
     responde 410 y el `.min.js` está compilado en local. Queda H2: dos cargas de página y dos
     POST en el navegador headless.
