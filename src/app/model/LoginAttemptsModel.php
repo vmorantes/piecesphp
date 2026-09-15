@@ -10,6 +10,9 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\Enums\CodeStringExceptionsEnum;
 use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -154,27 +157,26 @@ class LoginAttemptsModel extends BaseEntityMapper
         $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
-        $havingString = null;
+        $havingSegment = null;
         $and = 'AND';
         $table = self::TABLE;
 
         $where = [];
-        $having = [];
 
         $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
         if (!$canModifyOrganizations) {
-            $criteryValue = $currentOrganizationID;
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "({$table}.user_id IS NULL AND organizationID IS NULL) OR organizationID = {$criteryValue}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            //Grupo plano a propósito: AND precede a OR, así que equivale a
+            //`(user_id IS NULL AND organizationID IS NULL) OR organizationID = X`.
+            $havingSegment = new HavingSegment();
+            $havingSegment->addGroup(new HavingItemGroup([
+                new HavingItem("{$table}.user_id", HavingItem::IS_NULL_OPERATOR, '', HavingItem::AND_OPERATOR),
+                new HavingItem('organizationID', HavingItem::IS_NULL_OPERATOR, '', HavingItem::OR_OPERATOR),
+                new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, $currentOrganizationID, HavingItem::AND_OPERATOR),
+            ]));
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $selectFields = LoginAttemptsModel::fieldsToSelect('%d-%m-%Y %h:%i:%s %p');
@@ -197,7 +199,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $result = DataTablesHelper::process([
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -229,7 +231,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
-        $havingString = null;
+        $havingSegment = null;
         $and = 'AND';
         $table = self::TABLE;
         $tableUsers = UsersModel::TABLE;
@@ -237,9 +239,10 @@ class LoginAttemptsModel extends BaseEntityMapper
         $successLogin = self::SUCCESS_ATTEMPT;
 
         $where = [];
-        $having = [
-            'wasLogged = 1',
-        ];
+        $havingSegment = new HavingSegment();
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem('wasLogged', HavingItem::EQUAL_OPERATOR, 1, HavingItem::AND_OPERATOR),
+        ]));
 
         $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
         if (!$canModifyOrganizations) {
@@ -251,10 +254,6 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $formatDate = '%d-%m-%Y %h:%i:%s %p';
@@ -282,7 +281,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $result = DataTablesHelper::process([
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -315,16 +314,17 @@ class LoginAttemptsModel extends BaseEntityMapper
         $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
-        $havingString = null;
+        $havingSegment = null;
         $and = 'AND';
         $table = self::TABLE;
         $tableUsers = UsersModel::TABLE;
         $successLogin = self::SUCCESS_ATTEMPT;
 
         $where = [];
-        $having = [
-            'wasLogged = 0',
-        ];
+        $havingSegment = new HavingSegment();
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem('wasLogged', HavingItem::EQUAL_OPERATOR, 0, HavingItem::AND_OPERATOR),
+        ]));
 
         $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
         if (!$canModifyOrganizations) {
@@ -336,10 +336,6 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $selectFields = UsersModel::fieldsToSelect();
@@ -362,7 +358,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $result = DataTablesHelper::process([
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,

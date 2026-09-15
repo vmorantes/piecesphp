@@ -965,8 +965,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     }
     echoTerminal(' ');
 
-    //──── 18. Aprobaciones pasa su HAVING por marcador (#049) ─────────────────────────
-    echoTerminal('[18/18] Aprobaciones: el HAVING va por marcador, sin literales ni la comilla del buscador');
+    //──── 18. Aprobaciones y LoginAttempts pasan su HAVING por marcador (#049) ─────────
+    echoTerminal('[18/18] Aprobaciones y LoginAttempts: el HAVING va por marcador, y nadie pasa having_string');
 
     $peticionListado = function (array $query): RequestRoute {
         $request = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/datatables'), new Headers(), [], [], (new StreamFactory())->createStream(''));
@@ -993,13 +993,66 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $check(mb_strpos($having, $conComilla) === false, 'aprobaciones: la comilla del buscador no está en el HAVING');
         $check(is_int($valores['recordsFiltered'] ?? null), 'aprobaciones: la consulta se ejecuta y cuenta',
             'recordsFiltered: ' . var_export($valores['recordsFiltered'] ?? null, true));
+
+        foreach (['getAttempts' => 5, 'getLoggedUsers' => 5, 'getNotLoggedUsers' => 3] as $metodo => $columnas) {
+            $resultado = \App\Model\LoginAttemptsModel::$metodo($peticionListado([
+                'draw' => 1, 'start' => 0, 'length' => 10,
+                'columns' => array_fill(0, $columnas, ['searchable' => 'true']),
+                'search' => ['value' => $conComilla, 'regex' => 'false'],
+            ]));
+            $having = $havingDe((string) ($resultado->getValues()['SQL_MAIN_EXECUTED'] ?? ''));
+            $check(mb_strpos($having, ':WH') !== false && mb_strpos($having, $conComilla) === false,
+                "login attempts · {$metodo}: el HAVING va por marcador, sin la comilla del buscador", $having);
+        }
     } catch (\Throwable $e) {
-        $check(false, 'aprobaciones: el listado se ejecuta', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 200));
+        $check(false, 'aprobaciones y login attempts: los listados se ejecutan', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 200));
     } finally {
         set_config('current_user', $previoUsuario);
         set_config('pcsphp_current_user_stored', $previoGuardado);
     }
 
+    //LA FUENTE, por tokens: 'having_string' => DENTRO de una llamada a DataTablesHelper::process().
+    //processFromQuery() no tiene segmento y queda fuera; la vía de cadena sigue para los clones.
+    $conCadena = [];
+    $vistas = 0;
+    $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($raizApp . '/app', \FilesystemIterator::SKIP_DOTS));
+    foreach ($iterador as $archivo) {
+        $ruta = str_replace('\\', '/', (string) $archivo->getPathname());
+        if (!str_ends_with($ruta, '.php') || mb_strpos($ruta, '/vendor/') !== false || mb_strpos($ruta, '/local-tests/') !== false || str_ends_with($ruta, '/DataTablesHelper.php')) {
+            continue;
+        }
+        $fuente = (string) file_get_contents($ruta);
+        if (mb_strpos($fuente, 'DataTablesHelper') === false) {
+            continue;
+        }
+        $sig = array_values(array_filter(token_get_all($fuente), fn ($x) => !is_array($x) || !in_array($x[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)));
+        $dentro = false;
+        $profundidad = 0;
+        foreach ($sig as $i => $x) {
+            if (!$dentro) {
+                $anterior = $sig[$i - 1] ?? null;
+                $clase = $sig[$i - 2] ?? null;
+                $dentro = is_array($x) && $x[0] === \T_STRING && $x[1] === 'process' && ($sig[$i + 1] ?? null) === '('
+                    && is_array($anterior) && $anterior[0] === \T_DOUBLE_COLON && is_array($clase) && str_ends_with($clase[1], 'DataTablesHelper');
+                $vistas += $dentro ? 1 : 0;
+                $profundidad = 0;
+                continue;
+            }
+            if ($x === '(') {
+                $profundidad++;
+            } elseif ($x === ')' && --$profundidad === 0) {
+                $dentro = false;
+                continue;
+            }
+            $siguiente = $sig[$i + 1] ?? null;
+            if (is_array($x) && $x[0] === \T_CONSTANT_ENCAPSED_STRING && trim($x[1], '\'"') === 'having_string' && is_array($siguiente) && $siguiente[0] === \T_DOUBLE_ARROW) {
+                $conCadena[] = mb_substr($ruta, mb_strlen($raizApp) + 1) . ':' . $x[2];
+            }
+        }
+    }
+    //Sin llamadas vistas no hay veredicto: un instrumento ciego no puede pasar.
+    $check($vistas > 0 && count($conCadena) === 0, 'fuente: ningún llamador de DataTablesHelper::process() en src/app pasa having_string',
+        "{$vistas} llamadas vistas; " . (count($conCadena) === 0 ? 'ninguna con having_string' : 'con having_string: ' . implode(', ', $conCadena)));
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
