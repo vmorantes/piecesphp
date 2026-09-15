@@ -75,17 +75,21 @@ class RunCronjobsTask extends TerminalTaskAbstract
             if (empty($systemCronjobs)) {
                 $message[] = "\e[33mNo hay cronjobs registrados.\e[39m";
             } else {
+                $now = new \DateTime();
                 foreach ($systemCronjobs as $cronTask) {
-                    if ($cronTask->shouldExecute()) {
-                        $message[] = "\e[34m-> Ejecutando: {$cronTask->getName()}\e[39m";
-                        $result = $cronTask->execute();
-                        $statusColor = $result['success'] ? "\e[32m" : "\e[31m";
-                        $message[] = "{$statusColor}   Resultado: {$result['message']}\e[39m";
-
-                        if (!$result['success'] && isset($result['error'])) {
-                            $message[] = "\e[31m   Error Detail: {$result['error']}\e[39m";
-                        }
-
+                    //run(): franja, ventana, intentos, bloqueo y estado. Una línea por tarea.
+                    $result = $cronTask->run($now);
+                    $name = $cronTask->getName();
+                    $message[] = match ($result['status']) {
+                        CronJobTask::STATUS_EXECUTED => "\e[32m-> {$name}: ejecutada · {$result['message']}\e[39m",
+                        CronJobTask::STATUS_FAILED => "\e[31m-> {$name}: fallida (intento {$result['attempt']} de {$result['maxAttempts']}) · {$result['message']}\e[39m",
+                        CronJobTask::STATUS_LOCKED => "\e[33m-> {$name}: saltada, en curso\e[39m",
+                        CronJobTask::STATUS_OUTSIDE_WINDOW => "\e[33m-> {$name}: fuera de ventana (franja {$result['slot']})\e[39m",
+                        CronJobTask::STATUS_EXHAUSTED => "\e[31m-> {$name}: agotada ({$result['maxAttempts']} intentos en la franja {$result['slot']})\e[39m",
+                        CronJobTask::STATUS_NO_STATE => "\e[31m-> {$name}: sin estado escribible, no se ejecuta\e[39m",
+                        default => "\e[90m-> {$name}: no toca\e[39m",
+                    };
+                    if (in_array($result['status'], [CronJobTask::STATUS_EXECUTED, CronJobTask::STATUS_FAILED], true)) {
                         $executedCount++;
                     }
                 }
