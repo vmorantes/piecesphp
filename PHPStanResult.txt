@@ -544,25 +544,25 @@
  ------ -------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/News/Controllers/NewsCategoryController.php                                 
  ------ -------------------------------------------------------------------------------------------- 
-  446    Property News\Mappers\NewsCategoryMapper::$iconImage (string) does not accept string|null.  
+  452    Property News\Mappers\NewsCategoryMapper::$iconImage (string) does not accept string|null.  
          🪪  assign.propertyType                                                                     
-  669    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.             
+  684    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.             
          🪪  method.nonObject                                                                        
-  676    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.                      
+  691    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.                      
          🪪  method.nonObject                                                                        
-  681    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.                       
+  696    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.                       
          🪪  method.nonObject                                                                        
-  691    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.                     
+  706    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.                     
          🪪  method.nonObject                                                                        
-  837    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
+  852    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
          🪪  property.nonObject                                                                      
-  871    Variable $page on left side of ??= always exists and is not nullable.                       
+  886    Variable $page on left side of ??= always exists and is not nullable.                       
          🪪  nullCoalesce.variable                                                                   
-  872    Variable $perPage on left side of ??= always exists and is not nullable.                    
+  887    Variable $perPage on left side of ??= always exists and is not nullable.                    
          🪪  nullCoalesce.variable                                                                   
-  913    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
+  928    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
-  913    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
+  928    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -815,33 +815,33 @@
          🪪  property.nonObject                                                                                                                          
   654    Property Publications\Mappers\AttachmentPublicationMapper::$publication (int|Publications\Mappers\PublicationMapper) does not accept int|null.  
          🪪  assign.propertyType                                                                                                                         
-  710    Cannot clone stdClass|null.                                                                                                                     
+  715    Cannot clone stdClass|null.                                                                                                                     
          🪪  clone.nonObject                                                                                                                             
-  1207   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
+  1215   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
-  1327   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1335   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1337   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1345   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1344   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+  1352   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1614   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
+  1667   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1621   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1674   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1622   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1675   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1623   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1676   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1696   Cannot access property $organization on stdClass|null.                                                                                          
+  1749   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1698   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1751   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1721   Cannot access property $organization on stdClass|null.                                                                                          
+  1774   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1723   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1776   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1774   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1827   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 

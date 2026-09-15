@@ -157,10 +157,10 @@ project://src/app/classes/MySpace/Views/example-resources.php
 project://src/app/classes/MySpace/Views/user-security.php
 	property.nonObject (Líneas: 13, 15)
 project://src/app/classes/News/Controllers/NewsCategoryController.php
-	assign.propertyType (Líneas: 446)
-	method.nonObject (Líneas: 669, 676, 681, 691)
-	property.nonObject (Líneas: 837, 913)
-	nullCoalesce.variable (Líneas: 871, 872)
+	assign.propertyType (Líneas: 452)
+	method.nonObject (Líneas: 684, 691, 696, 706)
+	property.nonObject (Líneas: 852, 928)
+	nullCoalesce.variable (Líneas: 886, 887)
 project://src/app/classes/News/Controllers/NewsController.php
 	property.nonObject (Líneas: 188, 1111, 1302, 1303, 1304, 1305)
 	argument.type (Líneas: 569, 570, 600, 601, 1294, 1302)
@@ -222,12 +222,12 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 144, 1207, 1614, 1774)
-	property.nonObject (Líneas: 240, 1344, 1696, 1698, 1721, 1723)
+	argument.type (Líneas: 144, 1215, 1667, 1827)
+	property.nonObject (Líneas: 240, 1352, 1749, 1751, 1774, 1776)
 	assign.propertyType (Líneas: 654)
-	clone.nonObject (Líneas: 710)
-	method.nonObject (Líneas: 1327, 1337, 1621, 1622, 1623)
-	offsetAccess.invalidOffset (Líneas: 1791)
+	clone.nonObject (Líneas: 715)
+	method.nonObject (Líneas: 1335, 1345, 1674, 1675, 1676)
+	offsetAccess.invalidOffset (Líneas: 1844)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
