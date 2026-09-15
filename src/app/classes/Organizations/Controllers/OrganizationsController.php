@@ -1587,9 +1587,8 @@ class OrganizationsController extends AdminPanelController
                 }
 
                 if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
+                    //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
+                    [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
 
                     if (mb_strlen(trim($folder)) < 1) {
                         //Si folder está vacío
@@ -1620,6 +1619,13 @@ class OrganizationsController extends AdminPanelController
                                 unlink($oldFile);
                             }
 
+                        }
+
+                        //NACE PRIVADO: en disco lleva el sufijo; la ruta que se guarda, no. Si no se puede, no se deja público.
+                        if (\PiecesPHP\Core\Statics\ProtectedUploads::setFileVisibility($url, false) !== \PiecesPHP\Core\Statics\ProtectedUploads::VISIBILITY_RENAMED) {
+                            //RETORNO-IGNORADO: la copia pública que no se pudo proteger se retira si se puede; la subida ya falla.
+                            @unlink($url);
+                            $relativeURL = '';
                         }
 
                         //Se elimina cualquier otro archivo
