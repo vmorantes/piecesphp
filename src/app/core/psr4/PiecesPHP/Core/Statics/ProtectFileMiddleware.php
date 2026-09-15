@@ -8,6 +8,7 @@ namespace PiecesPHP\Core\Statics;
 
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\SessionToken;
 
 /**
  * ProtectFileMiddleware - Middleware/Helper para proteger directorios de archivos estáticos.
@@ -21,10 +22,19 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class ProtectFileMiddleware
 {
+    const POLICY_SESSION = 'session';
+    const POLICY_VALIDATOR = 'validator';
+    const POLICY_PUBLIC = 'public';
+
     /**
      * @var array<string, callable> Directorios protegidos y sus validadores
      */
     private static array $protectedDirectories = [];
+
+    /**
+     * @var array<string, string> Directorios protegidos y su política (POLICY_*)
+     */
+    private static array $policies = [];
 
     /**
      * Protege un directorio creando un .htaccess y registrándolo en el middleware.
@@ -32,9 +42,10 @@ class ProtectFileMiddleware
      * @param string $directory Ruta absoluta del directorio a proteger
      * @param callable|null $validator Función de validación (opcional). Recibe (Request $request, string $filePath) y debe devolver bool.
      * @param string|null $indexFile Ruta absoluta de index.php (opcional)
+     * @param string $policy POLICY_SESSION o POLICY_VALIDATOR: la política que ve quien lee la configuración
      * @return void
      */
-    public static function protect(string $directory, ?callable $validator = null, ?string $indexFile = null): void
+    public static function protect(string $directory, ?callable $validator = null, ?string $indexFile = null, string $policy = self::POLICY_VALIDATOR): void
     {
         //UNA CARPETA QUE NO SE PUEDE PROTEGER NO SE DEJA SERVIBLE: si falta se crea, y si no se puede
         //crear o resolver, se lanza en vez de salir callado.
@@ -59,6 +70,7 @@ class ProtectFileMiddleware
         self::$protectedDirectories[$realDirectory] = $validator ?: function (Request $request, string $filePath) {
             return true;
         };
+        self::$policies[$realDirectory] = $policy;
     }
 
     /**
@@ -136,5 +148,44 @@ class ProtectFileMiddleware
     public static function getProtectedDirectories(): array
     {
         return self::$protectedDirectories;
+    }
+
+    /**
+     * Protege un directorio con la política de sesión: se sirve a quien tenga una sesión activa.
+     *
+     * @param string $directory Ruta absoluta del directorio a proteger
+     * @return void
+     */
+    public static function protectWithSession(string $directory): void
+    {
+        self::protect($directory, static function (Request $request, string $filePath): bool {
+            return SessionToken::isActiveSession((string) SessionToken::getJWTReceived());
+        }, null, self::POLICY_SESSION);
+    }
+
+    /**
+     * La política de la carpeta protegida que contiene la ruta, o POLICY_PUBLIC si ninguna la contiene.
+     *
+     * @param string $filePath
+     * @return string
+     */
+    public static function policyFor(string $filePath): string
+    {
+        $path = realpath($filePath);
+        $path = $path !== false ? $path : str_replace(['/', '\\'], \DIRECTORY_SEPARATOR, $filePath);
+        foreach (self::$policies as $directory => $policy) {
+            if (self::isInside($path, $directory)) {
+                return $policy;
+            }
+        }
+        return self::POLICY_PUBLIC;
+    }
+
+    /**
+     * @return array<string, string> Directorios protegidos y su política
+     */
+    public static function getPolicies(): array
+    {
+        return self::$policies;
     }
 }

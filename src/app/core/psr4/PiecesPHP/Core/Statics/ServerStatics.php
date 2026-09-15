@@ -537,9 +537,11 @@ class ServerStatics
             return $response->withStatus(500)->write('<h1>500 Error interno del servidor.</h1>');
         }
 
-        $filePath = self::buildFilePath($resource, $path);
+        $publicPath = self::buildFilePath($resource, $path);
+        //EL SUFIJO SOLO EXISTE EN DISCO: X se sirve de X o, si es privado, de X + sufijo; pedir X + sufijo es 404 siempre.
+        [$filePath, $resolved] = ProtectedUploads::resolve($publicPath);
 
-        if (!file_exists($filePath) || !is_string($resource) || !self::isValidResourcePath($resource)) {
+        if ($filePath === null || !is_string($resource) || !self::isValidResourcePath($resource)) {
             return $response->withStatus(404)->write('<h1>404 El recurso no existe.</h1>');
         }
 
@@ -548,8 +550,13 @@ class ServerStatics
         if ($access === false) {
             return $response->withStatus(403)->write('<h1>403 Prohibido. El acceso a este recurso no está permitido.</h1>');
         }
+        //Lo privado exige un validador: fuera de una carpeta protegida no se sirve, ni se dice que existe.
+        if ($resolved === ProtectedUploads::RESOLVED_PRIVATE && $access !== true) {
+            return $response->withStatus(404)->write('<h1>404 El recurso no existe.</h1>');
+        }
 
-        $extension = mb_strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        //El tipo sale del nombre público, no del de disco.
+        $extension = mb_strtolower(pathinfo($publicPath, PATHINFO_EXTENSION));
         $mimeType = finfo_file($fileInformation, $filePath);
 
         //Configurar headers básicos

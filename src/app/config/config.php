@@ -83,6 +83,8 @@ $config['check_aud_on_auth'] = true;
 
 //──── Statics ───────────────────────────────────────────────────────────────────────────
 $config['statics_path'] = __DIR__ . '/../../statics';
+//Sufijo en disco de lo privado de uploads (ProtectedUploads): foto.jpg.protected. La URL nunca lo lleva.
+$config['protected_uploads_suffix'] = '.protected';
 
 //──── Extras ────────────────────────────────────────────────────────────────────────────
 

@@ -213,6 +213,7 @@ class SystemDynamicFunctionReturnTypeExtension implements DynamicFunctionReturnT
             //'slim_app' => new StringType(),
             'slim_container' => new ObjectType(\PiecesPHP\Core\Routing\DependenciesInjector::class),
             'statics_path' => new StringType(),
+            'protected_uploads_suffix' => new StringType(),
             'terminal_color' => new UnionType([
                 new StringType(),
                 new NullType(),
