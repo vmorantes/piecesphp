@@ -811,6 +811,61 @@ historia de git los conserva.
     - Si un despliegue copia sin conservar los enlaces (un zip, o `rsync` sin `-l`), se vuelven
       copias que ya no siguen al original.
     - Y `createDynamicSymlink()` aparta como `.backup` un archivo real que encuentre en su sitio.
+- **⚠ H1 de `#041`: TRADUCCIONES DINÁMICAS. Control de acceso roto y XSS almacenado.
+  CONFIRMADO POR LECTURA, SIN PROVOCAR** (verificado por el coder y por el arquitecto).
+  - **Quién puede:** CUALQUIER usuario con sesión, de cualquier rol. La ruta es
+    `api-admin-translations-actions` con `actionType=saveGroup`, y su lista de roles es
+    `$translations = $allRoles` (`APIController.php:1611`).
+  - **Qué puede:** `saveGroup` (`:748-850`) acepta cualquier grupo (`saveGroup`), cualquier
+    idioma (`to`) y cualquier texto (`text`, un JSON clave → valor). Lo mezcla con lo existente
+    y lo guarda sin lista blanca ni limpieza. El único control es `requestIsSameDomain()`, que
+    mira Origin y Referer y no autoriza nada.
+  - **Por qué es grave:** `Config::i18n()` devuelve el texto guardado tal cual
+    (`Config.php`, `$str = $groupData[$message]`), y las vistas lo imprimen sin escapar
+    (`<?= __(…) ?>`, 1.371 veces en `src/app`). Un usuario del rol más bajo puede meter HTML o
+    JavaScript en cualquier texto de la interfaz, y lo ejecuta todo el que lo vea,
+    administradores incluidos.
+  - **La inyección SQL por esta vía ya quedó cerrada** en `c250c2ee` (literales hexadecimales).
+    El control de acceso y el XSS siguen abiertos.
+  - **P28 al PO:** ¿quién debe poder editar traducciones?
+    - **Predeterminado del arquitecto:** solo los roles de administración (root y admin), una
+      lista blanca de grupos y de idiomas (los configurados en `config/lang.php`), y el texto
+      guardado sin HTML (`strip_tags`) salvo en los grupos que se declaren con HTML permitido.
+    - Es el lote 3b del mapa: urgente, antes del 4b.
+- **`#040`/`#041`, 2026-09-15.**
+  - **Hecho:** `sqlStringLiteral()` y las 11 etiquetas de seis mappers (`c250c2ee`).
+    sql-placeholders pasa a 121/121. PHPStan pasa a 737: muere el `addslashes()` de
+    `UsersModel`. Solo queda un `escapeString()`, en `DataTablesHelper::generateHaving()`.
+  - **El plan de `process()` (T3), medido por el coder:** 21 llamadas en 18 archivos. **El
+    buscador de DataTables va por `generateHaving()`, con `escapeString()`, en 19 de 21.** Solo
+    Organizations y Publications pasan `having_segment`, y `process()` les une el grupo de
+    búsqueda por marcador (`DataTablesHelper.php:312-327`). El eje del `WHERE` es otro asunto,
+    y ahí los valores son del servidor o están validados (lo vigila el censo concatenado).
+    - **El coder propuso** tres lotes (A con 6 archivos, B con 4 y C con 8) que migran cada
+      llamador.
+    - **Contrapropuesta del arquitecto, más pequeña:** cuando el llamador no pasa un
+      `having_string` con contenido, `process()` crea él mismo el `HavingSegment` y le une el
+      grupo de búsqueda: el buscador pasa a marcador en todos esos llamadores tocando UN
+      archivo. Solo migran los que pasan un `having_string` con contenido:
+      SystemApprovals:508 (`elapsedDays`, de la petición y concatenado: H3 de `#041`) y los que
+      lo pasan vacío o muerto (LoginAttempts ×3, Banner, NewsCategory y News).
+      `generateHaving()` y su `escapeString()` mueren cuando no quede ninguno. Pendiente de
+      verificar que `generateHavingGroup()` da el mismo resultado que `generateHaving()` (la
+      sección 11 de la suite prueba el AND frente al OR).
+  - **El estudio del 4b (T4), verificado en el vendor por el coder:**
+    - elFinder detecta el tipo por el contenido (`finfo`) antes que por la extensión, así que
+      `foto.jpg.protected` conserva la vista previa;
+    - `attributes` con `locked` por patrón impide renombrar o quitar el sufijo;
+    - con la opción `URL` del volumen vacía, sirve por el conector y pasa por PHP;
+    - las raíces se calculan en el controlador en cada petición, así que P26 se valida allí sin
+      tocar el vendor.
+    - **`ServerStatics`:** `Cache-Control: private` va en `verifyFile()` cuando `$access ===
+      true` (`:544-558`). Hace falta `Vary` por `Accept` y `Accept-Encoding`. El streaming real
+      obliga a decidir por extensión ANTES de leer. Y no hay soporte de `Range`: sin él, un
+      vídeo o un PDF protegidos no permiten saltar a una posición.
+    - **Bosquejo de `Core/Statics/`:** `RangeRequest`, `RangeAwareFileStream`,
+      `StaticCacheDirectives` y `ProtectedFileResponder`, con `ServerStatics` como el que decide
+      si delega.
 - **Criterio del PO sobre el código muerto de andamiaje** (2026-09-15, a propósito de `4ca2e99d`,
   que retiró `handlerUpload()` y `folderRemove()` de DocumentTypes, Categories y
   SystemApprovals): el andamiaje sin uso se retira cuando lo que enseña ya se puede deducir del

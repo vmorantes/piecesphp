@@ -320,6 +320,20 @@ carpeta como pública, con su motivo, o dale un validador como el de publicacion
 
 ---
 
+## Corregido — las etiquetas traducidas entran en el SQL como literal hexadecimal
+
+Seis mappers (Organizations, Users, Banner, News, SystemApprovals y Publications) muestran el
+nombre de un estado, un tamaño o un tipo metiendo en el `SELECT` un JSON con las etiquetas
+traducidas, entre comillas.
+- **Antes:** Organizations lo escapaba con `escapeString()`, Users con `addslashes()` y los
+  otros cuatro no escapaban nada. Una etiqueta con apóstrofo rompía la consulta. Como las
+  traducciones se pueden editar desde el panel, era además una vía de inyección SQL.
+- **Ahora:** entran con `sqlStringLiteral()`, un ayudante nuevo que las convierte en un literal
+  hexadecimal (`CONVERT(X'…' USING utf8mb4)`). Ninguna comilla ni barra puede cerrar la cadena,
+  sea cual sea el `sql_mode` del servidor. Se ven las mismas etiquetas que antes.
+- **Para tu código:** un texto **del servidor** que tenga que ir dentro del SQL va con
+  `sqlStringLiteral()`; un valor **de la petición** va por marcador.
+
 ## Corregido — 17 comparaciones dejan de depender de `escapeString()`
 
 `escapeString()` es `addslashes(stripslashes())`. Con `NO_BACKSLASH_ESCAPES` activo en el
