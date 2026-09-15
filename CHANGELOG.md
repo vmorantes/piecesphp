@@ -15,9 +15,19 @@
 
   ```bash
   bin/normaliza-eol --arregla
-  git status   # solo debe mostrar lo que ya tuvieras modificado
+  git diff --name-only       # lo que cambia de contenido: debería salir vacío
+  git add --renormalize .    # refresca el índice: mete los mismos contenidos
+  git diff --cached --stat   # debe salir vacío
+  git status                 # ya sin los cientos de archivos
   ```
 
+- **Por qué hace falta `--renormalize`:** tras cambiar la política, git marca como modificados
+  todos los archivos reescritos, aunque su contenido sea idéntico. Medido aquí: 1.511 marcados y
+  9 con cambios reales. `git update-index --refresh` no lo arregla.
+- Si `git diff --cached --stat` muestra algo, eso SÍ cambió de contenido: revísalo antes de
+  commitear.
+- `bin/normaliza-eol` lee las rutas de git con `-z` desde esta versión. La anterior fallaba con
+  nombres de archivo con tildes.
 - Si tu editor respeta `.editorconfig`, a partir de ahí escribe LF solo.
 
 Esta versión **renormaliza los finales de línea de todo el repositorio**: 1.126 archivos,

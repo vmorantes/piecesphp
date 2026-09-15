@@ -300,6 +300,17 @@ porque el momento en que se entiende es justo ese.
 - `.editorconfig`: UTF-8, 4 espacios (tabuladores solo en `.js`) y `end_of_line = lf` en
   todo, igual que `.gitattributes` (ADR 0012). `.yaml` y `.neon` van con espacios: YAML no
   admite tabuladores para sangrar.
+  - **Trampa: cambiar la política de finales de línea deja el índice con el `stat` sucio.**
+    - `git status` marca todo lo reescrito, pero `git diff` no enseña nada,
+      `update-index --refresh` no lo arregla y `--really-refresh` da «needs update».
+    - Arreglo: `git add --renormalize` SOLO de las rutas sin cambio de contenido, con el
+      criterio de que `git diff --cached` no añada nada. Medido en `#060`-`#062`, en los cinco
+      repositorios.
+  - **Toda herramienta que lea rutas de git usa `-z`:** git cita las rutas no ASCII
+    (`core.quotepath`). `bin/normaliza-eol` fallaba con 10 rutas con tilde hasta `c90c8e51`.
+  - **`secure-keys/` se queda en CRLF y fuera de `normaliza-eol`,** porque esa carpeta no se
+    toca. Por eso `bin/normaliza-eol` sin argumentos da siempre sus 3 archivos como fuera de
+    forma: es esperado.
 - Excepciones propias por módulo en `Exceptions/`: convención `SafeException`
   (error controlado, mostrable al usuario) y `DuplicateException`.
 
