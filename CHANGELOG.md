@@ -320,6 +320,20 @@ carpeta como pública, con su motivo, o dale un validador como el de publicacion
 
 ---
 
+## Corregido — el buscador de las tablas del panel manda el texto por marcador
+
+`DataTablesHelper::process()` metía en el SQL lo que se escribía en el buscador de las tablas,
+escapado con `escapeString()`, que depende del `sql_mode` del servidor.
+- **Ahora:** cuando el listado no pasa su propio `having_string`, el texto buscado viaja por
+  marcador. Así pasa en 18 de los 21 listados del framework.
+- **Las búsquedas normales dan exactamente lo mismo que antes**, también las que usan `%` y
+  `_`. Se comprobó contra la aplicación con sesión, en los 21 listados, con nueve búsquedas cada
+  uno y comparando antes y después.
+- **Un solo cambio visible:** buscar una barra invertida (`\`) antes no filtraba nada, porque
+  `escapeString()` la convertía en una búsqueda vacía. Ahora se trata como texto.
+- **Siguen por la vía antigua** los listados que pasan su propio filtro con contenido: el de
+  aprobaciones y dos de los intentos de acceso. `escapeString()` conserva ese único uso.
+
 ## Corregido — las etiquetas traducidas entran en el SQL como literal hexadecimal
 
 Seis mappers (Organizations, Users, Banner, News, SystemApprovals y Publications) muestran el

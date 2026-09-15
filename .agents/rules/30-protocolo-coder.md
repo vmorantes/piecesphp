@@ -195,6 +195,15 @@ ronda **se termina** y luego se para: nunca se deja un árbol a medio commitear.
 Durante el tramo el arquitecto mantiene `.agents/estado/` al día (`60-estado.md`). Al cerrarlo,
 entrega al PO el resumen del tramo en el chat.
 
+**Cada vez que el arquitecto se detiene** (fin de tramo, espera al PO o una pregunta suya),
+entrega el resumen con esta forma FIJA (PO, 2026-09-15), no en prosa suelta:
+1. **Rondas y duración**: `#NNN`–`#NNN`, de hh:mm a hh:mm.
+2. **Cerrado**: qué, con sus commits.
+3. **Encontrado y decidido**: con los ADR, si los hay.
+4. **Falló por el camino**: y cómo se resolvió.
+5. **Espera al PO**: una lista numerada que pueda contestar punto por punto, cada punto con su
+   contexto y su predeterminado (el PO no ha visto el trabajo: se le contextualiza).
+
 ### Tras una compactación
 
 La sesión compactada envía a la otra, antes de seguir, el resumen con el que se quedó y en qué

@@ -822,6 +822,37 @@ historia de git los conserva.
   - **P28 sigue abierta:** restringir quién edita traducciones cambia lo que hoy pueden hacer
     usuarios que no son administradores, y el PO pide que todo siga funcionando como está
     programado.
+- **`#045`/`#046`, 2026-09-15: el buscador de `process()` pasa a marcador** (`48d00822`,
+  `8eed02f0`).
+  - **Comprobado dos veces:** 189 peticiones HTTP antes y 189 después, con sesión; el
+    arquitecto repitió la comparación por su cuenta sobre las mismas salidas. Resultado: 105
+    comparaciones de las búsquedas 1 a 5, sin diferencias. Solo cambia la búsqueda con barra
+    invertida, en 16 listados. Ningún error 500.
+  - **La barra invertida, antes:** `stripslashes()` la convertía en una búsqueda vacía y el
+    buscador no filtraba nada. **Corrección del arquitecto al reporte:** el coder lo describió
+    como ver «todas las filas saltándose el filtro», pero el resultado era el mismo de la
+    búsqueda vacía, que ese usuario ya tiene permiso para ver. No era un salto de permisos.
+  - **La barra invertida, ahora:** va por marcador, y MySQL la usa como carácter de escape del
+    `LIKE`. Buscar `\` encuentra en realidad un `%` literal. Es un detalle de los comodines, que
+    van con el resto del lote 4 (`%` y `_`).
+  - **Queda abierto:**
+    - **SystemApprovals:508.** Su `having_string` agrupa cinco criterios, cuatro de ellos
+      incondicionales y de control de acceso (visibilidad de la referencia, ocultar lo propio,
+      ocultar organizaciones aprobadas, filtro por organización), más `elapsedDays`, que viene
+      de la petición y va concatenado. Pasarlo a marcador es rediseñar reglas de acceso:
+      **se habla con el PO antes** (regla 30). Mientras tanto, `generateHaving()` y un
+      `escapeString()` siguen vivos.
+    - **LoginAttemptsModel:** `wasLogged = 1` y `wasLogged = 0` son criterios reales, no vacíos.
+      La tabla de `#041` se equivocaba. `getAttempts()` ya se beneficia cuando su filtro queda
+      vacío.
+    - **Sin datos con los que discriminar:** Point, porque crear un punto pide una ciudad
+      válida; Logs; y SystemApprovals con filas.
+  - **Datos de prueba creados en la base local (ADR 0010):**
+    - el usuario `zz-prueba-root` (id 485, tipo ROOT). Su contraseña aleatoria se borró, así que
+      no se puede usar sin restablecerla;
+    - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
+      publicaciones y documentos.
+    Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
 - **⚠ H1 de `#041`: TRADUCCIONES DINÁMICAS. Control de acceso roto y XSS almacenado.
   CONFIRMADO POR LECTURA, SIN PROVOCAR** (verificado por el coder y por el arquitecto).
   - **Quién puede:** CUALQUIER usuario con sesión, de cualquier rol. La ruta es
@@ -838,6 +869,23 @@ historia de git los conserva.
     administradores incluidos.
   - **La inyección SQL por esta vía ya quedó cerrada** en `c250c2ee` (literales hexadecimales).
     El control de acceso y el XSS siguen abiertos.
+  - **Por qué admite todos los roles (verificado el 2026-09-15, tras la pregunta del PO):** es
+    la función de traducción automática de `src/statics/core/js/configurations.js`
+    (`:1440-1530`).
+    - Cuando alguien navega en un idioma que no es el predeterminado, el NAVEGADOR reúne los
+      textos que faltan, pide la traducción a la IA y guarda el resultado por grupo con
+      `core/api/translations/saveGroup` (`:1501-1507`).
+    - Por eso cualquier rol puede guardar: la traducción la persiste el navegador de quien
+      navega. **Restringirlo a administración rompería la función**, así que el predeterminado
+      anterior no vale.
+    - **El agujero de fondo:** el servidor guarda el texto que le manda el navegador, sin
+      comprobar que sea la traducción de un texto que existe.
+    - **Diseño propuesto por el arquitecto (se habla con el PO: núcleo transversal):**
+      - el servidor acepta solo claves que existen en el grupo de origen, en idiomas permitidos
+        y en grupos reales;
+      - y, mejor todavía, traduce él mismo: el navegador solo pide «traduce el grupo X al idioma
+        Y», y el servidor llama a la IA y guarda. Así nadie puede inyectar un texto propio. El
+        HTML de las traducciones se conserva, porque viene de la IA sobre el texto original.
   - **P28 al PO:** ¿quién debe poder editar traducciones?
     - **Corrección del PO (2026-09-15):** `__()` tiene que poder generar HTML. Verificado por el
       arquitecto:
