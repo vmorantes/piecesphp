@@ -59,7 +59,6 @@ window.addEventListener('load', function () {
 	//Mapa
 	configurateMap().then(function () {
 		profileForm()
-		experienceForm()
 	})
 
 	let attachmentLogo = null
@@ -224,60 +223,6 @@ window.addEventListener('load', function () {
 				}).modal('show')
 			})
 
-		})
-
-	}
-
-	function experienceForm() {
-
-		/* Selectores y elementos de interfaz */
-		const formSelector = `.ui.form.my-organization-profile-experiences`
-
-		//Tabla
-		const experienceListDataTable = dataTablesServerProccesingOnCards('.table-to-cards', 20, {
-			drawCallbackEnd: function (cards) {
-				window.dispatchEvent(new Event('canDeletePreviousOrganizationExperience'))
-				$('[data-tooltip]').popup()
-			},
-		}, {
-			containerCardsClass: 'list-cards-container',
-			containerCardsSelector: '.list-cards-container',
-			cardsSelector: '.experience-card',
-		})
-
-		window.addEventListener('wasDeletedPreviousExperience', function () {
-			experienceListDataTable.DataTable().draw()
-		})
-
-		//Formulario
-		let form = genericFormHandler(formSelector, {
-			onSetFormData: function (formData) {
-				formData.set('startDate', form.find(`[name="startDate"]`).parent().calendar('get date', 'Y-m-d'))
-				formData.set('endDate', form.find(`[name="endDate"]`).parent().calendar('get date', 'Y-m-d'))
-				return formData
-			},
-			onInvalidEvent: function (event) {
-
-				let element = event.target
-				let validationMessage = element.validationMessage
-				let jElement = $(element)
-				let field = jElement.closest('.field')
-				let nameOnLabel = field.find('label').text().trim()
-				if (field.length == 0) {
-					field = jElement.closest('.attach-placeholder')
-					nameOnLabel = field.find('>label >.text >.header >.title').text()
-				}
-
-				errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-				event.preventDefault()
-
-			},
-			onSuccess: function () {
-				form.get(0).reset()
-				form.find('.ui.dropdown').dropdown('clear').dropdown('refresh')
-				experienceListDataTable.DataTable().draw()
-			}
 		})
 
 	}
