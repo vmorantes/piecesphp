@@ -401,13 +401,6 @@
       "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
     },
     {
-      "file": "src/app/core/psr4/PiecesPHP/Core/ServerStatics.php",
-      "blocks": 1,
-      "prose": 7,
-      "motive": "cabecera-de-archivo",
-      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
-    },
-    {
       "file": "src/app/core/psr4/PiecesPHP/Core/StringManipulate.php",
       "blocks": 2,
       "prose": 6,
