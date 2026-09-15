@@ -176,6 +176,10 @@ class PublicationsPublicController extends BaseController
 
         } else {
             $allowShow = $element->isVisibleToPublic();
+            //P25: lo activo y en fecha que aún no está aprobado lo ven, como vista previa, los mismos que ven un borrador.
+            if (!$allowShow && $exists && $this->user instanceof \stdClass && in_array($this->user->type, PublicationMapper::CAN_VIEW_DRAFT)) {
+                $allowShow = $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+            }
         }
 
         if (!$allowWithoutTranslation && !$element->hasLang($currentLang)) {

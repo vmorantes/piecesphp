@@ -21,6 +21,8 @@ use Publications\Controllers\PublicationsPublicController;
 use Publications\Exceptions\DuplicateException;
 use Publications\PublicationsLang;
 use Spatie\Url\Url as URLManager;
+use SystemApprovals\SystemApprovalsRoutes;
+use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * PublicationMapper.
@@ -422,14 +424,29 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
-     * Si la ve un visitante sin permiso de borradores: existe, está activa y está en fecha.
+     * Si la ve un visitante sin permiso de borradores: existe, está activa, está en fecha y está aprobada.
      *
      * @return bool
      */
     public function isVisibleToPublic(): bool
     {
         //Lo usan singleView() y el validador de la carpeta de subidas: relajarlo aquí los relaja a los dos.
-        return $this->id !== null && $this->status == self::ACTIVE && $this->isActiveByDates();
+        //La aprobación va la última (P25): solo se consulta la base si lo demás ya se cumple.
+        return $this->id !== null && $this->status == self::ACTIVE && $this->isActiveByDates() && $this->isApprovedForPublic();
+    }
+
+    /**
+     * Con SystemApprovals activo y un manejador para publicaciones, si su aprobación está APPROVED; sin ellos, true.
+     *
+     * @return bool
+     */
+    public function isApprovedForPublic(): bool
+    {
+        $manager = SystemApprovalManager::getInstance();
+        if (!SystemApprovalsRoutes::ENABLE || $manager->getHandler(self::TABLE) === null) {
+            return true;
+        }
+        return $manager->isApproved(self::class, $this->id);
     }
 
     /**
