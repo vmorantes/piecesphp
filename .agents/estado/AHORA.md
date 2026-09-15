@@ -9,9 +9,13 @@
   - las mejoras de rendimiento y seguridad son bienvenidas.
   Queda en el **ADR 0010** y en la regla 40 §2. En vuelo: **`#045`**, el buscador de
   `process()` con la opción B, probado de punta a punta.
-- **Último mensaje enviado:** `#047 · ARQ`, SystemApprovals, fase 1: la propuesta de traducción
-  a marcador de las cinco reglas y los datos de prueba con la foto de antes, sin tocar código de
-  producción. El próximo número es `#048`.
+- **Actualizado:** 2026-09-15 12:11 (medido con `date`).
+- **Último mensaje enviado:** `#049 · ARQ`, SystemApprovals y LoginAttempts, fase 2: aplicar la
+  propuesta revisada, retirar `generateHaving()` y poner `@deprecated` en `escapeString()`, con
+  la foto de después comparada con la de antes. El próximo número es `#050`.
+- **`#048 · COD`:** la propuesta es equivalente en 72 de 72 casos, y la foto de antes está hecha
+  (50 capturas). El arquitecto la revisó: C1 agrupado con el `IS NULL` conservado, C3 con
+  `(int)`, y LoginAttempts incluido para poder retirar `generateHaving()`.
 - **`#046 · COD`** (recibido a las 11:40, medido con `date`):
   - **Completado:** el buscador de `process()` por marcador en 18 de 21 listados, con la misma
     respuesta en las búsquedas normales. El arquitecto lo verificó por su cuenta: 105
@@ -75,6 +79,15 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 1. **⚠ P28 — quién puede editar las traducciones.**
    - Hoy puede cualquier usuario con sesión, de cualquier rol (`APIController.php:1611`).
    - Lo que guarda se imprime sin escapar, así que es un XSS almacenado.
+   - **✔ RESUELTA por el PO (2026-09-15): opción B aprobada.**
+     - El servidor traduce y guarda en una sola petición. El navegador solo pide las claves
+       que faltan; el servidor saca los textos originales de sus archivos de idioma, llama a la
+       IA, comprueba que vuelvan esas mismas claves y guarda. `saveGroup` deja de aceptar texto
+       del navegador.
+     - Sin límite de uso de la IA por ahora: el PO está centrado en la MAJOR y sus problemas.
+     - Es el lote 3b. Se instruye después de `#048`, con pruebas en el navegador simulado para
+       cada idioma.
+     - Al recibir `#048` se deposita en `pendientes.md` y en el mapa.
    - **El predeterminado anterior («solo administración») queda DESCARTADO.** La ruta la usa
      la traducción automática de `configurations.js`: el navegador de cualquier usuario guarda
      lo que traduce la IA. Restringirla rompería esa función.
