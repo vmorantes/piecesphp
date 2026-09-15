@@ -853,6 +853,28 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#077`/`#078`, 2026-09-15: el 4b-2, cerrado.**
+  - Commits:
+    - `0b10eeaa`: streaming, `Range`, caché privada con `Vary`, ETag por archivo y WebP en disco;
+    - `6128eb33`: el CORS añade `Origin` al `Vary`, en vez de sustituirlo;
+    - `f98110a1`: la suite `UnitTest-ServerStatics`, 28/28, provocada;
+    - `076d7abb`: la tarea «Ejemplo» del cron, comentada.
+  - Medido: cuerpos idénticos por sha256; 304 con el ETag nuevo; sin sesión, lo protegido sigue
+    en 403.
+  - **H1, decidido por el arquitecto dentro del diseño acordado:** con un navegador se
+    comprimía TODO, y así el streaming y `Range` no actuaban nunca. Un PDF de 6 MB con gzip
+    salía mayor y 2,8 veces más lento. **Solo se comprime el texto** (css, js, json, csv, svg,
+    txt, html, xml); ni los binarios ya comprimidos ni lo desconocido. Va al principio del 4b-3.
+  - **H2:** `selectCompressionAlgorithm()` prefiere gzip, al contrario de lo que dice su
+    comentario. Se arregla el comentario en el 4b-3.
+  - **H4:** la caché WebP no se purga, y la crea Apache con 0755, así que la CLI no puede
+    borrarla. Se arregla en el 4b-3: umask como en `createDynamicSymlink()` y purga en
+    `clean-cache`.
+  - Hallazgos que van a los residuos:
+    - **H5:** `shouldDelegateToWebServer()` usa la ruta por defecto;
+    - **H6:** la mediana de los archivos pequeños sube entre 3 y 9 ms, sin aislar;
+    - **H7:** `$start >= $size` es redundante;
+    - **H8:** el formato del ETag cambió (va en el `CHANGELOG`).
 - **`#075`/`#076`, 2026-09-15: el 4b-1, el cron, cerrado.**
   - Commits:
     - `dc0b8def`, `c4958ac9` y `c0beea4c`: el andamiaje del ADR 0014 y los documentos;

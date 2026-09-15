@@ -411,6 +411,22 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 
 ---
 
+## Corregido — los archivos protegidos se servían como públicos para las cachés
+
+Lo que sirve PHP tras validar el acceso (subidas de documentos, organizaciones, categorías de
+noticias y publicaciones) salía con `Cache-Control: public`, así que un proxy o una CDN podía
+guardarlo y dárselo a otro.
+- **Ahora:** sale con `Cache-Control: private, …, must-revalidate` y
+  `Vary: Cookie, Authorization`, más `Accept` si se convierte a WebP y `Accept-Encoding` si se
+  comprime. El CORS añade `Origin` al `Vary` en lugar de sustituirlo.
+- **Cada archivo tiene su propio ETag** (fecha, tamaño y formato de salida). Antes, varios
+  archivos con la misma fecha compartían uno. La primera vez, un cliente con un ETag viejo
+  recibe 200 en lugar de 304.
+- **Streaming y `Range`:** lo que no se convierte ni se comprime se envía por trozos y admite
+  una petición parcial (206 o 416), por ejemplo para saltar en un vídeo.
+- **La conversión a WebP se guarda en disco** (`src/app/cache/statics-webp/`). Una imagen de
+  4,7 MB pasó de 0,60 s a 0,07 s en local.
+
 ## ⚠ Corregido — cualquier usuario con sesión podía reescribir cualquier traducción
 
 Era a la vez un control de acceso roto y un XSS almacenado: lo guardado se imprime sin escapar,
