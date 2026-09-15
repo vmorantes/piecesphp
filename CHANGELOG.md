@@ -7,6 +7,19 @@
 
 ## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
 
+**Los finales de línea pasan a LF** en todo el repositorio y en los cuatro paquetes
+(`.gitattributes`: `* text=auto eol=lf`; ADR 0012 de la documentación de agentes).
+- **Ningún archivo cambia de contenido en git:** el índice ya guardaba LF. Solo cambian
+  `.gitattributes` y `.editorconfig`.
+- **Lo que cambia es tu disco.** Tras fusionar, con el árbol limpio:
+
+  ```bash
+  bin/normaliza-eol --arregla
+  git status   # solo debe mostrar lo que ya tuvieras modificado
+  ```
+
+- Si tu editor respeta `.editorconfig`, a partir de ahí escribe LF solo.
+
 Esta versión **renormaliza los finales de línea de todo el repositorio**: 1.126 archivos,
 **cero cambio de contenido** (verificado con `git diff --ignore-cr-at-eol`, que sale vacío).
 El motivo está en el commit `0ac751b9`.

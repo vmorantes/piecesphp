@@ -61,3 +61,4 @@ procedencia.
 | [0009](0009-escapestring-cede-al-marcador.md) | `escapeString()` cede al marcador y queda obsoleta; no se toca `sql_mode` | sí | Aceptada |
 | [0010](0010-pruebas-contra-la-aplicacion-local.md) | Pruebas contra la aplicación local: navegador simulado y escrituras en la base de prueba | sí | Aceptada |
 | [0011](0011-correo-real-a-mailinator.md) | Correo real de prueba, solo a buzones públicos de Mailinator | sí | Aceptada |
+| [0012](0012-lf-en-los-cinco-repositorios.md) | Finales de línea LF en los cinco repositorios | sí | Aceptada |

@@ -853,6 +853,27 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#057`/`#058`, 2026-09-15: `/users/all/` sin el hash.**
+  - **Cerrado:** `445713f9`. Con root y con un usuario general, 30→0 hashes.
+    - **La fuga estaba confirmada por HTTP:** antes, el usuario general
+      `zz-prueba-general-sinorg` recibía los hashes de los 15 usuarios, en `elements` y en
+      `parsedElements`.
+    - El resto de la respuesta es idéntico.
+    - Prueba de rechazo en `UnitTest-AccessGuards` [9/9].
+  - **El censo del PASO 4 no encuentra otra ruta que mande contraseñas.** Revisó:
+    - el login, que quita la contraseña en `humanReadable()`;
+    - los `SELECT *` de las exportaciones, que solo escriben en `src/dumps`, y ese directorio da
+      403;
+    - `EntityMapper::jsonSerialize()`, que nadie usa con un usuario;
+    - `UserDataPackage::$password`, que es protegida.
+
+    Sin medir por HTTP: las acciones GET de la API de publicaciones y noticias, que por lectura
+    no devuelven usuarios.
+  - **H1 de `#058`: el login escribe la organización.** Un usuario sin organización pasa a
+    `organization = -10` al entrar (visto en 497: NULL → -10). Explica el H6 de `#048`. Es una
+    escritura en el camino del login. Se estudia en los residuos: ¿es intencionado?
+  - **H3 de `#058`:** cada corrida de `gates` deja un volcado nuevo en `src/dumps`. SIN VERIFICAR
+    qué suite. Residuos.
 - **`#055`/`#056`, 2026-09-15: el hash fuera de `fieldsToSelect()`.**
   - **Cerrado:** `ae869246`. Los informes de accesos pasan de 6 a 0 hashes y de 9 a 0, y
     `data`, `recordsTotal` y `recordsFiltered` no cambian.

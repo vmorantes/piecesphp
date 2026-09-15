@@ -297,8 +297,9 @@ porque el momento en que se entiende es justo ese.
   //──── GET ───────────────────────────────────────────────────────────────
   //========================================================================
   ```
-- `.editorconfig`: UTF-8, 4 espacios (tabs en `.js`/`.yaml`/`.neon`),
-  `end_of_line = crlf` por defecto y `lf` en `.sh` y en los ejecutables de `bin/`.
+- `.editorconfig`: UTF-8, 4 espacios (tabuladores solo en `.js`) y `end_of_line = lf` en
+  todo, igual que `.gitattributes` (ADR 0012). `.yaml` y `.neon` van con espacios: YAML no
+  admite tabuladores para sangrar.
 - Excepciones propias por módulo en `Exceptions/`: convención `SafeException`
   (error controlado, mostrable al usuario) y `DuplicateException`.
 
