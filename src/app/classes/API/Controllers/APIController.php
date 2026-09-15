@@ -743,51 +743,14 @@ class APIController extends AdminPanelController
 
                 } elseif ($actionType == 'saveGroup') {
 
-                    //TRANSICIÓN hasta compilar configurations.min.js: valida, filtra y no sobrescribe.
-                    //Compilado, responderá 410 y apuntará a translateGroup (#065).
-                    if (!$isSameDomain) {
-                        throw new NotFoundException($request, $response);
-                    }
-
-                    $body = $method === 'POST' ? $request->getParsedBody() : $request->getQueryParams();
-                    $body = is_array($body) ? $body : [];
-                    $to = $body['to'] ?? null;
-                    $saveGroup = $body['saveGroup'] ?? null;
-                    $text = $body['text'] ?? null;
-                    $text = is_string($text) ? $this->parseTranslationTextInput($text) : $text;
-                    $text = is_array($text) && count($text) > 0 && !array_is_list($text) ? $text : null;
-
-                    $inputError = $this->dynamicTranslationsInputError($to, $saveGroup, $text !== null ? array_keys($text) : null);
-                    if ($inputError === null && $text !== null && count(array_filter($text, fn ($value): bool => !is_string($value))) > 0) {
-                        $inputError = __(self::LANG_GROUP, 'Cada traducción debe ser un texto.');
-                    }
-                    if ($inputError !== null || !is_string($to) || !is_string($saveGroup) || $text === null) {
-                        return $response->withJson([
-                            'success' => false,
-                            'message' => $inputError,
-                            'error' => null,
-                            'saved' => 0,
-                            'rejected' => [],
-                        ], 400);
-                    }
-
-                    //Nunca sobrescribe: lo que ya tiene traducción en `to` ni se mira.
-                    $pendingData = $this->pendingDynamicTranslations();
-                    $pending = [];
-                    foreach ($text as $key => $value) {
-                        if (is_string($key) && !$this->hasTranslation($to, $saveGroup, $key, $pendingData)) {
-                            $pending[$key] = $value;
-                        }
-                    }
-                    $filtered = DynamicTranslationsHelper::acceptTranslations(array_keys($pending), $pending);
-
-                    $responseJSON = [
-                        'success' => true,
-                        'message' => __(self::LANG_GROUP, 'Las traducciones se guardaron con éxito.'),
+                    //Retirada (#069): el navegador compilado pide translateGroup, que traduce, filtra y guarda.
+                    return $response->withJson([
+                        'success' => false,
+                        'message' => __(self::LANG_GROUP, 'saveGroup ya no guarda traducciones: use translateGroup.'),
                         'error' => null,
-                        'saved' => $this->saveDynamicTranslations($to, $saveGroup, $filtered['accepted']),
-                        'rejected' => $filtered['rejected'],
-                    ];
+                        'saved' => 0,
+                        'rejected' => [],
+                    ], 410);
 
                 }
 
@@ -1037,22 +1000,6 @@ class APIController extends AdminPanelController
         }
 
         return $saved;
-    }
-
-    /**
-     * Lee `text` como JSON, o como JSON en base 64 seguro para URL, como hacía saveGroup
-     *
-     * @param string $value
-     * @return array<mixed>|null
-     */
-    private function parseTranslationTextInput(string $value): ?array
-    {
-        $decoded = json_decode($value, true);
-        if (json_last_error() !== \JSON_ERROR_NONE || $decoded === null) {
-            $decoded = json_decode(url_safe_base64_decode($value), true);
-            $decoded = json_last_error() === \JSON_ERROR_NONE ? $decoded : null;
-        }
-        return is_array($decoded) ? $decoded : null;
     }
 
     /**
