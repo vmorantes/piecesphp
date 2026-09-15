@@ -44,6 +44,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterExce
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
@@ -482,6 +483,7 @@ class APIController extends AdminPanelController
         //Acciones permitidas
         $allowedActions = [
             get_config('translationAIEnable') ? 'translate' : uniqid(),
+            get_config('translationAIEnable') ? 'translateGroup' : uniqid(),
             'saveGroup',
         ];
         if (!in_array($actionType, $allowedActions)) {
@@ -590,24 +592,9 @@ class APIController extends AdminPanelController
                      */
                     $asHTMLProperties = $expectedParameters->getValue('asHTMLProperties');
 
-                    $translationAI = get_config('translationAI');
-                    $modelOpenAI = get_config('modelOpenAI');
-                    $modelMistral = get_config('modelMistral');
-                    /**
-                     * @var OpenAIHandlerAdapter|MistralHandlerAdapter|null $aiHandler
-                     */
-                    $aiHandler = null;
+                    [$aiHandler, $translationAI, $modelOpenAI, $modelMistral] = $this->translationAIHandler();
                     $lastUsage = [];
                     $lastAskToChatOriginalResponse = [];
-
-                    //Destruir la conexión a la base de datos para evitar errores de conexión
-                    BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
-
-                    if ($translationAI == AI_OPENAI) {
-                        $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
-                    } elseif ($translationAI == AI_MISTRAL) {
-                        $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
-                    }
 
                     $responseJSON = [
                         'success' => false,
@@ -642,90 +629,24 @@ class APIController extends AdminPanelController
                         /* Segmentar entradas HTML según las propiedades en $asHTMLProperties */
                         $textSplitted = [];
                         if (is_array($text) && count($text) > 0) {
-                            foreach ($text as $key => $value) {
-                                if (in_array($key, $asHTMLProperties)) {
-                                    $textSplitted[$key] = array_merge($textSplitted, HelperController::splitHtmlSafely($value));
-                                    unset($text[$key]);
-                                }
-                            }
+                            $textSplitted = $this->splitHTMLProperties($text, $asHTMLProperties);
                             if (is_local()) {
                                 $responseJSON['AI']['translationSplitted'] = $textSplitted;
                             }
                         }
 
                         /* Generar traducciones */
-                        $translation = [];
-                        $tranlationCallback = function ($value, bool $isSplitted = false) use ($text) {
-                            $expectedProperties = array_keys($text);
-                            $hasProperties = is_array($value);
-                            if ($hasProperties) {
-                                foreach ($expectedProperties as $expectedProperty) {
-                                    if (!array_key_exists($expectedProperty, $value)) {
-                                        $hasProperties = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if ($isSplitted) {
-                                $hasProperties = is_array($value) && !empty($value);
-                            }
-                            $result = !$hasProperties ? HelperController::tryParseTranslationResult($value) : $value;
-                            return $result;
-                        };
-
-                        //Traducir entradas normales tal como vienen
-                        $translationNormal = $aiHandler->translate($text, $from, $to, $tranlationCallback);
-                        $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
-                        $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
-
-                        //Traducir entradas HTML segmentadas
-                        $translationSplitted = [];
-                        foreach ($textSplitted as $key => $splitted) {
-                            //Recorrer cada elemento de la entrada HTML segmentada
-                            foreach ($splitted as $valueIndex => $splittedElement) {
-
-                                //Traducir segmento
-                                $translationSplittedResult = $aiHandler->translate([
-                                    'segment' => $splittedElement,
-                                ], $from, $to, function ($value) use ($tranlationCallback) {
-                                    return $tranlationCallback($value, true);
-                                });
-
-                                //Añadir segmento
-                                if ($translationSplittedResult !== null) {
-                                    $translationSplitted[$key][$valueIndex] = implode("\n", $translationSplittedResult);
-                                }
-                                $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
-                                $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
-                            }
-
-                            //Juntar segmentos
-                            $translationSplitted[$key] = implode("\n", $translationSplitted[$key]);
-                        }
-
-                        /* Agregar traducciones */
-
-                        //Agregar entradas normales
-                        if ($translationNormal !== null) {
-                            $translation = $translationNormal;
-                        }
-
-                        //Agregar entradas HTML segmentadas
-                        if (count($translationSplitted) > 0) {
-                            $translation = array_merge($translation, $translationSplitted);
-                        }
-
-                        //Verificar que haya traducciones
-                        $translation = !empty($translation) ? $translation : null;
-                        $tokensUsed = $aiHandler->getTokensUsed($lastUsage);
+                        $aiResult = $this->translateWithAI($aiHandler, $text, $textSplitted, $from, $to);
+                        $translation = $aiResult['translation'];
+                        $lastUsage = $aiResult['lastUsage'];
+                        $lastAskToChatOriginalResponse = $aiResult['lastAskToChatOriginalResponse'];
+                        $tokensUsed = $aiResult['tokensUsed'];
 
                         $responseJSON['AI']['lastUsage'] = $lastUsage;
                         $responseJSON['AI']['tokensUsed'] = $tokensUsed;
 
                         //Actualizar el uso de tokens
-                        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
-                        $currentUsageData[$translationAI] += $tokensUsed;
-                        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
+                        $this->recordTokensUsed($translationAI, $tokensUsed);
 
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
@@ -745,122 +666,128 @@ class APIController extends AdminPanelController
                         $responseJSON['error'] = $e->getMessage();
                     }
 
-                } elseif ($actionType == 'saveGroup') {
+                } elseif ($actionType == 'translateGroup') {
 
-                    $expectedParameters = new Parameters([
-                        new Parameter(
-                            'text',
-                            null,
-                            function ($value) {
-                                return is_string($value) || is_array($value) || is_null($value);
-                            },
-                            false,
-                            function ($value) {
-                                $jsonParsed = null;
-                                $parseJSON = function (string $jsonStr) {
-                                    $decoded = json_decode($jsonStr, true);
-                                    $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
-                                    return $decoded;
-                                };
-                                if (is_string($value)) {
-
-                                    //Intentar convertir a JSON directamente
-                                    $jsonParsed = ($parseJSON)($value);
-                                    //Tratar de decodificar Base 64
-                                    if ($jsonParsed == null) {
-                                        $base64Decoded = url_safe_base64_decode($value);
-                                        $jsonParsed = ($parseJSON)($base64Decoded);
-                                    }
-
-                                }
-                                return $jsonParsed;
-                            }
-                        ),
-                        new Parameter(
-                            'to',
-                            null,
-                            function ($value) {
-                                return is_string($value);
-                            },
-                            false,
-                            function ($value) {
-                                return $value;
-                            }
-                        ),
-                        new Parameter(
-                            'saveGroup',
-                            null,
-                            function ($value) {
-                                return is_string($value);
-                            },
-                            false,
-                            function ($value) {
-                                return $value;
-                            }
-                        ),
-                    ]);
-
-                    if ($method === 'POST') {
-                        $inputValues = $request->getParsedBody();
-                    } else {
-                        $inputValues = $request->getQueryParams();
+                    //Solo claves, nunca valores: el servidor traduce, filtra y guarda (#063).
+                    if ($method !== 'POST') {
+                        return $response->withJson([
+                            'success' => false,
+                            'message' => __(self::LANG_GROUP, 'Esta acción solo admite POST.'),
+                        ], 405);
                     }
-                    $expectedParameters->setInputValues($inputValues);
-                    $expectedParameters->validate();
-
-                    $text = $expectedParameters->getValue('text');
-                    $to = $expectedParameters->getValue('to');
-                    $saveGroup = $expectedParameters->getValue('saveGroup');
-                    /**
-                     * @var array<string,string>|null $text
-                     * @var string $to
-                     * @var string $saveGroup
-                     */
-
-                    $responseJSON = [
-                        'success' => false,
-                        'message' => '',
-                        'error' => null,
-                    ];
-
-                    if ($isSameDomain) {
-
-                        /* Variables de configuración */
-                        $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
-                        $dataConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['dataConfigName'];
-                        $lastDateConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['lastDateConfigName'];
-
-                        /* Valores actuales */
-                        $currentData = GenericContentPseudoMapper::getContentData($dataConfigName);
-                        $currentData = is_array($currentData) ? $currentData : [];
-
-                        /* Actualizar valores */
-
-                        //Agregar idioma si no existe
-                        if (!array_key_exists($to, $currentData)) {
-                            $currentData[$to] = [];
-                        }
-                        //Agregar grupo si no existe
-                        if (!array_key_exists($saveGroup, $currentData[$to])) {
-                            $currentData[$to][$saveGroup] = [];
-                        }
-
-                        //Agregar traducciones a las existentes
-                        $currentData[$to][$saveGroup] = array_merge($currentData[$to][$saveGroup], $text);
-                        //Actualizar fecha de actualización
-                        $lastUpdateDate = new \DateTime();
-
-                        /* Guardar valores */
-                        GenericContentPseudoMapper::setContentData($dataConfigName, $currentData);
-                        GenericContentPseudoMapper::setContentData($lastDateConfigName, $lastUpdateDate);
-
-                        /* Respuesta */
-                        $responseJSON['success'] = true;
-                        $responseJSON['message'] = __(self::LANG_GROUP, 'Las traducciones se guardaron con éxito.');
-
-                    } else {
+                    if (!$isSameDomain) {
                         throw new NotFoundException($request, $response);
                     }
+
+                    $body = $request->getParsedBody();
+                    $body = is_array($body) ? $body : [];
+                    $to = $body['to'] ?? null;
+                    $group = $body['group'] ?? null;
+                    $keys = $body['keys'] ?? null;
+                    $keys = is_string($keys) ? json_decode($keys, true) : $keys;
+                    $keys = is_array($keys) && array_is_list($keys) ? $keys : null;
+
+                    $inputError = $this->dynamicTranslationsInputError($to, $group, $keys);
+                    if ($inputError !== null || !is_string($to) || !is_string($group) || $keys === null) {
+                        return $response->withJson([
+                            'success' => false,
+                            'message' => $inputError,
+                            'translation' => [],
+                            'rejected' => [],
+                        ], 400);
+                    }
+
+                    $pendingData = $this->pendingDynamicTranslations();
+                    $pending = [];
+                    foreach ($keys as $key) {
+                        if (is_string($key) && !in_array($key, $pending, true) && !$this->hasTranslation($to, $group, $key, $pendingData)) {
+                            $pending[] = $key;
+                        }
+                    }
+
+                    $responseJSON = [
+                        'success' => true,
+                        'message' => __(self::LANG_GROUP, 'No hay claves pendientes de traducción.'),
+                        'translation' => [$group => []],
+                        'rejected' => [],
+                        'saved' => 0,
+                        'error' => null,
+                        'AI' => [
+                            'tokensUsed' => 0,
+                        ],
+                    ];
+
+                    if (count($pending) > 0) {
+                        [$aiHandler, $translationAI] = $this->translationAIHandler();
+                        if ($aiHandler === null) {
+                            $responseJSON['success'] = false;
+                            $responseJSON['message'] = __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA');
+                        } else {
+                            try {
+                                $aiResult = $this->translateWithAI($aiHandler, array_combine($pending, $pending), [], __('lang', Config::get_default_lang()), __('lang', $to));
+                                $this->recordTokensUsed($translationAI, $aiResult['tokensUsed']);
+                                $filtered = DynamicTranslationsHelper::acceptTranslations($pending, $aiResult['translation'] ?? []);
+                                $responseJSON['saved'] = $this->saveDynamicTranslations($to, $group, $filtered['accepted']);
+                                $responseJSON['translation'] = [$group => $filtered['accepted']];
+                                $responseJSON['rejected'] = $filtered['rejected'];
+                                $responseJSON['AI']['tokensUsed'] = $aiResult['tokensUsed'];
+                                $responseJSON['message'] = __(self::LANG_GROUP, 'La traducción se realizó con éxito.');
+                            } catch (\Throwable $e) {
+                                log_exception($e);
+                                $responseJSON['success'] = false;
+                                $responseJSON['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error con el servicio de traducción, intente más tarde.');
+                                $responseJSON['error'] = $e->getMessage();
+                            }
+                        }
+                    }
+
+                } elseif ($actionType == 'saveGroup') {
+
+                    //TRANSICIÓN hasta compilar configurations.min.js: valida, filtra y no sobrescribe.
+                    //Compilado, responderá 410 y apuntará a translateGroup (#065).
+                    if (!$isSameDomain) {
+                        throw new NotFoundException($request, $response);
+                    }
+
+                    $body = $method === 'POST' ? $request->getParsedBody() : $request->getQueryParams();
+                    $body = is_array($body) ? $body : [];
+                    $to = $body['to'] ?? null;
+                    $saveGroup = $body['saveGroup'] ?? null;
+                    $text = $body['text'] ?? null;
+                    $text = is_string($text) ? $this->parseTranslationTextInput($text) : $text;
+                    $text = is_array($text) && count($text) > 0 && !array_is_list($text) ? $text : null;
+
+                    $inputError = $this->dynamicTranslationsInputError($to, $saveGroup, $text !== null ? array_keys($text) : null);
+                    if ($inputError === null && $text !== null && count(array_filter($text, fn ($value): bool => !is_string($value))) > 0) {
+                        $inputError = __(self::LANG_GROUP, 'Cada traducción debe ser un texto.');
+                    }
+                    if ($inputError !== null || !is_string($to) || !is_string($saveGroup) || $text === null) {
+                        return $response->withJson([
+                            'success' => false,
+                            'message' => $inputError,
+                            'error' => null,
+                            'saved' => 0,
+                            'rejected' => [],
+                        ], 400);
+                    }
+
+                    //Nunca sobrescribe: lo que ya tiene traducción en `to` ni se mira.
+                    $pendingData = $this->pendingDynamicTranslations();
+                    $pending = [];
+                    foreach ($text as $key => $value) {
+                        if (is_string($key) && !$this->hasTranslation($to, $saveGroup, $key, $pendingData)) {
+                            $pending[$key] = $value;
+                        }
+                    }
+                    $filtered = DynamicTranslationsHelper::acceptTranslations(array_keys($pending), $pending);
+
+                    $responseJSON = [
+                        'success' => true,
+                        'message' => __(self::LANG_GROUP, 'Las traducciones se guardaron con éxito.'),
+                        'error' => null,
+                        'saved' => $this->saveDynamicTranslations($to, $saveGroup, $filtered['accepted']),
+                        'rejected' => $filtered['rejected'],
+                    ];
 
                 }
 
@@ -875,6 +802,257 @@ class APIController extends AdminPanelController
             $response = $response->withJson($responseJSON);
         }
         return $response;
+    }
+
+    /**
+     * El manejador de IA configurado, con el proveedor y los modelos
+     *
+     * @return array{0: OpenAIHandlerAdapter|MistralHandlerAdapter|null, 1: mixed, 2: mixed, 3: mixed}
+     */
+    private function translationAIHandler(): array
+    {
+        $translationAI = get_config('translationAI');
+        $modelOpenAI = get_config('modelOpenAI');
+        $modelMistral = get_config('modelMistral');
+        $aiHandler = null;
+
+        //Destruir la conexión a la base de datos para evitar errores de conexión
+        BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+
+        if ($translationAI == AI_OPENAI) {
+            $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
+        } elseif ($translationAI == AI_MISTRAL) {
+            $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
+        }
+
+        return [$aiHandler, $translationAI, $modelOpenAI, $modelMistral];
+    }
+
+    /**
+     * Separa en segmentos las entradas que son HTML según $asHTMLProperties, y las quita de $text
+     *
+     * @param array<mixed> $text
+     * @param array<mixed> $asHTMLProperties
+     * @return array<mixed>
+     */
+    private function splitHTMLProperties(array &$text, array $asHTMLProperties): array
+    {
+        $textSplitted = [];
+        foreach ($text as $key => $value) {
+            if (in_array($key, $asHTMLProperties)) {
+                $textSplitted[$key] = array_merge($textSplitted, HelperController::splitHtmlSafely($value));
+                unset($text[$key]);
+            }
+        }
+        return $textSplitted;
+    }
+
+    /**
+     * Traduce con la IA las entradas normales y las HTML segmentadas
+     *
+     * @param OpenAIHandlerAdapter|MistralHandlerAdapter $aiHandler
+     * @param array<mixed> $text
+     * @param array<mixed> $textSplitted
+     * @param mixed $from
+     * @param mixed $to
+     * @return array{translation: array<mixed>|null, lastUsage: array<mixed>, lastAskToChatOriginalResponse: array<mixed>, tokensUsed: mixed}
+     */
+    private function translateWithAI($aiHandler, array $text, array $textSplitted, $from, $to): array
+    {
+        $lastUsage = [];
+        $lastAskToChatOriginalResponse = [];
+
+        /* Generar traducciones */
+        $translation = [];
+        $tranlationCallback = function ($value, bool $isSplitted = false) use ($text) {
+            $expectedProperties = array_keys($text);
+            $hasProperties = is_array($value);
+            if ($hasProperties) {
+                foreach ($expectedProperties as $expectedProperty) {
+                    if (!array_key_exists($expectedProperty, $value)) {
+                        $hasProperties = false;
+                        break;
+                    }
+                }
+            }
+            if ($isSplitted) {
+                $hasProperties = is_array($value) && !empty($value);
+            }
+            $result = !$hasProperties ? HelperController::tryParseTranslationResult($value) : $value;
+            return $result;
+        };
+
+        //Traducir entradas normales tal como vienen
+        $translationNormal = $aiHandler->translate($text, $from, $to, $tranlationCallback);
+        $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
+        $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
+
+        //Traducir entradas HTML segmentadas
+        $translationSplitted = [];
+        foreach ($textSplitted as $key => $splitted) {
+            //Recorrer cada elemento de la entrada HTML segmentada
+            foreach ($splitted as $valueIndex => $splittedElement) {
+
+                //Traducir segmento
+                $translationSplittedResult = $aiHandler->translate([
+                    'segment' => $splittedElement,
+                ], $from, $to, function ($value) use ($tranlationCallback) {
+                    return $tranlationCallback($value, true);
+                });
+
+                //Añadir segmento
+                if ($translationSplittedResult !== null) {
+                    $translationSplitted[$key][$valueIndex] = implode("\n", $translationSplittedResult);
+                }
+                $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
+                $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
+            }
+
+            //Juntar segmentos
+            $translationSplitted[$key] = implode("\n", $translationSplitted[$key]);
+        }
+
+        /* Agregar traducciones */
+
+        //Agregar entradas normales
+        if ($translationNormal !== null) {
+            $translation = $translationNormal;
+        }
+
+        //Agregar entradas HTML segmentadas
+        if (count($translationSplitted) > 0) {
+            $translation = array_merge($translation, $translationSplitted);
+        }
+
+        //Verificar que haya traducciones
+        $translation = !empty($translation) ? $translation : null;
+
+        return [
+            'translation' => $translation,
+            'lastUsage' => $lastUsage,
+            'lastAskToChatOriginalResponse' => $lastAskToChatOriginalResponse,
+            'tokensUsed' => $aiHandler->getTokensUsed($lastUsage),
+        ];
+    }
+
+    /**
+     * Suma los tokens usados al contador del proveedor
+     *
+     * @param mixed $translationAI
+     * @param mixed $tokensUsed
+     * @return void
+     */
+    private function recordTokensUsed($translationAI, $tokensUsed): void
+    {
+        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
+        $currentUsageData[$translationAI] += $tokensUsed;
+        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
+    }
+
+    /**
+     * El error de entrada de saveGroup y translateGroup, dentro de __(), o null si todo es válido
+     *
+     * @param mixed $to
+     * @param mixed $group
+     * @param array<mixed>|null $keys
+     * @return string|null
+     */
+    private function dynamicTranslationsInputError($to, $group, ?array $keys): ?string
+    {
+        if (!is_string($to) || !in_array($to, Config::get_allowed_langs(), true)) {
+            return __(self::LANG_GROUP, 'El idioma de destino no está permitido.');
+        }
+        if (!is_string($group) || preg_match(DynamicTranslationsHelper::GROUP_PATTERN, $group) !== 1) {
+            return __(self::LANG_GROUP, 'El grupo de traducción no es válido.');
+        }
+        if ($keys === null || count($keys) === 0 || count($keys) > DynamicTranslationsHelper::KEYS_MAX_PER_GROUP) {
+            return __(self::LANG_GROUP, 'Las claves deben ser una lista no vacía y dentro del tope.');
+        }
+        foreach ($keys as $key) {
+            if (!is_string($key) || trim($key) === '' || mb_strlen($key) > DynamicTranslationsHelper::KEY_MAX_LENGTH) {
+                return __(self::LANG_GROUP, 'Cada clave debe ser un texto no vacío y dentro del tope.');
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Las traducciones dinámicas guardadas y aún no volcadas al JSON
+     *
+     * @return array<mixed>
+     */
+    private function pendingDynamicTranslations(): array
+    {
+        $pendingData = GenericContentPseudoMapper::getContentData(get_config('DYNAMIC_TRANSLATIONS')['dataConfigName']);
+        return is_array($pendingData) ? $pendingData : [];
+    }
+
+    /**
+     * Si la clave ya tiene traducción en ese idioma: estática, del JSON dinámico o pendiente en base de datos
+     *
+     * @param string $lang
+     * @param string $group
+     * @param string $key
+     * @param array<mixed> $pendingData
+     * @return bool
+     */
+    private function hasTranslation(string $lang, string $group, string $key, array $pendingData): bool
+    {
+        $loaded = get_config('pcsphp_system_translations');
+        if (is_array($loaded) && isset($loaded[$lang][$group][$key])) {
+            return true;
+        }
+        return isset($pendingData[$lang][$group][$key]);
+    }
+
+    /**
+     * Guarda lo aceptado sin sobrescribir nada, con la fecha, y devuelve cuántas claves guardó
+     *
+     * @param string $to
+     * @param string $group
+     * @param array<string,string> $accepted
+     * @return int
+     */
+    private function saveDynamicTranslations(string $to, string $group, array $accepted): int
+    {
+        $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
+        $dataConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['dataConfigName'];
+        $lastDateConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['lastDateConfigName'];
+
+        $currentData = $this->pendingDynamicTranslations();
+        $currentData[$to] = isset($currentData[$to]) && is_array($currentData[$to]) ? $currentData[$to] : [];
+        $currentData[$to][$group] = isset($currentData[$to][$group]) && is_array($currentData[$to][$group]) ? $currentData[$to][$group] : [];
+
+        $saved = 0;
+        foreach ($accepted as $key => $value) {
+            if (!array_key_exists($key, $currentData[$to][$group])) {
+                $currentData[$to][$group][$key] = $value;
+                $saved++;
+            }
+        }
+
+        if ($saved > 0) {
+            GenericContentPseudoMapper::setContentData($dataConfigName, $currentData);
+            GenericContentPseudoMapper::setContentData($lastDateConfigName, new \DateTime());
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Lee `text` como JSON, o como JSON en base 64 seguro para URL, como hacía saveGroup
+     *
+     * @param string $value
+     * @return array<mixed>|null
+     */
+    private function parseTranslationTextInput(string $value): ?array
+    {
+        $decoded = json_decode($value, true);
+        if (json_last_error() !== \JSON_ERROR_NONE || $decoded === null) {
+            $decoded = json_decode(url_safe_base64_decode($value), true);
+            $decoded = json_last_error() === \JSON_ERROR_NONE ? $decoded : null;
+        }
+        return is_array($decoded) ? $decoded : null;
     }
 
     /**
