@@ -344,6 +344,9 @@ en `rawData`, **todas las columnas de cada usuario, con el hash de su contraseñ
 que `UsersModel::fieldsToSelect()` seleccionaba la tabla entera.
 - **Ahora:** `fieldsToSelect()` ya no selecciona `password`. Ningún listado ni ninguna
   consulta que lo use devuelve el hash.
+- **Tampoco `/users/all/`** (`users-ajax-all`), que armaba su propio `SELECT` de la tabla
+  entera y devolvía el hash de todos los usuarios a cualquiera con sesión. Sigue devolviendo las
+  demás columnas.
 - **Si en tu proyecto leías `password` de una fila obtenida con `fieldsToSelect()`**, ya no
   llega. Carga el usuario con su mapper cuando necesites comprobar la contraseña, como hace el
   inicio de sesión.

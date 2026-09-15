@@ -853,6 +853,42 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#055`/`#056`, 2026-09-15: el hash fuera de `fieldsToSelect()`.**
+  - **Cerrado:** `ae869246`. Los informes de accesos pasan de 6 a 0 hashes y de 9 a 0, y
+    `data`, `recordsTotal` y `recordsFiltered` no cambian.
+    - Censo: 44 accesos a `password`, analizados por tokens; ninguno lo lee de una fila de
+      `fieldsToSelect()`.
+    - El login (`UsersController.php:929`), el cambio de contraseña (1636) y el 2FA
+      (`UserDataPackage.php:218`) cargan el mapper completo.
+    - Prueba de rechazo en `UnitTest-AccessGuards` [8/8], con discriminante.
+  - **⚠ GRAVE, H1 de `#056`:** `/users/all/` (`users-ajax-all`, `UsersController::_all()`
+    1852-1890) arma `SELECT pcsphp_users.*` y lo devuelve paginado con `PageQuery`: 20 hashes
+    en la respuesta.
+    - La ruta pide sesión y admite `$allRoles` (`UsersController.php:2006-2014`, verificado por
+      el arquitecto). Cualquier usuario con sesión obtiene los hashes y los correos de todos.
+    - No tiene consumidores en el repositorio.
+    - Se arregla en `#057`: deja de devolver `password`.
+  - **Pregunta de producto, con predeterminado:** ¿quién debe poder pedir `/users/all/`?
+    - Hoy puede cualquiera con sesión, y aun sin el hash devuelve el correo y los datos de todos
+      los usuarios.
+    - **Predeterminado:** se deja con los mismos roles, para no romper a un clon que la use, y se
+      documenta. El arquitecto recomienda limitarla a la administración (tipos 0 y 1) en la
+      MAJOR, como cambio incompatible.
+  - **⚠ Hallazgo del arquitecto (verificado por lectura): la ruta HTTP del cron falla abierta.**
+    - `api-keys.php` sobrescribe siempre `CronJobKey` con `getKeyFromSecureKeys('cronjob')`, que
+      devuelve `''` si el archivo no existe o está vacío (`AppHelpers.php`).
+    - `APIController::cronJobs()` (1504-1507) compara con `===` la cabecera, que ausente vale
+      `''`.
+    - En un clon sin `secure-keys/cronjob`, **cualquiera ejecuta el cron sin clave**, respaldo de
+      la base incluido. En esta instalación el archivo existe; no se leyó.
+    - Se arregla en el 4b: fallar cerrado y `hash_equals`.
+  - Otros hallazgos de `#056`:
+    - H2: `time_on_platform` cambia sola, aunque `volatile-state.json` la tiene como retirada;
+    - H3: `/admin/my-organization-profile/` sin parámetro da 500;
+    - H4: `/admin/reports-access/` da 404 con root;
+    - H5, de proceso: un `bin/…` relativo en segundo plano falló en silencio con rc 127.
+
+    Van a los residuos (lote 10).
 - **`#053`/`#054`, 2026-09-15: LoginAttempts y la medición de H1.**
   - Cerrado: LoginAttempts va por marcador (`7a8d0ca6`), y la prueba rota de `0bff44c4` está
     arreglada (`d9b5f3a8`). `gates` da 26/0 sobre el estado final.
