@@ -920,9 +920,11 @@ class UsersModel extends EntityMapperExtensible
         $statusDisplay = self::statusesForDisplayQuery();
         $statusDisplayJSON = json_encode((object) $statusDisplay, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
+        //El hash de la contraseña nunca sale en un SELECT de listado: se leía en rawData (#054).
+        $columns = array_values(array_filter(array_keys((new UsersModel)->getFields()), fn ($f) => $f !== 'password'));
         $fields = array_map(function ($f) use ($table) {
             return "{$table}.{$f}";
-        }, array_keys((new UsersModel)->getFields()));
+        }, $columns);
         $fieldsToAdd = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "TRIM(CONCAT(TRIM(CONCAT({$table}.firstname, {$secondNameSegment})), ' ', TRIM(CONCAT({$table}.first_lastname, {$secondLastNameSegment})))) AS fullname",

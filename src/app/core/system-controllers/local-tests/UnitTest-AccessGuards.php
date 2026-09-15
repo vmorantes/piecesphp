@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $mensaje = 'mensaje-de-control';
 
     //──── 1. BaseHashEncryption::hashVerify ─────────────────────────────────────────────
-    echoTerminal('[1/7] hashVerify() RECHAZA una firma que no es la suya');
+    echoTerminal('[1/8]hashVerify() RECHAZA una firma que no es la suya');
 
     $firmaBuena = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -77,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. BaseToken::verify, y el valor que NO es falsy ──────────────────────────────
-    echoTerminal('[2/7] verify() rechaza, y su código de error SÍ es truthy');
+    echoTerminal('[2/8]verify() rechaza, y su código de error SÍ es truthy');
 
     $firmaToken = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -104,7 +104,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. decode() no entrega el contenido de un token con firma alterada ────────────
-    echoTerminal('[3/7] decode() y check() RECHAZAN un token manipulado');
+    echoTerminal('[3/8]decode() y check() RECHAZAN un token manipulado');
 
     $tokenBueno = BaseToken::encode(['dato' => 'valor-original'], $llave, 'HS256');
     $partes = explode('.', $tokenBueno);
@@ -186,7 +186,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Roles::hasPermissions ──────────────────────────────────────────────────────
-    echoTerminal('[4/7] hasPermissions() niega lo que no está concedido');
+    echoTerminal('[4/8]hasPermissions() niega lo que no está concedido');
 
     $roles = Roles::getRoles();
     $rutas = get_routes();
@@ -258,7 +258,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. get_route_roles_allowed y su cadena sin `else` ─────────────────────────────
-    echoTerminal('[5/7] get_route_roles_allowed() con un `$type` que no contempla');
+    echoTerminal('[5/8]get_route_roles_allowed() con un `$type` que no contempla');
 
     //Hace falta una ruta que DECLARE roles: con la lista vacía, la rama sin `else` no se
     //distingue de la buena y la comprobación no significaría nada.
@@ -308,7 +308,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. Parameter: el acumulador que NACE en `true` ────────────────────────────────
-    echoTerminal('[6/7] Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
+    echoTerminal('[6/8]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
 
     //RECHAZO: con validador y NO opcional, un valor que no pasa tiene que LANZAR.
     $soloEnteros = new Parameter('edad', null, static fn ($v): bool => is_int($v), false);
@@ -342,7 +342,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Las rutas públicas de listado no devuelven borradores sin permiso ─────────
-    echoTerminal('[7/7] Las rutas públicas de listado solo devuelven lo publicado sin permiso');
+    echoTerminal('[7/8]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
 
     //Sin sesión, pedir un estado no cuenta; con permiso, sí. Si esto cae, un anónimo lista borradores.
     $filtroPub = new \ReflectionMethod(\Publications\Controllers\PublicationsController::class, 'publicStatusFilter');
@@ -366,6 +366,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($claveCache->invokeArgs(null, $claveBase) !== $claveCache->invokeArgs(null, $claveCon(8, ['un-slug'])), 'caché: dos listados que solo difieren en ignoreSlugs tienen clave distinta');
     $check($claveCache->invokeArgs(null, $claveBase) !== $claveCache->invokeArgs(null, $claveCon(9, true)), 'caché: el orden aleatorio tiene su propia clave');
     $check($claveCache->invokeArgs(null, $claveBase) !== $claveCache->invokeArgs(null, $claveCon(5, true)), 'caché: status=ANY con permiso no comparte clave con el listado por defecto');
+    echoTerminal(' ');
+
+    //──── 8. El SELECT de listado de usuarios no trae la contraseña (#055) ──────────────
+    echoTerminal('[8/8] UsersModel::fieldsToSelect() no selecciona la contraseña');
+
+    //Si esto cae, getBy(), all() y los informes de accesos vuelven a mandar el hash en la respuesta.
+    $camposUsuarios = (new \ReflectionMethod(\App\Model\UsersModel::class, 'fieldsToSelect'))->invoke(null);
+    $conPassword = array_values(array_filter($camposUsuarios, fn ($campo) => is_string($campo) && str_ends_with($campo, '.password')));
+    $check(count($camposUsuarios) > 0 && count($conPassword) === 0, 'usuarios: ningún campo de fieldsToSelect() termina en .password',
+        count($conPassword) === 0 ? count($camposUsuarios) . ' campos' : 'con password: ' . implode(', ', $conPassword));
+    $check(in_array(\App\Model\UsersModel::TABLE . '.username', $camposUsuarios, true), 'DISCRIMINANTE: usuarios, fieldsToSelect() sigue trayendo las demás columnas');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
