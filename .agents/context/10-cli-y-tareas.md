@@ -70,6 +70,57 @@ CronJobTask::addCronJobs($cronjobs);   // o ->addCronJob() por tarea
 Métodos de programación: `onMinute(int)`, `hourly()`, `dailyAt(string)`,
 `weeklyOn(int $day, $time)` (0=domingo), `when(callable)`.
 
+### Franjas, reintentos y recuperación (lote 4b-1, `#075`)
+
+- **Qué es una franja.** `onMinute`, `hourly`, `dailyAt` y `weeklyOn` dan una FRANJA: la última
+  hora programada que ya pasó (`lastDueSlot(DateTime $now)`). Por ejemplo:
+  - `dailyAt('00:00')` a las 00:07 → hoy a las 00:00;
+  - `dailyAt('23:30')` a las 00:07 → ayer a las 23:30;
+  - `weeklyOn(0, '03:00')` un martes → el domingo anterior a las 03:00.
+- **Cuándo toca una tarea con franja** (`isDue()` / `dueStatus()`). Tienen que cumplirse todas:
+  - su franja es posterior a la última que salió bien;
+  - no ha pasado la ventana (`recoveryWindow(int $minutos)`, por defecto 60);
+  - quedan intentos en esa franja (`maxAttempts(int $n)`, por defecto 3);
+  - todos los `when()` dan `true`.
+  **Solo la ÚLTIMA franja:** nunca se ejecutan días atrasados en cadena.
+- **`when()`** es un AND adicional. Los `when()` anteriores al método de programación se
+  descartan.
+- **Una tarea sin método de programación** (solo `when()` o la condición del constructor) va
+  como antes: su condición decide, sin estado, sin bloqueo y sin reintentos.
+- **Estado.**
+  - Vive en `app/cache/cronjobs/<slug>.json`. Guarda `lastSuccessSlot`, `lastAttemptSlot`,
+    `attemptsForSlot`, `lastAttemptAt`, `lastResult` y `lastError`. El error se guarda sin
+    traza.
+  - Se escribe con un temporal y `rename()`.
+  - **El intento se anota ANTES de ejecutar:** si el estado no se puede escribir, la tarea NO
+    corre (`no-state`), para no ejecutarla en cada minuto de la ventana.
+- **Bloqueo:** `<slug>.lock` con `flock(LOCK_EX|LOCK_NB)`. Si otra ejecución lo tiene, la tarea
+  se salta («en curso») sin gastar intento.
+- **`run(DateTime $now)`** no lanza nunca. Devuelve `status`, que puede ser `executed`,
+  `failed`, `locked`, `already-done`, `outside-window`, `exhausted`, `not-due` o `no-state`, y
+  lo usan `run-cronjobs` y la ruta HTTP.
+- **Ver el estado:** `bin/cli cronjobs-status` (root, solo lee). Da por tarea su franja, su
+  ventana, su último éxito, sus intentos y su último error.
+- **Crontab: cada minuto** (`* * * * *`, abajo). Con `0 * * * *`, las tareas que no son a en
+  punto solo se recuperan con retraso. Antes de las franjas, no corrían nunca.
+
+### La ruta HTTP del cron
+
+- `core/api/cron-jobs/run` exige la cabecera `Cron-Job-Key` (o el parámetro GET del mismo
+  nombre, que queda en los logs de acceso).
+- La clave sale de `secure-keys/cronjob` a través de `api-keys.php`.
+- **Falla cerrada:** si `CronJobKey` no está configurada, responde 403 siempre y lo apunta en el
+  log.
+- Compara con `hash_equals()` (`APIController::cronJobKeyAccepted()`).
+- **Trampa, cerrada en `#075`:** `getKeyFromSecureKeys()` devuelve `''` si el archivo falta, y
+  antes una petición sin cabecera daba `'' === ''` y ejecutaba el cron.
+
+### Pruebas
+
+`UnitTest-CronJobs` usa tareas sintéticas, `setEvalDate()` y `setStateDirectory()` con un
+temporal. **Nunca se ejecuta el cron real en una prueba:** entre sus tareas está el respaldo de
+la base.
+
 Un solo crontab del sistema dispara todo:
 
 ```cron

@@ -853,6 +853,44 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#075`/`#076`, 2026-09-15: el 4b-1, el cron, cerrado.**
+  - Commits:
+    - `dc0b8def`, `c4958ac9` y `c0beea4c`: el andamiaje del ADR 0014 y los documentos;
+    - `2a803de7`: franjas, reintentos, ventana, bloqueo y estado;
+    - `e5bca02f`: la clave que falla cerrada con `hash_equals`;
+    - `efedad93`: `cronjobs-status`;
+    - `0586a1b1`: la suite `UnitTest-CronJobs`, 39/39, provocada en franja, ventana, intentos,
+      bloqueo y clave.
+  - Documentado en `10-cli-y-tareas.md` y en la ruptura 21 del `CHANGELOG`. La guía para
+    desarrolladores en `source-docs` va en el lote 9.
+  - Hallazgos:
+    - **H1:** la ruta HTTP devolvía la traza de la pila de una excepción. Corregido con `run()`;
+    - **H2:** con el crontab que documentaba la ruta, `0 * * * *`, «Rellenar slugs pendientes»
+      (00:10) no corría nunca;
+    - **H4:** la tarea «Ejemplo» (`cronjobs.php:42-63`) está registrada de verdad y corre a diario
+      sin hacer nada. **Decisión del arquitecto:** se deja comentada como ejemplo documentado;
+      va con el 4b-2;
+    - **H5:** cada corrida de la suite escribe unas 12 líneas en el log real. Va a los residuos:
+      una opción para silenciar en pruebas;
+    - **H6:** `weeklyOn()` con un día fuera de 0-6. Residuos;
+    - **H7:** el censo de retornos no cuenta un `@unlink` marcado; sin verificar por qué.
+      Residuos;
+    - **H8:** `CronJobTaskAdapter` está vacío y sin usos. Residuos.
+- **A-015 a A-017 (2026-09-15): los clones y las capas.** El PO acepta la propuesta:
+  - **capas:**
+    - A, la metodología;
+    - B, desarrollar sobre PiecesPHP (`.agents/context/` 01-15 y el arquetipo);
+    - C, mantener el framework (estado, tramos, bitácora, mapa, `pendientes`, los ADR de campaña,
+      18/19/20, `historico/` y los censos de campaña).
+  - Un manifiesto (`.agents/capas.json`) con comprobación, en el lote 9.
+  - Una orden de clonado, después de la MAJOR, con la rutina de instalación. Monta el `.agents/`
+    del clon con A, B y el estado vacío.
+  - **Distribución:** repositorio privado más un `.zip` por versión con las capas A y B (opción
+    B), porque el PO es hoy el usuario principal y sus clones fusionan desde el privado. Cuando
+    haya terceros, un repositorio público de distribución generado por la misma orden (opción A).
+  - Hay que actualizar `roadmap-posterior/El framework como paquete y su despliegue.md`:
+    - dice que `.agents/` viaja entero, y ya no;
+    - dice que el repositorio va en CRLF, falso desde el ADR 0012.
 - **`#073`/`#074`, 2026-09-15: el 4c, cerrado, más la guarda y el hook.**
   - `b8728777` la guarda, `fcf5acf6` el hook a 100755 (con `git update-index --chmod=+x`,
     porque `core.fileMode` no deja ver el chmod), `2fcb1f5b` P25, `17ca919d` `canManage` con

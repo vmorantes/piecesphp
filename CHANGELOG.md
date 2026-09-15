@@ -386,6 +386,29 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   `isApprovedForPublic()`. **Si tu proyecto la usaba**, ten en cuenta que puede dar `false`
   donde antes daba `true`.
 
+### 21 · El cron recupera lo que falla, y su ruta web ya no se abre sin clave
+
+- **Antes:** una tarea programada solo corría si el crontab pasaba justo en su minuto. Si
+  fallaba, o si el servidor llegaba tarde, esa ejecución se perdía. Con el crontab que
+  documentaba la ruta (`0 * * * *`), una tarea a las 00:10 no corría nunca.
+- **Ahora:** `onMinute`, `hourly`, `dailyAt` y `weeklyOn` tienen FRANJAS.
+  - La tarea corre si su última hora programada no ha salido bien todavía, dentro de una ventana
+    de recuperación (60 minutos por defecto) y hasta 3 intentos por franja.
+  - Nunca corre dos veces a la vez: hay un bloqueo por tarea.
+  - Nunca repite días atrasados en cadena.
+  - El estado de cada tarea queda en `app/cache/cronjobs/`; se consulta con
+    `bin/cli cronjobs-status`.
+  - Por tarea: `recoveryWindow(int $minutos)` y `maxAttempts(int $n)`.
+- **Configura el crontab cada minuto:** `* * * * *`. Una tarea programada solo con `when()`, sin
+  método de programación, se comporta como antes.
+- **Cambio de conducta visible:** las tareas diarias, incluido el respaldo de la base, se
+  REINTENTAN hasta 3 veces en la hora siguiente si fallan.
+- **La ruta `core/api/cron-jobs/run` falla cerrada:** si `CronJobKey` no está configurada
+  (`secure-keys/cronjob`), responde 403 siempre. Antes, sin la clave, cualquiera podía lanzar el
+  cron sin cabecera, respaldo incluido. La comparación es `hash_equals()`. Usa la cabecera
+  `Cron-Job-Key`: el parámetro GET sigue funcionando, pero queda en los logs de acceso.
+- La respuesta de la ruta ya no incluye la traza de la pila cuando una tarea falla.
+
 ---
 
 ## ⚠ Corregido — cualquier usuario con sesión podía reescribir cualquier traducción
