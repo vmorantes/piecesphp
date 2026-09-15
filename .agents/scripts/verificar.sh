@@ -41,6 +41,28 @@ for f in .agents/scripts/git-hooks/*; do
 done
 echo "hooks revisados: $(ls -1 .agents/scripts/git-hooks | wc -l)"
 
+paso "Hook de git activo y ejecutable (40-salvaguardas.md §5; A-011)"
+# core.hooksPath vive en .git/config, que no se versiona: cada clon y cada máquina lo activan.
+ruta_hooks="$(git config --get core.hooksPath || true)"
+if [ "$ruta_hooks" != ".agents/scripts/git-hooks" ]; then
+    fallo "core.hooksPath vale '${ruta_hooks:-sin definir}'. En este clon: git config core.hooksPath .agents/scripts/git-hooks"
+fi
+for f in .agents/scripts/git-hooks/*; do
+    [ -f "$f" ] || continue
+    [ -x "$f" ] || fallo "$f no es ejecutable: git lo ignora en silencio"
+    [ "$(git ls-files -s -- "$f" | cut -c1-6)" = "100755" ] || fallo "$f no está versionado como 100755"
+done
+echo "core.hooksPath: ${ruta_hooks:-sin definir}"
+
+paso "CLAUDE.md espeja AGENTS.md (ADR 0014)"
+# La fuente es AGENTS.md: CLAUDE.md solo la importa. Si crece, vuelve a haber dos verdades.
+if ! grep -qx '@AGENTS.md' CLAUDE.md; then
+    fallo "CLAUDE.md no importa AGENTS.md (falta la línea @AGENTS.md)"
+fi
+lineas_claude="$(grep -c -v '^[[:space:]]*$' CLAUDE.md)"
+[ "$lineas_claude" -le 4 ] || fallo "CLAUDE.md tiene $lineas_claude líneas con texto: lo normativo va en AGENTS.md"
+echo "CLAUDE.md: $lineas_claude líneas con texto"
+
 paso "Subagentes generados al día"
 python3 -B .agents/scripts/generar_agentes.py --check || fallo "agentes desfasados"
 
