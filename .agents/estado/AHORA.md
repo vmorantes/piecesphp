@@ -12,7 +12,43 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#061 · ARQ`. El próximo número es `#062`.
+- **Último mensaje enviado:** `#065 · ARQ`. El próximo número es `#066`.
+  - `#064 · COD`: `#063` parado en el PASO 2, con C0 hecho (`7d82e4f7`).
+    - El navegador carga `configurations.min.js`, que sale de gulp (`gulpfile.js:88-120`,
+      `assets.php:444`); `configurations.js` no se sirve nunca. Compilar necesita la orden del
+      PO.
+    - En esta instalación, la traducción automática está apagada: todos los idiomas están en
+      `autoTranslateFromLangGroupHTMLIgnoreLangs` (`lang.php:53`) y ninguna vista produce
+      `lang-group`.
+    - Auditoría limpia: 2.402 pares guardados sin carga maliciosa.
+  - `#065`: en el servidor, `translateGroup` completo y `saveGroup` todavía vivo pero filtrado
+    por `acceptTranslations()`, sin sobrescribir y con el idioma y el grupo validados. Eso
+    cierra el agujero sin compilar. La fuente de `configurations.js` se cambia y se commitea.
+    El 410 de `saveGroup` y la prueba en navegador esperan a la compilación.
+- *(histórico)* **Último mensaje enviado:** `#063 · ARQ`.
+  - `#062 · COD`: LF cerrado en los cinco repositorios, con los árboles limpios y todo en verde.
+    - piecesphp: `73e39085` (C1), `c90c8e51` (`normaliza-eol` con `-z`, provocado),
+      `fb5578e3` (el ADR 0012) y `26c60270` (estado).
+    - Paquetes: database `f4358ba`, datastructures `c7c18b9`, geojson `a855039` y html
+      `12430ed`, todos en `dev`.
+    - `add --renormalize` con `diff --cached` vacío en los cinco.
+  - El arquitecto convirtió a LF `.agents/estado/` (4 reescritos, «contenido alterado:
+    NINGUNO») y depositó: la corrección del «Cómo actualizar» del `CHANGELOG` (faltaba el
+    `add --renormalize`), la trampa en `12-convenciones.md` y la bitácora 0010.
+  - Ronda del tirón: 6 de 20, contando `#053`, `#055`, `#057`, `#059`, `#061` y `#063`.
+  - **Mailpit (2.7), verificado en su repositorio oficial** (github.com/axllent/mailpit, el
+    2026-09-15):
+    - licencia MIT (Ralph Slooten), sin cuenta ni registro;
+    - un solo binario estático que corre sin root ni servicio, con desarrollo activo;
+    - **⚠ por defecto escucha en `0.0.0.0` (SMTP 1025 y web 8025):** se arrancará con
+      `--listen 127.0.0.1:8025 --smtp 127.0.0.1:1025`;
+    - la ausencia de telemetría NO consta en la página: sin verificar.
+
+    Cumple la condición del PO. Borrador del ADR en `adr-mailpit-borrador.md`, en el
+    scratchpad.
+  - Instrucciones listas en el scratchpad: 4c, 4b-1 (cron), 4b-2 (archivos) y 5 (OTP). Mapas de
+    E3 y de los avatares, en curso.
+- *(histórico)* **Último mensaje enviado:** `#061 · ARQ`.
   - `#060 · COD`: `#059` parado a propósito en T3 de piecesphp, sin commits.
     - `bin/normaliza-eol` falla con 10 rutas no ASCII, porque git las cita.
     - `git status` marca 1511 archivos, pero solo 9 cambian de contenido: el índice quedó con
@@ -179,6 +215,23 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
+00. **✔ Contestada por el PO (A-003, 2026-09-15): «la compilación de gulp no necesita
+    permiso».**
+    - Se registra como excepción del repositorio en un ADR, al depositar: el coder ejecuta las tareas
+      de gulp del proyecto cuando la instrucción lo diga, y el diff del compilado se revisa antes de
+      commitear.
+    - Se aplica al 3b en la ronda siguiente.
+    - Último mensaje al PO: **A-003**.
+    Pregunta original: **¿Autorizas compilar el JS (gulp, solo `jsTask`)?**
+   - El navegador no carga `configurations.js`, sino `configurations.min.js`, que genera gulp.
+     Sin compilar, el cambio del 3b en el navegador no llega.
+   - El agujero ya queda cerrado en el servidor (`#065`): `saveGroup` filtra lo que recibe.
+   - Compilar regenera el `.min.js` desde todas sus fuentes (`helpers-lib`, `translations`,
+     `configurations.js` y `helpers.js`). El compilado tiene 25 días más que las fuentes, así que
+     arrastraría todo lo cambiado desde entonces. Se revisaría el diff antes de commitear.
+   - Con la compilación irían el 410 de `saveGroup` y la prueba en navegador.
+   - *Predeterminado:* no se compila; el filtro del servidor protege mientras tanto.
+   - Lo mismo pasará con E3 si el CSS de MySpace está compilado y versionado.
 0. **⚠ GRAVE — `app_key` con valor de relleno (verificado por el arquitecto, 2026-09-15).**
    - `config.php:81` la trae con un texto de relleno público. `Config::app_key()`
      (`Config.php:1063-1067`) la devuelve tal cual, y `bootstrap.php:313/316` firma con ella
@@ -193,6 +246,13 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
      3. una tarea `bin/cli` para generarla.
    - Cambiarla cierra todas las sesiones abiertas. Encaja con 5b, cuya decisión es derivar las
      claves JWT fijas de `app_key`.
+0b. **La recuperación de contraseña puede enviar una contraseña nueva EN CLARO por correo.**
+   - `RecoveryPasswordController::mailNewPassword()` (587-611). **Verificado por el arquitecto:**
+     hace `render('usuarios/mail/restored_password', ['password' => $password])` y lo envía
+     (asunto «Contraseña nueva»).
+   - Es una función existente, no una fuga nueva.
+   - *Predeterminado:* se mantiene y se documenta. Recomendación del arquitecto: sustituirla por el
+     enlace o el código de recuperación, que ya existen.
 1. **H1 de `#050`: el SQL y las filas crudas viajan al navegador** en todos los listados de
    `DataTablesHelper`. Es núcleo transversal y su diseño no está acordado: se le presenta con la
    medición de `#052` delante.
