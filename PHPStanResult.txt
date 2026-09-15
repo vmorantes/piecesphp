@@ -1173,35 +1173,35 @@
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/AppConfigController.php                                                                                                     
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
-  215    Argument of an invalid type array|stdClass|string supplied for foreach, only iterables are supported.                                          
+  216    Argument of an invalid type array|stdClass|string supplied for foreach, only iterables are supported.                                          
          🪪  foreach.nonIterable                                                                                                                        
-  391    Parameter Nr.1 $string of function trim expects string, array|stdClass|string given.                                                             
+  392    Parameter Nr.1 $string of function trim expects string, array|stdClass|string given.                                                             
          🪪  argument.type                                                                                                                              
-  392    Parameter Nr.1 $resource of function basepath expects string, array|stdClass|string given.                                                       
+  393    Parameter Nr.1 $resource of function basepath expects string, array|stdClass|string given.                                                       
          🪪  argument.type                                                                                                                              
-  1514   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1515   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1561   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1562   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1565   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1566   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1573   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1574   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1580   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1581   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1660   Cannot call method getSlug() on Publications\Mappers\PublicationCategoryMapper|null.                                                           
+  1661   Cannot call method getSlug() on Publications\Mappers\PublicationCategoryMapper|null.                                                           
          🪪  method.nonObject                                                                                                                           
-  1665   Cannot call method getLangData() on Publications\Mappers\PublicationCategoryMapper|null.                                                       
+  1666   Cannot call method getLangData() on Publications\Mappers\PublicationCategoryMapper|null.                                                       
          🪪  method.nonObject                                                                                                                           
-  1676   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                   
+  1677   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                   
          🪪  method.nonObject                                                                                                                           
-  1677   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
+  1678   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
          🪪  property.nonObject                                                                                                                         
-  1680   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
+  1681   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  2075   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
+  2091   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
          🪪  argument.type                                                                                                                              
-  2121   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
+  2137   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1931,9 +1931,9 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/ServerStatics.php                                                                             
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
-  559    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
+  564    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
          🪪  argument.type                                                                                                              
-  952    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
+  957    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
          🪪  argument.type                                                                                                              
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
 
