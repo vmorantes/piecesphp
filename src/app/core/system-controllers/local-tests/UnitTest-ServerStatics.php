@@ -33,7 +33,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $texto = static fn ($valor): string => var_export($valor, true);
 
     //──── 1. Rangos ────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/4] resolveRange(): un tramo → [inicio, fin]; inválido o fuera → false (416); varios o ninguno → null (200)');
+    echoTerminal('[1/5] resolveRange(): un tramo → [inicio, fin]; inválido o fuera → false (416); varios o ninguno → null (200)');
 
     $casos = [
         ['', 1000, null, 'sin cabecera → archivo entero'],
@@ -59,7 +59,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Cache-Control ─────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/4] cacheControlValue(): lo validado es privado; lo público, como antes');
+    echoTerminal('[2/5] cacheControlValue(): lo validado es privado; lo público, como antes');
 
     $privado = ServerStatics::cacheControlValue(true, false);
     $check($privado === 'private, max-age=5256000, must-revalidate', 'validado → private, max-age=5256000, must-revalidate', $privado);
@@ -69,7 +69,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Vary ──────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/4] varyValues(): de qué depende la respuesta');
+    echoTerminal('[3/5] varyValues(): de qué depende la respuesta');
 
     $check(ServerStatics::varyValues(true, false, false) === ['Cookie', 'Authorization'], 'validado → Vary: Cookie, Authorization');
     $check(ServerStatics::varyValues(true, true, true) === ['Cookie', 'Authorization', 'Accept', 'Accept-Encoding'], 'validado, convertido y comprimido → los cuatro');
@@ -79,12 +79,25 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. ETag ──────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[4/4] eTagFor(): fecha, tamaño y tipo de salida');
+    echoTerminal('[4/5] eTagFor(): fecha, tamaño y tipo de salida');
 
     $check(ServerStatics::eTagFor(1757966939, 193) === ServerStatics::eTagFor(1757966939, 193), 'DISCRIMINANTE: lo mismo da el mismo ETag');
     $check(ServerStatics::eTagFor(1757966939, 193) !== ServerStatics::eTagFor(1757966939, 6291456), 'misma fecha y distinto tamaño → distinto ETag (antes coincidían)');
     $check(ServerStatics::eTagFor(1757966939, 193) !== ServerStatics::eTagFor(1757966939, 193, ServerStatics::TYPE_WEBP), 'el original y su WebP → distinto ETag');
     $check(ServerStatics::eTagFor(1757966939, 193) !== ServerStatics::eTagFor(1757966940, 193), 'distinta fecha → distinto ETag');
+    echoTerminal(' ');
+
+    //──── 5. Compresión ────────────────────────────────────────────────────────────────────────
+    echoTerminal('[5/5] allowCompression(): solo el texto');
+
+    //Si esto cae, un PDF o un vídeo vuelven a leerse enteros para comprimirlos y pierden el streaming y el Range.
+    $comprime = new \ReflectionMethod(ServerStatics::class, 'allowCompression');
+    foreach (['pdf', 'png', 'jpg', 'webp', 'mp4', 'woff2', 'zip', 'xyz'] as $binario) {
+        $check($comprime->invoke(null, $binario) === false, "{$binario} → sin comprimir");
+    }
+    foreach (['css', 'js', 'json', 'csv', 'svg', 'txt', 'map', 'html'] as $extensionTexto) {
+        $check($comprime->invoke(null, $extensionTexto) === true, ($extensionTexto === 'css' ? 'DISCRIMINANTE: ' : '') . "{$extensionTexto} → se comprime");
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────────────

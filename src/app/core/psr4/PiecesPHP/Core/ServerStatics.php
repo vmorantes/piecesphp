@@ -75,12 +75,17 @@ class ServerStatics
     ];
 
     /**
-     * @var array Algoritmos de compresión soportados (ordenados por preferencia)
+     * @var array Algoritmos de compresión soportados. Gana el de índice MAYOR (selectCompressionAlgorithm): hoy, gzip
      */
     private const SUPPORTED_COMPRESSION_ALGORITHMS = [
         'deflate',
         'gzip',
     ];
+
+    /**
+     * @var string[] Texto que se comprime aunque no tenga DATA_TYPE. Lo demás sin DATA_TYPE no se comprime: ver allowCompression()
+     */
+    private const COMPRESSIBLE_TEXT_WITHOUT_DATA_TYPE = ['mjs', 'map', 'svg', 'txt', 'html', 'htm', 'xml'];
 
     /**
      * @var array Extensiones que requieren revalidación obligatoria
@@ -171,7 +176,7 @@ class ServerStatics
     const DATA_TYPE_PNG = [
         'code' => self::TYPE_PNG,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_PNG,
         'convertTo' => self::TYPE_WEBP,
         'extensions' => [
@@ -182,7 +187,7 @@ class ServerStatics
     const DATA_TYPE_JPG = [
         'code' => self::TYPE_JPG,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_JPG,
         'convertTo' => self::TYPE_WEBP,
         'extensions' => [
@@ -194,7 +199,7 @@ class ServerStatics
     const DATA_TYPE_WEBP = [
         'code' => self::TYPE_WEBP,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_WEBP,
         'extensions' => [
             'webp',
@@ -204,7 +209,7 @@ class ServerStatics
     const DATA_TYPE_GIF = [
         'code' => self::TYPE_GIF,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_GIF,
         'convertTo' => self::TYPE_WEBP,
         'extensions' => [
@@ -215,7 +220,7 @@ class ServerStatics
     const DATA_TYPE_SWF = [
         'code' => self::TYPE_SWF,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_SWF,
         'extensions' => [
             'swf',
@@ -225,7 +230,7 @@ class ServerStatics
     const DATA_TYPE_MP3 = [
         'code' => self::TYPE_MP3,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_MP3,
         'extensions' => [
             'mp3',
@@ -235,7 +240,7 @@ class ServerStatics
     const DATA_TYPE_MP4 = [
         'code' => self::TYPE_MP4,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_MP4,
         'extensions' => [
             'mp4',
@@ -255,7 +260,7 @@ class ServerStatics
     const DATA_TYPE_PDF = [
         'code' => self::TYPE_PDF,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_PDF,
         'extensions' => [
             'pdf',
@@ -265,7 +270,7 @@ class ServerStatics
     const DATA_TYPE_WOFF2 = [
         'code' => self::TYPE_WOFF2,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_WOFF2,
         'extensions' => [
             'woff2',
@@ -275,7 +280,7 @@ class ServerStatics
     const DATA_TYPE_WOFF = [
         'code' => self::TYPE_WOFF,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_WOFF,
         'extensions' => [
             'woff',
@@ -285,7 +290,7 @@ class ServerStatics
     const DATA_TYPE_EOT = [
         'code' => self::TYPE_EOT,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_EOT,
         'extensions' => [
             'eot',
@@ -295,7 +300,7 @@ class ServerStatics
     const DATA_TYPE_TTF = [
         'code' => self::TYPE_TTF,
         'caching' => true,
-        'compress' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_TTF,
         'extensions' => [
             'ttf',
@@ -995,7 +1000,8 @@ class ServerStatics
     }
 
     /**
-     * Selecciona el algoritmo de compresión más apropiado
+     * Selecciona el algoritmo de compresión: entre los que acepta el cliente, el de índice MAYOR en
+     * SUPPORTED_COMPRESSION_ALGORITHMS. Con «gzip, deflate» gana gzip.
      *
      * @param string $acceptEncoding Header Accept-Encoding
      * @return string|null Algoritmo seleccionado
@@ -1104,8 +1110,9 @@ class ServerStatics
             self::initializeExtensionIndex();
         }
 
+        //SOLO TEXTO: un binario ya viene comprimido; comprimirlo gasta CPU, puede agrandarlo y le quita el streaming y el Range.
         $dataType = self::$extensionIndex[$extension] ?? null;
-        return $dataType ? $dataType['compress'] : true;
+        return $dataType ? $dataType['compress'] : in_array($extension, self::COMPRESSIBLE_TEXT_WITHOUT_DATA_TYPE, true);
     }
 
     /**
@@ -1376,19 +1383,26 @@ class ServerStatics
      */
     private static function writeAtomically(string $directory, string $target, string $data): bool
     {
-        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
-            return false;
+        //umask 0002: carpeta 0775 y archivos 0664 del grupo heredado (app/cache es setgid). Con el 0755 de Apache, la CLI
+        //no podía borrar la caché; con esto, sí, si su usuario es del grupo.
+        $oldUmask = umask(0002);
+        try {
+            if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+                return false;
+            }
+            $temporary = $target . '.' . bin2hex(random_bytes(6)) . '.tmp';
+            if (file_put_contents($temporary, $data) === false) {
+                return false;
+            }
+            if (!rename($temporary, $target)) {
+                //RETORNO-IGNORADO: el temporal que no se pudo renombrar se retira si se puede; el fallo ya lo dice el rename.
+                @unlink($temporary);
+                return false;
+            }
+            return true;
+        } finally {
+            umask($oldUmask);
         }
-        $temporary = $target . '.' . bin2hex(random_bytes(6)) . '.tmp';
-        if (file_put_contents($temporary, $data) === false) {
-            return false;
-        }
-        if (!rename($temporary, $target)) {
-            //RETORNO-IGNORADO: el temporal que no se pudo renombrar se retira si se puede; el fallo ya lo dice el rename.
-            @unlink($temporary);
-            return false;
-        }
-        return true;
     }
 
     /**
