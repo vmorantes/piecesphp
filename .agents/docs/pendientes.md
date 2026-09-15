@@ -853,6 +853,23 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **`#073`/`#074`, 2026-09-15: el 4c, cerrado, más la guarda y el hook.**
+  - `b8728777` la guarda, `fcf5acf6` el hook a 100755 (con `git update-index --chmod=+x`,
+    porque `core.fileMode` no deja ver el chmod), `2fcb1f5b` P25, `17ca919d` `canManage` con
+    estados, 404 y un correo por cambio, y `1132ea87` las pruebas.
+  - P25: sin sesión, 404 en la página y 403 en el archivo; aprobada, 200; con `CAN_VIEW_DRAFT`,
+    200 como vista previa. Suites 60/60 y 33/33, provocadas.
+  - El hook `commit-msg` ya se ejecuta en cada commit (el PO activó `core.hooksPath`).
+  - Hallazgos, a los residuos:
+    - **H2:** `bin/guarda-add` dejó pasar «1·4·0» (añadido 0 con previsto 1), porque los
+      pendientes cuadraban. Debería parar si añadido != previsto;
+    - **H3:** `singleView()` suma una visita también en la vista previa de una pendiente;
+    - **H4:** el desplegable «Tipo de contenido» de Aprobaciones es global. El tipo 12 ve
+      etiquetas de tipos de otras organizaciones, no registros.
+- **Principio del PO (2026-09-15, sobre A-012): `AGENTS.md` y `.agents/` son el estándar;
+  `CLAUDE.md` se espeja.** Aplicado en el ADR 0014.
+- **A-011: `verificar.sh` comprueba `core.hooksPath`** y el modo del hook. La orden va en
+  `AGENTS.md`.
 - **Aviso del arquitecto de `andamiaje-arquitecto-coder` (2026-09-15), verificado aquí:**
   1. **El hook `commit-msg` no es ejecutable** (`100644` en git y `-rw-rw-r--` en disco): git lo
      ignoraría. Además, `core.hooksPath` NO está puesto, así que hoy no actúa de ninguna forma.

@@ -370,6 +370,21 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   mano.
 - **Si tu proyecto daba por hecho que el tipo 12 no entraba**, revisa tus menús: la ruta ya lo
   admite.
+- Además, el administrador de organización solo resuelve lo PENDIENTE: lo ya aprobado o
+  rechazado no lo puede cambiar. El correo al autor solo se envía cuando el estado cambia.
+
+### 20 · Una publicación sin aprobar deja de verse sin sesión
+
+- **Antes:** con el módulo de aprobaciones activo, una publicación activa y en fecha, pero
+  pendiente de aprobar, se veía por su enlace directo, y sus archivos también. Los listados
+  públicos ya la ocultaban.
+- **Ahora:** sin sesión, su página da 404 y sus archivos 403.
+- Quien tiene sesión y permiso de vista previa (`CAN_VIEW_DRAFT`) la sigue viendo, igual que
+  un borrador.
+- Si las aprobaciones están apagadas, nada cambia.
+- `PublicationMapper::isVisibleToPublic()` exige ahora la aprobación a través de
+  `isApprovedForPublic()`. **Si tu proyecto la usaba**, ten en cuenta que puede dar `false`
+  donde antes daba `true`.
 
 ---
 
