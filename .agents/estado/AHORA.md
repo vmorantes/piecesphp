@@ -12,8 +12,31 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#087 · ARQ` (ronda **18** de 20: H-L delante y el lote 6, E3).
-  El próximo número es `#088`.
+- **Último mensaje enviado:** `#089 · ARQ` (ronda **19** de 20: el lote 7b, las 19 guardas).
+  El próximo número es `#090`.
+  - `#088 · COD`: E3 cerrado (`16bd8a39`, `bd8ddfa7`, `27a6b8b4`, `ea6e514d`); H-L parado con
+    criterio, porque su causa está en el paquete `database`.
+  - **⚠⚠ H-R, PUNTO SERIO QUE ESPERA AL PO** (ver `pendientes.md`): el ORM escapa dos veces todo
+    campo de texto, y el INSERT ya liga valores.
+    - **Demostrado por el arquitecto:** el `stripslashes` previo BORRA las barras invertidas
+      legítimas al guardar (`C:\ruta` → `C:ruta`), y en la columna queda `O\'Brien`.
+    - Es el ORM y vive en un paquete hermano: no se instruye sin el PO.
+    - **H-L depende de esta decisión** y queda abierto.
+    - **Alcance, medido por el arquitecto (2026-09-15), para pasar a `pendientes.md` al cerrar
+      la ronda:**
+      - **112 campos de texto en 26 mappers** pasan por ese escape doble. Los que más:
+        Organization (15), Publication (8), Users (7), UserProfile (7), SystemApprovals (6),
+        OTPSecrets (6), Banner (6) y Documents (6);
+      - **la copia instalada y la del repositorio del paquete son IDÉNTICAS** byte a byte
+        ignorando el retorno de carro (mismo `sha256` normalizado). La instalada está en CRLF
+        porque Composer la puso antes del ADR 0012 y `src/vendor` no se versiona. Lo instalado
+        es `v4.1.0`, la última etiqueta del paquete: **el paquete no se ha movido**;
+      - por tanto, el arreglo va en el repositorio `database`, se etiqueta, y solo llega al
+        framework cuando se versiona e instala (regla 30).
+    - **Aviso para quien decida:** el escape de escritura y el `stripslashes` de lectura son una
+      PAREJA. Quitar solo uno cambia cómo se leen las filas que ya existen. La decisión necesita
+      elegir también qué se hace con lo ya guardado.
+- *(histórico)* **Último mensaje enviado:** `#087 · ARQ` (ronda 18).
   - `#086 · COD`: la inyección de `OTPHandler` cerrada, y tres más del barrido
     (`fce8ec9c`, `7d4c723e`); el 5b entero (`fa911716`, `700d5167`, `66305d39`, `8fde8816`).
     Suites: `sql-placeholders` 148/148 y `generic-tokens` 15/15, todas provocadas.
