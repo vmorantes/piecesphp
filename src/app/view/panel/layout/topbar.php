@@ -315,7 +315,14 @@ $hasAvatar = $currentUser->hasAvatar;
  * @var string
  */
 $avatar = $currentUser->avatar;
+$showAppKeyWarning = in_array($currentUserType, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]) && Config::app_key_is_placeholder();
 ?>
+
+<?php if ($showAppKeyWarning) : ?>
+<div class="ui warning message" app-key-placeholder-warning>
+    <?= __(AdminPanelController::ADMIN_LANG_GROUP, 'La app_key es la de relleno: las sesiones y los tokens se firman con una clave conocida. Genere una con bin/cli generate-app-key y póngala en config.php.'); ?>
+</div>
+<?php endif; ?>
 
 <div class="ui-pcs topbar-switches">
     <div class="ui-pcs topbar-toggle user-options">

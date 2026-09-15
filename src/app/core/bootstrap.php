@@ -315,6 +315,9 @@ BaseToken::setSecretKey(Config::app_key());
 //Configurar seguridad de encriptación con la app_key general
 BaseHashEncryption::setSecretKey(Config::app_key());
 
+//Con la app_key de relleno se AVISA (log y panel) y se arranca igual: la decisión de cambiarla es del clon.
+Config::warn_placeholder_app_key();
+
 //Configurar directorio de vistas por defecto
 BaseController::setViewDir(Config::app_path() . "/app/view/");
 
