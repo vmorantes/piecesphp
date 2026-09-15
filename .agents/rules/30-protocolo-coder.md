@@ -108,6 +108,11 @@ la ligereza de mi lenguaje»* (2026-08-24). Su frase textual solo se cita como f
   arquitecto lanzó la lectura de 28 sin preguntar cuáles.
 - **Respuestas en secciones numeradas** (1, 1.1, 2…), para que pueda citarlas en su respuesta
   («en 2.1…»). Vale para las explicaciones y los resúmenes al PO (2026-09-15).
+- **Cada mensaje del arquitecto al PO lleva un identificador `A-NNN`** en su primera línea.
+  - Es correlativo y distinto del `#NNN` de la cadena con el coder.
+  - Sirve para que el PO sepa y diga a qué mensaje responde: «A-003 §2.1».
+  - El último número usado vive en `AHORA.md`.
+  Nace del PO, el 2026-09-15.
 - **Una pregunta rápida se contesta corta.** Un comentario suyo de seguimiento no obliga a
   reemitir la instrucción (2026-08-26, 2026-08-27).
 - **Si un bloque cambia lógica del producto, se le explica en términos de lógica** en el resumen
@@ -334,6 +339,11 @@ con su línea de «ejecutada». Una suite omitida es una puerta fallada (LEY 13)
 
 La salida **real** va en el reporte. Si falta una herramienta del sistema, se detiene y lo
 reporta: instalarla es cosa del PO.
+
+**La verificación del producto se corre DESPUÉS del último cambio que entra en el commit**,
+también cuando ese cambio es instrumental (`files/dev/`). Una cifra medida antes no vale para lo
+commiteado. Nace de `#052`: en `#050` se retiró una entrada de `sql-concat-declared.json` después
+de correr `gates`, y el commit entró con una prueba rota.
 
 ### Commits
 

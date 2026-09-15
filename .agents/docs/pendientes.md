@@ -853,6 +853,110 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **Respuestas del PO a la batería para 20 rondas sin él (2026-09-15, durante `#051`):**
+  1. **2.1, sí.** Los lotes del núcleo con diseño ya acordado (3b, 4b y 5b) se ejecutan sin
+     volver a consultar. El trabajo se detiene solo si aparece algo que cambie ese diseño.
+  2. **2.2, sí al diseño del 4b**: el sufijo `.protected`, `Core/Statics/` con alias de
+     transición, cabeceras de caché privadas, `Vary`, streaming, rangos y P26 en FileManager.
+     - **Además, el cron del sistema** (`cronjob.php`):
+       - tiene que estar bien documentado para quien desarrolla;
+       - tiene que llevar reintentos y ventanas de recuperación. Hoy, si una tarea programada a
+         las 12:00 falla, no se recupera a las 12:01 aunque el crontab corra cada minuto.
+     - El diseño lo decide el arquitecto, y el PO lo acepta de antemano.
+  3. **2.3, OTP:** el bloqueo tras N intentos por usuario e IP y la respuesta uniforme, **los
+     dos configurables**.
+  4. **2.4, sí a los tokens genéricos.** Los enlaces ya emitidos dejan de valer.
+  5. **2.5, sí a E3.** Si se pasa de diez archivos, el plan se enseña al final del tirón,
+     preparado pero sin commitear.
+  6. **2.6, sí:** muere el creador de avatares y `see-more` se restaura.
+  7. **2.7, sí a Mailpit o MailHog**, siempre que sea local, seguro y no pida registrarse en
+     nada.
+     - El arquitecto propone Mailpit porque, por lo que sabe, tiene licencia MIT, es un solo
+       binario, no pide cuenta y escucha solo en `localhost`. **SIN VERIFICAR:** se comprueba en
+       su repositorio oficial al instruir 7c, y si algo no cuadra, se mira MailHog.
+     - Irá en `/tmp` o en el proyecto, sin instalación global ni servicio del sistema, y
+       arrancado solo mientras duren las pruebas.
+     - Las pruebas le indican al Mailer el SMTP de Mailpit en tiempo de ejecución, sin tocar la
+       configuración SMTP guardada. Lleva su propio ADR.
+  8. **2.8 a, P25 cambia: una publicación SIN APROBAR no debe verse**, ni en su página ni en sus
+     archivos, cuando SystemApprovals está activo.
+  9. **2.8 b, Locations:** lo que el arquitecto considere óptimo, documentado para quien
+     desarrolla. Predeterminado: los listados de puntos, ciudades y estados se quedan públicos,
+     porque son datos de referencia de los formularios públicos. Lo que devuelven se limita a
+     los campos que esos formularios necesitan. Se mide al instruirlo.
+  10. **Idea del PO (2.8):** que el requisito de aprobación se pueda encender o apagar por
+      módulo. El código lo deja preparado y el cliente decide. Hoy hay un interruptor global,
+      `SystemApprovalsRoutes::ENABLE`. **Predeterminado:** amplía una capacidad, así que va
+      después de la MAJOR, salvo que el PO diga lo contrario.
+  11. **2.9, entendido.** El trabajo se detiene solo en estos casos:
+      - algo cambia un diseño acordado;
+      - se pierde funcionalidad sin remedio;
+      - aparece un hallazgo grave (se le avisa y se sigue);
+      - surge una decisión de producto nueva;
+      - se llega a 20 rondas.
+  12. **Mensajes con identificador:** cada mensaje del arquitecto al PO lleva `A-NNN` en su
+      primera línea, para que pueda citarlo. Regla 30, «El PO, en sus palabras».
+- **Dudas del PO del 2026-09-15, para el final del tirón:**
+  - **Finales de línea.** Pregunta por qué hay tantos problemas y cómo se corrige su
+    `.editorconfig`. La respuesta está en el chat (A-001 §3). Resumen:
+    - la causa es la política CRLF en una máquina Linux: el índice guarda LF, la copia de
+      trabajo CRLF, y cada herramienta que escribe LF deja archivos mezclados;
+    - la propuesta es pasar los cinco repositorios a LF. No produce diff de contenido, porque el
+      índice ya está en LF. **Lo decide él**: es su configuración y afecta a los cinco
+      repositorios.
+    - Defectos del `.editorconfig`, medidos por lectura:
+      - `[{yaml,neon}]` casa con archivos llamados `yaml` o `neon`, no con sus extensiones;
+        debería ser `[*.{yaml,neon}]`;
+      - el comentario de `[*]` dice «Unix-style newlines» y declara CRLF.
+  - **Formato del código.** El PO formatea con VS Code (`.vscode/settings.json`):
+    - PHP, con `kokororin.vscode-phpfmt` (PSR-2 y siete pasadas);
+    - PHP con HTML, a mano, con «Format HTML in PHP» (`rifi2k.format-html-in-php`);
+    - JS, al guardar, con el formateador de VS Code y sin punto y coma;
+    - SCSS y CSS, con `michelemelluso.code-beautifier`.
+    Los agentes escriben sin pasar por esos formateadores. **Encargo para el final:** dar un
+    modo de formatear SOLO los archivos que tocó la campaña, en commits `style:` aparte, sin
+    mezclarlos con lógica. Si esas extensiones se pueden reproducir por línea de órdenes está
+    SIN VERIFICAR; se estudia al llegar.
+- **Respuestas del PO del 2026-09-15 (durante `#049`):**
+  - **Soporte legado de `having_string`: se mantiene.**
+    - `process()` lo sigue aceptando para los clones, y para ellos el buscador va por
+      `generateHaving()` y `escapeString()`, solo en ese camino.
+    - Se documenta como legado en el docblock de `process()` y de `escapeString()` y en el
+      `CHANGELOG.md`, con la guía para pasar a `having_segment`.
+    - Sin `@deprecated`, que sumaría un error de PHPStan por la llamada interna.
+  - **Los administradores de organización (tipo 12) pueden entrar a Aprobaciones y administrar
+    lo que les compete.** Trabajo nuevo:
+    - la ruta admite el tipo 12, y su listado queda limitado a su organización (C5 activo);
+    - `approvalAction` y el resto de acciones se limitan en el SERVIDOR a su organización;
+    - C3 pasa a actuar para los tipos que no se autoaprueban.
+    Se mide antes qué rutas y acciones tiene el módulo y qué correos envían (ADR 0011).
+  - **ADR 0011:** el correo real solo va a `@mailinator.com`, y se informa al PO de las
+    direcciones.
+  - **Comentarios del PO, no trabajo inmediato:**
+    - **Las vistas de LoginAttempts se rehacen desde cero**, bonitas, con la estética del resto
+      y dentro de la unificación de los registros (`roadmap-posterior/`, «Los registros»).
+    - **Se rehacen todas las vistas de configuración** (SMTP, SEO, etc.). **SMTP tiene que
+      poder probarse** desde su vista.
+    - **Idea:** un «Mailinator propio» algún día.
+- **`#049`/`#050`, 2026-09-15: SystemApprovals, fase 2.**
+  - **SystemApprovals va por marcador y es equivalente** (`0bff44c4`): 50 de 50 peticiones
+    HTTP y 72 de 72 casos de la sonda contra el controlador real.
+  - **LoginAttempts está hecho, medido (140/140) y sin commitear.** La foto de `#045` quedó
+    vieja por los datos de `#047`. El arquitecto acepta la foto nueva,
+    `/tmp/process-antes-049`, tomada con el código sin cambiar: la diferencia es de datos, no
+    de código. Se aplica en `#051`.
+  - **⚠ H1 de `#050`:** la respuesta JSON de los listados de `process()` lleva al navegador el
+    SQL ejecutado (`SQL_MAIN_EXECUTED`, `SQL_FILTER_COUNT_EXECUTED` y
+    `SQL_TOTAL_COUNT_EXECUTED`) y `rawData`, las filas crudas. Es una fuga de información si
+    ocurre fuera de local. Se mide en `#051` si depende de un modo de depuración. Es núcleo
+    transversal: se habla con el PO antes de cambiarlo.
+  - **Otros hallazgos:**
+    - H2: `AllProfilesController.php:169` pasa `having_string` a `processFromQuery()`, que no
+      tiene `having_segment`;
+    - H3: `LoginAttemptsModel::all()` usa `having($cadena)` con la organización de la sesión;
+    - H4: el `where_string` de LoginAttempts lleva la organización de la sesión;
+    - H8: el recuento de `sql-concat-declared.json` cita líneas viejas.
+    Todos son valores del servidor o de la sesión; van con los residuos del lote 4.
 - **`#047`/`#048`, 2026-09-15: SystemApprovals, fase 1.**
   - **La propuesta de traducción a marcador de sus cinco criterios es equivalente en 72 de 72
     casos**: seis usuarios reales, tres valores de `elapsedDays` y cuatro búsquedas, por una

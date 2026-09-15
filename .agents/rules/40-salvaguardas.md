@@ -33,6 +33,10 @@ autoriza: la regla es esta, la guarda es una red.
   las pruebas. Condiciones: los registros llevan un prefijo reconocible, se guarda el estado antes
   (`bin/cli db-backup`) y todo se enumera en el reporte. Nunca contra un servidor remoto ni con
   otras credenciales.
+- **Excepción del ADR 0011 (PO, 2026-09-15):** el correo real de una prueba solo puede ir a
+  direcciones `zz-prueba-…@mailinator.com`, que son buzones públicos. El reporte lista cada
+  dirección, qué lo envió y cuándo, para que el PO lo revise. Ningún otro destinatario; nada
+  sensible en el correo; sin tocar la configuración SMTP; sin envíos en masa.
 - La base **local de desarrollo** la usan las tareas de `bin/cli` que la instrucción nombre.
   Las que escriben o destruyen datos (`db-restore`, `scheme-drop`, `scheme-create`,
   `clean-all`) solo con orden explícita en la instrucción, y la instrucción solo las ordena con
