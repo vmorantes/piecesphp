@@ -76,5 +76,18 @@ $cronjobs[] = CronJobTask::make('Rellenar slugs pendientes', function () {
     ];
 })->dailyAt("00:10");
 
+//Las carpetas de publicaciones cuya visibilidad cambió con la fecha (startDate o endDate): cada hora, al minuto 5
+$cronjobs[] = CronJobTask::make('Sincronizar visibilidad de publicaciones', function () {
+
+    $summary = \Publications\Controllers\PublicationsController::syncAllUploadsVisibility();
+
+    return [
+        'success' => $summary['failed'] === 0,
+        'message' => "Revisadas {$summary['publications']} publicación(es) activas: {$summary['renamed']} archivo(s) renombrados, "
+            . "{$summary['conflicts']} conflicto(s), {$summary['failed']} fallo(s).",
+        'extra_data' => $summary,
+    ];
+})->onMinute(5);
+
 //Asignación global
 CronJobTask::addCronJobs($cronjobs);
