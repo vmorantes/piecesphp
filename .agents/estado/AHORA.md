@@ -1,17 +1,15 @@
 # Ahora
 
-- **Actualizado:** 2026-09-14 18:52 (medido con `date`). **Tramo sin el PO, CERRADO** tras las
-  cinco rondas autorizadas («Puedes trabajar unas tres o cinco rondas, pero toma en cuenta que no
-  estaré así que no responderé nada»).
-- **Último mensaje:** `#038 · ARQ`, la ronda de cierre, que solo commitea documentos. El próximo
-  número es `#039`, su reporte. Después viene `#040`.
-- **Tramo:** [`tramos/2026-09-14-1726-desatendido-lote-3a.md`](tramos/2026-09-14-1726-desatendido-lote-3a.md),
-  cerrado, con su resumen.
-- **Informe del estado del proyecto**, al día:
-  [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md).
-- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-- **Rama:** `dev`, en `69b48dc7` antes de `#038`. Hay 27 commits sin empujar en piecesphp; los
-  paquetes, sin cambios desde la subida del PO.
+- **Actualizado:** 2026-09-15 10:22 (medido con `date`).
+- **Último mensaje:** `#040 · ARQ`, en vuelo: lote 4, bloque 2, y el estudio del 4b. El próximo
+  número es `#041`.
+- **Tramo en curso:** [`tramos/2026-09-15-1022-lote-4-y-estudio-4b.md`](tramos/2026-09-15-1022-lote-4-y-estudio-4b.md).
+- **Tramo anterior:** [`tramos/2026-09-14-1726-desatendido-lote-3a.md`](tramos/2026-09-14-1726-desatendido-lote-3a.md),
+  cerrado.
+- **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md).
+- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`,
+  los dos renombrados hoy.
+- **Rama:** `dev`, en `08a3c2e6`. Hay 29 commits sin empujar en piecesphp.
 
 ## Autorización de commits del PO (ADR 0005)
 
@@ -32,38 +30,37 @@ que el PO nombra y el arquitecto instruye, sin pedir permiso commit a commit.
 Si la herramienta del coder pide confirmación al commitear, la da el PO en esa sesión.
 
 **Trabajo nombrado por el PO:** el mapa, `../docs/roadmap.md`, en su orden. Orden del PO:
-«Trabaja. Adelante.» (2026-09-14).
+«Trabaja. Adelante.» (2026-09-14) y «Trabajen» (2026-09-15).
 
 ## Espera al PO
 
-Nada bloquea el mapa. Para cuando vuelva:
-
-1. **El plan del lote 4, bloque 2**: migrar los 14 llamadores de `DataTablesHelper::process()`
-   para quitar el último `escapeString()` de la búsqueda del panel. Pasa de diez archivos, así
-   que lo ve antes (regla de los diez).
-2. **P25 (candidata)**: una publicación sin aprobar se ve por su enlace directo, y sus archivos
-   se sirven, aunque el listado la oculte. *Predeterminado*: se queda así.
-3. **Locations**: los listados públicos de puntos, ciudades y estados enseñan tablas enteras sin
-   sesión. *Predeterminado*: se quedan públicos.
-4. **Subir cuando quiera**: 27 commits.
-
-Siguen abiertas en `docs/pendientes.md`: qué perfeccionar del geovisor, el francés, el rol 50 con
-nombre `null` y `Components`.
+Nada bloquea. Abiertas, con predeterminado, en `docs/pendientes.md`:
+1. **P26 — FileManager.** Los archivos del editor irían a la carpeta de su registro, el
+   FileManager general pediría sesión y lo existente quedaría declarado.
+2. **P25 (candidata)** — una publicación sin aprobar se ve por su enlace directo.
+3. **Locations** — los listados públicos se quedan públicos.
+4. **El plan de los 14 llamadores de `process()`** (regla de los diez): se le presenta al
+   recibir `#041`.
+5. **Subir cuando quiera**: 29 commits.
 
 ## En curso
 
-`#038`, cierre: el coder commitea las bitácoras 0008 y 0009, el `CHANGELOG.md`, el mapa,
-`pendientes.md`, el informe y el estado. Nada del producto.
+**`#040`**, en cuatro tareas:
+- T1: commitear lo del arquitecto: `pendientes.md`, el mapa y el estado.
+- T2: la familia de las etiquetas en literal JSON del `SELECT`, en seis mappers, con un ayudante
+  que emite literales hexadecimales. Salen los cuatro `escapeString()` de `OrganizationMapper`.
+- T3: medir, sin cambiar nada, el plan de los 14 llamadores de `DataTablesHelper::process()`.
+- T4: estudiar el 4b en solo lectura: las opciones de elFinder (detectar el tipo por contenido,
+  bloquear por patrón, servir por el conector) y lo que `ServerStatics` necesita para lo
+  protegido.
 
-## Siguiente — la próxima jornada
+Si se corta ahora: puede quedar código a medio cambiar en los mappers. `git status` y
+`verify-integrity` lo dicen.
 
-1. **Las dos órdenes `/rename`**, antes que nada.
-2. **Lote 4, bloque 2:**
-   - las etiquetas de `OrganizationMapper.php:664-667` sin `escapeString()`: pasarlas a PHP
-     después de leer la fila, o un literal hexadecimal. Medir antes cuál conserva el resultado;
-   - el plan de los 14 llamadores de `process()`, presentado al PO;
-   - al final, `@deprecated` en `escapeString()` y el cero en la prueba de fuente.
-3. **Lote 5 (OTP)** y **5b (tokens genéricos)**, en su orden.
+## Siguiente
+
+- Con `#041`: presentar al PO el plan de los 14 llamadores; con el estudio, el ADR del 4b.
+- Después, el lote 5 (OTP) y el 5b (tokens genéricos).
 
 ## Para una sesión nueva
 
