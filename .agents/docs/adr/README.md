@@ -59,3 +59,4 @@ procedencia.
 | [0007](0007-actualizar-herramientas-de-analisis.md) | Excepción: los agentes actualizan las herramientas de análisis con Composer | sí | Aceptada |
 | [0008](0008-sincronizar-entorno-local-de-paquetes.md) | Excepción: los agentes sincronizan el entorno local de los paquetes hermanos | sí | Aceptada |
 | [0009](0009-escapestring-cede-al-marcador.md) | `escapeString()` cede al marcador y queda obsoleta; no se toca `sql_mode` | sí | Aceptada |
+| [0010](0010-pruebas-contra-la-aplicacion-local.md) | Pruebas contra la aplicación local: navegador simulado y escrituras en la base de prueba | sí | Aceptada |

@@ -170,6 +170,12 @@ Solo en estos casos:
      desarrollo, no**: el PO la delegó en el arquitecto el 2026-09-02 («Todo la instrumentación
      de análisis en desarrollo está en tus manos»), que la decide y la avisa en prosa;
    - mover una línea base por un motivo que no sea el trabajo del propio bloque;
+   - **cambiar un elemento transversal del núcleo** (PO, 2026-09-15): lo que usan muchos
+     módulos a la vez, como `DataTablesHelper`, `Config`, las traducciones (`__()`,
+     `LangInjector`), `ServerStatics`, `ProtectFileMiddleware`, `PageQuery`, las rutas o el ORM.
+     Se habla antes con el PO, con el plan y sus alternativas delante, aunque el cambio sea
+     pequeño y esté dentro del mandato. Un cambio así puede arruinar el trabajo de todo el
+     framework. Nace de `#042`, que se retiró por salir sin esa conversación;
    - algo irreversible sin un estado guardado que lo deshaga;
    - contradecir una decisión escrita en `.agents/context/` (LEY 32).
 5. **La regla de los diez** (18 T0bis): un cambio que borre o mueva declaraciones en más de

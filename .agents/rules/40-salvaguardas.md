@@ -27,6 +27,12 @@ autoriza: la regla es esta, la guarda es una red.
 
 - Lo de `00-core.md`: ninguna conexión sin permiso, y conectarse no es escribir.
 - Ningún cliente de base de datos (`mysql`, `mariadb`, `psql`…): la guarda los bloquea.
+- **Excepción del ADR 0010 (PO, 2026-09-15):** contra la instalación LOCAL de esta máquina, que
+  es de prueba y desechable, el coder puede hacer peticiones HTTP como un navegador, entrar con
+  las credenciales de prueba locales y crear, editar o borrar registros por la aplicación o por
+  las pruebas. Condiciones: los registros llevan un prefijo reconocible, se guarda el estado antes
+  (`bin/cli db-backup`) y todo se enumera en el reporte. Nunca contra un servidor remoto ni con
+  otras credenciales.
 - La base **local de desarrollo** la usan las tareas de `bin/cli` que la instrucción nombre.
   Las que escriben o destruyen datos (`db-restore`, `scheme-drop`, `scheme-create`,
   `clean-all`) solo con orden explícita en la instrucción, y la instrucción solo las ordena con
