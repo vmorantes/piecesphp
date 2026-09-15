@@ -558,15 +558,15 @@
          🪪  method.nonObject                                                                        
   691    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.                     
          🪪  method.nonObject                                                                        
-  843    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
+  837    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
          🪪  property.nonObject                                                                      
-  877    Variable $page on left side of ??= always exists and is not nullable.                       
+  871    Variable $page on left side of ??= always exists and is not nullable.                       
          🪪  nullCoalesce.variable                                                                   
-  878    Variable $perPage on left side of ??= always exists and is not nullable.                    
+  872    Variable $perPage on left side of ??= always exists and is not nullable.                    
          🪪  nullCoalesce.variable                                                                   
-  919    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
+  913    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
-  919    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
+  913    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
  ------ -------------------------------------------------------------------------------------------- 
 
@@ -583,19 +583,19 @@
          🪪  argument.type                                                                                                                      
   601    Parameter Nr.3 $langs of method News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, list<int|string> given.               
          🪪  argument.type                                                                                                                      
-  1117   Cannot access property $id on News\Mappers\NewsMapper|null.                                                                            
+  1111   Cannot access property $id on News\Mappers\NewsMapper|null.                                                                            
          🪪  property.nonObject                                                                                                                 
-  1300   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
+  1294   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
          🪪  argument.type                                                                                                                      
-  1308   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
+  1302   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                 
-  1308   Parameter Nr.1 $value of class News\Mappers\NewsCategoryMapper constructor expects int|null, int|News\Mappers\NewsCategoryMapper given.  
+  1302   Parameter Nr.1 $value of class News\Mappers\NewsCategoryMapper constructor expects int|null, int|News\Mappers\NewsCategoryMapper given.  
          🪪  argument.type                                                                                                                      
-  1309   Cannot access property $profilesTarget on News\Mappers\NewsMapper|null.                                                                
+  1303   Cannot access property $profilesTarget on News\Mappers\NewsMapper|null.                                                                
          🪪  property.nonObject                                                                                                                 
-  1310   Cannot access property $createdBy on News\Mappers\NewsMapper|null.                                                                     
+  1304   Cannot access property $createdBy on News\Mappers\NewsMapper|null.                                                                     
          🪪  property.nonObject                                                                                                                 
-  1311   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.                                                                    
+  1305   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.                                                                    
          🪪  property.nonObject                                                                                                                 
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -697,9 +697,9 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php                            
  ------ ------------------------------------------------------------------------------------------------------------ 
-  928    Cannot access property $id on PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper|null.                    
+  916    Cannot access property $id on PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper|null.                    
          🪪  property.nonObject                                                                                      
-  1201   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
+  1189   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
 
@@ -1964,19 +1964,19 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php                                           
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  396    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  401    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  451    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
+  456    Cannot call method getCompiledSQL() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.           
          🪪  method.nonObject                                                                                              
-  452    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
+  457    Cannot call method execute() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                  
          🪪  method.nonObject                                                                                              
-  453    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
+  458    Cannot call method getLastSQLExecuted() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.       
          🪪  method.nonObject                                                                                              
-  458    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
+  463    Cannot call method result() on class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.                   
          🪪  method.nonObject                                                                                              
-  634    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  639    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
-  684    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
+  689    Cannot clone non-object variable $model of type class-string<PiecesPHP\Core\BaseModel>|PiecesPHP\Core\BaseModel.  
          🪪  clone.nonObject                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------ 
 
