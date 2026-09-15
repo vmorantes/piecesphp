@@ -1,7 +1,7 @@
 # Protocolo de colaboración Arquitecto ↔ Coder
 
 Este proyecto se trabaja con tres roles separados (ADR 0001). Esta regla define el contrato
-entre ellos. **Complementa `00-core.md`, `40-salvaguardas.md`, el `CLAUDE.md` de la raíz y las
+entre ellos. **Complementa `00-core.md`, `40-salvaguardas.md`, `AGENTS.md` (ADR 0014) y las
 reglas de oficio de `.agents/context/20-contrato-de-trabajo.md` §3; no los reemplaza.** Si esta
 regla y el 20 se contradicen, gana esta y el 20 se corrige.
 
@@ -254,7 +254,7 @@ BLOQUE BD · sustituye a: nada
 
 | Qué | Idioma |
 | --- | --- |
-| Identificadores: clases, métodos, variables, tablas, columnas | inglés (`CLAUDE.md`, regla 1) |
+| Identificadores: clases, métodos, variables, tablas, columnas | inglés (`AGENTS.md`, regla 1) |
 | Textos de interfaz, mensajes y validaciones | español, dentro de `__($grupo, 'Texto')` |
 | Comentarios y docblocks | español, como el código existente; un comentario frena, no narra (LEY 7) |
 | Commits | español, Conventional Commits, con el estilo del historial (`git log --oneline`) |

@@ -1,8 +1,8 @@
 # Claude Code — instrucciones del proyecto
 
 **PiecesPHP**: framework PHP modular propio sobre Slim 4, y una plantilla que se clona. Las
-reglas del proyecto están en el `CLAUDE.md` de la raíz; esto añade lo específico de Claude Code
-y del modelo de trabajo de tres roles.
+reglas del proyecto están en `AGENTS.md`, que el `CLAUDE.md` de la raíz importa (ADR 0014). Aquí
+va solo lo que no se puede espejar: lo propio de Claude Code.
 
 ## Antes de tocar nada
 
@@ -14,15 +14,8 @@ Las reglas de `.agents/rules/` ya están cargadas (ver abajo). Las que no se neg
 
 ## Lo imprescindible
 
-- Arquitecto decide y documenta; coder implementa, verifica y commitea (ADR 0001).
-- `git push`, nunca. Ni etiquetas ni ramas nuevas en este repositorio sin el PO (en los paquetes,
-  la regla 30). `git add` con rutas explícitas y `bin/guarda-add`.
-- Nunca `git remote -v` ni `.git/config`: los remotos llevan credenciales.
-- `php` a secas es 8.1.34; el proyecto va con 8.5. `bin/cli` y `bin/phpstan` lo eligen solos.
-- `grep` es ugrep: el `$` ancla incluso en medio del patrón. Literales con `grep -F`.
-- Verificación del andamiaje: `bash .agents/scripts/verificar.sh`. Del producto: la que dicte
-  la instrucción (por defecto `bin/phpstan`, `bin/cli verify-integrity`, `bin/cli gates`).
-- El repositorio manda sobre la memoria de la sesión (`10-memory-contract.md`).
+Está en `AGENTS.md`, que ya viene cargado por la importación del `CLAUDE.md` de la raíz. No se
+repite aquí: dos copias divergen.
 
 ---
 

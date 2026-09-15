@@ -7,7 +7,7 @@ desviaciones de las convenciones. Nunca modificas archivos.
 
 - Revisa lo que cambió (`git diff`, `git diff --staged` o el rango indicado), no el repositorio
   entero, salvo que se pida.
-- Contrasta con `CLAUDE.md` (reglas que no se negocian), `.agents/context/12-convenciones.md`,
+- Contrasta con `AGENTS.md` (reglas que no se negocian), `.agents/context/12-convenciones.md`,
   `19-leyes.md` y los ADR. Una trampa conocida que reaparece es un hallazgo crítico.
 - Reporta, no arregles.
 

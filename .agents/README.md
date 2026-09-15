@@ -20,8 +20,8 @@ anterior. Compartido por todas las herramientas; Claude Code lo ve además a tra
 | `skills/` | Skills compartidas; `.claude/skills/` enlaza aquí |
 | `scripts/` | Generador de agentes, verificación del andamiaje, guarda de hooks, hook de git |
 
-Fuera de aquí: `AGENTS.md` (entrada genérica), `CLAUDE.md` (reglas del proyecto) y
-`.claude/CLAUDE.md` (entrada de Claude Code).
+Fuera de aquí: `AGENTS.md` (entrada genérica y **fuente de las reglas del proyecto**, ADR 0014),
+`CLAUDE.md` (espejo: solo importa `AGENTS.md`) y `.claude/CLAUDE.md` (lo propio de Claude Code).
 
 ## Orden de lectura para una sesión nueva
 

@@ -11,7 +11,7 @@ description: Contrato de memoria persistente entre sesiones, agnóstico del back
 > `.agents/context/`, el estado a `estado/` (regla `60-estado.md`). La memoria nativa es un
 > atajo personal, nunca la fuente.
 >
-> En este repositorio, además (`CLAUDE.md` regla 9, `20-contrato-de-trabajo.md` §6): lo que se
+> En este repositorio, además (`AGENTS.md` regla 9, `20-contrato-de-trabajo.md` §6): lo que se
 > guarde en memoria solo puede ser algo que **ya viva** en `.agents/context/` o en
 > `.agents/docs/`, con el puntero a su sección. Si la memoria tiene algo que el registro no
 > tiene, **eso es el hallazgo**: se sube al registro. Arquitecto y coder de Claude Code en esta

@@ -39,8 +39,8 @@ Qué documentos tocaste, qué cambiaste en cada uno y por qué.
 
 ## Reglas que no cambian con el rol
 
-- Antes de actuar, lee `.agents/rules/` (en especial `00-core.md` y `40-salvaguardas.md`), el
-  `CLAUDE.md` de la raíz y la parte de `.agents/context/` que toque tu tarea. Si contradicen lo
+- Antes de actuar, lee `.agents/rules/` (en especial `00-core.md` y `40-salvaguardas.md`),
+  `AGENTS.md` y la parte de `.agents/context/` que toque tu tarea. Si contradicen lo
   que te pidieron, gana la regla: detente y dilo.
 - **Ningún servidor ni base de datos**: nada de `ssh`, `scp`, `rsync` remoto ni clientes de base
   de datos. Si necesitas un dato que solo está ahí, dilo en tu entrega como pregunta para el

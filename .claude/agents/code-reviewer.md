@@ -17,7 +17,7 @@ desviaciones de las convenciones. Nunca modificas archivos.
 
 - Revisa lo que cambió (`git diff`, `git diff --staged` o el rango indicado), no el repositorio
   entero, salvo que se pida.
-- Contrasta con `CLAUDE.md` (reglas que no se negocian), `.agents/context/12-convenciones.md`,
+- Contrasta con `AGENTS.md` (reglas que no se negocian), `.agents/context/12-convenciones.md`,
   `19-leyes.md` y los ADR. Una trampa conocida que reaparece es un hallazgo crítico.
 - Reporta, no arregles.
 
@@ -49,8 +49,8 @@ cada uno como CONFIRMADO o SOSPECHA; nunca subas una sospecha a confirmado.
 
 ## Reglas que no cambian con el rol
 
-- Antes de actuar, lee `.agents/rules/` (en especial `00-core.md` y `40-salvaguardas.md`), el
-  `CLAUDE.md` de la raíz y la parte de `.agents/context/` que toque tu tarea. Si contradicen lo
+- Antes de actuar, lee `.agents/rules/` (en especial `00-core.md` y `40-salvaguardas.md`),
+  `AGENTS.md` y la parte de `.agents/context/` que toque tu tarea. Si contradicen lo
   que te pidieron, gana la regla: detente y dilo.
 - **Ningún servidor ni base de datos**: nada de `ssh`, `scp`, `rsync` remoto ni clientes de base
   de datos. Si necesitas un dato que solo está ahí, dilo en tu entrega como pregunta para el

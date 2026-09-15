@@ -63,3 +63,4 @@ procedencia.
 | [0011](0011-correo-real-a-mailinator.md) | Correo real de prueba, solo a buzones públicos de Mailinator | sí | Aceptada |
 | [0012](0012-lf-en-los-cinco-repositorios.md) | Finales de línea LF en los cinco repositorios | sí | Aceptada |
 | [0013](0013-gulp-sin-permiso-por-ronda.md) | Excepción: el coder compila con gulp cuando la instrucción lo dice | sí | Aceptada |
+| [0014](0014-agents-md-es-la-fuente.md) | `AGENTS.md` es la fuente de las reglas; `CLAUDE.md`, un espejo | sí | Aceptada |
