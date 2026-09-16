@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 14:38 (medido con `date`).
+- **Actualizado:** 2026-09-16 14:42 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#211 · ARQ` (en vuelo). Próximo: `#212 · COD`. **Último al PO:** A-046.
+- **Último mensaje:** `#213 · ARQ` (en vuelo). Próximo: `#214 · COD`. **Último al PO:** A-048.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 10 (residuos con nombre), ronda B2 (#211)**: visitas en vista previa con `PublicationMapper::countsVisits()` y su suite; CHANGELOG de B. Ronda B cerrada en #209-#210 (ece73e15, 6f87870c, e873b8d3, d97ff6fe). A1 y A2 cerradas (#205-#208). R13 (alta por API con organización nueva) pasa al PO: arreglarlo abre una vía pública para crear organizaciones con administrador. **Lote 9 cerrado** salvo 9.8 (P36).
+**Lote 10 (residuos con nombre), ronda C (#213)**: retirar los 6 patrones de ignoreErrors sin casar y fallar si vuelve uno; guarda-add para si lo preparado no es lo previsto. B2 cerrada en #211-#212 (3344e342, 098075ab). Ronda B cerrada en #209-#210 (ece73e15, 6f87870c, e873b8d3, d97ff6fe). A1 y A2 cerradas (#205-#208). R13 (alta por API con organización nueva) pasa al PO: arreglarlo abre una vía pública para crear organizaciones con administrador. **Lote 9 cerrado** salvo 9.8 (P36).
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -67,42 +67,83 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
-**Decidido por el PO el 2026-09-16 (A-038 y A-039)**, pasado a `pendientes.md` (punto 22):
-- **P30:** «soluciona lo que debas sin perder función». En diseño (`#143`).
-- **P31:** quiere retirar su clave y poner la de pruebas de Google. **Google solo publica claves de prueba para v2**
-  (FAQ oficial, medido con WebFetch); para v3 pide crear una clave aparte. Se le propuso (a) claves a la
-  configuración, vacías, y sin claves el formulario rechaza y registra; o (b) pasar el módulo a v2. Ver P31 abajo.
-- **P32:** la documentación de los paquetes, **en español** (su lengua y la de su entorno), en el lote 9.
-- **Push de los cuatro paquetes: hecho.** En los cuatro, `origin/master` = `master` (medido en local, sin tocar el
-  remoto). Las etiquetas no se pueden comprobar sin consultarlo. Desbloquea `4d` parte B.
+Lista única de lo que solo el PO puede decidir o hacer. **Solo lo abierto**: lo decidido sale a `../docs/pendientes.md`.
+Cada punto dice qué se pregunta, por qué importa y qué hace el arquitecto si no hay respuesta. El número `P<n>` no
+cambia mientras la pregunta siga abierta. Espejo para leer sin el repositorio: la guía personal, «Lo que espera de ti».
 
-Preguntas abiertas:
-1. **P31 · reCAPTCHA v3 sin claves de prueba.** El PO preguntó de qué cuenta es la clave para rotarla (A-042): no se
-   deduce de la clave. La introdujo el commit `393d29ef` («ReCaptcha v3», 2021-11-15, autor con su correo personal);
-   se le indicó buscar la clave pública (`src/statics/js/contact-form.js:16`) en la consola de cada cuenta. *Predeterminado:* (a), las claves a la configuración, vacías; sin
-   claves, el formulario de contacto rechaza y deja una línea en el log. Recomendado además: borrar o regenerar la
-   clave en `google.com/recaptcha/admin` o en `console.cloud.google.com/security/recaptcha`, porque sigue en el
-   historial de git. La clave pública, para encontrarla, está en `src/statics/js/contact-form.js:16`.
-- **P35 · La ruta `external` de la API está comentada, pero `APIController::externalActions()` sigue vivo.** ¿Se retira
-  o se documenta como extensión apagada? *Predeterminado:* se documenta como apagada y no se toca el código.
-  **Aplicado en 9.3** (`source-docs/api/docs/index.md`).
-- **P36 · P4, la tríada en los seis controladores del sistema, no es barata.** Sus 48 rutas no comparten prefijo y el
-  nombre es el permiso. Alternativas en `propuesta-2026-09-16-p4-seis-controladores.md`: A renombrar (ruptura),
-  B que el trait admita controladores sin prefijo (recomendada), C documentarlos como excepción. Es núcleo
-  transversal: **no se instruye sin respuesta**. *Predeterminado:* 9.8 espera y se sigue con el lote 10.
-2. **P33 · `generate_code()` usa `rand()`** (`src/app/core/Utilities.php:455`) y genera los códigos del 2FA, de la
-   recuperación, de problemas de usuario y de los tokens (6 llamadas). Pasarlo a `random_int()`, mismo formato. Es
-   un helper compartido: **no se instruye hasta que conteste**. *Predeterminado propuesto:* sí.
-3. ~~P34~~ **Decidida (A-039 y A-040): ADR 0019.** Arquitecto y coder versionan y etiquetan, salvo la MAYOR estable;
-   `last-stable` siempre en una estable. Primera: `v8.0.0-alpha.1`, en `#143`, con `last-stable` → `v7.1.0`.
-4. **Lote 8, P-a a P-d** (`propuesta-2026-09-16-lote-8.md`, A-036).
-5. **Alcance del ADR 0017** (`#115`). *Predeterminado:* toda la campaña.
-6. **Detectar las compactaciones por máquina.** *Predeterminado:* cuando lo nombre.
-7. **El SQL y las filas crudas de los listados viajan al navegador** (`DataTablesHelper`, núcleo). *Predeterminado:*
-   aparcado.
-8. **«Perfeccionar geovisor».** *Predeterminado:* espera a que diga qué.
-9. **Después de la MAJOR:** la aprobación encendible por módulo, la rutina de instalación y la vista «Sistema».
-10. **Subir cuando quiera** los commits sin empujar de `dev`.
+### Acciones tuyas
+
+- **Empujar.** Todo está en local.
+  - Framework: `dev`, `master`, `last-stable` y las etiquetas `v8.0.0-alpha.1` a `v8.0.0-alpha.4`.
+  - Paquetes `database`, `datastructures`, `geojson` y `html`: `master` y `dev` de cada uno (README en español, sin
+    versión nueva).
+- **Mirar los tres buzones de Mailinator** (`zz-prueba-recuperacion-55e5ee`, `zz-prueba-codigo-55e5ee` y
+  `zz-prueba-problemas-55e5ee`, @mailinator.com). En el de «otros problemas», `<b>zz mensaje de prueba</b>` tiene que
+  verse escrito, no en negrita. Mailinator los borra en unas horas: si ya no están, no pasa nada.
+
+### Preguntas que frenan trabajo
+
+- **P36 · La tríada de rutas en los seis controladores del sistema** (P4). `UsersController`, `LoginAttemptsController`,
+  `AdminPanelController`, `GenericTokenController`, `ImporterController` y `TimerController` no tienen
+  `routeName()`/`allowedRoute()`/`_allowedRoute()`. Sus 48 rutas no comparten prefijo y el nombre es el permiso.
+  A: renombrar rutas (ruptura). **B: que el trait acepte controladores sin prefijo, sin renombrar nada (recomendada).**
+  C: dejarlos como excepción. Detalle: `propuesta-2026-09-16-p4-seis-controladores.md`.
+  *Predeterminado:* la ronda 9.8 espera.
+- **P33 · `generate_code()` usa `rand()`** (`src/app/core/Utilities.php:455`) para los códigos del 2FA, la recuperación,
+  los problemas de usuario y los tokens. Pasarlo a `random_int()`, mismo formato. Es un helper compartido.
+  *Predeterminado:* no se toca hasta que respondas; la propuesta es sí.
+- **P-a a P-d · Lote 8, el importador** (`propuesta-2026-09-16-lote-8.md`, §6).
+  - **P-a** · El motor de importación vive en el núcleo con espacio de nombres nuevo y se retira `Core\Importer`.
+    *Predeterminado:* sí.
+  - **P-b** · Las fichas imprimibles con contraseñas generadas. *Predeterminado:* se retiran; el CLI entrega las
+    credenciales una vez, en un archivo fuera de `src/` y no versionado.
+  - **P-c** · Atomicidad. *Predeterminado:* cada fila por su cuenta, como hoy. Alternativa: todo o nada por archivo.
+  - **P-d** · ¿El administrador general sigue importando? *Predeterminado:* sí, pero solo usuarios generales.
+  *El lote 8 entero espera estas cuatro.*
+- **P31 · reCAPTCHA v3.** Google no publica claves de prueba para v3. (a) Las claves pasan a la configuración, vacías;
+  sin claves, el formulario de contacto rechaza y deja una línea en el log. (b) Pasar el módulo a v2, que sí tiene
+  claves de prueba. *Predeterminado:* (a). **Aparte, recomendado:** borra o regenera la clave actual en
+  `google.com/recaptcha/admin`, porque sigue en el historial de git; la pública, para buscarla, está en
+  `src/statics/js/contact-form.js:16`.
+- **P26 · Los archivos del editor enriquecido (elFinder).** Se guardan en `src/statics/filemanager`, fuera de `uploads`,
+  y el servidor web los sirve a cualquiera con la URL; `verify-integrity` no lo vigila. La misma carpeta sirve a
+  publicaciones públicas y a contenidos internos. Propuesta: los archivos de cada registro en su carpeta, con su
+  visibilidad; el gestor general, con sesión; lo existente, declarado para no romper URL guardadas. **Sin resolver:**
+  cómo casa lo privado de elFinder con la protección por sufijo. *Predeterminado:* no se toca; queda `4b-4`.
+
+### Llegan del lote 10 (residuos): decisiones de producto o de núcleo
+
+- **P37 · Alta pública por API con organización nueva.** Hoy falla siempre. Arreglarla abre una vía pública para crear
+  una organización y quedar como su administrador. ¿Se arregla, se retira esa vía, o se deja cerrada?
+  *Predeterminado:* se deja como está (falla) y se documenta.
+- **P38 · El desplegable «Tipo de contenido» de Aprobaciones es global**: un usuario de una organización ve etiquetas de
+  otras (no registros). Posible fuga de metadatos entre organizaciones. *Predeterminado:* revisión con el auditor de
+  seguridad y propuesta antes de tocar.
+- **P39 · El login escribe `organization = -10`** en los usuarios sin organización, al entrar. ¿Es intencionado?
+  *Predeterminado:* no se toca.
+- **P40 · `piecesphp/html` no escapa nada.** El framework lo usa para pintar menús con textos traducidos y URL de rutas
+  (riesgo que se cree bajo, sin medir). ¿Escape por defecto en el paquete (ruptura del paquete) o revisar los usos?
+  *Predeterminado:* revisión con el auditor antes de proponer.
+- **P41 · `piecesphp/geojson` saca `[latitud, longitud]` por defecto**, que no es el estándar. Cambiarlo rompe a quien lo
+  usa hoy. *Predeterminado:* no se toca; documentado en su README.
+- **P42 · `SchemeCreator::createScript()`/`dropScript()` con mappers en vez de `SchemeCreator`** devuelven un script
+  vacío sin error. Hacer que lancen es un cambio del paquete `database`. *Predeterminado:* sí, en la próxima versión del
+  paquete.
+- **P43 · `API_CRONJOBS` sola no registra la ruta del cron**: hace falta otra bandera de la API encendida. Es registro de
+  rutas. *Predeterminado:* se arregla en el lote 10 si no dices lo contrario.
+- **P44 · `login_attempts.date` no tiene `DEFAULT` en la base**, aunque el mapper lo declara. Es un cambio de esquema.
+  *Predeterminado:* se propone el `ALTER` con su prueba antes de aplicarlo.
+
+### Sin prisa (tienen predeterminado y no frenan nada)
+
+- **Alcance del ADR 0017** (el framework actualiza sus paquetes). *Predeterminado:* toda la campaña.
+- **Detectar por máquina cuándo se compacta una sesión.** *Predeterminado:* cuando lo nombres.
+- **El SQL y las filas crudas de los listados viajan al navegador** (`DataTablesHelper`, núcleo). *Predeterminado:*
+  aparcado.
+- **«Perfeccionar geovisor».** *Predeterminado:* espera a que digas qué.
+- **Después de la MAJOR:** la aprobación encendible por módulo, la rutina de instalación y la vista «Sistema».
+- **P35 · La ruta `external` de la API.** Aplicado el predeterminado: documentada como extensión apagada. Solo si
+  prefieres retirarla.
 
 ## Para una sesión nueva
 
