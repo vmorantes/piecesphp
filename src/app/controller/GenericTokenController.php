@@ -312,7 +312,7 @@ class GenericTokenController extends AdminPanelController
 
                     $data = [];
 
-                    $data['text'] = mb_convert_encoding($message->getValue(), 'UTF-8');
+                    $data['text'] = htmlspecialchars(mb_convert_encoding((string) $message->getValue(), 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                     $data['note'] = '';
                     $data['url'] = '';
                     $data['text_button'] = '';
