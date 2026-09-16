@@ -958,6 +958,23 @@ historia de git los conserva.
      - **SIN VERIFICAR si es intencional:** `last-stable` (`b536c9c5`) no contiene la etiqueta `v7.1.0`.
   16. **P26 sigue abierta**, y con ella `4b-4`: además de la decisión del PO sobre las raíces del editor,
      falta el estudio de cómo servir lo privado de elFinder sin chocar con el sufijo `.protected`.
+  17. **Lote 8: propuesta de diseño**, en `.agents/estado/propuesta-2026-09-16-lote-8.md`. Espera las
+     decisiones P-a a P-d del PO (A-036). **Dos defectos de esa propuesta, verificados por el arquitecto y
+     graves, se corrigen fuera del lote en `#132`:** S1, inyección SQL por `UsersModel::getByID()` desde la
+     celda `id` del importador; y S2, escalada de privilegios, porque un administrador general podía crear un
+     root con la columna `type`.
+  18. **Hallazgos de `#131` (estudio de los envíos de correo):**
+     - **9.1 · El formulario de contacto y el de «otros problemas» envían a `sir.vamb@gmail.com`**, escrita en
+       el código (`ContactFormsController::RECIPIENTS_MESSAGES` y `UserProblemsController::EMAIL_ON_FAILED_OS_TICKET`).
+       Todo clon manda esos correos al PO. Es una trampa de plantilla: corrección.
+     - **9.2 · `SMTPDebug = 2` escrito a mano** en `OTPHandler` y `ContactFormsController`, que pisa la
+       configuración; el formulario de contacto manda ese log a `log_exception()`. **Verificado por el
+       arquitecto: NO filtra credenciales**, porque PHPMailer 7.1.1 escribe `[credentials hidden]` por debajo
+       del nivel 4. Defecto menor.
+     - 9.3 · Dos envíos caen a `asGoDaddy()` solo fuera de local, y los demás siempre.
+     - 9.4 · `bin/cli unit-tests:<suite>` sale con 0 aunque la suite falle (`gates` no se ve afectado).
+     - 9.5 · `APIController::usersActions()` crea un usuario real antes de enviar: es el envío más caro de
+       probar.
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;

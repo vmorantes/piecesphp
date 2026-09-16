@@ -550,7 +550,25 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **Si tu proyecto usaba el creador** en una vista propia (`.avatar-component`), deja de funcionar y no
   tiene sustituto.
 
+### 27 · El importador de usuarios solo crea usuarios generales
+
+- **Una fila con la columna `type` distinta del tipo general se rechaza**, con su mensaje, y no se importa.
+  Antes se aceptaba sin validar: un administrador general podía crear un root subiendo `type = 0`.
+- **Una fila con la columna `id` que no sea vacía o un entero positivo se rechaza.**
+- Sin la columna `type`, las filas se siguen importando como usuarios generales, como antes.
+- **Si tu proyecto importaba administradores o roots con este importador**, deja de poder hacerlo: se crean
+  por el formulario de usuarios.
+
 ---
+
+## ⚠ Corregido — el importador de usuarios permitía crear un root, y `getByID()` concatenaba el id
+
+- **`UsersModel::getByID()` construía `"id = '" . $id . "'"`.** El importador de usuarios le pasaba la celda
+  `id` del archivo subido, así que desde esa hoja se podía inyectar SQL (con sesión de root o de
+  administrador general). Ahora va por marcador, con `WhereSegment`. Sus otros llamadores del framework
+  recibían enteros y no eran explotables.
+- **El importador aceptaba la columna `type` del archivo sin validar** (ruptura 27).
+- Probado en `unit-tests:core/importer-users-guards`, que falla si se quita cualquiera de las dos guardas.
 
 ## Corregido — «Ver más» vuelve a las tarjetas de noticias
 
