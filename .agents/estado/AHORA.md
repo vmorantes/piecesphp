@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 13:12 (medido con `date`).
+- **Actualizado:** 2026-09-16 13:17 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#175 · ARQ`. Próximo: `#176`. **Último al PO:** A-046.
+- **Último mensaje:** `#176 · COD`. Próximo: `#177 · ARQ`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,14 +15,15 @@
 
 ## En curso
 
-**`#175`: `v8.0.0-alpha.4`** (ADR 0019), al cerrar `7c`.
+**Lote 9 (documentación), ronda 9.1**: el arquitecto corrige documentación (processFromQuery, contradicciones del
+dossier, selectores) y después la ronda corta del coder commitea y corrige lo que es código. Plan de ocho rondas en
+`pendientes.md`, punto 33.
 
-Cerrado: **`7c` entero** (`#126`→`#174`). B3: tres correos reales a Mailinator, los tres `true` (`2b33cdaf`, `24f726a1`).
-**Pendiente del PO: revisar los buzones** `zz-prueba-recuperacion-55e5ee`, `zz-prueba-codigo-55e5ee` y
-`zz-prueba-problemas-55e5ee` @mailinator.com (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas
-`alpha.1` a `alpha.3`.
+Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
+los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
+`alpha.4`.
 
-**Después de `#175`:** los lotes 9, 10 y 11. El lote 8 espera P-a..P-d.
+**Después del lote 9:** los lotes 9, 10 y 11. El lote 8 espera P-a..P-d.
 
 ## Orden del tramo
 
@@ -84,6 +85,8 @@ Preguntas abiertas:
    claves, el formulario de contacto rechaza y deja una línea en el log. Recomendado además: borrar o regenerar la
    clave en `google.com/recaptcha/admin` o en `console.cloud.google.com/security/recaptcha`, porque sigue en el
    historial de git. La clave pública, para encontrarla, está en `src/statics/js/contact-form.js:16`.
+- **P35 · La ruta `external` de la API está comentada, pero `APIController::externalActions()` sigue vivo.** ¿Se retira
+  o se documenta como extensión apagada? *Predeterminado:* se documenta como apagada y no se toca el código.
 2. **P33 · `generate_code()` usa `rand()`** (`src/app/core/Utilities.php:455`) y genera los códigos del 2FA, de la
    recuperación, de problemas de usuario y de los tokens (6 llamadas). Pasarlo a `random_int()`, mismo formato. Es
    un helper compartido: **no se instruye hasta que conteste**. *Predeterminado propuesto:* sí.
