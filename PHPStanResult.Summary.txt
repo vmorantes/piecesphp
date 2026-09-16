@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-172
+171
 
 [TOTAL DE ERRORES VISIBLES]
-734
+731
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 728
+En las dos (8.4 y 8.5): 725
 Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (303)
+argument.type (300)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -299,7 +299,7 @@ project://src/app/config/containers.php
 project://src/app/config/functions.php
 	return.type (Líneas: 198)
 project://src/app/config/roles.php
-	nullCoalesce.offset (Líneas: 112)
+	nullCoalesce.offset (Líneas: 111)
 project://src/app/controller/AdminPanelController.php
 	argument.type (Líneas: 132)
 	method.nonObject (Líneas: 219)
@@ -311,8 +311,6 @@ project://src/app/controller/AppConfigController.php
 	method.resultUnused (Líneas: 1583, 1591, 1598)
 	property.nonObject (Líneas: 1695)
 	return.type (Líneas: 2154)
-project://src/app/controller/AvatarController.php
-	argument.type (Líneas: 241, 248, 257)
 project://src/app/controller/ContactFormsController.php
 	argument.type (Líneas: 224, 229)
 project://src/app/controller/GenericTokenController.php
@@ -332,10 +330,10 @@ project://src/app/controller/RecoveryPasswordController.php
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
-	argument.type (Líneas: 516, 571, 918, 957, 1144, 1295, 1578, 1906)
-	method.resultUnused (Líneas: 1329, 1376, 1386, 1392, 1398, 1404, 1414, 1421, 1633, 1688, 1698, 1704, 1710, 1716, 1722, 1732, 1740, 1747)
-	method.nonObject (Líneas: 1372, 1684)
-	return.type (Líneas: 1926)
+	argument.type (Líneas: 510, 565, 900, 939, 1126, 1277, 1560, 1888)
+	method.resultUnused (Líneas: 1311, 1358, 1368, 1374, 1380, 1386, 1396, 1403, 1615, 1670, 1680, 1686, 1692, 1698, 1704, 1714, 1722, 1729)
+	method.nonObject (Líneas: 1354, 1666)
+	return.type (Líneas: 1908)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
 	argument.type (Líneas: 2247, 2305, 2322, 2322, 3264, 3265, 3266, 3366, 3367)

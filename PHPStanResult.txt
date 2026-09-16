@@ -1153,7 +1153,7 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/config/roles.php                                                                                                                                                            
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
-  112    Offset 50 on array{0: 'Principal', 1: 'Administrador…', 12: 'Administrador de…', 2: 'Usuario general', 3: 'Institucional', 4: 'Comunicaciones'} on left side of ?? does not exist.  
+  111    Offset 50 on array{0: 'Principal', 1: 'Administrador…', 12: 'Administrador de…', 2: 'Usuario general', 3: 'Institucional', 4: 'Comunicaciones'} on left side of ?? does not exist.  
          🪪  nullCoalesce.offset                                                                                                                                                             
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -1204,17 +1204,6 @@
   2154   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ -------------------------------------------------------------------------------------------- 
-  project://src/src/app/controller/AvatarController.php                                                     
- ------ -------------------------------------------------------------------------------------------- 
-  241    Parameter Nr.1 $dir_handle of function readdir expects resource|null, resource|false given.   
-         🪪  argument.type                                                                           
-  248    Parameter Nr.1 $dir_handle of function readdir expects resource|null, resource|false given.   
-         🪪  argument.type                                                                           
-  257    Parameter Nr.1 $dir_handle of function closedir expects resource|null, resource|false given.  
-         🪪  argument.type                                                                           
- ------ -------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/ContactFormsController.php                                                                                           
@@ -1347,63 +1336,63 @@
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/UsersController.php                                                                                                         
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
-  516    Parameter Nr.1 $type of method App\Model\UsersModel::hasAuthorityOver() expects int, string given.                                               
+  510    Parameter Nr.1 $type of method App\Model\UsersModel::hasAuthorityOver() expects int, string given.                                               
          🪪  argument.type                                                                                                                              
-  571    Parameter Nr.1 $type of static method App\Model\UsersModel::getTypeUserName() expects int, string given.                                         
+  565    Parameter Nr.1 $type of static method App\Model\UsersModel::getTypeUserName() expects int, string given.                                         
          🪪  argument.type                                                                                                                              
-  918    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
+  900    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
          🪪  argument.type                                                                                                                              
-  957    Parameter Nr.1 $id of static method App\Model\AvatarModel::getAvatar() expects int, int|null given.                                              
+  939    Parameter Nr.1 $id of static method App\Model\AvatarModel::getAvatar() expects int, int|null given.                                              
          🪪  argument.type                                                                                                                              
-  1144   Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
+  1126   Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.       
          🪪  argument.type                                                                                                                              
-  1295   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1277   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1329   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1311   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1372   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1354   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1376   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1358   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1368   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1374   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1380   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
   1386   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1392   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1396   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1398   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1403   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1404   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1414   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1421   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1578   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1560   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1633   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1615   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1684   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1666   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1688   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1670   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1680   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1686   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1692   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
   1698   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
   1704   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1710   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1716   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1714   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
   1722   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1732   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1729   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1740   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1747   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1906   Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, int|string given.                           
+  1888   Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, int|string given.                           
          🪪  argument.type                                                                                                                              
-  1926   Method App\Controller\UsersController::getMessage() should return string but returns array<string, string>|string.                             
+  1908   Method App\Controller\UsersController::getMessage() should return string but returns array<string, string>|string.                             
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2372,5 +2361,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 743 errors                                                                                               
+ [ERROR] Found 740 errors                                                                                               
 
