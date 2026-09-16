@@ -3,7 +3,14 @@
 - Remoción de módulo de chat interno obsoleto.
 - Remoción de módulo de presentaciones de capacitación obsoleto.
     
-# Sin publicar
+# v8.0.0 — en pre-versión, todavía no estable
+
+> **NO es una versión estable.** Esta sección reúne las rupturas de la campaña hacia la `v8.0.0`. La
+> última versión estable es la **`v7.1.0`**, y la rama `last-stable` apunta siempre a una estable.
+
+| Pre-versión | Fecha | Hasta |
+| :-- | :-- | :-- |
+| `v8.0.0-alpha.1` | 2026-09-16 | La ruptura 28 y la corrección del escape en los correos de los formularios públicos |
 
 ## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
 
@@ -600,6 +607,10 @@ formularios de usuario y seguía sirviendo su catálogo.
   patrón era el mismo.
 - De paso, los campos `extra` de «otros problemas» se separaban con el texto literal `\n`.
 - Probado en `unit-tests:core/mail-templates-escape`, que falla si se quita el escape.
+
+## Corregido — «Acerca del framework» mostraba la versión con la «v» repetida
+
+- La página imprimía `v` delante de `APP_VERSION`, que ya la lleva: salía `vv7.1.0`.
 
 ## Corregido — «Ver más» vuelve a las tarjetas de noticias
 
