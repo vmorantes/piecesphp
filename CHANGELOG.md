@@ -662,6 +662,12 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **El importador aceptaba la columna `type` del archivo sin validar** (ruptura 27).
 - Probado en `unit-tests:core/importer-users-guards`, que falla si se quita cualquiera de las dos guardas.
 
+## Corregido — los correos de aprobación y de alta por la API llevaban el nombre sin escapar
+
+- El correo que avisa de que un contenido se aprobó o se rechazó metía en el HTML el nombre del usuario y el motivo
+  sin escapar; el de bienvenida del alta por la API (`/core/api/users/register`, pública), el nombre. Ahora se escapan.
+  Probado en `unit-tests:core/mail-senders-db`.
+
 ## Corregido — el comentario de un token genérico llevaba su HTML al correo
 
 - `GenericTokenController::commentary()` metía el mensaje de quien tiene el enlace en el HTML del correo sin

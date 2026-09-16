@@ -1038,6 +1038,17 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  30. **`7c` B2b cerrada en `#167`→`#168`** (`a0ebe0a8`, `0bd46a24`, `e470ad12`): el formulario de contacto, 28/28, CAPTCHA
+     provocado. **`7c` B2c en `#169`**, estudiada por el arquitecto con dos exploraciones de solo lectura:
+     - envío 3, `SystemApprovalsController::approvalAction`: con el manejador de usuarios (el contacto es el propio usuario;
+       aprobar cambia su `status`), sesión simulada con `set_config('current_user', …)` como en
+       `UnitTest-SqlPlaceholders.php:977-1011`;
+     - envío 1, `APIController::usersActions` acción `register` (pública): crea usuario y perfil y envía la bienvenida;
+     - **corrección**: los dos correos metían `getFullName()` sin escapar, y el de aprobación también el motivo;
+     - **hallazgo, lote 10**: el alta por API con `organizationID` = NONE llama a `OrganizationsController::action` con una
+       petición sin ruta, y `isEditRoute()` lanza fuera del try (`OrganizationsController.php:705`): ese camino público
+       falla siempre (medido leyendo, SIN VERIFICAR ejecutándolo);
+     - **hallazgo, lote 10**: dos copias de `template_base_no_style.php` (`app/view/mailing` y `SystemApprovals/Views/mailing`).
   29. **`7c` B2a cerrada en `#165`→`#166`** (`4ec7d774`, `624f0aa9`, `f6bb50aa`, `42f55d8b`): suite
      `core/mail-senders-db` 15/17 → 17/17, provocada en c5 y c6; el comentario de un token escapa su mensaje. Desviación
      aceptada: el `(string)` va dentro de `mb_convert_encoding()`, que devuelve `array|string` (la forma dictada subía
