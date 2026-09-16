@@ -4,8 +4,10 @@ Documentos **ejecutados y cerrados**. Se guardan porque explican por qué el pro
 no porque quede algo que hacer en ellos.
 
 **Nada de aquí es trabajo pendiente.** Si alguien lee un documento de esta carpeta buscando qué
-hacer a continuación, está en el sitio equivocado: eso vive en
-[`18-siguientes-ventanas.md`](../18-siguientes-ventanas.md).
+hacer a continuación, está en el sitio equivocado. Desde el ADR 0002, el orden de lo que falta vive en
+[`roadmap.md`](../../docs/roadmap.md), lo pedido y aún no instruido en
+[`pendientes.md`](../../docs/pendientes.md), y lo que pasa ahora en
+[`AHORA.md`](../../estado/AHORA.md). El `18` ya no recibe entradas.
 
 | Documento | Qué fue |
 | :-- | :-- |

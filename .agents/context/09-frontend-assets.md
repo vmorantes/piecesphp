@@ -73,6 +73,18 @@ get_front_configurations(); get_front_configuration('NombreClave');
 Sirve para pasar endpoints y flags del backend al JavaScript
 (ej. `NewsModuleMarkAsReadedEndpoint`).
 
+### Atributos que el JS del núcleo reconoce sin que ninguna vista los ponga
+
+Contrato vivo aunque hoy no tenga sujeto: una vista de un clon puede usarlos. Medido el 2026-09-16 con
+`git grep -n -F '<atributo>' -- src/app src/statics/core`: ninguna vista PHP de `src/app` los emite.
+
+| Atributo | Lo lee | Qué hace |
+| :-- | :-- | :-- |
+| `lang-group="<grupo>"` | `autoTranslateFromLangGroupHTML()`, `src/statics/core/js/configurations.js:1357` | Traduce el `innerHTML` del elemento con el grupo dado (`registerDynamicLocalizationMessages`). No usa el idioma por defecto; `autoTranslateFromLangGroupHTMLIgnoreLangs` excluye idiomas. **No se anida**: el atributo interior se borra y se informa error |
+| `datatable-js` | `configDataTables()`, `configurations.js:499` | Aplica `DataTable(pcsphpGlobals.configDataTables)` a la tabla. Si DataTables no está cargado, no avisa |
+| `container-steps` + `step="<n>"` y `data-to-step="<n>\|next\|previous"` | `GenericStepsViewHandler`, `src/statics/core/js/helpers-lib/GenericStepsViewHandler.js` | Pasos de un formulario; los selectores **no son automáticos**: los pasa quien construye el manejador (ver el `@example` del archivo) |
+| `element-location-module-data` | `src/app/classes/MySpace/Statics/js/my-profile.js:161` y `my-organization-profile.js:243` | Si existe, vacía los filtros de países, estados y ciudades de `LocationsAdapter`: el selector de ubicación ofrece todos |
+
 ## `ServerStatics`
 
 `PiecesPHP\Core\ServerStatics` sirve todos los estáticos a través de la ruta

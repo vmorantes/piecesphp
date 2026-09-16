@@ -288,6 +288,10 @@ porque el momento en que se entiende es justo ese.
    generado.
 10. **No se edita `src/vendor/`** ni los paquetes `piecesphp/*`; viven en repos
     aparte.
+11. **Un valor de la petición entra al SQL por marcador**, nunca concatenado ni con
+    `escapeString()` (ADR 0009). Lo que no admite marcador (una lista de `IN`, un nombre de
+    columna, un fragmento de DataTables) se valida contra su dominio y se rechaza cerrado. Las
+    puertas: comprobaciones 24, 27 y 28 de `verify-integrity`; detalle en `06-orm-mappers.md`.
 
 ## Estilo de código
 
