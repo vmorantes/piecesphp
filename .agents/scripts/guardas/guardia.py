@@ -179,6 +179,27 @@ def tokens(partes):
     return partes
 
 
+# ADR 0019: en este repositorio, arquitecto y coder etiquetan solo pre-versiones; una estable la decide el PO.
+PRE_VERSION = re.compile(r"v\d+\.\d+\.\d+-(alpha|beta|rc)\.\d+")
+TAG_CON_VALOR = ("-m", "-F", "-u", "--message", "--file", "--local-user", "--cleanup", "--trailer")
+
+
+def posicionales(resto, con_valor):
+    """Los argumentos que no son opciones ni el valor de una opción que lo lleva separado."""
+    pos, saltar = [], False
+    for a in resto:
+        if saltar:
+            saltar = False
+            continue
+        if a in con_valor:
+            saltar = True
+            continue
+        if a.startswith("-"):
+            continue
+        pos.append(a)
+    return pos
+
+
 def revisar_git(args):
     # Sin esto, el `1` de `2>&1` se leía como el nombre de una rama nueva.
     args = sin_redirecciones(args)
@@ -216,8 +237,27 @@ def revisar_git(args):
         )
         if any(a in ("-d", "-f", "--delete", "--force") for a in resto):
             bloquear("mover o borrar una etiqueta publicada: prohibido en los cinco repositorios.")
-        if (escribe or not listar) and not en_paquete:
-            bloquear("etiquetar este repositorio es un punto serio: lo hace el PO (20 §2). En los cuatro paquetes sí se etiqueta (P19).")
+        en_framework = (repo + os.sep).startswith(RAIZ + os.sep)
+        nombre = (posicionales(resto, TAG_CON_VALOR) or [""])[0]
+        pre_version = en_framework and PRE_VERSION.fullmatch(nombre) is not None
+        if (escribe or not listar) and not en_paquete and not pre_version:
+            bloquear(
+                "en este repositorio solo se etiquetan pre-versiones vX.Y.Z-alpha|beta|rc.N (ADR 0019); una versión "
+                "estable la decide el PO. En los cuatro paquetes sí se etiqueta (P19)."
+            )
+    # ADR 0019: `master` y `last-stable` solo avanzan, y sin tocar el árbol. update-ref con el valor anterior es una
+    # comparación atómica: si la rama no está donde se midió, no se mueve.
+    if sub == "update-ref":
+        if any(a in ("-d", "--delete", "--stdin") for a in resto):
+            bloquear("git update-ref -d/--stdin borra o mueve referencias sin control: prohibido.")
+        pos = posicionales(resto, ("-m",))
+        if pos and pos[0].startswith("refs/tags/"):
+            bloquear("mover o borrar una etiqueta publicada: prohibido en los cinco repositorios.")
+        if pos and (not pos[0].startswith("refs/heads/") or len(pos) < 3):
+            bloquear(
+                "git update-ref solo sobre refs/heads/ y con el valor anterior (<ref> <nuevo> <anterior>): sin él, "
+                "una rama puede ir hacia atrás (ADR 0019)."
+            )
     if sub in ("rebase", "filter-branch", "filter-repo", "replace"):
         bloquear(f"git {sub} reescribe historia: prohibido (40-salvaguardas.md §4).")
     if sub == "reflog" and resto[:1] in (["expire"], ["delete"]):

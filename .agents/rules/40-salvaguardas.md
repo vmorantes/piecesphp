@@ -13,9 +13,11 @@ autoriza: la regla es esta, la guarda es una red.
 
 - **`git push`, nunca.** El PO sube cuando quiere (20 §3). Tampoco `fetch`, `pull`,
   `ls-remote` ni `bin/push-all`: los remotos no se tocan.
-- **En este repositorio, ninguna etiqueta** se crea, mueve ni borra: versionar y publicar
-  `piecesphp` es un punto serio (20 §2). En los cuatro paquetes se etiqueta con soltura (P19);
-  mover o borrar una etiqueta, en ninguno.
+- **En este repositorio, arquitecto y coder versionan y etiquetan (ADR 0019, PO 2026-09-16)**, salvo una
+  versión MAYOR estable, que decide el PO: de la 8 solo `v8.0.0-alpha|beta|rc.N`. `last-stable` apunta
+  siempre a una versión estable, y `master` y `last-stable` solo avanzan. La guarda solo deja crear
+  pre-versiones. En los cuatro paquetes se etiqueta con soltura (P19). **Mover o borrar una etiqueta, en
+  ninguno de los cinco.**
 - **Los remotos llevan credenciales en la URL** (18 T4; decisión cerrada del PO: se quedan y no
   se vuelve a levantar). Por eso **nunca** se imprime `.git/config`, ni `git remote -v`, ni
   `git config --list`, ni una URL de remoto.
@@ -78,8 +80,8 @@ expire`, `stash drop|clear`. `git config` no se toca: es configuración del ento
 Nunca `git add .` ni `-A`.
 
 **Ramas** (PO, 2026-09-14): ninguna se crea sin su permiso, salvo `dev` en los cuatro paquetes.
-En este repositorio, `master` es la estable sin versionar y `last-stable` la estable con etiqueta
-de versión; el resto son de trabajo. En los paquetes, `master` es su estable y se trabaja en
+En este repositorio, `master` recibe las pre-versiones y `last-stable` apunta a la última versión
+estable etiquetada; las dos solo avanzan (ADR 0019). El resto son de trabajo. En los paquetes, `master` es su estable y se trabaja en
 `dev`. Detalle en `30-protocolo-coder.md`,
 «Ramas».
 

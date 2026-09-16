@@ -43,6 +43,20 @@ BASH_BLOQUEA = [
     "git tag -f v7.1.0 HEAD",
     f"git -C {RAIZ} tag v8.0.0",
     f"git -C {AJENO} tag v1.0.0",
+    # ADR 0019: en este repositorio solo pre-versiones con su forma exacta, y nunca mover una.
+    "git tag v8.0.0-alpha",
+    "git tag v8.0.0-dev.1",
+    "git tag v8.0.0-alpha.1-extra",
+    "git tag -m 'v8.0.0-alpha.1' v8.0.0",
+    "git tag -f v8.0.0-alpha.1",
+    f"git -C {AJENO} tag v1.0.0-alpha.1",
+    # ADR 0019: una rama solo avanza, con comparación atómica; las etiquetas no se mueven.
+    "git update-ref refs/heads/master HEAD",
+    "git update-ref -d refs/heads/last-stable",
+    "git update-ref --stdin",
+    "git update-ref refs/tags/v7.1.0 HEAD c9125196",
+    "git update-ref master HEAD 33251bf6",
+    "git update-ref -m 'sin anterior' refs/heads/last-stable c9125196",
     # En los paquetes se etiqueta (P19), pero una etiqueta publicada no se mueve ni se borra.
     f"git -C {HERMANO} tag -d v4.1.0",
     f"git -C {HERMANO} tag -f v4.1.0 HEAD",
@@ -190,6 +204,12 @@ BASH_PERMITE = [
     "git tag",
     "git tag -l 'v7.*'",
     "git tag --points-at HEAD",
+    # ADR 0019: pre-versiones del framework.
+    "git tag v8.0.0-alpha.1",
+    "git tag -a v8.0.0-beta.2 -m 'v8.0.0-beta.2'",
+    f"git -C {RAIZ} tag v8.0.0-rc.1 HEAD",
+    "git update-ref refs/heads/last-stable c9125196 b536c9c5",
+    "git update-ref -m 'avanza a la pre-version' refs/heads/master 6bdaa07e 33251bf6",
     "git switch dev",
     "git checkout dev",
     "git branch",

@@ -35,8 +35,9 @@ producción», sino «no embarques una trampa».
 - Tres roles: el arquitecto decide y documenta; el coder implementa, verifica y commitea
   (`.agents/rules/30-protocolo-coder.md`).
 - Ningún cambio de estado de git sin orden. Nunca `git add .`: rutas explícitas y
-  `bin/guarda-add`. `git push`, nunca. Ni etiquetas ni ramas nuevas en este repositorio sin el
-  PO (en los paquetes, la regla 30).
+  `bin/guarda-add`. `git push`, nunca. Ni ramas nuevas en este repositorio sin el PO. Las
+  pre-versiones y sus etiquetas, sí; una versión MAYOR estable, no (ADR 0019). En los paquetes, la
+  regla 30.
 - Nunca imprimir `.git/config` ni `git remote -v`: los remotos llevan credenciales.
 - Ninguna conexión a servidores ni a bases de datos sin permiso. Ninguna dependencia nueva sin
   proponerla con alternativas.

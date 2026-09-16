@@ -113,7 +113,9 @@ CREYO ver algo que no estaba: leyo «el analizador de `piecesphp` sube» y enten
 **LA LISTA DE PUNTOS SERIOS, y es cerrada. Con cualquiera de estos, NO SE MANDA RECUADRO:**
 
 1. **Versionar, etiquetar o publicar** cualquiera de los cinco repositorios. Tocar `master`,
-   `last-stable` o cualquier remoto.
+   `last-stable` o cualquier remoto. *Corregido por la regla 30:* en los paquetes se etiqueta (P19), y en
+   `piecesphp` las pre-versiones, las etiquetas y el avance de `master` y `last-stable` son de arquitecto y
+   coder; queda como punto serio la versión MAYOR estable (ADR 0019, 2026-09-16).
 2. **Cambiar la version de un INSTRUMENTO** —analizador, refactorizador— o de una dependencia.
 3. **Mover una linea base** por un motivo que no sea el trabajo del propio bloque.
 4. **Cualquier cosa irreversible** sin estado guardado que la deshaga.

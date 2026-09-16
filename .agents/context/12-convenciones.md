@@ -150,8 +150,16 @@ si el versionado estaba mal. Estaba mezclado, que no es lo mismo.
 
 ```
 vX.Y.Z          siempre TRES partes, siempre con la `v`
-vX.Y.Z-beta.N   pre-lanzamiento
+vX.Y.Z-alpha.N  pre-lanzamiento: el alcance aún crece
+vX.Y.Z-beta.N   pre-lanzamiento: alcance completo, solo correcciones
+vX.Y.Z-rc.N     candidata: se propone al PO como estable
 ```
+
+**Quién y cuándo (ADR 0019, 2026-09-16):** las decide y crea el arquitecto con el coder, salvo la MAYOR
+estable, que es del PO. `alpha.N` al cerrar cada lote; cada una cambia `APP_VERSION` y
+`APP_VERSION_DATE` (`src/app/core/bootstrap.php`) y añade su fila a la tabla de pre-versiones de la
+sección de la MAYOR en el `CHANGELOG`, en el mismo commit. Las entradas del `CHANGELOG` no se reparten por
+pre-versión. `master` solo avanza a un commit etiquetado como pre-versión, y `last-stable`, a uno estable.
 
 **La MAJOR de esta campaña será `v8.0.0`. Nunca `v8`** — que es exactamente lo que se hizo con
 `v3` y con `v4`, y es lo que ciega a las herramientas.

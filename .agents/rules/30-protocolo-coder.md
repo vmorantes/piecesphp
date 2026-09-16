@@ -178,9 +178,11 @@ Solo en estos casos:
    ramas.
 4. **Los puntos serios del 20 §2** (lista cerrada). Con ellos **no se instruye: se habla
    antes**:
-   - versionar, etiquetar o publicar `piecesphp`; tocar su `master`, su `last-stable` o
-     cualquier remoto. En los cuatro paquetes, en cambio, fusionar `dev` a `master` y etiquetar es
-     trabajo normal cuando la instrucción lo dice (PO, 2026-08-27 y 2026-09-14, P19);
+   - publicar una versión MAYOR estable de `piecesphp` (hoy, `v8.0.0`); retroceder o reescribir su
+     `master` o su `last-stable`; tocar cualquier remoto. **Las pre-versiones, las etiquetas y el avance
+     de `master` y `last-stable` los deciden arquitecto y coder** (ADR 0019, PO 2026-09-16). En los
+     cuatro paquetes, fusionar `dev` a `master` y etiquetar es trabajo normal cuando la instrucción lo
+     dice (PO, 2026-08-27 y 2026-09-14, P19);
    - cambiar la versión de una dependencia del producto. La de un **instrumento de análisis de
      desarrollo, no**: el PO la delegó en el arquitecto el 2026-09-02 («Todo la instrumentación
      de análisis en desarrollo está en tus manos»), que la decide y la avisa en prosa;
@@ -407,14 +409,17 @@ de correr `gates`, y el commit entró con una prueba rota.
   sobre `.agents/estado/`**: el arquitecto puede estar escribiendo ahí, y `normaliza-eol` lee y
   reescribe el archivo entero, así que una escritura suya en medio se perdería (hallazgo H2 de
   `#007`).
-- `git push`, **nunca**. Ninguna etiqueta **en este repositorio**; en los paquetes, ver «Los
-  cuatro paquetes hermanos».
+- `git push`, **nunca**. **En este repositorio**, las etiquetas que la instrucción dicte, solo
+  pre-versiones mientras no se ajuste la guarda (ADR 0019); en los paquetes, ver «Los cuatro paquetes
+  hermanos». Una etiqueta no se mueve ni se borra nunca.
 
 ### Ramas (PO, 2026-09-14)
 
-- **En este repositorio**, `master` es la estable sin versionar y `last-stable` es la estable con
-  etiqueta de versión. El resto son ramas de trabajo: hoy `dev`, `limpieza-modulos`,
-  `modificacion-docs` y `upgrade-to-php85`. Tocar `master` o `last-stable` es punto serio.
+- **En este repositorio**, `master` recibe las pre-versiones etiquetadas y `last-stable` apunta a la
+  última versión estable etiquetada (ADR 0019). El resto son ramas de trabajo: hoy `dev`,
+  `limpieza-modulos`, `modificacion-docs` y `upgrade-to-php85`. `master` y `last-stable` **solo
+  avanzan**, con `git update-ref refs/heads/<rama> <nuevo> <anterior>` tras comprobar
+  `git merge-base --is-ancestor <anterior> <nuevo>`; retrocederlas o reescribirlas es punto serio.
 - **En los cuatro paquetes**, `master` es su estable, pueden tener las ramas que quieran y todos
   llevan `dev`, donde se trabaja (P19).
 - **Ninguna rama se crea sin permiso del PO**, salvo `dev` en los paquetes. La guarda bloquea
