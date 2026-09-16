@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 15:10 (medido con `date`).
+- **Actualizado:** 2026-09-16 15:56 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#226 · ARQ` (en vuelo). Próximo: `#227 · COD`. **Último al PO:** A-051.
+- **Último mensaje:** `#228 · ARQ` (cierre de jornada). Próximo: `#229 · COD`. **Último al PO:** A-053.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 10 (residuos con nombre), ronda E1 (#221)**: decisiones del PO (A-049): `generate_code()` con `random_int` (P33), claves de reCAPTCHA fuera del código, leídas del almacén de claves (P31 a), `API_CRONJOBS` sola (P43). D2 cerrada en #217-#220 (b26d6d2f, 7956ff80): una pasada 8.5 en los cinco, cifras sin mover. Después: E2 (P44 y P42), F, y el lote 8, ya desbloqueado.
+**Jornada cerrada el 2026-09-16 por orden del PO.** Lote 10 en curso: hechas A1, A2, B, B2, C, D1, D2 y E1 (#205-#228). **Para retomar, en este orden:** (1) si el PO confirmó en la sesión del coder, las claves de prueba de reCAPTCHA (#224, ADR 0021); (2) E2: P44 `DEFAULT` de `login_attempts.date` y P42 `SchemeCreator` (paquete `database`); (3) F: R14 plantilla de correo duplicada, R32 traducciones en el mismo segundo, R34 doble carga del arnés JS; (4) propuestas al PO: P38 y P39; (5) lote 8 (desbloqueado, decisiones en `pendientes.md` punto 35); (6) lote 11 con P36 (plan al PO). 9.8 queda absorbida por P36 en el lote 11.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -73,6 +73,10 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
 
 ### Acciones tuyas
 
+- **Confirmar en la sesión del coder (PiecesPHPUpgrade-Coder-Main)** que quieres tus dos claves de reCAPTCHA de prueba
+  versionadas en `src/app/config/config.php` (ADR 0021). Por ejemplo: «Confirmo: versiona mis claves de reCAPTCHA de
+  prueba en config.php, como dice el ADR 0021». Mientras tanto las claves ya salieron del código y, **sin ellas, el
+  formulario de contacto de tu instalación local rechaza los envíos**. Ya no frena otras rondas.
 - **Empujar.** Todo está en local.
   - Framework: `dev`, `master`, `last-stable` y las etiquetas `v8.0.0-alpha.1` a `v8.0.0-alpha.4`.
   - Paquetes `database`, `datastructures`, `geojson` y `html`: `master` y `dev` de cada uno.
