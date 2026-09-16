@@ -886,6 +886,36 @@ historia de git los conserva.
      - **Queda sin arreglar, y se declara:** la guarda analiza cada línea de un heredoc como un
        comando, así que un heredoc que CONTIENE el texto de una orden prohibida se bloquea. Es un
        falso positivo asumido por diseño (docstring de `segmentos()`).
+  7. **Criterio del PO sobre las rupturas.** Formalizado: la campaña es de ruptura y no hace falta
+     decirlo a cada momento; importa que el futuro sea perfecto, y el pasado dañado no se puede
+     arreglar entero. Consecuencia: **no se le consulta ni se le avisa cada ruptura**; se documenta
+     en el `CHANGELOG` y se sigue. En la regla 30, «El PO, en sus palabras».
+  8. **`4d`, decidido del todo:** «haz lo que debas con 4d». El framework pasa a
+     `piecesphp/database ^5.0` y entra la tarea que deshace una vez el escape de lo ya guardado.
+     - **Medido por el arquitecto:** lo guardado con `addslashes` (`O\'Brien`) sí se recupera con un
+       `stripslashes()` único; solo las barras perdidas no vuelven. El framework compensa el escape
+       en 8 sitios, que hay que quitar con la actualización: `City`, `Country`, `Point` y `State` de
+       Locations, `UsersController:257-260`, `LoginAttemptsModel:212` y `header.php:42-43`.
+     - **El escape doble vive en DOS sitios del paquete:** `EntityMapper::castPHPToSQLTypes()` y
+       `ORM/Fields/DataProcess::stringParse()`.
+     - **Orden impuesto por la instalación:** el framework instala `piecesphp/*` desde Packagist
+       (`src/composer.json` no declara repositorios). La parte A (paquete y etiqueta `v5.0.0`) va
+       antes; **la parte B (framework) espera a que el PO empuje `database`**. Además, la guarda
+       bloquea hoy `composer update piecesphp/*` en el framework, porque ahí el lock se versiona:
+       hace falta un ADR que lo permita, solo para `piecesphp/*`.
+  9. **La guía incluye los paquetes** donde sean relevantes, y cubre **desde el 19-08-2026 hasta el
+     presente, siempre**: se actualiza al cerrar cada lote. Tema `readthedocs`, elegido por el PO.
+  10. **Hallazgos de `#105` y `#107`, por decidir (corrección, lote 10 salvo otra orden):**
+     - **Un POST parcial a un formulario de `AppConfigController` ensucia la configuración.**
+       `Parameters::validate()` da su valor por defecto a un opcional ausente: los textos se guardan
+       como `''` y los booleanos como `false`, y se crean filas donde no las había. Desde el panel
+       no pasa, porque su JS manda todo; por cualquier otra vía, sí. Medido en «Seguridad e IA»; en
+       los demás formularios, SOSPECHA sin censar.
+     - **El formulario de «Seguridad e IA» pinta las API keys en claro** en el atributo `value`,
+       solo para root. Preexistente.
+  11. **Incidente de `#107`, cerrado.** La prueba escribió seis filas en `pcsphp_app_config` de la
+     base local. Causa: el arquitecto dictó como segura una lectura de código sin verificar. Se
+     borraron en `#111` y la tabla quedó idéntica a la de antes (25/25, comparando volcados).
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;
@@ -909,11 +939,17 @@ historia de git los conserva.
      - **Lo que debe ser:** el módulo `nag` de Fomantic-UI
        (`https://fomantic-ui.com/modules/nag.html`), **descartable, que recuerde el descarte, y
        apagable desde configuración**.
-     - **En curso en `#104` (2026-09-16).** `ui bottom fixed nag`; descarte en cookie durante 7
-       días; interruptor `hide_app_key_warning` en «Seguridad e IA», `false` por defecto, en
-       negativo para que un `config.php` sin la clave deje el aviso encendido; el log diario no
-       cambia. Sin compilar: `nag` ya viene en `semantic.min.js` (2.9.4) y la inicialización va
-       en `statics/admin-area/js/main.js`, que no se compila.
+     - **✔ HECHO en `#104` (2026-09-16), `226dc26b`.** `ui bottom fixed nag`; descarte en cookie
+       durante 7 días; interruptor `hide_app_key_warning` en «Seguridad e IA», `false` por defecto y en
+       negativo, para que un `config.php` sin la clave deje el aviso encendido; el log diario no
+       cambia. Sin compilar: `nag` ya viene en `semantic.min.js` (2.9.4) y se inicializa en
+       `statics/admin-area/js/main.js`.
+       - Verificado de punta a punta en la base local: con la fila en «ocultar», el aviso no se pinta;
+         sin fila, se pinta. Captura a 1440 y a 400 px: flota abajo y no desplaza la maquetación.
+       - La «×» no salía en la captura del coder, porque la página se abrió como `file://` y la fuente
+         de iconos llegaba de otro origen (los iconos de la topbar tampoco salían). El arquitecto lo
+         comprobó con una página mínima que carga el Fomantic del repositorio desde el mismo origen:
+         `close=1`, 16×14 px, visible.
      - **Cómo debe comportarse (PO, 2026-09-15):** **flota SOBRE el contenido, quizá abajo**, y
        **no destruye el diseño**. Nada de empujar la maquetación ni de barras a todo lo ancho
        encima de la topbar.

@@ -129,6 +129,9 @@ la ligereza de mi lenguaje»* (2026-08-24). Su frase textual solo se cita como f
 - **Las optimizaciones de proceso son bienvenidas**: se proponen en prosa (2026-08-27).
 - **La base local del framework es desechable**: no contiene datos de un proyecto real
   (2026-08-29).
+- **La campaña es de ruptura: no se le avisa ni se le consulta cada ruptura.** Importa que el
+  futuro sea perfecto; el pasado dañado no se puede arreglar entero. Las rupturas se documentan en
+  el `CHANGELOG` y se sigue. Siguen siendo puntos serios los de la lista de abajo (2026-09-16).
 
 ### Canal directo (ADR 0001)
 
