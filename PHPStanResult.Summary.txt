@@ -4,7 +4,7 @@
 171
 
 [TOTAL DE ERRORES VISIBLES]
-731
+715
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,19 +12,19 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 725
+En las dos (8.4 y 8.5): 709
 Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (300)
-property.nonObject (129)
-method.nonObject (109)
+argument.type (291)
+property.nonObject (126)
+method.nonObject (108)
 return.type (52)
-assign.propertyType (32)
+assign.propertyType (30)
 method.resultUnused (26)
-property.notFound (18)
 foreach.nonIterable (17)
+property.notFound (17)
 offsetAccess.invalidOffset (9)
 nullCoalesce.variable (7)
 variable.undefined (4)
@@ -64,8 +64,8 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	argument.type (Líneas: 582, 875, 1224, 1266, 1266, 1330, 1357, 1423, 1515, 1515)
-	assign.propertyType (Líneas: 1274)
+	argument.type (Líneas: 581, 874, 1223, 1265, 1265, 1329, 1356, 1422, 1514, 1514)
+	assign.propertyType (Líneas: 1273)
 project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
@@ -323,10 +323,8 @@ project://src/app/controller/LoginAttemptsController.php
 	argument.type (Líneas: 198, 246, 333)
 	method.nonObject (Líneas: 235)
 project://src/app/controller/RecoveryPasswordController.php
-	argument.type (Líneas: 100, 100, 185, 185, 318, 341, 372, 372, 466, 466, 516, 516, 521, 565, 565, 570, 600, 600, 605)
-	property.nonObject (Líneas: 399, 405, 414)
-	method.nonObject (Líneas: 414)
-	assign.propertyType (Líneas: 520, 569, 604)
+	argument.type (Líneas: 122, 155, 155, 240, 240, 357, 357, 410, 410, 415)
+	assign.propertyType (Líneas: 414)
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 357, 358, 363, 364, 367)
 project://src/app/controller/UsersController.php
@@ -468,7 +466,7 @@ project://src/app/model/AvatarModel.php
 project://src/app/model/LoginAttemptsModel.php
 	property.nonObject (Líneas: 166, 247, 329)
 project://src/app/model/RecoveryPasswordModel.php
-	property.notFound (Líneas: 86, 102)
+	property.notFound (Líneas: 72)
 project://src/app/model/TimeOnPlatformModel.php
 	property.notFound (Líneas: 114)
 	argument.type (Líneas: 153)

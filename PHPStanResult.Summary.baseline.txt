@@ -69,6 +69,34 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 715 <- 731 = 4 arreglos + 0 supresiones + 12 murieron + 0 destapados
+
+    P30 (#145, ADR 0018): la recuperación de contraseña pasa a un código ligado al usuario. Mueren los
+    de código retirado —mailNewPassword(), mailRecoveryPassword(), la copia de la petición por enlace y
+    RecoveryPasswordModel::getUserNameByCode()—; los cuatro arreglos son del newPasswordCreateCode()
+    reescrito, que ya no accede a una fila que puede ser null. NO SE SILENCIÓ: no se tocó phpstan.neon.
+    Líneas, en el código anterior (HEAD e5d499bd):
+
+        RecoveryPasswordController.php:318  argument.type        mailNewPassword() espera stdClass, object|null dado   (muere)
+        RecoveryPasswordController.php:516  argument.type        Mailer::setFrom() #1, MailConfig|string dado          (muere, mailRecoveryPassword)
+        RecoveryPasswordController.php:516  argument.type        Mailer::setFrom() #2, MailConfig|string dado          (muere, mailRecoveryPassword)
+        RecoveryPasswordController.php:520  assign.propertyType  PHPMailer::$Body no acepta string|null                (muere, mailRecoveryPassword)
+        RecoveryPasswordController.php:521  argument.type        strip_tags() espera string, string|null dado          (muere, mailRecoveryPassword)
+        RecoveryPasswordController.php:600  argument.type        Mailer::setFrom() #1, MailConfig|string dado          (muere, mailNewPassword)
+        RecoveryPasswordController.php:600  argument.type        Mailer::setFrom() #2, MailConfig|string dado          (muere, mailNewPassword)
+        RecoveryPasswordController.php:604  assign.propertyType  PHPMailer::$Body no acepta string|null                (muere, mailNewPassword)
+        RecoveryPasswordController.php:605  argument.type        strip_tags() espera string, string|null dado          (muere, mailNewPassword)
+        RecoveryPasswordController.php:100  argument.type        count() espera array|Countable, array|object|null     (muere, petición por enlace)
+        RecoveryPasswordController.php:100  argument.type        require_keys() espera array, array|object|null        (muere, petición por enlace)
+        RecoveryPasswordModel.php:86        property.notFound    object::$email                                        (muere, getUserNameByCode)
+        RecoveryPasswordController.php:399  property.nonObject   $expired sobre RecoveryPasswordModel|null             (arreglo)
+        RecoveryPasswordController.php:405  property.nonObject   $email sobre RecoveryPasswordModel|null               (arreglo)
+        RecoveryPasswordController.php:414  property.nonObject   $id sobre RecoveryPasswordModel|null                  (arreglo)
+        RecoveryPasswordController.php:414  method.nonObject     getModel() sobre RecoveryPasswordModel|null           (arreglo)
+
+    Medido con bin/phpstan y comparado contra el PHPStanResult.json de HEAD por (ruta, identificador,
+    mensaje): 0 nuevos, 16 desaparecidos.
+
 [REPARTO] 731 <- 734 = 0 arreglos + 0 supresiones + 3 murieron + 0 destapados
 
     Lote 7 (#119, #122): mueren con `AvatarController::listFiles()`, que se retira junto al creador
@@ -338,7 +366,7 @@ HISTORIA DE ESTE BASELINE
 171
 
 [TOTAL DE ERRORES VISIBLES]
-731
+715
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos

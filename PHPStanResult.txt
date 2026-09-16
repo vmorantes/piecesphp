@@ -112,27 +112,27 @@
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/API/Controllers/APIController.php                                                                                              
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
-  582    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  581    Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  875    Parameter Nr.2 $array of function implode expects array, array<string>|string given.                                                             
+  874    Parameter Nr.2 $array of function implode expects array, array<string>|string given.                                                             
          🪪  argument.type                                                                                                                              
-  1224   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
+  1223   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
-  1266   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.         
+  1265   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.         
          🪪  argument.type                                                                                                                              
-  1266   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.            
+  1265   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.            
          🪪  argument.type                                                                                                                              
-  1274   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                            
+  1273   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                            
          🪪  assign.propertyType                                                                                                                        
-  1330   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
+  1329   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
-  1357   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
+  1356   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
          🪪  argument.type                                                                                                                              
-  1423   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
+  1422   Parameter Nr.4 $referenceValue of static method EventsLog\Mappers\LogsMapper::addLog() expects string|null, int given.                           
          🪪  argument.type                                                                                                                              
-  1515   Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                        
+  1514   Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                        
          🪪  argument.type                                                                                                                              
-  1515   Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                           
+  1514   Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                           
          🪪  argument.type                                                                                                                              
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1259,57 +1259,27 @@
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/RecoveryPasswordController.php                                                                                                  
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
-  100    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
+  122    Parameter Nr.1 $url of method PiecesPHP\Core\Routing\ResponseRoute::withRedirect() expects Psr\Http\Message\UriInterface|string, string|null given.  
          🪪  argument.type                                                                                                                                  
-  100    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
+  155    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
          🪪  argument.type                                                                                                                                  
-  185    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
+  155    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
          🪪  argument.type                                                                                                                                  
-  185    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
+  240    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
          🪪  argument.type                                                                                                                                  
-  318    Parameter Nr.2 $usuario of method App\Controller\RecoveryPasswordController::mailNewPassword() expects stdClass, object|null given.                  
+  240    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
          🪪  argument.type                                                                                                                                  
-  341    Parameter Nr.1 $url of method PiecesPHP\Core\Routing\ResponseRoute::withRedirect() expects Psr\Http\Message\UriInterface|string, string|null given.  
+  357    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
          🪪  argument.type                                                                                                                                  
-  372    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
+  357    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
          🪪  argument.type                                                                                                                                  
-  372    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
+  410    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.             
          🪪  argument.type                                                                                                                                  
-  399    Cannot access property $expired on App\Model\RecoveryPasswordModel|null.                                                                           
-         🪪  property.nonObject                                                                                                                             
-  405    Cannot access property $email on App\Model\RecoveryPasswordModel|null.                                                                             
-         🪪  property.nonObject                                                                                                                             
-  414    Cannot access property $id on App\Model\RecoveryPasswordModel|null.                                                                                
-         🪪  property.nonObject                                                                                                                             
-  414    Cannot call method getModel() on App\Model\RecoveryPasswordModel|null.                                                                             
-         🪪  method.nonObject                                                                                                                               
-  466    Parameter Nr.1 $value of function count expects array|Countable, array|object|null given.                                                            
+  410    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                
          🪪  argument.type                                                                                                                                  
-  466    Parameter Nr.2 $array of function require_keys expects array, array|object|null given.                                                               
-         🪪  argument.type                                                                                                                                  
-  516    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.             
-         🪪  argument.type                                                                                                                                  
-  516    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                
-         🪪  argument.type                                                                                                                                  
-  520    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                                
+  414    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                                
          🪪  assign.propertyType                                                                                                                            
-  521    Parameter Nr.1 $string of function strip_tags expects string, string|null given.                                                                     
-         🪪  argument.type                                                                                                                                  
-  565    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.             
-         🪪  argument.type                                                                                                                                  
-  565    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                
-         🪪  argument.type                                                                                                                                  
-  569    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                                
-         🪪  assign.propertyType                                                                                                                            
-  570    Parameter Nr.1 $string of function strip_tags expects string, string|null given.                                                                     
-         🪪  argument.type                                                                                                                                  
-  600    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.             
-         🪪  argument.type                                                                                                                                  
-  600    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                
-         🪪  argument.type                                                                                                                                  
-  604    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                                
-         🪪  assign.propertyType                                                                                                                            
-  605    Parameter Nr.1 $string of function strip_tags expects string, string|null given.                                                                     
+  415    Parameter Nr.1 $string of function strip_tags expects string, string|null given.                                                                     
          🪪  argument.type                                                                                                                                  
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2070,10 +2040,7 @@
  ------ --------------------------------------------------------------------------------------- 
   project://src/src/app/model/RecoveryPasswordModel.php                                                
  ------ --------------------------------------------------------------------------------------- 
-  86     Access to an undefined property object::$email.                                        
-         🪪  property.notFound                                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  102    Access to an undefined property object::$id.                                           
+  72     Access to an undefined property object::$id.                                           
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
  ------ --------------------------------------------------------------------------------------- 
@@ -2361,5 +2328,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
  -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 740 errors                                                                                               
+ [ERROR] Found 724 errors                                                                                               
 
