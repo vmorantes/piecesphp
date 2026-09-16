@@ -1038,7 +1038,13 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
-  24. **P30 en `#145`**, con el ADR 0018 y la ruptura 29. Hallazgos para después: los códigos de «usuario
+  24. **P30 cerrada en `#145`→`#152`** (`3197defd`, `b156d4bf`, `bfafc69a`, `dcdc2484`, `571b206d`), con el ADR 0018 y
+     la ruptura 29. Suite `core/password-recovery-guards` 16/16, provocada en g1, g10 y g5; PHPStan 731 → 715 (12
+     murieron, 4 arreglos). Sale en `v8.0.0-alpha.2` (`#153`). Hallazgos de `#152` para el lote 10:
+     `count()`/`require_keys()` sobre `getParsedBody()` (array|object|null) en las rutas de recuperación, deuda heredada;
+     y `mailRecoveryPasswordCode()` con los mismos 4 errores de tipos de `Mailer`/`MailConfig`. Del arquitecto: la
+     respuesta uniforme de la petición tarda más si el usuario existe (envía correo), así que por tiempo aún se puede
+     sondear; mitigarlo exige enviar fuera de la petición. Hallazgos para después: los códigos de «usuario
      olvidado» y «usuario bloqueado» (`UserProblemsController`) siguen el mismo patrón sin verificar; pedir códigos
      no tiene límite (un tercero puede llenar de correos el buzón de una víctima).
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
