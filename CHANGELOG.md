@@ -30,6 +30,18 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
   controladores, que se calculaban y nadie leía.
 - En `bin/tools/refactorization/Rector.php`, seis exclusiones que apuntaban a módulos ya borrados.
 
+## Corregido — residuos del lote 10
+
+- **El formulario de contacto ya no suscribe al boletín a quien falla el CAPTCHA.** Antes, el alta de suscriptor
+  estaba fuera de la comprobación del CAPTCHA y se hacía siempre.
+- **Un error antes de preparar el correo del formulario de contacto ya no rompe la respuesta** con una variable sin
+  definir.
+- **`SystemApprovalsMapper::save()` sin sesión** ya no falla leyendo el usuario: respeta el `createdBy` que ponga quien
+  llama. Sin sesión y sin `createdBy`, lanza la excepción del ORM por campo nulo. **Qué hacer:** si creas aprobaciones
+  desde una tarea o una ruta pública, asigna `createdBy`.
+- **`UserProblemsController::sendCode()` con un tipo no soportado** lanza `InvalidArgumentException` en lugar de enviar
+  un correo vacío.
+
 `PublicationsController` expresa con la constante `SOLO_PROPIAS = false` la regla apagada «quien no administra la
 organización solo ve sus publicaciones»; antes era un `&& false` escondido. Comportamiento idéntico.
 
