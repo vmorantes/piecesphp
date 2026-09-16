@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 12:08 (medido con `date`).
+- **Actualizado:** 2026-09-16 12:14 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#151 · ARQ`. Próximo: `#152`. **Último al PO:** A-042.
+- **Último mensaje:** `#153 · ARQ`. Próximo: `#154`. **Último al PO:** A-042.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,16 +15,15 @@
 
 ## En curso
 
-**`#145`: P30, la recuperación de contraseña** (ADR 0018, ruptura 29): un solo mecanismo, el código, ligado al
-usuario y con el límite de `OTPRateLimiter` (vía `recovery-code`); el enlace ya no escribe; ninguna respuesta
-entrega el usuario; las peticiones responden igual exista o no. Suite `core/password-recovery-guards` con base local
-(usuario zz, `db-backup` antes). Rojo razonado 7/16.
+**`#153`: `v8.0.0-alpha.2`** (ADR 0019): lleva la corrección de la recuperación de contraseña, que es una toma de
+cuenta posible en rutas públicas, a quien clone `master`. `APP_VERSION`, la fila del `CHANGELOG`, etiqueta anotada y
+`master` avanzada con `update-ref`.
 
-Cerrado: **`#143`→`#144`, ADR 0019 y `v8.0.0-alpha.1`**: `eca9ee29`, `53bd741e`, `54562173` («vv» del panel),
-`b6c52b9f` (la pre-versión, etiquetada) y `e5d499bd`. `master` → `b6c52b9f`; `last-stable` → `c9125196` (`v7.1.0`).
-Guarda provocada (230, 232 y 231 de 233). **Sin empujar.**
+Cerrado: **`#145`→`#152`, P30, la recuperación de contraseña** (ADR 0018, ruptura 29): `3197defd`, `b156d4bf`,
+`bfafc69a`, `dcdc2484` y `571b206d`. Tres paradas del coder, las tres con razón (rojo 6/16, g1 sin probar la ligadura,
+y firmas, comentario y vías del OTP no previstos). PHPStan 731 → 715.
 
-**Después de `#145`:** `4d` parte B (el push de `database` ya está), luego `7c` B2 (4 contacto, 2 OTP, 5 token, que
+**Después de `#153`:** `4d` parte B (el push de `database` ya está), luego `7c` B2 (4 contacto, 2 OTP, 5 token, que
 tiene la misma inyección de HTML en `commentary`; 3 aprobaciones; 1 alta por API) y B3 (Mailinator).
 
 **Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
