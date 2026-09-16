@@ -1175,6 +1175,20 @@
         "OTPHandler::toggleCurrentUser2AF",
         "OTPHandler::wasViewedCurrentUserQRData"
     ],
+    "app/classes/PiecesPHP/UserSystem/Authentication/OTPRateLimiter.php": [
+        "OTPRateLimiter::clientIP",
+        "OTPRateLimiter::config",
+        "OTPRateLimiter::countsAsFailure",
+        "OTPRateLimiter::isLocked",
+        "OTPRateLimiter::lockedMessage",
+        "OTPRateLimiter::lockedResponse",
+        "OTPRateLimiter::lockedUntil",
+        "OTPRateLimiter::positiveInt",
+        "OTPRateLimiter::record",
+        "OTPRateLimiter::secondsToUnlock",
+        "OTPRateLimiter::secondsToUnlockFromRows",
+        "OTPRateLimiter::uniformOTPMessage"
+    ],
     "app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php": [
         "TOTPStandard::__construct",
         "TOTPStandard::generateSecret",
@@ -1302,8 +1316,11 @@
         "PublicationsController::pathFrontPublicationsAdapter",
         "PublicationsController::publicFileIsServable",
         "PublicationsController::publicStatusFilter",
+        "PublicationsController::referencedUploads",
         "PublicationsController::render",
         "PublicationsController::routes",
+        "PublicationsController::syncAllUploadsVisibility",
+        "PublicationsController::syncUploadsVisibility",
         "PublicationsController::toDelete",
         "PublicationsController::uploadedFileValidator"
     ],
@@ -1584,6 +1601,7 @@
         "PublicationsApprovalHandler::isAutoApprovalSpecificMapper",
         "PublicationsApprovalHandler::onApprovedSpecificMapper",
         "PublicationsApprovalHandler::onRejectedSpecificMapper",
+        "PublicationsApprovalHandler::onStatusChanged",
         "PublicationsApprovalHandler::onUpdatedRecordSpecificMapper"
     ],
     "app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php": [
@@ -1674,6 +1692,12 @@
         "GatesTask::route",
         "GatesTask::runSuite"
     ],
+    "app/classes/Terminal/Tasks/GenerateAppKeyTask.php": [
+        "GenerateAppKeyTask::__construct",
+        "GenerateAppKeyTask::generate",
+        "GenerateAppKeyTask::main",
+        "GenerateAppKeyTask::route"
+    ],
     "app/classes/Terminal/Tasks/HelpTask.php": [
         "HelpTask::__construct",
         "HelpTask::main",
@@ -1731,6 +1755,12 @@
         "SnapshotTask::snapshotFiles",
         "SnapshotTask::snapshotTables",
         "SnapshotTask::snapshotViews"
+    ],
+    "app/classes/Terminal/Tasks/StaticsProtectMigrateTask.php": [
+        "StaticsProtectMigrateTask::__construct",
+        "StaticsProtectMigrateTask::inventory",
+        "StaticsProtectMigrateTask::main",
+        "StaticsProtectMigrateTask::route"
     ],
     "app/classes/Terminal/Tasks/SyncOTPRecordsTask.php": [
         "SyncOTPRecordsTask::__construct",
@@ -1842,8 +1872,6 @@
     ],
     "app/controller/AvatarController.php": [
         "AvatarController::__construct",
-        "AvatarController::avatar",
-        "AvatarController::listFiles",
         "AvatarController::register"
     ],
     "app/controller/ContactFormsController.php": [
@@ -1856,8 +1884,13 @@
         "GenericTokenController::commentary",
         "GenericTokenController::createToken",
         "GenericTokenController::createTokenURL",
+        "GenericTokenController::deleteOwnToken",
         "GenericTokenController::entryPoint",
-        "GenericTokenController::routes"
+        "GenericTokenController::isSelector",
+        "GenericTokenController::jwtKey",
+        "GenericTokenController::newSelector",
+        "GenericTokenController::routes",
+        "GenericTokenController::tokenBySelector"
     ],
     "app/controller/LoginAttemptsController.php": [
         "LoginAttemptsController::__construct",
@@ -2055,6 +2088,8 @@
         "Config::app_basepath",
         "Config::app_db",
         "Config::app_key",
+        "Config::app_key_derived",
+        "Config::app_key_is_placeholder",
         "Config::app_path",
         "Config::app_title",
         "Config::app_url",
@@ -2091,7 +2126,8 @@
         "Config::set_config",
         "Config::set_lang",
         "Config::set_lang_strategy",
-        "Config::set_locale_from_current_lang"
+        "Config::set_locale_from_current_lang",
+        "Config::warn_placeholder_app_key"
     ],
     "app/core/Utilities.php": [
         "append_to_path_system",
@@ -2599,6 +2635,9 @@
         "UploadedFileAdapter::setNameOnMove",
         "UploadedFileAdapter::validate"
     ],
+    "app/core/psr4/PiecesPHP/Core/Forms/UploadedFileValidation.php": [
+        "UploadedFileValidation::errors"
+    ],
     "app/core/psr4/PiecesPHP/Core/Forms/UploadedFilesStructureMapper.php": [
         "UploadedFilesStructureMapper::map",
         "UploadedFilesStructureMapper::normalize",
@@ -3094,11 +3133,32 @@
         "SitemapItem::getXML"
     ],
     "app/core/psr4/PiecesPHP/Core/Statics/ProtectFileMiddleware.php": [
+        "ProtectFileMiddleware::getPolicies",
         "ProtectFileMiddleware::getProtectedDirectories",
         "ProtectFileMiddleware::isInside",
         "ProtectFileMiddleware::isProtected",
+        "ProtectFileMiddleware::policyFor",
         "ProtectFileMiddleware::protect",
+        "ProtectFileMiddleware::protectWithSession",
+        "ProtectFileMiddleware::rewriteHtaccessContent",
         "ProtectFileMiddleware::validateAccess"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Statics/ProtectedUploads.php": [
+        "ProtectedUploads::listFiles",
+        "ProtectedUploads::moveUploadedToPrivate",
+        "ProtectedUploads::privatePath",
+        "ProtectedUploads::resolve",
+        "ProtectedUploads::setFileVisibility",
+        "ProtectedUploads::setFilesVisibility",
+        "ProtectedUploads::setFolderVisibility",
+        "ProtectedUploads::suffix",
+        "ProtectedUploads::writeDenyHtaccess"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Statics/ProtectedUploadsMigration.php": [
+        "ProtectedUploadsMigration::execute",
+        "ProtectedUploadsMigration::plan",
+        "ProtectedUploadsMigration::servablePrivates",
+        "ProtectedUploadsMigration::writeFile"
     ],
     "app/core/psr4/PiecesPHP/Core/Statics/ServerStatics.php": [
         "ServerStatics::__construct",
@@ -3451,6 +3511,12 @@
     "app/core/system-controllers/local-tests/Mautic-BatchFlow.php": [
         "pcsphp_mautic_batch_flow"
     ],
+    "app/core/system-controllers/local-tests/UnitTest-AccessGuards.php": [
+        "__construct",
+        "add",
+        "map",
+        "setName"
+    ],
     "app/core/system-controllers/local-tests/UnitTest-MauticBatchLogic.php": [
         "__construct",
         "createBatchContacts",
@@ -3519,6 +3585,7 @@
         "TokenModel::__construct",
         "TokenModel::add",
         "TokenModel::addJWTWithCode",
+        "TokenModel::baseJWTKey",
         "TokenModel::checkJWTWithCode",
         "TokenModel::checkTokenIsExpired",
         "TokenModel::deleteByID",
