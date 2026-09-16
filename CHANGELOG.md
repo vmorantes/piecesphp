@@ -535,6 +535,26 @@ Las dos tienen ahora prueba de rechazo: si alguien las vuelve a abrir, la suite 
 
 ---
 
+## Cambios internos — una sola clasificación de archivos subidos
+
+`FileUpload::validate()` y `UploadedFileAdapter::validate()` eran dos copias del mismo árbol de
+decisión: ausencia de archivo, subida que no llegó por POST, cada código `UPLOAD_ERR_*` y el código
+desconocido. El mismo defecto (T135: una comparación laxa contra `'FAKE_ERROR'` que desde PHP 8
+aprobaba sin archivo) hubo que arreglarlo en las dos, con dos años de diferencia.
+
+Ahora las dos llaman a **`PiecesPHP\Core\Forms\UploadedFileValidation::errors()`**, que devuelve la
+lista de errores (vacía si el archivo es válido) y recibe cómo mostrar cada texto: `FileUpload` los
+deja en español, como antes, y `UploadedFileAdapter` los traduce, como antes.
+
+- **Sin cambios de comportamiento**, comprobado con una suite de caracterización escrita y commiteada
+  ANTES de unificar: `unit-tests:core/upload-validation` fija, para cada caso y en las dos clases, el
+  resultado, los mensajes exactos y la excepción.
+- **Corregido de paso en `UploadedFileAdapter`:** los mensajes de tamaño máximo se traducían con el
+  valor ya pegado dentro (`… (8MB)`), así que la traducción nunca casaba. Ahora se traduce el texto
+  fijo y el valor se añade después. En español el texto no cambia.
+- Las constantes `NOT_UPLOAD_FAKE_ERROR` y `NOT_UPLOAD_FAKE_TMP_NAME` de las dos clases siguen
+  existiendo, con el mismo valor: ahora apuntan a las de `UploadedFileValidation`.
+
 ## Eliminado — los restos del módulo de experiencias (E3)
 
 El módulo `experience` se borró hace tiempo, pero quedaban piezas sin sujeto. Se retiran:
