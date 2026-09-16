@@ -1792,13 +1792,13 @@
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php                                                                                                                                                                                       
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  234    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.                                                                                                                                                      
+  240    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.                                                                                                                                                      
          🪪  argument.type                                                                                                                                                                                                                                    
-  340    Method PiecesPHP\Core\Forms\UploadedFileAdapter::getFileInformation() should return array{name: string, type: string, size: int, tmp_name: string, error: int, full_path: string, associativePath: array<string>|null} but returns non-empty-array.  
+  352    Method PiecesPHP\Core\Forms\UploadedFileAdapter::getFileInformation() should return array{name: string, type: string, size: int, tmp_name: string, error: int, full_path: string, associativePath: array<string>|null} but returns non-empty-array.  
          🪪  return.type                                                                                                                                                                                                                                      
-  377    Variable $directory on left side of ??= always exists and is not nullable.                                                                                                                                                                           
+  389    Variable $directory on left side of ??= always exists and is not nullable.                                                                                                                                                                           
          🪪  nullCoalesce.variable                                                                                                                                                                                                                            
-  421    Variable $directory on left side of ??= always exists and is not nullable.                                                                                                                                                                           
+  433    Variable $directory on left side of ??= always exists and is not nullable.                                                                                                                                                                           
          🪪  nullCoalesce.variable                                                                                                                                                                                                                            
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1884,9 +1884,9 @@
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   155    Method PiecesPHP\Core\Roles::getCurrentRole() should return array{code: int, name: string, all: bool, allowed_routes: array<string>}|null but returns array.  
          🪪  return.type                                                                                                                                               
-  306    Cannot call method getName() on Slim\Routing\Route|null.                                                                                                      
+  311    Cannot call method getName() on Slim\Routing\Route|null.                                                                                                      
          🪪  method.nonObject                                                                                                                                          
-  315    Parameter Nr.1 $key of function array_key_exists expects int|string, string|null given.                                                                         
+  320    Parameter Nr.1 $key of function array_key_exists expects int|string, string|null given.                                                                         
          🪪  argument.type                                                                                                                                             
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 

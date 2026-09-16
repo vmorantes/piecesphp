@@ -400,9 +400,9 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
 	argument.type (Líneas: 217)
 	nullCoalesce.variable (Líneas: 400, 457)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
-	argument.type (Líneas: 234)
-	return.type (Líneas: 340)
-	nullCoalesce.variable (Líneas: 377, 421)
+	argument.type (Líneas: 240)
+	return.type (Líneas: 352)
+	nullCoalesce.variable (Líneas: 389, 433)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
 	offsetAssign.dimType (Líneas: 275)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
@@ -424,8 +424,8 @@ project://src/app/core/psr4/PiecesPHP/Core/Pagination/PaginationResult.php
 	assign.propertyType (Líneas: 81)
 project://src/app/core/psr4/PiecesPHP/Core/Roles.php
 	return.type (Líneas: 155)
-	method.nonObject (Líneas: 306)
-	argument.type (Líneas: 315)
+	method.nonObject (Líneas: 311)
+	argument.type (Líneas: 320)
 project://src/app/core/psr4/PiecesPHP/Core/Routing/RouteAdapter.php
 	return.type (Líneas: 442)
 project://src/app/core/psr4/PiecesPHP/Core/Routing/RouteGroupAdapter.php
