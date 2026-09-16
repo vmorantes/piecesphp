@@ -6,6 +6,9 @@
 ## [Mappers y Base de Datos](./content/mappers.md)
 ## [Tareas Gulp](./content/gulp.md)
 ## [Terminal](./content/terminal.md)
+## [Crear un módulo](./content/modules.md)
+## [El panel por dentro](./content/panel.md)
+## [Mantener el framework](./content/maintain.md)
 
 ### Características Avanzadas
 - **[Sistema de Colas](./new-features/queues.md)**: Procesamiento asíncrono de tareas pesadas.

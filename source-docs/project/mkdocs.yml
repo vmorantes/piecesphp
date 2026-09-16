@@ -49,6 +49,9 @@ nav:
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md
         - Terminal: piecesphp/content/terminal.md
+        - Crear un módulo: piecesphp/content/modules.md
+        - El panel por dentro: piecesphp/content/panel.md
+        - Mantener el framework: piecesphp/content/maintain.md
         - Características Avanzadas:
             - Sistema de Colas: piecesphp/new-features/queues.md
             - FreezeRequest: piecesphp/new-features/freeze-request.md
