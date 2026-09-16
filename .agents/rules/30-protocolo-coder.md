@@ -320,6 +320,10 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
   - Nace de `#097`: la instrucción `#093` dictó `bin/guarda-add` antes del `git add` y sin
     pendientes, y habría abortado en los dos primeros commits. El coder leyó el guion en vez de
     teclear lo dictado. **El arquitecto dicta la forma correcta; no la descubre el coder.**
+- **Un `git rm` se dicta justo antes del commit que lo lleva**, nunca al principio de la tarea: lo que
+  queda preparado en el índice entra en el siguiente `git commit`, sea cual sea. Nace de `#125`: los 165
+  borrados del lote 7, preparados desde el principio, habrían entrado en el commit de la instantánea de
+  firmas; el coder los despreparó (solo el índice) y los volvió a preparar en su commit.
 - **El alcance se mide, no se hereda** (LEY 17): ninguna instrucción que borre o mueva un
   símbolo nombra un número sin el censo que lo produjo, y el censo va DENTRO de la instrucción
   como paso previo.

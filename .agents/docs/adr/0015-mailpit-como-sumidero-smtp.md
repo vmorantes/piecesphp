@@ -76,3 +76,32 @@ Completa y sin efecto sobre el repositorio, porque el binario no se versiona.
 - El reporte del 7c lleva la versión, el `sha256`, la orden exacta de arranque (con `127.0.0.1`)
   y la comprobación con `ss -ltnp` de que solo escucha en local.
 - El proceso ya no existe al terminar.
+
+## Fe de erratas (2026-09-16, `#127`)
+
+La decisión no cambia: Mailpit sigue siendo el sumidero SMTP de las pruebas. Cambian dos hechos que el
+ADR dio por ciertos sin haberlos medido, y se añade una condición de arranque.
+
+- **La descarga SÍ se puede verificar contra el origen.** El proyecto no publica un archivo de sumas,
+  pero GitHub guarda un `digest` por cada archivo de una release, y se consulta en
+  `https://api.github.com/repos/axllent/mailpit/releases/tags/<versión>`. Medido para la v1.31.1:
+  `mailpit-linux-amd64.tar.gz`, 10689714 bytes, `sha256:87d2652abd7c17dc99029147ff62ac671afdf7fd76630f7faf5b14125211c709`,
+  que coincide con lo descargado. No es una firma del autor, pero sí prueba que se descargó lo que GitHub
+  sirve para esa release. Desde ahora, **la verificación compara el `sha256` con ese `digest`**.
+- **Mailpit sale a la red por defecto para comprobar si hay versión nueva.** Lo delató su propia API:
+  `GET /api/v1/info` devolvió `"LatestVersion":"v1.31.1"`, un dato que solo se obtiene preguntando fuera
+  de la máquina. El subcomando `mailpit version` también muestra esa información. No es telemetría de
+  uso ni se enviaron correos, pero es tráfico saliente. **Condición nueva de arranque:** siempre con
+  `--disable-version-check`, y comprobando que `/api/v1/info` trae `"LatestVersion":"disabled"`, que es la
+  forma en que Mailpit dice que no preguntó (medido en `#129`). Cualquier otro valor, una versión, es que
+  salió a la red. El subcomando `version` no se vuelve a usar.
+- **Funciones que salen a la red si se usan**, según `mailpit --help`: el comprobador de enlaces y las
+  capturas de HTML de la interfaz (`--allow-internal-http-requests`, `--allow-untrusted-tls` y
+  `--disable-link-check-rate-limit`). Solo se disparan desde la interfaz o su API; las pruebas no las
+  llaman.
+
+La orden de arranque correcta es:
+
+```
+./mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025 --disable-version-check
+```
