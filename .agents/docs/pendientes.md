@@ -979,8 +979,9 @@ historia de git los conserva.
   19. **Hallazgos de `#134`→`#138` (corrección del importador)**, que el arquitecto dejó sin registrar y el
      coder señaló al contrastar su resumen de compactación:
      - **`Validator::isEmail()` consulta el DNS en vivo** (`checkdnsrr($dominio, 'MX')`, `#134` §7): sin DNS
-       ningún correo es válido, cada validación es una consulta externa y un dominio sin MX se rechaza. Es
-       núcleo transversal: va al PO como **P29**.
+       ningún correo es válido y un dominio sin MX se rechaza. ~~Núcleo transversal, P29~~: **retirada antes de
+       llegar al PO**, porque medido con `git grep` su único llamador es `ImporterUsers.php:46` y
+       `Validator::T_EMAIL` no tiene ninguno. Se resuelve en el lote 8: el importador nuevo no la usa.
      - **`WhereItem::isEqual(campo, null)` genera SQL inválido**, en el paquete `database` (`#136` §6.1).
        Lote 10.
      - **Ligar no basta en columnas enteras**: MariaDB compara una cadena con un entero por su prefijo
@@ -998,6 +999,21 @@ historia de git los conserva.
        `$instance` es nulo. El JS (`other-problems.js`) no lee `extra` (medido). Se corrige en `#139`.
      - **El formulario de contacto (`contact-forms-general`, pública) suscribe al boletín aunque el CAPTCHA
        falle**: el alta está fuera del `if ($captchaSuccess)` y `NEWSLETTER_MODULE` vale `true`. Lote 10.
+  21. **`#139`→`#140` cerrada** (`1427186e`, `ab42ce08`, `03c1fa7b`, `c026b971`): 9.1 corregido, ruptura 28.
+     Hallazgos que quedan:
+     - **Inyección de HTML en los correos de los dos formularios públicos** (arquitecto): las plantillas meten
+       los datos del visitante sin escapar. **Se corrige en `#141`** (7c parte B, B1).
+     - `sendCode()` con un `$type` desconocido envía un correo con el cuerpo vacío. Lote 10.
+     - **`BaseController::render()` captura cualquier excepción de la vista, la registra y hace `die`**: en la
+       línea de comandos, un error en una plantilla mata el proceso entero, suite incluida. Lote 10.
+     - El universo del censo de retornos ignorados: 695 (`#123`) → 698 (`#140` §8.1). Lote 10.
+     - **`bin/guarda-add` no contrasta el previsto con lo preparado** (`#140` §8.2): compara el previsto con el
+       árbol entero y cuadra añadido + pendientes, así que en una serie el previsto no vigila nada. Lote 10.
+     - **La recuperación por enlace deja al usuario sin contraseña** (arquitecto): `new-password-create` cambia la
+       contraseña y `restored_password.php` no la imprime. Va al PO como **P30** (`AHORA.md`); `7c` no prueba el
+       envío 7 hasta que decida.
+     - `src/composer.lock` lleva la dirección del PO 8 veces como correo de autor de los paquetes: metadato, no
+       destinatario. Se queda.
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;

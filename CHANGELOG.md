@@ -588,6 +588,19 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **El importador aceptaba la columna `type` del archivo sin validar** (ruptura 27).
 - Probado en `unit-tests:core/importer-users-guards`, que falla si se quita cualquiera de las dos guardas.
 
+## ⚠ Corregido — los correos de los formularios públicos llevaban el HTML del visitante
+
+- **El formulario de contacto y el de «otros problemas» metían lo que escribe el visitante en el HTML del
+  correo sin escapar**: nombre, correo, asunto, mensaje y los campos `extra`. Cualquiera, sin sesión, podía
+  mandar al administrador un correo con enlaces o contenido falsos. `clean_string()` solo quitaba saltos de
+  línea y espacios.
+- Ahora las plantillas `mailing/generic-contact-form.php` y `usuarios/mail/other-problems.php` escapan esos
+  valores. El título del formulario de contacto sigue siendo HTML, porque lo compone el servidor.
+- **Si tu proyecto tiene plantillas de correo propias** con datos de un formulario público, revísalas: el
+  patrón era el mismo.
+- De paso, los campos `extra` de «otros problemas» se separaban con el texto literal `\n`.
+- Probado en `unit-tests:core/mail-templates-escape`, que falla si se quita el escape.
+
 ## Corregido — «Ver más» vuelve a las tarjetas de noticias
 
 Desde la v6.1.0 cada tarjeta de noticia mandaba al navegador su contenido completo
