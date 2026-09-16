@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 10:13 (medido con `date`).
+- **Actualizado:** 2026-09-16 10:28 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#124 · ARQ`. Próximo: `#125`. **Último al PO:** A-035.
+- **Último mensaje:** `#130 · ARQ`. Próximo: `#131`. **Último al PO:** A-035.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,31 +15,26 @@
 
 ## En curso
 
-`#119`: dos tareas, cada una con su gate y su commit.
-1. **La línea base de PHPStan a 734** (holgura de 1 tras `4f`): `[REPARTO] 734 <- 735 = … + 1 murieron`,
-   porque dos copias del mismo error pasan a ser una.
-2. **Lote 7:** retirar el creador de avatares y restaurar `see-more`. Plan enseñado al PO en A-035.
+**`#126`: `7c`, parte A** — Mailpit en local, una suite que prueba el código de recuperación de contraseña
+contra él, y el estudio de los otros nueve envíos. `#127 · COD`: parado con razón, porque Mailpit comprueba
+versiones por internet por defecto (lo delató `LatestVersion` en `/api/v1/info`); la descarga, verificada
+contra el `digest` de GitHub. `#128 · ARQ`: arranque con `--disable-version-check`, y fe de erratas en el ADR
+0015.
 
-`#121 · COD`: TAREA 1 hecha (`952eea90`, línea base 734). TAREA 2 **parada con razón** antes de
-commitear: (1) regenerar la instantánea de firmas añade ~70 firmas que ninguna ronda congeló desde
-`7b6209d2`, porque la comprobación 2 solo avisa de las que desaparecen; (2) el trinquete de retornos
-ignorados baja a 183 al morir `listFiles()`. `#122 · ARQ`: la instantánea en su commit propio y antes;
-la cota a 183 identificando la llamada con el censo; y fuera la línea muerta de `.gitignore`.
-`#123 · COD`: lote 7 hecho y verificado (integridad limpia, gates 34/0, **PHPStan 731**: murieron 3 errores
-con `listFiles()`), parado antes de commitear por una contradicción en `#122` §3b (fallo de redacción del
-arquitecto). La llamada que murió es `closedir()`. `#124 · ARQ`: se aplica el precedente de #081/#083 y se
-commitea.
-- **Hallazgo para el lote 10:** el universo del censo de retornos ignorados pasó de 678 a 695 archivos sin
-  declararse (LEY 15). La cifra del trinquete no es comparable hasta que el arquitecto atribuya los 17.
-- **Hallazgo para el lote 10:** la comprobación 2 solo cierra en un sentido. Debería avisar de las firmas
-  nuevas sin congelar.
+En segundo plano, un subagente de arquitectura prepara la propuesta del **lote 8** (`Importers` hacia
+`DataImportExportUtility`).
 
-**Esperando el push del PO** de `database` (`master` `4fc608d` y `v5.0.0`) para la parte B de `4d`.
-`4b-4` sigue bloqueado por P26.
+**Esperando el push del PO** de `database` (`master` `4fc608d` y `v5.0.0`) para la parte B de `4d`
+(comprobado a las 10:20: `origin/master` seguía en `e3e55d1`). `4b-4` sigue bloqueado por P26.
 
-Cerrado: **`4f`** (`#116`/`#118`). `02651d69` (suite de caracterización, 82 comprobaciones, commiteada
-antes de unificar), `f850c4f9` (`UploadedFileValidation`), `df7f9354` (artefactos), `20f6407c`
-(`CHANGELOG`) y `f620d0ba` (estado). Tres provocaciones que mordieron; la suite, byte a byte igual.
+Cerrado: **el lote 7** (`#119`→`#125`). `952eea90` (línea base 734), `8404e6c6` (la instantánea congela
+~70 firmas nunca registradas desde `7b6209d2`), `6a4e467c` (fuera el creador de avatares: 173 archivos),
+`acdb796f` (vuelve «Ver más»), `0055b24d` (PHPStan **731**: murieron 3 con `listFiles()`), `6207cb0c`
+(documentación) y `27dbe5b1` (estado). «Ver más» en navegador: SIN VERIFICAR, porque no hay credencial.
+
+**Fallos de redacción del arquitecto en el tramo, cinco:** la API sin verificar de `#108`, el `git add`
+de `#116`, la cifra de `#119`, el §3b contradictorio de `#122` y el `git rm` preparado antes de tiempo en
+`#119`. Todos los cazaron paradas escritas antes de que hicieran daño. Van a la regla 30 como oficio.
 
 **Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
 censo de `#104` solo buscó `stripslashes`. Con otras formas aparecen dos más, que borran TODAS las
