@@ -1061,6 +1061,10 @@ historia de git los conserva.
        del framework medidos. Documentado en su README.
      - `database` y `geojson` con errores en su `.agents/context/` (describían otro paquete o una API que no existe):
        se retiran en 9.7.
+     - **`piecesphp/database`: `SchemeCreator::createScript()` y `dropScript()` con mappers en vez de `SchemeCreator` no
+       dan error**: devuelven solo la cabecera (medido por el coder en #202). Fallo silencioso; al lote 10 (que lancen).
+     - Los scripts `examples/readme.php` (9.7b) destaparon seis afirmaciones falsas en los README del arquitecto (tres en
+       `html`, tres en `database`), corregidas antes de commitear.
      - «Ejemplos que corren como prueba» (plan 33, 9.7) **no entra en esta ronda**: exige código en los cuatro paquetes;
        va a 9.7b.
      También: `@deprecated` de `escapeString()` espera a que muera su último uso (`DataTablesHelper.php:1329`).
