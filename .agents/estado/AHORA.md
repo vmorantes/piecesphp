@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 10:43 (medido con `date`).
+- **Actualizado:** 2026-09-16 11:04 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#137 · ARQ`. Próximo: `#138`. **Último al PO:** A-036.
+- **Último mensaje:** `#139 · ARQ`. Próximo: `#140`. **Último al PO:** A-036.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,24 +15,16 @@
 
 ## En curso
 
-**`#132`: corrección URGENTE del importador de usuarios**, fuera del lote 8 porque es una trampa activa
-(`IMPORTS_MODULE_ENABLED = true`):
-- S1, inyección SQL: `UsersModel::getByID()` concatenaba el id, y el importador le pasa la celda `id`;
-- S2, escalada de privilegios: la columna `type` del archivo se aceptaba sin validar, y un administrador
-  general podía crear un root.
-Con su suite de guardas y provocación. Avisado al PO por push y en A-036.
-- `#134 · COD`: parado con razón en 1.3. La suite no veía los agujeros porque **`Validator::isEmail()` consulta
-  el DNS en vivo (MX)**: todas las filas morían en el email. Midió sin escribir que S2 es real (llegan al
-  insertador un root y un administrador) y que el caso `e` no discriminaba. `#135 · ARQ`: validador de email
-  sustituido dentro de la suite, y `e` sustituido por `e2`.
-- `#136 · COD`: rojo exacto contra el código de hoy, pero el arreglo dictado por el arquitecto era defectuoso:
-  `WhereItem::isEqual('id', null)` no liga y MariaDB da error, y una cadena ligada contra la columna entera `id`
-  se convierte por prefijo numérico. `#137 · ARQ`: se aprueba el `getByID()` del coder, que valida antes de
-  consultar. **Octavo error de redacción del arquitecto en el tramo.**
-- **Hallazgos para el paquete `database`:** `WhereItem::isEqual(campo, null)` genera SQL inválido; y ligar no
-  basta en columnas enteras: hay que validar el dominio antes.
-- **Hallazgo para el PO (núcleo transversal):** `Validator::isEmail()` hace `checkdnsrr($dominio, 'MX')`. Sin DNS,
-  ningún email es válido; cada validación es una consulta externa; un dominio sin MX se rechaza.
+**`#139`: los destinatarios del formulario de contacto y de «otros problemas» salen de la configuración**
+(9.1 de `#131`, predeterminado de A-036 §3). Vacíos por defecto; sin destinatarios válidos no se envía y
+queda en el log. Arregla además el error fatal de `other-problems-send` con osTicket sin configurar y deja
+de entregar las cabeceras de osTicket a un visitante. Ruptura 28. Después: `7c` parte B, que prueba los dos
+envíos de punta a punta contra Mailpit.
+
+Cerrado: **`#132`→`#138`, la corrección del importador de usuarios**: `4ec88430`, `07c40e1b`, `c9a864ca` y
+`280636f8`. S1 (inyección SQL por `getByID()`) y S2 (un administrador general creaba roots) cerrados, con
+`unit-tests:core/importer-users-guards`. Los otros cuatro `getByID()` tipan `int $id`: no explotables.
+Hallazgos en `pendientes.md`, punto 19.
 
 **Esperando al PO:** el push de `database` (parte B de `4d`) y las decisiones P-a a P-d del lote 8
 (`propuesta-2026-09-16-lote-8.md`, A-036).
@@ -101,6 +93,10 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
+- ~~P29~~ **Retirada antes de llegar al PO** (medido tras escribirla): `Validator::isEmail()` consulta el DNS
+  (MX), pero su ÚNICO llamador en el framework es `ImporterUsers.php:46`, y `Validator::T_EMAIL` no tiene
+  ninguno. No es transversal en uso: se resuelve en el lote 8, cuyo importador nuevo no la usará. Corregir
+  `pendientes.md` punto 19 al cerrar `#139`.
 0. **Push de `database`** (`master` `4fc608d` y `v5.0.0`). Bloquea la parte B de `4d`.
 0b. **Alcance del ADR 0017** (lo planteó el coder en `#115`): ¿vale solo para `4d` o para toda la
    campaña? *Predeterminado:* toda la campaña, porque cada actualización exige antes el push del PO.
