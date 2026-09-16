@@ -61,7 +61,9 @@ autoriza: la regla es esta, la guarda es una red.
 - Solo se escribe dentro del repositorio, en el scratchpad de la sesión, en `/tmp` y en la
   memoria nativa de la herramienta. Los cuatro paquetes hermanos
   (`/var/www/html/vicsen/{database,datastructures,geojson,html}`) solo cuando la instrucción
-  nombra ese repositorio. `src/vendor/` no se edita nunca.
+  nombra ese repositorio. El de la guía personal del PO
+  (`/var/www/html/vicsen/guia-piecesphp-para-po`), solo el arquitecto y solo para la guía
+  (ADR 0016). `src/vendor/` no se edita nunca.
 - Borrados recursivos solo dentro del repositorio o de un temporal propio, y nunca sobre algo
   no versionado sin haberlo leído antes: lo no versionado no se recupera. Mejor moverlo a un
   temporal.

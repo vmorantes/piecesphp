@@ -31,16 +31,24 @@ HOME = os.path.expanduser("~")
 PAQUETES = ("database", "datastructures", "geojson", "html")
 HERMANOS = tuple(os.path.join(os.path.dirname(RAIZ), p) + os.sep for p in PAQUETES)
 
+# La guía personal del PO vive en su propio repositorio, fuera de este y fuera de
+# los paquetes: no se distribuye con el framework ni se versiona con él. El PO
+# autorizó escribir ahí el 2026-09-15, nombrando el repositorio.
+GUIA_PO = os.path.join(os.path.dirname(RAIZ), "guia-piecesphp-para-po") + os.sep
+
 # Fuera del repositorio solo se escribe en temporales, en la memoria nativa de
-# Claude Code y en los repositorios hermanos.
-ESCRIBIBLES_EXTRA = ("/tmp/", os.path.join(HOME, ".claude", "projects") + os.sep) + HERMANOS
+# Claude Code, en los repositorios hermanos y en el de la guía del PO.
+ESCRIBIBLES_EXTRA = (
+    "/tmp/",
+    os.path.join(HOME, ".claude", "projects") + os.sep,
+) + HERMANOS + (GUIA_PO,)
 
 # Dentro de estas zonas se borra; la zona ENTERA, no. Sin esto, `rm -rf /tmp` o
 # `rm -rf <raíz del repositorio>` pasaban, porque la raíz también es escribible
 # (aviso de la plantilla andamiaje-arquitecto-coder, verificado aquí el 2026-09-15).
 RAICES_PROTEGIDAS = tuple(
     os.path.realpath(p) for p in (RAIZ, "/tmp", os.path.join(HOME, ".claude", "projects"), HOME)
-) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS)
+) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS + (GUIA_PO,))
 
 # Las claves del producto no las lee un agente, tampoco desde Bash (40-salvaguardas.md §7):
 # settings.json solo niega la herramienta Read.
@@ -172,6 +180,8 @@ def tokens(partes):
 
 
 def revisar_git(args):
+    # Sin esto, el `1` de `2>&1` se leía como el nombre de una rama nueva.
+    args = sin_redirecciones(args)
     if not args:
         return
     # Salta opciones globales (git -C ruta, git -c k=v, git --no-optional-locks) y recuerda en
@@ -343,8 +353,12 @@ def revisar_bash(comando):
             bloquear("rsync a un host remoto: prohibido.")
         if cmd in ("pip", "pip3") and args[:1] in (["install"], ["uninstall"]):
             bloquear("instalar dependencias requiere permiso del PO (00-core.md).")
-        if cmd.startswith("python") and "-m" in args and any(a in ("pip", "ensurepip") for a in args):
-            bloquear("instalar dependencias requiere permiso del PO (00-core.md).")
+        if cmd.startswith("python") and "-m" in args:
+            modulo = args[args.index("-m") + 1:][:1]
+            orden = [a for a in sin_redirecciones(args[args.index("-m") + 2:]) if not a.startswith("-")][:1]
+            # `python -m pip list` solo lee; instalar o desinstalar, no.
+            if modulo == ["ensurepip"] or (modulo == ["pip"] and orden in (["install"], ["uninstall"])):
+                bloquear("instalar dependencias requiere permiso del PO (00-core.md).")
         if cmd in ("npm", "pnpm", "yarn", "bun") and (
             any(a in ("-g", "--global", "global") for a in args) or args[:1] in (["install"], ["i"], ["add"], ["update"], ["ci"])
         ):

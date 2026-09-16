@@ -19,6 +19,7 @@ PADRE = os.path.dirname(RAIZ)
 HERMANO = os.path.join(PADRE, "database")
 HTML = os.path.join(PADRE, "html")
 AJENO = os.path.join(PADRE, "otro-proyecto")
+GUIA = os.path.join(PADRE, "guia-piecesphp-para-po")
 
 BASH_BLOQUEA = [
     # Remotos: el PO sube y consulta (20 §3, ADR 0003).
@@ -137,6 +138,12 @@ BASH_BLOQUEA = [
     f"rm -rf {os.path.expanduser('~')}/.claude/projects",
     f"rm -rf {HERMANO}",
     f"rm -rf {PADRE}",
+    # La raíz del repositorio de la guía del PO tampoco (ADR 0016).
+    f"rm -rf {GUIA}",
+    # Una redirección no esconde una rama nueva ni una instalación.
+    "git branch nueva 2>&1",
+    "python3 -m pip install mkdocs 2>/dev/null",
+    "python3 -m ensurepip",
     # secure-keys/ no se lee desde Bash (40-salvaguardas.md §7): settings.json solo niega Read.
     "cat secure-keys/cronjob",
     "cat ./src/../secure-keys/cronjob",
@@ -215,6 +222,13 @@ BASH_PERMITE = [
     "rm -rf /tmp/zz-prueba/sub",
     f"rm -rf {RAIZ}/src/app/cache/zz-algo",
     f"rm -rf {HERMANO}/zz-algo",
+    f"rm -rf {GUIA}/site",
+    # Leer la rama con una redirección no es crearla (la regla 30 dicta esta forma para los paquetes).
+    "git branch --show-current 2>&1",
+    f"git -C {HERMANO} --no-optional-locks branch --show-current 2>&1",
+    f"git -C {GUIA} --no-optional-locks status --short",
+    # Listar paquetes de Python no es instalarlos.
+    "python3 -m pip list 2>/dev/null",
     "git ls-files | grep -v '^secure-keys/'",
     "cat src/app/config/lang.php",
     "cd src && cat index.php",
@@ -237,6 +251,8 @@ ESCRITURA_BLOQUEA = [
     {"file_path": os.path.join(RAIZ, "README.md"), "old_string": "a", "new_string": "Co-Authored-By: Claude <noreply@anthropic.com>"},
     {"file_path": os.path.join(RAIZ, "CHANGELOG.md"), "content": "- 🤖 cambios"},
     {"file_path": os.path.join(RAIZ, "source-docs/x.md"), "content": "Esta guía fue generada por IA."},
+    # Un nombre que empieza como el de la guía no hereda su permiso.
+    {"file_path": GUIA + "-x/docs/index.md", "content": "x"},
 ]
 
 ESCRITURA_PERMITE = [
@@ -248,6 +264,7 @@ ESCRITURA_PERMITE = [
     {"file_path": os.path.join(RAIZ, "CLAUDE.md"), "content": "Reglas del proyecto."},
     {"file_path": "/tmp/banco/x.php", "content": "<?php"},
     {"file_path": os.path.join(HERMANO, "src/Nuevo.php"), "content": "<?php"},
+    {"file_path": os.path.join(GUIA, "docs/index.md"), "content": "# Empieza aquí"},
 ]
 
 

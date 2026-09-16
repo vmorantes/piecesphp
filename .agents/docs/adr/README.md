@@ -65,3 +65,4 @@ procedencia.
 | [0013](0013-gulp-sin-permiso-por-ronda.md) | Excepción: el coder compila con gulp cuando la instrucción lo dice | sí | Aceptada |
 | [0014](0014-agents-md-es-la-fuente.md) | `AGENTS.md` es la fuente de las reglas; `CLAUDE.md`, un espejo | sí | Aceptada |
 | [0015](0015-mailpit-como-sumidero-smtp.md) | Mailpit como sumidero SMTP local para las pruebas de correo | sí | Aceptada (sin implementar) |
+| [0016](0016-guia-del-po-en-su-propio-repositorio.md) | La guía personal del PO vive en su propio repositorio; el arquitecto la escribe y la commitea | sí | Aceptada |
