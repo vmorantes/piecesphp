@@ -279,17 +279,19 @@ class ContactFormsController extends PublicAreaController
                         }
 
                     }
+
+                    //Solo con el CAPTCHA superado: un envío rechazado no suscribe a nadie.
+                    if (NewsletterRoutes::ENABLE) {
+                        //Agregar a suscriptores
+                        $suscriber = new NewsletterSuscriberMapper();
+                        $suscriber->name = $name;
+                        $suscriber->email = $email;
+                        $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
+                        $suscriber->save(true);
+                    }
+
                 } else {
                     $resultOperation->setMessage($captchaFailErrorMessage);
-                }
-
-                if (NewsletterRoutes::ENABLE) {
-                    //Agregar a suscriptores
-                    $suscriber = new NewsletterSuscriberMapper();
-                    $suscriber->name = $name;
-                    $suscriber->email = $email;
-                    $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
-                    $suscriber->save(true);
                 }
 
             } catch (\Exception $e) {

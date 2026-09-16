@@ -18,6 +18,7 @@ use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
+use Newsletter\NewsletterRoutes;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use SystemApprovals\Controllers\SystemApprovalsController;
@@ -294,11 +295,15 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
 
         echoTerminal('[6/8] Con un CAPTCHA falso no se envía');
         try {
-            [$cuerpo] = $contactar('zz-captcha-inexistente', ['zz-prueba-destino@localhost.test']);
+            [$cuerpo, $emailFalso] = $contactar('zz-captcha-inexistente', ['zz-prueba-destino@localhost.test']);
             $check(($cuerpo['success'] ?? null) !== true && ($cuerpo['message'] ?? null) === __(LANG_GROUP, 'CAPTCHA_FAIL'), 'f1. la respuesta NO dice éxito y su mensaje es CAPTCHA_FAIL', $json($cuerpo));
             $lista = $http('GET', '/messages');
             $cuantos = is_array($lista) ? count($lista['messages'] ?? []) : -1;
             $check($cuantos === 0, 'f2. Mailpit tiene 0 mensajes', (string) $cuantos);
+            $boletin = $database->prepare('SELECT COUNT(*) FROM ' . NewsletterSuscriberMapper::TABLE . ' WHERE email = ?');
+            $boletin->execute([$emailFalso]);
+            $suscritos = (int) $boletin->fetchColumn();
+            $check(!NewsletterRoutes::ENABLE || $suscritos === 0, 'f3. con el CAPTCHA falso no se suscribe al boletín', "filas en el boletín: {$suscritos}");
         } catch (\Throwable $exception) {
             $check(false, 'contacto con CAPTCHA falso', get_class($exception) . ': ' . $exception->getMessage());
         }
