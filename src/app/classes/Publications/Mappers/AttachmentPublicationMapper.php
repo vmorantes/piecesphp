@@ -511,39 +511,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     }
 
     /**
-     * Verifica si existe algún registro igual
-     *
-     * @param int $publicationID
-     * @param string $lang
-     * @param int $ignoreID
-     * @return bool
-     */
-    public static function existsByPublication(int $publicationID, ?string $lang = null, ?int $ignoreID = null)
-    {
-
-        $ignoreID ??= -1;
-        $model = self::model();
-
-        $where = [
-            "publication = {$publicationID} AND",
-            "id != {$ignoreID}",
-        ];
-
-        if ($lang !== null) {
-            $where[] = "AND `lang` = '{$lang}'";
-        }
-
-        $model->select()->where(implode(' ', $where));
-
-        $model->execute();
-
-        $result = $model->result();
-
-        return !empty($result);
-
-    }
-
-    /**
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element

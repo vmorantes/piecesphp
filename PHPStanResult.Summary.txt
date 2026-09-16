@@ -112,8 +112,8 @@ project://src/app/classes/Documents/Controllers/DocumentsController.php
 	argument.type (Líneas: 937, 1233)
 	offsetAccess.invalidOffset (Líneas: 1252)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
-	argument.type (Líneas: 238)
-	property.nonObject (Líneas: 275, 301)
+	argument.type (Líneas: 227)
+	property.nonObject (Líneas: 264, 290)
 project://src/app/classes/EventsLog/Views/log/list.php
 	property.nonObject (Líneas: 10)
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
@@ -222,12 +222,12 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 570, 577, 582, 592)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 144, 1221, 1715, 1875)
-	property.nonObject (Líneas: 240, 1358, 1797, 1799, 1822, 1824)
-	assign.propertyType (Líneas: 654)
-	clone.nonObject (Líneas: 715)
-	method.nonObject (Líneas: 1341, 1351, 1722, 1723, 1724)
-	offsetAccess.invalidOffset (Líneas: 1892)
+	argument.type (Líneas: 149, 1226, 1718, 1878)
+	property.nonObject (Líneas: 245, 1361, 1800, 1802, 1825, 1827)
+	assign.propertyType (Líneas: 659)
+	clone.nonObject (Líneas: 720)
+	method.nonObject (Líneas: 1344, 1354, 1725, 1726, 1727)
+	offsetAccess.invalidOffset (Líneas: 1895)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)

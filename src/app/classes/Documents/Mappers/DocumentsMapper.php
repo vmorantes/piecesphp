@@ -187,17 +187,6 @@ class DocumentsMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return bool
-     */
-    public function folderRemove()
-    {
-        $pcsUploadDir = get_config('upload_dir');
-        $folder = append_to_url(append_to_url($pcsUploadDir, DocumentsController::UPLOAD_DIR), $this->folder);
-        $removed = @rmdir($folder);
-        return $removed;
-    }
-
-    /**
      * @return string
      */
     public function createdByFullName()

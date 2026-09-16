@@ -108,6 +108,11 @@ class PublicationsController extends AdminPanelController
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
     const RESPONSE_SOURCE_NORMAL_RESULT = 'NORMAL_RESULT';
     const ENABLE_CACHE = false;
+    /**
+     * Si es true, quien no administra la organización solo ve las publicaciones que creó.
+     * Apagado por decisión del PO.
+     */
+    const SOLO_PROPIAS = false;
 
     public function __construct()
     {
@@ -1278,9 +1283,7 @@ class PublicationsController extends AdminPanelController
                 //Ver solo las de su organización
                 $havingItems[] = new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, $currentOrganizationMapper->id, HavingItem::AND_OPERATOR);
 
-                //Si no es el adminstrador, solo ver las propias
-                //NOTE: Desactivado
-                if (($organizationAdmin->id ?? null) !== $currentUserID && false) {
+                if (($organizationAdmin->id ?? null) !== $currentUserID && self::SOLO_PROPIAS) {
                     $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
                 }
             }
