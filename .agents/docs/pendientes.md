@@ -1014,6 +1014,26 @@ historia de git los conserva.
        envío 7 hasta que decida.
      - `src/composer.lock` lleva la dirección del PO 8 veces como correo de autor de los paquetes: metadato, no
        destinatario. Se queda.
+  22. **Decisiones y preguntas del PO tras `#142` (A-037 a A-039):**
+     - **P30, decidida:** «soluciona lo que debas sin perder función». Arreglar la recuperación de contraseña (por
+       enlace y por código) sin retirar ninguna de las dos vías. Se instruye en `#143`, antes que `4d` parte B, con el
+       ADR 0018.
+     - **P31, respondida con una propuesta que no se puede aplicar tal cual:** retirar su clave de reCAPTCHA y poner
+       la de pruebas de Google. Google solo publica claves de prueba para v2; el módulo es v3. Se le propuso (a) las
+       claves a la configuración, vacías, o (b) pasar a v2. Pidió además saber de qué cuenta es la clave: no se puede
+       deducir de la clave; se le indicó dónde mirar. Pendiente.
+     - **P32, decidida:** la documentación de los cuatro paquetes (README, metadatos de Packagist, ejemplos que
+       corren como prueba, guía para agentes, retirar su `.agents/` viejo) entra en el **lote 9**, y **en español**:
+       es su lengua materna, y la mayoría de su entorno y de sus empleados no habla inglés. Vale para todo lo que
+       se escriba para ser leído.
+     - **Push de los cuatro paquetes: hecho** (`origin/master` = `master` en los cuatro). Desbloquea `4d` parte B.
+     - **P33, abierta:** `generate_code()` con `random_int()`. Helper compartido: se habla antes.
+     - **P34, decidida (A-039 y A-040):** arquitecto y coder versionan y etiquetan `piecesphp`, salvo una versión
+       MAYOR estable; de la 8, solo formas no estables; `last-stable` apunta siempre a una estable. **ADR 0019.**
+       Primera pre-versión: `v8.0.0-alpha.1`, en `#143`.
+     - **Hallazgos al leer la recuperación** (arquitecto): los del bloque «En curso» de `AHORA.md` del 2026-09-16
+       11:3x; entran en `#143`. Además, para después: `UserProblemsController` genera códigos de 6 cifras para
+       «usuario olvidado» y «usuario bloqueado» con el mismo patrón (sin verificar si tienen límite).
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;
