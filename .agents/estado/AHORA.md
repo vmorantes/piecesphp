@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 14:42 (medido con `date`).
+- **Actualizado:** 2026-09-16 14:53 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#213 · ARQ` (en vuelo). Próximo: `#214 · COD`. **Último al PO:** A-048.
+- **Último mensaje:** `#215 · ARQ` (en vuelo). Próximo: `#216 · COD`. **Último al PO:** A-048.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 10 (residuos con nombre), ronda C (#213)**: retirar los 6 patrones de ignoreErrors sin casar y fallar si vuelve uno; guarda-add para si lo preparado no es lo previsto. B2 cerrada en #211-#212 (3344e342, 098075ab). Ronda B cerrada en #209-#210 (ece73e15, 6f87870c, e873b8d3, d97ff6fe). A1 y A2 cerradas (#205-#208). R13 (alta por API con organización nueva) pasa al PO: arreglarlo abre una vía pública para crear organizaciones con administrador. **Lote 9 cerrado** salvo 9.8 (P36).
+**Lote 10 (residuos con nombre), ronda D1 (#215)**: `weeklyOn()` valida el día, nota del hallazgo de deadcode y CHANGELOG. C cerrada en #213-#214 (3a7aa5ae, 2e790da6). Siguiente: D2, la pasada 8.4 de PHPStan en los cinco repositorios. Ronda B cerrada en #209-#210 (ece73e15, 6f87870c, e873b8d3, d97ff6fe). A1 y A2 cerradas (#205-#208). R13 (alta por API con organización nueva) pasa al PO: arreglarlo abre una vía pública para crear organizaciones con administrador. **Lote 9 cerrado** salvo 9.8 (P36).
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
