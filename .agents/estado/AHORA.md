@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 13:27 (medido con `date`).
+- **Actualizado:** 2026-09-16 13:37 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#182 · COD`. Próximo: `#183 · ARQ`. **Último al PO:** A-046.
+- **Último mensaje:** `#186 · COD`. Próximo: `#187 · ARQ`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 9, ronda 9.2 (#183)**: `ignoreErrors` de `bin/phpstan.neon` en dos listas, PERMANENTES y TEMPORALES con condición; propuesta del arquitecto en el scratchpad, sin cambiar ninguna regla. 9.1 cerrada en #177-#182 (último commit 87ee4b3f).
+**Lote 9, ronda 9.3 (#187)**: la API (Reportes, Traducciones, CronJobs, índice con banderas y ruta external apagada, Postman con News y Users en carpetas). 9.2 cerrada en #183-#186 (2fef8ed4, cd00518d, 6afbb5a4): primer intento bloqueado por el orden de absorción de ignoreErrors, rehecho con PHPStanResult.txt idéntico.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
