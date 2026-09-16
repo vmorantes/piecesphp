@@ -413,11 +413,15 @@ class UsersModel extends EntityMapperExtensible
      */
     public function getByID($id)
     {
+        //El id se valida antes de consultar: ligado, una cadena como "1' OR ..." se convierte en el entero 1.
+        if (!(is_int($id) || (is_string($id) && ctype_digit($id))) || (int) $id <= 0) {
+            return null;
+        }
         $model = $this->getModel();
         $model->resetAll();
         $result = $model
             ->select()
-            ->where("id = '" . $id . "'")
+            ->where(new WhereSegment([WhereItem::isEqual('id', (int) $id)]))
             ->row();
         return is_object($result) ? $result : null;
     }

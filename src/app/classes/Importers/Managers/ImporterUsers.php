@@ -52,6 +52,14 @@ class ImporterUsers extends Importer
             return password_hash($value, \PASSWORD_DEFAULT);
         });
 
+        $type->setValidator(function ($value) {
+            return (string) $value === (string) UsersModel::TYPE_USER_GENERAL;
+        });
+
+        $id->setValidator(function ($value) {
+            return $value === null || $value === '' || (ctype_digit((string) $value) && (int) $value > 0);
+        });
+
         $fields = new FieldCollection([
             $id,
             $username,
