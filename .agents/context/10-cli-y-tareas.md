@@ -44,7 +44,16 @@ Implementadas en `src/app/classes/Terminal/Tasks/`:
 | `scheme-create` | `SchemeCreateTask` | `module=<Nombre>\|all`, `output=` | **Emite** el `CREATE TABLE` del módulo, ordenado padres → hijas. Descubre los mappers; no ejecuta |
 | `scheme-drop` | `SchemeDropTask` | `module=<Nombre>\|all`, `output=` | **Emite** el `DROP TABLE`, ordenado hijas → padres. No ejecuta |
 | `snapshot` | `SnapshotTask` | `label=`, `compare=a,b`, `dir=` | Foto de la base y del árbol de `src/`, y su diff. La usa `bin/walk-attribute` ruta a ruta |
-| `verify-integrity` | `VerifyIntegrityTask` | `update-snapshot`, `list-narrative` | Once comprobaciones estructurales sobre el repositorio |
+| `verify-integrity` | `VerifyIntegrityTask` | `update-snapshot`, `list-narrative` | Veintinueve comprobaciones estructurales sobre el repositorio (`21-pruebas-y-puertas.md`) |
+| `gates` | `GatesTask` | `only=<trozo>`, `with=external` | Corre todas las suites de `local-tests/`; falla si alguna no imprimió balance |
+| `route-inventory` | `RouteInventoryTask` | `output=` | Rutas registradas en JSON. Solo lectura |
+| `cronjobs-status` | `CronjobsStatusTask` | — | Estado de cada cronjob. Solo lectura |
+| `scan-invalid-utf8` | `ScanInvalidUtf8Task` | `table`, `limit` | UTF-8 inválido en columnas de texto. Solo lectura |
+| `generate-app-key` | `GenerateAppKeyTask` | — | Imprime una `app_key`; no escribe |
+| `sync-otp-records` | `SyncOTPRecordsTask` | `apply=yes` | Crea registros OTP faltantes; sin `apply` solo informa |
+| `statics-protect-migrate` | `StaticsProtectMigrateTask` | `--dry-run`, `--run`, `--revert` | Protección por sufijo de `uploads/` |
+| `repair-escaped-text` | `RepairEscapedTextTask` | `apply=yes` | Ruptura 30; sin `apply` solo cuenta |
+| `fix-webm-duration` | `FixWebmDurationTask` | `--updir=`, `--glob=`… | Duración de WebM con FFmpeg |
 | `help` / `h` | `HelpTask` | — | Lista las acciones disponibles |
 | — | `FixWebmDurationTask` | — | Corrige la duración de archivos WebM |
 
