@@ -39,8 +39,8 @@ if(isset($bodyClasses) && is_array($bodyClasses)){
         <div class="header"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Soporte técnico'); ?></div>
         <div class="content">
             <form action="<?=get_route('tickets-create');?>" class="ui form">
-                <input type="hidden" name="name" value="<?=htmlentities(stripslashes($currentUserLogged->firstname . ' ' . $currentUserLogged->firstLastname));?>">
-                <input type="hidden" name="email" value="<?= htmlentities(stripslashes($currentUserLogged->email)); ?>">
+                <input type="hidden" name="name" value="<?=htmlentities($currentUserLogged->firstname . ' ' . $currentUserLogged->firstLastname);?>">
+                <input type="hidden" name="email" value="<?= htmlentities($currentUserLogged->email); ?>">
                 <div class="field">
                     <label><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Asunto'); ?></label>
                     <input type="text" name="subject">

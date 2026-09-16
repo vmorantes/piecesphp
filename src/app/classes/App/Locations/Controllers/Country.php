@@ -327,7 +327,7 @@ class Country extends AdminPanelController
                 return [
                     $e->id,
                     $e->code ?? '-',
-                    stripslashes($e->name),
+                    $e->name,
                     $e->region ?? '-',
                     __(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active]),
                     $editButton,

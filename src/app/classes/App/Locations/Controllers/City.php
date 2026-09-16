@@ -315,7 +315,7 @@ class City extends AdminPanelController
                 return [
                     $e->id,
                     $e->code ?? '-',
-                    stripslashes($e->name),
+                    $e->name,
                     $e->countryName,
                     $e->stateName,
                     __(LOCATIONS_LANG_GROUP, CityMapper::STATUS[$e->active]),

@@ -254,10 +254,10 @@ class UsersController extends AdminPanelController
                 }
 
                 $columns[] = $element->idPadding;
-                $columns[] = stripslashes($element->names);
-                $columns[] = stripslashes($element->lastNames);
+                $columns[] = $element->names;
+                $columns[] = $element->lastNames;
                 $columns[] = $element->email;
-                $columns[] = stripslashes($element->username);
+                $columns[] = $element->username;
                 $columns[] = $element->statusText;
                 $columns[] = $element->typeName;
                 $columns[] = implode(' ', $buttons);

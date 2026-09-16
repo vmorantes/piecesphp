@@ -12,7 +12,6 @@ $endDate = $element->endDate;
 $isFinish = $endDate < $now;
 $content = $element->currentLangData('content');
 $contentLength = mb_strlen(strip_tags($content));
-$content = str_replace("\\", '', $content);
 ?>
 <article class="notification-card <?= $isFinish ? ' finished' : ''; ?>" style="--category-color: <?= $element->category->currentLangData('color'); ?>;" data-content-b64="<?= base64_encode($content); ?>">
     <div class="head">

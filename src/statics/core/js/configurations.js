@@ -1088,7 +1088,7 @@ function pcsAdminTopbars() {
 				onDraw: (item, parsed) => {
 					parsed.on('click', () => {
 						newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
-						newsModal.find('.content').html(item.content.replace(/\\/g, ''))
+						newsModal.find('.content').html(item.content)
 						newsModal.modal('show')
 						//Marcar como leída
 						if (typeof markAsReadURL === 'string' && item.id) {

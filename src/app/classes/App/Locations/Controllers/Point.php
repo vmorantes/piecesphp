@@ -282,7 +282,7 @@ class Point extends AdminPanelController
 
                     return [
                         $e->id,
-                        stripslashes($e->name),
+                        $e->name,
                         $e->countryName,
                         $e->stateName,
                         $e->cityName,

@@ -296,7 +296,7 @@ class State extends AdminPanelController
                 return [
                     $e->id,
                     $e->code ?? '-',
-                    stripslashes($e->name),
+                    $e->name,
                     $e->countryName,
                     __(LOCATIONS_LANG_GROUP, StateMapper::STATUS[$e->active]),
                     $editButton,

@@ -209,7 +209,7 @@ class LoginAttemptsModel extends BaseEntityMapper
                 $columns = [];
                 $columns[] = $e->success == $success ? '<i class="check circle icon" style="visibility: visible;"></i>' : '<i class="times circle icon"></i>';
                 $columns[] = $e->username_attempt;
-                $columns[] = stripslashes($e->message);
+                $columns[] = $e->message;
                 $columns[] = $e->ip;
                 $columns[] = $e->dateFormat;
                 return $columns;
