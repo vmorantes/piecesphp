@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 13:17 (medido con `date`).
+- **Actualizado:** 2026-09-16 13:24 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#176 · COD`. Próximo: `#177 · ARQ`. **Último al PO:** A-046.
+- **Último mensaje:** `#180 · COD`. Próximo: `#181 · ARQ`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,8 +15,9 @@
 
 ## En curso
 
-**Lote 9 (documentación), ronda 9.1**: el arquitecto corrige documentación (processFromQuery, contradicciones del
-dossier, selectores) y después la ronda corta del coder commitea y corrige lo que es código. Plan de ocho rondas en
+**Lote 9 (documentación), cierre de la ronda 9.1** (#181: commit de selectores, histórico y regla de marcadores).
+Hechas #177-#180 (commits 3621c398, a8cbe8fa, ce45b751, 85de2671, 0a5faab9). `@deprecated` de `escapeString()`
+aplazado: le queda un uso en `DataTablesHelper.php:1329`. Siguiente: 9.2, PHPStan en dos listas. Plan de ocho rondas en
 `pendientes.md`, punto 33.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
