@@ -1,8 +1,3 @@
-# Eliminaciones
-
-- Remoción de módulo de chat interno obsoleto.
-- Remoción de módulo de presentaciones de capacitación obsoleto.
-    
 # v8.0.0 — en pre-versión, todavía no estable
 
 > **NO es una versión estable.** Esta sección reúne las rupturas de la campaña hacia la `v8.0.0`. La
@@ -14,6 +9,11 @@
 | `v8.0.0-alpha.2` | 2026-09-16 | La ruptura 29 y la corrección de la recuperación de contraseña (se podía tomar una cuenta) |
 | `v8.0.0-alpha.3` | 2026-09-16 | La ruptura 30: `piecesphp/database` 5.0, el texto se guarda tal cual, y la tarea `repair-escaped-text` |
 | `v8.0.0-alpha.4` | 2026-09-16 | Las pruebas de los envíos de correo y el escape del HTML en los correos de token, aprobación y alta por API |
+
+## Eliminaciones — módulos obsoletos
+
+- El módulo de chat interno.
+- El módulo de presentaciones de capacitación.
 
 ## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
 
@@ -833,7 +833,9 @@ servidor, la comilla sigue cerrando la cadena, y el framework no fija nunca `sql
 - **`escapeString()` todavía NO está marcada como obsoleta**, aunque el mensaje del commit
   `a5e5e231` lo diga. Le quedan dos usos sin vía directa a marcador: las etiquetas de
   organizaciones dentro de su `SELECT` y la búsqueda de las tablas del panel en
-  `DataTablesHelper::process()`. Se marcará cuando no quede ninguno. **No la uses en código
+  `DataTablesHelper::process()`. Se marcará cuando no quede ninguno.
+  *Corrección (2026-09-16):* hoy le queda **uno**, la búsqueda de `DataTablesHelper::process()`
+  (`DataTablesHelper.php:1329`); las etiquetas de organizaciones ya van sin ella. **No la uses en código
   nuevo:** manda el valor por marcador.
 
 ## Herramientas — `verify-integrity` exige que toda carpeta de subidas esté protegida o declarada
