@@ -83,6 +83,9 @@ class PublicAreaController extends BaseController
         import_app_front_libraries();
         if (GoogleReCaptchaV3Routes::ENABLE) {
             import_google_captcha_v3_adapter();
+            //La clave de sitio la carga api-keys.php; vacía, el formulario no crea el adaptador.
+            $siteKey = get_config('GoogleReCaptchaV3SiteKey');
+            add_to_front_configurations('GoogleReCaptchaV3SiteKey', is_string($siteKey) ? $siteKey : '');
         }
     }
 

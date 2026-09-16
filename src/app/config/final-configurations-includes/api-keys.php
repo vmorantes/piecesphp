@@ -22,6 +22,16 @@ $keysToSet = [
         'fileKeyName' => 'cronjob',
         'override' => true,
     ],
+    [
+        'configName' => 'GoogleReCaptchaV3SecretKey',
+        'fileKeyName' => 'recaptcha-v3-secret',
+        'override' => true,
+    ],
+    [
+        'configName' => 'GoogleReCaptchaV3SiteKey',
+        'fileKeyName' => 'recaptcha-v3-site',
+        'override' => true,
+    ],
 ];
 
 foreach ($keysToSet as $keysToSet) {

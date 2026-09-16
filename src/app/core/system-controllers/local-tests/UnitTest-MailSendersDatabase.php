@@ -109,6 +109,9 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
     //Lo que había antes de tocar nada: null si la fila no existía.
     $captchaAntes = $valorCrudoCaptcha();
     $destinatariosOriginales = get_config('contact_form_recipients');
+    //La secreta de reCAPTCHA se fija en memoria: sin ella verifyTokenCaptcha() rechaza cualquier token.
+    $secretaOriginal = get_config('GoogleReCaptchaV3SecretKey');
+    set_config('GoogleReCaptchaV3SecretKey', 'zz-secreta-de-prueba');
     $visitantes = [];
     $previoUsuario = get_config('current_user');
     $previoGuardado = get_config('pcsphp_current_user_stored');
@@ -262,6 +265,21 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
         };
 
         echoTerminal('[4/8] ContactFormsController::contactMessage() con CAPTCHA válido y destinatario');
+        //Sin secreta, un token que en la base SÍ es válido se rechaza: el rechazo solo puede venir de la guarda.
+        try {
+            set_config('GoogleReCaptchaV3SecretKey', '');
+            $tokenSinSecreta = $tokenCaptcha();
+            $aceptado = \GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller::verifyTokenCaptcha($tokenSinSecreta);
+            $check($aceptado === false && $tokenGuardado($tokenSinSecreta), 'q1. sin clave secreta, verifyTokenCaptcha() rechaza un token válido y no lo consume', 'aceptado ' . var_export($aceptado, true));
+            $request = new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/prueba'), new Headers(), [], [], (new StreamFactory())->createStream(''));
+            $respuestaAccion = (new \GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller())->action($request->withParsedBody(['token' => 'zz-token-sin-secreta']), new ResponseRoute());
+            $cuerpoAccion = json_decode((string) $respuestaAccion->getBody(), true);
+            $check(is_array($cuerpoAccion) && ($cuerpoAccion['verify']['success'] ?? null) === false, 'q2. sin clave secreta, action() responde success false', $json($cuerpoAccion));
+        } catch (\Throwable $exception) {
+            $check(false, 'reCAPTCHA sin clave secreta', get_class($exception) . ': ' . $exception->getMessage());
+        } finally {
+            set_config('GoogleReCaptchaV3SecretKey', 'zz-secreta-de-prueba');
+        }
         try {
             $token = $tokenCaptcha();
             [$cuerpo, $email] = $contactar($token, ['zz-prueba-destino@localhost.test']);
@@ -485,6 +503,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
     } finally {
         set_config('mail', $original);
         set_config('contact_form_recipients', $destinatariosOriginales === false ? null : $destinatariosOriginales);
+        set_config('GoogleReCaptchaV3SecretKey', $secretaOriginal === false ? null : $secretaOriginal);
         if (count($visitantes) > 0) {
             $database->prepare('DELETE FROM ' . NewsletterSuscriberMapper::TABLE . ' WHERE email IN (' . implode(', ', array_fill(0, count($visitantes), '?')) . ')')->execute($visitantes);
         }

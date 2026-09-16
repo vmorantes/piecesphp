@@ -42,16 +42,27 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
      * @var string
      */
     protected static $baseRouteName = 'google-recaptcha-v3';
-    /**
-     * @var string
-     */
-    public static $secretKey = '6Lc9cTgdAAAAAAwTQDa2u2mij2Utql1Ut0M7_Y_0';
 
     const LANG_GROUP = GoogleReCaptchaV3Lang::LANG_GROUP;
 
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * La clave secreta de reCAPTCHA v3, cargada por api-keys.php. Null si no está configurada.
+     *
+     * @return string|null
+     */
+    public static function secretKey(): ?string
+    {
+        $secret = get_config('GoogleReCaptchaV3SecretKey');
+        if (!is_string($secret) || mb_strlen(trim($secret)) === 0) {
+            log_exception(new \RuntimeException('reCAPTCHA v3 sin clave secreta: falta la clave recaptcha-v3-secret en las claves seguras (ver api-keys.php).'));
+            return null;
+        }
+        return $secret;
     }
 
     /**
@@ -106,9 +117,15 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
 
             $now = new \DateTime();
             $nowLess1Hour = (clone $now)->modify('-1 hour');
+            //SIN CLAVE SECRETA NO SE PREGUNTA A GOOGLE: se responde rechazo (falla cerrada).
+            $secretKey = self::secretKey();
+            if ($secretKey === null) {
+                $responseJSON['verify'] = (object) ['success' => false, 'score' => 0.0, 'token' => $token];
+                return $response->withJson($responseJSON);
+            }
             $requestHTTP = new HttpClient('https://www.google.com/recaptcha/api/');
             $requestHTTP->request('siteverify', 'POST', [
-                'secret' => self::$secretKey,
+                'secret' => $secretKey,
                 'response' => $token,
             ]);
             $defaultResult = (object) [
@@ -190,6 +207,10 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
      */
     public static function verifyTokenCaptcha(string $token)
     {
+        //Sin clave secreta ningún token pudo verificarse con Google: se rechaza (falla cerrada).
+        if (self::secretKey() === null) {
+            return false;
+        }
         $configElement = new AppConfigModel('GoogleReCaptchaV3Controller');
         if ($configElement->id === null) {
             $configElement->name = 'GoogleReCaptchaV3Controller';

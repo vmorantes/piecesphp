@@ -9,11 +9,14 @@ window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, functi
 	let captchaMessage = ''
 	let captchaToken = ''
 	let captchaAdapterDefined = typeof GoogleCaptchaV3Adapter !== 'undefined'
+	//La clave de sitio llega del servidor (api-keys.php). Vacía: sin adaptador, y el servidor rechaza el envío.
+	let captchaSiteKey = pcsphpGlobals.frontConfigurationsFromBackend.GoogleReCaptchaV3SiteKey
+	captchaSiteKey = typeof captchaSiteKey == 'string' ? captchaSiteKey.trim() : ''
 	let recaptchaEval = () => { }
 
-	if (captchaAdapterDefined) {
+	if (captchaAdapterDefined && captchaSiteKey.length > 0) {
 		let captchaAdapter = new GoogleCaptchaV3Adapter({
-			key: '6Lc9cTgdAAAAAMVBHJIk3i0XBOnNtyAV0Ijl6ZBv',
+			key: captchaSiteKey,
 		})
 		recaptchaEval = function () {
 			captchaAdapter.execute(function (response, success, message, token) {
