@@ -31,6 +31,11 @@ Configuración maestra. Contiene:
   `CronJobKey`, `mailjet`, `OpenAIApiKey`, `MistralAIApiKey`, `GroqAPIKey`,
   `SurveyJSKey`, `Azure`, `osTicketAPI(Key)`, `LabsMobileAPIKey`.
   En el repo están como `TODO:secret` / placeholders.
+- **Destinatarios de formularios públicos**: `contact_form_recipients` (formulario de contacto) y
+  `other_problems_recipients` (correo de «otros problemas» cuando osTicket falta o falla). Lista de
+  direcciones, **vacía en el repositorio**. Vacía, no lista o con una dirección inválida: no se envía y queda
+  en el log (`ContactFormsController::recipients()`, `UserProblemsController::otherProblemsRecipients()`).
+  Nunca una dirección en el código: todo clon la hereda (ruptura 28 del `CHANGELOG`).
 - `statics_path` → `src/statics`.
 - `GEO_IP.custom_directory`.
 - Un listener de ejemplo sobre `BaseEventDispatcher::EVENT_INIT_ROUTES_NAME`.

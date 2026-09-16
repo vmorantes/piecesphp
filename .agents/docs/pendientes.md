@@ -966,7 +966,8 @@ historia de git los conserva.
   18. **Hallazgos de `#131` (estudio de los envíos de correo):**
      - **9.1 · El formulario de contacto y el de «otros problemas» envían a `sir.vamb@gmail.com`**, escrita en
        el código (`ContactFormsController::RECIPIENTS_MESSAGES` y `UserProblemsController::EMAIL_ON_FAILED_OS_TICKET`).
-       Todo clon manda esos correos al PO. Es una trampa de plantilla: corrección.
+       Todo clon manda esos correos al PO. Es una trampa de plantilla: corrección. **En `#139`**, con el
+       predeterminado de A-036 §3: a la configuración, vacía, y sin destinatarios no se envía (ruptura 28).
      - **9.2 · `SMTPDebug = 2` escrito a mano** en `OTPHandler` y `ContactFormsController`, que pisa la
        configuración; el formulario de contacto manda ese log a `log_exception()`. **Verificado por el
        arquitecto: NO filtra credenciales**, porque PHPMailer 7.1.1 escribe `[credentials hidden]` por debajo
@@ -975,6 +976,28 @@ historia de git los conserva.
      - 9.4 · `bin/cli unit-tests:<suite>` sale con 0 aunque la suite falle (`gates` no se ve afectado).
      - 9.5 · `APIController::usersActions()` crea un usuario real antes de enviar: es el envío más caro de
        probar.
+  19. **Hallazgos de `#134`→`#138` (corrección del importador)**, que el arquitecto dejó sin registrar y el
+     coder señaló al contrastar su resumen de compactación:
+     - **`Validator::isEmail()` consulta el DNS en vivo** (`checkdnsrr($dominio, 'MX')`, `#134` §7): sin DNS
+       ningún correo es válido, cada validación es una consulta externa y un dominio sin MX se rechaza. Es
+       núcleo transversal: va al PO como **P29**.
+     - **`WhereItem::isEqual(campo, null)` genera SQL inválido**, en el paquete `database` (`#136` §6.1).
+       Lote 10.
+     - **Ligar no basta en columnas enteras**: MariaDB compara una cadena con un entero por su prefijo
+       numérico, así que `'1abc'` ligado encuentra el id 1 (`#136` §6.2, `#138` §8.2). El dominio se valida
+       antes de consultar.
+     - **Los otros cuatro `getByID()`** (`PointMapper`, `DocumentsMapper`, `CategoriesMapper` y
+       `DocumentTypesMapper`) declaran `int $id`: no explotables. Medido por el arquitecto; el coder lo dio
+       como SIN VERIFICAR en `#138` §8.1. Se declaran en el censo en el lote 10.
+     - **El cuerpo del commit `4ec88430` remite a `#134` para el rojo**, pero el rojo de la suite definitiva
+       está en `#136` §2 (`#138` §6.4). La historia no se reescribe: vale esta línea.
+     - **Censo de retornos ignorados: 678 → 695 sin declarar** (`#123` §7). Lote 10.
+  20. **Hallazgos del arquitecto al diseñar `#139`:**
+     - **`other-problems-send` (pública) devolvía en su respuesta de fallo las cabeceras HTTP de osTicket**
+       (`$json_response['extra']`), y con osTicket sin configurar esa línea daba un error fatal, porque
+       `$instance` es nulo. El JS (`other-problems.js`) no lee `extra` (medido). Se corrige en `#139`.
+     - **El formulario de contacto (`contact-forms-general`, pública) suscribe al boletín aunque el CAPTCHA
+       falle**: el alta está fuera del `if ($captchaSuccess)` y `NEWSLETTER_MODULE` vale `true`. Lote 10.
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;

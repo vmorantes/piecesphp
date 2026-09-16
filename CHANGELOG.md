@@ -559,6 +559,24 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **Si tu proyecto importaba administradores o roots con este importador**, deja de poder hacerlo: se crean
   por el formulario de usuarios.
 
+### 28 · Los destinatarios del formulario de contacto y de «otros problemas» salen de la configuración
+
+- **`ContactFormsController::RECIPIENTS_MESSAGES` y `UserProblemsController::EMAIL_ON_FAILED_OS_TICKET`
+  desaparecen.** Llevaban una dirección escrita en el código, así que todo clon enviaba esos mensajes a esa
+  dirección.
+- **Los destinatarios pasan a `src/app/config/config.php`**, como lista de direcciones:
+  `$config['contact_form_recipients']` (formulario de contacto) y `$config['other_problems_recipients']`
+  (el correo de «otros problemas» cuando osTicket no está configurado o no responde). **Vienen vacías.**
+- **Sin destinatarios válidos no se envía el correo.** Una lista vacía, una clave que no es una lista o una
+  lista con alguna dirección inválida cuentan igual. El formulario de contacto responde con el error
+  genérico; «otros problemas», si osTicket tampoco recibió el mensaje, responde que no pudo enviarlo. Cada
+  intento deja en el log una línea que nombra la clave.
+- **La respuesta de fallo de «otros problemas» ya no lleva `extra`**, que eran las cabeceras HTTP de la
+  respuesta de osTicket entregadas a un visitante sin sesión. Con osTicket sin configurar, esa línea daba un
+  error fatal.
+- **Qué hacer:** si tu proyecto usa cualquiera de los dos formularios, pon sus destinatarios en esas claves.
+  Si leías las constantes desde código propio, lee la configuración.
+
 ---
 
 ## ⚠ Corregido — el importador de usuarios permitía crear un root, y `getByID()` concatenaba el id
