@@ -506,6 +506,12 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - **Aviso de `app_key`:** si sigue con el valor de ejemplo (vacío o empezando por `TODO`), el
   framework lo apunta en el log una vez al día y lo muestra en el panel a root y a los
   administradores generales. **No impide arrancar.**
+  - En el panel es un aviso flotante abajo (`nag` de Fomantic-UI), que no desplaza la
+    maquetación. Se puede **descartar**, y el descarte se recuerda 7 días en ese navegador; si
+    la clave sigue siendo la de relleno, vuelve.
+  - Se puede **ocultar del todo** en Configuración → Seguridad e IA
+    (`$config['hide_app_key_warning']`, `false` por defecto). Ocultarlo **no** apaga el registro
+    diario del log. Un `config.php` que no tenga la clave deja el aviso encendido.
   - `bin/cli generate-app-key` imprime una clave nueva para pegarla en `config.php`.
   - **Cambiar `app_key` cierra todas las sesiones abiertas e invalida los tokens**, porque con
     ella se firman.

@@ -909,6 +909,11 @@ historia de git los conserva.
      - **Lo que debe ser:** el módulo `nag` de Fomantic-UI
        (`https://fomantic-ui.com/modules/nag.html`), **descartable, que recuerde el descarte, y
        apagable desde configuración**.
+     - **En curso en `#104` (2026-09-16).** `ui bottom fixed nag`; descarte en cookie durante 7
+       días; interruptor `hide_app_key_warning` en «Seguridad e IA», `false` por defecto, en
+       negativo para que un `config.php` sin la clave deje el aviso encendido; el log diario no
+       cambia. Sin compilar: `nag` ya viene en `semantic.min.js` (2.9.4) y la inicialización va
+       en `statics/admin-area/js/main.js`, que no se compila.
      - **Cómo debe comportarse (PO, 2026-09-15):** **flota SOBRE el contenido, quizá abajo**, y
        **no destruye el diseño**. Nada de empujar la maquetación ni de barras a todo lo ancho
        encima de la topbar.

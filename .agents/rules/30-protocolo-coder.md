@@ -330,6 +330,10 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
 - **Provocar es destructivo**: desde un estado guardado (copia y `sha1sum`), sobre un archivo
   propio y, si se intercambia PHP servido por Apache, esperando más de 2 s
   (`opcache.revalidate_freq`).
+  - **Si lo que se provoca es la propia guarda de hooks**, la prueba, la restauración y la suma
+    van en UNA sola llamada de shell. Mientras la provocación está puesta, el hook que filtra las
+    llamadas del coder está debilitado, y así la ventana no depende de la disciplina entre
+    llamadas (propuesto por el coder en `#103`).
 - **Exige el camino de fallo**: para lo que reescribe o borra, prueba de que el original queda
   intacto cuando la operación no se completa. Una prueba de guarda debe fallar si se quita la
   guarda (LEY 24).
