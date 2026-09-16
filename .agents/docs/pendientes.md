@@ -1038,6 +1038,33 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  33. **Lote 9 (documentación): inventario y plan** (arquitecto, 2026-09-16, con una exploración de solo lectura; citas en el
+     informe, resumidas aquí). Once frentes, en este orden de rondas:
+     - **9.1 · Correcciones que no esperan** (arquitecto, con commit del coder): el propósito de `processFromQuery` al
+       `06-orm-mappers.md` antes de que muera el 18; las contradicciones del dossier que son solo documentación (punto 15:
+       ctx/21 con 16 comprobaciones y los estados viejos de suites, ctx/01 y ctx/12 con pisos de PHP viejos, ctx/05 con 44
+       controladores, `queues.md:65` con `--local`, regla 30 con `dev` = `master`, `historico/README.md` contra el ADR 0002,
+       la regla de los marcadores ausente de ctx/06 y ctx/12, y las entradas del `CHANGELOG` que ya no son verdad); y los
+       selectores que se documentan (`lang-group`, `datatable-js`, `container-steps`/`data-to-step` y
+       `element-location-module-data`). **Lo que es código** (el piso y `E_USER_ERROR` de `bin/cli:4-6`, el docblock «por
+       prefijo» de `GatesTask`, `@deprecated` de `escapeString()` que el ADR 0009 da por puesto) va en una ronda corta del
+       coder. **El ADR 0009 no se edita**: es inmutable; se corrige el código.
+     - **9.2 · PHPStan en dos listas** (supresiones PERMANENTES y TEMPORALES con su condición): clasificación del arquitecto
+       y reordenación de `bin/phpstan.neon` y su puntero por el coder.
+     - **9.3 · La API**: `Reportes.md` («convocatorias»), las banderas `API_*`, paridad de Postman (News, usuarios en
+       carpeta) y la ruta `external` comentada con `externalActions()` vivo (**P35** al PO: ¿se retira o se documenta como
+       extensión apagada? *Predeterminado:* se documenta como apagada y no se toca el código).
+     - **9.4 · El front**: `16-frontend-arquitectura.md` (esqueleto base, estética medida, prohibido, ejemplos, modales,
+       laterales, idioma, «conectarse como») con el catálogo de Fomantic del panel; antes, medir `layout/` y las 35 de 81
+       vistas sin `section.module-view-container`.
+     - **9.5 · `source-docs/` completo**: las cuatro capas (agentes, extender y mantener —no existe—, desarrolladores —
+       parcial—, guías pequeñas —revisar—), el árbol del proyecto para desarrolladores (contrastar con `content/structure.md`),
+       y la guía de creación de módulos con la protección de subidas.
+     - **9.6 · El manifiesto de capas A/B/C** (`.agents/capas.json`) con su comprobación por máquina (código del coder).
+     - **9.7 · Los cuatro paquetes (P32)**, en español: README, metadatos de Packagist (`homepage`, `support.source`),
+       ejemplos que corren como prueba, guía para agentes y retirar su `.agents/` viejo. Empujar y publicar, del PO.
+     - **9.8 · Los seis módulos sin punto de extensión (P4)**: identificarlos primero (la lista no consta en el registro;
+       puede que T149 ya los cubriera).
   32. **`7c` cerrado entero con B3 (`#173`→`#174`: `2b33cdaf`, `24f726a1`).** Tres correos reales a Mailinator, los tres
      `true`, con el SMTP local (configurado y conecta), a las 13:10 del 2026-09-16: `zz-prueba-recuperacion-55e5ee`,
      `zz-prueba-codigo-55e5ee` y `zz-prueba-problemas-55e5ee` (@mailinator.com; responder a `zz-prueba-visitante-55e5ee`).
