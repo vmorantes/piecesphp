@@ -436,7 +436,8 @@ Los informes completos quedaron en el scratchpad de la sesion, fuera del reposit
 
 Declarado y aparcado, sin bloque:
 
-- `TODO.md` sigue en la raiz: es una lista del PROPIETARIO (PayU, modulos por rehacer, encuestas).
+- ~~`TODO.md` sigue en la raiz: es una lista del PROPIETARIO (PayU, modulos por rehacer,
+  encuestas).~~ **CERRADO el 2026-09-15**: el PO ordenó borrarlo y descartar su contenido.
 - `files/TraduccionesPublicas.json` vale `{}` y nadie lo nombra literalmente. Sin verificar si
   se carga por un nombre compuesto.
 - `bin/Preview/`: su limpieza (`bin/phpstan-process-result.php`) solo borra los `*.md`. Las
@@ -853,6 +854,168 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **El `TODO.md` de la raíz se borra, y su contenido con él (PO, 2026-09-15).** El PO pidió
+  quitarlo (*«es viejo y probablemente falso»*, y le ensucia la raíz). El arquitecto lo leyó
+  antes: contenía siete intenciones de producto suyas (PayU, un archivo de opciones JSON para
+  el front, rehacer los módulos de imágenes, de noticias internas y del temporizador, y un
+  módulo de encuestas con su app). **Ninguna estaba en el mapa ni en `roadmap-posterior/`**, así
+  que el arquitecto propuso rescatarlas aquí antes de borrar.
+  - **El PO lo rechazó en el mismo turno: «Bórralos, no me interesan»**, aclarando que se
+    refería al contenido del `TODO.md`. **No se rescata nada**: no son trabajo, no son deuda y
+    no vuelven por ninguna puerta. Si alguna le vuelve a interesar, la nombrará él.
+  - Queda esta línea como único rastro, porque un archivo versionado que se borra tiene que
+    dejar dicho quién lo decidió y por qué. El archivo sale con `git rm`.
+- **Encargos y correcciones del PO tras cerrar el tirón (2026-09-15, chat A-024 y A-025):**
+  1. **⚠ El aviso de `app_key` rompe el diseño del panel, y es culpa del arquitecto.** La
+     instrucción `#085` decía «un aviso visible en el panel para los tipos 0 y 1», sin nombrar
+     componente, sin decir que fuera descartable ni que se pudiera apagar. El coder implementó lo
+     pedido. El resultado es una barra a todo lo ancho, encima de la topbar, ajena al diseño.
+     - **Lo que debe ser:** el módulo `nag` de Fomantic-UI
+       (`https://fomantic-ui.com/modules/nag.html`), **descartable, que recuerde el descarte, y
+       apagable desde configuración**.
+     - **Cómo debe comportarse (PO, 2026-09-15):** **flota SOBRE el contenido, quizá abajo**, y
+       **no destruye el diseño**. Nada de empujar la maquetación ni de barras a todo lo ancho
+       encima de la topbar.
+     - **Para qué sirve de verdad, más allá de `app_key`:** el PO lo quiere como el canal de los
+       **errores suaves**, que hoy no existen: *«en este framework todo explota y no hay errores
+       suaves»*. El `nag` es la salida visible de esa capacidad cuando se construya.
+       - **SIN VERIFICAR hoy:** la deuda de los errores está registrada (las deprecaciones
+         abortan en local, y `E_WARNING`/`E_NOTICE` siguen abortando). Localizarla y enlazarla
+         con esto al retomar.
+       - Mientras esa capacidad no exista, el `nag` solo se usa para el aviso de `app_key`.
+     - El PO recuerda haberlo **propuesto y no impuesto** en su momento. **SIN VERIFICAR:**
+       buscarlo en el registro. Si está escrito y el arquitecto no lo leyó, ese es el hallazgo de
+       fondo.
+     - Va primero en el tirón siguiente: está hoy en la pantalla de todo root y todo
+       administrador.
+  2. **Norma que nace de ahí:** toda instrucción que toque una vista del panel **nombra el
+     componente de Fomantic** que usa y dice **si es descartable y si se puede apagar**. Sin eso,
+     la instrucción está incompleta y no sale.
+  2b. **Un documento de diseño del panel, propuesto por el PO** (2026-09-15): «¿no puedes
+     preparar un buen `DESIGN.md`?».
+     - **No es idea nueva del todo:** el lote 9 ya lleva pendiente
+       `.agents/context/16-frontend-arquitectura.md`, y hoy mismo el PO le añadió el catálogo de
+       componentes de Fomantic del panel. Esto los consolida y les da un nombre.
+     - **⚠ CORRECCIÓN DEL PO (2026-09-15), y es la que evita la trampa: «la forma de
+       Publications» NO es la referencia.** El backoffice tiene un **esqueleto base**, y
+       Publications solo es el módulo que mejor lo cumple. Decir «hazlo como Publications» haría
+       un documento falso, porque Publications no integra todo.
+       - **El esqueleto, según el PO** («si no recuerdo mal», SIN VERIFICAR en detalle):
+         `topbar-switches`; `topbar-content` y otros laterales que despliega el sistema;
+         `aside` + `.content`; y dentro, `section.module-view-container` con el contenido del
+         módulo. Las vistas de configuración varían esa última parte.
+       - **MEDIDO por el arquitecto el 2026-09-15**, y le da la razón:
+         - **46 de 81** vistas del panel usan `section.module-view-container`;
+         - **las 8 vistas de `app_configurations` usan 0**: `backgrounds`, `configurations`,
+           `email`, `logos-favicons`, `os-ticket`, `routes`, `security-and-ia` y `seo`;
+         - el esqueleto aparece en `app/view/panel/layout/topbar.php` y en las vistas de los
+           módulos.
+       - **Objetivo del PO:** que todo se parezca **un poco más** a Publications porque las de
+         configuración se quedaron atrás, **no** porque Publications sea la norma. La norma es el
+         esqueleto.
+       - **Falta medir, y es el primer paso del documento:** el armazón exacto de `layout/`, qué
+         hace cada pieza, y en qué se desvía cada una de las 35 vistas que no lo usan.
+     - **Qué tiene que contener para servir de algo**, y no ser otro documento que se pudre:
+       - **por situación, no por componente**: «un aviso del sistema» → `nag`; «una tabla», «un
+         formulario», «un breadcrumb», «un botón primario», «un estado vacío», «un error»;
+       - **el esqueleto base primero**, y después cómo lo rellena cada tipo de vista;
+       - **la estética que YA hay**, medida en el panel real. No un sistema de diseño inventado
+         que contradiga la aplicación;
+       - **qué está prohibido**: CSS propio donde Fomantic ya resuelve, y componentes fuera del
+         sistema;
+       - **cada regla con su ejemplo vivo**, señalando la vista donde está.
+     - **Cómo se hace cumplir:** la norma del punto 2 (toda instrucción que toque una vista
+       nombra el componente y dice si es descartable y apagable) **apunta a este documento**. El
+       documento solo, sin esa norma, no habría evitado la barra.
+     - **DÓNDE VIVE: DECIDIDO por el PO (2026-09-15).** «El sitio donde tú quieras; la verdad,
+       entre menos ensucie la raíz, para mí mejor.» Así que:
+       - **NO se crea `DESIGN.md` en la raíz.** El PO dijo el nombre solo porque ha oído que los
+         agentes diseñan con ese archivo, no porque lo quiera ahí;
+       - va a **`.agents/context/16-frontend-arquitectura.md`** (ya pendiente en el lote 9), con su
+         versión para desarrolladores en `source-docs/`, y `AGENTS.md` lo apunta.
+     - **Más piezas que el PO nombra y que el documento debe cubrir** (2026-09-15): los
+       **modales**, los **laterales de perfil**, el **cambio de idioma** y el **«conectarse
+       como»**. El esqueleto no son solo cuatro contenedores: son también estas piezas que el
+       sistema despliega.
+     - **Aviso del arquitecto, dicho antes de empezar:** si el documento dice la verdad, dirá que
+       **35 de 81 vistas no siguen el esqueleto**. Eso produce trabajo. **No se convierte en un
+       lote de rediseño sin que el PO lo decida.**
+     - **Cuesta una ronda**: antes hay que MEDIR qué usa hoy el panel de verdad.
+  3. **La vista «Sistema» del panel** (idea suya del 2026-08-24, en
+     `roadmap-posterior/Vista Sistema en el panel.md`) se **amplía** con lo que pidió hoy:
+     - los **paquetes de Composer instalados frente a los recomendados**;
+     - las **dependencias externas del servidor** (`ffmpeg` y compañía): comprobar si están y
+       avisar si faltan. Medido hoy: existe `API/Adapters/FfmpegAudioAdapter.php` con una ruta a
+       binario configurable, y en `pendientes` está aprobado retirar el paquete de vídeo asociado;
+       **si el binario falta, hoy no lo dice nadie**. SIN MEDIR si ese adaptador está vivo.
+     - Sigue después de la MAJOR, con sus cuatro reglas intactas (derivar y no teclear; hechos y
+       nunca valores; control por rol; cada fila declara su origen).
+  4. **El volumen de la campaña es un riesgo para el PO, no solo un activo.** Sus palabras,
+     formalizadas: cuanto más escriben los agentes, más inmanejable le resulta, y por eso no se
+     pueden dejar cosas en el tintero ni colar desastres de diseño. **La guía técnica para
+     reconocer su propio framework tiene que ser más específica.**
+     - **Propuesta del arquitecto, sin aprobar:** escribirla DURANTE la campaña, un párrafo por
+       ronda (qué cambió de lo que él sabía, qué desaprender, qué mide la puerta nueva y **qué NO
+       atrapa**), en vez de al final. Al ritmo de hoy —109 commits en nueve horas—, escribirla al
+       cerrar sería reconstruirla de memoria, que es lo que sus propios requisitos prohíben.
+     - **⚠ CONDICIÓN DEL PO (2026-09-15), que acota esa propuesta: la guía personal NO SE
+       VERSIONA. Es personal.** Confirma y refuerza su orden del 2026-08-29.
+       - **Consecuencia que hay que asumir, dicha:** lo que no se versiona no se respalda, **y
+         ninguna sesión futura puede leerlo**. No puede ser fuente de nada del registro, ni
+         sustituir a `.agents/context/`.
+       - **Opciones de dónde vive, sin decidir (lo decide el PO):**
+         1. **Se la entregamos y él la archiva donde quiera.** Cada ronda deja su párrafo marcado
+            «para tu guía» en el mensaje al PO, y el repositorio no guarda nada. Es lo más fiel a
+            «es personal»;
+         2. una carpeta del clon **ignorada por git**, como comodidad, que exigiría una línea en
+            `.gitignore` (archivo del coder) y sigue sin respaldo: un `clean -x` se la lleva;
+         3. su propio repositorio privado, que crea y gobierna él. Los agentes no crean
+            repositorios ni empujan.
+- **`#091`/`#092`, 2026-09-15: el 7b cerrado; fin del tirón de 20 rondas.**
+  - Commits: `40c6d89d` y `1a7a0349` (las dos guardas que fallaban abiertas), `c6752466` y
+    `576ef659` (sus pruebas y la tanda B), `a2168802` (documentación).
+    `access-guards` 112/112 e `input-guards` 41/41.
+  - **Las dos que fallaban abiertas, ARREGLADAS y en verde:**
+    - `UploadedFileAdapter::validate()` sin archivo devuelve `false`, con la forma de T135. Sus
+      tres consumidores se midieron antes: ninguno dependía del `true`;
+    - `Roles::addPermission()` con tipo CODE y un identificador no numérico LANZA. Medido en la
+      prueba: root se queda en 212 rutas, antes y después. Se conserva el código como entero y
+      como cadena.
+    - Van en la ruptura 25 del `CHANGELOG`.
+  - **Barrido de `Roles`, método por método:** `addPermission` era el único que casteaba según el
+    tipo; `addPermissions` delega; `getRole` y `setCurrentRole` comparan sin castear (y en PHP 8
+    `0 == 'nombre'` es false); `hasPermissions` compara con `===`; `roleExists` está tipado
+    `int`. Fuera de `Roles`, `register_route` (`AppHelpers:2350`) llama con el tipo CODE por
+    omisión, pero sus roles vienen filtrados por `roleExists()`, que es `int`.
+  - **Tanda B: las 6 probadas y provocadas**, todas inocuas. `processFromQuery` **no es una
+    guarda**: sus laxas (1089, 1092 y 1125) deciden la DIRECCIÓN del orden, no un acceso; lo que
+    sí decide acceso en ese archivo ya lo cubre `UnitTest-SqlPlaceholders`.
+  - **Resultado del lote 7b: de las 19 guardas que podían fallar abiertas y que ninguna suite
+    llamaba, 0 quedan sin prueba.** El censo sigue listando 6 porque cruza POR NOMBRE y no puede
+    ver una que solo se prueba por HTTP, tres constructores, una protegida y la que no es guarda.
+  - **Contratos congelados, que no son fallos pero engañan al leer:**
+    - **H-AF:** `has_global_asset()` devuelve `0` para el primer asset de cada tipo: falsy pero
+      no `false`. Un `if (!has_global_asset(...))` lo lee como ausente y lo añade otra vez;
+    - **H-AG:** `RouteAdapter` con nombre vacío o nulo se pone un `uniqid()`. **El nombre de la
+      ruta ES el identificador de permiso**, así que esa ruta queda sin rol que la tenga
+      concedida. Cierra, pero en silencio;
+    - **H-AH:** un `MenuGroup` con la opción `current` se marca como actual sin mirar la URL.
+  - **Limpieza del tirón, comprobada antes de borrar:** la migración está commiteada
+    (`a624e929`), el árbol está migrado (1.657 con sufijo, 5 sin él, el `.htaccess` de `uploads`
+    presente y ninguno por módulo) y la copia estaba íntegra. Se borraron
+    `/tmp/4b3-uploads-antes.tgz`, su `.sha256` y los cuatro manifiestos. No quedan CliActions
+    temporales ni credenciales en `/tmp`.
+  - **Lo que el coder deja sin empezar, con su orden recomendado para el tirón siguiente:**
+    1. **H-R**, el escape doble del ORM: es lo único que corrompe datos guardados en silencio y
+       es la causa de H-L. **Espera al PO**;
+    2. **H-L**, el límite por usuario del OTP, en cuanto se decida H-R;
+    3. **unificar `UploadedFileAdapter::validate()` y `FileUpload::validate()`**: son dos
+       implementaciones casi iguales, y el arreglo de T135 ha habido que hacerlo DOS veces con
+       dos años de diferencia. La próxima divergencia volverá a abrir un agujero;
+    4. las tres entradas muertas del skip de Rector (H-T) y `verify_expected_file()`, que no
+       tiene llamadores (H-AD);
+    5. el POST de `tokens/commentary/`, que no se pudo ejercer porque manda el correo al usuario
+       SMTP de la app, que no es de Mailinator.
 - **`#089`/`#090`, 2026-09-15: el 7b, tanda A (13 de 19 guardas).**
   - Commits: `779890c1` (los cuatro `Roles`, `getAttribute` y `Parameter`), `07068319` (subidas y
     validación, en la suite nueva `UnitTest-InputGuards`) y `9af1845e` (documentación).
@@ -1372,7 +1535,11 @@ historia de git los conserva.
      volver a consultar. El trabajo se detiene solo si aparece algo que cambie ese diseño.
   2. **2.2, sí al diseño del 4b**: el sufijo `.protected`, `Core/Statics/` con alias de
      transición, cabeceras de caché privadas, `Vary`, streaming, rangos y P26 en FileManager.
-     - **Además, el cron del sistema** (`cronjob.php`):
+     - **Además, el cron del sistema** (el PO lo llamó `cronjob.php`; **ese archivo NO existe en
+       este repositorio**, medido el 2026-09-15 con `find` sobre todo el árbol. El punto de
+       entrada real es la CLI, `bin/cli run-cronjobs`, y las tareas se registran en
+       `src/app/config/final-configurations-includes/cronjobs.php`. La ruta HTTP
+       `core/api/cron-jobs/run` es la vía subsidiaria):
        - tiene que estar bien documentado para quien desarrolla;
        - tiene que llevar reintentos y ventanas de recuperación. Hoy, si una tarea programada a
          las 12:00 falla, no se recupera a las 12:01 aunque el crontab corra cada minuto.

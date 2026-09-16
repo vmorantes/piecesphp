@@ -510,6 +510,23 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   - **Cambiar `app_key` cierra todas las sesiones abiertas e invalida los tokens**, porque con
     ella se firman.
 
+### 25 · Dos comprobaciones que concedían por error ahora fallan cerrado
+
+Las dos decían «sí» donde debían decir «no». Si tu proyecto se apoyaba en ese «sí», ahora recibe
+un «no» o una excepción: es el cambio que se busca, pero avisa a tus desarrolladores.
+
+- **`Roles::addPermission()` con `IDENTIFIER_TYPE_CODE` y un identificador que NO es numérico
+  LANZA `RoleNotExistsException`.**
+  - **Antes:** ese identificador se convertía en `0` sin avisar, y la ruta **se concedía al rol
+    de código 0, que es root**. El rol que se quería nombrar no recibía nada.
+  - Un código numérico, entero o como cadena (`770001` y `'770001'`), sigue funcionando igual.
+- **`UploadedFileAdapter::validate()` devuelve `false` cuando no se subió ningún archivo.**
+  - **Antes devolvía `true`**: la cadena de comprobaciones no tenía `else` y el acumulador nacía
+    en `true`. Es la misma trampa que ya se había corregido en `FileUpload::validate()`.
+  - Quien preguntaba antes por `hasInput()` no nota nada.
+
+Las dos tienen ahora prueba de rechazo: si alguien las vuelve a abrir, la suite falla.
+
 ---
 
 ## Eliminado — los restos del módulo de experiencias (E3)
