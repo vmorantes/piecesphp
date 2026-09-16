@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 11:38 (medido con `date`).
+- **Actualizado:** 2026-09-16 12:08 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#142 · COD`. Próximo: `#143 · ARQ`. **Último al PO:** A-040.
+- **Último mensaje:** `#151 · ARQ`. Próximo: `#152`. **Último al PO:** A-042.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,24 +15,16 @@
 
 ## En curso
 
-**Diseñando `#143`: P30, la recuperación de contraseña** (decisión del PO en A-038: «soluciona lo que debas sin
-perder función»). Va ANTES que `4d` parte B porque es una trampa activa en rutas públicas. ADR 0018. Lo medido por el
-arquitecto leyendo el código, a confirmar por la suite de la ronda:
-- **Por enlace** (`new-password-create`, GET): genera una contraseña, la guarda y la manda con una plantilla que no la
-  imprime (`restored_password.php`). El usuario queda fuera. Es un GET que escribe.
-- **Por código** (`new-password-verify-code` y `new-password-create-code`, POST públicas; y la API
-  `change-password-code`): código de 6 cifras con `rand()`, válido 24 h, **sin límite de intentos** y buscado entre
-  los de TODOS los usuarios (`RecoveryPasswordModel::exist($code)`): se puede adivinar → toma de la cuenta.
-  **La respuesta del cambio devuelve el usuario entero** (`getByEmail()` hace `select()` sin campos, que trae todas
-  las columnas, con el hash). `verifyCode` devuelve el `username`. La petición dice si el usuario existe. El código se
-  guarda en claro en `TicketsLogModel`. `created` y `expired` son el mismo objeto (`modify` muta).
+**`#145`: P30, la recuperación de contraseña** (ADR 0018, ruptura 29): un solo mecanismo, el código, ligado al
+usuario y con el límite de `OTPRateLimiter` (vía `recovery-code`); el enlace ya no escribe; ninguna respuesta
+entrega el usuario; las peticiones responden igual exista o no. Suite `core/password-recovery-guards` con base local
+(usuario zz, `db-backup` antes). Rojo razonado 7/16.
 
-Cerrado: **`#141`→`#142`, `7c` parte B1**: `9114ffc2` (las plantillas de los formularios públicos escapan al
-visitante; 1/22 → 22/22, provocaciones 20/22), `54408482` (envíos 6, 8 y 9: 45/45 con Mailpit, 0/3 sin él),
-`f3d35240` y `6bdaa07e`. PHPStan igual (731). Desviación aceptada: `(string)` ante `render()` en la suite, que
-devuelve `string|null`.
+Cerrado: **`#143`→`#144`, ADR 0019 y `v8.0.0-alpha.1`**: `eca9ee29`, `53bd741e`, `54562173` («vv» del panel),
+`b6c52b9f` (la pre-versión, etiquetada) y `e5d499bd`. `master` → `b6c52b9f`; `last-stable` → `c9125196` (`v7.1.0`).
+Guarda provocada (230, 232 y 231 de 233). **Sin empujar.**
 
-**Después de `#143`:** `4d` parte B (el push de `database` ya está), luego `7c` B2 (4 contacto, 2 OTP, 5 token, que
+**Después de `#145`:** `4d` parte B (el push de `database` ya está), luego `7c` B2 (4 contacto, 2 OTP, 5 token, que
 tiene la misma inyección de HTML en `commentary`; 3 aprobaciones; 1 alta por API) y B3 (Mailinator).
 
 **Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
@@ -97,7 +89,9 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
   remoto). Las etiquetas no se pueden comprobar sin consultarlo. Desbloquea `4d` parte B.
 
 Preguntas abiertas:
-1. **P31 · reCAPTCHA v3 sin claves de prueba.** *Predeterminado:* (a), las claves a la configuración, vacías; sin
+1. **P31 · reCAPTCHA v3 sin claves de prueba.** El PO preguntó de qué cuenta es la clave para rotarla (A-042): no se
+   deduce de la clave. La introdujo el commit `393d29ef` («ReCaptcha v3», 2021-11-15, autor con su correo personal);
+   se le indicó buscar la clave pública (`src/statics/js/contact-form.js:16`) en la consola de cada cuenta. *Predeterminado:* (a), las claves a la configuración, vacías; sin
    claves, el formulario de contacto rechaza y deja una línea en el log. Recomendado además: borrar o regenerar la
    clave en `google.com/recaptcha/admin` o en `console.cloud.google.com/security/recaptcha`, porque sigue en el
    historial de git. La clave pública, para encontrarla, está en `src/statics/js/contact-form.js:16`.
