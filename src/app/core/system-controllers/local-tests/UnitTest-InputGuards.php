@@ -51,7 +51,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     try {
 
         //──── 1. FileValidator::validate ───────────────────────────────────────────────────
-        echoTerminal('[1/5] FileValidator::validate() mira el MIME, la extensión y el tamaño');
+        echoTerminal('[1/6] FileValidator::validate() mira el MIME, la extensión y el tamaño');
 
         $soloPNG = new FileValidator([FileValidator::TYPE_PNG], 10);
         $check($soloPNG->validate("{$banco}{$sep}no-existe.png", 'no-existe.png') === false, 'un archivo que no existe da false, ESTRICTO');
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 2. FileUpload: sin subida no hay archivo ─────────────────────────────────────
-        echoTerminal('[2/5] FileUpload no da por bueno lo que no se subió');
+        echoTerminal('[2/6] FileUpload no da por bueno lo que no se subió');
 
         $_FILES = [];
         $ausente = new FileUpload('zz-bp-no-esta', [FileValidator::TYPE_PNG]);
@@ -110,7 +110,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 3. verify_expected_file ──────────────────────────────────────────────────────
-        echoTerminal('[3/5] verify_expected_file() exige que el archivo venga de un formulario');
+        echoTerminal('[3/6] verify_expected_file() exige que el archivo venga de un formulario');
 
         $_FILES = [];
         $check(verify_expected_file('zz-bp-no-esta') === false, 'sin la clave en $_FILES da false, ESTRICTO');
@@ -128,7 +128,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 4. MetaProperty: el tipo manda ───────────────────────────────────────────────
-        echoTerminal('[4/5] MetaProperty RECHAZA el tipo que no existe y el valor que no es de su tipo');
+        echoTerminal('[4/6] MetaProperty RECHAZA el tipo que no existe y el valor que no es de su tipo');
 
         foreach ([['un tipo que no existe', 'TIPO-QUE-NO-EXISTE', null, true], ['TYPE_INT con default «abc»', MetaProperty::TYPE_INT, 'abc', false],
             ['TYPE_INT NO nulable con default null', MetaProperty::TYPE_INT, null, false]] as [$que, $tipo, $default, $nulable]) {
@@ -160,7 +160,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 5. UploadedFileAdapter: sin archivo no hay «válido» (#091) ───────────────────
-        echoTerminal('[5/5] UploadedFileAdapter::validate() dice NO cuando no hay archivo ni código de error conocido');
+        echoTerminal('[5/6] UploadedFileAdapter::validate() dice NO cuando no hay archivo ni código de error conocido');
 
         //Se inyectan los archivos por el cuarto parámetro: no se toca $_FILES ni hace falta una subida real.
         $bueno = ['name' => 'imagen.png', 'type' => 'image/png', 'size' => filesize($png), 'tmp_name' => $png, 'error' => \UPLOAD_ERR_OK];
@@ -199,6 +199,27 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     }
 
     $check(!file_exists($banco) && $_FILES === $filesAntes, 'el banco se borra y $_FILES queda como estaba');
+
+    //──── 6. generate_code() ────────────────────────────────────────────────────────────────────
+    echoTerminal('[6/6] generate_code() y generate_pass() dan la longitud y el alfabeto pedidos');
+    $numericos = true;
+    $mixtos = true;
+    for ($i = 0; $i < 100; $i++) {
+        $numerico = generate_code(6, true);
+        $numericos = $numericos && strlen($numerico) === 6 && preg_match('/^[0-9]{6}$/', $numerico) === 1;
+        $mixto = generate_code(12, false);
+        $mixtos = $mixtos && strlen($mixto) === 12 && preg_match('/^[-_$*.A-Za-z0-9]{12}$/', $mixto) === 1;
+    }
+    $check($numericos, '100 códigos numéricos: 6 dígitos del 0 al 9');
+    $check($mixtos, '100 códigos mixtos: 12 caracteres del alfabeto declarado');
+    $claves = true;
+    for ($i = 0; $i < 100; $i++) {
+        $clave = generate_pass(8);
+        $claves = $claves && strlen($clave['password']) === 8 && preg_match('/^[-_$*.A-Za-z0-9]{8}$/', $clave['password']) === 1
+            && password_verify($clave['password'], $clave['encrypt']);
+    }
+    $check($claves, '100 generate_pass(8): 8 caracteres del alfabeto declarado y su hash la verifica');
+    echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────────────
     echoTerminal(str_repeat('=', 80));

@@ -434,7 +434,7 @@ function generate_pass(int $length = 5)
     $len_pass = $length;
 
     for ($i = 1; $i <= $len_pass; $i++) {
-        $random_pos = rand(0, $len_chars - 1);
+        $random_pos = random_int(0, $len_chars - 1);
         $random_char = mb_substr($chars, $random_pos, 1);
         $new_pass .= $random_char;
     }
@@ -468,7 +468,7 @@ function generate_code(int $length = 6, bool $only_numeric = true)
     $len_pass = $length;
 
     for ($i = 1; $i <= $len_pass; $i++) {
-        $random_pos = rand(0, $len_chars - 1);
+        $random_pos = random_int(0, $len_chars - 1);
         $random_char = mb_substr($chars, $random_pos, 1);
         $new_pass .= $random_char;
     }
