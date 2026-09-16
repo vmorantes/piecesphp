@@ -69,3 +69,4 @@ procedencia.
 | [0017](0017-el-framework-actualiza-sus-paquetes.md) | Excepción: el framework actualiza sus paquetes `piecesphp/*` con Composer cuando un lote lo pide | sí | Aceptada |
 | [0018](0018-recuperacion-de-contrasena.md) | La recuperación de contraseña es una sola: código ligado al usuario, con límite de intentos | sí | Aceptada |
 | [0019](0019-versionado-y-etiquetas-del-framework.md) | Arquitecto y coder versionan y etiquetan el framework, salvo las versiones mayores estables | sí | Aceptada |
+| [0020](0020-phpstan-mide-solo-php-85.md) | PHPStan mide solo PHP 8.5 en los cinco repositorios | sí | Aceptada |

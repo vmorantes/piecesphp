@@ -127,7 +127,7 @@ ruta) y se retiró en el lote 10, con su sección «fuera de lista por orden».
 por bueno solo si `PHPStanResult.txt` sale idéntico salvo el ancho de la tabla, no por el total.
 
 **Un patrón que no casa es una puerta roja** (lote 10, ronda C): `bin/phpstan-process-result.php` lee los errores
-sin archivo de las dos pasadas (`PHPStanResult.8.4.json` y `.8.5.json`) y sale con 1 si alguno es «Ignored error
+sin archivo de la pasada (`PHPStanResult.8.5.json`; desde el ADR 0020 solo se mide PHP 8.5) y sale con 1 si alguno es «Ignored error
 pattern … was not matched». Una supresión muerta miente sobre lo que se calla, y al reordenar puede empezar a tapar
 otra cosa. Los seis que había se retiraron en esa ronda.
 

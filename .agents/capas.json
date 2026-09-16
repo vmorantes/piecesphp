@@ -64,6 +64,7 @@
         ".agents/docs/adr/0016-*",
         ".agents/docs/adr/0017-*",
         ".agents/docs/adr/0019-*",
+        ".agents/docs/adr/0020-*",
         ".agents/estado/AHORA.md",
         ".agents/estado/tramos/*",
         ".agents/estado/informe-*",

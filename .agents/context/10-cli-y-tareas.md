@@ -372,8 +372,9 @@ Resultados en `PHPStanResult.txt` y `PHPStanResult.Summary.txt` (generado por
 `bin/phpstan-process-result.php`). Hay extensiones propias en
 `Core/PHPStan/` (p. ej. `SystemDynamicFunctionReturnTypeExtension`).
 
-La configuración analiza el **rango** `{min: 80400, max: 80500}`, no una sola versión, y
-carga `phpstan/phpstan-deprecation-rules`. La línea base vive en
+`bin/phpstan` analiza **solo PHP 8.5**: una pasada con `phpVersion` fijo en 80500, derivado del `.neon` (ADR 0020;
+antes eran dos pasadas, 8.4 y 8.5, con su unión). **Nunca un rango**: un rango reporta la intersección de las
+versiones y ciega las deprecaciones de la más nueva. Carga `phpstan/phpstan-deprecation-rules`. La línea base vive en
 `PHPStanResult.Summary.baseline.txt`: es **detector de regresión, no meta a cero**.
 
 > **La cifra visible no es el total.** Los `ignoreErrors` silencian unas tres veces más
