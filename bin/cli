@@ -2,8 +2,8 @@
 
 # 1. Determinar el binario de PHP a usar
 # El `php` del PATH puede estar por debajo del piso declarado en src/composer.json
-# (>=8.4.1), y el platform_check de Composer no avisa: bootstrap.php se traga su
-# E_USER_ERROR. Con fallback, para no romper donde php8.4 no exista con ese nombre.
+# (>=8.5 <8.6), y el platform_check de Composer no avisa. Con fallback a php8.4 y a php
+# para que el guion arranque y el error de versión se vea, en vez de no encontrar binario.
 # QUÉ PHP SE USA. Por defecto, EL QUE SIRVE EL NAVEGADOR: durante toda la campaña estas
 # herramientas corrieron con php8.4 mientras Apache servía 8.5.9, así que las suites NUNCA
 # pisaron la versión de producción y las deprecaciones de 8.5 eran invisibles.

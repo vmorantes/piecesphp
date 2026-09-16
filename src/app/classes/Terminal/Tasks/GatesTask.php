@@ -27,11 +27,8 @@ use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
  *
  * DOS COSAS SE DERIVAN, NINGUNA SE ENUMERA (LEY 11):
  *
- *   - QUÉ SUITES HAY: `CliActions::listActionNames()` filtrado por prefijo. Una suite nueva
- *     entra sola; no hay lista que actualizar ni que se pueda quedar corta.
- *     **El prefijo ES una lista de un elemento, y se quedó corta**: fue `unit-tests:core/`
- *     hasta el 2026-08-26 y dejaba fuera `unit-tests:functions/systemOutFormatted`, que
- *     existía, corría e imprimía omisiones. Ver bloque S.
+ *   - QUÉ SUITES HAY: toda acción declarada bajo `local-tests/` (ver el comentario de la enumeración, más abajo). Una suite nueva entra sola. Hasta el 2026-08-26
+ *     fue un prefijo, `unit-tests:core/`, que dejó fuera `functions/systemOutFormatted`. Ver bloque S.
  *   - SI CORRIÓ: se exige la línea de balance que toda suite imprime al terminar. Sin
  *     balance, la suite no llegó al final, y da igual el motivo. No se buscan mensajes de
  *     omisión concretos: eso sería otra lista a mano.
