@@ -59,6 +59,35 @@ Cuando detecta la tubería, **limpia los códigos ISO de colores** para evitar q
 
 ## Acciones disponibles
 
+### Todas, de un vistazo
+
+Medido contra `src/app/classes/Terminal/Tasks/` el 2026-09-16. `bin/cli help` da la lista de tu versión.
+
+| Acción | Parámetros | Qué hace |
+| :-- | :-- | :-- |
+| `db-backup` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la base en `dumps/` |
+| `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes` |
+| `bundle` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o los estáticos en `bundle/` |
+| `clean-cache` / `clean-logs` / `clean-all` | — | Renueva el token de caché de estáticos / limpia logs y sesiones expiradas / las dos |
+| `scan-missing-lang` | `--exclude-lang=`, `--exclude-group=` | Informe de traducciones faltantes |
+| `scan-invalid-utf8` | `table`, `limit` (def. 5000) | Busca UTF-8 inválido en columnas de texto. Solo lectura. Córrela antes de desplegar |
+| `run-cronjobs` / `cronjobs-status` | — | Ejecuta los cronjobs que tocan / muestra franja, último éxito, intentos y último error (solo lectura) |
+| `process-queue` | `--limit` (def. 60) | Worker de la cola |
+| `scheme-create` | `module=<Nombre>\|all`, `output=` | **Emite** el `CREATE TABLE` de los mappers del módulo, padres antes que hijas. No lo ejecuta |
+| `scheme-drop` | `module=<Nombre>\|all`, `output=` | **Emite** el `DROP TABLE`, hijas antes que padres. No lo ejecuta |
+| `verify-integrity` | `update-snapshot`, `list-narrative` | Veintinueve comprobaciones estructurales del repositorio |
+| `gates` | `only=<trozo>`, `with=external` | Corre **todas** las suites de pruebas y falla si alguna no corrió. `with=external` incluye las que salen a la red o envían correo |
+| `snapshot` | `label=`, `compare=a,b`, `dir=` | Foto de la base y del árbol, y su diferencia |
+| `route-inventory` | `output=` (def. `files/dev/route-inventory.json`) | Vuelca en JSON las rutas registradas. Solo lectura |
+| `generate-app-key` | — | Imprime una `app_key` nueva para pegarla en `config.php`. No escribe nada |
+| `sync-otp-records` | `apply=yes` | Crea los registros OTP que falten. Sin `apply=yes` solo informa |
+| `statics-protect-migrate` | `--dry-run` (def.), `--run`, `--revert` | Aplica a `uploads/` la protección por sufijo (ver [Archivos protegidos](../new-features/protected-files.md)) |
+| `repair-escaped-text` | `apply=yes` | Deshace una vez el escape que `piecesphp/database` 4 guardaba en el texto. Sin `apply=yes` solo cuenta; para aplicar exige un volcado de la última hora |
+| `fix-webm-duration` | `--updir=`, `--glob=`, `--force`… | Repara la duración interna de archivos WebM con FFmpeg |
+| `help` / `h` | — | Lista las acciones disponibles |
+
+Las que siguen se detallan con ejemplo.
+
 ### 1. db-backup
 Respalda la base de datos por defecto.
 
@@ -75,7 +104,7 @@ Respalda la base de datos por defecto.
 php index.php cli db-backup gz=yes
 ```
 
-**Restaurar:** el volcado SQL se carga con `mysql -u <usuario> -p <base> < archivo.sql`.
+**Restaurar:** `bin/cli db-restore file=<volcado.sql> confirm=yes` (ver la tabla de abajo).
 
 > **AVISO — copias anteriores a esta versión NO restauran.** La columna `password` se
 > cifraba al exportar y nada la descifraba al restaurar, así que la base restaurada dejaba a

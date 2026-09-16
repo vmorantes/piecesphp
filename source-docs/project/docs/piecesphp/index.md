@@ -13,3 +13,6 @@
 - **[HttpClient](./new-features/http-client.md)**: Cliente HTTP moderno y robusto.
 - **[Sistema de Eventos](./new-features/events.md)**: Desacoplamiento de lógica mediante observadores.
 - **[CronJobs](./new-features/cronjobs.md)**: Automatización de tareas recurrentes.
+- **[Pruebas Unitarias (CLI)](./new-features/unit-testing.md)**: Suites que corren desde la terminal, y `bin/cli gates`.
+- **[Archivos Protegidos](./new-features/protected-files.md)**: Subidas que solo se sirven con permiso.
+- **[Exportador BBDD Nativo](./new-features/database-exporter.md)**: Volcados sin `mysqldump`.

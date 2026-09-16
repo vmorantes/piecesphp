@@ -51,7 +51,10 @@ class MiMapper extends EntityMapperExtensible {
 ## Características Avanzadas
 
 ### Multi-idioma
-Los mappers pueden gestionar traducciones automáticamente usando `$translatableProperties`:
+**No es automático.** `EntityMapperExtensible` no declara `$translatableProperties`: es un patrón que cada mapper
+con traducciones implementa por su cuenta (`PublicationMapper.php:252`, `DocumentsMapper`, `CategoriesMapper`,
+`PublicationCategoryMapper`), con `$noTranslatableProperties` y los métodos que leen y guardan la versión de cada
+idioma en `meta`. Para un módulo nuevo con traducciones, copia el patrón de `PublicationMapper`:
 
 ```php
 protected $translatableProperties = [
@@ -87,7 +90,27 @@ $existente->update();
 ```
 
 ### Consultas (Select)
-Para realizar consultas complejas, se utiliza el método estático `model()`:
+Para realizar consultas complejas, se utiliza el método estático `model()`. `where()` recibe **un** argumento, y
+`execute()` devuelve `bool`: el resultado se pide después con `result()`.
 ```php
-$listado = PublicationMapper::model()->select()->where('status', 1)->execute()->result();
+$model = PublicationMapper::model();
+$model->select()->where(['status' => 1]); // array: el valor va por marcador
+$model->execute();
+$listado = $model->result(); // array|null
 ```
+
+> **Nunca concatenes un valor de la petición en `where()` como texto** (`->where("title = '$titulo'")`): la forma
+> de cadena va tal cual al SQL. Con un array o un `WhereSegment` el valor viaja por marcador (ADR 0009 de la
+> documentación de agentes).
+
+## La tabla: se genera, no se escribe
+
+La tabla de un mapper **no se escribe a mano**. Sale de sus `$fields`:
+
+```bash
+bin/cli scheme-create module=<Nombre>   # imprime el CREATE TABLE, padres antes que hijas
+bin/cli scheme-drop module=<Nombre>     # su inverso
+```
+
+Las dos **emiten** el SQL y no lo ejecutan: lo aplicas tú, después de `bin/cli db-backup`. Si cambias `$fields`,
+vuelve a generarlo.

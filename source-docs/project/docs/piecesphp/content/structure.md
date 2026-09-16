@@ -4,15 +4,27 @@ PiecesPHP sigue una organización modular y profesional para separar la lógica 
 
 ## Directorios Principales
 
-- **`bin/`**: Contiene scripts ejecutables y herramientas de desarrollo (PHPStan, utilidades de Node.js).
+- **`bin/`**: Ejecutables de desarrollo: `bin/cli` (la terminal del framework), `bin/phpstan`, `bin/rector`, y
+  guardas de verificación.
 
-- **`databases/`**: Repositorio de scripts SQL para la creación de la estructura de tablas, vistas, funciones y carga de datos iniciales.
+- **`databases/`**: Scripts SQL de vistas, funciones y datos iniciales. Las **tablas** no se escriben aquí a mano:
+  salen de los mappers con `bin/cli scheme-create` (ver [Mappers](./mappers.md)).
 
-- **`docs/`**: Directorio de salida de la documentación compilada (HTML). No debe editarse manualmente.
+- **`docs/`**: Salida de `mkdocs build` de esta documentación (`site_dir` en `source-docs/project/mkdocs.yml`). No existe
+  hasta que se construye; no se versiona ni se edita a mano.
 
-- **`files/`**: Almacena recursos auxiliares como colecciones de Postman (`PiecesPHP.postman_collection.json`) y documentación específica de la API.
+- **`files/`**: Recursos auxiliares: `dev/` guarda datos de máquina de las herramientas de verificación (líneas base,
+  firmas); también hay traducciones públicas e instrucciones de Webflow. La colección de Postman **no** está aquí,
+  sino en `source-docs/api/`.
 
-- **`source-docs/`**: Fuentes de la documentación en Markdown y configuración de MkDocs.
+- **`secure-keys/`**: Claves de servicios del producto de cada instalación (por ejemplo, la llave de los cronjobs).
+  Ignoradas por git: nunca se versionan ni se comparten.
+
+- **`source-docs/`**: Fuentes de la documentación en Markdown y su configuración de MkDocs: `project/` (esta guía) y
+  `api/` (la API y la colección de Postman).
+
+- **`.agents/`, `.claude/`, `AGENTS.md`, `CLAUDE.md`**: Documentación y reglas para los agentes de IA que trabajan en
+  el repositorio. No forman parte de la aplicación.
 
 - **`src/`**: **Raíz de la aplicación web.**
 
@@ -23,13 +35,22 @@ PiecesPHP sigue una organización modular y profesional para separar la lógica 
     - **`app/`**: Lógica interna de la aplicación.
         - `classes/`: Módulos PSR-4 (Controllers, Mappers, Views).
         - `config/`: Archivos de configuración de la instancia (BD, rutas, menú).
-        - `core/`: Núcleo del framework (Bootstrap, clases base).
+        - `controller/`: Controladores del sistema (`AdminPanelController`, `UsersController`…).
+        - `model/`: Modelos del sistema (usuarios, intentos de acceso…).
+        - `core/`: Núcleo del framework (Bootstrap, clases base, suites de pruebas en `system-controllers/local-tests/`).
         - `lang/`: Directorios de idiomas globales.
-        - `view/`: Vistas de sistema y layouts base.
+        - `view/`: Vistas de sistema y layouts base (`view/panel/layout/`: el esqueleto del panel).
+        - `cache/` y `logs/`: generados en ejecución; necesitan permiso de escritura.
 
-    - `statics/`: Recursos estáticos públicos (JS, CSS, Imágenes, Plugins).
+    - `statics/`: Recursos estáticos públicos (JS, CSS, Imágenes, Plugins; `uploads/` para lo subido).
+    - `adminer/`: Adminer, de terceros. **Se borra al desplegar** (ver [Despliegue](./general.md)).
+    - `dumps/`: Volcados de `bin/cli db-backup`.
+    - `tmp/`: Temporales de ejecución.
+    - `vendor/`, `composer.json`, `composer.lock`: dependencias de Composer. `vendor/` no se edita.
+    - `gulpfile.js`: tareas de compilación de SASS y JS (ver [Gulp](./gulp.md)).
 
-- **`tasks/`**: Contiene el `TasksManager.php` para la ejecución de tareas automatizadas de mantenimiento y despliegue.
+- **`tasks/`**: Contiene el `TasksManager.php`. Las tareas de mantenimiento del framework están en la terminal
+  (`bin/cli help`; ver [Terminal](./terminal.md)).
 
 ---
 
@@ -100,7 +121,7 @@ $config['roles']['types'][] = [
 ];
 ```
 
-- **`routes.php`**: Orquestador central de todas las rutas. Utiliza las clases `Route` y `RouteGroup` para envolver la lógica de Slim 3, facilitando el control de acceso automático.
+- **`routes.php`**: Orquestador central de todas las rutas. Utiliza las clases `Route` y `RouteGroup` para envolver la lógica de Slim 4, facilitando el control de acceso automático.
 
 *Ejemplo de ruta protegida:*
 
@@ -155,7 +176,13 @@ set_config('mailing_settings', [
 ]);
 ```
 
-- **`queues.php`**: Registro de manejadores (handlers) para el procesamiento asíncrona.
+- **`cli-actions.php`**: Acciones de terminal propias del proyecto (`CliActions::make()`; ver [Terminal](./terminal.md)).
+
+- **`protected-files.php`**: Declaración de las carpetas de subida protegidas (ver [Archivos protegidos](../new-features/protected-files.md)).
+
+- **`patches_composer_dependencies.php`**: Parches sobre dependencias de Composer que se aplican al cargar.
+
+- **`queues.php`**: Registro de manejadores (handlers) para el procesamiento asíncrono.
 
 *Ejemplo:*
 

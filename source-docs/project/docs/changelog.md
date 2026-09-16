@@ -2,6 +2,11 @@
 
 Registro detallado de las actualizaciones y mejoras del framework PiecesPHP.
 
+> **En curso: la `v8.0.0`, en pre-versión (`v8.0.0-alpha.N`), con cambios incompatibles.** No es estable: la última
+> estable es la `7.1.0`, y la rama `last-stable` apunta siempre a una estable. Antes de fusionar una pre-versión lee
+> la sección **«CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR»** del `CHANGELOG.md` de la raíz del repositorio, que es la
+> fuente completa. Esta página resume solo versiones cerradas.
+
 ---
 
 ## 🚀 7.1.0 (20-08-2026)

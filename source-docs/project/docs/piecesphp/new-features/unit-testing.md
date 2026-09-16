@@ -1,5 +1,10 @@
 # Pruebas Unitarias (CLI)
 
+> **Para correr todas las suites de una vez:** `bin/cli gates`. Enumera las acciones declaradas bajo `local-tests/`,
+> las corre y **falla si alguna no terminó** (sin su línea de balance, la suite no cuenta como pasada). `only=<trozo>`
+> filtra por nombre; `with=external` incluye las que salen a la red o envían correo, que por defecto no corren. Lo de
+> abajo explica cómo correr y escribir una suite suelta.
+
 PiecesPHP integra un sistema de pruebas unitarias personalizadas que se ejecutan directamente desde la línea de comandos, permitiendo validar componentes del core y clases del negocio de forma rápida y desacoplada del servidor web.
 
 ---
