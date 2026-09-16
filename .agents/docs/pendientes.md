@@ -1038,6 +1038,12 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  32. **`7c` cerrado entero con B3 (`#173`→`#174`: `2b33cdaf`, `24f726a1`).** Tres correos reales a Mailinator, los tres
+     `true`, con el SMTP local (configurado y conecta), a las 13:10 del 2026-09-16: `zz-prueba-recuperacion-55e5ee`,
+     `zz-prueba-codigo-55e5ee` y `zz-prueba-problemas-55e5ee` (@mailinator.com; responder a `zz-prueba-visitante-55e5ee`).
+     **Pendiente del PO: mirarlos** (Mailinator los borra en unas horas); en el de «otros problemas», `<b>zz mensaje de
+     prueba</b>` tiene que verse escrito, no en negrita. Desviación aceptada: el framework solo se carga por `bin/cli`, así
+     que el guion fue una acción temporal escrita, corrida y borrada en la misma llamada. Sale `v8.0.0-alpha.4` (`#175`).
   31. **`7c` B2c cerrada en `#169`→`#172`** (`4b60281e`, `c9594221`, `95c7f829`, `b83dfe13`): aprobación y alta por API contra
      Mailpit, 38/41 → 41/41, provocada en a5, a6 y r4; los dos correos escapan el nombre y el motivo. Error del arquitecto: el
      asunto lleva el título de la app delante (`get_title(true)`). Hallazgo, lote 10: `SystemApprovalsMapper::save()` exige un
