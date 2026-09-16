@@ -610,6 +610,27 @@ formularios de usuario y seguía sirviendo su catálogo.
   `USER_NO_EXISTS`, y trata el 429. Si personalizaste una plantilla retirada, pasa lo que necesites a
   `usuarios/mail/recovery_password_code.php`.
 
+### 30 · El texto se guarda tal cual: `piecesphp/database` ^5.0, y fuera las compensaciones del escape
+
+- **El framework pasa a `piecesphp/database` ^5.0.** Hasta la 4.1.0, el ORM aplicaba `stripslashes()` y
+  `addslashes()` a todo campo de texto al guardar: **borraba las barras invertidas legítimas** (`C:\ruta` se
+  guardaba `C:ruta`) y dejaba `O\'Brien` en la columna. Desde la 5.0.0 el texto se guarda y se lee exactamente
+  como se asignó. Detalle en el `CHANGELOG` del paquete.
+- **Se retiran las diez compensaciones del framework**, que ahora borrarían barras que sí se guardan:
+  - los listados de ciudades, países, puntos y estados de Locations (`stripslashes` del nombre);
+  - el listado de usuarios (nombres, apellidos y usuario) y el de intentos de acceso (el mensaje);
+  - el nombre y el correo ocultos de la cabecera del panel;
+  - la tarjeta de noticias (`News/Views/news/public/util/item.php`), que borraba TODAS las barras del contenido;
+  - el modal de noticias del panel (`statics/core/js/configurations.js`), que hacía lo mismo.
+- **Lo ya guardado sigue escapado**: un `O\'Brien` de antes se verá con su barra en los listados que leen filas
+  crudas, y las barras que se perdieron al guardar no vuelven.
+- **El límite de intentos del OTP ya cuenta los nombres con comilla** en los intentos nuevos: antes el nombre se
+  guardaba escapado y no coincidía con el que se comparaba.
+- **Qué hacer:**
+  - quita los `stripslashes()` (o `str_replace` de barras) con los que tu código compensaba el escape;
+  - recompila el JS: `cd src && gulp js-vendor`, o el modal de noticias seguirá borrando barras;
+  - si tu proyecto usaba `piecesphp/database` ^4 en otro `composer.json`, súbelo a ^5.
+
 ---
 
 ## ⚠ Corregido — la recuperación de contraseña permitía tomar una cuenta, y el enlace dejaba al usuario fuera
