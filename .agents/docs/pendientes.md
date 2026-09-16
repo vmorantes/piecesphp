@@ -1038,6 +1038,14 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  29. **`7c` B2a cerrada en `#165`→`#166`** (`4ec7d774`, `624f0aa9`, `f6bb50aa`, `42f55d8b`): suite
+     `core/mail-senders-db` 15/17 → 17/17, provocada en c5 y c6; el comentario de un token escapa su mensaje. Desviación
+     aceptada: el `(string)` va dentro de `mb_convert_encoding()`, que devuelve `array|string` (la forma dictada subía
+     PHPStan). Hallazgos para el lote 10: `generateOTP()` fija `SMTPDebug = 2` y en la línea de órdenes vuelca el diálogo
+     SMTP (SIN VERIFICAR si en una petición web llega a la respuesta; `#131` §9.2 decía que `Mailer` lo acumula en
+     memoria); y en `commentary`, `$success` queda sin definir si `tokenBySelector()` devuelve null antes de lanzar.
+     **`7c` B2b en `#167`**: el formulario de contacto (envío 4) contra Mailpit, con un token de CAPTCHA zz en
+     `pcsphp_app_config` y el alta en el boletín limpiada. Después, B2c (3 aprobaciones y 1 alta por API) y B3.
   28. **`v8.0.0-alpha.3` en `#163`→`#164`** (`f1cf285a`, `f7efd0ef` etiquetada, `0d540caf`): `master` → `f7efd0ef`.
      **`7c` B2a en `#165`**: envíos 5 (`commentary`, con el escape de su mensaje) y 2 (`generateOTP`) contra Mailpit, con
      base local. Quedan B2b (4 contacto, 3 aprobaciones, 1 alta por API) y B3 (Mailinator).
