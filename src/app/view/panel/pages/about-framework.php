@@ -20,7 +20,7 @@ $langGroup = 'about-framework';
                     <div class="data-grup">
                         <div class="data">
                             <small><?= __($langGroup, 'Última versión'); ?></small>
-                            <span>v<?= APP_VERSION; ?></span>
+                            <span><?= APP_VERSION; ?></span>
                         </div>
                         <div class="data">
                             <small><?= __($langGroup, 'Fecha'); ?></small>
