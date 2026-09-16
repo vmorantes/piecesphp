@@ -12,6 +12,7 @@
 | :-- | :-- | :-- |
 | `v8.0.0-alpha.1` | 2026-09-16 | La ruptura 28 y la corrección del escape en los correos de los formularios públicos |
 | `v8.0.0-alpha.2` | 2026-09-16 | La ruptura 29 y la corrección de la recuperación de contraseña (se podía tomar una cuenta) |
+| `v8.0.0-alpha.3` | 2026-09-16 | La ruptura 30: `piecesphp/database` 5.0, el texto se guarda tal cual, y la tarea `repair-escaped-text` |
 
 ## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
 
