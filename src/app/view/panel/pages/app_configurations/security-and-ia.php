@@ -28,6 +28,13 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
                         </div>
                     </div>
 
+                    <div class="field">
+                        <div class="ui toggle checkbox">
+                            <input type="checkbox" name="hide_app_key_warning" <?= get_config('hide_app_key_warning') === true ? 'checked' : ''; ?>>
+                            <label><?= __($langGroup, 'Ocultar en el panel el aviso de app_key de relleno'); ?></label>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="ui dividing header"><?= __($langGroup, 'Inteligencia artificial'); ?></div>

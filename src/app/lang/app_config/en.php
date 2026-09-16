@@ -126,5 +126,6 @@ return [
     "Inteligencia artificial" => "Artificial intelligence",
     "Activar traducción con IA" => "Enable AI translation",
     "Configuración de traducción con IA actualizada" => "AI translation settings updated",
+    'Ocultar en el panel el aviso de app_key de relleno' => 'Hide the placeholder app_key warning in the panel',
     'Log de errores' => 'Errors log',
 ];

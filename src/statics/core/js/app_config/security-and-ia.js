@@ -20,6 +20,7 @@ window.addEventListener('load', () => {
 	 */
 	const onSetFormData = function (formData) {
 		formData.set('check_aud_on_auth', form.find(`[name="check_aud_on_auth"]`).parent().checkbox('is checked') ? 1 : 0)
+		formData.set('hide_app_key_warning', form.find(`[name="hide_app_key_warning"]`).parent().checkbox('is checked') ? 1 : 0)
 		formData.set('translationAIEnable', form.find(`[name="translationAIEnable"]`).parent().checkbox('is checked') ? 1 : 0)
 		return formData
 	}

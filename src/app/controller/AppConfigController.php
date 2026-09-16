@@ -1155,6 +1155,17 @@ class AppConfigController extends AdminPanelController
                     }
                 ),
                 new Parameter(
+                    'hide_app_key_warning',
+                    null,
+                    function ($value) {
+                        return Validator::isInteger($value) || is_bool($value) || is_null($value);
+                    },
+                    true,
+                    function ($value) {
+                        return ($value === 1 || $value == '1' || $value === true);
+                    }
+                ),
+                new Parameter(
                     'modelOpenAI',
                     '',
                     function ($value) {
@@ -1250,6 +1261,7 @@ class AppConfigController extends AdminPanelController
                 //Información del formulario
                 /**
                  * @var bool $checkAudOnAuth
+                 * @var bool $hideAppKeyWarning
                  * @var string $modelOpenAI
                  * @var string $modelMistral
                  * @var string $OpenAIApiKey
@@ -1258,6 +1270,7 @@ class AppConfigController extends AdminPanelController
                  * @var bool $translationAIEnable
                  */
                 $checkAudOnAuth = $expectedParameters->getValue('check_aud_on_auth');
+                $hideAppKeyWarning = $expectedParameters->getValue('hide_app_key_warning');
                 $modelOpenAI = $expectedParameters->getValue('modelOpenAI');
                 $modelMistral = $expectedParameters->getValue('modelMistral');
                 $OpenAIApiKey = $expectedParameters->getValue('OpenAIApiKey');
@@ -1269,6 +1282,7 @@ class AppConfigController extends AdminPanelController
 
                     $configurationsToSave = [
                         'check_aud_on_auth' => $checkAudOnAuth,
+                        'hide_app_key_warning' => $hideAppKeyWarning,
                         'modelOpenAI' => $modelOpenAI,
                         'modelMistral' => $modelMistral,
                         'OpenAIApiKey' => $OpenAIApiKey,
@@ -1279,6 +1293,9 @@ class AppConfigController extends AdminPanelController
                     $messagesOnSave = [
                         'check_aud_on_auth' => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
                             '%s' => __(self::LANG_GROUP, 'Usar IP del usuario para encriptar el token de sesión'),
+                        ]),
+                        'hide_app_key_warning' => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Ocultar en el panel el aviso de app_key de relleno'),
                         ]),
                         'modelOpenAI' => __(self::LANG_GROUP, 'Modelo de OpenAI actualizado'),
                         'modelMistral' => __(self::LANG_GROUP, 'Modelo de Mistral actualizado'),

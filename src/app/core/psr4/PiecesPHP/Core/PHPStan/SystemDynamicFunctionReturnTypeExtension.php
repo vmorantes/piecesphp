@@ -163,6 +163,7 @@ class SystemDynamicFunctionReturnTypeExtension implements DynamicFunctionReturnT
             //'global_assets' => new StringType(),
             //'global_requireds_assets' => new StringType(),
             'GroqAPIKey' => new StringType(),
+            'hide_app_key_warning' => new BooleanType(),
             //'imported_assets' => new StringType(),
             //'keywords' => new StringType(),
             'lang_by_browser' => new BooleanType(),

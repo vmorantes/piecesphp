@@ -80,6 +80,7 @@ $config['CronJobKey'] = 'TODO:secret';
 
 $config['app_key'] = 'TODO:secret';
 $config['check_aud_on_auth'] = true;
+$config['hide_app_key_warning'] = false;
 //Límite de intentos de generate-otp, check-totp, two-factor-auth-status y del segundo factor del login (OTPRateLimiter).
 //uniformResponse: generate-otp responde lo mismo exista o no el usuario. oneUseCodeMinutes: la validez del código de un uso.
 $config['otp_security'] = [

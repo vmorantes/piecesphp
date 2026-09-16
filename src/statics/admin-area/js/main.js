@@ -5,6 +5,7 @@ window.addEventListener('load', function (e) {
 	adminZoneSupportForm()
 	adminSitemapUpdate()
 	adminClearCache()
+	adminAppKeyNag()
 })
 
 /**
@@ -198,4 +199,23 @@ function adminClearCache() {
 
 	}
 
+}
+
+/**
+ * @description Inicializa el aviso de app_key de relleno: descartable, y el descarte se recuerda 7 días en este navegador.
+ * @returns {void}
+ */
+function adminAppKeyNag() {
+	const nag = $('[app-key-placeholder-nag]')
+	if (nag.length == 0 || typeof $.fn.nag == 'undefined') {
+		return
+	}
+	nag.nag({
+		persist: false,
+		storageMethod: 'cookie',
+		key: 'pcsphp-app-key-nag',
+		value: 'dismiss',
+		expires: 7,
+		path: '/',
+	})
 }
