@@ -533,7 +533,34 @@ un «no» o una excepción: es el cambio que se busca, pero avisa a tus desarrol
 
 Las dos tienen ahora prueba de rechazo: si alguien las vuelve a abrir, la suite falla.
 
+### 26 · Se retira el creador de avatares; la foto de perfil se queda
+
+El creador de «muñequitos» (cabello, ojos, ropa…) no se dibujaba en ninguna vista desde hacía años:
+`.avatar-component` no tiene ni ha tenido productor en PHP ni en HTML. Aun así se cargaba en tres
+formularios de usuario y seguía sirviendo su catálogo.
+
+- **Desaparece la ruta `avatars`** (`GET /avatars/get`) y su entrada en `roles.php`. Quien la pida
+  recibe 404.
+- **Desaparecen** `src/statics/images/avatares/` (162 imágenes), `src/statics/features/avatars/`
+  (`avatar.js`, `canvg.min.js` y su SCSS), `AvatarController::avatar()` y
+  `AvatarController::listFiles()`, `configAvatar()` de `users-forms.js`, y su compilación en
+  `gulpfile.js`, con la tarea `sass-compile-avatars`.
+- **La foto de perfil no cambia:** `AvatarModel`, `AvatarController::register()` y la ruta
+  `push-avatars` siguen.
+- **Si tu proyecto usaba el creador** en una vista propia (`.avatar-component`), deja de funcionar y no
+  tiene sustituto.
+
 ---
+
+## Corregido — «Ver más» vuelve a las tarjetas de noticias
+
+Desde la v6.1.0 cada tarjeta de noticia mandaba al navegador su contenido completo
+(`data-content-b64`), pero el rediseño quitó el botón que lo abría: nadie podía leer más allá del
+extracto. Y el modal buscaba el título en `.header`, que la tarjeta nueva llama `.head`, así que aunque
+el botón volviera habría salido sin título. Un defecto tapaba al otro.
+
+- Vuelve el botón «Ver más» cuando el contenido pasa de 117 caracteres, con el marcado que tenía.
+- El modal toma el título de la tarjeta actual.
 
 ## Cambios internos — una sola clasificación de archivos subidos
 

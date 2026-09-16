@@ -916,6 +916,48 @@ historia de git los conserva.
   11. **Incidente de `#107`, cerrado.** La prueba escribió seis filas en `pcsphp_app_config` de la
      base local. Causa: el arquitecto dictó como segura una lectura de código sin verificar. Se
      borraron en `#111` y la tabla quedó idéntica a la de antes (25/25, comparando volcados).
+  12. **`4f` cerrado (`#116`/`#118`), con cuatro hallazgos por decidir** (corrección, lote 10):
+     - **K8:** `FileUpload` y `UploadedFileAdapter` responden distinto a `UPLOAD_ERR_NO_FILE`: el
+       constructor de `FileUpload` lo convierte en la entrada falsa («No se ha subido ningún
+       archivo.») y el adaptador llega a su rama («No ha subido ningún archivo.»). La suite lo congela;
+     - **K4:** la suite depende del `php.ini` de la máquina («(500MB)»), por conservar H11;
+     - **K14:** el mensaje de `FileValidator` acaba en `\r\n` y así se muestra;
+     - **D3 SIN VERIFICAR en inglés:** la suite corre en español; que la traducción de los mensajes de
+       tamaño ahora case no está probado.
+     - La línea base de PHPStan quedó con holgura de 1 (734 frente a 735): se corrige en `#119`.
+  13. **La parte B de `4d` quita 10 compensaciones, no 8** (medido por el arquitecto el 2026-09-16).
+     A las 8 de `stripslashes` se suman dos que borran TODAS las barras del contenido de las noticias:
+     `News/Views/news/public/util/item.php:14` (`str_replace("\\", '', $content)`) y
+     `src/statics/core/js/configurations.js:1091` (`.replace(/\\/g, '')`, compilado con `gulp js-vendor`).
+  14. **Lote 7, re-medido el 2026-09-16 (LEY 17), plan enseñado al PO en A-035** con predeterminado
+     «adelante». Cuadra con el 20 §7, y se añaden referencias que agosto no listaba: en `gulpfile.js`,
+     `sassCompileAvatars()` se llama en dos sitios más y tiene un `watch`; y `files/dev/integrity-signatures.json`
+     lleva las firmas de los dos métodos que mueren. El botón `see-more` original sale del commit que lo
+     quitó (`481ee148`, v6.1.0).
+  15. **Contradicciones entre documentos y código, halladas por el dossier de la guía (2026-09-16)**,
+     para corregir en los lotes 9 y 10 (la documentación es del arquitecto):
+     - `ctx/21-pruebas-y-puertas.md` desactualizado: dice 16 comprobaciones (son 29), `http-client` «sin
+       cobertura», `scheme-sql-round-trip` «en rojo» y aceptar la línea base con `cp`;
+     - `ctx/01:43` y `ctx/12:291` dan una versión de PHP vieja (`>=8.4.1` y «8.1+»);
+     - `ctx/05:165` dice 44 controladores con el trait; hoy son 41;
+     - ADR 0009 dice que `escapeString()` lleva `@deprecated` y no lo lleva; el `CHANGELOG` le cuenta
+       dos usos y queda uno (`DataTablesHelper.php:1329`);
+     - el `CHANGELOG` da por abierto el perfil que se creaba al comprobar credenciales, corregido en
+       `06a6a6a4`; y convive una entrada «no rompe nada» sobre los cuatro idiomas con la ruptura 8;
+     - el `CHANGELOG` llama permanente a `$showSQL` en un sitio y retirado en otro;
+     - `bin/cli:4-6` habla de un piso `>=8.4.1` y de que `bootstrap.php` se traga `E_USER_ERROR`;
+     - `hist/17` dice «cero deprecaciones» y quedaban nueve;
+     - el docblock de `GatesTask` dice «por prefijo» y filtra por directorio;
+     - `source-docs/.../queues.md:65` lanza el worker con `--local`, contra `ctx/10:175`;
+     - la regla 30 dice `dev` = `master` en los paquetes, y hoy `dev` va por delante en tres;
+     - `historico/README.md` remite lo pendiente al 18, contra el ADR 0002;
+     - la regla de los marcadores no está en `ctx/06` ni en `ctx/12`;
+     - erratas: `datastructures/README.md:1` se titula `#piecesphp/database`; «# Eliminaciones» encabeza
+       el `CHANGELOG` y es de abril; `CronJobKey = 'TODO:secret'` en `config.php` confunde, aunque
+       `api-keys.php` la sustituye siempre;
+     - **SIN VERIFICAR si es intencional:** `last-stable` (`b536c9c5`) no contiene la etiqueta `v7.1.0`.
+  16. **P26 sigue abierta**, y con ella `4b-4`: además de la decisión del PO sobre las raíces del editor,
+     falta el estudio de cómo servir lo privado de elFinder sin chocar con el sufijo `.protected`.
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;

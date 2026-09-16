@@ -135,7 +135,7 @@ gulp <tarea>
 | Tarea | Qué hace |
 | :-- | :-- |
 | `sass:init` / `sass` / `sass:watch` | SASS de `src/statics/sass` |
-| `sass-vendor:init` / `sass-vendor:watch` | SASS del núcleo/área administrativa (plugins propios, general, users, users2, avatars) |
+| `sass-vendor:init` / `sass-vendor:watch` | SASS del núcleo/área administrativa (plugins propios, general, users, users2) |
 | `sass-modules:init` / `sass-modules` / `sass-modules:watch` | SASS de los módulos (`app/classes/*/Statics/sass`) |
 | `sass-all` / `sass-all:watch` | Todo lo anterior + limpieza de caché |
 | `ts-vendor` / `ts-vendor:watch` | TypeScript del core |
