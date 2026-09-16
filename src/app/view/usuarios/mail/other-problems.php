@@ -9,15 +9,21 @@ $extraDataAdded = false;
 if (isset($extra) && is_array($extra) && !empty($extra)) {
     $extraData[] = "<h2>" . __($langGroup, 'Extra') . "</h2>";
     foreach ($extra as $content) {
-        if (isset($content['display']) && isset($content['text'])) {
-            $extraDisplayTitle = $content['display'];
-            $extraText = $content['text'];
+        if (is_array($content) && isset($content['display'], $content['text']) && is_string($content['display']) && is_string($content['text'])) {
+            $extraDisplayTitle = htmlspecialchars($content['display'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $extraText = htmlspecialchars($content['text'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             $extraData[] = "<p><strong>{$extraDisplayTitle}: {$extraText}</strong></p>";
             $extraDataAdded = true;
         }
     }
 }
-$extraData = $extraDataAdded ? implode('\n', $extraData) : '';
+$extraData = $extraDataAdded ? implode("\n", $extraData) : '';
+
+//Vienen de un formulario público sin sesión: se escapan antes de entrar en el HTML del correo.
+$subject = htmlspecialchars((string) $subject, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$mail = htmlspecialchars((string) $mail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$name = htmlspecialchars((string) $name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$message = htmlspecialchars((string) $message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
 $title = __($langGroup, 'Mensaje');
 $labelA = __($langGroup, 'Enviado desde');
