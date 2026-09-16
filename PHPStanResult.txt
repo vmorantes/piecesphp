@@ -1208,9 +1208,9 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/ContactFormsController.php                                                                                           
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  224    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
+  255    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
          🪪  argument.type                                                                                                                       
-  229    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  260    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1316,19 +1316,19 @@
  ------ --------------------------------------------------------------------------------------- 
   project://src/src/app/controller/UserProblemsController.php                                          
  ------ --------------------------------------------------------------------------------------- 
-  334    Access to an undefined property object::$username.                                     
+  357    Access to an undefined property object::$username.                                     
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  335    Access to an undefined property object::$username.                                     
+  358    Access to an undefined property object::$username.                                     
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  340    Access to an undefined property object::$status.                                       
+  363    Access to an undefined property object::$status.                                       
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  341    Access to an undefined property object::$failed_attempts.                              
+  364    Access to an undefined property object::$failed_attempts.                              
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  344    Access to an undefined property object::$id.                                           
+  367    Access to an undefined property object::$id.                                           
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
  ------ --------------------------------------------------------------------------------------- 

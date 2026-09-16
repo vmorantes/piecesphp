@@ -312,7 +312,7 @@ project://src/app/controller/AppConfigController.php
 	property.nonObject (Líneas: 1695)
 	return.type (Líneas: 2154)
 project://src/app/controller/ContactFormsController.php
-	argument.type (Líneas: 224, 229)
+	argument.type (Líneas: 255, 260)
 project://src/app/controller/GenericTokenController.php
 	method.nonObject (Líneas: 179, 341)
 	argument.type (Líneas: 291, 308, 308, 309, 309)
@@ -328,7 +328,7 @@ project://src/app/controller/RecoveryPasswordController.php
 	method.nonObject (Líneas: 414)
 	assign.propertyType (Líneas: 520, 569, 604)
 project://src/app/controller/UserProblemsController.php
-	property.notFound (Líneas: 334, 335, 340, 341, 344)
+	property.notFound (Líneas: 357, 358, 363, 364, 367)
 project://src/app/controller/UsersController.php
 	argument.type (Líneas: 510, 565, 900, 939, 1126, 1277, 1560, 1888)
 	method.resultUnused (Líneas: 1311, 1358, 1368, 1374, 1380, 1386, 1396, 1403, 1615, 1670, 1680, 1686, 1692, 1698, 1704, 1714, 1722, 1729)
