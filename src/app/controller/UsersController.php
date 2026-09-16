@@ -496,14 +496,8 @@ class UsersController extends AdminPanelController
         set_title(__(self::LANG_GROUP, 'Agregar usuario'));
 
         set_custom_assets([
-            base_url('statics/features/avatars/js/canvg.min.js'),
-            base_url('statics/features/avatars/js/avatar.js'),
             base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
         ], 'js');
-
-        set_custom_assets([
-            base_url('statics/features/avatars/css/style.css'),
-        ], 'css');
 
         $type = $req->getAttribute('type', null);
         $type = BaseHashEncryption::decrypt($type, $this->password);
@@ -596,14 +590,8 @@ class UsersController extends AdminPanelController
         import_cropper();
 
         set_custom_assets([
-            base_url('statics/features/avatars/js/canvg.min.js'),
-            base_url('statics/features/avatars/js/avatar.js'),
             base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
         ], 'js');
-
-        set_custom_assets([
-            base_url('statics/features/avatars/css/style.css'),
-        ], 'css');
 
         $id = $req->getAttribute('id', null);
         $id = Validator::isInteger($id) ? (int) $id : null;
@@ -712,14 +700,8 @@ class UsersController extends AdminPanelController
         import_cropper();
 
         set_custom_assets([
-            base_url('statics/features/avatars/js/canvg.min.js'),
-            base_url('statics/features/avatars/js/avatar.js'),
             base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
         ], 'js');
-
-        set_custom_assets([
-            base_url('statics/features/avatars/css/style.css'),
-        ], 'css');
 
         $user = new UsersModel($this->user->id);
 

@@ -105,8 +105,6 @@ $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 $sistema_avatares->register(
     [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
         //──── POST ──────────────────────────────────────────────────────────────────────────────
         new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
     ]

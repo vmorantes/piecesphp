@@ -47,7 +47,6 @@ $permisosGenerales = [
     //Usuarios
     'users-form-profile',
     //Avatar
-    'avatars', //Traer todos los elementos de los avatares
     'push-avatars', //Crear avatar
 ];
 

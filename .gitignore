@@ -12,7 +12,6 @@ src/statics/admin-area/css/*
 src/statics/core/css/*
 src/statics/core/own-plugins/css/*
 src/statics/login-and-recovery/css/*
-src/statics/features/avatars/css/*
 **/node_modules/*
 **/composer.lock
 # Excepciones: src/ es la APLICACIÓN, no una librería, y bin/tools/ fija las

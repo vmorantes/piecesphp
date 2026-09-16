@@ -149,9 +149,6 @@ var watchingPiecesPHPSassFiles = {
 	users2: [
 		'./statics/admin-area/sass/**/*.scss',
 	],
-	avatars: [
-		'./statics/features/avatars/sass/**/*.scss',
-	],
 }
 
 //Archivos que se compilan
@@ -168,9 +165,6 @@ var compilePiecesPHPSassFiles = {
 	users2: [
 		'./statics/admin-area/sass/**/*.scss',
 	],
-	avatars: [
-		'./statics/features/avatars/sass/**/*.scss',
-	],
 }
 
 var destsPiecesPHP = {
@@ -178,7 +172,6 @@ var destsPiecesPHP = {
 	users2: './statics/admin-area/css',
 	ownPlugins: './statics/core/own-plugins/css',
 	general: './statics/core/css',
-	avatars: './statics/features/avatars/css',
 }
 //---------Funciones de compilación
 
@@ -222,16 +215,6 @@ function sassCompileUsers2() {
 		.pipe(dest(destsPiecesPHP.users2))
 }
 
-//Compilación avatars
-function sassCompileAvatars() {
-	return src(compilePiecesPHPSassFiles.avatars)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHP.avatars))
-}
-
 //Tareas de compilación
 task("sass-compile-own-plugins", (done) => {
 	sassCompileOwnPlugins()
@@ -253,11 +236,6 @@ task("sass-compile-users2", (done) => {
 	gulp.emit(removeCacheEvent)
 	done()
 })
-task("sass-compile-avatars", (done) => {
-	sassCompileAvatars()
-	gulp.emit(removeCacheEvent)
-	done()
-})
 
 //Tareas de observación
 task("sass-vendor:watch", (done) => {
@@ -265,7 +243,6 @@ task("sass-vendor:watch", (done) => {
 	watch(watchingPiecesPHPSassFiles.general, series("sass-compile-general"))
 	watch(watchingPiecesPHPSassFiles.users, series("sass-compile-users"))
 	watch(watchingPiecesPHPSassFiles.users2, series("sass-compile-users2"))
-	watch(watchingPiecesPHPSassFiles.avatars, series("sass-compile-avatars"))
 	done()
 })
 
@@ -275,7 +252,6 @@ task("sass-vendor:init", (done) => {
 	sassCompileGeneral()
 	sassCompileUsers()
 	sassCompileUsers2()
-	sassCompileAvatars()
 	gulp.emit(removeCacheEvent)
 	done()
 })
@@ -363,7 +339,6 @@ task("sass-all", (done) => {
 	sassCompileGeneral()
 	sassCompileUsers()
 	sassCompileUsers2()
-	sassCompileAvatars()
 
 	sassCompileGeneric()
 
