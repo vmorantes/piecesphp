@@ -436,6 +436,17 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Si una lectura de la vista pública suma visita: solo lo que ve el público.
+     * La vista previa de un borrador, una programada o una pendiente de aprobación no cuenta.
+     *
+     * @return bool
+     */
+    public function countsVisits(): bool
+    {
+        return $this->isVisibleToPublic();
+    }
+
+    /**
      * Con SystemApprovals activo y un manejador para publicaciones, si su aprobación está APPROVED; sin ellos, true.
      *
      * @return bool

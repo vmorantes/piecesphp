@@ -204,7 +204,7 @@ class PublicationsPublicController extends BaseController
             set_title($title);
 
             //Agregar visita
-            if (!$element->isDraft()) {
+            if ($element->countsVisits()) {
                 $element->addVisit();
             }
 

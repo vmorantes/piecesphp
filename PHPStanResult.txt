@@ -870,13 +870,13 @@
  ------ --------------------------------------------------------------------------------------------------------- 
   407    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
          🪪  return.type                                                                                          
-  460    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  471    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  472    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  483    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  566    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  577    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
-  594    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  605    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
  ------ --------------------------------------------------------------------------------------------------------- 
 

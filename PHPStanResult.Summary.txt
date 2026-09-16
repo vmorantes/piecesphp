@@ -236,8 +236,8 @@ project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	argument.type (Líneas: 404)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
 	return.type (Líneas: 407)
-	argument.type (Líneas: 460, 472)
-	property.nonObject (Líneas: 566, 594)
+	argument.type (Líneas: 471, 483)
+	property.nonObject (Líneas: 577, 605)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
