@@ -854,6 +854,42 @@ historia de git los conserva.
     - un registro `zz-prueba-*` en tipos de documento, categorías, noticias, banners,
       publicaciones y documentos.
     Copia previa: `src/dumps/15-09-2026_11-13-49-AM.sql.gz`.
+- **2026-09-16 — decisiones y encargos del PO al reabrir (A-030, A-031), más los de la noche del
+  2026-09-15:**
+  1. **`4d`, decidido.** Formalizado: sabe que no será reversible con los datos existentes; lo que
+     quiere es que el futuro no falle nunca. Lo ya guardado mal **se da por perdido y repararlo no
+     es requisito**. El requisito es que ningún guardado posterior pierda ni altere un carácter.
+     Es la conversación de núcleo transversal que exige la regla 30, y queda hecha.
+  2. **Mandato:** «trabaja sin parar hasta terminar los lotes 7-11 y para antes del 12». Incluye lo
+     que va antes en el mapa (`nag`, `4d`, `4e`, `4f` y `4b-4`). Siguen vigentes las paradas de la
+     regla de los diez y de los puntos serios.
+  3. **La guía personal**, en su propio repositorio (`/var/www/html/vicsen/guia-piecesphp-para-po`):
+     - la escribe y **la commitea el arquitecto**, como considere, porque es el único que toca ese
+       repositorio (ADR 0016);
+     - **tema más propio de documentación y más amigable**, «readthedocs o uno mejor»: se le enseñan
+       dos o tres opciones funcionando con su contenido dentro, y elige él;
+     - **cubre todo lo relevante desde el inicio de la campaña, el 19 de agosto de 2026**, no solo el
+       último tirón;
+     - **tiene que servirle sin IA**. Formalizado: si no, se le volvería inmantenible, y no siempre
+       usará IA. Es una restricción de diseño: ningún paso depende de un agente, y cada procedimiento
+       lo puede ejecutar él solo, con el comando y con cómo se lee su salida.
+  4. **Propuesta del arquitecto, sin respuesta:** detectar las compactaciones por máquina, contando
+     las del `.jsonl` de la sesión y comparándolas con lo declarado, dentro de `verificar.sh`. Nace
+     de que el arquitecto declaró «compactación: no» en `#096` y `#098` sin saber que se había
+     compactado; lo destapó el PO preguntando por esa línea. *Predeterminado:* se hace cuando lo
+     nombre.
+  5. **Dos falsos positivos de la guarda, arreglados por el arquitecto** (con sus casos: 209/209):
+     - `git … branch --show-current 2>&1` se bloqueaba como «crear ramas», porque `revisar_git` no
+       quitaba las redirecciones y leía el `1` de `2>&1` como nombre de rama. **Es la orden que la
+       regla 30 dicta para el PASO 0 de los paquetes**, en cuanto se le añade una redirección;
+     - `python3 -m pip list` se bloqueaba como instalación: bastaba con que apareciera `-m pip`.
+     - **Queda sin arreglar, y se declara:** la guarda analiza cada línea de un heredoc como un
+       comando, así que un heredoc que CONTIENE el texto de una orden prohibida se bloquea. Es un
+       falso positivo asumido por diseño (docstring de `segmentos()`).
+  6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
+     - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
+     - la recuperación de contraseña la envía en claro por correo: aparcado;
+     - «perfeccionar geovisor»: espera a que diga qué quiere.
 - **El `TODO.md` de la raíz se borra, y su contenido con él (PO, 2026-09-15).** El PO pidió
   quitarlo (*«es viejo y probablemente falso»*, y le ensucia la raíz). El arquitecto lo leyó
   antes: contenía siete intenciones de producto suyas (PayU, un archivo de opciones JSON para

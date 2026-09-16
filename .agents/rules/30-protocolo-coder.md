@@ -24,6 +24,11 @@ Qué es de quién:
 La configuración del repositorio que solo sirve al andamiaje de agentes (el `.gitignore` de
 la guarda, el final de línea del hook de git) la escribe el arquitecto con su ADR.
 
+**La guía personal del PO** (`/var/www/html/vicsen/guia-piecesphp-para-po`) es la única excepción
+a «el arquitecto no commitea»: la escribe **y la commitea** el arquitecto, que es el único que
+toca ese repositorio (PO, 2026-09-16; ADR 0016). No es producto ni andamiaje de este
+repositorio, y ninguna instrucción al coder la nombra.
+
 ### Los cuatro paquetes hermanos
 
 `database`, `datastructures`, `geojson` y `html`, en `/var/www/html/vicsen/`. Ojo: `database`,
@@ -202,6 +207,11 @@ ronda **se termina** y luego se para: nunca se deja un árbol a medio commitear.
 Durante el tramo el arquitecto mantiene `.agents/estado/` al día (`60-estado.md`). Al cerrarlo,
 entrega al PO el resumen del tramo en el chat.
 
+**Ninguna jornada termina con el árbol sucio** (PO, 2026-09-15): un árbol sucio no le deja
+empujar. La documentación de una ronda se commitea EN esa ronda, no al abrir la siguiente. Si se
+para, lo último antes de parar es ese commit; y si el arquitecto escribe algo después de la
+última ronda, abre otra corta para commitearlo.
+
 **Cada vez que el arquitecto se detiene** (fin de tramo, espera al PO o una pregunta suya),
 entrega el resumen con esta forma FIJA (PO, 2026-09-15), no en prosa suelta:
 1. **Rondas y duración**: `#NNN`–`#NNN`, de hh:mm a hh:mm.
@@ -221,6 +231,14 @@ esté mal. El resumen no consume número y nunca lleva secretos.
 compactado desde el mensaje anterior**: `compactación: no` o `compactación: sí, resumen
 enviado`. Nace el 2026-09-15 (A-008): el arquitecto se compactó, no mandó su resumen y nada lo
 delató.
+
+- La línea declara lo ocurrido **desde el mensaje anterior**, no desde que empezó la sesión.
+- **Una sesión reabierta cuenta como compactada**: arranca un proceso nuevo, y lo que sabe de
+  antes es un resumen.
+- **Límite conocido:** una sesión no siempre se entera de que se ha compactado, así que esta línea
+  es un testimonio, no una medición. El arquitecto declaró «no» en `#096` y `#098` con al menos una
+  compactación por medio (2026-09-15). La detección por máquina, contando las compactaciones del
+  `.jsonl` de la sesión, está propuesta al PO y sin hacer (`pendientes.md`, 2026-09-16).
 
 ## Quién decide qué se construye
 
@@ -398,6 +416,26 @@ de correr `gates`, y el commit entró con una prueba rota.
 La documentación del arquitecto se commitea **sin editarla**, en commits `docs:` aparte del
 código; `.agents/estado/`, en su propio `docs(estado):`. Si aparece un archivo del arquitecto
 que la instrucción no anunciaba, se dice en el reporte y se commitea igual (20 §3).
+
+### Parar o ajustar (`#100`)
+
+«Si algo te obliga a desviarte, para» es la regla por defecto, y tiene un único hueco:
+
+- **Se PARA** todo lo que cambie **qué** se produce: archivos, alcance, contenido, diseño, los
+  números del reparto, los mensajes de commit o cualquier cosa que el arquitecto haya elegido entre
+  alternativas.
+- **Se AJUSTA y se DECLARA** solo **cómo** se invoca una orden dictada cuya forma literal no puede
+  ejecutarse, y únicamente si se cumplen las cuatro:
+  1. la orden no es destructiva;
+  2. la intención del arquitecto es inequívoca;
+  3. el resultado es idéntico al dictado: ni un archivo ni un número distintos;
+  4. se declara en el reporte, con la salida real y con lo que decía la herramienta.
+- **Con lo que borra o reescribe** (`git rm`, `rm -rf`, `db-restore`, `scheme-drop`…) el hueco no
+  existe: se para aunque la intención sea obvia. La diferencia no es lo seguro que se esté, sino lo
+  que cuesta equivocarse.
+
+Nace de `#097`: el coder ajustó la invocación de `bin/guarda-add`, que `#093` dictaba mal, lo
+declaró entero y preguntó si debió parar.
 
 ### Si el PO te corrige directamente
 

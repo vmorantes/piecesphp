@@ -23,7 +23,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 | # | Lote | En una línea | Dónde está descrito | Notas |
 | --: | :-- | :-- | :-- | :-- |
-| 4d | **⚠ El escape doble del ORM** | `EntityMapper::castPHPToSQLTypes()` aplica `stripslashes`+`addslashes` a todo campo de texto, y el `INSERT` ya liga valores: **borra las barras invertidas legítimas al guardar** y deja `O\'Brien` en la columna | `docs/pendientes.md`, «H-R» (`#088`) | **Lo primero.** 112 campos en 26 mappers. Vive en el paquete `piecesphp/database`: se toca ahí, se etiqueta y se instala. **El PO lo aprobó el 2026-09-15 (A-022 §5.1): «habrá que corregirse siempre que no pierda funcionalidad»**, así que hay que decidir qué se hace con lo ya guardado |
+| 4d | **⚠ El escape doble del ORM** | `EntityMapper::castPHPToSQLTypes()` aplica `stripslashes`+`addslashes` a todo campo de texto, y el `INSERT` ya liga valores: **borra las barras invertidas legítimas al guardar** y deja `O\'Brien` en la columna | `docs/pendientes.md`, «H-R» (`#088`) | **Lo primero del producto**, tras rehacer el aviso de `app_key` con `nag`. 112 campos en 26 mappers. Vive en el paquete `piecesphp/database`: se toca ahí, se etiqueta y se instala. El PO lo aprobó el 2026-09-15 (A-022 §5.1) y **lo decidió el 2026-09-16 (A-031): lo ya guardado mal se da por perdido; el requisito es que lo que se guarde desde ahora no falle nunca** |
 | 4e | **El límite del OTP no cuenta los nombres con comilla** | `login_attempts` guarda el nombre escapado y `OTPRateLimiter` compara con el crudo | `docs/pendientes.md`, «H-L» | **Depende de 4d**: es su síntoma, no otra causa |
 | 4f | **Dos `validate()` de subidas casi iguales** | `UploadedFileAdapter::validate()` y `FileUpload::validate()` son dos implementaciones del mismo contrato. El fallo de T135 ha habido que arreglarlo en las dos, con dos años de diferencia | `docs/pendientes.md` (`#092`, lo que deja el coder) | La próxima divergencia volverá a abrir un agujero |
 | 4b-4 | **FileManager y el sufijo** | elFinder lista y renombra los nombres reales; hoy solo se bloquea el renombrado de lo protegido. Falta la vista previa por contenido y el reparto de raíces por módulo (P26) | `docs/pendientes.md`, «Rendimiento de los archivos protegidos» | Resto del 4b, que por lo demás está cerrado |
@@ -39,6 +39,9 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 
 ## Decisiones del PO que atraviesan varios lotes
 
+- **Mandato del 2026-09-16 (A-031): trabajar sin parar hasta cerrar los lotes 7 a 11**, con todo lo
+  que va antes en esta tabla, y **parar antes del 12**. Las paradas obligatorias siguen valiendo: la
+  regla de los diez (el lote 7 toca unos 168 archivos) y los puntos serios de la regla 30.
 - **El backoffice usa Fomantic-UI conservando la estética que ya hay**, con Publications como
   referencia (2026-09-15). Toda instrucción que toque una vista del panel nombra el componente y
   dice si es descartable y apagable.
