@@ -33,7 +33,7 @@ window.addEventListener('load', function () {
 					let decodedData = new Base64Util().decode(encodedData)
 
 					$('body').modal({
-						title: parsed.find('>.header').html(),
+						title: parsed.find('>.head .info > span').html(),
 						class: 'modal-news-content',
 						closeIcon: true,
 						content: decodedData,

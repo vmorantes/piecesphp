@@ -1,6 +1,7 @@
 <?php
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
+use News\NewsLang;
 
 /**
  * @var NewsMapper $element
@@ -26,5 +27,9 @@ $content = str_replace("\\", '', $content);
     <div class="body">
         <?= $element->excerpt(120); ?>
     </div>
-
+    <div class="footer">
+        <?php if ($contentLength > 117) : ?>
+        <div class="ui button brand-color<?= $isFinish ? ' alt2' : ''; ?>" see-more><?= __(NewsLang::LANG_GROUP, 'Ver más'); ?></div>
+        <?php endif; ?>
+    </div>
 </article>
