@@ -67,4 +67,5 @@ procedencia.
 | [0015](0015-mailpit-como-sumidero-smtp.md) | Mailpit como sumidero SMTP local para las pruebas de correo | sí | Aceptada (sin implementar) |
 | [0016](0016-guia-del-po-en-su-propio-repositorio.md) | La guía personal del PO vive en su propio repositorio; el arquitecto la escribe y la commitea | sí | Aceptada |
 | [0017](0017-el-framework-actualiza-sus-paquetes.md) | Excepción: el framework actualiza sus paquetes `piecesphp/*` con Composer cuando un lote lo pide | sí | Aceptada |
+| [0018](0018-recuperacion-de-contrasena.md) | La recuperación de contraseña es una sola: código ligado al usuario, con límite de intentos | sí | Aceptada |
 | [0019](0019-versionado-y-etiquetas-del-framework.md) | Arquitecto y coder versionan y etiquetan el framework, salvo las versiones mayores estables | sí | Aceptada |

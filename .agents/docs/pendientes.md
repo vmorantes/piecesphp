@@ -1034,6 +1034,13 @@ historia de git los conserva.
      - **Hallazgos al leer la recuperación** (arquitecto): los del bloque «En curso» de `AHORA.md` del 2026-09-16
        11:3x; entran en `#143`. Además, para después: `UserProblemsController` genera códigos de 6 cifras para
        «usuario olvidado» y «usuario bloqueado» con el mismo patrón (sin verificar si tienen límite).
+  23. **`#143`→`#144` cerrada: ADR 0019 y `v8.0.0-alpha.1`** (`eca9ee29`, `53bd741e`, `54562173`, `b6c52b9f`,
+     `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
+     c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
+     Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  24. **P30 en `#145`**, con el ADR 0018 y la ruptura 29. Hallazgos para después: los códigos de «usuario
+     olvidado» y «usuario bloqueado» (`UserProblemsController`) siguen el mismo patrón sin verificar; pedir códigos
+     no tiene límite (un tercero puede llenar de correos el buzón de una víctima).
   6. **Sin respuesta del PO a A-030 y A-031**, con su predeterminado:
      - el SQL de los listados viaja al navegador (núcleo transversal): aparcado hasta que lo nombre;
      - la recuperación de contraseña la envía en claro por correo: aparcado;

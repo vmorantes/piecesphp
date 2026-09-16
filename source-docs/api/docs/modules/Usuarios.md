@@ -264,14 +264,15 @@ xhr.send(data);
 
 ### {{baseURL}}/core/api/users/recovery-password/
 - Autorización: No
-- Descripción: Ruta para recuperar contraseña, envía un correo con un código para la recuperación
+- Descripción: Ruta para recuperar contraseña, envía un correo con un código para la recuperación. **Responde
+  igual exista o no el usuario**: no sirve para saber si una cuenta existe.
 - Parámetros:
-	- username: string (requerido) El email del usuario
+	- username: string (requerido) El email o el nombre del usuario
 - Devolución:
 	- Tipo: JSON
 	- Propiedades: 
-		- send_mail: bool Indica si el correo fue enviado o no
-		- error: text Código de error
+		- send_mail: bool Siempre `true` cuando los parámetros son correctos, exista o no el usuario
+		- error: text Código de error (`NO_ERROR`, o `MISSING_OR_UNEXPECTED_PARAMS`)
 		- message: text Mensaje de resultado
 	- Ejemplo:
 ```js
@@ -296,14 +297,16 @@ xhr.send(data);
 {
     "send_mail": true,
     "error": "NO_ERROR",
-    "message": "A message has been sent to the email provided."
+    "message": "If the user exists, a code will be sent to their email."
 }
 ```
 
 ### {{baseURL}}/core/api/users/change-password-code/
 - Autorización: No
-- Descripción: Ruta para cambiar la contraseña usando un código de recuperación
+- Descripción: Ruta para cambiar la contraseña usando un código de recuperación. El código solo vale para su
+  usuario, y tras varios fallos la ruta responde **429** con la cabecera `Retry-After` (límite de `otp_security`).
 - Parámetros:
+	- username: string (requerido) El email o el nombre del usuario al que se envió el código
 	- code: string (requerido) El código
 	- password: string (requerido) Contraseña
 	- repassword: string (requerido) Contraseña confirmación
@@ -318,6 +321,7 @@ xhr.send(data);
 ```js
 //Solicitud
 var data = new FormData();
+data.append("username", "mail@domain.tld");
 data.append("code", "45678");
 data.append("password", "123456");
 data.append("repassword", "123456");

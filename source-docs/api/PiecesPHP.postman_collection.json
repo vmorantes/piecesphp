@@ -456,6 +456,11 @@
 					"mode": "formdata",
 					"formdata": [
 						{
+							"key": "username",
+							"value": "mail@domain.tld",
+							"type": "text"
+						},
+						{
 							"key": "code",
 							"value": "120435",
 							"type": "text"

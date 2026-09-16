@@ -584,7 +584,45 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **Qué hacer:** si tu proyecto usa cualquiera de los dos formularios, pon sus destinatarios en esas claves.
   Si leías las constantes desde código propio, lee la configuración.
 
+### 29 · La recuperación de contraseña es un código ligado al usuario, con límite de intentos
+
+- **El enlace del correo ya no cambia la contraseña.** Lleva al formulario de recuperación con el código y el
+  correo ya puestos. `GET /users/recovery/{url_token}` (`new-password-create`) no escribe nada: redirige al
+  formulario, así que un enlace viejo lleva allí y se pide un código nuevo.
+- **`POST /users/recovery` (`recovery-password-request`) hace lo mismo que `POST /users/recovery-code`**:
+  guarda un código y envía el correo con el código y el enlace.
+- **Verificar y usar un código exige `username`** (nombre de usuario o correo) además de `code`:
+  `POST /users/verify-create-password-code`, `POST /users/create-password-code` y la acción
+  `change-password-code` de la API. Esas rutas siguen aceptando exactamente sus parámetros: sin `username`,
+  responden `MISSING_OR_UNEXPECTED_PARAMS`.
+- **Tras varios fallos responden 429** con `Retry-After`. Es el límite de `otp_security`, compartido con el
+  OTP: por defecto, cinco fallos por usuario o veinte por IP en 15 minutos bloquean 15.
+- **Ninguna respuesta devuelve el usuario**: desaparece `user` de `create-password-code` (y de la API
+  `change-password-code`) y `userName` de `verify-create-password-code`.
+- **Las peticiones de código responden igual exista o no el usuario** (`recovery`, `recovery-code` y la API
+  `recovery-password`): `send_mail` es siempre `true` y el mensaje, «Si el usuario existe, recibirá un código en
+  su correo.». Ya no devuelven `USER_NO_EXISTS`.
+- **Se retiran** `RecoveryPasswordController::mailRecoveryPassword()` y `mailNewPassword()`, las plantillas
+  `usuarios/mail/recovery_password.php` y `usuarios/mail/restored_password.php`, y
+  `RecoveryPasswordModel::exist()`, `getUserNameByCode()` e `instanceByCode()`.
+- **Qué hacer:** si tu app o tu JS llaman a estas rutas, envía `username`, no esperes `user`, `userName` ni
+  `USER_NO_EXISTS`, y trata el 429. Si personalizaste una plantilla retirada, pasa lo que necesites a
+  `usuarios/mail/recovery_password_code.php`.
+
 ---
+
+## ⚠ Corregido — la recuperación de contraseña permitía tomar una cuenta, y el enlace dejaba al usuario fuera
+
+- **El código de recuperación se podía adivinar.** Tenía 6 cifras, valía 24 horas, no tenía límite de
+  intentos y se buscaba entre los de todos los usuarios. Al acertar, la respuesta devolvía el usuario con el
+  hash de su contraseña.
+- **El enlace del correo dejaba al usuario sin contraseña**: la generaba, la guardaba y la mandaba con una
+  plantilla que no la imprimía. Como era un GET que escribía, un escáner de enlaces del correo lo disparaba solo.
+- **Las peticiones decían si un usuario existía**, y el registro de tickets guardaba el código en claro.
+- **Tras actualizar, vacía `pcsphp_recovery_password`**: los códigos pendientes de antes valen hasta que caducan,
+  y los que quedaron en el registro de tickets los puede leer quien vea ese registro.
+- Ruptura 29. Probado en `unit-tests:core/password-recovery-guards`, que falla si se quita la ligadura al
+  usuario, el límite de intentos o la retirada del usuario de la respuesta.
 
 ## ⚠ Corregido — el importador de usuarios permitía crear un root, y `getByID()` concatenaba el id
 
