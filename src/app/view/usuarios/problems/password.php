@@ -105,6 +105,7 @@
 
                 <div class="horizontal-section-form">
                     <div class="number-step">PASO 2</div>
+                    <div class="field"><input required type="email" name="username" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'name@domain.com')?>"></div>
                     <div class="field">
                         <input required type="text" name="code" placeholder="Ingrese el código">
                     </div>
@@ -127,6 +128,7 @@
 
                 <form class="ui form">
                     <input required type="hidden" name="code">
+                    <input required type="hidden" name="username">
                     <div class="field required">
                         <input required type="password" name="password" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingrese su nueva contraseña'); ?>">
                     </div>

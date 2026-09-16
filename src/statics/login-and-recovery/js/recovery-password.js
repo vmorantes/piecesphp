@@ -72,6 +72,7 @@ $(document).ready(function (e) {
 					)
 				)
 
+				codeForm.find("[name='username']").val(recoveryForm.find("[name='username']").val())
 				recoveryForm[0].reset()
 
 			} else {
@@ -99,7 +100,11 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
+				messageBox.html(jqXHR.responseJSON.message)
+			} else {
+				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			}
 
 		})
 
@@ -132,6 +137,7 @@ $(document).ready(function (e) {
 
 				messageBox.html(``)
 				changePasswordForm.find("[name='code']").val(codeForm.find("[name='code']").val())
+				changePasswordForm.find("[name='username']").val(codeForm.find("[name='username']").val())
 				codeForm[0].reset()
 
 			} else {
@@ -159,7 +165,11 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
+				messageBox.html(jqXHR.responseJSON.message)
+			} else {
+				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			}
 
 		})
 
@@ -215,7 +225,11 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
+				messageBox.html(jqXHR.responseJSON.message)
+			} else {
+				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			}
 
 		})
 
@@ -265,6 +279,9 @@ $(document).ready(function (e) {
 		let code = paramsURL.get('code').trim()
 		if (code.length > 0) {
 			codeForm.find("[name='code']").val(code)
+			if (paramsURL.has('email')) {
+				codeForm.find("[name='username']").val(paramsURL.get('email').trim())
+			}
 			hasCode.click()
 		}
 	}

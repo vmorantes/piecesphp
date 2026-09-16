@@ -24,8 +24,8 @@
   "entries": [
     {
       "file": "src/app/classes/API/Controllers/APIController.php",
-      "blocks": 5,
-      "prose": 32,
+      "blocks": 4,
+      "prose": 29,
       "motive": "nota-de-dominio",
       "why": "Nota de dominio heredada: describe una regla de negocio —qué puede hacer cada tipo de usuario, por ejemplo—, no una decisión técnica. Se recorta al pasar, y solo quien conozca la regla puede comprimirla sin perderla."
     },

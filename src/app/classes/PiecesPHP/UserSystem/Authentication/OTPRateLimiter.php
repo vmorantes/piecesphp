@@ -31,11 +31,13 @@ class OTPRateLimiter
     const VIA_CHECK_TOTP = 'check-totp';
     const VIA_TWO_FACTOR_STATUS = 'two-factor-auth-status';
     const VIA_LOGIN_TOTP = 'login-totp';
+    const VIA_RECOVERY_CODE = 'recovery-code';
     const VIAS = [
         self::VIA_GENERATE_OTP,
         self::VIA_CHECK_TOTP,
         self::VIA_TWO_FACTOR_STATUS,
         self::VIA_LOGIN_TOTP,
+        self::VIA_RECOVERY_CODE,
     ];
 
     const EXTRA_DATA_VIA = 'otpVia';

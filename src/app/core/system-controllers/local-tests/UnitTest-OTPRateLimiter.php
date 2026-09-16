@@ -57,11 +57,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     };
 
     //──── 1. La configuración ──────────────────────────────────────────────────────────────────
-    echoTerminal('[1/4] config(): la de config.php, con las cuatro vías que cuentan');
+    echoTerminal('[1/4] config(): la de config.php, con las cinco vías que cuentan');
 
     $check(OTPRateLimiter::config() === $config, 'otp_security de config.php: 5 por usuario, 20 por IP, 15 de ventana, 15 de bloqueo, uniforme y 20 del código',
         json_encode(OTPRateLimiter::config(), JSON_THROW_ON_ERROR));
-    $check(OTPRateLimiter::VIAS === ['generate-otp', 'check-totp', 'two-factor-auth-status', 'login-totp'], 'las vías: generate-otp, check-totp, two-factor-auth-status y login-totp');
+    $check(OTPRateLimiter::VIAS === ['generate-otp', 'check-totp', 'two-factor-auth-status', 'login-totp', 'recovery-code'], 'las vías: generate-otp, check-totp, two-factor-auth-status, login-totp y recovery-code');
     echoTerminal(' ');
 
     //──── 2. Por usuario ───────────────────────────────────────────────────────────────────────

@@ -46,7 +46,7 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
     };
 
     //─── 1 · Comprobación previa: sin Mailpit local, o con Mailpit saliendo a la red, no se envía nada ─────
-    echoTerminal('[1/5] Mailpit escucha en 127.0.0.1 y no comprueba versiones');
+    echoTerminal('[1/4] Mailpit escucha en 127.0.0.1 y no comprueba versiones');
     $arranque = 'Arranca Mailpit con: ./mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025 --disable-version-check';
     $socket = @fsockopen('127.0.0.1', 1025, $errno, $errstr, 1.0);
     $smtpEscucha = is_resource($socket);
@@ -67,7 +67,7 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
     echoTerminal(' ');
 
     //─── 2 · El código de recuperación de contraseña ────────────────────────────────────────────────────
-    echoTerminal('[2/5] RecoveryPasswordController::mailRecoveryPasswordCode()');
+    echoTerminal('[2/4] RecoveryPasswordController::mailRecoveryPasswordCode()');
 
     $original = get_config('mail');
     $originalesExtra = [];
@@ -148,24 +148,8 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
         $destino = 'zz-prueba-destino@localhost.test';
         $remitenteEsperado = 'zz-prueba-remitente@localhost.test';
 
-        //─── 3 · El enlace de recuperación de contraseña ────────────────────────────────────────────────
-        echoTerminal('[3/5] RecoveryPasswordController::mailRecoveryPassword()');
-        $http('DELETE', '/messages');
-        $enviado = (new \ReflectionMethod(RecoveryPasswordController::class, 'mailRecoveryPassword'))->invoke(new RecoveryPasswordController(), 'https://zz-prueba.test/recuperar/ZZ7C', $usuario);
-        $check($enviado === true, 'enlace: invoke devuelve true', var_export($enviado, true));
-        [$cuantos, $detalle] = $mensajeUnico();
-        $check($cuantos === 1, 'enlace: Mailpit tiene exactamente 1 mensaje', (string) $cuantos);
-        if ($cuantos === 1) {
-            $asuntoEnlace = __(RecoveryPasswordController::LANG_GROUP, 'Recuperación de contraseña');
-            $check(($detalle['Subject'] ?? null) === $asuntoEnlace, "enlace: el asunto es «{$asuntoEnlace}»", var_export($detalle['Subject'] ?? null, true));
-            $check($direcciones($detalle['To'] ?? null) === [$destino], "enlace: el destinatario es {$destino}", json_encode($direcciones($detalle['To'] ?? null), JSON_THROW_ON_ERROR));
-            $check(str_contains((string) ($detalle['HTML'] ?? ''), 'https://zz-prueba.test/recuperar/ZZ7C'), 'enlace: el HTML contiene el enlace');
-            $check($remitenteDe($detalle) === $remitenteEsperado, "enlace: el remitente es {$remitenteEsperado}", var_export($remitenteDe($detalle), true));
-        }
-        echoTerminal(' ');
-
-        //─── 4 · Los códigos de usuario olvidado y bloqueado ────────────────────────────────────────────
-        echoTerminal('[4/5] UserProblemsController::sendCode()');
+        //─── 3 · Los códigos de usuario olvidado y bloqueado ────────────────────────────────────────────
+        echoTerminal('[3/4] UserProblemsController::sendCode()');
         $asuntoCodigo = __(UserProblemsController::LANG_GROUP, 'Código de verificación');
         $tipos = [
             UserProblemsController::TYPE_USER_FORGET => get_route('user-forget-form') . '?code=ZZ7C0DE',
@@ -189,8 +173,8 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
         }
         echoTerminal(' ');
 
-        //─── 5 · Otros problemas, con osTicket vacío en memoria ─────────────────────────────────────────
-        echoTerminal('[5/5] UserProblemsController::sendMessageOtherProblems()');
+        //─── 4 · Otros problemas, con osTicket vacío en memoria ─────────────────────────────────────────
+        echoTerminal('[4/4] UserProblemsController::sendMessageOtherProblems()');
         //Con osTicket configurado intentaría la red primero: se vacía solo en memoria.
         set_config('osTicketAPI', '');
         set_config('osTicketAPIKey', '');

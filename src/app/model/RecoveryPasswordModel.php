@@ -5,6 +5,8 @@
 namespace App\Model;
 
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 
 /**
  * RecoveryPasswordModel.
@@ -52,53 +54,36 @@ class RecoveryPasswordModel extends BaseEntityMapper
     }
 
     /**
-     * @param mixed $code
+     * El código vigente de ese correo: ligado a su usuario y sin expirar.
+     *
+     * @param string $email
+     * @param string $code
+     * @return self|null
+     */
+    public static function findValid(string $email, string $code): ?self
+    {
+        $instance = new RecoveryPasswordModel();
+        $data = $instance->getModel()->select()->where(new WhereSegment([
+            WhereItem::isEqual('email', $email, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('code', $code, WhereItem::AND_OPERATOR),
+            WhereItem::isGreaterThan('expired', date('Y-m-d H:i:s')),
+        ]))->row();
+
+        return is_object($data) ? new RecoveryPasswordModel((int) $data->id) : null;
+    }
+
+    /**
+     * Borra todos los códigos de ese correo.
+     *
+     * @param string $email
      * @return bool
      */
-    public static function exist($code)
+    public static function deleteByEmail(string $email): bool
     {
         $instance = new RecoveryPasswordModel();
 
-        return $instance->getModel()
-            ->select()
-            ->where([
-                'code' => $code,
-            ])
-            ->row() !== -1;
-    }
-
-    /**
-     * @param mixed $code
-     * @return string
-     */
-    public static function getUserNameByCode($code)
-    {
-        $instance = new RecoveryPasswordModel();
-
-        $query = $instance->getModel()
-            ->select()
-            ->where([
-                'code' => $code,
-            ])->row();
-
-        $userModel = new UsersModel();
-
-        $user = is_object($query) ? $userModel->getWhere(["email" => $query->email]) : null;
-        return is_object($user) ? $user->username : '';
-    }
-
-    /**
-     * @param mixed $code
-     * @return RecoveryPasswordModel|null
-     */
-    public static function instanceByCode($code)
-    {
-        $instance = new RecoveryPasswordModel();
-
-        $data = $instance->getModel()->select()->where([
-            'code' => $code,
-        ])->row();
-
-        return is_object($data) ? new RecoveryPasswordModel($data->id) : null;
+        return $instance->getModel()->delete(new WhereSegment([
+            WhereItem::isEqual('email', $email),
+        ]))->execute() === true;
     }
 }

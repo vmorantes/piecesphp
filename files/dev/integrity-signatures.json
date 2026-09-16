@@ -1915,8 +1915,6 @@
     ],
     "app/controller/RecoveryPasswordController.php": [
         "RecoveryPasswordController::__construct",
-        "RecoveryPasswordController::mailNewPassword",
-        "RecoveryPasswordController::mailRecoveryPassword",
         "RecoveryPasswordController::mailRecoveryPasswordCode",
         "RecoveryPasswordController::newPasswordCreate",
         "RecoveryPasswordController::newPasswordCreateCode",
@@ -3566,10 +3564,7 @@
         "LoginAttemptsModel::model"
     ],
     "app/model/RecoveryPasswordModel.php": [
-        "RecoveryPasswordModel::__construct",
-        "RecoveryPasswordModel::exist",
-        "RecoveryPasswordModel::getUserNameByCode",
-        "RecoveryPasswordModel::instanceByCode"
+        "RecoveryPasswordModel::__construct"
     ],
     "app/model/TicketsLogModel.php": [
         "TicketsLogModel::__construct"

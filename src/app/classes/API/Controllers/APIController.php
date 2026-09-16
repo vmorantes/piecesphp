@@ -17,8 +17,6 @@ use App\Controller\RecoveryPasswordController;
 use App\Controller\UserProblemsController;
 use App\Controller\UsersController;
 use App\Model\AvatarModel;
-use App\Model\RecoveryPasswordModel;
-use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
 use EventsLog\Mappers\LogsMapper;
 use News\Controllers\NewsCategoryController;
@@ -47,6 +45,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Controllers\PublicationsCategoryController;
@@ -1514,72 +1513,27 @@ class APIController extends AdminPanelController
             //Verificar que el grupo de datos para solicitados esté completo
             $parametros_ok = require_keys($requerido, $params) === true && count($requerido) === count($params);
 
-            //Cuerpo de la respuesta
-            $json_response = [
-                'send_mail' => false,
-                'error' => UserProblemsController::NO_ERROR,
-                'message' => '',
-            ];
-            $usuario = null;
-
-            //Si los parámetros son válidos en nombre y en cantidad se inicia el proceso de recuperación
             if ($parametros_ok) {
 
-                //Se selecciona un elemento que concuerde con el usuario
-                $username = $params['username'];
+                $usuario = $controller->requestRecoveryCode(trim((string) $params['username']), true);
 
-                $usuario = $controller->userMapper->getWhere([
-                    'username' => [
-                        '=' => $username,
-                        'and_or' => 'OR',
-                    ],
-                    'email' => [
-                        '=' => $username,
-                    ],
+                $response = $response->withJson([
+                    'send_mail' => true,
+                    'error' => RecoveryPasswordController::NO_ERROR,
+                    'message' => OTPRateLimiter::uniformOTPMessage(),
                 ]);
 
-                //Verificación de existencia
                 if ($usuario !== null) {
-
-                    //Datos de recuperación
-                    $recoveryPassword = new RecoveryPasswordModel();
-                    $recoveryPassword->created = new \DateTime();
-                    $recoveryPassword->expired = $recoveryPassword->created->modify('+24 hour');
-                    $recoveryPassword->email = $usuario->email;
-                    $recoveryPassword->code = generate_code(6);
-                    $recoveryPassword->save();
-
-                    //Envío de correo de recuperación
-                    $json_response['send_mail'] = $controller->mailRecoveryPasswordCode($recoveryPassword->code, $usuario, true);
-                    $json_response['message'] = __(RecoveryPasswordController::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
-
-                    $logRequest = new TicketsLogModel();
-                    $logRequest->created = $recoveryPassword->created;
-                    $logRequest->email = $recoveryPassword->email;
-                    $logRequest->information = [
-                        'code' => $recoveryPassword->code,
-                        'email_sended' => $json_response['send_mail'],
-                        'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
-                    ];
-                    $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
-                    $logRequest->save();
-                } else {
-
-                    $json_response['error'] = RecoveryPasswordController::USER_NO_EXISTS;
-                    $json_response['message'] = vsprintf($controller->getMessage($json_response['error']), [$username]);
+                    LogsMapper::addLog(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
+                        '%username%' => $usuario->username,
+                    ], 'id', $usuario->id, UsersModel::TABLE);
                 }
             } else {
-
-                $json_response['error'] = RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS;
-                $json_response['message'] = $controller->getMessage($json_response['error']);
-            }
-
-            $response = $response->withJson($json_response);
-
-            if ($usuario !== null) {
-                LogsMapper::addLog(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
-                    '%username%' => $usuario->username,
-                ], 'id', $usuario->id, UsersModel::TABLE);
+                $response = $response->withJson([
+                    'send_mail' => false,
+                    'error' => RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS,
+                    'message' => $controller->getMessage(RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS),
+                ]);
             }
 
         } elseif ($actionType == 'change-password-code') {
@@ -1588,9 +1542,6 @@ class APIController extends AdminPanelController
                 throw new NotFoundException($request, $response);
             }
 
-            //code
-            //password
-            //repassword
             $parsedBody = $request->getParsedBody();
             $request = $request->withParsedBody($parsedBody);
 
@@ -1599,10 +1550,13 @@ class APIController extends AdminPanelController
 
             $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
 
-            if ($arrayBodyResponse['success'] && $arrayBodyResponse['user'] !== null) {
-                LogsMapper::addLog(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
-                    '%username%' => $arrayBodyResponse['user']['username'],
-                ], 'id', $arrayBodyResponse['user']['id'], UsersModel::TABLE);
+            if (is_array($arrayBodyResponse) && ($arrayBodyResponse['success'] ?? false) === true && is_array($parsedBody) && is_string($parsedBody['username'] ?? null)) {
+                $usuario = $controller->resolveUser(trim($parsedBody['username']));
+                if ($usuario !== null) {
+                    LogsMapper::addLog(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
+                        '%username%' => $usuario->username,
+                    ], 'id', $usuario->id, UsersModel::TABLE);
+                }
             }
         }
 
