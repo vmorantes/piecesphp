@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 13:43 (medido con `date`).
+- **Actualizado:** 2026-09-16 13:51 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#188 · COD`. Próximo: `#189 · ARQ`. **Último al PO:** A-046.
+- **Último mensaje:** `#191 · ARQ` (en vuelo). Próximo: `#192 · COD`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 9, ronda 9.4 (#189)**: `16-frontend-arquitectura.md` nuevo (esqueleto medido, por situación, piezas del sistema, estética, prohibido, deuda de vistas fuera del esqueleto), enlazado desde AGENTS.md y el índice de context. 9.3 cerrada en #187-#188 (5d3f9b1b, 31ab9642, 55a9c4ae).
+**Lote 9, ronda 9.5a (#191, en vuelo)**: correcciones de `source-docs/project` tras una auditoría de solo lectura (terminal con las 26 acciones, mappers con un ejemplo de consulta que no funcionaba y la tabla por `scheme-create`, rutas con `routeName`/`allowedRoute`, estructura, índice, pruebas con `gates`, aviso de v8 en el changelog) y ctx/10 al día. Después 9.5b: guía «crear un módulo» y capas. 9.4 cerrada en #189-#190 (9f42286d, 179e11f3).
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
