@@ -1038,6 +1038,13 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  31. **`7c` B2c cerrada en `#169`→`#172`** (`4b60281e`, `c9594221`, `95c7f829`, `b83dfe13`): aprobación y alta por API contra
+     Mailpit, 38/41 → 41/41, provocada en a5, a6 y r4; los dos correos escapan el nombre y el motivo. Error del arquitecto: el
+     asunto lleva el título de la app delante (`get_title(true)`). Hallazgo, lote 10: `SystemApprovalsMapper::save()` exige un
+     usuario en sesión (sin él, un aviso convertido en excepción).
+     **`7c` B3 en `#173`**: entrega real a Mailinator (ADR 0011) de tres correos que no necesitan base (código de
+     recuperación, código de usuario olvidado y «otros problemas»), con un guion temporal fuera de las suites. El PO revisa
+     los buzones que liste el reporte.
   30. **`7c` B2b cerrada en `#167`→`#168`** (`a0ebe0a8`, `0bd46a24`, `e470ad12`): el formulario de contacto, 28/28, CAPTCHA
      provocado. **`7c` B2c en `#169`**, estudiada por el arquitecto con dos exploraciones de solo lectura:
      - envío 3, `SystemApprovalsController::approvalAction`: con el manejador de usuarios (el contacto es el propio usuario;
