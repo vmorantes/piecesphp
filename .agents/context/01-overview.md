@@ -112,14 +112,15 @@ tener las ramas que quieran. Ver `.agents/rules/30-protocolo-coder.md`, «Ramas�
   `files/API/`; ADR 0006).
 - `.agents/context/21-pruebas-y-puertas.md` — pruebas unitarias/de desarrollo (antes
   `files/dev/tests.md`).
-- `TODO.md` / `IGNORE.md` — notas del autor (pendientes, snippets de comandos).
+- `IGNORE.md` — notas del autor (snippets de comandos). No versionado.
+- El trabajo pendiente vive en `.agents/docs/roadmap.md` (hasta la MAJOR) y en
+  `.agents/docs/roadmap-posterior/` (después). El `TODO.md` de la raíz se borró el
+  2026-09-15 por orden del propietario, que descartó su contenido.
 
 ## Estado y trabajo en curso (a la fecha de este documento)
 
-De `TODO.md` e `IGNORE.md`:
+De `IGNORE.md`:
 
-- Pendiente: implementación de PayU; archivo de opciones JSON para el front;
-  rehacer módulos de imágenes, noticias internas y temporizador; módulo de encuestas.
 - Módulos marcados como "faltantes por renovar": noticias internas, registro
   fotográfico, formularios, personas, documentos, banner, mensajes, últimos
   movimientos, gestor de archivos.

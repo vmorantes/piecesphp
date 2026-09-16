@@ -342,7 +342,7 @@ porque el momento en que se entiende es justo ese.
   `IGNORE.md`, o con `bin/cli bundle all=yes zip=yes`.
 - Se excluyen del despliegue: `.git`, `node_modules`, lockfiles, `src/vendor`,
   `src/adminer`, `src/statics/{filemanager,uploads}`, `src/app/{logs,cache}`,
-  `source-docs`, `README.md`, `CHANGELOG.md`, `TODO.md`, `IGNORE.md`,
+  `source-docs`, `README.md`, `CHANGELOG.md`, `IGNORE.md`,
   `PHPStanResult.*`, `secure-keys/`, `bin/tools/vendor`.
 
 ## Seguridad
@@ -380,5 +380,5 @@ inyectable. Si no se puede escribir esa frase, es que sí lo es.
 2. Copia su estructura literalmente: nombres, sufijos de ruta, orden de métodos.
 3. Si las reglas de negocio del encargo son ambiguas, **pregunta antes de escribir
    código** (regla explícita del skill `full-stack-php-senior` del proyecto).
-4. Consulta `CHANGELOG.md` para saber qué cambió recientemente, y `TODO.md` /
-   `IGNORE.md` para el trabajo pendiente.
+4. Consulta `CHANGELOG.md` para saber qué cambió recientemente, y
+   `.agents/docs/roadmap.md` para el trabajo pendiente hasta la MAJOR.

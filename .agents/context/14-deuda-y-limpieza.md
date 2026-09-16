@@ -247,7 +247,7 @@ ciego.**
 | `PDFManager` + `mpdf/mpdf` | **`Components/Views/sample/components.php`** (16 líneas) — **no es *lorem ipsum* de relleno: es la referencia del formato `<components>`/`<component>`** que `ComponentProvider` consume |
 | El módulo `Components` en sí — decisión aparte | `source-docs/api/` (antes `files/API/`) — documentación mkdocs y una colección de Postman |
 | | `files/CliScripts/` — dos guiones sueltos que se lanzan a mano |
-| | `.agents/docs/roadmap-posterior/` (antes `files/dev/roadmap`), `TODO.md`, `IGNORE.md` — notas del autor |
+| | `.agents/docs/roadmap-posterior/` (antes `files/dev/roadmap`), `IGNORE.md` — notas del autor |
 | | `source-docs/` (320 KB) — documentación de producto |
 
 **Los tres directorios de Webflow suman 80 KB.** No son código de ejecución, y por eso ningún
@@ -341,11 +341,11 @@ cambios de GD y de manejo de fuentes.
 
 | Qué | LOC | Consideración |
 | :-- | --: | :-- |
-| **~~`ImagesRepository`~~** | 4.400 | **BORRADO** en el lote 2 de E3 (bloque AA); se conserva la nota porque explica la decisión. Marcado «por renovar» en `IGNORE.md` y «rehacer módulo de imágenes» en `TODO.md`. Solapa con `BuiltIn/Banner` (3.389) y `FileManager` (1.309): **tres formas distintas de gestionar imágenes/archivos**. Solo lo usa `MySpace` (2 referencias). Si se va a rehacer, bórralo antes de reescribirlo |
+| **~~`ImagesRepository`~~** | 4.400 | **BORRADO** en el lote 2 de E3 (bloque AA); se conserva la nota porque explica la decisión. Marcado «por renovar» en `IGNORE.md`. Solapa con `BuiltIn/Banner` (3.389) y `FileManager` (1.309): **tres formas distintas de gestionar imágenes/archivos**. Solo lo usa `MySpace` (2 referencias). Si se va a rehacer, bórralo antes de reescribirlo |
 | **`FileManager`** | 1.309 | 0 acoplamiento. Es un envoltorio de elFinder, dependencia pesada (`studio-42/elfinder`). Marcado «por renovar». ¿Lo usa alguien de verdad? |
 | **`Newsletter`** | 1.982 | Hoja aislada; solo `ContactFormsController` y `PublicAreaController`. Función muy delgada (tabla `newsletter_sucribers`, con errata en el nombre) |
 | **`EventsLog`** | 1.210 | Solo lo usa `APIController`. Útil si se audita de verdad; muerto si nadie mira `actions_log` |
-| **Temporizador** | — | `ACTIVE_TIMER` solo se lee en `app/view/panel/layout/header.php`. `TimerController` sigue registrado en `routes.php`. `TODO.md` dice «rehacer». Hoy es un vestigio |
+| **Temporizador** | — | `ACTIVE_TIMER` solo se lee en `app/view/panel/layout/header.php`. `TimerController` sigue registrado en `routes.php`. Hoy es un vestigio: el propietario descartó el 2026-09-15 la intención de rehacerlo |
 
 ### Riesgo alto — no borrar, reestructurar
 

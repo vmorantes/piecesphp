@@ -13,7 +13,7 @@ source-docs/        Fuentes MkDocs de la documentación del proyecto y de la API
 src/                RAÍZ DE LA APLICACIÓN WEB (document root de Apache)
 tasks/              TasksManager.php — tareas post-install/post-update de Composer
 CHANGELOG.md        Historial de versiones (muy detallado)
-TODO.md, IGNORE.md  Notas del autor
+IGNORE.md           Notas del autor (no versionado)
 PHPStanResult*.txt  Salida del análisis estático
 package.json        Dependencias y scripts de front
 permissions-and-property.sh  Ajuste de permisos/propiedad en despliegue
