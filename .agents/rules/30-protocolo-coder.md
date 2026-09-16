@@ -288,6 +288,17 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
 - **Los cuatro números**: previsto · cambiado · añadido · pendientes, cuadrados con
   `bin/guarda-add`, que emite su línea. Sin esa línea, la guarda no corrió (LEY 18). La cuenta
   es por repositorio.
+  - **Va DESPUÉS del `git add` y ANTES del `git commit`**, nunca antes de preparar: mide
+    `CAMBIADO` con `git status --porcelain` (el árbol entero) y `AÑADIDO` con
+    `git diff --cached --name-only` (solo lo preparado). Dictarla antes del `git add` la hace
+    abortar.
+  - **En una serie de commits, cada uno declara lo que deja fuera a propósito**:
+    `bin/guarda-add <previsto> --pendientes=<los que quedan> --motivo="..."`. El guion se para
+    si `AÑADIDO + PENDIENTES != CAMBIADO`, y también si `PREVISTO != CAMBIADO` sin `--motivo`.
+    El último commit de la serie cierra con pendientes 0 y sin motivo.
+  - Nace de `#097`: la instrucción `#093` dictó `bin/guarda-add` antes del `git add` y sin
+    pendientes, y habría abortado en los dos primeros commits. El coder leyó el guion en vez de
+    teclear lo dictado. **El arquitecto dicta la forma correcta; no la descubre el coder.**
 - **El alcance se mide, no se hereda** (LEY 17): ninguna instrucción que borre o mueva un
   símbolo nombra un número sin el censo que lo produjo, y el censo va DENTRO de la instrucción
   como paso previo.
