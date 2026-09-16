@@ -46,6 +46,27 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
 - **`CronJobTask::weeklyOn()` con un día fuera de 0-6** lanza `InvalidArgumentException` al registrar la tarea. Antes
   se aceptaba y la tarea no corría nunca. **Qué hacer:** usa 0 (domingo) a 6 (sábado).
 
+- **`generate_code()` y `generate_pass()` usan `random_int()`** en lugar de `rand()`: los códigos de verificación, de
+  recuperación, de los tokens y las contraseñas generadas salen de un generador criptográficamente seguro. Mismo formato.
+- **`API_CRONJOBS` registra la ruta del cron aunque las demás banderas de la API estén apagadas.** Antes hacía falta
+  otra bandera encendida.
+
+## Cambios que rompen compatibilidad — las claves de reCAPTCHA v3 salen del código
+
+Hasta ahora la clave secreta estaba escrita en `GoogleReCaptchaV3Controller` y la de sitio en
+`src/statics/js/contact-form.js`. Ahora se leen de la configuración, cargada desde las claves seguras por
+`src/app/config/final-configurations-includes/api-keys.php`: `GoogleReCaptchaV3SecretKey` y `GoogleReCaptchaV3SiteKey`.
+Sin clave secreta, el formulario de contacto **rechaza** el envío y deja una línea en el log.
+
+**Qué hacer:** crea `secure-keys/recaptcha-v3-secret` y `secure-keys/recaptcha-v3-site` con tus claves de reCAPTCHA v3.
+Las claves de prueba del propietario para entornos locales (ADR 0021 de la documentación de agentes) se añadirán a la
+configuración en una pre-versión posterior.
+
+## Herramientas — PHPStan mide solo PHP 8.5
+
+`bin/phpstan` corre una sola pasada, con `phpVersion` fijo en 8.5, en el framework y en los cuatro paquetes. Antes eran
+dos pasadas (8.4 y 8.5) con su unión. Ninguna cifra de las líneas base cambió.
+
 ## Herramientas — PHPStan sin supresiones muertas y `guarda-add` más estricta
 
 - `bin/phpstan` sale con 1 si una entrada de `ignoreErrors` no casa con ningún error en alguna de sus pasadas. Se
