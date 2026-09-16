@@ -344,6 +344,38 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
             ]);
             $aprobID = (int) $database->lastInsertId();
 
+            //Sin sesión: save() respeta el createdBy que se le pone, y sin él lo rechaza el ORM, no un aviso de null.
+            set_config('current_user', null);
+            set_config('pcsphp_current_user_stored', null);
+            $sinSesion = new SystemApprovalsMapper();
+            $sinSesion->referenceTable = UsersModel::TABLE;
+            $sinSesion->referenceValue = (string) $aprobID;
+            $sinSesion->referenceAlias = 'Usuario';
+            $sinSesion->referenceDate = date('Y-m-d H:i:s');
+            $sinSesion->createdBy = $aprobID;
+            $lanzo = null;
+            try {
+                $sinSesion->save();
+            } catch (\Throwable $e) {
+                $lanzo = get_class($e) . ': ' . $e->getMessage();
+            }
+            $creador = $database->prepare('SELECT createdBy FROM ' . SystemApprovalsMapper::TABLE . ' WHERE referenceTable = ? AND referenceValue = ?');
+            $creador->execute([UsersModel::TABLE, (string) $aprobID]);
+            $creadores = array_map('intval', $creador->fetchAll(\PDO::FETCH_COLUMN));
+            $check($lanzo === null && $creadores === [$aprobID], 'a0. sin sesión y con createdBy, save() guarda y conserva ese createdBy', $lanzo ?? $json($creadores));
+            $sinCreador = new SystemApprovalsMapper();
+            $sinCreador->referenceTable = UsersModel::TABLE;
+            $sinCreador->referenceValue = (string) $aprobID;
+            $sinCreador->referenceAlias = 'Usuario';
+            $sinCreador->referenceDate = date('Y-m-d H:i:s');
+            $lanzo = 'sin excepción';
+            try {
+                $sinCreador->save();
+            } catch (\Throwable $e) {
+                $lanzo = get_class($e) . ': ' . $e->getMessage();
+            }
+            $check(str_starts_with($lanzo, \PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions::class . ':'), 'a00. sin sesión y sin createdBy, save() lanza la excepción del ORM', $lanzo);
+
             set_config('current_user', (object) ['id' => 1]);
             getLoggedFrameworkUser(true);
 

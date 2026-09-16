@@ -205,7 +205,11 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     public function save()
     {
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        //Sin sesión se respeta el createdBy que ponga quien llama; si no lo puso, el ORM rechaza el campo nulo.
+        $user = getLoggedFrameworkUser();
+        if ($user !== null) {
+            $this->createdBy = $user->id;
+        }
         $saveResult = parent::save();
 
         if ($saveResult) {
