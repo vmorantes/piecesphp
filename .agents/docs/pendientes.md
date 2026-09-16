@@ -1038,10 +1038,14 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
-  25. **`4d` parte B y `4e`, en `#155`**: `piecesphp/database` ^5.0 en el framework (ADR 0017), las 10 compensaciones
-     fuera, `gulp js-vendor` y la suite `core/text-round-trip` (ida y vuelta de seis valores por un mapper, y el límite
-     del OTP con un nombre con comilla). Ruptura 30. **La tarea de reparación de lo ya guardado va aparte**, después:
-     el PO la dio por no requisito («lo ya guardado se da por perdido») pero la dejó entrar (A-031).
+  26. **`4d` parte C, la tarea `bin/cli repair-escaped-text`, en `#157`**: cuenta por defecto; `apply=yes` aplica un
+     `stripslashes()` único a los campos `varchar`, `text`, `mediumtext` y `longtext` de los mappers (los tipos que
+     escapaba la 4.1.0), exige un volcado de la última hora en `src/dumps` y deja una marca en `pcsphp_app_config` para no
+     correr dos veces. Riesgo declarado en la ruptura 30: no distingue lo guardado después ni lo insertado con SQL propio.
+  25. **`4d` parte B y `4e`, cerrada en `#155`→`#156`** (`ea153623`, `b14ea62b`, `f58fb409`, `9242cebd`): database v5.0.0
+     instalada, 10 compensaciones fuera, `gulp js-vendor`, suite `core/text-round-trip` 5/25 → 25/25, PHPStan 715 sin
+     cambio. Errores de redacción del arquitecto: `node_modules` está en la raíz y no en `src/`, y las líneas de
+     `UsersController` eran 257, 258 y 260. Hallazgo: `microsoft/azure-storage-blob` está abandonado (Composer avisa).
   24. **P30 cerrada en `#145`→`#152`** (`3197defd`, `b156d4bf`, `bfafc69a`, `dcdc2484`, `571b206d`), con el ADR 0018 y
      la ruptura 29. Suite `core/password-recovery-guards` 16/16, provocada en g1, g10 y g5; PHPStan 731 → 715 (12
      murieron, 4 arreglos). Sale en `v8.0.0-alpha.2` (`#153`). Hallazgos de `#152` para el lote 10:

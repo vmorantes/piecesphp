@@ -629,6 +629,12 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **Qué hacer:**
   - quita los `stripslashes()` (o `str_replace` de barras) con los que tu código compensaba el escape;
   - recompila el JS: `cd src && gulp js-vendor`, o el modal de noticias seguirá borrando barras;
+  - **para recuperar lo ya guardado**, justo después de actualizar y antes de que nadie escriba:
+    `bin/cli db-backup`, luego `bin/cli repair-escaped-text` (solo cuenta, por columna) y, si lo que cuenta es lo
+    esperado, `bin/cli repair-escaped-text apply=yes`. Aplica un `stripslashes()` único a los campos de texto de los
+    mappers. **Se niega sin un respaldo de la última hora, y a correr dos veces en la misma base.** No distingue una
+    barra legítima guardada después de actualizar, ni una fila insertada con SQL propio, que nunca estuvo escapada:
+    por eso va antes de que se escriba nada, y solo una vez;
   - si tu proyecto usaba `piecesphp/database` ^4 en otro `composer.json`, súbelo a ^5.
 
 ---
