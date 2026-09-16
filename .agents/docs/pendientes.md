@@ -1038,6 +1038,15 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  34. **9.1 cerrada (`#177`→`#182`) y hallazgo para el lote 10** (arquitecto, 2026-09-16): `bin/phpstan.neon` declara
+     `phpVersion: {min: 80400, max: 80500}` y `bin/phpstan` corre las pasadas 8.4 y 8.5, pero `src/composer.json` exige
+     `>=8.5 <8.6`. La pasada 8.4 ya no describe ningún despliegue posible. Retirarla mueve la línea base (la unión
+     pierde las tripletas solo de 8.4): va al lote 10 como decisión del arquitecto con su `[REPARTO]`, no en 9.2.
+     Y (hallazgo del coder en `#184`): 6 patrones de `ignoreErrors` no casan en ninguna pasada
+     (`booleanOr.leftAlwaysTrue`, `booleanAnd.leftAlwaysFalse`, `booleanAnd.alwaysFalse`, `if.alwaysFalse` en `core/*`,
+     `identical.alwaysFalse` y el de `DataImportExportUtilityRoutes.php`) y ninguna puerta los detecta: al lote 10, con
+     puerta que lea los «was not matched» de las dos pasadas.
+     También: `@deprecated` de `escapeString()` espera a que muera su último uso (`DataTablesHelper.php:1329`).
   33. **Lote 9 (documentación): inventario y plan** (arquitecto, 2026-09-16, con una exploración de solo lectura; citas en el
      informe, resumidas aquí). Once frentes, en este orden de rondas:
      - **9.1 · Correcciones que no esperan** (arquitecto, con commit del coder): el propósito de `processFromQuery` al
