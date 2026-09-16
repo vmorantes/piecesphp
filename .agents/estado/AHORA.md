@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 09:43 (medido con `date`).
+- **Actualizado:** 2026-09-16 09:52 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#112 · ARQ`. Próximo: `#113`. **Último al PO:** A-033.
+- **Último mensaje:** `#114 · ARQ`. Próximo: `#115`. **Último al PO:** A-033.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,18 +15,20 @@
 
 ## En curso
 
-`#112`: **`4d`, parte A, en el paquete `database`.** El texto deja de escaparse en
-`castPHPToSQLTypes()` y en `DataProcess::stringParse()`, con prueba de ida y vuelta de seis valores,
-cuatro provocaciones, fusión a `master` y etiqueta `v5.0.0`. Al final, un commit de documentación en
-`piecesphp`.
+`#114`: tres cosas cortas antes de que el PO empuje.
+- En `database`, el commit que corrige la sección «Pruebas» del `CHANGELOG` 5.0.0, avanzando `master`.
+  Decía «SQLite en memoria», y la suite corre contra MySQL si conecta: el error lo escribió el
+  arquitecto antes de medirlo y no lo barrió al corregir `#112`.
+- En `piecesphp`, el ADR 0017, que deja al framework actualizar `piecesphp/*` con Composer; la guarda
+  ajustada (216/216) con su provocación, y la regla 40.
+- La documentación.
 
-**Después, el PO tiene que empujar `database`** (`master` y `v5.0.0`) para que la parte B (el framework
-a `^5.0`, quitar las 8 compensaciones y la tarea de reparación) pueda instalarse desde Packagist.
-Mientras tanto se sigue con `4f`.
+**Después de `#114`, el PO empuja `database`** (`master` y la etiqueta `v5.0.0`). Entonces llega la
+parte B: el framework a `^5.0`, fuera las 8 compensaciones y la tarea de reparación.
 
-Cerrado: **`#104`, el aviso de `app_key` con `nag`** (`226dc26b`, `a35064c9`, `37c939ef`, `7661a2c0`),
-tras el incidente de `#107` (seis filas en la base local, borradas en `#111`; tabla idéntica). Aceptado
-por el arquitecto con las capturas y una prueba aislada de la «×».
+Cerrado: **`4d`, parte A** (`#112`/`#113`). En `database`: `732248b` (arreglo y pruebas), `f7544f8`
+(`CHANGELOG`), fusión por avance rápido y etiqueta `v5.0.0`. 36 comprobaciones nuevas y cuatro
+provocaciones que mordieron. En `piecesphp`: `f82a235f` y `53426c1f` (documentación).
 
 ## Orden del tramo
 
