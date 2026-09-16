@@ -1,7 +1,7 @@
 # Propuesta de diseño del lote 8 (E5): `DataImportExportUtility` absorbe `Importers`
 
 - **Fecha:** 2026-09-16. **Estado:** propuesta, pendiente de las decisiones del PO de §6. No es un ADR: el
-  ADR 0018 se escribe con sus respuestas.
+  ADR se escribe con sus respuestas, con el primer número libre (el 0018 lo tomó la recuperación de contraseña).
 - **Origen:** subagente de arquitectura, en solo lectura. El arquitecto verificó en el código S1 y S2 antes
   de aceptarla (§2), y los corrige en `#132`, fuera del lote, porque son una trampa activa.
 - **Lo que queda SIN VERIFICAR** se dice en cada punto.
