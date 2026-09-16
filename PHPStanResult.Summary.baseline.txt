@@ -69,6 +69,18 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 734 <- 735 = 0 arreglos + 0 supresiones + 1 murieron + 0 destapados
+
+    Lote 4f (#116): FileUpload::validate() y UploadedFileAdapter::validate() pasan a llamar a
+    UploadedFileValidation::errors(). Las dos copias del mismo error pasan a ser una: una se
+    mueve con su código a UploadedFileValidation.php y la otra muere. No es un arreglo: es el
+    str_replace() sobre min(ini_get(...)) (H11), conservado a propósito. NO SE SILENCIÓ: no se
+    tocó phpstan.neon.
+
+        FileUpload.php               argument.type  str_replace() espera array<string>|string, string|false dado  (muere)
+        UploadedFileAdapter.php      argument.type  el mismo                                                   (se mueve)
+        UploadedFileValidation.php   argument.type  el mismo                                                   (llega)
+
 [REPARTO] 735 <- 737 = 0 arreglos + 0 supresiones + 2 murieron + 0 destapados
 
     Bloque BJ (#065): mueren con el saveGroup viejo de `APIController::translations()`, que
@@ -314,10 +326,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-171
+172
 
 [TOTAL DE ERRORES VISIBLES]
-735
+734
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
