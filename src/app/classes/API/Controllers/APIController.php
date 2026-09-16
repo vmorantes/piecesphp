@@ -1846,7 +1846,7 @@ class APIController extends AdminPanelController
             $routes = array_merge($routes, $routesReports);
         }
 
-        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS || APIRoutes::ENABLE_REPORTS) {
+        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS || APIRoutes::ENABLE_REPORTS || APIRoutes::ENABLE_CRONJOBS) {
             $group->register($routes);
 
             $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {

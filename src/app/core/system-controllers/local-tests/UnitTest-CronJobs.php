@@ -44,7 +44,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     };
 
     //──── 1. Franjas ───────────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/6] lastDueSlot(): la última hora programada que ya pasó');
+    echoTerminal('[1/7] lastDueSlot(): la última hora programada que ya pasó');
 
     //2026-09-15 es martes.
     $check($formato($tarea('f1', $bien)->dailyAt('00:00')->lastDueSlot($en('2026-09-15 00:07'))) === '2026-09-15 00:00', 'dailyAt(00:00) a las 00:07 → hoy a las 00:00');
@@ -71,7 +71,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Reintentos, ventana y franja siguiente ────────────────────────────────────────────
-    echoTerminal('[2/6] Un fallo se reintenta dentro de la ventana; tres agotan; fuera de ventana no toca');
+    echoTerminal('[2/7] Un fallo se reintenta dentro de la ventana; tres agotan; fuera de ventana no toca');
 
     $fallos = 1;
     $unaVez = $tarea('reintento', function () use (&$fallos): array {
@@ -113,7 +113,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Bloqueo ───────────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/6] Con el .lock tomado por otro, se salta sin gastar intento');
+    echoTerminal('[3/7] Con el .lock tomado por otro, se salta sin gastar intento');
 
     $bloqueada = $tarea('bloqueo', $bien)->dailyAt('00:00');
     $otro = fopen($bloqueada->getLockPath(), 'c');
@@ -127,7 +127,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Estado corrupto ───────────────────────────────────────────────────────────────────
-    echoTerminal('[4/6] Un estado corrupto es «sin estado», sin excepción');
+    echoTerminal('[4/7] Un estado corrupto es «sin estado», sin excepción');
 
     $corrupta = $tarea('corrupto', $bien)->dailyAt('00:00');
     $check(file_put_contents($corrupta->getStatePath(), '{esto no es json') !== false, 'el estado queda corrupto a propósito');
@@ -142,7 +142,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Sin franja, como hoy ──────────────────────────────────────────────────────────────
-    echoTerminal('[5/6] Una tarea sin método de programación se comporta como hoy');
+    echoTerminal('[5/7] Una tarea sin método de programación se comporta como hoy');
 
     $comoHoy = new CronJobTask('zz-prueba cron sin franja', $bien, static fn (): bool => true);
     $comoHoy->setStateDirectory($banco);
@@ -157,7 +157,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. La clave de la ruta HTTP ─────────────────────────────────────────────────────────
-    echoTerminal('[6/6] La clave del cron falla cerrada y compara con hash_equals()');
+    echoTerminal('[6/7] La clave del cron falla cerrada y compara con hash_equals()');
 
     $clave = new \ReflectionMethod(APIController::class, 'cronJobKeyAccepted');
     $check($clave->invoke(null, '', '', null) === false, "sin clave configurada (''), una petición sin cabecera → 403");
@@ -179,6 +179,42 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(rmdir($banco) && !file_exists($banco), 'el directorio de estado temporal se borra al acabar');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────────────
+    //──── 7. API_CRONJOBS enciende su ruta sola ────────────────────────────────────────────────
+    echoTerminal('[7/7] La ruta de cron se registra con API_CRONJOBS aunque las demás banderas de la API estén apagadas');
+    //POR TOKENS sobre el cuerpo del método: la condición de registro que nombra ENABLE_TRANSLATIONS tiene que nombrar ENABLE_CRONJOBS.
+    $condicionesDeRegistro = function (string $clase, string $metodo): array {
+        $reflejo = new \ReflectionMethod($clase, $metodo);
+        $lineas = file((string) $reflejo->getFileName());
+        $cuerpo = implode('', array_slice(is_array($lineas) ? $lineas : [], $reflejo->getStartLine() - 1, $reflejo->getEndLine() - $reflejo->getStartLine() + 1));
+        $tokens = array_values(array_filter(token_get_all('<?php ' . $cuerpo), fn($t) => !is_array($t) || !in_array($t[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT, \T_OPEN_TAG], true)));
+        $texto = fn($t) => is_array($t) ? $t[1] : $t;
+        $condiciones = [];
+        foreach ($tokens as $i => $t) {
+            if (!is_array($t) || $t[0] !== \T_IF) {
+                continue;
+            }
+            $nivel = 0;
+            $condicion = '';
+            for ($k = $i + 1; $k < count($tokens); $k++) {
+                $s = $texto($tokens[$k]);
+                $nivel += ($s === '(') - ($s === ')');
+                $condicion .= $s;
+                if ($nivel === 0) {
+                    break;
+                }
+            }
+            if (str_contains($condicion, 'ENABLE_TRANSLATIONS') && str_contains($condicion, 'ENABLE_REPORTS')) {
+                $condiciones[] = $condicion;
+            }
+        }
+        return $condiciones;
+    };
+    foreach ([[\API\APIRoutes::class, 'routes'], [\API\Controllers\APIController::class, 'routes']] as [$clase, $metodo]) {
+        $condiciones = $condicionesDeRegistro($clase, $metodo);
+        $check(count($condiciones) === 1 && str_contains($condiciones[0], 'ENABLE_CRONJOBS'), "{$clase}::{$metodo}(): la condición de registro incluye ENABLE_CRONJOBS", implode(' | ', $condiciones));
+    }
+    echoTerminal(' ');
+
     echoTerminal(str_repeat('=', 80));
     echoTerminal(" BALANCE FINAL: {$passed}/" . ($passed + $failed) . " PASADAS ");
     echoTerminal(str_repeat('=', 80));
