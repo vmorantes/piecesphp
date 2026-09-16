@@ -376,7 +376,14 @@ def revisar_bash(comando):
             if permitido and any(p in PAQUETES_HERMANOS_COMPOSER for p in paquetes):
                 dirs = [a.split("=", 1)[1] for a in args if a.startswith("--working-dir=")]
                 destino = os.path.realpath(os.path.join(RAIZ, os.path.expanduser(dirs[-1]))) if dirs else None
-                permitido = destino is not None and any(destino == os.path.realpath(h) for h in HERMANOS)
+                en_hermano = destino is not None and any(destino == os.path.realpath(h) for h in HERMANOS)
+                # ADR 0017: en el framework, solo `piecesphp/*` y sin arrastrar dependencias de terceros.
+                en_framework = (
+                    destino == os.path.realpath(os.path.join(RAIZ, "src"))
+                    and all(p in PAQUETES_HERMANOS_COMPOSER for p in paquetes)
+                    and not any(a in ("-w", "-W", "--with-dependencies", "--with-all-dependencies") for a in args)
+                )
+                permitido = en_hermano or en_framework
             if not permitido:
                 bloquear("instalar o actualizar dependencias requiere permiso del PO (00-core.md; excepción de análisis: ADR 0007).")
         if cmd == "chmod" and any(RUTAS_DEL_SISTEMA.search(" " + a) for a in args):

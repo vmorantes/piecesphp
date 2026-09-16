@@ -57,7 +57,9 @@ autoriza: la regla es esta, la guarda es una red.
   `rector/rector`), nombradas una a una, porque el PO delegó la instrumentación en el
   arquitecto. **Y la del ADR 0008**: en los cuatro paquetes hermanos, y solo con
   `--working-dir` apuntando a uno de ellos, también `piecesphp/*`, porque allí el
-  `composer.lock` no se versiona y lo que cambia es el entorno local.
+  `composer.lock` no se versiona y lo que cambia es el entorno local. **Y la del ADR 0017**: en el
+  framework, `composer update` de `piecesphp/*` y nada más, con `--working-dir=src`, sin `-w` ni
+  `-W`, cuando un lote nombrado por el PO lo pida y después de que el PO haya empujado la versión.
 - Solo se escribe dentro del repositorio, en el scratchpad de la sesión, en `/tmp` y en la
   memoria nativa de la herramienta. Los cuatro paquetes hermanos
   (`/var/www/html/vicsen/{database,datastructures,geojson,html}`) solo cuando la instrucción

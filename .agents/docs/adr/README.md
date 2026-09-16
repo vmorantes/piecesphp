@@ -66,3 +66,4 @@ procedencia.
 | [0014](0014-agents-md-es-la-fuente.md) | `AGENTS.md` es la fuente de las reglas; `CLAUDE.md`, un espejo | sí | Aceptada |
 | [0015](0015-mailpit-como-sumidero-smtp.md) | Mailpit como sumidero SMTP local para las pruebas de correo | sí | Aceptada (sin implementar) |
 | [0016](0016-guia-del-po-en-su-propio-repositorio.md) | La guía personal del PO vive en su propio repositorio; el arquitecto la escribe y la commitea | sí | Aceptada |
+| [0017](0017-el-framework-actualiza-sus-paquetes.md) | Excepción: el framework actualiza sus paquetes `piecesphp/*` con Composer cuando un lote lo pide | sí | Aceptada |

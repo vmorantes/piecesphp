@@ -109,10 +109,17 @@ BASH_BLOQUEA = [
     "composer update -d /var/www/html/vicsen/database phpstan/phpstan",
     "composer update phpstan/phpstan:2.2.12 monolog/monolog:3.0.0",
     "composer update monolog/monolog > /tmp/composer.txt 2>&1",
-    # ADR 0008: `piecesphp/*` solo con --working-dir en un paquete hermano.
+    # ADR 0017: en el framework, piecesphp/* sí, pero nada que arrastre o mezcle terceros.
+    "composer update piecesphp/database -W --working-dir=src",
+    "composer update piecesphp/database --with-all-dependencies --working-dir=src",
+    "composer update piecesphp/database monolog/monolog --working-dir=src",
+    "composer require piecesphp/database:^5.0 --working-dir=src",
+    "cd src && composer update piecesphp/database",
+    # ADR 0008: `piecesphp/*` solo con --working-dir en un paquete hermano. ADR 0017 añade el framework
+    # (`src`), pero sin arrastrar dependencias: la forma que antes se bloqueaba sin más, ahora con -w.
     "composer update piecesphp/datastructures",
     f"composer update piecesphp/datastructures --working-dir={RAIZ}",
-    f"composer update piecesphp/datastructures --working-dir={RAIZ}/src",
+    f"composer update piecesphp/datastructures --with-dependencies --working-dir={RAIZ}/src",
     f"composer update piecesphp/datastructures --working-dir={AJENO}",
     f"composer update piecesphp/datastructures monolog/monolog --working-dir={HTML}",
     f"composer require piecesphp/datastructures --working-dir={HTML}",
@@ -207,6 +214,8 @@ BASH_PERMITE = [
     # Capturar la salida no convierte la redirección en un paquete (H1 de #017).
     "composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir=/var/www/html/vicsen/html > /tmp/composer-html.txt 2>&1",
     "composer update rector/rector:2.6.6 2> /tmp/err.txt",
+    "composer update piecesphp/database --working-dir=src --no-scripts",
+    f"composer update piecesphp/database piecesphp/html --working-dir={RAIZ}/src --no-scripts",
     # ADR 0008: sincronizar el entorno local de un paquete hermano.
     f"composer update piecesphp/datastructures phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir={HTML}",
     f"composer update piecesphp/datastructures:4.0.0 --working-dir={HTML} > /tmp/c.txt 2>&1",
