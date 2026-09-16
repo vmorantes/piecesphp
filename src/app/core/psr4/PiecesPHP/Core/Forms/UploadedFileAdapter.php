@@ -208,7 +208,13 @@ class UploadedFileAdapter
         $file = $this->fileInformation;
         $tmp = $file['tmp_name'];
         $error = $file['error'];
-        if ($error == \UPLOAD_ERR_OK) {
+        //NO compares $error con `==`: vale la CADENA FAKE_ERROR si no vino archivo. Misma forma que FileUpload::validate() (T135).
+        if ($error === self::NOT_UPLOAD_FAKE_ERROR) {
+
+            $this->errorMessages[] = __(self::LANG_GROUP, 'No se ha subido ningún archivo.');
+            $valid = false;
+
+        } elseif ($error == \UPLOAD_ERR_OK) {
 
             if (is_uploaded_file($tmp) || $ignorePOSTUploaded) {
 
@@ -273,6 +279,12 @@ class UploadedFileAdapter
         } elseif ($error == \UPLOAD_ERR_EXTENSION) {
 
             $this->errorMessages[] = __(self::LANG_GROUP, 'No se ha subido ningún archivo. Problema con alguna extensión.');
+            $valid = false;
+
+        } else {
+
+            //Sin esta rama, un código de error desconocido dejaba `$valid` como nació: en true.
+            $this->errorMessages[] = __(self::LANG_GROUP, 'No se ha podido validar el archivo subido.');
             $valid = false;
 
         }
