@@ -1,10 +1,10 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-171
+172
 
 [TOTAL DE ERRORES VISIBLES]
-735
+734
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 729
+En las dos (8.4 y 8.5): 728
 Solo en 8.5: 6
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (304)
+argument.type (303)
 property.nonObject (129)
 method.nonObject (109)
 return.type (52)
@@ -397,12 +397,12 @@ project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php
 project://src/app/core/psr4/PiecesPHP/Core/Email/Mailgun.php
 	argument.type (Líneas: 92)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
-	argument.type (Líneas: 217)
-	nullCoalesce.variable (Líneas: 400, 457)
+	nullCoalesce.variable (Líneas: 316, 373)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
-	argument.type (Líneas: 240)
-	return.type (Líneas: 352)
-	nullCoalesce.variable (Líneas: 389, 433)
+	return.type (Líneas: 269)
+	nullCoalesce.variable (Líneas: 306, 350)
+project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileValidation.php
+	argument.type (Líneas: 59)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
 	offsetAssign.dimType (Líneas: 275)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
