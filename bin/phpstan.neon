@@ -104,6 +104,12 @@ parameters:
         - PUBLICATIONS_MODULE
         - SYSTEM_APPROVALS_MODULE
     ignoreErrors:
+        #════════════════════════════════════════════════════════════════════════════════════════════
+        # SUPRESIONES PERMANENTES — el motivo es el diseño del framework, no una deuda.
+        #════════════════════════════════════════════════════════════════════════════════════════════
+        # No llevan condición de retirada. Una supresión nueva que no sea de esta clase va a la lista
+        # de TEMPORALES, con su condición. Ver `.agents/context/21-pruebas-y-puertas.md`.
+
         #──── Variables inyectadas en vistas (extract) y elementos difíciles de descrubrir
         -
             message: '#.*#'
@@ -117,25 +123,6 @@ parameters:
             paths:
                 - ../src/app/view/*
                 - ../src/app/classes/**/Views/*
-        # En BaseMongoModel solo casa class.notFound; incluir los otros dos aquí
-        # generaba dos avisos de «patrón no casado», que PHPStan cuenta como errores.
-        -
-            identifier: class.notFound
-            paths:
-                - ../src/**/BaseMongoModel.php
-        -
-            identifiers: 
-                - staticMethod.notFound
-            paths:
-                - ../src/app/classes/SystemApprovals/*
-        -
-            message: '#.*Constant LOG_ERRORS_PATH not found.*#'
-            paths:
-                - ../src/app/controller/*
-        -
-            identifier: argument.unresolvableType
-            paths:
-                - ../src/app/**/*Mapper.php
         # Las suites de caracterización ejercitan A PROPÓSITO el patrón defectuoso que
         # documentan —encadenar sobre un resultado nulable sin comprobarlo—, así que
         # PHPStan lo señala con razón. Silenciarlo solo ahí mantiene la línea base limpia
@@ -146,48 +133,6 @@ parameters:
                 - method.nonObject
             paths:
                 - ../src/app/core/system-controllers/local-tests/*
-        -
-            identifiers: 
-                - offsetAccess.nonOffsetAccessible
-            paths:
-                - ../src/app
-        -
-            message: '#.*an undefined method (PiecesPHP\\Core\\BaseEntityMapper\|PiecesPHP\\Core\\Database\\ActiveRecordModel).*#'
-            paths:
-                - ../src/app
-        # Tipos no esperados en parámetros
-
-        #──── Generales
-        - "#.*protected static method fieldsToSelect.*#"
-        - '#.*PHPDoc tag @use has invalid value.*#'
-        - '#.*stdClass supplied for foreach.*#' #stdClass marcado como no iterable
-        # Validaciones típicas de criterios en ORM
-        - '#.*where in empty\(\) always exists.*#'
-        - '#.*having in empty\(\) always exists.*#'
-        # Conversiones: los seis `cast.*` estuvieron silenciados aquí y se
-        # retiraron tras comprobar que no casaban con ningún error (PHPStan los
-        # reportaba como «Ignored error pattern … was not matched»).
-        # No se reintroducen: `cast.*` significa «Cannot cast X to Y» —operandos
-        # inválidos—, no la sintaxis no canónica `(double)`/`(integer)`/
-        # `(boolean)`/`(binary)` deprecada en PHP 8.5, que PHPStan no detecta.
-        # Esos casts se localizan con Rector o grep, no con este análisis.
-
-        # Declaraciones en docblocks inconsistentes
-        - identifier: varTag.variableNotFound 
-        - identifier: parameter.notFound 
-        - identifier: varTag.nativeType
-        -
-            identifiers: 
-                - new.static
-            paths:
-                - ../src/app/*
-        # Irrelevantes
-        - identifier: missingType.iterableValue
-        - identifier: missingType.return
-        - identifier: missingType.property
-        - identifier: missingType.parameter
-        - identifier: missingType.generics
-
         # ── `false` de funciones nativas: lo que SÍ tiene razón ─────────────────────────
         #
         # De los 99 errores visibles que mencionan `false` (el «grupo B»), 14 eran los graves:
@@ -212,6 +157,54 @@ parameters:
             paths:
                 - ../src/app/classes/*
 
+
+        # ── Dead catch: DOS casos reales, y el desajuste que los explica ──────────
+        # `catch.neverThrown` era una supresión de familia entera. Se miraron los cinco:
+        # TRES eran muertos de verdad y se han borrado —un try alrededor de una asignación
+        # de cadena, otro con el cuerpo entero comentado, y un `$exception->getCode()`—.
+        # Los dos que quedan son ALCANZABLES EN EJECUCIÓN, cada uno por una razón distinta,
+        # y en las dos PHPStan tiene razón mirando solo el lenguaje:
+        #
+        #   1. LoginAttemptsModel: `$mapper->extra_data = ...` pasa por `__set()`, que
+        #      lanza `DatabaseClassesExceptions`. PHPStan no ve a través de los métodos
+        #      mágicos.
+        #   2. AppHelpers: `$roles[$e]` sobre una clave inexistente emite un E_WARNING, no
+        #      una excepción — pero el manejador de `bootstrap.php` PROMUEVE E_WARNING A
+        #      EXCEPCIÓN, así que ese catch sí se alcanza.
+        #
+        # NO se puede expresar en configuración: se probó
+        # `exceptions.reportUncheckedExceptionDeadCatch: false` y no mueve ninguno, porque
+        # el desajuste no es de excepciones comprobadas, es que PHPStan modela el LENGUAJE
+        # y aquí manda además el manejador de errores.
+        #
+        # Por eso son dos supresiones por ruta y no una de familia: la próxima que aparezca
+        # tiene que mirarse, no heredar el silencio.
+        -
+            identifier: catch.neverThrown
+            paths:
+                - ../src/app/model/LoginAttemptsModel.php
+                - ../src/app/core/AppHelpers.php
+
+        # Irrelevantes
+        - identifier: missingType.iterableValue
+        - identifier: missingType.return
+        - identifier: missingType.property
+        - identifier: missingType.parameter
+        - identifier: missingType.generics
+
+
+        # ── Diseño estricto ──────────
+        - identifier: return.void
+        - identifier: return.unusedType
+        - identifier: method.unused
+        - identifier: staticMethod.resultUnused
+        - identifier: property.unusedType
+
+
+        # ── Condiciones redundantes: MIXTO, y no se parte ─────────────────────────────────
+        # `bin/phpstan-deadcode` localiza este bloque por sus dos delimitadores literales (el de
+        # abajo y «── PHPDoc ──»), así que no se reparte entre las dos listas. Cada MOTIVO dice
+        # su clase: PERMANENTES el 1, 2, 3 y 5; TEMPORALES el 4 y el `if.alwaysFalse` por ruta.
         # ── Condiciones redundantes y código muerto ─────────────────────────────────────
         #
         # 285 tripletas, medidas con `bin/phpstan-deadcode`. NO son un cajón de sastre: cada
@@ -292,8 +285,89 @@ parameters:
         - identifier: deadCode.unreachable
 
         # ── PHPDoc ──────────
+        # (Esta línea es el fin del bloque que recorta `bin/phpstan-deadcode`: no se mueve.)
+        #════════════════════════════════════════════════════════════════════════════════════════════
+        # SUPRESIONES TEMPORALES — deuda con condición de retirada.
+        #════════════════════════════════════════════════════════════════════════════════════════════
+        # Cada una se retira quitándola y corriendo `bin/phpstan`: lo que destape se arregla o se
+        # acota por ruta.
+        #
+        # EL ORDEN IMPORTA: un error que casa con dos entradas lo consume la PRIMERA, y la otra
+        # sale como «was not matched». Las específicas van antes que las generales que las cubren
+        # (medido en #184: mover «PHPDoc tag @» delante de las de docblocks dejó cuatro sin casar).
+
+        # En BaseMongoModel solo casa class.notFound; incluir los otros dos aquí
+        # generaba dos avisos de «patrón no casado», que PHPStan cuenta como errores.
+        -
+            identifier: class.notFound
+            paths:
+                - ../src/**/BaseMongoModel.php
+        # SE RETIRA CUANDO: `BaseMongoModel` se retire o su dependencia se declare.
+        -
+            identifiers: 
+                - staticMethod.notFound
+            paths:
+                - ../src/app/classes/SystemApprovals/*
+        # SE RETIRA CUANDO: `SystemApprovals` declare sus estáticos (`@method static`) o los haga reales.
+        -
+            message: '#.*Constant LOG_ERRORS_PATH not found.*#'
+            paths:
+                - ../src/app/controller/*
+        # SE RETIRA CUANDO: `LOG_ERRORS_PATH` entre en `scanFiles` o se lea con `get_config()`.
+        -
+            identifier: argument.unresolvableType
+            paths:
+                - ../src/app/**/*Mapper.php
+        # SE RETIRA CUANDO: los mappers tipen sus genéricos.
+        -
+            identifiers: 
+                - offsetAccess.nonOffsetAccessible
+            paths:
+                - ../src/app
+        # SE RETIRA CUANDO: se estrechen las uniones antes de indexar (E2; el 79 % de la deuda).
+        -
+            message: '#.*an undefined method (PiecesPHP\\Core\\BaseEntityMapper\|PiecesPHP\\Core\\Database\\ActiveRecordModel).*#'
+            paths:
+                - ../src/app
+        # SE RETIRA CUANDO: los mappers declaren sus métodos mágicos con `@method`.
+        # Tipos no esperados en parámetros
+
+        #──── Generales
+        - "#.*protected static method fieldsToSelect.*#"
+        - '#.*PHPDoc tag @use has invalid value.*#'
+        - '#.*stdClass supplied for foreach.*#' #stdClass marcado como no iterable
+        # Validaciones típicas de criterios en ORM
+        - '#.*where in empty\(\) always exists.*#'
+        - '#.*having in empty\(\) always exists.*#'
+        # Conversiones: los seis `cast.*` estuvieron silenciados aquí y se
+        # retiraron tras comprobar que no casaban con ningún error (PHPStan los
+        # reportaba como «Ignored error pattern … was not matched»).
+        # No se reintroducen: `cast.*` significa «Cannot cast X to Y» —operandos
+        # inválidos—, no la sintaxis no canónica `(double)`/`(integer)`/
+        # `(boolean)`/`(binary)` deprecada en PHP 8.5, que PHPStan no detecta.
+        # Esos casts se localizan con Rector o grep, no con este análisis.
+
+        # SE RETIRA CUANDO: cada patrón se quite y lo destapado se arregle; `where`/`having` en `empty()` con el ORM tipado.
+        # Declaraciones en docblocks inconsistentes
+        - identifier: varTag.variableNotFound 
+        - identifier: parameter.notFound 
+        - identifier: varTag.nativeType
+        -
+            identifiers: 
+                - new.static
+            paths:
+                - ../src/app/*
+        # SE RETIRA CUANDO: una pasada de docblocks deje los `@` válidos.
+        # La general va la última: cubre a `@use` y a las tres de docblocks de arriba.
         - '#.*PHPDoc tag @.*#'
 
+        # SE RETIRA CUANDO: la misma pasada de docblocks.
+
+        #════════════════════════════════════════════════════════════════════════════════════════════
+        # FUERA DE LISTA POR ORDEN — PERMANENTE, pero va detrás del bloque de código muerto.
+        #════════════════════════════════════════════════════════════════════════════════════════════
+        # Si fuera delante, absorbería el caso que hoy consume `if.alwaysFalse` por ruta y cambiaría
+        # qué patrón queda sin casar (#184). Se sube a PERMANENTES cuando esa temporal se retire.
         # ── `if.alwaysFalse` en UN <Modulo>Routes: un módulo apagado, no deuda ──────────
         # SUPRESIÓN PERMANENTE. No lleva condición de retirada a propósito.
         #
@@ -309,36 +383,3 @@ parameters:
             identifier: if.alwaysFalse
             paths:
                 - ../src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php
-        # ── Dead catch: DOS casos reales, y el desajuste que los explica ──────────
-        # `catch.neverThrown` era una supresión de familia entera. Se miraron los cinco:
-        # TRES eran muertos de verdad y se han borrado —un try alrededor de una asignación
-        # de cadena, otro con el cuerpo entero comentado, y un `$exception->getCode()`—.
-        # Los dos que quedan son ALCANZABLES EN EJECUCIÓN, cada uno por una razón distinta,
-        # y en las dos PHPStan tiene razón mirando solo el lenguaje:
-        #
-        #   1. LoginAttemptsModel: `$mapper->extra_data = ...` pasa por `__set()`, que
-        #      lanza `DatabaseClassesExceptions`. PHPStan no ve a través de los métodos
-        #      mágicos.
-        #   2. AppHelpers: `$roles[$e]` sobre una clave inexistente emite un E_WARNING, no
-        #      una excepción — pero el manejador de `bootstrap.php` PROMUEVE E_WARNING A
-        #      EXCEPCIÓN, así que ese catch sí se alcanza.
-        #
-        # NO se puede expresar en configuración: se probó
-        # `exceptions.reportUncheckedExceptionDeadCatch: false` y no mueve ninguno, porque
-        # el desajuste no es de excepciones comprobadas, es que PHPStan modela el LENGUAJE
-        # y aquí manda además el manejador de errores.
-        #
-        # Por eso son dos supresiones por ruta y no una de familia: la próxima que aparezca
-        # tiene que mirarse, no heredar el silencio.
-        -
-            identifier: catch.neverThrown
-            paths:
-                - ../src/app/model/LoginAttemptsModel.php
-                - ../src/app/core/AppHelpers.php
-
-        # ── Diseño estricto ──────────
-        - identifier: return.void
-        - identifier: return.unusedType
-        - identifier: method.unused
-        - identifier: staticMethod.resultUnused
-        - identifier: property.unusedType

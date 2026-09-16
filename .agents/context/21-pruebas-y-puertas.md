@@ -103,6 +103,32 @@ bin/phpstan        # corrida viva: sale con 1 si el total sube, o si la base no 
 La comprobación 26 de `verify-integrity` falla si las cifras de la base se separan. Mover la base es una
 decisión, no un paso rutinario: solo con el cambio que la justifica, y **en el mismo commit**.
 
+### Las supresiones van en dos listas (lote 9.2)
+
+`ignoreErrors` de `bin/phpstan.neon` está partido en dos:
+
+- **PERMANENTES**: el motivo es el diseño del framework (variables que inyecta el renderizador en las vistas,
+  interruptores de módulo por despliegue, suites de caracterización, la política de tipos que no se exige). No
+  llevan condición de retirada.
+- **TEMPORALES**: deuda. Cada una lleva `# SE RETIRA CUANDO: <condición>`. Se retira quitándola, corriendo
+  `bin/phpstan` y arreglando o acotando por ruta lo destapado, con la línea `[REPARTO]`.
+
+Entre las dos queda el bloque **«Condiciones redundantes y código muerto»**, que es mixto y no se parte:
+`bin/phpstan-deadcode` lo localiza por dos delimitadores literales (el título del bloque y `# ── PHPDoc ──────────`).
+Dentro, cada MOTIVO dice la clase: permanentes el 1, 2, 3 y 5; temporales el 4 y `if.alwaysFalse` por ruta.
+
+**EL ORDEN IMPORTA.** Un error que casa con dos entradas lo consume la PRIMERA; la otra sale en `PHPStanResult.txt`
+como «Ignored error pattern … was not matched». El total visible **no se entera**. Medido en `#184`: un primer
+reordenamiento dejó el total en 715 y pasó de 6 a 9 patrones sin casar. Por eso las específicas van antes que las
+generales que las cubren, y la de `DataImportExportUtilityRoutes.php` (permanente) va al final, en una sección
+«fuera de lista por orden», detrás del `if.alwaysFalse` por ruta que hoy consume su caso.
+
+**Una supresión nueva entra en una de las dos listas**, y si es temporal, con la condición. Un reordenamiento se da
+por bueno solo si `PHPStanResult.txt` sale idéntico salvo el ancho de la tabla, no por el total.
+
+**Límite conocido:** hoy hay 6 patrones que no casan en ninguna pasada, y ninguna puerta lo ve (el trinquete cuenta
+entradas y errores visibles, no patrones muertos). Pendiente del lote 10.
+
 ## Unitarias
 
 ### Quién juzga cada suite
