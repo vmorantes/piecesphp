@@ -227,6 +227,11 @@ class Roles
         if ($type == self::IDENTIFIER_TYPE_NAME) {
             $identifier = (string) $identifier;
         } elseif ($type == self::IDENTIFIER_TYPE_CODE) {
+            //EL CASTEO CONCEDÍA: `(int) 'nombre'` es 0, y 0 es el código de root, así que un tipo mal puesto le añadía la ruta.
+            //Sin número no hay código que buscar: se rechaza igual que el camino por nombre cuando el rol no existe.
+            if (!is_numeric($identifier)) {
+                throw new RoleNotExistsException();
+            }
             $identifier = (int) $identifier;
         }
 
