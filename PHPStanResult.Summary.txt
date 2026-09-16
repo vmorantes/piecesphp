@@ -137,7 +137,7 @@ project://src/app/classes/Importers/Controller/ImporterController.php
 	property.nonObject (Líneas: 325)
 	return.type (Líneas: 347)
 project://src/app/classes/Importers/Managers/ImporterUsers.php
-	method.nonObject (Líneas: 69, 70, 71)
+	method.nonObject (Líneas: 77, 78, 79)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
 	property.nonObject (Líneas: 97, 97, 121, 127, 127, 127, 209, 209, 214, 214, 217, 302, 302, 303, 322, 473, 473)
 	argument.type (Líneas: 127)
@@ -479,9 +479,9 @@ project://src/app/model/UserProblemsModel.php
 	property.notFound (Líneas: 86)
 project://src/app/model/UsersModel.php
 	argument.type (Líneas: 250)
-	return.type (Líneas: 392, 450, 467, 473, 489, 504, 519, 534, 549, 564, 579, 613, 619, 633)
-	property.notFound (Líneas: 595, 598)
-	foreach.nonIterable (Líneas: 825, 1053)
+	return.type (Líneas: 392, 454, 471, 477, 493, 508, 523, 538, 553, 568, 583, 617, 623, 637)
+	property.notFound (Líneas: 599, 602)
+	foreach.nonIterable (Líneas: 829, 1057)
 project://src/app/view/layout/menu.php
 	property.nonObject (Líneas: 65)
 	method.nonObject (Líneas: 68, 70)
