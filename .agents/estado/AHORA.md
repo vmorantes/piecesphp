@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 09:52 (medido con `date`).
+- **Actualizado:** 2026-09-16 09:57 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#114 · ARQ`. Próximo: `#115`. **Último al PO:** A-033.
+- **Último mensaje:** `#117 · ARQ` (corrige un `git add` que faltaba en `#116`). Próximo: `#118`. **Último al PO:** A-035.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,20 +15,34 @@
 
 ## En curso
 
-`#114`: tres cosas cortas antes de que el PO empuje.
-- En `database`, el commit que corrige la sección «Pruebas» del `CHANGELOG` 5.0.0, avanzando `master`.
-  Decía «SQLite en memoria», y la suite corre contra MySQL si conecta: el error lo escribió el
-  arquitecto antes de medirlo y no lo barrió al corregir `#112`.
-- En `piecesphp`, el ADR 0017, que deja al framework actualizar `piecesphp/*` con Composer; la guarda
-  ajustada (216/216) con su provocación, y la regla 40.
-- La documentación.
+**Esperando el push del PO** de `database`: `master` en `4fc608d` y la etiqueta `v5.0.0` (A-034). Sin
+él, la parte B de `4d` no puede instalarse desde Packagist.
 
-**Después de `#114`, el PO empuja `database`** (`master` y la etiqueta `v5.0.0`). Entonces llega la
-parte B: el framework a `^5.0`, fuera las 8 compensaciones y la tarea de reparación.
+Mientras tanto, **`#116`: `4f`**, unificar `FileUpload::validate()` y
+`UploadedFileAdapter::validate()` en `UploadedFileValidation::errors()`. Primero se escribe y se
+commitea una suite de caracterización contra el código de hoy, y después se unifica: la suite no
+puede cambiar ni un byte.
 
-Cerrado: **`4d`, parte A** (`#112`/`#113`). En `database`: `732248b` (arreglo y pruebas), `f7544f8`
-(`CHANGELOG`), fusión por avance rápido y etiqueta `v5.0.0`. 36 comprobaciones nuevas y cuatro
-provocaciones que mordieron. En `piecesphp`: `f82a235f` y `53426c1f` (documentación).
+Cerrado: `#114`/`#115`. En `database`, `4fc608d` (el `CHANGELOG` 5.0.0 dice contra qué base corre la
+suite) con `master` adelantado y `v5.0.0` intacta. En `piecesphp`, `d9818708` (ADR 0017, guarda 216/216,
+dos provocaciones que mordieron) y `16ee6872` (estado).
+
+**Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
+censo de `#104` solo buscó `stripslashes`. Con otras formas aparecen dos más, que borran TODAS las
+barras del contenido de las noticias:
+- `src/app/classes/News/Views/news/public/util/item.php:14`: `str_replace("\\", '', $content)`;
+- `src/statics/core/js/configurations.js:1091`: `item.content.replace(/\\/g, '')`, en el modal de
+  noticias del panel. Va compilado: `gulp js-vendor` (ADR 0013).
+Descartadas por no tocar datos: las normalizaciones `\\` → `/` de rutas en las tareas de `bin/cli`.
+
+**Lote 7, medido de nuevo el 2026-09-16 (LEY 17), cuadra con el 20 §7:** 162 imágenes de
+`src/statics/images/avatares/` y 3 fuentes de `src/statics/features/avatars/`; `AvatarController::avatar()`
+y `listFiles()`; la ruta `avatars` (`routes.php:109`) y su permiso (`roles.php:50`); 9 líneas en 3
+formularios de `UsersController` (499-505, 599-605 y 715-721); `configAvatar()` en `users-forms.js`
+(27 y 100-); en `gulpfile.js`, las entradas 152-153, 171-172 y 181, `sassCompileAvatars()` (226-) y la
+tarea `sass-compile-avatars` (256). Se queda la foto de perfil: `register()`, `push-avatars` y
+`AvatarModel`. `see-more`: falta el botón `[see-more]` en `News/…/item.php`, y el modal busca `>.header`
+cuando la tarjeta tiene `.head`. El plan va al PO por la regla de los diez (A-035).
 
 ## Orden del tramo
 
@@ -73,6 +87,9 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
+0. **Push de `database`** (`master` `4fc608d` y `v5.0.0`). Bloquea la parte B de `4d`.
+0b. **Alcance del ADR 0017** (lo planteó el coder en `#115`): ¿vale solo para `4d` o para toda la
+   campaña? *Predeterminado:* toda la campaña, porque cada actualización exige antes el push del PO.
 1. **Detectar las compactaciones por máquina**, leyendo el `.jsonl` desde `verificar.sh`.
    *Predeterminado:* se hace cuando lo nombre.
 2. **El SQL y las filas crudas de los listados viajan al navegador** (H1 de `#050`, en
