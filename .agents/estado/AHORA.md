@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 12:44 (medido con `date`).
+- **Actualizado:** 2026-09-16 12:46 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#163 · ARQ`. Próximo: `#164`. **Último al PO:** A-045.
+- **Último mensaje:** `#165 · ARQ`. Próximo: `#166`. **Último al PO:** A-045.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,22 +15,14 @@
 
 ## En curso
 
-**`#163`: `v8.0.0-alpha.3`** (ADR 0019), al cerrar `4d` entero: ruptura 30 (`piecesphp/database` 5.0 y fuera las
-compensaciones) y la tarea `repair-escaped-text`.
+**`#165`: `7c` B2a** — envíos 5 (`GenericTokenController::commentary`, que además pasa a escapar el mensaje en el correo)
+y 2 (`OTPHandler::generateOTP`) de punta a punta contra Mailpit, con usuario y token zz en la base local. Suite
+`core/mail-senders-db`.
 
-Cerrado: **`#157`→`#162`, `4d` parte C**: `e1ae7bb9`, `0a193252`, `7cfbdf21` y `fedff2d2`. **El incidente del cierre de los
-IDE (12:3x) no dejó daños** (control de daños en `#162` §2).
+Cerrado: **`#163`→`#164`, `v8.0.0-alpha.3`** (`f7efd0ef`, etiquetada); `master` → `f7efd0ef`; `last-stable` sigue en
+`c9125196`. **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1`, `alpha.2` y `alpha.3`.
 
-**Después de `#163`:** `7c` B2 (4 contacto, 2 OTP, 5 token, que
-tiene la misma inyección de HTML en `commentary`; 3 aprobaciones; 1 alta por API) y B3 (Mailinator).
-
-**Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
-censo de `#104` solo buscó `stripslashes`. Con otras formas aparecen dos más, que borran TODAS las
-barras del contenido de las noticias:
-- `src/app/classes/News/Views/news/public/util/item.php:14`: `str_replace("\\", '', $content)`;
-- `src/statics/core/js/configurations.js:1091`: `item.content.replace(/\\/g, '')`, en el modal de
-  noticias del panel. Va compilado: `gulp js-vendor` (ADR 0013).
-Descartadas por no tocar datos: las normalizaciones `\\` → `/` de rutas en las tareas de `bin/cli`.
+**Después de `#165`:** `7c` B2b (4 contacto, 3 aprobaciones, 1 alta por API) y B3 (Mailinator, ADR 0011); luego los lotes 9, 10 y 11. El lote 8 espera P-a..P-d.
 
 ## Orden del tramo
 
