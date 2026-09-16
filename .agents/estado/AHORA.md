@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 14:27 (medido con `date`).
+- **Actualizado:** 2026-09-16 14:31 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#207 · ARQ` (en vuelo). Próximo: `#208 · COD`. **Último al PO:** A-046.
+- **Último mensaje:** `#209 · ARQ` (en vuelo). Próximo: `#210 · COD`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 10 (residuos con nombre), ronda A2 (#207)**: `UPLOAD_DIR_TMP`, `$uploadTmpDir` y `$uploadDirTmpURL` en 8 controladores, y el CHANGELOG de A1. A1 cerrada en #205-#206 (d17fc8a6, dd4ef40f). Inventario de 50 residuos (R01-R50) y plan de rondas en el tramo. **Lote 9 cerrado** salvo 9.8 (P36). **Al empujar: `master` y `dev` de los cuatro paquetes.**
+**Lote 10 (residuos con nombre), ronda B (#209)**: boletín con CAPTCHA fallido, `$mailer` sin definir en el catch del contacto, `createdBy` de aprobaciones sin sesión, visitas en vista previa, `sendCode` con tipo no soportado y variables sin uso. A1 y A2 cerradas (#205-#208). R13 (alta por API con organización nueva) pasa al PO: arreglarlo abre una vía pública para crear organizaciones con administrador. **Lote 9 cerrado** salvo 9.8 (P36).
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
