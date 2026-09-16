@@ -52,10 +52,30 @@ class ContactFormsController extends PublicAreaController
      */
     private static $startSegmentRoutes = 'contact';
 
-    const RECIPIENTS_MESSAGES = [
-        'sir.vamb@gmail.com',
-    ];
-    private $recipientsMessages = self::RECIPIENTS_MESSAGES;
+    /**
+     * Destinatarios del formulario de contacto, leídos de la configuración.
+     *
+     * Falla cerrado: si `contact_form_recipients` no es una lista no vacía de direcciones válidas, devuelve una lista vacía.
+     *
+     * @return string[]
+     */
+    public static function recipients(): array
+    {
+        $configured = get_config('contact_form_recipients');
+        if (!is_array($configured) || count($configured) === 0) {
+            return [];
+        }
+        $recipients = [];
+        foreach ($configured as $recipient) {
+            $recipient = is_string($recipient) ? trim($recipient) : '';
+            //filter_var y no Validator::isEmail(): ese consulta el DNS en cada llamada.
+            if (filter_var($recipient, \FILTER_VALIDATE_EMAIL) === false) {
+                return [];
+            }
+            $recipients[] = $recipient;
+        }
+        return $recipients;
+    }
 
     /**
      * @param Request $req
@@ -205,46 +225,59 @@ class ContactFormsController extends PublicAreaController
 
                 if ($captchaSuccess) {
 
-                    $title = get_config('title_app');
-                    $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
-                        baseurl(),
-                        $title,
-                    ]);
+                    $recipients = self::recipients();
 
-                    $subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . get_title();
+                    if (count($recipients) === 0) {
 
-                    $bodyMessage = $this->render('mailing/generic-contact-form', [
-                        'title' => $title,
-                        'name' => $name,
-                        'email' => $email,
-                        'subject' => $subject,
-                        'message' => $message,
-                        'updates' => $updates,
-                    ], false);
-                    $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
-                    $mailer = new Mailer();
-                    $mailConfig = new MailConfig;
-                    $mailer->SMTPDebug = 2;
-                    $mailer->isHTML(true);
-                    $mailer->setFrom($mailConfig->user());
-                    $mailer->addReplyTo($email, $name);
-                    foreach ($this->recipientsMessages as $recipient) {
-                        $mailer->addAddress($recipient);
-                    }
-
-                    $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
-                    $mailer->Body = $bodyMessage;
-                    if (!$mailer->checkSettedSMTP() && !is_local()) {
-                        $mailer->asGoDaddy(true);
-                    }
-
-                    $success = $mailer->send();
-
-                    if ($success) {
-                        $resultOperation->setMessage($successMessage);
-                        $resultOperation->setSuccessOnSingleOperation($success);
-                    } else {
+                        log_exception(new \RuntimeException(
+                            "Formulario de contacto sin enviar: \$config['contact_form_recipients'] debe ser una lista no vacía de direcciones de correo válidas."
+                        ));
                         $resultOperation->setMessage($unknowErrorMessage);
+
+                    } else {
+
+                        $title = get_config('title_app');
+                        $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
+                            baseurl(),
+                            $title,
+                        ]);
+
+                        $subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . get_title();
+
+                        $bodyMessage = $this->render('mailing/generic-contact-form', [
+                            'title' => $title,
+                            'name' => $name,
+                            'email' => $email,
+                            'subject' => $subject,
+                            'message' => $message,
+                            'updates' => $updates,
+                        ], false);
+                        $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
+                        $mailer = new Mailer();
+                        $mailConfig = new MailConfig;
+                        $mailer->SMTPDebug = 2;
+                        $mailer->isHTML(true);
+                        $mailer->setFrom($mailConfig->user());
+                        $mailer->addReplyTo($email, $name);
+                        foreach ($recipients as $recipient) {
+                            $mailer->addAddress($recipient);
+                        }
+
+                        $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
+                        $mailer->Body = $bodyMessage;
+                        if (!$mailer->checkSettedSMTP() && !is_local()) {
+                            $mailer->asGoDaddy(true);
+                        }
+
+                        $success = $mailer->send();
+
+                        if ($success) {
+                            $resultOperation->setMessage($successMessage);
+                            $resultOperation->setSuccessOnSingleOperation($success);
+                        } else {
+                            $resultOperation->setMessage($unknowErrorMessage);
+                        }
+
                     }
                 } else {
                     $resultOperation->setMessage($captchaFailErrorMessage);

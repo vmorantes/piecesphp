@@ -31,8 +31,6 @@ class UserProblemsController extends UsersController
     const TYPE_USER_BLOCKED = 'TYPE_USER_BLOCKED';
     const LANG_GROUP = 'usersProblems';
 
-    const EMAIL_ON_FAILED_OS_TICKET = 'sir.vamb@gmail.com';
-
     /**
      * @var UsersModel
      */
@@ -43,6 +41,31 @@ class UserProblemsController extends UsersController
     {
         parent::__construct();
         $this->userMapper = new UsersModel();
+    }
+
+    /**
+     * Destinatarios del correo de «otros problemas», leídos de la configuración.
+     *
+     * Falla cerrado: si `other_problems_recipients` no es una lista no vacía de direcciones válidas, devuelve una lista vacía.
+     *
+     * @return string[]
+     */
+    public static function otherProblemsRecipients(): array
+    {
+        $configured = get_config('other_problems_recipients');
+        if (!is_array($configured) || count($configured) === 0) {
+            return [];
+        }
+        $recipients = [];
+        foreach ($configured as $recipient) {
+            $recipient = is_string($recipient) ? trim($recipient) : '';
+            //filter_var y no Validator::isEmail(): ese consulta el DNS en cada llamada.
+            if (filter_var($recipient, \FILTER_VALIDATE_EMAIL) === false) {
+                return [];
+            }
+            $recipients[] = $recipient;
+        }
+        return $recipients;
     }
 
     /**
@@ -436,11 +459,6 @@ class UserProblemsController extends UsersController
              */
             $success = $result['success'];
 
-            /**
-             * @var OsTicketAPI $instance
-             */
-            $instance = $result['instance'];
-
             $json_response['send_mail'] = $success;
 
             $logRequest = new TicketsLogModel();
@@ -459,7 +477,6 @@ class UserProblemsController extends UsersController
                 $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
             } else {
                 $json_response['message'] = __(self::LANG_GROUP, 'No se ha podido enviar el mensaje, intente más tarde.');
-                $json_response['extra'] = $instance->getHttpClient()->getResponseHeaders();
             }
         } else {
 
@@ -581,31 +598,45 @@ class UserProblemsController extends UsersController
 
         if (!$success) {
 
-            $mail = new Mailer();
-            $mailConfig = new MailConfig;
+            $recipients = self::otherProblemsRecipients();
 
-            /**
-             * @var string
-             */
-            $fromAddress = $mailConfig->user();
-            /**
-             * @var string
-             */
-            $nameAddress = $mailConfig->name();
+            if (count($recipients) === 0) {
 
-            $mail->setFrom($fromAddress, $nameAddress);
-            $mail->addReplyTo($email, $name);
-            $mail->addAddress(self::EMAIL_ON_FAILED_OS_TICKET);
-            $mail->isHTML(true);
-            $mail->Subject = (string) $subject;
-            $mail->Body = $message;
-            $mail->AltBody = strip_tags($message);
+                log_exception(new \RuntimeException(
+                    "«Otros problemas» sin enviar por correo: osTicket no lo recibió y \$config['other_problems_recipients'] debe ser una lista no vacía de direcciones de correo válidas."
+                ));
 
-            if (!$mail->checkSettedSMTP()) {
-                $mail->asGoDaddy();
+            } else {
+
+                $mail = new Mailer();
+                $mailConfig = new MailConfig;
+
+                /**
+                 * @var string
+                 */
+                $fromAddress = $mailConfig->user();
+                /**
+                 * @var string
+                 */
+                $nameAddress = $mailConfig->name();
+
+                $mail->setFrom($fromAddress, $nameAddress);
+                $mail->addReplyTo($email, $name);
+                foreach ($recipients as $recipient) {
+                    $mail->addAddress($recipient);
+                }
+                $mail->isHTML(true);
+                $mail->Subject = (string) $subject;
+                $mail->Body = $message;
+                $mail->AltBody = strip_tags($message);
+
+                if (!$mail->checkSettedSMTP()) {
+                    $mail->asGoDaddy();
+                }
+
+                $success = $mail->send();
+
             }
-
-            $success = $mail->send();
         }
 
         return [

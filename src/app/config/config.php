@@ -72,6 +72,10 @@ $config['font_family_sidebars'] = "'Public Sans', sans-serif";
 //Varios
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
+//Destinatarios del formulario de contacto y del correo de «otros problemas» (si osTicket falta o falla).
+//Vacíos: no se envía. Nunca una dirección en el código: todo clon la heredaría.
+$config['contact_form_recipients'] = [];
+$config['other_problems_recipients'] = [];
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
 $config['CronJobKey'] = 'TODO:secret';
