@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $mensaje = 'mensaje-de-control';
 
     //──── 1. BaseHashEncryption::hashVerify ─────────────────────────────────────────────
-    echoTerminal('[1/13]hashVerify() RECHAZA una firma que no es la suya');
+    echoTerminal('[1/18]hashVerify() RECHAZA una firma que no es la suya');
 
     $firmaBuena = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -77,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. BaseToken::verify, y el valor que NO es falsy ──────────────────────────────
-    echoTerminal('[2/13]verify() rechaza, y su código de error SÍ es truthy');
+    echoTerminal('[2/18]verify() rechaza, y su código de error SÍ es truthy');
 
     $firmaToken = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -104,7 +104,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. decode() no entrega el contenido de un token con firma alterada ────────────
-    echoTerminal('[3/13]decode() y check() RECHAZAN un token manipulado');
+    echoTerminal('[3/18]decode() y check() RECHAZAN un token manipulado');
 
     $tokenBueno = BaseToken::encode(['dato' => 'valor-original'], $llave, 'HS256');
     $partes = explode('.', $tokenBueno);
@@ -186,7 +186,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Roles::hasPermissions ──────────────────────────────────────────────────────
-    echoTerminal('[4/13]hasPermissions() niega lo que no está concedido');
+    echoTerminal('[4/18]hasPermissions() niega lo que no está concedido');
 
     $roles = Roles::getRoles();
     $rutas = get_routes();
@@ -258,7 +258,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. get_route_roles_allowed y su cadena sin `else` ─────────────────────────────
-    echoTerminal('[5/13]get_route_roles_allowed() con un `$type` que no contempla');
+    echoTerminal('[5/18]get_route_roles_allowed() con un `$type` que no contempla');
 
     //Hace falta una ruta que DECLARE roles: con la lista vacía, la rama sin `else` no se
     //distingue de la buena y la comprobación no significaría nada.
@@ -308,7 +308,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. Parameter: el acumulador que NACE en `true` ────────────────────────────────
-    echoTerminal('[6/13]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
+    echoTerminal('[6/18]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
 
     //RECHAZO: con validador y NO opcional, un valor que no pasa tiene que LANZAR.
     $soloEnteros = new Parameter('edad', null, static fn ($v): bool => is_int($v), false);
@@ -342,7 +342,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Las rutas públicas de listado no devuelven borradores sin permiso ─────────
-    echoTerminal('[7/13]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
+    echoTerminal('[7/18]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
 
     //Sin sesión, pedir un estado no cuenta; con permiso, sí. Si esto cae, un anónimo lista borradores.
     $filtroPub = new \ReflectionMethod(\Publications\Controllers\PublicationsController::class, 'publicStatusFilter');
@@ -369,7 +369,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. El SELECT de listado de usuarios no trae la contraseña (#055) ──────────────
-    echoTerminal('[8/13]UsersModel::fieldsToSelect() no selecciona la contraseña');
+    echoTerminal('[8/18]UsersModel::fieldsToSelect() no selecciona la contraseña');
 
     //Si esto cae, getBy(), all() y los informes de accesos vuelven a mandar el hash en la respuesta.
     $camposUsuarios = (new \ReflectionMethod(\App\Model\UsersModel::class, 'fieldsToSelect'))->invoke(null);
@@ -380,7 +380,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. /users/all/ no devuelve la contraseña (#057) ─────────────────────────────
-    echoTerminal('[9/13] UsersController::_all() no devuelve la contraseña');
+    echoTerminal('[9/18] UsersController::_all() no devuelve la contraseña');
 
     //Si esto cae, cualquier usuario con sesión vuelve a poder pedir el hash de todos.
     $filasTodos = \App\Controller\UsersController::_all(1, 5)->elements();
@@ -392,7 +392,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. canManage(): el alcance de las aprobaciones, en el servidor (#071) ─────────
-    echoTerminal('[10/13] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
+    echoTerminal('[10/18] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
 
     //Si esto cae, un administrador de organización aprueba lo de otra, o lo suyo, con un POST directo.
     $usuario = static function (int $id, int $type, ?int $organization): \PiecesPHP\UserSystem\UserDataPackage {
@@ -440,7 +440,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 11. Roles: registrar, conceder y fijar el rol actual (#089) ───────────────────
-    echoTerminal('[11/13] Roles RECHAZA lo duplicado, lo que no existe y el código que no está');
+    echoTerminal('[11/18] Roles RECHAZA lo duplicado, lo que no existe y el código que no está');
 
     //EL BANCO ES EL ESTADO ESTÁTICO: se fotografía y se repone. gates corre cada suite en su proceso, pero aquí no se confía en eso.
     $propiedadRoles = new \ReflectionProperty(Roles::class, 'roles');
@@ -467,7 +467,29 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $check($lanzo, "registerRole(): repetir {$que} lanza RoleDuplicateException");
         }
 
-        //NO SE PRUEBA AQUÍ el tipo CODE con un nombre: castea a 0 y acaba en el rol de código 0. Falla ABIERTA; ver el reporte de #089.
+        //EL TIPO CODE CON UN NOMBRE: castea a 0, que es el código de root, y le añadía la ruta. Arreglado en #091: ahora lanza.
+        $rolCero = Roles::getRole(0);
+        $rutasDeRootAntes = is_array($rolCero) ? count($rolCero['allowed_routes']) : -1;
+        $lanzoCode = false;
+        try {
+            Roles::addPermission('zz-prueba-ruta-bp-mal-tipada', 'zz-prueba-rol-bp', Roles::IDENTIFIER_TYPE_CODE);
+        } catch (\Throwable $e) {
+            $lanzoCode = $e instanceof \PiecesPHP\Core\Exceptions\RoleNotExistsException;
+        }
+        $rolCeroDespues = Roles::getRole(0);
+        $rutasDeRootDespues = is_array($rolCeroDespues) ? count($rolCeroDespues['allowed_routes']) : -1;
+        $check($lanzoCode, 'RECHAZO: con el tipo CODE, un identificador que no es número lanza RoleNotExistsException');
+        $check($rutasDeRootAntes === $rutasDeRootDespues && $rutasDeRootAntes > 0,
+            'DISCRIMINANTE: y el rol de código 0 (root) NO gana ninguna ruta por una llamada mal tipada',
+            "root: {$rutasDeRootAntes} rutas antes, {$rutasDeRootDespues} después");
+        //Un código numérico sigue funcionando, como entero y como cadena.
+        Roles::addPermission('zz-prueba-ruta-bp-codigo', 770001, Roles::IDENTIFIER_TYPE_CODE);
+        Roles::addPermission('zz-prueba-ruta-bp-cadena', '770001', Roles::IDENTIFIER_TYPE_CODE);
+        $rolPorCodigo = Roles::getRole(770001);
+        $check(is_array($rolPorCodigo) && in_array('zz-prueba-ruta-bp-codigo', $rolPorCodigo['allowed_routes'], true)
+            && in_array('zz-prueba-ruta-bp-cadena', $rolPorCodigo['allowed_routes'], true),
+            'DISCRIMINANTE: un código válido sigue valiendo, como entero (770001) y como cadena («770001»)');
+
         $lanzo = false;
         try {
             Roles::addPermission('zz-prueba-ruta-bp2', 'rol-que-no-existe-bp', Roles::IDENTIFIER_TYPE_NAME);
@@ -508,7 +530,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 12. RequestRoute::getAttribute (#089) ─────────────────────────────────────────
-    echoTerminal('[12/13] getAttribute() no se inventa la ruta, y devuelve el valor por defecto de lo que no está');
+    echoTerminal('[12/18] getAttribute() no se inventa la ruta, y devuelve el valor por defecto de lo que no está');
 
     $peticion = new \PiecesPHP\Core\Routing\RequestRoute(
         'GET',
@@ -544,7 +566,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. Parameter: lo obligatorio rechaza; lo opcional se queda en su default (#089) ──
-    echoTerminal('[13/13] Parameter RECHAZA cuando es obligatorio, y lo opcional NUNCA falla: cae al valor por defecto');
+    echoTerminal('[13/18] Parameter RECHAZA cuando es obligatorio, y lo opcional NUNCA falla: cae al valor por defecto');
 
     $obligatorio = new Parameter('zz-bp', 0, static fn ($v): bool => is_int($v), false);
     $lanzoObligatorio = false;
@@ -571,6 +593,196 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($laxa->validate(0) === true && $laxa->getValue() === 0,
         'CONTRATO: opcional con default «0» acepta el ENTERO 0 por la comparación laxa, y lo guarda como entero',
         'Es el único efecto medible de la laxa: `$value == $this->getDefaultValue()`. Con === ese 0 caería al default «0».');
+    echoTerminal(' ');
+
+    //──── 14. has_global_asset: el índice 0 es FALSY (#091, tanda B) ────────────────────
+    echoTerminal('[14/18] has_global_asset() no encuentra lo que no está, y su índice 0 es FALSY');
+
+    //EL BANCO ES LA CONFIGURACIÓN: se fotografía y se repone.
+    $assetsAntes = get_config('global_assets');
+
+    try {
+
+        $check(has_global_asset('zz-prueba-bp-no-esta.js', 'js') === false, 'un asset que no está da false, ESTRICTO');
+        $check(has_global_asset('zz-prueba-bp-no-esta.js', 'tipo-que-no-existe') === false, 'un tipo que no existe da false: la cadena sin else no inventa una lista');
+        $check(add_global_asset('zz-prueba-bp.js', 'js') === true, 'DISCRIMINANTE: add_global_asset() añade uno nuevo y devuelve true');
+        $indice = has_global_asset('zz-prueba-bp.js', 'js');
+        $check(is_int($indice) && $indice > 0, 'DISCRIMINANTE: y has_global_asset() lo encuentra devolviendo su índice', 'índice ' . var_export($indice, true));
+        $check(add_global_asset('zz-prueba-bp.js', 'js') === true, 'añadir el que ya está también devuelve true: es idempotente');
+        $check(add_global_asset('', 'js') === false, 'RECHAZO: un asset vacío no se añade');
+        $check(add_global_asset('zz-prueba-bp2.js', 'tipo-que-no-existe') === false, 'RECHAZO: un tipo que no existe no se añade');
+
+        //CONTRATO: el PRIMER asset de un tipo tiene índice 0, que es FALSY. Un `if (!has_global_asset(...))` lo leería como ausente.
+        $assets = get_config('global_assets');
+        $primero = is_array($assets) && isset($assets['js'][0]) && is_string($assets['js'][0]) ? $assets['js'][0] : null;
+        if ($primero !== null) {
+            $indicePrimero = has_global_asset($primero, 'js');
+            $check($indicePrimero === 0 && $indicePrimero !== false,
+                'CONTRATO: el primer asset devuelve 0, que NO es false pero SÍ es falsy',
+                'Quien escriba `if (!has_global_asset($a, $t))` tratará el primer asset como ausente y lo volverá a añadir.');
+        } else {
+            $check(false, 'el árbol da un primer asset js con el que medir el índice 0', 'NO HAY NINGUNO: sin él, lo del índice 0 no se puede comprobar');
+        }
+
+    } finally {
+        set_config('global_assets', $assetsAntes);
+    }
+
+    $check(has_global_asset('zz-prueba-bp.js', 'js') === false, 'la configuración de assets queda como estaba al acabar');
+    echoTerminal(' ');
+
+    //──── 15. RouteAdapter: el controlador y el nombre (#091, tanda B) ───────────────────
+    echoTerminal('[15/18] RouteAdapter RECHAZA un controlador que no es string ni callable');
+
+    /** @var array<int, array{0: string, 1: mixed}> $controladoresMalos */
+    $controladoresMalos = [['un entero', 42], ['un array', []]];
+    foreach ($controladoresMalos as [$que, $controlador]) {
+        $lanzo = false;
+        try {
+            //La firma pide string o callable: se le pasa lo que prohíbe, y lo que se comprueba es el TypeError en ejecución.
+            new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', $controlador, 'zz-prueba-bp-ra');
+        } catch (\Throwable $e) {
+            $lanzo = $e instanceof \TypeError;
+        }
+        $check($lanzo, "RECHAZO: {$que} como controlador lanza TypeError");
+    }
+    $conNombre = new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', 'Clase:metodo', 'zz-prueba-bp-ra');
+    $check($conNombre->name() === 'zz-prueba-bp-ra' && $conNombre->controller() === 'Clase:metodo', 'DISCRIMINANTE: con un controlador string y su nombre, los conserva, ESTRICTO');
+    $callable = new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', 'strlen', 'zz-prueba-bp-ra2');
+    $check(is_callable($callable->controller()), 'DISCRIMINANTE: un callable también vale');
+
+    //CONTRATO: `$name == null` es TRUE para la cadena vacía en PHP 8, así que un nombre vacío se vuelve un uniqid().
+    $sinNombre = new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', 'Clase:metodo', '');
+    $nombreGenerado = $sinNombre->name();
+    $check(is_string($nombreGenerado) && $nombreGenerado !== '' && preg_match('/^[0-9a-f]{13}$/', $nombreGenerado) === 1,
+        'CONTRATO: un nombre VACÍO se sustituye en silencio por un uniqid()',
+        'El nombre de la ruta ES el identificador de permiso: con un uniqid, ningún rol lo tiene concedido. Cierra, pero sin avisar.');
+    echoTerminal(' ');
+
+    //──── 16. MenuGroup::isCurrent (#091, tanda B) ──────────────────────────────────────
+    echoTerminal('[16/18] isCurrent() no marca como actual una página que no lo es');
+
+    $serverAntes = $_SERVER;
+
+    try {
+
+        $_SERVER['HTTP_HOST'] = 'zz-prueba.local';
+        $_SERVER['REQUEST_URI'] = '/zona/pagina/';
+        unset($_SERVER['HTTPS']);
+
+        $distinto = new \PiecesPHP\Core\Menu\MenuGroup(['name' => 'zz-distinto', 'href' => 'http://zz-prueba.local/otra/cosa']);
+        $check($distinto->isCurrent() === false, 'RECHAZO: un href que no es la URL actual da false, ESTRICTO');
+        $igual = new \PiecesPHP\Core\Menu\MenuGroup(['name' => 'zz-igual', 'href' => 'http://zz-prueba.local/zona/pagina']);
+        $check($igual->isCurrent() === true, 'DISCRIMINANTE: el href de la URL actual da true, ESTRICTO (la barra final no cuenta)');
+        $conAncla = new \PiecesPHP\Core\Menu\MenuGroup(['name' => 'zz-ancla', 'href' => 'http://zz-prueba.local/zona/pagina/#seccion']);
+        $check($conAncla->isCurrent() === true, 'DISCRIMINANTE: el ancla se recorta antes de comparar');
+        $padre = new \PiecesPHP\Core\Menu\MenuGroup(['name' => 'zz-padre', 'href' => 'http://zz-prueba.local/otra/cosa', 'groups' => [
+            new \PiecesPHP\Core\Menu\MenuGroup(['name' => 'zz-hijo', 'href' => 'http://zz-prueba.local/zona/pagina']),
+        ]]);
+        $check($padre->isCurrent() === true, 'DISCRIMINANTE: un padre cuyo hijo es el actual también es actual');
+        //CONTRATO: la opción `current` manda sobre la URL, sin comparar nada.
+        $forzado = new \PiecesPHP\Core\Menu\MenuGroup(['name' => 'zz-forzado', 'href' => 'http://zz-prueba.local/otra/cosa', 'current' => true]);
+        $check($forzado->isCurrent() === true, 'CONTRATO: con la opción current en true, se marca actual aunque el href sea otro');
+
+    } finally {
+        $_SERVER = $serverAntes;
+    }
+
+    echoTerminal(' ');
+
+    //──── 17. register_route: nombres repetidos y roles inexistentes (#091, tanda B) ─────
+    echoTerminal('[17/18] register_route() RECHAZA un nombre repetido y no concede a un rol que no existe');
+
+    //Un router de pega: register_route solo le pide map(), y a lo devuelto setName() y add(). Un RouteCollectorProxy de
+    //verdad pediría la app de Slim, así que el objeto viaja como mixed y lo mapeado se anota fuera.
+    $mapeadas = [];
+    $anotaMapeada = static function (string $patron) use (&$mapeadas): void {
+        $mapeadas[] = $patron;
+    };
+    $routerObjeto = new class ($anotaMapeada) {
+        /** @var callable(string): void */
+        private $anota;
+        /** @param callable(string): void $anota */
+        public function __construct(callable $anota)
+        {
+            $this->anota = $anota;
+        }
+        /** @param string[] $metodos */
+        public function map(array $metodos, string $patron, $controlador): object
+        {
+            ($this->anota)($patron);
+            return new class () {
+                public function setName(string $nombre): object
+                {
+                    return $this;
+                }
+                public function add($middleware): object
+                {
+                    return $this;
+                }
+            };
+        }
+    };
+    /** @var mixed $routerFalso */
+    $routerFalso = $routerObjeto;
+    $rutasAntes = get_config('_routes_');
+
+    try {
+
+        $definicion = [
+            'route' => '/zz-prueba-bp-registro[/]',
+            'controller' => 'Clase:metodo',
+            'name' => 'zz-prueba-bp-registro',
+            'method' => 'GET',
+            'require_login' => false,
+            'roles_allowed' => [],
+            'parameters' => [],
+            'middlewares' => [],
+        ];
+        //@phpstan-ignore-next-line El tipo declarado de $route no contempla los bools y arrays de una definición real.
+        register_route($definicion, $routerFalso);
+        $rutasTras = get_config('_routes_');
+        $check(is_array($rutasTras) && array_key_exists('zz-prueba-bp-registro', $rutasTras), 'DISCRIMINANTE: una ruta nueva queda registrada en el inventario');
+        $check(in_array('/zz-prueba-bp-registro[/]', $mapeadas, true), 'DISCRIMINANTE: y se mapea en el router');
+
+        $lanzoDuplicada = false;
+        try {
+            //@phpstan-ignore-next-line Igual que arriba: el tipo declarado de $route no contempla la definición real.
+            register_route($definicion, $routerFalso);
+        } catch (\Throwable $e) {
+            $lanzoDuplicada = $e instanceof \PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
+        }
+        $check($lanzoDuplicada, 'RECHAZO: repetir el nombre lanza RouteDuplicateNameException, no sobrescribe la ruta anterior');
+
+        //Los roles se filtran por roleExists(): uno que no existe no recibe el permiso.
+        $definicionRoles = $definicion;
+        $definicionRoles['name'] = 'zz-prueba-bp-registro2';
+        $definicionRoles['route'] = '/zz-prueba-bp-registro2[/]';
+        $definicionRoles['roles_allowed'] = [987654];
+        //@phpstan-ignore-next-line Igual que arriba.
+        register_route($definicionRoles, $routerFalso);
+        $rutasConRoles = get_config('_routes_');
+        $rolesGuardados = $rutasConRoles['zz-prueba-bp-registro2']['roles_allowed'] ?? null;
+        $check(is_array($rolesGuardados) && count($rolesGuardados) === 0, 'RECHAZO: un rol que no existe se filtra y la ruta queda sin roles', json_encode($rolesGuardados, JSON_THROW_ON_ERROR));
+
+    } finally {
+        set_config('_routes_', $rutasAntes);
+    }
+
+    $rutasRepuestas = get_config('_routes_');
+    $check(is_array($rutasRepuestas) && !array_key_exists('zz-prueba-bp-registro', $rutasRepuestas), 'el inventario de rutas queda como estaba al acabar');
+    echoTerminal(' ');
+
+    //──── 18. processFromQuery NO es una guarda (#091, tanda B) ──────────────────────────
+    echoTerminal('[18/18] processFromQuery(): sus comparaciones laxas deciden el ORDEN, no el acceso');
+
+    //Sus laxas (1089, 1092 y 1125) deciden la dirección del orden, no el acceso: no hay rechazo que probar.
+    //Lo que sí decide acceso ahí —el buscador y el HAVING por marcador— lo prueba UnitTest-SqlPlaceholders.
+    $codigo = (string) file_get_contents(basepath('app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php'));
+    $check(str_contains($codigo, "trim(mb_strtoupper(\$direction_ordering)) == 'ASC' ? 'ASC' : 'DESC'"),
+        'CONTRATO: la dirección se normaliza a ASC o DESC, así que un valor raro NO entra en el SQL',
+        'Es lo único que decide esa laxa. Si alguien la cambiara por interpolar la dirección, esto se cae.');
+    $check(str_contains($codigo, 'const INGNORE'), 'y la columna marcada INGNORE se ordena en PHP, no en SQL');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
