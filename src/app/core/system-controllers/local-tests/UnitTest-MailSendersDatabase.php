@@ -3,7 +3,9 @@
 //Lote 7c B2a: los envíos que necesitan base, de punta a punta contra Mailpit en 127.0.0.1 (ADR 0015 y 0010).
 //La configuración de correo se desvía solo en memoria; el token y el usuario zz se borran en los finally.
 
+use App\Controller\ContactFormsController;
 use App\Controller\GenericTokenController;
+use App\Model\AppConfigModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
@@ -14,6 +16,7 @@ use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
+use Newsletter\Mappers\NewsletterSuscriberMapper;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
@@ -69,7 +72,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
     $remitente = 'zz-prueba-remitente@localhost.test';
 
     //─── 1 · Comprobación previa: sin Mailpit local, o con Mailpit saliendo a la red, no se crea ni se envía nada ─
-    echoTerminal('[1/3] Mailpit escucha en 127.0.0.1 y no comprueba versiones');
+    echoTerminal('[1/6] Mailpit escucha en 127.0.0.1 y no comprueba versiones');
     $arranque = 'Arranca Mailpit con: ./mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025 --disable-version-check';
     $socket = @fsockopen('127.0.0.1', 1025, $errno, $errstr, 1.0);
     $smtpEscucha = is_resource($socket);
@@ -92,6 +95,17 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
     $original = get_config('mail');
     $selector = null;
     $userID = null;
+    $nombreCaptcha = 'GoogleReCaptchaV3Controller';
+    $valorCrudoCaptcha = function () use ($database, $nombreCaptcha): ?string {
+        $consulta = $database->prepare('SELECT value FROM pcsphp_app_config WHERE name = ?');
+        $consulta->execute([$nombreCaptcha]);
+        $valor = $consulta->fetchColumn();
+        return $valor === false ? null : (string) $valor;
+    };
+    //Lo que había antes de tocar nada: null si la fila no existía.
+    $captchaAntes = $valorCrudoCaptcha();
+    $destinatariosOriginales = get_config('contact_form_recipients');
+    $visitantes = [];
 
     try {
         $mail = new MailConfig;
@@ -108,7 +122,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
         set_config('mail', $mail->toSave());
 
         //─── 2 · El comentario de un token genérico ────────────────────────────────────────────────────
-        echoTerminal('[2/3] GenericTokenController::commentary()');
+        echoTerminal('[2/6] GenericTokenController::commentary()');
         try {
             $http('DELETE', '/messages');
             $url = GenericTokenController::createTokenURL('commentary', ['zz' => true], 10);
@@ -143,7 +157,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
         echoTerminal(' ');
 
         //─── 3 · El código OTP ─────────────────────────────────────────────────────────────────────────
-        echoTerminal('[3/3] OTPHandler::generateOTP()');
+        echoTerminal('[3/6] OTPHandler::generateOTP()');
         $username = 'zz_otp_mail_' . bin2hex(random_bytes(4));
         $email = $username . '@localhost.test';
         try {
@@ -189,10 +203,112 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
             }
         }
 
+        //─── 4-6 · El formulario de contacto ───────────────────────────────────────────────────────────
+        $tokenCaptcha = function () use ($nombreCaptcha): string {
+            $modelo = new AppConfigModel($nombreCaptcha);
+            if ($modelo->id === null) {
+                $modelo->name = $nombreCaptcha;
+                $modelo->value = [];
+                $modelo->save();
+                $modelo = new AppConfigModel($nombreCaptcha);
+            }
+            $token = 'zz-captcha-' . bin2hex(random_bytes(8));
+            $tokens = (array) $modelo->value;
+            $tokens[] = ['date' => date('Y-m-d H:i:s'), 'token' => $token];
+            $modelo->value = $tokens;
+            $modelo->update();
+            return $token;
+        };
+        $tokenGuardado = function (string $token) use ($nombreCaptcha): bool {
+            foreach ((array) (new AppConfigModel($nombreCaptcha))->value as $elemento) {
+                if ((((array) $elemento)['token'] ?? null) === $token) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        $formaMostrada = false;
+        $contactar = function (string $captcha, array $destinatarios) use (&$visitantes, &$formaMostrada, $http, $json): array {
+            set_config('contact_form_recipients', $destinatarios);
+            $email = 'zz-prueba-contacto-' . bin2hex(random_bytes(4)) . '@localhost.test';
+            $visitantes[] = $email;
+            $http('DELETE', '/messages');
+            $request = new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/prueba'), new Headers(), [], [], (new StreamFactory())->createStream(''));
+            $request = $request->withParsedBody([
+                'from' => 'zz-prueba',
+                'name' => 'ZZ Contacto',
+                'email' => $email,
+                'subject' => 'ZZ asunto contacto',
+                'message' => '<b class="zz-k">k</b>',
+                'updates' => 'yes',
+                'tokenCaptcha' => $captcha,
+            ]);
+            $respuesta = (new ContactFormsController())->contactMessage($request, new ResponseRoute());
+            $cuerpo = json_decode((string) $respuesta->getBody(), true);
+            $cuerpo = is_array($cuerpo) ? $cuerpo : [];
+            if (!$formaMostrada) {
+                echoTerminal('   forma de la respuesta: ' . $json($cuerpo));
+                $formaMostrada = true;
+            }
+            return [$cuerpo, $email];
+        };
+
+        echoTerminal('[4/6] ContactFormsController::contactMessage() con CAPTCHA válido y destinatario');
+        try {
+            $token = $tokenCaptcha();
+            [$cuerpo, $email] = $contactar($token, ['zz-prueba-destino@localhost.test']);
+            $check(($cuerpo['success'] ?? null) === true, 'k1. la respuesta dice éxito', $json($cuerpo));
+            [$cuantos, $detalle] = $mensajeUnico();
+            $check($cuantos === 1, 'k2. Mailpit tiene exactamente 1 mensaje', (string) $cuantos);
+            $prefijo = __(LANG_GROUP, 'Contacto') . ': ZZ asunto contacto';
+            echoTerminal("   literal de 'Contacto': " . __(LANG_GROUP, 'Contacto'));
+            $check(str_starts_with((string) ($detalle['Subject'] ?? ''), $prefijo), "k3. el asunto empieza por «{$prefijo}»", var_export($detalle['Subject'] ?? null, true));
+            $check($direcciones($detalle['To'] ?? null) === ['zz-prueba-destino@localhost.test'], 'k4. el destinatario es zz-prueba-destino@localhost.test', $json($direcciones($detalle['To'] ?? null)));
+            $check($direcciones($detalle['ReplyTo'] ?? null) === [$email], "k5. responder a es {$email}", $json($direcciones($detalle['ReplyTo'] ?? null)));
+            $html = (string) ($detalle['HTML'] ?? '');
+            $check($cuantos === 1 && !str_contains($html, '<b class="zz-k">') && str_contains($html, '&lt;b class=&quot;zz-k&quot;&gt;k&lt;/b&gt;'), 'k6. el HTML escapa el mensaje del visitante');
+            $check(!$tokenGuardado($token), 'k7. el token se consumió');
+        } catch (\Throwable $exception) {
+            $check(false, 'contacto con CAPTCHA válido', get_class($exception) . ': ' . $exception->getMessage());
+        }
+        echoTerminal(' ');
+
+        echoTerminal('[5/6] Sin destinatarios no se envía');
+        try {
+            [$cuerpo] = $contactar($tokenCaptcha(), []);
+            $check(($cuerpo['success'] ?? null) !== true, 's1. la respuesta NO dice éxito', $json($cuerpo));
+            $lista = $http('GET', '/messages');
+            $cuantos = is_array($lista) ? count($lista['messages'] ?? []) : -1;
+            $check($cuantos === 0, 's2. Mailpit tiene 0 mensajes', (string) $cuantos);
+        } catch (\Throwable $exception) {
+            $check(false, 'contacto sin destinatarios', get_class($exception) . ': ' . $exception->getMessage());
+        }
+        echoTerminal(' ');
+
+        echoTerminal('[6/6] Con un CAPTCHA falso no se envía');
+        try {
+            [$cuerpo] = $contactar('zz-captcha-inexistente', ['zz-prueba-destino@localhost.test']);
+            $check(($cuerpo['success'] ?? null) !== true && ($cuerpo['message'] ?? null) === __(LANG_GROUP, 'CAPTCHA_FAIL'), 'f1. la respuesta NO dice éxito y su mensaje es CAPTCHA_FAIL', $json($cuerpo));
+            $lista = $http('GET', '/messages');
+            $cuantos = is_array($lista) ? count($lista['messages'] ?? []) : -1;
+            $check($cuantos === 0, 'f2. Mailpit tiene 0 mensajes', (string) $cuantos);
+        } catch (\Throwable $exception) {
+            $check(false, 'contacto con CAPTCHA falso', get_class($exception) . ': ' . $exception->getMessage());
+        }
+
         $http('DELETE', '/messages');
 
     } finally {
         set_config('mail', $original);
+        set_config('contact_form_recipients', $destinatariosOriginales === false ? null : $destinatariosOriginales);
+        if (count($visitantes) > 0) {
+            $database->prepare('DELETE FROM ' . NewsletterSuscriberMapper::TABLE . ' WHERE email IN (' . implode(', ', array_fill(0, count($visitantes), '?')) . ')')->execute($visitantes);
+        }
+        if ($captchaAntes === null) {
+            $database->prepare('DELETE FROM pcsphp_app_config WHERE name = ?')->execute([$nombreCaptcha]);
+        } else {
+            $database->prepare('UPDATE pcsphp_app_config SET value = ? WHERE name = ?')->execute([$captchaAntes, $nombreCaptcha]);
+        }
     }
 
     $restoToken = $selector !== null && GenericTokenController::tokenBySelector($selector) !== null ? 1 : 0;
@@ -208,7 +324,16 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
     }
     echoTerminal(' ');
     echoTerminal("   restos tras la limpieza: token={$restoToken}, usuario={$restoUsuario}, filas OTP={$restoOTP}");
+    $captchaDespues = $valorCrudoCaptcha();
+    $tokensZz = substr_count((string) $captchaDespues, 'zz-captcha-');
+    $boletinZz = 0;
+    if (count($visitantes) > 0) {
+        $consulta = $database->prepare('SELECT COUNT(*) FROM ' . NewsletterSuscriberMapper::TABLE . ' WHERE email IN (' . implode(', ', array_fill(0, count($visitantes), '?')) . ')');
+        $consulta->execute($visitantes);
+        $boletinZz = (int) $consulta->fetchColumn();
+    }
+    echoTerminal("   restos del contacto: tokens zz en el CAPTCHA={$tokensZz}, filas del boletín zz={$boletinZz}, fila GoogleReCaptchaV3Controller igual que antes=" . ($captchaDespues === $captchaAntes ? 'sí' : 'no'));
 
     return $balance();
 
-})->setDescription('El comentario de un token genérico y el código OTP llegan a Mailpit en 127.0.0.1, con base local y la configuración desviada en memoria.')->setEffects([CliActions::EFFECT_EMAIL, CliActions::EFFECT_DATABASE])->register();
+})->setDescription('El comentario de un token genérico, el código OTP y el formulario de contacto llegan a Mailpit en 127.0.0.1, con base local y la configuración desviada en memoria.')->setEffects([CliActions::EFFECT_EMAIL, CliActions::EFFECT_DATABASE])->register();
