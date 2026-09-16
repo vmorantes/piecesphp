@@ -10,7 +10,7 @@
          🪪  variable.undefined                                                                           
   39     Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
          🪪  argument.type                                                                                
-  250    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
+  246    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
          🪪  return.type                                                                                  
  ------ ------------------------------------------------------------------------------------------------- 
 
@@ -314,6 +314,8 @@
          🪪  argument.type                                                                                           
   1222   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
+  1241   Possibly invalid array key type string|null.                                                                
+         🪪  offsetAccess.invalidOffset                                                                              
  ------ ------------------------------------------------------------------------------------------------------------ 
 
  ------ ----------------------------------------------------------------------------------------------- 
@@ -657,6 +659,8 @@
          🪪  property.nonObject                                                                                      
   1550   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
+  1569   Possibly invalid array key type string|null.                                                                
+         🪪  offsetAccess.invalidOffset                                                                              
  ------ ------------------------------------------------------------------------------------------------------------ 
 
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
@@ -697,6 +701,8 @@
          🪪  property.nonObject                                                                                      
   1178   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
+  1197   Possibly invalid array key type string|null.                                                                
+         🪪  offsetAccess.invalidOffset                                                                              
  ------ ------------------------------------------------------------------------------------------------------------ 
 
  ------ ----------------------------------------------------------------------------------------------------------------------- 
@@ -719,6 +725,8 @@
          🪪  property.nonObject                                                                                      
   550    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
+  569    Possibly invalid array key type string|null.                                                                
+         🪪  offsetAccess.invalidOffset                                                                              
  ------ ------------------------------------------------------------------------------------------------------------ 
 
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -843,6 +851,8 @@
          🪪  property.nonObject                                                                                                                          
   1867   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
+  1884   Possibly invalid array key type string|null.                                                                                                    
+         🪪  offsetAccess.invalidOffset                                                                                                                  
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
  ------ ----------------------------------------------------------------------------------------------- 
@@ -2025,6 +2035,13 @@
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
+ ------ ------------------------------------------------------------------------ 
+  project://src/src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php  
+ ------ ------------------------------------------------------------------------ 
+  166    Possibly invalid array key type int|string|null.                        
+         🪪  offsetAccess.invalidOffset                                          
+ ------ ------------------------------------------------------------------------ 
+
  ------ ------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/model/AvatarModel.php                                                                                
  ------ ------------------------------------------------------------------------------------------------------------- 
@@ -2323,5 +2340,5 @@
          🪪  argument.type                                                                                                                    
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 718 errors                                                                                               
+ [ERROR] Found 724 errors                                                                                               
 

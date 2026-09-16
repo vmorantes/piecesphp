@@ -1,14 +1,11 @@
 #!/bin/bash
 
-# Análisis estático, EN LAS DOS VERSIONES DE PHP QUE EL PROYECTO DECLARA SOPORTAR.
+# Análisis estático en la ÚNICA versión de PHP que el proyecto soporta: 8.5 (ADR 0020).
 #
-# `src/composer.json` declara `>=8.4.1 <8.6`, así que el código tiene que estar limpio en
-# 8.4 **y** en 8.5. Antes esto se resolvía con `phpVersion` como RANGO, y un rango hace lo
-# contrario de lo que parece: reporta solo lo que es error en TODAS las versiones —la
-# INTERSECCIÓN—, así que toda deprecación exclusiva de 8.5 se descartaba en silencio. Ese
-# fue el agujero por el que pasaron nueve llamadas deprecadas durante la campaña entera.
-#
-# Ahora son DOS PASADAS y el baseline es LA UNIÓN.
+# PASADA ÚNICA 8.5, con `phpVersion` FIJO derivado de bin/phpstan.neon. Nunca un RANGO: un rango
+# reporta solo lo que es error en TODAS sus versiones —la INTERSECCIÓN— y así se escaparon nueve
+# llamadas deprecadas en 8.5 durante la campaña. Si vuelve a soportarse otra versión, se repone la
+# unión de pasadas (ver la reversión del ADR 0020).
 
 set -o pipefail
 
@@ -35,9 +32,9 @@ REPORT_FILE=PHPStanResult.txt
 REPORT_JSON=PHPStanResult.json
 ANALYSE="bin/tools/vendor/bin/phpstan analyse --autoload-file=$SCRIPT_DIR/../src/vendor/autoload.php --memory-limit 2000M"
 
-# 1. Dos configuraciones derivadas de bin/phpstan.neon, una por versión. Derivadas y no
-#    duplicadas: así no pueden quedarse atrás cuando alguien toque los ignores.
-for VERSION in 80400 80500; do
+# 1. La configuración de la pasada, derivada de bin/phpstan.neon y no duplicada: así no puede
+#    quedarse atrás cuando alguien toque los ignores.
+for VERSION in 80500; do
     $PHP_BIN -r '
         $c = str_replace("\r\n", "\n", (string) file_get_contents("bin/phpstan.neon"));
         if (preg_match("/^    phpVersion:\n(?:        .*\n)+/m", $c, $m) !== 1) {
@@ -49,24 +46,23 @@ for VERSION in 80400 80500; do
     ' "$VERSION" "bin/phpstan.$VERSION.generated.neon" || exit 1
 done
 
-# 2. La tabla legible sale de la pasada del PISO. Es para leerla; el dato manda en el JSON.
+# 2. La tabla legible, de la pasada. Es para leerla; el dato manda en el JSON.
 #    NO QUITAR COLUMNS: sin él la tabla recorta las rutas al ancho de terminal.
 COLUMNS=400 PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 \
-    $PHP_BIN $ANALYSE -c bin/phpstan.80400.generated.neon > "$REPORT_FILE"
+    $PHP_BIN $ANALYSE -c bin/phpstan.80500.generated.neon > "$REPORT_FILE"
 
-# 3. Las dos pasadas de máquina.
-$PHP_BIN $ANALYSE -c bin/phpstan.80400.generated.neon --error-format=json --no-progress > PHPStanResult.8.4.json 2>/dev/null
+# 3. La pasada de máquina.
 $PHP_BIN $ANALYSE -c bin/phpstan.80500.generated.neon --error-format=json --no-progress > PHPStanResult.8.5.json 2>/dev/null
 
-# 4. La UNIÓN. Cada error queda anotado con las versiones en que aparece.
+# 4. PHPStanResult.json, deduplicado por (ruta, línea, mensaje) y con la versión anotada en cada error.
 $PHP_BIN -r '
     $load = function (string $file): array {
         $json = json_decode((string) @file_get_contents($file), true);
         return is_array($json) && isset($json["files"]) && is_array($json["files"]) ? $json["files"] : [];
     };
-    $sources = ["8.4" => $load("PHPStanResult.8.4.json"), "8.5" => $load("PHPStanResult.8.5.json")];
-    if (count($sources["8.4"]) === 0 && count($sources["8.5"]) === 0) {
-        fwrite(STDERR, "Las dos pasadas devolvieron cero archivos: la medición NO se hizo.\n");
+    $sources = ["8.5" => $load("PHPStanResult.8.5.json")];
+    if (count($sources["8.5"]) === 0) {
+        fwrite(STDERR, "La pasada devolvió cero archivos: la medición NO se hizo.\n");
         exit(1);
     }
     $union = [];
@@ -77,7 +73,9 @@ $PHP_BIN -r '
                 if (!isset($union[$key])) {
                     $union[$key] = ["path" => $path, "message" => $message, "versions" => []];
                 }
-                $union[$key]["versions"][] = $version;
+                if (!in_array($version, $union[$key]["versions"], true)) {
+                    $union[$key]["versions"][] = $version;
+                }
             }
         }
     }
@@ -100,7 +98,7 @@ $PHP_BIN -r '
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 ' || exit 1
 
-rm -f bin/phpstan.80400.generated.neon bin/phpstan.80500.generated.neon
+rm -f bin/phpstan.80500.generated.neon
 
-# 5. Resumen y trinquete, a partir del JSON de la unión.
+# 5. Resumen y trinquete, a partir de PHPStanResult.json.
 $PHP_BIN "$SCRIPT_DIR/phpstan-process-result.php" "$@"

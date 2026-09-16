@@ -31,7 +31,7 @@ if (!is_array($union) || !isset($union['files']) || !is_array($union['files'])) 
 
 $errorTypesCounter = [];
 $errorsByFile = [];
-$versionCounter = ['8.4' => 0, '8.5' => 0, 'ambas' => 0];
+$versionCounter = ['8.5' => 0, 'otras' => 0];
 $totalErrors = 0;
 
 foreach ($union['files'] as $path => $data) {
@@ -52,12 +52,10 @@ foreach ($union['files'] as $path => $data) {
         $errorsByFile[$labelled][$identifier][] = $message['line'];
 
         $versions = (array) ($message['phpVersions'] ?? []);
-        if (count($versions) > 1) {
-            $versionCounter['ambas']++;
-        } elseif (in_array('8.5', $versions, true)) {
+        if ($versions === ['8.5']) {
             $versionCounter['8.5']++;
         } else {
-            $versionCounter['8.4']++;
+            $versionCounter['otras']++;
         }
     }
 }
@@ -83,13 +81,11 @@ $content = mb_strtoupper("================[RESUMEN]================\n");
 $content .= mb_strtoupper("\n[Total de archivos con errores]\n") . count($errorsByFile) . "\n";
 $content .= mb_strtoupper("\n[Total de errores visibles]\n") . $totalErrors . "\n";
 $content .= mb_strtoupper("\n[Unidad]\n");
-$content .= "TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos\n";
-$content .= "pasadas se deduplica por esa clave, así que un error idéntico repetido en el mismo\n";
-$content .= "sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.\n";
-$content .= mb_strtoupper("\n[Reparto por versión de PHP]\n");
-$content .= "En las dos (8.4 y 8.5): {$versionCounter['ambas']}\n";
-$content .= "Solo en 8.5: {$versionCounter['8.5']}\n";
-$content .= "Solo en 8.4: {$versionCounter['8.4']}\n";
+$content .= "TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la pasada se deduplica por\n";
+$content .= "esa clave, así que un error idéntico repetido en el mismo sitio cuenta UNA vez.\n";
+$content .= mb_strtoupper("\n[Versión de PHP]\n");
+$content .= "UNA PASADA, PHP 8.5 (ADR 0020): {$versionCounter['8.5']}\n";
+$content .= "Anotados con otra versión (debe ser 0): {$versionCounter['otras']}\n";
 $content .= mb_strtoupper("\n[Tipos de errores y cantidad]\n") . implode("\n", $errorTypes);
 $content .= mb_strtoupper("\n\n[Errores por archivo]\n") . implode("\n", $errorByFileStr);
 
@@ -155,9 +151,9 @@ foreach ($errorsByFile as $labelled => $identifiers) {
 }
 
 //──── PATRONES SIN CASAR ────────────────────────────────────────────────────────────────
-//Un patrón de ignoreErrors que ya no casa en alguna de las dos pasadas es puerta roja. Sin la medida, falla cerrada.
+//Un patrón de ignoreErrors que ya no casa en la pasada es puerta roja. Sin la medida, falla cerrada.
 $unmatched = [];
-foreach (['8.4' => 'PHPStanResult.8.4.json', '8.5' => 'PHPStanResult.8.5.json'] as $pass => $passFile) {
+foreach (['8.5' => 'PHPStanResult.8.5.json'] as $pass => $passFile) {
     $passData = json_decode((string) @file_get_contents($basePath . '/' . $passFile), true);
     if (!is_array($passData) || !isset($passData['errors']) || !is_array($passData['errors'])) {
         //RETORNO-IGNORADO: si STDERR no acepta la línea, el exit(1) de abajo sigue parando.

@@ -1,7 +1,7 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia vigente — UNIVERSO COMPLETO, en TRIPLETAS. Sale de `bin/phpstan` —dos pasadas, 8.4 y
-8.5, y su unión— y se midió con phpstan 2.2.12 el 2026-09-14. LA CIFRA VIVE EN UN SOLO SITIO: el
+Referencia vigente — UNIVERSO COMPLETO, en TRIPLETAS. Sale de `bin/phpstan` —una pasada, PHP 8.5
+(ADR 0020); hasta el 2026-09-16, dos pasadas y su unión— y se midió con phpstan 2.2.12. LA CIFRA VIVE EN UN SOLO SITIO: el
 campo del [RESUMEN] del final. Esta nota no la repite: cuando la cabecera, el campo y el último
 [REPARTO] la copiaban, derivaron cada uno por su lado, y la comprobación 26 de `verify-integrity`
 falla si vuelven a separarse. NO DEJARLO PEOR.
@@ -22,10 +22,9 @@ CÓMO SE MIDIÓ, que es lo que hace comparable esta cifra (LEY 5):
 
     bin/phpstan
 
-    DOS PASADAS Y LA UNIÓN. `src/composer.json` declara `>=8.4.1 <8.6`, así que el
-    código tiene que estar limpio en las dos versiones. Se corre PHPStan con
-    `phpVersion` fijado en 80400 y otra vez en 80500, y el baseline es la UNIÓN de
-    los dos conjuntos.
+    UNA PASADA, PHP 8.5. `src/composer.json` declara `>=8.5 <8.6`: se corre PHPStan con
+    `phpVersion` fijado en 80500, nunca un rango (ADR 0020). Al retirar la pasada de 8.4 la
+    cifra NO se movió (715): no había tripletas que solo existieran en 8.4.
 
     UNIDAD: TRIPLETAS (ruta, línea, mensaje) DISTINTAS. La unión se deduplica por esa
     clave, así que un error repetido idéntico en el mismo sitio cuenta una vez.

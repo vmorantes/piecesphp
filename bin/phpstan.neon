@@ -4,34 +4,18 @@ includes:
     - tools/vendor/phpstan/phpstan-deprecation-rules/rules.neon
 parameters:
     level: 8
-    # ATENCIÓN: ESTE RANGO NO HACE LO QUE DECÍA ESTE COMENTARIO.
+    # UNA PASADA FIJA EN PHP 8.5 (ADR 0020): el proyecto solo soporta 8.5, y `bin/phpstan` deriva de
+    # este bloque la configuración de su pasada única.
     #
-    # Decía: «con un escalar, PHPStan analiza una sola versión y las deprecaciones de la
-    # otra pasan desapercibidas». Es al revés. Con un RANGO, PHPStan reporta solo lo que es
-    # error en TODAS las versiones del rango — la INTERSECCIÓN, no la unión. Una deprecación
-    # introducida en 8.5 no lo es en 8.4, así que **se descarta en silencio**.
+    # NUNCA UN RANGO. Con `min` y `max` distintos PHPStan reporta solo lo que es error en TODAS las
+    # versiones del rango —la INTERSECCIÓN—, y así se escaparon las nueve llamadas deprecadas en 8.5
+    # de la migración. Si algún día se soporta otra versión, se repone la unión de pasadas.
     #
-    # MEDIDO, no deducido. Fijando `min: 80500, max: 80500` sobre este mismo árbol:
-    #
-    #   - aparecen 38 errores que hoy no se ven, y el total pasa de 877 a 900;
-    #   - entre ellos, las 3 llamadas a strftime() y el imagedestroy() de sonda, que con el
-    #     rango NO se reportan.
-    #
-    # Y esto explica el fallo entero de la migración: Apache sirve **PHP 8.5.9**, mientras
-    # que `bin/phpstan`, `bin/cli` y `bin/rector` corren con **php8.4**. Las nueve llamadas
-    # deprecadas eran invisibles para los dos detectores a la vez: para el estático por este
-    # rango, y para el de ejecución porque en 8.4 esas funciones no avisan.
-    #
-    # RESUELTO: `bin/phpstan` YA NO USA ESTE BLOQUE COMO RANGO. Corre DOS PASADAS —una con
-    # `phpVersion` fijado en 80400 y otra en 80500, derivadas de este mismo archivo— y el
-    # baseline es la UNIÓN de las dos. Reconciliación exacta: 875 instancias en 8.4, menos 9
-    # duplicados que la unión deduplica, más 22 tripletas que SOLO existen en 8.5 = 888.
-    #
-    # Este bloque se conserva porque las dos pasadas lo SUSTITUYEN por su valor fijo: si
-    # desaparece, `bin/phpstan` aborta en vez de analizar una sola versión en silencio.
+    # Este bloque se conserva aunque sea un solo valor: si desaparece, `bin/phpstan` aborta en vez de
+    # analizar con la versión por defecto en silencio.
     phpVersion:
-        min: 80400 # PHP 8.4 — piso declarado en src/composer.json
-        max: 80500 # PHP 8.5 — la versión que sirve Apache
+        min: 80500 # PHP 8.5 — la única versión soportada (src/composer.json)
+        max: 80500 # PHP 8.5
     # EL UNIVERSO ES EL REPOSITORIO ENTERO, y lo que queda fuera se dice abajo. Al revés
     # —enumerar lo que entra— el código nuevo nace invisible y la cifra sale igual de verde
     # midiendo menos. Ver T77 y T79.

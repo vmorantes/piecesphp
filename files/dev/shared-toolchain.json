@@ -29,16 +29,16 @@
   ],
   "files": {
     "bin/phpstan": {
-      "why": "Dos pasadas y la unión, y el binario de PHP explícito.",
+      "why": "Una pasada fija en PHP 8.5 (ADR 0020), nunca un rango, y el binario de PHP explícito.",
       "markers": [
         "PCSPHP_PHP_BIN",
-        "80400.generated.neon",
+        "PASADA ÚNICA 8.5",
         "80500.generated.neon",
         "PHPStanResult.json"
       ]
     },
     "bin/phpstan-process-result.php": {
-      "why": "Resumen desde el JSON de la unión, trinquete, y el prefijo del editor.",
+      "why": "Resumen desde PHPStanResult.json, trinquete, puerta de patrones sin casar, y el prefijo del editor.",
       "markers": [
         "TRINQUETE",
         "phpVersions",
@@ -56,7 +56,7 @@
       "why": "Sin baseline el trinquete no puede comparar, y una puerta que no mide no aprueba.",
       "markers": [
         "[TOTAL DE ERRORES VISIBLES]",
-        "DOS PASADAS Y LA UNIÓN",
+        "UNA PASADA, PHP 8.5",
         "[REPARTO]"
       ]
     },
@@ -75,8 +75,7 @@
       "PHPStanResult.json": "Es de donde el resumen saca el dato —no de la tabla, que recorta las rutas—. Sin él versionado, el método escrito en el baseline no es reproducible desde el repositorio, y eso es la LEY 5."
     },
     "ignored": {
-      "PHPStanResult.8.4.json": "Intermedio de la pasada de 8.4. Se regenera; versionarlo es ruido.",
-      "PHPStanResult.8.5.json": "Intermedio de la pasada de 8.5. Se regenera; versionarlo es ruido.",
+      "PHPStanResult.8.5.json": "Intermedio de la pasada única de 8.5. Se regenera; versionarlo es ruido.",
       "bin/Preview": "Salida generada por phpstan-process-result.php. Ya se coló en html."
     },
     "executable": {
