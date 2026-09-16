@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 13:54 (medido con `date`).
+- **Actualizado:** 2026-09-16 13:57 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#192 · COD`. Próximo: `#193 · ARQ`. **Último al PO:** A-046.
+- **Último mensaje:** `#194 · COD`. Próximo: `#195 · ARQ`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 9, ronda 9.5b (#193)**: páginas nuevas para desarrolladores en `source-docs/project` (crear un módulo, el panel por dentro, mantener el framework), las cuatro capas en la portada, y la prueba real del ejemplo de consulta de `mappers.md`. 9.5a cerrada en #191-#192 (92b358cc, e72fe8b9, 66511ce7).
+**Lote 9, ronda 9.6 (#195)**: manifiesto de capas `.agents/capas.json` (A 91, B 24, C 53 archivos, medido) y su comprobación `.agents/scripts/capas.py` en `verificar.sh`, documentados en `.agents/README.md`. 9.5 cerrada en #191-#194 (0df796f2, 8ec8d98d): el ejemplo corregido de `mappers.md` funciona en la base local.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
