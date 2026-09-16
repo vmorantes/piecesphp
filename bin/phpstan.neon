@@ -251,6 +251,8 @@ parameters:
         # `<Modulo>Routes` YA NO EXISTEN: eran el interruptor `$showSQL`, y se retiraron al
         # centralizar el DDL en `bin/cli scheme-create`. Medido sin esta supresión: quedan
         # NUEVE, todas fuera de esa carpeta. Se retira cuando se hayan mirado. Ver T24 y T58.
+        # Al retirarla, `DataImportExportUtilityRoutes.php` (`const ENABLE = false`, módulo apagado a propósito) saldrá
+        # visible: repón para ese archivo una entrada PERMANENTE, detrás de este bloque. Medido en #214 (deadcode 254 -> 255).
         -
             identifier: if.alwaysFalse
             paths:
