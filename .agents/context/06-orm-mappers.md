@@ -244,6 +244,21 @@ Ambos métodos vienen de `ActiveRecordModel`. Hay un caso real en
 - `PiecesPHP\Core\Utilities\Helpers\DataTablesHelper` — construye la respuesta JSON
   que espera DataTables desde el endpoint `-datatables` de cada módulo.
 
+### `process()` y `processFromQuery()`
+
+- **`process()`**: el listado de un mapper. Los filtros van en `where_segment` y `having_segment`, por
+  marcador.
+- **`processFromQuery()`** (`DataTablesHelper.php:718`): el listado de una **tabla derivada**. Recibe en
+  `fakeTable` una subconsulta SQL y en `tableName` su alias. Su propósito es legítimo (decidido el 2026-09-02) y
+  **no se retira**. Consumidor único hoy: `MySpace\Controllers\AllProfilesController.php:165`, que le pasa un
+  `UNION ALL` de perfiles.
+  - **`fakeTable`, `where_string` y `having_string` son SQL crudo**: no hay segmento. Nunca llevan un valor de la
+    petición; se componen con literales del servidor.
+  - **La búsqueda la arma el helper** con `generateHavingGroup()`, por marcador.
+  - **Los valores se atan por sentencia**: la de `limit` y la de `filterCount` llevan el HAVING; la de `totalCount`
+    no. Atarle un marcador que no tiene da **HY093**.
+  - Lo fija `unit-tests:core/sql-placeholders`, sección 12.
+
 ## Validación
 
 - `PiecesPHP\Core\Validation\Validator`

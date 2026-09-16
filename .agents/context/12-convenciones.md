@@ -296,7 +296,7 @@ porque el momento en que se entiende es justo ese.
   la cabecera de la clase, que es donde todo el mundo mira para saber qué guarda.
   **Lo comprueba `bin/cli verify-integrity` (comprobación 15) en los cinco repositorios**;
   las propiedades promovidas del constructor no cuentan, porque no se pueden mover.
-- PHP 8.1+ compatible hasta 8.4 (hay una rama `updagre-to-php84` en curso).
+- PHP `>=8.5 <8.6` (`src/composer.json`). La migración a 8.5 terminó con la `v7.1.0`; su historia, en `historico/`.
 - Docblocks en todas las clases con `@package`, `@author`, `@copyright`, y
   `@property` para las propiedades mágicas de los mappers. **Los mappers dependen
   de `@property` para el autocompletado y para PHPStan.**

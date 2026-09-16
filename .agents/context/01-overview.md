@@ -40,7 +40,7 @@ Detalle y consecuencias prácticas en [12-convenciones.md](./12-convenciones.md)
 
 | Capa | Tecnología |
 | :-- | :-- |
-| Lenguaje | PHP `>=8.4.1 <8.6` |
+| Lenguaje | PHP `>=8.5 <8.6` (`src/composer.json`; `php` a secas en esta máquina es 8.1.34, usa `bin/cli`) |
 | HTTP / routing | Slim 4 (`slim/slim`, `slim/psr7`) + capa propia `PiecesPHP\Core\Route*` |
 | DI | `PiecesPHP\Core\Routing\DependenciesInjector` (PSR-11) |
 | Base de datos | MySQL/MariaDB vía PDO; ORM propio (`piecesphp/database`) |

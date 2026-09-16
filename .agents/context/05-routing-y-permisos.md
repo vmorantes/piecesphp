@@ -121,8 +121,8 @@ menús usan `'visible' => Controller::allowedRoute('x')`.
 
 ### Por qué `routeName()` / `allowedRoute()` están en cada controlador
 
-**No están en ninguna clase base: 44 controladores las reimplementan.** No es
-descuido — es consecuencia de tres cosas del diseño:
+**No estaban en ninguna clase base: 44 controladores las reimplementaban** (T12; hoy viven en un trait, ver
+abajo). No era descuido — era consecuencia de tres cosas del diseño:
 
 1. **Son piezas nucleares del acoplamiento controlador↔Slim.** Traducen
    `$baseRouteName + sufijo` a una ruta Slim registrada y, de paso, resuelven el
@@ -162,7 +162,8 @@ la convención y ahorra reescritura al clonar—, **las diferencias no**.
 ### Un solo trait: `PiecesPHP\Core\Routing\ControllerRoutingTrait`
 
 Aporta los **tres** métodos: `routeName()`, `allowedRoute()` y `_allowedRoute()` con
-`return true;` por defecto. **Lo usan los 44 controladores.**
+`return true;` por defecto. **Lo usan 41 controladores** (medido el 2026-09-16 con
+`git grep -l "use ControllerRoutingTrait;" -- src/app`; eran 44 antes de retirar módulos).
 
 Empezó siendo dos —uno de nombrado y uno de guarda— y **la frontera era inventada**: los
 tres métodos no se pueden separar. `routeName()` llama SIEMPRE a `_allowedRoute()`, y

@@ -11,7 +11,7 @@ bin/cli verify-integrity update-snapshot=yes  # regenera la instantánea
 
 Devuelve **código de salida 1** si algo falla, así que sirve tal cual en CI.
 
-Comprueba **dieciséis** cosas, numeradas en el propio `VerifyIntegrityTask::run()`: **esa numeración es la fuente, no esta lista.** Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
+Comprueba **veintinueve** cosas, numeradas en el propio `VerifyIntegrityTask::run()`: **esa numeración es la fuente, no esta lista.** Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
 
 1. **Docblocks sin cerrar.** Un comentario de bloque que no cierra, y —lo importante— un
    docblock que se ha tragado una declaración de función.
@@ -29,7 +29,7 @@ Usa el analizador léxico de PHP, no expresiones regulares sobre el texto: `/*` 
 dentro de cadenas —`'image/*'` es el caso típico— y contarlo a pelo daba 32 falsos
 positivos en las vistas.
 
-Las otras dieciséis, en el orden en que corren:
+Las otras veintisiete, en el orden en que corren:
 
 | # | Qué comprueba |
 | --: | :-- |
@@ -49,6 +49,17 @@ Las otras dieciséis, en el orden en que corren:
 | 16 | Ningún docblock quedó **separado de lo que documenta** (T91) |
 | 17 | La versión **instalada** de cada paquete contra la **última etiquetada** en su repositorio hermano. **AVISA, no falla** (T107) |
 | 18 | Ningún `if/else` tiene **las dos ramas iguales**. Por ÁRBOL DE SINTAXIS (nikic/php-parser), no por expresiones regulares (bloque S) |
+| 19 | Los **retornos ignorados** sin declarar no han crecido |
+| 20 | Ningún **enlace** del árbol servido apunta al vacío |
+| 21 | Las **claves de traducción** que nadie pide no han crecido |
+| 22 | Las **etiquetas de cada vista** cuadran |
+| 23 | Ninguna **ruta** de un módulo con control de acceso queda **sin declarar** |
+| 24 | Las **concatenaciones de SQL** con valor de petición no han crecido |
+| 25 | Ninguna forma **«para leer»** acaba ejecutándose sin declararlo |
+| 26 | Las cifras de la **línea base de PHPStan** dicen lo mismo |
+| 27 | Ningún **identificador de SQL** viene de la petición |
+| 28 | La **interpolación de SQL** con valor de petición no ha crecido |
+| 29 | Toda **carpeta de subidas** está protegida o declarada |
 
 > La de los tipos existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
 > `SystemApprovalsMapper`: con un tipo desconocido, `validateType()` devuelve **`true` para
@@ -80,12 +91,17 @@ CI no tienen contra qué comparar sin él. Y `PHPStanResult.txt` también, porqu
 `bin/tools/refactorization/Rector.php` lee de ahí la lista de archivos que analiza.
 
 ```bash
-bin/phpstan                                                  # corrida viva
-cp PHPStanResult.Summary.txt PHPStanResult.Summary.baseline.txt   # aceptar base nueva
+bin/phpstan        # corrida viva: sale con 1 si el total sube, o si la base no declara su reparto
 ```
 
-Regenerar la base es una decisión, no un paso rutinario: hazlo solo cuando el recuento
-nuevo esté justificado, y **commitéalo con el cambio que lo justifica**.
+**La base no se acepta copiando el archivo** (la forma con `cp` quedó vieja). Se edita a mano:
+
+- la cifra, en un solo sitio: el campo `[TOTAL DE ERRORES VISIBLES]` del `[RESUMEN]` del final;
+- una línea `[REPARTO] <nueva> <- <anterior> = <n> arreglos + <n> supresiones`, con `+ <n> destapados` o
+  `+ <n> murieron` cuando los haya (`bin/phpstan-process-result.php:190-258` rechaza un reparto que no cuadra).
+
+La comprobación 26 de `verify-integrity` falla si las cifras de la base se separan. Mover la base es una
+decisión, no un paso rutinario: solo con el cambio que la justifica, y **en el mismo commit**.
 
 ## Unitarias
 
@@ -106,7 +122,8 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/mapper-finders` | **MariaDB** |
 | `core/otp-fresh-user` | **MariaDB** |
 | `core/helpers-directories` | **El sistema de archivos** |
-| `core/http-client` | **NADIE — SIN COBERTURA desde el 2026-08-25.** Ver abajo |
+| `core/http-client` | **La red** — sale a `example.com` y comprueba el tiempo de espera contra `10.255.255.1`. Declara `network`: solo corre con `gates with=external` (T130) |
+| `core/http-client-request-build` | **Se juzga sola** — mira la URI, el cuerpo y las cabeceras que construye el cliente, sin red. Entra en la pasada por defecto |
 | `core/database-exporter` | Base de datos y archivo |
 | `core/otp-write-separation` | **Mixta** — tres comprobaciones leen el cuerpo del método |
 | `core/meta-property-hybrid` | **Se juzga sola** (reflexión) |
@@ -121,35 +138,12 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `tests:mautic-batch-send` | **RED y CORREO** — la otra mitad, con el adaptador real. Fuera de la pasada por defecto, y VISIBLE con su motivo (T125, T126) |
 | `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
 
-#### `core/http-client` queda SIN COBERTURA — 2026-08-25
+#### `core/http-client`: dos suites desde T130
 
-**Se retiró de la pasada por defecto** al declarar sus efectos (T85): salía a `webhook.site`, un
-buzón de terceros con un identificador fijo escrito en el código. Un corredor de puertas que
-habla con el exterior es un problema mayor que la puerta que se pierde, así que se retiró
-primero y se reconstruye después.
-
-**Qué queda sin vigilar — nueve sitios usan `HttpClient`:**
-
-| Archivo | Para qué |
-| :-- | :-- |
-| `API/Adapters/APILabsMobileSMS.php` | Envío de SMS |
-| `API/Adapters/MauticEmailAdapter.php` | Mautic |
-| `API/Adapters/MistralHandlerAdapter.php` | Mistral |
-| `API/Adapters/APIExternalAdapterExample.php` | Ejemplo de adaptador |
-| `GoogleReCaptchaV3/Controllers/GoogleReCaptchaV3Controller.php` | reCAPTCHA |
-| `core/psr4/PiecesPHP/Core/MailjetHandler.php` | Mailjet |
-| `core/psr4/PiecesPHP/Core/Utilities/OsTicket/OsTicketAPI.php` | OsTicket |
-| `controller/AdminPanelController.php` | Panel |
-| `controller/UserProblemsController.php` | Reporte de problemas |
-
-**Y la mitad honesta, que hay que decir**: esta suite **nunca imprimió balance**. Era una de las
-tres que T74 encontró sin veredicto, así que **como puerta valía lo que una suite omitida**
-(LEY 13). Lo que se pierde hoy es la ejecución, no un verde que alguien estuviera leyendo.
-
-**Cómo se reconstruye** — ver T93. En corto: el servidor de PHP (`php -S 127.0.0.1:puerto`) con
-un guion que devuelve la petición recibida como JSON. **Tres de las cinco comprobaciones ni
-siquiera necesitan servidor**: miran `getRequestBody()` y `getRequestHeaders()`, o sea lo que el
-cliente construyó, no lo que nadie respondió.
+El 2026-08-25 salió de la pasada por defecto, porque escribía a un buzón de `webhook.site` con un identificador
+fijo, y nunca había impreso balance. Se reconstruyó en dos: `core/http-client-request-build` prueba sin red lo
+que el cliente construye, y entra en `gates`; `core/http-client` sale a la red contra destinos reservados
+(`example.com`, por la RFC 2606, y `10.255.255.1` para el tiempo de espera), y solo corre con `with=external`.
 
 
 
@@ -270,8 +264,8 @@ bin/cli unit-tests:core/prefer-slug
 - El SQL del esquema, de ida y de vuelta
     - Descubre TODOS los mappers, emite el `CREATE` y el `DROP`, y **se los da a MariaDB** en
       una base de usar y tirar.
-    - **Hoy sale en rojo a propósito**: 20 de las 33 tablas no se pueden crear desde sus
-      propios mappers. Ver T52. No es un fallo de la suite.
+    - **En verde.** Salió en rojo mientras había tablas que no se podían crear desde sus propios mappers
+      (T52); si vuelve a rojo, un mapper dejó de describir su tabla.
     - src/app/core/system-controllers/local-tests/UnitTest-SchemeSqlRoundTrip.php
 ```bash
 bin/cli unit-tests:core/scheme-sql-round-trip

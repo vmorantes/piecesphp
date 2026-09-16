@@ -53,13 +53,12 @@ versiona** (18 T129). En los paquetes se etiqueta con soltura (PO, 2026-08-27, c
 
   **La dinámica, decidida por el PO el 2026-09-14 (P19)**: todos los paquetes llevan `dev`,
   homologada con `master`; se trabaja en `dev`, se fusiona a `master` (su estable) y ahí se
-  etiqueta. Homologación pendiente: `datastructures` y `html` no tienen `dev`, que se crea en
-  `master`; en `database` y `geojson`, `dev` y `master` ya apuntan al mismo commit (medido:
-  `git rev-list --left-right --count master...dev` da 0 y 0). La guarda deja crear `dev` en los
-  paquetes y ninguna otra rama.
+  etiqueta. La guarda deja crear `dev` en los paquetes y ninguna otra rama.
 
-  **Homologación hecha el 2026-09-14** (bitácora 0004): en los cuatro, `dev` = `master`. Pero
-  el árbol activo de cada paquete sigue en `master`. Por eso, **la instrucción que toque un
+  **Homologación hecha el 2026-09-14** (bitácora 0004): los cuatro tienen `dev`. Que `dev` y
+  `master` coincidan no es invariante: entre fusiones, `dev` va por delante (medido el
+  2026-09-16 con `git rev-list --left-right --count master...dev`: `html` 0 y 3, los otros tres
+  0 y 0). El árbol activo de un paquete puede estar en `master`. Por eso, **la instrucción que toque un
   paquete empieza con `git -C <ruta> switch dev`** y lo comprueba con
   `git -C <ruta> branch --show-current`. La guarda deja cambiar de rama; lo que no deja es
   crearla.
