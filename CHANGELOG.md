@@ -11,6 +11,7 @@
 | Pre-versión | Fecha | Hasta |
 | :-- | :-- | :-- |
 | `v8.0.0-alpha.1` | 2026-09-16 | La ruptura 28 y la corrección del escape en los correos de los formularios públicos |
+| `v8.0.0-alpha.2` | 2026-09-16 | La ruptura 29 y la corrección de la recuperación de contraseña (se podía tomar una cuenta) |
 
 ## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
 

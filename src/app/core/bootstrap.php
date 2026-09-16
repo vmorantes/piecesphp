@@ -259,7 +259,7 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v8.0.0-alpha.1');
+    define('APP_VERSION', 'v8.0.0-alpha.2');
     /**
      * Fecha de la versión de la aplicación
      */
