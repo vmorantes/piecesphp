@@ -306,11 +306,11 @@ project://src/app/controller/AdminPanelController.php
 	method.resultUnused (Líneas: 221, 226)
 project://src/app/controller/AppConfigController.php
 	foreach.nonIterable (Líneas: 216)
-	argument.type (Líneas: 392, 393, 1515, 2091)
-	method.nonObject (Líneas: 1562, 1661, 1666, 1677, 1681)
-	method.resultUnused (Líneas: 1566, 1574, 1581)
-	property.nonObject (Líneas: 1678)
-	return.type (Líneas: 2137)
+	argument.type (Líneas: 392, 393, 1532, 2108)
+	method.nonObject (Líneas: 1579, 1678, 1683, 1694, 1698)
+	method.resultUnused (Líneas: 1583, 1591, 1598)
+	property.nonObject (Líneas: 1695)
+	return.type (Líneas: 2154)
 project://src/app/controller/AvatarController.php
 	argument.type (Líneas: 241, 248, 257)
 project://src/app/controller/ContactFormsController.php
@@ -492,7 +492,7 @@ project://src/app/view/panel/layout/header.php
 project://src/app/view/panel/layout/menu.php
 	argument.type (Líneas: 35, 72, 99)
 project://src/app/view/panel/layout/topbar.php
-	property.nonObject (Líneas: 21, 22, 686)
+	property.nonObject (Líneas: 21, 22, 689)
 	argument.type (Líneas: 35)
 project://src/app/view/panel/pages/about-framework.php
 	property.nonObject (Líneas: 4)
