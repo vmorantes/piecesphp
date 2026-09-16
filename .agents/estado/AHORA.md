@@ -32,10 +32,23 @@
   - **Desde ahora:** la documentación de una ronda se commitea EN esa ronda. Si se para, lo
     último antes de parar es ese commit de documentación.
   - Se sube a la regla 30 en la ronda siguiente.
-- **Último mensaje enviado: `#096 · ARQ`.** La ronda en vuelo es el cierre de jornada abierto en
-  `#093`: commitear la documentación del tirón y borrar el `TODO.md`, para que el PO pueda
-  empujar con el árbol limpio. Es la ronda de la norma nueva, no trabajo de producto. El próximo
-  número es `#097`.
+- **Último mensaje enviado: `#098 · ARQ`.** Commitea la corrección de la regla 30 que sale de
+  `#097`. Es lo ÚLTIMO de la jornada: al cerrarlo, el árbol queda limpio otra vez. El próximo
+  número es `#099`.
+- **EL CIERRE DE JORNADA ESTÁ HECHO** (`#093`→`#097`). El árbol quedó limpio y el `TODO.md` ya
+  no está ni en disco ni en `HEAD`. Commits: `e45bccc0` (el borrado y los cuatro documentos que
+  lo citaban), `0ebbc9bc` (registro del tirón, poda del mapa y rupturas 18 a 25) y `38d9174c`
+  (estado). `verificar.sh` entero en verde, incluidos los 14 enlaces y la guarda 198/198.
+  - **DEFECTO DE MIS INSTRUCCIONES, corregido en la regla 30:** `#093` dictaba `bin/guarda-add`
+    ANTES del `git add` y sin `--pendientes`. Así aborta: mide `CAMBIADO` sobre el árbol entero
+    y `AÑADIDO` sobre lo preparado. El coder leyó el guion en vez de teclear lo dictado y lo
+    salvó. La forma correcta ya está escrita en la regla 30, «Los cuatro números».
+  - **Hallazgo 9.1 del coder, aceptado:** `git cat-file -e HEAD:TODO.md | head -2` deja en `$?`
+    el código de `head`, no el de `cat-file`. La cifra que imprimió era basura; la conclusión la
+    sostiene el mensaje literal de git. Con tubería, `PIPESTATUS`.
+  - **Hallazgo 9.2, anotado y sin tocar:** `bitacora/0003:79` dice que el `TODO.md` «sigue en la
+    raíz». Es relato, no estado, y por eso se queda. Si alguna vez la bitácora se lee como
+    estado, esa es la frase que engaña.
   - `#094 · COD`: **bloqueado en el paso 1** de `#093`. El censo sacó una referencia al
     `TODO.md` en `.agents/context/01-overview.md:117` que la instrucción no listaba como
     esperada, y la instrucción manda parar ahí. Paró bien: la instrucción era mía y la lista,
