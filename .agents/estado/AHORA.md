@@ -12,8 +12,55 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#091 · ARQ` (ronda **20 de 20, la ÚLTIMA**: arreglar las dos
-  guardas que fallan abiertas y cerrar la tanda B). El próximo número es `#092`.
+- **POR DÓNDE SE EMPIEZA LA PRÓXIMA SESIÓN**, por orden, salvo que el PO diga otra cosa. Todo
+  está descrito en `pendientes.md`, en «Encargos y correcciones del PO tras cerrar el tirón»:
+  1. **El aviso de `app_key` con `nag`**, descartable y apagable, flotando sobre el contenido y
+     sin romper el diseño. Está hoy en la pantalla de todo root y todo administrador, y es un
+     fallo de especificación del arquitecto;
+  2. **`4d`, el escape doble del ORM**, que el PO ya aprobó (A-022 §5.1) siempre que no se pierda
+     funcionalidad. Es lo único que corrompe datos guardados en silencio;
+  3. **`4e`**, el límite del OTP, que depende del anterior;
+  4. lo demás, por el mapa.
+- **Y la conversación del cierre dejó cuatro encargos** que no son lotes todavía: el documento de
+  diseño del panel (medir el esqueleto primero), la vista «Sistema» ampliada, la guía personal
+  escrita durante la campaña y **sin versionar**. El `TODO.md` se borra sin rescatar nada: el PO
+  descartó su contenido expresamente.
+- **NORMA NUEVA (PO, 2026-09-15): ninguna jornada termina con el árbol sucio.**
+  - Hasta hoy, la documentación de una ronda la commiteaba el coder **al abrir la siguiente**.
+    Mientras se encadenan rondas funciona; **en cuanto se para, el árbol queda sucio y el PO no
+    puede empujar limpio**. Es un defecto del método, no un descuido.
+  - **Desde ahora:** la documentación de una ronda se commitea EN esa ronda. Si se para, lo
+    último antes de parar es ese commit de documentación.
+  - Se sube a la regla 30 en la ronda siguiente.
+- **Último mensaje enviado: `#096 · ARQ`.** La ronda en vuelo es el cierre de jornada abierto en
+  `#093`: commitear la documentación del tirón y borrar el `TODO.md`, para que el PO pueda
+  empujar con el árbol limpio. Es la ronda de la norma nueva, no trabajo de producto. El próximo
+  número es `#097`.
+  - `#094 · COD`: **bloqueado en el paso 1** de `#093`. El censo sacó una referencia al
+    `TODO.md` en `.agents/context/01-overview.md:117` que la instrucción no listaba como
+    esperada, y la instrucción manda parar ahí. Paró bien: la instrucción era mía y la lista,
+    incompleta.
+  - `#095 · ARQ`: opción (a), la referencia es intencionada (deja constancia del borrado, en
+    pasado). Con dos correcciones que el coder pidió y tenía razón en pedir: el mensaje del
+    primer commit pasa a «se corrigen los documentos que lo citaban», porque «dejan de
+    nombrarlo» era falso, y se cita la línea de autorización de commits, que `#093` omitió.
+  - **`#095` SE GASTÓ DOS VECES**: el coder emitió su `#095 · COD` sin haber recibido el mío.
+    Mensajes cruzados, no un fallo de nadie. El contador salta a `#096` y no se reutiliza.
+  - **Ambas sesiones se compactaron el 2026-09-15** y se intercambiaron el resumen. El del coder
+    trajo una discrepancia real (cinco archivos contra nueve) que era de cronología: el
+    arquitecto corrigió cuatro documentos DESPUÉS de mandar su resumen.
+- **EL TIRÓN DE 20 RONDAS ESTÁ CERRADO** (2026-09-15, 19:13, medido con `date`). El coder quedó
+  libre al recibirse `#092`.
+  - `#092 · COD`: la ronda 20 cerrada (`40c6d89d`, `1a7a0349`, `c6752466`, `576ef659`). Las dos
+    guardas que fallaban abiertas ya fallan cerrado, con prueba; la tanda B, probada y provocada.
+    **De las 19 guardas del 7b, 0 quedan sin prueba.**
+  - **Antes de instruir nada nuevo, lee el resumen del tramo** en
+    `tramos/2026-09-15-1022-lote-4-y-estudio-4b.md`, y «Espera al PO» de ese mismo archivo.
+  - **Lo primero del tirón siguiente, salvo que el PO diga otra cosa:** H-R (el escape doble del
+    ORM), que es lo único que corrompe datos en silencio y es la causa de H-L. **Necesita su
+    decisión: es el ORM y vive en un paquete hermano.**
+  - El GRAN RESUMEN se le entregó en el chat (**A-022**) y está también en el tramo.
+- *(histórico)* **Último mensaje enviado:** `#091 · ARQ` (ronda 20 de 20).
   - `#090 · COD`: la tanda A del 7b, cerrada (`779890c1`, `07068319`, `9af1845e`). 13 guardas
     con prueba y provocación; el censo baja de 19 a 11.
   - **⚠ Dos guardas fallan abiertas** (ver `pendientes.md`): `UploadedFileAdapter::validate()`
@@ -369,7 +416,10 @@
 - **Tramo en curso:** [`tramos/2026-09-15-1022-lote-4-y-estudio-4b.md`](tramos/2026-09-15-1022-lote-4-y-estudio-4b.md).
 - **Informe del estado del proyecto:** [`informe-2026-09-14-estado-del-proyecto.md`](informe-2026-09-14-estado-del-proyecto.md).
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-- **Rama:** `dev`, en `4b3d3d58`. Hay 33 commits sin empujar en piecesphp.
+- **Rama:** `dev`. **Aquí no se escribe el hash de HEAD**: se pudre entre rondas y ya lo hizo
+  (decía `4b3d3d58` cuando HEAD iba por `50a0b00d`; lo cazó el coder en `#094`). Se mira con
+  `git --no-optional-locks log --oneline -1`. Los commits sin empujar tampoco se cuentan aquí:
+  la cifra que había (33) nació sin método y no se ha vuelto a medir.
 
 ## Autorización de commits del PO (ADR 0005)
 
