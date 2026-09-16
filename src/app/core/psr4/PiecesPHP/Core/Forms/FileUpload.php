@@ -56,8 +56,8 @@ class FileUpload
     const NOT_UPLOAD_FAKE_NAME = 'NOT_FILE';
     const NOT_UPLOAD_FAKE_TYPE = 'mimetype/unexists';
     const NOT_UPLOAD_FAKE_SIZE = 100 * 100 * 100 * 100;
-    const NOT_UPLOAD_FAKE_TMP_NAME = 'NOT_FILE';
-    const NOT_UPLOAD_FAKE_ERROR = 'FAKE_ERROR';
+    const NOT_UPLOAD_FAKE_TMP_NAME = UploadedFileValidation::NOT_UPLOAD_FAKE_TMP_NAME;
+    const NOT_UPLOAD_FAKE_ERROR = UploadedFileValidation::NOT_UPLOAD_FAKE_ERROR;
 
     /**
      * @param string $name
@@ -177,98 +177,14 @@ class FileUpload
     public function validate()
     {
         $this->errorMessages = [];
-        $valid = true;
         $files = $this->isMultiple() ? $this->fileInformation : [$this->fileInformation];
-
         foreach ($files as $file) {
-
-            $tmp = $file['tmp_name'];
-            $error = $file['error'];
-
-            //NO compares $error con `==`: vale la CADENA FAKE_ERROR si la clave no venia. Ver T135.
-            if ($error === self::NOT_UPLOAD_FAKE_ERROR) {
-
-                $this->errorMessages[] = 'No se ha subido ningún archivo.';
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_OK) {
-
-                if (is_uploaded_file($tmp)) {
-
-                    if (!$this->validator->validate($tmp, $file['name'])) {
-                        $this->errorMessages[] = $this->validator->getMessage();
-                        $valid = false;
-                    }
-
-                } else {
-
-                    if ($tmp != self::NOT_UPLOAD_FAKE_TMP_NAME) {
-                        throw new \Exception("Los archivos deben ser subidos mediante POST.");
-                    } else {
-                        $this->errorMessages[] = 'No se ha subido ningún archivo.';
-                        $valid = false;
-                    }
-
-                }
-
-            } elseif ($error == \UPLOAD_ERR_INI_SIZE) {
-
-                $max_upload = min(ini_get('post_max_size'), ini_get('upload_max_filesize'));
-                $max_upload = str_replace('M', 'MB', $max_upload);
-
-                $this->errorMessages[] = 'El archivo excede el peso máximo permitido por el servidor. (' . "$max_upload" . ')';
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_FORM_SIZE) {
-
-                $message_error_size = 'El archivo excede el peso máximo permitido.';
-
-                if (isset($_POST['MAX_FILE_SIZE']) && ctype_digit($_POST['MAX_FILE_SIZE'])) {
-                    $max_upload = $_POST['MAX_FILE_SIZE'] / 1000 / 1000;
-                    $max_upload = (int) floor($max_upload);
-                    $message_error_size .= " ({$max_upload}MB)";
-                }
-
-                $this->errorMessages[] = $message_error_size;
-
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_PARTIAL) {
-
-                $this->errorMessages[] = 'El archivo no se subió completamente.';
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_NO_FILE) {
-
-                $this->errorMessages[] = 'No ha subido ningún archivo.';
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_NO_TMP_DIR) {
-
-                $this->errorMessages[] = 'No se ha subido el archivo. Problema con el directorio temporal.';
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_CANT_WRITE) {
-
-                $this->errorMessages[] = 'No se ha subido ningún archivo. Problema al escribir en disco.';
-                $valid = false;
-
-            } elseif ($error == \UPLOAD_ERR_EXTENSION) {
-
-                $this->errorMessages[] = 'No se ha subido ningún archivo. Problema con alguna extensión.';
-                $valid = false;
-
-            } else {
-
-                //Sin esta rama, un error desconocido deja `$valid` como estaba: en true.
-                $this->errorMessages[] = 'No se ha podido validar el archivo subido.';
-                $valid = false;
-
-            }
-
+            $errors = UploadedFileValidation::errors($file, $this->validator, false, function (string $text): string {
+                return $text;
+            });
+            $this->errorMessages = array_merge($this->errorMessages, $errors);
         }
-
-        return $valid;
+        return count($this->errorMessages) === 0;
     }
 
     /**
