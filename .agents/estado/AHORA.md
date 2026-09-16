@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 11:04 (medido con `date`).
+- **Actualizado:** 2026-09-16 11:25 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#139 · ARQ`. Próximo: `#140`. **Último al PO:** A-036.
+- **Último mensaje:** `#141 · ARQ`. Próximo: `#142`. **Último al PO:** A-037.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,16 +15,17 @@
 
 ## En curso
 
-**`#139`: los destinatarios del formulario de contacto y de «otros problemas» salen de la configuración**
-(9.1 de `#131`, predeterminado de A-036 §3). Vacíos por defecto; sin destinatarios válidos no se envía y
-queda en el log. Arregla además el error fatal de `other-problems-send` con osTicket sin configurar y deja
-de entregar las cabeceras de osTicket a un visitante. Ruptura 28. Después: `7c` parte B, que prueba los dos
-envíos de punta a punta contra Mailpit.
+**`#141`: `7c` parte B, B1**, sin base de datos:
+- el escape de las dos plantillas de correo de los formularios públicos (inyección de HTML), con una suite de
+  composición que falla al quitarlo;
+- los envíos 6 (`mailRecoveryPassword`), 8 (`sendCode`, las dos plantillas) y 9 (`sendMessageOtherProblems`,
+  con y sin destinatarios) de punta a punta contra Mailpit. **El 7 (`mailNewPassword`) queda fuera**: espera P30.
+Después: **B2**, con base y `Request` (4 contacto, cuyo CAPTCHA es local y escribe en `pcsphp_app_config`; 2 OTP;
+5 token; 3 aprobaciones; 1 alta por API), y **B3**, entrega real a Mailinator (ADR 0011).
 
-Cerrado: **`#132`→`#138`, la corrección del importador de usuarios**: `4ec88430`, `07c40e1b`, `c9a864ca` y
-`280636f8`. S1 (inyección SQL por `getByID()`) y S2 (un administrador general creaba roots) cerrados, con
-`unit-tests:core/importer-users-guards`. Los otros cuatro `getByID()` tipan `int $id`: no explotables.
-Hallazgos en `pendientes.md`, punto 19.
+Cerrado: **`#139`→`#140`**, los destinatarios de los formularios a la configuración (ruptura 28): `1427186e`,
+`ab42ce08`, `03c1fa7b` y `c026b971`. Rojo 0/17, verde 17/17, provocaciones 15/17 en c4 y c5. Hallazgos en
+`pendientes.md`, punto 21. **P29 retirada** (punto 19).
 
 **Esperando al PO:** el push de `database` (parte B de `4d`) y las decisiones P-a a P-d del lote 8
 (`propuesta-2026-09-16-lote-8.md`, A-036).
@@ -93,20 +94,46 @@ Si la herramienta del coder pide confirmación al commitear, la da el PO en esa 
 
 ## Espera al PO
 
+**Hecho por el PO (2026-09-16, 11:2x): push de los cuatro paquetes.** Medido en local, sin tocar el remoto: en los
+cuatro, `origin/master` = `master` (`database` `4fc608d`, `datastructures` `c7c18b9`, `geojson` `a855039`, `html`
+`2dca64d`). Las etiquetas no se pueden comprobar sin consultar el remoto. **Desbloquea `4d` parte B**, que va
+después de `#142`.
+
+- **P32 · Documentar los cuatro paquetes para Packagist y para agentes** (lo preguntó el PO el 2026-09-16, A-037
+  §2). Hoy: README de 9 a 20 líneas con `##API TODO`, el de `datastructures` titulado `#piecesphp/database`,
+  `composer.json` sin `homepage` ni `support.source`, y un `.agents/` del modelo anterior que no sirve de fuente.
+  No está en el mapa: el lote 9 es solo del framework. *Predeterminado:* entra en el lote 9, en inglés (el público
+  de Packagist), con ejemplos que corren como prueba. Falta que lo nombre y que diga el idioma. **Pasar a
+  `pendientes.md` al cerrar `#141`** (ahora el archivo es del coder).
+
 - ~~P29~~ **Retirada antes de llegar al PO** (medido tras escribirla): `Validator::isEmail()` consulta el DNS
   (MX), pero su ÚNICO llamador en el framework es `ImporterUsers.php:46`, y `Validator::T_EMAIL` no tiene
   ninguno. No es transversal en uso: se resuelve en el lote 8, cuyo importador nuevo no la usará. Corregir
   `pendientes.md` punto 19 al cerrar `#139`.
-0. **Push de `database`** (`master` `4fc608d` y `v5.0.0`). Bloquea la parte B de `4d`.
 0b. **Alcance del ADR 0017** (lo planteó el coder en `#115`): ¿vale solo para `4d` o para toda la
    campaña? *Predeterminado:* toda la campaña, porque cada actualización exige antes el push del PO.
 1. **Detectar las compactaciones por máquina**, leyendo el `.jsonl` desde `verificar.sh`.
    *Predeterminado:* se hace cuando lo nombre.
 2. **El SQL y las filas crudas de los listados viajan al navegador** (H1 de `#050`, en
    `DataTablesHelper`, que es núcleo transversal). *Predeterminado:* aparcado hasta que lo nombre.
-3. **La recuperación de contraseña envía una contraseña nueva en claro** por correo
-   (`RecoveryPasswordController::mailNewPassword()`). *Predeterminado:* se mantiene y se documenta.
-   El arquitecto recomienda sustituirla por el enlace o el código de recuperación, que ya existen.
+- **P31 · SECRETO EXPUESTO: la clave SECRETA de Google reCAPTCHA v3 está escrita en el código**
+  (`src/app/classes/GoogleReCaptchaV3/Controllers/GoogleReCaptchaV3Controller.php`, `public static $secretKey`),
+  versionada desde el 2021-11-15 (dos commits la tocan; medido con `git log -S`, sin imprimirla). El módulo está
+  activo (`GoogleReCaptchaV3Routes::ENABLE = true`), así que todo clon verifica sus CAPTCHA con TU clave. Tu regla:
+  un secreto expuesto se avisa y no se arregla, rota ni elimina por cuenta propia. *Predeterminado:* no se toca.
+  **Recomendación:** rotarla en la consola de Google, y que la clave pase a la configuración (vacía por defecto),
+  como los destinatarios de `#139`. Si el repositorio es público, ya hay que darla por comprometida.
+3. **P30 · La recuperación de contraseña por enlace deja al usuario sin contraseña** (medido por el arquitecto
+   el 2026-09-16, leyendo el código). La ruta pública `new-password-create` (GET `/users/recovery/{url_token}`,
+   el enlace del correo) genera una contraseña, la guarda y llama a `mailNewPassword()`, que renderiza
+   `usuarios/mail/restored_password.php` con `['password' => …]`; la plantilla **no imprime la contraseña** y usa
+   una `$url` que no recibe. En local, ese aviso aborta la vista después de cambiar la contraseña; fuera de local,
+   SIN VERIFICAR si aborta o envía el correo sin la contraseña. En los dos casos el usuario ya no puede entrar.
+   Además es un GET que escribe: un escáner de enlaces del correo lo dispara solo.
+   Antes se creía que «envía la contraseña en claro»: no la envía.
+   *Predeterminado:* no se toca ni se prueba (`7c` lo excluye) hasta que decidas. **Recomendación:** que el
+   enlace lleve al formulario de código (`recovery-form`), que ya funciona y está probado, y retirar la
+   contraseña generada.
 4. **«Perfeccionar geovisor»**: ya se sabe cuál es, pero no qué quiere perfeccionar.
    *Predeterminado:* espera a que lo diga.
 5. **Después de la MAJOR**, salvo que diga lo contrario: la aprobación encendible por módulo, la
