@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 09:57 (medido con `date`).
+- **Actualizado:** 2026-09-16 10:13 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#117 · ARQ` (corrige un `git add` que faltaba en `#116`). Próximo: `#118`. **Último al PO:** A-035.
+- **Último mensaje:** `#124 · ARQ`. Próximo: `#125`. **Último al PO:** A-035.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,17 +15,31 @@
 
 ## En curso
 
-**Esperando el push del PO** de `database`: `master` en `4fc608d` y la etiqueta `v5.0.0` (A-034). Sin
-él, la parte B de `4d` no puede instalarse desde Packagist.
+`#119`: dos tareas, cada una con su gate y su commit.
+1. **La línea base de PHPStan a 734** (holgura de 1 tras `4f`): `[REPARTO] 734 <- 735 = … + 1 murieron`,
+   porque dos copias del mismo error pasan a ser una.
+2. **Lote 7:** retirar el creador de avatares y restaurar `see-more`. Plan enseñado al PO en A-035.
 
-Mientras tanto, **`#116`: `4f`**, unificar `FileUpload::validate()` y
-`UploadedFileAdapter::validate()` en `UploadedFileValidation::errors()`. Primero se escribe y se
-commitea una suite de caracterización contra el código de hoy, y después se unifica: la suite no
-puede cambiar ni un byte.
+`#121 · COD`: TAREA 1 hecha (`952eea90`, línea base 734). TAREA 2 **parada con razón** antes de
+commitear: (1) regenerar la instantánea de firmas añade ~70 firmas que ninguna ronda congeló desde
+`7b6209d2`, porque la comprobación 2 solo avisa de las que desaparecen; (2) el trinquete de retornos
+ignorados baja a 183 al morir `listFiles()`. `#122 · ARQ`: la instantánea en su commit propio y antes;
+la cota a 183 identificando la llamada con el censo; y fuera la línea muerta de `.gitignore`.
+`#123 · COD`: lote 7 hecho y verificado (integridad limpia, gates 34/0, **PHPStan 731**: murieron 3 errores
+con `listFiles()`), parado antes de commitear por una contradicción en `#122` §3b (fallo de redacción del
+arquitecto). La llamada que murió es `closedir()`. `#124 · ARQ`: se aplica el precedente de #081/#083 y se
+commitea.
+- **Hallazgo para el lote 10:** el universo del censo de retornos ignorados pasó de 678 a 695 archivos sin
+  declararse (LEY 15). La cifra del trinquete no es comparable hasta que el arquitecto atribuya los 17.
+- **Hallazgo para el lote 10:** la comprobación 2 solo cierra en un sentido. Debería avisar de las firmas
+  nuevas sin congelar.
 
-Cerrado: `#114`/`#115`. En `database`, `4fc608d` (el `CHANGELOG` 5.0.0 dice contra qué base corre la
-suite) con `master` adelantado y `v5.0.0` intacta. En `piecesphp`, `d9818708` (ADR 0017, guarda 216/216,
-dos provocaciones que mordieron) y `16ee6872` (estado).
+**Esperando el push del PO** de `database` (`master` `4fc608d` y `v5.0.0`) para la parte B de `4d`.
+`4b-4` sigue bloqueado por P26.
+
+Cerrado: **`4f`** (`#116`/`#118`). `02651d69` (suite de caracterización, 82 comprobaciones, commiteada
+antes de unificar), `f850c4f9` (`UploadedFileValidation`), `df7f9354` (artefactos), `20f6407c`
+(`CHANGELOG`) y `f620d0ba` (estado). Tres provocaciones que mordieron; la suite, byte a byte igual.
 
 **Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
 censo de `#104` solo buscó `stripslashes`. Con otras formas aparecen dos más, que borran TODAS las
