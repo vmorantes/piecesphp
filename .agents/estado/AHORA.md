@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 12:18 (medido con `date`).
+- **Actualizado:** 2026-09-16 12:40 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#155 · ARQ`. Próximo: `#156`. **Último al PO:** A-042.
+- **Último mensaje:** `#161 · ARQ`. Próximo: `#162`. **Último al PO:** A-045.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,15 +15,19 @@
 
 ## En curso
 
-**`#155`: `4d` parte B y `4e`** (ruptura 30): el framework a `piecesphp/database` ^5.0 con `composer update
-piecesphp/database --working-dir=src --no-scripts` (ADR 0017); fuera las 10 compensaciones; `gulp js-vendor` (ADR
-0013); suite `core/text-round-trip`, roja contra la 4.1.0 instalada. La tarea de reparación de lo ya guardado, en una
-ronda siguiente.
+**Incidente, 12:3x:** se cerraron los IDE y las dos sesiones se interrumpieron durante `#159`. El PO las reabrió y
+renombró. Medido por el arquitecto: sin commits a medias, guarda 233/233, sin procesos vivos, tarea sin provocación
+puesta; `bin/phpstan` cortado (artefactos modificados y dos `.neon` temporales). **`#160`**: control de daños (dónde se
+cortó, provocaciones, P3 y filas ajenas contra el volcado de las 12:30, restos zz) y seguir `#157`.
 
-Cerrado: **`#153`→`#154`, `v8.0.0-alpha.2`**: `4c88c1e6`, `e9100d63` (etiquetada) y `49bc306b`; `master` → `e9100d63`;
-`last-stable` sigue en `c9125196`. **Sin empujar.**
+**`#157`: `4d` parte C, la tarea `bin/cli repair-escaped-text`** (cuenta por defecto; `apply=yes` con volcado reciente y
+marca de una sola vez). Suite con filas zz simuladas como las guardaba la 4.1.0.
 
-**Después de `#155`:** la tarea de reparación del escape, luego `7c` B2 (4 contacto, 2 OTP, 5 token, que
+Cerrado: **`#155`→`#156`, `4d` parte B y `4e`** (ruptura 30): `ea153623`, `b14ea62b`, `f58fb409` y `9242cebd`. El
+framework usa `piecesphp/database` v5.0.0; las 10 compensaciones, fuera; `gulp js-vendor` hecho (el `.min.js` no se
+versiona). En el mapa, `4d`, `4e` y `7` salen por cerrados.
+
+**Después de `#157`:** `7c` B2 (4 contacto, 2 OTP, 5 token, que
 tiene la misma inyección de HTML en `commentary`; 3 aprobaciones; 1 alta por API) y B3 (Mailinator).
 
 **Para la parte B de `4d` (medido por el arquitecto el 2026-09-16): son 10 compensaciones, no 8.** El
