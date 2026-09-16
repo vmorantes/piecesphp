@@ -1046,6 +1046,11 @@ historia de git los conserva.
      (`booleanOr.leftAlwaysTrue`, `booleanAnd.leftAlwaysFalse`, `booleanAnd.alwaysFalse`, `if.alwaysFalse` en `core/*`,
      `identical.alwaysFalse` y el de `DataImportExportUtilityRoutes.php`) y ninguna puerta los detecta: al lote 10, con
      puerta que lea los «was not matched» de las dos pasadas.
+     Y (arquitecto, 9.3): `APIController::routes()` (`APIController.php:1849`) solo registra si hay activa alguna de
+     `API_MODULE`, `API_TRANSLATION_MODULE`, `API_USERS` o `API_REPORTS`; **`API_CRONJOBS` sola no registra la ruta del
+     cron** (tampoco `APIRoutes::routes()`, línea 42). Documentado tal cual en `source-docs/api/docs/modules/CronJobs.md`;
+     arreglo al lote 10. **P35** queda con su predeterminado aplicado: la ruta `external` se documenta como extensión
+     apagada en `source-docs/api/docs/index.md`, sin tocar código.
      También: `@deprecated` de `escapeString()` espera a que muera su último uso (`DataTablesHelper.php:1329`).
   33. **Lote 9 (documentación): inventario y plan** (arquitecto, 2026-09-16, con una exploración de solo lectura; citas en el
      informe, resumidas aquí). Once frentes, en este orden de rondas:
