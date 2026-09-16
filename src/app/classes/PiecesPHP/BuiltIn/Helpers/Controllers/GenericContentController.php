@@ -59,15 +59,7 @@ class GenericContentController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -77,7 +69,6 @@ class GenericContentController extends AdminPanelController
     const BASE_CSS_DIR = 'css';
     const BASE_VIEW_DIR = 'generic';
     const UPLOAD_DIR = 'helpers-system/generic';
-    const UPLOAD_DIR_TMP = 'helpers-system/tmp';
     const LANG_GROUP = HelpersSystemLang::LANG_GROUP;
 
     const TOKENS_LIMIT_PERMISSION = [
@@ -106,9 +97,7 @@ class GenericContentController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 

@@ -10,7 +10,6 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Model\UsersModel;
-use Documents\Controllers\DocumentsController;
 use Documents\DocumentsLang;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PiecesPHP\Core\BaseHashEncryption;

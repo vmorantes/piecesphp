@@ -78,15 +78,7 @@ class DocumentsController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -96,7 +88,6 @@ class DocumentsController extends AdminPanelController
     const BASE_JS_DIR = 'js/documents';
     const BASE_CSS_DIR = 'css/documents';
     const UPLOAD_DIR = 'documents';
-    const UPLOAD_DIR_TMP = 'documents/tmp';
     const LANG_GROUP = DocumentsLang::LANG_GROUP;
 
     public function __construct()
@@ -114,9 +105,7 @@ class DocumentsController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 

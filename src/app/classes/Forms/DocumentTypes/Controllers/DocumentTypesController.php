@@ -65,14 +65,6 @@ class DocumentTypesController extends AdminPanelController
     protected static $pluralTitle = 'Tipos de documentos';
 
     /**
-     * @var string
-     */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
-    /**
      * @var HelperController
      */
     protected $helpController = null;
@@ -80,7 +72,6 @@ class DocumentTypesController extends AdminPanelController
     const BASE_VIEW_DIR = '';
     const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
-    const UPLOAD_DIR_TMP = 'document-types/tmp';
     const LANG_GROUP = DocumentTypesLang::LANG_GROUP;
 
     public function __construct()
@@ -96,9 +87,6 @@ class DocumentTypesController extends AdminPanelController
         $baseURL = base_url();
         $pcsUploadDir = get_config('upload_dir');
         $pcsUploadDirURL = get_config('upload_dir_url');
-
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
