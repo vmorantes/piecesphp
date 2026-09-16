@@ -78,13 +78,6 @@ return static function (RectorConfig $rectorConfig): void {
         $baseDir . '/src/app/vendor',
         $baseDir . '/src/app/core/Utilities.php',
         $baseDir . '/src/app/core/AppHelpers.php',
-        $baseDir . '/src/app/classes/ImagesRepository',
-        $baseDir . '/src/app/classes/ApplicationCalls',
-        $baseDir . '/src/app/classes/InterestResearchAreas',
-        //Experiencias previas: el directorio entero y sus controladores y vistas. Ver T6.
-        $baseDir . '/src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers',
-        $baseDir . '/src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController.php',
-        $baseDir . '/src/app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php',
         /**
          * SKIP CANÓNICO — IDÉNTICO EN LOS CINCO REPOSITORIOS.
          * Decisión registrada en piecesphp/.agents/context/18-siguientes-ventanas.md (T10).
