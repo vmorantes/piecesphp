@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 14:04 (medido con `date`).
+- **Actualizado:** 2026-09-16 14:07 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#196 · COD`. Próximo: `#197 · ARQ`. **Último al PO:** A-046.
+- **Último mensaje:** `#203 · ARQ` (en vuelo). Próximo: `#204 · COD`. **Último al PO:** A-046.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**Lote 9, ronda 9.7 (#197)**: en los cuatro paquetes, en `dev`: README en español, `AGENTS.md` nuevo, entrada de CHANGELOG «Sin versión todavía», retirar `.agents/` y `.claude/` viejos (52/54/54/54 archivos) y fusionar a `master` sin etiqueta (solo documentación; una etiqueta haría avisar a la comprobación 17 hasta que el PO empuje). Hallazgos de `html` (no escapa) y `geojson` (orden no estándar) al lote 10 (pendientes 34). 9.7b: ejemplos que corren como prueba.
+**Lote 9, ronda 9.7b (#199)**: en cada paquete, `examples/readme.php` que ejecuta los ejemplos del README y sale con 1 si uno no da lo que el README dice; sin dependencias nuevas. 9.7 cerrada en #197-#198: README, AGENTS.md y CHANGELOG en los cuatro paquetes, `.agents/`/`.claude/` retirados, `master` = `dev` por fast-forward, sin etiquetas; aquí 5b1b4732 y 465f94c7. **Al empujar: `master` y `dev` de los cuatro paquetes.**
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -85,6 +85,11 @@ Preguntas abiertas:
    historial de git. La clave pública, para encontrarla, está en `src/statics/js/contact-form.js:16`.
 - **P35 · La ruta `external` de la API está comentada, pero `APIController::externalActions()` sigue vivo.** ¿Se retira
   o se documenta como extensión apagada? *Predeterminado:* se documenta como apagada y no se toca el código.
+  **Aplicado en 9.3** (`source-docs/api/docs/index.md`).
+- **P36 · P4, la tríada en los seis controladores del sistema, no es barata.** Sus 48 rutas no comparten prefijo y el
+  nombre es el permiso. Alternativas en `propuesta-2026-09-16-p4-seis-controladores.md`: A renombrar (ruptura),
+  B que el trait admita controladores sin prefijo (recomendada), C documentarlos como excepción. Es núcleo
+  transversal: **no se instruye sin respuesta**. *Predeterminado:* 9.8 espera y se sigue con el lote 10.
 2. **P33 · `generate_code()` usa `rand()`** (`src/app/core/Utilities.php:455`) y genera los códigos del 2FA, de la
    recuperación, de problemas de usuario y de los tokens (6 llamadas). Pasarlo a `random_int()`, mismo formato. Es
    un helper compartido: **no se instruye hasta que conteste**. *Predeterminado propuesto:* sí.
