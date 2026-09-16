@@ -15,6 +15,24 @@
 - El módulo de chat interno.
 - El módulo de presentaciones de capacitación.
 
+## Eliminaciones — código sin llamadores (lote 10)
+
+Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
+
+- `Documents\Mappers\DocumentsMapper::folderRemove()`.
+- `Publications\Mappers\AttachmentPublicationMapper::existsByPublication()`. Además metía `$lang` en el SQL sin
+  marcador. **Qué hacer:** consulta con `where([...])` por marcador.
+- La constante `TokenController::TOKEN_PASSWORD_RECOVERY_CODE`.
+- La clase vacía `API\Adapters\CronJobTaskAdapter`. **Qué hacer:** extiende `PiecesPHP\Terminal\CronJobTask`
+  directamente.
+- En Documents, Forms (Categories y DocumentTypes), Organizations, Publications, SystemApprovals, Banner y los contenidos
+  genéricos: la constante `UPLOAD_DIR_TMP` y las propiedades `$uploadTmpDir` y `$uploadDirTmpURL` de sus
+  controladores, que se calculaban y nadie leía.
+- En `bin/tools/refactorization/Rector.php`, seis exclusiones que apuntaban a módulos ya borrados.
+
+`PublicationsController` expresa con la constante `SOLO_PROPIAS = false` la regla apagada «quien no administra la
+organización solo ve sus publicaciones»; antes era un `&& false` escondido. Comportamiento idéntico.
+
 ## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
 
 **Los finales de línea pasan a LF** en todo el repositorio y en los cuatro paquetes
