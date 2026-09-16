@@ -354,12 +354,12 @@ class SystemApprovalsController extends AdminPanelController
                             $contentName = __(self::LANG_GROUP, $mapper->referenceAlias);
                             if ($mapper->status == SystemApprovalsMapper::STATUS_APPROVED) {
                                 $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido aprobado"), [
-                                    '{NAME}' => $contactUser->getFullName(),
+                                    '{NAME}' => htmlspecialchars((string) $contactUser->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
                                     '{CONTENT_NAME}' => $contentName,
                                 ]);
                             } elseif ($mapper->status == SystemApprovalsMapper::STATUS_REJECTED) {
                                 $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado"), [
-                                    '{NAME}' => $contactUser->getFullName(),
+                                    '{NAME}' => htmlspecialchars((string) $contactUser->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
                                     '{CONTENT_NAME}' => $contentName,
                                 ]);
                             }
@@ -374,7 +374,7 @@ class SystemApprovalsController extends AdminPanelController
                             $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
                             $data = [];
                             $data['text'] = mb_convert_encoding($message, 'UTF-8');
-                            $data['reason'] = mb_convert_encoding($reason, 'UTF-8');
+                            $data['reason'] = htmlspecialchars(mb_convert_encoding((string) $reason, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                             $mailer->Body = $this->render('mailing/template_base_no_style', $data, false, false);
                             if (!$mailer->checkSettedSMTP()) {
                                 $mailer->asGoDaddy();

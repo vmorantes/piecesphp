@@ -1255,7 +1255,7 @@ class APIController extends AdminPanelController
 
                     //Envío de correo - INICIO
                     $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación."), [
-                        '{NAME}' => $userByUsername->getFullName(),
+                        '{NAME}' => htmlspecialchars((string) $userByUsername->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
                     ]);
                     $mailer = new Mailer();
                     $mailConfig = new MailConfig;
