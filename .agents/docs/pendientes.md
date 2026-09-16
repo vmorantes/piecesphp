@@ -1038,6 +1038,39 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  35. **Respuestas del PO en A-049 (2026-09-16)**, formalizadas. Cada una pasa a su lote:
+     - **P33 → sí:** `generate_code()` (`src/app/core/Utilities.php:455`) pasa de `rand()` a `random_int()`, mismo formato.
+       Lote 10.
+     - **P36 → A:** `UsersController`, `LoginAttemptsController`, `AdminPanelController`, `GenericTokenController`,
+       `ImporterController` y `TimerController` se adaptan al estándar (prefijo de ruta y `ControllerRoutingTrait`) para
+       poder pasar a `classes/`. **Cuidado con `config/roles.php`**: hay permisos funcionales básicos que se ajustan a la vez
+       que los nombres. Y se veta al máximo `get_route()` directo (puerta nueva). Lote 11. Regla de los diez: plan al PO.
+     - **Documentar en `classes/` qué es núcleo y qué no**; usuarios es núcleo. Lote 11.
+     - **El flujo de crear, editar y administrar usuarios** se embellece y optimiza. Lote 11, con
+       `16-frontend-arquitectura.md`.
+     - **P-a:** el importador es un proyecto agnóstico, tipo paquete dentro del framework: el motor vive en el núcleo y los
+       importadores son implementaciones. La propuesta del lote 8 lo conserva. **Decidido.**
+     - **P-b:** las fichas con credenciales se conservan (sistemas para escuelas) y se documentan en todas las capas. Forma
+       del arquitecto: las contraseñas generadas se entregan una sola vez y no quedan en claro en ningún sitio.
+     - **P-c → decide el arquitecto:** todo o nada por archivo. Se validan todas las filas, se informa de cada error y solo
+       si todas son válidas se guarda el archivo en una transacción.
+     - **P-d:** por defecto no se importan administradores. Tipos importables en una lista en código, fácil de cambiar, y
+       nadie importa un tipo con más prioridad que el suyo (`UsersModel::TYPES_USER_PRIORITY`, `:129`).
+       **El lote 8 queda desbloqueado.**
+     - **P31 → (a):** claves de reCAPTCHA en la configuración, vacías en el repositorio. El PO creó claves para sus
+       dominios de prueba y localhost; las pone él en su instalación. **Pegó la secreta en el chat:** aviso dado; no se
+       escribe en ningún archivo; se le pide regenerarla.
+     - **P26:** la carpeta del editor enriquecido no se rompe: sigue siendo un sitio para publicar cosas a demanda y
+       enchufable a módulos futuros que quieran servir cosas públicas directas. Condición de diseño de `4b-4`.
+     - **P38:** el PO pide la propuesta.
+     - **P39:** el `organization = -10` del login es intencionado para `TYPES_USER_DONT_REQUIRE_ORGANIZATION` (`:143`); el PO
+       no sabe si cubre todos los casos: medirlo.
+     - **P42 → decide el arquitecto:** `SchemeCreator::createScript()`/`dropScript()` lanzan si reciben algo que no sea
+       `SchemeCreator`, en la próxima versión de `database`.
+     - **P43:** se arregla que `API_CRONJOBS` sola no registre su ruta, conservando la forma de encender y apagar la API; el
+       cron por HTTP sirve en hostings sin crontab.
+     - **P44 → sí:** el `DEFAULT` de `login_attempts.date`, con su `ALTER` y su prueba.
+     - La lista de «Sin prisa» se numera (S1…) para poder citarla.
   34. **9.1 cerrada (`#177`→`#182`) y hallazgo para el lote 10** (arquitecto, 2026-09-16): `bin/phpstan.neon` declara
      `phpVersion: {min: 80400, max: 80500}` y `bin/phpstan` corre las pasadas 8.4 y 8.5, pero `src/composer.json` exige
      `>=8.5 <8.6`. La pasada 8.4 ya no describe ningún despliegue posible. Retirarla mueve la línea base (la unión
