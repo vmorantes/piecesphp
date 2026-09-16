@@ -1038,6 +1038,14 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  27. **`4d` parte C cerrada en `#157`→`#162`** (`e1ae7bb9`, `0a193252`, `7cfbdf21`, `fedff2d2`), con el incidente del
+     cierre de los IDE por medio (control de daños limpio: sin provocación sin restaurar, restos zz 0). Suite
+     `core/escaped-text-repair` 1/11 → 11/11, provocada en d1-d2-d4, h2 y d1 (P3 solo en modo cuenta, para no tocar las 10
+     filas ajenas). Hallazgos para el lote 10: **`login_attempts.date` no tiene DEFAULT en la base** aunque el mapper
+     declara `'default' => 'timestamp'` (quien inserte sin el mapper falla); la base local tiene 10 mensajes de
+     `login_attempts` con barra invertida, candidatos si se aplica. Desviación aceptada: el coder leyó la base con una acción
+     temporal de solo lectura que borró en la misma llamada. **Con esto `4d` queda cerrado entero: sale `v8.0.0-alpha.3`
+     (`#163`).**
   26. **`4d` parte C, la tarea `bin/cli repair-escaped-text`, en `#157`**: cuenta por defecto; `apply=yes` aplica un
      `stripslashes()` único a los campos `varchar`, `text`, `mediumtext` y `longtext` de los mappers (los tipos que
      escapaba la 4.1.0), exige un volcado de la última hora en `src/dumps` y deja una marca en `pcsphp_app_config` para no
