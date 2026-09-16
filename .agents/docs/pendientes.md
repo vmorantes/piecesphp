@@ -1038,6 +1038,9 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  28. **`v8.0.0-alpha.3` en `#163`→`#164`** (`f1cf285a`, `f7efd0ef` etiquetada, `0d540caf`): `master` → `f7efd0ef`.
+     **`7c` B2a en `#165`**: envíos 5 (`commentary`, con el escape de su mensaje) y 2 (`generateOTP`) contra Mailpit, con
+     base local. Quedan B2b (4 contacto, 3 aprobaciones, 1 alta por API) y B3 (Mailinator).
   27. **`4d` parte C cerrada en `#157`→`#162`** (`e1ae7bb9`, `0a193252`, `7cfbdf21`, `fedff2d2`), con el incidente del
      cierre de los IDE por medio (control de daños limpio: sin provocación sin restaurar, restos zz 0). Suite
      `core/escaped-text-repair` 1/11 → 11/11, provocada en d1-d2-d4, h2 y d1 (P3 solo en modo cuenta, para no tocar las 10

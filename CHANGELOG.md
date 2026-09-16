@@ -662,6 +662,11 @@ formularios de usuario y seguía sirviendo su catálogo.
 - **El importador aceptaba la columna `type` del archivo sin validar** (ruptura 27).
 - Probado en `unit-tests:core/importer-users-guards`, que falla si se quita cualquiera de las dos guardas.
 
+## Corregido — el comentario de un token genérico llevaba su HTML al correo
+
+- `GenericTokenController::commentary()` metía el mensaje de quien tiene el enlace en el HTML del correo sin
+  escapar. Ahora se escapa. Probado en `unit-tests:core/mail-senders-db`, que falla si se quita el escape.
+
 ## ⚠ Corregido — los correos de los formularios públicos llevaban el HTML del visitante
 
 - **El formulario de contacto y el de «otros problemas» metían lo que escribe el visitante en el HTML del
