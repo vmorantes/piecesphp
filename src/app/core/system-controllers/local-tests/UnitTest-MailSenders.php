@@ -4,6 +4,8 @@
 //La configuración de correo se desvía SOLO en memoria (set_config): nada guardado cambia y nada sale de la máquina.
 
 use App\Controller\RecoveryPasswordController;
+use App\Controller\UserProblemsController;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Terminal\CliActions;
 
@@ -44,7 +46,7 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
     };
 
     //─── 1 · Comprobación previa: sin Mailpit local, o con Mailpit saliendo a la red, no se envía nada ─────
-    echoTerminal('[1/2] Mailpit escucha en 127.0.0.1 y no comprueba versiones');
+    echoTerminal('[1/5] Mailpit escucha en 127.0.0.1 y no comprueba versiones');
     $arranque = 'Arranca Mailpit con: ./mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025 --disable-version-check';
     $socket = @fsockopen('127.0.0.1', 1025, $errno, $errstr, 1.0);
     $smtpEscucha = is_resource($socket);
@@ -65,9 +67,13 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
     echoTerminal(' ');
 
     //─── 2 · El código de recuperación de contraseña ────────────────────────────────────────────────────
-    echoTerminal('[2/2] RecoveryPasswordController::mailRecoveryPasswordCode()');
+    echoTerminal('[2/5] RecoveryPasswordController::mailRecoveryPasswordCode()');
 
     $original = get_config('mail');
+    $originalesExtra = [];
+    foreach (['osTicketAPI', 'osTicketAPIKey', 'other_problems_recipients'] as $claveExtra) {
+        $originalesExtra[$claveExtra] = get_config($claveExtra);
+    }
 
     try {
 
@@ -126,10 +132,106 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
             $check($remitente === 'zz-prueba-remitente@localhost.test', "{$caso}: el remitente es zz-prueba-remitente@localhost.test", var_export($remitente, true));
         }
 
+        echoTerminal(' ');
+
+        $mensajeUnico = function () use ($http): array {
+            $lista = $http('GET', '/messages');
+            $mensajes = is_array($lista) ? ($lista['messages'] ?? []) : [];
+            if (count($mensajes) !== 1) {
+                return [count($mensajes), []];
+            }
+            $detalle = $http('GET', '/message/' . rawurlencode((string) ($mensajes[0]['ID'] ?? '')));
+            return [1, is_array($detalle) ? $detalle : []];
+        };
+        $direcciones = fn($lista): array => array_map(fn($d) => is_array($d) ? ($d['Address'] ?? null) : null, is_array($lista) ? $lista : []);
+        $remitenteDe = fn(array $detalle) => is_array($detalle['From'] ?? null) ? ($detalle['From']['Address'] ?? null) : null;
+        $destino = 'zz-prueba-destino@localhost.test';
+        $remitenteEsperado = 'zz-prueba-remitente@localhost.test';
+
+        //─── 3 · El enlace de recuperación de contraseña ────────────────────────────────────────────────
+        echoTerminal('[3/5] RecoveryPasswordController::mailRecoveryPassword()');
+        $http('DELETE', '/messages');
+        $enviado = (new \ReflectionMethod(RecoveryPasswordController::class, 'mailRecoveryPassword'))->invoke(new RecoveryPasswordController(), 'https://zz-prueba.test/recuperar/ZZ7C', $usuario);
+        $check($enviado === true, 'enlace: invoke devuelve true', var_export($enviado, true));
+        [$cuantos, $detalle] = $mensajeUnico();
+        $check($cuantos === 1, 'enlace: Mailpit tiene exactamente 1 mensaje', (string) $cuantos);
+        if ($cuantos === 1) {
+            $asuntoEnlace = __(RecoveryPasswordController::LANG_GROUP, 'Recuperación de contraseña');
+            $check(($detalle['Subject'] ?? null) === $asuntoEnlace, "enlace: el asunto es «{$asuntoEnlace}»", var_export($detalle['Subject'] ?? null, true));
+            $check($direcciones($detalle['To'] ?? null) === [$destino], "enlace: el destinatario es {$destino}", json_encode($direcciones($detalle['To'] ?? null), JSON_THROW_ON_ERROR));
+            $check(str_contains((string) ($detalle['HTML'] ?? ''), 'https://zz-prueba.test/recuperar/ZZ7C'), 'enlace: el HTML contiene el enlace');
+            $check($remitenteDe($detalle) === $remitenteEsperado, "enlace: el remitente es {$remitenteEsperado}", var_export($remitenteDe($detalle), true));
+        }
+        echoTerminal(' ');
+
+        //─── 4 · Los códigos de usuario olvidado y bloqueado ────────────────────────────────────────────
+        echoTerminal('[4/5] UserProblemsController::sendCode()');
+        $asuntoCodigo = __(UserProblemsController::LANG_GROUP, 'Código de verificación');
+        $tipos = [
+            UserProblemsController::TYPE_USER_FORGET => get_route('user-forget-form') . '?code=ZZ7C0DE',
+            UserProblemsController::TYPE_USER_BLOCKED => get_route('user-blocked-form') . '?code=ZZ7C0DE',
+        ];
+        foreach ($tipos as $tipo => $enlaceTipo) {
+            $http('DELETE', '/messages');
+            $enviado = (new \ReflectionMethod(UserProblemsController::class, 'sendCode'))->invoke(new UserProblemsController(), 'ZZ7C0DE', $usuario, $tipo);
+            $check($enviado === true, "{$tipo}: invoke devuelve true", var_export($enviado, true));
+            [$cuantos, $detalle] = $mensajeUnico();
+            $check($cuantos === 1, "{$tipo}: Mailpit tiene exactamente 1 mensaje", (string) $cuantos);
+            if ($cuantos !== 1) {
+                continue;
+            }
+            $html = (string) ($detalle['HTML'] ?? '');
+            $check(($detalle['Subject'] ?? null) === $asuntoCodigo, "{$tipo}: el asunto es «{$asuntoCodigo}»", var_export($detalle['Subject'] ?? null, true));
+            $check($direcciones($detalle['To'] ?? null) === [$destino], "{$tipo}: el destinatario es {$destino}", json_encode($direcciones($detalle['To'] ?? null), JSON_THROW_ON_ERROR));
+            $check(str_contains($html, 'ZZ7C0DE'), "{$tipo}: el HTML contiene el código");
+            $check(str_contains($html, $enlaceTipo), "{$tipo}: el HTML contiene su enlace", $enlaceTipo);
+            $check($remitenteDe($detalle) === $remitenteEsperado, "{$tipo}: el remitente es {$remitenteEsperado}", var_export($remitenteDe($detalle), true));
+        }
+        echoTerminal(' ');
+
+        //─── 5 · Otros problemas, con osTicket vacío en memoria ─────────────────────────────────────────
+        echoTerminal('[5/5] UserProblemsController::sendMessageOtherProblems()');
+        //Con osTicket configurado intentaría la red primero: se vacía solo en memoria.
+        set_config('osTicketAPI', '');
+        set_config('osTicketAPIKey', '');
+        $otros = new \ReflectionMethod(UserProblemsController::class, 'sendMessageOtherProblems');
+        $argumentos = ['zz-prueba-visitante@localhost.test', 'ZZ Visitante', 'ZZ mensaje 7c', ['subject' => 'ZZ asunto 7c']];
+
+        set_config('other_problems_recipients', [$destino]);
+        $http('DELETE', '/messages');
+        $resultado = $otros->invoke(new UserProblemsController(), ...$argumentos);
+        $check(is_array($resultado) && ($resultado['success'] ?? null) === true, "a) con destinatario: success === true", var_export(is_array($resultado) ? ($resultado['success'] ?? null) : $resultado, true));
+        [$cuantos, $detalle] = $mensajeUnico();
+        $check($cuantos === 1, 'a) Mailpit tiene exactamente 1 mensaje', (string) $cuantos);
+        if ($cuantos === 1) {
+            if (!array_key_exists('ReplyTo', $detalle)) {
+                $sinHtml = array_diff_key($detalle, ['HTML' => true, 'Text' => true]);
+                echoTerminal('   PARADA: el detalle no trae ReplyTo. Forma del detalle, sin HTML: ' . json_encode($sinHtml, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            }
+            echoTerminal('   forma de ReplyTo: ' . json_encode($detalle['ReplyTo'] ?? null, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            $asuntoOtros = 'ZZ asunto 7c - ' . Config::app_title();
+            $check(($detalle['Subject'] ?? null) === $asuntoOtros, "a) el asunto es «{$asuntoOtros}»", var_export($detalle['Subject'] ?? null, true));
+            $check($direcciones($detalle['To'] ?? null) === [$destino], "a) el destinatario es {$destino}", json_encode($direcciones($detalle['To'] ?? null), JSON_THROW_ON_ERROR));
+            $check($direcciones($detalle['ReplyTo'] ?? null) === ['zz-prueba-visitante@localhost.test'], 'a) responder a es zz-prueba-visitante@localhost.test', json_encode($direcciones($detalle['ReplyTo'] ?? null), JSON_THROW_ON_ERROR));
+            $check(str_contains((string) ($detalle['HTML'] ?? ''), 'ZZ mensaje 7c'), 'a) el HTML contiene el mensaje');
+            $check($remitenteDe($detalle) === $remitenteEsperado, "a) el remitente es {$remitenteEsperado}", var_export($remitenteDe($detalle), true));
+        }
+
+        set_config('other_problems_recipients', []);
+        $http('DELETE', '/messages');
+        $resultado = $otros->invoke(new UserProblemsController(), ...$argumentos);
+        $check(is_array($resultado) && ($resultado['success'] ?? null) === false, 'b) sin destinatarios: success === false', var_export(is_array($resultado) ? ($resultado['success'] ?? null) : $resultado, true));
+        $lista = $http('GET', '/messages');
+        $cuantosB = is_array($lista) ? count($lista['messages'] ?? []) : -1;
+        $check($cuantosB === 0, 'b) Mailpit tiene 0 mensajes: no se envió nada', (string) $cuantosB);
+
         $http('DELETE', '/messages');
 
     } finally {
         set_config('mail', $original);
+        foreach ($originalesExtra as $claveExtra => $valorExtra) {
+            set_config($claveExtra, $valorExtra === false ? null : $valorExtra);
+        }
     }
 
     return $balance();
