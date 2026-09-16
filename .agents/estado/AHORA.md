@@ -12,8 +12,20 @@
 - **Actualizado:** 2026-09-15 12:53 (medido con `date`). **El PO se fue: «Sigue sin parar».**
   - Decidió LF en los cinco repositorios, porque es lo más universal. El ADR 0012 está en el
     scratchpad y la ronda irá tras `#055`.
-- **Último mensaje enviado:** `#089 · ARQ` (ronda **19** de 20: el lote 7b, las 19 guardas).
-  El próximo número es `#090`.
+- **Último mensaje enviado:** `#091 · ARQ` (ronda **20 de 20, la ÚLTIMA**: arreglar las dos
+  guardas que fallan abiertas y cerrar la tanda B). El próximo número es `#092`.
+  - `#090 · COD`: la tanda A del 7b, cerrada (`779890c1`, `07068319`, `9af1845e`). 13 guardas
+    con prueba y provocación; el censo baja de 19 a 11.
+  - **⚠ Dos guardas fallan abiertas** (ver `pendientes.md`): `UploadedFileAdapter::validate()`
+    devuelve TRUE sin archivo, y `Roles::addPermission()` con tipo CODE y un nombre concede la
+    ruta a ROOT en silencio. Se arreglan en la ronda 20.
+  - **El 7c (correo con Mailpit) pasa al tirón siguiente:** es infraestructura de pruebas, no un
+    defecto, y solo queda una ronda. Su **ADR 0015 ya está depositado**, con la verificación
+    hecha (MIT, sin registro, v1.31.1, sin sumas publicadas).
+  - **Al cerrar `#092`: el GRAN RESUMEN del tirón**, con la forma fija de la regla 30 y su
+    `A-NNN`. El esqueleto está en el scratchpad (`gran-resumen-esqueleto.md`) y lo esencial ya
+    está en este archivo y en `pendientes.md`, por si la sesión se compacta.
+- *(histórico)* **Último mensaje enviado:** `#089 · ARQ` (ronda 19).
   - `#088 · COD`: E3 cerrado (`16bd8a39`, `bd8ddfa7`, `27a6b8b4`, `ea6e514d`); H-L parado con
     criterio, porque su causa está en el paquete `database`.
   - **⚠⚠ H-R, PUNTO SERIO QUE ESPERA AL PO** (ver `pendientes.md`): el ORM escapa dos veces todo
