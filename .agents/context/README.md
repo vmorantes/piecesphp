@@ -38,6 +38,7 @@ framework, qué convenciones son obligatorias y dónde vive cada cosa.
 | [13-recetas.md](./13-recetas.md) | Paso a paso: crear un módulo, una ruta, un mapper, un cronjob |
 | [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md) | Análisis de módulos: duplicados, acoplamiento, candidatos a eliminar |
 | [15-plantilla-clonar-publications.md](./15-plantilla-clonar-publications.md) | Búsqueda y reemplazo paso a paso para derivar un módulo desde `Publications` |
+| [16-frontend-arquitectura.md](./16-frontend-arquitectura.md) | Esqueleto del panel, qué componente usar por situación, piezas del sistema, estética y prohibiciones |
 | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Backlog actual**: qué queda, en qué orden y qué desbloquea cada cosa |
 | [19-leyes.md](./19-leyes.md) | **Las leyes**, con el caso que funda cada una. DURABLE: no se disuelve con el 18 |
 | [20-contrato-de-trabajo.md](./20-contrato-de-trabajo.md) | Cómo se trabaja aquí: los tres roles, el formato de las instrucciones, el estado abierto |
