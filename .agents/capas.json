@@ -1,0 +1,74 @@
+{
+  "descripcion": "Capas del andamiaje de agentes (A-015 a A-017, PO 2026-09-15). Un clon del framework recibe A y B, con el estado vacío; C se queda en el repositorio del framework. Cada archivo versionado del universo pertenece a UNA capa. Lo comprueba .agents/scripts/capas.py, desde verificar.sh.",
+  "universo": [".agents/", ".claude/", "AGENTS.md", "CLAUDE.md"],
+  "capas": {
+    "A": {
+      "nombre": "La metodología",
+      "patrones": [
+        ".agents/README.md",
+        ".agents/rules/*",
+        ".agents/personas/*",
+        ".agents/agents/*",
+        ".agents/scripts/*",
+        ".agents/skills/arquitecto-coder/*",
+        ".agents/skills/caveman/*",
+        ".agents/skills/caveman-commit/*",
+        ".agents/skills/caveman-compress/*",
+        ".agents/skills/cavecrew/*",
+        ".agents/capas.json",
+        ".agents/docs/adr/README.md",
+        ".agents/docs/adr/0001-*",
+        ".agents/docs/adr/0002-*",
+        ".agents/docs/adr/0003-*",
+        ".agents/docs/adr/0004-*",
+        ".agents/docs/adr/0005-*",
+        ".agents/docs/adr/0014-*",
+        ".agents/estado/README.md",
+        ".claude/*",
+        "CLAUDE.md"
+      ]
+    },
+    "B": {
+      "nombre": "Desarrollar sobre PiecesPHP",
+      "patrones": [
+        "AGENTS.md",
+        ".agents/context/README.md",
+        ".agents/context/0[1-9]-*",
+        ".agents/context/1[0-6]-*",
+        ".agents/context/21-*",
+        ".agents/skills/full-stack-php-senior/*",
+        ".agents/docs/adr/0006-*",
+        ".agents/docs/adr/0009-*",
+        ".agents/docs/adr/0012-*",
+        ".agents/docs/adr/0018-*"
+      ]
+    },
+    "C": {
+      "nombre": "Mantener el framework: la campaña",
+      "patrones": [
+        ".agents/HERENCIA.md",
+        ".agents/context/18-*",
+        ".agents/context/19-*",
+        ".agents/context/20-*",
+        ".agents/context/historico/*",
+        ".agents/docs/pendientes.md",
+        ".agents/docs/roadmap.md",
+        ".agents/docs/roadmap-posterior/*",
+        ".agents/docs/bitacora/*",
+        ".agents/docs/adr/0007-*",
+        ".agents/docs/adr/0008-*",
+        ".agents/docs/adr/0010-*",
+        ".agents/docs/adr/0011-*",
+        ".agents/docs/adr/0013-*",
+        ".agents/docs/adr/0015-*",
+        ".agents/docs/adr/0016-*",
+        ".agents/docs/adr/0017-*",
+        ".agents/docs/adr/0019-*",
+        ".agents/estado/AHORA.md",
+        ".agents/estado/tramos/*",
+        ".agents/estado/informe-*",
+        ".agents/estado/propuesta-*"
+      ]
+    }
+  }
+}

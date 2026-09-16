@@ -89,6 +89,9 @@ echo "enlaces revisados: $(ls -1 .claude/rules .claude/skills | grep -vc ':$')"
 paso "Guarda de hooks"
 python3 -B .agents/scripts/guardas/probar_guardia.py || fallo "la guarda no se comporta como se espera"
 
+paso "Capas del andamiaje (A, B, C)"
+python3 -B .agents/scripts/capas.py || fallo "un archivo del andamiaje sin capa, en dos capas, o un patrón muerto en .agents/capas.json"
+
 paso "Atribución a IA en entregables y commits"
 python3 -B .agents/scripts/menciones_ia.py || fallo "hay atribuciones a IA"
 

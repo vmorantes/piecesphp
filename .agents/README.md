@@ -39,7 +39,7 @@ Fuera de aquí: `AGENTS.md` (entrada genérica y **fuente de las reglas del proy
 
 | Para | Dónde | Qué |
 | :-- | :-- | :-- |
-| Quien usa el framework | `README.md`, `source-docs/` (la API en `source-docs/api/`), `context/01`–`15` | Qué es, cómo se instala y se usa |
+| Quien usa el framework | `README.md`, `source-docs/` (la API en `source-docs/api/`), `context/01`–`16` y `21` | Qué es, cómo se instala y se usa |
 | Quien clona y actualiza | `CHANGELOG.md` | Qué cambió para él, rupturas incluidas |
 | Quien lo mantiene | `context/18`, `19`, `20`, `historico/` | La campaña, sus leyes y su contrato |
 | El PO | `estado/`, `docs/pendientes.md` | Qué se hizo y qué espera de él |
@@ -48,6 +48,22 @@ Fuera de aquí: `AGENTS.md` (entrada genérica y **fuente de las reglas del proy
 Una sola regla los mantiene sanos: **ninguno puede mentir.** Si un cambio de código invalida un
 documento, se corrige en el mismo commit. Si dos se contradicen, gana el código y se arreglan
 los dos. Y lo que ya no sirve se poda (`rules/60-estado.md`).
+
+### Las tres capas: qué viaja a un clon
+
+Todo archivo versionado de `.agents/`, `.claude/`, `AGENTS.md` y `CLAUDE.md` pertenece a **una** capa, declarada en
+[`capas.json`](./capas.json) (PO, A-015 a A-017):
+
+- **A, la metodología**: reglas, personas, guiones, las skills de trabajo, `.claude/` y los ADR de cómo se trabaja.
+- **B, desarrollar sobre PiecesPHP**: `AGENTS.md`, `context/01`–`16` y `21`, la skill de PHP y los ADR que
+  condicionan el código (0006, 0009, 0012, 0018).
+- **C, mantener el framework**: la campaña (estado, tramos, bitácora, mapa, `pendientes`, `18`–`20`, `historico/`,
+  `HERENCIA.md` y los ADR de campaña).
+
+Un clon recibe A y B con el estado vacío; C se queda aquí. **Un archivo nuevo se clasifica en el mismo commit**:
+`verificar.sh` corre `scripts/capas.py`, que falla si un archivo no tiene capa, si tiene dos o si un patrón no casa
+con nada. **Límite conocido:** un documento de A o B puede enlazar a uno de C (el índice de ADR, por ejemplo); en un
+clon ese enlace queda roto. La orden de clonado, después de la MAJOR, lo resolverá.
 
 ## Cambiar un agente, una regla o una skill
 
