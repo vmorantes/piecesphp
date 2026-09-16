@@ -1,11 +1,12 @@
 <?php
 
 //Guardas de entrada: subidas y validación de valores. Lo que decide si un archivo o un valor ENTRA. Ver T146 y la LEY 24.
-//NO está aquí UploadedFileAdapter::validate(): falla ABIERTA (mide #089) y se arregla en otra ronda, con su decisión.
+//UploadedFileAdapter::validate() fallaba ABIERTA (medido en #089) y se arregló en #091 con la forma de T135: aquí está su rechazo.
 
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Terminal\CliActions;
 
 $cliTaskName = 'unit-tests';
@@ -50,7 +51,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     try {
 
         //──── 1. FileValidator::validate ───────────────────────────────────────────────────
-        echoTerminal('[1/4] FileValidator::validate() mira el MIME, la extensión y el tamaño');
+        echoTerminal('[1/5] FileValidator::validate() mira el MIME, la extensión y el tamaño');
 
         $soloPNG = new FileValidator([FileValidator::TYPE_PNG], 10);
         $check($soloPNG->validate("{$banco}{$sep}no-existe.png", 'no-existe.png') === false, 'un archivo que no existe da false, ESTRICTO');
@@ -75,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 2. FileUpload: sin subida no hay archivo ─────────────────────────────────────
-        echoTerminal('[2/4] FileUpload no da por bueno lo que no se subió');
+        echoTerminal('[2/5] FileUpload no da por bueno lo que no se subió');
 
         $_FILES = [];
         $ausente = new FileUpload('zz-bp-no-esta', [FileValidator::TYPE_PNG]);
@@ -109,7 +110,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 3. verify_expected_file ──────────────────────────────────────────────────────
-        echoTerminal('[3/4] verify_expected_file() exige que el archivo venga de un formulario');
+        echoTerminal('[3/5] verify_expected_file() exige que el archivo venga de un formulario');
 
         $_FILES = [];
         $check(verify_expected_file('zz-bp-no-esta') === false, 'sin la clave en $_FILES da false, ESTRICTO');
@@ -127,7 +128,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 4. MetaProperty: el tipo manda ───────────────────────────────────────────────
-        echoTerminal('[4/4] MetaProperty RECHAZA el tipo que no existe y el valor que no es de su tipo');
+        echoTerminal('[4/5] MetaProperty RECHAZA el tipo que no existe y el valor que no es de su tipo');
 
         foreach ([['un tipo que no existe', 'TIPO-QUE-NO-EXISTE', null, true], ['TYPE_INT con default «abc»', MetaProperty::TYPE_INT, 'abc', false],
             ['TYPE_INT NO nulable con default null', MetaProperty::TYPE_INT, null, false]] as [$que, $tipo, $default, $nulable]) {
@@ -156,6 +157,34 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $check($nulable->getType() === MetaProperty::TYPE_INT, 'DISCRIMINANTE: con nullable, el default null sí se acepta al construir y el tipo queda en INT');
         //CONTRATO MEDIDO: el texto acepta números, porque EntityMapper::validateType('text', …) los admite.
         $check((new MetaProperty(MetaProperty::TYPE_TEXT, 123, false))->validateValue(123) === true, 'CONTRATO: TYPE_TEXT acepta un número como texto');
+        echoTerminal(' ');
+
+        //──── 5. UploadedFileAdapter: sin archivo no hay «válido» (#091) ───────────────────
+        echoTerminal('[5/5] UploadedFileAdapter::validate() dice NO cuando no hay archivo ni código de error conocido');
+
+        //Se inyectan los archivos por el cuarto parámetro: no se toca $_FILES ni hace falta una subida real.
+        $bueno = ['name' => 'imagen.png', 'type' => 'image/png', 'size' => filesize($png), 'tmp_name' => $png, 'error' => \UPLOAD_ERR_OK];
+        $fake = ['name' => 'NOT_FILE', 'type' => 'mimetype/unexists', 'size' => 100000000, 'tmp_name' => 'NOT_FILE', 'error' => 'FAKE_ERROR'];
+
+        $sinClave = new UploadedFileAdapter(['zz-bp'], [FileValidator::TYPE_PNG], null, []);
+        $check($sinClave->validate(true) === false, 'RECHAZO: sin la clave, validate() da false, ESTRICTO',
+            'Antes daba TRUE: «FAKE_ERROR» == 0 es false en PHP 8 y la cadena no tenía else.');
+        $check($sinClave->hasInput() === false, 'y hasInput() sigue diciendo que no hay entrada');
+        $conFake = new UploadedFileAdapter(['zz-bp'], [FileValidator::TYPE_PNG], null, ['zz-bp' => $fake]);
+        $check($conFake->validate(true) === false, 'RECHAZO: con la información falsa explícita, false');
+        $desconocido = new UploadedFileAdapter(['zz-bp'], [FileValidator::TYPE_PNG], null, ['zz-bp' => ['name' => 'x.png', 'type' => 'image/png', 'size' => 1, 'tmp_name' => $png, 'error' => 99]]);
+        $check($desconocido->validate(true) === false, 'RECHAZO: un código de error desconocido (99) da false, por la rama else nueva');
+        $texto = new UploadedFileAdapter(['zz-bp'], [FileValidator::TYPE_PNG], null, ['zz-bp' => ['name' => 'texto.txt', 'type' => 'text/plain', 'size' => filesize($textoComoPng), 'tmp_name' => $pngComoTexto, 'error' => \UPLOAD_ERR_OK]]);
+        $check($texto->validate(true) === false, 'RECHAZO: un texto con los tipos de imagen no pasa el validador');
+        $correcto = new UploadedFileAdapter(['zz-bp'], [FileValidator::TYPE_PNG], null, ['zz-bp' => $bueno]);
+        $check($correcto->validate(true) === true, 'DISCRIMINANTE: el PNG de verdad pasa, ESTRICTO');
+        $lanzoPost = false;
+        try {
+            (new UploadedFileAdapter(['zz-bp'], [FileValidator::TYPE_PNG], null, ['zz-bp' => $bueno]))->validate(false);
+        } catch (\Throwable $e) {
+            $lanzoPost = $e instanceof \Exception && str_contains($e->getMessage(), 'POST');
+        }
+        $check($lanzoPost, 'y sin ignorePOSTUploaded LANZA: un archivo de disco no entra por la puerta de las subidas');
         echoTerminal(' ');
 
     } finally {
