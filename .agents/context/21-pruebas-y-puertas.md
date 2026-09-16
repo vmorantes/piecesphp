@@ -120,14 +120,16 @@ Dentro, cada MOTIVO dice la clase: permanentes el 1, 2, 3 y 5; temporales el 4 y
 **EL ORDEN IMPORTA.** Un error que casa con dos entradas lo consume la PRIMERA; la otra sale en `PHPStanResult.txt`
 como «Ignored error pattern … was not matched». El total visible **no se entera**. Medido en `#184`: un primer
 reordenamiento dejó el total en 715 y pasó de 6 a 9 patrones sin casar. Por eso las específicas van antes que las
-generales que las cubren, y la de `DataImportExportUtilityRoutes.php` (permanente) va al final, en una sección
-«fuera de lista por orden», detrás del `if.alwaysFalse` por ruta que hoy consume su caso.
+generales que las cubren. La de `DataImportExportUtilityRoutes.php` no casaba (la consumía el `if.alwaysFalse` por
+ruta) y se retiró en el lote 10, con su sección «fuera de lista por orden».
 
 **Una supresión nueva entra en una de las dos listas**, y si es temporal, con la condición. Un reordenamiento se da
 por bueno solo si `PHPStanResult.txt` sale idéntico salvo el ancho de la tabla, no por el total.
 
-**Límite conocido:** hoy hay 6 patrones que no casan en ninguna pasada, y ninguna puerta lo ve (el trinquete cuenta
-entradas y errores visibles, no patrones muertos). Pendiente del lote 10.
+**Un patrón que no casa es una puerta roja** (lote 10, ronda C): `bin/phpstan-process-result.php` lee los errores
+sin archivo de las dos pasadas (`PHPStanResult.8.4.json` y `.8.5.json`) y sale con 1 si alguno es «Ignored error
+pattern … was not matched». Una supresión muerta miente sobre lo que se calla, y al reordenar puede empezar a tapar
+otra cosa. Los seis que había se retiraron en esa ronda.
 
 ## Unitarias
 

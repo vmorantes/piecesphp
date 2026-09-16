@@ -10,7 +10,7 @@
          🪪  variable.undefined                                                                           
   39     Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
          🪪  argument.type                                                                                
-  225    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
+  250    Anonymous function should return int<0, max> but returns int<0, max>|false.                      
          🪪  return.type                                                                                  
  ------ ------------------------------------------------------------------------------------------------- 
 
@@ -2323,16 +2323,5 @@
          🪪  argument.type                                                                                                                    
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
 
- -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-     Error                                                                                                                                                                                      
- -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-     Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.                                                                                                         
-     Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.                                                                                                       
-     Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.                                                                                                           
-     Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/core/* was not matched in reported errors.                                                             
-     Ignored error pattern identical.alwaysFalse was not matched in reported errors.                                                                                                            
-     Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
- -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-
- [ERROR] Found 724 errors                                                                                               
+ [ERROR] Found 718 errors                                                                                               
 

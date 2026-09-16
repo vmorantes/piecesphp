@@ -154,6 +154,31 @@ foreach ($errorsByFile as $labelled => $identifiers) {
     file_put_contents($copyPath, implode("\n", $copyContent));
 }
 
+//──── PATRONES SIN CASAR ────────────────────────────────────────────────────────────────
+//Un patrón de ignoreErrors que ya no casa en alguna de las dos pasadas es puerta roja. Sin la medida, falla cerrada.
+$unmatched = [];
+foreach (['8.4' => 'PHPStanResult.8.4.json', '8.5' => 'PHPStanResult.8.5.json'] as $pass => $passFile) {
+    $passData = json_decode((string) @file_get_contents($basePath . '/' . $passFile), true);
+    if (!is_array($passData) || !isset($passData['errors']) || !is_array($passData['errors'])) {
+        //RETORNO-IGNORADO: si STDERR no acepta la línea, el exit(1) de abajo sigue parando.
+        fwrite(STDERR, "TRINQUETE: no se pudo leer {$passFile}. La comprobación de patrones sin casar NO se hizo.\n");
+        exit(1);
+    }
+    foreach ($passData['errors'] as $fileLessError) {
+        $fileLessError = (string) $fileLessError;
+        if (mb_strpos($fileLessError, 'was not matched in reported errors') !== false) {
+            $unmatched[] = "TRINQUETE: PATRÓN DE ignoreErrors SIN CASAR (pasada {$pass}): {$fileLessError}";
+        } else {
+            echo "AVISO: error sin archivo en la pasada {$pass}: {$fileLessError}\n";
+        }
+    }
+}
+if (count($unmatched) > 0) {
+    //RETORNO-IGNORADO: si STDERR no acepta las líneas, el exit(1) de abajo sigue parando.
+    fwrite(STDERR, "\n" . implode("\n", $unmatched) . "\n");
+    exit(1);
+}
+
 //──── TRINQUETE ─────────────────────────────────────────────────────────────────────────
 //Sin este trinquete, «el baseline solo baja» es una frase en un documento y nada lo comprueba.
 $readTotal = static function (string $file): ?int {
