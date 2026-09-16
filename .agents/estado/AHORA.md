@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-16 12:53 (medido con `date`).
+- **Actualizado:** 2026-09-16 13:05 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-16-0908-lotes-4d-a-11.md`](tramos/2026-09-16-0908-lotes-4d-a-11.md).
-- **Último mensaje:** `#167 · ARQ`. Próximo: `#168`. **Último al PO:** A-045.
+- **Último mensaje:** `#171 · ARQ`. Próximo: `#172`. **Último al PO:** A-045.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-16, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,13 +15,14 @@
 
 ## En curso
 
-**`#167`: `7c` B2b** — el formulario de contacto (envío 4) de punta a punta contra Mailpit: con token de CAPTCHA válido y
-destinatarios, sin destinatarios y con token inválido. Token zz en `pcsphp_app_config` y alta en el boletín, limpiados.
+**`#169`: `7c` B2c** — aprobaciones (envío 3, con un usuario zz como contenido) y alta por API (envío 1) contra Mailpit, y el
+escape del nombre y del motivo en esos dos correos.
 
-Cerrado: **`#165`→`#166`, `7c` B2a**: `4ec7d774`, `624f0aa9` (el comentario de un token escapa su mensaje), `f6bb50aa` y
-`42f55d8b`. **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a `alpha.3`.
+Cerrado: **`#167`→`#168`, `7c` B2b**: `a0ebe0a8`, `0bd46a24` y `e470ad12`. El formulario de contacto se prueba de punta a
+punta (28/28; CAPTCHA provocado, 26/28). Sin cambio de producto. **Sin empujar**: `dev`, `master`, `last-stable` y las
+etiquetas `alpha.1` a `alpha.3`.
 
-**Después de `#167`:** `7c` B2c (3 aprobaciones, 1 alta por API) y B3 (Mailinator, ADR 0011); luego los lotes 9, 10 y 11. El lote 8 espera P-a..P-d.
+**Después de `#169`:** `7c` B2c (3 aprobaciones, 1 alta por API) y B3 (Mailinator, ADR 0011); luego los lotes 9, 10 y 11. El lote 8 espera P-a..P-d.
 
 ## Orden del tramo
 
