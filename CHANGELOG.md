@@ -41,6 +41,16 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
   desde una tarea o una ruta pública, asigna `createdBy`.
 - **`UserProblemsController::sendCode()` con un tipo no soportado** lanza `InvalidArgumentException` en lugar de enviar
   un correo vacío.
+- **La vista previa de una publicación ya no suma visitas.** Un borrador, una programada o una pendiente de aprobación
+  vistas por quien puede previsualizarlas no cuentan; decide `PublicationMapper::countsVisits()`.
+- **`CronJobTask::weeklyOn()` con un día fuera de 0-6** lanza `InvalidArgumentException` al registrar la tarea. Antes
+  se aceptaba y la tarea no corría nunca. **Qué hacer:** usa 0 (domingo) a 6 (sábado).
+
+## Herramientas — PHPStan sin supresiones muertas y `guarda-add` más estricta
+
+- `bin/phpstan` sale con 1 si una entrada de `ignoreErrors` no casa con ningún error en alguna de sus pasadas. Se
+  retiraron las seis que no casaban.
+- `bin/guarda-add` para si lo preparado no coincide con lo previsto, aunque se dé `--motivo`.
 
 `PublicationsController` expresa con la constante `SOLO_PROPIAS = false` la regla apagada «quien no administra la
 organización solo ve sus publicaciones»; antes era un `&& false` escondido. Comportamiento idéntico.
