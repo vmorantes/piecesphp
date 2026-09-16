@@ -215,6 +215,9 @@ class ContactFormsController extends PublicAreaController
             $updates = $expectedParameters->getValue('updates');
             $tokenCaptcha = $expectedParameters->getValue('tokenCaptcha');
 
+            //Sin crear hasta que haya destinatarios: el catch no puede dar por hecho que existe.
+            $mailer = null;
+
             try {
 
                 //Verificar token si GoogleReCaptchaV3Controller está activo
@@ -299,8 +302,12 @@ class ContactFormsController extends PublicAreaController
                 //EL LOG SMTP NO SALE AL CLIENTE: `SMTPDebug = 2` lo llena con el banner del
                 //servidor y el texto del fallo de autenticacion, y esta ruta es PUBLICA.
                 $resultOperation->setMessage($e->getMessage());
-                $logSmtp = json_encode($mailer->log(), \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
-                log_exception(new \Exception('Log SMTP del formulario de contacto: ' . (is_string($logSmtp) ? $logSmtp : '(no serializable)'), 0, $e));
+                if ($mailer instanceof Mailer) {
+                    $logSmtp = json_encode($mailer->log(), \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+                    log_exception(new \Exception('Log SMTP del formulario de contacto: ' . (is_string($logSmtp) ? $logSmtp : '(no serializable)'), 0, $e));
+                } else {
+                    log_exception($e);
+                }
 
             }
 

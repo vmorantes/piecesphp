@@ -236,9 +236,9 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
             return false;
         };
         $formaMostrada = false;
-        $contactar = function (string $captcha, array $destinatarios) use (&$visitantes, &$formaMostrada, $http, $json): array {
+        $contactar = function (string $captcha, array $destinatarios, ?string $emailPropio = null) use (&$visitantes, &$formaMostrada, $http, $json): array {
             set_config('contact_form_recipients', $destinatarios);
-            $email = 'zz-prueba-contacto-' . bin2hex(random_bytes(4)) . '@localhost.test';
+            $email = $emailPropio ?? 'zz-prueba-contacto-' . bin2hex(random_bytes(4)) . '@localhost.test';
             $visitantes[] = $email;
             $http('DELETE', '/messages');
             $request = new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/prueba'), new Headers(), [], [], (new StreamFactory())->createStream(''));
@@ -288,6 +288,16 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
             $lista = $http('GET', '/messages');
             $cuantos = is_array($lista) ? count($lista['messages'] ?? []) : -1;
             $check($cuantos === 0, 's2. Mailpit tiene 0 mensajes', (string) $cuantos);
+            //Un correo con UTF-8 inválido hace fallar el alta en el boletín ANTES de crear el Mailer (sin destinatarios no se crea).
+            $emailRoto = 'zz-prueba-contacto-' . bin2hex(random_bytes(4)) . "-\xC3\x28@localhost.test";
+            $respuestaRota = null;
+            $lanzo = null;
+            try {
+                [$respuestaRota] = $contactar($tokenCaptcha(), [], $emailRoto);
+            } catch (\Throwable $e) {
+                $lanzo = get_class($e) . ': ' . $e->getMessage();
+            }
+            $check($lanzo === null && ($respuestaRota['success'] ?? null) !== true, 's3. una excepción antes de crear el correo no rompe la respuesta', (string) ($lanzo ?? $json($respuestaRota)));
         } catch (\Throwable $exception) {
             $check(false, 'contacto sin destinatarios', get_class($exception) . ': ' . $exception->getMessage());
         }
