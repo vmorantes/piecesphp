@@ -344,7 +344,7 @@
  ------ ------------------------------------------------------------------------------- 
   project://src/src/app/classes/Forms/Categories/Controllers/CategoriesController.php          
  ------ ------------------------------------------------------------------------------- 
-  692    Cannot access property $id on Forms\Categories\Mappers\CategoriesMapper|null.  
+  688    Cannot access property $id on Forms\Categories\Mappers\CategoriesMapper|null.  
          🪪  property.nonObject                                                         
  ------ ------------------------------------------------------------------------------- 
 
@@ -362,7 +362,7 @@
  ------ ------------------------------------------------------------------------------------- 
   project://src/src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php          
  ------ ------------------------------------------------------------------------------------- 
-  693    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.  
+  689    Cannot access property $id on Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.  
          🪪  property.nonObject                                                               
  ------ ------------------------------------------------------------------------------------- 
 
@@ -920,15 +920,15 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php                                                               
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  128    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
+  124    Cannot call static method getContactUser() on class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|null.                  
          🪪  staticMethod.nonObject                                                                                                              
-  359    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  355    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  359    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
+  355    Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.     
          🪪  argument.type                                                                                                                       
-  366    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
+  362    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not accept string|null.                                                     
          🪪  assign.propertyType                                                                                                                 
-  552    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
+  548    Cannot call method getTimeTag() on SystemApprovals\Mappers\SystemApprovalsMapper|null.                                                  
          🪪  method.nonObject                                                                                                                    
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -937,8 +937,6 @@
  ------ ----------------------------------------------------------------------------------------------------------------- 
   147    Property SystemApprovals\Mappers\SystemApprovalsMapper::$extendedRecord (stdClass) does not accept object|null.  
          🪪  assign.propertyType                                                                                          
-  208    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                         
-         🪪  property.nonObject                                                                                           
  ------ ----------------------------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -1205,14 +1203,22 @@
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  project://src/src/app/controller/ContactFormsController.php                                                                                           
- ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  255    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
-         🪪  argument.type                                                                                                                       
-  260    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
-         🪪  argument.type                                                                                                                       
- ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  project://src/src/app/controller/ContactFormsController.php                                                                                                                                                        
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  258    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                                                                        
+         🪪  argument.type                                                                                                                                                                                    
+  263    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.                                                               
+         🪪  argument.type                                                                                                                                                                                    
+  305    Instanceof between PiecesPHP\Core\Mailer and PiecesPHP\Core\Mailer will always evaluate to true.                                                                                                     
+         🪪  instanceof.alwaysTrue                                                                                                                                                                            
+         💡  If PHPMailer\PHPMailer\PHPMailer::isHTML() is impure, add @phpstan-impure PHPDoc tag above its declaration. Learn more: https://phpstan.org/blog/remembering-and-forgetting-returned-values      
+         💡  If PiecesPHP\Core\Mailer::setFrom() is impure, add @phpstan-impure PHPDoc tag above its declaration. Learn more: https://phpstan.org/blog/remembering-and-forgetting-returned-values             
+         💡  If PHPMailer\PHPMailer\PHPMailer::addReplyTo() is impure, add @phpstan-impure PHPDoc tag above its declaration. Learn more: https://phpstan.org/blog/remembering-and-forgetting-returned-values  
+         💡  If PHPMailer\PHPMailer\PHPMailer::addAddress() is impure, add @phpstan-impure PHPDoc tag above its declaration. Learn more: https://phpstan.org/blog/remembering-and-forgetting-returned-values  
+         💡  If PiecesPHP\Core\Mailer::checkSettedSMTP() is impure, add @phpstan-impure PHPDoc tag above its declaration. Learn more: https://phpstan.org/blog/remembering-and-forgetting-returned-values     
+         💡  If PiecesPHP\Core\Mailer::asGoDaddy() is impure, add @phpstan-impure PHPDoc tag above its declaration. Learn more: https://phpstan.org/blog/remembering-and-forgetting-returned-values           
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/src/app/controller/GenericTokenController.php                                                                                                      

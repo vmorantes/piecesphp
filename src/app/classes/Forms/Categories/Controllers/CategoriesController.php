@@ -83,10 +83,6 @@ class CategoriesController extends AdminPanelController
         $this->model = (new CategoriesMapper())->getModel();
         set_title(self::$pluralTitle);
 
-        $baseURL = base_url();
-        $pcsUploadDir = get_config('upload_dir');
-        $pcsUploadDirURL = get_config('upload_dir_url');
-
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
         $this->setInstanceViewDir(__DIR__ . '/../Views/');

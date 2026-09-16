@@ -18,7 +18,7 @@ Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
 argument.type (291)
-property.nonObject (126)
+property.nonObject (125)
 method.nonObject (108)
 return.type (52)
 assign.propertyType (30)
@@ -39,6 +39,7 @@ class.notFound (2)
 staticMethod.nonObject (1)
 method.deprecated (1)
 nullCoalesce.offset (1)
+instanceof.alwaysTrue (1)
 isset.offset (1)
 parameter.defaultValue (1)
 nullCoalesce.property (1)
@@ -119,12 +120,12 @@ project://src/app/classes/EventsLog/Views/log/list.php
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
 	assign.propertyType (Líneas: 62)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
-	property.nonObject (Líneas: 692)
+	property.nonObject (Líneas: 688)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
 	argument.type (Líneas: 207)
 	property.nonObject (Líneas: 244, 271)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
-	property.nonObject (Líneas: 693)
+	property.nonObject (Líneas: 689)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	argument.type (Líneas: 207)
 	property.nonObject (Líneas: 244, 271)
@@ -248,13 +249,12 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	method.nonObject (Líneas: 85)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
-	staticMethod.nonObject (Líneas: 128)
-	argument.type (Líneas: 359, 359)
-	assign.propertyType (Líneas: 366)
-	method.nonObject (Líneas: 552)
+	staticMethod.nonObject (Líneas: 124)
+	argument.type (Líneas: 355, 355)
+	assign.propertyType (Líneas: 362)
+	method.nonObject (Líneas: 548)
 project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	assign.propertyType (Líneas: 147)
-	property.nonObject (Líneas: 208)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
 	argument.type (Líneas: 62, 101, 109, 116, 123, 130)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
@@ -312,7 +312,8 @@ project://src/app/controller/AppConfigController.php
 	property.nonObject (Líneas: 1695)
 	return.type (Líneas: 2154)
 project://src/app/controller/ContactFormsController.php
-	argument.type (Líneas: 255, 260)
+	argument.type (Líneas: 258, 263)
+	instanceof.alwaysTrue (Líneas: 305)
 project://src/app/controller/GenericTokenController.php
 	method.nonObject (Líneas: 179, 341)
 	argument.type (Líneas: 291, 308, 308, 309, 309)

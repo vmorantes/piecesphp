@@ -531,6 +531,8 @@ class UserProblemsController extends UsersController
                 'url' => $url,
 
             ], false);
+        } else {
+            throw new \InvalidArgumentException("sendCode: tipo no soportado '{$type}'.");
         }
 
         /**
