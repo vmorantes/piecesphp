@@ -19,6 +19,7 @@
 # la diferencia entre dejarlas fuera y olvidarlas es que las primeras se cuentan.
 # Se para si PREVISTO != CAMBIADO y no se da un --motivo: la diferencia se explica antes de
 # commitear, no después.
+# Se para SIEMPRE si AÑADIDO != PREVISTO, aunque haya --motivo: el motivo explica lo que queda fuera.
 
 #MEDIDO, y el bloque U pedía solo las dos primeras: `set -u` y `set -o pipefail` NO cazan el
 #caso que funda la ley —un identificador con `ñ` da «orden no encontrada» y el guion SIGUE—.
@@ -80,6 +81,11 @@ if [ -n "$ARREGLADOS" ]; then
 fi
 if [ "$PENDIENTES" -ne 0 ]; then
     echo "  mas ${PENDIENTES} pendiente(s) declarados para otro asunto: ${ANADIDO}+${PENDIENTES}=${SUMA}"
+fi
+
+if [ "$ANADIDO" -ne "$PREVISTO" ]; then
+    echo "  PARA: se preparan ${ANADIDO} y se preveían ${PREVISTO}. --motivo explica lo que queda fuera, no un previsto distinto de lo preparado." >&2
+    exit 1
 fi
 
 if [ "$SUMA" -ne "$CAMBIADO" ]; then

@@ -316,7 +316,9 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
     abortar.
   - **En una serie de commits, cada uno declara lo que deja fuera a propósito**:
     `bin/guarda-add <previsto> --pendientes=<los que quedan> --motivo="..."`. El guion se para
-    si `AÑADIDO + PENDIENTES != CAMBIADO`, y también si `PREVISTO != CAMBIADO` sin `--motivo`.
+    si `AÑADIDO + PENDIENTES != CAMBIADO`, si `PREVISTO != CAMBIADO` sin `--motivo`, y **siempre** si
+    `AÑADIDO != PREVISTO`: el `--motivo` explica lo que queda fuera, nunca que se preparara otra cosa (lote 10:
+    antes pasó un «1·4·0»).
     El último commit de la serie cierra con pendientes 0 y sin motivo.
   - Nace de `#097`: la instrucción `#093` dictó `bin/guarda-add` antes del `git add` y sin
     pendientes, y habría abortado en los dos primeros commits. El coder leyó el guion en vez de
