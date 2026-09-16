@@ -1051,6 +1051,18 @@ historia de git los conserva.
      cron** (tampoco `APIRoutes::routes()`, línea 42). Documentado tal cual en `source-docs/api/docs/modules/CronJobs.md`;
      arreglo al lote 10. **P35** queda con su predeterminado aplicado: la ruta `external` se documenta como extensión
      apagada en `source-docs/api/docs/index.md`, sin tocar código.
+     Y (arquitecto, 9.7, lectura de los paquetes):
+     - **`piecesphp/html` no escapa nada**, ni texto ni atributos (sin `htmlspecialchars` en `src/`). El framework lo usa
+       en `src/app/core/psr4/PiecesPHP/Core/Menu/` (`MenuGroup.php:430-469`, `MenuItem`), con nombres de `__()` y URLs de
+       rutas: **SOSPECHA** de bajo riesgo, sin medir si algún menú lleva un dato de usuario. Al lote 10, con el
+       auditor de seguridad. Documentado como aviso en el README del paquete.
+     - **`piecesphp/geojson` saca por defecto `[lat, lng]`**, que no es RFC 7946, y `addFeature()` impone el modo de la
+       colección. Cambiar el predeterminado es ruptura MAYOR del paquete: al lote 10 como decisión, con los consumidores
+       del framework medidos. Documentado en su README.
+     - `database` y `geojson` con errores en su `.agents/context/` (describían otro paquete o una API que no existe):
+       se retiran en 9.7.
+     - «Ejemplos que corren como prueba» (plan 33, 9.7) **no entra en esta ronda**: exige código en los cuatro paquetes;
+       va a 9.7b.
      También: `@deprecated` de `escapeString()` espera a que muera su último uso (`DataTablesHelper.php:1329`).
   33. **Lote 9 (documentación): inventario y plan** (arquitecto, 2026-09-16, con una exploración de solo lectura; citas en el
      informe, resumidas aquí). Once frentes, en este orden de rondas:
