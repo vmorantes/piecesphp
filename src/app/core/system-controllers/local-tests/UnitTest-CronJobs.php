@@ -55,6 +55,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($formato($tarea('f6', $bien)->onMinute(15)->lastDueSlot($en('2026-09-15 10:14'))) === '2026-09-15 09:15', 'onMinute(15) a las 10:14 → 09:15');
     $check($formato($tarea('f7', $bien)->hourly()->lastDueSlot($en('2026-09-15 10:00:59'))) === '2026-09-15 10:00', 'hourly() a las 10:00:59 → 10:00');
     $check($formato($tarea('f8', $bien)->weeklyOn(2, '13:00')->lastDueSlot($en('2026-09-15 12:00'))) === '2026-09-08 13:00', 'weeklyOn(2, 13:00) un martes a las 12:00 → el martes ANTERIOR');
+    //Un día fuera de 0-6 nunca coincidiría con format('w'): la tarea no correría jamás, en silencio.
+    foreach ([7 => true, -1 => true, 0 => false, 6 => false] as $dia => $debeLanzar) {
+        $lanzo = 'sin excepción';
+        try {
+            $tarea("fd{$dia}", $bien)->weeklyOn($dia, '03:00');
+        } catch (\Throwable $e) {
+            $lanzo = get_class($e);
+        }
+        $esperado = $debeLanzar ? \InvalidArgumentException::class : 'sin excepción';
+        $check($lanzo === $esperado, "weeklyOn({$dia}) → " . ($debeLanzar ? 'InvalidArgumentException' : 'sin excepción'), "obtenido: {$lanzo}");
+    }
     $sinFranja = $tarea('f9', $bien);
     $check($sinFranja->hasSchedule() === false && $sinFranja->lastDueSlot($en('2026-09-15 12:00')) === null, 'sin método de programación: sin franja');
     echoTerminal(' ');

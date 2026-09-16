@@ -195,6 +195,9 @@ class CronJobTask
      */
     public function weeklyOn(int $dayOfWeek, string $time = '00:00'): self
     {
+        if ($dayOfWeek < 0 || $dayOfWeek > 6) {
+            throw new \InvalidArgumentException("weeklyOn: el día debe estar entre 0 (domingo) y 6 (sábado); llegó {$dayOfWeek}.");
+        }
         $this->executionCondition = function () use ($dayOfWeek, $time) {
             $isCorrectDay = (int) $this->getEvalDate()->format('w') === $dayOfWeek;
             $isCorrectTime = $this->getEvalDate()->format('H:i') === $time;
