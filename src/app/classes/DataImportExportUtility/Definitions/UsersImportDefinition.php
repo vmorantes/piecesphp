@@ -87,7 +87,7 @@ class UsersImportDefinition extends ImportDefinition
                 if ($value === null) {
                     return null;
                 }
-                return ctype_digit($value) && OrganizationMapper::existsByID((int) $value) ? null : sprintf(__(self::LANG_GROUP, 'Organización: no existe la organización «%s».'), $value);
+                return preg_match('/^-?\d+$/', $value) === 1 && OrganizationMapper::existsByID((int) $value) ? null : sprintf(__(self::LANG_GROUP, 'Organización: no existe la organización «%s».'), $value);
             }),
         ];
     }
