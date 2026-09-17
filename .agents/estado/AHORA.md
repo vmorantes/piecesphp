@@ -1,13 +1,13 @@
 # Ahora
 
-- **Actualizado:** 2026-09-17 08:46 (medido con `date`).
+- **Actualizado:** 2026-09-17 10:17 (medido con `date`).
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#249 · ARQ` (R2 en vuelo). Próximo: `#250 · COD`. **Último al PO:** A-058.
+- **Último mensaje:** `#253 · ARQ` (R3a en vuelo). Próximo: `#254 · COD`. **Último al PO:** A-060.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
-  Las dos se reabrieron el 2026-09-17, así que cuentan como compactadas.
+  Las dos se reabrieron dos veces el 2026-09-17 (cierre de los IDE); tras la segunda, el PO renombró al coder.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
   `git --no-optional-locks log --oneline -1`.
 - **Este archivo se rehízo corto el 2026-09-16.** Tenía 567 líneas: era historia, no estado. La
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**2026-09-17, lote 10 continúa. Ronda E2a (#232):** `piecesphp/database` 5.1.0 (serialización sin credenciales, SchemeCreator estricto, medida del DEFAULT de timestamp). F1 cerrada en #230-#231 (6b5d05e5). Después, en este orden: E2b (`piecesphp/database` 5.1.0: serialización sin credenciales, P42, P44), F (R14, R32, R34), propuestas P38 y P39, lote 8 y lote 11 con P36. Las claves de prueba de reCAPTCHA (#224) siguen esperando la confirmación del PO en la sesión del coder.
+**2026-09-17. Lote 8, ronda R3a (#251):** panel único de importación sobre el motor `DataTransfer` (R2 cerrada, 2f1dabda). Después: R3b (importador de usuarios con credenciales de entrega única), R4 (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -73,13 +73,10 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
 
 ### Acciones tuyas
 
-- **Confirmar en la sesión del coder (PiecesPHPUpgrade-Coder-Main)** que quieres tus dos claves de reCAPTCHA de prueba
-  versionadas en `src/app/config/config.php` (ADR 0021). Por ejemplo: «Confirmo: versiona mis claves de reCAPTCHA de
-  prueba en config.php, como dice el ADR 0021». Mientras tanto las claves ya salieron del código y, **sin ellas, el
-  formulario de contacto de tu instalación local rechaza los envíos**. Ya no frena otras rondas.
 - **Empujar.** Todo está en local.
   - Framework: `dev`, `master`, `last-stable` y las etiquetas `v8.0.0-alpha.1` a `v8.0.0-alpha.4`.
-  - Paquetes `database`, `datastructures`, `geojson` y `html`: `master` y `dev` de cada uno.
+  - Paquetes `database`, `datastructures`, `geojson` y `html`: `master` y `dev` de cada uno; en `database`, además,
+    las etiquetas `v5.1.0` y `v5.1.1`.
 - **Mirar los tres buzones de Mailinator** (`zz-prueba-recuperacion-55e5ee`, `zz-prueba-codigo-55e5ee`,
   `zz-prueba-problemas-55e5ee`, @mailinator.com). Si ya no están, no pasa nada.
 
@@ -125,6 +122,13 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
   en la base), el middleware lo mete en silencio en la organización global. **(a)** el `-10` solo para los tipos de
   `TYPES_USER_DONT_REQUIRE_ORGANIZATION`; los demás sin organización no se tocan y se registra en el log. **(b)** como
   hoy. *Predeterminado:* (a).
+
+- **P47 · La validación de subidas rechaza CSV normales.** `FileValidator` (núcleo, lo usan todas las subidas) no
+  admite para CSV el tipo `text/plain`, que es como el sistema reconoce un CSV corriente. Resultado: cualquier módulo que
+  valide un CSV con `TYPE_CSV` lo rechaza siempre. El importador nuevo lo evita por su cuenta (comprueba extensión y que
+  el contenido sea texto). **(a)** añadir `text/plain` a los tipos de CSV del núcleo (afloja la comprobación para todos;
+  la extensión se sigue exigiendo). **(b)** dejarlo y que cada módulo haga como el importador. *Predeterminado:* (b)
+  hasta que decidas.
 
 ### Propuestas que prepara el arquitecto (no tienes que hacer nada aún)
 
