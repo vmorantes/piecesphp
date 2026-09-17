@@ -81,6 +81,9 @@ versiona** (18 T129). En los paquetes se etiqueta con soltura (PO, 2026-08-27, c
 - Un recuadro **nunca** contiene preguntas dirigidas al PO.
 - Si el coder necesita una decisión que la instrucción no cubre, **se detiene** y lo dice en
   su reporte. No improvisa ni «asume lo razonable».
+- **El coder nunca le pregunta al PO.** Sus dudas van al arquitecto, que decide o lleva la pregunta al PO con su
+  contexto (PO, 2026-09-17: «no me preguntes ni hables conmigo; pregúntale al arquitecto»). Si el PO le habla o le da
+  un permiso en su sesión, el coder lo cumple y lo cita en el reporte, pero no abre él la conversación.
 
 ### Preguntas al PO (20 §2)
 

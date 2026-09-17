@@ -51,6 +51,10 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
 - **Una sola plantilla de correo sin estilos.** `SystemApprovals` tenía su propia copia de
   `mailing/template_base_no_style.php` solo para añadir los comentarios de una aprobación; la plantilla del núcleo
   (`src/app/view/mailing/`) admite ahora `reason` (ya escapado por quien llama) y la copia se retira.
+- **El alta de usuarios por formulario vuelve a crear el perfil del usuario.** Desde el 22-08-2026 (cuando la creación
+  del perfil salió del camino de lectura del login) no lo creaba: `UsersModel::save()` no dejaba el id insertado en el
+  objeto y la condición nunca se cumplía. Ahora `UsersModel::save()` deja el id. **Qué hacer:** los usuarios creados por
+  formulario desde esa fecha pueden no tener perfil; se crea con `UserProfileMapper::createProfile($id)`.
 - **El banner de la portada ya no rompe la página.** `home.js` leía `tagName` sobre el objeto jQuery que le pasa
   `BuiltInBannerAdapter`, y lanzaba un error en cuanto había un banner publicado.
 - **La vista pública de cada banner escapa** su enlace (ahora entre comillas) y su título. El contenido sigue siendo
