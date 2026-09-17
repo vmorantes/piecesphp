@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#253 · ARQ` (R3a en vuelo). Próximo: `#254 · COD`. **Último al PO:** A-060.
+- **Último mensaje:** `#255 · ARQ` (en vuelo). Próximo: `#256 · COD`. **Último al PO:** A-060.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron dos veces el 2026-09-17 (cierre de los IDE); tras la segunda, el PO renombró al coder.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**2026-09-17. Lote 8, ronda R3a (#251):** panel único de importación sobre el motor `DataTransfer` (R2 cerrada, 2f1dabda). Después: R3b (importador de usuarios con credenciales de entrega única), R4 (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
+**2026-09-17. Lote 8, ronda R3b (#255):** importador de usuarios (R3a cerrada, 71901195). Después: (importador de usuarios con credenciales de entrega única), R4 (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
