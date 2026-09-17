@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#235 · ARQ` (en vuelo). Próximo: `#236 · COD`. **Último al PO:** A-056.
+- **Último mensaje:** `#237 · ARQ` (en vuelo). Próximo: `#238 · COD`. **Último al PO:** A-057.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-17, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -93,6 +93,17 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
   tocar.
 - **P41 · `piecesphp/geojson` saca `[latitud, longitud]` por defecto**, que no es el estándar. Cambiarlo rompe a quien
   lo use. *Predeterminado:* no se toca; documentado en su README.
+
+- **P45 · Traducciones dinámicas guardadas en el mismo segundo.** `add-dynamic-translations.php` vuelca las
+  traducciones de la base al JSON solo si la fecha guardada es MAYOR que la del último volcado, con resolución de
+  segundos: dos guardados en el mismo segundo dejan el segundo pendiente hasta el siguiente cambio. El arreglo es
+  pequeño (comparar con `>=` o guardar con más resolución), pero es el sistema de traducciones, que usan todos los
+  módulos. *Predeterminado:* se arregla con `>=` y una prueba, salvo que digas que no.
+- **P46 · Una sesión con cookie pero sin `localStorage` se cierra sola.** El arnés JS de sesión
+  (`PiecesPHPSystemUserHelper.js`) envía un JWT vacío si `localStorage` no lo tiene, y `deleteSession()` recarga: la
+  segunda carga ya es anónima. Pasa, por ejemplo, si el navegador borra el almacenamiento local pero conserva la
+  cookie. No sé si es intencionado (más seguro) o un fallo (sesiones que se pierden). *Predeterminado:* no se toca y se
+  revisa con el auditor de seguridad antes de proponer.
 
 ### Propuestas que prepara el arquitecto (no tienes que hacer nada aún)
 
