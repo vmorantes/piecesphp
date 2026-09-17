@@ -56,7 +56,7 @@ $addDynamicTranslationsLogicFunction = function () {
     $currentDatabaseLastDate = $currentDatabaseLastDate instanceof \DateTime  ? $currentDatabaseLastDate : null;
 
     /* Actualizar traducciones locales del JSON con las de la base de datos, si es necesario */
-    if ($currentDatabaseLastDate !== null && $currentDatabaseLastDate > $currentJSONTranslationsPackage->getUpdated()) {
+    if ($currentDatabaseLastDate !== null && $currentDatabaseLastDate >= $currentJSONTranslationsPackage->getUpdated()) {
 
         //Revisar si hay traducciones en la base de datos que no estén en el JSON
         foreach ($currentDatabaseData as $lang => $groupedTranslations) {
