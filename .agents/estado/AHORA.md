@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#255 · ARQ` (en vuelo). Próximo: `#256 · COD`. **Último al PO:** A-060.
+- **Último mensaje:** `#259 · ARQ` (en vuelo). Próximo: `#260 · COD`. **Último al PO:** A-064.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron dos veces el 2026-09-17 (cierre de los IDE); tras la segunda, el PO renombró al coder.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -129,6 +129,14 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
   el contenido sea texto). **(a)** añadir `text/plain` a los tipos de CSV del núcleo (afloja la comprobación para todos;
   la extensión se sigue exigiendo). **(b)** dejarlo y que cada módulo haga como el importador. *Predeterminado:* (b)
   hasta que decidas.
+
+- **P48 · Al guardar un registro nuevo, el objeto no recibe su id.** El ORM guarda el id insertado aparte
+  (`getInsertIDOnSave()`) y no en el propio objeto. Muchos modelos lo corrigen a mano en su `save()`; `UsersModel` no, y
+  por eso **el alta de usuarios por formulario no creaba el perfil** (confirmado con un alta real). Ya se arregla solo en
+  `UsersModel` (no toca el núcleo). Además, `QueueTask::dispatch()` devuelve siempre null por lo mismo. **(a)** arreglarlo
+  en el núcleo (`EntityMapperExtensible::save()` deja el id en el objeto; ningún código medido depende de lo contrario) y
+  corregir `QueueTask`. **(b)** dejar el arreglo en `UsersModel` y corregir `QueueTask` aparte. **(c)** solo lo de
+  `UsersModel`. *Predeterminado:* (b).
 
 ### Propuestas que prepara el arquitecto (no tienes que hacer nada aún)
 
