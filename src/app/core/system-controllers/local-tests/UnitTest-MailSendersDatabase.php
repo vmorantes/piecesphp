@@ -111,6 +111,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
     $destinatariosOriginales = get_config('contact_form_recipients');
     //La secreta de reCAPTCHA se fija en memoria: sin ella verifyTokenCaptcha() rechaza cualquier token.
     $secretaOriginal = get_config('GoogleReCaptchaV3SecretKey');
+    $secretaDePruebaOriginal = get_config('GoogleReCaptchaV3TestSecretKey');
     set_config('GoogleReCaptchaV3SecretKey', 'zz-secreta-de-prueba');
     $visitantes = [];
     $previoUsuario = get_config('current_user');
@@ -266,8 +267,10 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
 
         echoTerminal('[4/8] ContactFormsController::contactMessage() con CAPTCHA válido y destinatario');
         //Sin secreta, un token que en la base SÍ es válido se rechaza: el rechazo solo puede venir de la guarda.
+        //Sin la real ni la de prueba; con una sola de las dos, action() saldría a la red de Google.
         try {
             set_config('GoogleReCaptchaV3SecretKey', '');
+            set_config('GoogleReCaptchaV3TestSecretKey', '');
             $tokenSinSecreta = $tokenCaptcha();
             $aceptado = \GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller::verifyTokenCaptcha($tokenSinSecreta);
             $check($aceptado === false && $tokenGuardado($tokenSinSecreta), 'q1. sin clave secreta, verifyTokenCaptcha() rechaza un token válido y no lo consume', 'aceptado ' . var_export($aceptado, true));
@@ -279,6 +282,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
             $check(false, 'reCAPTCHA sin clave secreta', get_class($exception) . ': ' . $exception->getMessage());
         } finally {
             set_config('GoogleReCaptchaV3SecretKey', 'zz-secreta-de-prueba');
+            set_config('GoogleReCaptchaV3TestSecretKey', $secretaDePruebaOriginal === false ? null : $secretaDePruebaOriginal);
         }
         try {
             $token = $tokenCaptcha();
@@ -504,6 +508,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
         set_config('mail', $original);
         set_config('contact_form_recipients', $destinatariosOriginales === false ? null : $destinatariosOriginales);
         set_config('GoogleReCaptchaV3SecretKey', $secretaOriginal === false ? null : $secretaOriginal);
+        set_config('GoogleReCaptchaV3TestSecretKey', $secretaDePruebaOriginal === false ? null : $secretaDePruebaOriginal);
         if (count($visitantes) > 0) {
             $database->prepare('DELETE FROM ' . NewsletterSuscriberMapper::TABLE . ' WHERE email IN (' . implode(', ', array_fill(0, count($visitantes), '?')) . ')')->execute($visitantes);
         }

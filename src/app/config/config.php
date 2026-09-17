@@ -112,6 +112,11 @@ $config['mailjet'] = [
 
 $config['SurveyJSKey'] = "";
 
+//Claves de reCAPTCHA v3 de PRUEBA del propietario: solo valen en sus dominios de prueba y en localhost.
+//En producción, las reales van en las claves seguras (ver api-keys.php), que tienen prioridad.
+$config['GoogleReCaptchaV3TestSiteKey'] = '6Le1Zb8tAAAAAOmAjR_AV6Pinr4D3OTRqAh_7ws-';
+$config['GoogleReCaptchaV3TestSecretKey'] = '6Le1Zb8tAAAAACveNPehd0WXtX6NkK7P915giuWG';
+
 //Inteligencia artificial
 $config['OpenAIApiKey'] = "";
 $config['MistralAIApiKey'] = "";

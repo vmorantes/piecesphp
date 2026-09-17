@@ -59,6 +59,9 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
     {
         $secret = get_config('GoogleReCaptchaV3SecretKey');
         if (!is_string($secret) || mb_strlen(trim($secret)) === 0) {
+            $secret = get_config('GoogleReCaptchaV3TestSecretKey');
+        }
+        if (!is_string($secret) || mb_strlen(trim($secret)) === 0) {
             log_exception(new \RuntimeException('reCAPTCHA v3 sin clave secreta: falta la clave recaptcha-v3-secret en las claves seguras (ver api-keys.php).'));
             return null;
         }
