@@ -1,12 +1,15 @@
 # Ahora
 
-- **Actualizado:** 2026-09-17 10:17 (medido con `date`).
+- **Actualizado:** 2026-09-17 17:05 (medido con `date`), al cerrar la jornada.
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#267 · ARQ` (en vuelo). Próximo: `#268 · COD`. **Último al PO:** A-067.
-- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
+- **Último mensaje:** `#268 · COD`. Próximo: `#269 · ARQ`. **Último al PO:** A-073.
+- **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`. Las órdenes de
+  renombrado, pegables, se le dan al PO **al abrir y al cerrar** (regla 30, «Nombres de sesión»):
+  `/rename PiecesPHPUpgrade-Arquitecto-Main` en la sesión del arquitecto y
+  `/rename PiecesPHPUpgrade-Coder-Main` en la del coder.
   Las dos se reabrieron dos veces el 2026-09-17 (cierre de los IDE); tras la segunda, el PO renombró al coder.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
   `git --no-optional-locks log --oneline -1`.
@@ -15,7 +18,7 @@
 
 ## En curso
 
-**2026-09-17. Lote 8: R5 (retirada) espera al PO (P49, regla de los diez); P45 cerrada (cdcd87b3). El arquitecto redacta la documentación del lote 8 (R6).** R4 cerrada (34eb42c6, cf6b5e14). R3b (368d2ffc) y el arreglo del perfil (7fedd466) cerrados. Después: (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
+**2026-09-17, jornada cerrada por el PO a las 17:05.** Al reanudar: R5 del lote 8 espera P49 y el lote 11 espera P36; lo demás del lote 10 y el bloque de SEO (S7) no dependen de él. **Lote 8: R5 (retirada) espera al PO (P49, regla de los diez); P45 cerrada (cdcd87b3). Documentación del lote 8 (R6a) commiteada.** R4 cerrada (34eb42c6, cf6b5e14). R3b (368d2ffc) y el arreglo del perfil (7fedd466) cerrados. Después: (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11: plan de P36 escrito y presentado (espera al PO).
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -90,6 +93,15 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
   Plan completo: `.agents/estado/propuesta-2026-09-17-lote-8-r5-retirada.md`. **(a)** adelante. **(b)** no, o con cambios.
   *Predeterminado:* no se ejecuta sin tu respuesta; el resto del trabajo sigue.
 
+- **P36 · Plan de los controladores del sistema al estándar (lote 11, regla de los diez).** Cinco controladores
+  (usuarios, intentos de acceso, panel, tokens y temporizador; el importador se retira con P49). **26 nombres de ruta
+  cambian; ninguna URL cambia**, así que los correos enviados y el JS siguen valiendo. `roles.php` no cambia: sus nombres
+  ya llevan el prefijo. El único permiso básico en riesgo es que un usuario no aprobado pueda editar su perfil, y se
+  ajusta con prueba. Después, `get_route()` con nombre literal queda vetado por una puerta (150 llamadas migradas; 2
+  excepciones del núcleo). Va después de R5. Pasar a `classes/` lleva plan aparte. Plan completo:
+  `.agents/estado/propuesta-2026-09-17-p36-controladores-al-estandar.md`. **(a)** adelante. **(b)** con cambios.
+  *Predeterminado:* no se instruye sin tu respuesta.
+
 - **P37 · Alta pública por API con organización nueva.** Hoy falla siempre. Arreglarla abre una vía pública para crear
   una organización y quedar como su administrador. (a) arreglarla, (b) retirar esa vía, (c) dejarla cerrada como está.
   *Predeterminado:* (c), documentado.
@@ -140,11 +152,14 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
 
 ### Propuestas que prepara el arquitecto (no tienes que hacer nada aún)
 
-- **P36 · Los seis controladores al estándar**, con `roles.php` y el veto a `get_route()` directo: el plan se te enseña
-  antes de commitear (lote 11, regla de los diez).
 
 ### Sin prisa (tienen predeterminado y no frenan nada)
 
+- **S7 · Cuatro comentarios sueltos tuyos (A-069), en borrador:** que un clon sepa con precisión de cuándo es; metatags
+  más completos y mejor vista de SEO; separar los scripts de SEO de los metadatos y Open Graph del título normal; y
+  vista propia para los scripts inyectables, con panel/público/ambos y cabecera/cuerpo/final. Confirmados y detallados
+  por el PO en A-072; `robots.txt` modificable y su base optimizada. Todo en `../docs/pendientes.md` punto 39.
+  *Predeterminado:* 39.1 en el lote 10; el resto, un bloque después del 11, con su plan antes.
 - **S1 · Alcance del ADR 0017** (el framework actualiza sus paquetes con Composer). *Predeterminado:* toda la campaña.
 - **S2 · Detectar por máquina cuándo se compacta una sesión.** *Predeterminado:* cuando lo nombres.
 - **S3 · El SQL y las filas crudas de los listados viajan al navegador** (`DataTablesHelper`, núcleo). *Predeterminado:*
