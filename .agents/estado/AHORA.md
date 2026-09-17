@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#265 · ARQ` (en vuelo). Próximo: `#266 · COD`. **Último al PO:** A-067.
+- **Último mensaje:** `#267 · ARQ` (en vuelo). Próximo: `#268 · COD`. **Último al PO:** A-067.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron dos veces el 2026-09-17 (cierre de los IDE); tras la segunda, el PO renombró al coder.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**2026-09-17. Lote 8: R5 (retirada) espera al PO (P49, regla de los diez); en vuelo P45 (#265).** R4 cerrada (34eb42c6, cf6b5e14). R3b (368d2ffc) y el arreglo del perfil (7fedd466) cerrados. Después: (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
+**2026-09-17. Lote 8: R5 (retirada) espera al PO (P49, regla de los diez); P45 cerrada (cdcd87b3). El arquitecto redacta la documentación del lote 8 (R6).** R4 cerrada (34eb42c6, cf6b5e14). R3b (368d2ffc) y el arreglo del perfil (7fedd466) cerrados. Después: (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -99,11 +99,6 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
 - **P41 · `piecesphp/geojson` saca `[latitud, longitud]` por defecto**, que no es el estándar. Cambiarlo rompe a quien
   lo use. *Predeterminado:* no se toca; documentado en su README.
 
-- **P45 · Traducciones dinámicas guardadas en el mismo segundo.** `add-dynamic-translations.php` vuelca las
-  traducciones de la base al JSON solo si la fecha guardada es MAYOR que la del último volcado, con resolución de
-  segundos: dos guardados en el mismo segundo dejan el segundo pendiente hasta el siguiente cambio. El arreglo es
-  pequeño (comparar con `>=` o guardar con más resolución), pero es el sistema de traducciones, que usan todos los
-  módulos. *Predeterminado:* se arregla con `>=` y una prueba, salvo que digas que no.
 - **P46 · Una sesión con cookie pero sin `localStorage` se cierra sola.** El arnés JS de sesión
   (`PiecesPHPSystemUserHelper.js`) envía un JWT vacío si `localStorage` no lo tiene, y `deleteSession()` recarga: la
   segunda carga ya es anónima. Pasa, por ejemplo, si el navegador borra el almacenamiento local pero conserva la
