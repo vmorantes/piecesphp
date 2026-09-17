@@ -3,6 +3,8 @@
     $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
     $header_image = isset($header_image) && is_string($header_image) ? $header_image : '';
     $text = isset($text) && is_string($text) ? $text : '';
+    //`reason` llega ya escapado por quien llama.
+    $reason = isset($reason) && is_string($reason) ? $reason : '';
     $hasCode = isset($code) && is_string($code);
     $note = isset($note) && is_string($note) ? $note : '';
     $hasURL = isset($url) && is_string($url);
@@ -20,6 +22,10 @@
 
 <?php if(mb_strlen($text) > 0): ?>
 <p><?= $text; ?></p>
+<?php endif; ?>
+<?php if (mb_strlen(trim($reason)) > 0): ?>
+<h3><?= __($langGroup, 'Con los siguientes comentarios:'); ?></h3>
+<p><?=$reason;?></p>
 <?php endif; ?>
 
 <?php if(mb_strlen($note) > 0): ?>

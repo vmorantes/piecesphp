@@ -359,7 +359,7 @@ class SystemApprovalsController extends AdminPanelController
                             $data = [];
                             $data['text'] = mb_convert_encoding($message, 'UTF-8');
                             $data['reason'] = htmlspecialchars(mb_convert_encoding((string) $reason, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                            $mailer->Body = $this->render('mailing/template_base_no_style', $data, false, false);
+                            $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
                             if (!$mailer->checkSettedSMTP()) {
                                 $mailer->asGoDaddy();
                             }
