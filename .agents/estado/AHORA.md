@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#237 · ARQ` (en vuelo). Próximo: `#238 · COD`. **Último al PO:** A-057.
+- **Último mensaje:** `#239 · ARQ` (en vuelo). Próximo: `#240 · COD`. **Último al PO:** A-058.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-17, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -105,11 +105,29 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
   cookie. No sé si es intencionado (más seguro) o un fallo (sesiones que se pierden). *Predeterminado:* no se toca y se
   revisa con el auditor de seguridad antes de proponer.
 
+- **P38 · Aprobaciones: qué ve un administrador de organización (tipo 12) de las demás.** Auditado (solo lectura):
+  - El desplegable «Tipo de contenido» sale de toda la tabla, sin filtro: muestra qué tipos existen en el sistema
+    (Organización, Perfil, Usuario independiente, Publicación). No muestra ningún registro, nombre ni recuento.
+    Severidad baja.
+  - **Más relevante:** la respuesta de la tabla lleva `recordsTotal`, el total de aprobaciones de TODAS las
+    organizaciones, y el texto del SQL ejecutado. Un administrador de una organización ve el tamaño y la actividad del
+    resto. El fallo está en `DataTablesHelper` (núcleo) y probablemente afecta a todo listado que filtra por organización.
+  - La tabla en sí sí filtra bien por organización, y las acciones lo vuelven a comprobar en el servidor.
+  - **(a)** el desplegable se construye con la lista fija de tipos del código, igual para todos (mínimo, solo en el
+    módulo) y, en el núcleo, `recordsTotal` se calcula con los mismos filtros que la tabla y dejan de enviarse las
+    claves `SQL_*`. **(b)** solo el desplegable, y el núcleo se deja para S3. **(c)** nada.
+  *Predeterminado:* (a); el cambio del núcleo se te enseña antes de commitear, con las pruebas de los listados.
+- **P39 · El `organization = -10`.** Medido: no está en el login sino en un middleware que corre en **cada petición**
+  (`src/app/config/containers.php:89-99`), y lo escribe a **cualquier** usuario con organización nula, sin mirar su
+  tipo. Alta y edición de usuarios sí respetan `TYPES_USER_DONT_REQUIRE_ORGANIZATION` (root, administrador general y
+  Google Play): a esos les dejan la organización nula. Así que para esos tres el `-10` es lo que tú dices; para un
+  administrador de organización, general, institucional o de comunicaciones sin organización (solo si alguien la vació
+  en la base), el middleware lo mete en silencio en la organización global. **(a)** el `-10` solo para los tipos de
+  `TYPES_USER_DONT_REQUIRE_ORGANIZATION`; los demás sin organización no se tocan y se registra en el log. **(b)** como
+  hoy. *Predeterminado:* (a).
+
 ### Propuestas que prepara el arquitecto (no tienes que hacer nada aún)
 
-- **P38 · El desplegable global de Aprobaciones** (posible fuga de etiquetas entre organizaciones): propuesta pedida
-  en A-049.
-- **P39 · `organization = -10` en el login:** medir si `TYPES_USER_DONT_REQUIRE_ORGANIZATION` cubre todos los casos.
 - **P36 · Los seis controladores al estándar**, con `roles.php` y el veto a `get_route()` directo: el plan se te enseña
   antes de commitear (lote 11, regla de los diez).
 
