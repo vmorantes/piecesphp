@@ -690,7 +690,7 @@ class CategoriesMapper extends EntityMapperExtensible
     {
         $model = self::model();
         $model->select();
-        $model->where("id = {$id}");
+        $model->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]));
         $model->execute();
         $result = $model->result();
         return !empty($result) ? $result[0] : null;
@@ -704,12 +704,7 @@ class CategoriesMapper extends EntityMapperExtensible
     {
         $model = self::model();
 
-        $where = [
-            "id = $id",
-        ];
-        $where = trim(implode(' ', $where));
-
-        $model->select()->where($where);
+        $model->select()->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]));
 
         $model->execute();
 

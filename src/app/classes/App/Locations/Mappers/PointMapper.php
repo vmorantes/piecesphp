@@ -267,11 +267,7 @@ class PointMapper extends BaseEntityMapper
     {
         $model = self::model();
 
-        $where = trim(implode(' ', [
-            "id = $id",
-        ]));
-
-        $model->select()->where($where)->execute();
+        $model->select()->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]))->execute();
 
         $result = $model->result();
         $result = is_array($result) ? $result : [];
