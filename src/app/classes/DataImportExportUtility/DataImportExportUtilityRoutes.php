@@ -7,6 +7,7 @@
 namespace DataImportExportUtility;
 
 use DataImportExportUtility\Controllers\DataTransferController;
+use DataImportExportUtility\Definitions\UsersImportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -50,6 +51,7 @@ class DataImportExportUtilityRoutes
         if (self::ENABLE) {
 
             $groupAdministration = DataTransferController::routes($groupAdministration);
+            $groupAdministration = self::importer($groupAdministration, UsersImportDefinition::class);
 
             self::staticResolver($groupAdministration);
 
