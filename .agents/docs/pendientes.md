@@ -1046,6 +1046,35 @@ historia de git los conserva.
      Cerrado el mismo día: **P45** (`cdcd87b3`, `>=` en `add-dynamic-translations.php:59`, suite
      dynamic-translations-sync 6/6). Hallazgo H1 de `#266`: `DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON()`
      (`:146`) no comprueba la escritura; si el JSON no se puede escribir, el volcado y su log pueden repetirse. Al lote 10.
+  40. **Orden del PO (A-070, 2026-09-17): los comandos de renombrado, siempre y pegables.** Al abrir o retomar una
+     sesión y al terminar de trabajar, el arquitecto da las dos órdenes `/rename` sin que el PO las pida. Subido a la
+     regla 30 («Nombres de sesión») y a `AHORA.md`, «Sesiones». **Cerrado el mismo día.**
+  39. **Comentarios sueltos del PO (A-069, 2026-09-17), en borrador y reformulados por el arquitecto; pendientes de que
+     él confirme la lectura.** Son cuatro encargos de producto, sin lote asignado:
+     - **39.1 Un clon tiene que saber con precisión de cuándo es.** Hoy la versión y su fecha son dos constantes escritas
+       a mano en `src/app/core/bootstrap.php:258-266` (`APP_VERSION` = `v8.0.0-alpha.4`, `APP_VERSION_DATE` =
+       `2026-09-16`), que se muestran en el menú del panel y en «Acerca del framework». Una constante a mano miente en
+       cuanto alguien clona y no la toca. Lectura del arquitecto: la instalación debe poder decir de qué versión y de qué
+       punto exacto del framework salió, medido y no declarado.
+     - **Respuestas del PO (A-072, 2026-09-17):** la lectura de 39.1 es correcta; el punto exacto se resuelve **con el
+       hash del commit, además de la versión**. Los metatags y los títulos deben **admitir comillas**. El Open Graph lleva
+       **todo lo que valga la pena**. **`robots.txt` pasa a ser modificable** sin tocar la base que trae el framework, y
+       esa base **hay que optimizarla**. Los scripts inyectables salen de SEO a **vista propia**, y en ella se distingue
+       **panel, público o ambos**, cruzado con **cabecera, principio del cuerpo o final**.
+     - **39.2 Metatags más completos y mejor vista de SEO.** Hoy la configuración SEO tiene seis campos por idioma
+       (`AppConfigController:107-127`): título, propietario, descripción, palabras clave, scripts extra e imagen de Open
+       Graph; y `MetaTags` (núcleo) emite un juego corto. Encargo: más etiquetas y una vista de ajustes mejor.
+     - **39.3 Separar lo que hoy va junto:** los scripts de SEO por un lado y los metadatos por otro; y las etiquetas de
+       Open Graph separadas del título y la descripción normales, en lugar de derivarse de ellos.
+     - **39.4 Los scripts inyectables salen de los ajustes SEO a su propia vista.** Hoy son un solo campo de
+       configuración, `extra_scripts`, que `ExtraScripts` (núcleo) vuelca en la cabecera de todo. La vista nueva
+       distingue **dónde se inyecta** (panel, público o ambos) y **en qué punto** (cabecera, principio del cuerpo o
+       final).
+     - **39.5 Defecto medido el 2026-09-17, que 39.2 tiene que arreglar** (`MetaTags.php:285-380`): los atributos se
+       escriben entre comillas simples y **no se escapan** el `<title>` (`:310`) ni ninguna de las ocho etiquetas de Open
+       Graph (`:376`). Solo `author`, `description` y `keywords` genéricas pasan por `htmlentities` (`:292-300`). Un
+       título o una descripción con una comilla simple rompe la etiqueta en la cabecera pública. El contenido lo escriben
+       administradores desde el panel, así que la severidad es media, pero es inyección en el `<head>`.
   37. **Decisiones y hallazgos del 2026-09-17:**
      - **P44 → no hace falta el `ALTER`** (arquitecto, con la medida de `#233`): `SchemeCreator` no emite NINGÚN `DEFAULT`
        (0 coincidencias de `default` en `SchemeCreator.php`); los `'default' => 'timestamp'` de los mappers los aplica el ORM

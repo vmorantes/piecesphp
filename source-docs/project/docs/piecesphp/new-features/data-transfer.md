@@ -30,18 +30,19 @@ Cada importador tiene su formulario, con sus columnas, sus límites y una **plan
 - Columnas: Usuario, Correo, Primer nombre y Primer apellido (obligatorias); Segundo nombre, Segundo apellido,
   Contraseña, Tipo y Organización (opcionales).
 - **Tipos importables**: por defecto solo usuarios generales. La lista está en
-  `UsersImportDefinition::IMPORTABLE_TYPES`; añade ahí los que quieras, nunca administradores. Además, nadie importa un
-  tipo con más prioridad que el suyo (`UsersModel::TYPES_USER_PRIORITY`).
-- **Organización**: si la fila no la trae, la del usuario que importa; si no tiene, la global.
+  `UsersImportDefinition::IMPORTABLE_TYPES`; añade ahí los que quieras, nunca administradores. Además, solo se importa un
+  tipo con **menos** prioridad que el de quien importa (`UsersModel::TYPES_USER_PRIORITY`): ni mayor ni igual.
+- **Organización**: si la fila no la trae, la del usuario que importa; si no tiene, la global. Solo se asigna a los tipos
+  que requieren organización (no a los de `UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION`).
 - **Duplicados**: usuario o correo que ya existen, o repetidos dentro del archivo, son errores de fila.
 - **Contraseñas**: si una fila no trae contraseña, se genera. Las generadas se entregan **una sola vez** en unas
-  **fichas imprimibles** (usuario, contraseña y enlace de acceso), pensadas para sistemas que reparten credenciales, como
+  **fichas imprimibles** (nombre completo, usuario, contraseña y enlace de acceso), pensadas para sistemas que reparten credenciales, como
   escuelas. Si no se descargan en ese momento, se pierden: hay que generarlas otra vez.
 
 ## Exportar usuarios
 
 El exportador de usuarios descarga un XLSX o un CSV con las **mismas columnas** que el importador (sin contraseña), así
-que un archivo exportado se puede volver a importar. En CSV, las celdas que empiezan por `=`, `+`, `-` o `@` (salvo un
+que un archivo exportado se puede volver a importar. En CSV, las celdas que empiezan por `=`, `+`, `-`, `@`, tabulador o retorno de carro (salvo un
 número suelto) llevan un `'` delante para que una hoja de cálculo no las ejecute como fórmulas; al importar, ese `'` se
 quita.
 
@@ -94,7 +95,8 @@ Y regístralo en el `routes()` de tu módulo:
 DataImportExportUtilityRoutes::importer($groupAdministration, ProductsImportDefinition::class);
 ```
 
-Eso crea tres rutas con nombre propio (`data-transfer-import-products`, `-action` y `-template`), así que **el permiso es
+Si el módulo está apagado (`DATA_IMPORT_EXPORT_MODULE` en `false`), el registro no hace nada y no da error. Con el módulo
+encendido, crea tres rutas con nombre propio (`data-transfer-import-products`, `-action` y `-template`), así que **el permiso es
 el nombre de la ruta**, como en el resto del framework.
 
 Opcional: `acceptedExtensions()`, `maxSizeMB()`, `maxRows()`, `validateAll(array $rows)` (errores entre filas, como
@@ -105,4 +107,4 @@ exige entonces `credentials-out`).
 
 Extiende `PiecesPHP\Core\DataTransfer\Export\ExportDefinition` (`key()`, `title()`, `allowedUserTypes()`, `columns()` con
 `ExportColumn($key, $label)` y `rows()`, que devuelve un iterable; pagínalo si hay muchos registros) y regístralo con
-`DataImportExportUtilityRoutes::exporter($grupo, TuClase::class)`. Se descarga en `data-transfer/export/<key>/?format=xlsx|csv`.
+`DataImportExportUtilityRoutes::exporter($grupo, TuClase::class)`. Se descarga en `<zona administrativa>/data-transfer/export/<key>/?format=xlsx|csv` (por defecto, `/admin/…`).

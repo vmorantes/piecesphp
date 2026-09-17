@@ -159,6 +159,14 @@ retomar, lo primero que el arquitecto da al PO son las dos órdenes:
 y comprueba en la lista de sesiones que están puestos. El nombre no sustituye a la
 identificación.
 
+**Las dos órdenes se dan SIEMPRE, sin que el PO las pida, en dos momentos** (PO, 2026-09-17):
+
+1. **Al empezar o retomar una sesión**, antes que nada.
+2. **Al terminar de trabajar**, en el mensaje de cierre, para que las tenga a mano la próxima vez.
+
+Van pegables, cada una en su línea, diciendo cuál va en cada sesión. Además viven en
+`.agents/estado/AHORA.md`, bajo «Sesiones», por si el chat se pierde.
+
 **Una sesión arranca con las reglas que había en disco al abrirse.** Si las reglas cambian con
 la sesión abierta, esa sesión las relee del disco (el saludo lo exige) y, ante duda, gana el
 disco.
