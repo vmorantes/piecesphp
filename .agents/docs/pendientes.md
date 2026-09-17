@@ -1038,6 +1038,14 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  38. **Encargo del PO (A-067, 2026-09-17): el diseño de reportes de ReportsManage.** Tiene mérito propio sobre Fomantic:
+     `src/app/classes/ReportsManage/Statics/sass/reports-manage/_report-design.scss` y `generic-report.scss` (688 líneas
+     medidas) y `Views/reports-manage/generic-report-view.php` (tarjetas de estadísticas, gráficas, barra de proyección).
+     Encargo: mejorar el SCSS, componentizarlo y documentarlo para que personas y agentes lo repliquen y mejoren; va a
+     `16-frontend-arquitectura.md` y a `source-docs`. Orden propuesto al PO: tras el lote 8 y antes del 11.
+     Cerrado el mismo día: **P45** (`cdcd87b3`, `>=` en `add-dynamic-translations.php:59`, suite
+     dynamic-translations-sync 6/6). Hallazgo H1 de `#266`: `DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON()`
+     (`:146`) no comprueba la escritura; si el JSON no se puede escribir, el volcado y su log pueden repetirse. Al lote 10.
   37. **Decisiones y hallazgos del 2026-09-17:**
      - **P44 → no hace falta el `ALTER`** (arquitecto, con la medida de `#233`): `SchemeCreator` no emite NINGÚN `DEFAULT`
        (0 coincidencias de `default` en `SchemeCreator.php`); los `'default' => 'timestamp'` de los mappers los aplica el ORM

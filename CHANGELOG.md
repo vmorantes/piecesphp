@@ -55,6 +55,8 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
   del perfil salió del camino de lectura del login) no lo creaba: `UsersModel::save()` no dejaba el id insertado en el
   objeto y la condición nunca se cumplía. Ahora `UsersModel::save()` deja el id. **Qué hacer:** los usuarios creados por
   formulario desde esa fecha pueden no tener perfil; se crea con `UserProfileMapper::createProfile($id)`.
+- **Una traducción dinámica guardada en el mismo segundo que el último volcado ya no queda pendiente** hasta el cambio
+  siguiente (`add-dynamic-translations.php` comparaba con `>` una fecha con resolución de segundos).
 - **El banner de la portada ya no rompe la página.** `home.js` leía `tagName` sobre el objeto jQuery que le pasa
   `BuiltInBannerAdapter`, y lanzaba un error en cuanto había un banner publicado.
 - **La vista pública de cada banner escapa** su enlace (ahora entre comillas) y su título. El contenido sigue siendo
