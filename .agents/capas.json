@@ -41,7 +41,8 @@
         ".agents/docs/adr/0009-*",
         ".agents/docs/adr/0012-*",
         ".agents/docs/adr/0018-*",
-        ".agents/docs/adr/0021-*"
+        ".agents/docs/adr/0021-*",
+        ".agents/docs/adr/0022-*"
       ]
     },
     "C": {

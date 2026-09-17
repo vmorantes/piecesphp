@@ -71,3 +71,4 @@ procedencia.
 | [0019](0019-versionado-y-etiquetas-del-framework.md) | Arquitecto y coder versionan y etiquetan el framework, salvo las versiones mayores estables | sí | Aceptada |
 | [0020](0020-phpstan-mide-solo-php-85.md) | PHPStan mide solo PHP 8.5 en los cinco repositorios | sí | Aceptada |
 | [0021](0021-claves-recaptcha-de-prueba-en-el-repositorio.md) | Excepción: las claves de reCAPTCHA v3 de prueba del propietario se versionan | sí | Aceptada |
+| [0022](0022-importacion-y-exportacion-en-el-nucleo.md) | Importación y exportación: motor en el núcleo, un solo módulo de panel | sí | Aceptada |

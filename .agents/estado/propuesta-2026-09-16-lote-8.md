@@ -1,6 +1,6 @@
 # Propuesta de diseño del lote 8 (E5): `DataImportExportUtility` absorbe `Importers`
 
-- **Fecha:** 2026-09-16. **Estado:** propuesta, pendiente de las decisiones del PO de §6. No es un ADR: el
+- **Fecha:** 2026-09-16. **Estado:** DECIDIDA el 2026-09-17: ADR 0022 manda sobre esta propuesta donde difieran (P-b fichas con entrega única, P-c todo o nada por archivo, P-d lista de tipos importables). No es un ADR: el
   ADR se escribe con sus respuestas, con el primer número libre (el 0018 lo tomó la recuperación de contraseña).
 - **Origen:** subagente de arquitectura, en solo lectura. El arquitecto verificó en el código S1 y S2 antes
   de aceptarla (§2), y los corrige en `#132`, fuera del lote, porque son una trampa activa.
