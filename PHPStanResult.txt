@@ -2102,45 +2102,45 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   project://src/src/app/model/UsersModel.php                                                                                
  ------ ------------------------------------------------------------------------------------------------------------ 
-  250    Parameter Nr.2 $id of static method App\Model\UsersModel::isDuplicateUsername() expects int, int|null given.  
+  258    Parameter Nr.2 $id of static method App\Model\UsersModel::isDuplicateUsername() expects int, int|null given.  
          🪪  argument.type                                                                                           
-  392    Method App\Model\UsersModel::getWhere() should return stdClass|null but returns object|null.                
+  400    Method App\Model\UsersModel::getWhere() should return stdClass|null but returns object|null.                
          🪪  return.type                                                                                             
-  454    Method App\Model\UsersModel::changeUsername() should return bool but returns bool|null.                     
+  462    Method App\Model\UsersModel::changeUsername() should return bool but returns bool|null.                     
          🪪  return.type                                                                                             
-  471    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
+  479    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
          🪪  return.type                                                                                             
-  477    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
+  485    Method App\Model\UsersModel::changePassword() should return bool but returns bool|null.                     
          🪪  return.type                                                                                             
-  493    Method App\Model\UsersModel::changeFirstName() should return bool but returns bool|null.                    
+  501    Method App\Model\UsersModel::changeFirstName() should return bool but returns bool|null.                    
          🪪  return.type                                                                                             
-  508    Method App\Model\UsersModel::changeSecondName() should return bool but returns bool|null.                   
+  516    Method App\Model\UsersModel::changeSecondName() should return bool but returns bool|null.                   
          🪪  return.type                                                                                             
-  523    Method App\Model\UsersModel::changeFirstLastname() should return bool but returns bool|null.                
+  531    Method App\Model\UsersModel::changeFirstLastname() should return bool but returns bool|null.                
          🪪  return.type                                                                                             
-  538    Method App\Model\UsersModel::changeSecondLastname() should return bool but returns bool|null.               
+  546    Method App\Model\UsersModel::changeSecondLastname() should return bool but returns bool|null.               
          🪪  return.type                                                                                             
-  553    Method App\Model\UsersModel::changeEmail() should return bool but returns bool|null.                        
+  561    Method App\Model\UsersModel::changeEmail() should return bool but returns bool|null.                        
          🪪  return.type                                                                                             
-  568    Method App\Model\UsersModel::changeType() should return bool but returns bool|null.                         
+  576    Method App\Model\UsersModel::changeType() should return bool but returns bool|null.                         
          🪪  return.type                                                                                             
-  583    Method App\Model\UsersModel::changeStatus() should return bool but returns bool|null.                       
+  591    Method App\Model\UsersModel::changeStatus() should return bool but returns bool|null.                       
          🪪  return.type                                                                                             
-  599    Access to an undefined property object::$failed_attempts.                                                   
+  607    Access to an undefined property object::$failed_attempts.                                                   
          🪪  property.notFound                                                                                       
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                       
-  602    Access to an undefined property object::$failed_attempts.                                                   
+  610    Access to an undefined property object::$failed_attempts.                                                   
          🪪  property.notFound                                                                                       
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                       
-  617    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
+  625    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
          🪪  return.type                                                                                             
-  623    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
+  631    Method App\Model\UsersModel::updateModifiedAt() should return bool but returns bool|null.                   
          🪪  return.type                                                                                             
-  637    Method App\Model\UsersModel::resetAttempts() should return bool but returns bool|null.                      
+  645    Method App\Model\UsersModel::resetAttempts() should return bool but returns bool|null.                      
          🪪  return.type                                                                                             
-  829    Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
+  837    Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
          🪪  foreach.nonIterable                                                                                     
-  1057   Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
+  1065   Argument of an invalid type array|null supplied for foreach, only iterables are supported.                  
          🪪  foreach.nonIterable                                                                                     
  ------ ------------------------------------------------------------------------------------------------------------ 
 

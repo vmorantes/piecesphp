@@ -475,10 +475,10 @@ project://src/app/model/TokenModel.php
 project://src/app/model/UserProblemsModel.php
 	property.notFound (Líneas: 86)
 project://src/app/model/UsersModel.php
-	argument.type (Líneas: 250)
-	return.type (Líneas: 392, 454, 471, 477, 493, 508, 523, 538, 553, 568, 583, 617, 623, 637)
-	property.notFound (Líneas: 599, 602)
-	foreach.nonIterable (Líneas: 829, 1057)
+	argument.type (Líneas: 258)
+	return.type (Líneas: 400, 462, 479, 485, 501, 516, 531, 546, 561, 576, 591, 625, 631, 645)
+	property.notFound (Líneas: 607, 610)
+	foreach.nonIterable (Líneas: 837, 1065)
 project://src/app/view/layout/menu.php
 	property.nonObject (Líneas: 65)
 	method.nonObject (Líneas: 68, 70)

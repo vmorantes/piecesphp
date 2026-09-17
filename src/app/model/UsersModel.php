@@ -237,6 +237,14 @@ class UsersModel extends EntityMapperExtensible
 
         $saveResult = parent::save();
 
+        //El padre no deja el id en el mapper: sin esto, quien lee ->id tras el alta (el perfil) recibe null.
+        if ($saveResult && $this->id === null) {
+            $idInserted = $this->getInsertIDOnSave();
+            if ($idInserted !== null) {
+                $this->id = (int) $idInserted;
+            }
+        }
+
         return $saveResult;
 
     }
