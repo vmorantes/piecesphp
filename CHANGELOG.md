@@ -48,6 +48,9 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
 
 - **`generate_code()` y `generate_pass()` usan `random_int()`** en lugar de `rand()`: los códigos de verificación, de
   recuperación, de los tokens y las contraseñas generadas salen de un generador criptográficamente seguro. Mismo formato.
+- **Una sola plantilla de correo sin estilos.** `SystemApprovals` tenía su propia copia de
+  `mailing/template_base_no_style.php` solo para añadir los comentarios de una aprobación; la plantilla del núcleo
+  (`src/app/view/mailing/`) admite ahora `reason` (ya escapado por quien llama) y la copia se retira.
 - **El banner de la portada ya no rompe la página.** `home.js` leía `tagName` sobre el objeto jQuery que le pasa
   `BuiltInBannerAdapter`, y lanzaba un error en cuanto había un banner publicado.
 - **La vista pública de cada banner escapa** su enlace (ahora entre comillas) y su título. El contenido sigue siendo
@@ -63,8 +66,9 @@ Hasta ahora la clave secreta estaba escrita en `GoogleReCaptchaV3Controller` y l
 Sin clave secreta, el formulario de contacto **rechaza** el envío y deja una línea en el log.
 
 **Qué hacer:** crea `secure-keys/recaptcha-v3-secret` y `secure-keys/recaptcha-v3-site` con tus claves de reCAPTCHA v3.
-Las claves de prueba del propietario para entornos locales (ADR 0021 de la documentación de agentes) se añadirán a la
-configuración en una pre-versión posterior.
+Sin claves reales se usan las de prueba del propietario, versionadas a propósito en `src/app/config/config.php`
+(`GoogleReCaptchaV3TestSiteKey` y `GoogleReCaptchaV3TestSecretKey`; ADR 0021 de la documentación de agentes): solo
+funcionan en sus dominios de prueba y en `localhost`. En producción pon las tuyas.
 
 ## Herramientas — PHPStan mide solo PHP 8.5
 

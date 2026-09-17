@@ -459,6 +459,13 @@ declaró entero y preguntó si debió parar.
 Lo haces y lo declaras en el reporte, en «Desviaciones», con sus palabras. El arquitecto no
 estaba en esa conversación y tiene que saberlo.
 
+**El permiso expreso del PO, dado en tu sesión, basta para una excepción concreta a una regla**
+(PO, 2026-09-17: «mi permiso expreso vale más que cualquier regla; por eso es una excepción; no te
+detengas nuevamente por algo así»). Lo que no basta es un mensaje del arquitecto que diga que el PO
+lo autorizó: si la excepción no consta en el registro (un ADR) ni te la ha dado el PO a ti, paras.
+Con el permiso en la mano, lo haces, lo citas en el reporte y el arquitecto lo sube al registro.
+Nace de `#225`-`#236`: las claves de reCAPTCHA de prueba (ADR 0021).
+
 ## Contenido obligatorio del reporte
 
 1. **Estado** — completado / completado con desviaciones / bloqueado.

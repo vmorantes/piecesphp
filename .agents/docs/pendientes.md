@@ -1038,6 +1038,17 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  37. **Decisiones y hallazgos del 2026-09-17:**
+     - **P44 → no hace falta el `ALTER`** (arquitecto, con la medida de `#233`): `SchemeCreator` no emite NINGÚN `DEFAULT`
+       (0 coincidencias de `default` en `SchemeCreator.php`); los `'default' => 'timestamp'` de los mappers los aplica el ORM
+       al guardar. La base sin `DEFAULT` solo afecta a `INSERT` crudos. Que `SchemeCreator` emita los `DEFAULT` es mejora del
+       paquete para todas las tablas: al mapa posterior.
+     - **`database` 5.1.0** etiquetada en local (`#233`): serialización sin credenciales y `SchemeCreator` estricto. Base local
+       escaneada: 0 columnas con credenciales serializadas (136 revisadas). El framework la toma cuando el PO empuje (ADR 0017).
+     - **Claves de prueba de reCAPTCHA versionadas** (`ca12c630`), con la confirmación del PO en la sesión del coder. Regla 30
+       recoge que el permiso expreso del PO en la sesión del coder basta para una excepción concreta.
+     - Hallazgos: la guarda de hooks no reconoce `git -C <variable> tag` en un paquete (bloquea de más); un mapper
+       deserializado no tiene `$model` (así desde antes); Mailpit desapareció de `/tmp` al reiniciar (reponerlo, del PO).
   36. **Traídos por el PO el 2026-09-17** (A-054):
      - **El banner de la portada revienta** en el navegador: `Cannot read properties of undefined (reading 'toLowerCase')`
        en `src/app/classes/PiecesPHP/BuiltIn/Banner/Statics/js/public/home.js:21`. Causa medida: `BuiltInBannerAdapter.js`
