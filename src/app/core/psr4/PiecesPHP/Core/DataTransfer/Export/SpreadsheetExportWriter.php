@@ -94,6 +94,10 @@ final class SpreadsheetExportWriter
      */
     private static function neutralize(string $value): string
     {
+        //Un número suelto (-10, +3.5) no es fórmula en una hoja de cálculo y así hace ida y vuelta.
+        if (preg_match('/^[+-]?\d+(\.\d+)?$/', $value) === 1) {
+            return $value;
+        }
         return $value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'" . $value : $value;
     }
 

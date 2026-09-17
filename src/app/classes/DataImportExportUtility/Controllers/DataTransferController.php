@@ -83,6 +83,18 @@ class DataTransferController extends AdminPanelController
             ];
         }
 
+        $exporters = [];
+        foreach (DataImportExportUtilityRoutes::exporters() as $key => $definitionClass) {
+            if (!self::allowedRoute("export-{$key}")) {
+                continue;
+            }
+            $definition = new $definitionClass();
+            $exporters[] = [
+                'title' => $definition->title(),
+                'link' => self::routeName("export-{$key}"),
+            ];
+        }
+
         $title = __(self::LANG_GROUP, 'Importar y exportar');
         set_title($title);
 
@@ -90,6 +102,7 @@ class DataTransferController extends AdminPanelController
             'langGroup' => self::LANG_GROUP,
             'title' => $title,
             'importers' => $importers,
+            'exporters' => $exporters,
             'breadcrumbs' => get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
@@ -288,6 +301,52 @@ class DataTransferController extends AdminPanelController
     }
 
     /**
+     * @param Request $request
+     * @param Response $response
+     * @param string $definitionClass
+     * @return Response
+     */
+    public function exportAction(Request $request, Response $response, string $definitionClass)
+    {
+        if (!is_subclass_of($definitionClass, ExportDefinition::class)) {
+            throw new \InvalidArgumentException("{$definitionClass} no extiende " . ExportDefinition::class . '.');
+        }
+        /** @var ExportDefinition $definition */
+        $definition = new $definitionClass();
+
+        $format = $request->getQueryParam('format', 'xlsx');
+        $contentTypes = [
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'csv' => 'text/csv; charset=UTF-8',
+        ];
+        if (!is_string($format) || !array_key_exists($format, $contentTypes)) {
+            return $response->withJson(['error' => __(self::LANG_GROUP, 'Formato no admitido: usa xlsx o csv.')], 400);
+        }
+
+        $path = (string) tempnam(sys_get_temp_dir(), 'pcsphp-export-');
+        try {
+            $writer = new SpreadsheetExportWriter();
+            if ($format === 'xlsx') {
+                $writer->toXlsx($definition, $path);
+            } else {
+                $writer->toCsv($definition, $path);
+            }
+            $content = (string) file_get_contents($path);
+        } finally {
+            if (is_file($path)) {
+                //RETORNO-IGNORADO: temporal propio de la exportación, ya leído; si queda, lo limpia el sistema.
+                @unlink($path);
+            }
+        }
+
+        return $response
+            ->write($content)
+            ->withHeader('Content-Type', $contentTypes[$format])
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $definition->key() . '-' . date('Ymd-His') . '.' . $format . '"')
+            ->withHeader('Cache-Control', 'no-store');
+    }
+
+    /**
      * @param string $definitionClass
      * @return ImportDefinition
      */
@@ -377,6 +436,32 @@ class DataTransferController extends AdminPanelController
                 "{$startRoute}/import/{$key}/template[/]",
                 fn(Request $request, Response $response) => (new DataTransferController())->importTemplate($request, $response, $definitionClass),
                 self::$baseRouteName . "-import-{$key}-template",
+                'GET',
+                true,
+                null,
+                $allowedUserTypes
+            ),
+        ]);
+
+        return $group;
+    }
+
+    /**
+     * @param RouteGroup $group
+     * @param string $definitionClass
+     * @param string $key
+     * @param int[] $allowedUserTypes
+     * @return RouteGroup
+     */
+    public static function exporterRoutes(RouteGroup $group, string $definitionClass, string $key, array $allowedUserTypes): RouteGroup
+    {
+        $startRoute = (last_char($group->getGroupSegment()) == '/' ? '' : '/') . self::$URLDirectory;
+
+        $group->register([
+            new Route(
+                "{$startRoute}/export/{$key}[/]",
+                fn(Request $request, Response $response) => (new DataTransferController())->exportAction($request, $response, $definitionClass),
+                self::$baseRouteName . "-export-{$key}",
                 'GET',
                 true,
                 null,

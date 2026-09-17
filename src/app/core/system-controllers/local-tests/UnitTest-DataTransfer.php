@@ -217,12 +217,16 @@ CliActions::make('unit-tests:core/data-transfer', function ($args) {
             public function title(): string { return 'Prueba'; }
             public function allowedUserTypes(): array { return [0]; }
             public function columns(): array { return [new ExportColumn('formula', 'Fórmula'), new ExportColumn('texto', 'Texto')]; }
-            public function rows(): iterable { yield ['formula' => '=1+1', 'texto' => 'normal']; yield ['formula' => "@SUM(A1)", 'texto' => '-2']; }
+            public function rows(): iterable { yield ['formula' => '=1+1', 'texto' => 'normal']; yield ['formula' => "@SUM(A1)", 'texto' => '-2']; yield ['formula' => '+57 300', 'texto' => '-x']; }
         };
         $csvSalida = $temporal('csv');
         (new SpreadsheetExportWriter())->toCsv($exportacion, $csvSalida);
         $contenido = (string) file_get_contents($csvSalida);
-        $check(str_starts_with($contenido, "\xEF\xBB\xBF") && str_contains($contenido, "'=1+1,normal") && str_contains($contenido, "'@SUM(A1),'-2"), "x1 CSV con BOM y «=1+1» sale como «'=1+1» (también @ y -)", json_encode($contenido, JSON_THROW_ON_ERROR));
+        $check(str_starts_with($contenido, "\xEF\xBB\xBF") && str_contains($contenido, "'=1+1,normal") && str_contains($contenido, "'@SUM(A1),-2") && str_contains($contenido, "\"'+57 300\",'-x"), "x1 CSV con BOM: «=1+1», «@SUM», «+57 300» y «-x» con «'»; el número -2 sin prefijo", json_encode($contenido, JSON_THROW_ON_ERROR));
+        $neutralizado = $temporal('csv');
+        $escritoNeutralizado = file_put_contents($neutralizado, "a,b,c\n'=1+1,'-x,'hola\n");
+        $leidoNeutralizado = $escritoNeutralizado !== false ? $leer($neutralizado, 'csv')[1][0] ?? [] : [];
+        $check($leidoNeutralizado === ['=1+1', '-x', "'hola"], "x1b el lector CSV deshace «'» delante de = + - @ y deja «'hola» igual", json_encode($leidoNeutralizado, JSON_THROW_ON_ERROR));
         $xlsxSalida = $temporal('xlsx');
         (new SpreadsheetExportWriter())->toXlsx($exportacion, $xlsxSalida);
         $releida = (new \PhpOffice\PhpSpreadsheet\Reader\Xlsx())->load($xlsxSalida)->getActiveSheet()->getCell('A2');

@@ -65,6 +65,7 @@ final class SpreadsheetRowSource implements RowSource
             throw new \InvalidArgumentException("Extensión no admitida: «{$extension}». Solo xlsx y csv.");
         }
 
+        $isCsv = $extension === 'csv';
         $sheet = $reader->load($path)->getActiveSheet();
         $lastColumn = Coordinate::columnIndexFromString($sheet->getHighestDataColumn());
         $lastRow = $sheet->getHighestDataRow();
@@ -75,7 +76,12 @@ final class SpreadsheetRowSource implements RowSource
             $values = [];
             for ($columnIndex = 1; $columnIndex <= $lastColumn; $columnIndex++) {
                 $cell = $sheet->getCell([$columnIndex, $rowIndex]);
-                $values[$columnIndex - 1] = self::cellToString($cell);
+                $value = self::cellToString($cell);
+                //Deshace la neutralización del exportador; el valor guardado se vuelve a neutralizar al exportar.
+                if ($isCsv && is_string($value) && strlen($value) > 1 && $value[0] === "'" && in_array($value[1], ['=', '+', '-', '@', "\t", "\r"], true)) {
+                    $value = substr($value, 1);
+                }
+                $values[$columnIndex - 1] = $value;
             }
             if ($rowIndex === 1) {
                 $headers = array_map(fn(?string $v) => $v ?? '', $values);

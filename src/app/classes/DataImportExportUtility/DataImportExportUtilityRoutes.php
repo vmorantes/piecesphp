@@ -7,7 +7,9 @@
 namespace DataImportExportUtility;
 
 use DataImportExportUtility\Controllers\DataTransferController;
+use DataImportExportUtility\Definitions\UsersExportDefinition;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
+use PiecesPHP\Core\DataTransfer\Export\ExportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -40,6 +42,13 @@ class DataImportExportUtilityRoutes
      */
     private static $importers = [];
 
+    /**
+     * Exportadores registrados, por key.
+     *
+     * @var array<string,class-string<ExportDefinition>>
+     */
+    private static $exporters = [];
+
     const ENABLE = DATA_IMPORT_EXPORT_MODULE;
 
     /**
@@ -52,6 +61,7 @@ class DataImportExportUtilityRoutes
 
             $groupAdministration = DataTransferController::routes($groupAdministration);
             $groupAdministration = self::importer($groupAdministration, UsersImportDefinition::class);
+            $groupAdministration = self::exporter($groupAdministration, UsersExportDefinition::class);
 
             self::staticResolver($groupAdministration);
 
@@ -145,6 +155,47 @@ class DataImportExportUtilityRoutes
     public static function importers(): array
     {
         return self::$importers;
+    }
+
+    /**
+     * Registra un exportador: una ruta GET con su nombre, que es su permiso.
+     *
+     * @param RouteGroup $group
+     * @param string $definitionClass Clase que extiende ExportDefinition
+     * @return RouteGroup
+     * @throws \InvalidArgumentException si la clase no es una ExportDefinition, su key no es kebab-case o ya está registrada
+     */
+    public static function exporter(RouteGroup $group, string $definitionClass): RouteGroup
+    {
+        if (!class_exists($definitionClass) || !is_subclass_of($definitionClass, ExportDefinition::class)) {
+            throw new \InvalidArgumentException("{$definitionClass} no extiende " . ExportDefinition::class . '.');
+        }
+
+        /** @var ExportDefinition $definition */
+        $definition = new $definitionClass();
+        $key = $definition->key();
+
+        if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $key) !== 1) {
+            throw new \InvalidArgumentException("La key «{$key}» de {$definitionClass} no está en kebab-case.");
+        }
+        if (array_key_exists($key, self::$exporters)) {
+            throw new \InvalidArgumentException("Ya hay un exportador registrado con la key «{$key}».");
+        }
+
+        if (!self::ENABLE) {
+            return $group;
+        }
+
+        self::$exporters[$key] = $definitionClass;
+        return DataTransferController::exporterRoutes($group, $definitionClass, $key, $definition->allowedUserTypes());
+    }
+
+    /**
+     * @return array<string,class-string<ExportDefinition>>
+     */
+    public static function exporters(): array
+    {
+        return self::$exporters;
     }
 
     /**
