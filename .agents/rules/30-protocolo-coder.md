@@ -320,6 +320,9 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
     `AÑADIDO != PREVISTO`: el `--motivo` explica lo que queda fuera, nunca que se preparara otra cosa (lote 10:
     antes pasó un «1·4·0»).
     El último commit de la serie cierra con pendientes 0 y sin motivo.
+  - **La guarda y el commit se encadenan con `&&`**: `bin/guarda-add … && git commit …`. No con `set -e`: en las
+    llamadas de la herramienta del coder `set -e` no abortó y un commit entró tras un «PARA» (`#254`, contenido correcto
+    por suerte).
   - Nace de `#097`: la instrucción `#093` dictó `bin/guarda-add` antes del `git add` y sin
     pendientes, y habría abortado en los dos primeros commits. El coder leyó el guion en vez de
     teclear lo dictado. **El arquitecto dicta la forma correcta; no la descubre el coder.**
