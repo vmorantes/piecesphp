@@ -30,8 +30,8 @@ CliActions::make('unit-tests:core/mail-templates-escape', function ($args) {
         $check(str_contains($salida, $escapada($campo)), "(ii) {$campo}: la salida contiene la etiqueta escapada");
     };
 
-    //─── 1/2 · Formulario de contacto ───────────────────────────────────────────────────────────────────
-    echoTerminal('[1/2] mailing/generic-contact-form');
+    //─── 1/3 · Formulario de contacto ───────────────────────────────────────────────────────────────────
+    echoTerminal('[1/3] mailing/generic-contact-form');
     $salida = (string) (new BaseController())->render('mailing/generic-contact-form', [
         'title' => "<i class='zz-title'>t</i>",
         'name' => $carga('name'),
@@ -46,8 +46,8 @@ CliActions::make('unit-tests:core/mail-templates-escape', function ($args) {
     $check(str_contains($salida, "<i class='zz-title'>t</i>"), 't1: el título, que compone el controlador, sigue saliendo como HTML');
     echoTerminal(' ');
 
-    //─── 2/2 · Otros problemas ──────────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/2] usuarios/mail/other-problems');
+    //─── 2/3 · Otros problemas ──────────────────────────────────────────────────────────────────────────
+    echoTerminal('[2/3] usuarios/mail/other-problems');
     $salida = (string) (new BaseController())->render('usuarios/mail/other-problems', [
         'originURL' => 'https://zz-prueba.test/origen',
         'subject' => $carga('subject'),
@@ -64,6 +64,26 @@ CliActions::make('unit-tests:core/mail-templates-escape', function ($args) {
     }
     $check(!str_contains($salida, '</strong></p>' . '\\n' . '<p><strong>ZZ segundo'), 's1: los extra no se separan con una barra-n literal');
 
+    echoTerminal(' ');
+
+    //─── 3/3 · Banner de la portada ─────────────────────────────────────────────────────────────────────
+    //El título y el enlace los escribe el administrador, pero van a atributos: sin escape, una comilla rompe el HTML.
+    echoTerminal('[3/3] BuiltIn/Banner/Views/public/util/item.php');
+    $datos = ['title' => 'zz"<b>', 'content' => '<p>zz-contenido</p>', 'desktopImage' => 'zz-d.jpg', 'mobileImage' => 'zz-m.jpg', 'link' => 'https://x.test/?a=1&b="2"'];
+    $element = new class($datos) {
+        public function __construct(private array $datos) {}
+        public function currentLangData(string $name): ?string { return $this->datos[$name] ?? null; }
+    };
+    $salida = (function (object $element): string {
+        ob_start();
+        include basepath('app/classes/PiecesPHP/BuiltIn/Banner/Views/public/util/item.php');
+        return (string) ob_get_clean();
+    })($element);
+    $check(str_contains($salida, 'href="https://x.test/?a=1&amp;b=&quot;2&quot;"'), 'b1: el enlace sale entre comillas y escapado', $salida);
+    $check(substr_count($salida, 'alt="zz&quot;&lt;b&gt;"') === 2, 'b2: los dos alt llevan el título escapado');
+    $check(str_contains($salida, '<div class="title">zz&quot;&lt;b&gt;</div>'), 'b3: el título visible sale escapado');
+    $check(!str_contains($salida, 'zz"<b>'), 'b4: el título no sale vivo en ningún sitio');
+    $check(str_contains($salida, '<p>zz-contenido</p>'), 'b5: el contenido enriquecido sigue saliendo como HTML');
     echoTerminal(' ');
     $total = $passed + $failed;
     echoTerminal($failed === 0
