@@ -324,6 +324,17 @@ Y el módulo guarda sus subidas privadas con `ProtectedUploads::privatePath()`, 
 según la visibilidad de su registro (`ProtectedUploads::setFolderVisibility()`, como
 Publications).
 
+## Receta 8b — Un importador o exportador de datos
+
+Motor en `PiecesPHP\Core\DataTransfer` y panel en `DataImportExportUtility` (ADR 0022). Una definición
+(`ImportDefinition` o `ExportDefinition`) y su registro en el `routes()` del módulo:
+`DataImportExportUtilityRoutes::importer($grupo, MiDefinicion::class)` o `::exporter(...)`. Crea rutas con nombre propio
+(`data-transfer-import-<key>`, `-action`, `-template`; `data-transfer-export-<key>`): el permiso es el nombre.
+Trampas: `persist()` se llama solo con todas las filas válidas y **debe ser atómica** (transacción con la conexión
+compartida, como `UsersImportDefinition`); `EntityMapper::save()` no deja el id en el objeto salvo que el modelo lo haga
+(usa `getInsertIDOnSave()` o `getLastInsertID()`); un entregable (`ImportArtifacts`) nunca va a disco, log ni JSON.
+Guía completa para desarrolladores: `source-docs/project/docs/piecesphp/new-features/data-transfer.md`.
+
 ## Receta 9 — Reglas de autorización propias con `_allowedRoute()`
 
 `routeName()` ya comprueba los roles. **`_allowedRoute()` es para lo que los roles no pueden

@@ -19,3 +19,4 @@
 - **[Pruebas Unitarias (CLI)](./new-features/unit-testing.md)**: Suites que corren desde la terminal, y `bin/cli gates`.
 - **[Archivos Protegidos](./new-features/protected-files.md)**: Subidas que solo se sirven con permiso.
 - **[Exportador BBDD Nativo](./new-features/database-exporter.md)**: Volcados sin `mysqldump`.
+- **[Importar y exportar datos](./new-features/data-transfer.md)**: Importadores y exportadores por definición, todo o nada, con credenciales de entrega única.

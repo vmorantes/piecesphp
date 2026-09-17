@@ -61,6 +61,7 @@ nav:
             - Pruebas Unitarias (CLI): piecesphp/new-features/unit-testing.md
             - Archivos Protegidos: piecesphp/new-features/protected-files.md
             - Exportador BBDD Nativo: piecesphp/new-features/database-exporter.md
+            - Importar y exportar datos: piecesphp/new-features/data-transfer.md
     - Rendimiento: 
         - performance/index.md
         - ZRam: performance/content/zram.md
