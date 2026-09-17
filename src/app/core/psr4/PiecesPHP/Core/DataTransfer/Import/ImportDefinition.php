@@ -62,6 +62,16 @@ abstract class ImportDefinition
     }
 
     /**
+     * Si persist() puede devolver artefactos: quien importa sin navegador (la terminal) exige antes dónde guardarlos.
+     *
+     * @return bool
+     */
+    public function mayProduceArtifacts(): bool
+    {
+        return false;
+    }
+
+    /**
      * Errores que solo se ven mirando todas las filas (p. ej. duplicados dentro del archivo).
      *
      * @param ParsedRow[] $rows

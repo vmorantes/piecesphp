@@ -65,6 +65,16 @@ class UsersImportDefinition extends ImportDefinition
     }
 
     /**
+     * Las filas sin contraseña generan una, que solo sale en el artefacto.
+     *
+     * @return bool
+     */
+    public function mayProduceArtifacts(): bool
+    {
+        return true;
+    }
+
+    /**
      * @return Column[]
      */
     public function columns(): array
