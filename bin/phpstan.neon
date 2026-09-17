@@ -71,6 +71,7 @@ parameters:
         - API_USERS
         - APP_CONFIGURATION_MODULE
         - CONTENT_NAVIGATION_HUB_MODULE
+        - DATA_IMPORT_EXPORT_MODULE
         - DOCUMENTS_MODULE_ENABLE
         - EVENTS_LOG_MODULE
         - FILE_MANAGER_MODULE
@@ -181,7 +182,6 @@ parameters:
         - identifier: return.void
         - identifier: return.unusedType
         - identifier: method.unused
-        - identifier: staticMethod.resultUnused
         - identifier: property.unusedType
 
 

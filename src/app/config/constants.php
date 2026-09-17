@@ -26,6 +26,8 @@ define('ADMIN_PATH_VIEWS', 'panel');
 
 //Importadores
 define('IMPORTS_MODULE_ENABLED', true);
+//Importación y exportación sobre DataTransfer (lote 8, ADR 0022)
+define('DATA_IMPORT_EXPORT_MODULE', true);
 
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);

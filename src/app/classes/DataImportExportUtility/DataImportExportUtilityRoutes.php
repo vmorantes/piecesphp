@@ -6,7 +6,8 @@
 
 namespace DataImportExportUtility;
 
-use DataImportExportUtility\Controllers\DataImportExportUtilityController;
+use DataImportExportUtility\Controllers\DataTransferController;
+use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
@@ -31,7 +32,14 @@ class DataImportExportUtilityRoutes
      */
     private static $init = false;
 
-    const ENABLE = false;
+    /**
+     * Importadores registrados, por key.
+     *
+     * @var array<string,class-string<ImportDefinition>>
+     */
+    private static $importers = [];
+
+    const ENABLE = DATA_IMPORT_EXPORT_MODULE;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -41,7 +49,7 @@ class DataImportExportUtilityRoutes
     {
         if (self::ENABLE) {
 
-            $groupAdministration = DataImportExportUtilityController::routes($groupAdministration);
+            $groupAdministration = DataTransferController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
 
@@ -81,11 +89,11 @@ class DataImportExportUtilityRoutes
             $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
-                'name' => __(DataImportExportUtilityLang::LANG_GROUP, 'Import/Export'),
+                'name' => __(DataImportExportUtilityLang::LANG_GROUP, 'Importar y exportar'),
                 'asLink' => true,
                 'icon' => 'file excel',
-                'href' => DataImportExportUtilityController::routeName('show-routes'),
-                'visible' => DataImportExportUtilityController::allowedRoute('show-routes'),
+                'href' => DataTransferController::routeName('hub'),
+                'visible' => DataTransferController::allowedRoute('hub'),
                 'position' => 8000,
             ]));
 
@@ -93,6 +101,48 @@ class DataImportExportUtilityRoutes
 
         self::$init = true;
 
+    }
+
+    /**
+     * Registra un importador: formulario, acción y plantilla, cada uno con su nombre de ruta, que es su permiso.
+     *
+     * @param RouteGroup $group
+     * @param string $definitionClass Clase que extiende ImportDefinition
+     * @return RouteGroup
+     * @throws \InvalidArgumentException si la clase no es una ImportDefinition, su key no es kebab-case o ya está registrada
+     */
+    public static function importer(RouteGroup $group, string $definitionClass): RouteGroup
+    {
+        if (!class_exists($definitionClass) || !is_subclass_of($definitionClass, ImportDefinition::class)) {
+            throw new \InvalidArgumentException("{$definitionClass} no extiende " . ImportDefinition::class . '.');
+        }
+
+        /** @var ImportDefinition $definition */
+        $definition = new $definitionClass();
+        $key = $definition->key();
+
+        //La key forma parte del nombre de la ruta y de la URL.
+        if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $key) !== 1) {
+            throw new \InvalidArgumentException("La key «{$key}» de {$definitionClass} no está en kebab-case.");
+        }
+        if (array_key_exists($key, self::$importers)) {
+            throw new \InvalidArgumentException("Ya hay un importador registrado con la key «{$key}».");
+        }
+
+        if (!self::ENABLE) {
+            return $group;
+        }
+
+        self::$importers[$key] = $definitionClass;
+        return DataTransferController::importerRoutes($group, $definitionClass, $key, $definition->allowedUserTypes());
+    }
+
+    /**
+     * @return array<string,class-string<ImportDefinition>>
+     */
+    public static function importers(): array
+    {
+        return self::$importers;
     }
 
     /**

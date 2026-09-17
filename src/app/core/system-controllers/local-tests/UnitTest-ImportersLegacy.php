@@ -165,16 +165,10 @@ CliActions::make('unit-tests:core/importers-legacy', function ($args) {
         echoTerminal(' ');
 
         //─── 8/8 · DataImportExportUtility ──────────────────────────────────────────────────────────────
-        echoTerminal('[8/8] DataImportExportUtility sigue apagado');
-        $fuente = (string) file_get_contents(basepath('app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php'));
-        $tokens = array_values(array_filter(token_get_all($fuente), fn($t) => !is_array($t) || !in_array($t[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)));
-        $apagado = false;
-        foreach ($tokens as $i => $t) {
-            if (is_array($t) && $t[0] === \T_CONST && is_array($tokens[$i + 1] ?? null) && $tokens[$i + 1][1] === 'ENABLE' && ($tokens[$i + 2] ?? null) === '=' && is_array($tokens[$i + 3] ?? null) && strtolower($tokens[$i + 3][1]) === 'false') {
-                $apagado = true;
-            }
-        }
-        $check($apagado, 'u1 [CAMBIA → ADR 0022 §2] DataImportExportUtilityRoutes: const ENABLE = false (por tokens)');
+        echoTerminal('[8/8] DataImportExportUtility: el controlador viejo (exógena por GET y fichas) no tiene rutas');
+        //Desde R3a el módulo está encendido con el panel nuevo; lo viejo sigue en disco hasta R5, sin ninguna ruta viva.
+        $rutasViejas = array_filter(['show-routes', 'imported-generated', 'import-users', 'export-users', 'show-imported-generated'], fn($n) => get_route_info("data-import-export-utility-admin-{$n}") !== null);
+        $check(count($rutasViejas) === 0 && get_route_info('data-transfer-hub') !== null, 'u1 [CAMBIA → ADR 0022 §2] ninguna ruta data-import-export-utility-admin-* registrada, y sí la del panel nuevo (el instrumento ve rutas)', implode(', ', $rutasViejas));
 
     } catch (\Throwable $e) {
         $check(false, 'la caracterización corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 200));
