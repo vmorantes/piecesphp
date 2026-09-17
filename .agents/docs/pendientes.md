@@ -1038,6 +1038,18 @@ historia de git los conserva.
      `e5d499bd`). Etiqueta anotada sobre `b6c52b9f`; `master` 33251bf6 → b6c52b9f; `last-stable` b536c9c5 →
      c9125196 (`v7.1.0`). Nada empujado: **el PO tiene que empujar `dev`, `master`, `last-stable` y la etiqueta.**
      Hallazgo: la comprobación 17 se midió antes de la etiqueta; se verá con la siguiente ejecución.
+  36. **Traídos por el PO el 2026-09-17** (A-054):
+     - **El banner de la portada revienta** en el navegador: `Cannot read properties of undefined (reading 'toLowerCase')`
+       en `src/app/classes/PiecesPHP/BuiltIn/Banner/Statics/js/public/home.js:21`. Causa medida: `BuiltInBannerAdapter.js`
+       pasa a `onDraw` un objeto jQuery (`createItem()` = `$(html)`, `:316-318`) y `home.js` lee `parsed.tagName`, que no
+       existe en jQuery. El JS no cambia desde 2025 (`0ac751b9`): el fallo salta en cuanto hay al menos un banner publicado.
+     - **La vista de cada banner no escapa** (`Views/public/util/item.php`): `href={$link}` sin comillas ni escape, y
+       `$title` sin escapar en `alt` y en el título. El contenido (`$content`) es texto enriquecido del administrador.
+     - **ISSUE externo de otro proyecto (sobre `piecesphp/database` 3.x): `EntityMapper::__serialize()` incluye
+       `$optionsInstanceDB` (usuario y contraseña de la base).** Verificado en la 5.0.0 de hoy: **sigue igual**
+       (`database/src/Core/Database/EntityMapper.php:1384-1409`). Cualquier `serialize()` de un mapper vuelca la
+       contraseña: caché, sesión, cola, log o una columna de tipo objeto serializado (`:1744`). Severidad alta. SIN MEDIR:
+       si alguna fila de la base local ya guarda un mapper serializado con credenciales.
   35. **Respuestas del PO en A-049 (2026-09-16)**, formalizadas. Cada una pasa a su lote:
      - **P33 → sí:** `generate_code()` (`src/app/core/Utilities.php:455`) pasa de `rand()` a `random_int()`, mismo formato.
        Lote 10.

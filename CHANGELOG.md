@@ -48,6 +48,10 @@ Nada del framework lo usaba. **Si tu proyecto lo llamaba, deja de existir:**
 
 - **`generate_code()` y `generate_pass()` usan `random_int()`** en lugar de `rand()`: los códigos de verificación, de
   recuperación, de los tokens y las contraseñas generadas salen de un generador criptográficamente seguro. Mismo formato.
+- **El banner de la portada ya no rompe la página.** `home.js` leía `tagName` sobre el objeto jQuery que le pasa
+  `BuiltInBannerAdapter`, y lanzaba un error en cuanto había un banner publicado.
+- **La vista pública de cada banner escapa** su enlace (ahora entre comillas) y su título. El contenido sigue siendo
+  texto enriquecido del administrador.
 - **`API_CRONJOBS` registra la ruta del cron aunque las demás banderas de la API estén apagadas.** Antes hacía falta
   otra bandera encendida.
 
