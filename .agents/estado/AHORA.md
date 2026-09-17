@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#230 · ARQ` (en vuelo). Próximo: `#231 · COD`. **Último al PO:** A-054.
+- **Último mensaje:** `#232 · ARQ` (en vuelo). Próximo: `#233 · COD`. **Último al PO:** A-056.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron el 2026-09-17, así que cuentan como compactadas.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**2026-09-17, lote 10 continúa. Ronda F1 (#230):** la portada revienta por el banner (`home.js`) y la vista del banner no escapa. Después, en este orden: E2 ampliada (`piecesphp/database` 5.1.0: serialización sin credenciales, P42, P44), F (R14, R32, R34), propuestas P38 y P39, lote 8 y lote 11 con P36. Las claves de prueba de reCAPTCHA (#224) siguen esperando la confirmación del PO en la sesión del coder.
+**2026-09-17, lote 10 continúa. Ronda E2a (#232):** `piecesphp/database` 5.1.0 (serialización sin credenciales, SchemeCreator estricto, medida del DEFAULT de timestamp). F1 cerrada en #230-#231 (6b5d05e5). Después, en este orden: E2b (`piecesphp/database` 5.1.0: serialización sin credenciales, P42, P44), F (R14, R32, R34), propuestas P38 y P39, lote 8 y lote 11 con P36. Las claves de prueba de reCAPTCHA (#224) siguen esperando la confirmación del PO en la sesión del coder.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
