@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#263 · ARQ` (R4 en vuelo). Próximo: `#264 · COD`. **Último al PO:** A-065.
+- **Último mensaje:** `#265 · ARQ` (en vuelo). Próximo: `#266 · COD`. **Último al PO:** A-067.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`.
   Las dos se reabrieron dos veces el 2026-09-17 (cierre de los IDE); tras la segunda, el PO renombró al coder.
 - **Rama:** `dev`. El hash de HEAD no se escribe aquí, porque se pudre entre rondas: se mira con
@@ -15,7 +15,7 @@
 
 ## En curso
 
-**2026-09-17. Lote 8, ronda R4 (#261):** exportadores y la importación por terminal. R3b (368d2ffc) y el arreglo del perfil (7fedd466) cerrados. Después: (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
+**2026-09-17. Lote 8: R5 (retirada) espera al PO (P49, regla de los diez); en vuelo P45 (#265).** R4 cerrada (34eb42c6, cf6b5e14). R3b (368d2ffc) y el arreglo del perfil (7fedd466) cerrados. Después: (exportador y exógena por CLI), R5 (retirada: plan al PO, 27 archivos) y R6 (documentación). **Lote 10:** lo que no depende del PO, hecho (#205-#244); P45 con su predeterminado pendiente de aplicar. Lote 11 con P36 después del 8.
 
 Cerrado: **`#175`→`#176`, `v8.0.0-alpha.4`** (`4c928396`, etiquetada); `master` → `4c928396`. **Pendiente del PO: revisar
 los tres buzones de Mailinator** (A-046). **Sin empujar**: `dev`, `master`, `last-stable` y las etiquetas `alpha.1` a
@@ -81,6 +81,14 @@ mientras siga abierto. Para contestar basta el número: «P37 a», «S2 no». Es
   `zz-prueba-problemas-55e5ee`, @mailinator.com). Si ya no están, no pasa nada.
 
 ### Preguntas abiertas
+
+- **P49 · Retirar el importador viejo (lote 8, R5). Regla de los diez: 28 archivos borrados y 10 editados.** Lo nuevo ya
+  está hecho y probado: motor en el núcleo, panel «Importar y exportar», importador y exportador de usuarios, importación
+  por terminal. Se borran el motor `Core\Importer`, el módulo `Importers/`, el controlador viejo de
+  `DataImportExportUtility` (con la importación exógena por GET y las fichas con contraseñas guardadas en disco) y sus dos
+  suites. El enlace «Importar usuarios» del menú superior pasa al panel nuevo. Ocho rupturas para quien clona, listadas.
+  Plan completo: `.agents/estado/propuesta-2026-09-17-lote-8-r5-retirada.md`. **(a)** adelante. **(b)** no, o con cambios.
+  *Predeterminado:* no se ejecuta sin tu respuesta; el resto del trabajo sigue.
 
 - **P37 · Alta pública por API con organización nueva.** Hoy falla siempre. Arreglarla abre una vía pública para crear
   una organización y quedar como su administrador. (a) arreglarla, (b) retirar esa vía, (c) dejarla cerrada como está.
