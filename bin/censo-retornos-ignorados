@@ -153,7 +153,10 @@ function llamadasDescartadas(string $codigo, array $riesgosas): array
                 break;
             }
             //Solo se atraviesan piezas de un acceso encadenado; cualquier otra cosa corta.
-            $puente = $planos[$j]['tipo'] === T_VARIABLE
+            //El `@` que abre la sentencia no cambia que el resultado se descarte: sin atravesarlo,
+            //`@unlink(...);` no se contaba, ni declarado ni sin declarar.
+            $puente = ($j === $i && $planos[$j]['tipo'] === null && $planos[$j]['texto'] === '@')
+                || $planos[$j]['tipo'] === T_VARIABLE
                 || $planos[$j]['tipo'] === T_OBJECT_OPERATOR
                 || $planos[$j]['tipo'] === T_NULLSAFE_OBJECT_OPERATOR
                 || $planos[$j]['tipo'] === T_DOUBLE_COLON
@@ -223,11 +226,13 @@ $controlPositivo = '<?php $a = 1; file_put_contents($x, $y); $b = 2;';
 $controlNegativo = '<?php $ok = file_put_contents($x, $y); if (file_put_contents($x, $y)) { echo 1; }';
 $controlDeclarado = "<?php\n//" . MARCA . " el destino puede no existir y da exactamente igual.\nfile_put_contents(\$x, \$y);\n";
 $controlMarcaVacia = '<?php' . "\n//" . MARCA . "\nfile_put_contents(\$x, \$y);\n";
+$controlArroba = '<?php $a = 1; @unlink($x); $b = 2;';
 
 $vePositivo = count(llamadasDescartadas($controlPositivo, $RIESGOSAS));
 $veNegativo = count(llamadasDescartadas($controlNegativo, $RIESGOSAS));
 $declarado = llamadasDescartadas($controlDeclarado, $RIESGOSAS);
 $marcaVacia = llamadasDescartadas($controlMarcaVacia, $RIESGOSAS);
+$veArroba = count(llamadasDescartadas($controlArroba, $RIESGOSAS));
 
 $fallos = [];
 if ($vePositivo !== 1) {
@@ -244,12 +249,17 @@ if (count($declarado) !== 1 || $declarado[0]['declarada'] !== true) {
 if (count($marcaVacia) !== 1 || $marcaVacia[0]['declarada'] !== false) {
     $fallos[] = 'acepta una marca VACÍA como declaración';
 }
+//LA QUINTA: el `@` no esconde la llamada. Sin esta cara, el arreglo de R43 podía volver a caer y la cota,
+//que solo falla al subir, lo habría aceptado en silencio.
+if ($veArroba !== 1) {
+    $fallos[] = "ve {$veArroba} llamadas en `@unlink(...);` donde debe ver 1";
+}
 if (count($fallos) > 0) {
     fwrite(STDERR, "CANARIO CAÍDO: " . implode('; ', $fallos) . ".\n");
     fwrite(STDERR, "               EL CENSO NO SE HACE.\n");
     exit(2);
 }
-echo "CANARIO VIVO: ve la descartada, NO la que se lee, SÍ la declarada con motivo, y NO la marca vacía.\n";
+echo "CANARIO VIVO: ve la descartada, NO la que se lee, SÍ la declarada con motivo, y NO la marca vacía, y SÍ la que va tras `@`.\n";
 
 //────────────────────────────────────────────────────────────────────────────────────────
 // El universo se declara, no se hereda.
