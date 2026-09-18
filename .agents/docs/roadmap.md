@@ -30,6 +30,7 @@ entera: *«la major depende de que terminemos toda la campaña, toda es toda»* 
 | 11 | **Usuarios a `classes/`** | El núcleo sale de la disposición vieja | `docs/pendientes.md` §1 | **Rompe**. «Al final» (PO, 2026-09-13). Sin medir |
 | 12 | **Renombrado de columnas** | 8 columnas y 247 referencias, con `column-renames.json` | `20` §7, «EL RENOMBRADO DE COLUMNAS» | **Rompe**. Con la puerta de columnas (`docs/pendientes.md`, cruce) |
 | 13 | **Borrado del registro** | El 18 se disuelve según su cláusula | `18`, cabecera | Antes, lo que solo vive en él sube a los documentos numerados |
+| 13b | **Documentación para personas y raíz limpia** | Fuentes en `source-docs/` y builds en `docs/<ámbito>/`; desarrolladores, mantenedores e integradores; `bin/docs-build`; la raíz sin basura | `docs/pendientes.md`, punto 41 | Después del 13 porque mantenedores describe el estado final. Las guías de terceros se revisan después de la MAJOR |
 | 14 | **La MAJOR** | `v8.0.0`, `master` y `last-stable` | `12-convenciones.md`, convención de etiquetas | **Punto serio**: se habla con el PO antes |
 
 ## Decisiones del PO que atraviesan varios lotes

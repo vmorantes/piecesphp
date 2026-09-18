@@ -1046,6 +1046,29 @@ historia de git los conserva.
      Cerrado el mismo día: **P45** (`cdcd87b3`, `>=` en `add-dynamic-translations.php:59`, suite
      dynamic-translations-sync 6/6). Hallazgo H1 de `#266`: `DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON()`
      (`:146`) no comprueba la escritura; si el JSON no se puede escribir, el volcado y su log pueden repetirse. Al lote 10.
+  41. **Encargo del PO (A-075, 2026-09-17 21:24): la documentación para personas, reordenada.** Toda vive en
+     `source-docs/`, que solo guarda fuentes; los builds van a `docs/<ámbito>/`; un solo punto de build que diga dónde deja
+     cada una. Tres públicos: desarrolladores (con las guías genéricas de entorno, Hestia y demás), mantenedores e
+     implementadores (hoy `api`, con un nombre mejor si lo hay). Medido ese día: el sitio de desarrollo compila a la raíz
+     `docs/` (`source-docs/project/mkdocs.yml`, `site_dir: ../../docs`); el de la API, DENTRO de las fuentes
+     (`source-docs/api/docs-dist/`, `gulp api-build`); mantener es una sola página (`piecesphp/content/maintain.md`); los
+     dos `mkdocs.yml` repiten el tema; `source-docs/project/docs/changelog.md` es un resumen a mano del `CHANGELOG.md`.
+     Propuesta del arquitecto en A-075, **pendiente de la respuesta del PO**. Hallazgo de paso:
+     `source-docs/api/docs/index.md` dice que `API_CRONJOBS` solo registra si hay otra bandera activa, y desde `e0c2975a`
+     no es así.
+     - **Respuestas del PO (A-076, 2026-09-17):**
+       - Las guías de Tomcat, GeoServer, Mautic con RabbitMQ y demás **no son del framework, sino de flujos de trabajo del
+         PO** (tiene integración con Mautic). Se quedan, se revisan y se optimizan en su momento.
+       - **«Integradores»** para la documentación de la API: aceptado.
+       - **Mantenedores es una guía exhaustiva** como la personal del PO pero agnóstica de él: **solo el estado actual**. La
+         personal cuenta cómo se llegó; la de mantenedores, cómo es.
+       - La reordenación **incluye limpiar el árbol de archivos** para que sea más limpio y profesional, **también la raíz**.
+       - **`CHANGELOG.md` se queda en la raíz**, como única fuente; el sitio lo enlaza.
+       - **El momento lo decide el arquitecto.** Decisión: dos tiempos, en el mapa como lote 13b antes de la MAJOR y lo demás
+         después. **Antes de la MAJOR** va la estructura (fuentes y builds, `bin/docs-build` con `--check`, la base común,
+         integradores, mantenedores como sitio propio escrito sobre el estado final y la raíz limpia), porque es lo que se
+         clona con la `v8.0.0`: moverla después sería otra ruptura. **Después de la MAJOR**, la revisión de las guías de
+         terceros.
   40. **Orden del PO (A-070, 2026-09-17): los comandos de renombrado, siempre y pegables.** Al abrir o retomar una
      sesión y al terminar de trabajar, el arquitecto da las dos órdenes `/rename` sin que el PO las pida. Subido a la
      regla 30 («Nombres de sesión») y a `AHORA.md`, «Sesiones». **Cerrado el mismo día.**
