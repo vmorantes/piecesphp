@@ -5,7 +5,7 @@
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#271 · ARQ` (cierre). Próximo: `#272 · COD`. **Último al PO:** A-076.
+- **Último mensaje:** `#273 · ARQ` (cierre). Próximo: `#274 · COD`. **Último al PO:** A-078.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`. Las órdenes de
   renombrado, pegables, se le dan al PO **al abrir y al cerrar** (regla 30, «Nombres de sesión»):
   `/rename PiecesPHPUpgrade-Arquitecto-Main` en la sesión del arquitecto y
