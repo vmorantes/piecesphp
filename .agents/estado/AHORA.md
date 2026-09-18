@@ -1,11 +1,11 @@
 # Ahora
 
-- **Actualizado:** 2026-09-17 17:05 (medido con `date`), al cerrar la jornada.
+- **Actualizado:** 2026-09-17 21:32 (medido con `date`), al cerrar la jornada tras A-076.
 - **Mandato vigente del PO (A-031):** trabajar sin parar hasta cerrar los lotes 7 a 11, con todo lo
   que va antes en el mapa, y **parar antes del 12**. Detalle en `../docs/pendientes.md`, bloque del
   2026-09-16.
 - **Tramo en curso:** [`tramos/2026-09-17-0846-lote-10-continua.md`](tramos/2026-09-17-0846-lote-10-continua.md).
-- **Último mensaje:** `#268 · COD`. Próximo: `#269 · ARQ`. **Último al PO:** A-073.
+- **Último mensaje:** `#271 · ARQ` (cierre). Próximo: `#272 · COD`. **Último al PO:** A-076.
 - **Sesiones:** arquitecto `PiecesPHPUpgrade-Arquitecto-Main`, coder `PiecesPHPUpgrade-Coder-Main`. Las órdenes de
   renombrado, pegables, se le dan al PO **al abrir y al cerrar** (regla 30, «Nombres de sesión»):
   `/rename PiecesPHPUpgrade-Arquitecto-Main` en la sesión del arquitecto y
