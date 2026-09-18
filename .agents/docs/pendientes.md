@@ -1064,6 +1064,9 @@ historia de git los conserva.
          personal cuenta cómo se llegó; la de mantenedores, cómo es.
        - La reordenación **incluye limpiar el árbol de archivos** para que sea más limpio y profesional, **también la raíz**.
        - **`CHANGELOG.md` se queda en la raíz**, como única fuente; el sitio lo enlaza.
+       - **Tema: `readthedocs` en todos los sitios** (PO, A-078), salvo que haya uno mejor; es el de su guía personal. Hoy
+         el de desarrollo usa `material` y el de la API ya usa `readthedocs`. Consecuencia medida en A-078: `readthedocs` viene con MkDocs (una dependencia
+         menos), pero no trae modo oscuro, botón de copiar código ni pestañas superiores, que hoy se usan.
        - **El momento lo decide el arquitecto.** Decisión: dos tiempos, en el mapa como lote 13b antes de la MAJOR y lo demás
          después. **Antes de la MAJOR** va la estructura (fuentes y builds, `bin/docs-build` con `--check`, la base común,
          integradores, mantenedores como sitio propio escrito sobre el estado final y la raíz limpia), porque es lo que se
