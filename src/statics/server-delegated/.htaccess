@@ -1,0 +1,96 @@
+##### CONFIGURACIÓN DE TIPOS MIME - INICIO #####
+
+# Imágenes
+AddType image/png .png
+AddType image/jpeg .jpg .jpeg
+AddType image/gif .gif
+AddType image/bmp .bmp
+AddType image/tiff .tiff
+AddType image/webp .webp
+AddType image/svg+xml .svg
+AddType image/x-icon .ico
+
+# Documentos
+AddType application/pdf .pdf
+AddType application/msword .doc
+AddType application/vnd.openxmlformats-officedocument.wordprocessingml.document .docx
+AddType application/vnd.ms-excel .xls
+AddType application/vnd.openxmlformats-officedocument.spreadsheetml.sheet .xlsx
+AddType application/vnd.ms-powerpoint .ppt
+AddType application/vnd.openxmlformats-officedocument.presentationml.presentation .pptx
+AddType text/plain .txt
+AddType application/rtf .rtf
+AddType text/csv .csv
+
+# Archivos web
+AddType text/css .css
+AddType application/javascript .js
+AddType text/html .html .htm
+AddType application/xml .xml
+AddType application/json .json
+
+# Fuentes
+AddType font/woff2 .woff2
+AddType font/woff .woff
+AddType font/ttf .ttf
+AddType font/otf .otf
+AddType application/vnd.ms-fontobject .eot
+
+# Audio y video
+AddType audio/mpeg .mp3
+AddType video/mp4 .mp4
+AddType video/avi .avi
+AddType video/quicktime .mov
+AddType video/x-ms-wmv .wmv
+AddType video/x-flv .flv
+AddType video/webm .webm
+AddType audio/ogg .ogg
+AddType audio/wav .wav
+AddType audio/flac .flac
+
+# Archivos comprimidos
+AddType application/zip .zip
+AddType application/x-rar-compressed .rar
+AddType application/x-7z-compressed .7z
+AddType application/x-tar .tar
+AddType application/gzip .gz
+
+# Otros formatos
+AddType application/x-shockwave-flash .swf
+AddType application/x-photoshop .psd
+AddType application/postscript .ai
+AddType application/postscript .eps
+
+##### CONFIGURACIÓN DE TIPOS MIME - FIN #####
+
+##### CACHE Y COMPRESIÓN - INICIO #####
+
+<IfModule mod_expires.c>
+    # Activar módulo de expiración
+    ExpiresActive On
+    
+    # Configurar tiempos de cache por tipo de archivo
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/json "access plus 1 month"
+    ExpiresByType application/xml "access plus 1 month"
+</IfModule>
+
+##### CACHE Y COMPRESIÓN - FIN #####
+
+# Establecer el encabezado X-Served-By
+Header set X-Served-By "Apache-Symlink-Delegated"

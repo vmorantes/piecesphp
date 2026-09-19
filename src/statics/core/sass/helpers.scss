@@ -1,0 +1,153 @@
+@import 'includes/variables';
+
+//Colors
+$colorSecond: rgb(40, 100, 133);
+$colorThird: rgb(150, 150, 150);
+
+//Misc
+$globalClassPcs: 'ui-pcs';
+
+.#{$globalClassPcs}-global-loader {
+
+    position: fixed;
+    z-index: 2000;
+    top: 0px;
+    left: 0px;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: var(--loader-bg-color, rgba(255, 255, 255, 1));
+    img{
+        max-width: 100%;
+    }
+
+    &.active {
+        display: block;
+    }
+
+    .#{$globalClassPcs}-box {
+
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        height: 100%;
+        flex-direction: column;
+        width: 100%;
+        max-width: 800px;
+
+        .#{$globalClassPcs}-logo {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 70px;
+            height: 70px;
+            margin: 50px auto 0px auto;
+
+            &,
+            img {
+                border-radius: var(--loader-logo-border-radius, 0%);
+            }
+        }
+
+        .#{$globalClassPcs}-loader {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+
+            img {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        .#{$globalClassPcs}-loader-fallback {
+            position: relative;
+            border: 16px solid var(--loader-border-color, transparentize($colorThird, 0.5));
+            border-top: 16px solid var(--loader-border-mark-color, var(--main-brand-color, $colorSecond));
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            margin: 15px auto 0 auto;
+            animation: spin 2s linear infinite !important;
+        }
+
+        .#{$globalClassPcs}-progress-container {
+            width: max-content;
+            max-width: 100%;
+            margin: 0px auto 0px auto;
+
+            .#{$globalClassPcs}-progress {
+                font-weight: $fwBold;
+                text-align: center;
+                color: black;
+                font-size: 25px;
+            }
+        }
+
+        .#{$globalClassPcs}-text-message {
+            text-align: center;
+            padding: 15px 5px;
+            font-weight: $fwBold;
+            color: black;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes counter-spin {
+        0% {
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+
+        100% {
+            transform: translate(-50%, -50%) rotate(-360deg);
+        }
+    }
+
+}
+
+.mirror-scroll-x {
+    position: relative;
+    z-index: 2;
+    top: 20px;
+    left: 0;
+    display: none;
+    width: 100%;
+    max-width: 100%;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    overflow-y: hidden;
+    overflow-x: scroll;
+
+    .mirror-scroll-x-content {
+        display: block;
+        width: 100%;
+        height: 1px;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.with-mirror-scroll-x {
+    padding-top: 30px !important;
+}

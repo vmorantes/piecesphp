@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "skipLibCheck": true,
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ES2022"
+        ]
+    },
+    "include": [
+        "src/statics/**/*.js",
+        "src/app/classes/**/*.js"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/node_modules/*",
+        "src/statics/plugins/**/*",
+    ]
+}

@@ -1,0 +1,2122 @@
+///<reference path="./helpers-lib/CookiesHandler.js" />
+///<reference path="./helpers-lib/genericFormHandler.js" />
+///<reference path="./helpers-lib/GenericLoaderElement.js" />
+///<reference path="./helpers-lib/GenericStepsViewHandler.js" />
+///<reference path="./helpers-lib/UtilPieces.js" />
+/**
+ * @description Mensaje modal con tipo success (toast fomantic|alert|izitoast)
+ * @param {String} title Título del mensaje
+ * @param {String} message Mensaje
+ * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
+ */
+function successMessage(title, message, onClose = null, options) {
+
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'success'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
+	} else {
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
+
+}
+
+/**
+ * @description Mensaje modal con tipo warning (toast fomantic|alert|izitoast)
+ * @param {String} title Título del mensaje
+ * @param {String} message Mensaje
+ * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
+ */
+function warningMessage(title, message, onClose = null, options) {
+
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'warning'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
+	} else {
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
+
+}
+
+/**
+ * @description Mensaje modal con tipo info (toast fomantic|alert|izitoast)
+ * @param {String} title Título del mensaje
+ * @param {String} message Mensaje
+ * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
+ */
+function infoMessage(title, message, onClose = null, options) {
+
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'info'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
+	} else {
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
+
+}
+
+/**
+ * @description Mensaje modal con tipo error (toast fomantic|alert|izitoast)
+ * @param {String} title Título del mensaje
+ * @param {String} message Mensaje
+ * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
+ */
+function errorMessage(title, message, onClose = null, options) {
+
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'error'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
+	} else {
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
+
+}
+
+/**
+ * @method setCountdown
+ * @description Crea una cuenta regresiva y lanza un evento
+ * 'util-countdown' según el tiempo establecido
+ * @param {String} dateLimit Fecha límite con los formatos:
+ * AAAA-MM-DD HH:MM:SS == 2000-01-01 00:00:00
+ * AAAA-MM-DD HH:MM == 2000-01-01 00:00
+ * AAAA-MM-DD == 2000-01-01
+ * @param {Number} time Tiempo de refresco en milisegundos
+ * @return {void}
+ */
+function setCountdown(dateLimit, time = 1000) {
+
+	var fechaLimite = new Date(dateLimit)//Fecha límite
+
+	function lanzar(fechaLimite, interval) {
+
+		var event = new Event('util-countdown')
+
+		// Fecha actual
+		var ahora = new Date()
+
+		// Diferencia entre la fecha límite y la actual
+		var tiempoFaltante = fechaLimite.getTime() - ahora.getTime()
+
+		// Cálculo de dias, horas, minutos y segundos faltantes
+		var dias = Math.floor(tiempoFaltante / (1000 * 60 * 60 * 24))
+		var horas = Math.floor((tiempoFaltante % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+		var minutos = Math.floor((tiempoFaltante % (1000 * 60 * 60)) / (1000 * 60))
+		var segundos = Math.floor((tiempoFaltante % (1000 * 60)) / 1000)
+
+		var finalizado = tiempoFaltante <= 0 || (dias + horas + minutos + segundos) == 0
+
+		// Datos del evento            
+		event.tiempoFaltante = {
+			dias: dias,
+			horas: horas,
+			minutos: minutos,
+			segundos: segundos,
+			string: dias + "d " + horas + "h " + minutos + "m " + segundos + "s",
+			finalizado: finalizado
+		}
+
+		//Lanzar evento
+		dispatchEvent(event)
+
+		// Terminar
+		if (finalizado) {
+			clearInterval(interval)
+		}
+	}
+
+	//Intervalo de un segundo
+	var interval = setInterval(function () {
+
+		lanzar(fechaLimite, interval)
+
+	}, time)
+
+	lanzar(fechaLimite, interval)
+
+}
+
+/**
+ * postRequest
+ * 
+ * Realiza una petición AJAX POST (JQuery.ajax) y devuelve el objeto jqXHR
+ * que es un objeto Deferred, por lo que tiene los métodos:
+ * done(data, textStatus, jqXHR),
+ * fail(jqXHR, textStatus, errorThrown) y
+ * always(data|jqXHR, textStatus, jqXHR|errorThrown)
+ * 
+ * @param {string} url URL que se consultará
+ * @param {FormData|Object} [data] Información enviada
+ * @param {Object} [headers] Cabeceras
+ * @param {Object} [options] Opciones de $.ajax
+ * @returns {jqXHR}
+ */
+function postRequest(url, data, headers = {}, options = {}) {
+
+	options.url = url
+	options.method = 'POST'
+
+	if (data instanceof FormData) {
+
+		options.processData = false
+		options.enctype = "multipart/form-data"
+		options.contentType = false
+		options.cache = false
+		options.data = data
+
+	} else if (typeof data == 'object') {
+
+		options.data = data
+
+	}
+
+	let parsedHeaders = parseHeaders(headers)
+
+	if (parsedHeaders.size > 0) {
+
+		options.beforeSend = function (request) {
+
+			for (let key of parsedHeaders.keys()) {
+				let value = parsedHeaders.get(key)
+				request.setRequestHeader(key, value)
+			}
+
+		}
+
+	}
+
+	function parseHeaders(headers = {}) {
+
+		let mapHeaders = new Map()
+
+		if (typeof headers == 'object') {
+
+			for (let name in headers) {
+
+				let value = headers[name]
+				let valueString = ''
+
+				if (Array.isArray(value)) {
+
+					let length = value.length
+					let lastIndexValue = 0
+
+					if (length == 1) {
+						lastIndexValue = 0
+					} else if (length > 1) {
+						lastIndexValue = length - 1
+					}
+
+					for (let i = 0; i < length; i++) {
+						if (i == lastIndexValue) {
+							valueString += value[i]
+						} else {
+							valueString += value[i] + "\r\n"
+						}
+					}
+
+				} else if (typeof value == 'string') {
+					valueString = value
+				}
+
+				mapHeaders.set(name, valueString)
+
+			}
+
+		}
+
+		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
+
+		return mapHeaders
+
+	}
+
+	return this.$.ajax(options)
+
+}
+
+/**
+ * getRequest
+ * 
+ * Realiza una petición AJAX GET (JQuery.ajax) y devuelve el objeto jqXHR
+ * que es un objeto Deferred, por lo que tiene los métodos:
+ * done(data, textStatus, jqXHR),
+ * fail(jqXHR, textStatus, errorThrown) y
+ * always(data|jqXHR, textStatus, jqXHR|errorThrown)
+ * 
+ * @param {String} url URL que se consultará
+ * @param {String|HTMLElement|JQuery} [data] Formulario
+ * @param {Object} [headers] Cabeceras
+ * @param {Object} [options] Opciones de $.ajax
+ * @returns {jqXHR}
+ */
+function getRequest(url, data, headers = {}, options = {}) {
+
+	options.url = url
+	options.method = 'GET'
+	options.enctype = 'application/x-www-form-urlencoded'
+
+	if (data instanceof HTMLFormElement) {
+
+		options.data = $(data).serialize()
+
+	} else if (data instanceof $) {
+
+		options.data = data.serialize()
+
+	} else if (typeof data == 'string') {
+
+		options.data = data
+
+	}
+
+	let parsedHeaders = parseHeaders(headers)
+
+	if (parsedHeaders.size > 0) {
+
+		options.beforeSend = function (request) {
+
+			for (let key of parsedHeaders.keys()) {
+				let value = parsedHeaders.get(key)
+				request.setRequestHeader(key, value)
+			}
+
+		}
+
+	}
+
+	function parseHeaders(headers = {}) {
+
+		let mapHeaders = new Map()
+
+		if (typeof headers == 'object') {
+
+			for (let name in headers) {
+
+				let value = headers[name]
+				let valueString = ''
+
+				if (Array.isArray(value)) {
+
+					let length = value.length
+					let lastIndexValue = 0
+
+					if (length == 1) {
+						lastIndexValue = 0
+					} else if (length > 1) {
+						lastIndexValue = length - 1
+					}
+
+					for (let i = 0; i < length; i++) {
+						if (i == lastIndexValue) {
+							valueString += value[i]
+						} else {
+							valueString += value[i] + "\r\n"
+						}
+					}
+
+				} else if (typeof value == 'string') {
+					valueString = value
+				}
+
+				mapHeaders.set(name, valueString)
+
+			}
+
+		}
+
+		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
+
+		return mapHeaders
+
+	}
+
+	return this.$.ajax(options)
+
+}
+
+/**
+ * formatNumberString
+ * 
+ * @param {string} input 
+ * @param {string} thousandsSeparator 
+ * @param {string} decimalsSeparator 
+ * @param {boolean} inverse 
+ * @returns {number|string}
+ */
+function formatNumberString(input, thousandsSeparator = '.', decimalsSeparator = ',', inverse = false) {
+
+	if (typeof input == 'number') {
+		input = input.toString().replace('.', ',')
+	}
+
+	if (!inverse) {
+		input = input
+			.replace('.', '')
+			.replace(/\s{1,}/gm, '')
+
+		if (new RegExp('\,{2,}').test(input)) {
+			input = input.replace(/\,{2,}/gmi, ',')
+		}
+
+		let commas = input.match(/\,/gmi)
+
+		if (Array.isArray(commas) && commas.length > 0) {
+			for (let i = 0; i < commas.length - 1; i++) {
+				let positionLastComma = input.lastIndexOf(',')
+				input = input.split('')
+				input[positionLastComma] = ''
+				input = input.join('')
+			}
+		}
+
+		input = input
+			.replace(/[^0-9|\,|\s]/gmi, '')
+
+		input = input.split(',')
+
+		let number = String(input[0]).replace(/(.)(?=(\d{3})+$)/g, '$1' + thousandsSeparator)
+		let decimals = input.length > 1 ? `${decimalsSeparator}${input[1]}` : ''
+
+		return `${number}${decimals}`
+	} else {
+
+		if (thousandsSeparator == '.') {
+			input = input
+				.replace(new RegExp(`\\.{1,}`, 'gm'), '')
+		} else {
+			input = input
+				.replace(new RegExp(`${thousandsSeparator}{1,}`, 'gm'), '')
+		}
+		if (decimalsSeparator == '.') {
+			input = input
+				.replace(new RegExp(`\\.{1,}`, 'gm'), '.')
+		} else if (decimalsSeparator == ',') {
+			input = input
+				.replace(new RegExp(`\,{1,}`, 'gm'), '.')
+		} else {
+			input = input
+				.replace(new RegExp(`${decimalsSeparator}{1,}`, 'gm'), '')
+		}
+
+		return parseFloat(input)
+	}
+}
+
+/**
+ * @function strReplace
+ * @param {string[]|string} search Elementos a buscar
+ * @param {strin[]|string} replace Elementos de reemplazo
+ * @param {string} subject Cadena de entrada
+ * @returns {string}
+ */
+function strReplace(search, replace, subject) {
+
+	if (typeof search == 'string') {
+		search = [search]
+	} else if (!Array.isArray(search)) {
+		return null
+	}
+
+	if (typeof replace != 'string' && !Array.isArray(replace)) {
+		return null
+	}
+
+	if (typeof subject != 'string') {
+		return null
+	}
+
+	let searchLength = search.length
+
+	for (let i = 0; i < searchLength; i++) {
+
+		let searchString = search[i]
+		let replaceString = ''
+
+		if (Array.isArray(replace)) {
+			if (typeof replace[i] == 'string') {
+				replaceString = replace[i]
+			}
+		} else {
+			replaceString = replace
+		}
+
+		let replacedString = subject
+
+		while (replacedString.indexOf(searchString) !== -1) {
+			replacedString = replacedString.replace(searchString, replaceString)
+		}
+
+		subject = replacedString
+
+	}
+
+	return subject
+}
+
+/**
+ * @function friendlyURL
+ * @param {string} str Cadena para formatear
+ * @param {number} maxWords Cantidad máxima de palabras
+ * @returns {string} Cadena formateada
+ */
+function friendlyURL(str, maxWords) {
+
+	if (typeof str != 'string') {
+		return null
+	}
+
+	str = str.trim()
+
+	let dictionary = [
+		'á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä', 'Ã',
+		'é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë',
+		'í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î',
+		'ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô',
+		'ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü',
+		'ñ', 'Ñ', 'ç', 'Ç',
+		'  ', ' ',
+	]
+
+	let replace_dictionary = [
+		'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A',
+		'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
+		'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
+		'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O',
+		'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
+		'nn', 'NN', 'c', 'C',
+		' ', '-',
+	]
+
+	let other_characters = [
+		"\\", "¨", "º", "~", '±',
+		"#", "@", "|", "!", "\"",
+		"·", "$", "%", "&", "/",
+		"(", ")", "?", "'", "¡",
+		"¿", "[", "^", "`", "]",
+		"+", "}", "{", "¨", "´",
+		">", "<", ";", ",", ":",
+		".", 'º',
+	]
+
+	str = str.replace(/(\t|\r\n|\r|\n){1,}/gmi, '')
+	str = str.replace(/(\u00a0){1,}/gmi, ' ')
+	str = strReplace(dictionary, replace_dictionary, str)
+	str = strReplace(other_characters, '', str)
+	str = str.replace(/-{2,}/gmi, '')
+	str = str.toLowerCase()
+
+	if (typeof maxWords == 'number') {
+
+		maxWords = parseInt(maxWords)
+
+		let words = str.split('-')
+
+		let wordsLimitied = []
+		let countWords = words.length
+
+		for (let $i = 0; $i < maxWords && $i < countWords; $i++) {
+			let word = words[$i]
+			wordsLimitied.push(word)
+		}
+
+		str = wordsLimitied.join('-')
+
+	}
+
+	return str
+}
+
+/**
+ * dataTableServerProccesing
+ * @description Requiere datatables y jquery
+ * @param {String} table 
+ * @param {String} ajaxURL 
+ * @param {Number} perPage 
+ * @param {Object} options 
+ * @returns {$}
+ */
+function dataTableServerProccesing(table, ajaxURL, perPage, options) {
+
+	perPage = typeof perPage == 'number' ? parseInt(perPage) : 10
+	perPage = perPage < 1 ? 10 : perPage
+	ajaxURL = typeof ajaxURL == 'string' && ajaxURL.length > 0 ? ajaxURL : null
+	options = typeof options == 'object' ? options : {}
+
+	if (table instanceof HTMLElement) {
+		table = $(table)
+	}
+
+	let columnsDefinitions = []
+	let thElements = table.find('thead th').toArray()
+
+	for (let index in thElements) {
+
+		let e = thElements[index]
+
+		let columnDefinition = {
+			targets: parseInt(index),
+			title: e.innerHTML,
+			name: e.innerHTML,
+			searchable: true,
+			orderable: true,
+		}
+
+		let searchable = e.getAttribute('search')
+		let orderable = e.getAttribute('order')
+		let name = e.getAttribute('name')
+		let columnWidth = e.getAttribute('column-width')
+		let className = e.getAttribute('class-name')
+		let withContainer = e.getAttribute('with-container')
+
+		if (searchable != null) {
+			columnDefinition.searchable = searchable == 'true'
+		}
+		if (orderable != null) {
+			columnDefinition.orderable = orderable == 'true'
+		}
+		if (name != null) {
+			columnDefinition.name = name
+		}
+		if (columnWidth != null) {
+			columnDefinition.width = columnWidth
+		}
+		if (className != null) {
+			columnDefinition.className = className
+		}
+
+		columnDefinition.render = function (data, type, row, meta) {
+			if (withContainer != null && withContainer == 'true') {
+				return `<div class="cell-container">${data}</div>`
+			} else {
+				return data
+			}
+		}
+
+		columnsDefinitions.push(columnDefinition)
+	}
+
+	if (typeof options.columnDefs != 'undefined' && Array.isArray(options.columnDefs)) {
+
+		for (let index in options.columnDefs) {
+
+			let definition = options.columnDefs[index]
+			let targets = []
+
+			if (typeof definition.targets != 'undefined') {
+
+				targets = Array.isArray(definition.targets) ? definition.targets : [definition.targets]
+
+				for (let target of targets) {
+					if (typeof columnsDefinitions[target] != 'undefined') {
+						for (let optionDef in definition) {
+							if (optionDef != 'targets') {
+								columnsDefinitions[target][optionDef] = definition[optionDef]
+							}
+						}
+					}
+				}
+
+			}
+
+		}
+	}
+
+	options.columnDefs = columnsDefinitions
+
+	let is_valid = table instanceof $ || table instanceof HTMLElement
+	is_valid = is_valid && ajaxURL != null
+
+	if (is_valid) {
+
+		let configDataTable = Object.assign({}, pcsphpGlobals.configDataTables)
+
+		for (let option in options) {
+			configDataTable[option] = options[option]
+		}
+
+		if (typeof options.ajax !== 'undefined') {
+
+			configDataTable.ajax = options.ajax
+
+			if (typeof options.ajax.url == 'undefined') {
+				configDataTable.ajax.url = ajaxURL
+			}
+
+		} else {
+			configDataTable.ajax = ajaxURL
+		}
+
+		configDataTable.processing = true
+		configDataTable.serverSide = true
+		configDataTable.pageLength = perPage
+
+		table.DataTable(configDataTable)
+
+		return table
+
+	} else {
+		throw new Error('Los parámetros son inválidos')
+	}
+}
+
+/**
+ * dataTablesServerProccesingOnCards
+ * @description Requiere datatables y jquery
+ * @param {String} containerSelector 
+ * @param {Number} perPage 
+ * @param {Object} options
+ * @param {Object} customClassesCards
+ * @param {String} customClassesCards.containerCardsClass
+ * @param {String} customClassesCards.containerCardsSelector
+ * @param {String} customClassesCards.cardsSelector
+ * @param {Function} options.initComplete
+ * @param {function($):void} options.initCompleteEnd
+ * @param {Function} options.preDrawCallback
+ * @param {Function} options.drawCallback
+ * @param {function($):void} options.drawCallbackEnd
+ * @returns {Object}
+ */
+function dataTablesServerProccesingOnCards(containerSelector, perPage, options, customClassesCards) {
+
+	containerSelector = typeof containerSelector == 'string' ? containerSelector : null
+	perPage = typeof perPage == 'number' ? perPage : 10
+	options = typeof options == 'object' ? options : {}
+	customClassesCards = typeof customClassesCards == 'object' ? customClassesCards : {}
+	if (typeof customClassesCards.containerCardsClass != 'string') {
+		customClassesCards.containerCardsClass = 'ui cards'
+	}
+	if (typeof customClassesCards.containerCardsSelector != 'string') {
+		customClassesCards.containerCardsSelector = '.ui.cards'
+	}
+	if (typeof customClassesCards.cardsSelector != 'string') {
+		customClassesCards.cardsSelector = '.card'
+	}
+
+	let container = containerSelector !== null ? $(containerSelector) : null
+
+	if (container !== null && container.length > 0) {
+
+		let nameLoader = 'PROCCESSING_dataTablesServerProccesingOnCards'
+		let table = container.find('table')
+		let cardsContainer, cards
+
+		showGenericLoader(nameLoader)
+
+		table.hide()
+
+		let processURL = table.attr('url')
+
+		let initComplete = typeof options.initComplete == 'function' ? options.initComplete : () => { }
+		let initCompleteEnd = typeof options.initCompleteEnd == 'function' ? options.initCompleteEnd : () => { }
+		let preDrawCallback = typeof options.preDrawCallback == 'function' ? options.preDrawCallback : () => { }
+		let drawCallback = typeof options.drawCallback == 'function' ? options.drawCallback : () => { }
+		let drawCallbackEnd = typeof options.drawCallbackEnd == 'function' ? options.drawCallbackEnd : () => { }
+
+		let optionsDataTables = {
+			dom: `<"component-wrapper"t<"component-pagination"p>>`,
+			initComplete: function (settings, json) {
+
+				initComplete(settings, json)
+
+				let thisDataTable = table.DataTable()
+
+				let columns = []
+
+				for (let i in settings.aoColumns) {
+
+					let columnSettings = settings.aoColumns[i]
+					columns.push({
+						index: i,
+						name: columnSettings.name,
+						visible: columnSettings.bVisible,
+						orderable: columnSettings.orderable,
+						searchable: columnSettings.searchable,
+						htmlElement: columnSettings.nTh,
+					})
+
+				}
+
+				//Creación del contenedor de fichas y otras manipulaciones de html
+				let wrapper = container.find('.component-wrapper')
+
+				wrapper.prepend(`<br><div class="${customClassesCards.containerCardsClass}"></div><br><br>`)
+
+				//──── Controles ─────────────────────────────────────────────────────────────────────────
+				let controls = container.find('.component-controls')
+				let selectionOrder = controls.find('select[options-order]')
+				let selectionOrderType = controls.find('.ui.dropdown[options-order-type]')
+				let search = controls.find(`[type="search"]`)
+				let lengthPagination = controls.find(`[type="number"][length-pagination]`)
+
+				//Ordenamiento				
+				columns.map((e, i) => {
+
+					if (e.orderable) {
+						selectionOrder.append(`<option value="${i}">${e.name}</option>`)
+					}
+
+				})
+
+				let orderEvent = function () {
+
+					let orderColumn = columns[selectionOrder.val()]
+					let orderType = selectionOrderType.dropdown('get value')
+
+					orderType = typeof orderType == 'string' && orderType.trim().length > 0 ? orderType.trim() : 'asc'
+					orderType = orderType.toLowerCase()
+					orderType = orderType == 'asc' || orderType == 'desc' ? orderType : 'asc'
+
+					thisDataTable.column(orderColumn.index).order(orderType).draw()
+
+				}
+
+				selectionOrder.dropdown({
+					onChange: orderEvent,
+				})
+				selectionOrderType.dropdown({
+					onChange: orderEvent,
+				})
+
+				//Buscador
+				search.on('keyup', function () {
+					thisDataTable.search(search.val()).draw()
+				})
+
+				//Cantidad de elementos por página
+				if (lengthPagination.attr('min') == undefined) {
+					lengthPagination.attr('min', perPage % 2 == 0 ? 10 : 5)
+				}
+				if (lengthPagination.attr('step') == undefined) {
+					lengthPagination.attr('step', 10)
+				}
+				if (lengthPagination.attr('max') == undefined) {
+					lengthPagination.attr('max', 100)
+				}
+				lengthPagination.val(perPage)
+				lengthPagination.on('change', function () {
+					let length = lengthPagination.val()
+					length = parseInt(length)
+					length = !isNaN(length) ? length : perPage
+					length = length > 0 ? length : perPage
+					thisDataTable.page.len(length).draw()
+				})
+
+				thisDataTable.draw()
+
+				initCompleteEnd(wrapper)
+
+				removeGenericLoader(nameLoader)
+
+			},
+			preDrawCallback: function (settings) {
+
+				preDrawCallback(settings)
+
+				cardsContainer = container.find(customClassesCards.containerCardsSelector)
+				cards = cardsContainer.find(customClassesCards.cardsSelector)
+
+				cardsContainer.html('')
+
+			},
+			drawCallback: function (settings) {
+
+				drawCallback(settings)
+
+				this.find('tbody').remove()
+
+				let json = settings.json
+				let rawData = json.rawData
+
+				for (let data of rawData) {
+					cardsContainer.append(data)
+				}
+
+				cards = cardsContainer.find(customClassesCards.cardsSelector)
+
+				if (cards.length == 0) {
+					cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
+				}
+
+				drawCallbackEnd(cards)
+
+			},
+		}
+
+		options.dom = optionsDataTables.dom
+		options.initComplete = optionsDataTables.initComplete
+		options.preDrawCallback = optionsDataTables.preDrawCallback
+		options.drawCallback = optionsDataTables.drawCallback
+
+		table = dataTableServerProccesing(table, processURL, perPage, options)
+
+		table.on('processing.dt', function (e, settings, proccesing) {
+			if (proccesing) {
+
+				if (!activeGenericLoader(nameLoader)) {
+					showGenericLoader(nameLoader)
+				}
+
+			} else {
+				removeGenericLoader(nameLoader)
+			}
+		})
+
+		return table
+
+	}
+
+	return null
+
+}
+
+/**
+ * Muestra un modal de carga en el body
+ * 
+ * @param {String} [name='DEFAULT'] Nombre del loader
+ * @param {String} [classPrefix='ui-pcs-'] Prefijo de la clase
+ * @param {Boolean} [withProgress=false] Indica si se debe mostrar el progreso
+ * @param {Object} [moreOptions={}] Opciones adicionales
+ * @param {String} moreOptions.textMessage Texto del mensaje
+ * @returns {GenericLoaderElement} Elemento del loader
+ */
+function showGenericLoader(name = null, classPrefix = null, withProgress = false, moreOptions = {}) {
+	return GenericLoaderElement.show(name, classPrefix, withProgress, moreOptions)
+}
+
+/**
+ * Oculta un modal de carga en el body * 
+ * @param {String} [name='DEFAULT'] Nombre del loader
+ * @param {String} [classPrefix='ui-pcs-'] Prefijo de la clase
+ * @returns {void} 
+ */
+function removeGenericLoader(name = null, classPrefix = null) {
+	GenericLoaderElement.remove(name, classPrefix)
+}
+
+/**
+ * Verifica si está activo el loader
+ * @param {String} [name='DEFAULT'] Nombre del loader
+ * @param {String} [classPrefix='ui-pcs-'] Prefijo de la clase
+ * @returns {Boolean} True si está activo, false en caso contrario
+ */
+function activeGenericLoader(name = null, classPrefix = null) {
+	return GenericLoaderElement.currentActive(name, classPrefix) !== null
+}
+
+/**
+ * @function formatDate
+ *
+ * Formatea una fecha.
+ *
+ * @param {Date} date Fecha
+ * @param {string} format Formato de la fecha
+ * - d	Día del mes, 2 dígitos con ceros iniciales	01 a 31
+ * - Y	Una representación numérica completa de un año, 4 dígitos	Ejemplos: 1999 o 2003
+ * - m	Representación numérica de un mes, con ceros iniciales	01 hasta 12
+ * - F	Una representación textual completa de un mes, como January o March	January hasta December
+ * - M	Una representación textual corta de un mes, tres letras
+ * - g	Formato de 12 horas de una hora sin ceros iniciales	1 hasta 12
+ * - G	Formato de 24 horas de una hora sin ceros iniciales	0 hasta 23
+ * - h	Formato de 12 horas de una hora con ceros iniciales	01 hasta 12
+ * - H	Formato de 24 horas de una hora con ceros iniciales	00 hasta 23
+ * - A	Ante meridiem y Post meridiem en mayúsculas	AM o PM
+ * - i	Minutos con ceros iniciales	00 hasta 59
+ * - s	Segundos con ceros iniciales	00 hasta 59
+ * @returns {string}
+ */
+function formatDate(date, format) {
+	format = typeof format == 'string' && format.length > 0 ? format : 'd-m-Y'
+	if (!(date instanceof Date)) {
+		date = new Date()
+		console.warn('Fecha actual asignada en formatDate')
+	}
+
+	let d = String(date.getDate()).padStart(2, '0')
+	let m = String(date.getMonth() + 1).padStart(2, '0')
+	let monthsShort = _i18n('semantic_calendar', 'monthsShort')
+	let monthsFull = _i18n('semantic_calendar', 'months')
+	let M = monthsShort[date.getMonth()]
+	let F = monthsFull[date.getMonth()]
+	let Y = String(date.getFullYear())
+
+	let hour = date.getHours()
+	let g = hour % 12 === 0 ? 12 : hour % 12
+	let G = hour
+	let h = String(g).padStart(2, '0')
+	let H = String(G).padStart(2, '0')
+	let A = hour >= 12 ? 'PM' : 'AM'
+	let i = String(date.getMinutes()).padStart(2, '0')
+	let s = String(date.getSeconds()).padStart(2, '0')
+
+	const tokens = {
+		'Y': Y,
+		'm': m,
+		'F': F,
+		'M': M,
+		'd': d,
+		'A': A,
+		'g': g,
+		'G': G,
+		'h': h,
+		'H': H,
+		'i': i,
+		's': s,
+	}
+
+	return format.replace(/Y|m|F|M|d|A|g|G|h|H|i|s/g, match => tokens[match])
+}
+
+
+/**
+ * 
+ * @param {String} str Remplaza %r por los valores pasados
+ * @param {Array<String>} values 
+ */
+function formatStr(str, values) {
+
+	if (Array.isArray(values)) {
+
+		if (typeof str == 'string') {
+
+			for (let value of values) {
+
+				let indexReplaceElement = str.indexOf('%r')
+
+				if (indexReplaceElement != -1) {
+
+					str = str.replace('%r', value)
+
+				} else {
+
+					break
+
+				}
+
+			}
+
+		}
+
+	}
+
+	return typeof str == 'string' ? str : ''
+
+}
+
+/**
+ * 
+ * @param {String} prefix
+ * @param {Boolean} moreEntropy
+ * @param {String}
+ */
+function generateUniqueID(prefix, moreEntropy) {
+
+	if (typeof prefix === 'undefined') {
+		prefix = ''
+	}
+
+	var retId
+	var _formatSeed = function (seed, reqWidth) {
+		seed = parseInt(seed, 10).toString(16) // to hex str
+		if (reqWidth < seed.length) {
+			// so long we split
+			return seed.slice(seed.length - reqWidth)
+		}
+		if (reqWidth > seed.length) {
+			// so short we pad
+			return Array(1 + (reqWidth - seed.length)).join('0') + seed
+		}
+		return seed
+	}
+
+	var $global = (typeof window !== 'undefined' ? window : global)
+	$global.$locutus = $global.$locutus || {}
+	var $locutus = $global.$locutus
+	$locutus.php = $locutus.php || {}
+
+	if (!$locutus.php.uniqidSeed) {
+		// init seed with big random int
+		$locutus.php.uniqidSeed = Math.floor(Math.random() * 0x75bcd15)
+	}
+	$locutus.php.uniqidSeed++
+
+	// start with prefix, add current milliseconds hex string
+	retId = prefix
+	retId += _formatSeed(parseInt(new Date().getTime() / 1000, 10), 8)
+	// add seed hex string
+	retId += _formatSeed($locutus.php.uniqidSeed, 5)
+	if (moreEntropy) {
+		// for more entropy we add a float lower to 10
+		retId += (Math.random() * 10).toFixed(8).toString()
+	}
+
+	return retId
+}
+
+/**
+ * @function addObjectToFormData
+ * 
+ * @param {FormData} formData
+ * @param {Object} inputValue
+ * @param {String} name
+ * @param {Bool} isFirstArray
+ * @param {FormData} 
+ */
+function addObjectToFormData(formData, inputValue, name, isFirstArray = true) {
+
+	if (typeof inputValue == 'object') {
+
+		for (let property in inputValue) {
+
+			let value = inputValue[property]
+			let subName = `${name}[${property}]`
+
+			if (typeof value == 'string' || typeof value == 'number' || value == null) {
+
+				formData.append(subName, value)
+
+			} else if (Array.isArray(value)) {
+
+				for (let i in value) {
+					if (isFirstArray) {
+						formData = addObjectToFormData(formData, value, `${subName}`, false)
+					} else {
+						formData = addObjectToFormData(formData, value[i], `${subName}[${i}]`, false)
+					}
+				}
+
+			} else if (typeof value == 'object') {
+
+				formData = addObjectToFormData(formData, value, subName)
+
+			}
+
+		}
+
+	} else {
+		formData.append(name, inputValue)
+	}
+
+	return formData
+
+}
+
+/**
+ * Detección de evento swipe
+ * @param {HTMLElement} el 
+ * @param {Function} callback Función que devuelve como parámetro alguna de las siguientes opciones: u, r, d, l, none y el evento
+ * @link http://www.javascriptkit.com/javatutors/touchevents2.shtml
+ */
+function swipedetect(el, callback) {
+
+	var touchsurface = el,
+		swipedir,
+		startX,
+		startY,
+		distX,
+		distY,
+		threshold = 150, //required min distance traveled to be considered swipe
+		restraint = 100, // maximum distance allowed at the same time in perpendicular direction
+		allowedTime = 300, // maximum time allowed to travel that distance
+		elapsedTime,
+		startTime,
+		handleswipe = callback || function (swipedir) { }
+
+	touchsurface.addEventListener('touchstart', function (e) {
+		var touchobj = e.changedTouches[0]
+		swipedir = 'none'
+		dist = 0
+		startX = touchobj.pageX
+		startY = touchobj.pageY
+		startTime = new Date().getTime() // record time when finger first makes contact with surface
+	}, {
+		passive: true,
+	})
+
+	touchsurface.addEventListener('touchend', function (e) {
+		var touchobj = e.changedTouches[0]
+		distX = touchobj.pageX - startX // get horizontal dist traveled by finger while in contact with surface
+		distY = touchobj.pageY - startY // get vertical dist traveled by finger while in contact with surface
+		elapsedTime = new Date().getTime() - startTime // get time elapsed
+		if (elapsedTime <= allowedTime) { // first condition for awipe met
+			if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { // 2nd condition for horizontal swipe met
+				swipedir = (distX < 0) ? 'l' : 'r' // if dist traveled is negative, it indicates left swipe
+			}
+			else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
+				swipedir = (distY < 0) ? 'u' : 'd' // if dist traveled is negative, it indicates up swipe
+			}
+		}
+		handleswipe(swipedir, e)
+	}, false)
+}
+
+/**
+ * Configura un scroll x espejo en la parte de arriba
+ * @param {String} [namespace]
+ * @param {String} [selector]
+ */
+function configMirrorScrollX(namespace = 'default', selector = null) {
+
+	let mirrorScrollX = typeof selector == 'string' ? $(selector) : $('.mirror-scroll-x')
+
+	if (mirrorScrollX.length > 0) {
+
+		let mirrorScrollXContent = mirrorScrollX.find('.mirror-scroll-x-content')
+		let mirrorTarget = $(mirrorScrollX.attr('mirror-scroll-target'))
+
+		let checkScrollX = function () {
+
+			let scrollXWidth = mirrorTarget.get(0).scrollWidth
+			let targetWidth = mirrorTarget.get(0).clientWidth
+			let isVisibleScrollX = targetWidth < scrollXWidth
+
+			if (isVisibleScrollX) {
+				mirrorScrollXContent.width(scrollXWidth)
+				mirrorTarget.addClass('with-mirror-scroll-x')
+				mirrorScrollX.show()
+			} else {
+				mirrorTarget.removeClass('with-mirror-scroll-x')
+				mirrorScrollX.hide()
+			}
+
+			mirrorScrollX.get(0).onscroll = function () {
+				mirrorTarget.get(0).scrollLeft = mirrorScrollX.get(0).scrollLeft
+			}
+
+			mirrorTarget.get(0).onscroll = function () {
+				mirrorScrollX.get(0).scrollLeft = mirrorTarget.get(0).scrollLeft
+			}
+
+		}
+
+		$(window).off(`resize.${namespace}`, checkScrollX)
+		$(window).on(`resize.${namespace}`, checkScrollX)
+		setTimeout(function () {
+			$(window).trigger(`resize.${namespace}`)
+		}, 500)
+	}
+
+}
+
+/**
+ * Configura un dropdown
+ * @param {String} selectSelector 
+ * @param {Object} defaultOptions 
+ * @param {Booloan} cacheOnAPI
+ * @returns {CustomDropdownConfig[]} 
+ */
+function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI = false) {
+	selectSelector = typeof selectSelector == 'string' ? selectSelector : 'NONE_SELECTOR'
+	defaultOptions = typeof defaultOptions == 'object' ? defaultOptions : {}
+
+	let selects = Array.from(document.querySelectorAll(selectSelector))
+
+	/**
+	 * @typedef {Object} CustomDropdownConfig
+	 * @property {function():String} getText
+	 * @property {function():String|String[]|Number|Number[]} getValue
+	 * @property {function({String|String[]|Number|Number[], [String]}):CustomDropdownConfig} setValue
+	 * @property {function():CustomDropdownConfig} removeValues
+	 * @property {function({value: String|Number, text: String, selected: Boolean}):CustomDropdownConfig} addValue
+	 * @property {function({required: Boolean}):CustomDropdownConfig} setRequired
+	 * @property {function({removeItems: Boolean, searchURL: [String], options: Object}):CustomDropdownConfig} recreate
+	 * @property {function():HTMLSelectElement} getOriginalSelect
+	 */
+	/**
+	 * @var {CustomDropdownConfig[]}
+	 */
+	let dropdowns = []
+
+	for (let select of selects) {
+
+
+		const originalSelectHTML = select.outerHTML
+		select = $(select)
+		let searchURL = select.data('search-url')
+		searchURL = typeof searchURL == 'string' && searchURL.trim().length > 0 ? searchURL.trim() : null
+
+		let options = Object.assign({}, defaultOptions)
+
+		if (searchURL) {
+			let apiSettings = typeof options.apiSettings == 'object' ? options.apiSettings : {}
+			const URLSearch = new URL(searchURL)
+			URLSearch.searchParams.set('search', 'SEARCH_QUERY')
+			apiSettings.url = URLSearch.href.replace('SEARCH_QUERY', '{query}')
+			options.apiSettings = apiSettings
+			options.apiSettings.cache = cacheOnAPI === true ? true : false
+		}
+
+		let dropdown = null
+
+		//Input para simular el error de validación
+		let uniqueID = generateUniqueID()
+		let selectSimulator = document.createElement('select')
+		if (select.get(0).required) {
+			selectSimulator.setAttribute('required', true)
+		}
+		select.attr('data-simulator', uniqueID)
+		selectSimulator.setAttribute('simulator', uniqueID)
+		selectSimulator.setAttribute('style', [
+			"display: block !important;",
+			"height: 0px !important;",
+			"width: 0px !important;",
+			"margin: 0px !important;",
+			"padding: 0px !important;",
+			"outline: none !important;",
+			"border: none !important;",
+		].join(' '))
+
+		let onChange = function (value, text, $selectedItem) {
+			let selectValidator = document.querySelector(`select[simulator="${uniqueID}"]`)
+
+			if (Array.isArray(value)) {
+
+				selectValidator.innerHTML = ''
+				for (let i of value) {
+					if (typeof i == 'string' && i.length > 0 && selectValidator !== null) {
+						selectValidator.innerHTML += `<option value="${i}" selected></option>`
+					}
+				}
+
+			} else {
+				if (typeof value == 'string' && value.length > 0 && selectValidator !== null) {
+					selectValidator.innerHTML = `<option value="${value}" selected></option>`
+				}
+			}
+		}
+
+		if (typeof options.onChange == 'function') {
+			let onChangeOption = options.onChange
+			options.onChange = function (value, text, $selectedItem) {
+				onChange(value, text, $selectedItem)
+				onChangeOption(value, text, $selectedItem)
+			}
+		} else {
+			options.onChange = onChange
+		}
+
+		dropdown = $(select).dropdown(options)
+		dropdown.getText = function () {
+			return dropdown.dropdown('get text')
+		}
+		dropdown.getValue = function () {
+			return dropdown.dropdown('get value')
+		}
+		dropdown.setValue = function (value, text = null) {
+			if (text !== null) {
+				dropdown.dropdown('set value', value)
+				dropdown.dropdown('set text', text)
+				dropdown.dropdown('set selected', value)
+				dropdown.dropdown('refresh')
+			} else {
+				dropdown.dropdown('set selected', value)
+				dropdown.dropdown('refresh')
+			}
+			onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+			return dropdown
+		}
+		dropdown.removeValues = function () {
+			const defaultPlaceholder = dropdown.dropdown("get placeholder text")
+			dropdown.dropdown("clear")
+			dropdown.find('select').html("")
+			dropdown.find('select').append(`<option value="">${defaultPlaceholder}</option>`)
+			dropdown.dropdown("refresh")
+			selectSimulator.innerHTML = ''
+			return dropdown
+		}
+		dropdown.addValue = function (value, text, selected = false) {
+			if (selected) {
+				dropdown.find('select').append(`<option selected value="${value}">${text}</option>`)
+				onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+			} else {
+				dropdown.find('select').append(`<option value="${value}">${text}</option>`)
+			}
+			dropdown.dropdown("refresh")
+			return dropdown
+		}
+		dropdown.setRequired = function (required = false) {
+			toggleRequiredSemanticDropdown(dropdown, required)
+			dropdown.find('select[data-simulator]').attr('required', false).removeAttr('required')
+			return dropdown
+		}
+		dropdown.recreate = function (removeItems = false, searchURL = null, options = {}) {
+
+			dropdown.simulatorNode.remove()
+			const recreated = $(originalSelectHTML)
+
+			if (searchURL !== null) {
+				recreated.attr('data-search-url', searchURL)
+			}
+
+			if (removeItems) {
+				recreated.find('option').remove()
+			}
+
+			dropdown.replaceWith(recreated)
+
+			const optionsRecreate = Object.assign({}, defaultOptions)
+
+			for (const option in options) {
+				optionsRecreate[option] = options[option]
+			}
+
+			dropdown = configFomanticDropdown(selectSelector, optionsRecreate)[0]
+			return dropdown
+		}
+		dropdown.getOriginalSelect = function () {
+			return $(originalSelectHTML)
+		}
+
+		//Duplicar los atributos data-* en el dropdown
+		const originalSelect = $(originalSelectHTML)
+		const originalDataSet = originalSelect.get(0).dataset
+
+		for (const dataName in originalDataSet) {
+			const dataValue = originalDataSet[dataName]
+			dropdown.get(0).dataset[dataName] = dataValue
+		}
+
+		//Añadir input para simular el error de validación
+		dropdown.simulatorNode = dropdown.parent().get(0).insertBefore(selectSimulator, dropdown.get(0))
+		dropdowns.push(dropdown)
+		onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+
+	}
+	return dropdowns
+}
+
+/**
+ * @param {$} dropdown 
+ * @param {Boolean} [required] 
+ * @param {Boolea} [hideOnNoRequire] 
+ */
+function toggleRequiredSemanticDropdown(dropdown, required = true, hideOnNoRequire = false) {
+	let mainSelect = dropdown.find('select')
+	let simulatorSelect = $(`select[simulator="${mainSelect.attr('data-simulator')}"]`)
+	simulatorSelect.val('')
+	dropdown.dropdown('restore defaults', '')
+	dropdown.dropdown('refresh', '')
+	dropdown.dropdown('set value', '')
+	if (required) {
+		mainSelect.attr('required', true)
+		simulatorSelect.attr('required', true)
+		if (!dropdown.closest('.field').is(':visible')) {
+			dropdown.closest('.field').show()
+		}
+	} else {
+		mainSelect.removeAttr('required')
+		simulatorSelect.removeAttr('required')
+		if (hideOnNoRequire) {
+			dropdown.closest('.field').hide()
+		}
+	}
+}
+
+/**
+ * @param {$} input 
+ * @param {Boolean} [required] 
+ * @param {Boolea} [hideOnNoRequire] 
+ * @param {Boolea} [disableOnNoRequire] 
+ */
+function toggleRequiredSemanticInput(input, required = true, hideOnNoRequire = false, disableOnNoRequire = false) {
+
+	let prevValue = input.attr('data-prev-value')
+	prevValue = typeof prevValue == 'string' && prevValue.trim().length > 0 ? prevValue : input.val()
+
+	input.attr('data-prev-value', prevValue)
+
+	let fieldContainer = input.closest('.field')
+
+	if (required) {
+		input.attr('required', true)
+		input.val(prevValue)
+		if (!fieldContainer.is(':visible')) {
+			fieldContainer.show()
+		}
+		fieldContainer.removeClass('disabled')
+		input.removeAttr('disabled')
+	} else {
+		input.removeAttr('required')
+		input.val('')
+		if (hideOnNoRequire) {
+			fieldContainer.hide()
+		}
+		if (disableOnNoRequire) {
+			fieldContainer.addClass('disabled')
+			input.attr('disabled', true)
+		}
+	}
+}
+
+/**
+ * @param {$} dropdown 
+ * @param {String} value 
+ * @param {String} text 
+ */
+function changeValueSemanticDropdown(dropdown, value, text = null) {
+	if (text !== null) {
+		dropdown.dropdown('set value', value)
+		dropdown.dropdown('set text', text)
+		dropdown.dropdown('set selected', value)
+		dropdown.dropdown('refresh')
+	} else {
+		dropdown.dropdown('set selected', value)
+		dropdown.dropdown('refresh')
+	}
+}
+
+/**
+ * Simplifica una fracción
+ * @param {Numbar} numerator 
+ * @param {Numbar} denominator 
+ * @returns {Object} Un objeto con las promiedades numerator, denominator
+ */
+function simplify(numerator, denominator) {
+
+	for (var i = Math.max(numerator, denominator); i > 1; i--) {
+
+		if ((numerator % i == 0) && (denominator % i == 0)) {
+			numerator /= i
+			denominator /= i
+		}
+
+	}
+
+	return {
+		numerator: numerator,
+		denominator: denominator,
+	}
+}
+
+/**
+ * @param {$} element
+ * @returns {Boolean}
+ */
+function visibleInViewPort(element) {
+	const elementTop = element.offset().top
+	const elementBottom = elementTop + element.outerHeight()
+	const viewportTop = $(window).scrollTop()
+	const viewportBottom = viewportTop + $(window).height()
+	return elementBottom > viewportTop && elementTop < viewportBottom
+}
+
+/**
+ * @param {Date} date
+ * @return {String}
+ */
+function formatDateAlternative(date = new Date(), format = '%d/%m/%Y %H:%i:%s') {
+
+	let year = date.getFullYear()
+	let month = (date.getMonth() + 1).toString()
+	let day = date.getDate().toString()
+	let hour = date.getHours().toString()
+	let minutes = date.getMinutes().toString()
+	let seconds = date.getSeconds().toString()
+
+	month = month.length == 1 ? `0${month}` : month
+	day = day.length == 1 ? `0${day}` : day
+	hour = hour.length == 1 ? `0${hour}` : hour
+	minutes = minutes.length == 1 ? `0${minutes}` : minutes
+	seconds = seconds.length == 1 ? `0${seconds}` : seconds
+
+	let monthFullName = date.toLocaleString('es-CO', {
+		timeZone: 'America/Bogota',
+		month: 'long',
+	})
+
+	monthFullName = monthFullName.split('')
+	monthFullName[0] = monthFullName[0].toUpperCase()
+	monthFullName = monthFullName.join('')
+
+	let formats = {
+		'Y': year,
+		'm': month,
+		'd': day,
+		'H': hour,
+		'i': minutes,
+		's': seconds,
+		'F': monthFullName,
+	}
+
+	for (let i in formats) {
+		let value = formats[i]
+		format = format.replace(new RegExp(`\%${i}`, 'gim'), value)
+	}
+
+	return date != 'Invalid Date' ? format : null
+
+}
+
+/**
+ * Observa los cambios en el tamaño de un elemento y le agrega las clases
+ * según corresponda por el ancho. Si el ancho es menor o igual que los dispuestos
+ * en pcsphpGlobals.responsive.sizes agregará la clase del más pequeño, las clases
+ * pueden verse en pcsphpGlobals.responsive.class
+ * @param {HTMLElement} observedElement 
+ * @param { (element: HTMLElement,elementOffsetWidth: Number) => void } onChange 
+ * @param { Array<{size:Number, class:String}> } [customSizes] Si se quiere que las dimensiones y clases sean
+ * personalizadas debe definirse este array de objetos siguiendo la estructura adecuada
+ */
+function responsiveObserver(observedElement, onChange, customSizes = []) {
+
+	if (observedElement instanceof HTMLElement) {
+
+		const resizeObserver = new ResizeObserver(/** @type {ResizeObserverEntry[]} */function (entries) {
+
+			const width = observedElement.offsetWidth
+			let sizes = pcsphpGlobals.responsive.sizes
+			let sizesClasses = pcsphpGlobals.responsive.class
+
+			//Validar tamaños personalizados
+			if (Array.isArray(customSizes)) {
+				const validatedCustomSizes = {
+					sizes: {},
+					class: {},
+				}
+				for (const customSize of customSizes) {
+					const size = typeof customSize.size == 'number' && !isNaN(customSize.size) ? customSize.size : null
+					const classSize = typeof customSize.class == 'string' && customSize.class.trim().length > 0 ? customSize.class : null
+					if (size !== null && classSize !== null) {
+						const sizeID = generateUniqueID()
+						validatedCustomSizes.sizes[sizeID] = size
+						validatedCustomSizes.class[sizeID] = classSize
+					}
+				}
+
+				if (Array.from(Object.values(validatedCustomSizes.sizes)).length > 0) {
+					sizes = validatedCustomSizes.sizes
+					sizesClasses = validatedCustomSizes.class
+				}
+			}
+
+			const sizeClassesValues = Array.from(Object.values(sizesClasses))
+			const activesClassesBySize = new Map()
+
+			for (const sizeName in sizes) {
+
+				const size = sizes[sizeName]
+				const sizeClass = sizesClasses[sizeName]
+
+				if (width <= size) {
+					activesClassesBySize.set(size, sizeClass)
+				} else {
+					activesClassesBySize.delete(size)
+				}
+
+			}
+
+			const classArrayToReduce = Array.from(activesClassesBySize.entries())
+			const classToAdd = classArrayToReduce.length > 0 ? classArrayToReduce.reduce(function (a, b) {
+				return a[0] < b[0] ? a : b
+			}) : []
+
+			if (classToAdd.length > 0) {
+				observedElement.classList.add(classToAdd[1])
+			}
+
+			for (const classToDelete of sizeClassesValues) {
+				if (classToDelete != classToAdd[1]) {
+					observedElement.classList.remove(classToDelete)
+				}
+			}
+
+			if (typeof onChange == 'function') {
+				onChange(observedElement, width)
+			}
+
+		})
+
+		resizeObserver.observe(observedElement)
+
+	}
+
+}
+
+/**
+ * Almacena en localStorage
+ * @param {String} name 
+ * @param {any} data 
+ * @return {String} El valor guardado convertido a string
+ */
+function setLocalStorageData(name, data) {
+	const toSave = JSON.stringify(data)
+	localStorage.setItem(name, toSave)
+	return toSave
+}
+
+/**
+ * Recupera de localStorage
+ * @param {String} name
+ * @returns {Object|String|Number|null}
+ */
+function getLocalStorageData(name) {
+	let data = localStorage.getItem(name)
+	return data !== null ? JSON.parse(data) : data
+}
+
+/**
+ * Elimina de localStorage
+ * @param {String} name
+ * @returns {void}
+ */
+function removeLocalStorageData(name) {
+	localStorage.removeItem(name)
+}
+
+/**
+ * Almacena en sessionStorage
+ * @param {String} name 
+ * @param {any} data 
+ * @return {String} El valor guardado convertido a string
+ */
+function setSessionStorageData(name, data) {
+	const toSave = JSON.stringify(data)
+	sessionStorage.setItem(name, toSave)
+	return toSave
+}
+
+/**
+ * Recupera de sessionStorage
+ * @param {String} name
+ * @returns {Object|String|Number|null}
+ */
+function getSessionStorageData(name) {
+	let data = sessionStorage.getItem(name)
+	return data !== null ? JSON.parse(data) : data
+}
+
+/**
+ * Elimina de sessionStorage
+ * @param {String} name
+ * @returns {void}
+ */
+function removeSessionStorageData(name) {
+	sessionStorage.removeItem(name)
+}
+
+/**
+ * Verifica si el dispositivo está en línea
+ * @param {String} [listeningFlagName] Nombre de la clave para verificar si se está escuchando
+ * @param {String} [connectionStatusFlagName] Nombre de la clave para verificar el estado de la conexión
+ * @param {Boolean} [showDebug] Mostrar información de depuración
+ * @returns {Boolean} Estado de la conexión
+ */
+function isOnline(listeningFlagName = null, connectionStatusFlagName = null, showDebug = false) {
+	listeningFlagName = listeningFlagName ?? 'pcsPHP:connectionStatus:listening'
+	connectionStatusFlagName = connectionStatusFlagName ?? 'pcsPHP:connectionStatus:status'
+	const sessionControlName = `${listeningFlagName}_timestamp`
+	let isListening = window[sessionControlName] == undefined ? false : true
+	let isConnected = getSessionStorageData(connectionStatusFlagName) ?? navigator.onLine
+	if (showDebug) {
+		console.log({
+			isListening: isListening,
+			isConnected: isConnected,
+			navigatorOnLine: navigator.onLine,
+			isConnectedReal: getSessionStorageData(connectionStatusFlagName),
+		})
+	}
+	if (!isListening) {
+		window.addEventListener('online', () => {
+			isConnected = true
+			setSessionStorageData(connectionStatusFlagName, isConnected)
+		})
+		window.addEventListener('offline', () => {
+			isConnected = false
+			setSessionStorageData(connectionStatusFlagName, isConnected)
+		})
+		window[sessionControlName] = true
+	}
+	return isConnected
+}
+
+/**
+ * Utilidad para tomar variables del html de forma simple desde (solo desde la primera carga, luego no se actualizan):
+ * <template variables>
+ * 		<var name="VAR_NAME" value="VAR_VALUE"></var>
+ * </template>
+ * @param {String} name Nombre de la variable
+ * @returns {any|null}
+ */
+function getVariableFromHTML(name) {
+
+	name = typeof name == 'string' && name.trim().length > 0 ? name.trim() : null
+
+	let value = null
+	let variables = null
+
+	const htmlVariablesInMemory = typeof window.htmlVariablesInMemory !== 'undefined' ? window.htmlVariablesInMemory : null
+	const templateVariables = document.querySelector(`template[variables]`)
+
+	if ((templateVariables !== null || htmlVariablesInMemory) && name !== null) {
+
+		if (htmlVariablesInMemory === null) {
+			variables = document.createElement('div')
+			variables.innerHTML = templateVariables.innerHTML
+			window.htmlVariablesInMemory = variables
+			templateVariables.remove()
+		} else {
+			variables = htmlVariablesInMemory
+		}
+
+		let variable = variables.querySelector(`var[name="${name}"]`)
+		if (variable !== null) {
+			value = variable.getAttribute('value')
+		}
+
+	}
+
+	return value
+}
+
+/**
+ * Codifica a base64 seguro con caracteres latinos
+ * @param {String} str 
+ * @returns 
+ */
+function base64EncodeUnicode(str) {
+	return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+		String.fromCharCode('0x' + p1)
+	))
+}
+
+/**
+ * Decodifica strings codificados con base64EncodeUnicode
+ * @param {String} str 
+ * @returns 
+ */
+function base64DecodeUnicode(str) {
+	return decodeURIComponent(Array.prototype.map.call(atob(str), c =>
+		'%' + c.charCodeAt(0).toString(16).padStart(2, '0')
+	).join(''))
+}
+
+/**
+ * Obtiene el selector único de un elemento html
+ * @param {Element} element 
+ * @returns {String}
+ */
+function getUniqueSelector(element) {
+	if (!(element instanceof Element)) return null
+	var path = []
+	while (element.nodeType === Node.ELEMENT_NODE) {
+		var selector = element.nodeName.toLowerCase()
+		var elementId = element.getAttribute('id')
+		if (typeof elementId === 'string' && elementId.trim().length > 0) {
+			selector += '#' + elementId
+			path.unshift(selector)
+			break // ID garantiza unicidad
+		} else {
+			let sib = element, nth = 1
+			while (sib = sib.previousElementSibling) {
+				if (sib.nodeName.toLowerCase() === selector) nth++
+			}
+			selector += `:nth-of-type(${nth})`
+		}
+		path.unshift(selector)
+		element = element.parentNode
+	}
+	return path.join(" > ")
+}
+
+/**
+ * Función para obtener el padre desplazable de un elemento.
+ * 
+ * Esta función recorre los padres del elemento dado hasta encontrar uno que tenga un desbordamiento vertical
+ * (overflowY) igual a 'auto' o 'scroll' y que tenga un alto de contenido (scrollHeight) mayor que su alto
+ * (clientHeight).
+ * 
+ * @param {Element} element - El elemento del cual obtener el padre desplazable.
+ * @returns {Element|null} El padre desplazable del elemento dado, o null si no se encuentra.
+ */
+function getScrollableParent(element) {
+	let parent = element.parentElement
+	while (parent) {
+		const style = getComputedStyle(parent)
+		const overflowY = style.overflowY
+		if (overflowY === 'auto' || overflowY === 'scroll') {
+			if (parent.scrollHeight > parent.clientHeight) {
+				return parent
+			}
+		}
+		parent = parent.parentElement
+	}
+	return null
+}
+
+/**
+ * Comparte contenido usando la API Web Share o copia al portapapeles como alternativa.
+ * Permite definir mensajes y callbacks para onCopy y onShare.
+ *
+ * @param {Object} options - Opciones de contenido y comportamiento
+ * @param {string} [options.title] - Título del contenido
+ * @param {string} [options.text] - Texto a compartir
+ * @param {string} [options.url] - URL a compartir (por defecto, la actual)
+ * @param {string} [options.copyMessage] - Mensaje al copiar (por defecto: "Enlace copiado al portapapeles")
+ * @param {Function} [options.onCopy] - Función a ejecutar tras copiar (éxito)
+ * @param {Function} [options.onShare] - Función a ejecutar tras compartir (éxito)
+ */
+function shareLinkContent(options = {}) {
+
+	const langGroup = 'general'
+	// Valores por defecto
+	const title = options.title || document.title
+	const text = options.text || ''
+	const url = options.url || window.location.href
+	const copyMessage = options.copyMessage || _i18n(langGroup, 'Enlace copiado al portapapeles')
+
+	const data = {
+		title: title,
+		text: text,
+		url: url
+	}
+
+	// Verifica si el navegador permite compartir de forma nativa
+	if (navigator.share) {
+		navigator.share(data)
+			.then(() => {
+				if (typeof options.onShare === 'function')
+					options.onShare(data)
+			})
+			.catch(error => console.error(_i18n(langGroup, 'Error al compartir:'), error))
+	} else {
+		// Fallback: copiar al portapapeles si es posible
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(url)
+				.then(() => {
+					infoMessage(copyMessage)
+					if (typeof options.onCopy === 'function') {
+						options.onCopy(url)
+					}
+				})
+				.catch(() => {
+					// Último recurso: pedir que copie manualmente
+					infoMessage(`${_i18n(langGroup, 'Copia y comparte este enlace:')} ${url}`, {
+						displayTime: 10000
+					})
+				})
+		} else {
+			// Si no puede copiar, usar prompt como fallback
+			infoMessage(`${_i18n(langGroup, 'Copia y comparte este enlace:')} ${url}`, {
+				displayTime: 10000
+			})
+		}
+	}
+}

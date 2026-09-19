@@ -1,0 +1,36 @@
+//Resets
+figure {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+//Correcciones a los estilos semantic
+a.ui.button {
+    text-decoration: none !important;
+}
+
+.ui.button {
+    background-color: $primaryColor;
+    color: $primaryColorOver;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &.active {
+        background-color: $primaryColor;
+        color: $primaryColorOver;
+        opacity: 0.8;
+    }
+}
+
+.ui.tabular.menu {
+    .item:not(.active) {
+        cursor: pointer;
+    }
+}
+
+.ui.card,
+.ui.cards {
+    color: $defaultTextColor;
+}

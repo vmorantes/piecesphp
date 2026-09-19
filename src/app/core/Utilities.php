@@ -1,0 +1,1845 @@
+<?php
+
+/**
+ * Utilities.php
+ * Funciones globales
+ *
+ * Grupo de funciones utilitarias.
+ *
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @copyright   Copyright (c) 2018
+ */
+
+/**
+ * Obtiene la url actual
+ * @param bool $decodeURL
+ * @return string La url
+ */
+function get_current_url(bool $decodeURL = false)
+{
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+    $url = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+    if ($decodeURL) {
+        $url = urldecode($url);
+    }
+
+    return $url;
+}
+
+/**
+ * Obtiene el request de la ruta actual de la aplicación.
+ *
+ * Para /host/directorio/app_base/sub_directorio/test?param=123456
+ * Devuelve: sub_directorio/test?param=123456
+ * @return string El request uri
+ */
+function get_request()
+{
+    $script_name = $_SERVER['SCRIPT_NAME'];
+
+    $basename = basename($script_name);
+
+    $str_replace_1 = str_replace(
+        $basename,
+        "",
+        $script_name
+    );
+
+    $deletable_match = [
+        $_SERVER['HTTP_HOST'],
+        $_SERVER['HTTP_HOST'] . '/',
+        '/',
+    ];
+
+    if (in_array($str_replace_1, $deletable_match)) {
+        $str_replace_1 = '';
+    }
+
+    $requet_uri = $_SERVER['REQUEST_URI'];
+
+    $str_replace_2 = str_replace(
+        $str_replace_1,
+        "",
+        $requet_uri
+    );
+
+    $request = mb_substr($str_replace_2, 0);
+
+    if (last_char($request) == '/') {
+        $request = remove_last_char($request);
+    }
+
+    if (mb_substr($request, 0, 1) == '/') {
+        $request = remove_first_char($request);
+    }
+
+    return $request;
+}
+
+/**
+ * Obtiene el segmento solicitado del request.
+ *
+ * Para /host/directorio/app_base/sub_directorio/test?param=123456
+ * Devuelve: sub_directorio/test?param=123456
+ * @param int $part El segmento deseado
+ * @return string El segmento del request
+ * @use get_request()
+ */
+function get_part_request($part = 1)
+{
+    $part = $part - 1;
+    $part_uri = explode("/", get_request());
+    $result = '';
+    if (is_array($part_uri)) {
+
+        if (mb_strlen($part_uri[count($part_uri) - 1]) == 0) {
+            unset($part_uri[count($part_uri) - 1]);
+        }
+
+        if (!empty($part_uri)) {
+            $result = array_key_exists($part, $part_uri) ? $part_uri[$part] : "";
+        }
+
+    }
+    return $result;
+}
+
+/**
+ * Une un segmento a una URL
+ *
+ * @param string $url La URL
+ * @param string $segment El segmento que se añadirá
+ * @param bool $complete Si la URL podría incluir user, pass (el puerto, si está definido, siempre se incluye)
+ * @return string La URL
+ */
+function append_to_url(string $url, string $segment, bool $complete = false)
+{
+
+    /**
+     * @var string[]
+     */
+    $parts = [
+        'scheme' => parse_url($url, \PHP_URL_SCHEME),
+        'user' => parse_url($url, \PHP_URL_USER),
+        'pass' => parse_url($url, \PHP_URL_PASS),
+        'host' => parse_url($url, \PHP_URL_HOST),
+        'port' => parse_url($url, \PHP_URL_PORT),
+        'path' => parse_url($url, \PHP_URL_PATH),
+    ];
+    foreach ($parts as $partName => $partValue) {
+        if (!is_string($partValue) && !is_int($partValue)) {
+            $parts[$partName] = '';
+        }
+    }
+
+    $scheme = $parts['scheme'];
+    $user = $parts['user'];
+    $pass = $parts['pass'];
+    $host = $parts['host'];
+    $port = $parts['port'];
+    $path = $parts['path'];
+
+    if ($complete) {
+
+        $url = [];
+
+        if (mb_strlen($user) > 0) {
+
+            $authString = "{$user}";
+
+            if (mb_strlen($pass) > 0) {
+                $authString .= ":{$pass}";
+            }
+
+            $authString .= '@';
+
+            $url[] = $authString;
+
+        }
+
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+
+        $url[] = "{$host}";
+
+        $url[] = "/{$path}/{$segment}";
+        $url = implode('', $url);
+
+    } else {
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+        $url = "{$host}/{$path}/{$segment}";
+    }
+
+    $url = preg_replace('|\/{2,}|', '/', $url);
+
+    if (mb_strlen($scheme) > 0) {
+        $url = "{$scheme}://{$url}";
+    } else {
+        $url = "{$url}";
+    }
+
+    return $url;
+}
+
+/**
+ * Une un segmento a una ruta
+ *
+ * @param string $locationPath La ruta
+ * @param string $segment El segmento que se añadirá
+ * @param string $directorySeparator por defecto \DIRECTORY_SEPARATOR;
+ * @param bool $complete Si la URL podría incluir user, pass (el puerto, si está definido, siempre se incluye)
+ * @return string La URL
+ */
+function append_to_path_system(string $locationPath, string $segment, ?string $directorySeparator = null, bool $complete = false)
+{
+    $url = $locationPath;
+    if ($directorySeparator === null) {
+        $directorySeparator = \DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @var string[]
+     */
+    $parts = [
+        'scheme' => parse_url($url, \PHP_URL_SCHEME),
+        'user' => parse_url($url, \PHP_URL_USER),
+        'pass' => parse_url($url, \PHP_URL_PASS),
+        'host' => parse_url($url, \PHP_URL_HOST),
+        'port' => parse_url($url, \PHP_URL_PORT),
+        'path' => parse_url($url, \PHP_URL_PATH),
+    ];
+    foreach ($parts as $partName => $partValue) {
+        if (!is_string($partValue) && !is_int($partValue)) {
+            $parts[$partName] = '';
+        }
+    }
+
+    $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $systemDirectorySeparator = $directorySeparator;
+    $systemDirectorySeparatorX2 = $systemDirectorySeparator . $systemDirectorySeparator;
+    $trimBars = function ($str) {
+        $lastResultStr = '';
+        while (strcmp($str, $lastResultStr) !== 0) {
+            $lastResultStr = $str;
+            $str = trim($str, '/');
+            $str = trim($str, "\\");
+        }
+        return $str;
+    };
+    $rtrimBars = function ($str) {
+        $lastResultStr = '';
+        while (strcmp($str, $lastResultStr) !== 0) {
+            $lastResultStr = $str;
+            $str = rtrim($str, '/');
+            $str = rtrim($str, "\\");
+        }
+        return $str;
+    };
+
+    $scheme = $parts['scheme'];
+    $user = $parts['user'];
+    $pass = $parts['pass'];
+    $host = $parts['host'];
+    $port = $parts['port'];
+    $path = $parts['path'];
+
+    $path = ($trimBars)($path);
+    $segment = ($trimBars)($segment);
+
+    if ($complete) {
+
+        $url = [];
+
+        if (mb_strlen($user) > 0) {
+
+            $authString = "{$user}";
+
+            if (mb_strlen($pass) > 0) {
+                $authString .= ":{$pass}";
+            }
+
+            $authString .= '@';
+
+            $url[] = $authString;
+
+        }
+
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+
+        $url[] = "{$host}";
+        $url[] = "{$systemDirectorySeparator}{$path}";
+
+        $url = implode('', $url);
+        $url = ($rtrimBars)($url);
+        $url .= "{$systemDirectorySeparator}{$segment}";
+
+    } else {
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+        $url = "{$host}{$systemDirectorySeparator}{$path}";
+        $url = ($rtrimBars)($url);
+        $url .= "{$systemDirectorySeparator}$segment";
+    }
+
+    if ($isWindows) {
+        $url = ($trimBars)($url);
+    }
+
+    if (mb_strlen($scheme) > 0) {
+        $url = "{$scheme}:{$systemDirectorySeparatorX2}{$url}";
+    } else {
+        $url = "{$url}";
+    }
+
+    $url = str_replace([
+        '/',
+        "\\",
+    ], $systemDirectorySeparator, $url);
+
+    return $url;
+}
+
+/**
+ * Esta función toma una URL y devuelve sus partes.
+ *
+ * La función utiliza la función parse_url() de PHP para analizar la URL y devuelve un array asociativo con las siguientes partes:
+ *
+ * - scheme: El esquema de la URL (por ejemplo, http o https)
+ * - user: El nombre de usuario para la autenticación
+ * - pass: La contraseña para la autenticación
+ * - host: El nombre del host o la dirección IP
+ * - port: El número de puerto
+ * - path: La ruta del recurso
+ * - query: La cadena de consulta
+ * - fragment: El fragmento de la URL (por ejemplo, el ancla)
+ *
+ * @param string $url La URL a analizar.
+ * @return array{scheme:string|null,user:string|null,pass:string|null,host:string|null,port:string|null,path:string|null,query:string|null,fragment:string|null}
+ */
+function get_url_parts(string $url)
+{
+    return [
+        'scheme' => parse_url($url, \PHP_URL_SCHEME),
+        'user' => parse_url($url, \PHP_URL_USER),
+        'pass' => parse_url($url, \PHP_URL_PASS),
+        'host' => parse_url($url, \PHP_URL_HOST),
+        'port' => parse_url($url, \PHP_URL_PORT),
+        'path' => parse_url($url, \PHP_URL_PATH),
+        'query' => parse_url($url, \PHP_URL_QUERY),
+        'fragment' => parse_url($url, \PHP_URL_FRAGMENT),
+    ];
+}
+
+/**
+ * Esta función toma una URL y devuelve sus parámetros.
+ *
+ * La función utiliza la función get_url_parts() para obtener la cadena de consulta de la URL y la divide en pares clave=valor.
+ * Luego, filtra los pares que no tienen un valor o una clave vacía.
+ * Finalmente, devuelve un array asociativo con los pares clave=valor.
+ *
+ * @param string $url La URL a analizar.
+ * @return array<string,string>
+ */
+function get_url_params(string $url)
+{
+    $params = [];
+    $parts = get_url_parts($url);
+    $query = $parts['query'];
+    $query = is_string($query) ? explode('&', $query) : null;
+    if ($query !== null) {
+        $query = array_filter($query, fn($e) => is_string($e) && count(explode('=', $e)) == 2);
+        $query = array_map(fn($e) => explode('=', $e), $query);
+        foreach ($query as $pair) {
+            $param = $pair[0];
+            $value = $pair[1];
+            $param = trim($param);
+            $value = trim($value);
+            if (mb_strlen($param) > 0 && mb_strlen($value) > 0) {
+                $params[$param] = $value;
+            }
+        }
+    }
+    return $params;
+}
+
+/**
+ * Esta función toma una URL y elimina los parámetros especificados.
+ *
+ * La función utiliza la función get_url_parts() para obtener la cadena de consulta de la URL y la divide en pares clave=valor.
+ * Luego, filtra los pares que coinciden con los parámetros especificados.
+ * Finalmente, devuelve la URL con los parámetros eliminados.
+ *
+ * @param string $url La URL a analizar.
+ * @param array $params Los parámetros a eliminar.
+ * @return string La URL con los parámetros eliminados.
+ */
+function remove_url_params(string $url, array $params = [])
+{
+    $returnURL = $url;
+    $removeAll = empty($params);
+    $params = array_map(fn($e) => is_string($e) && mb_strlen(trim($e)) > 0 ? trim($e) : null, $params);
+    $params = array_filter($params, fn($e) => is_string($e));
+    $parts = get_url_parts($url);
+    $scheme = is_string($parts['scheme']) && mb_strlen(trim($parts['scheme'])) > 0 ? $parts['scheme'] : null;
+    $host = is_string($parts['host']) && mb_strlen(trim($parts['host'])) > 0 ? $parts['host'] : null;
+    $path = is_string($parts['path']) && mb_strlen(trim($parts['path'])) > 0 ? $parts['path'] : null;
+    $queries = $removeAll ? [] : get_url_params($url);
+    $query = [];
+
+    foreach ($params as $paramName) {
+        unset($queries[$paramName]);
+    }
+
+    foreach ($queries as $paramName => $paramValue) {
+        $query[] = "{$paramName}={$paramValue}";
+    }
+
+    if ($scheme !== null && $host !== null && $path !== null) {
+        $query = !empty($query) ? '?' . implode('&', $query) : '';
+        $returnURL = "{$scheme}://{$host}{$path}{$query}";
+    }
+    return $returnURL;
+}
+
+/**
+ * Genera una contraseña con la longitud especificada y la encripta.
+ *
+ * Usa password_hash() para la encriptación.
+ * @param int $length Longitud de la contraseña.
+ * @link http://php.net/manual/en/function.password-hash.php password_hash()
+ * @return array La contraseña generada y el hash
+ * <pre>
+ *  [
+ *      'password'=>pass,
+ *      'encrypt'=>hash
+ *  ]
+ * </pre>
+ */
+function generate_pass(int $length = 5)
+{
+    //Se inicia una cadena vacía para la contraseña
+    $new_pass = "";
+    //Se definen caracteres a usar
+    $chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+    //Se obtiene la longitud de la cadena
+    $len_chars = strlen($chars);
+    //Se define una longitud para la contraseña
+    $len_pass = $length;
+
+    for ($i = 1; $i <= $len_pass; $i++) {
+        $random_pos = rand(0, $len_chars - 1);
+        $random_char = mb_substr($chars, $random_pos, 1);
+        $new_pass .= $random_char;
+    }
+    $new_pass_encrypt = password_hash($new_pass, PASSWORD_DEFAULT);
+    return [
+        'password' => $new_pass,
+        'encrypt' => $new_pass_encrypt,
+    ];
+}
+
+/**
+ * Genera una cadena aleatoria con la longitud especificada y la encripta.
+ *
+ * @param int $length Tamaño de la cadena
+ * @param bool $only_numeric Generar solo números
+ * @return string
+ */
+function generate_code(int $length = 6, bool $only_numeric = true)
+{
+    //Se inicia una cadena vacía para la contraseña
+    $new_pass = "";
+    //Se definen caracteres a usar
+    if ($only_numeric) {
+        $chars = "0123456789";
+    } else {
+        $chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+    }
+    //Se obtiene la longitud de la cadena
+    $len_chars = mb_strlen($chars);
+    //Se define una longitud para la contraseña
+    $len_pass = $length;
+
+    for ($i = 1; $i <= $len_pass; $i++) {
+        $random_pos = rand(0, $len_chars - 1);
+        $random_char = mb_substr($chars, $random_pos, 1);
+        $new_pass .= $random_char;
+    }
+
+    return $new_pass;
+}
+
+/**
+ * Decodifica un string en base64 hecho con url_safe_base64_encode()
+ * @param string $input El string
+ * @return string
+ *  El base64
+ */
+function url_safe_base64_decode($input)
+{
+    $remainder = strlen($input) % 4;
+    if ($remainder) {
+        $padlen = 4 - $remainder;
+        $input .= str_repeat('=', $padlen);
+    }
+    return base64_decode(strtr($input, '-_', '+/'));
+}
+
+/**
+ * Codifica un string en base64 seguro para URL
+ * @param string $input El string
+ * @return string
+ *  El base64
+ */
+function url_safe_base64_encode(string $input)
+{
+    return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
+}
+
+/**
+ * clean_string
+ *
+ * Limpia un string con:
+ *
+ * - /(\t|\r\n|\r|\n){1,}/ => ''
+ * - /(\x{00A0}){1,}/u => ''
+ * - /(\s){2,}/ => ' '
+ *
+ * @param string $string
+ * @return string
+ */
+function clean_string(string $string)
+{
+    $outputString = $string;
+    $string = preg_replace("/(\t|\r\n|\r|\n){1,}/", '', $string);
+    if (is_string($string)) {
+        $outputString = $string;
+        $string = preg_replace("/(\x{00A0}){1,}/u", ' ', $string);
+    }
+    if (is_string($string)) {
+        $outputString = $string;
+        $string = preg_replace("/(\s){2,}/", ' ', $string);
+    }
+    if (is_string($string)) {
+        $outputString = $string;
+    }
+    return $outputString;
+}
+
+/**
+ * Verifica si un conjunto de indices está en un array.
+ *
+ * @param array $keys Array cuyos valores sean los índices que se buscan.
+ * @param array $array Array examinado
+ *
+ * @return boolean|array True si los indices existen o un array con los indices que faltan
+ * <pre>
+ *      //Ejemplo:
+ *      $keys = ['indice','indice2'];
+ *      $array = ['indice'=>value,'indice2'=>value];
+ *      $array2 = ['indice'=>value];
+ *
+ *      require_keys($keys, $array); //Devuelve true
+ *      require_keys($keys, $array2); //Devuelve array('indice2')
+ * </pre>
+ */
+function require_keys(array $keys, array $array)
+{
+    $faltantes = [];
+    foreach ($keys as $key) {
+        if (!array_key_exists($key, $array)) {
+            $faltantes[] = $key;
+        }
+    }
+    if (!empty($faltantes)) {
+        return $faltantes;
+    } else {
+        return true;
+    }
+}
+
+/**
+ * Obtiene el id de una url de video youtube
+ * @param string $url URL del video
+ * @return string id
+ */
+function get_youtube_id(string $url)
+{
+    if (strstr($url, 'youtu.be')) {
+        return str_ireplace(['https://youtu.be/', 'http://youtu.be/'], '', $url);
+    }
+
+    $id = "";
+
+    $queryString = [];
+    $urlQuery = parse_url($url, PHP_URL_QUERY);
+    if (is_string($urlQuery)) {
+        parse_str($urlQuery, $queryString);
+    }
+
+    if (array_key_exists("v", $queryString)) {
+        $id = $queryString["v"];
+    }
+
+    return $id;
+}
+
+/**
+ * Verificar si está en local.
+ *
+ * @return boolean Dependiendo de $_SERVER['HTTP_HOST']
+ */
+function is_local()
+{
+    $isLocal = false;
+    if (isset($_SERVER['HTTP_HOST'])) {
+        $host = $_SERVER['HTTP_HOST'];
+        // Comprueba si el host es "localhost" o termina con ".localhost"
+        $isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
+    }
+    $pcsPhpTerminalData = $_SERVER['PCSPHP_TERMINAL_DATA'] ?? [];
+    if ($pcsPhpTerminalData['isTerminal'] ?? false) {
+        $isLocal = $pcsPhpTerminalData['local'] ?? false;
+    }
+    return $isLocal;
+}
+
+/**
+ * Obtiene el último caracter de un cadena
+ * @param string $string La cadena
+ * @return string
+ */
+function last_char(string $string)
+{
+    return mb_substr($string, strlen($string) - 1);
+}
+
+/**
+ * Obtiene la posición último caracter de un cadena
+ * @param string $string La cadena
+ * @return int
+ */
+function last_char_pos(string $string)
+{
+    return strlen($string) - 1;
+}
+
+/**
+ * Elimina el último carácter de una cadena y devuelve la nueva cadena.
+ * @param string $string La cadena
+ * @return string
+ */
+function remove_last_char(string $string)
+{
+    return mb_substr($string, 0, (strlen($string) - 1));
+}
+
+/**
+ * Elimina el último carácter de la cadena si coincide con el carácter proporcionado
+ *
+ * @param string $char El carácter a eliminar
+ * @param string $string La cadena
+ * @return string La cadena
+ */
+function remove_last_char_on($char, $string)
+{
+    $last_char = mb_substr($string, strlen($string) - 1);
+    if ($last_char == $char) {
+        $string = mb_substr($string, 0, (strlen($string) - 1));
+    }
+    return $string;
+}
+
+/**
+ * Elimina el primer carácter de una cadena y devuelve la nueva cadena.
+ * @param string $string La cadena
+ * @return string
+ */
+function remove_first_char(string $string)
+{
+    return mb_substr($string, 1);
+}
+
+/**
+ * Elimina el carácter indicado de una cadena y devuelve la nueva cadena.
+ * (Se cuenta desde 0).
+ * @param string $string La cadena
+ * @param int $pos Posición
+ * @return string
+ */
+function remove_char(string $string, int $pos)
+{
+    $string[$pos] = '';
+    return $string;
+}
+
+/**
+ * Reemplaza el primer carácter de una cadena.
+ * @param string $string La cadena
+ * @param string $replace Reemplazo
+ * @return string
+ */
+function replace_first_char(string $string, string $replace)
+{
+    return $replace . mb_substr($string, 1);
+}
+
+/**
+ * Reemplaza el último carácter de una cadena.
+ * @param string $string La cadena
+ * @param string $replace Reemplazo
+ * @return string
+ */
+function replace_last_char(string $string, string $replace)
+{
+    return mb_substr($string, 0, (strlen($string) - 1)) . $replace;
+}
+
+/**
+ * Compara un string con otro o un conjunto de otros
+ * @param string $str1 La cadena a comparar
+ * @param string|array $compare La cadena o array de cadenas con la que se comparará
+ * @return boolean
+ * Devuelve true si coincide con alguna de las cadenas o false si no coincide con ninguna.
+ */
+function string_compare(string $str1, $compare)
+{
+    if (is_string($compare)) {
+        $cmp = strcmp($str1, $compare);
+        return $cmp === 0;
+    }
+    if (is_array($compare)) {
+        foreach ($compare as $string) {
+            if (is_string($string)) {
+                $cmp = strcmp($str1, $string);
+                if ($cmp === 0) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+    return false;
+}
+
+/**
+ * Elimina las posiciones vacías.
+ * NO se considera vacío: 0, 0.0, "0", false, null ni []
+ * @param array $array
+ * @return array El array nuevo
+ */
+function remove_emptys(array $array)
+{
+    foreach ($array as $key => $value) {
+        if (($value !== 0 && $value !== 0.0 && $value !== "0" && $value !== false && $value !== null && $value !== []) && empty($value)) {
+            unset($array[$key]);
+        }
+    }
+    return $array;
+}
+
+/**
+ * Compara el tamaño de dos arrays.
+ * @param array $array1
+ * @param array $array2
+ * @return boolean true si son de igual tamaño
+ */
+function compare_array_length(array $array1, array $array2)
+{
+    return (count($array1) === count($array2));
+}
+
+/**
+ * Hace validaciones sobre los valores de un array
+ * (que deben corresponder a archivos como en $_FILES). Aplica is_uploaded_file()
+ *
+ * @param  array $data Array con los archivos.
+ * @return bool  Devuelve true si cada archivo fue cargada, false si no.
+ */
+function is_uploaded_all_files(array $data)
+{
+    foreach ($data as $key => $value) {
+        if (!is_uploaded_file($data[$key]['tmp_name'])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Valida que el índice indicado en $_FILES exista, haya sido subido
+ * desde un formulario.
+ *
+ * @param  string $index_name Índice en $_FILES.
+ * @return bool
+ */
+function verify_expected_file(string $index_name)
+{
+    if (isset($_FILES[$index_name])) {
+        $file = $_FILES[$index_name];
+        if (is_uploaded_file($file['tmp_name'])) {
+            if ($file['error'] == \UPLOAD_ERR_OK) {
+                if ($file['size'] > 0) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Simula la carga de un archivo en $_FILES
+ * @param string $key      El nombre del input (ej: 'avatar')
+ * @param string $path     Ruta real al archivo que quieres "subir"
+ * @param string $mimeType Tipo MIME manual (opcional)
+ */
+function simulate_file_upload($key, $path, $mimeType = null)
+{
+    if (!file_exists($path)) {
+        throw new Exception("El archivo de origen no existe en: $path");
+    }
+
+    $_FILES[$key] = [
+        'name' => basename($path),
+        'full_path' => basename($path), // PHP 8.1+
+        'type' => $mimeType ?? mime_content_type($path),
+        'tmp_name' => $path,
+        'error' => 0, // UPLOAD_ERR_OK
+        'size' => filesize($path),
+    ];
+}
+
+/**
+ * Crea un directorio y todos los directorios superiores
+ * que sean necesarios.
+ *
+ * @param string $path Ruta del directorio
+ * @param string $name Nombre del directorio
+ * @return bool
+ */
+function make_directory(string $path, ?string $name = null)
+{
+    if (!is_null($name)) {
+
+        $bars = ['/', "\\"];
+
+        if (string_compare(last_char($name), $bars)) {
+            $name = remove_last_char($name);
+        }
+
+        if (string_compare($name[0], $bars)) {
+            $name = remove_first_char($name);
+        }
+
+        if (string_compare(last_char($path), $bars)) {
+            $path .= $name;
+        } else {
+            $path .= '/' . $name;
+        }
+    }
+
+    mkdir($path, 0755, true);
+    chmod($path, 0755);
+
+    return file_exists($path);
+}
+
+/**
+ * Elimina un directorio y su contenido
+ *
+ * @param string $path Ruta del directorio
+ * @return void
+ */
+function remove_directory(string $path)
+{
+    if (file_exists($path)) {
+
+        foreach (glob(append_to_url($path, '*')) as $element) {
+
+            if (is_dir($element)) {
+
+                remove_directory($element);
+            } else {
+
+                unlink($element);
+            }
+        }
+
+        rmdir($path);
+    }
+}
+
+/**
+ * directory_to_zip
+ *
+ * @param string $root
+ * @param string $output_directory
+ * @param string $output_name
+ * @param array $exclude
+ * @param string $parent
+ * @param ZipArchive &$zipInstance
+ * @return string La ruta del zip
+ */
+function directory_to_zip(string $root, ?string $output_directory = null, ?string $output_name = null, bool $self = false, array $exclude = [], ?string $parent = null,  ? \ZipArchive  &$zipInstance = null)
+{
+    $zip_path = '';
+
+    if (file_exists($root) && is_dir($root)) {
+
+        $root = rtrim($root, \DIRECTORY_SEPARATOR);
+        $root_name = basename($root);
+        if ($parent == null) {
+            if ($self) {
+                $base = $root_name;
+            } else {
+                $base = '';
+            }
+        } else {
+            $base = $parent . \DIRECTORY_SEPARATOR  . $root_name;
+        }
+
+        $base = str_replace([
+            '//',
+            "\\\\",
+        ], [
+            '/',
+            "\\",
+        ], $base);
+
+        $base = trim($base);
+
+        if ($zipInstance === null) {
+
+            $zip = new \ZipArchive();
+
+            $output_name = !is_null($output_name) ? trim(trim($output_name), \DIRECTORY_SEPARATOR) : '';
+            $output_directory = !is_null($output_directory) ? rtrim(trim($output_directory), \DIRECTORY_SEPARATOR) : '';
+
+            if (is_null($output_name) || strlen($output_name) < 1) {
+                $output_name = uniqid() . '.zip';
+            }
+
+            if (is_null($output_directory) || strlen($output_directory) < 1) {
+                $output_directory = sys_get_temp_dir();
+            }
+
+            $output_name = str_replace([
+                '//',
+                "\\\\",
+            ], [
+                '/',
+                "\\",
+            ], $output_name);
+
+            $output_directory = rtrim($output_directory, \DIRECTORY_SEPARATOR);
+            $output_directory = str_replace([
+                '//',
+                "\\\\",
+            ], [
+                '/',
+                "\\",
+            ], $output_directory);
+
+            $name_zip = $output_directory . \DIRECTORY_SEPARATOR  . $output_name;
+            $zip->open($name_zip, \ZIPARCHIVE::CREATE);
+
+            $zip_path = $name_zip;
+        } else {
+
+            $zip = $zipInstance;
+        }
+
+        if (strlen($base) > 0) {
+            $zip->addEmptyDir($base);
+        }
+
+        $handler = opendir($root);
+
+        if (is_resource($handler)) {
+
+            $ignore = ['.', '..'];
+            $file = readdir($handler);
+
+            while ($file !== false) {
+
+                if (!in_array($file, $ignore)) {
+
+                    $path_file = $root . '/' . $file;
+                    $skip = false;
+
+                    foreach ($exclude as $regexp) {
+
+                        $matchs = preg_match_all("|$regexp|", $file);
+                        if ($matchs !== false && $matchs > 0) {
+                            $skip = true;
+                        }
+                    }
+
+                    if (!$skip) {
+
+                        if (is_dir($path_file)) {
+
+                            directory_to_zip($path_file, $output_directory, $output_name, true, $exclude, $base, $zip);
+                        } else {
+                            $filename = $base . '/' . $file;
+                            $zip->addFile($path_file, $filename);
+                        }
+                    }
+                }
+
+                $file = readdir($handler);
+            }
+
+            closedir($handler);
+
+        }
+
+        if ($zipInstance === null) {
+            $zip->close();
+        }
+    }
+
+    return $zip_path;
+}
+
+/**
+ * directory_mapper
+ *
+ * @param string $path
+ * @param string $base_path
+ * @param int $mode
+ * @return array
+ */
+function directory_mapper(string $path, ?string $base_path = null, ?int $mode = null)
+{
+
+    if ($mode == 1) {
+
+        $map = [
+            'content' => [
+                'directories' => [],
+                'files' => [],
+            ],
+        ];
+    } else {
+
+        $map = [
+            'type' => 'directory',
+            'path' => '',
+            'name' => '',
+            'content' => [],
+        ];
+    }
+
+    if (is_null($base_path)) {
+        $base_path = '';
+    } else {
+        $base_path = trim($base_path);
+    }
+
+    if (strlen($base_path) > 0 && file_exists($base_path)) {
+        $base_path = realpath($base_path);
+    }
+
+    if (is_string($base_path) && is_string($path) && file_exists($path) && is_dir($path)) {
+
+        $realPath = realpath($path);
+        $map['path'] = str_replace($base_path, '', $realPath);
+        $map['path'] = str_replace([
+            '//',
+            "\\\\",
+        ], [
+            '/',
+            "\\",
+        ], $map['path']);
+        $map['name'] = basename($path);
+
+        $handler = opendir($path);
+        if (is_resource($handler)) {
+            $ignore = ['.', '..'];
+            $file = readdir($handler);
+
+            while ($file !== false) {
+
+                if (!in_array($file, $ignore)) {
+
+                    $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR  . $file;
+                    $file_path = realpath($file_path);
+
+                    if (is_string($file_path) && file_exists($file_path)) {
+                        if (is_dir($file_path)) {
+
+                            if ($mode == 1) {
+
+                                $result = directory_mapper($file_path, $base_path, $mode);
+                                $map['content']['directories'][] = $file_path;
+                                $map['content']['directories'] = array_merge($map['content']['directories'], $result['content']['directories']);
+                                $map['content']['files'] = array_merge($map['content']['files'], $result['content']['files']);
+                            } else {
+
+                                $map['content'][] = directory_mapper($file_path, $base_path);
+                            }
+                        } else {
+
+                            if ($mode == 1) {
+
+                                $map['content']['files'][] = str_replace($base_path, '', $file_path);
+                            } else {
+
+                                $map['content'][] = [
+                                    'type' => 'file',
+                                    'path' => str_replace($base_path, '', $file_path),
+                                    'name' => basename($file_path),
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                $file = readdir($handler);
+            }
+
+            closedir($handler);
+        }
+    }
+
+    return $map;
+}
+
+/**
+ * A partir de los segundos, devuelve la duración hasta con horas, con el
+ * formato HORAS hora/horas MINUTOS minuto/minutos SEGUNDOS segundo/segundos
+ * Ejemplo:
+ * seconds_to_duration()
+ *
+ * @param int $seconds_count Los segundos
+ * @param array $options Array con las opciones
+ *     - hour = Texto junto a la hora, por defecto hora
+ *     - hours = Texto plural junto a la hora, por defecto agrega una s
+ *     - minute = Texto junto al minuto, por defecto minuto
+ *     - minutes = Texto plural junto al minuto, por defecto agrega una s
+ *     - second = Texto junto al segundo, por defecto segundo
+ *     - seconds = Texto plural junto al segundo, por defecto agrega una s
+ * @return string La duración
+ */
+function seconds_to_duration(int $seconds_count, array $options = [])
+{
+
+    $default_options = [
+        'hour' => [
+            'value' => 'h',
+            'validate' => function ($e) {
+                return is_string($e);
+            },
+        ],
+        'hours' => [
+            'value' => 'hrs',
+            'validate' => function ($e) {
+                return is_string($e);
+            },
+        ],
+        'minute' => [
+            'value' => 'mn',
+            'validate' => function ($e) {
+                return is_string($e);
+            },
+        ],
+        'minutes' => [
+            'value' => 'mns',
+            'validate' => function ($e) {
+                return is_string($e);
+            },
+        ],
+        'second' => [
+            'value' => 'seg',
+            'validate' => function ($e) {
+                return is_string($e);
+            },
+        ],
+        'seconds' => [
+            'value' => 'segs',
+            'validate' => function ($e) {
+                return is_string($e);
+            },
+        ],
+    ];
+
+    foreach ($options as $key => $value) {
+        if (array_key_exists($key, $default_options)) {
+            $validation = $default_options[$key]['validate'];
+
+            if (is_callable($validation)) {
+                $valid = $validation($value);
+            } else {
+                $valid = (bool) $validation;
+            }
+
+            if ($valid) {
+                $default_options[$key]['value'] = $value;
+            }
+        }
+    }
+
+    $hour = $default_options['hour']['value'];
+    $hours = $default_options['hours']['value'];
+    $minute = $default_options['minute']['value'];
+    $minutes = $default_options['minutes']['value'];
+    $second = $default_options['second']['value'];
+    $seconds = $default_options['seconds']['value'];
+
+    $time = explode(':', gmdate("H:i:s", $seconds_count));
+
+    $h = $time[0];
+    $m = $time[1];
+    $s = $time[2];
+
+    if ($h == 0 || $h > 1) {
+        $h .= $hours;
+    } else {
+        $h .= $hour;
+    }
+
+    if ($m == 0 || $m > 1) {
+        $m .= $minutes;
+    } else {
+        $m .= $minute;
+    }
+
+    if ($s == 0 || $s > 1) {
+        $s .= $seconds;
+    } else {
+        $s .= $second;
+    }
+
+    $time = "$h $m $s";
+
+    return $time;
+}
+
+/**
+ * Convierte una índice que representa una columna de excel en su cadena correspondiente
+ * Nota: Una columna excel corresponde al patrón de conteo A-Z ... AA-AZ ... ZA-ZZ ... etc...
+ *
+ * @param int $index
+ * @param bool $startOnZero Para definir el índice inicial como cero. Si es true, A=0; si es false, A=1
+ * @return string
+ */
+function excelColumnByIndex(int $index, bool $startOnZero = true)
+{
+
+    $index = $startOnZero ? $index : $index - 1;
+    $strColumn = '';
+
+    while ($index >= 0) {
+        $strColumn = chr($index % 26 + 0x41) . $strColumn;
+        $index = intval($index / 26) - 1;
+    }
+
+    return $strColumn;
+}
+
+/**
+ * Convierte una cadena que representa una columna de excel en su índice
+ * Nota: Una columna excel corresponde al patrón de conteo A-Z ... AA-AZ ... ZA-ZZ ... etc...
+ *
+ * @param string $column
+ * @param boolean $startOnZero Para definir el índice inicial como cero. Si es true, A=0; si es false, A=1
+ * @return int
+ */
+function indexByExcelColumn(string $column, bool $startOnZero = true)
+{
+    $l = strlen($column);
+    $n = 0;
+    for ($i = 0; $i < $l; $i++) {
+        $n = $n * 26 + ord($column[$i]) - 0x40;
+    }
+    return (int) ($startOnZero ? $n - 1 : $n);
+}
+
+/**
+ * Convierte una notación de coordenadas decimal a Grados, minutos y segundos (degrees, minutes, seconds)
+ *
+ * @param string $value El valor decimal
+ * @param string $type El tipo: longitude|latitude
+ * @param string $decimalPoint La puntuación que se usa para separar decimales
+ * @return array|null
+ * En caso de éxito devuelve un array con los índices: degrees, minutes, seconds y hemisphere (N,S,E,W)-
+ * Devuelve NULL en caso de que la entrada sea incorrecta
+ */
+function decimalCoordinatesToDMS(string $value, string $type = 'longitude', string $decimalPoint = '.')
+{
+    $decimalPoint = $decimalPoint == ',' || $decimalPoint == '.' ? $decimalPoint : '.';
+    $pointDelete = $decimalPoint == '.' ? ',' : '.';
+    $valid = false;
+
+    $value = trim(str_replace($pointDelete, '', $value));
+
+    if (is_numeric($value)) {
+
+        $pointsCount = substr_count($value, $decimalPoint);
+
+        if ($pointsCount === 1 || $pointsCount === 0) {
+
+            $valid = true;
+
+            if ($pointsCount === 0) {
+                $value .= "{$decimalPoint}0";
+            }
+
+        }
+
+    }
+
+    if ($valid) {
+
+        $parts = explode(".", $value);
+        $degrees = (int) $parts[0];
+        $time = $parts[1];
+        $temporalReference = (float) "0.{$time}";
+
+        $temporalReference = $temporalReference * 3600;
+        $minutes = floor($temporalReference / 60);
+        $seconds = $temporalReference - ($minutes * 60);
+
+        $hemisphere = '';
+
+        if ($type == 'longitude') {
+            if ($degrees < 0) {
+                $hemisphere = 'W';
+            } else {
+                $hemisphere = 'E';
+            }
+        } elseif ($type == 'latitude') {
+            if ($degrees < 0) {
+                $hemisphere = 'S';
+            } else {
+                $hemisphere = 'N';
+            }
+        }
+
+        return [
+            "hemisphere" => $hemisphere,
+            "degrees" => $degrees,
+            "minutes" => $minutes,
+            "seconds" => $seconds,
+        ];
+
+    } else {
+        return null;
+    }
+
+}
+
+/**
+ * Según la información provista devuelve las cabeceras y el estado adecuado para el uso de caché
+ *
+ * @param \PiecesPHP\Core\Routing\RequestRoute $request
+ * @param \DateTime $lastModification
+ * @param string $eTagContent
+ * @return array
+ * Un array con dos índices: headers (array asociativo Cabecera => Valor) y status (número entero que representa el estado de la solicitud)
+ */
+function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoute $request, \DateTime $lastModification, ?string $eTagContent = null)
+{
+
+    $lastModification = $lastModification->getTimestamp();
+    $ifModifiedSince = $request->getHeaderLine('If-Modified-Since');
+    $ifNoneMatch = $request->getHeaderLine('If-None-Match');
+
+    $headers = [];
+    $status = 0;
+
+    $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification);
+    $eTag = $eTagContent === null ? 'PCSPHP_' . sha1($lastModification) : 'PCSPHP_' . sha1($eTagContent);
+
+    $headers['Cache-Control'] = "no-cache";
+    $headers['Last-Modified'] = $lastModificationGMT;
+    $headers['ETag'] = $eTag;
+
+    if (is_string($ifModifiedSince) && strlen($ifModifiedSince) > 0) {
+
+        try {
+
+            $lastModificationDateTime = (new \DateTime)->setTimestamp($lastModification);
+            $ifModifiedSinceDateTime = new \DateTime($ifModifiedSince);
+
+            if ($lastModificationDateTime <= $ifModifiedSinceDateTime) {
+
+                $status = 304;
+
+            } else if ($lastModificationDateTime > $ifModifiedSinceDateTime) {
+
+                $headers['Cache-Control'] = [
+                    'no-store',
+                    'max-age=0',
+                ];
+
+                $status = 200;
+
+            }
+
+        } catch (\Exception $e) {
+            $status = 200;
+        }
+
+    }
+
+    if (is_string($ifNoneMatch) && strlen($ifNoneMatch) > 0) {
+
+        if ($eTag === $ifNoneMatch) {
+
+            $status = 304;
+
+        } else {
+
+            $headers['Cache-Control'] = [
+                'no-store',
+                'max-age=0',
+            ];
+
+            $status = 200;
+
+        }
+
+    }
+
+    if ($status == 0) {
+        $status = 200;
+    }
+
+    return [
+        'headers' => $headers,
+        'status' => $status,
+    ];
+}
+
+/**
+ * Toma una imagen y devuelve sus dimensiones
+ * @param string $imagePath
+ * @return array Un array asociativo con los índices width y height
+ */
+function imageDimensions(string $imagePath)
+{
+
+    $dimensions = [
+        'width' => null,
+        'height' => null,
+    ];
+
+    if (file_exists($imagePath)) {
+
+        $imageResource = imagecreatefromstring(file_get_contents($imagePath));
+        $width = imagesx($imageResource);
+        $height = imagesy($imageResource);
+
+        $dimensions = [
+            'width' => $width,
+            'height' => $height,
+        ];
+
+    }
+
+    return $dimensions;
+
+}
+
+/**
+ * Toma un fichero, lo recorta y redimensiona.
+ * Si alguna dimensión ingresada es mayor a la original se usará la original.
+ * Dependiendo de $outputPath lo guarda o simplemente lo muestra.
+ * El resultado es una imagen JPG o PNG
+ *
+ * @param string $imagePath
+ * @param int $thumbWidth
+ * @param int $thumbHeight
+ * @param float $quality
+ * @param string $outputPath
+ * @param bool $withAspectRatio Si es true, la redimensión respetará la relación de aspecto original y tomará de referencia solo el ancho ingresado
+ * @param bool $asPng
+ * @return void
+ */
+function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, ?string $outputPath = null, bool $withAspectRatio = false, bool $asPng = false)
+{
+
+    if (file_exists($imagePath)) {
+
+        $imageResource = imagecreatefromstring(file_get_contents($imagePath));
+        $width = imagesx($imageResource);
+        $height = imagesy($imageResource);
+
+        if ($thumbHeight > $height) {
+            $thumbHeight = $height;
+        }
+        if ($thumbWidth > $width) {
+            $thumbWidth = $width;
+        }
+
+        $aspectRatioOriginal = $width / $height;
+        $aspectRatioThumb = $thumbWidth / $thumbHeight;
+
+        if (!$withAspectRatio) {
+            //Se toma la mayor relación de aspecto
+            if ($aspectRatioOriginal >= $aspectRatioThumb) {
+                $newHeight = $thumbHeight;
+                $newWidth = $width / ($height / $thumbHeight);
+            } else {
+                $newWidth = $thumbWidth;
+                $newHeight = $height / ($width / $thumbWidth);
+            }
+        } else {
+            $newWidth = $thumbWidth;
+            $newHeight = ($height / $width) * $newWidth;
+            $thumbHeight = $newHeight;
+        }
+
+        $thumbWidth = intval($thumbWidth);
+        $thumbHeight = intval($thumbHeight);
+        $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+        if ($asPng) {
+            imagesavealpha($thumbImage, true);
+            $transparentColor = imagecolorallocatealpha($thumbImage, 0, 0, 0, 127);
+            imagefill($thumbImage, 0, 0, $transparentColor);
+        }
+
+        // Redimencionar y cortar
+        $centerH = intval(0 - ($newWidth - $thumbWidth) / 2);
+        $centerV = intval(0 - ($newHeight - $thumbHeight) / 2);
+        $newWidth = intval($newWidth);
+        $newHeight = intval($newHeight);
+        $width = intval($width);
+        $height = intval($height);
+        imagecopyresampled($thumbImage,
+            $imageResource,
+            $centerH, // Centra la image horizontalmente
+            $centerV, // Centra la image verticalmente
+            0, 0,
+            $newWidth, $newHeight,
+            $width, $height);
+
+        if ($asPng) {
+            $quality = (int) round(9 / 100 * $quality);
+            $quality = $quality > 9 ? 9 : ($quality < 0 ? 0 : $quality);
+            $qualityCompression = [
+                9 => 0,
+                8 => 1,
+                7 => 2,
+                6 => 3,
+                5 => 4,
+                4 => 5,
+                3 => 6,
+                2 => 7,
+                1 => 8,
+                0 => 9,
+            ];
+            $quality = $qualityCompression[$quality];
+            imagepng($thumbImage, $outputPath, 9);
+        } else {
+            imagejpeg($thumbImage, $outputPath, $quality);
+        }
+
+    }
+
+}
+
+/**
+ * Redimensiona la imagen a una nueva, pero sin alterarla. Solo se reduce, no se amplia
+ * Se centra horizontal y verticalmente y lo que adopta el tamaño objetivo es el "lienzo"
+ * @param string $inputPath
+ * @param string $outputPath
+ * @param int $targetWidth
+ * @param int $targetHeight
+ * @return void
+ */
+function resizeAndCenterImage(string $inputPath, string $outputPath, int $targetWidth, int $targetHeight)
+{
+    // Crear un lienzo transparente con las dimensiones deseadas
+    $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
+
+    // Hacer el fondo transparente
+    imagesavealpha($canvas, true);
+    $transparentColor = imagecolorallocatealpha($canvas, 0, 0, 0, 127); // Color transparente
+    imagefill($canvas, 0, 0, $transparentColor);
+
+    // Cargar la imagen original
+    $imageInfo = getimagesize($inputPath);
+    $originalWidth = $imageInfo[0];
+    $originalHeight = $imageInfo[1];
+    $mime = $imageInfo['mime'];
+
+    switch ($mime) {
+        case 'image/jpeg' :
+            $originalImage = imagecreatefromjpeg($inputPath);
+            break;
+        case 'image/png':
+            $originalImage = imagecreatefrompng($inputPath);
+            break;
+        case 'image/gif':
+            $originalImage = imagecreatefromgif($inputPath);
+            break;
+        default:
+            throw new Exception("Formato de imagen no soportado: $mime");
+    }
+
+    // Calcular las dimensiones escaladas manteniendo la proporción
+    $aspectRatio = $originalWidth / $originalHeight;
+    if ($targetWidth / $targetHeight > $aspectRatio) {
+        // La imagen es más alta que el lienzo
+        $newHeight = $targetHeight;
+        $newWidth = $targetHeight * $aspectRatio;
+    } else {
+        // La imagen es más ancha o tiene proporción igual al lienzo
+        $newWidth = $targetWidth;
+        $newHeight = $targetWidth / $aspectRatio;
+    }
+
+    // Calcular posición centrada
+    $xOffset = ($targetWidth - $newWidth) / 2;
+    $yOffset = ($targetHeight - $newHeight) / 2;
+
+    // Redimensionar y copiar la imagen al lienzo
+    imagecopyresampled(
+        $canvas, $originalImage,
+        $xOffset, $yOffset, // Posición en el lienzo
+        0, 0, // Coordenadas originales
+        $newWidth, $newHeight, // Tamaño escalado
+        $originalWidth, $originalHeight // Tamaño original
+    );
+
+    // Guardar la nueva imagen
+    switch ($mime) {
+        case 'image/jpeg':
+            imagejpeg($canvas, $outputPath, 100); // Calidad máxima
+            break;
+        case 'image/png':
+            imagepng($canvas, $outputPath);
+            break;
+        case 'image/gif':
+            imagegif($canvas, $outputPath);
+            break;
+    }
+
+    // Liberar memoria
+    imagedestroy($canvas);
+    imagedestroy($originalImage);
+}
+
+/**
+ * Devuelve la fecha con strftime extrapolando los códigos de formato de date()
+ *
+ * Para sistemas unix la conversión de zona horaria está bien. Los usuarios de Windows deben cambiar %z and %Z.
+ *
+ * Formatos no soportados de date(): S, n, t, L, B, G, u, e, I, P, Z, c, r
+ * Formatos no soportados de strftime(): %U, %W, %C, %g, %r, %R, %T, %X, %c, %D, %F, %x
+ *
+ * @param string $format
+ * @param \DateTime $time
+ * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+ * @return string
+ * @see https://www.php.net/manual/es/function.strftime.php#96424
+ */
+function localeDateFormat(string $format,  ? \DateTime $time = null, array $replaceTemplate = [])
+{
+    if ($time === null) {
+        $time = new \DateTime();
+    }
+
+    $formatDay = [
+        // Day - no strf eq : S
+        'd' => '%d', 'D' => '%a', 'j' => '%e', 'l' => '%A', 'N' => '%u', 'w' => '%w', 'z' => '%j',
+    ];
+    $formatMonth = [
+        // Month - no strf eq : n, t
+        'F' => '%B', 'm' => '%m', 'M' => '%b',
+    ];
+
+    $formatOptions = [
+        // Week - no date eq : %U, %W
+        'W' => '%V',
+        // Year - no strf eq : L; no date eq : %C, %g
+        'o' => '%G', 'Y' => '%Y', 'y' => '%y',
+        // Time - no strf eq : B, G, u; no date eq : %r, %R, %T, %X
+        'a' => '%P', 'A' => '%p', 'g' => '%l', 'h' => '%I', 'H' => '%H', 'i' => '%M', 's' => '%S',
+        // Timezone - no strf eq : e, I, P, Z
+        'O' => '%z', 'T' => '%Z',
+        // Full Date / Time - no strf eq : c, r; no date eq : %c, %D, %F, %x
+        'U' => '%s',
+    ];
+
+    $changedCase = [];
+
+    foreach ($formatDay as $key => $value) {
+        $value = @strftime($value, $time->getTimestamp());
+        $changedCase[$value] = mb_convert_case($value, \MB_CASE_TITLE);
+    }
+
+    foreach ($formatMonth as $key => $value) {
+        $value = @strftime($value, $time->getTimestamp());
+        $changedCase[$value] = mb_convert_case($value, \MB_CASE_TITLE);
+    }
+
+    $formatOptions = array_merge($formatDay, $formatMonth, $formatOptions);
+
+    $formatToStrftime = strtr((string) $format, $formatOptions);
+
+    $formated = @strftime($formatToStrftime, $time->getTimestamp());
+
+    foreach ($changedCase as $original => $replaceWith) {
+        $formated = preg_replace_callback(
+            '/\b' . preg_quote($original, '/') . '\b/u',
+            function () use ($replaceWith) {
+                return $replaceWith;
+            },
+            $formated
+        );
+    }
+
+    $formated = str_replace(array_keys($replaceTemplate), array_values($replaceTemplate), $formated);
+
+    return $formated;
+}
+
+/**
+ * Convierte un valor de opacidad decimal a hexadecimal
+ *
+ * @param float $opacity Valor de opacidad entre 0.0 y 1.0
+ * @return string Representación hexadecimal de 2 caracteres (00-FF)
+ */
+function opacityToHex(float $opacity) : string
+{
+    //Asegurar que el valor esté entre 0 y 1
+    $opacity = max(0.0, min(1.0, $opacity));
+
+    //Convertir a valor de 0-255 y luego a hexadecimal
+    $hexValue = dechex((int) round($opacity * 255));
+
+    //Asegurar que siempre tenga 2 caracteres (agregar 0 al inicio si es necesario)
+    return strtoupper(str_pad($hexValue, 2, '0', STR_PAD_LEFT));
+}
+
+/**
+ * Elimina las claves especificadas de un array.
+ *
+ * @param array $keys Array de claves a eliminar.
+ * @param array $array Array del cual se eliminarán las claves.
+ * @return void
+ */
+function unsetKeys(array $keys, array &$array)
+{
+    foreach ($keys as $key) {
+        if (is_scalar($key) && array_key_exists($key, $array)) {
+            unset($array[$key]);
+        }
+    }
+}
+
+/**
+ * Codifica un valor a JSON de forma segura.
+ * Si falla la codificación, devuelve null.
+ *
+ * Siempre puede seguir auditándose los errores con json_last_error() y json_last_error_msg()
+ *
+ * @param mixed $value Valor a codificar.
+ * @param int|null $flags Flags adicionales para json_encode.
+ * @param int|null $depth Profundidad máxima de codificación.
+ * @return string|null Valor codificado a JSON o null si falla la codificación.
+ * @link https://php.net/manual/en/function.json-encode.php
+ */
+function jsonEncodeFallbackNull($value, ?int $flags = null, ?int $depth = null)
+{
+    $encoded = json_encode($value, $flags ?? 0, $depth ?? 512);
+    if ($encoded === false) {
+        log_exception(new \Exception(json_last_error_msg()), true);
+    }
+    return $encoded !== false ? $encoded : null;
+}
+
+/**
+ * Codifica un valor a base64 de forma segura.
+ * Si falla la codificación, devuelve un valor por defecto.
+ *
+ * @param string|null $value Valor a codificar.
+ * @param string $defaultValue Valor por defecto si falla la codificación.
+ * @return string Valor codificado a base64 o valor por defecto si falla la codificación.
+ */
+function base64EncodeOrDefault(?string $value, string $defaultValue = '')
+{
+    return $value !== null ? base64_encode($value) : $defaultValue;
+}
+
+/**
+ * Obtiene la ruta relativa entre dos rutas.
+ *
+ * @param string $from Ruta de origen.
+ * @param string $to Ruta de destino.
+ * @return string Ruta relativa.
+ */
+function getRelativePath(string $from, string $to): string
+{
+    // 1. Normalizar separadores y limpiar espacios
+    $from = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($from));
+    $to = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($to));
+
+    $fromParts = explode(DIRECTORY_SEPARATOR, rtrim($from, DIRECTORY_SEPARATOR));
+    $toParts = explode(DIRECTORY_SEPARATOR, rtrim($to, DIRECTORY_SEPARATOR));
+
+    // 2. Encontrar el punto de divergencia
+    while (count($fromParts) && count($toParts) && ($fromParts[0] === $toParts[0])) {
+        array_shift($fromParts);
+        array_shift($toParts);
+    }
+
+    // 3. '..' por cada nivel que debemos subir en 'from'
+    $relPath = str_repeat('..' . DIRECTORY_SEPARATOR, count($fromParts));
+
+    // 4. Añadir los niveles que debemos bajar hacia 'to'
+    $relPath .= implode(DIRECTORY_SEPARATOR, $toParts);
+
+    return $relPath;
+}
+
+//========================================================================================
+/*                                                                                      *
+ *                                       Polyfills                                      *
+ *                                                                                      */
+//========================================================================================
+
+if (!function_exists('array_key_last')) {
+
+    /**
+     * @param array $array
+     * @return mixed
+     */
+    function array_key_last(array $array)
+    {
+        if (!empty($array)) {
+            return key(array_slice($array, -1, 1, true));
+        }
+
+    }
+}
+
+if (!function_exists('array_key_first')) {
+
+    /**
+     * @param array $array
+     * @return mixed
+     */
+    function array_key_first(array $arr)
+    {
+        foreach ($arr as $key => $unused) {
+            return $key;
+        }
+
+    }
+
+}

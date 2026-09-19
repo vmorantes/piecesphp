@@ -1,0 +1,96 @@
+$globalClassPcs: 'ui-pcs';
+
+//──── Media queries ─────────────────────────────────────────────────────────────────────
+$rsXLarge: 1700px;
+$rsLarge: 1550px;
+$rsLarge1: 1400px;
+$rsLarge2: 1250px;
+$rsLarge3: 1200px;
+$rsMedium: 1000px;
+$rsTablet: 780px;
+$rsMobile: 480px;
+
+//──── Fonts ─────────────────────────────────────────────────────────────────────────────
+$fontPublicSans: 'Public Sans',
+sans-serif;
+$fontPoppins: 'Poppins',
+sans-serif;
+$fontGlobal: var(--font-family-global);
+$fontGlobalText: $fontPoppins;
+$pFontFamily: $fontGlobalText;
+$listFontFamily: $fontGlobalText;
+$fontSidebars: var(--font-family-sidebars);
+
+// Weights
+$fwHairLine: 100;
+$fwLight: 300;
+$fwRegular: 400;
+$fwMedium: 500;
+$fwSemiBold: 600;
+$fwBold: 700;
+$fwExtraBold: 800;
+
+//──── Colors ────────────────────────────────────────────────────────────────────────────
+$colorFirst: var(--main-brand-color);
+$colorFirstOpacity: var(--main-brand-color-opacity);
+$colorSecond: var(--second-brand-color);
+$colorThird: var(--font-color-one);
+$colorFirstOver: var(--font-color-two);
+
+$textHeader1Color: $colorFirst;
+$textHeader2Color: $colorSecond;
+$textHeader3Color: $colorThird;
+$textQuoteColor: $colorThird;
+
+//──── Sizes ─────────────────────────────────────────────────────────────────────────────
+
+//Referencia para pxToRem
+$fontSizeHTML: 14;
+
+//General
+$htmlFontSize: 14px;
+
+//Header
+$h1Margin: 0 0 1.5rem 0;
+$h2Margin: 0 0 1rem 0;
+$h3Margin: 0 0 1rem 0;
+$h4Margin: 0 0 1rem 0;
+
+//Paragraph
+$pFontSize:1.15rem;
+$pLineHeight:1.8rem;
+$pMargin:0.5rem 0 0.5rem 0;
+$pMaxWidth: 58rem;
+
+//List
+$listFontSize:1.15rem;
+$listLineHeight:1.8rem;
+$listMargin:1.5rem 0 1rem 0;
+$listPadding:0 0 0 4rem;
+$listMaxWidth: 54rem;
+$listItemPadding:0 0 0 0;
+
+//Quotes
+$quoteFontSize:1.15rem;
+$quoteLineHeight:1.8rem;
+$quoteMarginTop:1.5rem;
+$quotePadding: 3% 10% 0% 10%;
+$quoteMaxWidth: 54rem;
+$quoteBorderTop: 1px solid $colorFirst;
+$quoteBorderBottom: 1px solid $colorFirst;
+
+//──── Sidebar ───────────────────────────────────────────────────────────────────────────
+$sidebarBreakPoint: 800px;
+$sidebarBackgroundColor: var(--menu-color-background);
+$sidebarColor: var(--menu-color-font);
+$sidebarColor2: var(--menu-color-font);
+$sidebarColorActive: rgb(220, 220, 220);
+$sidebarBackgroundItemHover: var(--menu-color-mark);
+$containerAsideContentPaddingT: pxToRem(15);
+$containerAsideContentPaddingR: 3rem;
+$containerAsideContentPaddingB: 8rem;
+$containerAsideContentPaddingL: 5rem;
+$containerAsideContentPaddingTRs: 1rem;
+$containerAsideContentPaddingRRs: 1rem;
+$containerAsideContentPaddingBRs: 0rem;
+$containerAsideContentPaddingLRs: 1rem;

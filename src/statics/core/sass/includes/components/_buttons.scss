@@ -1,0 +1,26 @@
+.#{$globalClassPcs}.button,
+a.#{$globalClassPcs}.button {
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: $fontGlobal;
+    display: inline-block;
+    margin: 0;
+    padding: 0.8rem 1.8rem;
+    border-radius: 3px;
+    background: none;
+    border-style: solid;
+    border-width: 1.3px;
+    border-color: transparent;
+    background-color: $colorFirst;
+    color: $colorFirstOver;
+    transition: 0.5s ease all;
+    &:visited {
+        background-color: $colorFirst;
+        color: $colorFirstOver;
+    }
+    &:hover {
+        border-color: $colorFirst;
+        background-color: transparent;
+        color: $colorFirst;
+    }
+}

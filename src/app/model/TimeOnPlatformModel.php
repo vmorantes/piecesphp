@@ -1,0 +1,157 @@
+<?php
+/**
+ * TimeOnPlatformModel.php
+ */
+namespace App\Model;
+
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\BaseEntityMapper;
+
+/**
+ * TimeOnPlatformModel.
+ *
+ * Modelo de contador de tiempo en la plataforma
+ *
+ * @package     App\Model
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @copyright   Copyright (c) 2019
+ * @property int $id
+ * @property int|UsersModel|null $user_id
+ * @property float $minutes
+ */
+
+class TimeOnPlatformModel extends BaseEntityMapper
+{
+    const SUCCESS_ATTEMPT = 1;
+    const FAIL_ATTEMPT = 0;
+
+    const TABLE = 'time_on_platform';
+    protected $table = self::TABLE;
+
+    protected $fields = [
+        'id' => [
+            'type' => 'int',
+            'primary_key' => true,
+        ],
+        'user_id' => [
+            'type' => 'int',
+            'reference_table' => 'pcsphp_users',
+            'reference_field' => 'id',
+            'reference_primary_key' => 'id',
+            'human_readable_reference_field' => 'username',
+            'mapper' => UsersModel::class,
+            'null' => true,
+        ],
+        'minutes' => [
+            'type' => 'double',
+            'default' => 0.0,
+        ],
+    ];
+
+    /**
+     * @param int|null $value
+     * @param string $field_compare
+     * @return static
+     */
+    public function __construct(?int $value = null, string $field_compare = 'primary_key')
+    {
+        parent::__construct($value, $field_compare);
+    }
+
+    /**
+     * @param int $user_id
+     * @param float $minutes
+     * @return bool
+     */
+    public static function addTime(int $user_id, float $minutes)
+    {
+        $result = false;
+        if (self::existsUser($user_id)) {
+            $mapper = self::getRecordByUser($user_id);
+
+            if ($mapper !== null) {
+                $mapper->minutes += $minutes;
+                $mapper->minutes = round($mapper->minutes, 3);
+                $result = $mapper->update();
+            }
+
+        } else {
+
+            $mapper = new TimeOnPlatformModel();
+            $mapper->user_id = $user_id;
+            $mapper->minutes += $minutes;
+            $mapper->minutes = round($mapper->minutes, 3);
+
+            $result = $mapper->save();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int $user_id
+     * @return bool
+     */
+    public static function existsUser(int $user_id)
+    {
+        $model = (new TimeOnPlatformModel())->getModel();
+        $row = $model->select()->where([
+            'user_id' => $user_id,
+        ])->row();
+        return $row !== false && $row !== -1;
+    }
+
+    /**
+     * @param int $user_id
+     * @return TimeOnPlatformModel|null
+     */
+    public static function getRecordByUser(int $user_id)
+    {
+        $model = (new TimeOnPlatformModel())->getModel();
+        $row = $model->select()->where([
+            'user_id' => $user_id,
+        ])->row();
+        return is_object($row) ? new TimeOnPlatformModel($row->id) : null;
+    }
+
+    /**
+     * @return float
+     */
+    public static function getAllHoursOnPlatform()
+    {
+        $currentUser = getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+
+        $model = (new TimeOnPlatformModel())->getModel();
+        $tableUsers = UsersModel::TABLE;
+        $table = self::TABLE;
+
+        $model->select([
+            "{$table}.*",
+            "(SELECT {$tableUsers}.organization FROM {$tableUsers} WHERE {$tableUsers}.id = {$table}.user_id) AS organizationID",
+        ]);
+
+        $having = [];
+
+        if ($currentUser !== null) {
+            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+            if (!$canModifyOrganizations) {
+                $criteryValue = $currentOrganizationID;
+                $beforeOperator = !empty($having) ? 'AND' : '';
+                $critery = "organizationID = {$criteryValue}";
+                $having[] = "{$beforeOperator} ({$critery})";
+            }
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
+            $model->having($havingString);
+        }
+
+        $model->execute();
+        $rows = $model->result();
+        $minutes = array_sum(array_column($rows, 'minutes'));
+        $hours = $minutes / 60;
+        return number_format($hours, 1);
+    }
+}

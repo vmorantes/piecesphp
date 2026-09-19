@@ -1,0 +1,40 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+$totalColumns: 12;
+
+.my-space-content {
+
+    display: block;
+    container-type: inline-size;
+    container-name: my-space-content;
+    width: 1920px;
+    padding: 0px;
+    max-width: 100%;
+
+    >.content {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        align-items: flex-start;
+        padding: 0px;
+    }
+
+
+    @container my-space-content (max-width: 980px) {
+        >.content {
+            grid-template-columns: 100%;
+        }
+
+    }
+
+}
+
+@media screen and (max-width: $rsXLarge) {}
+
+@media screen and (max-width: $rsLarge) {}
+
+@media screen and (max-width: $rsLarge2) {}
+
+@media screen and (max-width: $rsLarge3) {}
+
+@media screen and (max-width: $rsTablet) {
+}

@@ -1,0 +1,302 @@
+<?php
+
+/**
+ * MenuItem.php
+ */
+namespace PiecesPHP\Core\Menu;
+
+use PiecesPHP\Core\HTML\HtmlElement;
+
+/**
+ * MenuItem
+ *
+ * @category    HTML
+ * @package     PiecesPHP\Core\Menu
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @copyright   Copyright (c) 2018
+ */
+class MenuItem
+{
+    /**
+     * @var string|null
+     */
+    protected $routeName;
+    /**
+     * @var string
+     */
+    protected $text;
+    /**
+     * @var string
+     */
+    protected $href;
+    /**
+     * @var string
+     */
+    protected $class;
+    /**
+     * @var array
+     */
+    protected $attributes;
+    /**
+     * @var boolean
+     */
+    protected $current;
+    /**
+     * @var boolean
+     */
+    protected $visible;
+    /**
+     * @var int
+     */
+    protected $position;
+
+    /**
+     * @var array
+     */
+    protected $structureOptions = [
+        'text' => [
+            'rule' => 'is_string',
+            'default' => 'No text...',
+        ],
+        'href' => [
+            'rule' => 'is_string',
+            'default' => '#',
+        ],
+        'class' => [
+            'rule' => 'is_string',
+            'default' => 'item',
+        ],
+        'attributes' => [
+            'rule' => 'is_array',
+            'default' => [],
+        ],
+        'current' => [
+            'rule' => 'bool',
+            'default' => false,
+        ],
+        'visible' => [
+            'rule' => 'bool',
+            'default' => true,
+        ],
+        'routeName' => [
+            'rule' => 'is_string',
+            'default' => null,
+        ],
+        'position' => [
+            'rule' => 'integer',
+            'default' => -1,
+        ],
+    ];
+
+    /**
+     * @param array $options
+     *     string      $options[text]
+     *     string      $options[href]
+     *     string      $options[class]
+     *     array       $options[attributes]
+     *     bool        $options[current]
+     *     bool        $options[visible]
+     *     string      $options[routeName]
+     *     int         $options[position]
+     * @return static
+     */
+    public function __construct(array $options = [])
+    {
+        $this->structureOptions['current']['default'] = function () {
+            $href = preg_replace('/#.*/', '', $this->href);
+            $href = is_string($href) ? $href : $this->href;
+            return $href == get_current_url(true);
+        };
+
+        foreach ($this->structureOptions as $name => $config) {
+            $defined_in_options = isset($options[$name]);
+
+            if ($defined_in_options) {
+
+                $value_on_option = $options[$name];
+                $valid = Validator::validate($config['rule'], $value_on_option);
+
+                if ($valid) {
+
+                    $value_on_option = Validator::parse($config['rule'], $value_on_option);
+
+                    if ($name == 'attributes') {
+                        foreach ($value_on_option as $key => $value) {
+                            $valid_attr = true;
+
+                            if (is_string($key)) {
+                                if (!is_scalar($value)) {
+                                    if (is_array($value)) {
+                                        foreach ($value as $jvalues) {
+                                            if (!is_scalar($jvalues)) {
+                                                $valid_attr = false;
+                                                break;
+                                            }
+                                        }
+                                        if ($valid_attr) {
+                                            $value = implode(' ', $value);
+                                        }
+                                    } else {
+                                        $valid_attr = false;
+                                    }
+                                }
+                            } else {
+                                $valid_attr = false;
+                            }
+
+                            if ($valid_attr) {
+                                $value_on_option[$key] = (string) $value;
+                            } else {
+                                unset($value_on_option[$key]);
+                            }
+                        }
+                    }
+
+                    if ($name == 'position') {
+                        $this->setPosition($value_on_option);
+                    } else {
+                        $this->$name = $value_on_option;
+                    }
+
+                } else {
+                    $this->$name = $config['default'];
+                }
+
+            } else {
+                $this->$name = $config['default'];
+            }
+        }
+
+    }
+
+    /**
+     * @param integer $position
+     * @return static
+     */
+    public function setPosition(int $position)
+    {
+        $this->position = $position !== -1 && $position <= 0 ? 1 : $position;
+        return $this;
+    }
+
+    /**
+     * @param bool $visible
+     * @return static
+     */
+    public function setVisible(bool $visible)
+    {
+        $this->visible = $visible;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRouteName()
+    {
+        return $this->routeName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getText()
+    {
+        return $this->text;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHref()
+    {
+        return $this->href;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    /**
+     * @param bool $asString
+     * @return array|string
+     */
+    public function getAttributes(bool $asString = false)
+    {
+        $attributes = $this->attributes;
+        $value = $attributes;
+        if ($asString) {
+            $value = [];
+            foreach ($attributes as $name => $attrName) {
+                $value[] = "{$name}=\"{$attrName}\"";
+            }
+            $value = implode(' ', $value);
+        }
+        return $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        return $this->getHtmlElement()->render(false);
+    }
+
+    /**
+     * @return HtmlElement
+     */
+    public function getHtmlElement()
+    {
+        $attr = $this->attributes;
+        $current = $this->isCurrent();
+        $class = is_array($this->class) ? $this->class : [$this->class];
+        if ($current) {
+            $class[] = 'current';
+        }
+        $class = implode(' ', $class);
+        $tag = $current ? 'span' : 'a';
+
+        $a = new HtmlElement($tag, $this->text, [], $attr);
+        $a->setAttribute('class', $class);
+        $a->setAttribute('href', $this->getHref());
+
+        return $a;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCurrent()
+    {
+        $current = false;
+
+        if (is_callable($this->current)) {
+            $current = ($this->current)() === true;
+        } else {
+            $current = $this->current === true;
+        }
+
+        return $current;
+    }
+}

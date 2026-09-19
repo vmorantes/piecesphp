@@ -1,0 +1,13 @@
+services:
+    -
+        class: PiecesPHP\Core\PHPStan\SystemDynamicFunctionReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+    -
+        class: PiecesPHP\Core\PHPStan\Classes\Spatie\Url\Url\SpatieUrlUrlMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
+        class: PiecesPHP\Core\PHPStan\Classes\Spatie\Url\Url\SpatieUrlUrlDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension

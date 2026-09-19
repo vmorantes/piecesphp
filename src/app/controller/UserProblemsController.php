@@ -1,0 +1,619 @@
+<?php
+
+/**
+ * UserProblemsController.php
+ */
+
+namespace App\Controller;
+
+use App\Model\TicketsLogModel;
+use App\Model\UserProblemsModel;
+use App\Model\UsersModel;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Mailer;
+use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+
+/**
+ * UserProblemsController.
+ *
+ * Controlador de problemas con el usuario
+ *
+ * @package     PiecesPHP\Core
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @copyright   Copyright (c) 2018
+ */
+class UserProblemsController extends UsersController
+{
+    const TYPE_USER_FORGET = 'TYPE_USER_FORGET';
+    const TYPE_USER_BLOCKED = 'TYPE_USER_BLOCKED';
+    const LANG_GROUP = 'usersProblems';
+
+    const EMAIL_ON_FAILED_OS_TICKET = 'sir.vamb@gmail.com';
+
+    /**
+     * @var UsersModel
+     */
+    protected $userMapper = null;
+
+    /** @ignore */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->userMapper = new UsersModel();
+    }
+
+    /**
+     * Vista del listado de problemas de usuario
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function userProblemsList(Request $request, Response $response)
+    {
+
+        set_title(__(self::LANG_GROUP, 'Solución a problemas de ingreso'));
+
+        /* JQuery */
+        import_jquery();
+        /* Semantic */
+        import_semantic();
+        /* Librerías de la aplicación */
+        import_app_libraries();
+
+        set_custom_assets([
+            base_url('statics/login-and-recovery/css/problems.css'),
+        ], 'css');
+
+        set_custom_assets([
+            baseurl('statics/login-and-recovery/js/user-problem-list.js'),
+        ], 'js');
+
+        $this->render('usuarios/problems/problems-list');
+
+        return $response;
+    }
+
+    /**
+     * No espera parámetros.
+     *
+     * @param Request $request Petición
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
+     */
+    public function userForgetForm(Request $request, Response $response)
+    {
+
+        set_title(__(self::LANG_GROUP, 'No recuerdo mi usuario'));
+
+        /* JQuery */
+        import_jquery();
+        /* Semantic */
+        import_semantic();
+        /* izitoast */
+        import_izitoast();
+        /* Librerías de la aplicación */
+        import_app_libraries();
+
+        set_custom_assets([
+            base_url('statics/login-and-recovery/css/problems-form.css'),
+        ], 'css');
+
+        set_custom_assets([
+            baseurl('statics/login-and-recovery/js/user-forget.js'),
+        ], 'js');
+
+        $this->render('usuarios/problems/user_forget');
+
+        return $response;
+    }
+
+    /**
+     * No espera parámetros.
+     *
+     * @param Request $request Petición
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
+     */
+    public function userBlockedForm(Request $request, Response $response)
+    {
+
+        set_title(__(self::LANG_GROUP, 'Desbloquear mi usuario'));
+
+        /* JQuery */
+        import_jquery();
+        /* Semantic */
+        import_semantic();
+        /* izitoast */
+        import_izitoast();
+        /* Librerías de la aplicación */
+        import_app_libraries();
+
+        set_custom_assets([
+            base_url('statics/login-and-recovery/css/problems-form.css'),
+        ], 'css');
+
+        set_custom_assets([
+            baseurl('statics/login-and-recovery/js/user-blocked.js'),
+        ], 'js');
+
+        $this->render('usuarios/problems/user_blocked');
+
+        return $response;
+    }
+
+    /**
+     * No espera parámetros.
+     *
+     * @param Request $request Petición
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
+     */
+    public function otherProblemsForm(Request $request, Response $response)
+    {
+
+        set_title(__(self::LANG_GROUP, 'Creación de solicitud de soporte'));
+
+        /* JQuery */
+        import_jquery();
+        /* Semantic */
+        import_semantic();
+        /* izitoast */
+        import_izitoast();
+        /* Librerías de la aplicación */
+        import_app_libraries();
+
+        set_custom_assets([
+            base_url('statics/login-and-recovery/css/problems-form.css'),
+        ], 'css');
+
+        set_custom_assets([
+            baseurl('statics/login-and-recovery/js/other-problems.js'),
+        ], 'js');
+
+        $this->render('usuarios/problems/other-problems');
+
+        return $response;
+    }
+
+    /**
+     * Genera y envía el código
+     *
+     * Este método espera recibir por POST: [username,type]
+     *
+     * @param Request $request Petición
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
+     */
+    public function generateCode(Request $request, Response $response)
+    {
+
+        //Parámetros
+        $params = $request->getParsedBody();
+
+        //Conjunto posible de datos para autenticación
+        $requerido = [
+            'username',
+            'type',
+        ];
+
+        //Verificar que el grupo de datos para solicitados esté completo
+        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true && count($requerido) === count($params);
+
+        //Cuerpo de la respuesta
+        $json_response = [
+            'send_mail' => false,
+            'error' => self::NO_ERROR,
+            'message' => '',
+        ];
+
+        //Si los parámetros son válidos en nombre y en cantidad se inicia el proceso de recuperación
+        if ($parametros_ok) {
+
+            $username = $params['username'];
+            $type = $params['type'];
+
+            //Se verifica que el tipo esté implementado
+            if (in_array(trim($type), [self::TYPE_USER_FORGET, self::TYPE_USER_BLOCKED])) {
+
+                //Se selecciona un elemento que concuerde con el usuario
+                $usuario = null;
+
+                $usuario = $this->userMapper->getWhere([
+                    'username' => [
+                        '=' => $username,
+                        'and_or' => 'OR',
+                    ],
+                    'email' => [
+                        '=' => $username,
+                    ],
+                ]);
+
+                //Verificación de existencia
+                if ($usuario !== null) {
+
+                    //Datos de recuperación
+                    $problems = new UserProblemsModel();
+                    $problems->created = new \DateTime();
+                    $problems->expired = $problems->created->modify('+24 hour');
+                    $problems->email = $usuario->email;
+                    $problems->code = generate_code(6);
+                    $problems->type = $type;
+                    $problems->save();
+
+                    //Envío de correo de recuperación
+                    $json_response['send_mail'] = $this->sendCode($problems->code, $usuario, $type);
+                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
+
+                    $logRequest = new TicketsLogModel();
+                    $logRequest->created = $problems->created;
+                    $logRequest->email = $problems->email;
+                    $logRequest->information = [
+                        'code' => $problems->code,
+                        'email_sended' => $json_response['send_mail'],
+                        'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+                    ];
+                    if ($type == self::TYPE_USER_FORGET) {
+                        $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
+                    } elseif ($type == self::TYPE_USER_BLOCKED) {
+                        $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
+                    }
+                    $logRequest->save();
+                } else {
+
+                    $json_response['error'] = self::USER_NO_EXISTS;
+                    $json_response['message'] = vsprintf($this->getMessage($json_response['error']), [$username]);
+                }
+            } else {
+                $json_response['error'] = self::UNEXPECTED_ACTION;
+                $json_response['message'] = $this->getMessage($json_response['error']);
+            }
+        } else {
+
+            $json_response['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
+            $json_response['message'] = $this->getMessage($json_response['error']);
+        }
+
+        return $response->withJson($json_response);
+    }
+
+    /**
+     * Verifica el código y devuelve el usuario en caso de ser correcto
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function resolveProblem(Request $request, Response $response)
+    {
+        //Cuerpo de respuesta
+        $json_response = [
+            'success' => false,
+            'error' => self::NO_ERROR,
+            'message' => '',
+        ];
+
+        //Conjunto posible de datos para autenticación
+        $requerido = [
+            'code',
+            'type',
+        ];
+
+        $args = $request->getParsedBody();
+
+        //Verificar que el grupo de datos para autenticación sea válido
+        $parametros_ok = is_array($args) && require_keys($requerido, $args) === true && count($requerido) === count($args);
+
+        if ($parametros_ok) {
+
+            $code = trim($args['code']);
+            $type = trim($args['type']);
+
+            //Verificar si existe
+            $exist = UserProblemsModel::exist($code);
+
+            if ($exist) {
+
+                $problems = UserProblemsModel::instanceByCode($code);
+
+                $user = new UsersModel();
+                $user = $problems !== null ? $user->getByEmail($problems->email) : null;
+
+                //Verificar que el usuario existe
+                if ($user !== null && $problems !== null) {
+
+                    $now = new \DateTime();
+                    $expired = $problems->expired <= $now;
+
+                    //Verificar expiración
+                    if (!$expired) {
+
+                        if ($problems->type == self::TYPE_USER_FORGET && $type == self::TYPE_USER_FORGET) {
+
+                            $json_response['success'] = true;
+                            $json_response['username'] = $user->username;
+                            $json_response['message'] = __(self::LANG_GROUP, 'Su nombre de usuario es') . ': ' . $user->username;
+
+                            $problems->getModel()->delete("id = '$problems->id'")->execute();
+                        } elseif ($problems->type == self::TYPE_USER_BLOCKED && $type == self::TYPE_USER_BLOCKED) {
+
+                            $is_block = $user->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK;
+                            $blocked_by_attempts = $user->failed_attempts >= UsersController::MAX_ATTEMPTS;
+
+                            if ($blocked_by_attempts) {
+                                $user = new UsersModel($user->id);
+                                $unblocked = $user->resetAttempts($user->id) && $user->changeStatus(UsersModel::STATUS_USER_ACTIVE, $user->id);
+
+                                if ($unblocked) {
+                                    $json_response['success'] = true;
+                                    $json_response['username'] = $user->username;
+                                    $json_response['message'] = __(self::LANG_GROUP, 'Su usuario ha sido desbloqueado.');
+                                } else {
+                                    $json_response['message'] = __(self::LANG_GROUP, 'No se ha podido procesar la información, intente más tarde.');
+                                }
+                            } else {
+                                if ($is_block) {
+                                    $json_response['message'] = __(self::LANG_GROUP, 'El usuario no ha podido desbloquearse, contacte con el soporte.');
+                                } else {
+                                    $json_response['message'] = __(self::LANG_GROUP, 'El usuario no está bloqueado.');
+                                }
+                            }
+
+                            $problems->getModel()->delete("id = '$problems->id'")->execute();
+                        } else {
+                            $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
+                            $json_response['message'] = $this->getMessage($json_response['error']);
+                        }
+                    } else {
+                        $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
+                        $json_response['message'] = $this->getMessage($json_response['error']);
+                    }
+                } else {
+                    $json_response['error'] = self::USER_NO_EXISTS;
+                    $json_response['message'] = $this->getMessage($json_response['error']);
+                }
+            } else {
+
+                $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
+                $json_response['message'] = $this->getMessage($json_response['error']);
+            }
+        } else {
+            $json_response['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
+            $json_response['message'] = $this->getMessage($json_response['error']);
+        }
+
+        return $response->withJson($json_response);
+    }
+
+    /**
+     * Envía un mensaje
+     *
+     * Este método espera recibir por POST: [name,email,message]
+     *
+     * @param Request $request Petición
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
+     */
+    public function sendMailOtherProblems(Request $request, Response $response)
+    {
+
+        //Parámetros
+        $params = $request->getParsedBody();
+
+        //Conjunto posible de datos para autenticación
+        $requerido = [
+            'name',
+            'email',
+            'message',
+        ];
+
+        //Verificar que el grupo de datos para solicitados esté completo
+        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true;
+
+        //Cuerpo de la respuesta
+        $json_response = [
+            'send_mail' => false,
+            'error' => self::NO_ERROR,
+            'message' => '',
+        ];
+
+        //Si los parámetros son válidos en nombre y en cantidad se inicia el proceso de recuperación
+        if ($parametros_ok) {
+
+            $name = $params['name'] . (isset($params['lastname']) ? ' ' . $params['lastname'] : '');
+            $email = $params['email'];
+            $message = $params['message'];
+            $extra = isset($params['extra']) ? $params['extra'] : null;
+
+            //Envío de ticket
+            /**
+             * @var array<string,bool|OsTicketAPI>
+             */
+            $result = $this->sendMessageOtherProblems($email, $name, $message, $extra);
+
+            /**
+             * @var bool $success
+             */
+            $success = $result['success'];
+
+            /**
+             * @var OsTicketAPI $instance
+             */
+            $instance = $result['instance'];
+
+            $json_response['send_mail'] = $success;
+
+            $logRequest = new TicketsLogModel();
+            $logRequest->created = new \DateTime();
+            $logRequest->name = $name;
+            $logRequest->email = $email;
+            $logRequest->message = $message;
+            $logRequest->information = [
+                'email_sended' => $success,
+                'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+            ];
+            $logRequest->type = __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
+            $logRequest->save();
+
+            if ($success) {
+                $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
+            } else {
+                $json_response['message'] = __(self::LANG_GROUP, 'No se ha podido enviar el mensaje, intente más tarde.');
+                $json_response['extra'] = $instance->getHttpClient()->getResponseHeaders();
+            }
+        } else {
+
+            $json_response['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
+            $json_response['message'] = $this->getMessage($json_response['error']);
+        }
+
+        return $response->withJson($json_response);
+    }
+
+    /**
+     * Envía un correo con el código
+     *
+     * @param string $code
+     * @param \stdClass $usuario
+     * @param string $type
+     *
+     * @return bool true si se envió, false si no
+     */
+    private function sendCode(string $code, \stdClass $usuario, string $type = 'TYPE_USER_FORGET')
+    {
+        $mail = new Mailer();
+        $mailConfig = new MailConfig;
+
+        $to = $usuario->email;
+
+        $to_name = $usuario->username;
+
+        /**
+         * @var string
+         */
+        $subject = __(self::LANG_GROUP, 'Código de verificación');
+        $message = '';
+
+        if ($type == self::TYPE_USER_FORGET) {
+            $url = get_route('user-forget-form') . '?code=' . $code;
+            /**
+             * @var string
+             */
+            $message = $this->render('usuarios/mail/user_forget_code', [
+                'code' => $code,
+                'url' => $url,
+
+            ], false);
+        } elseif ($type == self::TYPE_USER_BLOCKED) {
+            $url = get_route('user-blocked-form') . '?code=' . $code;
+            /**
+             * @var string
+             */
+            $message = $this->render('usuarios/mail/user_blocked_code', [
+                'code' => $code,
+                'url' => $url,
+
+            ], false);
+        }
+
+        /**
+         * @var string
+         */
+        $fromAddress = $mailConfig->user();
+        /**
+         * @var string
+         */
+        $nameAddress = $mailConfig->name();
+
+        $mail->setFrom($fromAddress, $nameAddress);
+        $mail->addAddress($to, $to_name);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+        $mail->AltBody = strip_tags($message);
+
+        if (!$mail->checkSettedSMTP()) {
+            $mail->asGoDaddy();
+        }
+
+        return $mail->send();
+    }
+
+    /**
+     * Envía un mensaje
+     *
+     * @param string $email
+     * @param string $name
+     * @param string $message
+     * @param array $extra
+     * @return array
+     */
+    private function sendMessageOtherProblems(string $email, string $name, string $message, ?array $extra = null)
+    {
+        $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . Config::app_title();
+
+        $customSubject = is_array($extra) && isset($extra['subject']) && is_string($extra['subject']) && mb_strlen(trim($extra['subject'])) > 0 ? trim($extra['subject']) : null;
+        if ($customSubject !== null) {
+            $subject = $customSubject . ' - ' . Config::app_title();
+        }
+
+        /**
+         * @var string
+         */
+        $message = $this->render('usuarios/mail/other-problems', [
+            'originURL' => baseurl(),
+            'subject' => $subject,
+            'mail' => $email,
+            'name' => $name,
+            'message' => $message,
+            'extra' => $extra,
+        ], false);
+
+        $api = get_config('osTicketAPI');
+        $key = get_config('osTicketAPIKey');
+
+        $success = false;
+
+        if (is_string($api) && mb_strlen(trim($api)) > 0 && is_string($key) && mb_strlen(trim($key)) > 0) {
+            $osTicket = new OsTicketAPI($api, $key);
+            $success = $osTicket->createTicket($name, $email, $subject, $message);
+        }
+
+        if (!$success) {
+
+            $mail = new Mailer();
+            $mailConfig = new MailConfig;
+
+            /**
+             * @var string
+             */
+            $fromAddress = $mailConfig->user();
+            /**
+             * @var string
+             */
+            $nameAddress = $mailConfig->name();
+
+            $mail->setFrom($fromAddress, $nameAddress);
+            $mail->addReplyTo($email, $name);
+            $mail->addAddress(self::EMAIL_ON_FAILED_OS_TICKET);
+            $mail->isHTML(true);
+            $mail->Subject = (string) $subject;
+            $mail->Body = $message;
+            $mail->AltBody = strip_tags($message);
+
+            if (!$mail->checkSettedSMTP()) {
+                $mail->asGoDaddy();
+            }
+
+            $success = $mail->send();
+        }
+
+        return [
+            'success' => $success,
+            'instance' => isset($osTicket) ? $osTicket : null,
+        ];
+    }
+}

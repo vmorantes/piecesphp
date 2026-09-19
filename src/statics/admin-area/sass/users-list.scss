@@ -1,0 +1,171 @@
+@import '../../core/sass/includes/variables_app_base';
+@import '../../core/sass/includes/functions_app_base';
+
+$mainColor : var(--main-brand-color);
+$second : var(--second-brand-color);
+
+.ui.card.user {
+    width: 350px !important;
+    height: 250px !important;
+    min-height: max-content;
+    border-radius: 15px !important;
+
+    >.content {
+
+        >.head {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+
+            >.user-info {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                position: relative;
+
+                >.image {
+                    position: relative;
+
+                    >.defauld {
+                        width: 60px;
+                        height: 60px;
+                        background-color: $mainColor;
+                        display: grid;
+                        place-content: center;
+                        border-radius: 50%;
+
+                        >i {
+                            margin: 0;
+                            padding: 0;
+                            font-size: 20px;
+                            color: white;
+                        }
+                    }
+
+                    >img {
+                        width: 60px;
+                        height: 60px;
+                        min-width: 60px;
+                        min-height: 60px;
+                        max-width: 60px;
+                        max-height: 60px;
+                        border-radius: 50%;
+                    }
+
+                    >.status {
+                        position: absolute;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 100%;
+                        right: -4px;
+                        bottom: -4px;
+                        background-color: gray;
+                    }
+
+                }
+
+                >.info {
+                    display: flex;
+                    flex-direction: column;
+
+                    >span {
+                        max-width: 190px;
+                        font-size: 15px;
+                        color: $mainColor;
+                        font-weight: bold;
+                    }
+
+                    >a {
+                        color: gray;
+                        font-size: 13px;
+                    }
+                }
+
+                //STATUS_USER_INACTIVE = 0
+                &.status-0-number {}
+
+                //STATUS_USER_ACTIVE = 1
+                &.status-1-number {
+                    >.image {
+                        >.status {
+                            background-color: #21BA45;
+                        }
+                    }
+                }
+
+                //STATUS_USER_ATTEMPTS_BLOCK = 2
+                &.status-2-number {
+                    >.image {
+                        >.status {
+                            background-color: red;
+                        }
+                    }
+                }
+
+                //STATUS_USER_APPROVED_PENDING = 3
+                &.status-3-number {
+                    >.image {
+                        >.status {
+                            background-color: #ff9800;
+                        }
+                    }
+                }
+
+                //STATUS_USER_REJECTED = 4
+                &.status-4-number {
+                    >.image {
+                        >.status {
+                            background-color: #a14a17;
+                        }
+                    }
+                }
+
+
+            }
+
+            >a {
+                >i {
+                    margin: 0;
+                    padding: 0;
+                    cursor: pointer;
+                    font-size: 20px;
+                    color: $mainColor;
+                }
+            }
+        }
+
+        >.body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+
+            >.item {
+                display: flex;
+                align-items: center;
+
+                >span {
+                    font-size: 17px;
+                }
+
+                >i {
+                    font-size: 25px;
+                }
+
+                >img {
+                    width: 25px;
+                    margin-right: 10px;
+                }
+
+            }
+        }
+    }
+
+    &:hover {
+        background-color: var(--main-brand-color-opacity);
+    }
+}
+
+.padding-40 {
+    padding: 40px;
+}

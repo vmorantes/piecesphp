@@ -1,0 +1,3 @@
+@function pxToRem($px){
+    @return unquote((calc(1 / $fontSizeHTML) * $px) + 'rem');
+}

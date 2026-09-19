@@ -1,0 +1,78 @@
+//──── Misc ──────────────────────────────────────────────────────────────────────────────
+$parentSelector: "body>.body";
+$parentSelectorHeader: "body>.header";
+$parentSelectorHero: "body>.hero";
+$parentSelectorFooter: "body>.footer";
+
+//──── Sizes ─────────────────────────────────────────────────────────────────────────────
+$fontSizeHTML: 14;
+$slideShowDotSize: 30;
+$slideShowDotSizeDesktop: 18;
+$slideShowArrowsFontSize: 30;
+$slideShowArrowsFontSizeDesktop: 20;
+
+//──── Media queries ─────────────────────────────────────────────────────────────────────
+$rsXLarge: 1700px;
+$rsLarge: 1550px;
+$rsLarge1: 1400px;
+$rsLarge2: 1250px;
+$rsLarge3: 1200px;
+$rsMedium: 1000px;
+$rsTablet: 780px;
+$rsMobile: 480px;
+
+//──── Colors ────────────────────────────────────────────────────────────────────────────
+$defaultTextColor: #676767;
+
+$primaryColor: var(--main-brand-color);
+$primaryColorOver: var(--font-color-two);
+
+$secondaryColor: var(--second-brand-color);
+
+$footerColor: white;
+$footerSocialIconsOnHoverColor: $secondaryColor;
+
+$borderActiveMenuColor: white;
+$toTopIconColor: black;
+
+$simpleLinkOnHoverColor: $secondaryColor;
+
+$overlayEffectBGColor: #EBEBEB;
+$overlayEffectBGColorAlt: white;
+
+$genericBGColor1: #EBEBEB;
+
+//──── Fonts ─────────────────────────────────────────────────────────────────────────────
+$fontPublicSans: 'Public Sans',
+sans-serif;
+$fontPoppins: 'Poppins',
+sans-serif;
+$fontGlobal: var(--font-family-global, $fontPoppins);
+$fontGlobalText: $fontPoppins;
+
+// Weights
+$fwHairLine: 100;
+$fwLight: 300;
+$fwRegular: 400;
+$fwMedium: 500;
+$fwSemiBold: 600;
+$fwBold: 700;
+$fwExtraBold: 800;
+
+//──── Vistas especiales: 404, 403 y mantenimiento ───────────────────────────────────────
+
+// Colores
+$mainBrandColor: var(--main-brand-color);
+$secondBrandColor: var(--second-brand-color);
+$color-bg: $mainBrandColor;
+$color-mega-title: $secondBrandColor;
+$border-radius-buttons: 10px;
+$background-color-body: white;
+$margin-body: 0;
+$card-background-color: white;
+// Colores para el gradiente
+$color-gradient-1: $mainBrandColor;
+$color-gradient-2: $secondBrandColor;
+// Imagen footer
+$width-image-footer: 120px;
+$height-imagen-footer: 120px;

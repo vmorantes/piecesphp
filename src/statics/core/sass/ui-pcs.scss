@@ -1,0 +1,697 @@
+@import 'includes/functions';
+@import 'includes/variables';
+@import 'includes/reset-font-family-fomantic';
+@import 'includes/components';
+@import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
+@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+
+* {
+    box-sizing: border-box;
+}
+
+//Generals
+html,
+body {
+    font-size: $htmlFontSize;
+    font-family: $fontGlobal;
+    font-weight: 400;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: #FCFCFC;
+}
+
+.#{$globalClassPcs} {
+    font-size: $htmlFontSize;
+    color: $colorThird;
+}
+
+.dev-css-mode {
+
+    &,
+    * {
+        background: rgba(255, 0, 0, .1);
+        box-shadow: 0 0 0 1px red;
+    }
+}
+
+.horizontal-space {
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 50px;
+}
+
+//Link
+a {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        display: inline-block;
+        color: $colorThird;
+        transition: 0.5s all ease;
+
+        &:visited {
+            color: black;
+        }
+
+        &:hover,
+        &:active,
+        &:focus {
+            color: $colorFirst;
+            text-decoration: underline dotted;
+        }
+    }
+}
+
+//Headers
+h1 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontGlobal;
+        font-weight: $fwBold;
+        font-size: pxToRem(48);
+        line-height: pxToRem(48+5);
+        color: $textHeader1Color;
+        margin: $h1Margin;
+        text-transform: uppercase;
+    }
+}
+
+h2 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontGlobal;
+        font-weight: $fwSemiBold;
+        font-size: pxToRem(36);
+        line-height: pxToRem(36+5);
+        color: $textHeader2Color;
+        margin: $h2Margin;
+    }
+}
+
+h3 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontGlobal;
+        font-weight: $fwBold;
+        font-size: pxToRem(32);
+        line-height: pxToRem(32+5);
+        color: $textHeader3Color;
+        margin: $h3Margin;
+    }
+}
+
+h4 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontGlobal;
+        font-weight: $fwBold;
+        font-size: pxToRem(27);
+        line-height: pxToRem(27+5);
+        color: $textHeader3Color;
+        margin: $h4Margin;
+    }
+}
+
+h5 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontGlobal;
+        font-weight: $fwMedium;
+        font-size: pxToRem(22);
+        line-height: pxToRem(22+5);
+        color: $textHeader3Color;
+        margin: $h4Margin;
+    }
+}
+
+h6 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontGlobal;
+        font-weight: $fwBold;
+        font-size: pxToRem(18);
+        line-height: pxToRem(18+5);
+        color: $textHeader3Color;
+        margin: $h4Margin;
+    }
+}
+
+//Paragraph
+p {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $pFontFamily;
+        text-align: left;
+        font-size: $pFontSize;
+        line-height: $pLineHeight;
+        color: $colorThird;
+        margin: $pMargin;
+        max-width: $pMaxWidth;
+    }
+}
+
+//List
+ul,
+ol {
+
+    .#{$globalClassPcs} &.pcs-list,
+    &.list.#{$globalClassPcs} {
+        font-family: $listFontFamily;
+        text-align: left;
+        font-size: $listFontSize;
+        line-height: $listLineHeight;
+        color: $colorThird;
+        margin: $listMargin;
+        padding: $listPadding;
+        max-width: $listMaxWidth;
+
+        &:not(ol) {
+            list-style: none;
+
+            li {
+                position: relative;
+                padding: $listItemPadding;
+
+                &::before {
+                    display: block;
+                    position: absolute;
+                    content: ' ';
+                    top: .5rem;
+                    left: -2.5rem;
+                    width: 1rem;
+                    height: 1rem;
+                    border-radius: 100%;
+                    background-color: $colorFirst;
+                }
+            }
+        }
+
+        &:not(ul) {
+            list-style: none;
+            counter-reset: list;
+
+            li {
+                position: relative;
+                padding: $listItemPadding;
+
+                &::before {
+                    font-family: $fontGlobal;
+                    counter-increment: list;
+                    display: block;
+                    position: absolute;
+                    content: counter(list) '.';
+                    font-weight: bold;
+                    top: 0rem;
+                    left: -2.5rem;
+                    width: 2rem;
+                    height: 2rem;
+                    font-size: 1.8rem;
+                    border-radius: 100%;
+                    line-height: 2rem;
+                    text-align: left;
+                    color: $colorFirst;
+                }
+            }
+        }
+    }
+}
+
+//Images
+img {
+    display: inline-block;
+    max-width: 100%;
+
+    &.block {
+        display: block;
+        margin: 0;
+    }
+}
+
+.image {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        max-width: $pMaxWidth;
+        text-align: left;
+
+        img {
+            max-width: 100%;
+        }
+    }
+}
+
+//Quotes
+q,
+blockquote,
+p.cita,
+p.quote {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-size: $quoteFontSize;
+        line-height: $quoteLineHeight;
+        color: $textQuoteColor;
+        text-align: center;
+        margin-top: $quoteMarginTop;
+        max-width: $quoteMaxWidth;
+        $quotePadding: 3% 10% 0% 10%;
+        $quoteBorderTop: 1px solid $colorFirst;
+        $quoteBorderBottom: 1px solid $colorFirst;
+    }
+}
+
+//Footer
+footer.#{$globalClassPcs} {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        display: flex;
+        align-content: center;
+        padding: 10px 15px;
+        border-top: 1px rgba(0, 0, 0, 0.14) solid;
+
+        .logo-developed {
+            img {
+                max-height: 50px;
+                vertical-align: middle;
+            }
+        }
+    }
+}
+
+.container-medium {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        max-width: 1200px;
+    }
+}
+
+//Útil
+.mw-400 {
+    max-width: 400px !important;
+}
+
+.mw-800 {
+    max-width: 800px !important;
+}
+
+.mw-900 {
+    max-width: 900px !important;
+}
+
+.mw-1200 {
+    max-width: 1200px !important;
+}
+
+.mw-1440 {
+    max-width: 1440px !important;
+}
+
+.mw-1920 {
+    max-width: 1920px !important;
+}
+
+.text-center {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        text-align: center;
+    }
+
+}
+
+//──── Sobreescritura de fomantic ────────────────────────────────────────────────────────
+a.ui.button {
+    text-decoration: none !important;
+}
+
+.ui {
+
+    &.button {
+
+        font-size: 14px;
+        font-weight: $fwRegular;
+        border-radius: 8px;
+        margin: 0px;
+
+
+        &.brand-color,
+        &.custom-main-color {
+
+            background-color: var(--main-brand-color);
+            color: var(--font-color-two);
+
+            &:hover,
+            &:active,
+            &:focus {
+                opacity: 0.8;
+            }
+
+            &.alt {
+
+                background-color: var(--second-brand-color);
+
+            }
+
+            &.alt2 {
+
+                background-color: var(--font-color-one);
+
+            }
+
+        }
+
+    }
+
+    &.dividing.header {
+        color: var(--second-brand-color);
+        border-color: var(--second-brand-color);
+
+        &.no-border {
+            border: none;
+        }
+
+        &.alt {
+            color: var(--main-brand-color);
+            border-color: var(--main-brand-color);
+        }
+
+        &.alt2 {
+            color: var(--font-color-one);
+            border-color: var(--font-color-one);
+        }
+
+        &.white {
+            color: white;
+            border-color: white;
+        }
+    }
+
+    &.tabular.menu {
+        .item:not(.active) {
+            cursor: pointer;
+        }
+    }
+
+    &.secondary.menu {
+        .item:not(.active) {
+            cursor: pointer;
+        }
+    }
+
+    &.tag {
+
+        &.brand-color {
+
+            background-color: var(--main-brand-color);
+            color: var(--font-color-two);
+
+            &.alt {
+
+                background-color: var(--second-brand-color);
+
+            }
+
+            &.alt2 {
+
+                background-color: var(--font-color-one);
+
+            }
+
+        }
+
+    }
+
+}
+
+//──── Vistas de configuración ───────────────────────────────────────────────────────────
+.main-body-header {
+    width: 100%;
+    height: 300px;
+    background-color: var(--main-brand-color-opacity);
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: $fontGlobal;
+
+    @media screen and (max-width:1050px) {
+        padding-top: 70px;
+    }
+
+    >.head {
+        text-align: center;
+
+        .tittle {
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+            color: $colorFirst;
+            font-size: 32px;
+        }
+
+        .sub-tittle {
+            color: black;
+            font-size: 15px;
+        }
+    }
+
+    >.body-card {
+        width: 800px;
+        height: auto;
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        margin-bottom: 100px;
+        position: relative;
+        bottom: -30%;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+
+        &.no-gap {
+            gap: 0;
+        }
+
+        span.card-tag {
+            color: $colorFirst;
+            font-size: 20px;
+            font-weight: $fwMedium;
+        }
+
+        &.max {
+            max-width: 1400px;
+            width: calc(100% - 40px);
+        }
+
+        @media screen and (max-width: 1100px) {
+            width: calc(100% - 40px);
+        }
+
+        &.trasparent {
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        &.no-padding {
+            padding: 0px;
+        }
+
+        &.max-width {
+            width: 80%;
+        }
+
+        &::after {
+            content: '';
+            display: block;
+            height: 100px;
+            width: 100px;
+            position: absolute;
+            bottom: -100px;
+        }
+
+    }
+
+    >.divider {
+        height: 100px;
+        width: 100%;
+        background-color: var(--main-brand-color);
+    }
+
+    /* Estilos para las inputs cards images */
+    .cards-list {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+}
+
+.input-image-card {
+    width: 400px;
+    height: 150px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    display: flex;
+    gap: 15px;
+    padding: 0 10px 0 0;
+
+    @media screen and (max-width:500px) {
+        width: 100%;
+    }
+
+    >.image-action {
+        width: 150px;
+        height: 100px;
+        position: relative;
+
+        &.fit-image {
+            >img {
+                object-fit: contain;
+            }
+        }
+
+        >img {
+            width: 150px;
+            height: 150px;
+            max-width: 150px;
+            max-height: 150px;
+            cursor: pointer;
+            transition: .5s;
+            border-radius: 15px 0 0 15px;
+            object-fit: contain;
+        }
+
+        >.hover-content {
+            transition: .5s;
+            display: none;
+        }
+
+        &:hover {
+            >img {
+                filter: blur(3px);
+            }
+
+            >.hover-content {
+                background-color: #7070700d;
+                border-radius: 15px;
+                width: 150px;
+                height: 150px;
+                position: absolute;
+                top: 0;
+                display: grid;
+                place-content: center;
+                justify-content: center;
+                cursor: pointer;
+                animation: inSide .5s ease-in-out;
+
+                >i {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 45px;
+                    color: #5b5b5b;
+                    margin: 0 auto;
+                }
+
+                >span {
+                    font-family: $fontGlobal;
+                    font-weight: $fwMedium;
+                    color: #5b5b5b;
+                    font-size: 12px;
+                    margin-top: 15px;
+                }
+            }
+
+            @keyframes inSide {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    >.info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        >span {
+            color: var(--main-brand-color);
+            font-size: 20px;
+            font-weight: $fwMedium;
+
+            @media screen and (max-width:500px) {
+                font-size: 1rem;
+            }
+        }
+
+        >small {
+            color: var(--font-color-one);
+            font-size: 12px;
+        }
+
+        >p {
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 5px;
+            color: black;
+            text-wrap: wrap;
+            line-height: 1;
+        }
+    }
+}
+
+//──── Modal para cropper ─────────────────────────────────────────────────────────────────
+.cropper-info-content {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    >span {
+        color: var(--main-brand-color);
+        font-size: 27px;
+        font-weight: $fwSemiBold;
+    }
+
+    >p {
+        text-align: center;
+        max-width: 400px;
+        font-size: 15px;
+        font-weight: $fwRegular;
+    }
+}
+
+//──── Vista de rutas ────────────────────────────────────────────────────────────────────
+.pcs-header-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .section-title {
+        font-family: $fontGlobal;
+
+        .title {
+            font-weight: $fwBold;
+            font-size: 27px;
+            color: $colorFirst;
+        }
+    }
+}

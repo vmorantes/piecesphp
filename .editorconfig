@@ -1,0 +1,31 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+[*.js]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = tab
+indent_size = 4
+[*.sh]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false
+[{cli,phpstan,package-css,rector}]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false
+[{yaml,neon}]
+charset = utf-8
+end_of_line = crlf
+indent_style = tab
+indent_size = 4

@@ -1,0 +1,150 @@
+includes:
+    - phpstan.services.neon
+    # Sin phpstan/extension-installer, la regla se incluye a mano.
+    - tools/vendor/phpstan/phpstan-deprecation-rules/rules.neon
+parameters:
+    level: 8
+    # Rango completo soportado, no una sola versión: el código debe correr
+    # igual en el piso (8.4) y en el techo (8.5). Con un escalar, PHPStan
+    # analiza una sola y las deprecaciones de la otra pasan desapercibidas.
+    phpVersion:
+        min: 80400 # PHP 8.4 — piso declarado en src/composer.json
+        max: 80500 # PHP 8.5 — techo objetivo de la migración
+    paths:
+        - ../src/app
+        - ../src/index.php
+    scanFiles:
+        - ../src/app/config/constants.php
+    scanDirectories:
+        - ../src/app/config
+    bootstrapFiles:
+        - ../src/vendor/autoload.php
+    excludePaths:
+        - ../src/adminer
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        #──── Variables inyectadas en vistas (extract) y elementos difíciles de descrubrir
+        -
+            message: '#.*#'
+            paths:
+                - ../src/app/core/psr4/PiecesPHP/Core/PHPStan
+        -
+            identifiers: 
+                - class.notFound
+                - variable.undefined
+                - echo.nonString
+            paths:
+                - ../src/app/view/*
+                - ../src/app/view/**/*
+                - ../src/app/classes/**/Views/*
+                - ../src/app/classes/**/Views/**/*
+                - ../src/**/BaseMongoModel.php
+        -
+            identifiers: 
+                - staticMethod.notFound
+            paths:
+                - ../src/app/classes/SystemApprovals/*
+                - ../src/app/classes/SystemApprovals/**/*
+        -
+            message: '#.*Constant LOG_ERRORS_PATH not found.*#'
+            paths:
+                - ../src/app/controller/*
+                - ../src/app/controller/**/*
+        -
+            identifier: argument.unresolvableType
+            paths:
+                - ../src/app/**/*Mapper.php
+        -
+            identifiers: 
+                - offsetAccess.nonOffsetAccessible
+            paths:
+                - ../src/app
+        -
+            message: '#.*an undefined method PiecesPHP\\Core\\BaseEntityMapper|PiecesPHP\\Core\\Database\\ActiveRecordModel.*#'
+            paths:
+                - ../src/app
+        # Tipos no esperados en parámetros
+        - '#.*of function implode expects array<string>, array<mixed> given.*#'
+        - '#.*message of function __ expects.*#'
+
+        #──── Generales
+        - "#.*protected static method fieldsToSelect.*#"
+        - '#.*PHPDoc tag @use has invalid value.*#'
+        - '#.*stdClass supplied for foreach.*#' #stdClass marcado como no iterable
+        # Validaciones típicas de criterios en ORM
+        - '#.*where in empty\(\) always exists.*#'
+        - '#.*having in empty\(\) always exists.*#'
+        # Conversiones: los seis `cast.*` estuvieron silenciados aquí y se
+        # retiraron tras comprobar que no casaban con ningún error (PHPStan los
+        # reportaba como «Ignored error pattern … was not matched»).
+        # No se reintroducen: `cast.*` significa «Cannot cast X to Y» —operandos
+        # inválidos—, no la sintaxis no canónica `(double)`/`(integer)`/
+        # `(boolean)`/`(binary)` deprecada en PHP 8.5, que PHPStan no detecta.
+        # Esos casts se localizan con Rector o grep, no con este análisis.
+
+        # Declaraciones en docblocks inconsistentes
+        - identifier: varTag.variableNotFound 
+        - identifier: parameter.notFound 
+        - identifier: varTag.nativeType
+        -
+            identifiers: 
+                - new.static
+            paths:
+                - ../src/app/*
+                - ../src/app/**/*
+        # Irrelevantes
+        - identifier: missingType.iterableValue
+        - identifier: missingType.return
+        - identifier: missingType.property
+        - identifier: missingType.parameter
+        - identifier: missingType.generics
+
+        # ── Condiciones redundantes y código muerto ──────────
+        - message: '#.*left side of \?\? always exists and is not nullable.*#'
+        - identifier: if.alwaysTrue
+        - identifier: notIdentical.alwaysTrue
+        - identifier: ternary.alwaysTrue
+        - identifier: booleanAnd.rightAlwaysTrue
+        - identifier: booleanAnd.leftAlwaysTrue
+        - identifier: booleanNot.alwaysTrue
+        - identifier: booleanOr.rightAlwaysTrue
+        - identifier: booleanOr.leftAlwaysTrue
+        - identifier: booleanAnd.alwaysTrue
+        - identifier: instanceof.alwaysTrue
+        - identifier: identical.alwaysTrue
+        - identifier: notEqual.alwaysTrue
+        - identifier: equal.alwaysTrue
+        - identifier: booleanOr.alwaysTrue
+        - identifier: isset.variable
+        - identifier: function.alreadyNarrowedType
+        - identifier: if.alwaysFalse
+        - identifier: notIdentical.alwaysFalse
+        - identifier: ternary.alwaysFalse
+        - identifier: booleanAnd.rightAlwaysFalse
+        - identifier: booleanAnd.leftAlwaysFalse
+        - identifier: booleanNot.alwaysFalse
+        - identifier: booleanOr.rightAlwaysFalse
+        - identifier: booleanOr.leftAlwaysFalse
+        - identifier: booleanAnd.alwaysFalse
+        - identifier: instanceof.alwaysFalse
+        - identifier: identical.alwaysFalse
+        - identifier: function.impossibleType
+        - identifier: foreach.emptyArray
+        - identifier: deadCode.unreachable
+        - identifier: catch.neverThrown
+
+        # ── PHPDoc ──────────
+        - '#.*PHPDoc tag @.*#'
+        - identifier: phpDoc.parseError
+        - identifier: parameter.phpDocType
+        - identifier: return.phpDocType
+        - identifier: varTag.misplaced
+        - identifier: varTag.noVariable
+        - identifier: throws.notThrowable
+
+        # ── Diseño estricto ──────────
+        - identifier: return.void
+        - identifier: return.unusedType
+        - identifier: method.unused
+        - identifier: staticMethod.resultUnused
+        - identifier: property.unusedType

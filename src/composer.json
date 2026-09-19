@@ -1,0 +1,75 @@
+{
+    "name": "piecesphp/piecesphp",
+    "description": "Framework PHP",
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        },
+        "sort-packages": true
+    },
+    "require": {
+        "php": ">=8.4.1 <8.6",
+        "ext-date": "*",
+        "ext-openssl": "*",
+        "ext-pcre": "*",
+        "ext-hash": "*",
+        "ext-session": "*",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-xml": "*",
+        "ext-ctype": "*",
+        "ext-mbstring": "*",
+        "ext-fileinfo": "*",
+        "ext-gd": "*",
+        "ext-mysqli": "*",
+        "ext-pdo_mysql": "*",
+        "ext-sqlite3": "*",
+        "ext-pdo_sqlite": "*",
+        "ext-zip": "*",
+        "ext-xsl": "*",
+        "ext-xmlwriter": "*",
+        "ext-xmlreader": "*",
+        "ext-curl": "*",
+        "mpdf/mpdf": "^8.3",
+        "phpmailer/phpmailer": "^7.0",
+        "phpoffice/phpspreadsheet": "^5.5",
+        "piecesphp/database": "^3.1",
+        "piecesphp/datastructures": "^3.0",
+        "piecesphp/geojson": "^2.0",
+        "piecesphp/html": "^2.0",
+        "scssphp/scssphp": "^2.1",
+        "slim/psr7": "^1.8",
+        "slim/slim": "^4.0",
+        "spatie/url": "^2.4",
+        "studio-42/elfinder": "^2.1",
+        "microsoft/azure-storage-blob": "^1.5",
+        "pragmarx/google2fa": "^9.0",
+        "hubspot/api-client": "^14.0",
+        "openai-php/client": "^0.10",
+        "aminyazdanpanah/php-ffmpeg-video-streaming": "^1.3",
+        "guzzlehttp/guzzle": "^7.10",
+        "react/event-loop": "^1.6"
+    },
+    "suggest": {
+        "ext-zlib": ">=1.2.0.4",
+        "ext-mongodb": "^1.12.0",
+        "mongodb/mongodb": "~1.11"
+    },
+    "autoload": {
+        "psr-4": {
+            "PiecesPHP\\ComposerTasks\\": "../tasks",
+            "PiecesPHP\\Core\\": "./app/core/psr4/PiecesPHP/Core"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@task"
+        ],
+        "post-update-cmd": [
+            "@task"
+        ],
+        "task": [
+            "PiecesPHP\\ComposerTasks\\TasksManager::task"
+        ]
+    }
+}

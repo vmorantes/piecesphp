@@ -1,0 +1,18 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+@import './imports/grapsh_and_statistics';
+
+.secret-text {
+    display: inline-block;
+    background-color: #2e2e2e;
+    color: rgba(0, 0, 0, 0.259);
+    filter: blur(4px);
+    transition: all 0.5s ease;
+    cursor: pointer;
+
+    &:hover {
+        background-color: transparent;
+        color: black;
+        filter: blur(0px);
+    }
+}

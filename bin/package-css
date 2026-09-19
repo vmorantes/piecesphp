@@ -1,0 +1,12 @@
+#!/bin/bash
+SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+cd $SCRIPT_DIR/../src
+
+gulp init-project
+mkdir ESTILOS
+find app -wholename "*.scss" | xargs zip -r9 ESTILOS/scss.zip
+find app -wholename "*.css" | xargs zip -r9 ESTILOS/css.zip
+find app -wholename "*.css.map" | xargs zip -r9 ESTILOS/css.map.zip
+cd ESTILOS
+unzip "*.zip" -d .
+rm *.zip

@@ -1,0 +1,510 @@
+@import 'import/variables';
+@import '../../core/sass/includes/reset-font-family-fomantic';
+@import 'import/reset';
+@import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
+@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+
+$fontModule: $fontGlobal;
+
+body {
+    font-family: $fontModule;
+}
+
+.container {
+
+    img {
+        max-width: 100%;
+    }
+
+    .topbar {
+
+        position: relative;
+
+        &:not(.one) {
+            display: none;
+        }
+
+        >.overlay {
+            position: absolute;
+            z-index: 1;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: $problem-overlay-color;
+        }
+
+        >.content,
+        >.header {
+            position: relative;
+            z-index: 2;
+        }
+
+        >.header {
+
+            display: grid;
+            grid-template-columns: auto auto;
+            justify-content: space-between;
+            padding: 30px 50px 0px 50px;
+
+            .logo {
+
+
+                img {
+                    width: 150px;
+                }
+
+            }
+
+            .back {
+
+                .ui.button {
+                    font-family: $fontModule;
+                    font-size: 95%;
+                }
+
+                .ui.button.custom-color {
+                    font-family: $fontModule;
+                    background-color: $problem-color-button;
+                    color: $problem-color-text-button;
+                }
+
+            }
+
+            .ui.button.back-color {
+                padding-left: 20px;
+                padding-right: 20px;
+                font-size: 95%;
+                background-color: $problem-back-color;
+                color: $problem-color-text-button;
+                font-family: $fontModule;
+            }
+
+        }
+
+        .ml-8 {
+            margin-left: 8px;
+        }
+
+        >.content {
+
+            padding: 0px 50px 30px 50px;
+
+            >.caption {
+
+                text-align: center;
+
+                >.image {
+                    text-align: center;
+
+                    img {
+                        &.default {
+                            display: inline-block;
+                            height: $height-image-header-topbar;
+                            width: auto;
+                        }
+
+                        &.alt {
+                            display: none;
+                            height: $height-image-header-topbar;
+                            width: auto;
+                        }
+                    }
+                }
+
+                >.title-step {
+                    font-size: 1.5rem;
+                    line-height: 2rem;
+                    font-weight: 550;
+                    text-transform: uppercase;
+                    text-align: center;
+                }
+
+                >.text {
+                    font-size: 2.5rem;
+                    font-weight: bold;
+                    line-height: 2.6rem;
+                    text-transform: uppercase;
+                    text-align: center;
+                    color: #3C3C3C;
+                    margin: 2.5rem 0rem 0rem 0rem;
+                }
+
+            }
+
+            &.active {
+
+                background-color: white;
+                margin-top: 2rem;
+                padding-top: 3rem;
+
+                >.caption {
+
+                    margin: 0 auto;
+                    max-width: 1200px;
+                    padding-bottom: 3rem;
+                    border-bottom: 1px transparentize($problem-secondary-color, 0.8) solid;
+
+                    >.image {
+
+                        img {
+                            &.default {
+                                display: none;
+                            }
+
+                            &.alt {
+                                display: inline-block;
+                            }
+                        }
+
+                    }
+
+                    >.text {
+                        color: black;
+                        margin-top: 1rem;
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    >.header {
+        color: $problem-title-color;
+        margin-top: 2rem;
+        padding: 0px 15px;
+        font-size: 2rem;
+        line-height: 2.2rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    >.options {
+
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 4rem auto 0rem auto;
+        text-align: center;
+        outline: none;
+        text-decoration: none;
+        padding: 0px 15px;
+
+        .option {
+
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 0px 15px;
+
+            .image {
+
+                display: grid;
+                justify-content: center;
+                justify-items: center;
+                align-items: center;
+                grid-template-columns: 100%;
+                margin: 0 auto;
+                margin-bottom: 1rem;
+                position: relative;
+                width: 130px;
+                height: 130px;
+                border-radius: 100%;
+                border: 1px solid black;
+
+                img {
+                    display: block;
+                }
+
+            }
+
+            .content {
+                padding: 0.8rem 1rem;
+                border-radius: 3px;
+                color: black;
+                font-weight: 600;
+                font-size: 0.8rem;
+                min-height: 64px;
+                min-width: 240px;
+                display: grid;
+                align-items: center;
+
+                .title {
+                    text-transform: uppercase;
+                }
+
+            }
+
+        }
+    }
+
+    .form-container {
+
+        max-width: 700px;
+        min-height: 50vh;
+        margin: 0 auto;
+        margin-top: 2rem;
+        padding: 0 15px;
+        text-align: center;
+        color: $problem-primary-color;
+
+        .number-step {
+            color: $color-text-steps;
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 550;
+            text-transform: uppercase;
+            margin-right: 7%;
+        }
+
+        .horizontal-section-form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            .field {
+                text-align: start;
+                width: 80%;
+            }
+        }
+
+        .horizontal-section-buttons {
+            margin-top: 2%;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 5%;
+        }
+
+        .ui.button.back-color {
+            font-family: $fontModule;
+            background-color: $back-button-color;
+            color: $color-text-button-back-form;
+            margin-right: 20px;
+        }
+
+        .ui.button.custom-color {
+            font-family: $fontModule;
+            background-color: $next-button-color;
+            color: $color-text-next;
+        }
+
+        .link-mailto {
+            color: $color-text-mailto;
+        }
+
+        >.message {
+            padding: 0rem 0rem 2rem;
+            font-size: 1.5rem;
+            line-height: 1.6rem;
+
+            strong {
+                color: $problem-secondary-color;
+                font-weight: bold;
+                font-size: 108%;
+            }
+        }
+
+        .ui.button {
+            font-family: $fontModule;
+            font-size: $font-size-buttons;
+            font-weight: $font-weight-buttons;
+            border-radius: $border-radius-buttons;
+        }
+
+        .ui.form {
+
+            .field {
+                &.buttons {
+                    display: flex;
+                    flex: 0 0 auto;
+                    flex-wrap: wrap;
+                    justify-content: space-evenly;
+                    font-family: $fontModule;
+                }
+            }
+
+        }
+
+    }
+
+    .line-footer {
+        margin-top: 3%;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 90%;
+        text-align: center;
+        height: 1px;
+        background-color: $line-footer-color;
+    }
+
+    .img-logo-footer {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+
+        img {
+            width: $width-logo-footer;
+        }
+    }
+
+    @media screen and (max-width: 620px) {
+
+        .topbar {
+
+            >.header {
+
+                padding: 20px 30px 0px 30px;
+
+                .back {
+
+                    .ui.button {
+                        border: 0px solid transparent !important;
+                        box-shadow: none !important;
+                        font-size: 100%;
+
+                        span {
+                            display: none;
+                        }
+                    }
+
+                }
+
+            }
+
+            >.content {
+                margin-top: 2rem;
+
+                >.caption {
+                    >.image {
+                        max-width: 220px;
+                        margin: 0 auto;
+                    }
+
+                    >.text {
+                        margin-top: 1.8rem;
+                    }
+                }
+            }
+
+        }
+
+        .form-container {
+
+            .horizontal-section-form {
+                flex-direction: column;
+            }
+
+            .horizontal-section-buttons {
+
+                .ui.button.back-color {
+                    margin-right: 4px;
+                }
+
+                .field.buttons {
+                    display: flex;
+                    flex-direction: column-reverse !important;
+                    margin-left: auto;
+                    margin-right: auto;
+                    align-items: center;
+
+                    a {
+                        width: 100%;
+                        margin-top: 5px;
+                    }
+
+                    button {
+                        width: 100%;
+                        margin-top: 5px;
+                    }
+
+                    .field {
+                        display: flex;
+                        flex-direction: column-reverse !important;
+                    }
+                }
+            }
+
+        }
+
+        >.header {
+            color: $problem-title-color;
+            font-size: 1.6rem;
+            line-height: 2rem;
+        }
+
+        >.options {
+
+            display: block;
+            flex: initial;
+            flex-wrap: initial;
+            justify-content: initial;
+            margin-top: 2rem;
+
+            .option {
+
+                display: block;
+                flex: initial;
+                flex-wrap: initial;
+                justify-content: initial;
+                max-width: 100%;
+                margin: 0rem auto;
+                padding: 0px 0px 0px 30px;
+                max-width: max-content;
+                position: relative;
+
+                &:not(:first-child) {
+                    margin-top: 2rem;
+                }
+
+                .image {
+                    position: absolute;
+                    top: 50%;
+                    left: 0px;
+                    transform: translateY(-50%);
+                    width: 60px;
+                    height: 60px;
+                    background-color: white;
+                    margin: 0px;
+                    grid-template-columns: 70%;
+                }
+
+                .content {
+                    font-size: 0.7rem;
+                    grid-template-rows: auto;
+                    min-height: 52px;
+                    padding: 0.4rem 0.5rem;
+                }
+
+            }
+        }
+
+        .line-footer {
+            margin-top: 3%;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 70%;
+            text-align: center;
+            height: 1px;
+            background-color: $line-footer-color;
+        }
+
+        .img-logo-footer {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            margin-bottom: 3%;
+
+            img {
+                width: $width-logo-footer-mobile;
+            }
+
+        }
+
+    }
+}

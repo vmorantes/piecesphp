@@ -1,0 +1,433 @@
+# Eliminaciones
+
+- Remoción de módulo de chat interno obsoleto.
+- Remoción de módulo de presentaciones de capacitación obsoleto.
+    
+# 7.1.0 (20-08-2026)
+
+**Rango de PHP soportado: `>=8.4.1 <8.6`** (antes `>=8.1 <8.5`).
+
+## Cambios que rompen compatibilidad
+
+- **El piso de PHP sube de 8.1 a 8.4.1.** No es una elección estética: 8.1 lleva sin
+  parches de seguridad desde el 31-dic-2025. El `.1` lo impone Symfony 8.1, que exige
+  `>=8.4.1`; declarar `>=8.4` a secas mentía sobre lo que la aplicación necesita.
+    - **Ubuntu 24.04 LTS trae PHP 8.3 por defecto**, así que el despliegue ahora requiere
+      el repositorio de ondrej. Ver `source-docs/.../general.md`.
+- **`bootstrap.php` cambia cómo trata los errores.** Ver abajo, es el único cambio de
+  esta versión que altera el comportamiento en producción.
+
+## Corregido — compatibilidad con PHP 8.5
+
+13 sitios en el código propio, en tres familias:
+
+- **9 casts no canónicos `(double)` → `(float)`** en 7 archivos. Es el mismo cast; solo
+  cambia la grafía. Importaba porque la deprecación se emite **en tiempo de compilación**:
+  bastaba con que el autoloader tocara el archivo.
+- **3 llamadas a `Reflection*::setAccessible()` eliminadas** (`Config.php:712`,
+  `BaseEntityMapper.php:159`, `index.php:338`). Desde 8.1 no tienen efecto. La de
+  `BaseEntityMapper` era la grave: `__callStatic` la ejecutaba en cada `fieldsToSelect()`,
+  o sea en el camino de **todo `SELECT` de mapper**.
+- **`$http_response_header` → `http_get_last_response_headers()`** en `HttpClient.php:186`.
+  Sin guarda `function_exists()`: la función existe desde 8.4, que es el piso.
+
+## Manejo de errores — cambio de comportamiento en producción
+
+`bootstrap.php` promovía a excepción cualquier nivel de su tabla, y **devolvía `true`
+para todo lo demás**, de modo que lo descartaba en silencio.
+
+- **`E_USER_ERROR` ya no se traga.** Se perdían todos los `trigger_error()` de librerías,
+  incluido el `platform_check` de Composer: la aplicación arrancaba sin decir nada sobre
+  PHP 8.1 con un `vendor/` que declara necesitar 8.4.1. Ahora aborta.
+- **`E_RECOVERABLE_ERROR` ahora aborta**; antes se descartaba en silencio.
+- **Las deprecaciones solo abortan en local.** En producción se registran en
+  `app/logs/deprecations.log` y la petición continúa. Un cronjob lanzado sin `--local`
+  cae en la rama de producción.
+- `CleanLogsTask` limpia el log nuevo; limpiaba por nombre explícito y no lo conocía.
+- **Deuda anotada**: `E_WARNING` y `E_NOTICE` siguen abortando. Es herencia, y cambiarlo
+  merece su propia ventana de pruebas.
+
+## Dependencias
+
+- **Los cuatro paquetes propios** pasan a la misma forma canónica `">=8.4 <9.0"`, sin
+  techo por minor. `piecesphp/database` era el único bloqueante real de 8.5.
+
+| Paquete | Antes | Ahora |
+| :-- | :-- | :-- |
+| `piecesphp/database` | v3.0.4 | **v3.1.0** |
+| `piecesphp/datastructures` | v3.0.0 | **v3.1.0** |
+| `piecesphp/html` | v2.0.0 | **v2.1.0** |
+| `piecesphp/geojson` | v2.0.0 | **v2.1.0** |
+
+- **Symfony salta de 6.4 a 8.1** (`cache`, `filesystem`, `process`, `var-exporter`), más
+  `phpspreadsheet` 5.9.0, `zipstream` 3.2.2 y `macroable` 2.1.0. Entran como transitivos:
+  ningún archivo de `src/app` importa `Symfony\Component\*`.
+- **`src/composer.lock` y `bin/tools/composer.lock` pasan a versionarse.** `src/` es la
+  aplicación, no una librería, y con Symfony saltando dos majors hace falta
+  reproducibilidad entre máquinas y despliegue.
+- `composer why-not php 8.5` no devuelve nada.
+
+## Herramientas
+
+- PHPStan analiza el **rango** `{min: 80400, max: 80500}`, no una sola versión, y se añade
+  `phpstan/phpstan-deprecation-rules`. Línea base congelada en
+  `PHPStanResult.Summary.baseline.txt`: 1.078 errores en 192 archivos.
+- Se retiran seis `ignoreErrors` de `cast.*` que no casaban con ningún error. `cast.*`
+  significa «Cannot cast X to Y», no la sintaxis no canónica: esa PHPStan no la detecta.
+- `bin/phpstan-process-result.php`: el regex de número de línea buscaba un formato que
+  PHPStan no emite, así que el resumen imprimía `Líneas: , ,` y abortaba la generación de
+  `bin/Preview`.
+- `bin/cli` prefiere `php8.4` con fallback a `php`.
+- `src/dumps/` (volcados de base de datos) pasa a estar ignorado por git.
+
+## Validado
+
+Recorrido completo del panel en **8.4 y 8.5**, con la promoción de deprecaciones activa:
+login, panel, listado de Publications y su endpoint `-datatables`, formularios, las tres
+exportaciones a Excel y el CLI completo. **Cero deprecaciones y cero 500.**
+Las 9 suites de `piecesphp/database` (72 pruebas) verdes en ambas versiones.
+
+# 7.0.6 (05-04-2026)
+
+- **Exportador de Base de Datos Nativo**:
+    - Se elimina el uso del ejecutable del sistema `mysqldump`.
+    - Integración de `PiecesPHP\Core\Database\Export\Exporter` como nuevo motor para respaldo y exportación de bases de datos de forma agnóstica al sistema operativo.
+    - Soporta múltiples formatos de salida (SQL, JSON, CSV, PHP, XML) y algoritmos de compresión (ZIP, Gzip, Bzip2, File).
+- **Sistema CLI y Terminal**:
+    - Novedades en el comando `db-backup` para elegir qué componentes backupear (`data`, `routines`, `views`, `definer`).
+    - Scripts de autocompletado nativos en terminal para bash (`bin/pieces-completion.bash`) y zsh (`bin/pieces-completion.zsh`).
+- **Sistema de Archivos y Logs**:
+    - Soporte completo de manipulación de enlaces simbólicos (`Symlinks`) en `DirectoryObject` y borrado seguro.
+    - Nuevo modelo de logs bajo demanda con trazas exclusivas y control de redundancia en formato plano para fácil lectura (`error.plain.log`).
+
+# 7.0.5 (27-03-2026)
+
+- **Sistema CLI y Terminal**:
+    - Implementación de la clase `PiecesPHP\Cli` para gestionar argumentos y salida formateada en terminal.
+    - Integración del soporte de `Cli` en `TerminalData` y actualización de `bootstrap.php`.
+    - Refactorización de la detección de entorno local en `AppHelpers` y `CustomSlimErrorHandler`.
+    - Se actualiza la versión de la aplicación a v7.0.5.
+
+# 7.0.3 (26-03-2026)
+
+- **Protección de archivos**:
+    - Se implementó un sistema de protección de archivos que permite restringir el acceso a ciertos directorios.
+    - Para ello se usa `ProtectFileMiddleware::protect`.
+        - El cual es validado por `ServerStatics::protectFileMiddleware`.
+    - El primer parámetro es la ruta del directorio a proteger.
+    - El segundo parámetro es una función que recibe como parámetros un objeto Request y la ruta del archivo.
+    - La función debe retornar true si se permite el acceso y false si se deniega.
+    - Se puede usar la función `SessionToken::isActiveSession(SessionToken::getJWTReceived())` para validar la sesión.
+```php
+ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, 'ruta/al/directorio'), function (Request $request, string $filePath) {
+    return true;
+});
+```
+
+# 7.0.2 (25-03-2026)
+
+- **CLI**:
+    - Mejor semántica en tareas de terminal que no son cronjobs y desacopladas del sistema de rutas con PiecesPHP\Terminal\CliActions.
+    - Tareas afectadas
+```bash
+#Antes
+bin/cli run-cronjobs unit-tests core/http-client
+#Ahora
+bin/cli unit-tests:core/http-client
+#Antes
+bin/cli run-cronjobs unit-tests core/helpers-directories
+#Ahora
+bin/cli unit-tests:core/helpers-directories
+#Antes
+bin/cli run-cronjobs mautic run
+#Ahora
+bin/cli tests:mautic-batch-send
+```
+- **Pruebas unitarias añadidas**:
+    - [Ver](./files/dev/tests.md)
+- **Eliminaciones**:
+    - Se elimina la función `objectToArray`.
+
+# 7.0.1 (25-03-2026)
+
+- **Núcleo y Gestión de Archivos**:
+    - Implementada normalización de rutas manual en `DirectoryObject` y `FileObject` para soportar enlaces simbólicos sin resolver `realpath()`.
+    - Mejora en la seguridad de borrado recursivo para proteger las fuentes originales de los enlaces simbólicos.
+    - Actualización en `ServerStatics` para la creación de enlaces simbólicos dinámicos más robustos.
+- **Sistema de Logs**:
+    - Nuevo método `loggingUniqueMessage()` en `GenericHandler` para registrar errores únicos con una firma detallada de 5 líneas (Cabecera + 4 niveles de traza).
+    - Optimización del log JSON:
+        - Eliminado el anidamiento redundante por segundos, agrupando ahora por día.
+        - Limpieza automática de argumentos (`args`) en las trazas para reducir drásticamente el tamaño del archivo y mejorar la seguridad.
+        - Eliminación de ordenamientos costosos (`uksort`) en cada escritura para mejorar el rendimiento.
+- **ORM y Modelos**:
+    - Ajuste de sintaxis en `where()` del `OTPSecretsUsersMapper` para compatibilidad con PiecesPHP\Core\* en versiones futuras.
+- **Dependencias**:
+    - Actualización de librerías composer: `pragmarx/google2fa` (v9), `hubspot/api-client` (v14), `spatie/url` (v2.4), `slim/psr7` (v1.8), `guzzlehttp/guzzle` (v7.10), entre otras.
+    - Sincronización de la vista "About Framework" con las nuevas versiones.
+- **Pruebas**:
+    - Nueva suite de pruebas unitarias para validación de gestión de directorios y symlinks.
+```bash
+php index.php cli --local run-cronjobs unit-tests core/helpers-directories
+```
+
+# 7.0.0 (23-03-2026)
+
+- Migración a PHP 8.4 funcional. Con soporte hasta 8.1.
+
+# 7.0.0-beta
+
+- Soporte para PHP 8.4 en proceso.
+- Ajuste de composer.json.
+- Upgrade con PHPStan:
+    - Se ignoran falsos positivos con __() añadiendo doc condicional.
+    - Se corrigieron nullables implicitos en el código.
+    - Se corrigieron errores de variables no declaradas.
+    - Hasta level 2 completo.
+
+# 6.4.4 (22-03-2026)
+
+- **Integración con Mautic**:
+    - Refactorización de `MauticEmailAdapter` para mayor confiabilidad.
+    - Prueba de procesamiento vía cronjob (`test-mautic-cronjob.php`).
+        - Plantilla de ejemplo de correo (`template_mautic.php`).
+```bash
+php index.php cli --local run-cronjobs mautic run
+```
+- **HttpClient**:
+    - Mejoras significativas en `HttpClient.php` con soporte para métodos modernos y mayor robustez.
+    - Adición de pruebas unitarias exhaustivas para el cliente HTTP en src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
+```bash
+php index.php cli --local run-cronjobs unit-tests core/http-client
+```
+- **Gestión de Usua7rios (Soporte Mejorado sin Organizaciones)**:
+    - Optimizada la lógica de visualización para admitir el funcionamiento del sistema cuando el módulo de organizaciones está desactivado.
+    - Los formularios se ajustan dinámicamente ocultando campos relacionados con organizaciones si son innecesarios.
+    - Reestructuración de formularios por tipos para mayor claridad.
+    - Mejora en la visualización de perfiles en `user-card.php`.
+    - Nuevo estado de usuario "Eliminado". Para una gestión ordenada las eliminaciones.
+- **Núcleo y Otros**:
+    - Ajustes en utilidades de `AppHelpers.php`.
+    - Ajustes en utilidades de `Utilities.php`.
+    - Mejoras menores en el punto de entrada `index.php`, incluyendo soporte para estados de inactividad equivalentes.
+
+# 6.4.3 (18-03-2026)
+
+- **Sistema de Colas (Implementación Inicial)**:
+    - Introducción del sistema de procesamiento de tareas en segundo plano.
+    - Implementación de `QueueTask` y `QueueHandlerResponse` para la gestión de colas.
+    - Nuevo mapeador `QueueJobMapper` para persistencia de tareas con soporte para reintentos, programación diferida (`scheduledAt`) y registro de errores.
+    - Tarea CLI `ProcessQueueTask` para el procesamiento robusto de la cola con manejo de señales y aislamiento de errores.
+    - Ejemplo de implementación sugerida integrado en `TestQueueRequest`.
+- **FreezeRequest (Persistencia de Contexto HTTP)**:
+    - Motor de "congelación" de peticiones para su posterior ejecución en tareas de cola.
+    - Captura completa de `$_POST`, `$_GET`, `$_FILES` (PSR-7 jerárquico), `$_COOKIE`, `$_SESSION` y `Body`.
+    - Soporte para metadatos personalizados (`customData`) persistidos junto a la petición.
+    - `UploadedFilesStructureMapper`: Nueva utilidad para normalizar y reconstruir estructuras complejas de archivos.
+    - Lógica de limpieza recursiva de archivos temporales con gestión de permisos (`chmod 0777`) para operación multiplataforma (Web -> CLI).
+- **Eventos de Base (Centralización)**:
+    - Mejor centralización de los eventos del sistema en `BaseEventDispatcher`.
+    - Introducción de `event-listeners.php` como archivo centralizado de utilidades para escuchar eventos globales de forma organizada. Ejemplo de migración.
+- **Núcleo y Configuración**:.
+    - Soporte mejorado para rutas y manejo de archivos subidos en `UploadedFileAdapter`.
+
+# 6.4.201
+
+- Ajuste en lógica de cronjobs internos.
+- Añadido endpoint para ejecutar cronjobs desde terminal.
+
+# 6.4.200002
+
+- Ajuste de SQL a utf8mb4.
+- Otros ajustes menores.
+
+# 6.4.200001
+
+- Ajustes para CORS.
+- Algunos ajustes en mailing.
+- Mejor gestión de errores en rutas 404.
+
+# 6.4.2
+
+- Eliminación de console.log innecesarios.
+- Independización de archivos que gestionan la traducción con IA en el front.
+- Internacionalización:
+    - Mejora en revisión de traducciones pendientes.
+    - Optimización de adaptadores de modelo IA para mejor manejo de las traducciones.
+    - Fragmentos grandes de HTML se dividen en traducción con IA, deben ser especificados en asHTMLProperties.
+    - Se destruye la conexión con la base de datos actual para evitar el error de "MySQL server has gone away" por tiempo de espera en la traducción con IA.
+    - Se añade en lang.php la configuración DYNAMIC_TRANSLATIONS para gestionar elementos relevantes del sistema de inyección dinámica de mensajes de traducción.
+    - Gestión de JSON de "traducciones" dinámicas se reemplaza por GeneriContentPseudoMapper.
+    - Se simplifica la lógica de translations/saveGroup por solo interacción con base de datos.
+    - Introducción de DynamicTranslationsHelper para persistencia de traducciones dinámicas. Ahora la base de datos se usa solo como un estado intermedio para guardar las traducciones "pendientes" y los mensajes fijos se circuncriben a un JSON denominado current-translations. Se gestiona fechas de actualización para no leer innecesariamente desde la base de datos. Se refactoriza add-dynamic-translations.php
+- Servido estático de archivos personalizado:
+    - Mejora en el servido de archivos estáticos desde los módulos.
+    - Refactorización de ServerStatics.php.
+    - ServerStatics.php crea enlaces simbólicos en statics/server-delegated para tener que servirlos siempre con PHP.
+    - Los métodos staticRoute ahora se soportan con staticRouteModulesResolver de container para hacer funcionar la lógica de ServerStatics.php anteriormente descrita. Valida si el enlace simbólico existe.
+- Bases de datos:
+    - En BaseModel si introdujo gestión de tiempo de ejecución de MySQL con PDO::ATTR_TIMEOUT basado en 'max_execution_time' de PHP.
+- Sesión:
+    - Corregido: Ahora se toma en cuenta distintos estados de organización que son candidatos para habilitar el ingreso.
+- Configuraciones en config.php:
+    - Se introducen: domain, domain_protocol, base_domain_path, base_url.
+        - i.e.: domain.tld, https://, /ruta/base/src, https://domain.tld/ruta/base/src
+- En librerías base del framework:
+    - Loader general:
+        - Modulizarización de showGenericLoader, removeGenericLoader activeGenericLoader por un manejador desde una clases.
+        - Se mejoró la lógica interna y se añadió la posibilidad mostrar un mensaje.
+    - Se independizó la función genericFormHandler hacia un archivo único.
+- En el adaptador del editor CKEditor:
+    - Se añadió insertLink para permitir la posibilidad de carga de cualquier tipo de archivo como link.
+    - Se hizo el ajuste correspondiente en la gestión del manejador de archivos.
+- Se recomienda el tag en comentarios @category SpecialCaseSolution para soluciones particulares de modo que sean fáciles de buscar.
+- Llaves mapbox se manejan desde "variables de entorno".
+
+# 6.4.2-beta
+
+- Ajuste de bug que hacía que se registraran sesiones "expiradas" sin motivo.
+- Separación de require-dev del composer principal hacia bin/tools.
+- Mejoramiento de base de código js del framework:
+    - CookiesHandler.
+    - GenericStepsViewHandler.
+    - Mejor gestión de adición de librerías adicionales en helpers mediante combinación en gulp con helpers-lib/*
+    - Exposiciones de pcsAdminSideBarIsOpen y pcsAdminSideBarToggle para manipular el sidebar del menú.
+    - Manejo de persistencia de estado (plegado/desplegado) del sidebar con localStorage.
+    - registerDynamicLocalizationMessages y relacionados puede cargar múltiples grupos simultáneamente.
+    - Adición ignoreSearch en MapBoxAdapter para casos en los que no se quiera ejecutar la búsqueda de forma automática.
+- Vista de reporte integrada en front.
+- Internacionalización:
+    - Adición de mensajes, en general.
+    - Optimización de manejo persistente de idiomas, preferencia según navegador y otras mejoras. Se delega el manejor pleno a Config.php
+- Ajustes de permisos según organizaciones y de sistema de aprobaciones.
+- Ajustes de algunas opciones por defecto en inicio de MySpace.
+- Simplificación general de archivos delete-config.js en términos de internacionalización. Es el primer paso para le delegación completa al sistema en lugar de manejarlo en el archivo.
+- Mejora en el manejo de errores para renderización de BaseController.
+- Mejora de funcionalidad de validaciones en PiecesPHP\Core\Validation\Validator.
+- Sesión:
+    - El inicio de sesión toma en cuenta estados de usuario y de organización que son candidatos para habilitar el ingreso.
+- Sidebar interno diferenciado según tipos de usuario.
+- En aprobaciones:
+    - Se verifica isActive que se añade dinámicamente por el manejador.
+    - Optimización de auto aprobaciones.
+- Soporte base de reportes.
+- Soporte de "variables de entorno" con GeneriContentPseudoMapper.
+- Varios modos de listado base de publicaciones.
+
+# 6.4.0
+
+- Unificación de archivos del módulo de ubicación.
+- getPCSPHPConfig a configurations.js.
+- Mejora del sistema de traducciones y agrupaciones de mensajes más modularizadas.
+    - Actualización de módulo de noticias internas y de publicaciones.
+    - Mejoramiento de función de cambio de idioma y manejo persistente de selección (lang_by_cookie, cookie_lang_definer).
+    - Búsqueda de traducciones faltantes con scan-missing-lang y registro de faltantes en app/lang/missing-lang-messages.
+- Unificación de plantillas de correo en view/mailing/template_base.php y plantilla con poco html en view/mailing/template_base_no_style.php.
+- Ampliación de roles de usuarios base.
+- Mejora del listado de usuarios.
+- Sistema de usuarios con capa de aprobación y mejor acoplado a sistema de organizaciones. Como medida que "prescinde" de esa características se puede dejar la organización base única.
+- Sistema de "Perfiles" para usuarios y organizaciones.
+- Ajuste de error en DefaultAccessControlModules que hacía que algunas rutas se mostran indebidamente con 403. Se verifica que empiece por la parte comparada del nombre de la ruta que se está buscando.
+- Eliminación y reordenamiento de código scss.
+- Mejoramiento de LocationsAdapter para trabajar con par país-ciudad (y más) y de MapBoxAdapter para mejorar la búsqueda del geocoder. Y mejoras en general.
+- En AttachmentPlaceholder se agregó una opción para nombres personalizados distinto del nombre del archivo.
+- Para ROOT, se integra en backend la posibilidad de "conectarse" como otro usuario.
+- Adjuntos en Publications es añadible.
+- Ajustes de lógica y orden en sistema de reporte de login.
+- Ajuste dinámico de algunos permisos según si se es el administrador de una organización.
+- Sistema de aprobación, según el que si no se está aprobado el márgen de acción es limitado (integrado con organizaciones, usuarios, convocatorias y publicaciones).
+    - BaseEntityMapper intercepta fieldsToSelect (por lo tanto debe definirse como protected) con y devuelve un campo en consulta relacionado al estatus de aprobación (systemApprovalStatus).
+- Comentarios @category AddToBackendSidebarMenu para rastrear mejor el uso del menú lateral del backend.
+- ContentNavigationHub como un módulo de navegación entre los contenidos de otros módulos internamente.
+- Implementación de un sistema de eventos en BaseEventDispatcher. Útil para el sistema de aprobaciones.
+    - En BaseEntityMapper se disparan: saving, saved, updating y updated.
+    - aseEventDispatcher::dispatch('AddDynamicTransaltions', 'added') para después de añadidas las traducciones dinámicas.
+
+# 6.3.4
+
+- Mejoramiento de multi-idioma.
+- Traducción de textos faltantes.
+- Integración con IA para traducción.
+- Configuración dinámica de IA OpenAI y Mistral.
+- Flujo de multi-idioma de Publicaciones mejorado, integración con traducción por IA.
+- Acceso a claves seguras con getKeyFromSecureKeys.
+- Evento onChange en RichEditorAdapterComponent y método textareaTarget.get(0).updateRichEditor
+- onSuccessFinally en genericFormHandler
+- PCSPHP-Response-Expected-Language como método de definir un idioma para la respuesta back-end desde front-end (recibe el idioma, ie.: es, en, fr, etc....)
+- Mejoramiento de configuraciones finales, se pueden añadir archivos indefinidamente para configuraciones más claras.
+- getExtension en FileObject
+
+# 6.3.1
+
+- Módulo de localización mejorado con LocalizationSystem que permite acceder a las traducciones desde front mediante una ruta con registerDynamicLocalizationMessages.
+    - Se añade en el header la ruta lang-messages-from-server-url
+- onLogout en PiecesPHPGenericHandlerSession.
+- Actualización de adminer.
+- Estructura de base de datos definida en utf8mb3.
+- Organizaciones:
+    - Ajustes en permisos.
+    - Campos requeridos.
+    - Traducciones.
+- Ajustes menores en filtro de países.
+- Ajustes menores en vistas de recursos de MySpaceController.
+- Adición de SurveyJS como plugin frontend integrado.
+- GEO_IP en config.php.
+- Mejoramiento en manejo de errores 403 y 404.
+- Función para devolver banderas según idioma en set_config 'get_fomantic_flag_by_lang', lang.php.
+- Más idiomas por defecto.
+- Remoción de #[\ReturnTypeWillChange].
+- Prevención de inexistencia de constantes de carpeta de errores en GenericHandler.
+- Mejor manejo de errores en BaseController.
+- Mejoramiento en convert_lang_url y adición de lang2 y getCookie.
+- Configuración pcsphp_system_translations contiene todas las traducciones.
+- setConfigValue en AppConfigModel para agilizar la creación.
+- Tipo de usuario Administrativo => Administrador.
+- Ajustes en plantillas de correo.
+- Adición de mailing-logo en gestión de imágenes.
+- Intentar usar color principal en círculo de carga genérico.
+- Configuración alternatives_url_include_current incluye la ruta del idioma actual.
+- Configuración calculate_alternatives_langs_urls es una función que recrea las alternatives_url y alternatives_url_include_current.
+
+# V6.3.0
+
+- Independización de módulo importador.
+- Manejador de sesiones sin usuario: PiecesPHPGenericHandlerSession, SessionTokenIsolated.
+- Ajustes de seguridad en rutas expuestas.
+- En módulo de publicaciones cambio de self::view por $this->render sobreescrito para no repetir importación de módulos.
+- Unificación y simplificación de plantillas de correo electrónico.
+- Nuevos métodos de encriptación bidireccional (BaseHashEncryption).
+- Utilidad para crear cookie: setCookieByConfig.
+- @strftime para ignorar deprecated.
+- TokenModel/TokenController ajustados.
+- Ajustes menores en módulo de ubicaciones.
+- GoogleReCaptchaV3 ajustado para poder ser desactivado.
+- Ajustes en recursos de prueba.
+
+# V6
+
+- Cambio de versión de Slim a v4.
+    - Ya no es retrocompatible.
+- Verisión mínima de compatibilidad de PHP: 7.4
+
+# V5
+
+- Implementación de la plantilla Editorial de HTML5UP en el front por defecto.
+	- Formulario de contacto.
+	- Vistas de blog.
+	- Slidershow.
+- Migración a Gulp 4 para las tareas.
+	- Se recomiendan los pasos:
+		- npm install
+		- npm audit --force -fix
+		- npm --force install
+- Actualización a JQuery 3.5.1
+- PiecesPHPSystemUserHelper.js libre de JQuery (usa Fetch API).
+- Creación de CustomNamespace.js para algunas tareas genéricas (con la intención de eliminar helpers.js en el futuro)
+	- Slideshow.
+	- Desplazamiento suave.
+	- Loader.
+- Varias modificaciones que no afectan el comportamiento en algunos archivos JS/PHP.
+- En el módulo de imágenes (HeroController en PHP) se implemento internacionalización y posibilidad de eliminar.
+- Mejoramiento del sistema de traducciones.
+- Mejoramiento en el sistema de rutas.
+Nota: No hay nigún problema de retro-compatibilidad conocido.

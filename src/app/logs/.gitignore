@@ -1,0 +1,8 @@
+olds/*
+!olds/.keep
+**/*.json
+error.plain.log
+deprecations.log
+error.unique.message.log
+!.gitignore
+!missing-lang-messages.json

@@ -1,0 +1,135 @@
+<?php
+//========================================================================================
+/*                                                                                      *
+ *                     CONFIGURACIONES DE ROLES Y NIVELES DE ACCESO                     *
+ *                                                                                      */
+//========================================================================================
+/**
+ *
+ * $config['roles']: Configuración para el sistema de permisos de la aplicación (PiecesPHP\Core\Roles).
+ * Se usa la forma $config['roles']['CONFIGURACIÓN'].
+ * Las configuraciones aceptadas son [active,types].
+ *
+ * Ejemplo:
+ * $config['roles']['active'] = true; //Si está en false el framework ignorará el uso automático del sistema
+ * $config['roles']['types'] = []; //Es un array con los tipos de roles
+ * $config['roles']['types'][] = [
+ *     'code' => 0, //Código del rol. Debe ser un int. Por defecto time(). (opcional).
+ *     'name' => 'ADMIN', //Nombre del rol. Debe ser un string. (obligatorio).
+ *     'all' => true, //Si es true tiene total acceso a todas las rutas.  Debe ser un bool. Por defecto false. (opcional).
+ *     'allowed_routes' => [ //Array de rutas permitidas (esto es: los nombres de rutas establecidos en Slim). Debe ser un string. (opcional)
+ *     ]
+ * ];
+ *
+ * $config['control_access_login']: Controla el acceso de a las rutas según el valor 'require_login' que posean.
+ * Si es true se hará el control. Si no desea que la aplicación haga estas validaciones automáticamente o desea
+ * implementar otro sistema de usuario establézcala en false.
+ *
+ * $config['admin_url']: Array con las opciones [relative, url].
+ * Si está usando el sistema de usuarios de PiecesPHP está opción será usada para configurar la url a donde
+ * será redirigido automáticamente al iniciar sesión. Debe ser una URL relativa a la base.
+ * Nota: Depende de que $config['control_access_login'] sea true
+ *
+ * $config['admin_url']['relative'] Debe ser true/false. Si es true la url será interpretada como relativa a $config['base_url'] de
+ * lo contrario será tomada tal cual para la redirección.
+ * $config['admin_url']['url'] La url
+ */
+
+use App\Model\UsersModel;
+use PiecesPHP\Core\SessionToken;
+
+//──── Roles y usuarios ──────────────────────────────────────────────────────────────────
+$config['roles']['active'] = true;
+
+$permisosGenerales = [
+    //Generales
+    'admin', //Vista principal de la zona administrativa
+    //Usuarios
+    'users-form-profile',
+    //Avatar
+    'avatars', //Traer todos los elementos de los avatares
+    'push-avatars', //Crear avatar
+];
+
+$permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
+    //Usuarios
+    "users-list", //Listado de los usuarios
+    "users-selection-create", //Selección de tipo de usuario para creación
+    "users-form-create", //Formulario de creación de usuarios
+    "users-form-edit", //Formulario de edición de usuarios
+]));
+
+$permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos, [
+    //Gestión de errores
+    "admin-error-log",
+]));
+
+$config['roles']['baseInitialSegmentedPermissions'] = [
+    'generals' => $permisosGenerales,
+    'administratives' => $permisosAdministrativos,
+    'superiors' => $permisosSuperiores,
+];
+
+$config['roles']['types'] = [
+    [
+        'code' => UsersModel::TYPE_USER_ROOT,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ROOT] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosSuperiores,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_ADMIN_GRAL,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_GRAL] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosAdministrativos,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_ADMIN_ORG,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_ORG] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_GENERAL,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_GENERAL] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_INSTITUCIONAL,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_INSTITUCIONAL] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_COMUNICACIONES,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_COMUNICACIONES] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_GOOGLE_PLAY,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_GOOGLE_PLAY] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+];
+
+//Depurar los que no tengan "name" (por exclusión desde UsersModel.php)
+$config['roles']['types'] = array_filter($config['roles']['types'], function ($type) {
+    return $type['name'] != null;
+});
+
+//Si no se está usando el módulo de organizaciones, se elimina el tipo de usuario administrador de organización
+if (!CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']) {
+    $config['roles']['types'] = array_filter($config['roles']['types'], function ($type) {
+        return $type['code'] != UsersModel::TYPE_USER_ADMIN_ORG && $type['name'] != null;
+    });
+}
+
+$config['control_access_login'] = true;
+$config['admin_url']['relative'] = true;
+$config['admin_url']['url'] = '';
+
+//Definir fecha mínima del token de inicio de sesión
+SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '02-03-2026 00:00:00 AM'));

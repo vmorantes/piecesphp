@@ -1,0 +1,107 @@
+//-------- Párrafos descriptivos
+.section-description {
+
+    &.#{$globalClassPcs},
+    .#{$globalClassPcs} & {
+        max-width: 50rem;
+        text-align: left;
+    }
+}
+
+//-------- Vista de formulario de usuarios
+.user-form-component {
+
+    &.#{$globalClassPcs},
+    .#{$globalClassPcs} & {
+
+        //Items de los tabs
+        .items-pointing {
+            .item {
+                color: $colorThird;
+            }
+
+            .item.active {
+
+                &,
+                &:hover {
+                    padding: 0.7rem;
+                    color: $colorSecond !important;
+                    border-color: $colorSecond !important;
+                    border-bottom: 4px solid $colorSecond;
+                    font-size: 1.1rem;
+                }
+            }
+        }
+
+        //Formulario de usuario
+        .form.users {
+            .field {
+                .ui.labeled {
+                    .ui.label {
+                        background-color: $colorFirst;
+                        font-size: 1.1rem;
+                        padding: 0.7rem;
+                        color: $colorFirstOver;
+                        width: 35%;
+                        align-items: center;
+                        display: flex;
+
+                        &.pass {
+                            background-color: $colorThird;
+                        }
+                    }
+                }
+
+                input[type=text] {
+                    font-size: 1.1rem;
+                    border: 1px solid #ccc;
+                    font-weight: 700;
+                    color: $colorSecond;
+                }
+
+                input[type=email] {
+                    font-size: 1.1rem;
+                    border: 1px solid #ccc;
+                    color: $colorSecond;
+                    font-weight: 700;
+                }
+
+                select {
+                    border: 1px solid #ccc;
+                    color: $colorSecond;
+                    font-weight: 700;
+                }
+
+                input[type=password] {
+                    font-size: 1.1rem;
+                    border: 1px solid #ccc;
+                    color: $colorSecond;
+                    font-weight: 700;
+                }
+            }
+        }
+
+        @media (max-width: 460px) {
+            .form.users {
+                .field {
+                    .ui.labeled {
+                        .ui.label {
+                            font-size: 0.9rem;
+                            width: 40%;
+                        }
+
+                        input {
+                            width: 60%;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width:767px) {
+    .hidden-767 {
+        display: none !important;
+    }
+}

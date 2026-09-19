@@ -1,0 +1,707 @@
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use App\Controller\AdminPanelController;
+use App\Controller\AppConfigController;
+use App\Model\UsersModel;
+use MySpace\Controllers\MyOrganizationProfileController;
+use MySpace\Controllers\MyProfileController;
+use MySpace\Controllers\MySpaceController;
+use News\NewsLang;
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Menu\MenuGroup;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\Core\Roles;
+use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use Spatie\Url\Url as URLManager;
+use SystemApprovals\SystemApprovalsRoutes;
+
+$currentUser = getLoggedFrameworkUser();
+$currentUserID = $currentUser->id;
+$currentUserType = $currentUser->type;
+$isRoot = $currentUserType == UsersModel::TYPE_USER_ROOT;
+$usersCanDeleteAccount = [
+    UsersModel::TYPE_USER_ADMIN_ORG,
+    UsersModel::TYPE_USER_GENERAL,
+];
+$asUserLoggedID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
+$rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
+$isLoggedOtherUser = $asUserLoggedID !== $rootOriginalID;
+$currentLang = Config::get_lang();
+$allowedLangs = Config::get_allowed_langs();
+$manyLangs = count($allowedLangs) > 1;
+$alternativesURL = Config::get_config('alternatives_url');
+$searchUsersURL = URLManager::fromString(get_route('users-search-dropdown'));
+$searchUsersURL = $searchUsersURL->withQueryParameter('search', '{query}');
+$searchUsersURL = $searchUsersURL->withQueryParameter('typeResult', 'RESULT_FULLNAME_USERNAME');
+$searchUsersURL = urldecode($searchUsersURL->__toString());
+
+$userOptions = new MenuGroupCollection([
+    'items' => [
+        new MenuGroup([
+            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Idiomas'),
+            'icon' => 'globe',
+            'href' => baseurl() . '?changeLang',
+            'visible' => $manyLangs,
+            'asLink' => true,
+            'attributes' => [
+                'change-system-lang-trigger' => '',
+            ],
+        ]),
+        new MenuGroup([
+            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'),
+            'icon' => 'desktop',
+            'href' => get_route('about-framework'),
+            'visible' => Roles::hasPermissions('about-framework', $currentUserType),
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Soporte técnico'),
+            'icon' => 'question',
+            'href' => '#',
+            'attributes' => [
+                'support-button-js' => '',
+            ],
+            'visible' => Roles::hasPermissions('tickets-create', $currentUserType) && false,
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Conectar como otro usuario'),
+            'icon' => 'users',
+            'href' => '#',
+            'attributes' => [
+                'connect-as-another-user-trigger' => '',
+            ],
+            'visible' => $isRoot,
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Volver a mi usuario'),
+            'icon' => 'exchange alternate',
+            'href' => '#',
+            'attributes' => [
+                'exit-as-logged-options' => '',
+            ],
+            'visible' => $isLoggedOtherUser,
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Cerrar sesión'),
+            'icon' => 'power off',
+            'href' => '#',
+            'attributes' => [
+                'pcsphp-users-logout' => '',
+            ],
+            'asLink' => true,
+        ]),
+    ],
+]);
+
+$canViewCustomize = array_reduce([
+    AppConfigController::allowedRoute('logos-favicons'),
+    AppConfigController::allowedRoute('backgrounds'),
+    AppConfigController::allowedRoute('generals'),
+    AppConfigController::allowedRoute('seo'),
+], function ($a, $b) {
+    return $a || $b;
+}, false);
+
+$canViewConfiguration = array_reduce([
+    AppConfigController::allowedRoute('generals-sitemap-create'),
+    AppConfigController::allowedRoute('email'),
+    AppConfigController::allowedRoute('os-ticket'),
+    AppConfigController::allowedRoute('generals-cache-clean'),
+    Roles::hasPermissions('configurations-routes', $currentUserType),
+    AppConfigController::allowedRoute('generals'),
+], function ($a, $b) {
+    return $a || $b;
+}, false);
+
+$canViewUsersManage = array_reduce([
+    Roles::hasPermissions('users-selection-create', $currentUserType),
+    Roles::hasPermissions('users-list', $currentUserType),
+    Roles::hasPermissions('importer-form', $currentUserType),
+], function ($a, $b) {
+    return $a || $b;
+}, false);
+
+$canViewRecord = array_reduce([
+    Roles::hasPermissions('admin-error-log', $currentUserType),
+    Roles::hasPermissions('informes-acceso', $currentUserType),
+], function ($a, $b) {
+    return $a || $b;
+}, false);
+$adminOptionsGroups = [
+    __(ADMIN_MENU_LANG_GROUP, 'Personalización de plataforma') => [
+        'visible' => $canViewCustomize,
+        'collection' => new MenuGroupCollection([
+            'items' => [
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Imágenes de marca'),
+                    'icon' => 'image',
+                    'href' => AppConfigController::routeName('logos-favicons'),
+                    'visible' => AppConfigController::allowedRoute('logos-favicons'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Personalización de fondos'),
+                    'icon' => 'images',
+                    'href' => AppConfigController::routeName('backgrounds'),
+                    'visible' => AppConfigController::allowedRoute('backgrounds'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Colores'),
+                    'icon' => 'fill drip',
+                    'href' => AppConfigController::routeName('generals'),
+                    'visible' => AppConfigController::allowedRoute('generals'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Ajustes SEO'),
+                    'icon' => 'cog',
+                    'href' => AppConfigController::routeName('seo'),
+                    'visible' => AppConfigController::allowedRoute('seo'),
+                    'asLink' => true,
+                ]),
+            ],
+        ]),
+    ],
+    __(ADMIN_MENU_LANG_GROUP, 'Configuración plataforma') => [
+        'visible' => $canViewConfiguration,
+        'collection' => new MenuGroupCollection([
+            'items' => [
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Actualizar sitemap'),
+                    'icon' => 'sitemap',
+                    'href' => '#',
+                    'attributes' => [
+                        'sitemap-update-trigger' => '',
+                        'data-url' => AppConfigController::routeName('generals-sitemap-create'),
+                    ],
+                    'visible' => AppConfigController::allowedRoute('generals-sitemap-create'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Email SMTP'),
+                    'icon' => 'envelope outline',
+                    'href' => AppConfigController::routeName('email'),
+                    'visible' => AppConfigController::allowedRoute('email'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'OsTicket'),
+                    'icon' => 'file alternate outline',
+                    'href' => AppConfigController::routeName('os-ticket'),
+                    'visible' => AppConfigController::allowedRoute('os-ticket'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Seguridad e IA'),
+                    'icon' => 'lock',
+                    'href' => AppConfigController::routeName('security-and-ia'),
+                    'visible' => AppConfigController::allowedRoute('security-and-ia'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Limpiar caché'),
+                    'icon' => 'eraser',
+                    'href' => '#',
+                    'visible' => AppConfigController::allowedRoute('generals-cache-clean'),
+                    'attributes' => [
+                        'clear-cache-update-trigger' => '',
+                        'data-url' => AppConfigController::routeName('generals-cache-clean'),
+                    ],
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Rutas y permisos'),
+                    'icon' => 'shield alternate',
+                    'href' => get_route('configurations-routes', [], true),
+                    'visible' => Roles::hasPermissions('configurations-routes', $currentUserType),
+                    'asLink' => true,
+                ]),
+            ],
+        ]),
+    ],
+    __(ADMIN_MENU_LANG_GROUP, 'Gestión de usuarios') => [
+        'visible' => $canViewUsersManage,
+        'collection' => new MenuGroupCollection([
+            'items' => [
+                new MenuGroup([
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Agregar usuario'),
+                    'icon' => 'user plus',
+                    'href' => get_route('users-selection-create'),
+                    'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Gestionar usuarios'),
+                    'icon' => 'users cog',
+                    'href' => get_route('users-list'),
+                    'visible' => Roles::hasPermissions('users-list', $currentUserType),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Importar usuarios'),
+                    'icon' => 'upload',
+                    'href' => get_route('importer-form', ['type' => 'users'], true),
+                    'visible' => Roles::hasPermissions('importer-form', $currentUserType),
+                    'asLink' => true,
+                ]),
+            ],
+        ]),
+    ],
+    __(ADMIN_MENU_LANG_GROUP, 'Registro') => [
+        'visible' => $canViewRecord,
+        'collection' => new MenuGroupCollection([
+            'items' => [
+                new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Log de errores'),
+                    'icon' => 'times',
+                    'href' => get_route('admin-error-log', [], true),
+                    'attributes' => [
+                        'target' => '_blank',
+                    ],
+                    'visible' => Roles::hasPermissions('admin-error-log', $currentUserType),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Intentos de ingresos'),
+                    'icon' => 'sign in alternate',
+                    'href' => get_route('informes-acceso') . '?attempts=yes',
+                    'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario sin ingresos'),
+                    'icon' => 'user times',
+                    'href' => get_route('informes-acceso') . '?not-logged=yes',
+                    'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Registro de ingresos'),
+                    'icon' => 'chart bar outline',
+                    'href' => get_route('informes-acceso') . '?logged=yes',
+                    'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
+                    'asLink' => true,
+                ]),
+            ],
+        ]),
+    ],
+];
+
+$withAdminOptions = false;
+$withNews = NEWS_MODULE;
+
+foreach ($adminOptionsGroups as $title => $config) {
+    if ($config['visible']) {
+        $withAdminOptions = true;
+        break;
+    }
+}
+
+/**
+ * @var UserDataPackage
+ */
+$currentUser = getLoggedFrameworkUser();
+/**
+ * @var bool
+ */
+$hasAvatar = $currentUser->hasAvatar;
+/**
+ * @var string
+ */
+$avatar = $currentUser->avatar;
+?>
+
+<div class="ui-pcs topbar-switches">
+    <div class="ui-pcs topbar-toggle user-options">
+        <div class="current-user-info">
+            <div class="image">
+                <?php if ($hasAvatar) : ?>
+                <img src="<?= $avatar; ?>">
+                <?php else : ?>
+                <i class="icon user outline"></i>
+                <?php endif; ?>
+            </div>
+            <span><?= $currentUser->firstname . ' ' . $currentUser->firstLastname; ?></span>
+        </div>
+        <i class="angle down icon"></i>
+    </div>
+
+    <?php if ($withNews) : ?>
+    <div class="ui-pcs topbar-toggle notifications-options">
+        <div class="icon">
+            <i class="bell outline icon"></i>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($withAdminOptions) : ?>
+    <div class="ui-pcs topbar-toggle admin-options">
+        <div class="icon">
+            <i class="cog icon"></i>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($isLoggedOtherUser) : ?>
+    <div class="ui-pcs topbar-toggle exit-as-logged-options">
+        <div class="icon">
+            <i class="exchange alternate icon"></i>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<div class="topbar-content close">
+
+    <div class="close-user">
+        <div class="icon-decorated">
+            <div class="bg-white">
+                <i class="user outline icon"></i>
+            </div>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Perfil'); ?></span>
+        </div>
+        <i class="times icon close"></i>
+    </div>
+
+    <div class="ui-pcs topbar-options user-options">
+
+        <div class="user-info">
+
+            <div class="avatar">
+                <?php if ($hasAvatar) : ?>
+                <img src="<?= $avatar; ?>">
+                <?php else : ?>
+                <div class="icon">
+                    <i class="icon user outline"></i>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="names">
+                <span><?= $currentUser->firstname . ' ' . $currentUser->secondname; ?></span>
+                <span><?= $currentUser->firstLastname . ' ' . $currentUser->secondLastname; ?></span>
+            </div>
+
+            <div class="text">
+                <div class="meta">
+                    <?= $currentUser->getTypeText(); ?>
+                </div>
+                <div class="meta">
+                    <?= $currentUser->email; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="change-account">
+            <span edit-account><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></span>
+            <span change-password><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></span>
+            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Opciones de seguridad'); ?></a>
+            <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
+            <a href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
+            <?php endif; ?>
+            <?php if(MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>
+            <a href="<?= MyOrganizationProfileController::routeName('my-organization-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi organización'); ?></a>
+            <?php endif; ?>
+        </div>
+
+        <div class="items">
+            <div class="section-title"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Plataforma'); ?></div>
+            <?php foreach ($userOptions->getItems() as $userOption) : ?>
+            <?php if ($userOption->asLink()) : ?>
+            <a class="item<?= $userOption->isCurrent() ? " current" : ''; ?>" href="<?= $userOption->getHref(); ?>" <?= $userOption->getAttributes(true); ?>>
+                <div class="figure"><i class="icon <?= $userOption->getIcon(false); ?>"></i></div>
+                <div class="text"><?= $userOption->getName(); ?></div>
+            </a>
+            <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="footer-logo">
+            <img src="<?= get_config('logo'); ?>" alt="Logo">
+        </div>
+
+    </div>
+</div>
+
+<?php if ($withNews) : ?>
+<div class="topbar-content close" data-url="<?= \News\Controllers\NewsController::routeName('ajax-all'); ?>">
+
+    <div class="close-user">
+        <div class="icon-decorated">
+            <div class="bg-white">
+                <i class="bell outline icon"></i>
+            </div>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias'); ?></span>
+        </div>
+        <i class="times icon close"></i>
+    </div>
+
+    <div news-toolbar-container class="ui-pcs topbar-options notifications-options">
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($withAdminOptions) : ?>
+<div class="topbar-content close">
+
+    <div class="close-user">
+        <div class="icon-decorated">
+            <div class="bg-white">
+                <i class="cog icon"></i>
+            </div>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Administrativo'); ?></span>
+        </div>
+        <i class="times icon close"></i>
+    </div>
+
+    <div class="ui-pcs topbar-options admin-options">
+
+        <div class="items">
+            <?php foreach ($adminOptionsGroups as $title => $config) : ?>
+
+            <?php /** @var bool */ $visible = $config['visible']; ?>
+            <?php /** @var MenuGroup[] */ $collection = $config['collection']->getItems(); ?>
+            <?php if ($visible) : ?>
+
+            <div class="section-title"><?= $title; ?></div>
+
+            <?php foreach ($collection as $adminOption) : ?>
+
+            <?php if($adminOption->asLink()): ?>
+            <a class="item<?= $adminOption->isCurrent() ? " current" : ''; ?>" href="<?= $adminOption->getHref() === '#' ? 'javascript:void(0);' : $adminOption->getHref(); ?>" <?= $adminOption->getAttributes(true); ?>>
+                <div class="figure"><i class="icon <?= $adminOption->getIcon(false); ?>"></i></div>
+                <div class="text"><?= $adminOption->getName(); ?></div>
+            </a>
+            <?php endif;?>
+
+            <?php endforeach; ?>
+
+            <?php endif;?>
+
+            <?php endforeach; ?>
+        </div>
+
+    </div>
+</div>
+<?php endif; ?>
+
+<div class="profile-content-system">
+
+    <div class="close">
+        <i close-profile class="times icon"></i>
+    </div>
+
+    <div class="user-data">
+
+        <div class="image">
+            <?php if ($hasAvatar) : ?>
+            <img src="<?= $avatar; ?>" alt="Avatar">
+            <?php else : ?>
+            <i class="user icon"></i>
+            <?php endif; ?>
+        </div>
+
+        <div class="info">
+            <span><?= $currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname; ?></span>
+            <small><?= $currentUser->getTypeText(); ?></small>
+            <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar foto'); ?></a>
+        </div>
+    </div>
+
+    <div class="tab-options">
+
+        <div class="item" data-tab="account">
+            <i class="user outline icon"></i>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cuenta'); ?></span>
+        </div>
+        <div class="item" data-tab="password">
+            <i class="user outline icon"></i>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña'); ?></span>
+        </div>
+        <?php if(in_array($currentUserType, $usersCanDeleteAccount)): ?>
+        <div class="item" delete-account-trigger>
+            <i class="user times icon"></i>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Eliminar cuenta'); ?></span>
+        </div>
+        <?php endif;?>
+    </div>
+
+    <div class="body-content">
+
+        <div class="content-view account" data-view="account">
+            <form profile-information-form class="ui form" action="">
+                <input type="hidden" name="id" value="<?= $currentUser->id ?>">
+                <h3><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Información de perfil'); ?></h3>
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nombres'); ?></label>
+                    <div class="two fields">
+                        <div class="field">
+                            <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer nombre'); ?>" required value="<?= $currentUser->firstname ?>">
+                        </div>
+                        <div class="field">
+                            <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo nombre'); ?>" value="<?= $currentUser->secondname ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Apellidos'); ?></label>
+                    <div class="two fields">
+                        <div class="field">
+                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= $currentUser->first_lastname ?>">
+                        </div>
+                        <div class="field">
+                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= $currentUser->second_lastname ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario'); ?></label>
+                    <input required type="text" name="username" placeholder="" value="<?= $currentUser->username ?>">
+                </div>
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Correo'); ?></label>
+                    <input required type="email" name="email" placeholder="" value="<?= $currentUser->email ?>">
+                </div>
+                <div class="align-right">
+                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
+                </div>
+            </form>
+        </div>
+        <div class="content-view password" data-view="password">
+            <form user-password-form class="ui form" action="">
+                <input type="hidden" name="id" value="<?= $currentUser->id ?>">
+
+                <h3 class="no-margin"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar de contraseña'); ?></h3>
+                <span>Una contraseña segura debe tener 8 caracteres como mínimo, distingue mayúsculas de minúsculas</span>
+                <br>
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña actual'); ?></label>
+                    <input type="password" name="current-password" placeholder="">
+                </div>
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nueva contraseña'); ?></label>
+                    <input type="password" name="password" placeholder="">
+                </div>
+                <div class="field">
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Confirmar contraseña'); ?></label>
+                    <input type="password" name="password2" placeholder="">
+                </div>
+                <div class="align-right">
+                    <button close-profile class="ui secondary basic button" type="reset"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
+                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<?php if($withNews): ?>
+<?php //Modal módulo noticias internas ?>
+<div news-modal class="ui tiny modal">
+    <div class="header"></div>
+    <div class="content"></div>
+    <div class="actions">
+        <div class="ui cancel button primary"><?= __(NewsLang::LANG_GROUP, 'Cerrar'); ?></div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($manyLangs): ?>
+<div class="ui modal" change-system-lang-modal data-lang-cookie="<?= get_config('cookie_lang_definer'); ?>">
+    <div class="content">
+        <form class="ui form">
+            <div class="section-fields-divider">
+                <div class="title s24"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar idioma'); ?></div>
+            </div>
+            <div class="field">
+                <select name="lang" class="ui dropdown search auto">
+                    <?php foreach($alternativesURL as $lang => $url): ?>
+                    <option <?= $lang == $currentLang ? 'selected' : ''; ?> value="<?= $lang; ?>"><?= __('lang', $lang); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="field">
+                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($isRoot): ?>
+<div class="ui modal" connect-as-another-user-modal data-as-user-cookie="<?= CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME; ?>">
+    <div class="content">
+        <form class="ui form">
+            <div class="section-fields-divider">
+                <div class="title s24"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambio de usuario'); ?></div>
+            </div>
+            <div class="field">
+                <select class="ui dropdown search" name="userID" data-search-url="<?= $searchUsersURL; ?>" required>
+                    <option value=""><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Seleccionar usuario'); ?></option>
+                </select>
+            </div>
+            <div class="field">
+                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php
+    //Modal edición de imagen de usuario
+    modalImageUploaderForCropperAdminViews([
+        //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+        'content' => simpleCropperAdapterWorkSpace([
+            'type' => 'image/*',
+            'required' => false,
+            'selectorAttr' => 'simple-cropper-profile',
+            'referenceW' => '400',
+            'referenceH' => '400',
+            'image' => $avatar,
+        ], false),
+        //Atributos que se asignarán al modal (el contenedor principal), string
+        'modalContainerAttrs' => "profile-image-modal",
+        //Clases que se asignarán al modal (el contenedor principal), string
+        'modalContainerClasses' => "ui tiny modal",
+        //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+        'modalContentElementAttrs' => implode(' ', [
+            'action-url="' . get_route('push-avatars') . '"',
+            'user-id="' . getLoggedFrameworkUser()->id . '"',
+        ]),
+        //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+        'informationContentMainClass' => 'info-content',
+        //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+        'informationContentClasses' => null,
+        //Título del modal, string
+        'titleModal' => null,
+        //Descripción del modal, string
+        'descriptionModal' => null,
+    ]);
+?>
+
+<div class="ui toast delete-account-handler">
+    <div class="content">
+        <div class="ui header"><?= __(GLOBAL_LANG_GROUP, 'Confirmación'); ?></div>
+        <p>
+            <?= __(GLOBAL_LANG_GROUP, 'Para confirmar la acción escriba en el siguiente campo: Eliminar');?>
+        </p>
+        <div class="ui form">
+            <input type="text" name="confirm-delete" placeholder="<?= __(GLOBAL_LANG_GROUP, "Escriba 'Eliminar'"); ?>" required>
+        </div>
+        <br>
+    </div>
+    <div class="left basic actions">
+        <button class="ui button red" data-url="<?= get_route('delete-account-request'); ?>" delete data-expected-word="<?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?>"><?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?></button>
+        <button class="ui button grey" cancel><?= __(GLOBAL_LANG_GROUP, 'Cancelar'); ?></button>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+.#{$globalClassPcs}.container-sidebar {
+    container-type: inline-size;
+    container-name: pcsphp-main-container;
+    display: grid;
+    grid-template-columns: 250px auto;
+    font-size: 1rem;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    transition: .5s;
+
+    &.no-expanded {
+        grid-template-columns: 70px auto;
+    }
+
+    >.content {
+        position: relative;
+        padding: $containerAsideContentPaddingT $containerAsideContentPaddingR $containerAsideContentPaddingB $containerAsideContentPaddingL;
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 100vh;
+
+        table {
+
+            &,
+            & * {
+                word-break: initial !important;
+            }
+        }
+    }
+
+    >.no-padding {
+        padding: 0;
+    }
+
+    @media (max-width: $sidebarBreakPoint) {
+        grid-template-columns: 100%;
+
+        &.no-expanded {
+            grid-template-columns: 100%;
+        }
+
+        >.content {
+            padding: $containerAsideContentPaddingTRs $containerAsideContentPaddingRRs $containerAsideContentPaddingBRs $containerAsideContentPaddingLRs;
+        }
+
+    }
+}

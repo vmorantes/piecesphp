@@ -1,0 +1,211 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+
+.datasheet {
+    .base-title {
+        font-size: pxToRem(14);
+        font-weight: $fwRegular;
+        line-height: pxToRem(24);
+        color: #3558A2;
+
+        &.size2 {
+            font-size: pxToRem(18);
+            font-weight: $fwMedium;
+            line-height: pxToRem(28);
+        }
+
+        &.size3 {
+            font-size: pxToRem(20);
+            font-weight: $fwMedium;
+            line-height: pxToRem(28);
+        }
+
+        &.size4 {
+            font-size: pxToRem(24);
+            font-weight: $fwMedium;
+            line-height: pxToRem(32);
+            color: #254079;
+        }
+    }
+
+    .base-text {
+
+        &,
+        >* {
+            font-size: pxToRem(16);
+            font-weight: $fwRegular;
+            line-height: pxToRem(24);
+            color: #1B1C1D;
+        }
+
+        &.mark {
+
+            &,
+            >* {
+                font-size: pxToRem(18);
+                font-weight: $fwMedium;
+                line-height: pxToRem(28);
+            }
+        }
+
+        &.mark2 {
+
+            &,
+            >* {
+                font-size: pxToRem(20);
+                font-weight: $fwMedium;
+                line-height: pxToRem(28);
+            }
+        }
+    }
+
+    .base-horizontal-space {
+        display: block;
+        width: 100%;
+        height: 25px;
+    }
+
+    .base-horizontal-divider {
+        width: 100%;
+        height: 1px;
+        margin: 30px auto;
+        background: #3558A2;
+    }
+}
+
+.time-tag {
+    display: grid;
+    grid-template-columns: auto auto;
+    min-height: 32px;
+    width: 100%;
+    max-width: max-content;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 24px;
+    background-color: rgba(128, 128, 128, 0.575);
+    color: black;
+
+    &.green {
+        background-color: rgba(33, 186, 69, 0.10);
+        color: #21BA45;
+
+        >.icon {
+            background-color: #21BA45;
+            color: white;
+        }
+    }
+
+    &.orange {
+        background-color: rgba(242, 113, 28, 0.10);
+        color: #F2711C;
+
+        >.icon {
+            background-color: #F2711C;
+            color: white;
+        }
+    }
+
+    &.red {
+        background-color: rgba(219, 40, 40, 0.10);
+        color: #DB2828;
+
+        >.icon {
+            background-color: #DB2828;
+            color: white;
+        }
+    }
+
+    >.text {
+        font-size: 14px;
+        line-height: 24px;
+    }
+
+    >.icon {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        border-radius: 100%;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(128, 128, 128, 1);
+        color: white;
+
+        i.icon {
+            font-size: 12px;
+
+            &,
+            &::before,
+            &::after {
+                margin: 0;
+                padding: 0;
+            }
+        }
+    }
+}
+
+.container-standard-table table {
+    tr {
+        td {
+            font-size: 16px;
+            line-height: 24px;
+            color: #707070;
+        }
+    }
+
+    .user-info {
+        display: grid;
+        grid-template-columns: auto auto;
+        justify-content: start;
+        align-items: center;
+        gap: 10px;
+
+        >.avatar {
+            width: 45px;
+            height: 45px;
+
+            img {
+                border-radius: 100%;
+                border: 2px solid #FFE552;
+            }
+        }
+
+        >.name {}
+    }
+}
+
+.ui.form.filters {
+    .field.inline {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .field {
+        .ui.dropdown {
+            height: 100%;
+
+            input {
+                height: 100%;
+            }
+
+            >.text {
+                vertical-align: middle;
+            }
+
+            .dropdown.icon {
+                height: 100%;
+
+                &::before {
+                    vertical-align: sub;
+                }
+            }
+        }
+    }
+}

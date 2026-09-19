@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="537.267" height="312.279" viewBox="0 0 537.267 312.279">
+  <g id="Grupo_14044" data-name="Grupo 14044" transform="translate(-376.806 -513.576)">
+    <g id="Grupo_14042" data-name="Grupo 14042" transform="translate(377.306 514.076)">
+      <path id="Trazado_466" data-name="Trazado 466" d="M102.585,294.878V16.685c0-9.1,8.049-16.185,17.158-16.185H519.176c9.109,0,17.158,7.085,17.158,16.185V294.878Z" transform="translate(-51.075 -0.5)" fill="none" stroke="#fff" stroke-width="1"/>
+      <path id="Trazado_468" data-name="Trazado 468" d="M.5,585.842H536.767v9.417a3.221,3.221,0,0,1-.206,1.035,1.619,1.619,0,0,1-.512.789,35.824,35.824,0,0,1-20.306,5.659H21.526a35.837,35.837,0,0,1-20.311-5.659,1.644,1.644,0,0,1-.511-.789,3.255,3.255,0,0,1-.2-1.035Z" transform="translate(-0.5 -291.464)" fill="none" stroke="#fff" stroke-width="1"/>
+      <path id="Trazado_470" data-name="Trazado 470" d="M127.124,44.286H536.229V299.526H127.124Z" transform="translate(-63.292 -22.3)" fill="rgba(13,13,13,0.1)" stroke="#fff" stroke-width="1" fill-rule="evenodd"/>
+      <path id="Trazado_13858" data-name="Trazado 13858" d="M532,23.878a2.312,2.312,0,1,0-2.312-2.312A2.312,2.312,0,0,0,532,23.878Z" transform="translate(-264.563 -9.993)" fill="#adabc3" fill-rule="evenodd"/>
+    </g>
+    <g id="Grupo_14043" data-name="Grupo 14043" transform="translate(496.713 559.963)">
+      <text id="_404" data-name="404" transform="translate(144 164)" fill="#fcfcfc" font-size="160" font-family="IBMPlexMono-Bold, IBM Plex Mono" font-weight="700"><tspan x="-144" y="0">404</tspan></text>
+      <text id="_404-2" data-name="404" transform="translate(149.243 165.748)" fill="none" stroke="#1b1c1d" stroke-width="1" font-size="160" font-family="IBMPlexMono-Bold, IBM Plex Mono" font-weight="700"><tspan x="-144" y="0">404</tspan></text>
+    </g>
+    <line id="Línea_178" data-name="Línea 178" x2="408.952" transform="translate(440.962 559.963)" fill="none" stroke="#fff" stroke-width="1"/>
+    <g id="Elipse_51" data-name="Elipse 51" transform="translate(804.127 544.136)" fill="#fff" stroke="#707070" stroke-width="1">
+      <ellipse cx="3.845" cy="4.194" rx="3.845" ry="4.194" stroke="none"/>
+      <ellipse cx="3.845" cy="4.194" rx="3.345" ry="3.694" fill="none"/>
+    </g>
+    <g id="Elipse_52" data-name="Elipse 52" transform="translate(814.612 544.136)" fill="#fff" stroke="#707070" stroke-width="1">
+      <circle cx="4.194" cy="4.194" r="4.194" stroke="none"/>
+      <circle cx="4.194" cy="4.194" r="3.694" fill="none"/>
+    </g>
+    <g id="Elipse_53" data-name="Elipse 53" transform="translate(825.797 544.136)" fill="#fff" stroke="#707070" stroke-width="1">
+      <ellipse cx="3.845" cy="4.194" rx="3.845" ry="4.194" stroke="none"/>
+      <ellipse cx="3.845" cy="4.194" rx="3.345" ry="3.694" fill="none"/>
+    </g>
+  </g>
+</svg>

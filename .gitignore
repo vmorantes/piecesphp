@@ -1,0 +1,29 @@
+src/vendor/*
+src/vendor-dev/*
+src/statics/uploads/*
+# Respaldos de base de datos: datos reales, nunca se versionan.
+src/dumps/
+src/statics/css/*
+src/statics/admin-area/css/*
+src/statics/core/css/*
+src/statics/core/own-plugins/css/*
+src/statics/login-and-recovery/css/*
+src/statics/features/avatars/css/*
+**/node_modules/*
+**/composer.lock
+# Excepciones: src/ es la APLICACIÓN, no una librería, y bin/tools/ fija las
+# herramientas de análisis. En ambos casos queremos versiones reproducibles entre
+# máquinas y en despliegue — más aún desde que Symfony saltó de 6.4 a 8.1.
+# Los paquetes piecesphp/* sí siguen sin lock: son librerías.
+!src/composer.lock
+!bin/tools/composer.lock
+**/package-lock*
+**/pnpm-lock*
+**/.sass-cache
+docs/code/phpdoc-cache-*
+tasks/output
+.scannerwork
+vendor/**
+IGNORE.md
+IGNORE/
+docs/*
