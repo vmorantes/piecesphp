@@ -81,7 +81,8 @@ class SitemapItem
     public function getXML()
     {
         $xml = "\r\n\t<url>\r\n";
-        $xml .= "\t\t<loc>{$this->location}</loc>\r\n";
+        //En XML un & sin escapar rompe el documento, y una URL puede llevar varios parámetros.
+        $xml .= "\t\t<loc>" . htmlspecialchars($this->location, \ENT_XML1 | \ENT_QUOTES, 'UTF-8') . "</loc>\r\n";
         if ($this->lastModification !== null) {
             $xml .= "\t\t<lastmod>" . $this->lastModification->format('c') . "</lastmod>\r\n";
         }

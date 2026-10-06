@@ -5,9 +5,8 @@
  */
 namespace PiecesPHP\Core;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
-use PiecesPHP\Core\Database\Database;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use ReflectionMethod;
@@ -37,10 +36,13 @@ class BaseEntityMapper extends EntityMapper
      */
     protected $fields = [];
 
+    //`$localeSetted` y el bloque de `lc_time_names` viven en el trait. Ver T145.
+    use LcTimeNamesTrait;
+
     /**
-     * @var bool
+     * @var string[]|null Campos que el último `update()` iba a cambiar. NULL si no se sabe.
      */
-    protected static $localeSetted = false;
+    protected $lastChangedFields = null;
 
     /**
      * @param mixed $value_compare (Debe ser de tipo escalar)
@@ -82,34 +84,7 @@ class BaseEntityMapper extends EntityMapper
             parent::__construct($value_compare, $field_compare, $options);
         }
 
-        if (!self::$localeSetted) {
-            $lcTimeNameOptions = get_config('lc_time_names_mysql');
-            if (is_array($lcTimeNameOptions) && !empty($lcTimeNameOptions)) {
-                $currentLang = Config::get_lang();
-                $lcTimeNameList = array_key_exists($currentLang, $lcTimeNameOptions) ? $lcTimeNameOptions[$currentLang] : null;
-                $lcTimeNameList = is_array($lcTimeNameList) ? $lcTimeNameList : [$lcTimeNameList];
-
-                if (is_array($lcTimeNameList) && !empty($lcTimeNameList)) {
-                    foreach ($lcTimeNameList as $lcTimeName) {
-                        if (is_string($lcTimeName) && mb_strlen($lcTimeName) > 0) {
-                            $databaseInstance = $this->getModel()->getDatabase();
-                            if ($databaseInstance instanceof Database) {
-                                try {
-                                    $prepareStatement = $databaseInstance->prepare("SET lc_time_names = '{$lcTimeName}';");
-                                    $prepareStatement->execute();
-                                    $prepareStatement->closeCursor();
-                                    break;
-                                } catch (\Exception $e) {
-                                    log_exception($e);
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            self::$localeSetted = true;
-        }
+        $this->setLcTimeNamesOnce(fn () => $this->getModel()->getDatabase());
     }
 
     /**
@@ -130,6 +105,8 @@ class BaseEntityMapper extends EntityMapper
 
     /**
      * @inheritDoc
+     *
+     * `updated` solo se despacha si la base dice que cambió una fila. Ver T76.
      */
     public function update()
     {
@@ -137,11 +114,58 @@ class BaseEntityMapper extends EntityMapper
          * @category GlobalMethodDispatch
          */
         BaseEventDispatcher::dispatch(get_class($this), 'updating', $this);
+        //ANTES de escribir: `parent::update()` refresca la instantánea y el conjunto se vacía.
+        $this->lastChangedFields = method_exists($this, 'changedFields') ? $this->changedFields() : null;
         $updated = parent::update();
-        if ($updated) {
+        if ($updated && $this->lastUpdateChangedSomething()) {
             BaseEventDispatcher::dispatch(get_class($this), 'updated', $this);
         }
         return $updated;
+    }
+
+    /**
+     * Qué campos cambió el último `update()`. NULL es «no lo sé», que NO es «ninguno».
+     *
+     * Se captura antes de escribir porque el guardado refresca la instantánea. Ver T87.
+     *
+     * @return string[]|null
+     */
+    public function lastChangedFields(): ?array
+    {
+        return $this->lastChangedFields;
+    }
+
+    /**
+     * Siembra la instantánea de la fila en un mapper que NO vino del constructor.
+     *
+     * La guarda de versión vive AQUÍ y no en los 21 `objectToMapper()`. Ver T87.
+     *
+     * @param object|array<string, mixed>|null $row
+     * @return static
+     */
+    public function seedSnapshotFrom($row)
+    {
+        if (method_exists($this, 'seedRowSnapshot')) {
+            $this->seedRowSnapshot($row);
+        }
+        return $this;
+    }
+
+    /**
+     * ¿Cambió una fila de verdad el último `update()`?
+     *
+     * @return bool
+     */
+    protected function lastUpdateChangedSomething(): bool
+    {
+        $model = $this->getModel();
+
+        //Sin accesor no se puede saber: conducta vieja, y la suite lo grita. Ver T76.
+        if (!method_exists($model, 'getLastChangedRowsCount')) {
+            return true;
+        }
+
+        return $model->getLastChangedRowsCount() !== 0;
     }
 
     /**

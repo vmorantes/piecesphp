@@ -1,8 +1,9 @@
-@import 'import/variables';
-@import '../../core/sass/includes/reset-font-family-fomantic';
-@import 'import/reset';
-@import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
-@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+@use 'sass:color';
+@use 'import/variables' as *;
+@use '../../core/sass/includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
+@use 'import/reset' as *;
+@import url('../../fonts/public-sans/public-sans.css');
+@import url('../../fonts/poppins/poppins.css');
 
 $fontModule: $fontGlobal;
 
@@ -143,7 +144,7 @@ body {
                     margin: 0 auto;
                     max-width: 1200px;
                     padding-bottom: 3rem;
-                    border-bottom: 1px transparentize($problem-secondary-color, 0.8) solid;
+                    border-bottom: 1px color.adjust($problem-secondary-color, $alpha: -0.8) solid;
 
                     >.image {
 

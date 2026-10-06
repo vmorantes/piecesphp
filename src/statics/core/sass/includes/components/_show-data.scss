@@ -1,3 +1,5 @@
+@use '../variables' as *;
+@use '../functions' as *;
 @mixin list-data-cards {
 
     font-family: $fontGlobal;

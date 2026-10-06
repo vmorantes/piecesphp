@@ -7,7 +7,6 @@ namespace PiecesPHP\Core;
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
-use Spatie\Url\Url as URLManager;
 use Throwable;
 
 /**
@@ -29,14 +28,45 @@ class BaseController
     const FORMATTER_CLASS = '\\PiecesPHP\\Core\\HTML\\FormatHtml';
 
     /**
+     * Array de variables globales de las vistas
+     *
+     * @var array
+     */
+    protected $global_variables = [];
+
+    /**
+     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
+     */
+    protected $model = null;
+
+    /**
+     * @var string
+     */
+    protected $instance_view_folder = null;
+
+    /**
+     * Directorio de vistas
+     *
+     * @ignore @var string
+     */
+    protected static $view_folder = "/../view/";
+
+    /**
+     * @ignore @var array $config Array de configuraciones
+     */
+    protected $config = [];
+
+    /**
      * Se asigna la configuración estension=>'.php' (Usada para el método render).
      * Se asigna el directorio de las vistas.
-     * Se asigna un modelo si existe y si no se le asigna el modelo por defecto.
-     * @param boolean $auto_model En true establece un modelo por defecto. Nota: Esto si se está usando con las PiecesPHP
+     * Se asigna un `BaseModel` genérico si $auto_model es true. Ya NO se deduce ningún modelo
+     * por el nombre de la clase.
+     * @param boolean $auto_model En true establece un modelo genérico por defecto.
      * @param string $group_database_model El grupo de configuraciones de base de datos por defecto. Nota: Esto si se está usando con las
      * configuraciones automáticas en PiecesPHP
-     * @param boolean $system_models Establece si se buscará en los modelos predefinidos
-     * del sistema. Nota: Esto si se está usando con las PiecesPHP
+     * @param boolean $system_models YA NO SE USA. Se conserva en la firma porque un clon puede
+     * estar pasándolo: buscaba el modelo entre los predefinidos del sistema, y esa búsqueda se
+     * retiró con la deducción por nombre de clase.
      * @return BaseController
      */
     public function __construct(bool $auto_model = true, string $group_database_model = 'default', $system_models = false)
@@ -52,33 +82,10 @@ class BaseController
             "extension" => ".php",
         ]);
 
-        $base_name_controller = str_replace([
-            "App\\Controller\\",
-            "Controller",
-        ], "", get_class($this));
-
-        $class_model = '\\App\\Model\\' . $base_name_controller . "Model";
-        $class_model_system = $base_name_controller . "Model";
-
-        if ($auto_model) {
-
-            $class_exist = class_exists($class_model);
-            $is_model = is_subclass_of($class_model, '\PiecesPHP\Core\BaseModel');
-            $is_mapper = is_subclass_of($class_model, '\PiecesPHP\Core\BaseEntityMapper');
-
-            if ($class_exist) {
-
-                if ($is_model) {
-                    $this->model = new $class_model(null, null, null, null, null, null, null, $group_database_model);
-                } else if ($is_mapper) {
-                    $this->model = new $class_model(null, 'primary_key', null, true, $group_database_model);
-                }
-
-            } else if (class_exists($class_model_system) && $system_models === true) {
-                $this->model = new $class_model_system(null, null, null, null, null, true, null, $group_database_model);
-            } else if (class_exists('\\PiecesPHP\\Core\\BaseModel')) {
-                $this->model = new BaseModel(null, null, null, null, null, true, null, $group_database_model);
-            }
+        //NO SE RETIRA: sin modelo propio hay un `BaseModel` genérico CON conexión, y de esa rama
+        //dependen las 20 llamadas `new BaseController()` sin argumento. Suite: core/generic-model-on-construct.
+        if ($auto_model && class_exists('\\PiecesPHP\\Core\\BaseModel')) {
+            $this->model = new BaseModel(null, null, null, null, null, true, null, $group_database_model);
         }
 
         if (static::$view_folder == '/../view/') {
@@ -123,61 +130,8 @@ class BaseController
             $output = call_user_func(self::FORMATTER_CLASS . '::format', $output);
         }
 
-        $cache_stamp_render_files = get_config('cache_stamp_render_files');
-        $stamp = get_config('cacheStamp');
-
-        if ($cache_stamp_render_files === true) {
-
-            $outputBase = $output;
-
-            try {
-
-                $dom = new \DOMDocument();
-                $dom->preserveWhiteSpace = true;
-                $dom->formatOutput = false;
-                $temporalDivID = "TEMPORA_" . uniqid() . "_ID";
-
-                libxml_use_internal_errors(true);
-                $dom->loadHTML("<div id='{$temporalDivID}'>{$output}</div>");
-                libxml_clear_errors();
-
-                $imgs = $dom->getElementsByTagName("img");
-
-                $imagesSRCs = [];
-
-                /**
-                 * @var \DOMElement $img
-                 */
-                foreach ($imgs as $img) {
-                    $baseSrc = $img->getAttribute('src');
-                    $src = $baseSrc;
-                    $src = rtrim($src, '/');
-                    $src = URLManager::fromString($src);
-                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $src;
-                    $src = $src->__toString();
-                    $img->setAttribute('src', $src);
-                    $imagesSRCs[$baseSrc] = $src;
-                }
-
-                if (!empty($imagesSRCs)) {
-
-                    $changedSRCs = [];
-
-                    foreach ($imagesSRCs as $from => $to) {
-
-                        if (!in_array($from, $changedSRCs)) {
-                            $output = str_replace($from, $to, $output);
-                            $changedSRCs[] = $from;
-                        }
-
-                    }
-
-                }
-
-            } catch (\Exception $e) {
-                $output = $outputBase;
-            }
-
+        if (get_config('cache_stamp_render_files') === true) {
+            $output = self::addStaticVersions($output);
         }
 
         if ($mode === true) {
@@ -224,61 +178,8 @@ class BaseController
             $output = call_user_func(self::FORMATTER_CLASS . '::format', $output);
         }
 
-        $cache_stamp_render_files = get_config('cache_stamp_render_files');
-        $stamp = get_config('cacheStamp');
-
-        if ($cache_stamp_render_files === true) {
-
-            $outputBase = $output;
-
-            try {
-
-                $dom = new \DOMDocument();
-                $dom->preserveWhiteSpace = true;
-                $dom->formatOutput = false;
-                $temporalDivID = "TEMPORA_" . uniqid() . "_ID";
-
-                libxml_use_internal_errors(true);
-                $dom->loadHTML("<div id='{$temporalDivID}'>{$output}</div>");
-                libxml_clear_errors();
-
-                $imgs = $dom->getElementsByTagName("img");
-
-                $imagesSRCs = [];
-
-                /**
-                 * @var \DOMElement $img
-                 */
-                foreach ($imgs as $img) {
-                    $baseSrc = $img->getAttribute('src');
-                    $src = $baseSrc;
-                    $src = rtrim($src, '/');
-                    $src = URLManager::fromString($src);
-                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $src;
-                    $src = $src->__toString();
-                    $img->setAttribute('src', $src);
-                    $imagesSRCs[$baseSrc] = $src;
-                }
-
-                if (!empty($imagesSRCs)) {
-
-                    $changedSRCs = [];
-
-                    foreach ($imagesSRCs as $from => $to) {
-
-                        if (!in_array($from, $changedSRCs)) {
-                            $output = str_replace($from, $to, $output);
-                            $changedSRCs[] = $from;
-                        }
-
-                    }
-
-                }
-
-            } catch (\Exception $e) {
-                $output = $outputBase;
-            }
-
+        if (get_config('cache_stamp_render_files') === true) {
+            $output = self::addStaticVersions($output);
         }
 
         if ($mode === true) {
@@ -289,11 +190,83 @@ class BaseController
 
     }
     /**
+     * Marca con la versión de su archivo (ADR 0034) cada URL de imagen de la salida, POR ATRIBUTO: src de img y source,
+     * cada candidato de srcset, poster, y url(…) de un style en línea. El valor se casa entre sus comillas tal como está
+     * escrito: ni un src que es prefijo de otro ni un &amp; pueden desviarlo, que es lo que le pasaba al str_replace de la
+     * URL suelta. Lo de dentro de <script> no se toca, una URL que ya lleva cacheStamp se deja, y un error de la expresión
+     * devuelve la salida intacta.
+     *
+     * @param string $output
+     * @return string
+     */
+    protected static function addStaticVersions(string $output): string
+    {
+        //El valor escrito, con su codificación: se añade el parámetro al final, antes del fragmento.
+        $mark = function (string $written): string {
+            $url = html_entity_decode($written, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+            if (trim($url) === '' || preg_match('/[?&]cacheStamp=/', $url) === 1 || str_starts_with(trim($url), 'data:')) {
+                return $written;
+            }
+            $version = static_file_version($url);
+            if ($version === 'none') {
+                return $written;
+            }
+            $hashAt = strpos($written, '#');
+            $beforeHash = $hashAt === false ? $written : substr($written, 0, $hashAt);
+            $hash = $hashAt === false ? '' : substr($written, $hashAt);
+            $separator = !str_contains($beforeHash, '?') ? '?' : (str_contains($beforeHash, '&amp;') ? '&amp;' : '&');
+            return $beforeHash . $separator . 'cacheStamp=' . $version . $hash;
+        };
+        $markSrcset = function (string $written) use ($mark): string {
+            $candidates = array_map(function (string $candidate) use ($mark): string {
+                $marked = preg_replace_callback('/^(\s*)(\S+)/', fn(array $m): string => $m[1] . $mark($m[2]), $candidate);
+                return is_string($marked) ? $marked : $candidate;
+            }, explode(',', $written));
+            return implode(',', $candidates);
+        };
+        $markStyle = function (string $written) use ($mark): string {
+            $marked = preg_replace_callback('/url\(\s*(&quot;|&#039;|[\'"]?)(.*?)\1\s*\)/i', fn(array $m): string => 'url(' . $m[1] . $mark($m[2]) . $m[1] . ')', $written);
+            return is_string($marked) ? $marked : $written;
+        };
+        $markTag = function (array $tag) use ($mark, $markSrcset, $markStyle): string {
+            $name = mb_strtolower($tag[1]);
+            $marked = preg_replace_callback('/(\s)(src|srcset|poster|style)(\s*=\s*)(["\'])(.*?)\4/is', function (array $a) use ($name, $mark, $markSrcset, $markStyle): string {
+                $attribute = mb_strtolower($a[2]);
+                $value = $a[5];
+                if ($attribute === 'style') {
+                    $value = $markStyle($value);
+                } elseif ($attribute === 'srcset' && in_array($name, ['img', 'source'], true)) {
+                    $value = $markSrcset($value);
+                } elseif (($attribute === 'src' && in_array($name, ['img', 'source'], true)) || ($attribute === 'poster' && $name === 'video')) {
+                    $value = $mark($value);
+                }
+                return $a[1] . $a[2] . $a[3] . $a[4] . $value . $a[4];
+            }, $tag[0]);
+            return is_string($marked) ? $marked : $tag[0];
+        };
+        $parts = preg_split('/(<script\b.*?<\/script>)/is', $output, -1, \PREG_SPLIT_DELIM_CAPTURE);
+        if ($parts === false) {
+            return $output;
+        }
+        foreach ($parts as $i => $part) {
+            if ($i % 2 === 1) {
+                continue;
+            }
+            $marked = preg_replace_callback('/<([a-z][a-z0-9-]*)\b[^>]*>/i', $markTag, $part);
+            if (!is_string($marked)) {
+                return $output;
+            }
+            $parts[$i] = $marked;
+        }
+        return implode('', $parts);
+    }
+
+    /**
      * Establece configuraciones  de uso interno para el controlador, según sea necesario.
      * @param array $config Un array asociativo que designa las configuraciones en orden nombre:valor
      * @return void
      */
-    public function setConfig(array $config = [])
+    public function setConfig(array $config = []): void
     {
         $this->config = $config;
     }
@@ -306,7 +279,7 @@ class BaseController
      * @param array $variables Un array asociativo que designa las variables que estarán disponibles dentro de los archivos
      * @return void
      */
-    public function setVariables(array $variables = [])
+    public function setVariables(array $variables = []): void
     {
         $this->global_variables = $variables;
     }
@@ -316,7 +289,7 @@ class BaseController
      * @param string $dir Directorio de las vistas
      * @return static
      */
-    public function setInstanceViewDir(string $dir)
+    public function setInstanceViewDir(string $dir): static
     {
         $last_char = mb_substr($dir, mb_strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');
@@ -330,7 +303,7 @@ class BaseController
      */
     public function getInstanceViewDir()
     {
-        return $this->instance_view_folder !== null ? $this->instance_view_folder : self::$view_folder;
+        return $this->instance_view_folder ?? self::$view_folder;
     }
 
     /**
@@ -338,11 +311,102 @@ class BaseController
      * @param string $dir Directorio de las vistas
      * @return void
      */
-    public static function setViewDir(string $dir)
+    public static function setViewDir(string $dir): void
     {
         $last_char = mb_substr($dir, mb_strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');
         self::$view_folder = $is_bar ? $dir : $dir . \DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Grupo de idioma de los mensajes que emite este contrato.
+     *
+     * @var string
+     */
+    const OPERATION_LANG_GROUP = 'operation-route';
+
+    /**
+     * Sufijos de ruta que declaran la operación. La ruta manda; el cuerpo, no.
+     *
+     * @var array<string,bool>
+     */
+    const OPERATION_ROUTE_SUFFIXES = [
+        '-actions-add' => false,
+        '-actions-edit' => true,
+    ];
+
+    /**
+     * ¿Esta petición entró por la ruta de EDICIÓN?
+     *
+     * La operación la decide el NOMBRE DE LA RUTA, que es lo mismo que concede el permiso.
+     * Derivarla del cuerpo —`$isEdit = $id !== -1`— dejaba que el cliente eligiera la rama
+     * mientras la comprobación miraba la puerta. Ver T120.
+     *
+     * @param \PiecesPHP\Core\Routing\RequestRoute $request
+     * @return bool
+     * @throws \UnexpectedValueException Si la ruta no declara ninguna de las dos operaciones.
+     */
+    public static function isEditRoute(\PiecesPHP\Core\Routing\RequestRoute $request): bool
+    {
+        $route = $request->getRoute();
+        $name = $route !== null ? (string) $route->getName() : '';
+
+        foreach (self::OPERATION_ROUTE_SUFFIXES as $suffix => $isEdit) {
+            if (str_ends_with($name, $suffix)) {
+                return $isEdit;
+            }
+        }
+
+        //NO SE ADIVINA. Una ruta que llega aquí sin declarar su operación es un error de
+        //registro, y elegir una rama por defecto sería reponer el defecto que esto arregla.
+        throw new \UnexpectedValueException(
+            'La ruta «' . $name . '» llega a una acción de alta/edición y no declara cuál es: '
+            . 'su nombre tiene que terminar en ' . implode(' o ', array_keys(self::OPERATION_ROUTE_SUFFIXES)) . '.'
+        );
+    }
+
+    /**
+     * Respuesta al desajuste entre la ruta y el `id` recibido. IDÉNTICA en los 13 sitios.
+     *
+     * No se resuelve eligiendo una rama: se rechaza. Un `id` en la ruta de alta, o su ausencia
+     * en la de edición, solo puede venir de un cliente que no es el formulario.
+     *
+     * @param \PiecesPHP\Core\Routing\RequestRoute $request
+     * @param \PiecesPHP\Core\Routing\ResponseRoute $response
+     * @param bool $isEditRoute Operación que declara la ruta.
+     * @param int $id Identificador recibido en el cuerpo.
+     * @return \PiecesPHP\Core\Routing\ResponseRoute
+     */
+    public static function rejectOperationMismatch(
+        \PiecesPHP\Core\Routing\RequestRoute $request,
+        \PiecesPHP\Core\Routing\ResponseRoute $response,
+        bool $isEditRoute,
+        int $id
+    ): \PiecesPHP\Core\Routing\ResponseRoute {
+        $route = $request->getRoute();
+        $name = $route !== null ? (string) $route->getName() : '';
+
+        $result = new \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations(
+            [],
+            __(self::OPERATION_LANG_GROUP, 'Operación')
+        );
+        $result->setSingleOperation(true);
+        $result->setSuccessOnSingleOperation(false);
+        $result->setValue('redirect', false);
+        $result->setValue('redirect_to', null);
+        $result->setValue('reload', false);
+        $result->setMessage(__(
+            self::OPERATION_LANG_GROUP,
+            'La operación solicitada no corresponde con la ruta utilizada.'
+        ));
+
+        //SE REGISTRA: un desajuste no lo produce el formulario, así que interesa que deje rastro.
+        log_exception(new \UnexpectedValueException(
+            'Desajuste de operación en «' . $name . '»: la ruta declara '
+            . ($isEditRoute ? 'EDICIÓN' : 'ALTA') . ' y el cuerpo trae id=' . $id . '.'
+        ));
+
+        return $response->withJson($result, 400);
     }
 
     /**
@@ -362,32 +426,4 @@ class BaseController
         return $this->global_variables;
     }
 
-    /**
-     * Array de variables globales de las vistas
-     *
-     * @var array
-     */
-    protected $global_variables = [];
-
-    /**
-     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
-     */
-    protected $model = null;
-
-    /**
-     * @var string
-     */
-    protected $instance_view_folder = null;
-
-    /**
-     * Directorio de vistas
-     *
-     * @ignore @var string
-     */
-    protected static $view_folder = "/../view/";
-
-    /**
-     * @ignore @var array $config Array de configuraciones
-     */
-    protected $config = [];
 }

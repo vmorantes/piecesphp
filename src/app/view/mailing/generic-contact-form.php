@@ -10,6 +10,11 @@ $titleSubject = __($langGroup, 'Asunto');
 $titleUpdates = __($langGroup, 'Acepta que le envíen actualizaciones');
 $titleMessage = __($langGroup, 'Mensaje');
 $yesOrNo = $updates ? __($langGroup, 'Sí') : __($langGroup, 'No');
+//Vienen de un formulario público sin sesión: se escapan antes de entrar en el HTML del correo.
+$name = htmlspecialchars((string) $name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$email = htmlspecialchars((string) $email, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$subject = htmlspecialchars((string) $subject, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$message = htmlspecialchars((string) $message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $text = <<<EOF
 <h1>$title</h1>
 <p>

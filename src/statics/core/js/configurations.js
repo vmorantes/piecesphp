@@ -116,18 +116,21 @@ pcsphpGlobals.messages = {
 	en: new Proxy(PCSPHP_TRANSLATIONS_EN, {
 		set: pcsphpGlobals.messagesProxySetHandler,
 	}),
-	fr: new Proxy(PCSPHP_TRANSLATIONS_FR, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	de: new Proxy(PCSPHP_TRANSLATIONS_DE, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	it: new Proxy(PCSPHP_TRANSLATIONS_IT, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	pt: new Proxy(PCSPHP_TRANSLATIONS_PT, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
+	//IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`. Cada entrada de
+	//aquí necesita su `translations/<código>.js`, porque la constante se lee al cargar y
+	//una que no exista revienta el archivo entero, no solo su idioma.
+	//fr: new Proxy(PCSPHP_TRANSLATIONS_FR, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
+	//de: new Proxy(PCSPHP_TRANSLATIONS_DE, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
+	//it: new Proxy(PCSPHP_TRANSLATIONS_IT, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
+	//pt: new Proxy(PCSPHP_TRANSLATIONS_PT, {
+	//	set: pcsphpGlobals.messagesProxySetHandler,
+	//}),
 }
 
 if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {
@@ -1085,7 +1088,7 @@ function pcsAdminTopbars() {
 				onDraw: (item, parsed) => {
 					parsed.on('click', () => {
 						newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
-						newsModal.find('.content').html(item.content.replace(/\\/g, ''))
+						newsModal.find('.content').html(item.content)
 						newsModal.modal('show')
 						//Marcar como leída
 						if (typeof markAsReadURL === 'string' && item.id) {
@@ -1430,123 +1433,67 @@ function autoTranslateFromLangGroupHTML() {
 						errors.push(`Hay elementos de pendientes de traducción: ${JSON.stringify(translationsObject, null, 4)}`)
 					}
 
-					const translationURL = new URL('core/api/translations', pcsphpGlobals.baseURL)
-					const formData = new FormData()
-					formData.set('text', JSON.stringify(translationsObject))
-					formData.set('from', _i18n('lang', pcsphpGlobals.defaultLang))
-					formData.set('to', _i18n('lang', pcsphpGlobals.lang))
-					let translationPromise = Promise.resolve({
-						success: true,
-						message: '',
-						result: {
-							text: formData.get('text'),
-							from: formData.get('from'),
-							to: formData.get('to'),
-							translation: translationsObject,
-						},
-						error: null,
-						AI: {
-							provider: '',
-							modelOpenAI: '',
-							modelMistral: '',
-						},
-					})
-
 					if (!currentLangIsDefault && !ignoreLang) {
 
-						translationPromise = new Promise(function (translationResolve) {
-							const loaderName = 'translationsLoader'
-							showGenericLoader(loaderName)
-							postRequest(translationURL, formData, {
-								'PCSPHP-Response-Expected-Language': pcsphpGlobals.lang,
-							}).done(function (response) {
-								translationResolve(response)
-							}).always(function () {
-								removeGenericLoader(loaderName)
-							})
-						})
+						//El servidor traduce y guarda (#063): solo viajan las claves, UNA petición por grupo.
+						const translations = {}
+						const translateGroupPromises = []
+						const loaderName = 'translationsLoader'
+						showGenericLoader(loaderName)
 
-					}
+						for (const langGroup in translationsObject) {
 
-					if (!currentLangIsDefault) {
+							const keys = Object.keys(translationsObject[langGroup])
+							if (keys.length == 0) {
+								continue
+							}
 
-						translationPromise.then(function (response) {
+							translateGroupPromises.push(new Promise(function (resolveGroup) {
 
-							const success = response.success
-							const message = response.message
-							const result = response.result
-							const error = response.error
+								const translateGroupURL = new URL('core/api/translations/translateGroup', pcsphpGlobals.baseURL)
+								const formData = new FormData()
+								formData.set('keys', JSON.stringify(keys))
+								formData.set('to', pcsphpGlobals.lang)
+								formData.set('group', langGroup)
 
-							if (success) {
+								postRequest(translateGroupURL, formData, {
+									'PCSPHP-Response-Expected-Language': pcsphpGlobals.lang,
+								}).done(function (response) {
 
-								const translations = result.translation
+									const groupTranslation = response.success && typeof response.translation == 'object' && response.translation !== null ? response.translation[langGroup] : null
 
-								//Guardar las traducciones en el grupo de idioma actual en el backend
-								const saveTranslationsGroupPromises = []
-
-								const loaderName = 'saveTranslationGroupLoader'
-								showGenericLoader(loaderName)
-
-								for (const langGroup in translations) {
-
-									if ((Array.isArray(translations[langGroup]) && translations[langGroup].length == 0) || Object.keys(translations[langGroup]).length == 0) {
-										continue
+									if (typeof groupTranslation == 'object' && groupTranslation !== null) {
+										if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] != 'object') {
+											pcsphpGlobals.messages[pcsphpGlobals.lang] = {}
+										}
+										if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang][langGroup] != 'object') {
+											pcsphpGlobals.messages[pcsphpGlobals.lang][langGroup] = {}
+										}
+										for (const key in groupTranslation) {
+											pcsphpGlobals.messages[pcsphpGlobals.lang][langGroup][key] = groupTranslation[key]
+										}
+										translations[langGroup] = groupTranslation
+										console.info(`Traducción guardada: ${langGroup}`)
 									}
 
-									saveTranslationsGroupPromises.push(new Promise(function (resolveSaveGroup) {
+									if (typeof response.rejected == 'object' && response.rejected !== null && Object.keys(response.rejected).length > 0) {
+										console.error(response.rejected)
+									}
 
-										const saveTranslationGroupURL = new URL('core/api/translations/saveGroup', pcsphpGlobals.baseURL)
-										const formData = new FormData()
-										formData.set('text', JSON.stringify(translations[langGroup]))
-										formData.set('to', pcsphpGlobals.lang)
-										formData.set('saveGroup', langGroup)
-
-										postRequest(saveTranslationGroupURL, formData, {
-											'PCSPHP-Response-Expected-Language': pcsphpGlobals.lang,
-										}).done(function (response) {
-
-											const success = response.success
-											const message = response.message
-											const error = response.error
-
-											if (success) {
-												console.info(`Traducción guardada: ${langGroup}`)
-											}
-
-											resolveSaveGroup()
-
-											if (error !== null) {
-												console.error(error)
-											}
-
-										}).fail(function () {
-											resolveSaveGroup()
-										})
-
-									}))
-								}
-
-								Promise.all(saveTranslationsGroupPromises).finally(function () {
-									removeGenericLoader(loaderName)
-									resolve(translations)
+								}).always(function () {
+									resolveGroup()
 								})
 
-							}
+							}))
+						}
 
-							if (error !== null) {
-								console.error(error)
-							}
-
-						}).catch(function (error) {
-							console.error(error)
+						Promise.all(translateGroupPromises).finally(function () {
+							removeGenericLoader(loaderName)
+							resolve(translations)
 						})
 
-					}
-
-					if (currentLangIsDefault) {
-						if (ignoreLang) {
-							resolve(null)
-						}
+					} else {
+						resolve(null)
 					}
 
 				} else {

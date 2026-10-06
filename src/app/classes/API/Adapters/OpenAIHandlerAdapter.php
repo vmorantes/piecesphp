@@ -53,7 +53,7 @@ class OpenAIHandlerAdapter
     public function translate(array $input, string $from = 'es', string $to = 'en',  ?callable $parseJSON = null)
     {
         $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to));
-        $parseJSON = $parseJSON ?? fn($e) => @json_decode($e, true);
+        $parseJSON ??= fn($e) => @json_decode($e, true);
         return ($parseJSON)($jsonResponse);
     }
 

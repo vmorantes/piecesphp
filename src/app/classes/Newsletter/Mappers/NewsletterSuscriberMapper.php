@@ -6,7 +6,7 @@
 
 namespace Newsletter\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Newsletter\NewsletterLang;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -211,7 +211,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
         $no = __(self::LANG_GROUP, 'No');
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "IF({$table}.acceptUpdates = {$acceptValue}, '{$yes}', '{$no}') AS acceptUpdatesDisplay",
         ];
         $allFields = array_keys($mapper->getFields());
@@ -282,7 +282,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -362,6 +362,8 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
 
         $element = (array) $element;
         $mapper = new NewsletterSuscriberMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 

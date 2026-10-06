@@ -6,10 +6,10 @@
 
 namespace App\Controller;
 
-use App\Model\AvatarModel;
-use App\Model\UsersModel;
-use Components\Controllers\ComponentProvider;
-use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\Components\Controllers\ComponentProvider;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Controllers\NewsletterController;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
@@ -21,12 +21,15 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\PublicationsRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 
 /**
  * PublicAreaController.
@@ -39,6 +42,13 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class PublicAreaController extends BaseController
 {
+
+    use ControllerRoutingTrait;
+
+    /**
+     * @var string
+     */
+    protected static $baseRouteName = 'public';
 
     /**
      * @var string
@@ -75,6 +85,12 @@ class PublicAreaController extends BaseController
         import_app_front_libraries();
         if (GoogleReCaptchaV3Routes::ENABLE) {
             import_google_captcha_v3_adapter();
+            //La real la carga api-keys.php; si falta, la de prueba de config.php; vacías las dos, el formulario no crea el adaptador.
+            $siteKey = get_config('GoogleReCaptchaV3SiteKey');
+            if (!is_string($siteKey) || mb_strlen(trim($siteKey)) === 0) {
+                $siteKey = get_config('GoogleReCaptchaV3TestSiteKey');
+            }
+            add_to_front_configurations('GoogleReCaptchaV3SiteKey', is_string($siteKey) ? $siteKey : '');
         }
     }
 
@@ -87,6 +103,12 @@ class PublicAreaController extends BaseController
     {
 
         set_title(__(LANG_GROUP, 'Inicio'));
+
+        //El «Título para compartir» de «Identidad y SEO» es el de la tarjeta de la portada.
+        $shareTitle = get_config(SettingsController::SEO_OPTION_SHARE_TITLE);
+        if (is_string($shareTitle) && trim($shareTitle) !== '') {
+            MetaTags::setShareTitle(trim($shareTitle));
+        }
 
         set_custom_assets([
             'statics/css/style.css',
@@ -379,88 +401,6 @@ class PublicAreaController extends BaseController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$prefixNameRoutes . $name : self::$prefixNameRoutes;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -474,7 +414,6 @@ class PublicAreaController extends BaseController
 
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;
-        //self::$startSegmentRoutes = uniqid(); //Para ocultar este controlador
         if (mb_strlen(self::$startSegmentRoutes) > 0) {
             $startRoute .= self::$startSegmentRoutes;
         } else {
@@ -523,12 +462,16 @@ class PublicAreaController extends BaseController
             return !in_array($e->name(), $ignoreRoutes);
         });
 
-        $group->register($routes);
+        if (PUBLIC_AREA_VIEWS) {
+            $group->register($routes);
+        }
         //──── POST ─────────────────────────────────────────────────────────────────────────
 
         //Otros controladores asociados
 
-        $group = ContactFormsController::routes($group);
+        if (PUBLIC_AREA_CONTACT_FORMS) {
+            $group = ContactFormsController::routes($group);
+        }
 
         return $group;
     }
@@ -560,5 +503,26 @@ class PublicAreaController extends BaseController
 
         $this->setVariables($view_data);
 
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

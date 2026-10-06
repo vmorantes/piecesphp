@@ -6,11 +6,8 @@
 
 namespace MySpace\Controllers\Util;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper;
-use PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
@@ -34,15 +31,8 @@ class ProfileTasksUtilities extends AdminPanelController
         //Generar SQL
         $sqlCreate = [
             (new \PiecesPHP\Core\Database\SchemeCreator(new UserProfileMapper()))->getSQL(),
-            (new \PiecesPHP\Core\Database\SchemeCreator(new InterestResearchAreasMapper()))->getSQL(),
-            (new \PiecesPHP\Core\Database\SchemeCreator(new PreviousExperiencesMapper()))->getSQL(),
-            (new \PiecesPHP\Core\Database\SchemeCreator(new OrganizationPreviousExperiencesMapper()))->getSQL(),
         ];
-        $sql = strReplaceTemplate(implode("\r\n", $sqlCreate), [
-            'belongsTo` int' => 'belongsTo` bigint',
-            'createdBy` int' => 'createdBy` bigint',
-            'modifiedBy` int' => 'modifiedBy` bigint',
-        ]);
+        $sql = implode("\r\n", $sqlCreate);
         if ($echo) {
             header('Content-Type: text/sql');
             echo $sql;
@@ -62,7 +52,7 @@ class ProfileTasksUtilities extends AdminPanelController
      *
      * @param bool $doIt Si es verdadero, el método ejecuta la generación de perfiles faltantes. Si es falso, no hace nada.
      */
-    public static function generateMissingProfiles(bool $doIt = true)
+    public static function generateMissingProfiles(bool $doIt = true): void
     {
 
         if ($doIt) {
@@ -92,7 +82,9 @@ class ProfileTasksUtilities extends AdminPanelController
             $result = $model->result();
 
             foreach ($result as $element) {
-                UserProfileMapper::getProfile($element->userID);
+                //Esta utilidad existe para MATERIALIZAR perfiles que falten: el creador es
+                //lo que quiere, no el buscador.
+                UserProfileMapper::createProfile($element->userID);
             }
 
         }

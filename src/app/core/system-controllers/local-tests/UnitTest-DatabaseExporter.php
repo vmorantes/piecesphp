@@ -33,6 +33,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $passed = 0;
     $failed = 0;
+    $skipped = 0;
 
     try {
         // 1. Preparar Entorno
@@ -93,11 +94,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             ['name' => 'CSV', 'format' => new CsvFormat(), 'ext' => 'csv'],
         ];
 
+        //`requires` es la extensión sin la cual esa salida no se puede probar: se salta con su razón, no falla.
         $outputCases = [
-            ['name' => 'Plano', 'plugin' => new FileOutput(), 'suffix' => ''],
-            ['name' => 'Gzip', 'plugin' => new GzipFileOutput(), 'suffix' => '.gz'],
-            ['name' => 'Bz2', 'plugin' => new Bz2FileOutput(), 'suffix' => '.bz2'],
-            ['name' => 'Zip', 'plugin' => new ZipFileOutput(), 'suffix' => '.zip'],
+            ['name' => 'Plano', 'plugin' => new FileOutput(), 'suffix' => '', 'requires' => null],
+            ['name' => 'Gzip', 'plugin' => new GzipFileOutput(), 'suffix' => '.gz', 'requires' => 'zlib'],
+            ['name' => 'Bz2', 'plugin' => new Bz2FileOutput(), 'suffix' => '.bz2', 'requires' => 'bz2'],
+            ['name' => 'Zip', 'plugin' => new ZipFileOutput(), 'suffix' => '.zip', 'requires' => 'zip'],
         ];
 
         $specialVariants = [
@@ -119,6 +121,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                     'filename' => "test_pro_{$fc['name']}_" . strtolower(str_replace(' ', '_', $oc['name'])) . ".{$fc['ext']}{$oc['suffix']}",
                     'options' => array_merge($baseOptions, $advancedOptions),
                     'validate' => ($oc['suffix'] === ''), // Solo validamos contenido en archivos planos
+                    'requires' => $oc['requires'],
                 ];
             }
         }
@@ -132,6 +135,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 'filename' => "test_variant{$sv['suffix']}.sql",
                 'options' => array_merge($baseOptions, $advancedOptions, $sv['opts']),
                 'validate' => true,
+                'requires' => null,
             ];
         }
 
@@ -141,6 +145,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         if (!is_dir($outputDir)) {
             mkdir($outputDir, 0755, true);
         }
+
+        $skipResult = function (string $name, string $reason) use (&$skipped) {
+            systemOutFormatted("      [SALTADO] $name", ['color' => '33']);
+            systemOutFormatted("         $reason", ['color' => '33']);
+            $skipped++;
+        };
 
         $checkResult = function (bool $condition, string $name) use (&$passed, &$failed) {
             $status = $condition ? '[PASÓ]' : '[FALLÓ]';
@@ -165,6 +175,16 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $num = $index + 1;
             systemOutFormatted("[$num/$totalCount] Probando: {$test['label']}...");
 
+            $requiredExtension = $test['requires'] ?? null;
+            if ($requiredExtension !== null && !extension_loaded($requiredExtension)) {
+                $skipResult(
+                    "Resultado de {$test['label']}",
+                    "La extensión '{$requiredExtension}' no está cargada en este PHP: la salida no se puede generar."
+                );
+                systemOutFormatted('');
+                continue;
+            }
+
             $fullPath = append_to_path_system($outputDir, $test['filename']);
             $opts = $test['options'];
             $opts['filename'] = $fullPath;
@@ -180,12 +200,18 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
             $contentValid = true;
             if ($test['validate'] && $exists) {
+                //Un archivo ilegible no es «contenido vacío»: es una prueba que no se puede evaluar.
                 $content = file_get_contents($generatedFile);
-                $isSql = strpos($test['filename'], '.sql') !== false;
+                if ($content === false) {
+                    $contentValid = false;
+                    systemOutFormatted("      [X] Fallo: el archivo generado no se pudo leer.", ['color' => '31']);
+                    $content = '';
+                }
+                $isSql = str_contains($test['filename'], '.sql');
 
                 // Validación de Filtro WHERE
                 if (isset($opts['where'][$testTable]) && $opts['include_data']) {
-                    if (strpos($content, 'pedro') === false || strpos($content, 'juan') !== false) {
+                    if (!str_contains($content, 'pedro') || str_contains($content, 'juan')) {
                         $contentValid = false;
                         systemOutFormatted("      [X] Fallo: Datos filtrados incorrectamente.", ['color' => '31']);
                     }
@@ -193,7 +219,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
                 // Validación de Transformaciones (Email Masking)
                 if (isset($opts['transformations'][$testTable]) && $opts['include_data']) {
-                    if (strpos($content, 'HIDDEN_EMAIL') === false) {
+                    if (!str_contains($content, 'HIDDEN_EMAIL')) {
                         $contentValid = false;
                         systemOutFormatted("      [X] Fallo: Transformación GDPR no aplicada.", ['color' => '31']);
                     }
@@ -201,9 +227,31 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
                 // Validación de include_data = false (No debe haber datos de la tabla de prueba)
                 if ($opts['include_data'] === false && $isSql) {
-                    if (strpos($content, 'INSERT INTO `' . $testTable . '`') !== false || strpos($content, 'pedro') !== false) {
+                    if (str_contains($content, 'INSERT INTO `' . $testTable . '`') || str_contains($content, 'pedro')) {
                         $contentValid = false;
                         systemOutFormatted("      [X] Fallo: Se encontraron datos cuando include_data era false.", ['color' => '31']);
+                    }
+                }
+
+                //Comprueba la SINTAXIS, no solo el contenido: un JSON con basura añadida pasaba 23/23.
+                if (str_contains($test["filename"], ".json")) {
+                    json_decode($content);
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        $contentValid = false;
+                        systemOutFormatted("      [X] Fallo: el JSON generado no es válido: " . json_last_error_msg(), ["color" => "31"]);
+                    }
+                }
+                if (str_contains($test["filename"], ".xml")) {
+                    $previousUseErrors = libxml_use_internal_errors(true);
+                    libxml_clear_errors();
+                    $parsed = simplexml_load_string($content);
+                    $xmlErrors = libxml_get_errors();
+                    libxml_clear_errors();
+                    libxml_use_internal_errors($previousUseErrors);
+                    if ($parsed === false) {
+                        $contentValid = false;
+                        $firstError = count($xmlErrors) > 0 ? trim($xmlErrors[0]->message) : "sin detalle";
+                        systemOutFormatted("      [X] Fallo: el XML generado no es válido: " . $firstError, ["color" => "31"]);
                     }
                 }
 
@@ -225,15 +273,38 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         systemOutFormatted('================================================================');
         systemOutFormatted('            BALANCE FINAL DE PRUEBAS UNITARIAS                  ');
         systemOutFormatted('================================================================');
-        systemOutFormatted("   TOTAL:   $totalCount");
-        systemOutFormatted("   PASADAS: $passed", ['color' => '32']);
+        systemOutFormatted("   TOTAL:    $totalCount");
+        systemOutFormatted("   PASADAS:  $passed", ['color' => '32']);
+        systemOutFormatted("   SALTADAS: $skipped", ['color' => $skipped > 0 ? '33' : '32']);
         systemOutFormatted("   FALLIDAS: $failed", ['color' => $failed > 0 ? '31' : '32']);
         systemOutFormatted('================================================================');
         systemOutFormatted('');
         systemOutFormatted('Los archivos generados se encuentran en: ' . $outputDir);
 
+        //La linea que el corredor de puertas exige: sin veredicto, la suite no dice si paso.
+        systemOutFormatted("   Total: {$totalCount} | Pasaron: {$passed} | Fallaron: {$failed}");
+
+        /**
+         * Un salto NO cuenta como fallo. La puerta la decide `$failed`, y solo `$failed`.
+         */
+        return [
+            'success' => $failed === 0,
+            'message' => $failed === 0
+                ? "Exportador correcto ({$passed} pasadas, {$skipped} saltadas)."
+                : "{$failed} pruebas del exportador fallaron.",
+        ];
+
     } catch (Exception $e) {
         systemOutFormatted("ERROR CRÍTICO: " . $e->getMessage(), ['color' => '31']);
+        return [
+            'success' => false,
+            'message' => 'Error crítico en la suite del exportador: ' . $e->getMessage(),
+        ];
+    } finally {
+        //RECOGE LO SUYO: el seeder crea al entrar y nadie borraba al salir. Ver T138.
+        if (isset($db, $testTable)) {
+            $db->exec("DROP TABLE IF EXISTS {$testTable}");
+        }
     }
 
-})->setDescription($cliTaskDescription)->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

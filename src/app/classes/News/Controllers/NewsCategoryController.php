@@ -6,8 +6,8 @@
 
 namespace News\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\Exceptions\DuplicateException;
 use News\Exceptions\SafeException;
 use News\Mappers\NewsCategoryMapper;
@@ -22,17 +22,19 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * NewsCategoryController.
@@ -43,6 +45,8 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class NewsCategoryController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -136,7 +140,7 @@ class NewsCategoryController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             __(self::LANG_GROUP, 'Categorías de noticias') => [
                 'url' => $backLink,
@@ -204,7 +208,7 @@ class NewsCategoryController extends AdminPanelController
             $data['selectedLang'] = $selectedLang;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Categorías de noticias') => [
                     'url' => $backLink,
@@ -245,7 +249,7 @@ class NewsCategoryController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $formVariables = [
@@ -323,7 +327,7 @@ class NewsCategoryController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -334,7 +338,7 @@ class NewsCategoryController extends AdminPanelController
                 'name',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -345,7 +349,7 @@ class NewsCategoryController extends AdminPanelController
                 'color',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -399,8 +403,11 @@ class NewsCategoryController extends AdminPanelController
             $name = $expectedParameters->getValue('name');
             $color = $expectedParameters->getValue('color');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -418,7 +425,7 @@ class NewsCategoryController extends AdminPanelController
                     //Nuevo
 
                     //En creación $lang es el idioma base
-                    $lang = $baseLang !== null ? $baseLang : $lang;
+                    $lang = $baseLang ?? $lang;
                     $mapper = new NewsCategoryMapper();
 
                     $mapper->setLangData($lang, 'name', $name);
@@ -429,10 +436,15 @@ class NewsCategoryController extends AdminPanelController
 
                     if ($fileManagerIconImage->hasInput()) {
 
-                        $destinations = $fileManagerIconImage->moveTo(append_to_path_system($this->uploadDir, uniqid()));
+                        //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                        //lleva el sufijo. Si no se puede mover, el icono queda sin subir.
+                        $information = $fileManagerIconImage->getFileInformation();
+                        $destination = $fileManagerIconImage->validate()
+                            ? \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], append_to_path_system($this->uploadDir, uniqid()), null, pathinfo((string) $information['name'], \PATHINFO_EXTENSION))
+                            : '';
 
-                        if (count($destinations) > 0) {
-                            $iconImage = trim(str_replace(basepath(), '', $destinations[0]), \DIRECTORY_SEPARATOR);
+                        if ($destination !== '') {
+                            $iconImage = trim(str_replace(basepath(), '', $destination), \DIRECTORY_SEPARATOR);
                         }
 
                     }
@@ -477,15 +489,21 @@ class NewsCategoryController extends AdminPanelController
                             $oldFile = null;
 
                             if ($iconImage !== null && mb_strlen($iconImage) > 1 && $iconImage != NewsCategoryMapper::DEFAULT_ICON) {
-                                $oldFile = basepath($iconImage);
-                                $oldDirectory = str_replace(basename($oldFile), '', $oldFile);
+                                //En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
+                                [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(basepath($iconImage));
+                                $oldDirectory = $oldFile !== null ? dirname($oldFile) . \DIRECTORY_SEPARATOR : null;
                             }
 
-                            $destinations = $fileManagerIconImage->moveTo(append_to_path_system($this->uploadDir, uniqid()));
+                            //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público. Si no se puede
+                            //mover, el icono anterior se conserva.
+                            $information = $fileManagerIconImage->getFileInformation();
+                            $destination = $fileManagerIconImage->validate()
+                                ? \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], append_to_path_system($this->uploadDir, uniqid()), null, pathinfo((string) $information['name'], \PATHINFO_EXTENSION))
+                                : '';
 
-                            if (count($destinations) > 0) {
+                            if ($destination !== '') {
 
-                                $iconImage = trim(str_replace(basepath(), '', $destinations[0]), \DIRECTORY_SEPARATOR);
+                                $iconImage = trim(str_replace(basepath(), '', $destination), \DIRECTORY_SEPARATOR);
 
                                 if (!is_null($oldFile) && file_exists($oldFile)) {
                                     unlink($oldFile);
@@ -530,9 +548,9 @@ class NewsCategoryController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -545,10 +563,15 @@ class NewsCategoryController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -682,10 +705,10 @@ class NewsCategoryController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         $pdo->rollBack();
-                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
@@ -693,13 +716,13 @@ class NewsCategoryController extends AdminPanelController
                 }
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -777,32 +800,27 @@ class NewsCategoryController extends AdminPanelController
     {
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = NewsCategoryMapper::TABLE;
 
         $where = [
         ];
-        $having = [];
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
+        //SIN having_string: no había ningún criterio, y el buscador ya va por marcador solo (T3 de #045).
         $selectFields = NewsCategoryMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'name',
             'color',
         ];
 
         $customOrder = [
-            'idPadding' => 'DESC',
+            "{$table}.id" => 'DESC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -811,7 +829,6 @@ class NewsCategoryController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -868,8 +885,8 @@ class NewsCategoryController extends AdminPanelController
     public static function _all(int $page = 1, int $perPage = 10, bool $absolutePathUrl = false)
     {
 
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
+        $page ??= 1;
+        $perPage ??= 10;
 
         $table = NewsCategoryMapper::TABLE;
         $fields = NewsCategoryMapper::fieldsToSelect();
@@ -953,20 +970,6 @@ class NewsCategoryController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -974,19 +977,19 @@ class NewsCategoryController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1010,51 +1013,6 @@ class NewsCategoryController extends AdminPanelController
     }
 
     /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -1069,32 +1027,22 @@ class NewsCategoryController extends AdminPanelController
 
         $classname = self::class;
 
-        /**
-         * @var array<string>
-         */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        //HOMOLOGADO CON PUBLICACIONES (PO, 2026-09-25). `$queries` y `$list` eran los seis tipos, así que un
+        //usuario general gestionaba las categorías sin poder abrir la lista de noticias.
+        $modulo = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+        ];
 
         //Permisos
-        $queries = $allRoles;
-        $list = $allRoles;
-        $creation = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_COMUNICACIONES,
-            UsersModel::TYPE_USER_INSTITUCIONAL,
-        ];
-        $edition = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_COMUNICACIONES,
-            UsersModel::TYPE_USER_INSTITUCIONAL,
-        ];
-        $deletion = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_COMUNICACIONES,
-            UsersModel::TYPE_USER_INSTITUCIONAL,
-         ];
+        $queries = $modulo;
+        $list = $modulo;
+        $creation = $modulo;
+        $edition = $modulo;
+        $deletion = $modulo;
+
         $routes = [
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────

@@ -42,8 +42,6 @@ class NewsletterRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Newsletter\Mappers\NewsletterSuscriberMapper()))->getSQL();exit;
-
             $groupAdministration = NewsletterController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
@@ -123,7 +121,7 @@ class NewsletterRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

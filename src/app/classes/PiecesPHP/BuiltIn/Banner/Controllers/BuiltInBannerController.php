@@ -6,8 +6,8 @@
 
 namespace PiecesPHP\BuiltIn\Banner\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Exceptions\DuplicateException;
@@ -21,18 +21,20 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * BuiltInBannerController.
@@ -43,6 +45,8 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class BuiltInBannerController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -64,15 +68,7 @@ class BuiltInBannerController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -81,7 +77,6 @@ class BuiltInBannerController extends AdminPanelController
     const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
     const UPLOAD_DIR = 'built-in-banner';
-    const UPLOAD_DIR_TMP = 'built-in-banner/tmp';
     const LANG_GROUP = BuiltInBannerLang::LANG_GROUP;
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
@@ -99,9 +94,7 @@ class BuiltInBannerController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -172,7 +165,7 @@ class BuiltInBannerController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             __(self::LANG_GROUP, 'Banners') => [
                 'url' => $backLink,
@@ -243,7 +236,7 @@ class BuiltInBannerController extends AdminPanelController
             $data['lang'] = $lang;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Banners') => [
                     'url' => $backLink,
@@ -283,12 +276,12 @@ class BuiltInBannerController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -333,7 +326,7 @@ class BuiltInBannerController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -344,7 +337,7 @@ class BuiltInBannerController extends AdminPanelController
                 'title',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 true,
                 function ($value) {
@@ -355,7 +348,7 @@ class BuiltInBannerController extends AdminPanelController
                 'content',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 true,
                 function ($value) {
@@ -459,8 +452,11 @@ class BuiltInBannerController extends AdminPanelController
             $orderPosition = $expectedParameters->getValue('orderPosition');
             $link = $expectedParameters->getValue('link');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -580,9 +576,9 @@ class BuiltInBannerController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -595,10 +591,15 @@ class BuiltInBannerController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -691,7 +692,7 @@ class BuiltInBannerController extends AdminPanelController
 
                     $pdo = BuiltInBannerMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -718,24 +719,28 @@ class BuiltInBannerController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         $pdo->rollBack();
-                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -825,6 +830,12 @@ class BuiltInBannerController extends AdminPanelController
         $title = $expectedParameters->getValue('title');
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
+        $currentUser = getLoggedFrameworkUser();
+        if (!self::canListAnyStatus($currentUser !== null ? (int) $currentUser->type : null)) {
+            //La ruta es pública: el `status` de la petición solo cuenta con sesión y permiso de listado.
+            $status = null;
+            $ignoreStatus = false;
+        }
 
         $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
         $result = self::_all($page, $perPage, $status, $title, $ignoreStatus);
@@ -845,34 +856,23 @@ class BuiltInBannerController extends AdminPanelController
     {
 
         $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $table = BuiltInBannerMapper::TABLE;
         $inactive = BuiltInBannerMapper::INACTIVE;
 
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
-
-        if (false) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "CRITERY = VALUE";
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
+        //SIN having_string: no había ningún criterio (el bloque muerto nunca se ejecutaba), y el
+        //buscador ya va por marcador solo (T3 de #045).
         $selectFields = BuiltInBannerMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'title',
             'orderPosition',
             'desktopImage',
@@ -880,7 +880,7 @@ class BuiltInBannerController extends AdminPanelController
         ];
 
         $customOrder = [
-            'idPadding' => 'DESC',
+            "{$table}.id" => 'DESC',
             'createdAt' => 'DESC',
             'updatedAt' => 'DESC',
         ];
@@ -891,7 +891,6 @@ class BuiltInBannerController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -948,6 +947,18 @@ class BuiltInBannerController extends AdminPanelController
     }
 
     /**
+     * Si quien consulta puede pedir cualquier estado: el que puede ver el listado de admin.
+     *
+     * @param int|null $userType Tipo del usuario con sesión, o null sin sesión
+     * @return bool
+     */
+    protected static function canListAnyStatus(?int $userType): bool
+    {
+        //routeName() SIN USUARIO CONCEDE: por eso se exige la sesión y se pregunta al rol directamente.
+        return $userType !== null && Roles::hasPermissions(self::$baseRouteName . '-list', $userType, true);
+    }
+
+    /**
      * @param int $page =1
      * @param int $perPage =10
      * @param int $status =BuiltInBannerMapper::ACTIVE
@@ -964,9 +975,9 @@ class BuiltInBannerController extends AdminPanelController
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? BuiltInBannerMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= BuiltInBannerMapper::ACTIVE;
 
         $table = BuiltInBannerMapper::TABLE;
         $fields = BuiltInBannerMapper::fieldsToSelect();
@@ -983,11 +994,14 @@ class BuiltInBannerController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if ($title !== null) {
 
             $beforeOperator = !empty($where) ? $and : '';
             $titleField = BuiltInBannerMapper::fieldCurrentLangForSQL('title');
-            $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$titleField}) LIKE UPPER(:title)";
+            $boundValues[':title'] = "%{$title}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1035,7 +1049,7 @@ class BuiltInBannerController extends AdminPanelController
 
         $sqlSelect .= " ORDER BY " . implode(', ', BuiltInBannerMapper::ORDER_BY_PREFERENCE);
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $parser = function ($element) {
             $element = BuiltInBannerMapper::objectToMapper($element);
@@ -1093,20 +1107,6 @@ class BuiltInBannerController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -1114,19 +1114,19 @@ class BuiltInBannerController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1189,7 +1189,7 @@ class BuiltInBannerController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -1271,51 +1271,6 @@ class BuiltInBannerController extends AdminPanelController
         }
 
         return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**

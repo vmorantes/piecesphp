@@ -40,7 +40,7 @@ class APIRoutes
      */
     public static function routes(RouteGroup $groupAdministration)
     {
-        if (self::ENABLE || self::ENABLE_TRANSLATIONS || self::ENABLE_USERS || self::ENABLE_REPORTS) {
+        if (self::ENABLE || self::ENABLE_TRANSLATIONS || self::ENABLE_USERS || self::ENABLE_REPORTS || self::ENABLE_CRONJOBS) {
 
             $groupAdministration = APIController::routes($groupAdministration);
 

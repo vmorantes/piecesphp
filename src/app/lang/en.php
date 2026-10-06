@@ -95,6 +95,8 @@ $lang = [
         'Versión {ver}'              => 'Version {ver}',
         'V {ver}'                    => 'V {ver}',
         'Home'                       => 'Home',
+        'Error interno'              => 'Internal error',
+        'Ocurrió un error interno. Si lo reporta, indique la referencia %s.' => 'An internal error occurred. If you report it, please include reference %s.',
     ],
     'errors' => [
         'RESTRICTED_AREA'              => 'Try to access a restricted area. For which you do not have permissions.',
@@ -312,9 +314,6 @@ $lang = [
         'Buscar'              => 'To look for...',
         'Buscador'            => 'Search',
         'Resultados visibles' => 'Visible results',
-        'Ordenar por'         => 'Sort by',
-        'ASC'                 => '<i class="ui icon arrow down"></i>Ascendent',
-        'DESC'                => '<i class="ui icon arrow up"></i>Descendent',
         "Ver"                 => "See",
         "elementos"           => "elements",
     ],

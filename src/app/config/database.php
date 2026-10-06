@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @pcsphp-config clon
+ * Qué conviene editar aquí: la conexión a la base de datos de tu instalación.
+ */
 //========================================================================================
 /*                                                                                      *
  *                         CONFIGURACIONES DE LAS BASE DE DATOS                         *

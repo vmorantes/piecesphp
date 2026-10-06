@@ -49,6 +49,20 @@ window.addEventListener('load', () => {
 
 	form.find('.ui.checkbox').checkbox()
 
+	//Los campos del servidor de pruebas solo pintan cuando el modo no está apagado (P52).
+	const testModeSelect = form.find('[name="test_mode"]')
+	const testTargets = form.find('[data-mail-test-target]')
+	const refreshTestFields = function () {
+		let off = testModeSelect.val() === 'off'
+		testTargets.each(function () {
+			let field = $(this)
+			field.css('display', off ? 'none' : '')
+			field.find('input').prop('required', !off)
+		})
+	}
+	testModeSelect.on('change', refreshTestFields)
+	refreshTestFields()
+
 	removeGenericLoader('email')
 
 })

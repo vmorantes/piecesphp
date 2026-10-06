@@ -9,6 +9,10 @@ use PDOException;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\ORM\ORM;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Exceptions\DataTablesHelperProcessException;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -41,7 +45,97 @@ class DataTablesHelper
     private static $tableOnSearch = true;
 
     /**
-     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string} $options
+     * Filas crudas de cada resultado. Fuera de `values` para que `getValues()` no las serialice.
+     *
+     * @var \WeakMap<ResultOperations,array>|null
+     */
+    private static ?\WeakMap $rawRows = null;
+
+    /**
+     * @var array<string,string> SQL de la última llamada, solo en el servidor.
+     */
+    private static array $lastExecutedSQL = [];
+
+    /**
+     * Las filas crudas de la consulta principal de un resultado de process() o processFromQuery().
+     *
+     * @param ResultOperations $result
+     * @return array
+     */
+    public static function rawRows(ResultOperations $result): array
+    {
+        return self::$rawRows[$result] ?? [];
+    }
+
+    /**
+     * @param ResultOperations $result
+     * @param array $rows
+     * @return void
+     */
+    private static function keepRawRows(ResultOperations $result, array $rows): void
+    {
+        self::$rawRows ??= new \WeakMap();
+        self::$rawRows[$result] = $rows;
+    }
+
+    /**
+     * El SQL de la última llamada a process() o processFromQuery(): `main`, `filterCount` y
+     * `totalCount`. Para pruebas y depuración en el servidor; nunca va a la respuesta (P38).
+     *
+     * @return array<string,string>
+     */
+    public static function lastExecutedSQL(): array
+    {
+        return self::$lastExecutedSQL;
+    }
+
+    /**
+     * Con `debug_sql` y solo en local, el SQL ejecutado va al log propio; nunca a la respuesta.
+     *
+     * @param bool $debug
+     * @param array<string,string> $sql
+     * @return void
+     */
+    private static function logSQL(bool $debug, array $sql): void
+    {
+        self::$lastExecutedSQL = $sql;
+        if (!$debug || !is_local() || !defined('LOG_ERRORS_PATH')) {
+            return;
+        }
+        $line = '[' . date('c') . '] ' . json_encode($sql, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES) . PHP_EOL;
+        $path = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . DIRECTORY_SEPARATOR . 'datatables-sql.log';
+        //RETORNO-IGNORADO: es depuración; si no se puede escribir, el listado responde igual.
+        @file_put_contents($path, $line, FILE_APPEND | LOCK_EX);
+    }
+
+    /**
+     * Procesa una peticion de DataTables sobre un mapper y devuelve su respuesta.
+     *
+     * CLAVES DE `$options`, y cual es de quien:
+     *   `request`, `mapper`, `columns_order` .. obligatorias.
+     *   `where_string`, `having_string`, `group_string` .. FRAGMENTOS DE SQL DEL PROGRAMADOR:
+     *      se interpolan tal cual. Meter ahi un valor de la peticion abre un agujero, porque
+     *      no hay marcador que los salve.
+     *   `where_segment`, `having_segment` .. la via PREPARADA de las dos primeras. Son
+     *      EXCLUYENTES con su cadena: pasar las dos lanza. La busqueda de DataTables se une al
+     *      `having_segment` como grupo.
+     *   `select_fields`, `custom_order` .. IDENTIFICADORES, no admiten marcador. En
+     *      `custom_order` la direccion SI se normaliza a `ASC` o `DESC`; la columna no.
+     *   `on_set_data`, `on_set_model`, `config_result_model`, `as_mapper` .. callables y bandera.
+     *   `debug_sql` .. bool. Solo con `is_local()`, el SQL ejecutado va al log `datatables-sql.log`.
+     *
+     * LA RESPUESTA NO LLEVA SQL NI FILAS CRUDAS (P38): `getValues()` se manda entero al navegador.
+     * Las filas crudas se leen en el servidor con `DataTablesHelper::rawRows($result)`.
+     *
+     * `recordsTotal` cuenta con los filtros FIJOS (where_* y having_*) y sin la búsqueda del usuario;
+     * `recordsFiltered`, con todo. Un listado con alcance nunca cuenta lo que su usuario no puede ver.
+     *
+     * `getCompiledSQL()` SIN ARGUMENTO NO PRODUCE SQL EJECUTABLE: deja el marcador sin sus dos
+     * puntos. Las tres llamadas de este archivo pasan `true`; si anades una cuarta, tambien.
+     *
+     * El porque de cada decision esta en el registro, de T150 a T166.
+     *
+     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string,where_segment:?WhereSegment,having_segment:?HavingSegment,debug_sql:?bool} $options
      * @return ResultOperations
      */
     public static function process(array $options)
@@ -105,6 +199,14 @@ class DataTablesHelper
              */
             $group_string = '';
             /**
+             * @var ?WhereSegment Alternativa PREPARADA a `where_string`. Ver el docblock.
+             */
+            $where_segment = null;
+            /**
+             * @var ?HavingSegment Alternativa PREPARADA a `having_string`. Ver el docblock.
+             */
+            $having_segment = null;
+            /**
              * @var bool
              */
             $ignore_table_in_order = false;
@@ -116,6 +218,10 @@ class DataTablesHelper
              * @var array
              */
             $ignore_table_on_fields_in_where = [];
+            /**
+             * @var bool
+             */
+            $debug_sql = false;
             //──── FIN ───────────────────────────────────────────────────────────────────────────────
 
             //──── INICIO ────────────────────────────────────────────────────────────────────────────
@@ -159,7 +265,16 @@ class DataTablesHelper
                 new Parameter('group_string', null, function ($value) {
                     return is_string($value);
                 }, true),
+                new Parameter('where_segment', null, function ($value) {
+                    return $value instanceof WhereSegment;
+                }, true),
+                new Parameter('having_segment', null, function ($value) {
+                    return $value instanceof HavingSegment;
+                }, true),
                 new Parameter('ignore_table_in_order', false, function ($value) {
+                    return is_bool($value);
+                }, true),
+                new Parameter('debug_sql', false, function ($value) {
                     return is_bool($value);
                 }, true),
                 new Parameter(
@@ -225,9 +340,13 @@ class DataTablesHelper
              */
             $order = $request->getQueryParam('order', null);
             /**
-             * @var array
+             * Vacío, NO nulo: el parámetro exige `array` y `generateHaving()` solo lo lee cuando
+             * hay búsqueda, así que ausente y vacío significan lo mismo. Ver T97.
+             *
+             * @var array<int,mixed>
              */
-            $columns = $request->getQueryParam('columns', null);
+            $columns = $request->getQueryParam('columns', []);
+            $columns = is_array($columns) ? $columns : [];
             /**
              * @var string
              */
@@ -236,29 +355,68 @@ class DataTablesHelper
              * @var int
              */
             $page = self::generatePage((int) $start, (int) $length);
+            //NO SE MEZCLAN. La cadena y el segmento son dos contratos distintos —uno concatena y
+            //el otro prepara—, y aceptar los dos obligaría a inventar cómo se combinan.
+            if ($where_segment !== null && is_string($where_string) && mb_strlen(trim($where_string)) > 0) {
+                throw new \Exception('DataTablesHelper::process(): `where_string` y `where_segment` son excluyentes. Usa uno de los dos.');
+            }
+            if ($having_segment !== null && is_string($having_string) && mb_strlen(trim($having_string)) > 0) {
+                throw new \Exception('DataTablesHelper::process(): `having_string` y `having_segment` son excluyentes. Usa uno de los dos.');
+            }
+
             /**
              * @var string Criterios de filtro
              */
             $where = '';
 
+            //Trim ANTES: decide si hay having_string CON CONTENIDO, para elegir la vía del buscador.
+            $having_string = is_string($having_string) ? trim($having_string) : "";
+
             /**
              * @var string Criterios del input de búsqueda de datatables
              */
-            $having = self::generateHaving(
-                array_filter(
-                    $columns_order,
-                    function ($v) use ($ignore_fields_in_where) {
-                        return !in_array($v, $ignore_fields_in_where);
-                    }
-                ),
-                $columns,
-                $search,
-                $tableName,
-                $ignore_table_on_fields_in_where
-            );
+            $having = '';
+
+            //LOS FILTROS FIJOS, ANTES DE MEZCLAR LA BÚSQUEDA: con ellos cuenta `recordsTotal` (P38).
+            $fixed_having_segment = $having_segment !== null ? clone $having_segment : null;
+            $fixed_having_string = $having_string;
+
+            //POR MARCADOR, y el segmento se crea SOLO si hay grupo: uno vacío deja `HAVING ()` (T163, #045).
+            if ($having_segment !== null || mb_strlen($having_string) === 0) {
+                $having_group = self::generateHavingGroup(
+                    array_filter(
+                        $columns_order,
+                        function ($v) use ($ignore_fields_in_where) {
+                            return !in_array($v, $ignore_fields_in_where);
+                        }
+                    ),
+                    $columns,
+                    $search,
+                    $tableName,
+                    $ignore_table_on_fields_in_where
+                );
+
+                if ($having_group !== null) {
+                    $having_segment ??= new HavingSegment();
+                    $having_segment->addGroup($having_group);
+                }
+            } else {
+                //having_string CON CONTENIDO y sin segmento: la vía de cadena, con escapeString() (T3 la migra).
+                $having = self::generateHaving(
+                    array_filter(
+                        $columns_order,
+                        function ($v) use ($ignore_fields_in_where) {
+                            return !in_array($v, $ignore_fields_in_where);
+                        }
+                    ),
+                    $columns,
+                    $search,
+                    $tableName,
+                    $ignore_table_on_fields_in_where
+                );
+            }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
-            $having_string = is_string($having_string) ? trim($having_string) : "";
             if (mb_strlen($having_string) > 0) {
                 if (mb_strlen($having) > 0) {
                     $having = "($having_string) AND $having";
@@ -334,13 +492,17 @@ class DataTablesHelper
 
             /* Aplicar las diferentes cláusulas SQL y otras configuraciones*/
 
-            //WHERE
-            if (mb_strlen($where) > 0) {
+            //WHERE. El segmento GANA y la cadena se ignora: son excluyentes y ya se comprobó.
+            if ($where_segment !== null) {
+                $limit->where($where_segment);
+            } elseif (mb_strlen($where) > 0) {
                 $limit->where($where);
             }
 
             //HAVING
-            if (mb_strlen($having) > 0) {
+            if ($having_segment !== null) {
+                $limit->having($having_segment);
+            } elseif (mb_strlen($having) > 0) {
                 $limit->having($having);
             }
 
@@ -375,7 +537,7 @@ class DataTablesHelper
             //Ejecutar consulta
             $limitGeneratedSQL = $limit->getCompiledSQL(true);
             $limit->execute(false, (int) $page, $length);
-            $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $limit->getLastSQLExecuted()));
+            $executedSQL = ['main' => str_replace(["\r", "\n"], '', $limit->getLastSQLExecuted())];
 
             /**
              * @var array Resultado de la consulta principal
@@ -392,7 +554,7 @@ class DataTablesHelper
 
                 //Verificar si cada elemento sera instanciado con su mapeador
                 if ($as_mapper) {
-                    $class_mapper = get_class($mapper);
+                    $class_mapper = $mapper::class;
                     $primary_key = $mapper->getPrimaryKey();
                     $element = new $class_mapper($element->$primary_key, $primary_key);
                 }
@@ -489,13 +651,13 @@ class DataTablesHelper
 
                 foreach ($order as $value) {
 
-                    $column_index = isset($value['column']) ? $value['column'] : null;
-                    $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+                    $column_index = $value['column'] ?? null;
+                    $direction_ordering = $value['dir'] ?? null;
 
                     if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
                         $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
-                        $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+                        $column_name = $columns_order[$column_index] ?? null;
 
                         if (!is_null($column_name) && $column_name == self::INGNORE) {
 
@@ -546,8 +708,8 @@ class DataTablesHelper
 
             //Agregar al resultado los elementos procesados
             $result->setValue('data', $data);
-            //Agregar al resultado los elementos crudos
-            $result->setValue('rawData', $limitResult);
+            //Los elementos crudos quedan en el servidor: ver rawRows()
+            self::keepRawRows($result, is_array($limitResult) ? $limitResult : []);
             //=============================================================
 
             //Realizar consulta para configurar los datos necesarios para la paginación
@@ -568,13 +730,17 @@ class DataTablesHelper
                 $filterCount->select($select_fields);
             }
 
-            //WHERE
-            if (mb_strlen($where) > 0) {
+            //WHERE. El mismo segmento sirve a los dos modelos: solo se lee, no se muta.
+            if ($where_segment !== null) {
+                $filterCount->where($where_segment);
+            } elseif (mb_strlen($where) > 0) {
                 $filterCount->where($where);
             }
 
             //HAVING
-            if (mb_strlen($having) > 0) {
+            if ($having_segment !== null) {
+                $filterCount->having($having_segment);
+            } elseif (mb_strlen($having) > 0) {
                 $filterCount->having($having);
             }
 
@@ -585,7 +751,7 @@ class DataTablesHelper
 
             }
 
-            $filterCountSQLGenerated = $filterCount->getCompiledSQL();
+            $filterCountSQLGenerated = $filterCount->getCompiledSQL(true);
 
             $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $filterCountSQLGenerated . ") AS table_derivate";
 
@@ -595,24 +761,41 @@ class DataTablesHelper
             $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
 
             $filterCountTotal = !empty($filterCountResult) ? (int) $filterCountResult[0]->total : 0;
-            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCountSQL));
+            $executedSQL['filterCount'] = str_replace(["\r", "\n"], '', $filterCountSQL);
             $result->setValue('recordsFiltered', $filterCountTotal);
 
             /**
              * @var BaseModel
-             * Clon del modelo para el conteo del total de elementos en la base de datos
+             * Clon del modelo para el total: los filtros FIJOS, sin la búsqueda del usuario (P38).
+             * VA EL ÚLTIMO: HavingSegment::toString() marca el último grupo sin operador, y compilar el
+             * segmento fijo antes que el completo dejaría su grupo sin el AND que lo une a la búsqueda.
              */
             $totalCount = clone $model;
+            $totalCount->select($select_fields);
+            if ($where_segment !== null) {
+                $totalCount->where($where_segment);
+            } elseif (mb_strlen($where) > 0) {
+                $totalCount->where($where);
+            }
+            if ($fixed_having_segment !== null && $fixed_having_segment->countCriteria() > 0) {
+                $totalCount->having($fixed_having_segment);
+            } elseif (mb_strlen($fixed_having_string) > 0) {
+                $totalCount->having("($fixed_having_string)");
+            }
+            if (!is_null($group_string) && mb_strlen($group_string) > 0) {
+                $totalCount->groupBy($group_string);
+            }
+            $totalCountSQL = "SELECT COUNT(*) AS total FROM (" . $totalCount->getCompiledSQL(true) . ") AS table_derivate";
+            $totalCountGeneratedSQL = $totalCountSQL;
+            $totalCountPrepared = $totalCount->prepare($totalCountSQL);
+            $totalCountPrepared->execute();
+            $totalCountResult = $totalCountPrepared->fetchAll(\PDO::FETCH_OBJ);
+            $executedSQL['totalCount'] = str_replace(["\r", "\n"], '', $totalCountSQL);
 
-            $totalCount->select("COUNT({$tableName}.{$primary_key}) AS total");
-            $totalCountGeneratedSQL = $totalCount->getCompiledSQL(true);
-            $totalCount->execute();
-
-            $result->setValue('SQL_TOTAL_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $totalCount->getLastSQLExecuted()));
-            $totalCount = $totalCount->result();
-
-            $result->setValue('recordsTotal', !empty($totalCount) ? $totalCount[0]->total : 0);
+            $result->setValue('recordsTotal', !empty($totalCountResult) ? (int) $totalCountResult[0]->total : 0);
             //=============================================================
+
+            self::logSQL($debug_sql, $executedSQL);
 
             return $result;
 
@@ -628,7 +811,12 @@ class DataTablesHelper
     }
 
     /**
-     * @param array{fakeTable:string,tableName:string,request:Request,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,select_fields:?array|string,custom_order:?array,group_string:?string} $options
+     * Como process(), pero sobre una consulta propia (`fakeTable`) en vez de un mapper.
+     *
+     * Mismo contrato de respuesta: sin SQL ni filas crudas (ver rawRows()), y `recordsTotal` con el
+     * `where_string` y el `having_string` fijos, sin la búsqueda del usuario (P38).
+     *
+     * @param array{fakeTable:string,tableName:string,request:Request,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,select_fields:?array|string,custom_order:?array,group_string:?string,debug_sql:?bool} $options
      * @return ResultOperations
      */
     public static function processFromQuery(array $options)
@@ -695,6 +883,10 @@ class DataTablesHelper
              * @var array
              */
             $ignore_table_on_fields_in_where = [];
+            /**
+             * @var bool
+             */
+            $debug_sql = false;
             //──── FIN ───────────────────────────────────────────────────────────────────────────────
 
             //──── INICIO ────────────────────────────────────────────────────────────────────────────
@@ -731,6 +923,9 @@ class DataTablesHelper
                     return is_string($value);
                 }, true),
                 new Parameter('ignore_table_in_order', false, function ($value) {
+                    return is_bool($value);
+                }, true),
+                new Parameter('debug_sql', false, function ($value) {
                     return is_bool($value);
                 }, true),
                 new Parameter(
@@ -796,9 +991,13 @@ class DataTablesHelper
              */
             $order = $request->getQueryParam('order', null);
             /**
-             * @var array
+             * Vacío, NO nulo: el parámetro exige `array` y `generateHaving()` solo lo lee cuando
+             * hay búsqueda, así que ausente y vacío significan lo mismo. Ver T97.
+             *
+             * @var array<int,mixed>
              */
-            $columns = $request->getQueryParam('columns', null);
+            $columns = $request->getQueryParam('columns', []);
+            $columns = is_array($columns) ? $columns : [];
             /**
              * @var int
              */
@@ -811,7 +1010,9 @@ class DataTablesHelper
             /**
              * @var string Criterios del input de búsqueda de datatables
              */
-            $having = self::generateHaving(
+            //LA BUSQUEDA POR MARCADOR. Los valores se atan SOLO a las dos sentencias con
+            //HAVING: atar uno a la que no lo lleva es HY093. Ver T166.
+            $havingGroup = self::generateHavingGroup(
                 array_filter(
                     $columns_order,
                     function ($v) use ($ignore_fields_in_where) {
@@ -823,6 +1024,16 @@ class DataTablesHelper
                 $tableName,
                 $ignore_table_on_fields_in_where
             );
+
+            $havingValores = [];
+            $having = '';
+            if ($havingGroup instanceof HavingItemGroup) {
+                //SIN OPERADOR DE COLA: aquí nadie lo suprime y quedaba un `AND` colgando
+                //delante del `ORDER BY`. Ver T166.
+                $havingGroup->withAfterOperator(false);
+                $having = $havingGroup->toString(false);
+                $havingValores = $havingGroup->getReplacementValues();
+            }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
             $having_string = is_string($having_string) ? trim($having_string) : "";
@@ -872,7 +1083,6 @@ class DataTablesHelper
              * Configuración de la consulta principal
              */
             if ($select_fields !== null) {
-                $select_fields = $select_fields;
             } else {
                 $select_fields = "$tableName.*";
             }
@@ -900,7 +1110,9 @@ class DataTablesHelper
                 $group_string = "";
             }
             $sqlBaseQuery = "SELECT {$select_fields} FROM ({$fakeTable}) AS {$tableName} {$where} {$group_string} {$having} {$order_by}";
-            $sqlBaseQueryNoHavingNoWhere = "SELECT {$select_fields} FROM ({$fakeTable}) AS {$tableName} {$group_string} {$order_by}";
+            //EL TOTAL, CON LOS FILTROS FIJOS Y SIN LA BÚSQUEDA DEL USUARIO (P38): where_string y having_string.
+            $fixedHaving = mb_strlen($having_string) > 0 ? "HAVING ({$having_string})" : "";
+            $sqlBaseQueryFixed = "SELECT {$select_fields} FROM ({$fakeTable}) AS {$tableName} {$where} {$group_string} {$fixedHaving} {$order_by}";
 
             //=============================================================
 
@@ -918,8 +1130,8 @@ class DataTablesHelper
             }
             $limitPrepared = $modelToPrepare->prepare($sqlLimitQuery);
             $limitGeneratedSQL = $sqlLimitQuery;
-            $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $sqlLimitQuery));
-            $limitPrepared->execute();
+            $executedSQL = ['main' => str_replace(["\r", "\n"], '', $sqlLimitQuery)];
+            $limitPrepared->execute($havingValores);
             /**
              * @var array Resultado de la consulta principal
              */
@@ -982,13 +1194,13 @@ class DataTablesHelper
 
                 foreach ($order as $value) {
 
-                    $column_index = isset($value['column']) ? $value['column'] : null;
-                    $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+                    $column_index = $value['column'] ?? null;
+                    $direction_ordering = $value['dir'] ?? null;
 
                     if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
                         $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
-                        $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+                        $column_name = $columns_order[$column_index] ?? null;
 
                         if (!is_null($column_name) && $column_name == self::INGNORE) {
 
@@ -1039,8 +1251,8 @@ class DataTablesHelper
 
             //Agregar al resultado los elementos procesados
             $result->setValue('data', $data);
-            //Agregar al resultado los elementos crudos
-            $result->setValue('rawData', $limitResult);
+            //Los elementos crudos quedan en el servidor: ver rawRows()
+            self::keepRawRows($result, is_array($limitResult) ? $limitResult : []);
             //=============================================================
 
             //Realizar consulta para configurar los datos necesarios para la paginación
@@ -1048,21 +1260,23 @@ class DataTablesHelper
             $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $sqlBaseQuery . ") AS table_derivate";
             $filterCountPrepared = $modelToPrepare->prepare($filterCountSQL);
             $fiterCountGeneratedSQL = $filterCountSQL;
-            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCountSQL));
-            $filterCountPrepared->execute();
+            $executedSQL['filterCount'] = str_replace(["\r", "\n"], '', $filterCountSQL);
+            $filterCountPrepared->execute($havingValores);
             $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
             $filterCountTotal = !empty($filterCountResult) ? (int) $filterCountResult[0]->total : 0;
             $result->setValue('recordsFiltered', $filterCountTotal);
 
-            $totalCountSQL = "SELECT COUNT(*) AS total FROM (" . $sqlBaseQueryNoHavingNoWhere . ") AS table_derivate";
-            $result->setValue('SQL_TOTAL_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $totalCountSQL));
+            $totalCountSQL = "SELECT COUNT(*) AS total FROM (" . $sqlBaseQueryFixed . ") AS table_derivate";
+            $executedSQL['totalCount'] = str_replace(["\r", "\n"], '', $totalCountSQL);
             $totalCountPrepared = $modelToPrepare->prepare($totalCountSQL);
             $totalCountGeneratedSQL = $totalCountSQL;
             $totalCountPrepared->execute();
             $totalCount = $totalCountPrepared->fetchAll(\PDO::FETCH_OBJ);
 
-            $result->setValue('recordsTotal', !empty($totalCount) ? $totalCount[0]->total : 0);
+            $result->setValue('recordsTotal', !empty($totalCount) ? (int) $totalCount[0]->total : 0);
             //=============================================================
+
+            self::logSQL($debug_sql, $executedSQL);
 
             return $result;
 
@@ -1075,6 +1289,121 @@ class DataTablesHelper
                 'totalCountGeneratedSQL' => $totalCountGeneratedSQL,
             ]);
         }
+    }
+
+    /**
+     * QUE COLUMNAS entran en la busqueda, ya con su prefijo de tabla resuelto.
+     *
+     * UNA SOLA VERDAD, y por eso existe: `generateHaving()` la renderiza escapando y
+     * `generateHavingGroup()` la renderiza por marcador. Si cada una decidiera sus columnas,
+     * divergirian, y una divergencia entre el filtro que se aplica y el que se cree aplicar no
+     * la nota nadie hasta que alguien busca. LEY 11. Ver T163.
+     *
+     * NO sabe nada del valor buscado: solo del universo.
+     *
+     * @param array $columns_order
+     * @param array $columns
+     * @param string $table
+     * @param string[] $ignore_table_on_fields
+     * @return string[]
+     */
+    protected static function searchableFieldsForHaving(array $columns_order, array $columns, string $table = '', array $ignore_table_on_fields = []): array
+    {
+        $campos = [];
+        $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
+
+        foreach ($columns_order as $index => $column_name) {
+
+            $column = $columns[$index] ?? null;
+
+            if (!is_null($column)) {
+
+                $searchable = true;
+
+                if (isset($column['searchable'])) {
+
+                    $searchable_value = $column['searchable'];
+
+                    if ($searchable_value === 'true' || $searchable_value === '1' || $searchable_value === 'yes' || $searchable_value === 'on') {
+                        $searchable_value = true;
+                    }
+
+                    if ($searchable_value === 'false' || $searchable_value === '0' || $searchable_value === 'no' || $searchable_value === 'off') {
+                        $searchable_value = false;
+                    }
+
+                    $searchable = $searchable_value === true;
+
+                }
+
+                if ($searchable) {
+
+                    $column_name = is_array($column_name) ? $column_name : [$column_name];
+
+                    foreach ($column_name as $name) {
+
+                        $skip_values = [
+                            self::INGNORE,
+                            self::ONLY_ORDER,
+                        ];
+
+                        if (in_array($name, $skip_values)) {
+                            continue;
+                        }
+
+                        if (in_array($name, $ignore_table_on_fields) || !self::$tableOnSearch) {
+                            $campos[] = $name;
+                        } else {
+                            $campos[] = $table . $name;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $campos;
+    }
+
+    /**
+     * El mismo HAVING de busqueda, pero POR MARCADOR: un `HavingItemGroup` en vez de una cadena.
+     *
+     * `LIKE` no esta en `NOT_ALIAS_OPERATORS` —los cinco son `IS NULL`, `IS NOT NULL`, `IN`,
+     * `NOT IN` y `FIND_IN_SET`—, asi que genera alias y el valor viaja como dato. Aqui NO hay
+     * ningun `escapeString()`, y si aparece uno esta mal. Ver T163.
+     *
+     * @param array $columns_order
+     * @param array $columns
+     * @param mixed $search
+     * @param string $table
+     * @param string[] $ignore_table_on_fields
+     * @return HavingItemGroup|null
+     */
+    protected static function generateHavingGroup(array $columns_order, array $columns, $search, string $table = '', array $ignore_table_on_fields = []): ?HavingItemGroup
+    {
+        $search_value = is_array($search) && isset($search['value']) ? trim($search['value']) : '';
+
+        if (mb_strlen($search_value) === 0) {
+            return null;
+        }
+
+        $campos = self::searchableFieldsForHaving($columns_order, $columns, $table, $ignore_table_on_fields);
+
+        if (count($campos) === 0) {
+            return null;
+        }
+
+        $patron = '%' . mb_strtoupper($search_value) . '%';
+        $criterios = [];
+
+        foreach ($campos as $campo) {
+            $criterios[] = new HavingItem("UPPER({$campo})", HavingItem::LIKE_OPERATOR, $patron, HavingItem::OR_OPERATOR);
+        }
+
+        //EL ULTIMO FIJA `AND` A PROPOSITO: un grupo hereda de su ultimo criterio como se une a
+        //lo que venga detras, y con `OR` cualquier busqueda anularia la restriccion anterior.
+        $criterios[count($criterios) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+
+        return new HavingItemGroup($criterios);
     }
 
     /**
@@ -1095,85 +1424,29 @@ class DataTablesHelper
         $search_value = is_array($search) && isset($search['value']) ? trim($search['value']) : '';
         $has_search = mb_strlen($search_value) > 0;
 
-        $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
-
         if ($has_search) {
 
-            foreach ($columns_order as $index => $column_name) {
+            foreach (self::searchableFieldsForHaving($columns_order, $columns, $table, $ignore_table_on_fields) as $campo) {
 
-                $column = isset($columns[$index]) ? $columns[$index] : null;
-
-                if (!is_null($column)) {
-
-                    $searchable = true;
-
-                    if (isset($column['searchable'])) {
-
-                        $searchable_value = $column['searchable'];
-
-                        if ($searchable_value === 'true' || $searchable_value === '1' || $searchable_value === 'yes' || $searchable_value === 'on') {
-                            $searchable_value = true;
-                        }
-
-                        if ($searchable_value === 'false' || $searchable_value === '0' || $searchable_value === 'no' || $searchable_value === 'off') {
-                            $searchable_value = false;
-                        }
-
-                        $searchable = $searchable_value === true;
-
-                    }
-
-                    if ($searchable) {
-
-                        $column_name = is_array($column_name) ? $column_name : [$column_name];
-
-                        foreach ($column_name as $name) {
-
-                            $skip_values = [
-                                self::INGNORE,
-                                self::ONLY_ORDER,
-                            ];
-
-                            if (in_array($name, $skip_values)) {
-                                continue;
-                            }
-
-                            if (is_string($search_value)) {
-                                $search_value = mb_strtoupper($search_value);
-                            }
-
-                            $_having_string = '(UPPER({FIELD_NAME}) LIKE "%{SEARCH_VALUE}%")';
-
-                            if (in_array($name, $ignore_table_on_fields) || !self::$tableOnSearch) {
-                                $_having_string = str_replace(
-                                    [
-                                        '{FIELD_NAME}',
-                                        '{SEARCH_VALUE}',
-                                    ],
-                                    [
-                                        $name,
-                                        escapeString($search_value),
-                                    ],
-                                    $_having_string
-                                );
-                            } else {
-                                $_having_string = str_replace(
-                                    [
-                                        '{FIELD_NAME}',
-                                        '{SEARCH_VALUE}',
-                                    ],
-                                    [
-                                        $table . $name,
-                                        escapeString($search_value),
-                                    ],
-                                    $_having_string
-                                );
-                            }
-
-                            $having[] = $_having_string;
-                        }
-                    }
+                if (is_string($search_value)) {
+                    $search_value = mb_strtoupper($search_value);
                 }
+
+                $_having_string = '(UPPER({FIELD_NAME}) LIKE "%{SEARCH_VALUE}%")';
+
+                $_having_string = str_replace(
+                    [
+                        '{FIELD_NAME}',
+                        '{SEARCH_VALUE}',
+                    ],
+                    [
+                        $campo,
+                        escapeString($search_value),
+                    ],
+                    $_having_string
+                );
+
+                $having[] = $_having_string;
             }
         }
 
@@ -1207,13 +1480,13 @@ class DataTablesHelper
 
             foreach ($order as $value) {
 
-                $column_index = isset($value['column']) ? $value['column'] : null;
-                $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+                $column_index = $value['column'] ?? null;
+                $direction_ordering = $value['dir'] ?? null;
 
                 if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
                     $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
-                    $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+                    $column_name = $columns_order[$column_index] ?? null;
 
                     if (!is_null($column_name)) {
                         $column_name = is_array($column_name) ? $column_name : [$column_name];
@@ -1236,8 +1509,11 @@ class DataTablesHelper
         $custom_order = is_array($custom_order) ? $custom_order : [];
 
         foreach ($custom_order as $column => $direction) {
+            //La direccion se normaliza como la de la peticion: `custom_order` no debe poder meter SQL
+            //aunque algun dia no venga del programador.
+            $direction = trim(mb_strtoupper((string) $direction)) === 'ASC' ? 'ASC' : 'DESC';
             $exists_order = false;
-            foreach ($order_by as $index => $order_item) {
+            foreach ($order_by as $order_item) {
                 if (mb_strpos($order_item, $column) !== false) {
                     $exists_order = true;
                     break;
@@ -1255,7 +1531,7 @@ class DataTablesHelper
      * @param bool $value
      * @return void
      */
-    public static function setTablePrefixOnOrder(bool $value)
+    public static function setTablePrefixOnOrder(bool $value): void
     {
         self::$tableOnOrder = $value;
     }
@@ -1264,7 +1540,7 @@ class DataTablesHelper
      * @param bool $value
      * @return void
      */
-    public static function setTablePrefixOnSearch(bool $value)
+    public static function setTablePrefixOnSearch(bool $value): void
     {
         self::$tableOnSearch = $value;
     }

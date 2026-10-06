@@ -194,7 +194,7 @@ class MenuGroup
                             }
                         }
 
-                        foreach ($value_on_option as $key => $value) {
+                        foreach ($value_on_option as $value) {
                             $this->addItem($value);
                         }
 
@@ -412,7 +412,7 @@ class MenuGroup
     {
         $group_name = $this->getName();
         $group_as_link = $this->asLink();
-        $group_href = !is_null($this->getHref()) ? $this->getHref() : '';
+        $group_href = $this->getHref() ?? '';
         $group_href_target = $this->getHrefTarget();
         $group_icon = $this->getIcon(false);
         $group_visible = $this->isVisible();

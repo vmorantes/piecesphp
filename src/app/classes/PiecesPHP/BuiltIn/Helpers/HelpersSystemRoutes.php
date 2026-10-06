@@ -42,18 +42,6 @@ class HelpersSystemRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
-
             $groupAdministration = GenericContentController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
@@ -149,7 +137,7 @@ class HelpersSystemRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

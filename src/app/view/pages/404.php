@@ -8,9 +8,9 @@
     <base href="<?= base_url(); ?>">
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon')); ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= get_route('admin-global-variables-css'); ?>">
-    <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
-    <link rel="stylesheet" href="statics/css/404.css">
-    <link rel="stylesheet" href="statics/css/errors.css">
+    <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/core/css/ui-pcs.css'); ?>">
+    <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/css/404.css'); ?>">
+    <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/css/errors.css'); ?>">
 </head>
 
 <body>
@@ -34,7 +34,7 @@
                 <img class="error-image" src="statics/images/errors/404.svg" alt="">
                 <div class="body">
                     <a class="btn" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
-                    <a class="btn report" href="<?= get_route("other-problems-form"); ?>"><?= __('page404', 'Reportar problema'); ?></a>
+                    <a class="btn report" href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'); ?>"><?= __('page404', 'Reportar problema'); ?></a>
                 </div>
                 <div class="logo-footer">
                     <img class="img-logo-footer" src="<?= get_config('logo'); ?>">

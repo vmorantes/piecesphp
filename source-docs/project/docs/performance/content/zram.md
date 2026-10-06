@@ -8,9 +8,9 @@ El sistema operativo utiliza la memoria en el siguiente orden de preferencia:
 
 | Prioridad | Recurso | Velocidad | Observación |
 | :---: | :--- | :--- | :--- |
-| 1 | **RAM física** | ~50 GB/s | Siempre la más rápida. El objetivo es que el sistema la agote lo menos posible. |
-| 2 | **ZRAM (swap comprimido en RAM)** | ~10-20 GB/s | Usa RAM real para almacenar páginas comprimidas. Mucho más rápido que disco. |
-| 3 | **Swapfile en disco (SSD/NVMe)** | ~0.5-3 GB/s | Último recurso. Solo se usa cuando ZRAM ya no puede absorber más. |
+| 1 | **RAM física** | la más rápida | Siempre la más rápida. El objetivo es que el sistema la agote lo menos posible. |
+| 2 | **ZRAM (swap comprimido en RAM)** | muy superior al disco | Usa RAM real para almacenar páginas comprimidas. Mucho más rápido que disco. |
+| 3 | **Swapfile en disco (SSD/NVMe)** | la más lenta | Último recurso. Solo se usa cuando ZRAM ya no puede absorber más. |
 
 > **Regla de oro:** La RAM física es, por mucho, el recurso más valioso. ZRAM es un excelente amortiguador, pero consume ciclos de CPU para comprimir/descomprimir y **ocupa RAM real**. Mientras más RAM física libre tengas, mejor.
 
@@ -28,14 +28,20 @@ El sistema operativo utiliza la memoria en el siguiente orden de preferencia:
 
 ### ¿Por qué no 200-300%?
 
-ZRAM no reserva toda su capacidad de inmediato, pero cuando se llena, consume RAM real proporcional al ratio de compresión (típicamente 2:1 a 3:1). Un ZRAM al 300% **podría** agotar toda la RAM disponible bajo presión intensa, provocando el **OOM Killer**. Es mejor ser conservador.
+El porcentaje fija la capacidad del dispositivo ZRAM **sin comprimir**. Lo que ocupa en RAM real es lo que esa capacidad
+ocupa ya comprimida, y la documentación del kernel
+([zram](https://docs.kernel.org/admin-guide/blockdev/zram.html)) lo resume así: no tiene sentido crear un ZRAM de más
+del doble del tamaño de la memoria, porque se espera una compresión de 2:1; y ZRAM ocupa cerca del 0,1 % de su tamaño
+aun sin usarse, así que uno enorme desperdicia memoria. Un ZRAM al 300% que se llenara de datos que comprimen 2:1
+necesitaría el 150% de la RAM: bajo presión intensa provoca el **OOM Killer**. La compresión real de tu sistema la
+muestra `zramctl` (columnas `DATA`, sin comprimir, y `COMPR`, comprimido).
 
-**Ejemplo con 8 GB de RAM y ZRAM al 50%:**
+**Ejemplo con 8 GB de RAM, ZRAM al 50% y la compresión de 2:1 que da el kernel como referencia:**
 
 ```
 Capacidad ZRAM configurada: 4 GB (tamaño sin comprimir)
-RAM real consumida al llenarse: ~1.3-2 GB (con compresión 2:1 a 3:1)
-RAM libre restante para apps: ~6-6.7 GB
+RAM real consumida al llenarse: ~2 GB
+RAM libre restante para apps: ~6 GB
 ```
 
 ---
@@ -57,14 +63,15 @@ Edita el archivo de configuración:
 sudo nano /etc/default/zramswap
 ```
 
-Asegúrate que contiene estas líneas:
+Asegúrate de que contiene estas líneas sin comentar (son los valores con los que lo instala el paquete en Ubuntu 26.04):
 
 ```
-ENABLED=true
 ALGO=lz4
 PERCENT=50
 PRIORITY=100
 ```
+
+`PERCENT` es un porcentaje de la memoria total y, si está definido, manda sobre `SIZE` (un tamaño fijo en MiB).
 
 | Parámetro | Valor | Justificación |
 | :--- | :---: | :--- |
@@ -98,6 +105,9 @@ sudo swapoff -a
 ```bash
 sudo rm -f /swapfile
 ```
+
+Si `/etc/fstab` tiene otro archivo de swap (por ejemplo `/swap.img`), quita también su línea en el paso 5 y borra ese
+archivo.
 
 ### c) Crear nuevo swapfile (ejemplo: 4 GB):
 
@@ -137,20 +147,27 @@ Guarda y cierra.
 
 ### ¿Qué es `vm.swappiness`?
 
-Controla qué tan agresivamente el kernel mueve páginas de memoria a swap. El rango es **0-200** (en kernels modernos ≥5.8).
+Indica al kernel el coste relativo de usar swap frente a leer del sistema de archivos, y con ello cuánto recurre al swap.
+El rango es **0-200** (desde el kernel 5.8; antes, 0-100). Referencia:
+[vm.swappiness](https://docs.kernel.org/admin-guide/sysctl/vm.html#swappiness).
 
 | Valor | Comportamiento |
 | :---: | :--- |
-| **0** | El kernel evita swap casi por completo. Solo usa swap bajo OOM inminente. |
-| **10-30** | Conservador: prioriza fuertemente la RAM física. Ideal para **máxima velocidad** cuando la RAM alcanza. |
-| **60** | Valor por defecto. Balance genérico. |
-| **100+** | Agresivo: mueve páginas inactivas a swap tempranamente para liberar RAM para caché de archivos. |
+| **0** | El kernel no empieza a usar swap hasta que la memoria libre y la caché de archivos caen por debajo de su umbral alto. |
+| **10-30** | Conservador: prioriza fuertemente la RAM física (y la caché de archivos) frente al swap. |
+| **60** | Valor por defecto. |
+| **100** | El kernel considera igual de caro el swap que la lectura de archivos. |
+| **100-200** | El swap se considera más barato que el disco. La documentación del kernel contempla estos valores para swap en memoria como ZRAM. |
 
 ### Recomendación con ZRAM
 
 - **Estaciones de trabajo con RAM suficiente (≥8 GB):** `vm.swappiness = 10` a `30`. Se favorece **la RAM física directa** y ZRAM actúa como colchón suave.
 - **Sistemas con RAM escasa (<4 GB):** `vm.swappiness = 60` a `100`. Permite que ZRAM absorba más carga.
 - **Servidores:** `vm.swappiness = 10` a `20`. Predecibilidad sobre todo.
+
+Esta guía elige valores bajos para que el swap, aunque sea ZRAM, sea el último recurso. La documentación del kernel
+propone lo contrario cuando el swap está en memoria (valores por encima de 100, porque ZRAM es más rápido que el disco).
+Las dos estrategias son válidas; la del kernel aprovecha más ZRAM y deja más RAM para caché de archivos.
 
 ### Aplicar de forma persistente
 
@@ -203,7 +220,8 @@ vm.vfs_cache_pressure = 50
 
 ## 7. Desactivar `zswap` (evitar conflicto)
 
-`zswap` y `zram` ambos comprimen páginas en RAM. Tener ambos activos causa doble compresión innecesaria.
+`zswap` es una caché comprimida, en RAM, delante de los dispositivos de swap; ZRAM es en sí un dispositivo de swap
+comprimido en RAM. Con los dos activos, las páginas que `zswap` expulsa van a ZRAM y se comprimen dos veces.
 
 ### Verificar si `zswap` está activo:
 
@@ -309,8 +327,8 @@ Todo debe reflejar la configuración aplicada sin intervención manual.
 ## Explicación de la estrategia
 
 * **RAM física primero.** Un `swappiness` bajo (20) garantiza que el kernel intente mantener las páginas activas en RAM real el mayor tiempo posible. Solo bajo presión moderada recurre a ZRAM.
-* **ZRAM como amortiguador.** Al 50% de la RAM, con `lz4` y `prioridad 100`, ZRAM comprime páginas inactivas eficientemente. Gracias a la compresión ~3:1, 4 GB configurados solo consumen ~1.3 GB reales cuando están llenos.
+* **ZRAM como amortiguador.** Al 50% de la RAM, con `lz4` y `prioridad 100`, ZRAM comprime páginas inactivas. Con la compresión de 2:1 que la documentación del kernel da como referencia, 4 GB configurados consumen ~2 GB reales cuando están llenos; `zramctl` muestra la de tu sistema.
 * **Swapfile como último recurso.** Con `prioridad 10`, el disco solo se toca cuando ZRAM ya se llenó. Esto evita la latencia de I/O en disco casi por completo en uso normal.
 * **Sin `zswap`.** Evita la doble compresión y el desperdicio de ciclos de CPU.
-* **`page-cluster = 0`.** ZRAM no se beneficia de lectura secuencial como un disco mecánico; leer página por página es más eficiente.
+* **`page-cluster = 0`.** Desactiva la lectura anticipada de swap (por defecto lee 8 páginas consecutivas de golpe). En ZRAM no hay búsqueda de disco que amortizar, y leer solo la página pedida reduce la latencia de cada fallo de página.
 * **`vfs_cache_pressure = 50`.** Reduce la tendencia del kernel a desalojar cachés de metadatos del sistema de archivos, mejorando la velocidad de acceso a archivos.

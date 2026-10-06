@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: las entradas de autocarga de tus propios espacios de nombres, debajo de la del framework.
+ */
+
+/**
  * Autocarga de clases
  *
  * Array que contiene las clases que se desean cargar
@@ -28,9 +33,12 @@
  * NOTA IMPORTANTATE: Se asume que el nombre del archivo es tal cual como el nombre de la clase y su extensión es .php, es decir,
  * para el ejemplo anterior; el archivo debe llamarse Clase.php
  */
+//── Del framework: no lo edites ──
 return [
     [
         'psr4' => true,
         'path' => app_basepath('classes'),
     ],
+    //── Del clon ──
+    //Tus espacios de nombres: ['namespaces' => 'Tu\\Espacio', 'psr4' => true, 'path' => __DIR__ . '/...'],
 ];

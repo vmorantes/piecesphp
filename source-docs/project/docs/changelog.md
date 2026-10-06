@@ -2,6 +2,44 @@
 
 Registro detallado de las actualizaciones y mejoras del framework PiecesPHP.
 
+> **La última versión estable es la `8.0.0` (05-10-2026), con cambios incompatibles respecto de la `7.1.0`.** La rama
+> `last-stable` apunta siempre a la última estable. Antes de actualizar desde la `7.x` lee la sección `8.0.0` del
+> `CHANGELOG.md` de la raíz del repositorio, que es la fuente completa: esta página es solo un resumen.
+
+---
+
+## 🚀 8.0.0 (05-10-2026)
+
+Versión estable. Reúne las rupturas de la campaña desde la `7.1.0`; antes salieron las pre-versiones `v8.0.0-alpha.1` a
+`alpha.4`, `rc.1`, `rc.2` y `rc.3`.
+
+- **Rango de PHP soportado: `>=8.5 <8.6`** (`src/composer.json`). Antes era `>=8.4.1 <8.6`. El `composer.json` fija además
+  `config.platform.php` en `8.5.0`, para que Composer no resuelva contra el PHP que lo arranca. Los cuatro paquetes
+  `piecesphp/*` suben de versión mayor y adoptan el mismo rango.
+- **Cambios incompatibles** (el detalle, con qué revisar en un clon, está en el `CHANGELOG.md` de la raíz):
+    - **Correo**: sin `src/app/config/environment.php` el correo **no sale** (`mail_delivery` en `auto` vale `sink`).
+      En producción declara `production` o elige `real` en **Integraciones → Correo**. Además hay dos archivos SQL que
+      aplicar para el registro de correos (`databases/actualizaciones/2026-10-03-registro-de-correos.sql` y
+      `2026-10-05-cuerpo-del-correo.sql`).
+    - **`bin/cli gates` (y `bin/verify`)** solo corren en una instalación declarada `local`.
+    - **URLs**: `friendlyURLString()` ya no elimina los dígitos; la forma vieja redirige (301) a la nueva.
+    - **Tareas programadas**: el estado y el candado de cada una llevan una huella del nombre; cada tarea con franja
+      se ejecuta una vez de más tras actualizar.
+    - **Respaldos de la base**: se gobiernan con una política y el primer respaldo correcto borra los que sobren
+      (se desactiva en **Configuración → Sistema → Respaldos**).
+    - **Rutas**: se retira el «alias» de una ruta y con él el atajo `bin/cli h` (usa `bin/cli help`).
+    - **Sesiones caducadas**: ya no se escribe un archivo con el JWT por petición; hay una línea de registro opcional.
+    - **Parámetros opcionales** mal formados responden 400 en vez de sustituirse en silencio por su valor por omisión.
+    - **`src/app/config/final-configurations-includes/` pasa a `src/app/config/extensions/`**, y cada archivo de
+      `app/config` declara de quién es.
+    - **Vistas, scripts y clases movidos de lugar** (tabla de rutas viejas y nuevas en el `CHANGELOG.md`).
+    - Y, entre otros: `ServerStatics::serveModuleStatic()` ya no existe (usa `serve()`); el alta y la edición se
+      deciden por el nombre de la ruta y no por el cuerpo; se retiran módulos y tablas (convocatorias, repositorio de
+      imágenes, áreas de interés, experiencias previas y diccionarios de `fr`, `pt`, `it` y `de`).
+- **Seguridad**: el registro de acciones dice quién actuaba de verdad al «conectarse como otro usuario», y se corrigió
+  la recuperación de contraseña (se podía tomar una cuenta).
+- **Nuevo**: `bin/cli mail-doctor` y `bin/cli mail-demo`, y la pantalla «Registro de correos».
+
 ---
 
 ## 🚀 7.1.0 (20-08-2026)

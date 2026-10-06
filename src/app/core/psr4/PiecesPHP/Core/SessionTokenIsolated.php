@@ -35,12 +35,14 @@ class SessionTokenIsolated
 
     /**
      * @param string $tokenName
-     * @param string|null $key
+     * @param string|null $key Null: una clave derivada de la de la aplicación para ESTE canal
      */
     public function __construct(string $tokenName, ?string $key = null)
     {
         $this->tokenName = $tokenName;
-        $this->key = $key !== null ? $key : Config::app_key();
+        //Cada canal firma con su propia clave derivada (P64): un token de la sesión de usuarios, o de otro canal
+        //aislado, no vale aquí aunque se presente con el nombre correcto.
+        $this->key = $key !== null ? $key : Config::app_key_derived('isolated-session:' . $tokenName);
     }
 
     /**
@@ -80,6 +82,13 @@ class SessionTokenIsolated
         } else if ($logged === true) {
 
             $dateCreatedToken = BaseToken::getCreated($token, $key);
+
+            //`getCreated()` puede devolver un código o null: con el código, `date()` lanzaba; con null tomaba LA HORA
+            //ACTUAL y el token pasaba por recién creado. Mismo arreglo que en SessionToken, su gemela.
+            if (!is_int($dateCreatedToken)) {
+                return false;
+            }
+
             $dateCreatedToken = new \DateTime(date('Y-m-d H:i:s', $dateCreatedToken));
 
             if ($dateCreatedToken >= $this->minimumDateCreated) {

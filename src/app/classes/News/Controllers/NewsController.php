@@ -6,8 +6,8 @@
 
 namespace News\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\Exceptions\DuplicateException;
 use News\Exceptions\SafeException;
 use News\Mappers\NewsCategoryMapper;
@@ -21,18 +21,20 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * NewsController.
@@ -43,6 +45,8 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class NewsController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -135,7 +139,7 @@ class NewsController extends AdminPanelController
         $data['allUsersTypes'] = $allUsersTypes;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             __(self::LANG_GROUP, 'Noticias') => [
                 'url' => $backLink,
@@ -204,7 +208,7 @@ class NewsController extends AdminPanelController
             $data['selectedLang'] = $selectedLang;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Noticias') => [
                     'url' => $backLink,
@@ -232,7 +236,7 @@ class NewsController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = get_route('admin');
+        $backLink = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
         $addLink = self::routeName('forms-add');
         $listCategoriesLink = NewsCategoryController::routeName('list');
         $processTableLink = self::routeName('datatables');
@@ -247,9 +251,9 @@ class NewsController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['listCategoriesLink'] = $listCategoriesLink;
-        $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
+        $data['hasPermissionsListCategories'] = (string) $listCategoriesLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
@@ -318,7 +322,7 @@ class NewsController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -335,7 +339,7 @@ class NewsController extends AdminPanelController
                 function ($value) {
                     $parse = [];
                     if (is_array($value)) {
-                        foreach ($value as $k => $i) {
+                        foreach ($value as $i) {
                             if (Validator::isInteger($i)) {
                                 $parse[] = (int) $i;
                             }
@@ -532,8 +536,11 @@ class NewsController extends AdminPanelController
             $endDate = $expectedParameters->getValue('endDate');
             $draft = $expectedParameters->getValue('draft');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -555,7 +562,7 @@ class NewsController extends AdminPanelController
                     //Nuevo
 
                     //En creación $lang es el idioma base
-                    $lang = $baseLang !== null ? $baseLang : $lang;
+                    $lang = $baseLang ?? $lang;
                     $mapper = new NewsMapper();
 
                     $mapper->setLangData($lang, 'profilesTarget', $profilesTarget);
@@ -626,9 +633,9 @@ class NewsController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -641,10 +648,15 @@ class NewsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -737,7 +749,7 @@ class NewsController extends AdminPanelController
 
                     $pdo = NewsMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -764,24 +776,28 @@ class NewsController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         $pdo->rollBack();
-                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -862,7 +878,7 @@ class NewsController extends AdminPanelController
              * @var int $newsID
              * @var int $userID
              */
-            $currentUser = getLoggedFrameworkUser();
+            $currentUser = getLoggedFrameworkUserOrFail();
             $newsID = $expectedParameters->getValue('newsID');
             $userID = $currentUser->id;
 
@@ -874,7 +890,7 @@ class NewsController extends AdminPanelController
 
                     try {
                         NewsReadedMapper::addRecord($userID, $newsID);
-                    } catch (\PDOException $e) {}
+                    } catch (\PDOException) {}
 
                     $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -886,13 +902,13 @@ class NewsController extends AdminPanelController
                 }
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -983,7 +999,7 @@ class NewsController extends AdminPanelController
                     $valid = is_array($value);
                     if ($valid) {
                         foreach ($value as $slug) {
-                            $valid = is_scalar($slug) && mb_strlen((string) $slug) > 0;
+                            $valid = $valid && is_scalar($slug) && mb_strlen((string) $slug) > 0;
                         }
                     }
                     return $valid;
@@ -1042,7 +1058,6 @@ class NewsController extends AdminPanelController
     {
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = NewsMapper::TABLE;
         $inactive = NewsMapper::INACTIVE;
@@ -1050,20 +1065,16 @@ class NewsController extends AdminPanelController
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
+        //SIN having_string: no había ningún criterio, y el buscador ya va por marcador solo (T3 de #045).
         $selectFields = NewsMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'newsTitle',
             'categoryName',
             'startDateFormat',
@@ -1072,7 +1083,7 @@ class NewsController extends AdminPanelController
         ];
 
         $customOrder = [
-            'idPadding' => 'DESC',
+            "{$table}.id" => 'DESC',
             'createdAt' => 'DESC',
             'updatedAt' => 'DESC',
             'newsTitle' => 'ASC',
@@ -1085,7 +1096,6 @@ class NewsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -1159,9 +1169,9 @@ class NewsController extends AdminPanelController
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = []
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? NewsMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= NewsMapper::ACTIVE;
 
         $table = NewsMapper::TABLE;
         $tableNewsReaded = NewsReadedMapper::TABLE;
@@ -1202,12 +1212,17 @@ class NewsController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if (!empty($ignoreSlugs)) {
 
             $beforeOperator = !empty($where) ? $and : '';
-            $ignoreSlugs = implode('","', $ignoreSlugs);
-            $ignoreSlugs = '"' . $ignoreSlugs . '"';
-            $critery = "{$table}.preferSlug NOT IN ({$ignoreSlugs})";
+            //Valor de la petición: va por marcador.
+            $placeholders = [];
+            foreach (array_values($ignoreSlugs) as $index => $slug) {
+                $placeholders[] = ":ignoreSlug{$index}";
+                $boundValues[":ignoreSlug{$index}"] = $slug;
+            }
+            $critery = "{$table}.preferSlug NOT IN (" . implode(', ', $placeholders) . ")";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1216,7 +1231,9 @@ class NewsController extends AdminPanelController
 
             $beforeOperator = !empty($where) ? $and : '';
             $newsTitleField = NewsMapper::fieldCurrentLangForSQL('newsTitle');
-            $critery = "UPPER({$newsTitleField}) LIKE UPPER('%{$newsTitle}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$newsTitleField}) LIKE UPPER(:newsTitle)";
+            $boundValues[':newsTitle'] = "%{$newsTitle}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1279,7 +1296,7 @@ class NewsController extends AdminPanelController
         $sqlSelect .= " ORDER BY " . implode(', ', NewsMapper::ORDER_BY_PREFERENCE);
         $sqlCount = "SELECT COUNT(mainQuery.id) AS total " . "FROM ({$sqlSelect}) AS mainQuery";
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $controller = new NewsController;
         $parser = function ($element) use ($controller) {
@@ -1326,20 +1343,6 @@ class NewsController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -1347,19 +1350,19 @@ class NewsController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1399,51 +1402,6 @@ class NewsController extends AdminPanelController
     public static function pathFrontNewsAdapter()
     {
         return NewsRoutes::staticRoute('js/NewsAdapter.js');
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**

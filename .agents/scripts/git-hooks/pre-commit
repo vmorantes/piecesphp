@@ -1,0 +1,25 @@
+#!/bin/bash
+# Hook pre-commit: rechaza el commit si LO QUE SE VA A COMMITEAR lleva atribución
+# a una IA (regla 40-salvaguardas.md, sección 5). Protege commits hechos con
+# cualquier herramienta, no solo con Claude Code.
+#
+# Mira el ÍNDICE, no el árbol: un archivo sucio en el disco que no entra en este
+# commit no puede frenarlo, porque no se está entregando.
+#
+# Se activa una vez por clon, lo decide el PO:
+#     git config core.hooksPath .agents/scripts/git-hooks
+
+RAIZ="$(git rev-parse --show-toplevel)" || exit 1
+
+SALIDA="$(python3 -B "$RAIZ/.agents/scripts/menciones_ia.py" --indice 2>&1)"
+ESTADO=$?
+
+# Se imprime siempre: una guarda muda se lee igual que una guarda satisfecha (LEY 18).
+echo "pre-commit: $(echo "$SALIDA" | tr '\n' ' ')"
+
+if [ $ESTADO -ne 0 ]; then
+    echo "" >&2
+    echo "Commit rechazado: lo preparado atribuye el trabajo a una IA (40-salvaguardas.md §5)." >&2
+    echo "Quita esa línea de los archivos de arriba y vuelve a prepararlos." >&2
+    exit 1
+fi

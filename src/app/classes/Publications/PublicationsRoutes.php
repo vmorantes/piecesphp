@@ -14,13 +14,11 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Sitemap\Sitemap;
 use PiecesPHP\CSSVariables;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
-use Publications\Mappers\AttachmentPublicationMapper;
-use Publications\Mappers\PublicationCategoryMapper;
-use Publications\Mappers\PublicationMapper;
 
 /**
  * PublicationsRoutes.
@@ -48,25 +46,10 @@ class PublicationsRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new PublicationCategoryMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new PublicationMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new AttachmentPublicationMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
-
             $groupAdministration = PublicationsController::routes($groupAdministration);
             $groupAdministration = PublicationsCategoryController::routes($groupAdministration);
             $groupPublic = PublicationsPublicController::routes($groupPublic);
+            Sitemap::registerProvider('publications', [PublicationsPublicController::class, 'sitemapItems']);
 
             self::staticResolver($groupAdministration);
 
@@ -154,7 +137,7 @@ class PublicationsRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

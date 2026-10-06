@@ -27,6 +27,7 @@ $alternativesURL = Config::get_config('alternatives_url');
     </script>
     <?=\PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric();?>
     <?=\PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph();?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\StructuredData::get(); ?>
     <link href="<?=add_cache_stamp_to_url(get_config('favicon'));?>" rel="shortcut icon" type="image/x-icon">
     <link href="<?=add_cache_stamp_to_url(get_config('favicon'));?>" rel="apple-touch-icon">
     <?php load_font()?>
@@ -34,7 +35,8 @@ $alternativesURL = Config::get_config('alternatives_url');
             'base_url' => "",
             'custom_url' => "",
     ])?>
-    <?=\PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScripts();?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'head'); ?>
 </head>
 
 <body class="<?=isset($bodyClasses) && is_string($bodyClasses) ? $bodyClasses : '';?>">
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'body_start'); ?>

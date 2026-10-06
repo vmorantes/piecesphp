@@ -1,18 +1,21 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
+use MySpace\Controllers\MySpaceController;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 
 /**
  * @var string $langGroup
  * @var string $editLink
  */
-$currentUser = getLoggedFrameworkUser();
+$currentUser = getLoggedFrameworkUserOrFail();
 $isEnabled2FA = OTPHandler::isEnabled2FA();
 $wasViewedQRData = OTPHandler::wasViewedCurrentUserQRData();
 $totpData = $currentUser->TOTPData;
-$totpAlias = $totpData->twoAuthFactorAlias !== null ? $totpData->twoAuthFactorAlias : get_config('owner');
+$totpAlias = $totpData !== null && $totpData->twoAuthFactorAlias !== null ? $totpData->twoAuthFactorAlias : get_config('owner');
 $username = $currentUser->username;
+//Durante una suplantación no se ofrece: cerraría las sesiones del suplantado, no las de root.
+$canRevokeMySessions = MySpaceController::allowedRoute('revoke-my-sessions') && !MySpaceController::isImpersonating((int) $currentUser->id);
 if($isEnabled2FA && !$wasViewedQRData){
     //Si está activado pero no confirmado, se revierte el proceso porque ya se ha refrescado la página
     OTPHandler::toggleCurrentUser2AF(false, '');
@@ -28,6 +31,9 @@ if($isEnabled2FA && !$wasViewedQRData){
 
     <div class="tabs-controls">
         <div class="active" data-tab="A"><?= __($langGroup, 'Autenticación de dos factores (con app TOTP)'); ?></div>
+        <?php if($canRevokeMySessions): ?>
+        <div data-tab="B"><?= __($langGroup, 'Sesiones'); ?></div>
+        <?php endif; ?>
     </div>
 
     <div class="container-standard-form">
@@ -123,6 +129,22 @@ if($isEnabled2FA && !$wasViewedQRData){
             </form>
 
         </div>
+
+        <?php if($canRevokeMySessions): ?>
+        <div class="ui tab tab-element" data-tab="B">
+
+            <p class="explanation"><?= __($langGroup, 'Cierra la sesión en todos los dispositivos donde haya ingresado, incluido este. Después tendrá que volver a ingresar con su contraseña.'); ?></p>
+
+            <br>
+
+            <form action="<?= MySpaceController::routeName('revoke-my-sessions'); ?>" method="POST" class="ui form mw-400" revoke-my-sessions data-confirmation-title="<?= __($langGroup, 'Cerrar todas las sesiones'); ?>" data-confirmation-message="<?= __($langGroup, 'Se cerrarán todas tus sesiones, incluida ésta.'); ?>">
+                <div class="field">
+                    <button type="submit" class="ui button red small"><?= __($langGroup, 'Cerrar todas mis sesiones'); ?></button>
+                </div>
+            </form>
+
+        </div>
+        <?php endif; ?>
 
     </div>
 

@@ -1,9 +1,9 @@
-@import 'includes/functions';
-@import 'includes/variables';
-@import 'includes/reset-font-family-fomantic';
-@import 'includes/components';
-@import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
-@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+@use 'includes/functions' as *;
+@use 'includes/variables' as *;
+@use 'includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
+@use 'includes/components' as *;
+@import url('../../fonts/public-sans/public-sans.css');
+@import url('../../fonts/poppins/poppins.css');
 
 * {
     box-sizing: border-box;

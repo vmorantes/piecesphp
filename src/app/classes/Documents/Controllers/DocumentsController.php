@@ -6,8 +6,8 @@
 
 namespace Documents\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Documents\DocumentsLang;
 use Documents\DocumentsRoutes;
 use Documents\Exceptions\DuplicateException;
@@ -17,6 +17,10 @@ use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PDOException;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Pagination\PageQuery;
@@ -24,18 +28,20 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * DocumentsController.
@@ -46,6 +52,8 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class DocumentsController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -71,15 +79,7 @@ class DocumentsController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -89,7 +89,6 @@ class DocumentsController extends AdminPanelController
     const BASE_JS_DIR = 'js/documents';
     const BASE_CSS_DIR = 'css/documents';
     const UPLOAD_DIR = 'documents';
-    const UPLOAD_DIR_TMP = 'documents/tmp';
     const LANG_GROUP = DocumentsLang::LANG_GROUP;
 
     public function __construct()
@@ -107,9 +106,7 @@ class DocumentsController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -128,7 +125,7 @@ class DocumentsController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = get_route('admin');
+        $backLink = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
 
         $processTableLink = self::routeName('datatables');
 
@@ -332,7 +329,7 @@ class DocumentsController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -419,8 +416,11 @@ class DocumentsController extends AdminPanelController
             $documentName = $expectedParameters->getValue('documentName');
             $description = $expectedParameters->getValue('description');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -451,6 +451,15 @@ class DocumentsController extends AdminPanelController
                         FileValidator::TYPE_JPEG,
                         FileValidator::TYPE_JPG,
                     ]);
+
+                    //El asterisco del formulario no llegaba aquí: sin archivo, la subida devuelve
+                    //cadena vacía y el guardado la guardaba como si fuera una ruta.
+                    if (mb_strlen(trim($document)) < 1) {
+                        throw new SafeException(sprintf(
+                            __(self::LANG_GROUP, 'Falta un archivo obligatorio: %s.'),
+                            __(self::LANG_GROUP, 'Documento')
+                        ));
+                    }
 
                     $mapper->setLangData($lang, 'document', $document);
                     $mapper->setLangData($lang, 'documentImage', $documentImage);
@@ -549,9 +558,9 @@ class DocumentsController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -564,10 +573,15 @@ class DocumentsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -658,7 +672,7 @@ class DocumentsController extends AdminPanelController
 
                     $pdo = DocumentsMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -688,26 +702,30 @@ class DocumentsController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         if ($e instanceof PDOException) {
                             $pdo->rollBack();
-                            $resultOperation->setValue('transactionError', $e->getMessage());
+                            $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         }
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -818,12 +836,12 @@ class DocumentsController extends AdminPanelController
         $selectFields = DocumentsMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'documentTypeName',
             'documentName',
         ];
         $customOrder = [
-            'idPadding' => 'DESC',
+            "{$table}.id" => 'DESC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -879,30 +897,18 @@ class DocumentsController extends AdminPanelController
     public function dataTablesExplorer(Request $request, Response $response)
     {
 
-        $FIELD = $request->getQueryParam('FIELD_SAMPLE_FILTER');
-        $FIELD = Validator::isInteger($FIELD) ? (int) $FIELD : null;
-
-        $whereString = null;
-        $where = [];
-        $and = 'AND';
         $table = DocumentsMapper::TABLE;
+
+        //POR MARCADOR, con `where_segment`. El `AND` del último criterio lo descarta
+        //`WhereSegment::toString()`, que usa `toString(false)` para el que cierra.
+        $whereItems = [];
 
         $status = DocumentsMapper::STATUS_ACTIVE;
         if ($status !== null && $status !== -1) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.status = {$status}";
-            $where[] = "{$beforeOperator} ({$critery})";
+            $whereItems[] = new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $status, WhereItem::AND_OPERATOR);
         }
 
-        if ($FIELD !== null && $FIELD !== -1) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.FIELD_SAMPLE_FILTER = {$FIELD}";
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($where)) {
-            $whereString = implode(' ', $where);
-        }
+        $whereSegment = count($whereItems) > 0 ? new WhereSegment($whereItems) : null;
 
         $selectFields = DocumentsMapper::fieldsToSelect();
 
@@ -916,7 +922,7 @@ class DocumentsController extends AdminPanelController
 
         $result = DataTablesHelper::process([
 
-            'where_string' => $whereString,
+            'where_segment' => $whereSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'mapper' => new DocumentsMapper(),
@@ -930,7 +936,7 @@ class DocumentsController extends AdminPanelController
 
         ]);
 
-        $rawData = $result->getValue('rawData');
+        $rawData = DataTablesHelper::rawRows($result);
 
         foreach ($rawData as $index => $element) {
 
@@ -974,13 +980,18 @@ class DocumentsController extends AdminPanelController
 
         if ($search !== null) {
 
-            $search = mb_strtolower($search);
-            $having = [
-                "LOWER(documentName) LIKE LOWER('{$search}%')",
-            ];
-            $having = trim(implode(' ', $having));
+            //`having(string)` CONCATENA igual que `where(string)`. Por marcador. Ver T152.
+            $havingSegment = new HavingSegment([
+                new HavingItem(
+                    'LOWER(documentName)',
+                    HavingItem::LIKE_OPERATOR,
+                    mb_strtolower($search) . '%',
+                    '',
+                    'LOWER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+                ),
+            ]);
 
-            $model->having($having);
+            $model->having($havingSegment);
 
             $model->execute();
 
@@ -1012,18 +1023,21 @@ class DocumentsController extends AdminPanelController
         ?int $perPage = null,
         ?int $id = null
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
+        $page ??= 1;
+        $perPage ??= 10;
 
         $table = DocumentsMapper::TABLE;
         $fields = DocumentsMapper::fieldsToSelect();
         $jsonExtractExists = DocumentsMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
-        $where = [
-            "{$table}.status" => DocumentsMapper::STATUS_ACTIVE,
-        ];
+        $where = [];
         $and = 'AND';
+
+        //Criterio, no par clave-valor: `implode(' ', $where)` descarta la clave y quedaba `WHERE 1`.
+        $beforeOperator = !empty($where) ? $and : '';
+        $critery = "{$table}.status = " . DocumentsMapper::STATUS_ACTIVE;
+        $where[] = "{$beforeOperator} ({$critery})";
 
         //Verificación de idioma
         $defaultLang = Config::get_default_lang();
@@ -1117,20 +1131,6 @@ class DocumentsController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -1138,10 +1138,10 @@ class DocumentsController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1151,8 +1151,6 @@ class DocumentsController extends AdminPanelController
 
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
-                $canViewAll = in_array($currentUserType, DocumentsMapper::CAN_VIEW_ALL);
-                $candAddAll = in_array($currentUserType, DocumentsMapper::CAN_ADD_ALL);
 
                 if ($name == 'actions-delete') {
 
@@ -1173,9 +1171,9 @@ class DocumentsController extends AdminPanelController
 
                 } elseif ($name == 'forms-edit' || $name == 'actions-edit') {
 
-                    $id = isset($params['id']) ? $params['id'] : null;
-                    $id = $id !== null ? $id : (isset($_GET['id']) ? $_GET['id'] : null);
-                    $id = $id !== null ? $id : (isset($_POST['id']) ? $_POST['id'] : null);
+                    $id = $params['id'] ?? null;
+                    $id ??= $_GET['id'] ?? null;
+                    $id ??= $_POST['id'] ?? null;
 
                     if ($id !== null) {
 
@@ -1198,13 +1196,9 @@ class DocumentsController extends AdminPanelController
 
                 } elseif ($name == 'forms-add' || $name == 'actions-add') {
 
-                    $allow = false;
-
-                    if (!$candAddAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 
@@ -1214,13 +1208,9 @@ class DocumentsController extends AdminPanelController
 
                 if (in_array($name, $checkNames)) {
 
-                    $allow = false;
-
-                    if (!$canViewAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 
@@ -1252,7 +1242,7 @@ class DocumentsController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -1277,9 +1267,8 @@ class DocumentsController extends AdminPanelController
                 }
 
                 if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
+                    //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
+                    [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
 
                     if (mb_strlen(trim($folder)) < 1) {
                         //Si folder está vacío
@@ -1295,30 +1284,19 @@ class DocumentsController extends AdminPanelController
 
                 if ($valid) {
 
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                    //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                    //lleva el sufijo. Si no se puede mover, no hay ruta y la subida falla.
+                    $information = $handler->getFileInformation();
+                    $url = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], $uploadDirPath, $name, pathinfo((string) $information['name'], \PATHINFO_EXTENSION));
 
-                    if (!empty($locations)) {
+                    if ($url !== '') {
 
-                        $url = $locations[0];
                         $nameCurrent = basename($url);
                         $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
 
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
+                        //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
+                        if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($url)) {
+                            unlink($oldFile);
                         }
 
                     }
@@ -1334,51 +1312,6 @@ class DocumentsController extends AdminPanelController
         }
 
         return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**

@@ -64,7 +64,7 @@ class CSSVariables
      * @param bool $quote
      * @return static
      */
-    public function setVariable(string $name, string $value, bool $quote = false)
+    public function setVariable(string $name, string $value, bool $quote = false): static
     {
         $name = "--{$name}";
         $value = $quote ? "\"{$value}\"" : $value;

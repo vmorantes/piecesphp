@@ -6,6 +6,9 @@
 ## [Mappers y Base de Datos](./content/mappers.md)
 ## [Tareas Gulp](./content/gulp.md)
 ## [Terminal](./content/terminal.md)
+## [Crear un módulo](./content/modules.md)
+## [El panel por dentro](./content/panel.md)
+## [Mantener el framework](./content/maintain.md)
 
 ### Características Avanzadas
 - **[Sistema de Colas](./new-features/queues.md)**: Procesamiento asíncrono de tareas pesadas.
@@ -13,3 +16,7 @@
 - **[HttpClient](./new-features/http-client.md)**: Cliente HTTP moderno y robusto.
 - **[Sistema de Eventos](./new-features/events.md)**: Desacoplamiento de lógica mediante observadores.
 - **[CronJobs](./new-features/cronjobs.md)**: Automatización de tareas recurrentes.
+- **[Pruebas Unitarias (CLI)](./new-features/unit-testing.md)**: Suites que corren desde la terminal, y `bin/cli gates`.
+- **[Archivos Protegidos](./new-features/protected-files.md)**: Subidas que solo se sirven con permiso.
+- **[Exportador BBDD Nativo](./new-features/database-exporter.md)**: Volcados sin `mysqldump`.
+- **[Importar y exportar datos](./new-features/data-transfer.md)**: Importadores y exportadores por definición, todo o nada, con credenciales de entrega única.

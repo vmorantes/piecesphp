@@ -57,6 +57,10 @@ class GenericHandler
      * @var string
      */
     protected $fileLocationUniqueMessage = '';
+    /**
+     * @var string Código que el usuario puede reportar y que identifica la entrada del log (P56)
+     */
+    private $reference = '';
 
     /**
      * @param Throwable $e
@@ -74,6 +78,7 @@ class GenericHandler
         $date->setTimezone($dateTimeZone);
 
         $this->date = $date;
+        $this->reference = 'ERR-' . $date->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
         if (!defined('LOG_ERRORS_PATH')) {
             define('LOG_ERRORS_PATH', realpath(__DIR__ . '/../../../../../logs'));
@@ -101,6 +106,16 @@ class GenericHandler
     }
 
     /**
+     * El código de referencia de este error: va al log y es lo único que ve el usuario fuera de local.
+     *
+     * @return string
+     */
+    public function reference(): string
+    {
+        return $this->reference;
+    }
+
+    /**
      * @return Throwable
      */
     public function getException()
@@ -112,7 +127,7 @@ class GenericHandler
      * @param bool $plainLog
      * @return void
      */
-    public function logging(bool $plainLog = true)
+    public function logging(bool $plainLog = true): void
     {
         $exists = file_exists($this->fileLocation);
         $fileLogSizeMB = $exists ? filesize($this->fileLocation) / 1024 / 1024 : 0;
@@ -134,7 +149,7 @@ class GenericHandler
             $backupOld = true;
         }
 
-        $classException = get_class($this->exception);
+        $classException = $this->exception::class;
         $dateCurrent = $this->date->format('d-m-Y');
         $timeCurrent = $this->date->format('H:i:s.u');
 
@@ -155,11 +170,12 @@ class GenericHandler
         $codeException = '-';
         try {
             $codeException = $this->exception->getCode();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable) {}
 
         // Preparar entrada
         $logEntry = [
             'time' => $timeCurrent,
+            'reference' => $this->reference,
             'type' => $classException,
             'message' => $this->exception->getMessage(),
             'code' => $codeException,
@@ -188,10 +204,14 @@ class GenericHandler
                 $this->date->format('d-m-Y h-i-s.u'),
                 $this->oldFileLocation
             );
-            $fp = fopen($file_old_output, 'w+');
-            fwrite($fp, json_encode($oldFileLogJSON));
-            fclose($fp);
-            @chmod($file_old_output, 0664);
+            //Esto corre DENTRO del manejador de errores: nada de JSON_THROW_ON_ERROR aquí.
+            $oldLogJSON = json_encode($oldFileLogJSON);
+            $fp = $oldLogJSON !== false ? fopen($file_old_output, 'w+') : false;
+            if ($fp !== false) {
+                fwrite($fp, (string) $oldLogJSON);
+                fclose($fp);
+                @chmod($file_old_output, 0664);
+            }
         }
 
         // Plain Log
@@ -203,17 +223,18 @@ class GenericHandler
                 if ($i > 2) {
                     break;
                 }
-                $file = isset($frame['file']) ? $frame['file'] : 'unknown';
-                $line = isset($frame['line']) ? $frame['line'] : '?';
-                $function = isset($frame['function']) ? $frame['function'] : 'unknown';
+                $file = $frame['file'] ?? 'unknown';
+                $line = $frame['line'] ?? '?';
+                $function = $frame['function'] ?? 'unknown';
                 $traceSummary[] = "{$file}:{$line} ({$function})";
             }
             $traceString = count($traceSummary) > 0 ? " | Trace: " . implode(" <- ", $traceSummary) : "";
 
             $plainLogEntry = sprintf(
-                "[%s] [%s] [%s] %s in %s:%s%s\n",
+                "[%s] [%s] [ref %s] [%s] %s in %s:%s%s\n",
                 $this->date->format('Y-m-d H:i:s.u'),
                 $classException,
+                $this->reference,
                 $codeException,
                 $this->exception->getMessage(),
                 $this->exception->getFile(),
@@ -247,9 +268,9 @@ class GenericHandler
      *
      * @return void
      */
-    public function loggingUniqueMessage()
+    public function loggingUniqueMessage(): void
     {
-        $classException = get_class($this->exception);
+        $classException = $this->exception::class;
         $message = $this->exception->getMessage();
         $file = $this->exception->getFile();
         $line = $this->exception->getLine();
@@ -258,7 +279,7 @@ class GenericHandler
         $codeException = '-';
         try {
             $codeException = $this->exception->getCode();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable) {}
 
         // Construir la firma de 5 líneas (sin el timestamp inicial)
         // Línea 1: Cabecera
@@ -283,7 +304,7 @@ class GenericHandler
         if (file_exists($this->fileLocationUniqueMessage)) {
             // Buscamos la firma completa de 5 líneas para evitar duplicados exactos de flujo
             $content = file_get_contents($this->fileLocationUniqueMessage);
-            if (mb_strpos($content, $fullSignature) !== false) {
+            if ($content !== false && str_contains($content, $fullSignature)) {
                 $existsInFile = true;
             }
         }

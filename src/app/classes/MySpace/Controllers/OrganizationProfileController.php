@@ -6,14 +6,15 @@
 
 namespace MySpace\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
@@ -30,6 +31,8 @@ use PiecesPHP\UserSystem\UserDataPackage;
  */
 class OrganizationProfileController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -71,7 +74,7 @@ class OrganizationProfileController extends AdminPanelController
     public function profileView(Request $request, Response $response, array $args = [])
     {
 
-        $organizationID = array_key_exists('organizationID', $args) ? $args['organizationID'] : null;
+        $organizationID = $args['organizationID'] ?? null;
         $organizationID = Validator::isInteger($organizationID) ? (int) $organizationID : null;
         $adminUser = null;
         $organizationMapper = new OrganizationMapper($organizationID);
@@ -79,7 +82,7 @@ class OrganizationProfileController extends AdminPanelController
             $administrator = $organizationMapper->administrator;
             $administrator = $administrator !== null && $administrator->id !== null ? $administrator->id : -1;
             $adminUser = new UserDataPackage($administrator);
-        } catch (\Exception $e) {}
+        } catch (\Exception) {}
 
         if ($organizationMapper->id !== null && $adminUser !== null) {
 
@@ -95,14 +98,14 @@ class OrganizationProfileController extends AdminPanelController
 
             $data = [];
             $data['langGroup'] = self::LANG_GROUP;
-            $data['currentUser'] = getLoggedFrameworkUser();
+            $data['currentUser'] = getLoggedFrameworkUserOrFail();
             $data['organizationMapper'] = $organizationMapper;
             $data['adminUser'] = $adminUser;
             $data['title'] = $title;
             $data['description'] = $description;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 $title,
             ]);
@@ -129,106 +132,6 @@ class OrganizationProfileController extends AdminPanelController
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-                if ($name == 'NOMBRE_RUTA') {
-                }
-
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -278,5 +181,26 @@ class OrganizationProfileController extends AdminPanelController
         });
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

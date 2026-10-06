@@ -6,6 +6,7 @@
 namespace PiecesPHP\Core\ConfigHelpers;
 
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\Email\MailDelivery;
 
 /**
  * MailConfig
@@ -16,6 +17,11 @@ use PiecesPHP\Core\BaseHashEncryption;
  */
 class MailConfig
 {
+    const TEST_MODE_AUTO = 'auto';
+    const TEST_MODE_ON = 'on';
+    const TEST_MODE_OFF = 'off';
+    const TEST_MODES = [self::TEST_MODE_AUTO, self::TEST_MODE_ON, self::TEST_MODE_OFF];
+
 
     /**
      * @var int
@@ -61,10 +67,81 @@ class MailConfig
      * @var array
      */
     protected $smtpOptions;
+    /**
+     * @var string 'auto' (por entorno), 'on' o 'off'
+     */
+    protected $testMode;
+    /**
+     * @var string
+     */
+    protected $testHost;
+    /**
+     * @var int
+     */
+    protected $testPort;
 
     public function __construct()
     {
         $this->loadConfigutarion();
+    }
+
+    /**
+     * @param string $value
+     * @return string|static
+     */
+    public function testMode(?string $value = null)
+    {
+
+        if ($value !== null) {
+            $this->testMode = in_array($value, self::TEST_MODES, true) ? $value : self::TEST_MODE_AUTO;
+            return $this;
+        } else {
+            return $this->testMode;
+        }
+
+    }
+
+    /**
+     * @param string $value
+     * @return string|static
+     */
+    public function testHost(?string $value = null)
+    {
+
+        if ($value !== null) {
+            $this->testHost = $value;
+            return $this;
+        } else {
+            return $this->testHost;
+        }
+
+    }
+
+    /**
+     * @param int $value
+     * @return int|static
+     */
+    public function testPort(?int $value = null)
+    {
+
+        if ($value !== null) {
+            $this->testPort = $value;
+            return $this;
+        } else {
+            return $this->testPort;
+        }
+
+    }
+
+    /**
+     * Si el correo va al sumidero. **Lo decide `MailDelivery` y nadie más** (ADR 0043 §1): hasta el
+     * 2026-10-03 esto leía `test_mode`, y la ausencia de `environment.php` acababa enviando de verdad.
+     *
+     * @return bool
+     */
+    public function testModeActive(): bool
+    {
+        return MailDelivery::goesToSink();
     }
 
     /**
@@ -276,6 +353,9 @@ class MailConfig
             'port' => '465',
             'auto_tls' => true,
             'smtp_options' => [],
+            'test_mode' => self::TEST_MODE_AUTO,
+            'test_host' => '127.0.0.1',
+            'test_port' => 1025,
         ];
 
         foreach ($defaultConfig as $nameConfig => $valueConfig) {
@@ -297,6 +377,9 @@ class MailConfig
         $this->port = $mailConfig['port'];
         $this->autoTls = $mailConfig['auto_tls'];
         $this->smtpOptions = $mailConfig['smtp_options'];
+        $this->testMode = in_array($mailConfig['test_mode'], self::TEST_MODES, true) ? $mailConfig['test_mode'] : self::TEST_MODE_AUTO;
+        $this->testHost = (string) $mailConfig['test_host'];
+        $this->testPort = (int) $mailConfig['test_port'];
 
         return $this;
 
@@ -319,6 +402,9 @@ class MailConfig
         $data['port'] = $this->port;
         $data['auto_tls'] = $this->autoTls;
         $data['smtp_options'] = $this->smtpOptions;
+        $data['test_mode'] = $this->testMode;
+        $data['test_host'] = $this->testHost;
+        $data['test_port'] = $this->testPort;
         return $data;
     }
 
@@ -372,6 +458,15 @@ class MailConfig
 
         $data['smtp_options'] = $mailConfig->smtpOptions();
         $data['smtpOptions'] = $mailConfig->smtpOptions();
+
+        $data['test_mode'] = $mailConfig->testMode();
+        $data['testMode'] = $mailConfig->testMode();
+
+        $data['test_host'] = $mailConfig->testHost();
+        $data['testHost'] = $mailConfig->testHost();
+
+        $data['test_port'] = $mailConfig->testPort();
+        $data['testPort'] = $mailConfig->testPort();
 
         return array_key_exists($name, $data) ? $data[$name] : null;
 

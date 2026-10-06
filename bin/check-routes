@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Analiza cada patrón de ruta por separado, SIN despachar. FastRoute analiza todos los patrones
+# juntos en el primer despacho, así que una sola ruta mala tumba la web y bin/cli enteros; por eso
+# esto no puede vivir dentro de bin/cli ni de verify-integrity (P57). Sale 1 si alguno es inválido.
+
+# Mismo PHP que bin/cli.
+if [ -n "$PCSPHP_PHP_BIN" ]; then
+    PHP_BIN="$PCSPHP_PHP_BIN"
+elif command -v php8.5 >/dev/null 2>&1; then
+    PHP_BIN="php8.5"
+elif command -v php8.4 >/dev/null 2>&1; then
+    PHP_BIN="php8.4"
+else
+    PHP_BIN="php"
+fi
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR/../src"
+$PHP_BIN "$SCRIPT_DIR/tools/check-routes.php"

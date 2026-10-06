@@ -1,7 +1,7 @@
-@import 'includes/variables_app_base';
-@import 'includes/functions_app_base';
-@import 'includes/variables';
-@import 'includes/functions';
+@use 'includes/variables_app_base' as *;
+@use 'includes/functions_app_base' as *;
+@use 'includes/variables' as *;
+@use 'includes/functions' as *;
 
 $fontModule: $fontGlobal;
 

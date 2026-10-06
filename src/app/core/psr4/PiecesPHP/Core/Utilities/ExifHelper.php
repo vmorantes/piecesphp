@@ -42,7 +42,7 @@ class ExifHelper
         $value = null;
         $exifData = $this->exifData;
         $requiredKey = 'DateTimeOriginal';
-        $DateTimeOriginal = isset($exifData[$requiredKey]) ? $exifData[$requiredKey] : null;
+        $DateTimeOriginal = $exifData[$requiredKey] ?? null;
 
         if (!is_null($DateTimeOriginal)) {
 
@@ -71,7 +71,7 @@ class ExifHelper
         $value = null;
         $exifData = $this->exifData;
         $requiredKey = 'DateTimeDigitized';
-        $DateTimeDigitized = isset($exifData[$requiredKey]) ? $exifData[$requiredKey] : null;
+        $DateTimeDigitized = $exifData[$requiredKey] ?? null;
 
         if (!is_null($DateTimeDigitized)) {
 
@@ -124,10 +124,10 @@ class ExifHelper
     /**
      * @return float|null
      */
-    public function getGPSLongitude()
+    public function getGPSLongitude(): int|float|null
     {
         $result = null;
-        $value = isset($this->exifData['GPSLongitude']) ? $this->exifData['GPSLongitude'] : null;
+        $value = $this->exifData['GPSLongitude'] ?? null;
         $sign = $this->getGPSSign(self::GPS_TYPE_LONGITUDE);
         $number = $this->getGPSDataToNumber(self::GPS_TYPE_LONGITUDE);
 
@@ -141,10 +141,10 @@ class ExifHelper
     /**
      * @return float|null
      */
-    public function getGPSLatitude()
+    public function getGPSLatitude(): int|float|null
     {
         $result = null;
-        $value = isset($this->exifData['GPSLatitude']) ? $this->exifData['GPSLatitude'] : null;
+        $value = $this->exifData['GPSLatitude'] ?? null;
         $sign = $this->getGPSSign(self::GPS_TYPE_LATITUDE);
         $number = $this->getGPSDataToNumber(self::GPS_TYPE_LATITUDE);
 
@@ -171,14 +171,14 @@ class ExifHelper
         if ($type == self::GPS_TYPE_LONGITUDE || $type === null) {
 
             $type = 'GPSLongitudeRef';
-            $value = isset($this->exifData[$type]) ? $this->exifData[$type] : null;
+            $value = $this->exifData[$type] ?? null;
             $positiveReference = 'E';
             $negativeReference = 'W';
 
         } elseif ($type == self::GPS_TYPE_LATITUDE) {
 
             $type = 'GPSLatitudeRef';
-            $value = isset($this->exifData[$type]) ? $this->exifData[$type] : null;
+            $value = $this->exifData[$type] ?? null;
             $positiveReference = 'N';
             $negativeReference = 'S';
 
@@ -213,7 +213,7 @@ class ExifHelper
      * - GPS_TYPE_LATITUDE
      * @return float|int|null
      */
-    public function getGPSDataToNumber(?string $type = null)
+    public function getGPSDataToNumber(?string $type = null): float|int|null
     {
 
         $value = null;
@@ -225,7 +225,7 @@ class ExifHelper
             $type = 'GPSLatitude';
         }
 
-        $value = isset($this->exifData[$type]) ? $this->exifData[$type] : null;
+        $value = $this->exifData[$type] ?? null;
 
         if ($value !== null) {
 
@@ -237,12 +237,14 @@ class ExifHelper
 
             foreach ($segments as $segment => $segmentValue) {
 
-                $parts = explode('/', $segmentValue);
+                //Cada segmento DEBE quedar numérico: sumar arrays en PHP produce un array,
+                //y este método promete float|int|null.
+                $parts = explode('/', (string) $segmentValue);
 
                 if (count($parts) <= 0) {
                     $segments[$segment] = 0;
                 } elseif (count($parts) == 1) {
-                    $segments[$segment] = $parts[0];
+                    $segments[$segment] = (float) $parts[0];
                 } else {
                     $partOne = floatval($parts[0]);
                     $partTwo = floatval($parts[1]);
@@ -264,7 +266,7 @@ class ExifHelper
      * @param array $array
      * @return array
      */
-    public function convertArrayToUTF8(array $array)
+    public function convertArrayToUTF8(array $array): array
     {
 
         foreach ($array as $index => $element) {

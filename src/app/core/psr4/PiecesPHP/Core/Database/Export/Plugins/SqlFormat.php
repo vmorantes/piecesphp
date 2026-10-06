@@ -2,6 +2,7 @@
 
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
+use PiecesPHP\Core\Database\Database;
 use PDO;
 use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 use PiecesPHP\Core\Database\Export\Enums\TableStyle;
@@ -27,7 +28,7 @@ class SqlFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getHeader(PDO $db, string $database, string $charset): string
+    public function getHeader(Database $db, string $database, string $charset): string
     {
         $server_info = $db->getAttribute(PDO::ATTR_SERVER_INFO);
         $header = "-- PiecesPHP SQL Dump\n";
@@ -45,7 +46,7 @@ class SqlFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableStructure(PDO $db, string $table, array $options): string
+    public function getTableStructure(Database $db, string $table, array $options): string
     {
         $is_view = $this->isView($db, $table);
 
@@ -88,7 +89,7 @@ class SqlFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableData(PDO $db, string $table, array $options, ?callable $writeCallback = null): ?string
+    public function getTableData(Database $db, string $table, array $options, ?callable $writeCallback = null): ?string
     {
         if ($this->isView($db, $table)) {
             return "";
@@ -171,7 +172,7 @@ class SqlFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableFakeView(PDO $db, string $table): string
+    public function getTableFakeView(Database $db, string $table): string
     {
         $output = "DROP VIEW IF EXISTS " . $this->idfEscape($table) . ";\n";
         $output .= "CREATE TABLE " . $this->idfEscape($table) . " (\n";
@@ -191,7 +192,7 @@ class SqlFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getFunctions(PDO $db, string $database, array $options): string
+    public function getFunctions(Database $db, string $database, array $options): string
     {
         $output = "";
         try {
@@ -213,14 +214,14 @@ class SqlFormat implements FormatPluginInterface
                     $output .= "DELIMITER ;\n\n";
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
         return $output;
     }
 
     /**
      * @inheritDoc
      */
-    public function getProcedures(PDO $db, string $database, array $options): string
+    public function getProcedures(Database $db, string $database, array $options): string
     {
         $output = "";
         try {
@@ -242,23 +243,23 @@ class SqlFormat implements FormatPluginInterface
                     $output .= "DELIMITER ;\n\n";
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
         return $output;
     }
 
     /**
      * @inheritDoc
      */
-    public function isView(PDO $db, string $table): bool
+    public function isView(Database $db, string $table): bool
     {
         $status = $this->getTableStatus($db, $table);
-        return empty($status['Engine']) && !empty($status['Comment']) && strpos(mb_strtolower($status['Comment']), 'view') !== false;
+        return empty($status['Engine']) && !empty($status['Comment']) && str_contains(mb_strtolower($status['Comment']), 'view');
     }
 
     /**
      * @inheritDoc
      */
-    public function getTableTriggers(PDO $db, string $table, array $options): string
+    public function getTableTriggers(Database $db, string $table, array $options): string
     {
         $output = "";
         try {
@@ -269,7 +270,7 @@ class SqlFormat implements FormatPluginInterface
                 $create = $createStmt->fetch(PDO::FETCH_ASSOC);
                 if ($create) {
                     $output .= "\nDELIMITER ;;\n\n";
-                    $statement = (isset($create['SQL Original Statement']) ? $create['SQL Original Statement'] : $create['Create Trigger']);
+                    $statement = ($create['SQL Original Statement'] ?? $create['Create Trigger']);
                     if (!empty($options['remove_definer'])) {
                         $statement = preg_replace('~ DEFINER=`[^`]+`@`[^`]+`~i', '', $statement);
                     }
@@ -277,7 +278,7 @@ class SqlFormat implements FormatPluginInterface
                     $output .= "DELIMITER ;\n\n";
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
         return $output;
     }
 
@@ -292,11 +293,11 @@ class SqlFormat implements FormatPluginInterface
     /**
      * Obtiene el estado de una tabla para determinar metadatos (como si es una vista).
      * 
-     * @param PDO $db
+     * @param Database $db
      * @param string $table
      * @return array
      */
-    protected function getTableStatus(PDO $db, string $table): array
+    protected function getTableStatus(Database $db, string $table): array
     {
         $stmt = $db->prepare("SHOW TABLE STATUS LIKE ?");
         $stmt->execute([$table]);
@@ -306,11 +307,11 @@ class SqlFormat implements FormatPluginInterface
     /**
      * Obtiene los nombres y tipos de los campos de una tabla.
      * 
-     * @param PDO $db
+     * @param Database $db
      * @param string $table
      * @return array
      */
-    protected function getFields(PDO $db, string $table): array
+    protected function getFields(Database $db, string $table): array
     {
         $fields = [];
         $stmt = $db->query("SHOW COLUMNS FROM " . $this->idfEscape($table));

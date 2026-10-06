@@ -1,11 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 /**
  * @var string $langGroup
  * @var string $editLink
  */
-$currentUser = getLoggedFrameworkUser();
 ?>
 <div class="module-view-container">
 
@@ -90,41 +89,7 @@ $currentUser = getLoggedFrameworkUser();
 
                 <div class="two-columns-grid two-on-break-1">
 
-                    <div class="card-statistic tall">
-                        <div class="toolbar">
-                            <div class="help" data-tooltip="">
-                                <i class="icon help"></i>
-                            </div>
-                        </div>
-                        <div class="data">
-                            <div data-type="totalApplicationsCallsFundingOpportunityQty" class="number">0&nbsp;</div>
-                        </div>
-                        <div class="footer">
-                            <div class="caption">
-                                <?= __($langGroup, 'Total de oportunidades de financiación'); ?>
-                            </div>
-                            <div class="action-button">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="card-statistic tall">
-                        <div class="toolbar">
-                            <div class="help" data-tooltip="">
-                                <i class="icon help"></i>
-                            </div>
-                        </div>
-                        <div class="data">
-                            <div data-type="totalApplicationsCallsBilateralProjectQty" class="number">0&nbsp;</div>
-                        </div>
-                        <div class="footer">
-                            <div class="caption">
-                                <?= __($langGroup, 'Proyectos bilaterales'); ?>
-                            </div>
-                            <div class="action-button">
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="card-statistic tall">
                         <div class="toolbar">

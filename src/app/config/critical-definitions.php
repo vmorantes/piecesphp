@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @pcsphp-config clon
+ * Qué conviene editar aquí: si tu proyecto usa el módulo de organizaciones.
+ */
+
+/**
  * critical-definitions.php
  */
 

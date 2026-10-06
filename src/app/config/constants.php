@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: qué módulos están activos (las constantes *_MODULE y *_ENABLE) y los datos de tu proyecto (prefijos telefónicos, nacionalidades, monedas). Las rutas, los grupos de idioma y las listas de IA son del framework.
+ */
+
+/**
  * constants.php
  */
 
@@ -10,6 +15,7 @@
  * Puede hacerse uso de todas las funciones del sistema.
  */
 
+//── Del framework: no lo edites ──
 //Errores
 define('LOG_ERRORS_PATH', app_basepath('logs'));
 define('LOG_ERRORS_BACKUP_PATH', app_basepath('logs/olds'));
@@ -24,8 +30,9 @@ define('ROOT_ID_AS_CONNECT_CONFIG_NAME', 'RootIsLoggedAsUser');
 //Zona administrativa
 define('ADMIN_PATH_VIEWS', 'panel');
 
-//Importadores
-define('IMPORTS_MODULE_ENABLED', true);
+//── Del clon ──
+//Importación y exportación sobre DataTransfer (lote 8, ADR 0022)
+define('DATA_IMPORT_EXPORT_MODULE', true);
 
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
@@ -46,8 +53,6 @@ define('PUBLICATIONS_MODULE', true);
 //Noticias
 define('NEWS_MODULE', true);
 
-//Repositorio de imágenes
-define('IMAGES_REPOSITORY', true);
 
 //Módulo de documentos
 define('DOCUMENTS_MODULE_ENABLE', true);
@@ -67,6 +72,7 @@ define('NEWSLETTER_MODULE', true);
 define('API_TRANSLATION_MODULE', true);
 define('API_AI_TRANSLATIONS_ACTIVE', false);
 
+//── Del framework: no lo edites ──
 //Inteligencia artificial
 define('AI_OPENAI', 'OpenAI');
 define('AI_MISTRAL', 'Mistral');
@@ -93,6 +99,7 @@ define('AI_MODELS', [
     ],
 ]);
 
+//── Del clon ──
 //API
 define('API_MODULE', true);
 define('API_CRONJOBS', true);
@@ -111,6 +118,7 @@ define('CONTENT_NAVIGATION_HUB_MODULE', true);
 //Contenidos genéricos
 define('HOME_IMAGE_BANNER', true);
 
+//── Del framework: no lo edites ──
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 
@@ -125,8 +133,13 @@ define('GENERAL_LANG_GROUP', 'general');
 define('LANG_GROUP', 'public');
 define('MAILING_GENERAL_LANG_GROUP', 'mailingGeneral');
 
+//── Del clon ──
 //Proyecto
 define('GLOBAL_LANG_GROUP', 'global');
+
+//Apagarlo se lleva por delante el enlace de baja de los correos.
+define('PUBLIC_AREA_VIEWS', true);
+define('PUBLIC_AREA_CONTACT_FORMS', true);
 define('PHONE_AREA_CODES', [
     'Francia' => '+33',
     'Colombia' => '+57',

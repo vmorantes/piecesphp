@@ -6,9 +6,8 @@
 
 namespace Organizations;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Controllers\OrganizationsController;
-use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
@@ -45,20 +44,6 @@ class OrganizationsRoutes
     public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new OrganizationMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = OrganizationsController::routes($groupAdministration);
 
@@ -127,12 +112,12 @@ class OrganizationsRoutes
                         ]),
                         new MenuItem([
                             'text' => __(OrganizationsLang::LANG_GROUP, 'Usuarios'),
-                            'href' => get_route('users-list'),
+                            'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'),
                             'visible' => Roles::hasPermissions('users-list', $currentUserType),
                         ]),
                         new MenuItem([
                             'text' => __(OrganizationsLang::LANG_GROUP, 'Agregar usuarios'),
-                            'href' => get_route('users-selection-create'),
+                            'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('selection-create'),
                             'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
                         ]),
                     ],
@@ -170,7 +155,7 @@ class OrganizationsRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

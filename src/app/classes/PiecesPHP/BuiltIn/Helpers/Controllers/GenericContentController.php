@@ -6,8 +6,8 @@
 
 namespace PiecesPHP\BuiltIn\Helpers\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Helpers\Exceptions\SafeException;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemLang;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemRoutes;
@@ -19,16 +19,18 @@ use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * GenericContentController.
@@ -39,6 +41,8 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class GenericContentController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -56,15 +60,7 @@ class GenericContentController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -74,7 +70,6 @@ class GenericContentController extends AdminPanelController
     const BASE_CSS_DIR = 'css';
     const BASE_VIEW_DIR = 'generic';
     const UPLOAD_DIR = 'helpers-system/generic';
-    const UPLOAD_DIR_TMP = 'helpers-system/tmp';
     const LANG_GROUP = HelpersSystemLang::LANG_GROUP;
 
     const TOKENS_LIMIT_PERMISSION = [
@@ -103,9 +98,7 @@ class GenericContentController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -149,7 +142,7 @@ class GenericContentController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -194,7 +187,7 @@ class GenericContentController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -239,7 +232,7 @@ class GenericContentController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -318,8 +311,8 @@ class GenericContentController extends AdminPanelController
                 [],
                 function ($value) {
                     $valid = Validator::isArray($value, function ($key, $value) {
-                        $local = isset($value['keyLocal']) ? $value['keyLocal'] : null;
-                        $domain = isset($value['keyDomain']) ? $value['keyDomain'] : null;
+                        $local = $value['keyLocal'] ?? null;
+                        $domain = $value['keyDomain'] ?? null;
                         return Config::is_allowed_lang($key) && Validator::isString($local) && Validator::isString($domain);
                     });
                     return $valid;
@@ -400,7 +393,7 @@ class GenericContentController extends AdminPanelController
              * @var array<string,string> $mapboxKeys
              */
 
-            $currentUser = getLoggedFrameworkUser();
+            $currentUser = getLoggedFrameworkUserOrFail();
             $currentUserType = $currentUser->type;
             $verifyPermission = function ($configName) use ($currentUserType, $request) {
                 $hasPermission = false;
@@ -426,11 +419,11 @@ class GenericContentController extends AdminPanelController
                 //Asignar datos según el tipo de configuración
                 $updated = true;
                 if ($configName == GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT) {
-                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $tokensLimit, array_keys($tokensLimit));
                     $updated = $mapper->save();
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
-                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $mapboxKeys, array_keys($mapboxKeys));
                     $updated = $mapper->save();
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_HOME_IMAGE) {
@@ -450,7 +443,7 @@ class GenericContentController extends AdminPanelController
                             }
                         }
                     }
-                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $homeImagePathByLang, array_keys($homeImagePathByLang));
                     $updated = $mapper->save();
                 }
@@ -475,9 +468,9 @@ class GenericContentController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -490,10 +483,15 @@ class GenericContentController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -539,65 +537,6 @@ class GenericContentController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-                if ($name == 'SAMPLE') {
-
-                    $allow = false;
-                    $id = ($getParam)('id');
-
-                }
-
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
      * @param string $nameOnFiles
      * @param string $folder
      * @param string $currentRoute
@@ -618,7 +557,7 @@ class GenericContentController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -700,51 +639,6 @@ class GenericContentController extends AdminPanelController
         }
 
         return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -832,5 +726,26 @@ class GenericContentController extends AdminPanelController
         });
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

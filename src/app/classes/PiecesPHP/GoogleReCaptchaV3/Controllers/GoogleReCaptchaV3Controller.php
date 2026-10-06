@@ -1,0 +1,294 @@
+<?php
+
+/**
+ * GoogleReCaptchaV3Controller.php
+ */
+
+namespace PiecesPHP\GoogleReCaptchaV3\Controllers;
+
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Settings\ORM\SettingsModel;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Lang;
+use PiecesPHP\Core\Http\HttpClient;
+use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Route;
+use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
+use PiecesPHP\Core\Validation\Parameters\Parameter;
+use PiecesPHP\Core\Validation\Parameters\Parameters;
+
+/**
+ * GoogleReCaptchaV3Controller.
+ *
+ * @package     PiecesPHP\GoogleReCaptchaV3\Controllers
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @copyright   Copyright (c) 2021
+ */
+class GoogleReCaptchaV3Controller extends AdminPanelController
+{
+
+    use ControllerRoutingTrait;
+
+    /**
+     * @var string
+     */
+    protected static $URLDirectory = 'google-recaptcha-v3';
+    /**
+     * @var string
+     */
+    protected static $baseRouteName = 'google-recaptcha-v3';
+
+    const LANG_GROUP = GoogleReCaptchaV3Lang::LANG_GROUP;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * La clave secreta de reCAPTCHA v3, cargada por api-keys.php. Null si no está configurada.
+     *
+     * @return string|null
+     */
+    public static function secretKey(): ?string
+    {
+        $secret = get_config('GoogleReCaptchaV3SecretKey');
+        if (!is_string($secret) || mb_strlen(trim($secret)) === 0) {
+            $secret = get_config('GoogleReCaptchaV3TestSecretKey');
+        }
+        if (!is_string($secret) || mb_strlen(trim($secret)) === 0) {
+            log_exception(new \RuntimeException('reCAPTCHA v3 sin clave secreta: falta la clave recaptcha-v3-secret en las claves seguras (ver api-keys.php).'));
+            return null;
+        }
+        return $secret;
+    }
+
+    /**
+     * Creación/Edición
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function action(Request $request, Response $response)
+    {
+
+        //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+        //Definición de validaciones y procesamiento
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'token',
+                null,
+                function ($value) {
+                    return is_string($value) && strlen(trim($value)) > 0;
+                },
+                false,
+                function ($value) {
+                    return clean_string($value);
+                }
+            ),
+        ]);
+
+        //Obtención de datos
+        $inputData = $request->getParsedBody();
+
+        //Asignación de datos para procesar
+        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+        $responseJSON = [
+            'message' => '',
+            'verify' => [],
+        ];
+
+        //──── Acciones ──────────────────────────────────────────────────────────────────────────
+        try {
+
+            //Intenta validar, si todo sale bien el código continúa
+            $expectedParameters->validate();
+
+            //Información del formulario
+            /**
+             * @var string $token
+             */
+            $token = $expectedParameters->getValue('token');
+
+            $now = new \DateTime();
+            $nowLess1Hour = (clone $now)->modify('-1 hour');
+            //SIN CLAVE SECRETA NO SE PREGUNTA A GOOGLE: se responde rechazo (falla cerrada).
+            $secretKey = self::secretKey();
+            if ($secretKey === null) {
+                $responseJSON['verify'] = (object) ['success' => false, 'score' => 0.0, 'token' => $token];
+                return $response->withJson($responseJSON);
+            }
+            $requestHTTP = new HttpClient('https://www.google.com/recaptcha/api/');
+            $requestHTTP->request('siteverify', 'POST', [
+                'secret' => $secretKey,
+                'response' => $token,
+            ]);
+            $defaultResult = (object) [
+                'success' => false,
+                'challenge_ts' => $now->format('c'),
+                'hostname' => $_SERVER['HTTP_HOST'],
+                'score' => 0.0,
+                'action' => 'submit',
+            ];
+            $recaptchaResult = $requestHTTP->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
+            $recaptchaResult = $recaptchaResult instanceof \stdClass ? $recaptchaResult : (is_array($recaptchaResult) ? (object) $recaptchaResult : null);
+            $recaptchaResult = $recaptchaResult !== null ? $recaptchaResult : $defaultResult;
+            if (array_key_exists('error-codes', (array) $recaptchaResult)) {
+                $captchaErrorCodes = ((array) $recaptchaResult)['error-codes'];
+                if (is_array($captchaErrorCodes) && !empty($captchaErrorCodes)) {
+                    $recaptchaResult = $defaultResult;
+                }
+            }
+            $recaptchaResult->token = $token;
+            //Verificar validez
+            $recaptchaResult->success = $recaptchaResult->score >= 0.5;
+
+            $configElement = new SettingsModel('GoogleReCaptchaV3Controller');
+            if ($configElement->id === null) {
+                $configElement->name = 'GoogleReCaptchaV3Controller';
+                $configElement->value = [];
+                $configElement->save();
+                $configElement->id = $configElement->getLastInsertID();
+            }
+            $tokens = (array) $configElement->value;
+
+            if ($recaptchaResult->success) {
+                $tokens[] = [
+                    'date' => $now->format('Y-m-d H:i:s'),
+                    'token' => $token,
+                ];
+            }
+
+            foreach ($tokens as $indexToken => $valueToken) {
+                $valueToken = (array) $valueToken;
+                $dateAddedToken = new \DateTime($valueToken['date']);
+                if ($dateAddedToken < $nowLess1Hour) {
+                    unset($tokens[$indexToken]);
+                }
+            }
+
+            $configElement->value = $tokens;
+            $configElement->update();
+            $responseJSON['verify'] = $recaptchaResult;
+
+        } catch (MissingRequiredParameterException $e) {
+
+            $responseJSON['message'] = $e->getMessage();
+            log_exception($e);
+
+        } catch (ParsedValueException $e) {
+
+            $responseJSON['message'] = $e->getMessage();
+            log_exception($e);
+
+        } catch (InvalidParameterValueException $e) {
+
+            $responseJSON['message'] = $e->getMessage();
+            log_exception($e);
+
+        } catch (\Exception $e) {
+
+            $responseJSON['message'] = $e->getMessage();
+            log_exception($e);
+
+        }
+
+        return $response->withJson($responseJSON);
+    }
+
+    /**
+     * @param string $token
+     * @return bool
+     */
+    public static function verifyTokenCaptcha(string $token)
+    {
+        //Sin clave secreta ningún token pudo verificarse con Google: se rechaza (falla cerrada).
+        if (self::secretKey() === null) {
+            return false;
+        }
+        $configElement = new SettingsModel('GoogleReCaptchaV3Controller');
+        if ($configElement->id === null) {
+            $configElement->name = 'GoogleReCaptchaV3Controller';
+            $configElement->value = [];
+            $configElement->save();
+            $configElement->id = $configElement->getLastInsertID();
+        }
+        $tokens = (array) $configElement->value;
+        $existsToken = false;
+        foreach ($tokens as $indexToken => $valueToken) {
+            $valueToken = (array) $valueToken;
+            if ($valueToken['token'] === $token) {
+                $existsToken = true;
+                unset($tokens[$indexToken]);
+                break;
+            }
+        }
+        if ($existsToken) {
+            $configElement->value = $tokens;
+            $configElement->update();
+        }
+        return $existsToken;
+    }
+
+    /**
+     * @param RouteGroup $group
+     * @return RouteGroup
+     */
+    public static function routes(RouteGroup $group)
+    {
+        $routes = [];
+
+        $groupSegmentURL = $group->getGroupSegment();
+
+        $lastIsBar = last_char($groupSegmentURL) == '/';
+        $startRoute = ($lastIsBar ? '' : '/') . self::$URLDirectory;
+
+        $classname = self::class;
+
+        $routes = [
+
+            //──── POST ──────────────────────────────────────────────────────────────────────────────
+
+            new Route( //Acción de verificar token
+                "{$startRoute}/action/recaptcha-verify[/]",
+                $classname . ':action',
+                self::$baseRouteName . '-actions-verify',
+                'POST'
+            ),
+
+        ];
+
+        $group->register($routes);
+
+        return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
+    }
+}

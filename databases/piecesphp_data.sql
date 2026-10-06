@@ -45,11 +45,11 @@ INSERT INTO `locations_states` (`id`, `code`, `country`, `name`, `active`) VALUE
 (34,	NULL,	2,	'Isla de Francia',	1);
 
 TRUNCATE `organizations_elements`;
-INSERT INTO `organizations_elements` (`id`, `preferSlug`, `name`, `nit`, `size`, `activitySector`, `actionLines`, `esal`, `country`, `city`, `address`, `phone`, `linkedinLink`, `websiteLink`, `informativeEmail`, `billingEmail`, `logo`, `rut`, `folder`, `createdAt`, `updatedAt`, `createdBy`, `modifiedBy`, `status`, `meta`) VALUES
-(-10,	'pJyoncXPoN7DpcugpKSQ',	'Organización base',	'00000000001',	'SMALL',	'Sin información',	'[\"Sin informaci\\u00f3n\"]',	'NO',	1,	88,	'Sin información',	'0000000000',	'https://linkedin.com/',	'https://domain.tld/',	'organizacion@domain.tld',	'facturacion@domain.tld',	NULL,	NULL,	'66da7db19102b',	'2024-09-05 22:57:37',	NULL,	1,	NULL,	1,	'{\"langData\":{},\"phoneCode\":\"+57\",\"longitude\":0,\"latitude\":0,\"administrator\":3}');
+INSERT INTO `organizations_elements` (`id`, `preferSlug`, `code`, `name`, `nit`, `size`, `activitySector`, `actionLines`, `esal`, `country`, `city`, `address`, `phone`, `linkedinLink`, `websiteLink`, `informativeEmail`, `billingEmail`, `logo`, `rut`, `folder`, `createdAt`, `updatedAt`, `createdBy`, `modifiedBy`, `status`, `meta`) VALUES
+(-10,	'pJyoncXPoN7DpcugpKSQ',	'ORG0000000',	'Organización base',	'00000000001',	'SMALL',	'Sin información',	'[\"Sin informaci\\u00f3n\"]',	'NO',	1,	88,	'Sin información',	'0000000000',	'https://linkedin.com/',	'https://domain.tld/',	'organizacion@domain.tld',	'facturacion@domain.tld',	NULL,	NULL,	'66da7db19102b',	'2024-09-05 22:57:37',	NULL,	1,	NULL,	1,	'{\"langData\":{},\"phoneCode\":\"+57\",\"longitude\":0,\"latitude\":0,\"administrator\":3}');
 
 TRUNCATE `pcsphp_users`;
-INSERT INTO `pcsphp_users` (`id`, `organization`, `username`, `password`, `firstname`, `secondname`, `first_lastname`, `second_lastname`, `email`, `meta`, `type`, `status`, `failed_attempts`, `created_at`, `modified_at`) VALUES
+INSERT INTO `pcsphp_users` (`id`, `organization`, `username`, `password`, `firstname`, `secondname`, `firstLastname`, `secondLastname`, `email`, `meta`, `type`, `status`, `failedAttempts`, `createdAt`, `modifiedAt`) VALUES
 (1,	NULL,	'root',	'$2y$10$5KEzolPgoFt/ZwykXvzJ9usmCzFgcY8H5UiyJV5rmHPJkrZoHl20u',	'Root',	'',	'User',	'',	'root@domain.tld',	'{}',	0,	1,	0,	'2018-06-20 14:11:54',	'2025-05-26 15:51:17'),
 (2,	NULL,	'admin-general',	'$2y$10$w0ptfgrcDujRuMO9RE01geDvfGTAQDEUJvX19BJLRuuOEurWRh/Xq',	'Admin',	'',	'General',	'',	'admin-general@localhost',	'{}',	1,	1,	0,	'2019-10-08 11:07:37',	'2025-05-26 15:13:37'),
 (3,	-10,	'org-admin',	'$2y$10$oyzA87BZSMuRDT2su4FGn.w.I0Rgl8Ph.TuDBe0CjS6kMh3ByspDi',	'Administrador',	'',	'Organización',	'',	'org-admin@localhost',	'{}',	12,	1,	0,	'2019-10-08 11:07:45',	'2025-05-26 15:13:49'),

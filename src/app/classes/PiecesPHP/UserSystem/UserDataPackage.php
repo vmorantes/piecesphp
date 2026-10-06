@@ -4,8 +4,8 @@
  */
 namespace PiecesPHP\UserSystem;
 
-use App\Model\AvatarModel;
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
@@ -219,29 +219,30 @@ class UserDataPackage
         $this->username = $this->userMapper->username;
         $this->firstname = $this->userMapper->firstname;
         $this->secondname = $this->userMapper->secondname;
-        $this->firstLastname = $this->userMapper->first_lastname;
-        $this->secondLastname = $this->userMapper->second_lastname;
+        $this->firstLastname = $this->userMapper->firstLastname;
+        $this->secondLastname = $this->userMapper->secondLastname;
         $this->fullName = $this->userMapper->getFullName();
         $this->email = $this->userMapper->email;
         $this->meta = $this->userMapper->meta;
         $this->type = $this->userMapper->type;
         $this->status = $this->userMapper->status;
-        $this->failedAttempts = $this->userMapper->failed_attempts;
-        $this->createdAt = $this->userMapper->created_at instanceof \DateTime  ? $this->userMapper->created_at : new \DateTime($this->userMapper->created_at);
+        $this->failedAttempts = $this->userMapper->failedAttempts;
+        $this->createdAt = $this->userMapper->createdAt instanceof \DateTime  ? $this->userMapper->createdAt : new \DateTime($this->userMapper->createdAt);
         $this->modifiedAt = null;
-        if ($this->userMapper->modified_at instanceof \DateTime) {
-            $this->modifiedAt = $this->userMapper->modified_at;
-        } elseif (is_string($this->userMapper->modified_at)) {
-            $this->modifiedAt = new \DateTime($this->userMapper->modified_at);
+        if ($this->userMapper->modifiedAt instanceof \DateTime) {
+            $this->modifiedAt = $this->userMapper->modifiedAt;
+        } elseif (is_string($this->userMapper->modifiedAt)) {
+            $this->modifiedAt = new \DateTime($this->userMapper->modifiedAt);
         }
         $this->createdAtString = $this->createdAt->format('Y-m-d H:i:s');
         $this->modifiedAtString = $this->modifiedAt !== null ? $this->modifiedAt->format('Y-m-d H:i:s') : '';
         $avatar = AvatarModel::getAvatar($userID);
-        $avatar = !is_null($avatar) ? $avatar : '';
+        $avatar ??= '';
         $this->avatar = $avatar;
         $this->hasAvatar = mb_strlen($avatar) > 0;
         $this->TOTPData = OTPSecretsUsersMapper::getTOTPData($this->id);
-        $this->profile = UserProfileMapper::getProfile($this->id);
+        //Este constructor se alcanza SIN AUTENTICAR: aquí no puede haber un buscador que cree.
+        $this->profile = UserProfileMapper::getProfileForDisplay($this->id);
 
         $fromInstanceToStdClass = [
             'firstLastname',

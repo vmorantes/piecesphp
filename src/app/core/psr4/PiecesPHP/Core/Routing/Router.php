@@ -58,7 +58,7 @@ class Router extends RouterDependency
         }
 
         $defaultContainer = get_config('slim_container');
-        $container = $container ?? $defaultContainer;
+        $container ??= $defaultContainer;
 
         if (!($container instanceof DependenciesInjector)) {
             /** @var array $container_configurations */

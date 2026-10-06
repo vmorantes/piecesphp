@@ -6,21 +6,23 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Controller\UsersController;
-use App\Model\LoginAttemptsModel;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\MySpaceLang;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
+use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
 /**
  * UserSystemFeaturesController.
@@ -31,6 +33,8 @@ use PiecesPHP\UserSystem\Exceptions\SafeException;
  */
 class UserSystemFeaturesController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -58,6 +62,12 @@ class UserSystemFeaturesController extends AdminPanelController
     }
 
     /**
+     * Genera el código de un uso y lo envía al correo del usuario. Sin sesión y por GET: la usan apps sin interfaz.
+     *
+     * Límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP bloqueados responde 429 con Retry-After,
+     * antes de comprobar nada del usuario. Con `uniformResponse` responde lo mismo exista o no el usuario, y solo genera
+     * y envía el código si existe; sin él, un inexistente da USER_NO_EXISTS. Cada intento queda en login_attempts con su vía.
+     *
      * @param Request $request
      * @param Response $response
      * @return void
@@ -66,6 +76,12 @@ class UserSystemFeaturesController extends AdminPanelController
     {
         $username = $request->getQueryParam('username', null);
         $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
+
+        $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
+        if ($secondsToUnlock > 0) {
+            return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_GENERATE_OTP, $username, $secondsToUnlock);
+        }
+        $uniformResponse = OTPRateLimiter::config()['uniformResponse'];
 
         $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Generación de OTP'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
@@ -81,21 +97,24 @@ class UserSystemFeaturesController extends AdminPanelController
         try {
             OTPHandler::generateOTP($this, $username);
             $resultOperation->setSuccessOnSingleOperation(true);
-            $resultOperation->setMessage(__(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
+            $resultOperation->setMessage($uniformResponse ? OTPRateLimiter::uniformOTPMessage() : __(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
+            OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, true, '');
         } catch (SafeException $exception) {
             if ($exception->getCode() == SafeException::USER_NOT_EXISTS) {
                 $usersController = new UsersController();
-                $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
-                $resultOperation->setValue('message', vsprintf($usersController->getMessage(UsersController::USER_NO_EXISTS), [$username]));
-                LoginAttemptsModel::addLogin(
-                    null,
-                    $username,
-                    false,
-                    $resultOperation->getValue('message'),
-                    []
-                );
+                $notExistsMessage = vsprintf($usersController->getMessage(UsersController::USER_NO_EXISTS), [$username]);
+                if ($uniformResponse) {
+                    //UNIFORME: el mismo estado y el mismo cuerpo que con un usuario que existe; no dice si existe.
+                    $resultOperation->setSuccessOnSingleOperation(true);
+                    $resultOperation->setMessage(OTPRateLimiter::uniformOTPMessage());
+                } else {
+                    $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
+                    $resultOperation->setValue('message', $notExistsMessage);
+                }
+                OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, $notExistsMessage);
             } else {
                 $resultOperation->setMessage($exception->getMessage());
+                OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, $exception->getMessage());
             }
         }
 
@@ -123,9 +142,18 @@ class UserSystemFeaturesController extends AdminPanelController
             $resultOperation->setValue('reload', false);
             $resultOperation->setSuccessOnSingleOperation(true);
 
-            $currentUser->TOTPData->twoAuthFactorQRViewed = 1;
-            $currentUser->TOTPData->update();
-            $resultOperation->setSuccessOnSingleOperation(true);
+            if ($currentUser->TOTPData === null) {
+                $resultOperation->setSuccessOnSingleOperation(false);
+                $resultOperation->setMessage(__(self::LANG_GROUP, 'No hay una configuración de doble factor para este usuario.'));
+            } else {
+                //Este es el punto de CONFIRMACIÓN: aquí, y no antes, el segundo factor pasa
+                //a ENABLED. Preparar no es activar.
+                $confirmed = OTPSecretsUsersMapper::confirm2FA((int) $currentUser->id);
+                $resultOperation->setSuccessOnSingleOperation($confirmed);
+                if (!$confirmed) {
+                    $resultOperation->setMessage(__(self::LANG_GROUP, 'No se pudo confirmar el doble factor.'));
+                }
+            }
 
             $response = $response->withJson($resultOperation);
 
@@ -192,6 +220,11 @@ class UserSystemFeaturesController extends AdminPanelController
     }
 
     /**
+     * Comprueba un TOTP o código de seguridad. Sin sesión. Un usuario que no existe recibe el mismo «Código inválido».
+     *
+     * Límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP bloqueados responde 429 con Retry-After,
+     * antes de comprobar nada del usuario. Cada intento queda en login_attempts con su vía.
+     *
      * @param Request $request
      * @param Response $response
      * @return void
@@ -202,6 +235,10 @@ class UserSystemFeaturesController extends AdminPanelController
         $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
         $totp = $request->getParsedBodyParam('totp', null);
         $totp = is_string($totp) && mb_strlen($totp) > 0 ? $totp : '';
+        $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
+        if ($secondsToUnlock > 0) {
+            return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_CHECK_TOTP, $username, $secondsToUnlock);
+        }
         $valid = OTPHandler::checkValidityTOTP($totp, $username);
         $okMessage = __(self::LANG_GROUP, 'Código aceptado.');
         $badMessage = __(self::LANG_GROUP, 'Código inválido.');
@@ -213,11 +250,18 @@ class UserSystemFeaturesController extends AdminPanelController
         $resultOperation->setValue('reload', false);
         $resultOperation->setSuccessOnSingleOperation($valid);
         $resultOperation->setMessage($valid ? $okMessage : $badMessage);
+        OTPRateLimiter::record(OTPRateLimiter::VIA_CHECK_TOTP, null, $username, $valid, $valid ? '' : $badMessage);
 
         return $response->withJson($resultOperation);
     }
 
     /**
+     * Si el usuario tiene el segundo factor activo. Sin sesión: la interfaz del login lo consulta antes de pedir el código.
+     *
+     * RESIDUO DOCUMENTADO: revela si un usuario existe y si tiene el segundo factor (un inexistente da required false).
+     * La interfaz lo necesita. Lo acota el límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP
+     * bloqueados, 429 con Retry-After. Un usuario que no existe se registra como fallo: sondear nombres agota el límite.
+     *
      * @param Request $request
      * @param Response $response
      * @return void
@@ -225,10 +269,16 @@ class UserSystemFeaturesController extends AdminPanelController
     public function checkTwoFactorAuthStatus(Request $request, Response $response)
     {
         $username = $request->getParsedBodyParam('username', null);
-        $username = is_string($username) && mb_strlen($username) > 0 ? $username : uniqid();
+        $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
+        $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
+        if ($secondsToUnlock > 0) {
+            return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_TWO_FACTOR_STATUS, $username, $secondsToUnlock);
+        }
 
-        $userData = OTPHandler::getUserDataByUsername($username);
+        //Sin nombre no se consulta: username = '' OR email = '' podría dar con un usuario sin correo.
+        $userData = $username !== '' ? OTPHandler::getUserDataByUsername($username) : null;
         $userID = $userData !== null ? (int) $userData->id : -1;
+        OTPRateLimiter::record(OTPRateLimiter::VIA_TWO_FACTOR_STATUS, $userData !== null ? $userID : null, $username, $userData !== null, '');
 
         return $response->withJson([
             'required' => OTPHandler::isEnabled2FA($userID) && OTPHandler::wasViewedCurrentUserQRData($userID),
@@ -330,103 +380,6 @@ class UserSystemFeaturesController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -520,5 +473,26 @@ class UserSystemFeaturesController extends AdminPanelController
         });
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

@@ -1,0 +1,46 @@
+#!/bin/bash
+# Hook pre-push: corre la verificación del andamiaje antes de subir y aborta si falla.
+#
+# QUIÉN LO EJECUTA: el PO, en su máquina, al subir. No lo pide cada vez, así que este
+# guion está escrito para no dejarle encerrado fuera de su propio repositorio:
+#
+#   - dice cuánto va a tardar ANTES de empezar, para que no parezca colgado. Medido el
+#     2026-09-24, tres veces: 12,19 · 12,07 · 12,19 segundos;
+#   - si falla, enseña la salida real y cómo saltárselo;
+#   - y si no puede ejecutar la verificación, DEJA PASAR y avisa: un control que
+#     rompe el push por su propio fallo es peor que no tenerlo.
+#
+# Se activa una vez por clon, lo decide el PO:
+#     git config core.hooksPath .agents/scripts/git-hooks
+
+RAIZ="$(git rev-parse --show-toplevel)" || exit 1
+VERIFICADOR="$RAIZ/.agents/scripts/verificar.sh"
+
+if [ ! -f "$VERIFICADOR" ]; then
+    echo "pre-push: no encuentro .agents/scripts/verificar.sh, así que NO verifico nada y dejo subir." >&2
+    exit 0
+fi
+
+echo "pre-push: verificando el andamiaje antes de subir (unos 12 segundos)..." >&2
+
+REGISTRO="$(mktemp)"
+bash "$VERIFICADOR" >"$REGISTRO" 2>&1
+ESTADO=$?
+
+if [ $ESTADO -ne 0 ]; then
+    echo "" >&2
+    cat "$REGISTRO" >&2
+    echo "" >&2
+    echo "Subida abortada: la verificación del andamiaje ha fallado (arriba está el motivo)." >&2
+    echo "Si necesitas subir de todas formas, ahora mismo y sin arreglarlo:" >&2
+    echo "" >&2
+    echo "    git push --no-verify" >&2
+    echo "" >&2
+    rm -f "$REGISTRO"
+    exit 1
+fi
+
+# Se imprime siempre: una guarda muda se lee igual que una guarda satisfecha (LEY 18).
+echo "pre-push: verificación del andamiaje correcta, se sube." >&2
+rm -f "$REGISTRO"
+exit 0

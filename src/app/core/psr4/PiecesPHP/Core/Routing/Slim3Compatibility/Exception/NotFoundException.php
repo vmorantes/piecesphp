@@ -41,7 +41,7 @@ class NotFoundException extends HttpNotFoundException
             $routeInformation = get_route_info($routeName);
             $requireLogin = $routeInformation['require_login'];
             //Definir el botón de volver en la ruta administrativa si no hay una url definida y la ruta requiere login
-            $adminRoute = get_route('admin');
+            $adminRoute = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
             if ($requireLogin && !array_key_exists('url', $extraData)) {
                 $extraData['url'] = $adminRoute;
             }

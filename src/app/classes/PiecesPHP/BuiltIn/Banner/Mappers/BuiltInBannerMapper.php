@@ -6,7 +6,7 @@
 
 namespace PiecesPHP\BuiltIn\Banner\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
@@ -90,7 +90,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -98,7 +98,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -302,7 +302,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
     {
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        $this->createdBy = getLoggedFrameworkUserOrFail()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -324,7 +324,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = getLoggedFrameworkUserOrFail()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -473,12 +473,13 @@ class BuiltInBannerMapper extends EntityMapperExtensible
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
         $isActiveByDate = "(SELECT COUNT({$tableView}.id) > 0 FROM {$tableView} WHERE {$tableView}.id = {$table}.id)";
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$isActiveByDate} AS isActiveByDate",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
@@ -668,7 +669,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -696,7 +697,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
@@ -812,18 +813,10 @@ class BuiltInBannerMapper extends EntityMapperExtensible
 
         $element = (array) $element;
         $mapper = new BuiltInBannerMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
-
-        $defaultMetaPropertiesValues = [];
 
         foreach ($element as $property => $value) {
 
@@ -832,14 +825,6 @@ class BuiltInBannerMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
-
-                    foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
-                        }
-                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

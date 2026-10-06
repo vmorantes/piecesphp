@@ -1,0 +1,11 @@
+@use 'includes/base' as *;
+
+.ui.header.small {
+    margin-top: 0.5rem;
+    opacity: 0.5;
+}
+
+.ui-pcs.container-sidebar>.content {
+    padding-right: 1rem;
+    padding-left: 1.8rem;
+}

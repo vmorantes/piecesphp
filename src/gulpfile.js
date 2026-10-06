@@ -1,41 +1,135 @@
 /*
 * Dependencias
 */
-const { src, dest, watch, task, series, parallel } = require('gulp')
+const { src, watch, task, series, parallel } = require('gulp')
 const gulp = require('gulp')
 // const pug = require('gulp-pug') // Pug default view template
 const sassCore = require('sass')
-const sass = require('gulp-sass')(sassCore) // Actualiza esta línea
 const sourcemaps = require('gulp-sourcemaps')
 const rename = require('gulp-rename')
 const concat = require('gulp-concat')
-const replace = require('gulp-replace')
 const uglifyJS = require('gulp-uglify')
 const typescript = require('gulp-typescript')
 const exec = require('child_process').exec
+const fs = require('fs')
+const path = require('path')
+const { Transform } = require('stream')
+const { fileURLToPath } = require('url')
 const removeCacheEvent = 'remove-cache'
 const removeCacheFinishEvent = 'remove-cache-finish'
 let cleanCacheVerbose = false
-let sassCompileAdapter = function (options) {
-	options = typeof options == 'object' ? options : {}
-	const baseOptions = {
-		outputStyle: 'compressed',
-		silenceDeprecations: [
-			'legacy-js-api',
-			'color-functions',
-			'mixed-decls',
-			'import',
-			'global-builtin',
-		],
-		quietDeps: true,
-	}
-	const finalOptions = Object.assign({}, baseOptions)
 
-	for (const option in options) {
-		finalOptions[option] = options[option]
-	}
+//Compila con la API moderna de Sass. Una hoja con error se imprime con su archivo y línea, y las demás siguen compilando.
+function sassCompileAdapter() {
+	const adapter = new Transform({
+		objectMode: true,
+		transform(file, encoding, callback) {
+			if (file.isNull()) {
+				return callback(null, file)
+			}
+			if (path.basename(file.path).startsWith('_')) {
+				return callback()
+			}
+			const cssPath = file.path.replace(/\.scss$/, '.css')
+			if (!file.contents.length) {
+				file.path = cssPath
+				return callback(null, file)
+			}
+			let result
+			try {
+				result = sassCore.compile(file.path, {
+					style: 'compressed',
+					sourceMap: true,
+					sourceMapIncludeSources: true,
+				})
+			} catch (error) {
+				adapter.failures.push(file.path)
+				process.stderr.write(`Error de SASS en ${path.relative(process.cwd(), file.path)}\n${error.message}\n`)
+				return callback()
+			}
+			adapter.compiled++
+			const sourceMap = result.sourceMap
+			sourceMap.sources = sourceMap.sources.map((source) => source.startsWith('file:') ? path.relative(file.base, fileURLToPath(source)) : source)
+			sourceMap.file = path.relative(file.base, cssPath)
+			file.sourceMap = sourceMap
+			file.contents = Buffer.from(result.css)
+			file.path = cssPath
+			callback(null, file)
+		},
+	})
+	adapter.failures = []
+	adapter.compiled = 0
+	return adapter
+}
 
-	return sass(finalOptions)
+//Los globs cuya carpeta base existe. src() de gulp 5 revienta con ENOENT si falta la base de uno, y una carpeta vacía o ausente no es un error.
+function existingGlobs(globs) {
+	const present = globs.filter((glob) => {
+		if (glob.startsWith('!')) {
+			return true
+		}
+		const parts = glob.split('/')
+		const firstWild = parts.findIndex((part) => /[*?[\]{}]/.test(part))
+		const base = (firstWild === -1 ? parts.slice(0, -1) : parts.slice(0, firstWild)).join('/') || '.'
+		return fs.existsSync(base)
+	})
+	return present.some((glob) => !glob.startsWith('!')) ? present : []
+}
+
+//El origen de una tarea, o null si no queda ninguno: entonces la tarea lo dice y termina bien.
+function sourcesOf(globs) {
+	const present = existingGlobs(globs)
+	if (present.length === 0) {
+		console.log(`0 archivos en ${globs.filter((glob) => !glob.startsWith('!')).join(', ')}`)
+		return null
+	}
+	return src(present, { allowEmpty: true })
+}
+
+//Termina cuando todo está escrito, y falla si alguna hoja no compiló.
+function sassBuild(globs, folder, renameFile) {
+	const sources = sourcesOf(globs)
+	if (sources === null) {
+		return Promise.resolve()
+	}
+	const adapter = sassCompileAdapter()
+	let stream = sources
+		.pipe(sourcemaps.init())
+		.pipe(adapter)
+		.pipe(sourcemaps.write('./'))
+	if (renameFile) {
+		stream = stream.pipe(rename(renameFile))
+	}
+	const writer = stream.pipe(writeIfChanged(folder))
+	return new Promise((resolve, reject) => {
+		writer.on('error', reject)
+		writer.on('finish', () => {
+			if (adapter.failures.length > 0) {
+				reject(new Error(`SASS: no compilaron ${adapter.failures.length} hoja(s): ${adapter.failures.map((file) => path.relative(process.cwd(), file)).join(', ')}`))
+			} else {
+				if (adapter.compiled === 0) {
+					console.log(`0 hojas en ${globs.filter((glob) => !glob.startsWith('!')).join(', ')}`)
+				}
+				resolve()
+			}
+		})
+	})
+}
+
+//Escribe solo lo que cambió: un .css que no se reescribe conserva su fecha, y con ella su versión por archivo (ADR 0034).
+function writeIfChanged(folder) {
+	return new Transform({
+		objectMode: true,
+		transform(file, encoding, callback) {
+			const target = path.join(folder, file.relative)
+			const current = fs.existsSync(target) ? fs.readFileSync(target) : null
+			if (current === null || !current.equals(file.contents)) {
+				fs.mkdirSync(path.dirname(target), { recursive: true })
+				fs.writeFileSync(target, file.contents)
+			}
+			callback()
+		},
+	})
 }
 
 //--------TS PiecesPHP
@@ -60,7 +154,11 @@ var destsPiecesPHPTS = {
 //---------Funciones de compilación
 
 function tsTask() {
-	return src(compilePiecesPHPTS.base)
+	const sources = sourcesOf(compilePiecesPHPTS.base)
+	if (sources === null) {
+		return Promise.resolve()
+	}
+	return sources
 		.pipe(sourcemaps.init())
 		.pipe(typescript({
 			target: 'es5',
@@ -69,15 +167,11 @@ function tsTask() {
 			typeRoots: [], //No buscar tipos automáticamente en node_modules.
 		}))
 		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHPTS.base))
+		.pipe(writeIfChanged(destsPiecesPHPTS.base))
 }
 
 //Tareas de compilación
-task("ts-vendor", (done) => {
-	tsTask()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("ts-vendor", tsTask)
 
 //Tareas de observación
 task("ts-vendor:watch", (done) => {
@@ -112,20 +206,20 @@ var destsPiecesPHPJS = {
 //---------Funciones de compilación
 
 function jsTask() {
-	return src(compilePiecesPHPJS.base)
+	const sources = sourcesOf(compilePiecesPHPJS.base)
+	if (sources === null) {
+		return Promise.resolve()
+	}
+	return sources
 		.pipe(sourcemaps.init())
 		.pipe(concat('configurations.min.js'))
 		.pipe(uglifyJS())
 		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHPJS.base))
+		.pipe(writeIfChanged(destsPiecesPHPJS.base))
 }
 
 //Tareas de compilación
-task("js-vendor", (done) => {
-	jsTask()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("js-vendor", jsTask)
 
 //Tareas de observación
 task("js-vendor:watch", (done) => {
@@ -146,12 +240,6 @@ var watchingPiecesPHPSassFiles = {
 	users: [
 		'./statics/login-and-recovery/sass/**/*.scss',
 	],
-	users2: [
-		'./statics/admin-area/sass/**/*.scss',
-	],
-	avatars: [
-		'./statics/features/avatars/sass/**/*.scss',
-	],
 }
 
 //Archivos que se compilan
@@ -165,120 +253,49 @@ var compilePiecesPHPSassFiles = {
 	users: [
 		'./statics/login-and-recovery/sass/**/*.scss',
 	],
-	users2: [
-		'./statics/admin-area/sass/**/*.scss',
-	],
-	avatars: [
-		'./statics/features/avatars/sass/**/*.scss',
-	],
 }
 
 var destsPiecesPHP = {
 	users: './statics/login-and-recovery/css',
-	users2: './statics/admin-area/css',
 	ownPlugins: './statics/core/own-plugins/css',
 	general: './statics/core/css',
-	avatars: './statics/features/avatars/css',
 }
 //---------Funciones de compilación
 
 //Compilación plugins propios
 function sassCompileOwnPlugins() {
-	return src(compilePiecesPHPSassFiles.ownPlugins)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHP.ownPlugins))
+	return sassBuild(compilePiecesPHPSassFiles.ownPlugins, destsPiecesPHP.ownPlugins)
 }
 
 //Compilación generales
 function sassCompileGeneral() {
-	return src(compilePiecesPHPSassFiles.general)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHP.general))
+	return sassBuild(compilePiecesPHPSassFiles.general, destsPiecesPHP.general)
 }
 
 //Compilación usuarios
 function sassCompileUsers() {
-	return src(compilePiecesPHPSassFiles.users)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHP.users))
-}
-
-//Compilación usuarios 2
-function sassCompileUsers2() {
-	return src(compilePiecesPHPSassFiles.users2)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHP.users2))
-}
-
-//Compilación avatars
-function sassCompileAvatars() {
-	return src(compilePiecesPHPSassFiles.avatars)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(destsPiecesPHP.avatars))
+	return sassBuild(compilePiecesPHPSassFiles.users, destsPiecesPHP.users)
 }
 
 //Tareas de compilación
-task("sass-compile-own-plugins", (done) => {
-	sassCompileOwnPlugins()
-	gulp.emit(removeCacheEvent)
-	done()
-})
-task("sass-compile-general", (done) => {
-	sassCompileGeneral()
-	gulp.emit(removeCacheEvent)
-	done()
-})
-task("sass-compile-users", (done) => {
-	sassCompileUsers()
-	gulp.emit(removeCacheEvent)
-	done()
-})
-task("sass-compile-users2", (done) => {
-	sassCompileUsers2()
-	gulp.emit(removeCacheEvent)
-	done()
-})
-task("sass-compile-avatars", (done) => {
-	sassCompileAvatars()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("sass-compile-own-plugins", sassCompileOwnPlugins)
+task("sass-compile-general", sassCompileGeneral)
+task("sass-compile-users", sassCompileUsers)
 
 //Tareas de observación
 task("sass-vendor:watch", (done) => {
 	watch(watchingPiecesPHPSassFiles.ownPlugins, series("sass-compile-own-plugins"))
 	watch(watchingPiecesPHPSassFiles.general, series("sass-compile-general"))
 	watch(watchingPiecesPHPSassFiles.users, series("sass-compile-users"))
-	watch(watchingPiecesPHPSassFiles.users2, series("sass-compile-users2"))
-	watch(watchingPiecesPHPSassFiles.avatars, series("sass-compile-avatars"))
 	done()
 })
 
 //Tarea inicial
-task("sass-vendor:init", (done) => {
-	sassCompileOwnPlugins()
-	sassCompileGeneral()
-	sassCompileUsers()
-	sassCompileUsers2()
-	sassCompileAvatars()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("sass-vendor:init", () => Promise.all([
+	sassCompileOwnPlugins(),
+	sassCompileGeneral(),
+	sassCompileUsers(),
+]))
 
 //SASS others
 var watchingSassFiles = [
@@ -286,33 +303,20 @@ var watchingSassFiles = [
 ]
 var compileSassFiles = [
 	'./statics/sass/**/*.scss',
-	'!./statics/sass/import/**/*.scss',
+	'!./statics/sass/imports/**/*.scss',
 ]
 var cssDest = './statics/css'
 
 function sassCompileGeneric() {
-	return src(compileSassFiles)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(dest(cssDest))
+	return sassBuild(compileSassFiles, cssDest)
 }
 
-task("sass", (done) => {
-	sassCompileGeneric()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("sass", sassCompileGeneric)
 task("sass:watch", (done) => {
 	watch(watchingSassFiles, series("sass"))
 	done()
 })
-task("sass:init", (done) => {
-	sassCompileGeneric()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("sass:init", sassCompileGeneric)
 
 //Modules
 var watchingModulesSassFiles = [
@@ -326,53 +330,30 @@ var compileMonulesSassFiles = [
 var cssModulesDest = './app/classes'
 
 function sassCompileModules() {
-	return src(compileMonulesSassFiles)
-		.pipe(sourcemaps.init())
-		.pipe(sassCompileAdapter({}).on('error', sass.logError))
-		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
-		.pipe(sourcemaps.write('./'))
-		.pipe(rename(function (path) {
-			return {
-				dirname: path.dirname.replace('sass', 'css'),
-				basename: path.basename,
-				extname: path.extname,
-			}
-		}))
-		.pipe(dest(cssModulesDest))
+	return sassBuild(compileMonulesSassFiles, cssModulesDest, function (path) {
+		return {
+			dirname: path.dirname.replace('sass', 'css'),
+			basename: path.basename,
+			extname: path.extname,
+		}
+	})
 }
 
-task("sass-modules", (done) => {
-	sassCompileModules()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("sass-modules", sassCompileModules)
 task("sass-modules:watch", (done) => {
 	watch(watchingModulesSassFiles, series("sass-modules"))
 	done()
 })
-task("sass-modules:init", (done) => {
-	sassCompileModules()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("sass-modules:init", sassCompileModules)
 
 //Compilar todo
-task("sass-all", (done) => {
-
-	sassCompileOwnPlugins()
-	sassCompileGeneral()
-	sassCompileUsers()
-	sassCompileUsers2()
-	sassCompileAvatars()
-
-	sassCompileGeneric()
-
-	sassCompileModules()
-
-	gulp.emit(removeCacheEvent)
-	done()
-
-})
+task("sass-all", () => Promise.all([
+	sassCompileOwnPlugins(),
+	sassCompileGeneral(),
+	sassCompileUsers(),
+	sassCompileGeneric(),
+	sassCompileModules(),
+]))
 task("sass-all:watch", (done) => {
 	parallel(
 		"sass-all",
@@ -384,15 +365,11 @@ task("sass-all:watch", (done) => {
 })
 
 //General
-task("init-project", (done) => {
-	tsTask()
-	jsTask()
-	parallel(
-		"sass-all",
-	)()
-	gulp.emit(removeCacheEvent)
-	done()
-})
+task("init-project", parallel(
+	"ts-vendor",
+	"js-vendor",
+	"sass-all",
+))
 task("init-project:watch", (done) => {
 	parallel(
 		"init-project",
@@ -406,8 +383,8 @@ task("init-project:watch", (done) => {
 //Compilar documentación de api
 task("api-build", (done) => {
 	//En estructura normal debe subir solo un directorio
-	exec('cd ../files/API && mkdocs build --clean', (error, stdout, stderr) => {
-		done()
+	exec('cd ../source-docs/api && mkdocs build --clean', (error, stdout, stderr) => {
+		done(error)
 	})
 })
 
@@ -419,6 +396,7 @@ task("clean-cache", (done) => {
 		done()
 	})
 })
+//Solo la dispara la tarea clean-cache: compilar ya no renueva la marca global (ADR 0034), porque lo compilado cambia de versión solo.
 gulp.on(removeCacheEvent, () => {
 	if (cleanCacheVerbose) {
 		console.log('Limpiando memoria caché..')

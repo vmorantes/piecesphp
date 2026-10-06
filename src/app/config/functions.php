@@ -1,13 +1,17 @@
 <?php
 
 /**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: tus funciones, al final, en la sección del clon. Las de arriba son del framework.
+ */
+
+/**
  * functions.php
  */
 
 use App\Controller\PublicAreaController;
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Exceptions\RouteNotExistsException;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -15,6 +19,8 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * En este este archivo se puede añadir cualquier función adicional.
  * Puede hacerse uso de todas las funciones del sistema.
  */
+
+//── Del framework: no lo edites ──
 
 /**
  * Devuelve un string con los ítems del menú lateral
@@ -29,55 +35,6 @@ function menu_sidebar_items(\stdClass $user): string
 }
 
 /**
- * @param array{
- *  request: \PiecesPHP\Core\Routing\RequestRoute,
- *  mapper: \PiecesPHP\Core\Database\EntityMapper,
- *  columns_order: array,
- *  where_string:?string,
- *  on_set_data:?callable,
- *  as_mapper:?bool,
- *  on_set_model:?callable
- * } $options
- * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
- */
-function datatables_proccessing_with_options(array $options)
-{
-    return \PiecesPHP\Core\Utilities\Helpers\DataTablesHelper::process($options);
-}
-
-/**
- * Devuelve un string con la estructura de un orderBy para un EntityMapper
- *
- * @param \PiecesPHP\Core\Routing\RequestRoute $request
- * @param \PiecesPHP\Core\Database\EntityMapper $mapper
- * @param array $columns_order
- * @param string $where_string
- * @param callable $on_set_data Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
- * @param bool $as_mapper
- * @param callable $on_set_model
- * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
- */
-function datatables_proccessing(
-    \PiecesPHP\Core\Routing\RequestRoute $request,
-    \PiecesPHP\Core\Database\EntityMapper $mapper,
-    array $columns_order,
-    ?string $where_string = null,
-    ?callable $on_set_data = null,
-    bool $as_mapper = false,
-    ?callable $on_set_model = null
-): \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations {
-    return \PiecesPHP\Core\Utilities\Helpers\DataTablesHelper::process([
-        'request' => $request,
-        'mapper' => $mapper,
-        'columns_order' => $columns_order,
-        'where_string' => $where_string,
-        'on_set_data' => $on_set_data,
-        'as_mapper' => $as_mapper,
-        'on_set_model' => $on_set_model,
-    ]);
-}
-
-/**
  * Devuelve un string con la estructura de un orderBy para un EntityMapper
  *
  * @param array $values
@@ -86,7 +43,7 @@ function datatables_proccessing(
  * @param bool $key_as_value
  * @return string
  */
-function array_to_html_options(array $values, $selected_values = null, bool $multiple = false, bool $key_as_value = true)
+function array_to_html_options(array $values, $selected_values = null, bool $multiple = false, bool $key_as_value = true): string
 {
     foreach ($values as $key => $value) {
         if (!is_scalar($key) || !is_scalar($value)) {
@@ -149,7 +106,7 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
  * @param int $position Empezando desde 0
  * @return array
  */
-function addElementInPosition(array $array, $key = null, $element = null, int $position = 0)
+function addElementInPosition(array $array, $key = null, $element = null, int $position = 0): array
 {
     $currentPosition = 0;
     $position = $position < 0 ? 0 : $position;
@@ -256,9 +213,9 @@ function getAllUsers(array $ignoreTypes = [])
  * @param callable $elementStrategy
  * @return array
  */
-function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = '', array $ignoreTypes = [], $elementStrategy = null)
+function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = '', array $ignoreTypes = [], $elementStrategy = null): array
 {
-    $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(LANG_GROUP, 'Usuarios');
+    $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(LANG_GROUP, 'Usuarios');
     $options = [];
     $options[$defaultValue] = $defaultLabel;
 
@@ -283,14 +240,14 @@ function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = 
  * @param string|null $emptyOptionText El texto de la opción vacía.
  * @return array
  */
-function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null)
+function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null): array
 {
-    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Código de área');
+    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Código de área');
     $options = [];
     if ($withEmptyOption) {
         $options[''] = $emptyOptionText;
     }
-    foreach (PHONE_AREA_CODES as $country => $area) {
+    foreach (PHONE_AREA_CODES as $area) {
         $options[$area] = $area;
     }
     return $options;
@@ -304,9 +261,9 @@ function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText =
  * @param bool $useMultilang Indica si se deben mostrar las versiones multilenguaje
  * @return array
  */
-function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false)
+function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false): array
 {
-    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
+    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
     $options = [];
 
     if ($withEmptyOption) {
@@ -321,42 +278,6 @@ function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionTex
 
     return $options;
 }
-/**
- * Devuelve un array listo para ser usado en array_to_html_options con las áreas de interés de investigación.
- *
- * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
- * @param string|null $emptyOptionText El texto de la opción vacía.
- * @param int[] $ignoreIDs
- * @param bool $returnObjects
- * @return array
- */
-function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null, array $ignoreIDs = [], bool $returnObjects = false)
-{
-    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Seleccione las áreas de interes');
-    $options = [];
 
-    if ($withEmptyOption) {
-        $options[''] = $emptyOptionText;
-    }
-
-    $areas = InterestResearchAreasMapper::all(true);
-
-    /**
-     * @var InterestResearchAreasMapper $area
-     */
-    foreach ($areas as $area) {
-        if (!in_array($area->id, $ignoreIDs)) {
-            if (!$returnObjects) {
-                $options[$area->id] = $area->currentLangData('areaName');
-            } else {
-                $options[$area->id] = [
-                    'areaName' => $area->currentLangData('areaName'),
-                    'color' => $area->color,
-                    'id' => $area->id,
-                ];
-            }
-        }
-    }
-
-    return $options;
-}
+//── Del clon ──
+//Tus funciones, aquí.

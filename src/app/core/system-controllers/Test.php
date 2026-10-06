@@ -11,6 +11,7 @@ use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Terminal\LoadFailures;
 
 /**
  * Test.
@@ -116,8 +117,6 @@ class Test
         // Generar imagen JPEG
         imagejpeg($image, null, 90); // Calidad 90%
 
-        // Limpiar memoria
-        imagedestroy($image);
 
         // Obtener datos de la imagen
         $imageData = ob_get_contents();
@@ -236,10 +235,13 @@ class Test
         $generateImageGroup->register([
             new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
         ]);
-        $testingGroup->register([
-            new PiecesRoute('queue-request[/]', TestQueueRequest::class . ':form', uniqid(TestQueueRequest::class), 'GET', false),
-            new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', uniqid(TestQueueRequest::class), 'POST', false),
-        ]);
+        //Solo en local: sin esto se registran también en producción, públicas y sin login.
+        if (is_local()) {
+            $testingGroup->register([
+                new PiecesRoute('queue-request[/]', TestQueueRequest::class . ':form', 'pcsphp-testing-queue-request', 'GET', false),
+                new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', 'pcsphp-testing-queue-request-handle', 'POST', false),
+            ]);
+        }
 
         //Incluye archivos que sirven para pruebas locales
         $localTestsDirectory = new DirectoryObject(append_to_path_system(dirname(__FILE__), 'local-tests'));
@@ -249,7 +251,8 @@ class Test
             foreach ($localTestsFiles as $localTestsFile) {
                 if ($localTestsFile->getExists()) {
                     if (mb_strtolower($localTestsFile->getExtension()) == 'php') {
-                        include_once $localTestsFile->getPath();
+                        //Una suite rota no tumba bin/cli, pero queda anotada: gates la cuenta como fallo.
+                        LoadFailures::includeFile($localTestsFile->getPath(), LoadFailures::TYPE_SUITE);
                     }
                 }
             }

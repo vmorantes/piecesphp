@@ -6,7 +6,7 @@
 
 namespace SystemApprovals\Util;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
@@ -40,6 +40,17 @@ interface ApprovalElementHandlerInterface
      * @return string
      */
     public static function getContentType(int | EntityMapper $reference): string;
+
+    /**
+     * TODOS los textos que este handler puede llegar a escribir en `referenceAlias`.
+     *
+     * No es `[$BASE_TEXT]` por definición: `UsersApprovalHandler` devuelve DOS, y el segundo
+     * —'Usuario independiente'— vivía dentro de un método sin estar declarado en ninguna lista,
+     * así que cualquier lista blanca construida sin esto habría sido falsa. Ver T162.
+     *
+     * @return string[]
+     */
+    public static function getContentTypes(): array;
 
     /**
      * Obtiene la tabla de referencia.
@@ -109,4 +120,15 @@ interface ApprovalElementHandlerInterface
      * @return UsersModel|null
      */
     public static function getContactUser(EntityMapper $reference): ?UsersModel;
+
+    /**
+     * Campos cuyo cambio NO cuenta como edición: sellos de auditoría.
+     *
+     * Lo pide la INTERFAZ a propósito, y no una lista central: un manejador nuevo que no lo
+     * declare **no compila**, mientras que una lista global se queda corta en silencio el día
+     * que alguien añade el quinto módulo. Ver LEY 11 y T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array;
 }

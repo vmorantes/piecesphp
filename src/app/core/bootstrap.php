@@ -112,9 +112,7 @@ set_error_handler(function ($int_error_type, $string_error_message, $string_erro
         E_PARSE => 'Compile-time',
         E_NOTICE => 'Notice -possible false positive-',
         E_DEPRECATED => 'Deprecated',
-        //Niveles que la tabla anterior no cubría y que por tanto se descartaban
-        //en silencio, incluido E_USER_ERROR: todo trigger_error() de una librería
-        //—entre ellos el platform_check de Composer— se perdía sin dejar rastro.
+        //Sin estos niveles, todo trigger_error() de una librería se descarta en silencio.
         E_RECOVERABLE_ERROR => 'Recoverable error',
         E_USER_ERROR => 'Fatal error (trigger_error)',
         E_USER_WARNING => 'Warning (trigger_error)',
@@ -132,19 +130,13 @@ set_error_handler(function ($int_error_type, $string_error_message, $string_erro
         E_USER_ERROR,
     ];
 
-    //Las deprecaciones solo abortan en local, donde queremos enterarnos de
-    //inmediato. En producción se registran y la petición continúa: una
-    //deprecación es un aviso sobre una versión futura de PHP, no un fallo de
-    //la petición en curso, y tumbar producción por ella es desproporcionado.
-    //OJO: un cronjob lanzado sin --local cae en la rama de producción.
+    //Las deprecaciones solo abortan en local. Ojo: un cronjob sin --local cae en producción.
     if ($isLocalBootstrap) {
         $stopExcutionErrors[] = E_DEPRECATED;
         $stopExcutionErrors[] = E_USER_DEPRECATED;
     }
 
-    //Silenciado con @ o fuera de error_reporting: se respeta la supresión.
-    //Importa: bootstrap.php carga el autoload de bin/tools con @require_once
-    //precisamente para que sea opcional.
+    //Se respeta la supresión con @: el autoload de bin/tools se carga así a propósito.
     if (!(error_reporting() & $int_error_type)) {
         return true;
     }
@@ -201,19 +193,26 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
 
         //CORS para API
         if (defined('API_MODULE') && API_MODULE) {
-            $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
-            header('Access-Control-Allow-Origin: ' . $origin);
-            header('Access-Control-Allow-Credentials: true');
+            //La misma decisión que el contenedor `cors`: una respuesta de error no puede dar lo que la normal no da.
+            $origin = isset($_SERVER['HTTP_ORIGIN']) && is_string($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+            header('Access-Control-Allow-Origin: ' . ($origin !== '' ? $origin : '*'));
+            $declared = function_exists('get_config') ? get_config('cors_credentials_origins') : [];
+            $ownURL = function_exists('get_config') ? get_config('base_url') : '';
+            if (function_exists('cors_origin_allows_credentials') && cors_origin_allows_credentials($origin, is_array($declared) ? $declared : [], url_origin(is_string($ownURL) ? $ownURL : ''))) {
+                header('Access-Control-Allow-Credentials: true');
+            }
             header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, ' . \PiecesPHP\Core\SessionToken::tokenName());
             header('Vary: Origin');
         }
-        die($content);
+        //No vuelvas a die($string): sale con código 0 y toda puerta de bin/cli daría por buena una muerte.
+        echo $content;
+        exit(PHP_SAPI === 'cli' ? 1 : 0);
     };
 
     //Manejo de errores lanzados por throw
     if ($exception instanceof \Error) {
-        $errorClass = get_class($exception);
+        $errorClass = $exception::class;
         $exception = new \ErrorException("({$errorClass}) " . $exception->getMessage(), $exception->getCode(), E_WARNING, $exception->getFile(), $exception->getLine(), $exception->getPrevious());
     }
 
@@ -265,16 +264,20 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v7.1.0');
+    define('APP_VERSION', 'v8.0.1');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '20-08-2026')->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-10-06'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];
 
+//EL ENTORNO, ANTES QUE NADA QUE LO USE: database.php elige las credenciales con is_local() (P58).
+\PiecesPHP\Core\AppEnvironment::load();
+
 require $directories['config'];
+$config['environment'] = app_environment();
 require $directories['config_class'];
 require $directories['database'];
 require $directories['cookies'];
@@ -320,6 +323,9 @@ BaseToken::setSecretKey(Config::app_key());
 
 //Configurar seguridad de encriptación con la app_key general
 BaseHashEncryption::setSecretKey(Config::app_key());
+
+//Con la app_key de relleno se AVISA (log y panel) y se arranca igual: la decisión de cambiarla es del clon.
+Config::warn_placeholder_app_key();
 
 //Configurar directorio de vistas por defecto
 BaseController::setViewDir(Config::app_path() . "/app/view/");

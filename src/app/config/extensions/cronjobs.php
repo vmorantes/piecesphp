@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @pcsphp-config clon
+ * Qué conviene editar aquí: tus tareas programadas; las del framework están en core/extensions/cronjobs.php.
+ */
+
+use PiecesPHP\Terminal\CronJobTask;
+
+/**
+ * @var array<int, CronJobTask>
+ */
+$cronjobs = [];
+
+//Ejemplo de tarea larga que cuida la conexión: destroyDb() antes del trabajo y restoreInstancesDb() después, para
+//que la base no corte por timeout. Para usarla, descomenta el bloque y cambia su nombre, su trabajo y su horario.
+//@codigo-comentado · Ejemplo documentado de tarea larga; registrada, corría a diario sin hacer nada.
+//$cronjobs[] = CronJobTask::make('Ejemplo', function () {
+//
+//    //NOTE: Antes de operaciones largas: se destruye la conexión BD para evitar por timeout
+//    \PiecesPHP\Core\BaseModel::destroyDb(
+//        \PiecesPHP\Core\Config::app_db('default')['db'],
+//        \PiecesPHP\Core\Config::app_db('default')['host']
+//    );
+//
+//    $response = [
+//        'success' => true,
+//        'message' => 'Proceso completado correctamente.',
+//        'extra_data' => [],
+//    ];
+//
+//    //NOTE: Después de operaciones largas (o cuando se requiera): se restaura la conexión BD
+//    \PiecesPHP\Core\BaseModel::restoreInstancesDb(
+//        \PiecesPHP\Core\Config::app_db('default')['db'],
+//        \PiecesPHP\Core\Config::app_db('default')['host']
+//    );
+//
+//    return $response;
+//})->dailyAt("00:00");
+
+CronJobTask::addCronJobs($cronjobs);

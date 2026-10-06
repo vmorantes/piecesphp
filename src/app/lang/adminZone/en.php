@@ -2,6 +2,7 @@
 namespace App\LangMessages;
 
 $lang = [
+    'La app_key es la de relleno: las sesiones y los tokens se firman con una clave conocida. Genere una con bin/cli generate-app-key y póngala en config.php.' => 'The app_key is the placeholder one: sessions and tokens are signed with a known key. Generate one with bin/cli generate-app-key and put it in config.php.',
     'Crear ticket de soporte' => 'Create support ticket',
     'Ticket de soporte creado.' => 'Support ticket created.',
     'Ha ocurrido un error inesperado.' => 'An unexpected error has occurred.',

@@ -6,7 +6,7 @@
 
 namespace Terminal\Tasks;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
@@ -37,7 +37,6 @@ class HelpTask extends TerminalTaskAbstract
             $startRoute = mb_substr($startRoute, 0, mb_strlen($startRoute) - 1);
         }
         $name = ($namePrefix !== null ? $namePrefix . '-' : '') . 'help';
-        $alias = ($namePrefix !== null ? $namePrefix . '-' : '') . 'h';
 
         //Permisos
         $permissions = [
@@ -49,7 +48,7 @@ class HelpTask extends TerminalTaskAbstract
         $this->route = "{$startRoute}/" . uniqid() . "[/]";
         $this->controller = self::class . '::main';
         $this->name = $name;
-        $this->alias = $alias;
+        $this->alias = null;
         $this->method = 'GET';
         $this->requireLogin = true;
         $this->rolesAllowed = new IntegerArray($permissions);

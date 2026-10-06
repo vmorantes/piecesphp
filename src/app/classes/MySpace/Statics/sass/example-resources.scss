@@ -1,6 +1,4 @@
-@import '../../../../../statics/core/sass/includes/variables_app_base';
-@import '../../../../../statics/core/sass/includes/functions_app_base';
-@import './imports/grapsh_and_statistics';
+@use './imports/grapsh_and_statistics' as *;
 
 .secret-text {
     display: inline-block;

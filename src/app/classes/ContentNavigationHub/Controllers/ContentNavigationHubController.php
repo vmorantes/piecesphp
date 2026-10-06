@@ -6,16 +6,15 @@
 
 namespace ContentNavigationHub\Controllers;
 
-use ApplicationCalls\Controllers\ApplicationCallsController;
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use ContentNavigationHub\ContentNavigationHubLang;
 use ContentNavigationHub\ContentNavigationHubRoutes;
 use MySpace\Controllers\AllProfilesController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
@@ -31,6 +30,8 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class ContentNavigationHubController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -71,107 +72,6 @@ class ContentNavigationHubController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return Response
-     */
-    public function applicationCallDetailView(Request $request, Response $response)
-    {
-
-        $id = $request->getAttribute('id', null);
-        $id = Validator::isInteger($id) ? (int) $id : null;
-
-        $element = new ApplicationCallsMapper($id);
-
-        if ($element->id !== null) {
-
-            set_custom_assets([
-                ContentNavigationHubRoutes::staticRoute(self::BASE_CSS_DIR . '/detail-view.css'),
-            ], 'css');
-
-            set_custom_assets([
-                ContentNavigationHubRoutes::staticRoute(self::BASE_JS_DIR . '/application-calls/detail.js'),
-            ], 'js');
-
-            $backLink = self::routeName('application-calls-list');
-
-            $title = $element->contentTypeForFullDisplayText() . ': ' . $element->currentLangData('title');
-            $description = '';
-
-            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
-
-            $data = [];
-            $data['element'] = $element;
-            $data['title'] = $title;
-            $data['description'] = $description;
-            $data['langGroup'] = self::LANG_GROUP;
-            $data['breadcrumbs'] = get_breadcrumbs([
-                __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
-                ],
-                __(self::LANG_GROUP, 'Contenidos') => [
-                    'url' => $backLink,
-                ],
-                $element->contentTypeForFullDisplayText(),
-            ]);
-
-            $this->helpController->render('panel/layout/header');
-            $this->render('application-calls/detail', $data, true, false);
-            $this->helpController->render('panel/layout/footer');
-
-            return $response;
-
-        } else {
-            throw new NotFoundException($request, $response);
-        }
-
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
-     * @return Response
-     */
-    public function applicationCallsListView(Request $request, Response $response, array $args = [])
-    {
-
-        $contentTypeSelected = array_key_exists('type', $args) ? $args['type'] : null;
-        $contentTypeSelected = is_scalar($contentTypeSelected) && !is_null($contentTypeSelected) ? $contentTypeSelected : '';
-        $contentTypeSelected = in_array($contentTypeSelected, array_keys(ApplicationCallsMapper::CONTENT_TYPES)) ? $contentTypeSelected : null;
-
-        $title = __(self::LANG_GROUP, 'Contenidos');
-        if ($contentTypeSelected !== null) {
-            $title = ApplicationCallsMapper::contentTypes()[$contentTypeSelected];
-        }
-        $description = '';
-
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
-
-        $data = [];
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['title'] = $title;
-        $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
-            __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
-            ],
-            $title,
-        ]);
-        $data['contentTypeSelected'] = $contentTypeSelected;
-
-        set_custom_assets([
-            ApplicationCallsController::pathFrontApplicationCallAdapter(),
-            ContentNavigationHubRoutes::staticRoute(self::BASE_JS_DIR . '/application-calls/list.js'),
-        ], 'js');
-
-        $this->helpController->render('panel/layout/header');
-        $this->render('application-calls/list', $data);
-        $this->helpController->render('panel/layout/footer');
-        return $response;
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
      * @return void
      */
     public function profileListView(Request $request, Response $response)
@@ -191,7 +91,7 @@ class ContentNavigationHubController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -266,107 +166,6 @@ class ContentNavigationHubController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-                if ($name == 'SAMPLE') {
-                    $allow = false;
-                }
-
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -398,34 +197,7 @@ class ContentNavigationHubController extends AdminPanelController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route( //Vista del listado: Convocatorias
-                "{$startRoute}/application-calls-list[/]",
-                $classname . ':applicationCallsListView',
-                self::$baseRouteName . '-application-calls-list',
-                'GET',
-                true,
-                null,
-                $list
-            ),
-            new Route( //Vista del listado: Convocatorias (POR TIPO)
-                "{$startRoute}/application-calls-list/{type}[/]",
-                $classname . ':applicationCallsListView',
-                self::$baseRouteName . '-application-calls-list-by-type',
-                'GET',
-                true,
-                null,
-                $list
-            ),
-            new Route( //Vista de detalle: Convocatorias
-                "{$startRoute}/application-calls-detail/{id}[/]",
-                $classname . ':applicationCallDetailView',
-                self::$baseRouteName . '-application-calls-detail',
-                'GET',
-                true,
-                null,
-                $list
-            ),
-            new Route( //Vista del listado: Convocatorias
+            new Route( //Vista del listado: actores
                 "{$startRoute}/profiles-list[/]",
                 $classname . ':profileListView',
                 self::$baseRouteName . '-profiles-list',
@@ -454,5 +226,26 @@ class ContentNavigationHubController extends AdminPanelController
         });
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

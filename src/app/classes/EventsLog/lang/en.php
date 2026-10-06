@@ -16,4 +16,7 @@ return [
     "#" => "#",
     "Registro de actividad" => "Activity log",
     "IP" => "IP",
+    "Sistema" => "System",
+    "%s, en nombre de %s" => "%s, on behalf of %s",
+    "un usuario que ya no existe" => "a user that no longer exists",
 ];

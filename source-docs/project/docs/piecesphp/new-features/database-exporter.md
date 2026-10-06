@@ -1,6 +1,6 @@
 # Exportador Nativos de Base de Datos
 
-La versión de PiecesPHP (v7.0.4 en adelante) introdujo un nuevo motor nativo en PHP para la exportación y volcado de la base de datos (`PiecesPHP\Core\Database\Export\Exporter`). Este motor reemplaza la dependencia del binario del sistema `mysqldump`, lo que garantiza que los respaldos funcionen **en cualquier sistema operativo** independientemente de si los utilitarios de línea de comandos de bases de datos de bajo nivel están instalados.
+La versión de PiecesPHP (v7.0.6 en adelante) introdujo un nuevo motor nativo en PHP para la exportación y volcado de la base de datos (`PiecesPHP\Core\Database\Export\Exporter`). Este motor reemplaza la dependencia del binario del sistema `mysqldump`, lo que garantiza que los respaldos funcionen **en cualquier sistema operativo** independientemente de si los utilitarios de línea de comandos de bases de datos de bajo nivel están instalados.
 
 ---
 
@@ -35,8 +35,12 @@ use PiecesPHP\Core\Database\Export\Enums\DataStyle;
 use PiecesPHP\Core\Database\Export\Enums\TableStyle;
 
 // 1. Obtener la conexión a DB actual
-$db = clone (new BaseModel())->getDatabase();
-$dbName = clone current(explode(';', (explode('dbname=', $db->getDSN())[1] ?? '')) ?: []);
+// getDatabase() devuelve null si no hay conexión
+$db = (new BaseModel())->getDatabase();
+if ($db === null) {
+    throw new \Exception('No hay conexión a la base de datos.');
+}
+$dbName = $db->getDatabaseName();
 
 // 2. Crear instancia del exportador
 $exporter = new Exporter($db, $dbName);
@@ -73,37 +77,41 @@ if (file_exists($outputPlugin->getFilename())) {
 
 Una de las principales ventajas funcionales de la librería nativa es la capacidad de modificar los datos **durante la lectura**, antes de que se escriban en el dump (muy útil para pseudo-anonimizar u ocultar secretos empresariales al mandar respaldos de producción a desarrollo).
 
-### Excluir Tablas enteras o usar un WHERE global
-Puedes ignorar tablas por completo con `exclude_tables`, o aplicar un formato de búsqueda restrictiva mediante `where` global.
+### Excluir tablas enteras o filtrar filas con `where`
+Puedes ignorar tablas por completo con `exclude_tables`, o restringir las filas de una tabla con `where`.
+
+**`where` no es global: se indexa por el nombre de la tabla** y el valor es la condición SQL cruda (sin la palabra `WHERE`). Una tabla que no aparece en el arreglo se exporta entera. Los formatos `SqlFormat`, `JsonFormat`, `CsvFormat`, `XmlFormat` y `PhpFormat` leen `$options['where'][$tabla]`. La condición se concatena tal cual en el `SELECT`: no le pases datos de una petición.
 
 ```php
 $exporter->export([
-    ...
+    // ...
     'exclude_tables' => [
-        'pcs_logs', 
-        'pcs_cache'
+        'mi_tabla_de_registros',   // nombres de ejemplo: pon los de tus tablas
+        'mi_tabla_de_cache',
     ],
     'where' => [
-        "TABLE_NAME" => "id > 100 AND estado = 'ACTIVO'"
-    ]
+        // El nombre real de la tabla, no un comodín
+        'mi_tabla' => "id > 100 AND estado = 'ACTIVO'",
+    ],
 ]);
 ```
 
 ### Mutaciones en tiempo real (`transformations`)
-Puedes enviar un closure para transformar un tipo de campo antes de serializar un insert. Por ejemplo, encriptar forzadamente y de forma irreversible las contraseñas antes de que salgan de la BBDD.
+Puedes enviar un closure para transformar el valor de una columna antes de serializarlo. Se indexa por tabla y luego por columna, y el closure recibe el valor y el nombre de la columna. Úsalo, por ejemplo, para ocultar datos sensibles al llevar un respaldo de producción a desarrollo.
+
+Para anonimizar, **sustituye** el valor por uno fijo o derivado sin retorno posible. `BaseHashEncryption::encrypt()` no sirve para esto: es **reversible** (existe `BaseHashEncryption::decrypt()`, y con la misma llave se recupera el original).
 
 ```php
-use App\Model\UsersModel;
-use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 $exporter->export([
     // ...
     'transformations' => [
         // Apuntar a una columna específica de una tabla concreta
         UsersModel::TABLE => [
-            'password' => function ($val) {
-                // Ofuscamos el password o inyectamos uno demo
-                return BaseHashEncryption::encrypt($val, 'DEFAULT_DEMO_KEY');
+            'password' => function ($val, $column) {
+                // Un hash de un solo sentido de un valor aleatorio descartado: nadie conoce la clave
+                return password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
             },
         ],
     ],

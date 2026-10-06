@@ -1,6 +1,10 @@
-@import 'components/texts';
-@import 'components/slideshow';
-@import 'components/tabs';
+@forward 'components/texts';
+@forward 'components/tabs';
+@use 'variables' as *;
+@use 'functions' as *;
+@use 'components/texts' as *;
+@use 'components/slideshow' as *;
+@use 'components/tabs' as *;
 
 #{$parentSelector} .slideshow,
 #{$parentSelectorHeader} .slideshow,

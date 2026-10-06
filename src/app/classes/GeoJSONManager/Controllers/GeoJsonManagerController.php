@@ -6,9 +6,8 @@
 
 namespace GeoJSONManager\Controllers;
 
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
 use GeoJSONManager\Enums\FeaturesTypes;
 use GeoJSONManager\GeoJsonManagerLang;
@@ -17,9 +16,13 @@ use GeoJSONManager\Util\FeaturesCollection;
 use GeoJSONManager\Util\GeoJSONFactory;
 use GeoJSONManager\Util\GeometryPackage;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -41,6 +44,8 @@ use SystemApprovals\SystemApprovalsRoutes;
  */
 class GeoJsonManagerController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -89,8 +94,6 @@ class GeoJsonManagerController extends AdminPanelController
         if ($featuresType == FeaturesTypes::PROFILES->value) {
             $geometries = self::withPersonsProfiles($geometries, $queryParams);
             $geometries = self::withOrganizationsProfiles($geometries, $queryParams);
-        } else if ($featuresType == FeaturesTypes::APPLICATION_CALLS->value) {
-            $geometries = self::withApplicationCalls($geometries, $queryParams);
         }
         $geoJSON = GeoJSONFactory::getGeoJsonFromGeometries($geometries);
 
@@ -115,66 +118,38 @@ class GeoJsonManagerController extends AdminPanelController
 
         /**
          * @var string|null $search
-         * @var int[]|null $researchAreas
          * @var int[]|null $organizations
          */
-        $search = array_key_exists('search', $params) ? $params['search'] : null;
-        $researchAreas = array_key_exists('researchAreas', $params) ? $params['researchAreas'] : null;
-        $organizations = array_key_exists('organizations', $params) ? $params['organizations'] : null;
+        $search = $params['search'] ?? null;
+        $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $where = [];
-        $having = [
-            "userStatus != " . UsersModel::STATUS_USER_INACTIVE,
-            "AND userStatus != " . UsersModel::STATUS_USER_DELETED,
-        ];
         $table = UserProfileMapper::TABLE;
+
+        $havingCriteria = [
+            new HavingItem('userStatus', HavingItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_INACTIVE, HavingItem::AND_OPERATOR),
+            new HavingItem('userStatus', HavingItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, HavingItem::AND_OPERATOR),
+        ];
 
         $approvedValue = SystemApprovalsRoutes::ENABLE ? SystemApprovalsMapper::STATUS_APPROVED : null;
         if ($approvedValue !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "systemApprovalStatus = '{$approvedValue}'";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingCriteria[] = new HavingItem('systemApprovalStatus', HavingItem::EQUAL_OPERATOR, $approvedValue, HavingItem::AND_OPERATOR);
         }
+
+        $havingSegment = new HavingSegment($havingCriteria);
 
         if ($search !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [
-                "UPPER(fullname) LIKE UPPER('%{$search}%')",
-                "UPPER(fullLocation) LIKE UPPER('%{$search}%')",
-                "UPPER(interestResearhAreasNames) LIKE UPPER('%{$search}%')",
-            ];
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($researchAreas)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = [];
-            foreach ($researchAreas as $researchArea) {
-                $critery[] = "JSON_CONTAINS(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')), {$researchArea})";
-            }
-            $critery = implode(' OR ', $critery);
-            $where[] = "{$beforeOperator} ({$critery})";
+            //Valor de la petición: va por marcador.
+            $havingSegment->addGroup(self::searchHavingGroup(['fullname', 'fullLocation'], $search));
         }
 
         if (!empty($organizations)) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [];
-            foreach ($organizations as $organization) {
-                $critery[] = "organizationID = {$organization}";
-            }
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment->addGroup(self::idsHavingGroup('organizationID', $organizations));
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $model = UserProfileMapper::model();
@@ -182,9 +157,7 @@ class GeoJsonManagerController extends AdminPanelController
         if ($whereString !== null) {
             $model->where($whereString);
         }
-        if ($havingString !== null) {
-            $model->having($havingString);
-        }
+        $model->having($havingSegment);
         $model->execute();
         $result = $model->result();
         foreach ($result as $profile) {
@@ -232,16 +205,12 @@ class GeoJsonManagerController extends AdminPanelController
 
         /**
          * @var string|null $search
-         * @var int[]|null $researchAreas
          * @var int[]|null $organizations
          */
-        $search = array_key_exists('search', $params) ? $params['search'] : null;
-        $researchAreas = array_key_exists('researchAreas', $params) ? $params['researchAreas'] : null;
-        $organizations = array_key_exists('organizations', $params) ? $params['organizations'] : null;
+        $search = $params['search'] ?? null;
+        $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $where = [
             "id != " . OrganizationMapper::INITIAL_ID_GLOBAL,
             'AND status IN (' . implode(',', [
@@ -249,52 +218,28 @@ class GeoJsonManagerController extends AdminPanelController
                 OrganizationMapper::PENDING_APPROVAL,
             ]) . ')',
         ];
-        $having = [];
         $table = OrganizationMapper::TABLE;
+
+        $havingCriteria = [];
 
         $approvedValue = SystemApprovalsRoutes::ENABLE ? SystemApprovalsMapper::STATUS_APPROVED : null;
         if ($approvedValue !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "systemApprovalStatus = '{$approvedValue}'";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingCriteria[] = new HavingItem('systemApprovalStatus', HavingItem::EQUAL_OPERATOR, $approvedValue, HavingItem::AND_OPERATOR);
         }
+
+        $havingSegment = new HavingSegment($havingCriteria);
 
         if ($search !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [
-                "UPPER(name) LIKE UPPER('%{$search}%')",
-                "UPPER(fullLocation) LIKE UPPER('%{$search}%')",
-                "UPPER(interestResearhAreasNames) LIKE UPPER('%{$search}%')",
-            ];
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($researchAreas)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = [];
-            foreach ($researchAreas as $researchArea) {
-                $critery[] = "JSON_CONTAINS(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')), {$researchArea})";
-            }
-            $critery = implode(' OR ', $critery);
-            $where[] = "{$beforeOperator} ({$critery})";
+            //Valor de la petición: va por marcador.
+            $havingSegment->addGroup(self::searchHavingGroup(['name', 'fullLocation'], $search));
         }
 
         if (!empty($organizations)) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [];
-            foreach ($organizations as $organization) {
-                $critery[] = "id = {$organization}";
-            }
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment->addGroup(self::idsHavingGroup('id', $organizations));
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
-        }
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
         }
 
         $model = OrganizationMapper::model();
@@ -302,8 +247,8 @@ class GeoJsonManagerController extends AdminPanelController
         if ($whereString !== null) {
             $model->where($whereString);
         }
-        if ($havingString !== null) {
-            $model->having($havingString);
+        if ($havingSegment->countCriteria() > 0) {
+            $model->having($havingSegment);
         }
         $model->execute();
         $result = $model->result();
@@ -338,192 +283,48 @@ class GeoJsonManagerController extends AdminPanelController
         return $geometries;
     }
 
-    public static function withApplicationCalls(FeaturesCollection $geometries, array $params = [])
+    /**
+     * `(UPPER(a) LIKE UPPER(:x) OR UPPER(b) LIKE UPPER(:y))`, con el valor de la búsqueda por marcador.
+     *
+     * @param string[] $fields
+     * @param string $search
+     * @return HavingItemGroup
+     */
+    protected static function searchHavingGroup(array $fields, string $search): HavingItemGroup
     {
-
-        /**
-         * @var string|null $search
-         * @var int[]|null $researchAreas
-         * @var int[]|null $organizations
-         * @var string[]|null $contentType
-         * @var string[]|null $financingType
-         * @var \DateTime|null $startDate
-         * @var \DateTime|null $endDate
-         */
-        $search = array_key_exists('search', $params) ? $params['search'] : null;
-        $researchAreas = array_key_exists('researchAreas', $params) ? $params['researchAreas'] : null;
-        $organizations = array_key_exists('organizations', $params) ? $params['organizations'] : null;
-        $contentType = array_key_exists('contentType', $params) ? $params['contentType'] : null;
-        $financingType = array_key_exists('financingType', $params) ? $params['financingType'] : null;
-        $startDate = array_key_exists('startDate', $params) ? $params['startDate'] : null;
-        $endDate = array_key_exists('endDate', $params) ? $params['endDate'] : null;
-
-        $whereString = null;
-        $havingString = null;
-        $and = 'AND';
-        $where = [];
-        $having = [];
-        $table = ApplicationCallsMapper::TABLE;
-        $fields = ApplicationCallsMapper::fieldsToSelect();
-
-        //NOTE: Validación de criterios extraída de ApplicationCallsController::_all()
-        $approvedValue = SystemApprovalsRoutes::ENABLE ? SystemApprovalsMapper::STATUS_APPROVED : null;
-        if ($approvedValue !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "systemApprovalStatus = '{$approvedValue}'";
-            $having[] = "{$beforeOperator} ({$critery})";
+        $criteria = [];
+        foreach ($fields as $field) {
+            $criteria[] = new HavingItem("UPPER({$field})", HavingItem::LIKE_OPERATOR, "%{$search}%", HavingItem::OR_OPERATOR, 'UPPER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')');
         }
-
-        if ($search !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $titleField = ApplicationCallsMapper::fieldCurrentLangForSQL('title');
-            $contentField = ApplicationCallsMapper::fieldCurrentLangForSQL('content');
-            $fields[] = "{$titleField} AS titleForQuerySearch";
-            $fields[] = "{$contentField} AS contentForQuerySearch";
-            $critery = [
-                "UPPER(titleForQuerySearch) LIKE UPPER('%{$search}%')",
-                "UPPER(contentForQuerySearch) LIKE UPPER('%{$search}%')",
-                "TRIM(UPPER(targetCountriesNames)) COLLATE utf8_general_ci LIKE TRIM(UPPER('%{$search}%'))",
-            ];
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($researchAreas)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = [];
-            foreach ($researchAreas as $researchArea) {
-                $critery[] = "JSON_CONTAINS(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas')), {$researchArea})";
-            }
-            $critery = implode(' OR ', $critery);
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($organizations)) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = [];
-            foreach ($organizations as $organization) {
-                $critery[] = "organizationID = {$organization}";
-            }
-            $critery = implode(' OR ', $critery);
-            $having[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($contentType)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $contentType = implode("','", $contentType);
-            $critery = "{$table}.contentType IN ('{$contentType}')";
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        if (!empty($financingType)) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $financingType = implode("','", $financingType);
-            $critery = "{$table}.financingType IN ('{$financingType}')";
-            $where[] = "{$beforeOperator} ({$critery})";
-        }
-
-        $startDateStr = $startDate !== null ? $startDate->format('Y-m-d 00:00:00') : '';
-        $endDateStr = $endDate !== null ? $endDate->format('Y-m-d 00:00:00') : '';
-        if ($startDate !== null && $endDate !== null) {
-            $beforeOperator = !empty($where) ? $and : '';
-            $startDateCritery = "DATE({$table}.startDate) >= '{$startDateStr}'";
-            $endDateCritery = "DATE({$table}.endDate) <= '{$endDateStr}'";
-            $critery = "({$startDateCritery}) AND ({$endDateCritery})";
-            $where[] = "{$beforeOperator} ({$critery})";
-        } else {
-            if ($startDate !== null) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "DATE({$table}.endDate) >= '{$startDateStr}' AND '{$startDateStr}' <= DATE({$table}.startDate)";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-            if ($endDate !== null) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "DATE({$table}.startDate) <= '{$endDateStr}' AND DATE({$table}.endDate) >= '{$endDateStr}'";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-        }
-
-        $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
-        $now = $now->getTimestamp();
-        $unixNowDate = "FROM_UNIXTIME({$now})";
-        $startDateSQL = "{$table}.startDate";
-        $endDateSQL = "{$table}.endDate";
-
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "{$startDateSQL} <= {$unixNowDate} OR {$table}.startDate IS NULL";
-        $where[] = "{$beforeOperator} ({$critery})";
-
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
-        $where[] = "{$beforeOperator} ({$critery})";
-
-        if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-        }
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
-        $model = ApplicationCallsMapper::model();
-        $model->select($fields);
-        if ($whereString !== null) {
-            $model->where($whereString);
-        }
-        if ($havingString !== null) {
-            $model->having($havingString);
-        }
-        $model->execute();
-        $result = $model->result();
-        $usersProfilesByUserID = [];
-        foreach ($result as $record) {
-
-            if (!array_key_exists($record->createdBy, $usersProfilesByUserID)) {
-                $usersProfilesByUserID[$record->createdBy] = UserProfileMapper::getProfile($record->createdBy);
-            }
-            $userProfile = $usersProfilesByUserID[$record->createdBy];
-
-            if ($userProfile !== null) {
-                $lat = $userProfile->latitude;
-                $lng = $userProfile->longitude;
-                if ($lat !== null && $lng !== null) {
-
-                    $applicationCallMapper = new ApplicationCallsMapper($record->id);
-
-                    //Agrego datos a la feature
-                    $featureProperties = [
-                        'name' => $applicationCallMapper->currentLangData('title'),
-                        'pointHTML' => ContentNavigationHubController::view('contents/map-elements/profile-application-call-point', [
-                            'mapper' => $applicationCallMapper,
-                        ], false),
-                        'cardHTML' => ContentNavigationHubController::view('contents/map-elements/profile-application-call-card', [
-                            'mapper' => $applicationCallMapper,
-                        ], false),
-                    ];
-
-                    //Crear feature
-                    $point = new Point($lng, $lat);
-                    $feature = GeoJSONFactory::getFeatureFromGeometry(new GeometryPackage($point), $featureProperties);
-
-                    //Añadir feature
-                    $geometries->append($feature);
-                }
-            }
-
-        }
-
-        return $geometries;
+        //EL ULTIMO FIJA `AND`: un grupo se une a lo que venga detras con el operador de su ultimo criterio.
+        $criteria[count($criteria) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+        return new HavingItemGroup($criteria);
     }
 
     /**
-     * Maneja la solicitud de características GeoJSON para contenidos
+     * `(campo = :a OR campo = :b ...)` para una lista de ids que el parser ya dejo en enteros.
+     *
+     * @param string $field
+     * @param int[] $ids
+     * @return HavingItemGroup
+     */
+    protected static function idsHavingGroup(string $field, array $ids): HavingItemGroup
+    {
+        $criteria = [];
+        foreach ($ids as $id) {
+            $criteria[] = new HavingItem($field, HavingItem::EQUAL_OPERATOR, $id, HavingItem::OR_OPERATOR);
+        }
+        $criteria[count($criteria) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+        return new HavingItemGroup($criteria);
+    }
+
+    /**
+     * Maneja la solicitud de características GeoJSON de perfiles
      *
      * Este método procesa los parámetros de la solicitud para filtrar y obtener
      * características GeoJSON basadas en:
      * - Términos de búsqueda
-     * - Áreas de investigación seleccionadas
      * - Organizaciones específicas
-     * - Tipos de contenido
      *
      * @param Request $request La solicitud HTTP con los parámetros de filtrado
      * @return mixed Las características GeoJSON filtradas según los parámetros
@@ -540,21 +341,6 @@ class GeoJsonManagerController extends AdminPanelController
                 true,
                 function ($value) {
                     return (string) $value;
-                }
-            ),
-            new Parameter(
-                'researchAreas',
-                [],
-                function ($value) {
-                    $value = !is_array($value) ? [$value] : $value;
-                    return is_array($value);
-                },
-                true,
-                function ($value) {
-                    $value = !is_array($value) ? [$value] : $value;
-                    return array_map(fn($e) => is_scalar($e) ? (
-                        Validator::isInteger($e) ? (int) $e : -1
-                    ) : -1, $value);
                 }
             ),
             new Parameter(
@@ -627,7 +413,6 @@ class GeoJsonManagerController extends AdminPanelController
 
         /**
          * @var string $search
-         * @var int[] $researchAreas
          * @var int[] $organizations
          * @var string[] $contentType
          * @var string[] $financingType
@@ -635,7 +420,6 @@ class GeoJsonManagerController extends AdminPanelController
          * @var \DateTime|null $endDate
          */
         $search = $expectedParameters->getValue('search');
-        $researchAreas = $expectedParameters->getValue('researchAreas');
         $organizations = $expectedParameters->getValue('organizations');
         $contentType = $expectedParameters->getValue('contentType');
         $financingType = $expectedParameters->getValue('financingType');
@@ -644,7 +428,6 @@ class GeoJsonManagerController extends AdminPanelController
 
         return [
             'search' => $search,
-            'researchAreas' => $researchAreas,
             'organizations' => $organizations,
             'contentType' => $contentType,
             'financingType' => $financingType,
@@ -660,107 +443,6 @@ class GeoJsonManagerController extends AdminPanelController
     {
         $name = mb_strlen(self::BASE_VIEW_DIR) > 0 ? self::BASE_VIEW_DIR . '/' . trim($name, '/') : trim($name, '/');
         return parent::render($name, $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-                if ($name == 'SAMPLE') {
-                    $allow = false;
-                }
-
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -810,5 +492,26 @@ class GeoJsonManagerController extends AdminPanelController
         });
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

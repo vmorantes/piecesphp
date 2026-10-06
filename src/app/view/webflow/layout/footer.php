@@ -28,6 +28,7 @@ $menusItems = [
             ],
         ],
 ])?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'body_end'); ?>
 </body>
 
 </html>

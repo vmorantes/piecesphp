@@ -79,8 +79,9 @@ class StringManipulate
     public static function jsonEncode($input)
     {
         $json = json_encode($input);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            return $errno;
+        //Se mira el VALOR, no json_last_error(): es el único signo directo de que falló.
+        if ($json === false) {
+            return json_last_error();
         }
         return $json;
     }
@@ -117,7 +118,8 @@ class StringManipulate
     }
 
     /**
-     * Devuelve un string con caracteres seguros para URL
+     * Devuelve un string con caracteres seguros para URL: minúsculas, sin tildes, la `ñ` como `nn`,
+     * y solo letras, dígitos y guiones. **Pierde información**: no sirve como identidad de nada.
      *
      * @param string $string
      * @param int $maxWords
@@ -136,6 +138,9 @@ class StringManipulate
             'p', 'q', 'r', 's', 't',
             'u', 'v', 'w', 'x', 'y',
             'z', '-',
+            //Los dígitos se conservan: sin ellos «Informe 2025» e «Informe 2026» daban la misma URL (P94).
+            '0', '1', '2', '3', '4',
+            '5', '6', '7', '8', '9',
         ];
 
         $search = [

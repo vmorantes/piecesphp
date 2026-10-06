@@ -11,8 +11,27 @@ window.addEventListener('load', function () {
 	const tabs = $('.tabs-controls [data-tab]').tab({})
 
 	configureForm()
+	configureRevokeMySessions()
 
 	removeGenericLoader(langGroup)
+
+	function configureRevokeMySessions() {
+		const selector = 'form[revoke-my-sessions]'
+		const form = $(selector)
+		if (form.length < 1) {
+			return
+		}
+		//La respuesta redirige al acceso: el token de esta pestaña ya no vale.
+		genericFormHandler(selector, {
+			confirmation: {
+				selector: `${selector} button[type="submit"]`,
+				title: form.data('confirmation-title'),
+				message: form.data('confirmation-message'),
+				positive: _i18n(langGroup, 'Sí'),
+				negative: _i18n(langGroup, 'No'),
+			},
+		})
+	}
 
 	function configureForm() {
 

@@ -6,7 +6,7 @@
 
 namespace SystemApprovals\Util\Packages;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -26,11 +26,27 @@ class UsersApprovalHandler extends BaseApprovalHandler
     protected static $MAPPER_NAME = UsersModel::class;
     protected static $REFERENCE_TABLE = UsersModel::TABLE;
     protected static $REFERENCE_COLUMN = 'id';
-    protected static $CREATION_DATE_COLUMN = 'created_at';
+    protected static $CREATION_DATE_COLUMN = 'createdAt';
     protected static $CREATOR_ID = 'SAME';
     protected static $BASE_TEXT = 'Perfil';
+
+    /**
+     * El segundo texto que este handler escribe, cuando el usuario es GENERAL y su organizacion
+     * es la global. Vivia suelto dentro del metodo, y por eso ninguna lista blanca lo tenia.
+     */
+    const TEXT_INDEPENDENT_USER = 'Usuario independiente';
     public static string $STATUS_ACTIVATION_COLUMN = 'status';
     public static array $STATUS_ACTIVATION_POSITIVES_VALUES = UsersModel::STATUSES_VALUES;
+
+    /**
+     * DOS, no uno: este handler escribe tambien 'Usuario independiente'.
+     *
+     * @return string[]
+     */
+    public static function getContentTypes(): array
+    {
+        return [self::$BASE_TEXT, self::TEXT_INDEPENDENT_USER];
+    }
 
     /**
      * Obtiene el tipo de contenido específico del mapper.
@@ -51,7 +67,7 @@ class UsersApprovalHandler extends BaseApprovalHandler
         $isBaseOrg = $organization->id !== null && $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL;
         if ($isBaseOrg) {
             if ($mapper->type == UsersModel::TYPE_USER_GENERAL) {
-                $text = 'Usuario independiente';
+                $text = self::TEXT_INDEPENDENT_USER;
             }
         }
         return $text;
@@ -136,4 +152,14 @@ class UsersApprovalHandler extends BaseApprovalHandler
     {
     }
 
+    /**
+     * Sellos de auditoría: el mapper los escribe él mismo en cada guardado, así que su
+     * cambio NO es una edición. Ver T87.
+     *
+     * @return string[]
+     */
+    public static function auditFields(): array
+    {
+        return ['modifiedAt'];
+    }
 }

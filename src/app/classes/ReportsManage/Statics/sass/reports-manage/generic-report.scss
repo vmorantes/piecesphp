@@ -1,6 +1,4 @@
-@import '../../../../../../statics/core/sass/includes/variables_app_base';
-@import '../../../../../../statics/core/sass/includes/functions_app_base';
-@import './report-design';
+@use './report-design' as *;
 
 .module-view-container {
 }

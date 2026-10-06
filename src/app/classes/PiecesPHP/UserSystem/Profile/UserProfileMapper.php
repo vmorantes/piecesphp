@@ -6,16 +6,16 @@
 
 namespace PiecesPHP\UserSystem\Profile;
 
-use App\Locations\Mappers\CityMapper;
-use App\Locations\Mappers\CountryMapper;
-use App\Model\UsersModel;
+use PiecesPHP\Core\Database\PreferSlugMinter;
+use PiecesPHP\App\Locations\Mappers\CityMapper;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Validation\Validator;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -44,11 +44,16 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @property \stdClass|string|null $meta
  * @property string $baseLang
  * @property \stdClass|null $langData
- * @property int[]|InterestResearchAreasMapper[]|null $interestResearhAreas
  * @property string[] $affiliatedInstitutions
  */
 class UserProfileMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'belongsTo';
 
     protected $fields = [
         'id' => [
@@ -110,7 +115,7 @@ class UserProfileMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'belongsTo' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -126,7 +131,7 @@ class UserProfileMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -134,7 +139,7 @@ class UserProfileMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -184,7 +189,6 @@ class UserProfileMapper extends EntityMapperExtensible
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), true), 'baseLang');
-        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY_MAPPER, null, true, InterestResearchAreasMapper::class, 'id'), 'interestResearhAreas');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY, [], false), 'affiliatedInstitutions');
         parent::__construct($value, $fieldCompare);
 
@@ -270,7 +274,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public function save()
     {
         $belongsTo = is_object($this->belongsTo) ? $this->belongsTo->id : $this->belongsTo;
-        $belongsTo = $belongsTo !== null ? $belongsTo : -1;
+        $belongsTo ??= -1;
 
         if (!self::existsByUser($belongsTo, -1)) {
 
@@ -303,7 +307,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         $belongsTo = is_object($this->belongsTo) ? $this->belongsTo->id : $this->belongsTo;
-        $belongsTo = $belongsTo !== null ? $belongsTo : -1;
+        $belongsTo ??= -1;
         if (self::existsByUser($belongsTo)) {
             if (!$noDateUpdate) {
                 $currentUser = UserDataPackage::getConfigCurrentUser(); //Importante para no generar recursividad con UserDataPackage
@@ -469,20 +473,16 @@ class UserProfileMapper extends EntityMapperExtensible
      *  - countryName
      *  - cityName
      *  - fullLocation
-     *  - interestResearhAreasNames
-     *  - interestResearhAreasIDsNames
-     *  - interestResearhAreasColorsNames
      *  - baseLang
      * @return string[]
      */
     protected static function fieldsToSelect(?string $formatDate = null, string $locationSeparator = ' - ')
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new UserProfileMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
-        $tableInterestResearchAreas = InterestResearchAreasMapper::TABLE;
         $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
         $tableCity = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
 
@@ -490,27 +490,21 @@ class UserProfileMapper extends EntityMapperExtensible
         $countryName = "(SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country)";
         $cityName = "(SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city)";
 
-        //Áreas de investigación
-        $researchAreas = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas'))";
-        $areaNameCurrentLang = InterestResearchAreasMapper::fieldCurrentLangForSQL('areaName');
-        $researchAreasNameSubQuery = "SELECT GROUP_CONCAT($areaNameCurrentLang SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndIDSubQuery = "SELECT GROUP_CONCAT(CONCAT({$tableInterestResearchAreas}.id, ':', $areaNameCurrentLang) SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndColorSubQuery = "SELECT GROUP_CONCAT(CONCAT(JSON_UNQUOTE(JSON_EXTRACT({$tableInterestResearchAreas}.meta, '$.color')), ':', $areaNameCurrentLang) SEPARATOR '|@|') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
 
         //Usuario
         $tableUser = UsersModel::TABLE;
         $firstnameSegment = "TRIM({$tableUser}.firstname)";
         $secondNameSegment = "IF({$tableUser}.secondname IS NOT NULL, CONCAT(' ', {$tableUser}.secondname), '')";
         $names = "TRIM(CONCAT({$firstnameSegment}, {$secondNameSegment}))";
-        $firstLastNameSegment = "TRIM({$tableUser}.first_lastname)";
-        $secondLastNameSegment = "IF({$tableUser}.second_lastname IS NOT NULL, CONCAT(' ', {$tableUser}.second_lastname), '')";
+        $firstLastNameSegment = "TRIM({$tableUser}.firstLastname)";
+        $secondLastNameSegment = "IF({$tableUser}.secondLastname IS NOT NULL, CONCAT(' ', {$tableUser}.secondLastname), '')";
         $lastNames = "TRIM(CONCAT({$firstLastNameSegment}, {$secondLastNameSegment}))";
         $fullName = "TRIM(CONCAT({$names}, ' ', {$lastNames}))";
 
         $currentLang = Config::get_lang();
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "(SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS organizationID",
             "(SELECT {$tableUser}.status FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS userStatus",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS username",
@@ -522,9 +516,6 @@ class UserProfileMapper extends EntityMapperExtensible
             "{$countryName} AS countryName",
             "{$cityName} AS cityName",
             "CONCAT((SELECT countryName), '{$locationSeparator}', (SELECT cityName)) AS fullLocation",
-            "({$researchAreasNameSubQuery}) AS interestResearhAreasNames",
-            "({$researchAreasNameAndIDSubQuery}) AS interestResearhAreasIDsNames",
-            "({$researchAreasNameAndColorSubQuery}) AS interestResearhAreasColorsNames",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
@@ -591,7 +582,7 @@ class UserProfileMapper extends EntityMapperExtensible
      * Verifica si el perfil de un usuario está completo.
      *
      * Un perfil se considera completo si tiene todos los campos requeridos llenos.
-     * Los campos requeridos son: jobPosition, nationality, country, city, latitude, longitude e interestResearhAreas.
+     * Los campos requeridos son: jobPosition, nationality, country, city, latitude y longitude.
      *
      * @param int $userID El ID del usuario.
      * @return bool true si el perfil está completo, false de lo contrario.
@@ -614,7 +605,6 @@ class UserProfileMapper extends EntityMapperExtensible
                 'city' => fn($e) => Validator::isInteger($e),
                 'latitude' => fn($e) => Validator::isDouble($e),
                 'longitude' => fn($e) => Validator::isDouble($e),
-                'interestResearhAreas' => fn($e) => is_array($e) && !empty($e),
             ];
 
             foreach ($requiredProperties as $requiredProperty => $validator) {
@@ -627,34 +617,99 @@ class UserProfileMapper extends EntityMapperExtensible
     }
 
     /**
+     * Buscador de SOLO LECTURA. NO lo conviertas en get-or-create.
+     *
+     * Lo era, y ese fue el defecto D2 EN SU SEGUNDA LÍNEA: `UserDataPackage` llama a este
+     * método en el constructor, y ese constructor se alcanza SIN AUTENTICAR desde
+     * `OTPHandler::checkValidityOTP()`, la ruta del formulario de login. Comprobar
+     * credenciales creaba una fila de perfil por cada nombre de usuario válido: escritura no
+     * autenticada acotada, y un canal de enumeración de usuarios.
+     *
+     * El arreglo original de D2 tocó `UserDataPackage:243` —el OTP— y no vio la 244.
+     *
+     * Para crear, {@see self::createProfile()}.
+     *
      * @param int $userID
-     * @return UserProfileMapper|null
+     * @return UserProfileMapper|null null si el usuario no existe o aún no tiene perfil
      */
     public static function getProfile(int $userID)
     {
         $userRecord = UsersModel::getUsersByIDs([$userID]);
-        $userRecord = !empty($userRecord) ? $userRecord[0] : null;
-
-        if ($userRecord !== null) {
-            $model = self::model();
-            $where = [
-                "belongsTo" => $userID,
-            ];
-            $model->select()->where($where);
-            $model->execute();
-            $result = $model->result();
-            $result = !empty($result) ? $result[0]->id : null;
-            $mapper = new UserProfileMapper($result);
-            if ($mapper->id === null) {
-                $mapper = new UserProfileMapper();
-                $mapper->belongsTo = $userID;
-                $mapper->save();
-            }
-            return $mapper->id !== null ? $mapper : null;
-        } else {
+        if (empty($userRecord)) {
             return null;
         }
 
+        $model = self::model();
+        $model->select()->where(['belongsTo' => $userID]);
+        $model->execute();
+        $result = $model->result();
+
+        if (empty($result)) {
+            return null;
+        }
+
+        $mapper = new UserProfileMapper($result[0]->id);
+
+        return $mapper->id !== null ? $mapper : null;
+    }
+
+    /**
+     * Mitad de ESCRITURA de {@see self::getProfile()}: devuelve el perfil, y lo crea si no
+     * existe.
+     *
+     * SOLO desde caminos donde crear un perfil es legítimo —el alta de un usuario, o el
+     * primer guardado del perfil propio—, nunca desde un constructor y nunca desde una ruta
+     * alcanzable sin autenticar.
+     *
+     * Es idempotente: llamarlo dos veces no crea dos filas.
+     *
+     * @param int $userID
+     * @return UserProfileMapper|null null si el usuario no existe
+     */
+    public static function createProfile(int $userID)
+    {
+        $existing = self::getProfile($userID);
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $userRecord = UsersModel::getUsersByIDs([$userID]);
+        if (empty($userRecord)) {
+            return null;
+        }
+
+        $mapper = new UserProfileMapper();
+        $mapper->belongsTo = $userID;
+        $mapper->save();
+
+        return $mapper->id !== null ? $mapper : null;
+    }
+
+    /**
+     * Perfil para MOSTRAR: el guardado si existe, y si no un objeto VACÍO SIN GUARDAR.
+     *
+     * Existe para que `UserDataPackage->profile` siga sin ser nulo y las treinta y tantas
+     * vistas y controladores que hacen `->profile->loQueSea` no tengan que cambiar. La
+     * diferencia con el get-or-create de antes es la única que importa: **este no escribe**.
+     *
+     * Un perfil que todavía no existe es un perfil vacío. Se materializa cuando alguien lo
+     * guarda de verdad, que es donde crear es legítimo.
+     *
+     * @param int $userID
+     * @return UserProfileMapper
+     */
+    public static function getProfileForDisplay(int $userID)
+    {
+        $profile = self::getProfile($userID);
+
+        if ($profile !== null) {
+            return $profile;
+        }
+
+        $empty = new UserProfileMapper();
+        $empty->belongsTo = $userID;
+
+        return $empty;
     }
 
     /**
@@ -715,7 +770,7 @@ class UserProfileMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -772,7 +827,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public static function existsByUser(int $userID, ?int $ignoreID = null)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $where = [
@@ -795,27 +850,22 @@ class UserProfileMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return UserProfileMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new UserProfileMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
-        $defaultPropertiesValues = [
-        ];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
-
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
-            'interestResearhAreas' => null,
             'affiliatedInstitutions' => [],
         ];
 
@@ -828,10 +878,8 @@ class UserProfileMapper extends EntityMapperExtensible
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
+                        if (!property_exists($value, $defaultMetaProperty)) {
+                            $value->$defaultMetaProperty = $defaultMetaPropertyValue;
                         }
                     }
 
@@ -865,10 +913,9 @@ class UserProfileMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->belongsTo !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

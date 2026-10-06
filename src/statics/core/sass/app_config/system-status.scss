@@ -1,0 +1,17 @@
+@use 'includes/base' as *;
+
+//Fuera de `.module-view-container` la clase `.main-buttons` no tiene ninguna regla: al saltar de línea, los botones
+//quedaban pegados. La separación es solo el `gap`; el margen propio del botón, a cero.
+.system-maintenance-view .main-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    .ui.button {
+        margin: 0;
+    }
+}
+
+.system-alerts-view [data-system-alerts-table] .ui.button {
+    white-space: nowrap;
+}

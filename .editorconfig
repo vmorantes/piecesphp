@@ -6,13 +6,13 @@ root = true
 # Unix-style newlines with a newline ending every file
 [*]
 charset = utf-8
-end_of_line = crlf
+end_of_line = lf
 insert_final_newline = true
 indent_style = space
 indent_size = 4
 [*.js]
 charset = utf-8
-end_of_line = crlf
+end_of_line = lf
 insert_final_newline = true
 indent_style = tab
 indent_size = 4
@@ -20,12 +20,18 @@ indent_size = 4
 charset = utf-8
 end_of_line = lf
 insert_final_newline = false
-[{cli,phpstan,package-css,rector}]
+# [*] ya es LF (ADR 0012); esta sección se queda por insert_final_newline.
+[bin/*]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = false
-[{yaml,neon}]
+# Los escribe una herramienta que SIEMPRE pone LF, igual que declara `.gitattributes`.
+# [*] ya es LF (ADR 0012); esta sección se queda por insert_final_newline.
+[PHPStanResult.*]
 charset = utf-8
-end_of_line = crlf
-indent_style = tab
-indent_size = 4
+end_of_line = lf
+insert_final_newline = false
+[*.lock]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false

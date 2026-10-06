@@ -40,6 +40,7 @@ nav:
         - HestiaCP: environments/content/hestiacp/index.md
         - Tomcat: environments/content/tomcat/index.md 
         - Docker: environments/content/docker/index.md
+        - Mailpit: environments/content/mailpit/index.md
     - PiecesPHP Framework: 
         - piecesphp/index.md
         - Despliegue: piecesphp/content/general.md
@@ -49,7 +50,13 @@ nav:
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md
         - Terminal: piecesphp/content/terminal.md
+        - Crear un módulo: piecesphp/content/modules.md
+        - El panel por dentro: piecesphp/content/panel.md
+        - Mantener el framework: piecesphp/content/maintain.md
         - Características Avanzadas:
+            - Avisos del sistema y mantenimiento: piecesphp/new-features/system-status.md
+            - Modo mantenimiento: piecesphp/new-features/maintenance-mode.md
+            - Identidad, SEO y scripts: piecesphp/new-features/seo-y-scripts.md
             - Sistema de Colas: piecesphp/new-features/queues.md
             - FreezeRequest: piecesphp/new-features/freeze-request.md
             - HttpClient: piecesphp/new-features/http-client.md
@@ -58,6 +65,15 @@ nav:
             - Pruebas Unitarias (CLI): piecesphp/new-features/unit-testing.md
             - Archivos Protegidos: piecesphp/new-features/protected-files.md
             - Exportador BBDD Nativo: piecesphp/new-features/database-exporter.md
+            - Respaldos de la base de datos: piecesphp/new-features/backups.md
+            - Registro de sesiones caducadas: piecesphp/new-features/expired-sessions-log.md
+            - Importar y exportar datos:
+                - piecesphp/new-features/data-transfer.md
+                - Usar el panel: piecesphp/new-features/data-transfer/panel.md
+                - Crear un importador: piecesphp/new-features/data-transfer/importador.md
+                - Crear un exportador o un informe: piecesphp/new-features/data-transfer/exportador.md
+                - Referencia: piecesphp/new-features/data-transfer/referencia.md
+                - Migrar desde BaseExportData: piecesphp/new-features/data-transfer/migrar-desde-baseexportdata.md
     - Rendimiento: 
         - performance/index.md
         - ZRam: performance/content/zram.md
@@ -84,4 +100,7 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      # Rutas relativas a la raíz del repositorio; un fragmento que falta rompe el build.
+      base_path: ['../..']
+      check_paths: true

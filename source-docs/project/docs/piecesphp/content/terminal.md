@@ -7,17 +7,22 @@ Puedes ejecutar tareas administrativas y de mantenimiento desde la terminal usan
 
 ## Instrucciones básicas
 
-Desde la carpeta `src`, ejecuta:
-
-```bash
-php index.php cli <acción> [parámetro=valor ...]
-```
-
-También puedes usar el atajo en bin/ (equivale al flag `--local`):
+Desde la raíz del repositorio, ejecuta:
 
 ```bash
 bin/cli <acción> [parámetro=valor ...]
 ```
+
+`bin/cli` es el atajo recomendado: elige el PHP correcto (`php8.5` si existe; con `PCSPHP_PHP_BIN` fijas otro), entra
+en `src/` y llama a la forma larga **añadiendo `--local`**, que el CLI necesita para conectar con la base de datos de
+la instalación local. La forma larga equivalente es:
+
+```bash
+cd src && php8.5 index.php cli --local <acción> [parámetro=valor ...]
+```
+
+> Ojo: el `php` a secas del sistema puede ser anterior al piso del framework (`>=8.5 <8.6`) y dar resultados que no
+> valen. Usa `bin/cli`.
 
 ---
 
@@ -59,6 +64,48 @@ Cuando detecta la tubería, **limpia los códigos ISO de colores** para evitar q
 
 ## Acciones disponibles
 
+### Todas, de un vistazo
+
+Medido contra `src/app/classes/Terminal/Tasks/` el 2026-10-05 (una acción por archivo de esa carpeta, salvo las
+auxiliares abstractas). `bin/cli help` da la lista de tu versión; `bin/cli help task=<acción>` filtra por una.
+Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no `help`.
+
+| Acción | Parámetros | Qué hace |
+| :-- | :-- | :-- |
+| `db-backup` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la base en `dumps/` |
+| `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes` |
+| `bundle` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o los estáticos en `bundle/` |
+| `clean-cache` / `clean-logs` / `clean-all` | — | Fuerza que todos descarguen de nuevo los estáticos (renueva la marca global, borra las imágenes optimizadas y los accesos directos de `server-delegated` que el usuario que la ejecuta pueda borrar) / limpia los logs, **sin borrar los `.json` viejos de sesiones caducadas, que llevan un token** / las dos |
+| `scan-missing-lang` | `--exclude-lang=`, `--exclude-group=` | Informe de traducciones faltantes |
+| `scan-invalid-utf8` | `table`, `limit` (def. 5000) | Busca UTF-8 inválido en columnas de texto. Solo lectura. Córrela antes de desplegar |
+| `run-cronjobs` / `cronjobs-status` | — | Ejecuta los cronjobs que tocan / muestra franja, último éxito, intentos y último error (solo lectura) |
+| `process-queue` | `--limit` (def. 60) | Worker de la cola |
+| `scheme-create` | `module=<Nombre>\|all`, `output=` | **Emite** el `CREATE TABLE` de los mappers del módulo, padres antes que hijas. No lo ejecuta |
+| `scheme-drop` | `module=<Nombre>\|all`, `output=` | **Emite** el `DROP TABLE`, hijas antes que padres. No lo ejecuta |
+| `verify-integrity` | `update-snapshot`, `list-narrative` | Las comprobaciones estructurales del repositorio (las que lista `bin/cli verify-integrity`) |
+| `gates` | `only=<trozo>`, `with=external` | Corre **todas** las suites de pruebas y falla si alguna no corrió. `with=external` incluye las que salen a la red o envían correo |
+| `snapshot` | `label=`, `compare=a,b`, `dir=` | Foto de la base y del árbol, y su diferencia |
+| `route-inventory` | `output=` (def. `files/dev/route-inventory.json`) | Vuelca en JSON las rutas registradas. Solo lectura |
+| `generate-app-key` | — | Imprime una `app_key` nueva para pegarla en `config.php`. No escribe nada |
+| `sync-otp-records` | `apply=yes` | Crea los registros OTP que falten. Sin `apply=yes` solo informa |
+| `statics-protect-migrate` | `--dry-run` (def.), `--run`, `--revert` | Aplica a `uploads/` la protección por sufijo (ver [Archivos protegidos](../new-features/protected-files.md)) |
+| `repair-escaped-text` | `apply=yes` | Deshace una vez el escape que `piecesphp/database` 4 guardaba en el texto. Sin `apply=yes` solo cuenta; para aplicar exige un volcado de la última hora |
+| `fix-webm-duration` | `--updir=`, `--glob=`, `--force`… | Repara la duración interna de archivos WebM con FFmpeg |
+| `db-backup-rotate` | `apply` (yes/no, def. no), `dir=` (solo pruebas) | Aplica la conservación de respaldos de la política: sin `apply=yes` enseña qué se conserva y qué se borraría |
+| `mail-doctor` | `horas=<n>`, `smtp=yes` | Dice si el correo puede salir de la instalación y por dónde. **No envía nada.** Sin `smtp=yes` no toca la red; con él abre una conexión al SMTP configurado y la corta sin enviar |
+| `mail-demo` | — | Manda un correo de cada plantilla del catálogo a la bandeja de pruebas. Solo en una instalación `local` y solo si la entrega efectiva es «Retenido»; si no, se niega |
+| `organizations-assign-codes` | — | Pone el código público a las organizaciones que no lo tienen. Idempotente |
+| `system-alerts` | — | Enumera los avisos del sistema activos, con su gravedad y si están ocultos. Solo lectura |
+| `version` | — | Imprime la versión de la instalación, su fecha y el commit del que salió, con su fuente |
+| `version-stamp` | `commit=<40 hex>` | Escribe el sello de despliegue con el commit, para instalaciones sin `.git`. Sale con 1 si el hash no es válido o no hay ninguno |
+| `clean-test-configs` | `apply=yes`, `key=<nombre>` | Retira las configuraciones de prueba (las que empiezan por el prefijo de prueba). Sin `apply=yes` solo las enumera |
+| `settings-migrate-extra-scripts` | — | Pasa los «Scripts adicionales» de Identidad y SEO a la pantalla «Scripts» y retira las opciones viejas. Se puede repetir: la segunda vez no hace nada |
+| `sessions-revoke-all` | `confirm=yes` | **Cierra las sesiones de todos los usuarios**. Exige `confirm=yes` |
+| `data-transfer-import` | `definition=`, `file=`, `as-user=`, `credentials-out=`, `dry-run=yes` | Importa un `.xlsx` o `.csv` con un importador registrado; todo o nada. Con `dry-run=yes` valida sin guardar |
+| `help` | `task=<acción>` | Lista las acciones disponibles (o solo la indicada) |
+
+Las que siguen se detallan con ejemplo.
+
 ### 1. db-backup
 Respalda la base de datos por defecto.
 
@@ -72,8 +119,16 @@ Respalda la base de datos por defecto.
 
 **Ejemplo:**
 ```bash
-php index.php cli db-backup gz=yes
+bin/cli db-backup gz=yes
 ```
+
+**Restaurar:** `bin/cli db-restore file=<volcado.sql> confirm=yes` (ver la tabla de abajo).
+
+> **AVISO — copias anteriores a esta versión NO restauran.** La columna `password` se
+> cifraba al exportar y nada la descifraba al restaurar, así que la base restaurada dejaba a
+> todos los usuarios sin poder entrar. **Se recupera** aplicando
+> `BaseHashEncryption::decrypt($valor, 'ENCRYPTION_KEY')` a cada `password` — comprobado,
+> devuelve el hash exacto. Detalle y procedimiento en `.agents/context/11-base-de-datos.md`.
 
 ---
 
@@ -92,7 +147,7 @@ Empaqueta la aplicación y/o los archivos estáticos.
 
 **Ejemplo:**
 ```bash
-php index.php cli bundle all=yes zip=yes
+bin/cli bundle all=yes zip=yes
 ```
 
 ---
@@ -106,13 +161,18 @@ Fuerza la limpieza de caché de archivos estáticos mediante la renovación del 
 
 **Ejemplo:**
 ```bash
-php index.php cli clean-cache
+bin/cli clean-cache
 ```
 
 ---
 
 ### 4. clean-logs
-Limpia los archivos de logs (errores, logs antiguos y logs de sesiones expiradas).
+Limpia los archivos de logs: errores, deprecaciones, logs antiguos, anotaciones de traducciones faltantes y el
+registro de sesiones caducadas (`app/logs/expired-sessions.log` y su rotado).
+
+**No borra los `.json` del formato viejo** de `app/logs/expired-sessions/`: los cuenta y avisa de que **cada uno
+contiene un token**, para que usted decida. La carpeta se retira sola cuando queda vacía. (Hasta la `v8.0.0` sí los
+borraba; ver el `CHANGELOG`.)
 
 **Parámetros:**
 
@@ -120,7 +180,7 @@ Limpia los archivos de logs (errores, logs antiguos y logs de sesiones expiradas
 
 **Ejemplo:**
 ```bash
-php index.php cli clean-logs
+bin/cli clean-logs
 ```
 
 ---
@@ -134,7 +194,7 @@ Limpia caché y logs en una sola acción.
 
 **Ejemplo:**
 ```bash
-php index.php cli clean-all
+bin/cli clean-all
 ```
 
 ---
@@ -150,7 +210,7 @@ Revisa los mensajes faltantes por traducción y genera un archivo con ellos.
 
 **Ejemplo:**
 ```bash
-php index.php cli scan-missing-lang --exclude-lang=es,en --exclude-group=general,public
+bin/cli scan-missing-lang --exclude-lang=es,en --exclude-group=general,public
 ```
 
 ---
@@ -164,13 +224,13 @@ Ejecuta todas las tareas programadas (CronJobs) que cumplan su condición de tie
 
 **Ejemplo:**
 ```bash
-php index.php cli run-cronjobs
+bin/cli run-cronjobs
 ```
 
 ---
 
 ### 8. process-queue
-Procesa las tareas pendientes en la cola de ejecución (`pcs_queue`). Utiliza un sistema de bloqueos (locks) para evitar ejecuciones paralelas excesivas.
+Procesa las tareas pendientes en la cola de ejecución (tabla `pcsphp_jobs_queue`). Utiliza un sistema de bloqueos (locks) para evitar ejecuciones paralelas excesivas.
 
 **Parámetros:**
 
@@ -178,26 +238,28 @@ Procesa las tareas pendientes en la cola de ejecución (`pcs_queue`). Utiliza un
 
 **Ejemplo:**
 ```bash
-php index.php cli process-queue --limit=100
+bin/cli process-queue --limit=100
 ```
 
 ---
 
-### 9. help / h
+### 9. help
 Muestra la lista de tareas disponibles y su descripción.
 
 **Ejemplo:**
 ```bash
-php index.php cli help
-php index.php cli h
+bin/cli help
+bin/cli help task=<acción>   # la descripción de una sola
 ```
+
+El atajo `h` se retiró en la 8.0.0.
 
 ---
 
 ## Programación de Tareas (Desarrollo)
 
 ### CronJobs
-Las tareas se definen usando la clase `PiecesPHP\Terminal\CronJobTask` y se registran típicamente en `src/app/config/final-configurations-includes/cronjobs.php`.
+Las tareas se definen usando la clase `PiecesPHP\Terminal\CronJobTask` y se registran típicamente en `src/app/config/extensions/cronjobs.php`.
 
 **Ejemplo de definición:**
 ```php
@@ -210,7 +272,7 @@ CronJobTask::make('Limpieza diaria', function() {
 ### Colas (Queues)
 El sistema de colas permite ejecutar procesos pesados de forma asíncrona.
 
-1. **Definir Handler:** Registrado en `src/app/config/final-configurations-includes/queues.php`.
+1. **Definir Handler:** Registrado en `src/app/config/extensions/queues.php`.
 ```php
 QueueTask::make('enviar-email', function($data) {
     // Lógica usando $data
@@ -223,7 +285,7 @@ QueueTask::make('enviar-email', function($data) {
 QueueTask::dispatch('enviar-email', ['to' => 'user@example.com', 'template' => 'welcome']);
 ```
 
-3. **Ejecución:** Debe programarse un Cron del sistema (crontab) que ejecute `php index.php cli process-queue` con la frecuencia deseada (ej. cada minuto).
+3. **Ejecución:** la drena cada minuto el cronjob del sistema «Procesar la cola» (`src/app/core/extensions/cronjobs.php`), con la única línea de `crontab` de la instalación (ver [CronJobs](../new-features/cronjobs.md)). No hace falta otra. A mano: `bin/cli process-queue`. Dos ejecuciones a la vez no procesan el mismo trabajo, y un proceso muerto a mitad no atasca la cola: el trabajo que lleva más de 30 minutos en `running` vuelve a `pending` en la siguiente pasada, o a `failed` si ya agotó sus intentos (ver [Colas](../new-features/queues.md)).
 
 ---
 
@@ -232,7 +294,7 @@ QueueTask::dispatch('enviar-email', ['to' => 'user@example.com', 'template' => '
 PiecesPHP permite registrar tus propias acciones de terminal mediante la clase `PiecesPHP\Terminal\CliActions`. Esto es ideal para integrar scripts de mantenimiento, migraciones o **motores reactivos**.
 
 ### Registro de una acción
-Típicamente se definen en `src/app/config/final-configurations-includes/cli-actions.php`:
+Típicamente se definen en `src/app/config/extensions/cli-actions.php`:
 
 ```php
 use PiecesPHP\Terminal\CliActions;
@@ -254,7 +316,7 @@ CliActions::make('mi-motor', function ($args) {
 
 ### Ejecutar Acción
 ```bash
-php index.php cli mi-motor
+bin/cli mi-motor
 ```
 
 El framework primero prefiere las acciones mediante el sistema de rutas. Pero si no se encuentra la acción, buscará en las acciones personalizadas (cli-actions).
@@ -266,4 +328,4 @@ El framework primero prefiere las acciones mediante el sistema de rutas. Pero si
 - Algunas tareas requieren permisos de usuario root PiecesPHP.
 - Los respaldos de base de datos se guardan en la carpeta `dumps` y los bundles en la carpeta `bundle`.
 - Los parámetros pueden ser escritos en mayúsculas o minúsculas, pero se recomienda usar minúsculas.
-- Si tienes dudas sobre los parámetros de una acción, ejecuta `php index.php cli help`.
+- Si tienes dudas sobre los parámetros de una acción, ejecuta `bin/cli help`.

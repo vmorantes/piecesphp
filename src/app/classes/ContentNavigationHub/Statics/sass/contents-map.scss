@@ -1,5 +1,5 @@
-@import '../../../../../statics/core/sass/includes/variables_app_base';
-@import '../../../../../statics/core/sass/includes/functions_app_base';
+@use '../../../../../statics/core/sass/includes/variables_app_base' as *;
+@use '../../../../../statics/core/sass/includes/functions_app_base' as *;
 
 $color1B1C1D: #1B1C1D;
 $color000: #000;
@@ -9,7 +9,6 @@ $colorEFEFEF: #EFEFEF;
 $color3558A2: #3558A2;
 $userColor: #7AB1E8;
 $orgColor: #99C221;
-$applicationCallColor: #3558A2;
 
 .module-view-container {
 
@@ -269,13 +268,6 @@ body.contents-map {
             }
         }
 
-        &.application-call {
-            >.avatar {
-                img {
-                    border-color: $applicationCallColor;
-                }
-            }
-        }
     }
 
     .mapboxgl-map {
@@ -335,16 +327,6 @@ body.contents-map {
                 }
             }
 
-            &.application-call {
-                img {
-                    border-color: $applicationCallColor;
-                }
-
-                >i.icon {
-                    color: $colorFFF;
-                    background-color: $applicationCallColor;
-                }
-            }
         }
     }
 }

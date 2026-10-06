@@ -40,8 +40,6 @@ class LogsRoutes
     {
         if (self::ENABLE) {
 
-            //header('Content-Type: text/sql');echo (new \PiecesPHP\Core\Database\SchemeCreator(new \EventsLog\Mappers\LogsMapper()))->getSQL();exit;
-
             $group = LogsController::routes($group);
 
             self::staticResolver($group);
@@ -118,7 +116,7 @@ class LogsRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

@@ -8,7 +8,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <?php if(PublicationsRoutes::ENABLE): ?>
         <div class="wrapper">
 
-            <h2 class="segment-title text-center"><?= $titleSection; ?></h2>
+            <h2 class="segment-title text-center"><?= htmlspecialchars($titleSection, ENT_QUOTES, 'UTF-8'); ?></h2>
 
             <section class="ui cards posts-list" data-url="<?= $ajaxURL; ?>" publications-regular-block>
 

@@ -13,7 +13,7 @@
     $hasURL = isset($url) && is_string($url);
     $text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
     $text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . get_config('owner') . "</span></p>";
-    $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())]);
+    $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
 ?>
 <!DOCTYPE html>
 <html>
@@ -145,9 +145,11 @@
         <!-- Footer Section -->
         <div class="footer">
             <?=$text_footer;?>
+            <?php if (mb_strlen($unsuscriptionURL) > 0): ?>
             <p class="unsuscribe">
                 <?=strReplaceTemplate(__(MAILING_GENERAL_LANG_GROUP, 'UNSUSCRIBE_TEXT'), ['{{url}}' => $unsuscriptionURL]);?>
             </p>
+            <?php endif; ?>
         </div>
     </div>
 </body>

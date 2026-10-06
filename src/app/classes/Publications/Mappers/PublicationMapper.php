@@ -6,7 +6,10 @@
 
 namespace Publications\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
@@ -18,6 +21,8 @@ use Publications\Controllers\PublicationsPublicController;
 use Publications\Exceptions\DuplicateException;
 use Publications\PublicationsLang;
 use Spatie\Url\Url as URLManager;
+use SystemApprovals\SystemApprovalsRoutes;
+use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * PublicationMapper.
@@ -53,6 +58,12 @@ use Spatie\Url\Url as URLManager;
 class PublicationMapper extends EntityMapperExtensible
 {
 
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'title';
+
     protected $fields = [
         'id' => [
             'type' => 'int',
@@ -75,7 +86,7 @@ class PublicationMapper extends EntityMapperExtensible
             'default' => '',
         ],
         'author' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -126,7 +137,7 @@ class PublicationMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -134,7 +145,7 @@ class PublicationMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -283,7 +294,7 @@ class PublicationMapper extends EntityMapperExtensible
     {
         $content = strip_tags($this->currentLangData('title'));
         $contentLength = mb_strlen($content);
-        return $contentLength <= $maxLength ? $content : substr($content, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
+        return $contentLength <= $maxLength ? $content : mb_substr($content, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
     }
 
     /**
@@ -294,7 +305,7 @@ class PublicationMapper extends EntityMapperExtensible
     {
         $content = strip_tags($this->currentLangData('content'));
         $contentLength = mb_strlen($content);
-        return $contentLength <= $maxLength ? $content : substr($content, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
+        return $contentLength <= $maxLength ? $content : mb_substr($content, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
     }
 
     /**
@@ -413,6 +424,43 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Si la ve un visitante sin permiso de borradores: existe, está activa, está en fecha y está aprobada.
+     *
+     * @return bool
+     */
+    public function isVisibleToPublic(): bool
+    {
+        //Lo usan singleView() y el validador de la carpeta de subidas: relajarlo aquí los relaja a los dos.
+        //La aprobación va la última (P25): solo se consulta la base si lo demás ya se cumple.
+        return $this->id !== null && $this->status == self::ACTIVE && $this->isActiveByDates() && $this->isApprovedForPublic();
+    }
+
+    /**
+     * Si una lectura de la vista pública suma visita: solo lo que ve el público.
+     * La vista previa de un borrador, una programada o una pendiente de aprobación no cuenta.
+     *
+     * @return bool
+     */
+    public function countsVisits(): bool
+    {
+        return $this->isVisibleToPublic();
+    }
+
+    /**
+     * Con SystemApprovals activo y un manejador para publicaciones, si su aprobación está APPROVED; sin ellos, true.
+     *
+     * @return bool
+     */
+    public function isApprovedForPublic(): bool
+    {
+        $manager = SystemApprovalManager::getInstance();
+        if (!SystemApprovalsRoutes::ENABLE || $manager->getHandler(self::TABLE) === null) {
+            return true;
+        }
+        return $manager->isApproved(self::class, $this->id);
+    }
+
+    /**
      * @param string $format
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
@@ -520,13 +568,13 @@ class PublicationMapper extends EntityMapperExtensible
     public function save()
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
         if (self::existsByTitle($this->title, $categoryID, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        $this->createdBy = getLoggedFrameworkUserOrFail()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -549,12 +597,12 @@ class PublicationMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
         if (self::existsByTitle($this->title, $categoryID, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = getLoggedFrameworkUserOrFail()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -739,7 +787,7 @@ class PublicationMapper extends EntityMapperExtensible
     protected static function fieldsToSelect(?string $formatDate = null)
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new PublicationMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -757,8 +805,9 @@ class PublicationMapper extends EntityMapperExtensible
         $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
         $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
-        $visibilitiesJSON = json_encode((object) self::visibilities(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $visibilitiesJSON = json_encode((object) self::visibilities(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $yesText = __(self::LANG_GROUP, 'Sí');
         $noText = __(self::LANG_GROUP, 'No');
@@ -788,14 +837,14 @@ class PublicationMapper extends EntityMapperExtensible
         $visibilityConditions = "IF({$statusInactive} = {$table}.status, {$visibilitiyInactive}, {$visibilityConditions})";
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "({$categoryNameSubQuery}) AS categoryName",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.author) AS authorUser",
             "IF({$table}.featured, '{$yesText}', '{$noText}') AS featuredDisplay",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$isActiveByDate} AS isActiveByDate",
             "$visibilityConditions AS visibility",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$visibilitiesJSON}', CONCAT('$.', $visibilityConditions))) AS visibilityText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($visibilitiesJSON) . ", CONCAT('$.', $visibilityConditions))) AS visibilityText",
             "DATE_FORMAT({$table}.publicDate, '{$formatDate}') AS publicDateFormat",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
@@ -875,7 +924,7 @@ class PublicationMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof PublicationMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('title') : $elementOrID->getLangData($lang, 'title'));
 
             $slug = "{$title}-{$uniqid}";
@@ -1020,7 +1069,7 @@ class PublicationMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -1048,7 +1097,7 @@ class PublicationMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
@@ -1165,23 +1214,24 @@ class PublicationMapper extends EntityMapperExtensible
     public static function existsByTitle(string $title, int $categoryID, ?int $ignoreID = null, bool $onlyActives = true)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
-        $title = escapeString($title);
         $statusInactive = self::INACTIVE;
 
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "title = '{$title}' AND",
-            "category = {$categoryID} AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('title', $title, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('category', $categoryID, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
         if ($onlyActives) {
-            $where[] = "AND status != {$statusInactive}";
+            $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+            $where[] = WhereItem::isNotEqual('status', $statusInactive);
         }
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 
@@ -1196,12 +1246,17 @@ class PublicationMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return PublicationMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new PublicationMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -1228,10 +1283,8 @@ class PublicationMapper extends EntityMapperExtensible
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
+                        if (!property_exists($value, $defaultMetaProperty)) {
+                            $value->$defaultMetaProperty = $defaultMetaPropertyValue;
                         }
                     }
 
@@ -1265,10 +1318,9 @@ class PublicationMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->title !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

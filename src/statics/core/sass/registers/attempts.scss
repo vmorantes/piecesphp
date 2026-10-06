@@ -1,6 +1,7 @@
-@import '../includes/variables_app_base';
-@import '../includes/functions_app_base';
-@import '../includes/variables';
+@use 'sass:string';
+@use '../includes/variables_app_base' as *;
+@use '../includes/functions_app_base' as *;
+@use '../includes/variables' as *;
 
 $fontModule: $fontGlobal;
 
@@ -438,15 +439,15 @@ $fontModule: $fontGlobal;
         &.round {
             $w: 153;
             $h: $w;
-            width: unquote($w + "px");
-            height: unquote($h + "px");
+            width: string.unquote($w + "px");
+            height: string.unquote($h + "px");
             align-items: center;
         }
 
         $w: 153;
         $h: calc($w/2);
-        width: unquote($w + "px");
-        height: unquote($h + "px");
+        width: string.unquote($w + "px");
+        height: string.unquote($h + "px");
         color: var(--text);
         font-weight: $fwBold;
         font-size: pxToRem(30);
@@ -454,8 +455,8 @@ $fontModule: $fontGlobal;
 
         &:after {
             content: '';
-            width: unquote($w + "px");
-            height: unquote($h*2 + "px");
+            width: string.unquote($w + "px");
+            height: string.unquote($h*2 + "px");
             border: 25px solid;
             border-color: var(--fill) var(--fill) var(--fill2) var(--fill2);
             position: absolute;

@@ -55,7 +55,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         <tr>
                             <th><?= __($langGroup, 'Actor'); ?></th>
                             <th><?= __($langGroup, 'Ubicación'); ?></th>
-                            <th><?= __($langGroup, 'Áreas de investigación'); ?></th>
                             <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Ver perflil'); ?></th>
                         </tr>
 

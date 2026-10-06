@@ -1,6 +1,6 @@
 <?php
-use App\Controller\AppConfigController;
-$langGroup = AppConfigController::LANG_GROUP;
+use PiecesPHP\Settings\Controllers\SettingsController;
+$langGroup = SettingsController::LANG_GROUP;
 $content = isset($content) && is_string($content) ? $content : '';
 $modalContainerAttrs = isset($modalContainerAttrs) && is_string($modalContainerAttrs) ? $modalContainerAttrs : '';
 $modalContainerClasses = isset($modalContainerClasses) && is_string($modalContainerClasses) ? $modalContainerClasses : '';

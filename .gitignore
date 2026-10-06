@@ -1,6 +1,10 @@
 src/vendor/*
 src/vendor-dev/*
 src/statics/uploads/*
+# Sondeos y volcados de diagnóstico: se generan al investigar y su sitio es
+# files/dev/, nunca la raíz. Ahí sí se versionan cuando documentan algo.
+/probe-*.log
+/*.probe.log
 # Respaldos de base de datos: datos reales, nunca se versionan.
 src/dumps/
 src/statics/css/*
@@ -8,7 +12,6 @@ src/statics/admin-area/css/*
 src/statics/core/css/*
 src/statics/core/own-plugins/css/*
 src/statics/login-and-recovery/css/*
-src/statics/features/avatars/css/*
 **/node_modules/*
 **/composer.lock
 # Excepciones: src/ es la APLICACIÓN, no una librería, y bin/tools/ fija las
@@ -18,6 +21,11 @@ src/statics/features/avatars/css/*
 !src/composer.lock
 !bin/tools/composer.lock
 **/package-lock*
+# Excepción: el lock de la RAÍZ, que fija las herramientas de compilación (gulp, sass,
+# typescript) y el navegador de pruebas. Con él, `npm ci` reproduce estas versiones en
+# cada clon. Los demás package-lock del árbol siguen fuera: los de bin/tools/phpstan-src
+# vienen del código de PHPStan y no son nuestros.
+!/package-lock.json
 **/pnpm-lock*
 **/.sass-cache
 docs/code/phpdoc-cache-*
@@ -27,3 +35,34 @@ vendor/**
 IGNORE.md
 IGNORE/
 docs/*
+bin/phpstan.deadcode.generated.neon
+files/dev/route-inventory.json
+PHPStanResult.8.4.json
+PHPStanResult.8.5.json
+#El rastro de la última restauración es de una máquina y un momento: no se versiona.
+files/dev/last-restore.json
+
+#La configuración LOCAL del agente: permisos que acumula cada máquina, no del proyecto.
+#Se ignoraba solo por el ignore global de una máquina, y un ignore que no viaja no es una regla:
+#en otro clon aparecía sin seguimiento. Ver bloque U.
+.claude/settings.local.json
+
+#Bytecode de los guiones de agentes. La guarda corre con `python3 -B` y no lo genera; esto es
+#la red para quien la ejecute sin la opción. Ver ADR 0003.
+**/__pycache__/
+
+#Build de la documentación de la API: se genera con `cd src && gulp api-build` y no se versiona. Ver ADR 0006.
+source-docs/api/docs-dist/
+
+#Sello de despliegue: el commit del que salió una instalación sin .git (bin/cli version-stamp).
+src/app/version-stamp.json
+
+#El entorno de ESTA instalación (P58): se crea desde environment.example.php; sin él, producción.
+src/app/config/environment.php
+
+#Credenciales locales de las herramientas de los agentes (PO, 2026-10-05): nunca se versionan.
+.agents/local/
+
+#La guía que deja bin/make-distribution al publicar en el repositorio de distribución (PO, 2026-10-06): se reescribe
+#en cada publicación y no se versiona, ni aquí ni allí.
+/PUBLICAR.txt

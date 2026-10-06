@@ -23,7 +23,7 @@ $cli = new Cli($argv, [
 // Definición de rutas base del proyecto
 $basePath = realpath(__DIR__ . '/../../');
 $files = [
-    'model'      => "$basePath/src/app/model/UsersModel.php",
+    'model'      => "$basePath/src/app/classes/PiecesPHP/UserSystem/ORM/UsersModel.php",
     'controller' => "$basePath/src/app/controller/UsersController.php",
     'roles'      => "$basePath/src/app/config/roles.php",
     'js_forms'   => "$basePath/src/statics/admin-area/js/users-forms.js",

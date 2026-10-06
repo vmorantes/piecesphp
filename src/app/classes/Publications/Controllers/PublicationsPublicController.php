@@ -6,17 +6,21 @@
 
 namespace Publications\Controllers;
 
-use App\Model\AvatarModel;
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Sitemap\SitemapItem;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
+use PiecesPHP\Core\Utilities\Helpers\StructuredData;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
@@ -32,6 +36,8 @@ use Publications\PublicationsRoutes;
  */
 class PublicationsPublicController extends BaseController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -84,14 +90,15 @@ class PublicationsPublicController extends BaseController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function listView(Request $request, Response $response)
     {
 
         try {
 
-            $category = $request->getAttribute('categorySlug', null);
+            $categorySlug = $request->getAttribute('categorySlug', null);
+            $category = $categorySlug;
             $categoryMapper = null;
 
             if (is_string($category)) {
@@ -107,9 +114,13 @@ class PublicationsPublicController extends BaseController
 
                 if ($categoryMapper->id === null) {
                     throw new NotFoundException($request, $response);
-                } else {
-                    $titleSection .= ': ' . $categoryMapper->currentLangData('name');
                 }
+                //Una URL que no es la verdadera (otro título, la forma vieja sin dígitos) va a la verdadera.
+                $trueSlug = $categoryMapper->getSlug();
+                if (is_string($categorySlug) && $categorySlug !== $trueSlug) {
+                    return $response->withRedirect(self::trueURL('list-by-category', ['categorySlug' => $trueSlug]), 301);
+                }
+                $titleSection .= ': ' . $categoryMapper->currentLangData('name');
             }
 
             $ajaxURL = self::routeName('ajax-all') . ($category !== null ? "?category={$category}" : '');
@@ -137,12 +148,18 @@ class PublicationsPublicController extends BaseController
             throw new NotFoundException($request, $response);
         }
 
+        return $response;
+
     }
 
     /**
+     * **La redirección a la URL verdadera va DENTRO de `$allowShow`, nunca antes**: su cabecera `Location`
+     * lleva el título, y el token del slug se puede fabricar. Antes de comprobar la visibilidad, adivinar
+     * un token daría el título de un borrador o de algo programado. Un borrador responde 404 como siempre.
+     *
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function singleView(Request $request, Response $response)
     {
@@ -172,7 +189,11 @@ class PublicationsPublicController extends BaseController
             }
 
         } else {
-            $allowShow = $exists && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+            $allowShow = $element->isVisibleToPublic();
+            //P25: lo activo y en fecha que aún no está aprobado lo ven, como vista previa, los mismos que ven un borrador.
+            if (!$allowShow && $exists && $this->user instanceof \stdClass && in_array($this->user->type, PublicationMapper::CAN_VIEW_DRAFT)) {
+                $allowShow = $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+            }
         }
 
         if (!$allowWithoutTranslation && !$element->hasLang($currentLang)) {
@@ -180,6 +201,11 @@ class PublicationsPublicController extends BaseController
         }
 
         if ($allowShow) {
+
+            $trueSlug = $element->getSlug();
+            if ($slug !== $trueSlug) {
+                return $response->withRedirect(self::trueURL('single', ['slug' => $trueSlug]), 301);
+            }
 
             set_custom_assets([
                 'statics/css/style.css',
@@ -197,7 +223,7 @@ class PublicationsPublicController extends BaseController
             set_title($title);
 
             //Agregar visita
-            if (!$element->isDraft()) {
+            if ($element->countsVisits()) {
                 $element->addVisit();
             }
 
@@ -213,6 +239,23 @@ class PublicationsPublicController extends BaseController
 
             MetaTags::setDescription($seoDescription);
             MetaTags::setImage(baseurl($imageOpenGraph));
+            //RETORNO-IGNORADO: MetaTags::setType() no devuelve nada; el censo lo confunde con el setType() de la serialización.
+            MetaTags::setType('article');
+            //Solo lo que public/single enseña: título, imagen principal, fecha pública y autor. La de modificación no se ve.
+            $article = [
+                '@type' => 'Article',
+                'headline' => $title,
+                'datePublished' => $element->publicDate instanceof \DateTime ? $element->publicDate->format('c') : null,
+                'author' => ['@type' => 'Person', 'name' => $element->authorFullName()],
+                'mainEntityOfPage' => MetaTags::canonicalURL(),
+                'inLanguage' => $currentLang,
+                'publisher' => ['@id' => baseurl() . '#organization'],
+            ];
+            $mainImage = $element->currentLangData('mainImage');
+            if (is_string($mainImage) && $mainImage !== '') {
+                $article['image'] = str_contains($mainImage, '://') ? $mainImage : baseurl(ltrim($mainImage, '/'));
+            }
+            StructuredData::add(array_filter($article, fn($value) => $value !== null));
 
             //URL alternativas según el idioma
             Config::set_config('alternatives_url', $element->getURLAlternatives());
@@ -233,6 +276,85 @@ class PublicationsPublicController extends BaseController
             throw new NotFoundException($request, $response);
         }
 
+        return $response;
+
+    }
+
+    /**
+     * La URL de una ruta de este controlador en el idioma actual, con su idioma tal como viaja (en la ruta o
+     * en `?i18n=`): la misma que `MetaTags::canonicalFor()` daría como canónica. Así la redirección es una sola.
+     *
+     * @param string $name
+     * @param array<string,string> $params
+     * @return string
+     */
+    private static function trueURL(string $name, array $params): string
+    {
+        return MetaTags::canonicalFor(self::routeName($name, $params), Config::get_lang());
+    }
+
+    /**
+     * El proveedor de sitemap del módulo: el listado, las categorías y las publicaciones visibles al público, una entrada
+     * por idioma en que existe cada página, y cada URL la canónica de esa página en ese idioma (MetaTags::canonicalFor()).
+     *
+     * Las filas se leen del modelo y se convierten una a una: la que no convierte, o revienta al calcular su URL, se
+     * registra y se salta sin tumbar el resto.
+     *
+     * @return SitemapItem[]
+     */
+    public static function sitemapItems(): array
+    {
+        $langs = Config::get_allowed_langs();
+        $absolute = fn(string $url): string => str_contains($url, '://') ? $url : baseurl(ltrim($url, '/'));
+        $canonical = fn(string $url, string $lang): string => MetaTags::canonicalFor($absolute($url), $lang);
+        $allRows = function (ActiveRecordModel $model): array {
+            $model->select()->execute();
+            $rows = $model->result();
+            return is_array($rows) ? $rows : [];
+        };
+        $items = [];
+
+        foreach ($langs as $lang) {
+            $items[] = new SitemapItem($canonical((string) self::routeName('list', [], true), $lang));
+        }
+
+        foreach ($allRows(PublicationCategoryMapper::model()) as $row) {
+            try {
+                $category = $row instanceof \stdClass ? PublicationCategoryMapper::objectToMapper($row) : null;
+                if ($category === null) {
+                    continue;
+                }
+                foreach ($langs as $lang) {
+                    //El filtro de su listado: la categoría existe en ese idioma.
+                    if ($category->baseLang === $lang || $category->getLangData($lang, 'name', false, null) !== null) {
+                        $items[] = new SitemapItem($canonical((string) self::routeName('list-by-category', ['categorySlug' => $category->getSlug($lang)], true), $lang));
+                    }
+                }
+            } catch (\Throwable $e) {
+                log_exception($e);
+            }
+        }
+
+        foreach ($allRows(PublicationMapper::model()) as $row) {
+            try {
+                $article = $row instanceof \stdClass ? PublicationMapper::objectToMapper($row) : null;
+                //El criterio de singleView(): el sitemap no anuncia una URL que al visitante le da 404.
+                if ($article === null || !$article->isVisibleToPublic()) {
+                    continue;
+                }
+                $date = $article->updatedAt ?? $article->createdAt;
+                $date = $date instanceof \DateTime ? $date : new \DateTime((string) $date);
+                foreach ($langs as $lang) {
+                    if ($article->hasLang($lang)) {
+                        $items[] = new SitemapItem($canonical((string) self::routeName('single', ['slug' => $article->getSlug($lang)], true), $lang), $date, SitemapItem::FREQ_WEEK);
+                    }
+                }
+            } catch (\Throwable $e) {
+                log_exception($e);
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -263,63 +385,6 @@ class PublicationsPublicController extends BaseController
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        if ($allowed) {
-            $routeResult = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            return is_string($routeResult) ? $routeResult : '';
-        } else {
-            return '';
-        }
     }
 
     /**
@@ -409,4 +474,25 @@ class PublicationsPublicController extends BaseController
 
     }
 
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
+    }
 }

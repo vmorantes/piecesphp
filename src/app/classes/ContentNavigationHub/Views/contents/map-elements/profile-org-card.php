@@ -1,6 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Locations\LocationsLang;
+use PiecesPHP\App\Locations\LocationsLang;
 use ContentNavigationHub\ContentNavigationHubLang;
 use MySpace\Controllers\OrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
@@ -15,7 +15,7 @@ $location = [
 $location = array_filter($location, fn($e) => $e !== null);
 $location = !empty($location) ? trim(implode(', ', $location)) : '';
 $activitySector = $mapper->currentLangData('activitySector');
-$activitySector = $activitySector !== null ? $activitySector : '';
+$activitySector ??= '';
 ?>
 <div class='custom-card profile-org'>
     <div class="avatar">

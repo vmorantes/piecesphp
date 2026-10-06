@@ -1,9 +1,9 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Locations\LocationsLang;
-use App\Locations\Mappers\CityMapper;
-use App\Locations\Mappers\CountryMapper;
-use App\Model\AvatarModel;
+use PiecesPHP\App\Locations\LocationsLang;
+use PiecesPHP\App\Locations\Mappers\CityMapper;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
 use ContentNavigationHub\ContentNavigationHubLang;
 use MySpace\Controllers\ProfileController;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
@@ -11,6 +11,11 @@ use PiecesPHP\UserSystem\Profile\UserProfileMapper;
  * @var \stdClass $element
  */
 $mapper = UserProfileMapper::objectToMapper($element);
+if ($mapper === null) {
+    //`objectToMapper()` devuelve null si la fila del perfil llega incompleta. Sin tarjeta, pero sin
+    //tumbar con un 500 la página pública que la pinta.
+    return;
+}
 $avatar = AvatarModel::getUserAvatarNameURLOrDefault($mapper->belongsTo);
 $location = [
     $mapper->city !== null ? __(LocationsLang::LANG_GROUP_NAMES, (new CityMapper($mapper->city))->name) : null,
@@ -19,7 +24,7 @@ $location = [
 $location = array_filter($location, fn($e) => $e !== null);
 $location = !empty($location) ? trim(implode(', ', $location)) : '';
 $jobPosition = $mapper->currentLangData('jobPosition');
-$jobPosition = $jobPosition !== null ? $jobPosition : '';
+$jobPosition ??= '';
 ?>
 <div class='custom-card profile-user'>
     <div class="avatar">

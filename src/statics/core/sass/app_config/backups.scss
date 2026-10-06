@@ -1,0 +1,36 @@
+@use 'includes/base' as *;
+
+.backups-view {
+
+    .backup-help {
+        display: block;
+        margin-top: 0.25rem;
+        opacity: 0.75;
+    }
+
+    //Las cuatro cifras de estado se salen de la fila en pantalla estrecha.
+    .backup-status.statistics {
+        margin-bottom: 1.5rem;
+    }
+
+    //Una base con muchas tablas no puede hacer la página infinita: la lista se desplaza sola.
+    .backup-tables {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+        gap: 0.35rem 1rem;
+        max-height: 22rem;
+        overflow-y: auto;
+        padding: 0.75rem;
+        border: 1px solid rgba(34, 36, 38, 0.15);
+        border-radius: 0.3rem;
+    }
+
+    .backup-code-excluded {
+        margin-bottom: 1rem;
+
+        ul {
+            margin-top: 0.35rem;
+        }
+    }
+
+}

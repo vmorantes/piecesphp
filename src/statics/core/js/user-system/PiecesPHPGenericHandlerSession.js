@@ -36,9 +36,10 @@ class PiecesPHPGenericHandlerSession {
 		if (typeof JWT != 'string') {
 			JWT = ''
 		}
-		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/`;
-		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=${location.hostname}`;
-		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=.${location.hostname}`;
+		const attributes = `;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
+		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/${attributes}`;
+		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=${location.hostname}${attributes}`;
+		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=.${location.hostname}${attributes}`;
 		localStorage.setItem(this.tokenName, encodeURI(JWT))
 	}
 
@@ -60,9 +61,10 @@ class PiecesPHPGenericHandlerSession {
 		this.onLogout()
 
 		if (JWT.length > 0) {
-			document.cookie = `${this.tokenName}=;expires=${now};path=/`;
-			document.cookie = `${this.tokenName}=;expires=${now};path=/;domain=${location.hostname}`;
-			document.cookie = `${this.tokenName}=;expires=${now};path=/;domain=.${location.hostname}`;
+			const attributes = `;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
+			document.cookie = `${this.tokenName}=;expires=${now};path=/${attributes}`;
+			document.cookie = `${this.tokenName}=;expires=${now};path=/;domain=${location.hostname}${attributes}`;
+			document.cookie = `${this.tokenName}=;expires=${now};path=/;domain=.${location.hostname}${attributes}`;
 			localStorage.removeItem(this.tokenName)
 			window.location.reload()
 		}

@@ -6,13 +6,15 @@
 
 namespace Organizations\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\OrganizationProfileController;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\Exceptions\SafeException;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use Organizations\OrganizationsLang;
 use Organizations\OrganizationsRoutes;
 use PiecesPHP\Core\Config;
@@ -23,19 +25,20 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * OrganizationsController.
@@ -46,6 +49,8 @@ use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
  */
 class OrganizationsController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -67,15 +72,7 @@ class OrganizationsController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -85,7 +82,6 @@ class OrganizationsController extends AdminPanelController
     const BASE_JS_DIR = 'js/organizations';
     const BASE_CSS_DIR = 'css';
     const UPLOAD_DIR = 'organizations';
-    const UPLOAD_DIR_TMP = 'organizations/tmp';
     const LANG_GROUP = OrganizationsLang::LANG_GROUP;
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
@@ -103,9 +99,7 @@ class OrganizationsController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -154,7 +148,7 @@ class OrganizationsController extends AdminPanelController
         $data['optionsEsal'] = $optionsEsal;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             __(self::LANG_GROUP, 'Organizaciones') => [
                 'url' => $backLink,
@@ -238,7 +232,7 @@ class OrganizationsController extends AdminPanelController
             $data['lang'] = $lang;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Organizaciones') => [
                     'url' => $backLink,
@@ -281,12 +275,12 @@ class OrganizationsController extends AdminPanelController
         $data['processTablePendingsLink'] = $processTablePendingsLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -331,7 +325,7 @@ class OrganizationsController extends AdminPanelController
                 'lang',
                 Config::get_lang(),
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 true,
                 function ($value) {
@@ -354,7 +348,7 @@ class OrganizationsController extends AdminPanelController
                 "name",
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -376,7 +370,7 @@ class OrganizationsController extends AdminPanelController
                 "size",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -441,7 +435,7 @@ class OrganizationsController extends AdminPanelController
                 "esal",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -496,7 +490,7 @@ class OrganizationsController extends AdminPanelController
                 "address",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -507,7 +501,7 @@ class OrganizationsController extends AdminPanelController
                 "phoneCode",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -518,7 +512,7 @@ class OrganizationsController extends AdminPanelController
                 "phone",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -529,7 +523,7 @@ class OrganizationsController extends AdminPanelController
                 "linkedinLink",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -540,7 +534,7 @@ class OrganizationsController extends AdminPanelController
                 "websiteLink",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -551,7 +545,7 @@ class OrganizationsController extends AdminPanelController
                 "informativeEmail",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
@@ -562,39 +556,11 @@ class OrganizationsController extends AdminPanelController
                 "billingEmail",
                 null,
                 function ($value) {
-                    return is_null($value) || (is_string($value) && strlen(trim($value)) > 0);
+                    return is_null($value) || (is_string($value) && trim($value) !== '');
                 },
                 true,
                 function ($value) {
                     return is_string($value) ? clean_string($value) : $value;
-                }
-            ),
-            new Parameter(
-                'interestResearhAreas',
-                [],
-                function ($value) {
-                    $isArray = is_array($value);
-                    $valid = $isArray && !empty($value);
-                    if ($valid) {
-                        foreach ($value as $i) {
-                            if ($i instanceof InterestResearchAreasMapper) {
-                                if ($i->id == null) {
-                                    throw new SafeException(__(self::LANG_GROUP, 'El área de interés no es válida'));
-                                }
-                            } else if (!Validator::isInteger($i)) {
-                                return false;
-                            }
-                        }
-                    }
-                    return $valid;
-                },
-                true,
-                function ($value) {
-                    return is_array($value) ? array_map(function ($e) {
-                        if (Validator::isInteger($e)) {
-                            return new InterestResearchAreasMapper($e);
-                        }
-                    }, $value) : [];
                 }
             ),
             new Parameter(
@@ -688,7 +654,6 @@ class OrganizationsController extends AdminPanelController
              * @var string|null $websiteLink
              * @var string|null $informativeEmail
              * @var string|null $billingEmail
-             * @var InterestResearchAreasMapper[] $interestResearhAreas
              * @var string[] $affiliatedInstitutions
              * @var int $status
              * @var int $administrator
@@ -712,7 +677,6 @@ class OrganizationsController extends AdminPanelController
             $websiteLink = $expectedParameters->getValue('websiteLink');
             $informativeEmail = $expectedParameters->getValue('informativeEmail');
             $billingEmail = $expectedParameters->getValue('billingEmail');
-            $interestResearhAreas = $expectedParameters->getValue('interestResearhAreas');
             $affiliatedInstitutions = $expectedParameters->getValue('affiliatedInstitutions');
             $status = $expectedParameters->getValue('status');
             $administrator = $expectedParameters->getValue('administrator');
@@ -723,16 +687,18 @@ class OrganizationsController extends AdminPanelController
                 $maxOffset = 0.6000;
                 $latOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
                 $lngOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
-                $latitude = $latitude + $latOffset;
-                $longitude = $longitude + $lngOffset;
+                $latitude += $latOffset;
+                $longitude += $lngOffset;
             }
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
-                $currentUser = getLoggedFrameworkUser();
                 $allowedLangs = Config::get_allowed_langs();
 
                 if ($isEdit) {
@@ -744,55 +710,36 @@ class OrganizationsController extends AdminPanelController
                 }
 
                 if (!$isEdit) {
-                    //Nuevo
+                    //Nuevo. El alta vive en createOrganization(): el alta pública por API llama a ESE MISMO método (P37).
 
-                    $mapper = new OrganizationMapper();
+                    $mapper = self::createOrganization([
+                        'lang' => $lang,
+                        'name' => $name,
+                        'nit' => $nit,
+                        'size' => $size,
+                        'activitySector' => $activitySector,
+                        'actionLines' => $actionLines,
+                        'esal' => $esal,
+                        'country' => $country,
+                        'city' => $city,
+                        'longitude' => $longitude,
+                        'latitude' => $latitude,
+                        'address' => $address,
+                        'phoneCode' => $phoneCode,
+                        'phone' => $phone,
+                        'linkedinLink' => $linkedinLink,
+                        'websiteLink' => $websiteLink,
+                        'informativeEmail' => $informativeEmail,
+                        'billingEmail' => $billingEmail,
+                        'affiliatedInstitutions' => $affiliatedInstitutions,
+                        'status' => $status,
+                        'requiredRutLabel' => __(self::LANG_GROUP, 'RUT'),
+                    ]);
 
-                    $mapper->setLangData($lang, 'name', $name);
-                    $mapper->setLangData($lang, 'nit', $nit);
-                    $mapper->setLangData($lang, 'size', $size);
-                    $mapper->setLangData($lang, 'actionLines', $actionLines);
-                    $mapper->setLangData($lang, 'esal', $esal);
-                    $mapper->setLangData($lang, 'country', $country);
-                    $mapper->setLangData($lang, 'city', $city);
-                    $mapper->longitude = $longitude;
-                    $mapper->latitude = $latitude;
-                    $mapper->setLangData($lang, 'address', $address);
-                    $mapper->phoneCode = $phoneCode;
-                    $mapper->setLangData($lang, 'phone', $phone);
-                    $mapper->setLangData($lang, 'linkedinLink', $linkedinLink);
-                    $mapper->setLangData($lang, 'websiteLink', $websiteLink);
-                    $mapper->setLangData($lang, 'informativeEmail', $informativeEmail);
-                    $mapper->setLangData($lang, 'billingEmail', $billingEmail);
-                    $mapper->interestResearhAreas = $interestResearhAreas;
-                    $mapper->affiliatedInstitutions = $affiliatedInstitutions;
-                    $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
-                    if ($currentUser !== null && OrganizationMapper::canModifyAnyOrganization($currentUser->type)) {
-                        if ($status !== null) {
-                            $mapper->setLangData($lang, 'status', $status);
-                        }
-                    } else {
-                        $mapper->setLangData($lang, 'status', OrganizationMapper::PENDING_APPROVAL);
-                    }
-
-                    if (is_array($activitySector)) {
-                        foreach ($activitySector as $l => $v) {
-                            $mapper->setLangData($l, 'activitySector', $v);
-                        }
-                    } else {
-                        $mapper->setLangData($lang, 'activitySector', $activitySector);
-                    }
-
-                    $rut = self::handlerUpload('rut', $mapper->folder);
-                    $logo = self::handlerUpload('logo', $mapper->folder);
-
-                    $mapper->setLangData($lang, 'rut', $rut);
-                    $mapper->setLangData($lang, 'logo', $logo);
-
-                    $saved = $mapper->save();
+                    $saved = $mapper !== null;
                     $resultOperation->setSuccessOnSingleOperation($saved);
 
-                    if ($saved) {
+                    if ($mapper !== null) {
 
                         $formsEdit = self::routeName('forms-edit', [
                             'id' => $mapper->id,
@@ -838,7 +785,6 @@ class OrganizationsController extends AdminPanelController
                             'websiteLink' => $websiteLink,
                             'informativeEmail' => $informativeEmail,
                             'billingEmail' => $billingEmail,
-                            'interestResearhAreas' => $interestResearhAreas,
                             'affiliatedInstitutions' => $affiliatedInstitutions,
                             'status' => $status,
                             'administrator' => $administrator,
@@ -876,9 +822,8 @@ class OrganizationsController extends AdminPanelController
                         if ($websiteLink !== $invalidVal) {$mapper->setLangData($lang, 'websiteLink', $websiteLink);}
                         if ($informativeEmail !== $invalidVal) {$mapper->setLangData($lang, 'informativeEmail', $informativeEmail);}
                         if ($billingEmail !== $invalidVal) {$mapper->setLangData($lang, 'billingEmail', $billingEmail);}
-                        if ($interestResearhAreas !== $invalidVal) {$mapper->interestResearhAreas = $interestResearhAreas;}
                         if ($affiliatedInstitutions !== $invalidVal) {$mapper->affiliatedInstitutions = $affiliatedInstitutions;}
-                        if (OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type)) {
+                        if (OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type)) {
                             if ($status !== null) {
                                 if ($status !== $invalidVal) {$mapper->setLangData($lang, 'status', $status);}
                             }
@@ -952,9 +897,9 @@ class OrganizationsController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -967,14 +912,98 @@ class OrganizationsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
+
         }
 
         return $response->withJson($resultOperation);
+    }
+
+    /**
+     * El alta de una organización. UN SOLO CAMINO: lo usa la acción HTTP y lo usa el alta pública por API (P37).
+     *
+     * Antes la API fabricaba una petición con `RequestRouteFactory::createFromGlobals()`, llamaba a `action()` y leía
+     * su JSON. Eso dependía del nombre de la ruta que llegara —`isEditRoute()` no lo reconocía y reventaba— y el
+     * `orgID` se leía sin mirar si el alta había salido bien.
+     *
+     * El estado y el idioma NO se reciben a discreción: un alta va siempre en el idioma por defecto, y solo quien puede
+     * modificar cualquier organización elige el estado; el resto nace pendiente de aprobación.
+     *
+     * @param array<string,mixed> $values Al menos `name` y `nit`. El resto es opcional y se guarda si viene.
+     *                                     Con `requiredRutLabel` el RUT pasa a ser obligatorio y esa
+     *                                     clave es su nombre en el formulario: solo la pasa el panel,
+     *                                     porque por la API no hay archivos que adjuntar.
+     * @return OrganizationMapper|null La organización creada, o null si no se guardó.
+     * @throws \Organizations\Exceptions\SafeException Si se exige el RUT y no llega ningún archivo.
+     * @throws \Organizations\Exceptions\DuplicateException Si el nit ya existe.
+     */
+    public static function createOrganization(array $values): ?OrganizationMapper
+    {
+
+        $langValue = $values['lang'] ?? null;
+        $lang = is_string($langValue) && trim($langValue) !== '' ? $langValue : (string) get_config('default_lang');
+        $activitySector = $values['activitySector'] ?? null;
+        $status = $values['status'] ?? null;
+        $currentUser = getLoggedFrameworkUser();
+
+        $mapper = new OrganizationMapper();
+
+        $mapper->setLangData($lang, 'name', $values['name'] ?? null);
+        $mapper->setLangData($lang, 'nit', $values['nit'] ?? null);
+        $mapper->setLangData($lang, 'size', $values['size'] ?? null);
+        $mapper->setLangData($lang, 'actionLines', $values['actionLines'] ?? null);
+        $mapper->setLangData($lang, 'esal', $values['esal'] ?? null);
+        $mapper->setLangData($lang, 'country', $values['country'] ?? null);
+        $mapper->setLangData($lang, 'city', $values['city'] ?? null);
+        $mapper->longitude = $values['longitude'] ?? null;
+        $mapper->latitude = $values['latitude'] ?? null;
+        $mapper->setLangData($lang, 'address', $values['address'] ?? null);
+        $mapper->phoneCode = $values['phoneCode'] ?? null;
+        $mapper->setLangData($lang, 'phone', $values['phone'] ?? null);
+        $mapper->setLangData($lang, 'linkedinLink', $values['linkedinLink'] ?? null);
+        $mapper->setLangData($lang, 'websiteLink', $values['websiteLink'] ?? null);
+        $mapper->setLangData($lang, 'informativeEmail', $values['informativeEmail'] ?? null);
+        $mapper->setLangData($lang, 'billingEmail', $values['billingEmail'] ?? null);
+        $mapper->affiliatedInstitutions = $values['affiliatedInstitutions'] ?? null;
+        $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
+        if ($currentUser !== null && OrganizationMapper::canModifyAnyOrganization($currentUser->type)) {
+            if ($status !== null) {
+                $mapper->setLangData($lang, 'status', $status);
+            }
+        } else {
+            $mapper->setLangData($lang, 'status', OrganizationMapper::PENDING_APPROVAL);
+        }
+
+        if (is_array($activitySector)) {
+            foreach ($activitySector as $l => $v) {
+                $mapper->setLangData((string) $l, 'activitySector', $v);
+            }
+        } else {
+            $mapper->setLangData($lang, 'activitySector', $activitySector);
+        }
+
+        //Por la API no hay $_FILES y nunca los habrá: ahí la cadena vacía es correcta. Por eso el RUT
+        //solo se exige cuando el llamador pasa `requiredRutLabel`, y solo lo pasa el formulario del panel.
+        $rut = self::handlerUpload('rut', $mapper->folder);
+        $logo = self::handlerUpload('logo', $mapper->folder);
+
+        $requiredRutLabel = $values['requiredRutLabel'] ?? null;
+        if (is_string($requiredRutLabel) && mb_strlen(trim($rut)) < 1) {
+            throw new SafeException(sprintf(__(self::LANG_GROUP, 'Falta un archivo obligatorio: %s.'), $requiredRutLabel));
+        }
+
+        $mapper->setLangData($lang, 'rut', $rut);
+        $mapper->setLangData($lang, 'logo', $logo);
+
+        return $mapper->save() ? $mapper : null;
     }
 
     /**
@@ -1063,7 +1092,7 @@ class OrganizationsController extends AdminPanelController
 
                     $pdo = OrganizationMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -1090,24 +1119,28 @@ class OrganizationsController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         $pdo->rollBack();
-                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -1219,7 +1252,6 @@ class OrganizationsController extends AdminPanelController
         $status = $request->getQueryParam('status', null);
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = OrganizationMapper::TABLE;
         $active = OrganizationMapper::ACTIVE;
@@ -1228,35 +1260,35 @@ class OrganizationsController extends AdminPanelController
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
+        //POR MARCADOR. La validación de dominio SE QUEDA: el `-1` cierra el dominio y el
+        //marcador es la segunda línea de defensa, no la sustituta de la primera. Ver T163.
+        $havingSegment = null;
 
         if ($status !== null) {
             $statusToCritery = in_array($status, array_keys(OrganizationMapper::STATUSES)) ? $status : -1;
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "{$table}.status = {$statusToCritery}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment = new HavingSegment([
+                new HavingItem("{$table}.status", HavingItem::EQUAL_OPERATOR, $statusToCritery, HavingItem::AND_OPERATOR),
+            ]);
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
+
 
         $selectFields = OrganizationMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            'code',
             'nit',
             'name',
             'countryName',
             'cityName',
         ];
 
+        //Sin `code` de orden por defecto: es AL AZAR, y ordenar por él no diría nada. Manda la fecha.
         $customOrder = [
-            'idPadding' => 'DESC',
             'createdAt' => 'DESC',
             'updatedAt' => 'DESC',
         ];
@@ -1267,7 +1299,7 @@ class OrganizationsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -1321,7 +1353,7 @@ class OrganizationsController extends AdminPanelController
 
                 $name = mb_strlen($e->name) <= 54 ? $e->name : mb_substr($e->name, 0, 51) . '...';
 
-                $columns[] = $e->id == OrganizationMapper::INITIAL_ID_GLOBAL ? str_pad(0, 5, "0") : $e->idPadding;
+                $columns[] = $e->code;
                 $columns[] = $e->nit;
                 $columns[] = $name;
                 $columns[] = $e->countryName;
@@ -1350,9 +1382,9 @@ class OrganizationsController extends AdminPanelController
         ?string $name = null,
         bool $ignoreStatus = false
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? OrganizationMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= OrganizationMapper::ACTIVE;
 
         $table = OrganizationMapper::TABLE;
         $fields = OrganizationMapper::fieldsToSelect();
@@ -1370,11 +1402,14 @@ class OrganizationsController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if ($name !== null) {
 
             $beforeOperator = !empty($where) ? $and : '';
             $nameField = OrganizationMapper::fieldCurrentLangForSQL('name');
-            $critery = "UPPER({$nameField}) LIKE UPPER('%{$name}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$nameField}) LIKE UPPER(:name)";
+            $boundValues[':name'] = "%{$name}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1412,7 +1447,7 @@ class OrganizationsController extends AdminPanelController
 
         $sqlSelect .= " ORDER BY " . implode(', ', OrganizationMapper::ORDER_BY_PREFERENCE);
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $parser = function ($element) {
             $element = OrganizationMapper::objectToMapper($element);
@@ -1471,20 +1506,6 @@ class OrganizationsController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -1492,19 +1513,19 @@ class OrganizationsController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1600,7 +1621,7 @@ class OrganizationsController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -1625,9 +1646,8 @@ class OrganizationsController extends AdminPanelController
                 }
 
                 if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
+                    //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
+                    [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
 
                     if (mb_strlen(trim($folder)) < 1) {
                         //Si folder está vacío
@@ -1643,30 +1663,19 @@ class OrganizationsController extends AdminPanelController
 
                 if ($valid) {
 
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                    //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                    //lleva el sufijo. Si no se puede mover, no hay ruta y la subida falla.
+                    $information = $handler->getFileInformation();
+                    $url = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], $uploadDirPath, $name, pathinfo((string) $information['name'], \PATHINFO_EXTENSION));
 
-                    if (!empty($locations)) {
+                    if ($url !== '') {
 
-                        $url = $locations[0];
                         $nameCurrent = basename($url);
                         $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
 
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile) && is_file($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
+                        //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
+                        if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($url)) {
+                            unlink($oldFile);
                         }
 
                     }
@@ -1682,51 +1691,6 @@ class OrganizationsController extends AdminPanelController
         }
 
         return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -1751,7 +1715,9 @@ class OrganizationsController extends AdminPanelController
 
         //Permisos
         $baseList = OrganizationMapper::CAN_VIEW_BASE_LIST;
-        $list = array_merge(OrganizationMapper::CAN_VIEW_ALL, OrganizationMapper::CAN_MODIFY_ALL, OrganizationMapper::CAN_VIEW_BASE_LIST);
+        //Las tres capacidades se solapan —root está en CAN_MODIFY_ALL y en CAN_VIEW_BASE_LIST—, así
+        //que sin deduplicar la ruta declaraba [0, 1, 0] y el 0 salía dos veces en quién la abre.
+        $list = array_values(array_unique(array_merge(OrganizationMapper::CAN_VIEW_ALL, OrganizationMapper::CAN_MODIFY_ALL, OrganizationMapper::CAN_VIEW_BASE_LIST)));
         $creation = OrganizationMapper::CAN_MODIFY_ALL;
         $edition = array_merge(OrganizationMapper::EDITORS, OrganizationMapper::CAN_MODIFY_ALL, OrganizationMapper::PROFILE_EDITOR);
         $deletion = [

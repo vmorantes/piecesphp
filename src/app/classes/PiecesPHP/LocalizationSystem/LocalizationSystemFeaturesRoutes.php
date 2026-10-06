@@ -39,18 +39,6 @@ class LocalizationSystemFeaturesRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'user` int' => 'user` bigint',
-                ]);
-                exit;
-            }
-
             $groupAdministration = LocalizationSystemController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
@@ -114,7 +102,7 @@ class LocalizationSystemFeaturesRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

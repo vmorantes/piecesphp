@@ -91,7 +91,7 @@
 
     <div class="container">
         <h2>Formulario de Prueba (Nombres Complejos)</h2>
-        <form action="./pcsphp-testing/queue-request/handle" method="POST" enctype="multipart/form-data">
+        <form action="<?= get_route('pcsphp-testing-queue-request-handle'); ?>" method="POST" enctype="multipart/form-data">
 
             <div class="form-group">
                 <label for="name">Nombre</label>

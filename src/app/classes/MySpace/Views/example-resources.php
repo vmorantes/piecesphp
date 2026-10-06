@@ -8,9 +8,9 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
  * @var string $langGroup
  * @var string $editLink
  */
-$currentUser = getLoggedFrameworkUser();
+$currentUser = getLoggedFrameworkUserOrFail();
 $totpData = $currentUser->TOTPData;
-$totpSecret = $totpData->secret;
+$totpSecret = $totpData !== null ? $totpData->secret : '';
 $username = $currentUser->username;
 $totpManager = new TOTPStandard($totpSecret);
 $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));

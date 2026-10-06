@@ -41,6 +41,17 @@ class CliActions
     protected array $options = [];
 
     /**
+     * @var string[]|null Efectos externos declarados. NULL significa «sin declarar».
+     */
+    protected ?array $effects = null;
+
+    /**
+     * @var string Archivo que la registró. Lo usa `gates` para saber QUÉ SUITES HAY sin una
+     *             lista a mano: una suite es una acción declarada bajo `local-tests/`.
+     */
+    protected string $definedIn = '';
+
+    /**
      * @var string Clave de configuración para el registro global
      */
     protected static string $configKey = 'SystemCliActions';
@@ -53,6 +64,25 @@ class CliActions
     {
         $this->name = $name;
         $this->handler = $handler;
+
+        //El primer marco que no sea este archivo es quien la declara.
+        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5) as $frame) {
+            $file = isset($frame['file']) ? str_replace('\\', '/', (string) $frame['file']) : '';
+            if ($file !== '' && $file !== str_replace('\\', '/', __FILE__)) {
+                $this->definedIn = $file;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Archivo que declaró esta acción.
+     *
+     * @return string
+     */
+    public function definedIn(): string
+    {
+        return $this->definedIn;
     }
 
     /**
@@ -65,6 +95,52 @@ class CliActions
     public static function make(string $name, callable $handler): self
     {
         return new self($name, $handler);
+    }
+
+    /** Sale a la red: pide a un servicio de terceros. */
+    const EFFECT_NETWORK = 'network';
+
+    /** Manda correo de verdad. */
+    const EFFECT_EMAIL = 'email';
+
+    /** Escribe en la base de datos. */
+    const EFFECT_DATABASE = 'database';
+
+    /** Escribe archivos en el disco. */
+    const EFFECT_FILES = 'files';
+
+    /** Declara EXPLÍCITAMENTE que no tiene ninguno. No es lo mismo que no declarar. */
+    const EFFECT_NONE = 'none';
+
+    /**
+     * Efectos que el corredor de puertas NO ejecuta si no se le piden.
+     *
+     * @var string[]
+     */
+    const EFFECTS_EXTERNAL = [self::EFFECT_NETWORK, self::EFFECT_EMAIL];
+
+    /**
+     * Declara qué hace esta acción fuera de sí misma.
+     *
+     * No se deduce del nombre ni de la carpeta: se declara. Sin declaración, el corredor de
+     * puertas NO la ejecuta y la cuenta como fallo — el estado por defecto es «no sé qué hace
+     * esto», y eso no se corre. Ver LEY 13 y T85.
+     *
+     * @param string[] $effects
+     * @return self
+     */
+    public function setEffects(array $effects): self
+    {
+        $this->effects = array_values(array_unique(array_map('strval', $effects)));
+        return $this;
+    }
+
+    /**
+     * @return string[]|null NULL si no se declararon.
+     */
+    public function getEffects(): ?array
+    {
+        return $this->effects;
     }
 
     /**

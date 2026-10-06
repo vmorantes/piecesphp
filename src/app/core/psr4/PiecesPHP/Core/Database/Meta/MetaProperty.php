@@ -264,7 +264,7 @@ class MetaProperty
 
                 if ($valid) {
 
-                    foreach ($value as $k => $v) {
+                    foreach ($value as $v) {
 
                         if (is_null($this->customValidMapper)) {
 

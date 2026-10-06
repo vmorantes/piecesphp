@@ -6,8 +6,8 @@
 
 namespace Newsletter\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
 use Newsletter\NewsletterLang;
 use Newsletter\NewsletterRoutes;
@@ -17,17 +17,20 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\Exceptions\SafeException;
 
 /**
  * NewsletterController.
@@ -38,6 +41,8 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class NewsletterController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -112,7 +117,7 @@ class NewsletterController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             __(self::LANG_GROUP, 'Suscriptores') => [
                 'url' => $backLink,
@@ -166,7 +171,7 @@ class NewsletterController extends AdminPanelController
             $data['description'] = $description;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Suscriptores') => [
                     'url' => $backLink,
@@ -204,12 +209,12 @@ class NewsletterController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -254,7 +259,7 @@ class NewsletterController extends AdminPanelController
                 'name',
                 NewsletterSuscriberMapper::UNSPECIFIED_VALUE,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 true,
                 function ($value) {
@@ -265,7 +270,7 @@ class NewsletterController extends AdminPanelController
                 'email',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -329,8 +334,11 @@ class NewsletterController extends AdminPanelController
             $email = $expectedParameters->getValue('email');
             $acceptUpdates = $expectedParameters->getValue('acceptUpdates');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -396,13 +404,13 @@ class NewsletterController extends AdminPanelController
                 }
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -418,9 +426,9 @@ class NewsletterController extends AdminPanelController
             log_exception($e);
 
         } catch (\Exception $e) {
+            $reference = log_exception($e);
 
-            $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -443,7 +451,7 @@ class NewsletterController extends AdminPanelController
                 'email',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -508,13 +516,13 @@ class NewsletterController extends AdminPanelController
                 }
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -530,9 +538,9 @@ class NewsletterController extends AdminPanelController
             log_exception($e);
 
         } catch (\Exception $e) {
+            $reference = log_exception($e);
 
-            $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -624,7 +632,7 @@ class NewsletterController extends AdminPanelController
 
                     $pdo = NewsletterSuscriberMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -651,24 +659,28 @@ class NewsletterController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         $pdo->rollBack();
-                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -755,7 +767,7 @@ class NewsletterController extends AdminPanelController
         $selectFields = NewsletterSuscriberMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'name',
             'email',
             'acceptUpdatesDisplay',
@@ -815,8 +827,8 @@ class NewsletterController extends AdminPanelController
      */
     public static function _all(?int $page = null, ?int $perPage = null)
     {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
+        $page ??= 1;
+        $perPage ??= 10;
         $table = NewsletterSuscriberMapper::TABLE;
         $fields = NewsletterSuscriberMapper::fieldsToSelect();
 
@@ -891,88 +903,6 @@ class NewsletterController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -987,31 +917,19 @@ class NewsletterController extends AdminPanelController
 
         $classname = self::class;
 
+        //Permisos: ver, crear, editar y borrar van juntos, o el modulo se entrega a medias.
         /**
-         * @var array<string>
+         * @var array<int>
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
-
-        //Permisos
-        $list = $allRoles;
-        $creation = [
+        $modulo = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
         ];
-        $edition = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
-        ];
-        $deletion = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
-        ];
+        $list = $modulo;
+        $creation = $modulo;
+        $edition = $modulo;
+        $deletion = $modulo;
         $routes = [
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
@@ -1105,5 +1023,26 @@ class NewsletterController extends AdminPanelController
         $group->register($routes);
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

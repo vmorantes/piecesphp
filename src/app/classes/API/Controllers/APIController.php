@@ -11,15 +11,13 @@ use API\Adapters\MistralHandlerAdapter;
 use API\Adapters\OpenAIHandlerAdapter;
 use API\APILang;
 use API\APIRoutes;
-use App\Controller\AdminPanelController;
-use App\Controller\AvatarController;
-use App\Controller\RecoveryPasswordController;
-use App\Controller\UserProblemsController;
-use App\Controller\UsersController;
-use App\Model\AvatarModel;
-use App\Model\RecoveryPasswordModel;
-use App\Model\TicketsLogModel;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\Controllers\AvatarController;
+use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
+use PiecesPHP\UserSystem\Controllers\UserProblemsController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\Mappers\LogsMapper;
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
@@ -31,20 +29,25 @@ use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
-use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
+use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Controllers\PublicationsCategoryController;
@@ -62,6 +65,8 @@ use ReportsManage\Queries\ReportsManageQueries;
  */
 class APIController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -479,6 +484,7 @@ class APIController extends AdminPanelController
         //Acciones permitidas
         $allowedActions = [
             get_config('translationAIEnable') ? 'translate' : uniqid(),
+            get_config('translationAIEnable') ? 'translateGroup' : uniqid(),
             'saveGroup',
         ];
         if (!in_array($actionType, $allowedActions)) {
@@ -587,24 +593,9 @@ class APIController extends AdminPanelController
                      */
                     $asHTMLProperties = $expectedParameters->getValue('asHTMLProperties');
 
-                    $translationAI = get_config('translationAI');
-                    $modelOpenAI = get_config('modelOpenAI');
-                    $modelMistral = get_config('modelMistral');
-                    /**
-                     * @var OpenAIHandlerAdapter|MistralHandlerAdapter|null $aiHandler
-                     */
-                    $aiHandler = null;
+                    [$aiHandler, $translationAI, $modelOpenAI, $modelMistral] = $this->translationAIHandler();
                     $lastUsage = [];
                     $lastAskToChatOriginalResponse = [];
-
-                    //Destruir la conexión a la base de datos para evitar errores de conexión
-                    BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
-
-                    if ($translationAI == AI_OPENAI) {
-                        $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
-                    } elseif ($translationAI == AI_MISTRAL) {
-                        $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
-                    }
 
                     $responseJSON = [
                         'success' => false,
@@ -639,90 +630,24 @@ class APIController extends AdminPanelController
                         /* Segmentar entradas HTML según las propiedades en $asHTMLProperties */
                         $textSplitted = [];
                         if (is_array($text) && count($text) > 0) {
-                            foreach ($text as $key => $value) {
-                                if (in_array($key, $asHTMLProperties)) {
-                                    $textSplitted[$key] = array_merge($textSplitted, HelperController::splitHtmlSafely($value));
-                                    unset($text[$key]);
-                                }
-                            }
+                            $textSplitted = $this->splitHTMLProperties($text, $asHTMLProperties);
                             if (is_local()) {
                                 $responseJSON['AI']['translationSplitted'] = $textSplitted;
                             }
                         }
 
                         /* Generar traducciones */
-                        $translation = [];
-                        $tranlationCallback = function ($value, bool $isSplitted = false) use ($text) {
-                            $expectedProperties = array_keys($text);
-                            $hasProperties = is_array($value);
-                            if ($hasProperties) {
-                                foreach ($expectedProperties as $expectedProperty) {
-                                    if (!array_key_exists($expectedProperty, $value)) {
-                                        $hasProperties = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if ($isSplitted) {
-                                $hasProperties = is_array($value) && !empty($value);
-                            }
-                            $result = !$hasProperties ? HelperController::tryParseTranslationResult($value) : $value;
-                            return $result;
-                        };
-
-                        //Traducir entradas normales tal como vienen
-                        $translationNormal = $aiHandler->translate($text, $from, $to, $tranlationCallback);
-                        $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
-                        $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
-
-                        //Traducir entradas HTML segmentadas
-                        $translationSplitted = [];
-                        foreach ($textSplitted as $key => $splitted) {
-                            //Recorrer cada elemento de la entrada HTML segmentada
-                            foreach ($splitted as $valueIndex => $splittedElement) {
-
-                                //Traducir segmento
-                                $translationSplittedResult = $aiHandler->translate([
-                                    'segment' => $splittedElement,
-                                ], $from, $to, function ($value) use ($tranlationCallback) {
-                                    return $tranlationCallback($value, true);
-                                });
-
-                                //Añadir segmento
-                                if ($translationSplittedResult !== null) {
-                                    $translationSplitted[$key][$valueIndex] = implode("\n", $translationSplittedResult);
-                                }
-                                $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
-                                $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
-                            }
-
-                            //Juntar segmentos
-                            $translationSplitted[$key] = implode("\n", $translationSplitted[$key]);
-                        }
-
-                        /* Agregar traducciones */
-
-                        //Agregar entradas normales
-                        if ($translationNormal !== null) {
-                            $translation = $translationNormal;
-                        }
-
-                        //Agregar entradas HTML segmentadas
-                        if (count($translationSplitted) > 0) {
-                            $translation = array_merge($translation, $translationSplitted);
-                        }
-
-                        //Verificar que haya traducciones
-                        $translation = !empty($translation) ? $translation : null;
-                        $tokensUsed = $aiHandler->getTokensUsed($lastUsage);
+                        $aiResult = $this->translateWithAI($aiHandler, $text, $textSplitted, $from, $to);
+                        $translation = $aiResult['translation'];
+                        $lastUsage = $aiResult['lastUsage'];
+                        $lastAskToChatOriginalResponse = $aiResult['lastAskToChatOriginalResponse'];
+                        $tokensUsed = $aiResult['tokensUsed'];
 
                         $responseJSON['AI']['lastUsage'] = $lastUsage;
                         $responseJSON['AI']['tokensUsed'] = $tokensUsed;
 
                         //Actualizar el uso de tokens
-                        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
-                        $currentUsageData[$translationAI] = $currentUsageData[$translationAI] + $tokensUsed;
-                        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
+                        $this->recordTokensUsed($translationAI, $tokensUsed);
 
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
@@ -742,122 +667,91 @@ class APIController extends AdminPanelController
                         $responseJSON['error'] = $e->getMessage();
                     }
 
-                } elseif ($actionType == 'saveGroup') {
+                } elseif ($actionType == 'translateGroup') {
 
-                    $expectedParameters = new Parameters([
-                        new Parameter(
-                            'text',
-                            null,
-                            function ($value) {
-                                return is_string($value) || is_array($value) || is_null($value);
-                            },
-                            false,
-                            function ($value) {
-                                $jsonParsed = null;
-                                $parseJSON = function (string $jsonStr) {
-                                    $decoded = json_decode($jsonStr, true);
-                                    $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
-                                    return $decoded;
-                                };
-                                if (is_string($value)) {
-
-                                    //Intentar convertir a JSON directamente
-                                    $jsonParsed = ($parseJSON)($value);
-                                    //Tratar de decodificar Base 64
-                                    if ($jsonParsed == null) {
-                                        $base64Decoded = url_safe_base64_decode($value);
-                                        $jsonParsed = ($parseJSON)($base64Decoded);
-                                    }
-
-                                }
-                                return $jsonParsed;
-                            }
-                        ),
-                        new Parameter(
-                            'to',
-                            null,
-                            function ($value) {
-                                return is_string($value);
-                            },
-                            false,
-                            function ($value) {
-                                return $value;
-                            }
-                        ),
-                        new Parameter(
-                            'saveGroup',
-                            null,
-                            function ($value) {
-                                return is_string($value);
-                            },
-                            false,
-                            function ($value) {
-                                return $value;
-                            }
-                        ),
-                    ]);
-
-                    if ($method === 'POST') {
-                        $inputValues = $request->getParsedBody();
-                    } else {
-                        $inputValues = $request->getQueryParams();
+                    //Solo claves, nunca valores: el servidor traduce, filtra y guarda (#063).
+                    if ($method !== 'POST') {
+                        return $response->withJson([
+                            'success' => false,
+                            'message' => __(self::LANG_GROUP, 'Esta acción solo admite POST.'),
+                        ], 405);
                     }
-                    $expectedParameters->setInputValues($inputValues);
-                    $expectedParameters->validate();
-
-                    $text = $expectedParameters->getValue('text');
-                    $to = $expectedParameters->getValue('to');
-                    $saveGroup = $expectedParameters->getValue('saveGroup');
-                    /**
-                     * @var array<string,string>|null $text
-                     * @var string $to
-                     * @var string $saveGroup
-                     */
-
-                    $responseJSON = [
-                        'success' => false,
-                        'message' => '',
-                        'error' => null,
-                    ];
-
-                    if ($isSameDomain) {
-
-                        /* Variables de configuración */
-                        $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
-                        $dataConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['dataConfigName'];
-                        $lastDateConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['lastDateConfigName'];
-
-                        /* Valores actuales */
-                        $currentData = GenericContentPseudoMapper::getContentData($dataConfigName);
-                        $currentData = is_array($currentData) ? $currentData : [];
-
-                        /* Actualizar valores */
-
-                        //Agregar idioma si no existe
-                        if (!array_key_exists($to, $currentData)) {
-                            $currentData[$to] = [];
-                        }
-                        //Agregar grupo si no existe
-                        if (!array_key_exists($saveGroup, $currentData[$to])) {
-                            $currentData[$to][$saveGroup] = [];
-                        }
-
-                        //Agregar traducciones a las existentes
-                        $currentData[$to][$saveGroup] = array_merge($currentData[$to][$saveGroup], $text);
-                        //Actualizar fecha de actualización
-                        $lastUpdateDate = new \DateTime();
-
-                        /* Guardar valores */
-                        GenericContentPseudoMapper::setContentData($dataConfigName, $currentData);
-                        GenericContentPseudoMapper::setContentData($lastDateConfigName, $lastUpdateDate);
-
-                        /* Respuesta */
-                        $responseJSON['success'] = true;
-                        $responseJSON['message'] = __(self::LANG_GROUP, 'Las traducciones se guardaron con éxito.');
-
-                    } else {
+                    if (!$isSameDomain) {
                         throw new NotFoundException($request, $response);
                     }
+
+                    $body = $request->getParsedBody();
+                    $body = is_array($body) ? $body : [];
+                    $to = $body['to'] ?? null;
+                    $group = $body['group'] ?? null;
+                    $keys = $body['keys'] ?? null;
+                    $keys = is_string($keys) ? json_decode($keys, true) : $keys;
+                    $keys = is_array($keys) && array_is_list($keys) ? $keys : null;
+
+                    $inputError = $this->dynamicTranslationsInputError($to, $group, $keys);
+                    if ($inputError !== null || !is_string($to) || !is_string($group) || $keys === null) {
+                        return $response->withJson([
+                            'success' => false,
+                            'message' => $inputError,
+                            'translation' => [],
+                            'rejected' => [],
+                        ], 400);
+                    }
+
+                    $pendingData = $this->pendingDynamicTranslations();
+                    $pending = [];
+                    foreach ($keys as $key) {
+                        if (is_string($key) && !in_array($key, $pending, true) && !$this->hasTranslation($to, $group, $key, $pendingData)) {
+                            $pending[] = $key;
+                        }
+                    }
+
+                    $responseJSON = [
+                        'success' => true,
+                        'message' => __(self::LANG_GROUP, 'No hay claves pendientes de traducción.'),
+                        'translation' => [$group => []],
+                        'rejected' => [],
+                        'saved' => 0,
+                        'error' => null,
+                        'AI' => [
+                            'tokensUsed' => 0,
+                        ],
+                    ];
+
+                    if (count($pending) > 0) {
+                        [$aiHandler, $translationAI] = $this->translationAIHandler();
+                        if ($aiHandler === null) {
+                            $responseJSON['success'] = false;
+                            $responseJSON['message'] = __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA');
+                        } else {
+                            try {
+                                $aiResult = $this->translateWithAI($aiHandler, array_combine($pending, $pending), [], __('lang', Config::get_default_lang()), __('lang', $to));
+                                $this->recordTokensUsed($translationAI, $aiResult['tokensUsed']);
+                                $filtered = DynamicTranslationsHelper::acceptTranslations($pending, $aiResult['translation'] ?? []);
+                                $responseJSON['saved'] = $this->saveDynamicTranslations($to, $group, $filtered['accepted']);
+                                $responseJSON['translation'] = [$group => $filtered['accepted']];
+                                $responseJSON['rejected'] = $filtered['rejected'];
+                                $responseJSON['AI']['tokensUsed'] = $aiResult['tokensUsed'];
+                                $responseJSON['message'] = __(self::LANG_GROUP, 'La traducción se realizó con éxito.');
+                            } catch (\Throwable $e) {
+                                log_exception($e);
+                                $responseJSON['success'] = false;
+                                $responseJSON['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error con el servicio de traducción, intente más tarde.');
+                                $responseJSON['error'] = $e->getMessage();
+                            }
+                        }
+                    }
+
+                } elseif ($actionType == 'saveGroup') {
+
+                    //Retirada (#069): el navegador compilado pide translateGroup, que traduce, filtra y guarda.
+                    return $response->withJson([
+                        'success' => false,
+                        'message' => __(self::LANG_GROUP, 'saveGroup ya no guarda traducciones: use translateGroup.'),
+                        'error' => null,
+                        'saved' => 0,
+                        'rejected' => [],
+                    ], 410);
 
                 }
 
@@ -866,12 +760,247 @@ class APIController extends AdminPanelController
             } else {
                 throw new NotFoundException($request, $response);
             }
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
             $responseJSON['success'] = false;
             $responseJSON['error'] = $e->getMessage();
             $response = $response->withJson($responseJSON);
         }
         return $response;
+    }
+
+    /**
+     * El manejador de IA configurado, con el proveedor y los modelos
+     *
+     * @return array{0: OpenAIHandlerAdapter|MistralHandlerAdapter|null, 1: mixed, 2: mixed, 3: mixed}
+     */
+    private function translationAIHandler(): array
+    {
+        $translationAI = get_config('translationAI');
+        $modelOpenAI = get_config('modelOpenAI');
+        $modelMistral = get_config('modelMistral');
+        $aiHandler = null;
+
+        //Destruir la conexión a la base de datos para evitar errores de conexión
+        BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+
+        if ($translationAI == AI_OPENAI) {
+            $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
+        } elseif ($translationAI == AI_MISTRAL) {
+            $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
+        }
+
+        return [$aiHandler, $translationAI, $modelOpenAI, $modelMistral];
+    }
+
+    /**
+     * Separa en segmentos las entradas que son HTML según $asHTMLProperties, y las quita de $text
+     *
+     * @param array<mixed> $text
+     * @param array<mixed> $asHTMLProperties
+     * @return array<mixed>
+     */
+    private function splitHTMLProperties(array &$text, array $asHTMLProperties): array
+    {
+        $textSplitted = [];
+        foreach ($text as $key => $value) {
+            if (in_array($key, $asHTMLProperties)) {
+                $textSplitted[$key] = array_merge($textSplitted, HelperController::splitHtmlSafely($value));
+                unset($text[$key]);
+            }
+        }
+        return $textSplitted;
+    }
+
+    /**
+     * Traduce con la IA las entradas normales y las HTML segmentadas
+     *
+     * @param OpenAIHandlerAdapter|MistralHandlerAdapter $aiHandler
+     * @param array<mixed> $text
+     * @param array<mixed> $textSplitted
+     * @param mixed $from
+     * @param mixed $to
+     * @return array{translation: array<mixed>|null, lastUsage: array<mixed>, lastAskToChatOriginalResponse: array<mixed>, tokensUsed: mixed}
+     */
+    private function translateWithAI($aiHandler, array $text, array $textSplitted, $from, $to): array
+    {
+        $lastUsage = [];
+        $lastAskToChatOriginalResponse = [];
+
+        /* Generar traducciones */
+        $translation = [];
+        $tranlationCallback = function ($value, bool $isSplitted = false) use ($text) {
+            $expectedProperties = array_keys($text);
+            $hasProperties = is_array($value);
+            if ($hasProperties) {
+                foreach ($expectedProperties as $expectedProperty) {
+                    if (!array_key_exists($expectedProperty, $value)) {
+                        $hasProperties = false;
+                        break;
+                    }
+                }
+            }
+            if ($isSplitted) {
+                $hasProperties = is_array($value) && !empty($value);
+            }
+            $result = !$hasProperties ? HelperController::tryParseTranslationResult($value) : $value;
+            return $result;
+        };
+
+        //Traducir entradas normales tal como vienen
+        $translationNormal = $aiHandler->translate($text, $from, $to, $tranlationCallback);
+        $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
+        $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
+
+        //Traducir entradas HTML segmentadas
+        $translationSplitted = [];
+        foreach ($textSplitted as $key => $splitted) {
+            //Recorrer cada elemento de la entrada HTML segmentada
+            foreach ($splitted as $valueIndex => $splittedElement) {
+
+                //Traducir segmento
+                $translationSplittedResult = $aiHandler->translate([
+                    'segment' => $splittedElement,
+                ], $from, $to, function ($value) use ($tranlationCallback) {
+                    return $tranlationCallback($value, true);
+                });
+
+                //Añadir segmento
+                if ($translationSplittedResult !== null) {
+                    $translationSplitted[$key][$valueIndex] = implode("\n", $translationSplittedResult);
+                }
+                $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
+                $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
+            }
+
+            //Juntar segmentos
+            $translationSplitted[$key] = implode("\n", $translationSplitted[$key]);
+        }
+
+        /* Agregar traducciones */
+
+        //Agregar entradas normales
+        if ($translationNormal !== null) {
+            $translation = $translationNormal;
+        }
+
+        //Agregar entradas HTML segmentadas
+        if (count($translationSplitted) > 0) {
+            $translation = array_merge($translation, $translationSplitted);
+        }
+
+        //Verificar que haya traducciones
+        $translation = !empty($translation) ? $translation : null;
+
+        return [
+            'translation' => $translation,
+            'lastUsage' => $lastUsage,
+            'lastAskToChatOriginalResponse' => $lastAskToChatOriginalResponse,
+            'tokensUsed' => $aiHandler->getTokensUsed($lastUsage),
+        ];
+    }
+
+    /**
+     * Suma los tokens usados al contador del proveedor
+     *
+     * @param mixed $translationAI
+     * @param mixed $tokensUsed
+     * @return void
+     */
+    private function recordTokensUsed($translationAI, $tokensUsed): void
+    {
+        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
+        $currentUsageData[$translationAI] += $tokensUsed;
+        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
+    }
+
+    /**
+     * El error de entrada de saveGroup y translateGroup, dentro de __(), o null si todo es válido
+     *
+     * @param mixed $to
+     * @param mixed $group
+     * @param array<mixed>|null $keys
+     * @return string|null
+     */
+    private function dynamicTranslationsInputError($to, $group, ?array $keys): ?string
+    {
+        if (!is_string($to) || !in_array($to, Config::get_allowed_langs(), true)) {
+            return __(self::LANG_GROUP, 'El idioma de destino no está permitido.');
+        }
+        if (!is_string($group) || preg_match(DynamicTranslationsHelper::GROUP_PATTERN, $group) !== 1) {
+            return __(self::LANG_GROUP, 'El grupo de traducción no es válido.');
+        }
+        if ($keys === null || count($keys) === 0 || count($keys) > DynamicTranslationsHelper::KEYS_MAX_PER_GROUP) {
+            return __(self::LANG_GROUP, 'Las claves deben ser una lista no vacía y dentro del tope.');
+        }
+        foreach ($keys as $key) {
+            if (!is_string($key) || trim($key) === '' || mb_strlen($key) > DynamicTranslationsHelper::KEY_MAX_LENGTH) {
+                return __(self::LANG_GROUP, 'Cada clave debe ser un texto no vacío y dentro del tope.');
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Las traducciones dinámicas guardadas y aún no volcadas al JSON
+     *
+     * @return array<mixed>
+     */
+    private function pendingDynamicTranslations(): array
+    {
+        $pendingData = GenericContentPseudoMapper::getContentData(get_config('DYNAMIC_TRANSLATIONS')['dataConfigName']);
+        return is_array($pendingData) ? $pendingData : [];
+    }
+
+    /**
+     * Si la clave ya tiene traducción en ese idioma: estática, del JSON dinámico o pendiente en base de datos
+     *
+     * @param string $lang
+     * @param string $group
+     * @param string $key
+     * @param array<mixed> $pendingData
+     * @return bool
+     */
+    private function hasTranslation(string $lang, string $group, string $key, array $pendingData): bool
+    {
+        $loaded = get_config('pcsphp_system_translations');
+        if (is_array($loaded) && isset($loaded[$lang][$group][$key])) {
+            return true;
+        }
+        return isset($pendingData[$lang][$group][$key]);
+    }
+
+    /**
+     * Guarda lo aceptado sin sobrescribir nada, con la fecha, y devuelve cuántas claves guardó
+     *
+     * @param string $to
+     * @param string $group
+     * @param array<string,string> $accepted
+     * @return int
+     */
+    private function saveDynamicTranslations(string $to, string $group, array $accepted): int
+    {
+        $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
+        $dataConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['dataConfigName'];
+        $lastDateConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['lastDateConfigName'];
+
+        $currentData = $this->pendingDynamicTranslations();
+        $currentData[$to] = isset($currentData[$to]) && is_array($currentData[$to]) ? $currentData[$to] : [];
+        $currentData[$to][$group] = isset($currentData[$to][$group]) && is_array($currentData[$to][$group]) ? $currentData[$to][$group] : [];
+
+        $saved = 0;
+        foreach ($accepted as $key => $value) {
+            if (!array_key_exists($key, $currentData[$to][$group])) {
+                $currentData[$to][$group][$key] = $value;
+                $saved++;
+            }
+        }
+
+        if ($saved > 0) {
+            GenericContentPseudoMapper::setContentData($dataConfigName, $currentData);
+            GenericContentPseudoMapper::setContentData($lastDateConfigName, new \DateTime());
+        }
+
+        return $saved;
     }
 
     /**
@@ -1036,7 +1165,7 @@ class APIController extends AdminPanelController
             ];
             foreach ($equivalences as $targetName => $configEquivalence) {
                 $fromName = $configEquivalence['from'];
-                $fromValue = array_key_exists($fromName, $parsedBody) ? $parsedBody[$fromName] : null;
+                $fromValue = $parsedBody[$fromName] ?? null;
                 if ($fromValue !== null) {
                     $fromValueParsed = $configEquivalence['parse']($fromValue);
                     if ($fromValueParsed !== null) {
@@ -1047,21 +1176,39 @@ class APIController extends AdminPanelController
                     }
                 }
             }
-            $organizationID = array_key_exists('organizationID', $parsedBody) ? $parsedBody['organizationID'] : null;
-            $organizationName = array_key_exists('organizationName', $parsedBody) ? $parsedBody['organizationName'] : null;
-            $organizationCreatedID = null;
+            $organizationID = $parsedBody['organizationID'] ?? null;
+            $organizationName = $parsedBody['organizationName'] ?? null;
+            $organizationCreated = null;
             if ($organizationID == 'NONE') {
-                if (is_string($organizationName) && mb_strlen($organizationName) > 0) {
-                    $requestForOrganization = RequestRouteFactory::createFromGlobals();
-                    $requestForOrganization = $requestForOrganization->withParsedBody([
-                        'name' => $organizationName,
-                        'nit' => mb_strtoupper(uniqid('SIN_INFORMACION_')),
-                    ]);
-                    $controllerOrganization = new OrganizationsController();
-                    $reponseOrganization = $controllerOrganization->action($requestForOrganization, (new Response())->withStatus(200, ''));
-                    $arrayBodyResponseOrganization = json_decode($reponseOrganization->getBody()->__toString(), true);
-                    $parsedBody['organization'] = $arrayBodyResponseOrganization['values']['orgID'];
-                    $organizationCreatedID = $arrayBodyResponseOrganization['values']['orgID'];
+                if (is_string($organizationName) && mb_strlen(trim($organizationName)) > 0) {
+
+                    //LLAMADA DIRECTA al alta del módulo (P37). Fabricar una petición y leer su JSON dependía del nombre
+                    //de la ruta que llegara, y el `orgID` se leía sin mirar si el alta había salido bien.
+                    $organizationError = null;
+
+                    try {
+                        $organizationCreated = OrganizationsController::createOrganization([
+                            'name' => $organizationName,
+                            'nit' => mb_strtoupper(uniqid(OrganizationMapper::NIT_WITHOUT_INFORMATION_PREFIX)),
+                        ]);
+                    } catch (\Throwable $e) {
+                        $organizationError = $e;
+                    }
+
+                    if ($organizationCreated === null || $organizationCreated->id === null) {
+                        //SIN ORGANIZACIÓN NO SE SIGUE: un usuario a medias es peor que un alta que falla.
+                        $reference = log_exception($organizationError ?? new \RuntimeException(
+                            'No se creó la organización del alta pública por API.'
+                        ));
+                        $operationName = __(self::LANG_GROUP, 'Creación de usuario');
+                        $failedResult = new ResultOperations([
+                            new Operation($operationName),
+                        ], $operationName);
+                        $failedResult->setMessage(CustomSlimErrorHandler::genericMessage($reference));
+                        return $response->withJson($failedResult);
+                    }
+
+                    $parsedBody['organization'] = $organizationCreated->id;
                     //Dado que esta persona creó su organización se pone como adminstrador de organización
                     $parsedBody['type'] = UsersModel::TYPE_USER_ADMIN_ORG;
                 }
@@ -1079,24 +1226,24 @@ class APIController extends AdminPanelController
             //status
             $parsedBody = $request->getParsedBody();
             $inputUserType = $request->getParsedBodyParam('type', null);
-            $inputUserType = is_string($inputUserType) ? trim($inputUserType) : null;
+            //El tipo puede venir como entero: lo pone el bloque de arriba cuando esta persona crea su organización.
+            //Mirando solo `is_string()` se perdía, y quien creaba su organización acababa siendo usuario general.
+            $inputUserType = is_int($inputUserType) ? (string) $inputUserType : (is_string($inputUserType) ? trim($inputUserType) : null);
             $defaultUserType = UsersModel::TYPE_USER_GENERAL;
             $availableUserTypes = [
                 UsersModel::TYPE_USER_ADMIN_ORG,
                 UsersModel::TYPE_USER_GENERAL,
             ];
-            $defaultOrganizationByType = [
-                UsersModel::TYPE_USER_GENERAL => OrganizationMapper::INITIAL_ID_GLOBAL,
-            ];
             $userType = in_array($inputUserType, $availableUserTypes) ? $inputUserType : $defaultUserType;
             $parsedBody['type'] = (string) $userType;
             $parsedBody['status'] = (string) UsersModel::STATUS_USER_APPROVED_PENDING;
 
-            //Asignación automática de organización si no hay una definida. Según tipo de usuario.
+            //P39: el -10 solo vale de defecto para TYPES_USER_DONT_REQUIRE_ORGANIZATION, y aquí no se admite ninguno
+            //de esos tipos: sin organización el alta falla con su mensaje —lo dice register()— y queda en el log.
             if (!array_key_exists('organization', $parsedBody)) {
-                if (array_key_exists($parsedBody['type'], $defaultOrganizationByType)) {
-                    $parsedBody['organization'] = $defaultOrganizationByType[$parsedBody['type']];
-                }
+                log_exception(new \RuntimeException(
+                    'Alta pública por API sin organización para el tipo de usuario «' . $parsedBody['type'] . '»: no se aplica el -10 (P39).'
+                ));
             }
 
             $request = $request->withParsedBody($parsedBody);
@@ -1109,24 +1256,27 @@ class APIController extends AdminPanelController
             $username = $request->getParsedBodyParam('username');
             $phoneCode = $request->getParsedBodyParam('phoneCode');
             $phoneNumber = $request->getParsedBodyParam('phoneNumber');
+            $userCreated = false;
             if ($creationSuccess) {
                 $userByUsername = UsersModel::getBy($username, 'username', [], new UserDataPackage(1), true);
                 if ($userByUsername !== null) {
-                    $profileUser = UserProfileMapper::getProfile($userByUsername->id);
+                    $userCreated = true;
+                    //Viene de registrar al usuario justo arriba: crear su perfil aquí es
+                    //legítimo, y es idempotente si el alta ya lo creó.
+                    $profileUser = UserProfileMapper::createProfile((int) $userByUsername->id);
                     if ($profileUser !== null) {
                         $profileUser->phoneCode = $phoneCode;
                         $profileUser->phoneNumber = $phoneNumber;
                         $profileUser->update();
                     }
-                    if ($organizationCreatedID !== null) {
-                        $mapperOrg = new OrganizationMapper($organizationCreatedID);
-                        $mapperOrg->administrator = $userByUsername->id;
-                        $mapperOrg->update();
+                    if ($organizationCreated !== null) {
+                        $organizationCreated->administrator = $userByUsername->id;
+                        $organizationCreated->update();
                     }
 
                     //Envío de correo - INICIO
                     $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación."), [
-                        '{NAME}' => $userByUsername->getFullName(),
+                        '{NAME}' => htmlspecialchars((string) $userByUsername->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
                     ]);
                     $mailer = new Mailer();
                     $mailConfig = new MailConfig;
@@ -1139,7 +1289,7 @@ class APIController extends AdminPanelController
                     $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
                     $data = [];
                     $data['text'] = mb_convert_encoding($message, 'UTF-8');
-                    $data['url'] = get_route('admin');
+                    $data['url'] = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
                     $data['text_button'] = __(self::LANG_GROUP, 'Iniciar sesión');
                     $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
                     if (!$mailer->checkSettedSMTP()) {
@@ -1149,6 +1299,16 @@ class APIController extends AdminPanelController
                     //Envío de correo - FIN
 
                 }
+            }
+
+            if ($organizationCreated !== null && !$userCreated) {
+                //Se creó PARA este usuario y no llegó a haberlo: se retira como la retira el módulo (status DELETED),
+                //que es lo que dejan fuera el listado, las aprobaciones y la comprobación de nit repetido.
+                $organizationCreated->status = OrganizationMapper::DELETED;
+                $organizationCreated->update();
+                log_exception(new \RuntimeException(
+                    'Alta pública por API: el usuario no se creó y se retiró la organización ' . $organizationCreated->id . ' que se había creado para él.'
+                ));
             }
             //Acciones de REGISTRO EXTERNO PERSONALIZADO - FIN
 
@@ -1175,11 +1335,12 @@ class APIController extends AdminPanelController
                 $parsedBody = $request->getParsedBody();
                 $userID = (int) $request->getParsedBodyParam('id', null);
 
+                //parámetro => columna: eran el mismo texto y dejaron de serlo.
                 $availableParams = [
-                    'username',
-                    'email',
-                    'firstname',
-                    'first_lastname',
+                    'username' => 'username',
+                    'email' => 'email',
+                    'firstname' => 'firstname',
+                    'first_lastname' => 'firstLastname',
                 ];
 
                 $isSameUser = $userID == $currentUser->id;
@@ -1196,14 +1357,14 @@ class APIController extends AdminPanelController
 
                             $availableFields = array_merge(array_keys($userMapper->getFields()), array_keys($userMapper->getMetaProperties()));
 
-                            foreach ($availableParams as $paramName) {
-                                if (!array_key_exists($paramName, $parsedBody) && in_array($paramName, $availableFields) && $paramName !== 'meta') {
+                            foreach ($availableParams as $paramName => $fieldName) {
+                                if (!array_key_exists($paramName, $parsedBody) && in_array($fieldName, $availableFields) && $fieldName !== 'meta') {
                                     $specialBehaviour = [
                                         'TEST' => function ($mapper) {
                                             return '';
                                         },
                                     ];
-                                    $parsedBody[$paramName] = array_key_exists($paramName, $specialBehaviour) ? ($specialBehaviour[$paramName])($userMapper) : $userMapper->$paramName;
+                                    $parsedBody[$paramName] = array_key_exists($fieldName, $specialBehaviour) ? ($specialBehaviour[$fieldName])($userMapper) : $userMapper->$fieldName;
                                 }
                             }
                         }
@@ -1338,7 +1499,7 @@ class APIController extends AdminPanelController
                         unset($userLoginData['meta']);
 
                         foreach ($userLoginData as $k => $i) {
-                            if (strpos($k, 'META:') !== false) {
+                            if (str_contains($k, 'META:')) {
                                 unset($userLoginData[$k]);
                                 $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
                             }
@@ -1384,72 +1545,27 @@ class APIController extends AdminPanelController
             //Verificar que el grupo de datos para solicitados esté completo
             $parametros_ok = require_keys($requerido, $params) === true && count($requerido) === count($params);
 
-            //Cuerpo de la respuesta
-            $json_response = [
-                'send_mail' => false,
-                'error' => UserProblemsController::NO_ERROR,
-                'message' => '',
-            ];
-            $usuario = null;
-
-            //Si los parámetros son válidos en nombre y en cantidad se inicia el proceso de recuperación
             if ($parametros_ok) {
 
-                //Se selecciona un elemento que concuerde con el usuario
-                $username = $params['username'];
+                $usuario = $controller->requestRecoveryCode(trim((string) $params['username']), true);
 
-                $usuario = $controller->userMapper->getWhere([
-                    'username' => [
-                        '=' => $username,
-                        'and_or' => 'OR',
-                    ],
-                    'email' => [
-                        '=' => $username,
-                    ],
+                $response = $response->withJson([
+                    'send_mail' => true,
+                    'error' => RecoveryPasswordController::NO_ERROR,
+                    'message' => OTPRateLimiter::uniformOTPMessage(),
                 ]);
 
-                //Verificación de existencia
                 if ($usuario !== null) {
-
-                    //Datos de recuperación
-                    $recoveryPassword = new RecoveryPasswordModel();
-                    $recoveryPassword->created = new \DateTime();
-                    $recoveryPassword->expired = $recoveryPassword->created->modify('+24 hour');
-                    $recoveryPassword->email = $usuario->email;
-                    $recoveryPassword->code = generate_code(6);
-                    $recoveryPassword->save();
-
-                    //Envío de correo de recuperación
-                    $json_response['send_mail'] = $controller->mailRecoveryPasswordCode($recoveryPassword->code, $usuario, true);
-                    $json_response['message'] = __(RecoveryPasswordController::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
-
-                    $logRequest = new TicketsLogModel();
-                    $logRequest->created = $recoveryPassword->created;
-                    $logRequest->email = $recoveryPassword->email;
-                    $logRequest->information = [
-                        'code' => $recoveryPassword->code,
-                        'email_sended' => $json_response['send_mail'],
-                        'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
-                    ];
-                    $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
-                    $logRequest->save();
-                } else {
-
-                    $json_response['error'] = RecoveryPasswordController::USER_NO_EXISTS;
-                    $json_response['message'] = vsprintf($controller->getMessage($json_response['error']), [$username]);
+                    LogsMapper::addLog(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
+                        '%username%' => $usuario->username,
+                    ], 'id', $usuario->id, UsersModel::TABLE);
                 }
             } else {
-
-                $json_response['error'] = RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS;
-                $json_response['message'] = $controller->getMessage($json_response['error']);
-            }
-
-            $response = $response->withJson($json_response);
-
-            if ($usuario !== null) {
-                LogsMapper::addLog(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
-                    '%username%' => $usuario->username,
-                ], 'id', $usuario->id, UsersModel::TABLE);
+                $response = $response->withJson([
+                    'send_mail' => false,
+                    'error' => RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS,
+                    'message' => $controller->getMessage(RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS),
+                ]);
             }
 
         } elseif ($actionType == 'change-password-code') {
@@ -1458,9 +1574,6 @@ class APIController extends AdminPanelController
                 throw new NotFoundException($request, $response);
             }
 
-            //code
-            //password
-            //repassword
             $parsedBody = $request->getParsedBody();
             $request = $request->withParsedBody($parsedBody);
 
@@ -1469,10 +1582,13 @@ class APIController extends AdminPanelController
 
             $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
 
-            if ($arrayBodyResponse['success'] && $arrayBodyResponse['user'] !== null) {
-                LogsMapper::addLog(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
-                    '%username%' => $arrayBodyResponse['user']['username'],
-                ], 'id', $arrayBodyResponse['user']['id'], UsersModel::TABLE);
+            if (is_array($arrayBodyResponse) && ($arrayBodyResponse['success'] ?? false) === true && is_array($parsedBody) && is_string($parsedBody['username'] ?? null)) {
+                $usuario = $controller->resolveUser(trim($parsedBody['username']));
+                if ($usuario !== null) {
+                    LogsMapper::addLog(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
+                        '%username%' => $usuario->username,
+                    ], 'id', $usuario->id, UsersModel::TABLE);
+                }
             }
         }
 
@@ -1490,17 +1606,23 @@ class APIController extends AdminPanelController
         $request = $request->withHeader('Accept', 'application/json');
 
         /**
-         * Ejemplo para programar cron job:
+         * Ejemplo para programar cron job (la clave, en la cabecera: el parámetro GET queda en los logs de acceso):
          * Contenido: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
-         * Tiempo: 0 * * * *
+         * Tiempo: * * * * * (cada minuto: la franja, los reintentos y la ventana los pone cada tarea)
          */
         $actionType = $request->getAttribute('actionType');
         $method = mb_strtoupper($request->getMethod());
 
         $CronJobKey = get_config('CronJobKey');
-        $cronJobKeyOnRequest = $request->getHeaderLine('Cron-Job-Key');
-        $cronJobKeyOnGet = $request->getQueryParam('Cron-Job-Key');
-        $cronJobKeyIsValid = $cronJobKeyOnRequest === $CronJobKey || $cronJobKeyOnGet === $CronJobKey;
+        //FALLA CERRADA: sin secure-keys/cronjob la clave es '', y '' === '' dejaba pasar una petición sin cabecera.
+        if (!is_string($CronJobKey) || $CronJobKey === '') {
+            log_exception(new \RuntimeException('cron-jobs: CronJobKey no está configurada; la ruta responde 403.'));
+            return throw403($request, [
+                'line' => __LINE__,
+                'file' => __FILE__,
+            ]);
+        }
+        $cronJobKeyIsValid = self::cronJobKeyAccepted($CronJobKey, $request->getHeaderLine('Cron-Job-Key'), $request->getQueryParam('Cron-Job-Key'));
 
         if (!$cronJobKeyIsValid) {
             return throw403($request, [
@@ -1524,10 +1646,10 @@ class APIController extends AdminPanelController
             $responseJSON['TasksRuns']["CheckWorking"] = true;
 
             $systemCronjobs = CronJobTask::getCronJobs();
-            if (is_array($systemCronjobs)) {
-                foreach ($systemCronjobs as $cronTask) {
-                    $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->execute();
-                }
+            $now = new \DateTime();
+            foreach ($systemCronjobs as $cronTask) {
+                //run(): franja, ventana, intentos, bloqueo y estado. La respuesta no lleva la traza.
+                $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->run($now);
             }
 
         } else {
@@ -1535,6 +1657,24 @@ class APIController extends AdminPanelController
         }
 
         return $response->withJson($responseJSON);
+    }
+
+    /**
+     * Si la petición trae la clave del cron. Falla cerrada: sin clave configurada no pasa nada.
+     *
+     * @param mixed $configuredKey get_config('CronJobKey')
+     * @param string $headerKey La cabecera Cron-Job-Key, que es la recomendada
+     * @param mixed $queryKey El parámetro GET Cron-Job-Key, por compatibilidad
+     * @return bool
+     */
+    protected static function cronJobKeyAccepted($configuredKey, string $headerKey, $queryKey): bool
+    {
+        if (!is_string($configuredKey) || $configuredKey === '') {
+            return false;
+        }
+        $headerMatches = $headerKey !== '' && hash_equals($configuredKey, $headerKey);
+        $queryMatches = is_string($queryKey) && $queryKey !== '' && hash_equals($configuredKey, $queryKey);
+        return $headerMatches || $queryMatches;
     }
 
     /**
@@ -1575,101 +1715,6 @@ class APIController extends AdminPanelController
         }
 
         return $response;
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-            }
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -1833,7 +1878,7 @@ class APIController extends AdminPanelController
             $routes = array_merge($routes, $routesReports);
         }
 
-        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS || APIRoutes::ENABLE_REPORTS) {
+        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS || APIRoutes::ENABLE_REPORTS || APIRoutes::ENABLE_CRONJOBS) {
             $group->register($routes);
 
             $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
@@ -1844,5 +1889,26 @@ class APIController extends AdminPanelController
         }
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

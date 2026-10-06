@@ -1,14 +1,17 @@
 <?php
 
 use App\Controller\PublicAreaController;
-use App\Model\AppConfigModel;
-use App\Model\UsersModel;
+use PiecesPHP\Settings\ORM\SettingsModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
+use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Logs\ExpiredSessionsLog;
+use PiecesPHP\Core\MaintenanceMode;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\DependenciesInjector;
@@ -19,11 +22,14 @@ use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\ResponseRouteFactory;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\Terminal\LoadFailures;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -136,7 +142,7 @@ if (APP_CONFIGURATION_MODULE) {
     $default_configurations_values['check_aud_on_auth'] = get_config('check_aud_on_auth') !== false ? get_config('check_aud_on_auth') : true;
 
     ksort($default_configurations_values);
-    AppConfigModel::initializateConfigurations($default_configurations_values);
+    SettingsModel::initializateConfigurations($default_configurations_values);
 }
 
 /**
@@ -148,7 +154,7 @@ if (APP_CONFIGURATION_MODULE) {
  */
 if (APP_CONFIGURATION_MODULE) {
     //Configuraciones de la aplicación tomadas desde la base de datos
-    $configurations = AppConfigModel::getConfigurations();
+    $configurations = SettingsModel::getConfigurations();
 
     foreach ($configurations as $name => $value) {
         set_config($name, $value);
@@ -163,7 +169,7 @@ if (APP_CONFIGURATION_MODULE) {
 
     //Configuración del título
     if (mb_strlen(get_title()) == 0) {
-        set_title(AppConfigModel::getConfigValue('title_app'));
+        set_title(SettingsModel::getConfigValue('title_app'));
     }
 }
 
@@ -215,7 +221,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     // Atrapa mensajes 'flash' (sesiones volátiles de una sola vez) y excepciones previas al enrutamiento
     $flashMessagesExceptionRender = get_flash_messages(BaseController::class);
     /** @var \Throwable|null */
-    $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessagesExceptionRender) ? $flashMessagesExceptionRender['render_exception'] : null;
+    $flashMessagesExceptionRender = $flashMessagesExceptionRender['render_exception'] ?? null;
 
     // Plantilla de respuesta HTTP vacía para mutarla y retornar en caso de rechazos 403 o 404
     $emptyResponse = new ResponseRoute();
@@ -311,11 +317,11 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     if (!$isActiveSession && get_config('terminalData')->isTerminal()) {
         $rootUser = new UsersModel(1);
         if ($rootUser->id !== null) {
+            //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES: lo que este usuario ES se lee de su fila en cada petición.
             $JWT = SessionToken::generateToken([
                 'id' => $rootUser->id,
-                'type' => $rootUser->type,
             ]);
-            $_SERVER["HTTP_" . mb_strtoupper(SessionToken::TOKEN_NAME)] = $JWT;
+            $_SERVER["HTTP_" . mb_strtoupper(SessionToken::tokenName())] = $JWT;
             // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
             $isActiveSession = SessionToken::isActiveSession($JWT);
         }
@@ -327,7 +333,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         if (!is_null($name) && $withPrefix) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         if ($withPrefix) {
@@ -352,76 +358,32 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     $ignoreExpiredForRoutesName = [
         ($getQualifiedRouteName)('NOMBRE_CALIFICADO_DE_LA_CLASE', 'NOMBRE_SIMPLE_DE_LA_RUTA'),
         //($getQualifiedRouteName)(\API\Controllers\APIController::class, 'polls-actions'),
-        //($getQualifiedRouteName)(\App\Controller\TimerController::class, 'timing-add', false),
+        //($getQualifiedRouteName)(\PiecesPHP\UserSystem\Controllers\TimerController::class, 'timing-add', false),
     ];
 
     // --- 4. Manejo de Expiración de Sesión ---
-    // Generación de un log persistente en /app/logs si el token se vence,
-    // con autolimpieza de historiales con más de 30 días de antigüedad.
+    // Una línea en app/logs/expired-sessions.log, sin el token y solo si la instalación lo
+    // enciende (ADR 0039). Antes: un .json por petición con el JWT entero, y un recorrido de la
+    // carpeta en cada caducidad.
     if (!$isActiveSession) {
 
         // Desencripta la info del token brincándose la validación de tiempo para rescatar qué usuario intentó operar.
         $expiredUserData = (object) BaseToken::getData($JWT, null, null, true);
 
-        $expiredSessionsFolder = basepath('app/logs/expired-sessions');
-        if (!file_exists($expiredSessionsFolder)) {
-            @mkdir($expiredSessionsFolder, 0755, true);
-        }
+        //Se decodifica SIEMPRE, no solo para el registro: la revocación de más abajo decide con la
+        //fecha de ESTE token viejo, y sin ella esa lista sería la puerta trasera de un revocado.
+        $expiredToken = BaseToken::decode($JWT, BaseToken::getSecretKey(), BaseToken::$encrypt, true);
 
-        $expiredSessionDataToJSON = [
-            'token' => $JWT,
-            'decodeToken' => BaseToken::decode($JWT, BaseToken::getSecretKey(), BaseToken::$encrypt, true),
-            'data' => $expiredUserData,
-            'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
-            'routeName' => $route->getName(),
-            'requestURL' => $request->getRequestTarget(),
-            'ignoreCandidates' => $ignoreExpiredForRoutesName,
-        ];
-        $addToExpired = false;
-        if (is_object($expiredSessionDataToJSON['decodeToken'])) {
-            $tokenCreatedDate = (new \DateTime());
-            $tokenCreatedDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-            $tokenCreatedDate->setTimestamp($expiredSessionDataToJSON['decodeToken']->iat);
-            $expiredSessionDataToJSON['tokenCreatedDate'] = $tokenCreatedDate->format('d-m-Y h:i:s A P');
-            $addToExpired = true;
-        }
-
-        $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), ['..', '.']) : [];
-        array_map(function ($e) use ($expiredSessionsFolder) {
-
-            $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR  . $e;
-            if ($e == '.keep' || mb_strpos($e, '.json') === false) {
-                return;
-            }
-
-            $fullDateSegments = explode('_', str_replace('.json', '', $e));
-            $dateSegments = explode('-', $fullDateSegments[0]);
-            $timeSegments = explode('-', $fullDateSegments[1]);
-            $amPm = $fullDateSegments[2];
-            $day = $dateSegments[0];
-            $month = $dateSegments[1];
-            $year = $dateSegments[2];
-            $hour = $timeSegments[0];
-            $minute = $timeSegments[1];
-            $second = $timeSegments[2];
-            $milisecond = $timeSegments[3];
-            $dateString = "{$day}-{$month}-{$year} {$hour}:{$minute}:{$second} {$amPm}";
-
-            $date = \DateTime::createFromFormat('d-m-Y h:i:s A', $dateString);
-            $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-            $date30Days = \DateTime::createFromFormat('d-m-Y h:i:s A', $dateString);
-            $date30Days->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-            $date30Days->modify('+30 days');
-
-            $now = new \DateTime();
-
-            if ($date30Days < $now) {
-                @unlink($fullPath);
-            }
-        }, $oldFilesExpiredSessions);
-
-        if ($addToExpired) {
-            @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR  . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
+        if (ExpiredSessionsLog::enabled()) {
+            ExpiredSessionsLog::record(
+                isset($expiredUserData->id) ? (int) $expiredUserData->id : null,
+                $route->getName(),
+                $request->getRequestTarget(),
+                $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+                is_object($expiredToken) && isset($expiredToken->iat) ? (int) $expiredToken->iat : null,
+                is_object($expiredToken) && isset($expiredToken->exp) ? (int) $expiredToken->exp : null,
+                in_array($route->getName(), $ignoreExpiredForRoutesName)
+            );
         }
 
         // Renueva token si la ruta es una de excepción configurada (Ej. Cron, consultas 3ros, Webhooks)
@@ -429,12 +391,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         if ($ignoreExpired && is_object($expiredUserData) && isset($expiredUserData->id)) {
             $expiredUser = new UsersModel((int) $expiredUserData->id);
-            if ($expiredUser->id !== null) {
+            //LA REVOCACIÓN SE DECIDE AQUÍ, con la fecha del token VIEJO: el que se fabrica abajo nace ahora, después de
+            //cualquier marca, y la comprobación de más abajo lo daría por bueno. Sin esto, esta lista era la puerta
+            //trasera de un usuario revocado y de la marca global.
+            $expiredDecoded = $expiredToken;
+            $expiredCreated = is_object($expiredDecoded) && isset($expiredDecoded->iat) && is_int($expiredDecoded->iat) ? $expiredDecoded->iat : null;
+            $expiredUserMark = $expiredUser->sessionsValidFrom;
+            $expiredUserMark = $expiredUserMark instanceof \DateTimeInterface ? $expiredUserMark->format('Y-m-d H:i:s') : (is_string($expiredUserMark) ? $expiredUserMark : null);
+            if ($expiredUser->id !== null && SessionToken::isCreatedAfterMarks($expiredCreated, $expiredUserMark)) {
                 $JWT = SessionToken::generateToken([
                     'id' => $expiredUser->id,
-                    'type' => $expiredUser->type,
                 ]);
-                $_SERVER["HTTP_" . mb_strtoupper(SessionToken::TOKEN_NAME)] = $JWT;
+                $_SERVER["HTTP_" . mb_strtoupper(SessionToken::tokenName())] = $JWT;
                 // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
                 $isActiveSession = SessionToken::isActiveSession($JWT);
             }
@@ -479,15 +447,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @param \stdClass $user
              */
-            public function setUser(\stdClass $user)
+            public function setUser(\stdClass $user): void
             {
                 $this->element = $user;
             }
-            /**
-             * Trata de buscar al usuario en la base de datos
-             *
-             * @return \stdClass|null
-             */
             /**
              * Consumo a Base de Datos: Comprueba si el ID desencriptado del token existe físicamente
              * en MySQL y arma su nombre completo. Esto blinda los casos donde un Token es válido
@@ -509,9 +472,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                     if ($user !== null) {
                         $fullname = [
                             trim(is_string($user->firstname) ? $user->firstname : ''),
-                            trim(is_string($user->first_lastname) ? $user->first_lastname : ''),
+                            trim(is_string($user->firstLastname) ? $user->firstLastname : ''),
                             trim(is_string($user->secondname) ? $user->secondname : ''),
-                            trim(is_string($user->second_lastname) ? $user->second_lastname : ''),
+                            trim(is_string($user->secondLastname) ? $user->secondLastname : ''),
                         ];
                         $user->fullName = trim(implode(' ', $fullname));
                     }
@@ -520,21 +483,23 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 return $user;
             }
             /**
-             * Valida que la variable de entrada sea un objeto con las
-             * propiedades id y type válidas
+             * Valida que la variable de entrada sea un objeto con un id válido.
+             *
+             * EL TOKEN DICE QUIÉN, NUNCA QUÉ ES: lo que ese usuario es —su tipo, su estado, su
+             * organización— se lee de la fila, releída unas líneas más abajo, en cada petición.
              *
              * @return bool
              */
-            public function isValid()
+            public function isValid(): bool
             {
-                return $this->hasID() && $this->validType();
+                return $this->hasID();
             }
             /**
              * Valida que sea un objeto
              *
              * @return bool
              */
-            public function isObject()
+            public function isObject(): bool
             {
                 return $this->element instanceof \stdClass;
             }
@@ -543,30 +508,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @return bool
              */
-            public function hasID()
+            public function hasID(): bool
             {
                 $e = $this->element;
                 return $this->isObject() && isset($e->id) && $this->isInteger($e->id);
-            }
-            /**
-             * Valida que tenga un type de tipo válido
-             *
-             * @return bool
-             */
-            public function hasType()
-            {
-                $e = $this->element;
-                return $this->isObject() && isset($e->type) && $this->isInteger($e->type);
-            }
-            /**
-             * Valida que el type exista
-             *
-             * @return bool
-             */
-            public function validType()
-            {
-                $e = $this->element;
-                return $this->hasType() && in_array((int) $e->type, array_keys(UsersModel::TYPES_USERS));
             }
             /**
              * Valida que sea un entero válido
@@ -574,7 +519,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              * @param string|int $value
              * @return bool
              */
-            public function isInteger($value)
+            public function isInteger($value): bool
             {
                 return (is_string($value) && ctype_digit((string) $value)) || is_int($value);
             }
@@ -597,11 +542,16 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         // en el contexto del sistema como si fuera otro usuario en tiempo de ejecución.
         // Intercepción de parámetros GET o Cookies para activar la Suplantación de Identidad (Impersonation)
         $anotherUserID = isset($_GET) && array_key_exists(CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME, $_GET) ? $_GET[CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME] : null;
-        $anotherUserID = $anotherUserID !== null ? $anotherUserID : getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
+        //La petición que TRAE el parámetro es el acto de empezar o de dejar de suplantar; las demás
+        //solo arrastran la cookie. Sin esto, cada petición dejaría una entrada en el registro.
+        $impersonationRequested = $anotherUserID !== null;
+        $anotherUserID ??= getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
         set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
         // El privilegio ROOT es el único autorizado a intercambiar su variable en memoria y operar del lado del servidor simulando ser otro usuario de menor rango.
         if ($user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
             set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, $user->id);
+            //El nombre del principal se guarda ANTES de que `$user` pase a ser el suplantado.
+            $rootUsernameForLog = (string) ($user->username ?? $user->id);
             $anotherUserID = Validator::isInteger($anotherUserID) ? (int) $anotherUserID : null;
             if ($anotherUserID !== null && $anotherUserID > 0) {
                 setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, $anotherUserID);
@@ -611,7 +561,20 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 if ($user === null) {
                     die('El id de usuario con el que intenta ingresar no existe');
                 }
+                if ($impersonationRequested) {
+                    //Queda la huella de quién empezó a actuar como quién: antes, suplantar no
+                    //dejaba rastro y lo que el suplantado «hacía» aparecía como suyo.
+                    LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_START, [
+                        'username' => $rootUsernameForLog,
+                        'target' => $user->username ?? (string) $anotherUserID,
+                    ], 'id', (string) $anotherUserID, UsersModel::TABLE);
+                }
             } else {
+                if ($impersonationRequested && getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME) !== null) {
+                    LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_END, [
+                        'username' => $rootUsernameForLog,
+                    ], 'id', (string) $user->id, UsersModel::TABLE);
+                }
                 $anotherUserID = null;
                 setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, null);
             }
@@ -619,6 +582,17 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         }
 
         if ($user !== null) {
+
+            //REVOCACIÓN POR USUARIO (ADR 0026): un token vale si nació DESPUÉS de esta marca. Va aquí porque `$user`
+            //ya está leído de la base —y ya es el SUPLANTADO si root está suplantando—, así que no cuesta consulta.
+            $sessionsValidFrom = $user->sessionsValidFrom ?? null;
+            if ($isActiveSession && is_string($sessionsValidFrom) && trim($sessionsValidFrom) !== '') {
+                $tokenCreated = BaseToken::getCreated($JWT);
+                //La regla vive en un solo sitio: sin una fecha entera, o si no nació DESPUÉS de las marcas, se niega.
+                if (!SessionToken::isCreatedAfterMarks(is_int($tokenCreated) ? $tokenCreated : null, $sessionsValidFrom)) {
+                    $isActiveSession = false;
+                }
+            }
 
             //Verificar status de la organización si aplica
             $organizationID = $user->organization;
@@ -628,28 +602,66 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 OrganizationMapper::ACTIVE,
                 OrganizationMapper::PENDING_APPROVAL,
             ];
-            if ($organizationMapper == null || in_array($organizationMapper->status, $allowedStatusesOrganization)) {
-                set_config('current_user', $user);
-                if ($organizationMapper !== null && $organizationMapper->administrator !== null) {
-                    $userIsOrganizationAdministrator = $organizationMapper->administrator->id == $user->id;
-                }
-                Roles::setCurrentRole($user->type); //Se establece el rol
-            } else {
+            if ($organizationMapper !== null && !in_array($organizationMapper->status, $allowedStatusesOrganization)) {
                 $isActiveSession = false;
-                SessionToken::setMinimumDateCreated(new \DateTime());
             }
 
             //Verificar el status del usuario
             // Suspensión Forzosa: Si la base de datos marca `inactivo`, destrozamos forzosamente la sesión desestimando la firma JWT.
             if (in_array($user->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT)) {
                 $isActiveSession = false;
-                SessionToken::setMinimumDateCreated(new \DateTime());
+            }
+
+            //PRIMERO todas las comprobaciones, DESPUÉS el usuario actual: fijarlo antes deja que una sesión revocada o
+            //suspendida sea «el usuario» para toda ruta sin `require_login` (P78).
+            if ($isActiveSession) {
+                set_config('current_user', $user);
+                if ($organizationMapper !== null && $organizationMapper->administrator !== null) {
+                    $userIsOrganizationAdministrator = $organizationMapper->administrator->id == $user->id;
+                }
+                Roles::setCurrentRole($user->type); //Se establece el rol
             }
 
         } else {
             $isActiveSession = false;
-            SessionToken::setMinimumDateCreated(new \DateTime());
         }
+    }
+
+    // --- 7bis. Modo mantenimiento ---
+    // VA AQUÍ, después de resolver el usuario y antes del control de acceso: la excepción es por
+    // ROL, y sin usuario resuelto no hay rol que mirar. Y va ANTES de §8 a propósito: saltar el
+    // mantenimiento no salta el control de acceso, que sigue corriendo después para lo que pasa.
+    // El rol solo cuenta con sesión VIVA: si la revocación o el estado del usuario la tumbaron,
+    // `$isActiveSession` es false y aquí no hay excepción que aplicar.
+    $maintenanceRole = $isActiveSession && $user !== null ? (int) $user->type : null;
+
+    if (MaintenanceMode::blocks($name_route, $maintenanceRole)) {
+
+        $maintenanceResponse = (new ResponseRoute())->withStatus(503);
+        $maintenanceResponse = $maintenanceResponse->withHeader('Retry-After', (string) MaintenanceMode::retryAfter());
+        $maintenanceResponse = ($handleCors)($request, $maintenanceResponse);
+
+        //El MISMO criterio que ya usa este archivo para no mandar HTML a quien pide datos (§8) y que
+        //usa el manejador del 404: XHR o `Accept: application/json` reciben JSON, el terminal texto.
+        $maintenanceWantsData = $request->isXhr() || mb_strtolower($request->getHeaderLine('Accept')) === 'application/json';
+
+        if ($maintenanceWantsData) {
+            return $maintenanceResponse->withJson([
+                'error' => 'MAINTENANCE_MODE',
+                'message' => __('page503', 'Mantenimiento'),
+            ]);
+        }
+
+        if (TerminalData::getInstance()->isTerminal()) {
+            return $maintenanceResponse->write("El sitio está en mantenimiento \r\n");
+        }
+
+        //Se hace `echo` de la vista y se devuelve la respuesta con el 503, igual que el 404 de
+        //`config/containers.php`: esa es la forma que ya tiene el proyecto de servir una pantalla
+        //de error con su código.
+        (new BaseController(false))->render(MaintenanceMode::VIEW);
+
+        return $maintenanceResponse;
     }
 
     //Verifica si el control automático de acceso por login está activado
@@ -671,24 +683,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
                     if ($request->isXhr()) {
 
-                        $url_login = remove_last_char_on('/', get_route('users-form-login'));
-                        $referer = $request->getHeader('HTTP_REFERER');
-                        $referer = isset($referer[0]) ? $referer[0] : '';
-                        $referer = remove_last_char_on('/', $referer);
-
-                        if ($referer != $url_login) {
-                            $emptyResponse = $emptyResponse->withStatus(403);
-                            $emptyResponse = ($handleCors)($request, $emptyResponse);
-                            return $emptyResponse->withJson([
-                                'error' => 'RESTRICTED_AREA',
-                                'message' => __('errors', 'RESTRICTED_AREA'),
-                            ]);
-                        }
+                        //Sin sesión no hay excepciones: una cabecera de la petición no puede autorizar nada.
+                        $emptyResponse = $emptyResponse->withStatus(403);
+                        $emptyResponse = ($handleCors)($request, $emptyResponse);
+                        return $emptyResponse->withJson([
+                            'error' => 'RESTRICTED_AREA',
+                            'message' => __('errors', 'RESTRICTED_AREA'),
+                        ]);
                     } else {
 
                         if (!TerminalData::getInstance()->isTerminal()) {
                             set_flash_message('requested_uri', get_current_url());
-                            return $emptyResponse->withRedirect(get_route('users-form-login'));
+                            return $emptyResponse->withRedirect(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'));
                         } else {
                             return $emptyResponse->write("Esta ruta necesita autenticación \r\n");
                         }
@@ -699,9 +705,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         //Redirección al area administrativa desde formulario de logueo en caso de haber una session
         $login_redirect = get_config('admin_url');
-        $relative_url = $login_redirect !== false ? (isset($login_redirect['relative']) ? $login_redirect['relative'] : true) : true;
+        $relative_url = $login_redirect !== false ? ($login_redirect['relative'] ?? true) : true;
         $relative_url = !is_bool($relative_url)  ?true : $relative_url;
-        $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
+        $admin_url = $login_redirect !== false ? ($login_redirect['url'] ?? '') : '';
         if ($relative_url) {
             $admin_url = baseurl($admin_url);
         }
@@ -719,7 +725,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         //Control de permisos por roles
         // --- Inicia Pipeline de Autorización Dinámica de Roles (RBAC) ---
         $roles_control = get_config('roles');
-        $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
+        $active_roles_control = $roles_control['active'] ?? false;
         $current_role = $user !== null  ?Roles::getCurrentRole() : null;
         $has_permissions = null;
 
@@ -766,7 +772,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         // Retorno Forzado de HTTP 403 (Permiso Denegado) si la comprobación
         // de privilegios del rol del usuario arroja negativo.
-        if ($has_permissions !== null && !$has_permissions && $info_route['require_login']) {
+        //Falla CERRADA: con require_login, o hay sesión con permiso, o se niega. Sin sesión $has_permissions
+        //se queda en null (:706-707), y un null no puede leerse como permiso concedido.
+        if ($info_route['require_login'] && (!$isActiveSession || ($has_permissions !== null && !$has_permissions))) {
             return (function ($request) {
                 return throw403($request, []);
             })($request);
@@ -873,6 +881,13 @@ BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_INIT_ROUTES_NAME
 if (TerminalData::getInstance()->isTerminal()) {
 
     $terminalDataInstance = TerminalData::getInstance();
+
+    //Suites y tareas que no cargaron: se saltaron para no tumbar la CLI, y se avisa por STDERR
+    //para no romper a quien lee la salida estándar. El código de salida del comando no cambia.
+    foreach (LoadFailures::all() as $loadFailure) {
+        fwrite(STDERR, "AVISO: no se cargó {$loadFailure['file']}: {$loadFailure['class']}: {$loadFailure['message']}\n");
+    }
+
     $routeName = TerminalController::routeID($terminalDataInstance->route());
     $routeInformation = get_route_info($routeName);
     $_SERVER['REQUEST_URI'] = '';
@@ -899,6 +914,8 @@ if (TerminalData::getInstance()->isTerminal()) {
         $container->add('environment', \PiecesPHP\Core\Routing\Slim3Compatibility\Http\Environment::mock($basicServerVariables));
     } else {
         //Por otras acciones desacopladas del sistema de rutas
+        //CONTRATO: bin/check-routes depende de que esta rama vuelva antes de $app->run(); así lee las
+        //rutas sin despachar. Si deja de volver, el comprobador sale 2 en vez de aprobar.
         if ($actionName === '_list-actions') {
             //Utilidad para autocompletado en CLI
             $cliActionsNames = [];
@@ -973,6 +990,27 @@ $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exce
         ]);
     } elseif ($originalException instanceof HttpForbiddenException) {
         return get_router()->getDI()->get('forbiddenHandler')($originalException);
+    } elseif ($originalException instanceof MissingRequiredParameterException) {
+        //UN PARÁMETRO OBLIGATORIO QUE FALTA ES ERROR DEL CLIENTE, no del servidor. Aquí, que es
+        //donde el framework ya separa 404, 405 y 403 del 500, y no con un try/catch en cada una
+        //de las 27 controladoras: eso sería esparcir el arreglo, no hacerlo. Ver T151.
+        $response = new ResponseRoute(StatusCode::HTTP_BAD_REQUEST);
+        return $response->withJson([
+            'success' => false,
+            'error' => 'MISSING_REQUIRED_PARAMETER',
+            //El mensaje ya lo construye `Parameters::validate()`, traducido y con los nombres.
+            'message' => $originalException->getMessage(),
+        ]);
+    } elseif ($originalException instanceof InvalidParameterValueException) {
+        //UN VALOR QUE NO PASA LA VALIDACIÓN TAMBIÉN ES DEL CLIENTE. `ParsedValueException` NO
+        //entra aquí y se queda en 500 a propósito: salta cuando el `parse()` del módulo devuelve
+        //algo que su propio `validate()` rechaza, y las dos son código del servidor. Ver T152.
+        $response = new ResponseRoute(StatusCode::HTTP_BAD_REQUEST);
+        return $response->withJson([
+            'success' => false,
+            'error' => 'INVALID_PARAMETER_VALUE',
+            'message' => $originalException->getMessage(),
+        ]);
     } else {
         $errorContext = 'RouterSetErrorHandler';
         $contextsAvailables = [
@@ -988,7 +1026,7 @@ $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exce
                     break;
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable) {}
 
         global_custom_exception_handler($originalException, $errorContext);
         $response = new ResponseRoute();

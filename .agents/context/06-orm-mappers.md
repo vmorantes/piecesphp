@@ -1,0 +1,305 @@
+# 06 — Base de datos, ORM y Mappers
+
+El acceso a datos se hace con un ORM propio que vive en el paquete Composer
+`piecesphp/database` (`src/vendor/piecesphp/database`, namespace
+`PiecesPHP\Core\Database\*`) más extensiones locales en
+`src/app/core/psr4/PiecesPHP/Core/`.
+
+## Jerarquía de clases
+
+```
+PDO
+ └── PiecesPHP\Core\Database\Database
+      └── ...ORM\ActiveRecord            select/insert/update/delete/join/where/...
+           └── ...ActiveRecordModel      abstracción de tabla (fields, prefix, db pools)
+                └── PiecesPHP\Core\BaseModel        + config automática por grupo de BD
+                                                    + lc_time_names según idioma
+
+PiecesPHP\Core\Database\EntityMapper     abstracción de ENTIDAD (fila como objeto)
+ ├── PiecesPHP\Core\BaseEntityMapper     + eventos saving/saved/updating/updated
+ │                                        + inyección de systemApprovalStatus
+ └── PiecesPHP\Core\Database\EntityMapperExtensible   + meta properties (campo JSON)
+```
+
+**Regla práctica:** para código nuevo usa **`EntityMapperExtensible`**. Es lo que
+usan todos los módulos modernos (`NewsMapper`, `PublicationsMapper`, etc.).
+`BaseModel` queda para consultas crudas o modelos de sistema antiguos
+(`UsersModel`, `AppConfigModel`, …, en `App\Model`).
+
+## Anatomía de un Mapper
+
+Ubicación: `src/app/classes/<Modulo>/Mappers/<Nombre>Mapper.php`.
+
+```php
+namespace News\Mappers;
+
+use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\Core\Database\Meta\MetaProperty;
+
+/**
+ * @property int|null $id
+ * @property string $newsTitle
+ * @property int|NewsCategoryMapper $category
+ * @property \stdClass|null $langData
+ */
+class NewsMapper extends EntityMapperExtensible
+{
+    const TABLE = 'news_elements';
+    protected $table = self::TABLE;
+
+    protected $fields = [
+        'id'        => ['type' => 'int', 'primary_key' => true],
+        'newsTitle' => ['type' => 'text'],
+        'profilesTarget' => ['type' => 'json', 'default' => []],
+        'category'  => [
+            'type' => 'int',
+            'reference_table'        => NewsCategoryMapper::TABLE,
+            'reference_field'        => 'id',
+            'reference_primary_key'  => 'id',
+            'human_readable_reference_field' => 'id',
+            'mapper' => NewsCategoryMapper::class,
+        ],
+        'createdAt' => ['type' => 'datetime', 'default' => 'timestamp'],
+        'updatedAt' => ['type' => 'datetime', 'null' => true],
+        'createdBy' => [
+            'type' => 'int',
+            'reference_table' => UsersModel::TABLE,
+            'reference_field' => 'id',
+            'human_readable_reference_field' => 'username',
+            'mapper' => UsersModel::class,
+        ],
+        'status' => ['type' => 'int', 'default' => self::ACTIVE],
+        'meta'   => ['type' => 'json', 'null' => true],
+    ];
+
+    const ACTIVE = 1;
+    const INACTIVE = 0;
+    const STATUSES = [self::ACTIVE => 'Activo', self::INACTIVE => 'Inactiva'];
+    const STATUSES_COLORS = [self::ACTIVE => 'brand-color', ...];
+
+    public function __construct($value = null, string $fieldCompare = 'primary_key')
+    {
+        parent::__construct($value, $fieldCompare);
+        // Meta-propiedades (se serializan dentro de la columna JSON `meta`)
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_INT,  0, false), 'draft');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), true), 'baseLang');
+    }
+}
+```
+
+### Claves de `$fields`
+
+| Clave | Significado |
+| :-- | :-- |
+| `type` | `int`, `text`, `varchar`, `datetime`, `date`, `json`, `float`, … |
+| `length` | Longitud (para `varchar`) |
+| `primary_key` | `true` en la PK |
+| `null` | Permite `NULL` |
+| `default` | Valor por defecto (`'timestamp'` para `CURRENT_TIMESTAMP`) |
+| `reference_table` / `reference_field` / `reference_primary_key` | Relación FK |
+| `human_readable_reference_field` | Campo a mostrar al humanizar la relación |
+| `mapper` | Clase del mapper relacionado — permite carga automática del objeto |
+
+Cuando un campo tiene `mapper`, al leer la propiedad se obtiene **la instancia del
+mapper relacionado**, no el entero. De ahí los docblocks tipo
+`@property int|UsersModel $createdBy`.
+
+### Meta-propiedades (`EntityMapperExtensible`)
+
+Permiten añadir atributos sin migrar la tabla: se serializan en una columna JSON
+(por convención `meta`).
+
+```php
+$this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
+$this->getMetaProperty('langData');  $this->hasMetaProperty('x');  $this->removeMetaProperty('x');
+```
+Tipos: `MetaProperty::TYPE_INT|TYPE_TEXT|TYPE_JSON|...`. Se acceden como propiedades
+normales (`$mapper->langData`) gracias a `__get`/`__set`.
+
+### Multi-idioma en los datos
+
+Dos mecanismos conviven:
+
+1. **`$translatableProperties`** — propiedad protegida en mappers como
+   `GenericContentPseudoMapper` y `BuiltInBannerMapper`; los campos listados se
+   traducen automáticamente (los no listados caen en `$noTranslatableProperties`).
+2. **`baseLang` + `langData`** (meta-propiedades) — patrón de `NewsMapper`:
+   `baseLang` guarda el idioma original y `langData` es un objeto
+   `{ lang: { propiedad: valor } }` con las traducciones. El mapper expone métodos
+   para leer la propiedad en el idioma actual con caída al idioma base.
+
+## Operaciones
+
+```php
+// Cargar
+$n = new NewsMapper(1);                    // por primary key
+$n = new NewsMapper('mi-slug', 'preferSlug');  // por otro campo
+
+// Crear / actualizar
+$n = new NewsMapper();
+$n->newsTitle = 'Título';
+$n->save();
+$n->getInsertIDOnSave();
+
+$n = new NewsMapper(1);
+$n->newsTitle = 'Editado';
+$n->update();
+
+// Consultar (ActiveRecord)
+$rows = NewsMapper::model()
+    ->select()
+    ->where('status', NewsMapper::ACTIVE)
+    ->orderBy('createdAt DESC')
+    ->execute()
+    ->result();
+```
+
+`Mapper::model()` devuelve el `ActiveRecordModel` subyacente. La API de
+`ActiveRecord` incluye: `select, insert, update, delete, join, leftJoin, rightJoin,
+innerJoin, where, having, groupBy, orderBy, row, getAll, get, setTypeResult,
+setSelectClass, execute, result, rowCount, lastInsertId, getCompiledSQL,
+getLastSQLExecuted, resetWhere/resetJoins/resetAll`.
+
+### Qué significa —y qué NO— el valor que devuelven
+
+**`update()` y `delete()` devuelven «la sentencia se ejecutó», NO «cambió una fila».** Es
+`PDOStatement::execute()` tal cual, y ese devuelve `true` aunque el `WHERE` no encuentre nada o
+los valores sean idénticos a los que ya había.
+
+| Método | Qué devuelve | Qué NO significa |
+| :-- | :-- | :-- |
+| `save()` sobre una fila nueva | `true` si el `INSERT` se ejecutó | — (un `INSERT` que se ejecuta siempre inserta) |
+| `save()` sobre una fila existente | Delega en `update()`, con su misma semántica | — |
+| `update()` | `true` si el `UPDATE` se ejecutó | **NO** que se modificara ninguna fila |
+| `delete()` | `true` si el `DELETE` se ejecutó | **NO** que se borrara ninguna fila |
+
+**Para casi todo, esa es la respuesta correcta.** «¿Se guardó lo que el usuario pidió?» se
+responde con `true` aunque el usuario no cambiara nada: la fila contiene lo pedido.
+
+**Es incorrecta cuando lo que se necesita saber es si CAMBIÓ algo**: quién ganó una carrera, si
+una fila existía, o si una operación fue idempotente. Ahí hay que **releer**, o mirar
+`rowCount()` en el `ActiveRecord` antes de que se resetee.
+
+> **Consecuencia práctica**: `BaseEntityMapper::update()` dispara el evento `updated` cuando el
+> retorno es `true` — es decir, **también cuando no cambió nada**. `SystemApprovalManager` escucha
+> ese evento, así que un guardado sin cambios reevalúa la aprobación del elemento.
+
+> **TRAMPA CONFIRMADA (2026-10-02, `#775`): declarar una META-PROPIEDAD nueva deja ILEGIBLES las filas ya
+> guardadas.** `objectToMapper()` exige **todas** las columnas **y todas las metas** (`$allFilled` compara contra
+> `array_merge(array_keys($fields), array_keys($mapper->getMetaProperties()))`), así que una meta nueva que las filas
+> viejas no tienen las convierte en `null` y la pantalla deja de leerlas. **Por eso el `actor` del registro de
+> acciones se escribe DENTRO del JSON de `meta` sin declararse como meta-propiedad**: `metaValueToSave()` parte de la
+> columna y añade las metas encima, así que `actor`, `ip` y `geolocationByIp` conviven. Vale para **cualquier** mapper
+> con metas: es una trampa de migración.
+
+> **TRAMPA CONFIRMADA (2026-10-02, `#773`): `objectToMapper()` devuelve `null` si falta UNA sola columna.**
+> Su `$allFilled` exige la fila entera, así que una consulta que no traiga todos los campos del mapper devuelve
+> `null` y **cualquier uso directo del resultado es un 500**. Tumbaba el mapa público de personas
+> (`profile-person-card.php`, `profile-person-point.php`): el arreglo es **omitir el elemento**, nunca rellenar.
+> Hay **58 archivos** con esa familia de errores en el informe de PHPStan —MySpace 33 y SystemApprovals 29 a la
+> cabeza—, censados en `files/dev/fatal-candidates.json`.
+
+## Eventos automáticos
+
+`BaseEntityMapper` (y por herencia los mappers) dispara vía `BaseEventDispatcher`:
+
+- `saving` / `saved` en `save()`
+- `updating` / `updated` en `update()`
+
+El contexto es el nombre de la clase del mapper. Ver [10-cli-y-tareas.md](./10-cli-y-tareas.md).
+
+## `systemApprovalStatus`
+
+`BaseEntityMapper::__callStatic` intercepta `fieldsToSelect()` y añade una subconsulta
+que expone la columna virtual **`systemApprovalStatus`** en todos los `SELECT`,
+tomada de la tabla `system_approvals_elements` (módulo de Aprobaciones). Si
+`SystemApprovalsRoutes::ENABLE` es `false`, se homologa a `'APPROVED'`.
+Consecuencia práctica: **todos los mappers exponen `systemApprovalStatus`** aunque
+no lo declaren.
+
+## Generar el SQL de una tabla
+
+```php
+(new \PiecesPHP\Core\Database\SchemeCreator(new NewsMapper()))->getSQL();
+```
+
+Para el módulo entero, y ordenado por sus claves ajenas:
+
+```bash
+bin/cli scheme-create module=MiModulo    # el CREATE
+bin/cli scheme-drop   module=MiModulo    # y su inverso
+```
+
+Ese es el método canónico: **define `$fields` primero, luego genera el SQL**. Las dos
+tareas descubren los mappers solas y **emiten, no ejecutan**.
+
+## Múltiples conexiones
+
+`Config::app_db($grupo)` lee `$config['database'][$grupo]`. Los constructores de
+`BaseModel` y `BaseEntityMapper` aceptan `$db_group` (por defecto `'default'`).
+
+Para procesos largos (cronjobs), gestiona la conexión manualmente:
+
+```php
+use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Config;
+
+BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+// ... trabajo pesado ...
+BaseModel::restoreInstancesDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+```
+
+Ambos métodos vienen de `ActiveRecordModel`. Hay un caso real en
+`core/extensions/cronjobs.php` (tarea «Respaldar base de datos»).
+
+## Paginación y DataTables
+
+- `PiecesPHP\Core\Pagination\{PageQuery, PaginationResult}`.
+- `PiecesPHP\Core\Utilities\Helpers\DataTablesHelper` — construye la respuesta JSON
+  que espera DataTables desde el endpoint `-datatables` de cada módulo.
+
+### `process()` y `processFromQuery()`
+
+- **`process()`**: el listado de un mapper. Los filtros van en `where_segment` y `having_segment`, por
+  marcador.
+- **`processFromQuery()`** (`DataTablesHelper.php:718`): el listado de una **tabla derivada**. Recibe en
+  `fakeTable` una subconsulta SQL y en `tableName` su alias. Su propósito es legítimo (decidido el 2026-09-02) y
+  **no se retira**. Consumidor único hoy: `MySpace\Controllers\AllProfilesController.php:165`, que le pasa un
+  `UNION ALL` de perfiles.
+  - **`fakeTable`, `where_string` y `having_string` son SQL crudo**: no hay segmento. Nunca llevan un valor de la
+    petición; se componen con literales del servidor.
+  - **La búsqueda la arma el helper** con `generateHavingGroup()`, por marcador.
+  - **Los valores se atan por sentencia**: la de `limit` y la de `filterCount` llevan el HAVING de la búsqueda; la de
+    `totalCount` solo el fijo. Atarle un marcador que no tiene da **HY093**.
+  - Lo fija `unit-tests:core/sql-placeholders`, sección 12.
+
+### Lo que devuelven y lo que NO (P38, `#326`)
+
+- **La respuesta NO lleva el SQL ni las filas crudas.** Claves: `draw`, `start`, `length`, `page`, `data`,
+  `recordsFiltered` y `recordsTotal` (y `rawData` solo en los listados de tarjetas, con su HTML). Las filas crudas se
+  leen en el servidor con `DataTablesHelper::rawRows($result)` (un `WeakMap`: no se serializan); el SQL de la última
+  llamada, con `lastExecutedSQL()`. Para depurar en local, `'debug_sql' => true` escribe en `logs/datatables-sql.log`,
+  solo con `is_local()`.
+- **`recordsTotal` cuenta con los filtros FIJOS** (`where_*`, `having_*`, su `group_string` y el modelo de
+  `on_set_model`) y sin la búsqueda; `recordsFiltered`, con todo. Un listado nuevo pone su alcance (organización,
+  usuario, estado) en esas opciones, no en `config_result_model`, que ninguno de los dos totales ve.
+- **Trampa del paquete `database`:** `HavingSegment::toString()` **muta** los grupos (`withAfterOperator(false)` en el
+  último). Compilar un clon del segmento antes que el original le quita al original el `AND` con la búsqueda. Por eso
+  el total se calcula EL ÚLTIMO en `process()`.
+- Lo fija `unit-tests:core/datatables-scope` (los 22 usos: sin SQL ni filas crudas; los 7 con alcance: el total de un
+  administrador de organización es lo que ve).
+
+## Validación
+
+- `PiecesPHP\Core\Validation\Validator`
+- `PiecesPHP\Core\Validation\Parameters\{Parameter, Parameters}` con excepciones
+  `MissingRequiredParamaterException`, `InvalidParameterValueException`,
+  `ParsedValueException`. Es el patrón usado en los métodos `action()` de los
+  controladores para validar el body.
+
+## Exportación / backup
+
+`PiecesPHP\Core\Database\Export\Exporter` (desde 7.0.6) reemplaza `mysqldump`.
+Formatos: SQL, JSON, CSV, PHP, XML. Salidas: `FileOutput`, `ZipFileOutput`,
+`GzipFileOutput`, `Bz2FileOutput`, `MemoryOutput`.

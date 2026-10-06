@@ -104,6 +104,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         ],
     ],
 ]) ?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'body_end'); ?>
 </body>
 
 </html>

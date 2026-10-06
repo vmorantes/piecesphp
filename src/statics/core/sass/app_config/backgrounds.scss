@@ -1,4 +1,4 @@
-@import 'includes/base';
+@use 'includes/base' as *;
 
 $mainColor: var(--main-brand-color);
 $secondColor: var(--second-brand-color);

@@ -30,10 +30,9 @@ class HttpClient
     const MODE_PARSED_FROM_JSON_ASSOC = 'MODE_PARSED_FROM_JSON_ASSOC';
     const MODE_PARSED_TO_JSON = 'MODE_PARSED_TO_JSON';
 
-    /**
-     * @var string
-     */
-    protected static $baseURL = '';
+    //NO la vuelvas estatica: cada cliente lleva la suya, y compartirla hacia que construir
+    //uno reescribiese la URL base de todos los demas. Ver `core/http-client-request-build`.
+    protected string $baseURL = '';
 
     /**
      * @var array
@@ -77,7 +76,7 @@ class HttpClient
      */
     public function __construct(string $baseURL, array $configurations = [])
     {
-        self::$baseURL = $baseURL;
+        $this->baseURL = $baseURL;
         $this->defaultHeaders = [
             'accept' => '*/*',
         ];
@@ -92,7 +91,7 @@ class HttpClient
      * @param int|null $value Timeout en segundos
      * @return self|int|null Si se pasa un valor se retorna self, si no se retorna el timeout actual
      */
-    public function timeout(?int $value)
+    public function timeout(?int $value): self|int|null
     {
         if ($value !== null) {
             $this->setOption('timeout', $value);
@@ -107,7 +106,7 @@ class HttpClient
      * @param mixed $value Valor de la configuración
      * @return self
      */
-    public function setOption(string $name, $value)
+    public function setOption(string $name, $value): static
     {
         $availableConfigurations = $this->defaultConfigurations();
         if (isset($availableConfigurations[$name])) {
@@ -127,7 +126,7 @@ class HttpClient
      * @param bool $shared_cookies
      * @return mixed raw body
      */
-    public function request(string $request_uri, string $method, array $contents = [], array $headers = [], bool $shared_cookies = true, bool $override_defaults = true)
+    public function request(string $request_uri, string $method, array $contents = [], array $headers = [], bool $shared_cookies = true, bool $override_defaults = true): string|false
     {
 
         $this->processHeaders($headers, $shared_cookies, $override_defaults);
@@ -136,7 +135,7 @@ class HttpClient
         $headers_string = $this->headersArrayToString($this->requestHeaders);
 
         $contentTypeText = $this->parseNameHeader('Content-Type');
-        $contentType = isset($headers[$contentTypeText]) ? $headers[$contentTypeText] : self::DEFAULT_CONTENT_TYPE;
+        $contentType = $headers[$contentTypeText] ?? self::DEFAULT_CONTENT_TYPE;
 
         switch ($contentType) {
             case self::JSON_CONTENT_TYPE:
@@ -173,7 +172,7 @@ class HttpClient
         }
         $context = stream_context_create($streamContextConfiguration);
 
-        $baseURL = trim(self::$baseURL, '/');
+        $baseURL = trim($this->baseURL, '/');
         $requestURL = $request_uri . $query_string;
         $this->requestURI = mb_strlen($request_uri) == 0 ? $baseURL . $requestURL : append_to_url($baseURL, $requestURL, true);
 
@@ -183,13 +182,10 @@ class HttpClient
         } catch (\Exception $e) {
             $response = $e->getMessage();
         }
-        // http_get_last_response_headers() sustituye a $http_response_header, deprecada
-        // en 8.5. Devuelve null si la petición no llegó a hacerse —donde la variable
-        // mágica simplemente no existía—, y se reinicia en cada intento, así que no
-        // arrastra las cabeceras de una petición anterior.
+        // http_get_last_response_headers() devuelve null si la petición no se hizo; $http_response_header, deprecada en 8.5, ni existía.
         $responseHeaders = http_get_last_response_headers();
         $this->response['headers'] = $this->parseReponseHeaders(is_array($responseHeaders) ? $responseHeaders : []);
-        $this->response['status'] = isset($this->response['headers']['response_code']) ? $this->response['headers']['response_code'] : null;
+        $this->response['status'] = $this->response['headers']['response_code'] ?? null;
         $this->response['body'] = $response;
 
         return $response;
@@ -198,7 +194,7 @@ class HttpClient
     /**
      * @return string
      */
-    public function cookiesToHeaderString()
+    public function cookiesToHeaderString(): string
     {
         $http_cookie_header = [];
 
@@ -214,7 +210,7 @@ class HttpClient
      * o array.
      * @return string
      */
-    public function headersArrayToString(array $headers)
+    public function headersArrayToString(array $headers): string
     {
         $was_added = false;
         $headers_process = [];
@@ -257,7 +253,7 @@ class HttpClient
      * en un string o valores en un array de strings, de lo contrario no surtirá efecto.
      * @return void
      */
-    public function setDefaultRequestHeaders(array $headers)
+    public function setDefaultRequestHeaders(array $headers): void
     {
         $valid = true;
         $_headers = [];
@@ -396,7 +392,7 @@ class HttpClient
      *
      * @return array
      */
-    protected function defaultConfigurations()
+    protected function defaultConfigurations(): array
     {
         return [
             'timeout' => [
@@ -448,10 +444,10 @@ class HttpClient
      * @param array $response_headers
      * @return array
      */
-    protected function parseReponseHeaders(array $response_headers)
+    protected function parseReponseHeaders(array $response_headers): array
     {
         $head = [];
-        foreach ($response_headers as $k => $v) {
+        foreach ($response_headers as $v) {
             $t = explode(':', $v, 2);
             if (isset($t[1])) {
                 $head[trim($t[0])] = trim($t[1]);
@@ -517,7 +513,7 @@ class HttpClient
      * @param string $name
      * @return string
      */
-    protected function parseNameHeader(string $name)
+    protected function parseNameHeader(string $name): string
     {
         $name = trim($name);
         $name = explode('-', $name);

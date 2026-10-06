@@ -27,7 +27,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         mkdir($testBasePath, 0755, true);
     }
 
-    $checkResult = function ($condition, $name, $details = null) {
+    $passed = 0;
+    $failed = 0;
+
+    $checkResult = function ($condition, $name, $details = null) use (&$passed, &$failed) {
+        $condition ? $passed++ : $failed++;
         $status = $condition ? "\e[32m[PASÓ]\e[33m" : "\e[31m[FALLÓ]\e[33m";
         echoTerminal("   $status $name");
         if ($details !== null) {
@@ -157,11 +161,13 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     set_config('terminal_color', null);
     echoTerminal('[TEST:HelpersDirectories] Suite finalizada.');
+    //La linea que el corredor de puertas exige: sin veredicto, la suite no dice si paso.
+    echoTerminal('   Total: ' . ($passed + $failed) . " | Pasaron: {$passed} | Fallaron: {$failed}");
     echoTerminal('');
 
     return [
-        'success' => true,
-        'message' => 'Pruebas completadas exitosamente.',
+        'success' => $failed === 0,
+        'message' => $failed === 0 ? 'Pruebas completadas exitosamente.' : "{$failed} comprobacion(es) fallaron.",
         'extra_data' => $resCleanup,
     ];
-})->setDescription($cliTaskDescription)->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_FILES])->register();

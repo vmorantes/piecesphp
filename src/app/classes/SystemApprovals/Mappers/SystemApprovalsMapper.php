@@ -6,7 +6,9 @@
 
 namespace SystemApprovals\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -29,7 +31,7 @@ use SystemApprovals\Util\SystemApprovalManager;
  * @property string|\DateTime|null $approvalAt
  * @property int|UsersModel $createdBy
  * @property int|UsersModel|null $approvalBy
- * @property int $status
+ * @property string $status
  * @property \stdClass|string|null $meta
  */
 class SystemApprovalsMapper extends EntityMapperExtensible
@@ -53,7 +55,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'type' => 'text',
         ],
         'reason' => [
-            'type' => 'test',
+            'type' => 'text',
             'null' => true,
         ],
         'createdAt' => [
@@ -65,7 +67,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -73,7 +75,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'approvalBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -117,7 +119,8 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     const TABLE = 'system_approvals_elements';
     const LANG_GROUP = SystemApprovalsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
-        '`idPadding` DESC',
+        //Por el id REAL: `idPadding` es una cadena con ceros, y ordenada como texto se descoloca desde el 100.000.
+        '`' . self::TABLE . '`.`id` DESC',
     ];
 
     /**
@@ -203,7 +206,11 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     public function save()
     {
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        //Sin sesión se respeta el createdBy que ponga quien llama; si no lo puso, el ORM rechaza el campo nulo.
+        $user = getLoggedFrameworkUser();
+        if ($user !== null) {
+            $this->createdBy = $user->id;
+        }
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -251,7 +258,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      */
     protected static function fieldsToSelect(?string $formatDate = null)
     {
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new SystemApprovalsMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -264,16 +271,17 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         $referenceCreatedByUserID = $approvalManager->generateCaptureDataFromReferenceForTableOnSQL('createdBy');
         $referenceUserOrganizationID = "(SELECT {$tableUsers}.organization FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceUserFirstNameSegment = "(SELECT {$tableUsers}.firstname FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
-        $referenceUserFirstLastNameSegment = "(SELECT {$tableUsers}.first_lastname FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
+        $referenceUserFirstLastNameSegment = "(SELECT {$tableUsers}.firstLastname FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceUserSecondNameSegment = "(SELECT IF({$tableUsers}.secondname IS NOT NULL, CONCAT(' ', {$tableUsers}.secondname), '') FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
-        $referenceUserSecondLastNameSegment = "(SELECT IF({$tableUsers}.second_lastname IS NOT NULL, CONCAT(' ', {$tableUsers}.second_lastname), '') FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
+        $referenceUserSecondLastNameSegment = "(SELECT IF({$tableUsers}.secondLastname IS NOT NULL, CONCAT(' ', {$tableUsers}.secondLastname), '') FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceOrganizationAdministrator = "(SELECT JSON_UNQUOTE(JSON_EXTRACT({$tableOrganizations}.meta, '$.administrator')) FROM {$tableOrganizations} WHERE {$tableOrganizations}.id = (SELECT referenceOrganization))";
         $referenceOrtanizationApprovalValue = "(SELECT subMain.status FROM {$table} AS subMain WHERE subMain.referenceTable = '{$tableOrganizations}' AND subMain.referenceValue = (SELECT referenceOrganization))";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "TIMESTAMPDIFF(DAY, {$table}.referenceDate, NOW()) AS elapsedDays",
             "TIMESTAMPDIFF(WEEK, {$table}.referenceDate, NOW()) AS elapsedWeeks",
             "TIMESTAMPDIFF(MONTH, {$table}.referenceDate, NOW()) AS elapsedMonths",
@@ -291,7 +299,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             "TRIM(CONCAT((SELECT referenceUserFirstLastName), ' ', (SELECT referenceUserSecondLastName))) AS referenceUserLastNames",
             "TRIM(CONCAT((SELECT referenceUserNames), ' ', (SELECT referenceUserLastNames))) AS referenceUserFullName",
             "IF({$referenceIsActive} IS NULL, 1, {$referenceIsActive}) AS referenceIsActive",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
         ];
 
         //Multi-idioma
@@ -303,16 +311,24 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     }
 
     /**
-     * Obtiene los "nombres de contenido" desde la agrupación de referenceAlias en base de datos (los pasa por __())
+     * Los "nombres de contenido" de los handlers registrados: CLAVE el valor CRUDO de la columna, TEXTO el
+     * traducido.
      *
-     * @return string[]
+     * Devolvía el traducido en las dos, y la columna guarda el crudo: en cualquier idioma que
+     * no fuera español el desplegable mandaba una etiqueta que el `WHERE` no encontraba nunca.
+     * Ver T162.
+     *
+     * @return array<string,string>
      */
     public static function getReferencesAliases()
     {
-        $model = self::model();
-        $model->select("referenceAlias")->groupBy('referenceAlias')->execute();
-        $elements = array_map(fn($e) => __(self::LANG_GROUP, $e->referenceAlias), $model->result());
-        return array_combine($elements, $elements);
+        //DEL CÓDIGO, NO DE LA TABLA (P38): consultar los alias existentes enseñaba qué tipos de
+        //contenido hay en otras organizaciones. La lista es la de los handlers registrados.
+        $opciones = [];
+        foreach (SystemApprovalManager::getInstance()->getContentTypes() as $crudo) {
+            $opciones[$crudo] = __(self::LANG_GROUP, $crudo);
+        }
+        return $opciones;
     }
 
     /**
@@ -357,7 +373,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     public static function getReferencesAliasesForSelect(string $defaultLabel = '', string $defaultValue = '', bool $withOptionAny = false)
     {
         $sourceOptions = self::getReferencesAliases();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tipo de contenido');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Tipo de contenido');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         if ($withOptionAny) {
@@ -379,7 +395,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     public static function getElapsepDaysExistentsForSelect(string $defaultLabel = '', string $defaultValue = '', bool $withOptionAny = false)
     {
         $sourceOptions = self::getElapsepDaysExistents();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tiempo');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Tiempo');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         if ($withOptionAny) {
@@ -449,7 +465,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -479,7 +495,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      * @param string[] $orderBy
      * @param bool $extendedFields
      * @param bool $asMapper
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function getByMultipleCriteries(array $criteries = [], array $orderBy = [], bool $extendedFields = false, bool $asMapper = false)
     {
@@ -495,15 +511,15 @@ class SystemApprovalsMapper extends EntityMapperExtensible
 
         if (!empty($criteries)) {
             foreach ($criteries as $critery) {
-                $column = array_key_exists('column', $critery) ? $critery['column'] : null;
-                $value = array_key_exists('value', $critery) ? $critery['value'] : null;
+                $column = $critery['column'] ?? null;
+                $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
-                    $isNumber = is_double($value) || is_int($value);
-                    $criteryValue = $isNumber ? $value : "'" . escapeString($value) . "'";
-                    $beforeOperator = !empty($where) ? $beforeOperatorBase : '';
-                    $critery = "{$column}  = {$criteryValue}";
-                    $where[] = "{$beforeOperator} ({$critery})";
+                    //Por marcador (ADR 0009). El operador que lo une al anterior es el `after` de ese.
+                    if (!empty($where)) {
+                        $where[count($where) - 1]->setAfterOperator($beforeOperatorBase);
+                    }
+                    $where[] = WhereItem::isEqual($column, $value);
                     $criteriesAdded++;
                 }
             }
@@ -512,8 +528,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         if ($criteriesAdded > 0) {
 
             if (!empty($where)) {
-                $whereString = trim(implode(' ', $where));
-                $model->where($whereString);
+                $model->where(new WhereSegment($where));
             }
 
             if (!empty($orderBy)) {
@@ -570,23 +585,14 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         $origialElement = $element;
         $element = (array) $element;
         $mapper = new SystemApprovalsMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
         if ($setExtended) {
             $mapper->extendedRecord = $origialElement;
         }
-
-        $defaultPropertiesValues = [
-        ];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
-
-        $defaultMetaPropertiesValues = [];
 
         foreach ($element as $property => $value) {
 
@@ -595,14 +601,6 @@ class SystemApprovalsMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
-
-                    foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
-                        }
-                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

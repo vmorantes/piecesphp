@@ -17,17 +17,24 @@ use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
  $hasContent = ($hasString)($content);
  $hasLink = ($hasString)($link);
  $hasMobileImage = ($hasString)($mobileImage);
+ $hasDesktopImage = ($hasString)($desktopImage);
  $withCaption = $hasContent || $hasTitle;
  $mainTag = $hasLink ? 'a' : 'div';
  $mobileImage = $hasMobileImage ? $mobileImage : $desktopImage;
+ //Sin imagen, `<img src="">` se dibuja como imagen rota y no pide ningún 404: nada lo delata.
+ $paintMobileImage = ($hasString)($mobileImage);
 ?>
-<<?= $mainTag;?> class="item" <?= $hasLink ? "href={$link}" : ''; ?>>
-    <img class="desktop" src="<?= $desktopImage; ?>" alt="<?= $hasTitle ? $title : basename($desktopImage); ?>" loading="lazy">
-    <img class="mobile" src="<?= $mobileImage; ?>" alt="<?= $hasTitle ? $title : basename($mobileImage); ?>" loading="lazy">
+<<?= $mainTag;?> class="item" <?= $hasLink ? 'href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
+    <?php if($hasDesktopImage): ?>
+    <img class="desktop" src="<?= htmlspecialchars($desktopImage, ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($hasTitle ? $title : basename($desktopImage), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
+    <?php endif; ?>
+    <?php if($paintMobileImage): ?>
+    <img class="mobile" src="<?= htmlspecialchars($mobileImage, ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($hasTitle ? $title : basename($mobileImage), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
+    <?php endif; ?>
     <?php if($withCaption): ?>
     <div class="caption">
         <?php if($hasTitle): ?>
-        <div class="title"><?= $title; ?></div>
+        <div class="title"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
         <?php if($hasContent): ?>
         <div class="text"><?= $content; ?></div>

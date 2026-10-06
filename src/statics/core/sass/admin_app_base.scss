@@ -1,7 +1,7 @@
-@import 'includes/variables_app_base';
-@import 'includes/functions_app_base';
-@import 'includes/components/show-data';
-@import 'includes/components/placeholders';
+@use 'includes/variables_app_base' as *;
+@use 'includes/functions_app_base' as *;
+@use 'includes/components/show-data' as *;
+@use 'includes/components/placeholders' as *;
 
 $fontModule: $fontGlobal;
 

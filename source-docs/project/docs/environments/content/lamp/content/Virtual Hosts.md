@@ -1,4 +1,4 @@
-# Soporte de dominios (Virtual Hosts) en Apache2 (Ubuntu 24.04 LTS)
+# Soporte de dominios (Virtual Hosts) en Apache2 (Ubuntu 26.04 LTS)
 
 ## Introducción
 Los Virtual Hosts permiten alojar múltiples sitios web en un solo servidor Apache.

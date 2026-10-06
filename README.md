@@ -102,6 +102,71 @@ php index.php cli <acción> [...]     # forma explícita
 
 Autocompletado disponible con `source bin/pieces-completion.bash` (o `.zsh`).
 
+## Configuración de git, una vez por copia
+
+El repositorio fija los finales de línea con `.gitattributes` —CRLF por defecto, LF en
+`*.sh` y en los ejecutables de `bin/`—, así que **no hay que configurar nada para que
+funcione**. Pero hay dos ajustes locales que conviene poner una sola vez:
+
+```bash
+# 1. Que `git blame` se salte la renormalización de finales de línea.
+#    Sin esto, los archivos grandes atribuyen TODAS sus líneas a ese commit.
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# 2. Que las fusiones ignoren las diferencias de finales de línea.
+#    Imprescindible al ACTUALIZAR UN DESPLIEGUE que venga de antes de la renormalización:
+#    sin esto salen conflictos en cada archivo que el despliegue haya tocado.
+git config merge.renormalize true
+```
+
+El segundo también se puede dar por fusión suelta, sin configurarlo:
+
+```bash
+git merge -X renormalize <rama>
+```
+
+**Comprobado en una fusión de prueba**: un despliegue con cambios propios sobre archivos
+afectados da **2 conflictos sin la opción y 0 con ella**, conservando sus cambios locales.
+
+## Comprobar que la aplicación responde entera
+
+```bash
+bin/cli route-inventory
+bin/walk-routes --base=https://tu-host/ruta/src
+```
+
+Pide **todas las rutas GET** que el framework declara y después **todos los assets** de las
+páginas visitadas. No escribe nada: descarta por nombre y por URL cualquier ruta de
+escritura. Con `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` en el entorno, recorre también la zona
+administrativa.
+
+Los assets son la mitad que importa: **un asset que revienta no rompe la página**, así que
+un paseo a mano no lo ve.
+
+## Cómo se empuja en este repositorio
+
+El repositorio de desarrollo vive **solo en GitHub**, privado. Las copias de GitLab y Bitbucket se retiraron (PO,
+2026-09-19); en Bitbucket siguen los cuatro paquetes `piecesphp/*` y el sitio de documentación. La versión para clonar se
+publicará en un repositorio aparte, público.
+
+```bash
+bin/push-all              # la rama actual, a todos los remotos
+bin/push-all --dry-run    # enseña qué haría, sin empujar
+```
+
+No lleva la lista escrita dentro: pregunta a `git remote`, así que un remoto nuevo entra
+solo. Y si uno falla, sigue con los demás y avisa al final de cuáles quedaron fuera.
+
+Además, **`dev` tiene que rastrear a `origin/dev`**. Sin eso `git status` no dice «adelante
+N» y es fácil dar por empujado lo que no lo está:
+
+```bash
+git branch --set-upstream-to=origin/dev dev
+```
+
+> Las dos cosas salen del mismo incidente: se dio por empujado un trabajo que no lo estaba, y
+> ocho commits se quedaron atrás **sin que nada lo dijera** — ni el `status`, porque no había
+> upstream, ni el push, porque solo había ido a un remoto.
 ## Documentación
 
 | Recurso | Contenido |
@@ -109,8 +174,8 @@ Autocompletado disponible con `source bin/pieces-completion.bash` (o `.zsh`).
 | [`source-docs/project/docs/piecesphp/`](./source-docs/project/docs/piecesphp/) | Guías del framework: estructura, rutas, mappers, terminal, permisos, Gulp |
 | [DeepWiki](https://deepwiki.com/vmorantes/piecesphp) | Recorrido del código generado automáticamente |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Historial de versiones |
-| [`files/dev/tests.md`](./files/dev/tests.md) | Pruebas unitarias y de desarrollo |
-| [`files/API/`](./files/API) | Documentación de la API y colección de Postman |
+| [`.agents/context/21-pruebas-y-puertas.md`](./.agents/context/21-pruebas-y-puertas.md) | Pruebas unitarias y de desarrollo |
+| [`source-docs/api/`](./source-docs/api) | Documentación de la API y colección de Postman |
 
 La documentación se publica como sitio estático con MkDocs a partir de
 `source-docs/project`.

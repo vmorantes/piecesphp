@@ -6,7 +6,7 @@
 
 namespace Terminal\Tasks;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -47,7 +47,7 @@ class ProcessQueueTask extends TerminalTaskAbstract
         ];
         //Establecer propiedades
         $this->description = new StringArray([
-            "Procesa las tareas pendientes en la cola (pcs_queue).\r\n",
+            "Procesa las tareas pendientes en la cola (pcsphp_jobs_queue).\r\n",
             "\tParámetros:\r\n",
             "\t  limit (opcional): Cantidad máxima de tareas a procesar.\r\n",
         ]);
@@ -67,10 +67,102 @@ class ProcessQueueTask extends TerminalTaskAbstract
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
         $parameters = empty($parameters) ? TerminalData::instance()->arguments() : array_merge($parameters, TerminalData::instance()->arguments());
-
         $limit = isset($parameters['--limit']) ? (int) $parameters['--limit'] : 60;
-        $titleTask = "Procesando Cola de Tareas";
 
+        $result = self::processPending($limit, function (string $line): void {
+            echoTerminal($line);
+        });
+        if ($result['aborted']) {
+            return;
+        }
+        if (count($result['messages']) > 1) {
+            echoTerminal(implode("\r\n", $result['messages']));
+        }
+
+        exit(0);
+    }
+
+    /**
+     * Procesa lo pendiente de la cola y devuelve lo que pasó. Lo llaman la tarea process-queue y el cronjob del sistema.
+     *
+     * Las ejecuciones van de una en una y por orden de llegada (1 activa y hasta 5 esperando). Cada una mantiene su turno
+     * con flock mientras vive: el turno de un proceso muerto se suelta solo y quien espera lo borra.
+     *
+     * @param int $limit Cuántas tareas como mucho.
+     * @param (callable(string):void)|null $echo Lo que se dice mientras espera turno o al abortar; null, nada.
+     * @return array{aborted: bool, processed: int, messages: string[]}
+     */
+    //—— La constante y el método de recuperación van antes, para leerse en orden ——
+
+    /**
+     * Minutos tras los que un trabajo «en curso» se da por abandonado.
+     *
+     * Generoso a propósito: un trabajo vivo y lento NO se puede tocar.
+     */
+    const ABANDONED_AFTER_MINUTES = 30;
+
+    /**
+     * Devuelve a la cola los trabajos cuyo proceso murió a mitad.
+     *
+     * La edad sale de `startedAt`, que es lo que escribe el procesador al marcar el trabajo en
+     * curso. Con intentos restantes vuelven a `pending`; sin ellos, a `failed`.
+     *
+     * @return string[] Una línea por trabajo recuperado, para el mensaje de la pasada.
+     */
+    public static function reclaimAbandoned(): array
+    {
+        $messages = [];
+
+        try {
+            $model = QueueJobMapper::model();
+            $database = $model->getDatabase();
+            if ($database === null) {
+                return $messages;
+            }
+
+            $sql = "SELECT id FROM " . QueueJobMapper::TABLE . "
+                    WHERE status = ?
+                    AND startedAt IS NOT NULL
+                    AND startedAt < ?
+                    ORDER BY startedAt ASC";
+            $limit = date('Y-m-d H:i:s', time() - (self::ABANDONED_AFTER_MINUTES * 60));
+            $statement = $database->prepare($sql);
+            $statement->execute([QueueJobMapper::STATUS_RUNNING, $limit]);
+
+            foreach ($statement->fetchAll(\PDO::FETCH_OBJ) as $row) {
+                $task = new QueueJobMapper($row->id);
+                $attempts = (int) $task->attempts;
+                $maxAttempts = (int) $task->maxAttempts;
+
+                if ($attempts < $maxAttempts) {
+                    $task->status = QueueJobMapper::STATUS_PENDING;
+                    $task->scheduledAt = null;
+                    $messages[] = "\e[33m   [RECUPERADA] Tarea ID {$task->id} [{$task->name}] llevaba más de " . self::ABANDONED_AFTER_MINUTES . " min en curso: su proceso murió. Vuelve a la cola (intento {$attempts}/{$maxAttempts}).\e[39m";
+                } else {
+                    $task->status = QueueJobMapper::STATUS_FAILED;
+                    $task->errorMessage = 'El proceso que la ejecutaba murió y se agotaron los intentos (' . $maxAttempts . ').';
+                    $task->finishedAt = date('Y-m-d H:i:s');
+                    $messages[] = "\e[31m   [ABANDONADA] Tarea ID {$task->id} [{$task->name}]: su proceso murió y no quedan intentos ({$attempts}/{$maxAttempts}). Marcada como fallida.\e[39m";
+                }
+
+                //RETORNO-IGNORADO: la conexión va en ERRMODE_EXCEPTION, así que un fallo LANZA.
+                $task->update();
+            }
+        } catch (\Throwable $e) {
+            //Que no se pueda recuperar una fila NO puede impedir procesar la cola.
+            $messages[] = "\e[31m   [AVISO] No se pudieron recuperar los trabajos abandonados: {$e->getMessage()}\e[39m";
+            log_exception($e);
+        }
+
+        return $messages;
+    }
+
+    public static function processPending(int $limit = 60, ?callable $echo = null): array
+    {
+        $echo ??= function (string $line): void {
+        };
+        $processed = 0;
+        $titleTask = "Procesando Cola de Tareas";
         //Gestión de cola de ejecución (Máximo 1 activa + 5 en espera, orden FIFO)
         $lockDir = basepath('tmp/process_queue_locks');
         if (!is_dir($lockDir)) {
@@ -78,9 +170,13 @@ class ProcessQueueTask extends TerminalTaskAbstract
             chmod($lockDir, 0755);
         }
 
-        //Registrar mi intento de ejecución
+        //Registrar mi intento de ejecución: el turno se mantiene con flock mientras este proceso vive.
         $myLockFile = "{$lockDir}/" . microtime(true) . "_" . getmypid() . ".lock";
-        touch($myLockFile);
+        $myLock = fopen($myLockFile, 'c');
+        if ($myLock === false || !flock($myLock, \LOCK_EX)) {
+            $echo("\e[31m[!] No se pudo tomar el turno en la cola ({$myLockFile}). Abortando.\e[39m");
+            return ['aborted' => true, 'processed' => 0, 'messages' => []];
+        }
         chmod($myLockFile, 0664);
 
         //Comprobar posición en la cola
@@ -90,18 +186,17 @@ class ProcessQueueTask extends TerminalTaskAbstract
         $maxProcesses = 6; //1 activo + 5 en espera
 
         while (true) {
-            $locks = glob("{$lockDir}/*.lock");
+            $locks = glob("{$lockDir}/*.lock") ?: [];
             sort($locks); // Asegura el orden FIFO por la marca de tiempo en el nombre del archivo
+            $locks = self::withoutDeadTurns($locks, $myLockFile);
             $myPosition = array_search($myLockFile, $locks);
 
             //Si somos demasiados, abortar los últimos en llegar
             if (count($locks) > $maxProcesses) {
                 if ($myPosition >= $maxProcesses) {
-                    if (file_exists($myLockFile)) {
-                        unlink($myLockFile);
-                    }
-                    echoTerminal("\e[31m[!] Hay demasiadas colas esperando (límite:" . ($maxProcesses - 1) . "en espera). Abortando ejecución.\e[39m");
-                    return;
+                    self::releaseTurn($myLock, $myLockFile);
+                    $echo("\e[31m[!] Hay demasiadas colas esperando (límite:" . ($maxProcesses - 1) . "en espera). Abortando ejecución.\e[39m");
+                    return ['aborted' => true, 'processed' => 0, 'messages' => []];
                 }
             }
 
@@ -117,15 +212,13 @@ class ProcessQueueTask extends TerminalTaskAbstract
 
             //Si ha pasado mucho tiempo esperando en la misma posición, abortar (cola estancada)
             if ($waitedOnSamePosition >= $waitLimit) {
-                if (file_exists($myLockFile)) {
-                    unlink($myLockFile);
-                }
-                echoTerminal("\e[31m[!] Tiempo agotado esperando avance de la cola ({$waitLimit}s). Abortando.\e[39m");
-                return;
+                self::releaseTurn($myLock, $myLockFile);
+                $echo("\e[31m[!] Tiempo agotado esperando avance de la cola ({$waitLimit}s). Abortando.\e[39m");
+                return ['aborted' => true, 'processed' => 0, 'messages' => []];
             }
 
             if ($lastPosition === null) {
-                echoTerminal("\e[33m[!] Hay otra cola en ejecución. Esperando turno (FIFO)...\e[39m");
+                $echo("\e[33m[!] Hay otra cola en ejecución. Esperando turno (FIFO)...\e[39m");
             }
 
             $lastPosition = $myPosition;
@@ -136,6 +229,11 @@ class ProcessQueueTask extends TerminalTaskAbstract
         $message = [
             "\e[32m*** {$titleTask} ***\e[39m",
         ];
+
+        //Antes de tomar nada nuevo: los trabajos que quedaron «en curso» porque su proceso murió.
+        foreach (self::reclaimAbandoned() as $reclaimed) {
+            $message[] = $reclaimed;
+        }
 
         try {
             $model = QueueJobMapper::model();
@@ -168,6 +266,7 @@ class ProcessQueueTask extends TerminalTaskAbstract
                         $task->startedAt = date('Y-m-d H:i:s');
                         $task->attempts = (int) $task->attempts + 1;
                         $task->update();
+                        $processed++;
 
                         try {
                             $handler = $handlers[$handlerName];
@@ -242,17 +341,63 @@ class ProcessQueueTask extends TerminalTaskAbstract
             $message[] = "\e[31mHa ocurrido un error general: {$e->getMessage()}\e[39m";
             log_exception($e);
         } finally {
-            if (isset($myLockFile) && file_exists($myLockFile)) {
-                unlink($myLockFile);
-            }
+            self::releaseTurn($myLock, $myLockFile);
         }
 
         $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
-        if (count($message) > 1) {
-            echoTerminal(implode("\r\n", $message));
-        }
+        return ['aborted' => false, 'processed' => $processed, 'messages' => $message];
+    }
 
-        exit(0);
+    /**
+     * Los turnos sin dueño vivo fuera: si se puede tomar el flock de un turno ajeno, su proceso murió sin soltarlo.
+     *
+     * @param string[] $locks
+     * @param string $mine
+     * @return string[]
+     */
+    private static function withoutDeadTurns(array $locks, string $mine): array
+    {
+        $alive = [];
+        foreach ($locks as $lock) {
+            if ($lock === $mine) {
+                $alive[] = $lock;
+                continue;
+            }
+            $handle = @fopen($lock, 'c');
+            if ($handle !== false && flock($handle, \LOCK_EX | \LOCK_NB)) {
+                //Nadie lo tiene: es de un proceso muerto.
+                //RETORNO-IGNORADO: si no se borra ahora, lo borra el siguiente que pase por aquí.
+                @unlink($lock);
+                //RETORNO-IGNORADO: soltar y cerrar el turno de un proceso muerto no puede fallar de forma que importe.
+                flock($handle, \LOCK_UN);
+                fclose($handle);
+                continue;
+            }
+            if ($handle !== false) {
+                //RETORNO-IGNORADO: solo se miraba el turno ajeno; cerrarlo no cambia nada.
+                fclose($handle);
+            }
+            $alive[] = $lock;
+        }
+        return $alive;
+    }
+
+    /**
+     * @param resource|false $handle
+     * @param string $path
+     * @return void
+     */
+    private static function releaseTurn($handle, string $path): void
+    {
+        if (file_exists($path)) {
+            //RETORNO-IGNORADO: un turno que no se borra lo retira el siguiente al ver su flock libre.
+            unlink($path);
+        }
+        if (is_resource($handle)) {
+            //RETORNO-IGNORADO: al cerrar el proceso el sistema suelta el flock de todos modos.
+            flock($handle, \LOCK_UN);
+            fclose($handle);
+        }
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

@@ -6,7 +6,7 @@
 
 namespace News\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\NewsLang;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -40,7 +40,7 @@ class NewsReadedMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'readerUser' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -122,7 +122,7 @@ class NewsReadedMapper extends EntityMapperExtensible
         $model = $mapper->getModel();
         $table = $model->getTable();
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "{$table}.meta",
         ];
         $fieldsNames = array_keys($mapper->getFields());
@@ -190,7 +190,7 @@ class NewsReadedMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -272,19 +272,10 @@ class NewsReadedMapper extends EntityMapperExtensible
 
         $element = (array) $element;
         $mapper = new NewsReadedMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [
-        ];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
-
-        $defaultMetaPropertiesValues = [];
 
         foreach ($element as $property => $value) {
 
@@ -293,14 +284,6 @@ class NewsReadedMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
-
-                    foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
-                        }
-                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

@@ -33,6 +33,77 @@ class Sitemap
     protected $items = [];
 
     /**
+     * Los proveedores de URL, por nombre: cada módulo registra el suyo (ADR 0032 §3).
+     * @var array<string,callable>
+     */
+    protected static $providers = [];
+
+    /**
+     * Registra un proveedor: una función que devuelve SitemapItem[]. Un nombre repetido falla aquí, diciendo cuál:
+     * que un registro se pierda en silencio es el defecto de los grupos de rutas (pendientes 277.1).
+     *
+     * @param string $name
+     * @param callable $provider
+     * @return void
+     * @throws \InvalidArgumentException
+     */
+    public static function registerProvider(string $name, callable $provider)
+    {
+        if (array_key_exists($name, self::$providers)) {
+            throw new \InvalidArgumentException("El proveedor de sitemap «{$name}» ya está registrado.");
+        }
+        self::$providers[$name] = $provider;
+    }
+
+    /**
+     * @param string $name
+     * @return void
+     */
+    public static function unregisterProvider(string $name)
+    {
+        unset(self::$providers[$name]);
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function providerNames(): array
+    {
+        return array_keys(self::$providers);
+    }
+
+    /**
+     * El sitemap de todos los proveedores. Uno que lanza, o que no devuelve SitemapItem, se registra y se salta: no tumba
+     * a los demás.
+     *
+     * @return array{sitemap:Sitemap,failed:string[]}
+     */
+    public static function fromProviders(): array
+    {
+        $sitemap = new Sitemap('', false);
+        $failed = [];
+        foreach (self::$providers as $name => $provider) {
+            try {
+                $items = ($provider)();
+                if (!is_array($items)) {
+                    throw new \UnexpectedValueException("El proveedor de sitemap «{$name}» no devolvió una lista.");
+                }
+                //Se comprueba la lista entera antes de añadir: un proveedor que falla no deja la mitad de sus URL.
+                foreach ($items as $item) {
+                    if (!$item instanceof SitemapItem) {
+                        throw new \UnexpectedValueException("El proveedor de sitemap «{$name}» devolvió algo que no es SitemapItem.");
+                    }
+                }
+                $sitemap->addItems($items);
+            } catch (\Throwable $e) {
+                log_exception($e);
+                $failed[] = $name;
+            }
+        }
+        return ['sitemap' => $sitemap, 'failed' => $failed];
+    }
+
+    /**
      * @param string $file
      * @param bool $load
      * @return static

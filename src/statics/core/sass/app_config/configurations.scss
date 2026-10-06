@@ -1,5 +1,5 @@
-@import '../includes/variables';
-@import 'includes/base';
+@use '../includes/variables' as *;
+@use 'includes/base' as *;
 
 .card-title {
     color: $colorFirst;

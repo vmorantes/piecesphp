@@ -625,7 +625,7 @@ class Config
                         if (array_key_exists($message, $groupData) || $messageIsEmpty) {
 
                             //Si el mensaje existe pero no es el idioma de revisión, se marca como faltante
-                            $isMissingMessage = $lang == $reviewLang ? false : true;
+                            $isMissingMessage = $lang != $reviewLang;
                             if ($messageIsEmpty) {
                                 $str = $groupData;
                             } else {
@@ -647,7 +647,9 @@ class Config
                 $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
                 $noScanLangGroups = get_config('no_scan_lang_groups');
                 $noScanLangGroups = is_array($noScanLangGroups) ? $noScanLangGroups : [];
-                if (!in_array($reviewLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
+                //Solo en LOCAL: su consumidor es `bin/cli scan-missing-lang`, una herramienta de
+                //desarrollo, y en producción esto era un file_exists() por cada llamada a __().
+                if (is_local() && !in_array($reviewLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
                     if ($isMissingMessage && !$messageIsEmpty) {
                         $missingMessagesFoldersPaths = [
                             $missingMessagesBaseFolderPath,
@@ -777,7 +779,7 @@ class Config
         ];
 
         $usedCategories = [];
-        $localeLang = isset(self::$appLocaleLangs[self::$appLang]) ? self::$appLocaleLangs[self::$appLang] : null;
+        $localeLang = self::$appLocaleLangs[self::$appLang] ?? null;
         $localeLang = is_scalar($localeLang) ? [$localeLang] : (is_array($localeLang) ? $localeLang : null);
 
         if (is_array($localeLang)) {
@@ -875,7 +877,7 @@ class Config
 
             //Configurar cookie desde URL o usar el último valor
             $i18nURLValue = isset($_GET) && array_key_exists($urlParamLangName, $_GET) ? $_GET[$urlParamLangName] : null;
-            $i18nURLValue = $i18nURLValue !== null ? $i18nURLValue : getCookie($cookieName);
+            $i18nURLValue ??= getCookie($cookieName);
             $selectedLang = null;
             if (is_string($i18nURLValue)) {
                 if ($i18nURLValue == 'default') {
@@ -1015,7 +1017,9 @@ class Config
     public static function app_path()
     {
         $instance = self::get_instance();
-        return realpath($instance->appPath);
+        //De este valor cuelgan basepath() y app_basepath(): no puede devolver false.
+        $resolved = realpath($instance->appPath);
+        return $resolved !== false ? $resolved : $instance->appPath;
     }
 
     /**
@@ -1061,6 +1065,46 @@ class Config
         $instance = self::get_instance();
         return $instance->appKey;
 
+    }
+
+    /**
+     * Si la llave de la app es la de relleno: vacía o empezada por «TODO» (la de config.php al clonar).
+     * @param string|null $appKey Null: la de la app
+     * @return bool
+     */
+    public static function app_key_is_placeholder(?string $appKey = null)
+    {
+        $appKey = trim($appKey ?? (string) self::app_key());
+        return $appKey === '' || str_starts_with($appKey, 'TODO');
+    }
+
+    /**
+     * Una clave derivada de la llave de la app para un uso: cada uso tiene la suya, y todas cambian con app_key.
+     * @param string $purpose Etiqueta del uso (no es un secreto)
+     * @param string|null $appKey Null: la de la app
+     * @return string
+     */
+    public static function app_key_derived(string $purpose, ?string $appKey = null)
+    {
+        return hash_hmac('sha256', $purpose, $appKey ?? (string) self::app_key());
+    }
+
+    /**
+     * Con la llave de relleno, AVISA en el log (una vez al día, con una marca en app/cache); nunca impide arrancar.
+     * @return void
+     */
+    public static function warn_placeholder_app_key()
+    {
+        if (!self::app_key_is_placeholder()) {
+            return;
+        }
+        $marker = basepath('app/cache/app-key-placeholder.marker');
+        if (is_file($marker) && (int) filemtime($marker) > time() - 86400) {
+            return;
+        }
+        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. Genere una con `bin/cli generate-app-key` y póngala en config.php.'), true);
+        //RETORNO-IGNORADO: sin la marca el aviso solo se repite; no impide nada.
+        @touch($marker);
     }
 
     /**
@@ -1116,11 +1160,9 @@ class Config
 
         $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-        if (file_exists($path)) {
-            return realpath($path);
-        } else {
-            return $path;
-        }
+        //No anteponer file_exists(): abre una carrera con realpath() y el @return dice string.
+        $resolved = realpath($path);
+        return $resolved !== false ? $resolved : $path;
     }
 
     /**
@@ -1135,11 +1177,9 @@ class Config
 
         $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-        if (file_exists($path)) {
-            return realpath($path);
-        } else {
-            return $path;
-        }
+        //Misma prohibición que basepath(): no anteponer file_exists().
+        $resolved = realpath($path);
+        return $resolved !== false ? $resolved : $path;
     }
 
     /**
@@ -1165,7 +1205,11 @@ class Config
 
     /**
      * Devuelve una instancia de Config
-     * @return static
+     *
+     * `self` y no `static`: la instancia vive en una propiedad estática ÚNICA y compartida,
+     * así que una subclase recibiría la del padre si ya estaba creada.
+     *
+     * @return self
      */
     private static function get_instance()
     {

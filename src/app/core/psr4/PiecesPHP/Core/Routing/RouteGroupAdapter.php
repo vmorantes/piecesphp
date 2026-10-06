@@ -24,7 +24,7 @@ class RouteGroupAdapter
      */
     protected static $router = null;
     /**
-     * @var static[]
+     * @var array<int,static> Por `spl_object_id`: dos grupos con el mismo prefijo son dos entradas.
      */
     protected static $groups = [];
     /**
@@ -127,9 +127,9 @@ class RouteGroupAdapter
 
         }
 
-        if (!array_key_exists($this->routeGroup, self::$groups)) {
-            self::$groups[$this->routeGroup] = $this;
-        }
+        //POR INSTANCIA, NO POR PREFIJO: con la clave en el prefijo, un segundo grupo con el
+        //mismo prefijo no se guardaba y sus rutas se perdían SIN ERROR (P88).
+        self::$groups[spl_object_id($this)] = $this;
 
         return $this;
     }

@@ -59,7 +59,6 @@ window.addEventListener('load', function () {
 	//Mapa
 	configurateMap().then(function () {
 		profileForm()
-		experienceForm()
 	})
 
 	function profileForm() {
@@ -146,69 +145,6 @@ window.addEventListener('load', function () {
 
 	}
 
-	function experienceForm() {
-
-		/* Selectores y elementos de interfaz */
-		const formSelector = `.ui.form.my-profile-experiences`
-
-		//Tabla
-		const experienceListDataTable = dataTablesServerProccesingOnCards('.table-to-cards', 20, {
-			drawCallbackEnd: function (cards) {
-				window.dispatchEvent(new Event('canDeletePreviousExperience'))
-				$('[data-tooltip]').popup()
-			},
-		}, {
-			containerCardsClass: 'list-cards-container',
-			containerCardsSelector: '.list-cards-container',
-			cardsSelector: '.experience-card',
-		})
-
-		window.addEventListener('wasDeletedPreviousExperience', function () {
-			experienceListDataTable.DataTable().draw()
-		})
-
-		//Formulario
-		let form = genericFormHandler(formSelector, {
-			onSetFormData: function (formData) {
-				formData.set('startDate', form.find(`[name="startDate"]`).parent().calendar('get date', 'Y-m-d'))
-				formData.set('endDate', form.find(`[name="endDate"]`).parent().calendar('get date', 'Y-m-d'))
-				return formData
-			},
-			onInvalidEvent: function (event) {
-
-				let element = event.target
-				let validationMessage = element.validationMessage
-				let jElement = $(element)
-				let field = jElement.closest('.field')
-				let nameOnLabel = field.find('label').text().trim()
-				if (field.length == 0) {
-					field = jElement.closest('.attach-placeholder')
-					nameOnLabel = field.find('>label >.text >.header >.title').text()
-				}
-
-				errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-				event.preventDefault()
-
-			},
-			onSuccess: function () {
-				form.get(0).reset()
-				form.find('.ui.dropdown').dropdown('clear').dropdown('refresh')
-				experienceListDataTable.DataTable().draw()
-			}
-		})
-
-		//Botones
-		let translateButton = form.find('button[translate]')
-
-		//Comportamiento de botón de traducción
-		const handleTranslate = function (event) {
-			MySpaceProfilesTranslationConfig.handle(event, form)
-		}
-		translateButton.on('click', handleTranslate)
-
-	}
-
 	function configurateMap() {
 
 		const loaderMap = 'loaderMap-' + generateUniqueID()
@@ -260,7 +196,7 @@ window.addEventListener('load', function () {
 
 		return new Promise(function (resolve) {
 
-			fetch('configurations/mapbox-key')
+			fetch('configurations/integrations/mapbox-key')
 				.then(response => response.text())
 				.then(key => resolve(key))
 

@@ -31,7 +31,7 @@ window.addEventListener('load', function () {
 
 		return new Promise(function (resolve) {
 
-			fetch('configurations/mapbox-key')
+			fetch('configurations/integrations/mapbox-key')
 				.then(response => response.text())
 				.then(key => resolve(key))
 

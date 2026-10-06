@@ -53,7 +53,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     <thead>
 
                         <tr>
-                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Código'); ?></th>
                             <th><?= __($langGroup, 'NIT'); ?></th>
                             <th><?= __($langGroup, 'Nombre de la organización'); ?></th>
                             <th><?= __($langGroup, 'País'); ?></th>
@@ -82,7 +82,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     <thead>
 
                         <tr>
-                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Código'); ?></th>
                             <th><?= __($langGroup, 'NIT'); ?></th>
                             <th><?= __($langGroup, 'Nombre de la organización'); ?></th>
                             <th><?= __($langGroup, 'Departamento'); ?></th>
@@ -111,7 +111,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     <thead>
 
                         <tr>
-                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Código'); ?></th>
                             <th><?= __($langGroup, 'NIT'); ?></th>
                             <th><?= __($langGroup, 'Nombre de la organización'); ?></th>
                             <th><?= __($langGroup, 'Departamento'); ?></th>

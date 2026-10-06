@@ -26,6 +26,8 @@ set_custom_assets([
     baseurl("statics/plugins/surveyjs/survey-core/defaultV2.min.css"),
 ], 'css');
 set_custom_assets([
+    //El borrado de arriba se lleva configurations.js, que dispara el evento de abajo.
+    baseurl("statics/core/js/configurations.min.js"),
     //SurveyJS Form Library resources
     baseurl("statics/plugins/surveyjs/survey-core/survey.core.min.js"),
     baseurl("statics/plugins/surveyjs/survey-js-ui/survey-js-ui.min.js"),

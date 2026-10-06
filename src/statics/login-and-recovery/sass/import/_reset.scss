@@ -1,6 +1,8 @@
+@use 'sass:string';
+@use 'variables' as *;
 html {
     box-sizing: border-box;
-    font-size: $fsize + unquote('px');
+    font-size: $fsize + string.unquote('px');
 
     &,
     body {

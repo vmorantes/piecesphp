@@ -10,6 +10,7 @@ $slugsElements = array_key_exists('slugs', $_GET) ? (
 $slugsElements = array_filter(array_map(fn($e) => Validator::isString($e) ? (string) $e : null, $slugsElements), fn($e) => Validator::isString($e));
 $idsElements = array_map(fn($e) => PublicationMapper::extractIDFromSlug("segment-" . $e), $slugsElements);
 $idsElements = array_filter($idsElements, fn($e) => Validator::isInteger($e));
+$escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 ?>
 
 <components name='publications'>
@@ -28,12 +29,12 @@ $idsElements = array_filter($idsElements, fn($e) => Validator::isInteger($e));
     <component data-slug="<?= $element->preferSlug; ?>" name="special-main-item">
         <a class="item" href="<?= $singleURL; ?>">
             <div class="ui large image">
-                <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>" loading="lazy">
+                <img src="<?= $escape($element->currentLangData('thumbImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>" loading="lazy">
             </div>
             <div class="content">
-                <div class="header"><?= $element->currentLangData('title'); ?></div>
+                <div class="header"><?= $escape($element->currentLangData('title')); ?></div>
                 <div class="meta">
-                    <span><?= $element->authorFullName(); ?></span>
+                    <span><?= $escape($element->authorFullName()); ?></span>
                 </div>
                 <div class="description">
                     <?= $excerptContent; ?>
@@ -48,14 +49,14 @@ $idsElements = array_filter($idsElements, fn($e) => Validator::isInteger($e));
     <component data-slug="<?= $element->preferSlug; ?>" name="special-secondary-item">
         <a class="ui card" href="<?= $singleURL; ?>">
             <div class="image">
-                <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>" loading="lazy">
+                <img src="<?= $escape($element->currentLangData('thumbImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>" loading="lazy">
             </div>
             <div class="content">
                 <div class="header"><?= $element->publicDateFormat(); ?></div>
                 <div class="meta">
-                    <span><?= $element->authorFullName(); ?></span>
+                    <span><?= $escape($element->authorFullName()); ?></span>
                 </div>
-                <div class="description"><?= $excerptTitle; ?></div>
+                <div class="description"><?= $escape($excerptTitle); ?></div>
             </div>
         </a>
     </component>

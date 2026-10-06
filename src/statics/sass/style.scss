@@ -1,10 +1,12 @@
-@import 'imports/functions';
-@import 'imports/variables';
-@import '../core/sass/includes/reset-font-family-fomantic';
-@import 'imports/components';
-@import 'imports/overwrites';
-@import url('../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
-@import url('../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+@use 'sass:string';
+@use 'sass:meta';
+@use 'imports/functions' as *;
+@use 'imports/variables' as *;
+@use '../core/sass/includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
+@use 'imports/components' as *;
+@use 'imports/overwrites' as *;
+@import url('../fonts/public-sans/public-sans.css');
+@import url('../fonts/poppins/poppins.css');
 
 html {
     overflow-x: hidden;
@@ -23,7 +25,7 @@ body {
 
 html,
 body {
-    font-size: unquote($fontSizeHTML + 'px');
+    font-size: string.unquote($fontSizeHTML + 'px');
     margin: 0;
     padding: 0;
     width: 100%;
@@ -442,4 +444,4 @@ body {
 
 }
 
-@import 'imports/posts';
+@include meta.load-css('imports/posts');

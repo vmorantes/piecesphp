@@ -16,6 +16,34 @@ namespace PiecesPHP\Core;
 class BaseToken
 {
 
+    /** @var int $leeway Margen de tiempo extra al verificar nbf, iat o exp */
+    public static $leeway = 0;
+
+    /** @var int|null $timestamp Valor por defecto de creación time() si es null */
+    public static $timestamp = null;
+
+    /** @var array $supported_algs Array asociativo de lo métodos de encriptación soportados */
+    public static $supported_algs = [
+        'HS256' => ['hash_hmac', 'SHA256'],
+        'HS512' => ['hash_hmac', 'SHA512'],
+        'HS384' => ['hash_hmac', 'SHA384'],
+        'RS256' => ['openssl', 'SHA256'],
+        'RS384' => ['openssl', 'SHA384'],
+        'RS512' => ['openssl', 'SHA512'],
+    ];
+
+    /** @var array $encrypt Tipo de encriptación por defecto. */
+    public static $encrypt = ['HS256'];
+
+    /** @var string $secret_key Llave usada para la encriptación. */
+    private static $secret_key = 'secret';
+
+    /** @var string|null $aud AUD del token. */
+    private static $aud = null;
+
+    /** @var int $expire_time Tiempo de expiración por defecto. */
+    private static $expire_time = 3600;
+
     /**
      * Genera un token.
      * @param mixed $data Información contenida en el token
@@ -28,7 +56,7 @@ class BaseToken
      */
     public static function setToken($data, ?string $key = null, ?int $time = null, ?int $expire = null, bool $aud = false)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
         if ($time == null) {
             $time = time();
@@ -38,21 +66,21 @@ class BaseToken
             $expire = $time + self::$expire_time;
         }
 
-        $data = BaseHashEncryption::encrypt(json_encode($data), $key);
+        $data = BaseHashEncryption::encrypt(json_encode($data, \JSON_THROW_ON_ERROR), $key);
 
         if ($aud) {
-            $token = array(
+            $token = [
                 'iat' => $time,
                 'exp' => $expire,
                 'aud' => self::aud(),
                 'data' => $data,
-            );
+            ];
         } else {
-            $token = array(
+            $token = [
                 'iat' => $time,
                 'exp' => $expire,
                 'data' => $data,
-            );
+            ];
         }
 
         return self::encode($token, $key);
@@ -77,13 +105,13 @@ class BaseToken
      */
     public static function check(string $token, ?string $key = null, ?array $allowed_algs = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
         if (empty($token)) {
             return self::INVALID_TOKEN_SUPPLIED;
         }
 
-        $allowed_algs = is_null($allowed_algs) ? self::$encrypt : $allowed_algs;
+        $allowed_algs ??= self::$encrypt;
 
         $expired = self::isExpire($token, $key, $allowed_algs);
         if ($expired === true) {
@@ -111,9 +139,9 @@ class BaseToken
      */
     public static function isExpire(string $token, ?string $key = null, ?array $allowed_algs = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
-        $allowed_algs = is_null($allowed_algs) ? self::$encrypt : $allowed_algs;
+        $allowed_algs ??= self::$encrypt;
 
         $now = time();
 
@@ -156,9 +184,9 @@ class BaseToken
      */
     public static function getData(string $token, ?string $key = null, ?array $allowed_algs = null, bool $ignore_expired = false)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
-        $allowed_algs = is_null($allowed_algs) ? self::$encrypt : $allowed_algs;
+        $allowed_algs ??= self::$encrypt;
 
         $expired = self::isExpire($token, $key, $allowed_algs);
 
@@ -205,9 +233,9 @@ class BaseToken
      */
     public static function getExpired(string $token, ?string $key = null, ?array $allowed_algs = null, bool $ignore_expired = false)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
-        $allowed_algs = is_null($allowed_algs) ? self::$encrypt : $allowed_algs;
+        $allowed_algs ??= self::$encrypt;
 
         $expired = self::isExpire($token, $key, $allowed_algs);
 
@@ -252,9 +280,9 @@ class BaseToken
      */
     public static function getCreated(string $token, ?string $key = null, ?array $allowed_algs = null, bool $ignore_expired = false)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
-        $allowed_algs = is_null($allowed_algs) ? self::$encrypt : $allowed_algs;
+        $allowed_algs ??= self::$encrypt;
 
         $expired = self::isExpire($token, $key, $allowed_algs);
 
@@ -300,7 +328,9 @@ class BaseToken
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $aud = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {
-            $aud = $_SERVER['REMOTE_ADDR'];
+            //Con `??`, como los otros seis sitios del framework que la leen: en terminal no existe, y sin esto el
+            //cálculo del aud reventaba con un aviso. El valor es el mismo al emitir y al validar, así que cuadra.
+            $aud = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         }
 
         $aud .= gethostname();
@@ -326,16 +356,16 @@ class BaseToken
      */
     public static function encode($payload, ?string $key = null, string $alg = 'HS256', $keyId = null, ?array $head = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
-        $header = array('typ' => 'JWT', 'alg' => $alg);
+        $header = ['typ' => 'JWT', 'alg' => $alg];
         if ($keyId !== null) {
             $header['kid'] = $keyId;
         }
         if (isset($head) && is_array($head)) {
             $header = array_merge($head, $header);
         }
-        $segments = array();
+        $segments = [];
         $segments[] = self::urlsafeB64Encode(self::jsonEncode($header));
         $segments[] = self::urlsafeB64Encode(self::jsonEncode($payload));
         $signing_input = implode('.', $segments);
@@ -359,10 +389,10 @@ class BaseToken
      * @use self::jsonDecode
      * @use self::urlsafeB64Decode
      */
-    public static function decode(string $jwt, $key = null, array $allowed_algs = array(), bool $ignore_expired = false)
+    public static function decode(string $jwt, $key = null, array $allowed_algs = [], bool $ignore_expired = false)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
-        $timestamp = is_null(self::$timestamp) ? time() : self::$timestamp;
+        $key ??= self::getSecretKey();
+        $timestamp = self::$timestamp ?? time();
         if (empty($key)) {
             return self::EMPTY_KEY;
         }
@@ -370,7 +400,7 @@ class BaseToken
         if (count($tks) != 3) {
             return self::WRONG_NUMBER_SEGMENTS;
         }
-        list($headb64, $bodyb64, $cryptob64) = $tks;
+        [$headb64, $bodyb64, $cryptob64] = $tks;
         if (null === ($header = self::jsonDecode(self::urlsafeB64Decode($headb64)))) {
             return self::INVALID_ENCODING_HEADER;
         }
@@ -434,12 +464,12 @@ class BaseToken
      */
     public static function sign($msg, $key = null, $alg = 'HS256')
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
 
         if (empty(static::$supported_algs[$alg])) {
             return self::NOT_SUPPORTED_ALGORITHM;
         }
-        list($function, $algorithm) = static::$supported_algs[$alg];
+        [$function, $algorithm] = static::$supported_algs[$alg];
         switch ($function) {
             case 'hash_hmac':
                 return hash_hmac($algorithm, $msg, $key, true);
@@ -469,11 +499,11 @@ class BaseToken
      */
     public static function verify(string $msg, string $signature, $key = null, string $alg = 'HS256')
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
         if (empty(self::$supported_algs[$alg])) {
             return self::NOT_SUPPORTED_ALGORITHM;
         }
-        list($function, $algorithm) = self::$supported_algs[$alg];
+        [$function, $algorithm] = self::$supported_algs[$alg];
         switch ($function) {
             case 'openssl':
                 $success = openssl_verify($msg, $signature, $key, $algorithm);
@@ -513,8 +543,9 @@ class BaseToken
     public static function jsonEncode($input)
     {
         $json = json_encode($input);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            return $errno;
+        //Se mira el VALOR, no json_last_error(): es el único signo directo de que falló.
+        if ($json === false) {
+            return json_last_error();
         }
         return $json;
     }
@@ -612,34 +643,6 @@ class BaseToken
         }
         return strlen($str);
     }
-
-    /** @var int $leeway Margen de tiempo extra al verificar nbf, iat o exp */
-    public static $leeway = 0;
-
-    /** @var int|null $timestamp Valor por defecto de creación time() si es null */
-    public static $timestamp = null;
-
-    /** @var array $supported_algs Array asociativo de lo métodos de encriptación soportados */
-    public static $supported_algs = array(
-        'HS256' => array('hash_hmac', 'SHA256'),
-        'HS512' => array('hash_hmac', 'SHA512'),
-        'HS384' => array('hash_hmac', 'SHA384'),
-        'RS256' => array('openssl', 'SHA256'),
-        'RS384' => array('openssl', 'SHA384'),
-        'RS512' => array('openssl', 'SHA512'),
-    );
-
-    /** @var array $encrypt Tipo de encriptación por defecto. */
-    public static $encrypt = ['HS256'];
-
-    /** @var string $secret_key Llave usada para la encriptación. */
-    private static $secret_key = 'secret';
-
-    /** @var string|null $aud AUD del token. */
-    private static $aud = null;
-
-    /** @var int $expire_time Tiempo de expiración por defecto. */
-    private static $expire_time = 3600;
 
     const INVALID_USER_LOGGIN = 'INVALID_USER_LOGGIN';
     const EXPIRED_TOKEN = 'EXPIRED_TOKEN';

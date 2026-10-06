@@ -6,9 +6,12 @@
 
 namespace Organizations\Mappers;
 
-use App\Locations\Mappers\CityMapper;
-use App\Locations\Mappers\CountryMapper;
-use App\Model\UsersModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
+use PiecesPHP\App\Locations\Mappers\CityMapper;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\OrganizationsLang;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -18,7 +21,6 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Validation\Validator;
-use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 
 /**
  * OrganizationMapper.
@@ -28,6 +30,7 @@ use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
  * @copyright   Copyright (c) 2024
  * @property int|null $id
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string|null $code Código público, único e inmutable. Nulo solo en las filas anteriores a su migración
  * @property string $name
  * @property string $nit
  * @property string|null $size
@@ -56,11 +59,16 @@ use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
  * @property double|null $longitude
  * @property double|null $latitude
  * @property int|UsersModel|null $administrator
- * @property int[]|InterestResearchAreasMapper[]|null $interestResearhAreas
  * @property string[] $affiliatedInstitutions
  */
 class OrganizationMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'name';
 
     protected $fields = [
         'id' => [
@@ -69,6 +77,13 @@ class OrganizationMapper extends EntityMapperExtensible
         ],
         'preferSlug' => [
             'type' => 'text',
+            'null' => true,
+        ],
+        //La TABLA lo declara NOT NULL: el volcado y el paso 3 del archivo de actualización. El `null` de aquí solo
+        //existe para que las filas anteriores a la migración se puedan cargar mientras la tarea reparte los códigos.
+        'code' => [
+            'type' => 'varchar',
+            'length' => 10,
             'null' => true,
         ],
         'name' => [
@@ -155,7 +170,7 @@ class OrganizationMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -163,7 +178,7 @@ class OrganizationMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -223,6 +238,29 @@ class OrganizationMapper extends EntityMapperExtensible
     ];
 
     const INITIAL_ID_GLOBAL = -10;
+
+    /** Prefijo del código público de una organización. */
+    const CODE_PREFIX = 'ORG';
+
+    /** Dígitos del código público, tras el prefijo. */
+    const CODE_DIGITS = 7;
+
+    /**
+     * Código reservado de la organización global. La generación al azar NO puede producirlo: sortea desde 1.
+     */
+    const CODE_GLOBAL = self::CODE_PREFIX . '0000000';
+
+    /**
+     * Intentos de generación antes de rendirse. Con 9.999.999 combinaciones, diez choques seguidos no son mala
+     * suerte: son la tabla llena o el sorteo roto, y entonces el alta FALLA en vez de guardar sin código.
+     */
+    const CODE_MAX_ATTEMPTS = 10;
+
+    /**
+     * Marcador de «sin información» para el nit de una organización creada sin él: NO es un nit real (P37).
+     * Vacío no sirve: `existsByNit()` haría chocar el segundo vacío y `save()` lanzaría DuplicateException.
+     */
+    const NIT_WITHOUT_INFORMATION_PREFIX = 'SIN_INFORMACION_';
 
     /*
         Tiene poder de eliminación sobre todas las organizaciones
@@ -319,6 +357,11 @@ class OrganizationMapper extends EntityMapperExtensible
     protected $table = self::TABLE;
 
     /**
+     * @var string|null El código que traía la fila al cargarse, o null si es una organización nueva.
+     */
+    protected ?string $codeOnLoad = null;
+
+    /**
      * @param int $value
      * @param string $fieldCompare
      * @return static
@@ -329,11 +372,13 @@ class OrganizationMapper extends EntityMapperExtensible
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, '+57', true), 'phoneCode');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'longitude');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'latitude');
-        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY_MAPPER, null, true, InterestResearchAreasMapper::class, 'id'), 'interestResearhAreas');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY, [], false), 'affiliatedInstitutions');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_MAPPER, new UsersModel(), true, UsersModel::class), 'administrator');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
         parent::__construct($value, $fieldCompare);
+
+        //El código con el que vino de la base: `update()` lo repone si alguien lo cambia. Ver `codeIsImmutable()`.
+        $this->codeOnLoad = $this->id !== null && is_string($this->code) && $this->code !== '' ? $this->code : null;
 
         //Definición de campos no traducibles en caso de que estén vacíos
         $fields = array_keys($this->fields);
@@ -361,7 +406,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * Verifica si el perfil de una organización está completo.
      *
      * Un perfil se considera completo si tiene todos los campos requeridos llenos.
-     * Los campos requeridos son: name, informativeEmail, activitySector, logo, country, city, latitude, longitude y interestResearhAreas.
+     * Los campos requeridos son: name, informativeEmail, activitySector, logo, country, city, latitude y longitude.
      *
      * @return bool true si el perfil está completo, false de lo contrario.
      */
@@ -382,7 +427,6 @@ class OrganizationMapper extends EntityMapperExtensible
                 'city' => fn($e) => Validator::isInteger($e) || $e instanceof CityMapper,
                 'latitude' => fn($e) => Validator::isDouble($e),
                 'longitude' => fn($e) => Validator::isDouble($e),
-                'interestResearhAreas' => fn($e) => is_array($e) && !empty($e),
             ];
 
             foreach ($requiredProperties as $requiredProperty => $validator) {
@@ -468,6 +512,11 @@ class OrganizationMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la organización.'));
         }
 
+        //El código NO se pide: nace con la organización, y quien lo traiga puesto se lo queda solo si es válido.
+        if (!is_string($this->code) || !self::codeIsWellFormed($this->code)) {
+            $this->code = $this->id === self::INITIAL_ID_GLOBAL ? self::CODE_GLOBAL : self::generateCode();
+        }
+
         $currentUser = getLoggedFrameworkUser();
         $this->createdAt = new \DateTime();
         $this->createdBy = $currentUser !== null ? $currentUser->id : 1;
@@ -495,6 +544,15 @@ class OrganizationMapper extends EntityMapperExtensible
 
         if (self::existsByNit($this->nit, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la organización.'));
+        }
+        //INMUTABLE: el código que vino de la base se repone y el intento queda en el log. No se rechaza el guardado
+        //entero porque el formulario manda todos los campos, y un cambio de dirección no puede fallar por esto.
+        if ($this->codeOnLoad !== null && $this->code !== $this->codeOnLoad) {
+            log_exception(new \RuntimeException(
+                'Se intentó cambiar el código de la organización ' . $this->id . ' de «' . $this->codeOnLoad
+                . '» a «' . (is_scalar($this->code) ? (string) $this->code : gettype($this->code)) . '». El código es inmutable: se repone.'
+            ));
+            $this->code = $this->codeOnLoad;
         }
         $currentUser = getLoggedFrameworkUser();
         if (!$noDateUpdate) {
@@ -635,9 +693,6 @@ class OrganizationMapper extends EntityMapperExtensible
      *  - sizeText
      *  - actionLinesText
      *  - esalText
-     *  - interestResearhAreasNames
-     *  - interestResearhAreasIDsNames
-     *  - interestResearhAreasColorsNames
      *  - statusText
      * @return string[]
      */
@@ -648,7 +703,6 @@ class OrganizationMapper extends EntityMapperExtensible
         $model = $mapper->getModel();
         $table = $model->getTable();
 
-        $tableInterestResearchAreas = InterestResearchAreasMapper::TABLE;
         $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
         $tableCity = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
         $tableUser = UsersModel::TABLE;
@@ -656,35 +710,27 @@ class OrganizationMapper extends EntityMapperExtensible
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
-        //Áreas de investigación
-        $researchAreas = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas'))";
-        $areaNameCurrentLang = InterestResearchAreasMapper::fieldCurrentLangForSQL('areaName');
-        $researchAreasNameSubQuery = "SELECT GROUP_CONCAT($areaNameCurrentLang SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndIDSubQuery = "SELECT GROUP_CONCAT(CONCAT({$tableInterestResearchAreas}.id, ':', $areaNameCurrentLang) SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
-        $researchAreasNameAndColorSubQuery = "SELECT GROUP_CONCAT(CONCAT(JSON_UNQUOTE(JSON_EXTRACT({$tableInterestResearchAreas}.meta, '$.color')), ':', $areaNameCurrentLang) SEPARATOR '|@|') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
 
         //Ubicaciones
         $countryName = "SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country";
         $cityName = "SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city";
 
         //Otros
-        $statusesJSON = escapeString(json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE));
-        $sizesJSON = escapeString(json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE));
-        $actionLinesJSON = escapeString(json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE));
-        $esalOptionsJSON = escapeString(json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE));
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $sizesJSON = json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $actionLinesJSON = json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $esalOptionsJSON = json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "({$countryName}) AS countryName",
             "({$cityName}) AS cityName",
             "CONCAT((SELECT countryName), '{$locationSeparator}', (SELECT cityName)) AS fullLocation",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$sizesJSON}', CONCAT('$.', {$table}.size))) AS sizeText",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$actionLinesJSON}', CONCAT('$.', {$table}.actionLines))) AS actionLinesText",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$esalOptionsJSON}', CONCAT('$.', {$table}.esal))) AS esalText",
-            "({$researchAreasNameSubQuery}) AS interestResearhAreasNames",
-            "({$researchAreasNameAndIDSubQuery}) AS interestResearhAreasIDsNames",
-            "({$researchAreasNameAndColorSubQuery}) AS interestResearhAreasColorsNames",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($sizesJSON) . ", CONCAT('$.', {$table}.size))) AS sizeText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($actionLinesJSON) . ", CONCAT('$.', {$table}.actionLines))) AS actionLinesText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($esalOptionsJSON) . ", CONCAT('$.', {$table}.esal))) AS esalText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$table}.meta",
         ];
 
@@ -809,7 +855,7 @@ class OrganizationMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof OrganizationMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $name = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('name') : $elementOrID->getLangData($lang, 'name'));
 
             $slug = "{$name}-{$uniqid}";
@@ -859,7 +905,7 @@ class OrganizationMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $encryptValue = false, bool $ignoreInitial = false, ?string $nameForInitial = null)
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Organizaciones');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Organizaciones');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -874,9 +920,9 @@ class OrganizationMapper extends EntityMapperExtensible
             if (!$ignore) {
                 $value = $e->currentLangData('name');
                 if ($isGlobalElement) {
-                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $nameForInitial !== null ? $nameForInitial : $value;
+                    $options[(string) ($encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id)] = $nameForInitial ?? $value;
                 } else {
-                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $value;
+                    $options[(string) ($encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id)] = $value;
                 }
             }
 
@@ -942,7 +988,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function statusesForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
         $sourceOptions = self::statuses();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Estados');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Estados');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
@@ -963,7 +1009,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function sizesForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
         $sourceOptions = self::sizes();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
@@ -982,13 +1028,13 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function actionLinesForSelect(string $defaultLabel = '', string $defaultValue = '', array $checkAdditionsFromData = [])
     {
         $sourceOptions = self::actionLines();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
             $options[$value] = $text;
         }
-        foreach ($checkAdditionsFromData as $i => $additionalValue) {
+        foreach ($checkAdditionsFromData as $additionalValue) {
             if (is_scalar($additionalValue)) {
                 $additionalValueIntegerVersion = Validator::isInteger($additionalValue) ? (int) $additionalValue : null;
                 $hasAdditionalValueIntegerVersion = $additionalValueIntegerVersion !== null ? array_key_exists($additionalValueIntegerVersion, $sourceOptions) : false;
@@ -1009,7 +1055,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function esalOptionsForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
         $sourceOptions = self::esalOptions();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
@@ -1078,7 +1124,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -1106,7 +1152,7 @@ class OrganizationMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
@@ -1175,6 +1221,86 @@ class OrganizationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Un código público libre, con la forma `ORG` + 7 dígitos.
+     *
+     * AL AZAR, NO CORRELATIVO: un correlativo diría cuántas organizaciones hay y cuál es más antigua. Sortea desde 1,
+     * así que nunca produce el código reservado de la organización global.
+     *
+     * @return string
+     * @throws \RuntimeException Si tras CODE_MAX_ATTEMPTS intentos todos los candidatos estaban ocupados.
+     */
+    public static function generateCode(): string
+    {
+        $maximo = (10 ** self::CODE_DIGITS) - 1;
+
+        for ($intento = 1; $intento <= self::CODE_MAX_ATTEMPTS; $intento++) {
+            $candidato = self::CODE_PREFIX . str_pad((string) random_int(1, $maximo), self::CODE_DIGITS, '0', STR_PAD_LEFT);
+            if (!self::existsByCode($candidato)) {
+                return $candidato;
+            }
+        }
+
+        throw new \RuntimeException(
+            'No se pudo generar un código de organización libre en ' . self::CODE_MAX_ATTEMPTS . ' intentos.'
+        );
+    }
+
+    /**
+     * @param string $code
+     * @return bool `true` si tiene la forma `ORG` + CODE_DIGITS dígitos.
+     */
+    public static function codeIsWellFormed(string $code): bool
+    {
+        return preg_match('/^' . preg_quote(self::CODE_PREFIX, '/') . '[0-9]{' . self::CODE_DIGITS . '}$/', $code) === 1;
+    }
+
+    /**
+     * El id de la organización que lleva ese código, o null si ninguna lo lleva.
+     *
+     * @param string $code
+     * @return int|null
+     */
+    public static function idByCode(string $code): ?int
+    {
+
+        $model = self::model();
+
+        //Por marcador: el código puede venir de un archivo subido y viaja como dato (ADR 0009).
+        $model->select(['id'])->where(new WhereSegment([WhereItem::isEqual('code', $code)]));
+
+        $model->execute();
+
+        $result = $model->result();
+
+        return is_array($result) && count($result) > 0 && isset($result[0]->id) ? (int) $result[0]->id : null;
+
+    }
+
+    /**
+     * @param string $code
+     * @param int|null $ignoreID
+     * @return bool
+     */
+    public static function existsByCode(string $code, ?int $ignoreID = null): bool
+    {
+
+        $ignoreID ??= -1;
+        $model = self::model();
+
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009). Y SIN filtrar por estado: un
+        //código de una organización eliminada NO se reparte otra vez, o dos filas contarían la misma historia.
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('code', $code, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
+        ]));
+
+        $model->execute();
+
+        return !empty($model->result());
+
+    }
+
+    /**
      * Verifica si existe algún registro igual
      *
      * @param string $nit
@@ -1185,22 +1311,23 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function existsByNit(string $nit, ?int $ignoreID = null, bool $onlyNoDeleted = true)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
-        $nit = escapeString($nit);
         $statusDeleted = self::DELETED;
 
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "nit = '{$nit}' AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('nit', $nit, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
         if ($onlyNoDeleted) {
-            $where[] = "AND status != {$statusDeleted}";
+            $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+            $where[] = WhereItem::isNotEqual('status', $statusDeleted);
         }
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 
@@ -1224,28 +1351,24 @@ class OrganizationMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return OrganizationMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new OrganizationMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
 
         $defaultMetaPropertiesValues = [
             'phoneCode' => '+57',
             'longitude' => 0.0,
             'latitude' => 0.0,
-            'interestResearhAreas' => null,
             'affiliatedInstitutions' => [],
             'administrator' => null,
         ];
@@ -1259,10 +1382,8 @@ class OrganizationMapper extends EntityMapperExtensible
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
+                        if (!property_exists($value, $defaultMetaProperty)) {
+                            $value->$defaultMetaProperty = $defaultMetaPropertyValue;
                         }
                     }
 
@@ -1292,10 +1413,9 @@ class OrganizationMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->name !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

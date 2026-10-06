@@ -6,7 +6,7 @@
 
 namespace SystemApprovals;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
@@ -45,25 +45,7 @@ class SystemApprovalsMiddleware
                     $isApproved = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $currentUser->id);
                     $isApproved = $isApproved ? $isApproved : UsersApprovalHandler::isAutoApproval($currentUser->getMapper());
                     if (!$isApproved) {
-                        $otherAllowedRoutes = array_filter($roleConfig['allowed_routes'], function ($e) {
-                            $allowed = [
-                                $e == 'configurations-mapbox-key',
-                                str_starts_with($e, 'my-profile-admin-'),
-                                str_starts_with($e, 'my-organization-profile-admin-'),
-                                str_starts_with($e, 'profile-organization-admin-'),
-                                str_starts_with($e, 'profile-admin-'),
-                                str_starts_with($e, 'user-'),
-                                str_starts_with($e, 'my-space-admin-'),
-                                str_starts_with($e, 'api-admin-'),
-                                str_starts_with($e, 'SAMPLE'),
-                            ];
-                            foreach ($allowed as $i) {
-                                if ($i) {
-                                    return $i;
-                                }
-                            }
-                            return false;
-                        });
+                        $otherAllowedRoutes = array_filter($roleConfig['allowed_routes'], fn($e) => self::keepsWhenNotApproved((string) $e));
                         $roleConfig['allowed_routes'] = array_merge($rolesBasePermissions['generals'], $otherAllowedRoutes);
                         $allRolesConfig[$roleConfigKey] = $roleConfig;
                     }
@@ -75,5 +57,26 @@ class SystemApprovalsMiddleware
 
         }
         return null;
+    }
+
+    /**
+     * Las rutas de su rol que conserva un usuario NO aprobado, además de las generales.
+     *
+     * @param string $routeName
+     * @return bool
+     */
+    public static function keepsWhenNotApproved(string $routeName): bool
+    {
+        return $routeName === 'configurations-integrations-mapbox-key'
+            || str_starts_with($routeName, 'my-profile-admin-')
+            || str_starts_with($routeName, 'my-organization-profile-admin-')
+            || str_starts_with($routeName, 'profile-organization-admin-')
+            || str_starts_with($routeName, 'profile-admin-')
+            //Solo enviar la edición del propio perfil y los ajustes de su cuenta: «users-» entero concedería la gestión de usuarios.
+            || $routeName === 'users-edit-request'
+            || str_starts_with($routeName, 'user-system-features-')
+            || str_starts_with($routeName, 'my-space-admin-')
+            || str_starts_with($routeName, 'api-admin-')
+            || str_starts_with($routeName, 'SAMPLE');
     }
 }

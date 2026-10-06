@@ -434,7 +434,7 @@ function generate_pass(int $length = 5)
     $len_pass = $length;
 
     for ($i = 1; $i <= $len_pass; $i++) {
-        $random_pos = rand(0, $len_chars - 1);
+        $random_pos = random_int(0, $len_chars - 1);
         $random_char = mb_substr($chars, $random_pos, 1);
         $new_pass .= $random_char;
     }
@@ -468,7 +468,7 @@ function generate_code(int $length = 6, bool $only_numeric = true)
     $len_pass = $length;
 
     for ($i = 1; $i <= $len_pass; $i++) {
-        $random_pos = rand(0, $len_chars - 1);
+        $random_pos = random_int(0, $len_chars - 1);
         $random_char = mb_substr($chars, $random_pos, 1);
         $new_pass .= $random_char;
     }
@@ -592,18 +592,26 @@ function get_youtube_id(string $url)
 }
 
 /**
+ * El entorno de la instalación: 'local' o 'production', de src/app/config/environment.php.
+ *
+ * @return string
+ */
+function app_environment(): string
+{
+    return \PiecesPHP\Core\AppEnvironment::get();
+}
+
+/**
  * Verificar si está en local.
  *
- * @return boolean Dependiendo de $_SERVER['HTTP_HOST']
+ * NO MIRA LA CABECERA Host: la manda el cliente, y un Host falso haría local a producción (P58). Fuera de la terminal
+ * decide environment.php; en la terminal, su bandera --local.
+ *
+ * @return boolean
  */
 function is_local()
 {
-    $isLocal = false;
-    if (isset($_SERVER['HTTP_HOST'])) {
-        $host = $_SERVER['HTTP_HOST'];
-        // Comprueba si el host es "localhost" o termina con ".localhost"
-        $isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
-    }
+    $isLocal = app_environment() === \PiecesPHP\Core\AppEnvironment::LOCAL;
     $pcsPhpTerminalData = $_SERVER['PCSPHP_TERMINAL_DATA'] ?? [];
     if ($pcsPhpTerminalData['isTerminal'] ?? false) {
         $isLocal = $pcsPhpTerminalData['local'] ?? false;
@@ -1628,9 +1636,6 @@ function resizeAndCenterImage(string $inputPath, string $outputPath, int $target
             break;
     }
 
-    // Liberar memoria
-    imagedestroy($canvas);
-    imagedestroy($originalImage);
 }
 
 /**

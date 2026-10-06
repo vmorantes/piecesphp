@@ -41,11 +41,17 @@ function loader_classes($class)
             'path' => __DIR__ . "/psr4",
             'psr4' => true,
         ],
+        //Los módulos de `app/classes`, por ruta completa: el arranque necesita sus clases ANTES de
+        //`Config::init()`, y el autocargador que las carga se registra 27 líneas después.
+        [
+            'path' => __DIR__ . "/../classes",
+            'psr4' => true,
+        ],
     ];
 
     foreach ($scheme as $element) {
-        $psr4 = isset($element['psr4']) ? $element['psr4'] : false;
-        $namespaces = isset($element['namespaces']) ? $element['namespaces'] : [];
+        $psr4 = $element['psr4'] ?? false;
+        $namespaces = $element['namespaces'] ?? [];
         $namespaces = is_array($namespaces) ? $namespaces : [$namespaces];
 
         foreach ($namespaces as $index => $namespace) {

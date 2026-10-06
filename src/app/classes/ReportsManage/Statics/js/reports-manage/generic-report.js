@@ -60,30 +60,6 @@ window.addEventListener('load', function () {
 				},
 			},
 			{
-				dataType: 'totalApplicationsCallsBilateralProjectQty',
-				fill: function (value) {
-					const dataType = this.dataType
-					const domElement = $(`[data-type="${dataType}"]`)
-					domElement.html(formatNumberString(value, '.', ','))
-				},
-				getValueFromSource: function (source) {
-					const value = source[this.dataType]
-					return value
-				},
-			},
-			{
-				dataType: 'totalApplicationsCallsFundingOpportunityQty',
-				fill: function (value) {
-					const dataType = this.dataType
-					const domElement = $(`[data-type="${dataType}"]`)
-					domElement.html(formatNumberString(value, '.', ','))
-				},
-				getValueFromSource: function (source) {
-					const value = source[this.dataType]
-					return value
-				},
-			},
-			{
 				dataType: 'totalApprovedPublicationsQty',
 				fill: function (value) {
 					const dataType = this.dataType

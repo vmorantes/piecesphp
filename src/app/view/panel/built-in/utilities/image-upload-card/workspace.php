@@ -1,6 +1,6 @@
 <?php
-use App\Controller\AppConfigController;
-$langGroup = AppConfigController::LANG_GROUP;
+use PiecesPHP\Settings\Controllers\SettingsController;
+$langGroup = SettingsController::LANG_GROUP;
 $imageAlt = isset($imageAlt) && is_string($imageAlt) ? $imageAlt : '';
 $classes = isset($classes) && is_string($classes) ? $classes : '';
 $imageActionAttrs = isset($imageActionAttrs) && is_string($imageActionAttrs) ? $imageActionAttrs : '';

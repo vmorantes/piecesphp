@@ -1,7 +1,7 @@
-@import "components/buttons";
-@import "components/container-aside";
-@import "components/others";
-@import "components/placeholders";
-@import "components/show-data";
-@import "components/sidebar";
-@import "components/topbar";
+@use 'components/buttons' as *;
+@use 'components/container-aside' as *;
+@use 'components/others' as *;
+@use 'components/placeholders' as *;
+@use 'components/show-data' as *;
+@use 'components/sidebar' as *;
+@use 'components/topbar' as *;

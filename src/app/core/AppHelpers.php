@@ -10,11 +10,12 @@
  * @copyright   Copyright (c) 2018
  */
 
-use App\Controller\AppConfigController;
-use App\Model\UsersModel;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
+use PiecesPHP\Core\Exceptions\SessionRequiredException;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Router;
@@ -36,7 +37,7 @@ use Spatie\Url\Url as URLManager;
 function get_config(string $name)
 {
     $initialName = $name;
-    $isSEOElement = array_key_exists($name, array_flip(AppConfigController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME));
+    $isSEOElement = array_key_exists($name, array_flip(SettingsController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME));
     if ($isSEOElement) {
 
         $defaultLang = Config::get_default_lang();
@@ -527,16 +528,84 @@ function static_files_cache_stamp(bool $update = false)
  */
 function add_cache_stamp_to_url(string $url)
 {
-    $cache_stamp_render_files = get_config('cache_stamp_render_files');
+    return get_config('cache_stamp_render_files') === true ? add_static_version_to_url($url) : $url;
+}
+
+/**
+ * La versión de un estático (ADR 0034): la fecha de modificación de su archivo con la marca global de sal, si la URL
+ * cuelga de la URL base y resuelve a un archivo bajo src/ (enlaces de server-delegated incluidos); si no, la marca
+ * global a secas. Renovar la marca global cambia todas las versiones. Solo un `stat`: nunca lee el archivo ni va a la red.
+ *
+ * @param string $url
+ * @return string 16 caracteres hexadecimales, la marca global entera, o `none` si no hay marca.
+ */
+function static_file_version(string $url): string
+{
     $stamp = get_config('cacheStamp');
-
-    if ($cache_stamp_render_files === true) {
-        $url = URLManager::fromString($url);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $url = $url->__toString();
+    $stamp = is_string($stamp) ? $stamp : static_files_cache_stamp();
+    if ($stamp === 'none') {
+        return 'none';
     }
+    $file = static_file_from_url($url);
+    $modified = $file !== null ? @filemtime($file) : false;
+    return $modified !== false ? substr(sha1($stamp . ':' . $modified), 0, 16) : $stamp;
+}
 
-    return $url;
+/**
+ * El archivo local que sirve una URL, o null si no cuelga de la URL base, sale de src/ o no existe.
+ *
+ * @param string $url
+ * @return string|null
+ */
+function static_file_from_url(string $url): ?string
+{
+    $url = trim($url);
+    //Sin URL, relativa al protocolo, o con un esquema que no es http(s) (data:, blob:, mailto:…): no es un archivo de aquí.
+    if ($url === '' || str_starts_with($url, '//') || (preg_match('/^[a-z][a-z0-9+.-]*:/i', $url) === 1 && preg_match('/^https?:/i', $url) !== 1)) {
+        return null;
+    }
+    $path = (string) parse_url($url, \PHP_URL_PATH);
+    $base = baseurl();
+    $basePath = '/' . trim((string) parse_url($base, \PHP_URL_PATH), '/');
+    if (str_contains($url, '://')) {
+        //Absoluta: solo si es de esta instalación.
+        if (mb_strtolower((string) parse_url($url, \PHP_URL_HOST)) !== mb_strtolower((string) parse_url($base, \PHP_URL_HOST))) {
+            return null;
+        }
+    }
+    if (str_starts_with($path, '/')) {
+        $prefix = rtrim($basePath, '/') . '/';
+        if (!str_starts_with($path, $prefix)) {
+            return null;
+        }
+        $path = mb_substr($path, mb_strlen($prefix));
+    }
+    $path = rawurldecode($path);
+    //Nada de salir de src/: ni `..` ni un byte nulo.
+    if ($path === '' || str_contains($path, "\0") || in_array('..', explode('/', str_replace('\\', '/', $path)), true)) {
+        return null;
+    }
+    $root = realpath(basepath(''));
+    $real = realpath(basepath($path));
+    if ($root === false || $real === false || !is_file($real) || !str_starts_with($real, rtrim($root, '/') . '/')) {
+        return null;
+    }
+    return $real;
+}
+
+/**
+ * La URL con `cacheStamp=<versión del archivo>`. Una URL que ya lleva `cacheStamp` se deja como está.
+ *
+ * @param string $url
+ * @return string
+ */
+function add_static_version_to_url(string $url): string
+{
+    $version = static_file_version($url);
+    if ($version === 'none' || preg_match('/[?&]cacheStamp=/', $url) === 1) {
+        return $url;
+    }
+    return URLManager::fromString($url)->withQueryParameter('cacheStamp', $version)->__toString();
 }
 
 /**
@@ -766,12 +835,9 @@ function load_js(array $config = [])
 
     };
 
-    $stamp = static_files_cache_stamp();
     foreach ($jsGlobal as $script) {
         $script = rtrim($script, '/');
-        $url = URLManager::fromString($script);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $script = $url->__toString();
+        $script = add_static_version_to_url($script);
         $tag = ($processElement)($config, $script, [
             'custom_url',
         ]);
@@ -780,9 +846,7 @@ function load_js(array $config = [])
 
     foreach ($jsCustom as $script) {
         $script = rtrim($script, '/');
-        $url = URLManager::fromString($script);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $script = $url->__toString();
+        $script = add_static_version_to_url($script);
         $tag = ($processElement)($config, $script, []);
         echo $tag . "\n";
     }
@@ -1012,12 +1076,9 @@ function load_css(array $config = [])
 
     };
 
-    $stamp = static_files_cache_stamp();
     foreach ($cssGlobal as $stylesheet) {
         $stylesheet = rtrim($stylesheet, '/');
-        $url = URLManager::fromString($stylesheet);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $stylesheet = $url->__toString();
+        $stylesheet = add_static_version_to_url($stylesheet);
         $tag = ($processElement)($config, $stylesheet, [
             'custom_url',
         ]);
@@ -1026,9 +1087,7 @@ function load_css(array $config = [])
 
     foreach ($cssCustom as $stylesheet) {
         $stylesheet = rtrim($stylesheet, '/');
-        $url = URLManager::fromString($stylesheet);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $stylesheet = $url->__toString();
+        $stylesheet = add_static_version_to_url($stylesheet);
         $tag = ($processElement)($config, $stylesheet);
         echo $tag . "\n";
     }
@@ -1254,12 +1313,9 @@ function load_font(array $config = [])
 
     };
 
-    $stamp = static_files_cache_stamp();
     foreach ($fontGlobal as $stylesheet) {
         $stylesheet = rtrim($stylesheet, '/');
-        $url = URLManager::fromString($stylesheet);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $stylesheet = $url->__toString();
+        $stylesheet = add_static_version_to_url($stylesheet);
         $tag = ($processElement)($config, $stylesheet, [
             'custom_url',
         ]);
@@ -1268,9 +1324,7 @@ function load_font(array $config = [])
 
     foreach ($fontCustom as $stylesheet) {
         $stylesheet = rtrim($stylesheet, '/');
-        $url = URLManager::fromString($stylesheet);
-        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
-        $stylesheet = $url->__toString();
+        $stylesheet = add_static_version_to_url($stylesheet);
         $tag = ($processElement)($config, $stylesheet);
         echo $tag . "\n";
     }
@@ -2292,11 +2346,6 @@ function register_route(array $route, &$router)
     /**
      * @var string|callable
      */
-    $alias = $instanceRoute->alias();
-    $alias = $alias !== $name ? $alias : null;
-    /**
-     * @var string|callable
-     */
     $controller = $instanceRoute->controller();
     $rolesAllowed = $instanceRoute->rolesAllowed();
     $middlewares = array_reverse($instanceRoute->middlewares());
@@ -2310,7 +2359,6 @@ function register_route(array $route, &$router)
     }
 
     $settedRoute = null;
-    $settedRouteAlias = null;
 
     if (is_string($name) && $name !== null && $name !== '') {
         $settedRoute = $router->map($methods, $routeSegment, $controller)->setName($name);
@@ -2318,33 +2366,20 @@ function register_route(array $route, &$router)
         $settedRoute = $router->map($methods, $routeSegment, $controller);
     }
 
-    if ($alias !== null) {
-        $settedRouteAlias = $router->map($methods, $alias, $controller)->setName($alias);
-    }
-
     if ($container !== null) {
         $foundHandler = $container->get('foundHandler');
         if (is_callable($foundHandler)) {
             $settedRoute->add($foundHandler);
-            if ($settedRouteAlias != null) {
-                $settedRouteAlias->add($foundHandler);
-            }
         }
     }
 
     foreach ($middlewares as $mw) {
         $settedRoute = $settedRoute->add($mw);
-        if ($settedRouteAlias != null) {
-            $settedRouteAlias->add($mw);
-        }
     }
 
     if (is_string($name) && $name !== null && $name !== '') {
 
         $routesSetted[$name] = $instanceRoute->toArray();
-        if ($alias !== null) {
-            $routesSetted[$alias] = $instanceRoute->toArray();
-        }
 
         if (is_array($rolesAllowed)) {
             foreach ($rolesAllowed as $role) {
@@ -2603,17 +2638,17 @@ function get_route_roles_allowed(string $name, string $type = 'code')
     }, $information['roles_allowed']);
 
     foreach ($roles_permissions as $data) {
-        $name = $data['name'];
+        //`$roleName`, no `$name`: llamarlo `$name` pisaba el parámetro de la función y la
+        //comprobación de más abajo comparaba el NOMBRE de un rol contra una lista de CÓDIGOS.
+        $roleName = $data['name'];
         $code = $data['code'];
         $all = $data['all'];
         $allowed_routes = $data['allowed_routes'];
         if ($all || in_array($information['name'], $allowed_routes)) {
-            if (!in_array($name, $roles_allowed)) {
-                if ($type == 'name') {
-                    $roles_allowed[] = $name;
-                } elseif ($type == 'code') {
-                    $roles_allowed[] = $code;
-                }
+            //Se compara lo mismo que se añade, o el rol entra otra vez y el código sale duplicado.
+            $candidate = $type == 'name' ? $roleName : $code;
+            if (($type == 'name' || $type == 'code') && !in_array($candidate, $roles_allowed)) {
+                $roles_allowed[] = $candidate;
             }
         }
     }
@@ -2690,9 +2725,9 @@ function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, 
 /**
  * @param Throwable $e
  * @param bool $plainLog
- * @return void
+ * @return string El código de referencia del error (P56), también en la rama de mensaje único
  */
-function log_exception(Throwable $e, bool $plainLog = true)
+function log_exception(Throwable $e, bool $plainLog = true): string
 {
     //TODO: Verificar para corregir
     $add = true;
@@ -2707,14 +2742,15 @@ function log_exception(Throwable $e, bool $plainLog = true)
             break;
         }
     }
+    $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
     if ($add) {
-        $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
         if ($addAsUnique) {
             $handler->loggingUniqueMessage();
         } else {
             $handler->logging($plainLog);
         }
     }
+    return $handler->reference();
 }
 
 /**
@@ -2805,6 +2841,25 @@ function friendly_url(string $string, ?int $maxWords = null)
 function escapeString(string $str)
 {
     return \addslashes(\stripslashes($str));
+}
+
+/**
+ * Literal SQL de un valor del SERVIDOR (una etiqueta traducida, una constante), para que entre
+ * DENTRO del texto de la consulta sin depender de `sql_mode`. Un valor de la PETICIÓN va por
+ * marcador (WhereItem, HavingItem o los valores de PageQuery/prepare), no por aquí (ADR 0009).
+ *
+ * `CONVERT(X'<hex>' USING utf8mb4)` no interpreta el contenido: son bytes, no texto SQL, así
+ * que ninguna comilla ni barra invertida puede cerrar la cadena ni escapar nada.
+ *
+ * @param string $str Cadena en UTF-8
+ * @return string La expresión SQL, lista para pegar en el SELECT
+ */
+function sqlStringLiteral(string $str): string
+{
+    if ($str === '') {
+        return "''";
+    }
+    return "CONVERT(X'" . bin2hex($str) . "' USING utf8mb4)";
 }
 
 /**
@@ -3005,12 +3060,13 @@ function echoTerminal(string $text, bool $newLine = true, string $newLineChars =
  *  newLine:?bool,
  *  newLineChars:?string
  * }|string[]|int[] $format Configuración: color, background, estilos, o lista de formatos (nombres o códigos ANSI)
+ * @param bool|null $isTty Condición de terminal. `null` la DETECTA, que es lo de siempre.
  * @return string Texto formateado con secuencias ANSI
  * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting
  */
-function systemOutFormatted(string $text, array $format = []): string
+function systemOutFormatted(string $text, array $format = [], ?bool $isTty = null): string
 {
-    return \PiecesPHP\Cli::systemOutFormatted($text, $format);
+    return \PiecesPHP\Cli::systemOutFormatted($text, $format, $isTty);
 }
 
 /**
@@ -3057,6 +3113,40 @@ function getLoggedFrameworkUser(bool $reload = false)
         set_config($storedCurrentUserKey, $currentUser);
     } else {
         $currentUser = $storedCurrentUser;
+    }
+
+    return $currentUser;
+}
+
+/**
+ * Devuelve el usuario conectado, o lanza una excepción si no hay sesión.
+ *
+ * Complementa a `getLoggedFrameworkUser()`, que devuelve `UserDataPackage|null`. Esa
+ * sigue existiendo y no cambia: úsala donde la ausencia de sesión sea un caso previsto
+ * que haya que manejar.
+ *
+ * Esta otra es para el caso contrario, que es el mayoritario: código al que solo se
+ * llega con sesión activa —típicamente rutas con `requireLogin = true`—, donde el null
+ * no es un estado posible sino una violación del contrato.
+ *
+ * NO CAMBIA CUÁNDO FALLA EL CÓDIGO, SOLO POR QUÉ.
+ * Hoy, encadenar sobre el resultado nulo ya aborta la petición: leer una propiedad de
+ * null emite `E_WARNING`, y el manejador de `bootstrap.php` promueve ese nivel a
+ * `ErrorException` **en local y en producción** (está en la lista incondicional, no en
+ * la que depende de `$isLocalBootstrap`). Lo que hoy se ve es
+ * «Attempt to read property "type" on null» en una línea cualquiera; con esta función
+ * se ve que faltaba la sesión, que es la causa real.
+ *
+ * @param bool $reload Si es true consultará nuevamente la base de datos
+ * @return UserDataPackage
+ * @throws SessionRequiredException Si no hay un usuario conectado
+ */
+function getLoggedFrameworkUserOrFail(bool $reload = false): UserDataPackage
+{
+    $currentUser = getLoggedFrameworkUser($reload);
+
+    if (!$currentUser instanceof UserDataPackage) {
+        throw new SessionRequiredException(__(UserDataPackage::LANG_GROUP, 'No hay una sesión de usuario activa.'));
     }
 
     return $currentUser;
@@ -3243,12 +3333,86 @@ function var_dump_pretty($data, $label = '', $return = false)
 function setCookieByConfig(string $name, ?string $value = null)
 {
     $cookiesConfig = get_config('cookies');
-    $lifetime = array_key_exists('lifetime', $cookiesConfig) ? $cookiesConfig['lifetime'] : 0;
-    $path = array_key_exists('path', $cookiesConfig) ? $cookiesConfig['path'] : '';
-    $domain = array_key_exists('domain', $cookiesConfig) ? $cookiesConfig['domain'] : '';
-    $secure = array_key_exists('secure', $cookiesConfig) ? $cookiesConfig['secure'] : false;
-    $httponly = array_key_exists('httponly', $cookiesConfig) ? $cookiesConfig['httponly'] : false;
-    setcookie($name, $value ?? '', $lifetime, $path, $domain, $secure, $httponly);
+    setcookie($name, $value ?? '', cookie_options_by_config(is_array($cookiesConfig) ? $cookiesConfig : []));
+}
+
+/**
+ * Las opciones de `setcookie()` a partir de `$config['cookies']`.
+ *
+ * `samesite` admite Lax, Strict o None; cualquier otro valor da Lax, y None sin `secure` también da Lax, porque el
+ * navegador descarta una cookie SameSite=None que no sea segura.
+ *
+ * @param array<mixed> $cookiesConfig
+ * @return array{expires:int,path:string,domain:string,secure:bool,httponly:bool,samesite:'Lax'|'Strict'|'None'}
+ */
+function cookie_options_by_config(array $cookiesConfig): array
+{
+    $lifetime = $cookiesConfig['lifetime'] ?? 0;
+    $path = $cookiesConfig['path'] ?? '';
+    $domain = $cookiesConfig['domain'] ?? '';
+    $secure = ($cookiesConfig['secure'] ?? false) === true;
+    $sameSite = match (is_string($cookiesConfig['samesite'] ?? null) ? mb_strtolower($cookiesConfig['samesite']) : '') {
+        'strict' => 'Strict',
+        'none' => $secure ? 'None' : 'Lax',
+        default => 'Lax',
+    };
+    return [
+        'expires' => is_int($lifetime) ? $lifetime : 0,
+        'path' => is_string($path) ? $path : '',
+        'domain' => is_string($domain) ? $domain : '',
+        'secure' => $secure,
+        'httponly' => ($cookiesConfig['httponly'] ?? false) === true,
+        'samesite' => $sameSite,
+    ];
+}
+
+/**
+ * El origen de una URL —esquema, host y puerto— en la forma en que lo manda un navegador en la cabecera `Origin`.
+ *
+ * El puerto por defecto del esquema se omite, como hace el navegador: `https://x:443` y `https://x` son el mismo
+ * origen. Sin esquema o sin host devuelve la cadena vacía.
+ *
+ * @param string $url
+ * @return string
+ */
+function url_origin(string $url): string
+{
+    $parts = parse_url(trim($url));
+    if (!is_array($parts) || !isset($parts['scheme'], $parts['host']) || $parts['host'] === '') {
+        return '';
+    }
+    $scheme = mb_strtolower($parts['scheme']);
+    $host = mb_strtolower($parts['host']);
+    $defaultPorts = ['http' => 80, 'https' => 443];
+    $port = isset($parts['port']) && ($defaultPorts[$scheme] ?? null) !== $parts['port'] ? ':' . $parts['port'] : '';
+    return "{$scheme}://{$host}{$port}";
+}
+
+/**
+ * Si una petición CORS desde `$origin` puede llevar credenciales: solo el propio origen y los declarados.
+ *
+ * COMPARACIÓN EXACTA de esquema, host y puerto: nada de «contiene», «empieza por» ni comodines. Un `Origin` que no
+ * está en su forma canónica (con ruta, con barra final…) no casa con nada. Si la lista trae algo que no sea una
+ * cadena, cuenta como vacía: falla cerrado.
+ *
+ * @param string $origin El valor de la cabecera `Origin`.
+ * @param array<mixed> $allowedOrigins `cors_credentials_origins`.
+ * @param string $ownOrigin El origen de la instalación.
+ * @return bool
+ */
+function cors_origin_allows_credentials(string $origin, array $allowedOrigins, string $ownOrigin): bool
+{
+    if ($origin === '' || url_origin($origin) !== $origin) {
+        return false;
+    }
+    foreach ($allowedOrigins as $allowed) {
+        if (!is_string($allowed)) {
+            $allowedOrigins = [];
+            break;
+        }
+    }
+    $candidates = array_map(fn(string $allowed): string => url_origin($allowed), array_merge([$ownOrigin], $allowedOrigins));
+    return in_array($origin, array_filter($candidates, fn(string $candidate): bool => $candidate !== ''), true);
 }
 
 /**
@@ -3338,5 +3502,45 @@ function getKeyFromSecureKeys(string $name, ?string $fullDirectory = null)
 
     } catch (\Throwable) {
         return $key;
+    }
+}
+
+/**
+ * Pone en la configuración las claves que vienen de la carpeta de llaves seguras, una por entrada.
+ *
+ * Con `override`, la llave segura sustituye lo que ya hubiera; sin él, solo rellena una configuración vacía.
+ *
+ * @param array<int,array{configName?:string,fileKeyName?:string,override?:bool}> $keys
+ * @param string $directory Ruta absoluta de la carpeta «secure-keys»; vacía, la de siempre.
+ * @return void
+ */
+function set_configs_from_secure_keys(array $keys, string $directory = ''): void
+{
+    foreach ($keys as $key) {
+        $configName = $key['configName'] ?? null;
+        $fileKeyName = $key['fileKeyName'] ?? null;
+        $override = $key['override'] ?? false;
+        if (!is_null($configName) && !is_null($fileKeyName)) {
+            $currentValue = get_config($configName);
+            if ((!is_string($currentValue) || mb_strlen($currentValue) == 0) || $override) {
+                set_config($configName, getKeyFromSecureKeys($fileKeyName, $directory));
+            }
+        }
+    }
+}
+
+/**
+ * Da su valor a cada configuración que aún no tiene uno (una cadena vacía cuenta como sin valor).
+ *
+ * @param array<int,array{configName:string,configValue:mixed}> $values
+ * @return void
+ */
+function set_configs_if_empty(array $values): void
+{
+    foreach ($values as $value) {
+        $currentValue = get_config($value['configName']);
+        if (!is_string($currentValue) || mb_strlen($currentValue) == 0) {
+            set_config($value['configName'], $value['configValue']);
+        }
     }
 }

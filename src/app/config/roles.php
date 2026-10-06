@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: los nombres de ruta de tus módulos, al final de cada lista de permisos (sección del clon). Los tipos de usuario y lo demás son del framework.
+ */
 //========================================================================================
 /*                                                                                      *
  *                     CONFIGURACIONES DE ROLES Y NIVELES DE ACCESO                     *
@@ -35,9 +40,10 @@
  * $config['admin_url']['url'] La url
  */
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\SessionToken;
 
+//── Del framework: no lo edites ──
 //──── Roles y usuarios ──────────────────────────────────────────────────────────────────
 $config['roles']['active'] = true;
 
@@ -47,23 +53,28 @@ $permisosGenerales = [
     //Usuarios
     'users-form-profile',
     //Avatar
-    'avatars', //Traer todos los elementos de los avatares
     'push-avatars', //Crear avatar
+    //── Del clon ──
 ];
 
+//── Del framework: no lo edites ──
 $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
     //Usuarios
     "users-list", //Listado de los usuarios
     "users-selection-create", //Selección de tipo de usuario para creación
     "users-form-create", //Formulario de creación de usuarios
     "users-form-edit", //Formulario de edición de usuarios
+    //── Del clon ──
 ]));
 
+//── Del framework: no lo edites ──
 $permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos, [
     //Gestión de errores
     "admin-error-log",
+    //── Del clon ──
 ]));
 
+//── Del framework: no lo edites ──
 $config['roles']['baseInitialSegmentedPermissions'] = [
     'generals' => $permisosGenerales,
     'administratives' => $permisosAdministrativos,
@@ -131,5 +142,5 @@ $config['control_access_login'] = true;
 $config['admin_url']['relative'] = true;
 $config['admin_url']['url'] = '';
 
-//Definir fecha mínima del token de inicio de sesión
-SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '02-03-2026 00:00:00 AM'));
+//La marca global vive en `SessionToken::minimumDateCreated()`: el valor por defecto es el que estaba escrito aquí, y
+//la clave «session_minimum_date» lo sustituye. Moverla sigue echando fuera a todo el mundo.

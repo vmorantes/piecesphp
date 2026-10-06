@@ -6,15 +6,17 @@
 
 namespace Forms\Categories\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\Core\Database\PreferSlugMinter;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Forms\Categories\CategoriesLang;
-use Forms\Categories\Controllers\CategoriesController;
 use Forms\Categories\Exceptions\DuplicateException;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Validation\Validator;
 
 /**
@@ -37,6 +39,12 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class CategoriesMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'categoryName';
 
     protected $fields = [
         'id' => [
@@ -66,7 +74,7 @@ class CategoriesMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -74,7 +82,7 @@ class CategoriesMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -87,18 +95,6 @@ class CategoriesMapper extends EntityMapperExtensible
             'null' => true,
             'dafault' => null,
         ],
-    ];
-
-    const CAN_VIEW_ALL = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
-    ];
-
-    const CAN_ADD_ALL = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_EDIT_ALL = [
@@ -168,17 +164,6 @@ class CategoriesMapper extends EntityMapperExtensible
                 }
             }
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function folderRemove()
-    {
-        $pcsUploadDir = get_config('upload_dir');
-        $folder = append_to_url(append_to_url($pcsUploadDir, CategoriesController::UPLOAD_DIR), $this->folder);
-        $removed = @rmdir($folder);
-        return $removed;
     }
 
     /**
@@ -256,7 +241,7 @@ class CategoriesMapper extends EntityMapperExtensible
         }
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        $this->createdBy = getLoggedFrameworkUserOrFail()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -283,7 +268,7 @@ class CategoriesMapper extends EntityMapperExtensible
         }
 
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = getLoggedFrameworkUserOrFail()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -425,7 +410,7 @@ class CategoriesMapper extends EntityMapperExtensible
         $table = self::TABLE;
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "{$table}.meta",
         ];
 
@@ -550,7 +535,7 @@ class CategoriesMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof CategoriesMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = 'category';
 
             $slug = "{$title}-{$uniqid}";
@@ -597,7 +582,7 @@ class CategoriesMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -607,7 +592,7 @@ class CategoriesMapper extends EntityMapperExtensible
         array_map(function ($e) use (&$options) {
 
             $value = $e->currentLangData('categoryName');
-            $options[$e->id] = $value;
+            $options[(string) $e->id] = $value;
 
         }, self::all(true));
 
@@ -672,7 +657,7 @@ class CategoriesMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -705,7 +690,7 @@ class CategoriesMapper extends EntityMapperExtensible
     {
         $model = self::model();
         $model->select();
-        $model->where("id = {$id}");
+        $model->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]));
         $model->execute();
         $result = $model->result();
         return !empty($result) ? $result[0] : null;
@@ -719,12 +704,7 @@ class CategoriesMapper extends EntityMapperExtensible
     {
         $model = self::model();
 
-        $where = [
-            "id = $id",
-        ];
-        $where = trim(implode(' ', $where));
-
-        $model->select()->where($where);
+        $model->select()->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]));
 
         $model->execute();
 
@@ -741,16 +721,14 @@ class CategoriesMapper extends EntityMapperExtensible
     public static function existsByName(string $name, ?int $ignoreID = null)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
-        $where = [
-            "categoryName = '{$name}' AND",
-            "id != {$ignoreID}",
-        ];
-        $where = trim(implode(' ', $where));
-
-        $model->select()->where($where);
+        //Por marcador: el nombre llega del formulario y viaja como dato (ADR 0009).
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('categoryName', $name, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
+        ]));
 
         $model->execute();
 
@@ -764,25 +742,19 @@ class CategoriesMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return CategoriesMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new CategoriesMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [
-        ];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
-
-        $defaultMetaPropertiesValues = [];
 
         foreach ($element as $property => $value) {
 
@@ -791,14 +763,6 @@ class CategoriesMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
-
-                    foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
-                        }
-                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {
@@ -826,10 +790,9 @@ class CategoriesMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

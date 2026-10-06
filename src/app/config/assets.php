@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: las librerías propias de tu proyecto, en `app_front_libraries` (sección del clon). Las del framework —Fomantic, DataTables y demás— las actualiza él.
+ */
 use PiecesPHP\Core\Config;
 
 /**
@@ -179,6 +184,8 @@ $assets['quilljs']['plugins'] = [
  * 27.1.0
  * https://ckeditor.com/ckeditor-5/
  */
+//No hay 'es' porque este CKEditor trae el español DENTRO de `ckeditor.js` —el bundle abre con
+//`t["es"]` y su diccionario—. Estos son los idiomas ADICIONALES. Ver T147.
 $ckeditorLangs = [
     'en' => 'statics/plugins/ckeditor/translations/en.js',
     'fr' => 'statics/plugins/ckeditor/translations/fr.js',
@@ -325,15 +332,15 @@ $assets['google_captcha_v3_adapter']['js'] = [
 $assets['google_captcha_v3_adapter']['plugins'] = [];
 
 /**
- * MapBox v3.4.0
+ * MapBox v3.19.0
  * https://docs.mapbox.com/
  */
 $assets['mapbox']['css'] = [
-    'statics/plugins/mapbox/v3.4.0/mapbox-gl.css',
+    'statics/plugins/mapbox/v3.19.0/mapbox-gl.css',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.css',
 ];
 $assets['mapbox']['js'] = [
-    'statics/plugins/mapbox/v3.4.0/mapbox-gl.js',
+    'statics/plugins/mapbox/v3.19.0/mapbox-gl.js',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.min.js',
 ];
 /**
@@ -461,6 +468,7 @@ $assets['app_libraries']['plugins'] = [
 ];
 
 //Utilidades para el front, depende de app_libraries
+//── Del clon ──
 $assets['app_front_libraries']['css'] = [
 ];
 $assets['app_front_libraries']['js'] = [
@@ -469,6 +477,7 @@ $assets['app_front_libraries']['js'] = [
 $assets['app_front_libraries']['plugins'] = [
 ];
 
+//── Del framework: no lo edites ──
 set_config('global_assets', [
     'js' => [],
     'css' => [],

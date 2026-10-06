@@ -94,7 +94,6 @@ class Mailgun
             }
 
             $this->statusOperation = ($httpCode >= 200 && $httpCode < 300);
-            curl_close($ch);
             return $this->response;
 
         } catch (\Throwable $th) {

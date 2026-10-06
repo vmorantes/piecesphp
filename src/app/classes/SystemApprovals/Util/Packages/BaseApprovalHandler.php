@@ -6,7 +6,7 @@
 
 namespace SystemApprovals\Util\Packages;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\EntityMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -19,7 +19,7 @@ use SystemApprovals\Util\ApprovalElementHandlerInterface;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2025
  */
-class BaseApprovalHandler implements ApprovalElementHandlerInterface
+abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
 {
 
     protected static $APPROVALS_ALLOW = true;
@@ -35,6 +35,16 @@ class BaseApprovalHandler implements ApprovalElementHandlerInterface
         OrganizationMapper::INACTIVE,
         OrganizationMapper::PENDING_APPROVAL,
     ];
+
+    /**
+     * Campos cuyo cambio NO cuenta como edición.
+     *
+     * ABSTRACTO A PROPÓSITO: si la base lo implementara, un manejador nuevo heredaría una
+     * respuesta que nadie decidió. Así no compila hasta que alguien lo piense. Ver T87.
+     *
+     * @return string[]
+     */
+    abstract public static function auditFields(): array;
 
     public static function isEnabled(): bool
     {
@@ -53,6 +63,16 @@ class BaseApprovalHandler implements ApprovalElementHandlerInterface
         }
         $text = static::$BASE_TEXT;
         return $text;
+    }
+
+    /**
+     * Por defecto, el unico texto que un handler escribe es su `$BASE_TEXT`.
+     *
+     * @return string[]
+     */
+    public static function getContentTypes(): array
+    {
+        return [static::$BASE_TEXT];
     }
 
     public static function getReferenceTable(): string

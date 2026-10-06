@@ -13,7 +13,6 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
-use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
 /**
  * UserSystemFeaturesRoutes.
@@ -40,19 +39,6 @@ class UserSystemFeaturesRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new OTPSecretsUsersMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'user` int' => 'user` bigint',
-                ]);
-                exit;
-            }
-
             $groupAdministration = UserSystemFeaturesController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
@@ -63,8 +49,7 @@ class UserSystemFeaturesRoutes
                 self::init();
             });
 
-            //Configuraciones OTP
-            OTPSecretsUsersMapper::createOTPAlternativesRecords();
+            //routes() corre en cada petición: aquí no va ninguna escritura ni consulta de datos.
 
         }
 
@@ -119,7 +104,7 @@ class UserSystemFeaturesRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

@@ -1,7 +1,12 @@
-# Instalación de MariaDB en Ubuntu 24.04 LTS
+# Instalación de MariaDB en Ubuntu 26.04 LTS
 
 ## Introducción
-MariaDB es un sistema de gestión de bases de datos compatible con MySQL. Aquí aprenderás a instalarlo y configurarlo de forma segura.
+MariaDB es un sistema de gestión de bases de datos compatible con MySQL. Ubuntu 26.04 LTS trae MariaDB 11.8, una
+versión de soporte largo. Aquí aprenderás a instalarlo y configurarlo de forma segura.
+
+Desde MariaDB 11, las órdenes se llaman `mariadb`, `mariadb-dump`, `mariadb-secure-installation`… Los nombres antiguos
+(`mysql_secure_installation`, `mysqlcheck`…) solo existen si se instalan los paquetes `mariadb-client-compat` y
+`mariadb-server-compat`; esta guía usa los nuevos.
 
 ---
 
@@ -21,11 +26,8 @@ sudo apt install mariadb-server mariadb-client -y
 Ejecuta el script de seguridad:
 
 ```bash
-#Modo de super usuario
-sudo su
-
 #Medidas de seguridad
-mysql_secure_installation
+sudo mariadb-secure-installation
 #prompt: Enter current password for root (enter for none): (PRESIONA ENTER)
 #prompt: Switch to unix_socket authentication [Y/n]: n
 #prompt: Change the root password? [Y/n]: n (El usuario root quedará sin contraseña porque es preferible no usarlo por seguridad.)
@@ -33,8 +35,6 @@ mysql_secure_installation
 #prompt: Disallow root login remotely? [Y/n]: Y (Desactivar conexiones externas)
 #prompt: Remove test database and access to it? [Y/n]: Y
 #prompt: Reload privilege tables now? [Y/n]: Y
-
-#Entrar en consola de mariadb
 ```
 
 Sigue las instrucciones para asegurar tu instalación (puedes dejar la contraseña de root vacía si solo usas sockets locales, pero se recomienda establecer una contraseña fuerte).
@@ -43,13 +43,19 @@ Sigue las instrucciones para asegurar tu instalación (puedes dejar la contrase�
 
 ## Crear usuario y base de datos
 
+Genera una contraseña para el usuario (cada instalación, la suya):
+
+```bash
+openssl rand -base64 24
+```
+
 Accede a la consola de MariaDB:
 
 ```bash
-mysql
+sudo mariadb
 ```
 
-Crea un usuario y una base de datos de ejemplo:
+Crea un usuario de ejemplo con ella, en lugar de `PASSWORD`:
 
 ```sql
 -- Crear general (el usuario y la contraseña son de ejemplo):
@@ -71,13 +77,16 @@ Si el usuario root no tiene permisos:
 
 ```bash
 #Detener servidor mariadb
-sudo systemctl stop mysql
+sudo systemctl stop mariadb
 
 #Desactivar verificación de permisos
-sudo mysqld_safe --skip-grant-tables &
+sudo mariadbd-safe --skip-grant-tables &
 
 #Conectar
-mysql -uroot
+sudo mariadb -uroot
+
+#Con --skip-grant-tables, GRANT falla hasta recargar las tablas de privilegios
+FLUSH PRIVILEGES;
 
 #Otorgar permisos
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
@@ -86,8 +95,9 @@ FLUSH PRIVILEGES;
 #Salir
 exit;
 
-#Activar servidor mariadb
-sudo systemctl start mysql
+#Detener la instancia sin permisos y arrancar el servicio normal
+sudo mariadb-admin shutdown
+sudo systemctl start mariadb
 ```
 
 ---

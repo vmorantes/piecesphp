@@ -3,6 +3,7 @@
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
 use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
+use PiecesPHP\Core\Database\Database;
 use PDO;
 
 /**
@@ -23,7 +24,7 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getHeader(PDO $db, string $database, string $charset): string
+    public function getHeader(Database $db, string $database, string $charset): string
     {
         // El CSV no tiene un encabezado global de archivo en este contexto
         return "";
@@ -40,7 +41,7 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableStructure(PDO $db, string $table, array $options): string
+    public function getTableStructure(Database $db, string $table, array $options): string
     {
         // En CSV no exportamos la sentencia CREATE TABLE.
         // Pero podemos exportar los nombres de las columnas como primera fila si se desea.
@@ -61,7 +62,7 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableData(PDO $db, string $table, array $options, ?callable $writeCallback = null): ?string
+    public function getTableData(Database $db, string $table, array $options, ?callable $writeCallback = null): ?string
     {
         $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
         $sql = "SELECT * FROM `" . str_replace("`", "``", $table) . "`" . $where;
@@ -82,7 +83,7 @@ class CsvFormat implements FormatPluginInterface
 
             // Manejo de Binarios (si no han sido transformados)
             if ($useHexBlob) {
-                foreach ($row as $col => &$val) {
+                foreach ($row as &$val) {
                     if (is_string($val) && !mb_check_encoding($val, 'UTF-8')) {
                         // Es probable que sea binario si no es UTF-8 válido
                         $val = "0x" . bin2hex($val);
@@ -105,7 +106,7 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getFunctions(PDO $db, string $database, array $options): string
+    public function getFunctions(Database $db, string $database, array $options): string
     {
         return "";
     }
@@ -113,7 +114,7 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getProcedures(PDO $db, string $database, array $options): string
+    public function getProcedures(Database $db, string $database, array $options): string
     {
         return "";
     }
@@ -121,18 +122,18 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function isView(PDO $db, string $table): bool
+    public function isView(Database $db, string $table): bool
     {
         $stmt = $db->prepare("SHOW TABLE STATUS LIKE ?");
         $stmt->execute([$table]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return empty($row['Engine']) && !empty($row['Comment']) && strpos(mb_strtolower($row['Comment']), 'view') !== false;
+        return empty($row['Engine']) && !empty($row['Comment']) && str_contains(mb_strtolower($row['Comment']), 'view');
     }
 
     /**
      * @inheritDoc
      */
-    public function getTableFakeView(PDO $db, string $table): string
+    public function getTableFakeView(Database $db, string $table): string
     {
         // En CSV las vistas se exportan como datos directamente
         return $this->getTableStructure($db, $table, []) . $this->getTableData($db, $table, []);
@@ -141,7 +142,7 @@ class CsvFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableTriggers(PDO $db, string $table, array $options): string
+    public function getTableTriggers(Database $db, string $table, array $options): string
     {
         return "";
     }

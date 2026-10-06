@@ -1,3 +1,5 @@
+@use '../variables' as *;
+@use '../functions' as *;
 $fontModule: $fontSidebars;
 
 .#{$globalClassPcs}.sidebar-toggle {

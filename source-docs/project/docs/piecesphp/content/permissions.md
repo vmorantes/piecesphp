@@ -34,6 +34,11 @@ Las siguientes rutas requieren permisos de escritura para el funcionamiento del 
 | `statics/uploads` | Archivos subidos por los usuarios. |
 | `statics/css` | Solo si se compila SASS en el servidor. |
 | `statics/server-delegated` | Archivos gestionados por lógica interna. |
+| `statics/images` | Imágenes que la aplicación escribe (por ejemplo, el logo de los correos, `mailing-logo.png`). |
+| `statics/filemanager` | Archivos del gestor de archivos. |
+| `statics/login-and-recovery/images` | Imágenes de la pantalla de acceso y recuperación. |
+
+Es la misma lista que aplica `permissions-and-property.sh`, en la raíz del repositorio (sobre `src/`).
 
 ---
 
@@ -74,7 +79,9 @@ WRITABLE_DIRS=(
     "statics/css"
     "statics/server-delegated"
     "statics/uploads"
+    "statics/images"
     "statics/filemanager"
+    "statics/login-and-recovery/images"
 )
 
 for dir in "${WRITABLE_DIRS[@]}"; do

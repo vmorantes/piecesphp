@@ -1,3 +1,5 @@
+//NO le añadas `semantic_form` ni `semantic_search`: no faltan, los rellena
+//`configurations.js` desde los valores por defecto de Fomantic. Ver T145.
 var PCSPHP_TRANSLATIONS_EN = {
 	lang: {
 		'es': 'Spanish',

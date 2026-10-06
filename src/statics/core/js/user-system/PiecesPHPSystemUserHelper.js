@@ -1,9 +1,35 @@
 class PiecesPHPSystemUserHelper {
 
-	static localJWTAuthName = 'JWTAuth'
-	static localJWTAuthExtraDataName = 'JWTAuthExtraData'
-	static localUserDataName = 'JWTAuthUserData'
-	static remoteJWTAuthName = 'JWTAuth'
+	/** ULTIMO RECURSO. La fuente es el servidor: «sessionTokenName» de las configuraciones del frente. */
+	static defaultJWTAuthName = 'JWTAuth'
+
+	/** El nombre que manda el servidor, o el de ultimo recurso si no llego. */
+	static get sessionTokenName() {
+		let fromBackend = null
+		try {
+			fromBackend = pcsphpGlobals.frontConfigurationsFromBackend.sessionTokenName
+		} catch (e) {
+			fromBackend = null
+		}
+		const valid = typeof fromBackend == 'string' && /^[A-Za-z0-9_]{1,64}$/.test(fromBackend)
+		return valid ? fromBackend : PiecesPHPSystemUserHelper.defaultJWTAuthName
+	}
+
+	static get localJWTAuthName() {
+		return PiecesPHPSystemUserHelper.sessionTokenName
+	}
+
+	static get localJWTAuthExtraDataName() {
+		return PiecesPHPSystemUserHelper.sessionTokenName + 'ExtraData'
+	}
+
+	static get localUserDataName() {
+		return PiecesPHPSystemUserHelper.sessionTokenName + 'UserData'
+	}
+
+	static get remoteJWTAuthName() {
+		return PiecesPHPSystemUserHelper.sessionTokenName
+	}
 
 	constructor(urlAuthenticate, urlVerification, urlTwoFactorAuthStatus, expectedLang) {
 
@@ -50,6 +76,8 @@ class PiecesPHPSystemUserHelper {
 					if (typeof res.auth == 'boolean') {
 
 						if (res.auth) {
+							//El servidor NO manda nada por este canal: el login dejó de enviarlo. Queda null salvo que un clon
+							//rellene `extraData` en su respuesta, y entonces se guardará; mientras no, no se escribe nada.
 							instance.extraData = typeof res.extraData == 'object' ? res.extraData : null
 							instance.setUserData(res.userData ?? {})
 							instance.setJWT(res.token)
@@ -156,9 +184,15 @@ class PiecesPHPSystemUserHelper {
 		if (typeof JWT != 'string') {
 			JWT = ''
 		}
-		document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=${encodeURI(JWT)};path=/`
+		document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=${encodeURI(JWT)};path=/;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
 		localStorage.setItem(PiecesPHPSystemUserHelper.localJWTAuthName, encodeURI(JWT))
-		localStorage.setItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName, this.extraData !== null ? JSON.stringify(this.extraData) : null)
+		//Sin datos extra NO se escribe la clave: `setItem(clave, null)` guarda la CADENA "null", y quien la leyera
+		//recibiría un texto donde espera un objeto. Si quedó una de antes, se retira.
+		if (this.extraData !== null) {
+			localStorage.setItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName, JSON.stringify(this.extraData))
+		} else {
+			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
+		}
 	}
 
 	getJWT() {
@@ -238,7 +272,7 @@ class PiecesPHPSystemUserHelper {
 		JWT = JWT.length > 0 ? JWT : JWTFromCookie
 
 		if (JWT.length > 0) {
-			document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=;expires=${now};path=/`
+			document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=;expires=${now};path=/;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localUserDataName)

@@ -19,7 +19,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @property string $status
  * @property int $attempts
  * @property int $maxAttempts
- * @property string $errorMessage
+ * @property string|null $errorMessage
  * @property \DateTime|string|null $createdAt
  * @property \DateTime|string|null $updatedAt
  * @property \DateTime|string|null $scheduledAt
@@ -96,21 +96,6 @@ class QueueJobMapper extends BaseEntityMapper
     public function __construct($id = null, string $field_compare = 'primary_key')
     {
         parent::__construct($id, $field_compare);
-    }
-
-    /**
-     * Migra la tabla a la base de datos
-     * @return bool
-     */
-    public static function migrate()
-    {
-        if (is_local()) {
-            $model = self::model();
-            $sql = (new \PiecesPHP\Core\Database\SchemeCreator(new QueueJobMapper()))->getSQL();
-            $pdo = $model->prepare($sql);
-            return $pdo->execute();
-        }
-        return false;
     }
 
     /**

@@ -6,8 +6,8 @@
 
 namespace Publications\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;
@@ -17,16 +17,20 @@ use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
@@ -43,6 +47,7 @@ use Publications\Util\AttachmentPackage;
 use Spatie\Url\Url as URLManager;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsRoutes;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * PublicationsController.
@@ -53,6 +58,8 @@ use SystemApprovals\SystemApprovalsRoutes;
  */
 class PublicationsController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -74,15 +81,7 @@ class PublicationsController extends AdminPanelController
     /**
      * @var string
      */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
     protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
     /**
      * @var HelperController
      */
@@ -96,12 +95,16 @@ class PublicationsController extends AdminPanelController
     const BASE_JS_DIR = 'js/publications';
     const BASE_CSS_DIR = 'css';
     const UPLOAD_DIR = 'publications';
-    const UPLOAD_DIR_TMP = 'publications/tmp';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
     const RESPONSE_SOURCE_NORMAL_RESULT = 'NORMAL_RESULT';
     const ENABLE_CACHE = false;
+    /**
+     * Si es true, quien no administra la organización solo ve las publicaciones que creó.
+     * Apagado por decisión del PO.
+     */
+    const SOLO_PROPIAS = false;
 
     public function __construct()
     {
@@ -114,9 +117,7 @@ class PublicationsController extends AdminPanelController
         $pcsUploadDirURL = get_config('upload_dir_url');
 
         $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -135,7 +136,7 @@ class PublicationsController extends AdminPanelController
             ];
             return !in_array($type, $validTypes);
         });
-        $this->urlForSearchUsers = URLManager::fromString(get_route('users-search-dropdown'))
+        $this->urlForSearchUsers = URLManager::fromString(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('search-dropdown'))
             ->withQueryParameter('search', '{query}')
             ->withQueryParameter('ignoreTypes', implode(',', $ignoreTypesForAuthor))
             ->__toString();
@@ -186,7 +187,7 @@ class PublicationsController extends AdminPanelController
         $data['searchUsersURL'] = $searchUsersURL;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             __(self::LANG_GROUP, 'Publicaciones') => [
                 'url' => $backLink,
@@ -252,7 +253,7 @@ class PublicationsController extends AdminPanelController
             $data['searchUsersURL'] = $searchUsersURL;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Publicaciones') => [
                     'url' => $backLink,
@@ -300,16 +301,16 @@ class PublicationsController extends AdminPanelController
         $data['processTableScheduledLink'] = $processTableScheduledLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['addCategoryLink'] = $addCategoryLink;
-        $data['hasPermissionsAddCategory'] = strlen($addCategoryLink) > 0;
+        $data['hasPermissionsAddCategory'] = (string) $addCategoryLink !== '';
         $data['listCategoriesLink'] = $listCategoriesLink;
-        $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
+        $data['hasPermissionsListCategories'] = (string) $listCategoriesLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -384,7 +385,7 @@ class PublicationsController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -395,7 +396,7 @@ class PublicationsController extends AdminPanelController
                 'title',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -406,7 +407,7 @@ class PublicationsController extends AdminPanelController
                 'content',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -421,7 +422,7 @@ class PublicationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0 ? clean_string($value) : '';
+                    return is_string($value) && trim($value) !== '' ? clean_string($value) : '';
                 }
             ),
             new Parameter(
@@ -536,10 +537,10 @@ class PublicationsController extends AdminPanelController
         };
         $attachmentIndexes = array_map(fn($e) => explode('_', $e)[1], $attachmentNamesKeys);
         $attachmentsUploaded = array_map(fn($e) => ($attachmentExistsByIndex)($e) ? [
-            'id' => array_key_exists("{$baseAttachmentIDKey}{$e}", $_POST) ? $_POST["{$baseAttachmentIDKey}{$e}"] : null,
+            'id' => $_POST["{$baseAttachmentIDKey}{$e}"] ?? null,
             'nameOnFiles' => array_key_exists("{$baseAttachmentFileKey}{$e}", $_FILES) ? "{$baseAttachmentFileKey}{$e}" : null,
             'name' => $_POST["{$baseAttachmentNameKey}{$e}"],
-            'file' => array_key_exists("{$baseAttachmentFileKey}{$e}", $_FILES) ? $_FILES["{$baseAttachmentFileKey}{$e}"] : null,
+            'file' => $_FILES["{$baseAttachmentFileKey}{$e}"] ?? null,
         ] : null, $attachmentIndexes);
         $attachmentsUploaded = array_filter($attachmentsUploaded, fn($e) => $e !== null);
 
@@ -580,8 +581,11 @@ class PublicationsController extends AdminPanelController
             $draft = $expectedParameters->getValue('draft');
             $toTranslation = $request->getParsedBodyParam('toTranslation', 'no') == 'yes';
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -627,6 +631,21 @@ class PublicationsController extends AdminPanelController
                     $thumbImage = self::handlerUpload('thumbImage', $mapper->folder);
                     $ogImage = self::handlerUpload('ogImage', $mapper->folder);
 
+                    //El asterisco del formulario no llegaba aquí: sin archivo, la subida devuelve
+                    //cadena vacía y el guardado la guardaba como si fuera una ruta.
+                    if (mb_strlen(trim($mainImage)) < 1) {
+                        throw new SafeException(sprintf(
+                            __(self::LANG_GROUP, 'Falta un archivo obligatorio: %s.'),
+                            __(self::LANG_GROUP, 'Imagen principal')
+                        ));
+                    }
+                    if (mb_strlen(trim($thumbImage)) < 1) {
+                        throw new SafeException(sprintf(
+                            __(self::LANG_GROUP, 'Falta un archivo obligatorio: %s.'),
+                            __(self::LANG_GROUP, 'Imagen miniatura')
+                        ));
+                    }
+
                     $mapper->setLangData($lang, 'mainImage', $mainImage);
                     $mapper->setLangData($lang, 'thumbImage', $thumbImage);
                     $mapper->setLangData($lang, 'ogImage', $ogImage);
@@ -641,7 +660,7 @@ class PublicationsController extends AdminPanelController
                             if ($attachmentUploaded['file'] !== null) {
                                 $attachmentConfig = new AttachmentPackage($mapper->id, -1, $attachmentUploaded['name'], false, $lang);
                                 $attachMapper = $attachmentConfig->getMapper();
-                                $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                                $attachMapper ??= new AttachmentPublicationMapper();
                                 $attachMapper->publication = $mapper->id;
                                 $attachMapper->lang = $lang;
                                 $attachMapper->attachmentName = $attachmentConfig->getDisplayName();
@@ -663,6 +682,11 @@ class PublicationsController extends AdminPanelController
                             }
 
                         }
+
+                        //La carpeta nace privada y queda pública solo si la publicación ya se ve sin sesión (una aprobada al
+                        //crearse, por ejemplo). init() crea aquí su fila de aprobación, para que isVisibleToPublic() la vea.
+                        \SystemApprovals\Util\SystemApprovalManager::init();
+                        self::syncUploadsVisibility($mapper);
 
                         if ($toTranslation) {
                             $toLang = $baseLang;
@@ -717,6 +741,11 @@ class PublicationsController extends AdminPanelController
                             $mapper->status = PublicationMapper::ACTIVE;
                         }
 
+                        if (!is_string($mapper->folder) || trim($mapper->folder) === '') {
+                            //Sin carpeta, las subidas irían a la raíz de publications/: se le asigna una, como en el alta.
+                            $mapper->folder = str_replace('.', '', uniqid());
+                        }
+
                         $mainImageSetted = $translationExists ? $mapper->getLangData($lang, 'mainImage', false, null) : null;
                         $thumbImageSetted = $translationExists ? $mapper->getLangData($lang, 'thumbImage', false, null) : null;
                         $ogImageSetted = $translationExists ? $mapper->getLangData($lang, 'ogImage', false, null) : null;
@@ -726,20 +755,21 @@ class PublicationsController extends AdminPanelController
                             $ogImageSetted = null;
                         }
 
+                        //Al reemplazar, la nueva va SIEMPRE a la carpeta de la publicación, aunque la vieja estuviera en otra.
                         if ($mainImageSetted !== null) {
-                            $mainImage = self::handlerUpload('mainImage', '', $mainImageSetted);
+                            $mainImage = self::handlerUpload('mainImage', $mapper->folder, $mainImageSetted);
                         } else {
                             $mainImage = self::handlerUpload('mainImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if ($thumbImageSetted !== null) {
-                            $thumbImage = self::handlerUpload('thumbImage', '', $thumbImageSetted);
+                            $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, $thumbImageSetted);
                         } else {
                             $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if ($ogImageSetted !== null) {
-                            $ogImage = self::handlerUpload('ogImage', '', $ogImageSetted);
+                            $ogImage = self::handlerUpload('ogImage', $mapper->folder, $ogImageSetted);
                         } else {
                             $ogImage = self::handlerUpload('ogImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
@@ -760,7 +790,7 @@ class PublicationsController extends AdminPanelController
                             $attachmentID = Validator::isInteger($attachmentID) ? (int) $attachmentID : -1;
                             $attachmentConfig = new AttachmentPackage($mapper->id, $attachmentID, $attachmentUploaded['name'], false, $lang);
                             $attachMapper = $attachmentConfig->getMapper();
-                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                            $attachMapper ??= new AttachmentPublicationMapper();
                             $langSuffix = $baseLang != $lang ? "_{$lang}" : '';
                             $attachMapper->publication = $mapper->id;
                             $attachMapper->lang = $lang;
@@ -769,7 +799,7 @@ class PublicationsController extends AdminPanelController
 
                             if ($attachMapper->id !== null) {
                                 if ($attachmentUploaded['nameOnFiles'] !== null) {
-                                    $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], '', $attachMapper->fileLocation, [
+                                    $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], $attachMapper->folder, $attachMapper->fileLocation, [
                                         FileValidator::TYPE_ALL_IMAGES,
                                         FileValidator::TYPE_PDF,
                                         FileValidator::TYPE_DOC,
@@ -803,6 +833,9 @@ class PublicationsController extends AdminPanelController
 
                         if ($updated) {
 
+                            //La carpeta pasa a la visibilidad que le toca tras la edición: estado, fechas y aprobación.
+                            self::syncUploadsVisibility($mapper);
+
                             $resultOperation
                                 ->setMessage($successEditMessage)
                                 ->setValue('reload', false)
@@ -828,9 +861,9 @@ class PublicationsController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -843,10 +876,15 @@ class PublicationsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -939,7 +977,7 @@ class PublicationsController extends AdminPanelController
 
                     $pdo = PublicationMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -966,24 +1004,28 @@ class PublicationsController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         $pdo->rollBack();
-                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -1085,7 +1127,7 @@ class PublicationsController extends AdminPanelController
                     $valid = is_array($value);
                     if ($valid) {
                         foreach ($value as $slug) {
-                            $valid = is_scalar($slug) && mb_strlen((string) $slug) > 0;
+                            $valid = $valid && is_scalar($slug) && mb_strlen((string) $slug) > 0;
                         }
                     }
                     return $valid;
@@ -1126,6 +1168,8 @@ class PublicationsController extends AdminPanelController
 
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
+        $currentUser = getLoggedFrameworkUser();
+        [$status, $ignoreStatus] = self::publicStatusFilter($status, $ignoreStatus, $currentUser !== null ? (int) $currentUser->type : null);
 
         if (self::ENABLE_CACHE) {
 
@@ -1135,21 +1179,28 @@ class PublicationsController extends AdminPanelController
             $currentLang = Config::get_lang();
             $activesByDateIDs = PublicationMapper::activesByDateIDs();
             $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
-            $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
+            //El sello del mapper puede no venir hidratado: sin la guarda, getTimestamp() sobre
+            //una cadena es un fatal. El constructor no devuelve false; createFromFormat sí.
+            $lastModification = new \DateTime('1990-01-01 00:00:00');
             if ($lastModifiedElement !== null) {
-                $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
+                $lastModified = $lastModifiedElement->updatedAt ?? $lastModifiedElement->createdAt;
+                if ($lastModified instanceof \DateTime) {
+                    $lastModification = $lastModified;
+                }
             }
-            $checksumData = [
+            $checksum = self::listCacheChecksum(
                 $currentLang,
                 $page,
                 $perPage,
                 $category,
                 $status,
+                $ignoreStatus,
                 $title,
                 $featured,
-                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
-            ];
-            $checksum = sha1(json_encode($checksumData));
+                $ignoreSlugs,
+                $request->getQueryParam('random', null) === 'yes',
+                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp())
+            );
 
             //Validar cacheo por cabeceras
             $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
@@ -1181,7 +1232,7 @@ class PublicationsController extends AdminPanelController
                     $response = $response->withJson($result);
 
                     //Definir respuesta para la generación del archivo estático
-                    $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
+                    $cacheHandler->setDataCache(json_encode($result, \JSON_THROW_ON_ERROR), CacheControllersManager::CONTENT_TYPE_JSON);
 
                 } else {
                     $response = $response
@@ -1214,15 +1265,19 @@ class PublicationsController extends AdminPanelController
     public function dataTables(Request $request, Response $response)
     {
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;
         $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper)? $currentOrganizationMapper->administrator : null;
+        //Lista blanca sobre `VISIBILITIES`, que enumera las cuatro declaradas. Ver T155 y T163.
         $visibility = $request->getQueryParam('visibility', null);
+        $visibility = Validator::isInteger($visibility)
+            && array_key_exists((int) $visibility, PublicationMapper::VISIBILITIES)
+            ? (int) $visibility
+            : null;
 
         $whereString = null;
-        $havingString = null;
         $and = 'AND';
         $table = PublicationMapper::TABLE;
         $inactive = PublicationMapper::INACTIVE;
@@ -1230,7 +1285,9 @@ class PublicationsController extends AdminPanelController
         $where = [
             "{$table}.status != {$inactive}",
         ];
-        $having = [];
+        //POR MARCADOR: los dos valores son de SESION o de lista blanca, y ahora ademas viajan
+        //como dato. Ver T163.
+        $havingItems = [];
 
         //Restricciones según organización (a menos que pueda verlas todas por PublicationMapper::CAN_VIEW_ALL)
         if (!in_array($currentUserType, PublicationMapper::CAN_VIEW_ALL)) {
@@ -1238,39 +1295,29 @@ class PublicationsController extends AdminPanelController
             if ($currentOrganizationMapper !== null) {
 
                 //Ver solo las de su organización
-                $beforeOperator = !empty($having) ? $and : '';
-                $critery = "organizationID = {$currentOrganizationMapper->id}";
-                $having[] = "{$beforeOperator} ({$critery})";
+                $havingItems[] = new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, $currentOrganizationMapper->id, HavingItem::AND_OPERATOR);
 
-                //Si no es el adminstrador, solo ver las propias
-                //NOTE: Desactivado
-                if (($organizationAdmin->id ?? null) !== $currentUserID && false) {
-                    $beforeOperator = !empty($having) ? $and : '';
-                    $critery = "createdBy = {$currentUserID}";
-                    $having[] = "{$beforeOperator} ({$critery})";
+                if (($organizationAdmin->id ?? null) !== $currentUserID && self::SOLO_PROPIAS) {
+                    $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
                 }
             }
 
         }
 
         if ($visibility !== null) {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "visibility = {$visibility}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingItems[] = new HavingItem('visibility', HavingItem::EQUAL_OPERATOR, $visibility, HavingItem::AND_OPERATOR);
         }
+
+        $havingSegment = count($havingItems) > 0 ? new HavingSegment($havingItems) : null;
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
-
         $selectFields = PublicationMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'title',
             'categoryName',
             'visits',
@@ -1281,7 +1328,7 @@ class PublicationsController extends AdminPanelController
         ];
 
         $customOrder = [
-            'idPadding' => 'DESC',
+            "{$table}.id" => 'DESC',
             'createdAt' => 'DESC',
             'updatedAt' => 'DESC',
             'authorUser' => 'DESC',
@@ -1295,7 +1342,7 @@ class PublicationsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
-            'having_string' => $havingString,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -1357,6 +1404,180 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
+     * La clave de caché del listado, con el estado ya filtrado por publicStatusFilter().
+     *
+     * @param string $lang
+     * @param int $page
+     * @param int $perPage
+     * @param int|null $category
+     * @param int|null $status
+     * @param bool $ignoreStatus
+     * @param string|null $title
+     * @param int|null $featured
+     * @param string[] $ignoreSlugs
+     * @param bool $random
+     * @param string $dataStamp
+     * @return string
+     */
+    protected static function listCacheChecksum(string $lang, int $page, int $perPage, ?int $category, ?int $status, bool $ignoreStatus, ?string $title, ?int $featured, array $ignoreSlugs, bool $random, string $dataStamp): string
+    {
+        //TODO LO QUE CAMBIA LA RESPUESTA ENTRA EN LA CLAVE. Sin `ignoreStatus`, el `status=ANY` de quien
+        //tiene permiso y el listado por defecto compartían respuesta, y se la llevaba un anónimo.
+        return sha1(json_encode([$lang, $page, $perPage, $category, $status, $ignoreStatus, $title, $featured, array_values($ignoreSlugs), $random, $dataStamp], \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * El estado que puede pedir quien consulta el listado. Sin permiso de borradores, el pedido no
+     * cuenta y se aplica ACTIVE, con el mismo criterio que singleView().
+     *
+     * @param int|null $status
+     * @param bool $ignoreStatus
+     * @param int|null $userType Tipo del usuario con sesión, o null sin sesión
+     * @return array{0:int|null,1:bool}
+     */
+    protected static function publicStatusFilter(?int $status, bool $ignoreStatus, ?int $userType): array
+    {
+        //La ruta es pública: el `status` de la petición solo cuenta con permiso de borradores.
+        if ($userType === null || !in_array($userType, PublicationMapper::CAN_VIEW_DRAFT, true)) {
+            return [null, false];
+        }
+        return [$status, $ignoreStatus];
+    }
+
+    /**
+     * Validador de la carpeta de subidas (protected-files.php): con sesión, todo; sin ella, solo
+     * los archivos de una publicación visible al público.
+     *
+     * @param Request $request
+     * @param string $filePath Ruta real del archivo pedido
+     * @return bool
+     */
+    public static function uploadedFileValidator(Request $request, string $filePath): bool
+    {
+        if (SessionToken::isActiveSession((string) SessionToken::getJWTReceived())) {
+            return true;
+        }
+        return self::publicFileIsServable($filePath, append_to_path_system(get_config('upload_dir'), self::UPLOAD_DIR), function (string $folder): ?PublicationMapper {
+            return PublicationMapper::getBy($folder, 'folder', true);
+        });
+    }
+
+    /**
+     * Pone las subidas de la publicación en la visibilidad que le toca: con su nombre real si se ve sin sesión (las sirve
+     * el servidor web directamente) y con el sufijo de lo privado si no (las sirve PHP tras validar). Cubre su carpeta y,
+     * además, lo que referencia fuera de ella dentro de publications/ (imágenes de todos los idiomas y adjuntos).
+     *
+     * @param PublicationMapper $publication
+     * @param bool|null $visible Si ya se sabe (el cambio de una aprobación aún sin guardar); si no, isVisibleToPublic()
+     * @return array{renamed: int, unchanged: int, conflicts: string[], failed: string[]}
+     */
+    public static function syncUploadsVisibility(PublicationMapper $publication, ?bool $visible = null): array
+    {
+        $visible ??= $publication->isVisibleToPublic();
+        $publicationsDir = append_to_path_system((string) get_config('upload_dir'), self::UPLOAD_DIR);
+        $report = ['renamed' => 0, 'unchanged' => 0, 'conflicts' => [], 'failed' => []];
+        $folder = is_string($publication->folder) ? trim($publication->folder) : '';
+        $folderDir = null;
+        if ($folder !== '' && !str_contains($folder, '..') && !str_contains($folder, '/') && !str_contains($folder, '\\')) {
+            $folderDir = append_to_path_system($publicationsDir, $folder);
+            $report = \PiecesPHP\Core\Statics\ProtectedUploads::setFolderVisibility($folderDir, $visible);
+        }
+        $outside = array_filter(self::referencedUploads($publication), function (string $path) use ($folderDir): bool {
+            return $folderDir === null || !str_starts_with($path, $folderDir . \DIRECTORY_SEPARATOR);
+        });
+        $loose = \PiecesPHP\Core\Statics\ProtectedUploads::setFilesVisibility($outside, $publicationsDir, $visible);
+        $report['renamed'] += $loose['renamed'];
+        $report['unchanged'] += $loose['unchanged'];
+        $report['conflicts'] = array_merge($report['conflicts'], $loose['conflicts']);
+        $report['failed'] = array_merge($report['failed'], $loose['failed']);
+        if ($report['conflicts'] !== [] || $report['failed'] !== []) {
+            log_exception(new \RuntimeException("publications: las subidas de la publicación {$publication->id} no cambiaron del todo de visibilidad: "
+                . count($report['conflicts']) . ' conflicto(s) y ' . count($report['failed']) . ' fallo(s).'));
+        }
+        return $report;
+    }
+
+    /**
+     * Las rutas en disco, por su nombre público, de lo que la publicación referencia: sus imágenes en todos los
+     * idiomas y los archivos de sus adjuntos.
+     *
+     * @param PublicationMapper $publication
+     * @return string[]
+     */
+    protected static function referencedUploads(PublicationMapper $publication): array
+    {
+        $references = [];
+        foreach (['mainImage', 'thumbImage', 'ogImage'] as $property) {
+            $references[] = $publication->$property;
+            foreach ((array) ($publication->langData ?? []) as $data) {
+                $references[] = is_object($data) ? ($data->$property ?? null) : null;
+            }
+        }
+        if ($publication->id !== null) {
+            foreach (AttachmentPublicationMapper::allBy('publication', $publication->id, true) as $attachment) {
+                $references[] = $attachment instanceof AttachmentPublicationMapper ? $attachment->fileLocation : null;
+            }
+        }
+        $paths = [];
+        foreach ($references as $reference) {
+            if (is_string($reference) && trim($reference) !== '') {
+                $paths[] = basepath(ltrim($reference, '/'));
+            }
+        }
+        return array_values(array_unique($paths));
+    }
+
+    /**
+     * Para el cron: sincroniza las carpetas de todas las publicaciones ACTIVE, que son las que cambian de visibilidad
+     * con la fecha (startDate y endDate). Las demás cambian al editarlas o al resolver su aprobación.
+     *
+     * @return array{publications: int, renamed: int, conflicts: int, failed: int}
+     */
+    public static function syncAllUploadsVisibility(): array
+    {
+        $summary = ['publications' => 0, 'renamed' => 0, 'conflicts' => 0, 'failed' => 0];
+        $model = (new PublicationMapper())->getModel();
+        $model->select('id')->where(['status' => PublicationMapper::ACTIVE])->execute();
+        $rows = $model->result();
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $report = self::syncUploadsVisibility(new PublicationMapper((int) $row->id));
+            $summary['publications']++;
+            $summary['renamed'] += $report['renamed'];
+            $summary['conflicts'] += count($report['conflicts']);
+            $summary['failed'] += count($report['failed']);
+        }
+        return $summary;
+    }
+
+    /**
+     * Sin sesión: el archivo se sirve si la carpeta de su primer segmento es de una publicación visible.
+     *
+     * @param string $filePath Ruta real del archivo pedido
+     * @param string $publicationsDir Carpeta de subidas de publicaciones
+     * @param callable(string): (PublicationMapper|null) $findByFolder
+     * @return bool
+     */
+    protected static function publicFileIsServable(string $filePath, string $publicationsDir, callable $findByFolder): bool
+    {
+        //FALLA CERRADO: lo que no se pueda atribuir a una publicación visible no se sirve sin sesión.
+        $base = realpath($publicationsDir);
+        if ($base === false) {
+            return false;
+        }
+        $base = rtrim($base, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR;
+        if (mb_strpos($filePath, $base) !== 0) {
+            return false;
+        }
+        //Un archivo suelto en la raíz no está en la carpeta de ninguna publicación.
+        $segments = explode(\DIRECTORY_SEPARATOR, mb_substr($filePath, mb_strlen($base)));
+        if (count($segments) < 2 || $segments[0] === '') {
+            return false;
+        }
+        $publication = $findByFolder($segments[0]);
+        return $publication instanceof PublicationMapper && $publication->isVisibleToPublic();
+    }
+
+    /**
      * @param int $page =1
      * @param int $perPage =10
      * @param int $category =null
@@ -1379,13 +1600,14 @@ class PublicationsController extends AdminPanelController
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = []
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? PublicationMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= PublicationMapper::ACTIVE;
 
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
-        $validateSystemApprovals = SystemApprovalsRoutes::ENABLE && !empty(array_filter($fields, fn($e) => mb_strpos($e, 'systemApprovalStatus')));
+        //str_contains, no mb_strpos: array_filter evalúa por veracidad y la posición 0 es falsa.
+        $validateSystemApprovals = SystemApprovalsRoutes::ENABLE && !empty(array_filter($fields, fn ($e) => str_contains((string) $e, 'systemApprovalStatus')));
 
         $whereString = null;
         $where = [];
@@ -1409,12 +1631,17 @@ class PublicationsController extends AdminPanelController
 
         }
 
+        $boundValues = [];
         if (!empty($ignoreSlugs)) {
 
             $beforeOperator = !empty($where) ? $and : '';
-            $ignoreSlugs = implode('","', $ignoreSlugs);
-            $ignoreSlugs = '"' . $ignoreSlugs . '"';
-            $critery = "{$table}.preferSlug NOT IN ({$ignoreSlugs})";
+            //Valor de la petición: va por marcador.
+            $placeholders = [];
+            foreach (array_values($ignoreSlugs) as $index => $slug) {
+                $placeholders[] = ":ignoreSlug{$index}";
+                $boundValues[":ignoreSlug{$index}"] = $slug;
+            }
+            $critery = "{$table}.preferSlug NOT IN (" . implode(', ', $placeholders) . ")";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1423,7 +1650,9 @@ class PublicationsController extends AdminPanelController
 
             $beforeOperator = !empty($where) ? $and : '';
             $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
-            $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
+            //Valor de la petición: va por marcador.
+            $critery = "UPPER({$titleField}) LIKE UPPER(:title)";
+            $boundValues[':title'] = "%{$title}%";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1496,7 +1725,7 @@ class PublicationsController extends AdminPanelController
         }
         $sqlSelect .= " ORDER BY " . implode(', ', $orderBy);
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $parser = function ($element) {
             $element = PublicationMapper::objectToMapper($element);
@@ -1541,20 +1770,6 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -1562,19 +1777,19 @@ class PublicationsController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1671,7 +1886,7 @@ class PublicationsController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         $filesAssociativePathsToUpload = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles);
@@ -1701,9 +1916,8 @@ class PublicationsController extends AdminPanelController
                     }
 
                     if (!is_null($currentRoute)) {
-                        //Si ya existe
-                        $oldFile = append_to_url(basepath(), $currentRoute);
-                        $oldFile = file_exists($oldFile) ? $oldFile : null;
+                        //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
+                        [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
 
                         if (mb_strlen(trim($folder)) < 1) {
                             //Si folder está vacío
@@ -1722,15 +1936,16 @@ class PublicationsController extends AdminPanelController
 
                     if ($valid) {
 
-                        $uploadPath = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                        //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
+                        //lleva el sufijo. Tras guardar, syncUploadsVisibility() la libera si la publicación se ve sin sesión.
+                        $information = $handler->getFileInformation();
+                        $uploadPath = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate($information['tmp_name'], $uploadDirPath, $name, pathinfo($information['name'], \PATHINFO_EXTENSION));
                         if (mb_strlen($uploadPath) > 0) {
                             $nameCurrent = basename($uploadPath);
                             $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-                            //Eliminar archivo anterior
-                            if (!is_null($oldFile)) {
-                                if (basename($oldFile) != $nameCurrent) {
-                                    unlink($oldFile);
-                                }
+                            //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
+                            if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($uploadPath)) {
+                                unlink($oldFile);
                             }
                         }
 
@@ -1746,51 +1961,6 @@ class PublicationsController extends AdminPanelController
         }
 
         return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**

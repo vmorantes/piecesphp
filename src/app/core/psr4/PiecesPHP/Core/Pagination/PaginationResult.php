@@ -108,12 +108,12 @@ class PaginationResult implements JsonSerializable
 
                 if ($hasParser) {
                     $parsed = ($elementParser)($element);
-                    $this->parsedElements[] = $parsed !== null ? $parsed : $element;
+                    $this->parsedElements[] = $parsed ?? $element;
                 }
 
                 if ($hasEach) {
                     $parsed = ($each)($element);
-                    $this->elements[$key] = $parsed !== null ? $parsed : $element;
+                    $this->elements[$key] = $parsed ?? $element;
                 }
 
             }

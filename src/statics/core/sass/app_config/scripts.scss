@@ -1,0 +1,10 @@
+@use 'includes/base' as *;
+
+.scripts-view {
+
+    //Fomantic no tiene un textarea de código: el código se lee y se alinea en monoespaciada.
+    textarea.script-code {
+        font-family: monospace;
+    }
+
+}

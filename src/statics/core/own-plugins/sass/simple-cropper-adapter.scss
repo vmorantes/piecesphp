@@ -1,5 +1,5 @@
-@import "../../sass/includes/functions";
-@import "../../sass/includes/variables";
+@use '../../sass/includes/functions' as *;
+@use '../../sass/includes/variables' as *;
 
 $fontModule: $fontGlobal;
 

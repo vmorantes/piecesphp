@@ -10,7 +10,7 @@ A diferencia de guardar solo un array de datos, `FreezeRequest` captura:
 *   **Método HTTP** (GET, POST, PUT, DELETE).
 *   **Variables Globales:** `$_POST`, `$_GET`, `$_COOKIE`, `$_SESSION` y `$_SERVER`.
 *   **Cabeceras (Headers):** Todas las cabeceras de la petición.
-*   **Archivos (`$_FILES`):** Los archivos subidos se mueven a una ubicación temporal segura para persistir tras el fin de la ejecución web.
+*   **Archivos (`$_FILES`):** Los archivos subidos se **copian** (no se mueven) a una ubicación temporal segura para persistir tras el fin de la ejecución web; el temporal original de PHP queda donde estaba y se borra solo al terminar la petición. `cleanupFiles()` borra las copias.
 *   **Cuerpo (Raw Body):** Útil para peticiones JSON o XML puras.
 *   **Custom Data:** Cualquier dato adicional que necesites adjuntar al contexto.
 

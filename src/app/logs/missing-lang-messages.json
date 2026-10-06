@@ -1,13 +1,133 @@
 {
     "en": {
+        "DataImportExportUtility-lang": {
+            "Informe de usuarios con filtros, resumen por tipo y totales (ejemplo de la guía).": "Informe de usuarios con filtros, resumen por tipo y totales (ejemplo de la guía).",
+            "No se pudo completar la exportación. No se descargó nada.": "No se pudo completar la exportación. No se descargó nada.",
+            "Plantilla no disponible en ese formato: usa %s.": "Plantilla no disponible en ese formato: usa %s.",
+            "Activo": "Activo",
+            "Segundo apellido": "Segundo apellido",
+            "Correo: «%s» no es un correo válido.": "Correo: «%s» no es un correo válido.",
+            "Ejemplo: %s": "Ejemplo: %s",
+            "Hace falta una sesión iniciada.": "Hace falta una sesión iniciada.",
+            "No se pudo guardar el cambio.": "No se pudo guardar el cambio.",
+            "No se pudo guardar la importación; no se cambió ningún usuario.": "No se pudo guardar la importación; no se cambió ningún usuario.",
+            "Tipos": "Tipos",
+            "Credenciales de acceso": "Credenciales de acceso",
+            "Usuario": "Usuario",
+            "Usuario o correo contiene": "Usuario o correo contiene",
+            "Porcentaje": "Porcentaje",
+            "Tipo: no tienes permiso para importar usuarios de tipo «%s».": "Tipo: no tienes permiso para importar usuarios de tipo «%s».",
+            "Vacío lo deja vacío.": "Vacío lo deja vacío.",
+            "No se pudo guardar la importación; no se guardó ningún usuario.": "No se pudo guardar la importación; no se guardó ningún usuario.",
+            "Petición no válida: kind, key y enabled.": "Petición no válida: kind, key y enabled.",
+            "Inicio": "Inicio",
+            "Tipo: «%s» no se puede importar.": "Tipo: «%s» no se puede importar.",
+            "Contraseña": "Contraseña",
+            "Organización: la fila %d no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.": "Organización: la fila %d no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.",
+            "Este exportador está apagado.": "Este exportador está apagado.",
+            "Solo se admiten archivos %s.": "Solo se admiten archivos %s.",
+            "Tipo": "Tipo",
+            "Usuario: «%s» se repite en la fila %d.": "Usuario: «%s» se repite en la fila %d.",
+            "Usuario: «%s» no existe.": "Usuario: «%s» no existe.",
+            "%s %s el %s «%s» de Importar y exportar.": "%s %s el %s «%s» de Importar y exportar.",
+            "Informe de usuarios (ejemplo)": "Informe de usuarios (ejemplo)",
+            "Primer nombre": "Primer nombre",
+            "Descarga los usuarios con las columnas del importador, para editarlos o volver a importarlos.": "Descarga los usuarios con las columnas del importador, para editarlos o volver a importarlos.",
+            "encendió": "encendió",
+            "exportador": "exportador",
+            "Segundo nombre": "Segundo nombre",
+            "Organización: la fila %d trae «%s», que no es el código ni el id de ninguna organización.": "Organización: la fila %d trae «%s», que no es el código ni el id de ninguna organización.",
+            "Actualiza nombre y apellidos de usuarios que ya existen (ejemplo de la guía).": "Actualiza nombre y apellidos de usuarios que ya existen (ejemplo de la guía).",
+            "importador": "importador",
+            "Busca el texto tal cual: % y _ no son comodines.": "Busca el texto tal cual: % y _ no son comodines.",
+            "Crea usuarios nuevos; las contraseñas que se generan se entregan una sola vez.": "Crea usuarios nuevos; las contraseñas que se generan se entregan una sola vez.",
+            "Correo: «%s» se repite en la fila %d.": "Correo: «%s» se repite en la fila %d.",
+            "Correo": "Correo",
+            "El nombre debe tener entre 1 y %d caracteres.": "El nombre debe tener entre 1 y %d caracteres.",
+            "todos": "todos",
+            "Este importador está apagado.": "Este importador está apagado.",
+            "Formato no admitido: usa xlsx o csv.": "Formato no admitido: usa xlsx o csv.",
+            "Creado": "Creado",
+            "Inicio de sesión": "Inicio de sesión",
+            "Organización": "Organización",
+            "Cantidad": "Cantidad",
+            "%s a %s": "%s a %s",
+            "Correo: «%s» ya existe.": "Correo: «%s» ya existe.",
+            "Primer apellido": "Primer apellido",
+            "Este importador no permite simular.": "Este importador no permite simular.",
+            "Resumen por tipo": "Resumen por tipo",
+            "Usuario: «%s» ya existe.": "Usuario: «%s» ya existe.",
+            "Informe de usuarios %s": "Informe de usuarios %s",
+            "Usuarios": "Usuarios",
+            "Nombre completo": "Nombre completo",
+            "El archivo no es un CSV de texto.": "El archivo no es un CSV de texto.",
+            "Nombres de usuarios (ejemplo)": "Nombres de usuarios (ejemplo)",
+            "Como mucho %d filtros guardados por exportación.": "Como mucho %d filtros guardados por exportación.",
+            "Importar y exportar": "Importar y exportar",
+            "El usuario que se actualiza; tiene que existir.": "El usuario que se actualiza; tiene que existir.",
+            "Nombre": "Nombre",
+            "apagó": "apagó"
+        },
+        "DataTransfer": {
+            "obligatorio": "obligatorio",
+            "La columna %s necesita la columna %s.": "La columna %s necesita la columna %s.",
+            "%s: falta la columna obligatoria.": "%s: falta la columna obligatoria.",
+            "Este exportador no permite elegir columnas.": "Este exportador no permite elegir columnas.",
+            "«%s» no es una opción válida": "«%s» no es una opción válida",
+            "hasta el %s": "hasta el %s",
+            "%s: obligatorio": "%s: obligatorio",
+            "Hoja %d": "Hoja %d",
+            "del %s al %s": "del %s al %s",
+            "debe ser un número entero": "debe ser un número entero",
+            "El archivo tiene %d filas y el máximo es %d.": "El archivo tiene %d filas y el máximo es %d.",
+            "La columna «%s» no existe.": "La columna «%s» no existe.",
+            "No": "No",
+            "Generado el %s": "Generado el %s",
+            "Sí": "Sí",
+            "no es una opción válida": "no es una opción válida",
+            "No se pudo guardar la importación por un error inesperado. No se guardó ninguna fila.": "No se pudo guardar la importación por un error inesperado. No se guardó ninguna fila.",
+            "debe ser un texto": "debe ser un texto",
+            "no puede pasar de %d caracteres": "no puede pasar de %d caracteres",
+            "Total": "Total",
+            "«%s» no es una fecha válida (AAAA-MM-DD)": "«%s» no es una fecha válida (AAAA-MM-DD)",
+            "debe estar entre %s y %s": "debe estar entre %s y %s",
+            "Filtros": "Filtros",
+            "debe ser sí o no": "debe ser sí o no",
+            "desde el %s": "desde el %s"
+        },
+        "PiecesPHP\\Core\\Validation\\Parameters": {
+            "Los parámetros %PARAMS% son obligatorios": "Los parámetros %PARAMS% son obligatorios",
+            "El parámetro %PARAMS% es obligatorio": "El parámetro %PARAMS% es obligatorio"
+        },
+        "REPLACE_GENERIC_TITLES": {
+            "tabs-sample": "tabs-sample",
+            "elements": "elements",
+            "zz-prueba-sv-no-existe": "zz-prueba-sv-no-existe"
+        },
+        "UploadedFileAdapter": {
+            "Los archivos no han sido cargados correctamente.": "Los archivos no han sido cargados correctamente.",
+            "No hay ningún directorio de destino definido": "No hay ningún directorio de destino definido",
+            "Debe ser un solo archivo por manejador.": "Debe ser un solo archivo por manejador.",
+            "No se encontró ningún archivo cargado.": "No se encontró ningún archivo cargado."
+        },
         "adminZone": {
             "Eliminar cuenta": "Eliminar cuenta"
         },
         "api-lang": {
-            "Las traducciones se guardaron con éxito.": "Las traducciones se guardaron con éxito.",
+            "Esta acción solo admite POST.": "Esta acción solo admite POST.",
+            "Las claves deben ser una lista no vacía y dentro del tope.": "Las claves deben ser una lista no vacía y dentro del tope.",
+            "El idioma de destino no está permitido.": "El idioma de destino no está permitido.",
+            "saveGroup ya no guarda traducciones: use translateGroup.": "saveGroup ya no guarda traducciones: use translateGroup.",
             "No se pudo establecer conexión con el proveedor de IA": "No se pudo establecer conexión con el proveedor de IA",
+            "Cada clave debe ser un texto no vacío y dentro del tope.": "Cada clave debe ser un texto no vacío y dentro del tope.",
+            "No hay claves pendientes de traducción.": "No hay claves pendientes de traducción.",
             "Debe instalar ffmpeg y ffprobe (o configurar las rutas correctamente)": "Debe instalar ffmpeg y ffprobe (o configurar las rutas correctamente)",
+            "Creación de usuario": "Creación de usuario",
+            "El grupo de traducción no es válido.": "El grupo de traducción no es válido.",
             "No se pudo obtener el token de Mautic:": "No se pudo obtener el token de Mautic:"
+        },
+        "appConfig": {
+            "Esta configuración solo la cambia el usuario principal, desde su propia pantalla.": "Esta configuración solo la cambia el usuario principal, desde su propia pantalla."
         },
         "array_of_exceptions": {
             "missing_qualified_name": "missing_qualified_name"
@@ -49,10 +169,8 @@
             "El categoría que intenta modificar no existe.": "El categoría que intenta modificar no existe.",
             "Categoría": "Categoría"
         },
-        "DataImportExportUtility-lang": {
-            "Import/Export": "Import/Export"
-        },
         "document-lang": {
+            "Falta un archivo obligatorio: %s.": "Falta un archivo obligatorio: %s.",
             "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos"
         },
         "document-types-lang": {
@@ -85,26 +203,15 @@
             "malformed_attribute": "malformed_attribute",
             "malformed_child": "malformed_child"
         },
-        "images-repository-lang": {
-            "Gestionar": "Gestionar",
-            "Datos guardados.": "Datos guardados.",
-            "El consentimiento no pudo ser removida, intente más tarde o contacte con el soporte.": "El consentimiento no pudo ser removida, intente más tarde o contacte con el soporte.",
-            "Fotografía": "Fotografía",
-            "Registro fotográfico": "Registro fotográfico",
-            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
-            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
-            "Eliminar fotografía": "Eliminar fotografía",
-            "Guardar Imagen": "Guardar Imagen",
-            "No ha cargado ninguna fotografía.": "No ha cargado ninguna fotografía.",
-            "Fotografía eliminada.": "Fotografía eliminada.",
-            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
-            "La imagen no pudo ser removida, intente más tarde o contacte con el soporte.": "La imagen no pudo ser removida, intente más tarde o contacte con el soporte.",
-            "La fotografía que intenta modificar no existe.": "La fotografía que intenta modificar no existe.",
-            "Explorar": "Explorar",
-            "Fotografía creada.": "Fotografía creada.",
-            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
-            "Gestión de": "Gestión de",
-            "La fotografía que intenta eliminar no existe.": "La fotografía que intenta eliminar no existe."
+        "logs-lang": {
+            "Sin especificar": "Sin especificar"
+        },
+        "mailingGeneral": {
+            "Con los siguientes comentarios:": "Con los siguientes comentarios:"
+        },
+        "my-space-lang": {
+            "No se pudo confirmar el doble factor.": "No se pudo confirmar el doble factor.",
+            "No hay una configuración de doble factor para este usuario.": "No hay una configuración de doble factor para este usuario."
         },
         "news-lang": {
             "Borrador": "Borrador",
@@ -137,12 +244,18 @@
             "Suscriptor": "Suscriptor",
             "Añadir al boletín": "Añadir al boletín"
         },
-        "PiecesPHP\\Core\\Validation\\Parameters": {
-            "Los parámetros %PARAMS% son obligatorios": "Los parámetros %PARAMS% son obligatorios",
-            "El parámetro %PARAMS% es obligatorio": "El parámetro %PARAMS% es obligatorio"
+        "operation-route": {
+            "Operación": "Operación",
+            "La operación solicitada no corresponde con la ruta utilizada.": "La operación solicitada no corresponde con la ruta utilizada."
+        },
+        "organizations-lang": {
+            "Falta un archivo obligatorio: %s.": "Falta un archivo obligatorio: %s."
         },
         "public": {
             "Inicio": "Inicio"
+        },
+        "publications-lang": {
+            "Falta un archivo obligatorio: %s.": "Falta un archivo obligatorio: %s."
         },
         "roles_exceptions": {
             "role_duplicate": "role_duplicate",
@@ -155,23 +268,27 @@
         "sidebarAdminZone": {
             "Usuarios generales": "Usuarios generales"
         },
-        "UploadedFileAdapter": {
-            "Los archivos no han sido cargados correctamente.": "Los archivos no han sido cargados correctamente.",
-            "El archivo excede el peso máximo permitido.": "El archivo excede el peso máximo permitido.",
-            "No se ha subido ningún archivo. Problema al escribir en disco.": "No se ha subido ningún archivo. Problema al escribir en disco.",
-            "El archivo no se subió completamente.": "El archivo no se subió completamente.",
-            "Los archivos deben ser subidos mediante POST.": "Los archivos deben ser subidos mediante POST.",
-            "No se ha subido el archivo. Problema con el directorio temporal.": "No se ha subido el archivo. Problema con el directorio temporal.",
-            "No se ha subido ningún archivo. Problema con alguna extensión.": "No se ha subido ningún archivo. Problema con alguna extensión.",
-            "No se ha subido ningún archivo.": "No se ha subido ningún archivo.",
-            "No hay ningún directorio de destino definido": "No hay ningún directorio de destino definido",
-            "Debe ser un solo archivo por manejador.": "Debe ser un solo archivo por manejador.",
-            "No se encontró ningún archivo cargado.": "No se encontró ningún archivo cargado.",
-            "No ha subido ningún archivo.": "No ha subido ningún archivo."
+        "system-approval-lang": {
+            "Contenido actualizado. El aviso por correo no pudo enviarse; si lo reporta, indique la referencia {REFERENCE}.": "Contenido actualizado. El aviso por correo no pudo enviarse; si lo reporta, indique la referencia {REFERENCE}."
+        },
+        "system-status": {
+            "Esta instalación no declara su entorno, así que el correo NO se envía: se retiene. Cree «app/config/environment.php» con «local» o «production», o declare la entrega en la pantalla de Correo.": "Esta instalación no declara su entorno, así que el correo NO se envía: se retiene. Cree «app/config/environment.php» con «local» o «production», o declare la entrega en la pantalla de Correo.",
+            "Esta instalación es de producción y el correo está RETENIDO: nadie recibe nada, ni la recuperación de contraseña ni los códigos de acceso. Ponga la entrega en «Real» en la pantalla de Correo.": "Esta instalación es de producción y el correo está RETENIDO: nadie recibe nada, ni la recuperación de contraseña ni los códigos de acceso. Ponga la entrega en «Real» en la pantalla de Correo.",
+            "Esta máquina es local y el correo SALE DE VERDAD por el SMTP configurado: un correo de prueba puede llegarle a una persona real. Ponga la entrega en «Retenido» en la pantalla de Correo.": "Esta máquina es local y el correo SALE DE VERDAD por el SMTP configurado: un correo de prueba puede llegarle a una persona real. Ponga la entrega en «Retenido» en la pantalla de Correo.",
+            "El correo está retenido: todo va a %s:%d y, si ahí no hay nada escuchando, al buzón en disco. Nada sale al exterior.": "El correo está retenido: todo va a %s:%d y, si ahí no hay nada escuchando, al buzón en disco. Nada sale al exterior."
         },
         "userLogin": {
             "Código de temporal de aplicación": "Código de temporal de aplicación",
             "Contraseña de un uso": "Contraseña de un uso"
+        },
+        "usersModule": {
+            "El usuario indicado no es válido.": "El usuario indicado no es válido.",
+            "No tiene permisos para cerrar las sesiones de otro usuario.": "No tiene permisos para cerrar las sesiones de otro usuario.",
+            "No se pudieron cerrar las sesiones.": "No se pudieron cerrar las sesiones.",
+            "No hay una sesión de usuario activa.": "No hay una sesión de usuario activa.",
+            "Se cerraron todas las sesiones de %s.": "Se cerraron todas las sesiones de %s.",
+            "Cerrar sesiones": "Cerrar sesiones",
+            "Solo un superadministrador puede cerrar las sesiones de otro superadministrador.": "Solo un superadministrador puede cerrar las sesiones de otro superadministrador."
         },
         "usersProblems": {
             "name@domain.com": "name@domain.com"

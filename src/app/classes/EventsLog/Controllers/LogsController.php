@@ -6,14 +6,15 @@
 
 namespace EventsLog\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\LogsLang;
 use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
@@ -27,6 +28,8 @@ use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
  */
 class LogsController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -85,7 +88,7 @@ class LogsController extends AdminPanelController
         $title = __(self::LANG_GROUP, "Últimos eventos");
         set_title($title);
 
-        $backLink = get_route('admin');
+        $backLink = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
@@ -122,7 +125,7 @@ class LogsController extends AdminPanelController
         $selectFields = LogsMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            LogsMapper::TABLE . '.id',
             'moduleName',
             'textMessageReplacement',
             'createdByUser',
@@ -155,7 +158,13 @@ class LogsController extends AdminPanelController
                 $columns[] = $e->idPadding;
                 $columns[] = $e->moduleName;
                 $columns[] = $e->textMessageReplacement;
-                $columns[] = $e->createdByUser;
+                //`createdBy` no basta: con suplantación es el suplantado, y sin nadie conectado es
+                //un 1 que no significa el principal. `meta.actor` dice quién actuaba de verdad.
+                $columns[] = LogsMapper::actorLabel(
+                    isset($e->actorKind) && is_string($e->actorKind) ? $e->actorKind : null,
+                    isset($e->actorUser) && is_string($e->actorUser) ? $e->actorUser : null,
+                    isset($e->createdByUser) && is_string($e->createdByUser) ? $e->createdByUser : null
+                );
                 $columns[] = $e->ip;
                 $columns[] = $e->geolocationByIp;
                 $columns[] = ucfirst($e->createdAtFormat);
@@ -177,88 +186,6 @@ class LogsController extends AdminPanelController
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
         return (new LogsController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = is_string($route) ? $route : '';
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -315,5 +242,26 @@ class LogsController extends AdminPanelController
         $group->register($routes);
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

@@ -1,12 +1,12 @@
-# MkDocs (Ubuntu 24.04 LTS, recomendado con pipx)
+# MkDocs (Ubuntu 26.04 LTS, recomendado con pipx)
 
 ## ¿Por qué pipx?
-`pipx` es la forma recomendada y segura de instalar aplicaciones de línea de comandos de Python en Ubuntu 24.04 LTS. Permite aislar cada herramienta en su propio entorno, evitando conflictos y protegiendo el sistema.
+`pipx` es la forma recomendada y segura de instalar aplicaciones de línea de comandos de Python en Ubuntu 26.04 LTS. Permite aislar cada herramienta en su propio entorno, evitando conflictos y protegiendo el sistema.
 
 ---
 
 ## Requerimientos
-- Python 3 (Ubuntu 24.04 LTS ya incluye python3)
+- Python 3 (Ubuntu 26.04 LTS ya incluye python3)
 - pipx (gestor recomendado para instalar aplicaciones Python CLI)
 
 Instala pipx:
@@ -39,7 +39,7 @@ mkdocs build --clean #para compilar y eliminar archivos que ya no deberían exis
 ## MkDocs en este proyecto
 
 Existen dos proyectos de documentación de MkDocs en este repositorio:
-- **API:** En el directorio `files/API`.
+- **API:** En el directorio `source-docs/api`. Se construye con `cd src && gulp api-build`; el resultado queda en su carpeta `docs-dist`, que no se versiona.
 - **Desarrollo:** En el directorio `source-docs/project`.
 
 Para compilar cualquiera de ellos, entra al directorio correspondiente y ejecuta el comando:

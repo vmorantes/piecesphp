@@ -14,5 +14,8 @@ Guía para la configuración inicial y resolución de problemas comunes (acceso 
 ### [Tomcat](./content/tomcat/index.md)
 Entorno de desarrollo para aplicaciones Java.
 
+### [Mailpit](./content/mailpit/index.md)
+El correo de desarrollo: un servidor SMTP falso que recoge todo lo que envía la instalación y te lo enseña en una web.
+
 ### [Docker + HestiaCP](./content/docker/index.md)
 Despliegue dockerizado con persistencia y proxy inverso bajo HestiaCP.

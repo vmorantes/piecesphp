@@ -7,7 +7,7 @@
 namespace Terminal\Tasks;
 
 use API\Adapters\FfmpegAudioAdapter;
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -127,7 +127,12 @@ class FixWebmDurationTask extends TerminalTaskAbstract
 
                 $fileDir = dirname($filePath);
                 $fileExtension = '.webm';
-                $fileName = mb_substr(basename($filePath), 0, mb_strpos(basename($filePath), $fileExtension));
+                //Sin comprobar el false, $fileName queda vacío y los derivados se pisan.
+                $extensionPosition = mb_strpos(basename($filePath), $fileExtension);
+                if ($extensionPosition === false) {
+                    continue;
+                }
+                $fileName = mb_substr(basename($filePath), 0, $extensionPosition);
 
                 $tmpFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.tmp.wav';
                 $bkFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $bkExtension;

@@ -28,16 +28,6 @@ CREATE VIEW news_active_date_elements AS (
         (UNIX_TIMESTAMP(pe.startDate) <= nowDate OR pe.startDate IS NULL) AND
         (UNIX_TIMESTAMP(DATE_ADD(pe.endDate, INTERVAL 15 DAY)) > nowDate OR pe.endDate IS NULL)
 );
-DROP VIEW IF EXISTS image_repository_images_view;
-CREATE VIEW image_repository_images_view AS (
-    SELECT
-        YEAR(img.captureDate) AS imageYear,
-        (SELECT lc.name FROM locations_cities AS lc WHERE lc.id = img.city) AS cityName,
-        (SELECT lc.state FROM locations_cities AS lc WHERE lc.id = img.city) AS stateID,
-        (SELECT ls.name FROM locations_states AS ls WHERE ls.id = stateID) AS stateName,
-        img.*
-    FROM image_repository_images AS img
-);
 DROP VIEW IF EXISTS built_in_banner_active_date_elements;
 CREATE VIEW built_in_banner_active_date_elements AS (
     SELECT
@@ -50,18 +40,5 @@ CREATE VIEW built_in_banner_active_date_elements AS (
     HAVING
         (UNIX_TIMESTAMP(bibe.startDate) <= nowDate OR bibe.startDate IS NULL) AND
         (UNIX_TIMESTAMP(bibe.endDate) > nowDate OR bibe.endDate IS NULL)
-);
-DROP VIEW IF EXISTS application_calls_active_date_elements;
-CREATE VIEW application_calls_active_date_elements AS (
-    SELECT
-        iace.id,
-        iace.startDate,
-        iace.endDate,
-        iace.status,
-        UNIX_TIMESTAMP(NOW()) AS nowDate
-    FROM application_calls_elements AS iace
-    HAVING
-        (UNIX_TIMESTAMP(iace.startDate) <= nowDate OR iace.startDate IS NULL) AND
-        (UNIX_TIMESTAMP(iace.endDate) > nowDate OR iace.endDate IS NULL)
 );
 COMMIT;

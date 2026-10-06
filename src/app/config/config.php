@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: el nombre, la zona horaria, los colores, la llave de la aplicación, los destinatarios, la seguridad y las claves de tu instalación. Lo que calcula el dominio y las rutas de estáticos es del framework.
+ */
+
 defined('BASEPATH') or die();
 
 //========================================================================================
@@ -30,19 +35,24 @@ defined('BASEPATH') or die();
 
 //──── Generales ─────────────────────────────────────────────────────────────────────────
 
+//── Del clon ──
 date_default_timezone_set('America/Bogota');
 
 /**
  * @var array $config
  * */
 
+//── Del framework: no lo edites ──
 $config['domain'] = $_SERVER['HTTP_HOST'];
 $config['domain_protocol'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://");
 $config['base_domain_path'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 $config['base_domain_url'] = $config['domain_protocol'] . $config['domain'];
 $config['base_url'] = $config['base_domain_url'] . $config['base_domain_path'];
 
+//── Del clon ──
 $config['default_lang'] = "es";
+//Locale de Open Graph por idioma (og:locale). Un idioma sin entrada emite su código solo.
+$config['og_locales'] = ['es' => 'es_CO', 'en' => 'en_US'];
 $config['cache_stamp_render_files'] = true;
 
 $config['title_app'] = "Nombre Plataforma";
@@ -72,6 +82,10 @@ $config['font_family_sidebars'] = "'Public Sans', sans-serif";
 //Varios
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
+//Destinatarios del formulario de contacto y del correo de «otros problemas» (si osTicket falta o falla).
+//Vacíos: no se envía. Nunca una dirección en el código: todo clon la heredaría.
+$config['contact_form_recipients'] = [];
+$config['other_problems_recipients'] = [];
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
 $config['CronJobKey'] = 'TODO:secret';
@@ -80,10 +94,28 @@ $config['CronJobKey'] = 'TODO:secret';
 
 $config['app_key'] = 'TODO:secret';
 $config['check_aud_on_auth'] = true;
+$config['hide_app_key_warning'] = false;
+//Orígenes exactos —esquema, host y puerto, como `https://app.ejemplo.com:8443`— que reciben CORS CON credenciales.
+//Cada uno recibe las cookies del usuario en sus peticiones: el propio de la instalación ya va incluido.
+$config['cors_credentials_origins'] = [];
+//Límite de intentos de generate-otp, check-totp, two-factor-auth-status y del segundo factor del login (OTPRateLimiter).
+//uniformResponse: generate-otp responde lo mismo exista o no el usuario. oneUseCodeMinutes: la validez del código de un uso.
+$config['otp_security'] = [
+    'maxFailuresPerUser' => 5,
+    'maxFailuresPerIP' => 20,
+    'windowMinutes' => 15,
+    'lockMinutes' => 15,
+    'uniformResponse' => true,
+    'oneUseCodeMinutes' => 20,
+];
 
+//── Del framework: no lo edites ──
 //──── Statics ───────────────────────────────────────────────────────────────────────────
 $config['statics_path'] = __DIR__ . '/../../statics';
+//Sufijo en disco de lo privado de uploads (ProtectedUploads): foto.jpg.protected. La URL nunca lo lleva.
+$config['protected_uploads_suffix'] = '.protected';
 
+//── Del clon ──
 //──── Extras ────────────────────────────────────────────────────────────────────────────
 
 $config['mailjet'] = [
@@ -94,6 +126,11 @@ $config['mailjet'] = [
 ];
 
 $config['SurveyJSKey'] = "";
+
+//Claves de reCAPTCHA v3 de PRUEBA del propietario: solo valen en sus dominios de prueba y en localhost.
+//En producción, las reales van en las claves seguras (ver api-keys.php), que tienen prioridad.
+$config['GoogleReCaptchaV3TestSiteKey'] = '6Le1Zb8tAAAAAOmAjR_AV6Pinr4D3OTRqAh_7ws-';
+$config['GoogleReCaptchaV3TestSecretKey'] = '6Le1Zb8tAAAAACveNPehd0WXtX6NkK7P915giuWG';
 
 //Inteligencia artificial
 $config['OpenAIApiKey'] = "";

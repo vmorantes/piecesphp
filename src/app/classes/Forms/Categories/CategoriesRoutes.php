@@ -35,11 +35,6 @@ class CategoriesRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new \Forms\Categories\Mappers\CategoriesMapper()))->getSQL(),
-            ];
-            //header('Content-Type: text/sql');echo implode("\r\n", $sqlCreate);exit;
-
             $groupAdministration = CategoriesController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
@@ -77,7 +72,7 @@ class CategoriesRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

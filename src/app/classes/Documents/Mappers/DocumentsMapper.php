@@ -6,8 +6,10 @@
 
 namespace Documents\Mappers;
 
-use App\Model\UsersModel;
-use Documents\Controllers\DocumentsController;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Documents\DocumentsLang;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -41,6 +43,12 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class DocumentsMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'documentName';
 
     protected $fields = [
         'id' => [
@@ -87,7 +95,7 @@ class DocumentsMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -95,7 +103,7 @@ class DocumentsMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -108,18 +116,6 @@ class DocumentsMapper extends EntityMapperExtensible
             'null' => true,
             'dafault' => null,
         ],
-    ];
-
-    const CAN_VIEW_ALL = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
-    ];
-
-    const CAN_ADD_ALL = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_EDIT_ALL = [
@@ -187,17 +183,6 @@ class DocumentsMapper extends EntityMapperExtensible
                 }
             }
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function folderRemove()
-    {
-        $pcsUploadDir = get_config('upload_dir');
-        $folder = append_to_url(append_to_url($pcsUploadDir, DocumentsController::UPLOAD_DIR), $this->folder);
-        $removed = @rmdir($folder);
-        return $removed;
     }
 
     /**
@@ -275,7 +260,7 @@ class DocumentsMapper extends EntityMapperExtensible
         }
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        $this->createdBy = getLoggedFrameworkUserOrFail()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -301,7 +286,7 @@ class DocumentsMapper extends EntityMapperExtensible
             //throw new DuplicateException(__(self::LANG_GROUP, "Ya existe un documento con ese nombre"));
         }
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = getLoggedFrameworkUserOrFail()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -447,7 +432,7 @@ class DocumentsMapper extends EntityMapperExtensible
         $tableDocumentsTypes = DocumentTypesMapper::TABLE;
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "(SELECT {$tableDocumentsTypes}.documentTypeName FROM {$tableDocumentsTypes} WHERE {$tableDocumentsTypes}.id = {$table}.documentType) AS documentTypeName",
             "{$table}.meta",
         ];
@@ -573,7 +558,7 @@ class DocumentsMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof DocumentsMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = 'document';
 
             $slug = "{$title}-{$uniqid}";
@@ -691,7 +676,7 @@ class DocumentsMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -724,7 +709,7 @@ class DocumentsMapper extends EntityMapperExtensible
     {
         $model = self::model();
         $model->select();
-        $model->where("id = {$id}");
+        $model->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]));
         $model->execute();
         $result = $model->result();
         return !empty($result) ? $result[0] : null;
@@ -738,12 +723,7 @@ class DocumentsMapper extends EntityMapperExtensible
     {
         $model = self::model();
 
-        $where = [
-            "id = $id",
-        ];
-        $where = trim(implode(' ', $where));
-
-        $model->select()->where($where);
+        $model->select()->where(new WhereSegment([new WhereItem('id', WhereItem::EQUAL_OPERATOR, $id)]));
 
         $model->execute();
 
@@ -763,22 +743,23 @@ class DocumentsMapper extends EntityMapperExtensible
     public static function existsByDocumentName(string $documentName, ?int $ignoreID = null, bool $onlyActives = true)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
-        $documentName = escapeString($documentName);
         $statusActive = self::STATUS_ACTIVE;
 
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "documentName = '{$documentName}' AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('documentName', $documentName, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
         if ($onlyActives) {
-            $where[] = "AND status = {$statusActive}";
+            $where[count($where) - 1]->setAfterOperator(WhereItem::AND_OPERATOR);
+            $where[] = WhereItem::isEqual('status', $statusActive);
         }
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 
@@ -793,22 +774,19 @@ class DocumentsMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return DocumentsMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new DocumentsMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
 
         $defaultMetaPropertiesValues = [
             'langData' => [],
@@ -854,10 +832,9 @@ class DocumentsMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->documentName !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

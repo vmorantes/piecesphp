@@ -6,7 +6,7 @@
 
 namespace EventsLog\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\LogsLang;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -58,7 +58,7 @@ class LogsMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -84,11 +84,33 @@ class LogsMapper extends EntityMapperExtensible
         '`createdBy` DESC',
     ];
 
+    /**
+     * La clave de `meta` que dice QUIÉN actuaba de verdad.
+     *
+     * NO es meta-propiedad: `objectToMapper()` las exige todas y las filas viejas no la tienen.
+     */
+    const META_ACTOR = 'actor';
+
+    /**
+     * Quien actúa es el usuario principal suplantando a otro: `createdBy` es el suplantado.
+     */
+    const ACTOR_IMPERSONATION = 'impersonation';
+
+    /**
+     * Sin nadie conectado. `createdBy` queda en 1 porque la columna no acepta nulo (medido).
+     */
+    const ACTOR_SYSTEM = 'system';
+
     const MSG_GENERIC = 'GENERIC';
     const MSG_UPDATE_PROFILE = 'UPDATE_PROFILE';
     const MSG_UPDATE_PROFILE_IMAGE = 'UPDATE_PROFILE_IMAGE';
     const MSG_REQUEST_PASSWORD_RECOVERY = 'REQUEST_PASSWORD_RECOVERY';
     const MSG_PASSWORD_RECOVERY_BY_CODE = 'PASSWORD_RECOVERY_BY_CODE';
+    const MSG_REVOKE_OWN_SESSIONS = 'REVOKE_OWN_SESSIONS';
+    const MSG_REVOKE_USER_SESSIONS = 'REVOKE_USER_SESSIONS';
+    const MSG_REVOKE_ALL_SESSIONS = 'REVOKE_ALL_SESSIONS';
+    const MSG_IMPERSONATION_START = 'IMPERSONATION_START';
+    const MSG_IMPERSONATION_END = 'IMPERSONATION_END';
 
     const MESSAGES = [
         self::MSG_GENERIC => '%message%',
@@ -96,6 +118,11 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_UPDATE_PROFILE_IMAGE => 'El usuario %username% ha actualizado su imagen de perfil',
         self::MSG_REQUEST_PASSWORD_RECOVERY => 'El usuario %username% ha solicitado recuperar su contraseña',
         self::MSG_PASSWORD_RECOVERY_BY_CODE => 'El usuario %username% ha recuperado su contraseña mediante un código',
+        self::MSG_REVOKE_OWN_SESSIONS => 'El usuario %username% ha cerrado todas sus sesiones',
+        self::MSG_REVOKE_USER_SESSIONS => 'El usuario %username% ha cerrado todas las sesiones de %target%',
+        self::MSG_REVOKE_ALL_SESSIONS => 'Se cerraron las sesiones de todos los usuarios desde el terminal (%users% usuarios)',
+        self::MSG_IMPERSONATION_START => 'El usuario %username% empezó a actuar como %target%',
+        self::MSG_IMPERSONATION_END => 'El usuario %username% dejó de actuar como otro usuario',
     ];
 
     const MODULE_NAMES_EQUIVALENCES_BY_SOURCE = [
@@ -178,6 +205,68 @@ class LogsMapper extends EntityMapperExtensible
     }
 
     /**
+     * Cómo se nombra en pantalla a quien hizo la acción.
+     *
+     * Sin nadie conectado dice «Sistema», no el nombre del usuario 1 que guarda `createdBy`.
+     *
+     * @param string|null $actorKind El `kind` de `meta.actor`, si lo hay.
+     * @param string|null $actorUser El nombre de quien actuaba de verdad.
+     * @param string|null $createdByUser El nombre de lo que guarda `createdBy`.
+     * @return string
+     */
+    public static function actorLabel(?string $actorKind, ?string $actorUser, ?string $createdByUser): string
+    {
+        if ($actorKind === self::ACTOR_SYSTEM) {
+            return __(self::LANG_GROUP, 'Sistema');
+        }
+        if ($actorKind === self::ACTOR_IMPERSONATION && $actorUser !== null && $actorUser !== '') {
+            return sprintf(
+                __(self::LANG_GROUP, '%s, en nombre de %s'),
+                $actorUser,
+                $createdByUser !== null && $createdByUser !== '' ? $createdByUser : __(self::LANG_GROUP, 'un usuario que ya no existe')
+            );
+        }
+        return $createdByUser ?? '';
+    }
+
+    /**
+     * Anota en `meta` quién actuaba de verdad, cuando `createdBy` no lo dice.
+     *
+     * Dos casos; en los demás no toca nada.
+     *
+     * @param mixed $loggedUser El usuario que la aplicación tiene por conectado, o null.
+     * @return void
+     */
+    protected function declareActor($loggedUser): void
+    {
+        $rootOriginalId = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
+        $rootOriginalId = is_int($rootOriginalId) || (is_string($rootOriginalId) && ctype_digit($rootOriginalId)) ? (int) $rootOriginalId : null;
+        //SIN `isset()`: `id` es mágica y la clase no implementa `__isset()`, así que daba false
+        //con el valor presente. Y `->userMapper` es el mapper entero, no el id.
+        $loggedIdRaw = $loggedUser !== null ? ($loggedUser->id ?? null) : null;
+        $loggedId = is_int($loggedIdRaw) || (is_string($loggedIdRaw) && ctype_digit($loggedIdRaw)) ? (int) $loggedIdRaw : null;
+
+        $actor = null;
+        if ($loggedUser === null) {
+            $actor = ['kind' => self::ACTOR_SYSTEM, 'id' => null, 'onBehalfOf' => null];
+        } elseif ($rootOriginalId !== null && $loggedId !== null && $rootOriginalId !== $loggedId) {
+            $actor = ['kind' => self::ACTOR_IMPERSONATION, 'id' => $rootOriginalId, 'onBehalfOf' => $loggedId];
+        }
+
+        if ($actor === null) {
+            return;
+        }
+
+        //Se FUSIONA: `metaValueToSave()` parte de esta columna y añade encima las meta-propiedades,
+        //así que lo que se ponga aquí convive con `ip` y `geolocationByIp`.
+        $meta = $this->meta;
+        $meta = $meta instanceof \stdClass ? $meta : (is_string($meta) && $meta !== '' ? json_decode($meta) : null);
+        $meta = $meta instanceof \stdClass ? $meta : new \stdClass();
+        $meta->{self::META_ACTOR} = (object) $actor;
+        $this->meta = $meta;
+    }
+
+    /**
      * @inheritDoc
      */
     public function save()
@@ -185,6 +274,7 @@ class LogsMapper extends EntityMapperExtensible
         $loggedUser = getLoggedFrameworkUser(true);
         $this->createdAt = new \DateTime();
         $this->createdBy = $loggedUser !== null ? $loggedUser->userMapper : 1;
+        $this->declareActor($loggedUser);
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -218,18 +308,19 @@ class LogsMapper extends EntityMapperExtensible
         $mapper = new LogsMapper;
         $notExistsMessage = true;
 
+        //SIEMPRE las dos: objectToMapper() exige todas las meta, y sin la extensión geoip la fila quedaba ilegible.
+        $ip = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+        $geolocationByIp = __(self::LANG_GROUP, 'Sin especificar');
         if (function_exists('geoip_record_by_name')) {
             try {
-                $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-                $geoIP = function_exists('geoip_record_by_name') ? call_user_func('geoip_record_by_name', $ip) : null;
-                $geoIP = is_array($geoIP) ? $geoIP : [
-                    'country_name' => 'Sin especificar',
-                ];
-                $geolocationByIp = array_key_exists('country_name', $geoIP) ? $geoIP['country_name'] : 'Sin especificar';
-                $mapper->geolocationByIp = $geolocationByIp;
-                $mapper->ip = $ip;
+                $geoIP = call_user_func('geoip_record_by_name', $ip);
+                if (is_array($geoIP) && isset($geoIP['country_name']) && is_string($geoIP['country_name'])) {
+                    $geolocationByIp = $geoIP['country_name'];
+                }
             } catch (\Throwable $e) {}
         }
+        $mapper->geolocationByIp = $geolocationByIp;
+        $mapper->ip = $ip;
 
         foreach (self::MESSAGES as $type => $text) {
 
@@ -283,12 +374,16 @@ class LogsMapper extends EntityMapperExtensible
         $moduleNameBySourceJSON = json_encode((object) self::moduleNamesEquivalencesBySource(), \JSON_UNESCAPED_UNICODE);
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy) AS createdByUser",
             "strTemplateReplace({$table}.textMessage, {$table}.textMessageVariables) AS textMessageReplacement",
             "strTemplateReplace(DATE_FORMAT({$table}.createdAt, '%M %d {1} %Y %h:%i:%s %p'), '{$createdAtFormatReplacements}') AS createdAtFormat",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.ip')) AS ip",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.geolocationByIp')) AS geolocationByIp",
+            //Quién actuaba de verdad: `createdBy` es el suplantado, o un 1 que no significa nadie.
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$." . self::META_ACTOR . ".kind')) AS actorKind",
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$." . self::META_ACTOR . ".id')) AS actorID",
+            "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$." . self::META_ACTOR . ".id'))) AS actorUser",
             "JSON_UNQUOTE(JSON_EXTRACT('{$moduleNameBySourceJSON}', CONCAT('$.', {$table}.referenceSource))) AS moduleNameFromSource",
             "(SELECT IF(moduleNameFromSource IS NULL, {$table}.referenceSource, moduleNameFromSource)) AS moduleName",
         ];
@@ -400,7 +495,7 @@ class LogsMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -458,6 +553,8 @@ class LogsMapper extends EntityMapperExtensible
 
         $element = (array) $element;
         $mapper = new LogsMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 

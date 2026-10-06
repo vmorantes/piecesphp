@@ -1,4 +1,4 @@
-# Soporte de SSL con Let's Encrypt en Apache2 (Ubuntu 24.04 LTS)
+# Soporte de SSL con Let's Encrypt en Apache2 (Ubuntu 26.04 LTS)
 
 ## Introducción
 Let's Encrypt permite obtener certificados SSL gratuitos y automáticos para tu servidor web.
@@ -32,14 +32,14 @@ sudo apachectl configtest
 
 ## Configuración de VirtualHost SSL
 
-Asegúrate de que tu archivo de configuración tenga las siguientes líneas:
+`certbot --apache` escribe estas líneas por ti. Si configuras el `VirtualHost` a mano, `fullchain.pem` lleva el
+certificado y la cadena juntos (`SSLCertificateChainFile` está obsoleta desde Apache 2.4.8):
 
 ```apacheconf
 <VirtualHost *:443>
     ...
-    SSLCertificateFile /etc/letsencrypt/live/TUDOMINIO/cert.pem
+    SSLCertificateFile /etc/letsencrypt/live/TUDOMINIO/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/TUDOMINIO/privkey.pem
-    SSLCertificateChainFile /etc/letsencrypt/live/TUDOMINIO/chain.pem
     ...
 </VirtualHost>
 ```
@@ -96,5 +96,3 @@ sudo systemctl reload apache2
 
 ## Recursos útiles
 - [Guía oficial de Let's Encrypt](https://letsencrypt.org/getting-started/)
-
-```

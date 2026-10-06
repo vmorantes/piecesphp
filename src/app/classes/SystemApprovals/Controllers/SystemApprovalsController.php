@@ -6,31 +6,35 @@
 
 namespace SystemApprovals\Controllers;
 
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
-use App\Controller\AdminPanelController;
-use App\Model\AvatarModel;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
-use PiecesPHP\Core\Forms\FileUpload;
-use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Mappers\PublicationMapper;
 use SystemApprovals\Exceptions\DuplicateException;
 use SystemApprovals\Exceptions\SafeException;
@@ -38,6 +42,7 @@ use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsLang;
 use SystemApprovals\SystemApprovalsRoutes;
 use SystemApprovals\Util\SystemApprovalManager;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * SystemApprovalsController.
@@ -48,6 +53,8 @@ use SystemApprovals\Util\SystemApprovalManager;
  */
 class SystemApprovalsController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -63,22 +70,6 @@ class SystemApprovalsController extends AdminPanelController
     protected static $title = 'Aprobación';
 
     /**
-     * @var string
-     */
-    protected $uploadDir = '';
-    /**
-     * @var string
-     */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
-    /**
      * @var HelperController
      */
     protected $helpController = null;
@@ -86,8 +77,6 @@ class SystemApprovalsController extends AdminPanelController
     const BASE_VIEW_DIR = '';
     const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
-    const UPLOAD_DIR = 'system-approval';
-    const UPLOAD_DIR_TMP = 'system-approval/tmp';
     const LANG_GROUP = SystemApprovalsLang::LANG_GROUP;
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
@@ -99,15 +88,6 @@ class SystemApprovalsController extends AdminPanelController
         parent::__construct();
 
         $this->model = (new SystemApprovalsMapper())->getModel();
-
-        $baseURL = base_url();
-        $pcsUploadDir = get_config('upload_dir');
-        $pcsUploadDirURL = get_config('upload_dir_url');
-
-        $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
-        $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -129,9 +109,13 @@ class SystemApprovalsController extends AdminPanelController
         $elementID = $request->getAttribute('id', -1);
         $elementID = Validator::isInteger($elementID) ? (int) $elementID : -1;
         $approvalMapper = new SystemApprovalsMapper($elementID);
+        //Sin registro, 404 aquí: más abajo getMapperInstance() recibiría null y daría 500.
+        if ($approvalMapper->id === null) {
+            throw new NotFoundException($request, $response);
+        }
         $referenceMapper = SystemApprovalManager::getInstance()->getMapperInstance($approvalMapper->referenceTable, $approvalMapper->referenceValue);
         $approvalHandler = SystemApprovalManager::getInstance()->getHandler($approvalMapper->referenceTable);
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currenUserType = $currentUser->type;
 
@@ -141,7 +125,7 @@ class SystemApprovalsController extends AdminPanelController
         $contactUser = $approvalHandler::getContactUser($referenceMapper);
         $isSameUser = $contactUser !== null && $contactUser->id == $currentUserID && $currenUserType != UsersModel::TYPE_USER_ROOT;
 
-        if ($approvalMapperExists && $hasApprovalHandler && $hasReferenceMapper && !$isSameUser) {
+        if ($approvalMapperExists && $hasApprovalHandler && $hasReferenceMapper && !$isSameUser && self::canManage($approvalMapper, $currentUser)) {
 
             set_custom_assets([
                 SystemApprovalsRoutes::staticRoute(self::BASE_JS_DIR . '/approval-form.js'),
@@ -165,7 +149,7 @@ class SystemApprovalsController extends AdminPanelController
             $data['description'] = $description;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => get_route('admin'),
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 __(self::LANG_GROUP, 'Aprobaciones') => [
                     'url' => $backLink,
@@ -173,7 +157,6 @@ class SystemApprovalsController extends AdminPanelController
                 $title,
             ]);
             $formByType = [
-                ApplicationCallsMapper::TABLE => 'forms/approval-applications-calls',
                 UsersModel::TABLE => 'forms/approval-profile-user',
                 OrganizationMapper::TABLE => 'forms/approval-profile-organization',
                 PublicationMapper::TABLE => 'forms/approval-publications',
@@ -219,7 +202,7 @@ class SystemApprovalsController extends AdminPanelController
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
-                'url' => get_route('admin'),
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
         ]);
@@ -243,6 +226,13 @@ class SystemApprovalsController extends AdminPanelController
      */
     public function approvalAction(Request $request, Response $response)
     {
+
+        //El alcance, ANTES del try: fuera de él, 404 como el formulario, sin escribir ni enviar correo.
+        $approvalID = $request->getAttribute('id', null);
+        $approvalElement = new SystemApprovalsMapper(Validator::isInteger($approvalID) ? (int) $approvalID : -1);
+        if ($approvalElement->id !== null && !self::canManage($approvalElement, getLoggedFrameworkUserOrFail())) {
+            throw new NotFoundException($request, $response);
+        }
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
 
@@ -301,6 +291,7 @@ class SystemApprovalsController extends AdminPanelController
         $notExistsMessage = __(self::LANG_GROUP, 'No existe el elemento que intenta modificar.');
         $successEditMessage = __(self::LANG_GROUP, 'Contenido actualizado');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $mailFailedMessage = __(self::LANG_GROUP, 'Contenido actualizado. El aviso por correo no pudo enviarse; si lo reporta, indique la referencia {REFERENCE}.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
@@ -326,7 +317,7 @@ class SystemApprovalsController extends AdminPanelController
 
                 if ($exists) {
 
-                    $currentUser = getLoggedFrameworkUser();
+                    $currentUser = getLoggedFrameworkUserOrFail();
                     $previousStatus = $mapper->status;
                     $contactUser = SystemApprovalManager::getInstance()->getContactUser($mapper);
 
@@ -342,43 +333,57 @@ class SystemApprovalsController extends AdminPanelController
                     $resultOperation->setSuccessOnSingleOperation($updated);
 
                     if ($updated) {
+                        //El aviso es un efecto, no la condición: la aprobación ya está guardada y
+                        //ninguna transacción la deshace, así que su fallo NO puede negarla.
+                        $noticeReference = null;
                         //Envío de correo - INICIO
-                        if ($contactUser !== null) {
-                            $message = '';
-                            $contentName = __(self::LANG_GROUP, $mapper->referenceAlias);
-                            if ($mapper->status == SystemApprovalsMapper::STATUS_APPROVED) {
-                                $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido aprobado"), [
-                                    '{NAME}' => $contactUser->getFullName(),
-                                    '{CONTENT_NAME}' => $contentName,
-                                ]);
-                            } elseif ($mapper->status == SystemApprovalsMapper::STATUS_REJECTED) {
-                                $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado"), [
-                                    '{NAME}' => $contactUser->getFullName(),
-                                    '{CONTENT_NAME}' => $contentName,
-                                ]);
+                        //Solo si el estado cambia: un POST repetido no repite el correo.
+                        if ($contactUser !== null && $previousStatus != $approvalStatus) {
+                            try {
+                                $message = '';
+                                $contentName = __(self::LANG_GROUP, $mapper->referenceAlias);
+                                if ($mapper->status == SystemApprovalsMapper::STATUS_APPROVED) {
+                                    $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido aprobado"), [
+                                        '{NAME}' => htmlspecialchars((string) $contactUser->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+                                        '{CONTENT_NAME}' => $contentName,
+                                    ]);
+                                } elseif ($mapper->status == SystemApprovalsMapper::STATUS_REJECTED) {
+                                    $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado"), [
+                                        '{NAME}' => htmlspecialchars((string) $contactUser->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+                                        '{CONTENT_NAME}' => $contentName,
+                                    ]);
+                                }
+                                $mailer = new Mailer();
+                                $mailConfig = new MailConfig;
+                                $subject = __(self::LANG_GROUP, 'Aprobaciones');
+                                set_title($subject);
+                                $subject = get_title(true);
+                                $mailer->setFrom($mailConfig->user(), $mailConfig->name());
+                                $mailer->addAddress($contactUser->email, $contactUser->getFullName());
+                                $mailer->isHTML(true);
+                                $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
+                                $data = [];
+                                $data['text'] = mb_convert_encoding($message, 'UTF-8');
+                                $data['reason'] = htmlspecialchars(mb_convert_encoding((string) $reason, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                                $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
+                                if (!$mailer->checkSettedSMTP()) {
+                                    $mailer->asGoDaddy();
+                                }
+                                $mailer->send();
+
+                            } catch (\Exception $e) {
+
+                                //La referencia va al registro Y a la pantalla: callarla sería el defecto contrario.
+                                $noticeReference = log_exception($e);
+
                             }
-                            $mailer = new Mailer();
-                            $mailConfig = new MailConfig;
-                            $subject = __(self::LANG_GROUP, 'Aprobaciones');
-                            set_title($subject);
-                            $subject = get_title(true);
-                            $mailer->setFrom($mailConfig->user(), $mailConfig->name());
-                            $mailer->addAddress($contactUser->email, $contactUser->getFullName());
-                            $mailer->isHTML(true);
-                            $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
-                            $data = [];
-                            $data['text'] = mb_convert_encoding($message, 'UTF-8');
-                            $data['reason'] = mb_convert_encoding($reason, 'UTF-8');
-                            $mailer->Body = $this->render('mailing/template_base_no_style', $data, false, false);
-                            if (!$mailer->checkSettedSMTP()) {
-                                $mailer->asGoDaddy();
-                            }
-                            $mailer->send();
                         }
                         //Envío de correo - FIN
 
                         $resultOperation
-                            ->setMessage($successEditMessage)
+                            ->setMessage($noticeReference === null ? $successEditMessage : strReplaceTemplate($mailFailedMessage, [
+                                '{REFERENCE}' => $noticeReference,
+                            ]))
                             ->setValue('reload', false)
                             ->setValue('redirect', true)
                             ->setValue('redirect_to', self::routeName('list'));
@@ -400,9 +405,9 @@ class SystemApprovalsController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -415,10 +420,15 @@ class SystemApprovalsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -432,69 +442,81 @@ class SystemApprovalsController extends AdminPanelController
      */
     public function dataTables(Request $request, Response $response)
     {
+        //LISTA BLANCA REAL, y sale del CONTRATO de los handlers, no de la base: cada uno declara
+        //en `getContentTypes()` todos los textos que puede escribir. Ver T162.
         $referenceAliasFilter = $request->getQueryParam('referenceAlias', null);
         $referenceAliasFilter = is_string($referenceAliasFilter) && mb_strlen(trim($referenceAliasFilter)) > 0 ? trim($referenceAliasFilter) : null;
+        $tiposConocidos = SystemApprovalManager::getInstance()->getContentTypes();
+        $referenceAliasFilter = in_array($referenceAliasFilter, $tiposConocidos, true) ? $referenceAliasFilter : null;
+        //SE VALIDABA COMO CADENA Y SE USABA COMO NÚMERO en `elapsedDays >= {$…}`, sin comillas.
+        //Son dos defectos: el de tipo y el de SQL. `isInteger` cierra los dos. Ver T155.
         $elapsedDaysFilter = $request->getQueryParam('elapsedDays', null);
-        $elapsedDaysFilter = is_string($elapsedDaysFilter) && mb_strlen(trim($elapsedDaysFilter)) > 0 ? trim($elapsedDaysFilter) : null;
+        $elapsedDaysFilter = Validator::isInteger($elapsedDaysFilter) ? (int) $elapsedDaysFilter : null;
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationID = $currentUser->organization;
-        $whereString = null;
-        $havingString = null;
-        $and = 'AND';
         $table = SystemApprovalsMapper::TABLE;
         $tableUsers = UsersModel::TABLE;
         $pending = SystemApprovalsMapper::STATUS_PENDING;
         $approved = SystemApprovalsMapper::STATUS_APPROVED;
         $baseOrgID = OrganizationMapper::INITIAL_ID_GLOBAL;
-        $userTypesThatCanApprovalSelf = implode(',', SystemApprovalsMapper::CAN_APPROVAL_SELF);
-        $where = [
-            "{$table}.status = '{$pending}'",
+        //POR MARCADOR, con `where_segment`. La lista blanca de arriba cierra el DOMINIO y el
+        //marcador cierra el MECANISMO: aquí hacen falta las dos.
+        $whereItems = [
+            new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $pending, WhereItem::AND_OPERATOR),
         ];
-        $having = [
-            //Verifica que la referencia se considere "activa"
-            "referenceIsActive IS NULL OR referenceIsActive = 1",
-            //Verifica que exista la referencia
-            "AND referenceCreatedBy IS NOT NULL",
-            //Oculta lo que sea del mismo usuario que está viendo (a menos que sea que se incluya en SystemApprovalsMapper::CAN_APPROVAL_SELF)
-            "AND (referenceCreatedBy != {$currentUserID} OR {$currentUserType} IN ({$userTypesThatCanApprovalSelf}))",
-            //Oculta los perfiles que sean de organizaciones ya aprobadas
-            "AND ( ( {$table}.referenceTable != '{$tableUsers}' OR referenceOrganization IS NULL OR referenceOrganization = {$baseOrgID} ) OR (referenceOrtanizationApprovalValue != '{$approved}') )",
-        ];
+        //Un grupo por criterio, todos por marcador: HAVING (C1) AND (C2) AND …
+        $havingSegment = new HavingSegment();
+        //AGRUPADO a propósito: sin paréntesis, el AND de los demás criterios se pegaba solo a `= 1`
+        //y un NULL se los saltaba todos. El IS NULL se queda por si el alias llega a poder serlo.
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem('referenceIsActive', HavingItem::IS_NULL_OPERATOR, '', HavingItem::OR_OPERATOR),
+            new HavingItem('referenceIsActive', HavingItem::EQUAL_OPERATOR, 1, HavingItem::AND_OPERATOR),
+        ]));
+        //Verifica que exista la referencia
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem('referenceCreatedBy', HavingItem::IS_NOT_NULL_OPERATOR, '', HavingItem::AND_OPERATOR),
+        ]));
+        //Oculta lo propio salvo a CAN_APPROVAL_SELF. El (int) hace falta: la comparación es estricta.
+        if (!in_array((int) $currentUserType, SystemApprovalsMapper::CAN_APPROVAL_SELF, true)) {
+            $havingSegment->addGroup(new HavingItemGroup([
+                new HavingItem('referenceCreatedBy', HavingItem::NOT_EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR),
+            ]));
+        }
+        //Oculta los perfiles que sean de organizaciones ya aprobadas
+        $havingSegment->addGroup(new HavingItemGroup([
+            new HavingItem("{$table}.referenceTable", HavingItem::NOT_EQUAL_OPERATOR, $tableUsers, HavingItem::OR_OPERATOR),
+            new HavingItem('referenceOrganization', HavingItem::IS_NULL_OPERATOR, '', HavingItem::OR_OPERATOR),
+            new HavingItem('referenceOrganization', HavingItem::EQUAL_OPERATOR, $baseOrgID, HavingItem::OR_OPERATOR),
+            new HavingItem('referenceOrtanizationApprovalValue', HavingItem::NOT_EQUAL_OPERATOR, $approved, HavingItem::AND_OPERATOR),
+        ]));
 
         //Verificar permisos sobre organization
         if ($currentUser !== null) {
-            $currentOrganizationID = $currentOrganizationID !== null ? $currentOrganizationID : -1;
+            $currentOrganizationID ??= -1;
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUserType);
             $canApprovalAll = in_array($currentUserType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
             if (!$canModifyOrganizations && !$canApprovalAll) {
-                $beforeOperator = !empty($having) ? $and : '';
-                $critery = "referenceOrganization = {$currentOrganizationID} AND referenceOrganizationAdministrator = {$currentUser->id}";
-                $having[] = "{$beforeOperator} ({$critery})";
+                $havingSegment->addGroup(new HavingItemGroup([
+                    new HavingItem('referenceOrganization', HavingItem::EQUAL_OPERATOR, $currentOrganizationID, HavingItem::AND_OPERATOR),
+                    new HavingItem('referenceOrganizationAdministrator', HavingItem::EQUAL_OPERATOR, $currentUser->id, HavingItem::AND_OPERATOR),
+                ]));
             }
         }
 
-        if ($referenceAliasFilter !== null && $referenceAliasFilter != '-1') {
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.referenceAlias = '{$referenceAliasFilter}'";
-            $where[] = "{$beforeOperator} ({$critery})";
+        if ($referenceAliasFilter !== null) {
+            $whereItems[] = new WhereItem("{$table}.referenceAlias", WhereItem::EQUAL_OPERATOR, $referenceAliasFilter, WhereItem::AND_OPERATOR);
         }
 
         if ($elapsedDaysFilter !== null && $elapsedDaysFilter != '-1') {
-            $beforeOperator = !empty($having) ? $and : '';
-            $critery = "elapsedDays >= {$elapsedDaysFilter}";
-            $having[] = "{$beforeOperator} ({$critery})";
+            $havingSegment->addGroup(new HavingItemGroup([
+                new HavingItem('elapsedDays', HavingItem::GREATER_OR_EQUAL_OPERATOR, $elapsedDaysFilter, HavingItem::AND_OPERATOR),
+            ]));
         }
 
-        if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-        }
+        $whereSegment = new WhereSegment($whereItems);
 
         $selectFields = SystemApprovalsMapper::fieldsToSelect('%Y-%m-%d %h:%i:%s %p');
 
@@ -514,8 +536,8 @@ class SystemApprovalsController extends AdminPanelController
 
         $result = DataTablesHelper::process([
 
-            'where_string' => $whereString,
-            'having_string' => $havingString,
+            'where_segment' => $whereSegment,
+            'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -539,7 +561,7 @@ class SystemApprovalsController extends AdminPanelController
                 $columns = [];
 
                 $avatar = AvatarModel::getAvatar($e->referenceCreatedBy);
-                $avatar = !is_null($avatar) ? $avatar : baseurl('statics/images/default-avatar.png');
+                $avatar ??= baseurl('statics/images/default-avatar.png');
                 $avatar = "<div class='avatar'><img src='{$avatar}' /></div>";
                 $userName = "<div class='name'>{$e->referenceUserFullName}</div>";
 
@@ -557,26 +579,57 @@ class SystemApprovalsController extends AdminPanelController
     }
 
     /**
+     * Si el usuario puede ver y resolver el elemento: C3 y C5 del listado, aplicados en PHP; a los limitados por C5,
+     * además lo pendiente, C1 y C4.
+     *
+     * Las rutas dejan entrar a más tipos de los que pueden aprobarlo todo: el alcance lo pone esto.
+     *
+     * @param SystemApprovalsMapper $element Cargado por id, con los campos de fieldsToSelect()
+     * @param UserDataPackage $user
+     * @return bool
+     */
+    public static function canManage(SystemApprovalsMapper $element, UserDataPackage $user): bool
+    {
+        $record = $element->getExtendedElement();
+        if ($record === null) {
+            return false;
+        }
+        $userType = (int) $user->type;
+        //C3: lo propio, solo CAN_APPROVAL_SELF.
+        if (!in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_SELF, true) && (string) $record->referenceCreatedBy === (string) $user->id) {
+            return false;
+        }
+        //C5: sin permiso global, la organización del creador es la suya y él es su administrador.
+        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($userType);
+        $canApprovalAll = in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
+        if (!$canModifyOrganizations && !$canApprovalAll) {
+            //Y lo que el listado exige a todos: pendiente, C1 (referencia activa) y C4 (perfiles de organizaciones sin aprobar).
+            //Los que lo aprueban todo quedan fuera a propósito: pueden volver a resolver.
+            $isPending = $record->status == SystemApprovalsMapper::STATUS_PENDING;
+            $isActive = $record->referenceIsActive === null || (int) $record->referenceIsActive === 1;
+            $passesC4 = $record->referenceTable != UsersModel::TABLE
+                || $record->referenceOrganization === null
+                || (string) $record->referenceOrganization === (string) OrganizationMapper::INITIAL_ID_GLOBAL
+                || ($record->referenceOrtanizationApprovalValue !== null && $record->referenceOrtanizationApprovalValue != SystemApprovalsMapper::STATUS_APPROVED);
+            if (!$isPending || !$isActive || !$passesC4) {
+                return false;
+            }
+            //En dos pasos: `??` sobre la propiedad mágica pregunta a __isset, que UserDataPackage no tiene.
+            $organizationID = $user->organization;
+            $organizationID ??= -1;
+            return (string) $record->referenceOrganization === (string) $organizationID
+                && (string) $record->referenceOrganizationAdministrator === (string) $user->id;
+        }
+        return true;
+    }
+
+    /**
      * @inheritDoc
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         $name = mb_strlen(self::BASE_VIEW_DIR) > 0 ? self::BASE_VIEW_DIR . '/' . trim($name, '/') : trim($name, '/');
         return parent::render($name, $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
     }
 
     /**
@@ -587,19 +640,19 @@ class SystemApprovalsController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -631,160 +684,6 @@ class SystemApprovalsController extends AdminPanelController
     }
 
     /**
-     * @param string $nameOnFiles
-     * @param string $folder
-     * @param string $currentRoute
-     * @param array $allowedTypes
-     * @param bool $setNameByInput
-     * @param string $name
-     * @param string $suffixName
-     * @return string
-     * @throws \Exception
-     */
-    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null, string $suffixName = '')
-    {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
-        }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name = $name !== null ? $name : 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new SystemApprovalsController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-                if (mb_strlen($suffixName) > 0) {
-                    $name .= "_{$suffixName}";
-                }
-
-                if ($valid) {
-
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-                    if (!empty($locations)) {
-
-                        $url = $locations[0];
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -806,10 +705,12 @@ class SystemApprovalsController extends AdminPanelController
 
         //Permisos
         $list = $allRoles;
+        //El administrador de organización entra; su alcance lo pone canManage(), no la ruta.
         $approval = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
         ];
         $routes = [
 

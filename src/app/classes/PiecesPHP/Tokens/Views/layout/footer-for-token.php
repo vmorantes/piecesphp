@@ -1,0 +1,21 @@
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+?>
+
+<!-- Scripts -->
+<?php load_js([
+    'base_url' => "",
+    'custom_url' => "",
+    'attr' => [
+        'test-attr' => 'yes',
+    ],
+    'attrApplyTo' => [
+        'test-attr' => [
+            '.*configurations\.js$',
+        ],
+    ],
+]) ?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'body_end'); ?>
+</body>
+
+</html>

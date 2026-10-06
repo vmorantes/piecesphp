@@ -23,6 +23,24 @@ use MongoDB\Database;
  */
 class BaseMongoModel
 {
+    /** @var MongoClient */
+    protected $con = null;
+
+    /** @var Database Base de datos */
+    protected $db = null;
+
+    /** @var Collection Colección */
+    protected $collection = null;
+
+    /** @var string Nombre de la base de datos */
+    protected $db_name = null;
+
+    /** @var string Nombre de la colección */
+    protected $collection_name = null;
+
+    /** @var array|null Array que representa los campos con la estructura ['campo1','campo2'[,...]] */
+    protected $fields = null;
+
     /**
      * Configuración del modelo.
      *
@@ -166,21 +184,4 @@ class BaseMongoModel
         return $this->fields;
     }
 
-    /** @var MongoClient */
-    protected $con = null;
-
-    /** @var Database Base de datos */
-    protected $db = null;
-
-    /** @var Collection Colección */
-    protected $collection = null;
-
-    /** @var string Nombre de la base de datos */
-    protected $db_name = null;
-
-    /** @var string Nombre de la colección */
-    protected $collection_name = null;
-
-    /** @var array|null Array que representa los campos con la estructura ['campo1','campo2'[,...]] */
-    protected $fields = null;
 }

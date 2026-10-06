@@ -6,13 +6,4 @@ window.addEventListener('load', function () {
 		drawCallbackEnd: function (cards) {
 		},
 	}).DataTable()
-	const defaultURL = new URL(dataTable.ajax.url())
-
-	configFomanticDropdown('.ui.dropdown', {
-		onChange: function (value) {
-			defaultURL.searchParams.set('FIELD_SAMPLE_FILTER_LOAD', value)
-			dataTable.ajax.url(defaultURL.href).load()
-		},
-	})
-
 })

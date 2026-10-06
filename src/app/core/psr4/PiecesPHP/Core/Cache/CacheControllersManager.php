@@ -76,7 +76,7 @@ class CacheControllersManager implements JsonSerializable
     protected $creationTime = 0;
 
     /**
-     * @var \ArrayObject
+     * @var CacheControllersCriteries
      */
     protected $criteries = null;
 
@@ -114,7 +114,7 @@ class CacheControllersManager implements JsonSerializable
 
         $this->className = $className;
         $this->methodName = $methodName;
-        $this->criteries = new \ArrayObject();
+        $this->criteries = new CacheControllersCriteries();
         $this->duration = $validTimeOnSeconds;
 
         $this->init();
@@ -127,7 +127,7 @@ class CacheControllersManager implements JsonSerializable
     public function process()
     {
 
-        $serialized = StringManipulate::urlSafeB64Encode(json_encode($this));
+        $serialized = StringManipulate::urlSafeB64Encode(json_encode($this, \JSON_THROW_ON_ERROR));
         $this->hash = sha1($serialized);
         $this->ownConfigurationFileName = $this->hash . '.json';
         $this->creationTime = time();
@@ -284,7 +284,9 @@ class CacheControllersManager implements JsonSerializable
      */
     public function hasCachedData()
     {
-        return file_exists($this->getCachedDataFileName(true));
+        $filename = $this->getCachedDataFileName(true);
+        //Un archivo vacío NO es caché: ningún contenido legítimo pesa cero bytes.
+        return file_exists($filename) && filesize($filename) > 0;
     }
 
     /**
@@ -414,15 +416,15 @@ class CacheControllersManager implements JsonSerializable
 
         foreach ($data as $propertyName => $value) {
 
-            if ($propertyName == 'criteries') {
-
-                $this->$propertyName = $value;
-
-            } else {
-
-                $this->$propertyName = $value;
-
+            //`criteries` viaja como array y volvía como array: sin esto, `getCriteries()`
+            //devuelve un array donde su firma declara un objeto. Ver T123.
+            if ($propertyName === 'criteries') {
+                $restored = new CacheControllersCriteries();
+                $restored->__unserialize(is_array($value) ? $value : []);
+                $value = $restored;
             }
+
+            $this->$propertyName = $value;
 
         }
 

@@ -3,10 +3,18 @@
 Hestia Control Panel (HestiaCP) es un panel de control potente y ligero diseñado para administradores de servidores que buscan una interfaz intuitiva y eficiente.
 
 > [!WARNING]
-> **Compatibilidad de SO:** Antes de iniciar, confirme que su sistema operativo sea **Ubuntu 22.04 LTS**.
-> La versión 1.9.x de HestiaCP **no es compatible** con Ubuntu 24.04 LTS.
+> **Compatibilidad de SO:** esta guía está escrita para **Ubuntu 26.04 LTS** y un servidor recién instalado. El
+> instalador de HestiaCP admite Ubuntu 22.04, 24.04 y 26.04 LTS, y Debian 12 y 13. Ubuntu 24.04 está soportado desde
+> HestiaCP 1.9.0, y Ubuntu 26.04, desde la 1.10.0.
 
-Este tutorial está ajustado a la **versión 1.9.4** 
+> [!IMPORTANT]
+> **PiecesPHP exige PHP `>=8.5 <8.6`.** HestiaCP ofrece PHP 8.5 desde la versión 1.10.0, y es además la versión por
+> defecto de su instalador. Con `--multiphp '8.5'` instala solo esa; el dominio web debe usar la plantilla de PHP-FPM
+> 8.5.
+
+Este tutorial está ajustado a la **versión 1.10.5**. En Ubuntu 26.04, el instalador toma PHP del repositorio de Ondřej
+Surý (`packages.sury.org/php`) y MariaDB 11.8 del repositorio de MariaDB; no instales antes Apache, nginx, MariaDB ni
+PHP por tu cuenta.
 
 ---
 
@@ -35,7 +43,8 @@ Configure las siguientes variables en su terminal para facilitar el proceso de i
 export HESTIA_ADMIN_USER="admin"
 export HESTIA_DOMAIN="sample.com"
 export HESTIA_EMAIL="admin@sample.com"
-export HESTIA_PASSWORD="hestiacp8083pass"
+export HESTIA_PASSWORD="$(openssl rand -base64 18)"
+echo "$HESTIA_PASSWORD"   # guárdala en tu gestor de contraseñas: es la del administrador del panel
 ```
 
 > [!TIP]
@@ -52,15 +61,23 @@ Los siguientes comandos están optimizados para un uso estándar de **PiecesPHP*
 wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh
 ```
 
+El instalador comprueba que no haya ya instalados `exim4`, `mariadb-server`, `apache2`, `nginx`, `postfix` ni `ufw`, y
+si los encuentra ofrece desinstalarlos antes de seguir. Ubuntu Server trae `ufw`: acepta quitarlo, porque HestiaCP
+gestiona su propio cortafuegos.
+
 ### Opción A: Instalación estándar (Recomendada)
-Esta opción incluye soporte Multi-PHP y cuotas de disco, desactivando ClamAV para ahorrar recursos.
+Esta opción instala PHP 8.5 y cuotas de disco, desactivando ClamAV para ahorrar recursos.
+
+> [!WARNING]
+> `--multiphp yes` instala **todas las versiones de PHP que ofrezca el instalador**, incluidas las que están por debajo
+> del piso de PiecesPHP (8.5). Para instalar solo la que exige el framework, indícala: `--multiphp '8.5'`.
 
 ```bash
 sudo bash hst-install.sh \
     --hostname $HESTIA_DOMAIN \
     --email $HESTIA_EMAIL \
     --password $HESTIA_PASSWORD \
-    --multiphp yes \
+    --multiphp '8.5' \
     --clamav no \
     --quota yes
 ```
@@ -72,7 +89,7 @@ Si requiere control total sobre todos los servicios:
 sudo bash hst-install.sh \
     --apache yes \
     --phpfpm yes \
-    --multiphp '7.3,7.4,8.0,8.1,8.2,8.4,8.5' \
+    --multiphp '8.5' \
     --vsftpd yes \
     --proftpd no \
     --named yes \
@@ -94,9 +111,10 @@ sudo bash hst-install.sh \
     --password $HESTIA_PASSWORD \
     --username $HESTIA_ADMIN_USER \
     --webterminal yes \
-    --sieve no \
-    --force
+    --sieve no
 ```
+
+No añadas `--force`: se salta la comprobación de paquetes ya instalados.
 
 ---
 
@@ -117,10 +135,11 @@ Una vez finalizada la instalación, podrá acceder a través de:
 
 ### Módulos PHP y Apache (Recomendados para PiecesPHP)
 ```bash
-# Instalar módulos necesarios para múltiples versiones
-sudo apt install -y php*-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,intl}
+# Extensiones para PHP 8.5 (las que declara src/composer.json; ver la guía de PHP de LAMP).
+# HestiaCP ya instala common, xml (incluye xsl), mbstring, gd, curl, zip y mysql; falta sqlite3.
+sudo apt install -y php8.5-{common,xml,mbstring,gd,curl,zip,mysql,sqlite3}
 
-# Activar módulos de Apache vitales
+# Activar módulos de Apache vitales (solo si instalaste Apache, como en las dos opciones de arriba)
 sudo a2enmod rewrite headers ssl
 
 # Reiniciar servicios
@@ -234,43 +253,52 @@ mkdir -p /backup_incremental
 v-add-backup-host-restic 'rclone:almacenamiento_local:/backup_incremental/' 30 8 5 3 -1
 ```
 > [!NOTE]
-> Los números representan la política de retención: **Días (30), Semanas (8), Meses (5), Años (3)** y Total de instantáneas (-1 para ilimitado).
+> Los cinco números son la política de retención, en este orden: **últimas instantáneas (30), diarias (8), semanales
+> (5), mensuales (3) y anuales (-1)**. Se aplican con `restic forget --keep-last`, `--keep-daily`, `--keep-weekly`,
+> `--keep-monthly` y `--keep-yearly`; un `-1` deja esa regla sin aplicar. El comando guarda la configuración en
+> `/usr/local/hestia/conf/restic.conf` y activa `BACKUP_INCREMENTAL` en HestiaCP. Si la ruta es local (empieza por `/`),
+> la carpeta debe existir antes.
 
 > [!CAUTION]
-> **Error de Inicialización:** Si el respaldo falla indicando que el repositorio no existe, deberá inicializarlo manualmente una sola vez con: `restic init -r /mnt/backups/`.
+> **Un repositorio por usuario:** HestiaCP guarda cada usuario en `<ruta>/<usuario>` y lo inicializa solo en su primer
+> respaldo, cuando crea la clave en `/usr/local/hestia/data/users/<usuario>/restic.conf`. Si esa clave ya existe pero
+> el repositorio no (por ejemplo, porque cambiaste la ruta), el respaldo falla con «Unable to access restic repo». Se
+> inicializa a mano con la misma clave:
+> `restic init -r /mnt/backup_incremental/<usuario> --password-file /usr/local/hestia/data/users/<usuario>/restic.conf`
+> (con la Ruta B, `/backup_incremental/<usuario>`).
 
 ### 4. Consideraciones Críticas
 
-*   **⚡ Rendimiento:** Al ser local, la velocidad es drásticamente superior y puede lograr ahorros de almacenamiento de hasta **25:1** gracias a la deduplicación.
+*   **⚡ Rendimiento:** Al ser local, no depende del ancho de banda de un destino remoto, y la deduplicación de Restic solo guarda lo que cambió entre respaldos.
 *   **💾 Espacio de Caché:** Restic usa cache temporal en `/root/.cache/restic`. Asegúrese de tener espacio en el disco principal para evitar fallos durante la purga.
-*   **🔑 Claves de Cifrado:** HestiaCP cifra los datos por defecto. **Es obligatorio** resguardar los archivos `restic.conf` ubicados en `/usr/local/hestia/data/users/[usuario]/`. Sin estos archivos, sus respaldos en el NAS serán **ilegibles e irrecuperables**.
+*   **🔑 Claves de Cifrado:** Restic cifra siempre los repositorios, y HestiaCP genera una clave aleatoria por usuario. **Es obligatorio** resguardar los archivos `restic.conf` ubicados en `/usr/local/hestia/data/users/[usuario]/`, fuera del servidor. Sin estos archivos, sus respaldos serán **ilegibles e irrecuperables**.
 
 ### 5. Programación y Automatización (Cron)
 
-HestiaCP **no activa automáticamente** el cronjob para Restic al añadir el host. Debe realizar los siguientes pasos adicionales para que el sistema sea autónomo:
+El instalador de HestiaCP programa los respaldos tradicionales (`v-backup-users`, a las 05:10), pero **no** programa los
+de Restic. `v-backup-users-restic` respalda a todos los usuarios no suspendidos, y solo si `BACKUP_INCREMENTAL` está
+activo (lo activa el paso 3).
 
-1.  **Habilitar en el Paquete:**
+1.  **Añadir la tarea programada.** Tiene que correr como `root` (los usuarios del panel, `admin` incluido, no tienen
+    permiso para lanzar los scripts de HestiaCP), así que va en `/etc/cron.d/` y no en la sección **Cron** del panel.
+    Se recomienda una hora distinta a la de los respaldos tradicionales, por ejemplo las 05:30:
+    ```bash
+    echo '30 5 * * * root /usr/local/hestia/bin/v-backup-users-restic > /dev/null 2>&1' | sudo tee /etc/cron.d/hestia-restic
+    sudo chmod 644 /etc/cron.d/hestia-restic
+    ```
+    El resultado de cada respaldo queda en `/usr/local/hestia/log/backup.log`.
+
+2.  **Mostrar los respaldos al usuario:**
     *   Vaya a **Packages** (Paquetes) y edite el paquete que usan sus usuarios (ej. `default`).
-    *   Asegúrese de que el soporte para backups esté activo y, si aparece la opción específica, habilite los respaldos incrementales.
-
-2.  **Añadir el Cron Job Específico:**
-    *   Vaya a la sección **Cron** del panel de HestiaCP (como admin).
-    *   Añada una nueva tarea con el comando: `v-backup-users-restic`
-    *   Programe la hora (se recomienda una hora distinta a la de los backups tradicionales, por ejemplo: `30 05 * * *`).
+    *   En **Incremental Backups**, elija **Enabled**. Con eso, la pestaña **Backups** del usuario aparece aunque el
+        número de respaldos tradicionales del paquete sea `0`, siempre que el servidor tenga un sistema de respaldo
+        configurado.
 
 3.  **Prueba Manual Final:**
     *   Siempre verifique la conexión y el primer envío manualmente:
         ```bash
         v-backup-user-restic [usuario]
         ```
-
-*   **¿Se pueden eliminar los .tar al 100%? (Realidad Técnica):**
-    *   Lamentablemente, HestiaCP requiere que el valor de **Backups** en el paquete sea al menos **`1`** para que el proceso capture datos reales. Si se pone en `0`, los respaldos de Restic resultarán en carpetas vacías.
-    *   Si se desactiva el backup local globalmente (`local = no`), la pestaña de **Backups** desaparecerá de la interfaz.
-
-> [!IMPORTANT]
-> **La recomendación final:**
-> Para mantener la pestaña activa en la interfaz y que los respaldos contengan datos, lo ideal es configurar **`Backups = 1`** en el paquete y aceptar la existencia de un único archivo `.tar` residual. Es el pequeño precio a pagar por mantener la comodidad de la gestión vía web.
 
 ---
 
@@ -297,21 +325,38 @@ O:
 Estas extensiones deben ser manejadas por Apache para que el `.htaccess` o el framework (**ServerStatics**) puedan protegerlas:
 `json, xml, txt, gz, zip, rar, 7z, tar, tgz, sql, log, doc, docx, xls, xlsx, pdf`
 
-### Interacción con ServerStatics.php
+### Archivos subidos protegidos (PiecesPHP 8)
 
-La clase `ServerStatics.php` de PiecesPHP tiene su propio sistema de delegación. Si desea seguridad máxima para archivos específicos (por ejemplo, PDFs protegidos por login):
-1. Asegúrese de que la extensión **NO** esté en la lista de Nginx del panel.
-2. La clase detectará si el archivo está en una ruta protegida y lo servirá vía PHP mediante el `ProtectFileMiddleware`, ignorando la delegación web.
+Las subidas privadas **ya no dependen de esta lista**. PiecesPHP las guarda en disco con el
+sufijo `.protected` al final (`documento.pdf.protected`), una extensión que Nginx no reconoce:
+- `…/documento.pdf` no existe con ese nombre, así que Nginx lo pasa a Apache, y PiecesPHP lo sirve
+  tras validar;
+- `…/documento.pdf.protected` lo niega el `.htaccess` de `statics/uploads`.
+
+Lo público lleva su nombre real y Nginx lo sirve directamente, así que puede quedarse en la
+lista sin riesgo.
+
+Tras actualizar una instalación existente, migra las subidas con
+`bin/cli statics-protect-migrate` (primero el simulacro, luego `--run`). La guía completa está en
+«Archivos protegidos», en la documentación del framework.
+
+La recomendación de arriba **sigue valiendo** para lo que no son subidas: `composer.json`, los
+respaldos `.sql.gz`, los logs y demás archivos sensibles que un `.htaccess` protege y Nginx no
+lee.
 
 ---
 
 ## 🔍 Solución de Problemas (Troubleshooting)
 
 
-### Error: "User admin exists"
-Si la instalación falla porque el usuario `admin` ya existe:
+### Error: «Username or Group allready exists»
+El instalador se niega a seguir si el nombre de administrador (`--username`, `admin` por defecto) ya existe como
+usuario o como grupo del sistema (`/etc/passwd` o `/etc/group`). Compruébalo y elige otro nombre:
 
-1.  Abra el archivo de grupos: `sudo nano /etc/group`
-2.  Elimine la línea `admin:x:117:` (o similar).
-3.  Guarde los cambios y reintente la instalación.
+```bash
+getent passwd admin; getent group admin
+export HESTIA_ADMIN_USER="hstadmin"
+```
+
+Y repite la instalación pasando `--username $HESTIA_ADMIN_USER` (la Opción B ya lo pasa). No edites `/etc/group` a mano.
 

@@ -41,13 +41,63 @@ class CustomSlimErrorHandler
     }
 
     /**
+     * El código de referencia del error registrado en el constructor.
+     *
+     * @return string
+     */
+    public function reference(): string
+    {
+        return $this->handler->reference();
+    }
+
+    /**
      * @param RequestRoute $request
+     * @param bool|null $isLocal null: lo decide is_local(); las pruebas lo fijan
      * @return ResponseRoute
      */
-    public function getResponse(RequestRoute $request)
+    public function getResponse(RequestRoute $request, ?bool $isLocal = null)
     {
 
         $response = new ResponseRoute();
+        $isLocal = $isLocal ?? self::isLocal();
+        $reference = $this->handler->reference();
+        $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
+        $wantsJSON = $request->isXhr() || TerminalData::getInstance()->isTerminal() || $requestTypeIsJSON;
+
+        //FUERA DE LOCAL NO SALE NADA DE LA EXCEPCIÓN (P56): ni mensaje, ni tipo, ni archivo, ni traza. Solo la
+        //referencia, que el usuario reporta y que lleva a la entrada completa del log.
+        if (!$isLocal) {
+            $message = self::genericMessage($reference);
+            if ($wantsJSON) {
+                return $response->withStatus(500)->withJson([
+                    'success' => false,
+                    'message' => $message,
+                    'reference' => $reference,
+                ]);
+            }
+            $title = function_exists('__') ? __('general', 'Error interno') : 'Error interno';
+            $safe = fn(string $text): string => htmlspecialchars($text, \ENT_QUOTES, 'UTF-8');
+            $html = "
+                <html>
+                    <style>
+                        *{
+                            box-sizing:border-box;
+                        }
+                    </style>
+                    <body style='margin: 0px auto;'>
+                        <div style='min-height: 100vh; background-color: whitesmoke;'>
+                            <div style='width: 100%; max-width: 1200px; margin: 0px auto; padding:15px;'>
+                                <h2>{$safe($title)}</h2>
+                                <p>{$safe($message)}</p>
+                                <p><strong>{$safe($reference)}</strong></p>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            ";
+            return $response->withStatus(500)->write($html);
+        }
+
         $exception = $this->handler->getException();
         $class_exception = get_class($exception);
         $trace = $exception->getTrace();
@@ -56,31 +106,18 @@ class CustomSlimErrorHandler
             $trace = [];
         }
 
-        $isLocal = self::isLocal();
-
         $file = $exception->getFile();
         $line = $exception->getLine();
 
-        if (!$isLocal) {
-            $file = str_replace(self::getBasePath(), '{BASE_PATH}', $exception->getFile());
-            foreach ($trace as $i => $t) {
-                if (isset($t['file'])) {
-                    $trace[$i]['file'] = str_replace(self::getBasePath(), '{BASE_PATH}', $t['file']);
-                }
-                if (isset($t['args'])) {
-                    $trace[$i]['args'] = 'HIDDEN';
-                }
-            }
-        }
+        //Desde P56 la respuesta de fuera de local se devuelve arriba, en el `if (!$isLocal)` que abre el método: de
+        //aquí hacia abajo $isLocal es siempre true, así que no hay nada que enmascarar ni que ocultar.
 
-        $codeException = '-';
-        try {
-            $codeException = $exception->getCode();
-        } catch (\Throwable $e) {}
+        $codeException = $exception->getCode();
 
         $jsonData = [
             'success' => false,
             'message' => $exception->getMessage(),
+            'reference' => $reference,
             'handlerContext' => $this->contextDescription,
             'detail' => [
                 'type' => $class_exception,
@@ -92,8 +129,7 @@ class CustomSlimErrorHandler
             ],
         ];
 
-        $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
-        if ($request->isXhr() || TerminalData::getInstance()->isTerminal() || $requestTypeIsJSON) {
+        if ($wantsJSON) {
             return $response->withStatus(500)->withJson($jsonData);
         } else {
 
@@ -118,6 +154,7 @@ class CustomSlimErrorHandler
                                     <li>File: {$file}</li>
                                     <li>Line: {$line}</li>
                                     <li>Message: {$message}</li>
+                                    <li>Reference: {$reference}</li>
                                     <li>Handler context: {$this->contextDescription}</li>
                                 </ul>
                                 <div style='overflow:auto;'>
@@ -128,11 +165,22 @@ class CustomSlimErrorHandler
                     </body>
                 </html>
             ";
-            $html = !$isLocal ? str_replace(self::getBasePath(), '{BASE_PATH}', $html) : $html;
 
             return $response->withStatus(500)->write($html);
 
         }
+    }
+
+    /**
+     * Lo único que ve el usuario fuera de local: un aviso genérico con la referencia.
+     *
+     * @param string $reference
+     * @return string
+     */
+    public static function genericMessage(string $reference): string
+    {
+        $template = function_exists('__') ? __('general', 'Ocurrió un error interno. Si lo reporta, indique la referencia %s.') : 'Ocurrió un error interno. Si lo reporta, indique la referencia %s.';
+        return sprintf($template, $reference);
     }
 
     /**
@@ -141,12 +189,8 @@ class CustomSlimErrorHandler
     public static function isLocal()
     {
         if (!function_exists('is_local')) {
-            $isLocal = false;
-            if (isset($_SERVER['HTTP_HOST'])) {
-                $host = $_SERVER['HTTP_HOST'];
-                // Comprueba si el host es "localhost" o termina con ".localhost"
-                $isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
-            }
+            //La misma regla que is_local(): el entorno, nunca la cabecera Host (P58).
+            $isLocal = \PiecesPHP\Core\AppEnvironment::get() === \PiecesPHP\Core\AppEnvironment::LOCAL;
             $pcsPhpTerminalData = $_SERVER['PCSPHP_TERMINAL_DATA'] ?? [];
             if ($pcsPhpTerminalData['isTerminal'] ?? false) {
                 $isLocal = $pcsPhpTerminalData['local'] ?? false;

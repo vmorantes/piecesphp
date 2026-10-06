@@ -2,6 +2,7 @@
 
 namespace PiecesPHP\Core\Database\Export;
 
+use PiecesPHP\Core\Database\Database;
 use PDO;
 use PiecesPHP\Core\Database\Export\Interfaces\ExporterInterface;
 use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
@@ -28,12 +29,14 @@ class Exporter implements ExporterInterface
     /**
      * Constructor de la clase Exporter.
      * 
-     * @param PDO $db Instancia de PDO ya configurada y conectada.
+     * @param Database $db Conexión ya configurada. NO lo relajes a `PDO`: con el tipo del
+     *                       padre, `query()` y `prepare()` vuelven a verse como
+     *                       `PDOStatement|false`.
      * @param string $database Nombre de la base de datos a exportar.
      * @param string $charset Juego de caracteres para el volcado (default: utf8mb4).
      */
     public function __construct(
-        protected PDO $db,
+        protected Database $db,
         protected string $database,
         protected string $charset = 'utf8mb4'
     ) {
@@ -155,7 +158,7 @@ class Exporter implements ExporterInterface
                 try {
                     // REPEATABLE READ para consistencia, READ ONLY para optimización (MySQL 5.6.5+)
                     $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY");
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
                 }
                 $this->db->beginTransaction();

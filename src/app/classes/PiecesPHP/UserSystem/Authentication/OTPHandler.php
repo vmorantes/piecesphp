@@ -4,10 +4,12 @@
  */
 namespace PiecesPHP\UserSystem\Authentication;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
@@ -66,6 +68,11 @@ class OTPHandler
         $userDataPackage = $userData !== null ? new UserDataPackage($userData->id) : null;
         if ($userDataPackage !== null) {
             $otpData = OTPSecretsUsersMapper::getOTPData($userData->id, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE);
+            //Sin registro no hay código que caducar. NO crear uno: esta ruta no autentica.
+            if ($otpData === null) {
+                log_exception(new \Exception("toExpireOTP: el usuario {$userData->id} no tiene registro ONE_USE_CODE; no hay código que caducar."), false);
+                return;
+            }
             $otpData->maxDate = new \DateTime('2000-01-01');
             $otpData->oneUseCode = "";
             $otpData->update();
@@ -82,7 +89,8 @@ class OTPHandler
         $valid = false;
         $userData = self::getUserDataByUsername($username);
         $userDataPackage = $userData !== null ? new UserDataPackage($userData->id) : null;
-        if ($userDataPackage !== null) {
+        //Sin registro TOTP no hay segundo factor configurado: «no válido» es la respuesta.
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $secret = $userDataPackage->TOTPData->secret;
             $totpManager = new TOTPStandard($secret);
             $valid = $totpManager->verifyTOTP($totp, $secret, 1);
@@ -106,14 +114,15 @@ class OTPHandler
 
             $code = generate_code(6, true);
 
-            $OTPCreated = OTPSecretsUsersMapper::setOTP($userData->id, $code, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE, 20);
+            $minutes = OTPRateLimiter::config()['oneUseCodeMinutes'];
+            $OTPCreated = OTPSecretsUsersMapper::setOTP($userData->id, $code, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE, $minutes);
 
             if ($OTPCreated) {
 
                 $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . Config::app_title();
                 $bodyMessage = $controller->render($relativeView, [
                     'text' => __(self::LANG_GROUP, 'Contraseña de un solo uso'),
-                    'note' => __(self::LANG_GROUP, 'Tiene una validez de 20 minutos'),
+                    'note' => vsprintf(__(self::LANG_GROUP, 'Tiene una validez de %s minutos'), [$minutes]),
                     'code' => $code,
                 ], false);
                 $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
@@ -150,7 +159,7 @@ class OTPHandler
     {
         $totp = "";
         $userDataPackage = getLoggedFrameworkUser();
-        if ($userDataPackage !== null) {
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
             $totp = $totpManager->generateTOTP();
         }
@@ -164,9 +173,12 @@ class OTPHandler
     {
         $qrData = "";
         $userDataPackage = getLoggedFrameworkUser();
-        if ($userDataPackage !== null) {
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
-            $qrData = $totpManager->getQRCodeUrl($userDataPackage->username, $userDataPackage->TOTPData->twoAuthFactorAlias);
+            //twoAuthFactorAlias está vacío hasta que el usuario lo bautice: sin este respaldo, TypeError.
+            $issuer = $userDataPackage->TOTPData->twoAuthFactorAlias;
+            $issuer = is_string($issuer) && $issuer !== '' ? $issuer : (string) get_config('owner');
+            $qrData = $totpManager->getQRCodeUrl($userDataPackage->username, $issuer);
         }
         return $qrData;
     }
@@ -181,10 +193,10 @@ class OTPHandler
         $userDataPackage = getLoggedFrameworkUser();
         try {
             $userDataPackage = $userID !== null ? new UserDataPackage($userID) : $userDataPackage;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $userDataPackage = null;
         }
-        if ($userDataPackage !== null) {
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $wasViewed = $userDataPackage->TOTPData->twoAuthFactorQRViewed == 1;
         }
         return $wasViewed;
@@ -200,7 +212,7 @@ class OTPHandler
         $userDataPackage = getLoggedFrameworkUser();
         try {
             $userDataPackage = $userID !== null ? new UserDataPackage($userID) : $userDataPackage;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $userDataPackage = null;
         }
         if ($userDataPackage !== null) {
@@ -223,7 +235,9 @@ class OTPHandler
             OTPSecretsUsersMapper::toggle2FA($userDataPackage->id, $enable, $securityCode, $alias);
             if ($enable) {
                 $userDataPackage = getLoggedFrameworkUser(true);
-                $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+                if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
+                    $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+                }
             }
         }
         return $totpManager;
@@ -236,7 +250,11 @@ class OTPHandler
     public static function getUserDataByUsername(string $username)
     {
         $model = UsersModel::model();
-        $model->select()->where("username = '{$username}' OR email = '{$username}'")->execute();
+        //POR MARCADOR: el nombre llega sin sesión desde la petición (generate-otp, check-totp, el login) y viaja como dato.
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('username', $username, WhereItem::OR_OPERATOR),
+            WhereItem::isEqual('email', $username),
+        ]))->execute();
         $result = $model->result();
         return !empty($result) ? $result[0] : null;
     }

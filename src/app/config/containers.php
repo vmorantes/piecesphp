@@ -1,15 +1,20 @@
 <?php
 
-use Organizations\Mappers\OrganizationMapper;
+/**
+ * @pcsphp-config framework
+ * Qué conviene editar aquí: nada: son los intermediarios que corren en cada petición.
+ */
+
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\SessionDataHandler;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\TerminalData;
-use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
@@ -85,18 +90,27 @@ $container_configurations = [
         /* Ejecución antes de procesar la ruta: */
         //Do something
 
-        // NOTE: Para el caso de usuarios logueados pero sin propiedades obligatorias definidas
-        $getLoggerUser = fn(bool $reload = false) => getLoggedFrameworkUser($reload) ?? (new UserDataPackage(-1));
-        if (getLoggedFrameworkUser() !== null) {
-            $loggedUser = $getLoggerUser();
-            $userMapper = $loggedUser->getMapper();
-            $organizationId = $loggedUser->organization;
-            if ($organizationId === null) {
-                //Asignar la organización global al usuario si no tenía una
-                $userMapper->organization = OrganizationMapper::INITIAL_ID_GLOBAL;
-                $userMapper->update();
-                $loggedUser = $getLoggerUser(true);
-                $userMapper = $loggedUser->getMapper();
+        //P61: NAVEGAR NO ESCRIBE. Antes, a cualquier usuario con organización nula se le asignaba aquí la global
+        //(-10) y se guardaba, en cada petición; eso contradice P39 y tapaba el defecto en vez de enseñarlo.
+        $loggedUser = getLoggedFrameworkUser();
+        if (
+            $loggedUser !== null
+            && $loggedUser->organization === null
+            && !in_array($loggedUser->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)
+        ) {
+            //Un usuario dentro sin la organización que su tipo exige es un DEFECTO DE DATOS: se anota una vez por
+            //sesión —si la hay— y se deja como está. Nunca se arregla solo.
+            $primeraVez = true;
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $avisos = new SessionDataHandler('pcsphp_user_without_organization');
+                $primeraVez = $avisos->getData('logged') === null;
+                $avisos->addData('logged', true);
+            }
+            if ($primeraVez) {
+                log_exception(new \RuntimeException(
+                    'El usuario ' . $loggedUser->id . ', de tipo ' . $loggedUser->type . ', está dentro sin organización'
+                    . ' y su tipo la requiere. No se le asigna ninguna: es un defecto de datos (P61).'
+                ));
             }
         }
 
@@ -144,7 +158,7 @@ $container_configurations = [
         $extraData = $request->getAttribute($extraDataKey, []);
         $extraData = is_array($extraData) ? $extraData : [];
 
-        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = $extraData['url'] ?? null;
         $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
 
         //Cabeceras CORS para peticiones desde otros orígenes (Solo en "modo API")
@@ -196,16 +210,16 @@ $container_configurations = [
             $routeInformation = get_route_info($routeName);
             $requireLogin = $routeInformation['require_login'];
             //Definir el botón de volver en la ruta administrativa si no hay una url definida y la ruta requiere login
-            $adminRoute = get_route('admin');
+            $adminRoute = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
             if ($requireLogin && !array_key_exists('url', $extraData)) {
                 $extraData['url'] = $adminRoute;
             }
         }
 
-        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = $extraData['url'] ?? null;
         $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
-        $line = array_key_exists('line', $extraData) ? $extraData['line'] : null;
-        $file = array_key_exists('file', $extraData) ? $extraData['file'] : null;
+        $line = $extraData['line'] ?? null;
+        $file = $extraData['file'] ?? null;
 
         $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
 
@@ -253,15 +267,22 @@ $container_configurations = [
         }
     },
     'cors' => function (RequestRoute $request, ResponseRoute $response) {
-        $origin = $request->getHeaderLine('Origin') ?: '*';
+        $origin = $request->getHeaderLine('Origin');
         $requestedHeaders = $request->getHeaderLine('Access-Control-Request-Headers');
-        $allowedHeaders = $requestedHeaders ?: 'Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth';
+        $allowedHeaders = $requestedHeaders ?: 'Content-Type, Authorization, isWebApp, isExternalLogin, ' . \PiecesPHP\Core\SessionToken::tokenName();
+        //CREDENCIALES SOLO PARA EL PROPIO ORIGEN Y LOS DECLARADOS: a cualquier otro, el navegador no le manda las cookies
+        //ni le deja leer la respuesta de una petición con ellas. El token por la cabecera sigue valiendo para todos.
+        $declared = get_config('cors_credentials_origins');
+        $withCredentials = cors_origin_allows_credentials($origin, is_array($declared) ? $declared : [], url_origin((string) get_config('base_url')));
         $response = $response
-            ->withHeader('Access-Control-Allow-Origin', $origin)
-            ->withHeader('Access-Control-Allow-Credentials', 'true')
+            ->withHeader('Access-Control-Allow-Origin', $origin !== '' ? $origin : '*')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT')
             ->withHeader('Access-Control-Allow-Headers', $allowedHeaders)
-            ->withHeader('Vary', 'Origin');
+            //AÑADE, no sustituye: corre tras la ruta, y ServerStatics ya puede traer su Vary (Cookie, Accept…).
+            ->withAddedHeader('Vary', 'Origin');
+        if ($withCredentials) {
+            $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
+        }
         if ($request->getMethod() == 'OPTIONS') {
             $response = $response->withStatus(204);
         }

@@ -58,7 +58,7 @@ class HelperController extends BaseController
                 $json = $matches[0];
                 $jsonStrParsed = ($parseJSON)($json);
             }
-            return $jsonStrParsed !== null ? $jsonStrParsed : $jsonStr;
+            return $jsonStrParsed ?? $jsonStr;
         };
         $pattern = '/\{(?:[^{}]|(?R))*\}/';
         $replacements = [
@@ -73,12 +73,12 @@ class HelperController extends BaseController
             //Paso #1: Intenta parsear el JSON directamente
             function ($value) use ($parseJSON) {
                 $parsed = ($parseJSON)($value);
-                return $parsed !== null ? $parsed : $value;
+                return $parsed ?? $value;
             },
             //Paso #2: Intenta parsear el JSON según un patrón para extraerlo de la cadena
             function ($value) use ($getByPattern, $pattern) {
                 $parsed = ($getByPattern)($value, $pattern);
-                return $parsed !== null ? $parsed : $value;
+                return $parsed ?? $value;
             },
             //Paso #3: Remoción de formato de código Markdown
             function ($value) {
@@ -103,7 +103,7 @@ class HelperController extends BaseController
 
         $jsonResponseParsed = null;
         $lastConvertion = $jsonResponse;
-        foreach ($steps as $stepIndex => $step) {
+        foreach ($steps as $step) {
             try {
                 $lastConvertion = ($step)($lastConvertion);
                 $lastConvertionParsed = is_array($lastConvertion) || is_object($lastConvertion) ? $lastConvertion : ($eachStepApply)($lastConvertion);
@@ -112,7 +112,7 @@ class HelperController extends BaseController
                     $jsonResponseParsed = $lastConvertionParsed;
                     break;
                 }
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
             }
         }
 
@@ -139,6 +139,11 @@ class HelperController extends BaseController
         libxml_clear_errors();
 
         $body = $doc->getElementsByTagName('body')->item(0);
+        //Inalcanzable con el `<body>` inyectado arriba (medido el 2026-10-02 con cinco formas), pero sin él no se
+        //trocea: el HTML entero es un solo fragmento, que no pierde nada. Vacío da cero, igual que con body.
+        if (!$body instanceof \DOMElement) {
+            return $html === '' ? [] : [$html];
+        }
         $chunks = [];
         $currentChunk = '';
         $currentLength = 0;

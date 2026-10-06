@@ -6,7 +6,7 @@
 
 namespace Publications\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -68,7 +68,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -76,7 +76,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -222,10 +222,14 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $hasFile = $this->fileExists();
 
         if ($hasFile) {
+            //finfo_open() y finfo_file() devuelven false; el contrato aquí es string|null.
             $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
+            if ($fileInformation === false) {
+                return null;
+            }
             $filePath = basepath($this->fileLocation);
             $mimeType = finfo_file($fileInformation, $filePath);
-            return $mimeType;
+            return $mimeType !== false ? $mimeType : null;
         } else {
             return null;
         }
@@ -241,7 +245,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $result = false;
 
         if ($this->fileExists()) {
-            $result = strpos($this->getMimeType(), 'image/') !== false;
+            $result = str_contains($this->getMimeType(), 'image/');
         }
 
         return $result;
@@ -256,7 +260,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $this->createdAt = new \DateTime();
         if ($this->createdBy === null) {
-            $this->createdBy = getLoggedFrameworkUser()->id;
+            $this->createdBy = getLoggedFrameworkUserOrFail()->id;
         }
         $saveResult = parent::save();
 
@@ -276,7 +280,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = getLoggedFrameworkUserOrFail()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -295,7 +299,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $table = $model->getTable();
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "{$table}.meta",
         ];
 
@@ -378,7 +382,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -438,7 +442,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
@@ -507,39 +511,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     }
 
     /**
-     * Verifica si existe algún registro igual
-     *
-     * @param int $publicationID
-     * @param string $lang
-     * @param int $ignoreID
-     * @return bool
-     */
-    public static function existsByPublication(int $publicationID, ?string $lang = null, ?int $ignoreID = null)
-    {
-
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
-        $model = self::model();
-
-        $where = [
-            "publication = {$publicationID} AND",
-            "id != {$ignoreID}",
-        ];
-
-        if ($lang !== null) {
-            $where[] = "AND `lang` = '{$lang}'";
-        }
-
-        $model->select()->where(implode(' ', $where));
-
-        $model->execute();
-
-        $result = $model->result();
-
-        return !empty($result);
-
-    }
-
-    /**
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
@@ -550,17 +521,10 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $element = (array) $element;
         $mapper = new AttachmentPublicationMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [
-        ];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
 
         foreach ($element as $property => $value) {
 

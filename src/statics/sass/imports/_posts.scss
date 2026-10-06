@@ -1,3 +1,6 @@
+@use 'sass:meta';
+@use 'variables' as *;
+@use 'functions' as *;
 #{$parentSelector} .posts-list {
 
     .ui.card {
@@ -52,5 +55,5 @@
     }
 
     //Sobreescritura de CKEditor
-    @import 'ckeditor-overwrites';
+    @include meta.load-css('ckeditor-overwrites');
 }

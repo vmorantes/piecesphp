@@ -6,7 +6,7 @@
 
 namespace Terminal\Tasks;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
@@ -47,6 +47,8 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         //Establecer propiedades
         $this->description = new StringArray([
             "Revisa los mensajes faltantes por traducción y genera un archivo php con ellos.\r\n",
+            "\tNO mira todos los idiomas: solo los de `allowed_langs` que NO estén en `no_scan_langs`.\r\n",
+            "\tHoy son 6 permitidos y 5 sin escanear, así que se revisa UNO: `en`. Ver LEY 15.\r\n",
             "\tParámetros:\r\n",
             "\t  --exclude-lang Cadena separada por comas de idiomas a ignorar, i.e.: --exclude-lang=es,en\r\n",
             "\t  --exclude-group Cadena separada por comas de grupos a ignorar, i.e.: --exclude-group=general,public\r\n",
@@ -96,13 +98,13 @@ class ScanMissingLangTask extends TerminalTaskAbstract
             $allowedLangs = array_unique(array_merge($allowedLangs, $additionalLangsToScan));
             $langsMessagesCalls = self::searchFunctionUsesWithParser('__', app_basepath());
             $paramGroupNames = [];
-            foreach ($langsMessagesCalls as $filePath => $calls) {
+            foreach ($langsMessagesCalls as $calls) {
                 foreach ($calls as $call) {
                     if (is_array($call)) {
-                        $functionName = array_key_exists('function', $call) ? $call['function'] : null;
+                        $functionName = $call['function'] ?? null;
                         $functionParams = array_key_exists('params', $call) ? $call['params'] : [];
-                        $paramGroupName = isset($functionParams[0]) ? $functionParams[0] : null;
-                        $paramMessage = isset($functionParams[1]) ? $functionParams[1] : null;
+                        $paramGroupName = $functionParams[0] ?? null;
+                        $paramMessage = $functionParams[1] ?? null;
                         $isValid = $functionName == '__' && count($functionParams) == 2;
                         $isValid = $isValid && is_string($paramGroupName) && is_string($paramMessage) && !str_starts_with($paramGroupName, '$') && !str_starts_with($paramMessage, '$');
                         if ($isValid) {
@@ -226,7 +228,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         // Función para verificar si un archivo debe ser excluido
         $shouldExclude = function ($path) use ($options) {
             foreach ($options['excludeDirs'] as $excludeDir) {
-                if (strpos($path, $excludeDir) === 0) {
+                if (str_starts_with($path, $excludeDir)) {
                     return true;
                 }
             }
@@ -384,7 +386,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
 
                 $filesProcessed++;
 
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // Si ocurre un error en el archivo, lo marcamos y seguimos con el resto
                 $filesWithError++;
                 continue;

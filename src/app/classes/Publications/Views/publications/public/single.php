@@ -5,6 +5,7 @@ use Publications\Mappers\PublicationMapper;
  * @var string $langGroup
  * @var PublicationMapper $element
  */
+$escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 $iconByExtension = function (?string $extension, ?string $mimeType = null) {
 
     $extension = !is_null($extension) ? 'none' : '';
@@ -55,16 +56,16 @@ $iconByExtension = function (?string $extension, ?string $mimeType = null) {
         <div class="wrapper unbounds">
 
             <div class="post-image">
-                <img src="<?= $element->currentLangData('mainImage'); ?>" alt="<?= $element->currentLangData('title'); ?>">
+                <img src="<?= $escape($element->currentLangData('mainImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>">
             </div>
 
             <div class="text-center">
                 <strong><?= $element->publicDateFormat(); ?></strong>
                 -
-                <em><?= $element->authorFullName(); ?></em>
+                <em><?= $escape($element->authorFullName()); ?></em>
             </div>
 
-            <h2 class="segment-title text-center mw-1200 element-center"><?= $element->currentLangData('title'); ?></h2>
+            <h2 class="segment-title text-center mw-1200 element-center"><?= $escape($element->currentLangData('title')); ?></h2>
 
         </div>
 
@@ -82,11 +83,11 @@ $iconByExtension = function (?string $extension, ?string $mimeType = null) {
                         <?php foreach ($attachments as $attachment): ?>
                         <?php if(!$attachment->fileExists()){continue;} ?>
                         <?php $order++; ?>
-                        <a href="<?= $attachment->fileLocation; ?>" target="_blank" class="item">
+                        <a href="<?= $escape($attachment->fileLocation); ?>" target="_blank" class="item">
                             <i class="large <?= ($iconByExtension)($attachment->getExtension(), $attachment->getMimeType()); ?> middle aligned icon"></i>
                             <div class="content">
                                 <div class="header"><?=  __($langGroup, 'Anexo #') . $order; ?></div>
-                                <?= $attachment->attachmentName; ?>
+                                <?= $escape($attachment->attachmentName); ?>
                             </div>
                         </a>
                         <?php endforeach; ?>

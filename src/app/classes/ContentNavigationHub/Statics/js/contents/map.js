@@ -23,7 +23,7 @@ window.addEventListener('load', function () {
 	const loaderMap = generateUniqueID()
 	showGenericLoader(loaderMap)
 	return new Promise(function (resolve) {
-		fetch('configurations/mapbox-key')
+		fetch('configurations/integrations/mapbox-key')
 			.then(response => response.text())
 			.then(key => resolve(key))
 	}).then(function (key) {
@@ -62,43 +62,14 @@ window.addEventListener('load', function () {
 				configurateVisibility(value)
 			}
 		})
-		const controlResearhAreasDropdown = formFilter.find(`[control-research-areas]`).dropdown({
-			onAdd: function (addedValue, addedText, $addedChoice) {
-				let maxTimes = 30
-				let counterTry = 0
-				const interval = setInterval(function () {
-					const tag = controlResearhAreasDropdown.find(`.ui.label.visible[data-value=${addedValue}]`)
-					const color = controlResearhAreasDropdown.find(`select option[value="${addedValue}"]`).data('color')
-					tag.addClass('tag-area')
-					tag.attr('style', `--tag-color: ${color};`)
-					counterTry++
-					if (counterTry >= maxTimes || tag.length > 0) {
-						clearInterval(interval)
-					}
-				}, 200)
-			}
-		})
 		const controlOrganizationsDropdown = formFilter.find(`[control-organizations ]`).dropdown()
-		const controlContentTypeDropdown = formFilter.find(`[control-content-type]`).dropdown()
-		const controlFinancingTypeDropdown = formFilter.find(`[control-financing-type ]`).dropdown()
 		const controlStartDateInput = formFilter.find(`[control-start-date]`)
 		const controlEndDateInput = formFilter.find(`[control-end-date]`)
 
 		//Visibilidad de los controles según el tipo de feature seleccionado
 		const controlsEnabledByFeatureType = {}
-		controlsEnabledByFeatureType[FEATURE_TYPE_APPLICATION_CALLS] = [
-			controlSearchInput,
-			controlResearhAreasDropdown,
-			controlOrganizationsDropdown,
-			controlContentTypeDropdown,
-			controlFinancingTypeDropdown,
-			controlStartDateInput,
-			controlEndDateInput,
-			controlSubmitButton,
-		]
 		controlsEnabledByFeatureType[FEATURE_TYPE_PROFILES] = [
 			controlSearchInput,
-			controlResearhAreasDropdown,
 			controlOrganizationsDropdown,
 			controlSubmitButton,
 		]
@@ -126,28 +97,7 @@ window.addEventListener('load', function () {
 				},
 			},
 			{
-				element: controlResearhAreasDropdown,
-				getValue: function () {
-					const value = this.element.dropdown('get value')
-					return value
-				},
-			},
-			{
 				element: controlOrganizationsDropdown,
-				getValue: function () {
-					const value = this.element.dropdown('get value')
-					return value
-				},
-			},
-			{
-				element: controlContentTypeDropdown,
-				getValue: function () {
-					const value = this.element.dropdown('get value')
-					return value
-				},
-			},
-			{
-				element: controlFinancingTypeDropdown,
 				getValue: function () {
 					const value = this.element.dropdown('get value')
 					return value

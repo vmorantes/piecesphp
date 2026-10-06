@@ -74,6 +74,8 @@ $lang = [
         'new_password_is'            => 'Su nueva contraseña es: ',
         'loging'                     => 'Iniciar sesión.',
         'Bienvenido(a)'              => 'Bienvenido(a)',
+        'Error interno'              => 'Error interno',
+        'Ocurrió un error interno. Si lo reporta, indique la referencia %s.' => 'Ocurrió un error interno. Si lo reporta, indique la referencia %s.',
     ],
     'errors' => [
         'RESTRICTED_AREA'              => 'Intenta acceder a un área restringida. Para la que no tiene permisos.',

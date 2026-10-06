@@ -6,7 +6,8 @@
 
 namespace News\Mappers;
 
-use App\Model\UsersModel;
+use PiecesPHP\Core\Database\PreferSlugMinter;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\NewsLang;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
@@ -43,6 +44,12 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class NewsMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'newsTitle';
 
     protected $fields = [
         'id' => [
@@ -91,7 +98,7 @@ class NewsMapper extends EntityMapperExtensible
             'null' => true,
         ],
         'createdBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -99,7 +106,7 @@ class NewsMapper extends EntityMapperExtensible
             'mapper' => UsersModel::class,
         ],
         'modifiedBy' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'reference_table' => UsersModel::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
@@ -147,7 +154,8 @@ class NewsMapper extends EntityMapperExtensible
     const VIEW_ACTIVE_DATE = 'news_active_date_elements';
     const LANG_GROUP = NewsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
-        '`idPadding` DESC',
+        //Por el id REAL: `idPadding` es una cadena con ceros, y ordenada como texto se descoloca desde el 100.000.
+        '`' . self::TABLE . '`.`id` DESC',
         '`startDate` DESC',
         '`newsTitle` ASC',
         '`categoryName` ASC',
@@ -340,10 +348,10 @@ class NewsMapper extends EntityMapperExtensible
     public function save()
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser() != null ? getLoggedFrameworkUser()->id : 1;
+        $this->createdBy = getLoggedFrameworkUserOrFail()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -366,10 +374,10 @@ class NewsMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
 
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = getLoggedFrameworkUserOrFail()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -553,7 +561,7 @@ class NewsMapper extends EntityMapperExtensible
     protected static function fieldsToSelect(?string $formatDate = null)
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new NewsMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -565,7 +573,8 @@ class NewsMapper extends EntityMapperExtensible
         $categoryNameCurrentLang = NewsCategoryMapper::fieldCurrentLangForSQL('name');
         $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
+        //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 
         $isActiveByDate = "(SELECT COUNT({$tableView}.id) > 0 FROM {$tableView} WHERE {$tableView}.id = {$table}.id)";
 
@@ -574,12 +583,12 @@ class NewsMapper extends EntityMapperExtensible
 
         $endDateExtention = "DATE_ADD({$table}.endDate, INTERVAL 15 DAY)";
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "({$categoryNameSubQuery}) AS categoryName",
-            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', {$table}.status))) AS statusText",
             "{$isActiveByDate} AS isActiveByDate",
             "(SELECT IF(isActiveByDate, {$active}, {$inactive})) AS activeStatus",
-            "(SELECT JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', activeStatus)))) AS activeText",
+            "(SELECT JSON_UNQUOTE(JSON_EXTRACT(" . sqlStringLiteral($statusesJSON) . ", CONCAT('$.', activeStatus)))) AS activeText",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
             "{$endDateExtention} AS endDateExtention",
@@ -660,7 +669,7 @@ class NewsMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof NewsMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('newsTitle') : $elementOrID->getLangData($lang, 'newsTitle'));
 
             $slug = "{$title}-{$uniqid}";
@@ -793,7 +802,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -821,7 +830,7 @@ class NewsMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
@@ -931,23 +940,19 @@ class NewsMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return NewsMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new NewsMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [
-        ];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
 
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
@@ -963,10 +968,8 @@ class NewsMapper extends EntityMapperExtensible
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
+                        if (!property_exists($value, $defaultMetaProperty)) {
+                            $value->$defaultMetaProperty = $defaultMetaPropertyValue;
                         }
                     }
 
@@ -1000,10 +1003,9 @@ class NewsMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->newsTitle !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

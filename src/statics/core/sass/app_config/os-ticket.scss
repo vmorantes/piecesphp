@@ -1,4 +1,4 @@
-@import 'includes/base';
+@use 'includes/base' as *;
 
 .ui.header.small {
     margin-top: 0.5rem;

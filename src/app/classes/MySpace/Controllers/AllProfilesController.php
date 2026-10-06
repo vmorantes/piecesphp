@@ -6,15 +6,16 @@
 
 namespace MySpace\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\AvatarModel;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
@@ -31,6 +32,8 @@ use SystemApprovals\Mappers\SystemApprovalsMapper;
  */
 class AllProfilesController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -78,11 +81,14 @@ class AllProfilesController extends AdminPanelController
         $allowedUserTypes = implode(',', self::ONLY_TYPES);
 
         $where = [];
+        //PARENTIZADO: sin ellos sale `A AND B OR C` y los usuarios se listan sin comprobar su
+        //aprobación, porque `AND` liga más fuerte. Ver T166.
         $having = [
-            "systemApprovalStatus = '" . SystemApprovalsMapper::STATUS_APPROVED . "'",
-            "AND userType IS NULL OR userType IN ({$allowedUserTypes})",
+            "(systemApprovalStatus = '" . SystemApprovalsMapper::STATUS_APPROVED . "')",
+            "AND (userType IS NULL OR userType IN ({$allowedUserTypes}))",
         ];
 
+        //PLANTILLA, no una regla apagada: `FIELD = VALUE` no tiene sujeto y está en mayúsculas.
         if (false) {
             $beforeOperator = !empty($having) ? $and : '';
             $critery = "FIELD = VALUE";
@@ -105,7 +111,6 @@ class AllProfilesController extends AdminPanelController
             "{$tableUserProfile}.belongsTo AS id",
             "{$tableUserProfile}.fullname AS name",
             "{$tableUserProfile}.fullLocation",
-            "{$tableUserProfile}.interestResearhAreasColorsNames",
             "{$tableUserProfile}.createdAt",
             "'USER' AS type",
             "NULL AS image",
@@ -123,7 +128,6 @@ class AllProfilesController extends AdminPanelController
             "{$tableOrganization}.id",
             "{$tableOrganization}.name",
             "{$tableOrganization}.fullLocation",
-            "{$tableOrganization}.interestResearhAreasColorsNames",
             "{$tableOrganization}.createdAt",
             "'ORGANIZATION' AS type",
             "logo AS image",
@@ -139,7 +143,6 @@ class AllProfilesController extends AdminPanelController
             'id',
             'name',
             'fullLocation',
-            'interestResearhAreasColorsNames',
             'type',
             'createdAt',
             'image',
@@ -150,7 +153,6 @@ class AllProfilesController extends AdminPanelController
         $columnsOrder = [
             'name',
             'fullLocation',
-            'interestResearhAreasColorsNames',
         ];
 
         $customOrder = [
@@ -198,18 +200,9 @@ class AllProfilesController extends AdminPanelController
                 $avatar = "<div class='avatar {$orgClass}'><img src='{$avatar}' /></div>";
                 $name = "<div class='name'>{$e->name}</div>";
 
-                $areaTags = [];
-                $areasNamesColors = is_string($e->interestResearhAreasColorsNames) ? explode('|@|', $e->interestResearhAreasColorsNames) : [];
-                foreach ($areasNamesColors as $areasNameColor) {
-                    $areaColor = explode(':', $areasNameColor)[0];
-                    $areaName = explode(':', $areasNameColor)[1];
-                    $areaTags[] = "<span class='area-tag' style='--area-color: {$areaColor}'>{$areaName}</span>";
-                }
-                $areaTags = "<div class='area-tags'>" . implode(' ', $areaTags) . "</div>";
 
                 $columns[] = "<div class='user-info'>{$avatar} {$name}</div>";
                 $columns[] = $e->fullLocation;
-                $columns[] = $areaTags;
                 $columns[] = $buttons;
                 return $columns;
             },
@@ -225,109 +218,6 @@ class AllProfilesController extends AdminPanelController
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
-            return $paramValue;
-        };
-
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-
-                $organizationID = $currentUser->organization;
-                $organizationMapper = $currentUser->organizationMapper;
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-
-                if ($name == 'SAMPLE') {
-                    $allow = false;
-                }
-
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**
@@ -347,11 +237,15 @@ class AllProfilesController extends AdminPanelController
 
         $classname = self::class;
 
-        /**
-         * @var array<string>
-         */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
-        $list = $allRoles;
+        //MISMO REPARTO QUE LA PANTALLA QUE LA CONSUME (PO, 2026-09-25):
+        //`content-navigation-hub-admin-profiles-list`, que es su único consumidor. Fuera comunicaciones.
+        $list = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
+            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+        ];
 
         $routes = [
 
@@ -379,5 +273,26 @@ class AllProfilesController extends AdminPanelController
         });
 
         return $group;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
     }
 }

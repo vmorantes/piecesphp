@@ -1,3 +1,5 @@
+@forward 'font-size-base';
+@use 'functions' as *;
 $globalClassPcs: 'ui-pcs';
 
 //──── Media queries ─────────────────────────────────────────────────────────────────────
@@ -43,9 +45,6 @@ $textHeader3Color: $colorThird;
 $textQuoteColor: $colorThird;
 
 //──── Sizes ─────────────────────────────────────────────────────────────────────────────
-
-//Referencia para pxToRem
-$fontSizeHTML: 14;
 
 //General
 $htmlFontSize: 14px;

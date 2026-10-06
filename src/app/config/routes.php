@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: el registro de las rutas de tus módulos, en la sección del clon, antes de la zona pública: el orden importa, de más específico a menos.
+ */
 /**
  * Rutas
  *
@@ -42,27 +47,23 @@
  */
 
 use API\APIRoutes;
-use ApplicationCalls\ApplicationCallsRoutes;
-use App\Controller\AdminPanelController;
-use App\Controller\AppConfigController;
-use App\Controller\AvatarController;
-use App\Controller\GenericTokenController;
-use App\Controller\LoginAttemptsController;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\Controllers\AvatarController;
+use PiecesPHP\Tokens\Controllers\GenericTokenController;
+use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use App\Controller\PublicAreaController;
-use App\Controller\TimerController;
-use App\Locations\Controllers\Locations;
-use Components\ComponentProviderRoutes;
+use PiecesPHP\UserSystem\Controllers\TimerController;
+use PiecesPHP\App\Locations\Controllers\Locations;
+use PiecesPHP\Components\ComponentProviderRoutes;
 use ContentNavigationHub\ContentNavigationHubRoutes;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use Documents\DocumentsRoutes;
 use EventsLog\LogsRoutes;
-use FileManager\FileManagerRoutes;
+use PiecesPHP\FileManager\FileManagerRoutes;
 use Forms\FormsRoutes;
 use GeoJSONManager\GeoJsonManagerRoutes;
-use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
-use ImagesRepository\ImagesRepositoryRoutes;
-use Importers\Controller\ImporterController;
-use InterestResearchAreas\InterestResearchAreasRoutes;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
@@ -74,12 +75,15 @@ use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
 use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
+use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use Publications\PublicationsRoutes;
 use ReportsManage\ReportsManageRoutes;
 use SystemApprovals\SystemApprovalsRoutes;
+use PiecesPHP\Settings\Controllers\SiteFilesController;
 use Terminal\Controllers\TerminalController;
 
+//── Del framework: no lo edites ──
 $prefix_lang = get_config('prefix_lang');
 $slim_app = get_router();
 PiecesRouteGroup::setRouter($slim_app);
@@ -98,7 +102,6 @@ $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de
 $tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
 $timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
 $locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
-$importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios-avatares
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
 $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Sistema de tokens
@@ -108,8 +111,6 @@ $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 $sistema_avatares->register(
     [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
         //──── POST ──────────────────────────────────────────────────────────────────────────────
         new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
     ]
@@ -143,7 +144,7 @@ AdminPanelController::routes($zona_administrativa);
 FileManagerRoutes::routes($zona_administrativa);
 
 //Personalización de configuraciones
-AppConfigController::routes($configurations);
+SettingsController::routes($configurations);
 
 //Informes de inicio de sesión
 LoginAttemptsController::routes($zona_administrativa);
@@ -161,9 +162,6 @@ TimerController::routes($timing);
 //Ubicaciones
 Locations::routes($locations);
 
-//Importadores
-ImporterController::routes($importadores);
-
 //Manejador de tokens
 GenericTokenController::routes($token_handler);
 
@@ -175,6 +173,9 @@ DataImportExportUtilityRoutes::routes($zona_administrativa);
 
 //Utilidad de localización (idiomas)
 LocalizationSystemFeaturesRoutes::routes($zona_administrativa);
+
+//Avisos del sistema y mantenimiento
+SystemStatusRoutes::routes($zona_administrativa);
 
 //API
 APIRoutes::routes($coreGroup);
@@ -191,8 +192,6 @@ NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 //Noticias internas
 NewsRoutes::routes($zona_administrativa);
 
-//Registro fotográfico
-ImagesRepositoryRoutes::routes($zona_administrativa);
 
 //Formularios
 FormsRoutes::routes($zona_administrativa);
@@ -215,17 +214,21 @@ ContentNavigationHubRoutes::routes($zona_administrativa, $zona_publica);
 //Gestión de GeoJSON
 GeoJsonManagerRoutes::routes($zona_administrativa);
 
-//Convocatorias
-ApplicationCallsRoutes::routes($zona_administrativa, $zona_publica);
-
-//Áreas de investigación
-InterestResearchAreasRoutes::routes($zona_administrativa, $zona_publica);
 
 //Reportes
 ReportsManageRoutes::routes($zona_administrativa);
 
 //Helpers
 HelpersSystemRoutes::routes($zona_administrativa);
+
+//── Del clon ──
+//Tus módulos: TusRutas::routes($zona_administrativa, $zona_publica);
+
+//── Del framework: no lo edites ──
+
+//robots.txt, humans.txt y llms.txt, en la raíz. Los grupos se guardan por prefijo: con el de la zona pública vacío, un
+//`new PiecesRouteGroup('')` perdería sus rutas en silencio. Van antes que la zona pública, que acaba en una ruta comodín.
+SiteFilesController::routes($prefix_lang === '' ? $zona_publica : new PiecesRouteGroup(''));
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

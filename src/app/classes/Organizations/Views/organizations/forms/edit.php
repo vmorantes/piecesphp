@@ -8,7 +8,7 @@ use Organizations\Mappers\OrganizationMapper;
  * @var string $action
  * @var OrganizationMapper $element
  */
-$canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type);
+$canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
 ?>
 <section class="module-view-container">
 
@@ -129,6 +129,11 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
 
                     <div class="field five wide">
 
+                        <div class="field">
+                            <label><?= __($langGroup, 'Código'); ?></label>
+                            <input type="text" readonly disabled value="<?= htmlspecialchars((string) $element->code, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>">
+                        </div>
+                        <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'NIT'); ?></label>
                             <input required type="text" name="nit" placeholder="" value="<?= $element->getLangData($lang, 'nit', false, ''); ?>">

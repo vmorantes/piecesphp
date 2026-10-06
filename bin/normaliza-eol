@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""Pone en disco los finales de línea que `.gitattributes` DECLARA.
+
+POR QUÉ EXISTE
+--------------
+`.gitattributes` normaliza a LF en el índice, así que un archivo en LF con `eol=crlf`
+declarado **no produce diff** y git no lo señala nunca. Pero git lo reescribe «la próxima
+vez que lo toque», y ese volteo cambia un byte por línea SIN cambiar el contenido.
+
+Para git eso es invisible. Para un instrumento que mire bytes —la foto de `bin/cli
+snapshot`, que es la red de E3— es una diferencia que hay que ir a investigar. En el
+bloque YC pasó con tres suites recién creadas y costó una investigación entera.
+
+`bin/anexar` respeta los finales del destino, pero **un archivo nuevo no tiene destino que
+respetar**: nace con los del proceso que lo escribió. Esto lo arregla después.
+
+USO
+---
+    bin/normaliza-eol [ruta...]            solo informa; sale 1 si hay algo fuera de forma
+    bin/normaliza-eol --arregla [ruta...]  reescribe
+
+NO decide nada por su cuenta: la forma correcta la dice `git check-attr`, y los archivos
+sin finales de línea o binarios no se tocan.
+"""
+
+import os
+import subprocess
+import sys
+
+FORMAS = {'crlf': b'\r\n', 'lf': b'\n'}
+
+
+def forma_en_disco(ruta):
+    """La forma que tiene el archivo AHORA: crlf, lf, mixed o none."""
+    try:
+        with open(ruta, 'rb') as f:
+            crudo = f.read()
+    except OSError:
+        return None
+    if b'\x00' in crudo[:8000]:
+        return None
+    crlf = crudo.count(b'\r\n')
+    lf = crudo.count(b'\n') - crlf
+    if crlf and lf:
+        return 'mixed'
+    if crlf:
+        return 'crlf'
+    if lf:
+        return 'lf'
+    return 'none'
+
+
+def eol_declarado(ruta):
+    """Lo que `.gitattributes` dice para esta ruta. Vale para archivos SIN versionar."""
+    #Con -z la salida es ruta\0eol\0valor\0: la ruta no llega citada aunque no sea ASCII.
+    salida = subprocess.run(['git', 'check-attr', '-z', 'eol', '--', ruta], capture_output=True, text=True)
+    if salida.returncode != 0:
+        return None
+    partes = salida.stdout.split('\0')
+    valor = partes[2] if len(partes) >= 3 else ''
+    return valor if valor in FORMAS else None
+
+
+def candidatos(rutas):
+    #SIEMPRE con -z: sin él, git cita las rutas no ASCII («\303\263») y open() no las encuentra.
+    orden = ['git', 'ls-files', '-z', '--eol', '--'] + rutas
+    salida = subprocess.run(orden, capture_output=True, text=True)
+    if salida.returncode != 0:
+        print('ERROR: `git ls-files` falló. ¿Es esto un repositorio?', file=sys.stderr)
+        sys.exit(2)
+    registros = []
+    for registro in salida.stdout.split('\0'):
+        #Cada registro es «campos\truta»; se parte por el PRIMER tabulador, que la ruta puede llevar otros.
+        campos, separador, ruta = registro.partition('\t')
+        if separador:
+            registros.append((campos.split(), ruta))
+    fuera = []
+    vistos = 0
+    conocidos = {ruta for _, ruta in registros}
+    for campos, ruta in registros:
+        arbol = next((c[2:] for c in campos if c.startswith('w/')), None)
+        declarado = next((c.split('=')[1] for c in campos if c.startswith('eol=')), None)
+        # `none` = sin un solo salto de línea. `-text` = binario. Ninguno se toca.
+        # `mixed` SÍ se toca, y por poco se queda fuera: escribir un bloque en LF dentro de
+        # un archivo en CRLF deja el archivo mezclado, git avisa, y la primera versión de
+        # esto decía «0 fuera de forma». El universo del instrumento otra vez. Ver T140.
+        if declarado not in FORMAS:
+            continue
+        if arbol not in FORMAS and arbol != 'mixed':
+            continue
+        vistos += 1
+        if arbol != declarado:
+            fuera.append((ruta, declarado))
+
+    # UN ARCHIVO NUEVO NO LO LISTA `git ls-files`, y es EXACTAMENTE el caso para el que
+    # existe la regla de §3: `bin/anexar` respeta el destino, y un archivo nuevo no tiene
+    # destino. Sin esto la herramienta callaba justo donde tenía que hablar. Ver T142.
+    # Los NO versionados: los explícitos, y los que cuelguen de un directorio pedido.
+    # `--exclude-standard` respeta `.gitignore`, así que no entran los generados.
+    sueltos = list(rutas)
+    otros = subprocess.run(['git', 'ls-files', '-z', '--others', '--exclude-standard', '--'] + rutas,
+                           capture_output=True, text=True)
+    if otros.returncode == 0:
+        sueltos.extend(r for r in otros.stdout.split('\0') if r)
+
+    for ruta in sueltos:
+        if not os.path.isfile(ruta) or ruta in conocidos:
+            continue
+        conocidos.add(ruta)
+        forma = forma_en_disco(ruta)
+        quiere = eol_declarado(ruta)
+        if forma is None or quiere is None or forma == 'none':
+            continue
+        vistos += 1
+        if forma != quiere:
+            fuera.append((ruta, quiere))
+
+    return vistos, fuera
+
+
+def normaliza(ruta, declarado):
+    with open(ruta, 'rb') as f:
+        crudo = f.read()
+    # NO se añade ni se quita el salto final: solo cambia la forma de los que ya hay.
+    plano = crudo.replace(b'\r\n', b'\n')
+    nuevo = plano if declarado == 'lf' else plano.replace(b'\n', b'\r\n')
+    if nuevo == crudo:
+        return False
+    with open(ruta, 'wb') as f:
+        f.write(nuevo)
+    return True
+
+
+def main():
+    argumentos = sys.argv[1:]
+    arregla = '--arregla' in argumentos
+    rutas = [a for a in argumentos if a != '--arregla'] or ['.']
+
+    vistos, fuera = candidatos(rutas)
+    print(f'GUARDA EJECUTADA: {vistos} archivo(s) con final de línea declarado, '
+          f'{len(fuera)} fuera de forma.')
+
+    if not fuera:
+        return 0
+
+    if not arregla:
+        for ruta, declarado in fuera[:20]:
+            print(f'   {ruta} — declarado {declarado}')
+        if len(fuera) > 20:
+            print(f'   … y {len(fuera) - 20} más')
+        print('Para reescribirlos: bin/normaliza-eol --arregla')
+        return 1
+
+    tocados = sum(1 for ruta, declarado in fuera if normaliza(ruta, declarado))
+    print(f'   reescritos: {tocados}')
+    # LO QUE HACE HONESTA LA OPERACIÓN: si algún blob cambió, esto NO era un cambio de
+    # finales de línea y hay que mirarlo. Se dice aquí, no se deja para el `git status`.
+    preparado = subprocess.run(['git', 'diff', '--stat', '--'] + rutas,
+                               capture_output=True, text=True).stdout.strip()
+    print(f'   contenido alterado según git: {"NINGUNO" if preparado == "" else preparado}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -6,7 +6,7 @@
 
 namespace PiecesPHP\Core;
 
-use App\Controller\UsersController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\Core\Exceptions\RoleDuplicateException;
 use PiecesPHP\Core\Exceptions\RoleMalformedException;
 use PiecesPHP\Core\Exceptions\RoleNotExistsException;
@@ -47,7 +47,7 @@ class Roles
      * @return void
      * @throws RoleNotExistsException
      */
-    public static function setCurrentRole($name_or_code)
+    public static function setCurrentRole($name_or_code): void
     {
 
         $roles = self::getRoles();
@@ -74,12 +74,12 @@ class Roles
      *
      * @param string $name Nombre del rol
      * @param int $code Código del rol
-     * @param Array<string> $allowed_routes Nombres de rutas permitidas
+     * @param array<string> $allowed_routes Nombres de rutas permitidas
      * @param bool $all_access Si es true se le da acceso total
      * @return void
      * @throws RoleDuplicateException Si code o name están repetidos
      */
-    public static function registerRole(string $name, ?int $code = null, array $allowed_routes = [], bool $all_access = false)
+    public static function registerRole(string $name, ?int $code = null, array $allowed_routes = [], bool $all_access = false): void
     {
 
         $duplicate = false;
@@ -94,7 +94,7 @@ class Roles
 
         if (!$duplicate) {
             self::$roles[] = [
-                'code' => is_null($code) ? uniqid('pcs_roles') : $code,
+                'code' => $code ?? uniqid('pcs_roles'),
                 'name' => $name,
                 'all' => $all_access,
                 'allowed_routes' => array_filter($allowed_routes, function ($allowed) {
@@ -125,7 +125,7 @@ class Roles
      * @return void
      * @throws RoleMalformedException
      */
-    public static function registerRoles(array $roles, bool $override = false)
+    public static function registerRoles(array $roles, bool $override = false): void
     {
         if ($override) {
             self::$roles = [];
@@ -222,11 +222,16 @@ class Roles
      * @return void
      * @throws RoleNotExistsException
      */
-    public static function addPermission(string $name_route, $identifier, $type = self::IDENTIFIER_TYPE_CODE)
+    public static function addPermission(string $name_route, $identifier, $type = self::IDENTIFIER_TYPE_CODE): void
     {
         if ($type == self::IDENTIFIER_TYPE_NAME) {
             $identifier = (string) $identifier;
         } elseif ($type == self::IDENTIFIER_TYPE_CODE) {
+            //EL CASTEO CONCEDÍA: `(int) 'nombre'` es 0, y 0 es el código de root, así que un tipo mal puesto le añadía la ruta.
+            //Sin número no hay código que buscar: se rechaza igual que el camino por nombre cuando el rol no existe.
+            if (!is_numeric($identifier)) {
+                throw new RoleNotExistsException();
+            }
             $identifier = (int) $identifier;
         }
 
@@ -259,7 +264,7 @@ class Roles
      * @return void
      * @throws RoleNotExistsException
      */
-    public static function addPermissions(array $routes, $identifier, $type = self::IDENTIFIER_TYPE_CODE)
+    public static function addPermissions(array $routes, $identifier, $type = self::IDENTIFIER_TYPE_CODE): void
     {
         foreach ($routes as $route) {
             if (is_string($route)) {
@@ -274,7 +279,7 @@ class Roles
      * @param bool $mode
      * @return void
      */
-    public static function setSilentMode(bool $mode)
+    public static function setSilentMode(bool $mode): void
     {
         self::$silentMode = $mode;
     }

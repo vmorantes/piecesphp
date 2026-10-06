@@ -1,6 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsLang;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -67,7 +67,7 @@ $langGroupOrganizations = OrganizationsLang::LANG_GROUP;
                             <div class="data">
                                 <div class="meta"><?= __($langGroup, 'No hay usuarios asociados a esta organización que puedan ser asignados como encargados, asocia algún usuario a esta organización desde el listado de usuarios en el siguiente botón'); ?></div>
                                 <div class="actions">
-                                    <a class="ui button blue" href="<?= get_route('users-list'); ?>" target="_blank">
+                                    <a class="ui button blue" href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'); ?>" target="_blank">
                                         <?= __($langGroup, 'Ver usuarios'); ?>
                                     </a>
                                 </div>

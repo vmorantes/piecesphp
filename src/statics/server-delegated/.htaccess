@@ -66,31 +66,11 @@ AddType application/postscript .eps
 ##### CACHE Y COMPRESIÓN - INICIO #####
 
 <IfModule mod_expires.c>
-    # Activar módulo de expiración
-    ExpiresActive On
-    
-    # Configurar tiempos de cache por tipo de archivo
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType image/x-icon "access plus 1 year"
-    
-    ExpiresByType text/css "access plus 1 year"
-    ExpiresByType application/javascript "access plus 1 year"
-    
-    ExpiresByType font/woff2 "access plus 1 year"
-    ExpiresByType font/woff "access plus 1 year"
-    ExpiresByType font/ttf "access plus 1 year"
-    ExpiresByType font/otf "access plus 1 year"
-    
-    ExpiresByType application/pdf "access plus 1 month"
-    ExpiresByType application/json "access plus 1 month"
-    ExpiresByType application/xml "access plus 1 month"
+    # Sin caducidad por tipo (ADR 0034): daba un año a todo, lleve versión o no. La caché la decide src/.htaccess
+    # por cacheStamp: un año e immutable con él, no-cache sin él.
+    ExpiresActive Off
 </IfModule>
 
 ##### CACHE Y COMPRESIÓN - FIN #####
 
-# Establecer el encabezado X-Served-By
-Header set X-Served-By "Apache-Symlink-Delegated"
+# Sin X-Served-By: Apache no sabe si la instalación es local, y fuera sería una huella gratis del framework.

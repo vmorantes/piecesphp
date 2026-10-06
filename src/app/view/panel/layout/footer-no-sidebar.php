@@ -11,6 +11,7 @@
         ],
     ],
 ]) ?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('panel', 'body_end'); ?>
 </body>
 
 </html>

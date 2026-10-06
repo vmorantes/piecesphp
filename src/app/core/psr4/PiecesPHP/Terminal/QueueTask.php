@@ -65,12 +65,6 @@ class QueueTask
      * Ejecuta el manejador con datos específicos.
      *
      * @param mixed $data
-     * @return array
-     */
-    /**
-     * Ejecuta el manejador con datos específicos.
-     *
-     * @param mixed $data
      * @return QueueHandlerResponse
      */
     public function execute($data = null): QueueHandlerResponse
@@ -113,7 +107,7 @@ class QueueTask
     {
         $task = new QueueJobMapper();
         $task->name = $name;
-        $task->data = json_encode($data);
+        $task->data = json_encode($data, \JSON_THROW_ON_ERROR);
         $task->status = QueueJobMapper::STATUS_PENDING;
         $task->attempts = 0;
         $task->maxAttempts = $maxAttempts;

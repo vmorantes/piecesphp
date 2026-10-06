@@ -1,0 +1,20 @@
+site_name: Framework API
+nav:
+    - ./modules/Publications.md
+    - ./modules/News.md
+    - ./modules/Usuarios.md
+    - ./modules/Ubicaciones.md
+    - ./modules/Traducciones.md
+    - ./modules/Reportes.md
+    - ./modules/CronJobs.md
+theme:
+    name: readthedocs
+    language: es
+    palette:
+        scheme: slate
+        primary: black
+        accent: red
+site_dir: ./docs-dist
+
+
+

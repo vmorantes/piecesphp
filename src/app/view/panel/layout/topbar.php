@@ -1,8 +1,9 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Controller\AdminPanelController;
-use App\Controller\AppConfigController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use DataImportExportUtility\Controllers\DataTransferController;
 use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\MyProfileController;
 use MySpace\Controllers\MySpaceController;
@@ -17,7 +18,7 @@ use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use Spatie\Url\Url as URLManager;
 use SystemApprovals\SystemApprovalsRoutes;
 
-$currentUser = getLoggedFrameworkUser();
+$currentUser = getLoggedFrameworkUserOrFail();
 $currentUserID = $currentUser->id;
 $currentUserType = $currentUser->type;
 $isRoot = $currentUserType == UsersModel::TYPE_USER_ROOT;
@@ -32,7 +33,7 @@ $currentLang = Config::get_lang();
 $allowedLangs = Config::get_allowed_langs();
 $manyLangs = count($allowedLangs) > 1;
 $alternativesURL = Config::get_config('alternatives_url');
-$searchUsersURL = URLManager::fromString(get_route('users-search-dropdown'));
+$searchUsersURL = URLManager::fromString(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('search-dropdown'));
 $searchUsersURL = $searchUsersURL->withQueryParameter('search', '{query}');
 $searchUsersURL = $searchUsersURL->withQueryParameter('typeResult', 'RESULT_FULLNAME_USERNAME');
 $searchUsersURL = urldecode($searchUsersURL->__toString());
@@ -52,8 +53,8 @@ $userOptions = new MenuGroupCollection([
         new MenuGroup([
             'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'),
             'icon' => 'desktop',
-            'href' => get_route('about-framework'),
-            'visible' => Roles::hasPermissions('about-framework', $currentUserType),
+            'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('about-framework'),
+            'visible' => Roles::hasPermissions('admin-about-framework', $currentUserType),
             'asLink' => true,
         ]),
         new MenuGroup([
@@ -63,7 +64,7 @@ $userOptions = new MenuGroupCollection([
             'attributes' => [
                 'support-button-js' => '',
             ],
-            'visible' => Roles::hasPermissions('tickets-create', $currentUserType) && false,
+            'visible' => Roles::hasPermissions('admin-tickets-create', $currentUserType) && false,
             'asLink' => true,
         ]),
         new MenuGroup([
@@ -98,133 +99,38 @@ $userOptions = new MenuGroupCollection([
     ],
 ]);
 
-$canViewCustomize = array_reduce([
-    AppConfigController::allowedRoute('logos-favicons'),
-    AppConfigController::allowedRoute('backgrounds'),
-    AppConfigController::allowedRoute('generals'),
-    AppConfigController::allowedRoute('seo'),
-], function ($a, $b) {
-    return $a || $b;
-}, false);
-
-$canViewConfiguration = array_reduce([
-    AppConfigController::allowedRoute('generals-sitemap-create'),
-    AppConfigController::allowedRoute('email'),
-    AppConfigController::allowedRoute('os-ticket'),
-    AppConfigController::allowedRoute('generals-cache-clean'),
-    Roles::hasPermissions('configurations-routes', $currentUserType),
-    AppConfigController::allowedRoute('generals'),
-], function ($a, $b) {
-    return $a || $b;
-}, false);
-
 $canViewUsersManage = array_reduce([
     Roles::hasPermissions('users-selection-create', $currentUserType),
     Roles::hasPermissions('users-list', $currentUserType),
-    Roles::hasPermissions('importer-form', $currentUserType),
+    DataTransferController::allowedRoute('import-users'),
 ], function ($a, $b) {
     return $a || $b;
 }, false);
 
 $canViewRecord = array_reduce([
     Roles::hasPermissions('admin-error-log', $currentUserType),
-    Roles::hasPermissions('informes-acceso', $currentUserType),
+    Roles::hasPermissions('login-attempts-reports', $currentUserType),
 ], function ($a, $b) {
     return $a || $b;
 }, false);
-$adminOptionsGroups = [
-    __(ADMIN_MENU_LANG_GROUP, 'Personalización de plataforma') => [
-        'visible' => $canViewCustomize,
+//Los tres grupos de la configuración salen de la misma fuente que el índice (ADR 0028). Solo llevan a pantallas:
+//un menú no ejecuta nada.
+$configurationGroups = [];
+foreach (SettingsController::panelGroups() as $configurationGroup) {
+    $configurationGroups[$configurationGroup['name']] = [
+        'visible' => $configurationGroup['visible'],
         'collection' => new MenuGroupCollection([
-            'items' => [
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Imágenes de marca'),
-                    'icon' => 'image',
-                    'href' => AppConfigController::routeName('logos-favicons'),
-                    'visible' => AppConfigController::allowedRoute('logos-favicons'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Personalización de fondos'),
-                    'icon' => 'images',
-                    'href' => AppConfigController::routeName('backgrounds'),
-                    'visible' => AppConfigController::allowedRoute('backgrounds'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Colores'),
-                    'icon' => 'fill drip',
-                    'href' => AppConfigController::routeName('generals'),
-                    'visible' => AppConfigController::allowedRoute('generals'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Ajustes SEO'),
-                    'icon' => 'cog',
-                    'href' => AppConfigController::routeName('seo'),
-                    'visible' => AppConfigController::allowedRoute('seo'),
-                    'asLink' => true,
-                ]),
-            ],
+            'items' => array_map(fn(array $item) => new MenuGroup([
+                'name' => $item['name'],
+                'icon' => $item['icon'],
+                'href' => $item['href'],
+                'visible' => $item['visible'],
+                'asLink' => true,
+            ]), $configurationGroup['items']),
         ]),
-    ],
-    __(ADMIN_MENU_LANG_GROUP, 'Configuración plataforma') => [
-        'visible' => $canViewConfiguration,
-        'collection' => new MenuGroupCollection([
-            'items' => [
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Actualizar sitemap'),
-                    'icon' => 'sitemap',
-                    'href' => '#',
-                    'attributes' => [
-                        'sitemap-update-trigger' => '',
-                        'data-url' => AppConfigController::routeName('generals-sitemap-create'),
-                    ],
-                    'visible' => AppConfigController::allowedRoute('generals-sitemap-create'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Email SMTP'),
-                    'icon' => 'envelope outline',
-                    'href' => AppConfigController::routeName('email'),
-                    'visible' => AppConfigController::allowedRoute('email'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'OsTicket'),
-                    'icon' => 'file alternate outline',
-                    'href' => AppConfigController::routeName('os-ticket'),
-                    'visible' => AppConfigController::allowedRoute('os-ticket'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Seguridad e IA'),
-                    'icon' => 'lock',
-                    'href' => AppConfigController::routeName('security-and-ia'),
-                    'visible' => AppConfigController::allowedRoute('security-and-ia'),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Limpiar caché'),
-                    'icon' => 'eraser',
-                    'href' => '#',
-                    'visible' => AppConfigController::allowedRoute('generals-cache-clean'),
-                    'attributes' => [
-                        'clear-cache-update-trigger' => '',
-                        'data-url' => AppConfigController::routeName('generals-cache-clean'),
-                    ],
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Rutas y permisos'),
-                    'icon' => 'shield alternate',
-                    'href' => get_route('configurations-routes', [], true),
-                    'visible' => Roles::hasPermissions('configurations-routes', $currentUserType),
-                    'asLink' => true,
-                ]),
-            ],
-        ]),
-    ],
+    ];
+}
+$adminOptionsGroups = $configurationGroups + [
     __(ADMIN_MENU_LANG_GROUP, 'Gestión de usuarios') => [
         'visible' => $canViewUsersManage,
         'collection' => new MenuGroupCollection([
@@ -232,22 +138,22 @@ $adminOptionsGroups = [
                 new MenuGroup([
                     'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Agregar usuario'),
                     'icon' => 'user plus',
-                    'href' => get_route('users-selection-create'),
+                    'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('selection-create'),
                     'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
                     'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Gestionar usuarios'),
                     'icon' => 'users cog',
-                    'href' => get_route('users-list'),
+                    'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'),
                     'visible' => Roles::hasPermissions('users-list', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
                     'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Importar usuarios'),
                     'icon' => 'upload',
-                    'href' => get_route('importer-form', ['type' => 'users'], true),
-                    'visible' => Roles::hasPermissions('importer-form', $currentUserType),
+                    'href' => DataTransferController::routeName('import-users', [], true),
+                    'visible' => DataTransferController::allowedRoute('import-users'),
                     'asLink' => true,
                 ]),
             ],
@@ -258,9 +164,9 @@ $adminOptionsGroups = [
         'collection' => new MenuGroupCollection([
             'items' => [
                 new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Log de errores'),
+                    'name' => __(SettingsController::LANG_GROUP, 'Log de errores'),
                     'icon' => 'times',
-                    'href' => get_route('admin-error-log', [], true),
+                    'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('error-log', [], true),
                     'attributes' => [
                         'target' => '_blank',
                     ],
@@ -270,22 +176,22 @@ $adminOptionsGroups = [
                 new MenuGroup([
                     'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Intentos de ingresos'),
                     'icon' => 'sign in alternate',
-                    'href' => get_route('informes-acceso') . '?attempts=yes',
-                    'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
+                    'href' => \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports') . '?attempts=yes',
+                    'visible' => Roles::hasPermissions('login-attempts-reports', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
                     'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario sin ingresos'),
                     'icon' => 'user times',
-                    'href' => get_route('informes-acceso') . '?not-logged=yes',
-                    'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
+                    'href' => \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports') . '?not-logged=yes',
+                    'visible' => Roles::hasPermissions('login-attempts-reports', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
                     'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Registro de ingresos'),
                     'icon' => 'chart bar outline',
-                    'href' => get_route('informes-acceso') . '?logged=yes',
-                    'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
+                    'href' => \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports') . '?logged=yes',
+                    'visible' => Roles::hasPermissions('login-attempts-reports', $currentUserType),
                     'asLink' => true,
                 ]),
             ],
@@ -306,7 +212,7 @@ foreach ($adminOptionsGroups as $title => $config) {
 /**
  * @var UserDataPackage
  */
-$currentUser = getLoggedFrameworkUser();
+$currentUser = getLoggedFrameworkUserOrFail();
 /**
  * @var bool
  */
@@ -315,7 +221,16 @@ $hasAvatar = $currentUser->hasAvatar;
  * @var string
  */
 $avatar = $currentUser->avatar;
+//Los avisos flotantes salen del registro de avisos del sistema (PiecesPHP\SystemStatus).
+$systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $currentUserType);
 ?>
+
+<?php foreach ($systemAlertNags as $systemAlertNag) : ?>
+<div class="ui bottom fixed nag" system-alert-nag data-key="<?= htmlspecialchars($systemAlertNag->key(), ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="title"><?= htmlspecialchars($systemAlertNag->message(), ENT_QUOTES, 'UTF-8'); ?></span>
+    <i class="close icon"></i>
+</div>
+<?php endforeach; ?>
 
 <div class="ui-pcs topbar-switches">
     <div class="ui-pcs topbar-toggle user-options">
@@ -554,10 +469,10 @@ $avatar = $currentUser->avatar;
                     <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Apellidos'); ?></label>
                     <div class="two fields">
                         <div class="field">
-                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= $currentUser->first_lastname ?>">
+                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= $currentUser->firstLastname ?>">
                         </div>
                         <div class="field">
-                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= $currentUser->second_lastname ?>">
+                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= $currentUser->secondLastname ?>">
                         </div>
                     </div>
                 </div>
@@ -676,7 +591,7 @@ $avatar = $currentUser->avatar;
         //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
         'modalContentElementAttrs' => implode(' ', [
             'action-url="' . get_route('push-avatars') . '"',
-            'user-id="' . getLoggedFrameworkUser()->id . '"',
+            'user-id="' . getLoggedFrameworkUserOrFail()->id . '"',
         ]),
         //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
         'informationContentMainClass' => 'info-content',
@@ -701,7 +616,7 @@ $avatar = $currentUser->avatar;
         <br>
     </div>
     <div class="left basic actions">
-        <button class="ui button red" data-url="<?= get_route('delete-account-request'); ?>" delete data-expected-word="<?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?>"><?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?></button>
+        <button class="ui button red" data-url="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('delete-account-request'); ?>" delete data-expected-word="<?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?>"><?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?></button>
         <button class="ui button grey" cancel><?= __(GLOBAL_LANG_GROUP, 'Cancelar'); ?></button>
     </div>
 </div>

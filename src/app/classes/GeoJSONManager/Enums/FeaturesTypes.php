@@ -16,7 +16,6 @@ use PiecesPHP\GeoJson\Geometry\Polygon;
  * @copyright   Copyright (c) 2025
  */
 enum FeaturesTypes: String {
-    case APPLICATION_CALLS = 'APPLICATION_CALLS';
     case PROFILES = 'PROFILES';
 
     public static function values(): array
@@ -32,7 +31,6 @@ enum FeaturesTypes: String {
     public static function humanValues(array $ignoreValues = []): array
     {
         $values = [
-            self::APPLICATION_CALLS->value => __(GeoJsonManagerLang::LANG_GROUP, 'Contenidos'),
             self::PROFILES->value => __(GeoJsonManagerLang::LANG_GROUP, 'Perfiles'),
         ];
 

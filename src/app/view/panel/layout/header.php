@@ -11,6 +11,7 @@
     <meta name="config-admin-url" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('admin_url')), '{}'); ?>">
     <meta name="front-configurations" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]'); ?>">
     <base href="<?= baseurl(); ?>">
+    <?php \PiecesPHP\Core\Utilities\Helpers\MetaTags::setRobots('noindex, nofollow'); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph(); ?>
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon-back')); ?>" type="image/x-icon">
@@ -19,8 +20,9 @@
         'base_url' => "", 
         'custom_url' => "",
     ]) ?>
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('panel', 'head'); ?>
 </head>
-<?php $currentUserLogged = getLoggedFrameworkUser(); ?>
+<?php $currentUserLogged = getLoggedFrameworkUserOrFail(); ?>
 <?php 
 if(isset($bodyClasses) && is_array($bodyClasses)){
     foreach($bodyClasses as $k => $class){
@@ -34,13 +36,14 @@ if(isset($bodyClasses) && is_array($bodyClasses)){
 }
 ?>
 <body class="<?= $bodyClasses; ?>">
+    <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('panel', 'body_start'); ?>
 
     <div class="ui modal" support-js>
         <div class="header"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Soporte técnico'); ?></div>
         <div class="content">
-            <form action="<?=get_route('tickets-create');?>" class="ui form">
-                <input type="hidden" name="name" value="<?=htmlentities(stripslashes($currentUserLogged->firstname . ' ' . $currentUserLogged->firstLastname));?>">
-                <input type="hidden" name="email" value="<?= htmlentities(stripslashes($currentUserLogged->email)); ?>">
+            <form action="<?=\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('tickets-create');?>" class="ui form">
+                <input type="hidden" name="name" value="<?=htmlentities($currentUserLogged->firstname . ' ' . $currentUserLogged->firstLastname);?>">
+                <input type="hidden" name="email" value="<?= htmlentities($currentUserLogged->email); ?>">
                 <div class="field">
                     <label><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Asunto'); ?></label>
                     <input type="text" name="subject">
@@ -57,7 +60,7 @@ if(isset($bodyClasses) && is_array($bodyClasses)){
     </div>
 
     <?php if(ACTIVE_TIMER): ?>
-    <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => $currentUserLogged->id, 'url' => get_route('timing-add')]));?>">
+    <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => $currentUserLogged->id, 'url' => \PiecesPHP\UserSystem\Controllers\TimerController::routeName('add')], \JSON_THROW_ON_ERROR));?>">
     </div>
     <?php endif;?>
 

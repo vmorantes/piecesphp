@@ -6,8 +6,8 @@
 
 namespace Terminal\Tasks;
 
-use App\Controller\AppConfigController;
-use App\Model\UsersModel;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -71,15 +71,20 @@ class CleanCacheTask extends TerminalTaskAbstract
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
 
-            $controllerConfig = new AppConfigController();
+            $controllerConfig = new SettingsController();
             $response = $controllerConfig->recreateStaticCacheStamp(RequestRouteFactory::createFromGlobals(), new ResponseRoute(), [], true);
             $responseJSON = json_decode($response->getLastWriteBodyData(), true);
-            $responseMessage = $responseJSON['message'];
+            //El mensaje de la pantalla habla a quien la usa; el terminal conserva el suyo. Un error sí se dice tal cual.
+            $responseMessage = ($responseJSON['success'] ?? false) === true ? 'Memoria caché restaurada' : $responseJSON['message'];
 
             $message[] = "\e[34m{$responseMessage}\e[39m";
 
             if ($responseJSON['values']['serverDelegatedSymLinksRemoved'] ?? false) {
                 $message[] = "\e[34mCaché de enlaces simbólicos eliminada\e[39m";
+            }
+
+            if ($responseJSON['values']['webpCachePurged'] ?? false) {
+                $message[] = "\e[34mCaché de conversiones a WebP purgada\e[39m";
             }
 
         } catch (\Exception $e) {

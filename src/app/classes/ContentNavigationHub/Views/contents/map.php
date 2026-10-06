@@ -1,7 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use GeoJSONManager\Enums\FeaturesTypes;
 use Organizations\Mappers\OrganizationMapper;
 
@@ -10,23 +9,9 @@ use Organizations\Mappers\OrganizationMapper;
  */
 
 $featureTypesOptions = array_to_html_options(FeaturesTypes::valuesForSelect());
-$areaDataForOptions = getInteresResearchAreas(true, null, [], true);
-$areasOptions = [];
-foreach ($areaDataForOptions as $areaData) {
-    if (is_string($areaData)) {
-        $areasOptions[] = "<option value=''>{$areaData}</option>";
-    } else {
-        $areaID = $areaData['id'];
-        $areaName = $areaData['areaName'];
-        $areaColor = $areaData['color'];
-        $areasOptions[] = "<option value='{$areaID}' data-color='{$areaColor}'>{$areaName}</option>";
-    }
-}
-$areasOptions = implode("\n", $areasOptions);
 
 ?>
 <script>
-const FEATURE_TYPE_APPLICATION_CALLS = '<?= FeaturesTypes::APPLICATION_CALLS->value; ?>'
 const FEATURE_TYPE_PROFILES = '<?= FeaturesTypes::PROFILES->value; ?>'
 </script>
 <section class="module-view-container">
@@ -57,14 +42,6 @@ const FEATURE_TYPE_PROFILES = '<?= FeaturesTypes::PROFILES->value; ?>'
                     </div>
                 </div>
 
-                <div class="segment">
-                    <div class="field">
-                        <label><?= __($langGroup, 'Áreas de investigación'); ?></label>
-                        <select name="researchAreas[]" multiple class="ui dropdown multiple search special-tags" control-research-areas>
-                            <?= $areasOptions; ?>
-                        </select>
-                    </div>
-                </div>
 
                 <div class="segment">
 
@@ -76,19 +53,7 @@ const FEATURE_TYPE_PROFILES = '<?= FeaturesTypes::PROFILES->value; ?>'
                         <div class="current-selection-filter organizations"></div>
                     </div>
 
-                    <div class="field">
-                        <label><?= __($langGroup, 'Tipo de contenido'); ?></label>
-                        <select name="contentType[]" multiple class="ui dropdown multiple search special-tags" control-content-type>
-                            <?= array_to_html_options(ApplicationCallsMapper::contentTypesForSelect(), null); ?>
-                        </select>
-                    </div>
 
-                    <div class="field">
-                        <label><?= __($langGroup, 'Tipo de contratación'); ?></label>
-                        <select name="financingType[]" multiple class="ui dropdown multiple search special-tags" control-financing-type-NONE data-enable="no">
-                            <?= array_to_html_options(ApplicationCallsMapper::financingTypesForSelect(), null); ?>
-                        </select>
-                    </div>
 
                 </div>
 

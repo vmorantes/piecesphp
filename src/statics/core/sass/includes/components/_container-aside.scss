@@ -1,3 +1,4 @@
+@use '../variables' as *;
 .#{$globalClassPcs}.container-sidebar {
     container-type: inline-size;
     container-name: pcsphp-main-container;

@@ -67,6 +67,7 @@ CookiesHandler.getCookies = function () {
  * @param {number} [options.expires] - Tiempo de expiración en días
  * @param {string} [options.path='/'] - Ruta de la cookie
  * @param {string} [options.domain] - Dominio de la cookie
+ * @param {string} [options.sameSite='Lax'] - Lax, Strict o None; en https se añade Secure
  */
 CookiesHandler.setCookie = function (name, value, options = {}) {
 
@@ -78,6 +79,7 @@ CookiesHandler.setCookie = function (name, value, options = {}) {
 	const defaultOptions = {
 		path: '/',
 		domain: location.hostname,
+		sameSite: 'Lax',
 	}
 
 	const cookieOptions = { ...defaultOptions, ...options }
@@ -91,6 +93,10 @@ CookiesHandler.setCookie = function (name, value, options = {}) {
 	}
 
 	cookieString += `;path=${cookieOptions.path}`
+	cookieString += `;SameSite=${cookieOptions.sameSite}`
+	if (location.protocol === 'https:') {
+		cookieString += ';Secure'
+	}
 
 
 	// Establecer cookie 

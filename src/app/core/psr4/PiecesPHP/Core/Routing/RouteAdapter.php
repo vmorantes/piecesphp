@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core\Routing;
 
+use FastRoute\RouteParser\Std;
 use PiecesPHP\Core\Route;
 use Slim\Routing\RouteCollectorProxy;
 use TypeError;
@@ -59,6 +60,10 @@ class RouteAdapter
      * @var string[]
      */
     protected $rolesAllowed = [];
+    /**
+     * @var bool Si el patrón no analiza: fuera de local la ruta NO se registra (P57)
+     */
+    protected $patternIsInvalid = false;
 
     /**
      * @param string $route
@@ -66,7 +71,8 @@ class RouteAdapter
      * @param string $name
      * @param string $method
      * @param bool $requireLogin
-     * @param string $alias
+     * @param string $alias IGNORADO desde el bloque CX: `set_route()` ya no registra una segunda
+     *                       ruta. No se retira porque es el SEXTO posicional de 221 declaraciones.
      * @param array<string>|array<int> $rolesAllowed
      * @param array $defaultParamsValues
      * @param array<callable>|array<string> $middlewares
@@ -236,6 +242,8 @@ class RouteAdapter
                 $this->setParameterValue($paramName, $paramValue);
             }
 
+            $this->checkPattern();
+
         } else {
             return $this->route;
         }
@@ -329,6 +337,67 @@ class RouteAdapter
     }
 
     /**
+     * El patrón, contra el analizador de FastRoute, que es quien lo va a leer al despachar (P57).
+     *
+     * En local revienta aquí, con el nombre, el patrón y el archivo que la declaró: así el fallo se ve donde se
+     * escribió. Fuera de local no se lanza —una ruta mal escrita no puede tumbar la instalación entera—: se apunta en
+     * InvalidRoutes, se registra en el log y register() se la salta.
+     *
+     * @return bool
+     * @throws \InvalidArgumentException en local
+     */
+    protected function checkPattern(): bool
+    {
+        $pattern = $this->route;
+        $name = is_string($this->name) ? $this->name : '(sin nombre)';
+
+        try {
+            (new Std())->parse($pattern);
+            $this->patternIsInvalid = false;
+            return true;
+        } catch (\Throwable $e) {
+            $this->patternIsInvalid = true;
+            $declaredIn = self::declaredIn();
+            $message = "La ruta «{$name}» tiene un patrón que FastRoute no puede analizar: «{$pattern}». "
+                . $e->getMessage() . ' Declarada en ' . $declaredIn . '.';
+
+            if (function_exists('is_local') && is_local()) {
+                throw new \InvalidArgumentException($message, 0, $e);
+            }
+
+            InvalidRoutes::add($name, $pattern, $e->getMessage(), $declaredIn);
+            if (function_exists('log_exception')) {
+                log_exception(new \InvalidArgumentException($message, 0, $e));
+            }
+            return false;
+        }
+    }
+
+    /**
+     * El archivo:línea que declaró la ruta: el primer marco fuera de PiecesPHP\Core\Routing.
+     *
+     * @return string
+     */
+    private static function declaredIn(): string
+    {
+        //El archivo de un marco es el de QUIEN hizo esa llamada, así que el sitio donde se escribió la ruta es el
+        //ÚLTIMO marco interno del enrutador: el de más afuera ya pertenece a quien la declaró.
+        $ultimoInterno = null;
+        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS) as $frame) {
+            $class = (string) ($frame['class'] ?? '');
+            $esInterno = $class !== '' && (str_starts_with($class, 'PiecesPHP\\Core\\Routing') || $class === Route::class);
+            if ($esInterno) {
+                if (isset($frame['file'], $frame['line'])) {
+                    $ultimoInterno = $frame['file'] . ':' . $frame['line'];
+                }
+                continue;
+            }
+            break;
+        }
+        return $ultimoInterno ?? 'origen desconocido';
+    }
+
+    /**
      * @param Router|RouteCollectorProxy $router
      * @return void
      */
@@ -349,9 +418,14 @@ class RouteAdapter
             ]));
         }
 
+        //La ruta con el patrón roto no se registra (P57): en local ya habría reventado al fijarlo.
+        if ($this->patternIsInvalid) {
+            return;
+        }
+
         $route_info = get_route_info($this->name);
 
-        $router = $router === null ? static::$router : $router;
+        $router ??= static::$router;
 
         if ($route_info === null) {
             register_route($this->toArray(), $router);
@@ -411,14 +485,14 @@ class RouteAdapter
         $routeSegment = $route['route'];
         $controller = $route['controller'];
         $method = $route['method'];
-        $name = isset($route['name']) ? $route['name'] : null;
-        $alias = isset($route['route_alias']) ? $route['route_alias'] : null;
+        $name = $route['name'] ?? null;
+        $alias = $route['route_alias'] ?? null;
         $requireLogin = isset($route['require_login']) ? $route['require_login'] === true : false;
-        $rolesAllowed = isset($route['roles_allowed']) ? $route['roles_allowed'] : [];
+        $rolesAllowed = $route['roles_allowed'] ?? [];
         $rolesAllowed = is_array($rolesAllowed) ? $rolesAllowed : [$rolesAllowed];
-        $parameters = isset($route['parameters']) ? $route['parameters'] : [];
+        $parameters = $route['parameters'] ?? [];
         $parameters = is_array($parameters) ? $parameters : [$parameters];
-        $middlewares = isset($route['middlewares']) ? $route['middlewares'] : [];
+        $middlewares = $route['middlewares'] ?? [];
         $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
 
         $instance = new RouteAdapter($routeSegment, $controller);

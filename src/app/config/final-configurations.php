@@ -1,9 +1,14 @@
 <?php
 
 /**
+ * @pcsphp-config framework
+ * Qué conviene editar aquí: nada: carga los idiomas del núcleo y las extensiones, las del framework (core/extensions/) y las tuyas (config/extensions/).
+ */
+
+/**
  * final-configurations.php
  */
-use App\Controller\AdminPanelController;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileValidator;
@@ -35,21 +40,23 @@ foreach ($langInjectors as $group => $injector) {
     $injector->injectGroup($group);
 }
 
-//Configuraciones adicionales en archivos independientes. Se incluyen todos los archivos .php dentro de ./final-configurations-includes
-
-$finalConfigurationsIncludesDirectory = new DirectoryObject(basepath('app/config/final-configurations-includes'));
-$finalConfigurationsIncludesDirectory->process();
-$finalConfigurationsIncludesFiles = $finalConfigurationsIncludesDirectory->getFiles();
-
-if (!empty($finalConfigurationsIncludesFiles)) {
-    foreach ($finalConfigurationsIncludesFiles as $finalConfigurationsIncludesFile) {
-        if ($finalConfigurationsIncludesFile->getExists()) {
-            if (mb_strtolower($finalConfigurationsIncludesFile->getExtension()) == 'php') {
-                include_once $finalConfigurationsIncludesFile->getPath();
-            }
+//Extensiones: las del framework (core/extensions) y después las del clon (config/extensions). La carpeta vieja
+//final-configurations-includes se sigue cargando si existe, y su aviso del sistema pide moverla.
+foreach ([basepath('app/core/extensions'), basepath('app/config/extensions'), basepath('app/config/final-configurations-includes')] as $extensionsPath) {
+    if (!is_dir($extensionsPath)) {
+        continue;
+    }
+    $extensionsDirectory = new DirectoryObject($extensionsPath);
+    $extensionsDirectory->process();
+    foreach ($extensionsDirectory->getFiles() as $extensionFile) {
+        if ($extensionFile->getExists() && mb_strtolower($extensionFile->getExtension()) == 'php') {
+            include_once $extensionFile->getPath();
         }
     }
 }
 
 //Indica si la aplicación está en local o en producción
 add_to_front_configurations('isLH', is_local());
+
+//El nombre de la sesión, para que el JavaScript NO lo lleve escrito: su literal es solo el último recurso.
+add_to_front_configurations('sessionTokenName', \PiecesPHP\Core\SessionToken::tokenName());

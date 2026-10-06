@@ -1,4 +1,5 @@
-@import 'includes/variables';
+@use 'sass:color';
+@use 'includes/variables' as *;
 
 //Colors
 $colorSecond: rgb(40, 100, 133);
@@ -69,7 +70,7 @@ $globalClassPcs: 'ui-pcs';
 
         .#{$globalClassPcs}-loader-fallback {
             position: relative;
-            border: 16px solid var(--loader-border-color, transparentize($colorThird, 0.5));
+            border: 16px solid var(--loader-border-color, color.adjust($colorThird, $alpha: -0.5));
             border-top: 16px solid var(--loader-border-mark-color, var(--main-brand-color, $colorSecond));
             border-radius: 50%;
             width: 120px;

@@ -16,6 +16,21 @@ namespace PiecesPHP\Core;
  */
 class BaseHashEncryption
 {
+    //PROHIBIDO TOCAR LA ARITMÉTICA: & 0xFF reproduce el desbordamiento de chr(); cambiarlo vuelve indescifrable lo ya cifrado.
+
+    /** @ignore */
+    private static $secret_key = 'secret';
+
+    /** @ignore */
+    public static $supported_algs_hash = [
+        'HS256' => ['hash_hmac', 'SHA256'],
+        'HS512' => ['hash_hmac', 'SHA512'],
+        'HS384' => ['hash_hmac', 'SHA384'],
+        'RS256' => ['openssl', 'SHA256'],
+        'RS384' => ['openssl', 'SHA384'],
+        'RS512' => ['openssl', 'SHA512'],
+    ];
+
     /**
      * Encripta un string y lo devuelve en base64 seguro para url
      *
@@ -27,7 +42,7 @@ class BaseHashEncryption
      */
     public static function encryptBidirectionalHash(string $string, ?string $key = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
         $key = substr(hash('sha256', $key, true), 0, 32);
         if (extension_loaded('zlib') && function_exists('gzencode')) {
             $string = gzencode($string, 9);
@@ -48,7 +63,7 @@ class BaseHashEncryption
      */
     public static function decryptBidirectionalHash(string $encrypt_string, ?string $key = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
         $key = substr(hash('sha256', $key, true), 0, 32);
         $encrypt_string = self::urlSafeB64Decode($encrypt_string);
         $iv = substr($encrypt_string, 0, 16);
@@ -56,7 +71,9 @@ class BaseHashEncryption
         $decrypt_string = @openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
         $decrypt_string = is_string($decrypt_string) ? $decrypt_string : null;
         if (extension_loaded('zlib') && function_exists('gzdecode') && is_string($decrypt_string)) {
-            $decrypt_string = gzdecode($decrypt_string);
+            $inflated = gzdecode($decrypt_string);
+            //Un texto que no descomprime no es texto descifrado: null, no false.
+            $decrypt_string = $inflated !== false ? $inflated : null;
         }
         return $decrypt_string;
     }
@@ -72,12 +89,13 @@ class BaseHashEncryption
      */
     public static function encrypt(string $string, ?string $key = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
         $result = '';
         for ($i = 0; $i < strlen($string); $i++) {
             $char = substr($string, $i, 1);
             $keychar = substr($key, ($i % strlen($key)) - 1, 1);
-            $char = chr(ord($char) + ord($keychar));
+            //`& 0xFF` REPRODUCE EL DESBORDAMIENTO QUE chr() HACÍA SOLO. Ver la nota de arriba.
+            $char = chr((ord($char) + ord($keychar)) & 0xFF);
             $result .= $char;
         }
         return self::urlSafeB64Encode($result);
@@ -94,13 +112,14 @@ class BaseHashEncryption
      */
     public static function decrypt(string $encrypt_string, ?string $key = null)
     {
-        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key ??= self::getSecretKey();
         $result = '';
         $string = self::urlSafeB64Decode($encrypt_string);
         for ($i = 0; $i < strlen($string); $i++) {
             $char = substr($string, $i, 1);
             $keychar = substr($key, ($i % strlen($key)) - 1, 1);
-            $char = chr(ord($char) - ord($keychar));
+            //`& 0xFF` REPRODUCE EL DESBORDAMIENTO QUE chr() HACÍA SOLO. Ver la nota de arriba.
+            $char = chr((ord($char) - ord($keychar)) & 0xFF);
             $result .= $char;
         }
         return $result;
@@ -121,7 +140,7 @@ class BaseHashEncryption
         if (empty(static::$supported_algs_hash[$alg])) {
             return self::NOT_SUPPORTED_ALGORITHM;
         }
-        list($function, $algorithm) = static::$supported_algs_hash[$alg];
+        [$function, $algorithm] = static::$supported_algs_hash[$alg];
         switch ($function) {
             case 'hash_hmac':
                 return hash_hmac($algorithm, $msg, $key, true);
@@ -155,7 +174,7 @@ class BaseHashEncryption
         if (empty(self::$supported_algs_hash[$alg])) {
             return self::NOT_SUPPORTED_ALGORITHM;
         }
-        list($function, $algorithm) = self::$supported_algs_hash[$alg];
+        [$function, $algorithm] = self::$supported_algs_hash[$alg];
         switch ($function) {
             case 'openssl':
                 $success = openssl_verify($msg, $signature, $key, $algorithm);
@@ -244,18 +263,6 @@ class BaseHashEncryption
         return strlen($str);
     }
 
-    /** @ignore */
-    private static $secret_key = 'secret';
-
-    /** @ignore */
-    public static $supported_algs_hash = array(
-        'HS256' => array('hash_hmac', 'SHA256'),
-        'HS512' => array('hash_hmac', 'SHA512'),
-        'HS384' => array('hash_hmac', 'SHA384'),
-        'RS256' => array('openssl', 'SHA256'),
-        'RS384' => array('openssl', 'SHA384'),
-        'RS512' => array('openssl', 'SHA512'),
-    );
     const HS256 = 'HS256';
     const HS512 = 'HS512';
     const HS384 = 'HS384';

@@ -44,11 +44,6 @@ class DocumentsRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new \Documents\Mappers\DocumentsMapper()))->getSQL(),
-            ];
-            //header('Content-Type: text/sql');echo implode("\r\n", $sqlCreate);exit;
-
             $groupAdministration = DocumentsController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
@@ -138,7 +133,7 @@ class DocumentsRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
         };
 
         /**

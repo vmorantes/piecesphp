@@ -1,3 +1,6 @@
+@use 'sass:string';
+@use '../variables' as *;
+@use '../functions' as *;
 @mixin simple-slideshow {
 
     opacity: 0;
@@ -124,8 +127,8 @@
 
         .dot {
             display: inline-block;
-            width: unquote($slideShowDotSize + 'px');
-            height: unquote($slideShowDotSize + 'px');
+            width: string.unquote($slideShowDotSize + 'px');
+            height: string.unquote($slideShowDotSize + 'px');
             margin: 0px 5px 0px 5px;
             border-radius: 100%;
             background-color: transparent;
@@ -153,8 +156,8 @@
         z-index: 100;
         width: auto;
         padding: 5px;
-        font-size: unquote($slideShowArrowsFontSize + 'px');
-        line-height: unquote($slideShowArrowsFontSize + 'px');
+        font-size: string.unquote($slideShowArrowsFontSize + 'px');
+        line-height: string.unquote($slideShowArrowsFontSize + 'px');
         font-weight: bold;
         color: white;
         transition: all 0.6s ease;
@@ -185,8 +188,8 @@
         .navigation-dots {
 
             .dot {
-                width: unquote($slideShowDotSizeDesktop + 'px');
-                height: unquote($slideShowDotSizeDesktop + 'px');
+                width: string.unquote($slideShowDotSizeDesktop + 'px');
+                height: string.unquote($slideShowDotSizeDesktop + 'px');
                 opacity: 0.4;
             }
 
@@ -197,8 +200,8 @@
             top: 50%;
             transform: translateY(-50%);
             padding: 16px;
-            font-size: unquote($slideShowArrowsFontSizeDesktop + 'px');
-            line-height: unquote($slideShowArrowsFontSizeDesktop + 'px');
+            font-size: string.unquote($slideShowArrowsFontSizeDesktop + 'px');
+            line-height: string.unquote($slideShowArrowsFontSizeDesktop + 'px');
             opacity: 0.8;
         }
 

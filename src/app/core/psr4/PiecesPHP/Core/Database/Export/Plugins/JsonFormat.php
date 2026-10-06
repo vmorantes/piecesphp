@@ -3,6 +3,7 @@
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
 use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
+use PiecesPHP\Core\Database\Database;
 use PDO;
 
 /**
@@ -19,7 +20,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getHeader(PDO $db, string $database, string $charset): string
+    public function getHeader(Database $db, string $database, string $charset): string
     {
         // Abrir el objeto principal
         return "{\n";
@@ -37,7 +38,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableStructure(PDO $db, string $table, array $options): string
+    public function getTableStructure(Database $db, string $table, array $options): string
     {
         if ($this->isView($db, $table)) {
             return "";
@@ -52,7 +53,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableData(PDO $db, string $table, array $options, ?callable $writeCallback = null): ?string
+    public function getTableData(Database $db, string $table, array $options, ?callable $writeCallback = null): ?string
     {
         $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
         $sql = "SELECT * FROM `" . str_replace("`", "``", $table) . "`" . $where;
@@ -103,7 +104,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getFunctions(PDO $db, string $database, array $options): string
+    public function getFunctions(Database $db, string $database, array $options): string
     {
         return "";
     }
@@ -111,7 +112,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getProcedures(PDO $db, string $database, array $options): string
+    public function getProcedures(Database $db, string $database, array $options): string
     {
         return "";
     }
@@ -119,7 +120,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function isView(PDO $db, string $table): bool
+    public function isView(Database $db, string $table): bool
     {
         $stmt = $db->prepare("SHOW TABLE STATUS LIKE ?");
         $stmt->execute([$table]);
@@ -130,7 +131,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableFakeView(PDO $db, string $table): string
+    public function getTableFakeView(Database $db, string $table): string
     {
         // En JSON las vistas son fuentes de datos normales. 
         // Las exportamos completas aquí para aprovechar el flujo de 1 sola fase real para datos.
@@ -148,7 +149,7 @@ class JsonFormat implements FormatPluginInterface
     /**
      * @inheritDoc
      */
-    public function getTableTriggers(PDO $db, string $table, array $options): string
+    public function getTableTriggers(Database $db, string $table, array $options): string
     {
         return "";
     }

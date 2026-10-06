@@ -6,8 +6,8 @@
 
 namespace PiecesPHP\BuiltIn\Banner\Controllers;
 
-use App\Model\AvatarModel;
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
@@ -15,6 +15,7 @@ use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
@@ -28,6 +29,8 @@ use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
  */
 class BuiltInBannerPublicController extends BaseController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -98,63 +101,6 @@ class BuiltInBannerPublicController extends BaseController
     }
 
     /**
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        if ($allowed) {
-            $routeResult = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            return is_string($routeResult) ? $routeResult : '';
-        } else {
-            return '';
-        }
-    }
-
-    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -220,4 +166,25 @@ class BuiltInBannerPublicController extends BaseController
 
     }
 
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
+    }
 }

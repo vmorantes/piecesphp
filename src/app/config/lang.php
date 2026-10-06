@@ -1,8 +1,14 @@
 <?php
+
+/**
+ * @pcsphp-config ambos
+ * Qué conviene editar aquí: qué idiomas ofrece tu aplicación y cómo se elige el de cada visita (sección del clon). Las tablas de locales, formatos y banderas son del framework.
+ */
 /**
  * Idiomas soportados
  */
 
+//── Del clon ──
 /**
  * Si la configuracion 'lang_by_url' se establece en true, la aplicación tomará
  * el primer segmento de la URL que concuerte con 'allowed_langs' para establecer el idioma.
@@ -30,6 +36,11 @@ set_config('lang_by_cookie', true);
 set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 
 /**
+ * `allowed_langs` es EL INTERRUPTOR: lo que no esté ahí no existe, y lo demás de este archivo
+ * puede quedarse vivo sin molestar. Cómo se añade un idioma: `.agents/context/08-i18n.md`.
+ */
+
+/**
  * Array con el identificador de los idiomas permitidos, este debe coincidir
  * con el nombre de su archivo correspondiente en app/lang/ sin la extensión '.php'
  * ya que es implícita.
@@ -37,10 +48,11 @@ set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 set_config('allowed_langs', [
     'es',
     'en',
-    'fr',
-    'de',
-    'it',
-    'pt',
+    //@codigo-comentado · Descomentar da de alta el idioma. Ver `.agents/context/08-i18n.md`.
+    //'fr',
+    //'de',
+    //'it',
+    //'pt',
 ]);
 
 //Idiomas no traducibles automáticamente con autoTranslateFromLangGroupHTML
@@ -74,6 +86,7 @@ set_config('additional_langs_to_scan', [
     //'pt',
 ]);
 
+//── Del framework: no lo edites ──
 /**
  * Array con los códigos de localidad según el idioma
  */

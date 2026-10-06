@@ -6,11 +6,13 @@
 
 namespace Terminal\Tasks;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
+use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
+use PiecesPHP\Core\Logs\ExpiredSessionsLog;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
@@ -59,6 +61,25 @@ class CleanLogsTask extends TerminalTaskAbstract
         $this->middlewares = [];
     }
 
+    /**
+     * Borra los `.eml` del buzón en disco (`MailDelivery::outboxDirectory()`) y dice cuántos. Solo los
+     * `.eml`: el directorio y lo demás que tenga se quedan. Con `$directory`, el de una prueba.
+     *
+     * @param string|null $directory
+     * @return int
+     */
+    public static function emptyOutbox(?string $directory = null): int
+    {
+        $outbox = $directory ?? MailDelivery::outboxDirectory();
+        $deleted = 0;
+        foreach (glob($outbox . '/*.eml') ?: [] as $eml) {
+            if (@unlink($eml)) {
+                $deleted++;
+            }
+        }
+        return $deleted;
+    }
+
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
 
@@ -89,13 +110,34 @@ class CleanLogsTask extends TerminalTaskAbstract
                 file_put_contents($errorLogPlanFile, '');
                 chmod($errorLogPlanFile, 0664);
                 $message[] = "\e[34merror.plain.log vaciado.\e[39m";
-                //Log de deprecaciones de PHP. Lo escribe el manejador de errores de
-                //bootstrap.php cuando NO estamos en local: allí las deprecaciones
-                //abortan, aquí solo se registran. Sin esta limpieza crecería sin
-                //límite en producción.
+                //Sin esta limpieza el log de deprecaciones crece sin límite en producción.
                 file_put_contents($deprecationsLogFile, '');
                 chmod($deprecationsLogFile, 0664);
                 $message[] = "\e[34mdeprecations.log vaciado.\e[39m";
+
+                //Anotaciones de traducciones faltantes. Su consumidor es `scan-missing-lang`,
+                //y sin limpieza el directorio crece sin fin: llegó a 1.586 archivos.
+                $missingLangDirectory = app_basepath('lang/missing-lang-messages');
+                if (is_dir($missingLangDirectory)) {
+                    $borrados = 0;
+                    foreach (glob($missingLangDirectory . '/*/*/*.to-translate') ?: [] as $missingFile) {
+                        if (@unlink($missingFile)) {
+                            $borrados++;
+                        }
+                    }
+                    //Los directorios de grupo e idioma quedan vacíos: se retiran de dentro afuera.
+                    foreach (glob($missingLangDirectory . '/*/*', \GLOB_ONLYDIR) ?: [] as $langDirectory) {
+                        @rmdir($langDirectory);
+                    }
+                    foreach (glob($missingLangDirectory . '/*', \GLOB_ONLYDIR) ?: [] as $groupDirectory) {
+                        @rmdir($groupDirectory);
+                    }
+                    $message[] = "\e[34mmissing-lang-messages vaciado ({$borrados} anotaciones).\e[39m";
+                }
+
+                //El buzón en disco del correo retenido: cada .eml lleva el cuerpo EN CLARO, con sus adjuntos.
+                $borradosEml = self::emptyOutbox();
+                $message[] = "\e[34mmail-outbox vaciado ({$borradosEml} .eml).\e[39m";
 
                 //Histórico de logs de errores
                 $oldsErrorLogsHandler = new DirectoryObject($oldsErrorLogsDirectory);
@@ -107,14 +149,33 @@ class CleanLogsTask extends TerminalTaskAbstract
                     $message[] = "\e[34mLogs de errores antiguos vaciado.\e[39m";
                 }
 
-                //Logs de sesiones expiradas
-                $expiredSessionsLogsHandler = new DirectoryObject($expiredSessionsLogsDirectory);
-                if ($expiredSessionsLogsHandler->directoryExists()) {
-                    $expiredSessionsLogsHandler->process(new FilesIgnore([
-                        '\.keep',
-                    ]));
-                    $expiredSessionsLogsHandler->delete(false);
-                    $message[] = "\e[34mLogs de sesiones expiradas vaciado.\e[39m";
+                //Sesiones caducadas: el registro nuevo se vacía como los demás.
+                $expiredSessionsLogFile = ExpiredSessionsLog::path();
+                if (is_file($expiredSessionsLogFile)) {
+                    //RETORNO-IGNORADO: como los demás vaciados de arriba, y en UNA línea: la marca cubre solo las dos siguientes.
+                    file_put_contents($expiredSessionsLogFile, '');
+                    chmod($expiredSessionsLogFile, 0664);
+                    $message[] = "\e[34m" . ExpiredSessionsLog::FILE_NAME . " vaciado.\e[39m";
+                }
+                $expiredSessionsRotated = ExpiredSessionsLog::rotatedPath();
+                if (is_file($expiredSessionsRotated) && @unlink($expiredSessionsRotated)) {
+                    $message[] = "\e[34m" . ExpiredSessionsLog::ROTATED_FILE_NAME . " retirado.\e[39m";
+                }
+
+                //La carpeta del formato viejo: sus `.json` llevan un token y NO se borran aquí
+                //(ADR 0039 §4). Solo se retira la carpeta si ya está vacía.
+                if (is_dir($expiredSessionsLogsDirectory)) {
+                    $quedan = array_values(array_filter(
+                        scandir($expiredSessionsLogsDirectory) ?: [],
+                        static fn (string $entrada): bool => !in_array($entrada, ['.', '..', '.keep'], true)
+                    ));
+                    if (count($quedan) === 0) {
+                        $message[] = @rmdir($expiredSessionsLogsDirectory)
+                            ? "\e[34mexpired-sessions/ estaba vacía y se retiró.\e[39m"
+                            : "\e[33mexpired-sessions/ está vacía pero no se pudo retirar.\e[39m";
+                    } else {
+                        $message[] = "\e[33mexpired-sessions/ conserva " . count($quedan) . " archivo(s) del formato viejo: llevan un token y NO se borran desde aquí. Revísela y vacíela a mano.\e[39m";
+                    }
                 }
 
             }

@@ -6,6 +6,9 @@
 
 namespace Publications\Mappers;
 
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
@@ -31,6 +34,12 @@ use Publications\PublicationsLang;
  */
 class PublicationCategoryMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'name';
 
     protected $fields = [
         'id' => [
@@ -290,7 +299,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         $currentLang = Config::get_lang();
 
         $fields = [
-            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
@@ -368,7 +377,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof PublicationCategoryMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $name = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('name') : $elementOrID->getLangData($lang, 'name'));
 
             $slug = "{$name}-{$uniqid}";
@@ -427,7 +436,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -437,7 +446,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         array_map(function ($e) use (&$options) {
 
             $value = $e->currentLangData('name');
-            $options[$e->id] = $value;
+            $options[(string) $e->id] = $value;
 
         }, self::all(true));
 
@@ -502,7 +511,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -559,17 +568,16 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     public static function existsByName(string $name, ?int $ignoreID = null)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
-        $name = escapeString($name);
-
+        //Por marcador: el valor viaja como dato y no depende de sql_mode (ADR 0009).
         $where = [
-            "name = '{$name}' AND",
-            "id != {$ignoreID}",
+            WhereItem::isEqual('name', $name, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('id', $ignoreID),
         ];
 
-        $model->select()->where(implode(' ', $where));
+        $model->select()->where(new WhereSegment($where));
 
         $model->execute();
 
@@ -584,22 +592,19 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return PublicationCategoryMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
 
         $element = (array) $element;
         $mapper = new PublicationCategoryMapper;
+        //La foto es el argumento: ya se tiene la fila entera. Ver T87.
+        $mapper->seedSnapshotFrom($element);
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
-
-        $defaultPropertiesValues = [];
-
-        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
-            if (!array_key_exists($defaultProperty, $element)) {
-                $element[$defaultProperty] = $defaultPropertyValue;
-            }
-        }
 
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
@@ -614,10 +619,8 @@ class PublicationCategoryMapper extends EntityMapperExtensible
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
-                            if (!property_exists($value, $defaultMetaProperty)) {
-                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
-                            }
+                        if (!property_exists($value, $defaultMetaProperty)) {
+                            $value->$defaultMetaProperty = $defaultMetaPropertyValue;
                         }
                     }
 
@@ -650,10 +653,9 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->name !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

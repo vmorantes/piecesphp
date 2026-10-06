@@ -6,8 +6,8 @@
 
 namespace App\Controller;
 
-use GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
-use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
+use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
@@ -17,12 +17,14 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * ContactFormsController.
@@ -34,6 +36,13 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 class ContactFormsController extends PublicAreaController
 {
 
+    use ControllerRoutingTrait;
+
+    /**
+     * @var string
+     */
+    protected static $baseRouteName = 'contact-forms';
+
     /**
      * @var string
      */
@@ -44,10 +53,30 @@ class ContactFormsController extends PublicAreaController
      */
     private static $startSegmentRoutes = 'contact';
 
-    const RECIPIENTS_MESSAGES = [
-        'sir.vamb@gmail.com',
-    ];
-    private $recipientsMessages = self::RECIPIENTS_MESSAGES;
+    /**
+     * Destinatarios del formulario de contacto, leídos de la configuración.
+     *
+     * Falla cerrado: si `contact_form_recipients` no es una lista no vacía de direcciones válidas, devuelve una lista vacía.
+     *
+     * @return string[]
+     */
+    public static function recipients(): array
+    {
+        $configured = get_config('contact_form_recipients');
+        if (!is_array($configured) || count($configured) === 0) {
+            return [];
+        }
+        $recipients = [];
+        foreach ($configured as $recipient) {
+            $recipient = is_string($recipient) ? trim($recipient) : '';
+            //filter_var y no Validator::isEmail(): ese consulta el DNS en cada llamada.
+            if (filter_var($recipient, \FILTER_VALIDATE_EMAIL) === false) {
+                return [];
+            }
+            $recipients[] = $recipient;
+        }
+        return $recipients;
+    }
 
     /**
      * @param Request $req
@@ -187,6 +216,9 @@ class ContactFormsController extends PublicAreaController
             $updates = $expectedParameters->getValue('updates');
             $tokenCaptcha = $expectedParameters->getValue('tokenCaptcha');
 
+            //Sin crear hasta que haya destinatarios: el catch no puede dar por hecho que existe.
+            $mailer = null;
+
             try {
 
                 //Verificar token si GoogleReCaptchaV3Controller está activo
@@ -197,69 +229,90 @@ class ContactFormsController extends PublicAreaController
 
                 if ($captchaSuccess) {
 
-                    $title = get_config('title_app');
-                    $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
-                        baseurl(),
-                        $title,
-                    ]);
+                    $recipients = self::recipients();
 
-                    $subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . get_title();
+                    if (count($recipients) === 0) {
 
-                    $bodyMessage = $this->render('mailing/generic-contact-form', [
-                        'title' => $title,
-                        'name' => $name,
-                        'email' => $email,
-                        'subject' => $subject,
-                        'message' => $message,
-                        'updates' => $updates,
-                    ], false);
-                    $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
-                    $mailer = new Mailer();
-                    $mailConfig = new MailConfig;
-                    $mailer->SMTPDebug = 2;
-                    $mailer->isHTML(true);
-                    $mailer->setFrom($mailConfig->user());
-                    $mailer->addReplyTo($email, $name);
-                    foreach ($this->recipientsMessages as $recipient) {
-                        $mailer->addAddress($recipient);
-                    }
-
-                    $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
-                    $mailer->Body = $bodyMessage;
-                    if (!$mailer->checkSettedSMTP() && !is_local()) {
-                        $mailer->asGoDaddy(true);
-                    }
-
-                    $success = $mailer->send();
-
-                    if ($success) {
-                        $resultOperation->setMessage($successMessage);
-                        $resultOperation->setSuccessOnSingleOperation($success);
-                    } else {
+                        log_exception(new \RuntimeException(
+                            "Formulario de contacto sin enviar: \$config['contact_form_recipients'] debe ser una lista no vacía de direcciones de correo válidas."
+                        ));
                         $resultOperation->setMessage($unknowErrorMessage);
+
+                    } else {
+
+                        $title = get_config('title_app');
+                        $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
+                            baseurl(),
+                            $title,
+                        ]);
+
+                        $subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . get_title();
+
+                        $bodyMessage = $this->render('mailing/generic-contact-form', [
+                            'title' => $title,
+                            'name' => $name,
+                            'email' => $email,
+                            'subject' => $subject,
+                            'message' => $message,
+                            'updates' => $updates,
+                        ], false);
+                        $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
+                        $mailer = new Mailer();
+                        $mailConfig = new MailConfig;
+                        $mailer->SMTPDebug = 2;
+                        $mailer->isHTML(true);
+                        $mailer->setFrom($mailConfig->user());
+                        $mailer->addReplyTo($email, $name);
+                        foreach ($recipients as $recipient) {
+                            $mailer->addAddress($recipient);
+                        }
+
+                        $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
+                        $mailer->Body = $bodyMessage;
+                        if (!$mailer->checkSettedSMTP() && !is_local()) {
+                            $mailer->asGoDaddy(true);
+                        }
+
+                        $success = $mailer->send();
+
+                        if ($success) {
+                            $resultOperation->setMessage($successMessage);
+                            $resultOperation->setSuccessOnSingleOperation($success);
+                        } else {
+                            $resultOperation->setMessage($unknowErrorMessage);
+                        }
+
                     }
+
+                    //Solo con el CAPTCHA superado: un envío rechazado no suscribe a nadie.
+                    if (NewsletterRoutes::ENABLE) {
+                        //Agregar a suscriptores
+                        $suscriber = new NewsletterSuscriberMapper();
+                        $suscriber->name = $name;
+                        $suscriber->email = $email;
+                        $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
+                        $suscriber->save(true);
+                    }
+
                 } else {
                     $resultOperation->setMessage($captchaFailErrorMessage);
                 }
 
-                if (NewsletterRoutes::ENABLE) {
-                    //Agregar a suscriptores
-                    $suscriber = new NewsletterSuscriberMapper();
-                    $suscriber->name = $name;
-                    $suscriber->email = $email;
-                    $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
-                    $suscriber->save(true);
-                }
-
             } catch (\Exception $e) {
 
-                $resultOperation->setMessage($e->getMessage());
-                $resultOperation->setValue('logMailer', $mailer->log());
-                log_exception($e);
+                //EL LOG SMTP NO SALE AL CLIENTE: `SMTPDebug = 2` lo llena con el banner del
+                //servidor y el texto del fallo de autenticacion, y esta ruta es PUBLICA.
+                if ($mailer instanceof Mailer) {
+                    $logSmtp = json_encode($mailer->log(), \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+                    $reference = log_exception(new \Exception('Log SMTP del formulario de contacto: ' . (is_string($logSmtp) ? $logSmtp : '(no serializable)'), 0, $e));
+                } else {
+                    $reference = log_exception($e);
+                }
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -278,42 +331,6 @@ class ContactFormsController extends PublicAreaController
 
         return $res->withJson($resultOperation);
 
-    }
-
-    /**
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$prefixNameRoutes . $name : self::$prefixNameRoutes;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        if ($allowed) {
-            $routeResult = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            return is_string($routeResult) ? $routeResult : '';
-        } else {
-            return '';
-        }
     }
 
     /**
@@ -354,4 +371,25 @@ class ContactFormsController extends PublicAreaController
         return $group;
     }
 
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * PUNTO DE VARIACIÓN DEL MÓDULO. Aquí, y en ningún otro sitio, van las reglas de negocio
+     * que oculten una ruta que los roles SÍ permiten. Está vacío a propósito: es la plantilla,
+     * y su presencia dice dónde se escribe la regla el día que aparezca.
+     *
+     * Devolver `false` ESTRECHA lo que ya concedieron los roles; nunca ensancha. `routeName()`
+     * llama a este método SIEMPRE, y `allowedRoute()` no hace más que preguntarle a
+     * `routeName()` si devolvió cadena.
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+        return true;
+    }
 }

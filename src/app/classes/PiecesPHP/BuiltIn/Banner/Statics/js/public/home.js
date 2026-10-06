@@ -18,14 +18,15 @@ window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, functi
 			perPage: 10,
 			containerSelector: containerSelector,
 			onDraw: (item, parsed) => {
-				const isLink = parsed.tagName.toLowerCase() == 'a'
+				const node = parsed instanceof $ ? parsed.get(0) : parsed
+				const isLink = node instanceof HTMLElement && node.tagName.toLowerCase() == 'a'
 				if (isLink) {
 					try {
-						let url = new URL(parsed.href)
+						let url = new URL(node.href)
 						let urlBase = new URL(document.baseURI)
 						if (url.origin != urlBase.origin) {
-							parsed.target = '_blank'
-							parsed.rel = 'noreferrer'
+							node.target = '_blank'
+							node.rel = 'noreferrer'
 						}
 					} catch { }
 				}

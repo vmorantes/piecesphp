@@ -6,8 +6,8 @@
 namespace PiecesPHP\Core\Validation\Parameters;
 
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\ParamaterNotExistsException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParameterNotExistsException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 
 /**
@@ -69,7 +69,7 @@ class Parameters implements \JsonSerializable
      * @param string $parameterName
      * @return static
      */
-    public function removeParamater(string $parameterName)
+    public function removeParameter(string $parameterName)
     {
         unset($this->parameters[$parameterName]);
         return $this;
@@ -79,7 +79,7 @@ class Parameters implements \JsonSerializable
      * @param Parameter $parameter
      * @return static
      */
-    public function addParamater(Parameter $parameter)
+    public function addParameter(Parameter $parameter)
     {
         $this->parameters[$parameter->getName()] = $parameter;
         return $this;
@@ -92,7 +92,7 @@ class Parameters implements \JsonSerializable
     public function addParameters(array $parameters)
     {
         foreach ($parameters as $parameter) {
-            $this->addParamater($parameter);
+            $this->addParameter($parameter);
         }
         return $this;
     }
@@ -111,14 +111,14 @@ class Parameters implements \JsonSerializable
     /**
      * @param string $name
      * @return Parameter
-     * @throws ParamaterNotExistsException
+     * @throws ParameterNotExistsException
      */
     public function getParameter(string $name)
     {
         if (array_key_exists($name, $this->parameters)) {
             return $this->parameters[$name];
         } else {
-            throw new ParamaterNotExistsException("El parámetro $name no existe.");
+            throw new ParameterNotExistsException("El parámetro $name no existe.");
         }
     }
 
@@ -135,7 +135,7 @@ class Parameters implements \JsonSerializable
      * @return mixed
      * @throws ParsedValueException en caso de que el resultado de parse no sea válido
      * @throws InvalidParameterValueException en caso de que el valor no sea válido
-     * @throws ParamaterNotExistsException
+     * @throws ParameterNotExistsException
      */
     public function getValue(string $name)
     {
@@ -151,7 +151,7 @@ class Parameters implements \JsonSerializable
 
     /**
      * @return array
-     * @throws MissingRequiredParamaterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
+     * @throws MissingRequiredParameterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
      * @throws ParsedValueException en caso de que el resultado de parse no sea válido
      * @throws InvalidParameterValueException en caso de que el valor no sea válido
      */
@@ -172,7 +172,7 @@ class Parameters implements \JsonSerializable
 
     /**
      * @return bool
-     * @throws MissingRequiredParamaterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
+     * @throws MissingRequiredParameterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
      * @throws ParsedValueException en caso de que el resultado de parse no sea válido
      * @throws InvalidParameterValueException en caso de que el valor no sea válido
      */
@@ -211,7 +211,7 @@ class Parameters implements \JsonSerializable
             } else {
                 $text = __(self::LANG_GROUP, 'El parámetro %PARAMS% es obligatorio');
             }
-            throw new MissingRequiredParamaterException(strReplaceTemplate($text, [
+            throw new MissingRequiredParameterException(strReplaceTemplate($text, [
                 '%PARAMS%' => implode(', ', $parameters_errors),
             ]));
         }

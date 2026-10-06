@@ -6,7 +6,7 @@
 
 namespace SystemApprovals\Util;
 
-use App\Model\UsersModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
@@ -54,7 +54,12 @@ class SystemApprovalManager
                     //Escuchar eventos de cambios
                     BaseEventDispatcher::listen('updated', function ($payload) use ($class) {
                         $mapperName = $class::getMapperClass();
-                        if (get_class($payload) == $mapperName) {
+                        if ($payload::class == $mapperName) {
+                            //¿Cambió algo que NO sea sello de auditoría? El evento dice que
+                            //cambió una fila; los sellos los escribe el mapper solo. Ver T87.
+                            if (!self::isRealEdition($payload, $class)) {
+                                return;
+                            }
                             $contentTypeName = $class::getContentType($payload);
                             $referenceTable = $class::getReferenceTable();
                             $referenceColumn = $class::getReferenceColumn();
@@ -89,6 +94,34 @@ class SystemApprovalManager
     }
 
     /**
+     * ¿El guardado fue una edición de verdad, o solo movió sellos de auditoría?
+     *
+     * `null` —«no lo sé»— cuenta como edición: anunciar de menos perdería la reapertura de
+     * rechazos, que es intención declarada del PROPIETARIO. Ver T87.
+     *
+     * @param mixed $payload
+     * @param mixed $class
+     * @return bool
+     */
+    protected static function isRealEdition($payload, $class): bool
+    {
+        if (!is_string($class) || !is_subclass_of($class, ApprovalElementHandlerInterface::class)) {
+            return true;
+        }
+
+        if (!is_object($payload) || !method_exists($payload, 'lastChangedFields')) {
+            return true;
+        }
+
+        $changed = $payload->lastChangedFields();
+        if (!is_array($changed)) {
+            return true;
+        }
+
+        return count(array_diff($changed, $class::auditFields())) > 0;
+    }
+
+    /**
      * Actualiza el estado de un elemento en el sistema de aprobaciones y ejecuta las acciones correspondientes
      * según el nuevo estado (aprobado o rechazado).
      *
@@ -105,6 +138,10 @@ class SystemApprovalManager
                     $class::onApproved($elementMapper);
                 } elseif ($mapper->status == SystemApprovalsMapper::STATUS_REJECTED) {
                     $class::onRejected($elementMapper);
+                }
+                //Cualquier cambio, no solo aprobar o rechazar: volver a PENDING también quita la visibilidad.
+                if (method_exists($class, 'onStatusChanged')) {
+                    $class::onStatusChanged($elementMapper, (string) $mapper->status);
                 }
                 break;
             }
@@ -247,6 +284,23 @@ class SystemApprovalManager
 
         $subQueries = !empty($subQueries) ? "COALESCE(" . implode(",", $subQueries) . ")" : '(NULL)';
         return $subQueries;
+    }
+
+    /**
+     * La union de los textos que pueden acabar en `referenceAlias`, segun los handlers
+     * REGISTRADOS. Es la lista blanca del filtro, y sale del contrato, no de la base.
+     *
+     * @return string[]
+     */
+    public function getContentTypes(): array
+    {
+        $textos = [];
+        foreach ($this->configurations as $class) {
+            foreach ($class::getContentTypes() as $texto) {
+                $textos[] = $texto;
+            }
+        }
+        return array_values(array_unique($textos));
     }
 
     /**

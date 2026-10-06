@@ -6,8 +6,8 @@
 
 namespace Forms\DocumentTypes\Controllers;
 
-use App\Controller\AdminPanelController;
-use App\Model\UsersModel;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Documents\Controllers\DocumentsController;
 use Forms\DocumentTypes\DocumentTypesLang;
 use Forms\DocumentTypes\DocumentTypesRoutes;
@@ -16,25 +16,25 @@ use Forms\DocumentTypes\Exceptions\SafeException;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PDOException;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
-use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * DocumentTypesController.
@@ -45,6 +45,8 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class DocumentTypesController extends AdminPanelController
 {
+
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -64,22 +66,6 @@ class DocumentTypesController extends AdminPanelController
     protected static $pluralTitle = 'Tipos de documentos';
 
     /**
-     * @var string
-     */
-    protected $uploadDir = '';
-    /**
-     * @var string
-     */
-    protected $uploadTmpDir = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirURL = '';
-    /**
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
-    /**
      * @var HelperController
      */
     protected $helpController = null;
@@ -87,8 +73,6 @@ class DocumentTypesController extends AdminPanelController
     const BASE_VIEW_DIR = '';
     const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
-    const UPLOAD_DIR = 'document-types';
-    const UPLOAD_DIR_TMP = 'document-types/tmp';
     const LANG_GROUP = DocumentTypesLang::LANG_GROUP;
 
     public function __construct()
@@ -100,15 +84,6 @@ class DocumentTypesController extends AdminPanelController
 
         $this->model = (new DocumentTypesMapper())->getModel();
         set_title(self::$pluralTitle);
-
-        $baseURL = base_url();
-        $pcsUploadDir = get_config('upload_dir');
-        $pcsUploadDirURL = get_config('upload_dir_url');
-
-        $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
-        $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
-        $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
@@ -281,7 +256,7 @@ class DocumentTypesController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -342,8 +317,11 @@ class DocumentTypesController extends AdminPanelController
             $id = $expectedParameters->getValue('id');
             $documentTypeName = $expectedParameters->getValue('documentTypeName');
 
-            //Se define si es edición o creación
-            $isEdit = $id !== -1;
+            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+            $isEdit = self::isEditRoute($request);
+            if ($isEdit !== ($id !== -1)) {
+                return self::rejectOperationMismatch($request, $response, $isEdit, $id);
+            }
 
             try {
 
@@ -422,9 +400,9 @@ class DocumentTypesController extends AdminPanelController
                 $resultOperation->setMessage($e->getMessage());
 
             } catch (\Exception $e) {
+                $reference = log_exception($e);
 
-                $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
@@ -437,10 +415,15 @@ class DocumentTypesController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
+        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
         }
 
@@ -531,7 +514,7 @@ class DocumentTypesController extends AdminPanelController
 
                     $pdo = DocumentTypesMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
-                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
 
                     try {
@@ -561,26 +544,30 @@ class DocumentTypesController extends AdminPanelController
                             ->setValue('redirect_to', $redirectURLOn);
 
                     } catch (\Exception $e) {
+                        $reference = log_exception($e);
                         if ($e instanceof PDOException) {
                             $pdo->rollBack();
-                            $resultOperation->setValue('transactionError', $e->getMessage());
+                            $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         }
                         $resultOperation->setMessage($unknowErrorMessage);
-                        log_exception($e);
                     }
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
-            } catch (\Exception $e) {
+            } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
-                log_exception($e);
+
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+
+                $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (MissingRequiredParameterException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -678,11 +665,11 @@ class DocumentTypesController extends AdminPanelController
         $selectFields = DocumentTypesMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'idPadding',
+            "{$table}.id",
             'documentTypeName',
         ];
         $customOrder = [
-            'idPadding' => 'DESC',
+            "{$table}.id" => 'DESC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -736,8 +723,8 @@ class DocumentTypesController extends AdminPanelController
         ?int $page = null,
         ?int $perPage = null
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
+        $page ??= 1;
+        $perPage ??= 10;
 
         $table = DocumentTypesMapper::TABLE;
         $fields = DocumentTypesMapper::fieldsToSelect();
@@ -832,20 +819,6 @@ class DocumentTypesController extends AdminPanelController
     }
 
     /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
-        return $allow;
-    }
-
-    /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no
      *
      * @param string $name
@@ -853,10 +826,10 @@ class DocumentTypesController extends AdminPanelController
      * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    protected static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -866,8 +839,6 @@ class DocumentTypesController extends AdminPanelController
 
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
-                $canViewAll = in_array($currentUserType, DocumentTypesMapper::CAN_VIEW_ALL);
-                $candAddAll = in_array($currentUserType, DocumentTypesMapper::CAN_ADD_ALL);
 
                 if ($name == 'actions-delete') {
 
@@ -888,9 +859,9 @@ class DocumentTypesController extends AdminPanelController
 
                 } elseif ($name == 'forms-edit' || $name == 'actions-edit') {
 
-                    $id = isset($params['id']) ? $params['id'] : null;
-                    $id = $id !== null ? $id : (isset($_GET['id']) ? $_GET['id'] : null);
-                    $id = $id !== null ? $id : (isset($_POST['id']) ? $_POST['id'] : null);
+                    $id = $params['id'] ?? null;
+                    $id ??= $_GET['id'] ?? null;
+                    $id ??= $_POST['id'] ?? null;
 
                     if ($id !== null) {
 
@@ -913,13 +884,9 @@ class DocumentTypesController extends AdminPanelController
 
                 } elseif ($name == 'forms-add' || $name == 'actions-add') {
 
-                    $allow = false;
-
-                    if (!$candAddAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 
@@ -929,13 +896,9 @@ class DocumentTypesController extends AdminPanelController
 
                 if (in_array($name, $checkNames)) {
 
-                    $allow = false;
-
-                    if (!$canViewAll) {
-                        $allow = true;
-                    } else {
-                        $allow = true;
-                    }
+                    //Sin restricción por tipo de usuario: la condición que había aquí tenía las
+                    //DOS ramas iguales y ya permitía siempre. Ver bloque S.
+                    $allow = true;
 
                 }
 
@@ -944,156 +907,6 @@ class DocumentTypesController extends AdminPanelController
         }
 
         return $allow;
-    }
-
-    /**
-     * @param string $nameOnFiles
-     * @param string $folder
-     * @param string $currentRoute
-     * @param array $allowedTypes
-     * @param bool $setNameByInput
-     * @param string $name
-     * @return string
-     * @throws \Exception
-     */
-    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
-    {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
-        }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name = $name !== null ? $name : 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new DocumentTypesController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-
-                if ($valid) {
-
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-                    if (!empty($locations)) {
-
-                        $url = $locations[0];
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
-    }
-
-    /**
-     * Obtener URL de una ruta
-     *
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-
-        $simpleName = !is_null($name) ? $name : '';
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        $route = '';
-
-        if ($allowed) {
-            $route = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            $route = !is_string($route) ? '' : $route;
-        }
-
-        $allow = self::_allowedRoute($simpleName, $route, $params);
-
-        return $allow ? $route : '';
     }
 
     /**

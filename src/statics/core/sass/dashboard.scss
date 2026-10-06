@@ -1,5 +1,4 @@
-@import 'includes/variables_app_base';
-@import 'includes/functions_app_base';
+@use 'includes/functions_app_base' as *;
 
 .container-standard-options {
 

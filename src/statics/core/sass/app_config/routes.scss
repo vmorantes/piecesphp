@@ -1,0 +1,15 @@
+@use 'includes/base' as *;
+
+.routes-view {
+
+    //En el contenedor de dentro, no en la tarjeta: la tarjeta es un hijo flexible de una cabecera de alto fijo, y con
+    //desbordamiento propio se encoge hasta caber en ella.
+    .body-card>div {
+        overflow-x: auto;
+    }
+
+    table.roles {
+        max-width: 100%;
+    }
+
+}

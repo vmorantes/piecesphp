@@ -3,8 +3,7 @@
 window.addEventListener('load', function (e) {
 	timeOnPlatform()
 	adminZoneSupportForm()
-	adminSitemapUpdate()
-	adminClearCache()
+	adminAppKeyNag()
 })
 
 /**
@@ -158,44 +157,24 @@ function adminZoneSupportForm() {
 
 }
 
-function adminSitemapUpdate() {
-
-	let button = document.querySelector('[sitemap-update-trigger]')
-
-	if (button !== null) {
-
-		let formSitemap = document.createElement('form')
-		formSitemap.method = 'POST'
-		formSitemap.action = button.dataset.url
-		formSitemap = $(formSitemap)
-
-		genericFormHandler(formSitemap)
-
-		button.addEventListener('click', function () {
-			formSitemap.submit()
-		})
-
+/**
+ * @description Inicializa los avisos flotantes del sistema: cada uno descartable por su data-key, y el descarte se recuerda
+ * 7 días en este navegador. El de app_key conserva su cookie de siempre (pcsphp-app-key-nag).
+ * @returns {void}
+ */
+function adminAppKeyNag() {
+	if (typeof $.fn.nag == 'undefined') {
+		return
 	}
-
-}
-
-function adminClearCache() {
-
-	let button = document.querySelector('[clear-cache-update-trigger]')
-
-	if (button !== null) {
-
-		let formClearCache = document.createElement('form')
-		formClearCache.method = 'POST'
-		formClearCache.action = button.dataset.url
-		formClearCache = $(formClearCache)
-
-		genericFormHandler(formClearCache)
-
-		button.addEventListener('click', function () {
-			formClearCache.submit()
+	$('[system-alert-nag]').each(function () {
+		const key = String(this.getAttribute('data-key') || '')
+		$(this).nag({
+			persist: false,
+			storageMethod: 'cookie',
+			key: key === 'app-key-placeholder' ? 'pcsphp-app-key-nag' : 'pcsphp-system-alert-nag-' + key,
+			value: 'dismiss',
+			expires: 7,
+			path: '/',
 		})
-
-	}
-
+	})
 }
