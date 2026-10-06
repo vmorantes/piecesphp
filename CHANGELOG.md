@@ -1,3 +1,17 @@
+# 8.0.2 (06-10-2026)
+
+## Corregido — solo los programas llevan permiso de ejecución
+
+La `v8.0.1` traía 627 archivos marcados como ejecutables, y casi todos no lo eran: 201 `.php`, 188 `.js`, imágenes,
+hojas de estilo, `.gitignore`, `.htaccess`. Ahora solo lo lleva lo que empieza por `#!` (los guiones de `bin/`, los
+hooks de git y los `.sh`), y la comprobación 9 de `bin/cli verify-integrity` falla si un archivo sin `#!` vuelve a
+llevarlo. No cambia el contenido de ningún archivo.
+
+## Cambia — `PUBLICAR.txt` lleva la ruta del repositorio en cada orden
+
+Cada orden de la guía de publicación es `git -C <repositorio de distribución> …`: funciona igual desde cualquier
+carpeta, y no puede commitear por error en otro repositorio.
+
 # 8.0.1 (06-10-2026)
 
 La primera versión que se publica en el repositorio público: la `v8.0.0` se etiquetó en el de desarrollo, y esta es

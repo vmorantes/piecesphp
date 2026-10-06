@@ -1989,6 +1989,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * git NO lo registra: el guion corre aquí y llega sin permisos a quien clone. Pasó con
      * `bin/live-cache`, y es la clase de regla que solo se cumple si alguien se acuerda (LEY 11).
      *
+     * Y al revés, en todo el índice: **un archivo en 100755 tiene que empezar por almohadilla-admiración**.
+     * La `v8.0.1` viajó con 586 archivos marcados como ejecutables sin serlo (`.php`, `.js`, imágenes…), y el
+     * PO tuvo que publicar con una orden especial para conservarlos (pendientes.md 372 y 373).
+     *
      * @return string[]
      */
     protected static function checkExecutableBits(): array
@@ -2038,7 +2042,29 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
 
-        echoTerminal("\e[94mINFO:\e[39m {$checked} guion(es) de bin/ comprobados contra su bit de ejecución.");
+        //Al revés: lo que está en 100755 tiene que ser un programa.
+        $ejecutables = 0;
+        $sinPrograma = [];
+        foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . ' ls-files -s -z') as $entry) {
+            if (preg_match('/^(\d{6})\s+\S+\s+\d+\t(.+)$/s', $entry, $matched) !== 1 || $matched[1] !== '100755') {
+                continue;
+            }
+            $ejecutables++;
+            $inicio = (string) @file_get_contents($root . '/' . $matched[2], false, null, 0, 2);
+            if ($inicio !== '#!') {
+                $sinPrograma[] = $matched[2];
+            }
+        }
+        foreach (array_slice($sinPrograma, 0, 10) as $relative) {
+            $failures[] = $relative . ' — git lo tiene como 100755 y no empieza por «#!»: no es un programa.'
+                . ' «git update-index --chmod=-x -- ' . $relative . '» (y chmod -x en el disco).';
+        }
+        if (count($sinPrograma) > 10) {
+            $failures[] = '… y ' . (count($sinPrograma) - 10) . ' más en 100755 sin «#!».';
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$checked} guion(es) de bin/ comprobados contra su bit de ejecución; "
+            . "{$ejecutables} archivo(s) en 100755 en el índice, " . ($ejecutables - count($sinPrograma)) . ' con «#!».');
 
         return $failures;
     }
