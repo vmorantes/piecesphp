@@ -70,7 +70,8 @@ use PiecesPHP\Core\Email\MailDelivery;
                     <div class="field">
                         <label><?= __($langGroup, 'Contraseña'); ?></label>
                         <div class="ui icon input" show-hide-password-event>
-                            <input type="password" name="password" value="<?= htmlentities($element->password()); ?>">
+                            <?php //La contraseña no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
+                            <input type="password" name="password" value="" autocomplete="new-password" placeholder="<?= mb_strlen((string) $element->password()) > 0 ? __($langGroup, 'Hay una contraseña guardada: déjelo vacío para conservarla') : ''; ?>">
                             <i class="inverted circular eye link icon"></i>
                         </div>
                     </div>

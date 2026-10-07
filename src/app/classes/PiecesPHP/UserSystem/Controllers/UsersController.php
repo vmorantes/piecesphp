@@ -664,7 +664,8 @@ class UsersController extends AdminPanelController
 
         if (!is_null($user->id) && Roles::roleExists($user->type)) {
 
-            if (!$hasAuthority) {
+            //Su POST no deja tocar a un usuario de otra organización: el GET tampoco lo enseña.
+            if (!$hasAuthority || !self::canManageUser($currentUser, $user)) {
                 return throw403($req, [
                     'url' => self::routeName('list'),
                 ]);
@@ -1287,13 +1288,41 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * Registra un usuario nuevo
+     * Registra un usuario nuevo desde el panel: el borde de users-register-request. Aplica la política del formulario
+     * de alta (canCreateUser) y delega en el núcleo.
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
      * @return Response
      */
     public function register(Request $request, Response $response)
+    {
+        $body = $request->getParsedBody();
+        $body = is_array($body) ? $body : [];
+        $type = $body['type'] ?? null;
+        $status = $body['status'] ?? null;
+        $organization = $body['organization'] ?? null;
+        //Sin tipo o estado enteros no hay alta: la validación del núcleo la rechaza con su mensaje.
+        if (Validator::isInteger($type) && Validator::isInteger($status)) {
+            $organization = Validator::isInteger($organization) ? (int) $organization : null;
+            if (!self::canCreateUser(new UsersModel(getLoggedFrameworkUserOrFail()->id), (int) $type, $organization, (int) $status)) {
+                return throw403($request);
+            }
+        }
+        return $this->createUserFromRequest($request, $response);
+    }
+
+    /**
+     * El núcleo del alta: valida, comprueba duplicados, guarda y responde.
+     *
+     * ATENCIÓN: no comprueba quién da el alta. Cada borde HTTP aplica su política (register() la del panel,
+     * APIController la del alta pública); ninguna ruta debe apuntar aquí.
+     *
+     * @param Request $request Petición
+     * @param Response $response Respuesta
+     * @return Response
+     */
+    public function createUserFromRequest(Request $request, Response $response): Response
     {
 
         $operation_name = __(self::LANG_GROUP, 'Creación de usuario');
@@ -1484,9 +1513,9 @@ class UsersController extends AdminPanelController
                     $result->setValue('reload', true);
 
                     $result
-                        ->setMessage($message_create)
-                        ->operation($operation_name)
-                        ->setSuccess(true);
+                        ->setMessage($message_create);
+                    //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                    ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
 
                 } else {
 
@@ -1542,6 +1571,78 @@ class UsersController extends AdminPanelController
 
         return $response->withJson($result);
 
+    }
+
+    /**
+     * Un POST no concede más que su GET (pendientes.md 380): lo que el formulario de edición no deja hacer, la
+     * petición tampoco. El permiso del formulario, la autoridad sobre el tipo, sus estados y, sin poder sobre todas
+     * las organizaciones, solo usuarios de la propia y sin moverlos.
+     *
+     * @param UsersModel $actor
+     * @param UsersModel $target
+     * @param int|null $organization La que trae la petición
+     * @param int|null $status El que trae la petición
+     * @return bool
+     */
+    private static function canEditOtherUser(UsersModel $actor, UsersModel $target, ?int $organization, ?int $status): bool
+    {
+        if (!Roles::hasPermissions('users-form-edit', (int) $actor->type, true) || !Roles::roleExists((int) $target->type) || !$actor->hasAuthorityOver((int) $target->type)) {
+            return false;
+        }
+        //Lista blanca: los estados que ofrece el formulario de edición, no «todo menos los ocultos».
+        if ($status !== null && !in_array($status, array_diff(array_keys(UsersModel::STATUSES), UsersModel::STATUSES_HIDDEN_ON_EDIT), true)) {
+            return false;
+        }
+        if (!OrganizationMapper::canModifyAnyOrganization((int) $actor->type)) {
+            $own = $actor->organization;
+            if ($own === null || $target->organization != $own || ($organization !== null && $organization != $own)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Si el actor puede gestionar al destino: es él mismo, o podría abrir su formulario de edición (la regla de
+     * canEditOtherUser sin estado ni organización pedidos). La usan el GET de edición y el avatar (pendientes.md 382).
+     *
+     * @param UsersModel $actor
+     * @param UsersModel $target
+     * @return bool
+     */
+    public static function canManageUser(UsersModel $actor, UsersModel $target): bool
+    {
+        if ($actor->id !== null && $actor->id == $target->id) {
+            return true;
+        }
+        return $target->id !== null && self::canEditOtherUser($actor, $target, null, null);
+    }
+
+    /**
+     * Lo mismo para el alta: lo que ofrece el formulario de creación de ese tipo.
+     *
+     * @param UsersModel $actor
+     * @param int $type
+     * @param int|null $organization
+     * @param int $status
+     * @return bool
+     */
+    private static function canCreateUser(UsersModel $actor, int $type, ?int $organization, int $status): bool
+    {
+        if (!Roles::hasPermissions('users-form-create', (int) $actor->type, true) || !isset(UsersModel::getTypesUser()[$type]) || !$actor->hasAuthorityOver($type)) {
+            return false;
+        }
+        //Lista blanca: los estados que ofrece el formulario de alta.
+        if (!in_array($status, array_diff(array_keys(UsersModel::STATUSES), UsersModel::STATUSES_HIDDEN_ON_CREATION), true)) {
+            return false;
+        }
+        if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION) && !OrganizationMapper::canModifyAnyOrganization((int) $actor->type)) {
+            $own = $actor->organization;
+            if ($own === null || $organization != $own) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1729,6 +1830,17 @@ class UsersController extends AdminPanelController
             $organization = $parametersExcepted->getValue('organization');
 
             $userMapper = new UsersModel($id);
+
+            if ($userMapper->id !== null) {
+                $actor = new UsersModel(getLoggedFrameworkUserOrFail()->id);
+                if ($userMapper->id == $actor->id) {
+                    //Uno mismo, por la vía que sea, es su perfil: el estado no cambia y la contraseña pide la actual.
+                    $isProfile = true;
+                    $status = null;
+                } elseif ($isProfile || !self::canEditOtherUser($actor, $userMapper, $organization, $status)) {
+                    return throw403($request);
+                }
+            }
             if ($username === null) {
                 $username = $userMapper->username;
             }
@@ -1793,9 +1905,9 @@ class UsersController extends AdminPanelController
                         $result->setValue('reload', true);
 
                         $result
-                            ->setMessage($message_edit)
-                            ->operation($operation_name)
-                            ->setSuccess(true);
+                            ->setMessage($message_edit);
+                        //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                        ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
 
                     } else {
 

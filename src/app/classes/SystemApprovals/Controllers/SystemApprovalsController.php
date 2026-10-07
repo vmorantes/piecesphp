@@ -116,14 +116,11 @@ class SystemApprovalsController extends AdminPanelController
         $referenceMapper = SystemApprovalManager::getInstance()->getMapperInstance($approvalMapper->referenceTable, $approvalMapper->referenceValue);
         $approvalHandler = SystemApprovalManager::getInstance()->getHandler($approvalMapper->referenceTable);
         $currentUser = getLoggedFrameworkUserOrFail();
-        $currentUserID = $currentUser->id;
-        $currenUserType = $currentUser->type;
 
         $approvalMapperExists = $approvalMapper->id !== null;
         $hasApprovalHandler = $approvalHandler !== null;
         $hasReferenceMapper = $referenceMapper !== null && ($referenceMapper->id ?? null) !== null;
-        $contactUser = $approvalHandler::getContactUser($referenceMapper);
-        $isSameUser = $contactUser !== null && $contactUser->id == $currentUserID && $currenUserType != UsersModel::TYPE_USER_ROOT;
+        $isSameUser = self::isOwnApproval($approvalMapper, $currentUser);
 
         if ($approvalMapperExists && $hasApprovalHandler && $hasReferenceMapper && !$isSameUser && self::canManage($approvalMapper, $currentUser)) {
 
@@ -230,7 +227,9 @@ class SystemApprovalsController extends AdminPanelController
         //El alcance, ANTES del try: fuera de él, 404 como el formulario, sin escribir ni enviar correo.
         $approvalID = $request->getAttribute('id', null);
         $approvalElement = new SystemApprovalsMapper(Validator::isInteger($approvalID) ? (int) $approvalID : -1);
-        if ($approvalElement->id !== null && !self::canManage($approvalElement, getLoggedFrameworkUserOrFail())) {
+        //Y lo propio, con la regla del formulario: un rechazado no aprueba su propia fila (pendientes.md 392).
+        $currentUser = getLoggedFrameworkUserOrFail();
+        if ($approvalElement->id !== null && (!self::canManage($approvalElement, $currentUser) || self::isOwnApproval($approvalElement, $currentUser))) {
             throw new NotFoundException($request, $response);
         }
 
@@ -493,6 +492,20 @@ class SystemApprovalsController extends AdminPanelController
             new HavingItem('referenceOrtanizationApprovalValue', HavingItem::NOT_EQUAL_OPERATOR, $approved, HavingItem::AND_OPERATOR),
         ]));
 
+        //La autoridad sobre el tipo, como canManage(), en LISTA BLANCA: un tipo fuera de TYPES_USERS no se lista. Un `=` por
+        //tipo (IN no va por marcador): (no es un perfil) OR (tipo = a) OR (tipo = b)…
+        $actorModel = new UsersModel((int) $currentUserID);
+        $authorityItems = [new HavingItem("{$table}.referenceTable", HavingItem::NOT_EQUAL_OPERATOR, $tableUsers, HavingItem::OR_OPERATOR)];
+        foreach (array_keys(UsersModel::TYPES_USERS) as $type) {
+            if ($actorModel->hasAuthorityOver($type)) {
+                $authorityItems[] = new HavingItem('referenceUserType', HavingItem::EQUAL_OPERATOR, $type, HavingItem::OR_OPERATOR);
+            }
+        }
+        //EL ÚLTIMO CIERRA EN AND, como generateHavingGroup(): el grupo se une a lo que le sigue con el operador de su último
+        //criterio, y con OR la búsqueda, elapsedDays o C5 anularían todos los filtros de antes.
+        $authorityItems[count($authorityItems) - 1]->setAfterOperator(HavingItem::AND_OPERATOR);
+        $havingSegment->addGroup(new HavingItemGroup($authorityItems));
+
         //Verificar permisos sobre organization
         if ($currentUser !== null) {
             $currentOrganizationID ??= -1;
@@ -563,9 +576,12 @@ class SystemApprovalsController extends AdminPanelController
                 $avatar = AvatarModel::getAvatar($e->referenceCreatedBy);
                 $avatar ??= baseurl('statics/images/default-avatar.png');
                 $avatar = "<div class='avatar'><img src='{$avatar}' /></div>";
-                $userName = "<div class='name'>{$e->referenceUserFullName}</div>";
+                //El nombre lo edita el propio usuario y no se limpia al entrar: se escapa al salir.
+                $fullName = htmlspecialchars((string) $e->referenceUserFullName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $userName = "<div class='name'>{$fullName}</div>";
 
-                $columns[] = $mapper->getTimeTag();
+                //El listado selecciona todas las columnas del mapper, así que objectToMapper() no da null aquí.
+                $columns[] = $mapper !== null ? $mapper->getTimeTag() : '';
                 $columns[] = __(self::LANG_GROUP, $e->referenceAlias);
                 $columns[] = $e->referenceDateFormat;
                 $columns[] = "<div class='user-info'>{$avatar} {$userName}</div>";
@@ -579,8 +595,28 @@ class SystemApprovalsController extends AdminPanelController
     }
 
     /**
-     * Si el usuario puede ver y resolver el elemento: C3 y C5 del listado, aplicados en PHP; a los limitados por C5,
-     * además lo pendiente, C1 y C4.
+     * Si el usuario de contacto de la fila es el de la sesión, salvo el principal: ni su formulario ni su acción.
+     *
+     * Sin manejador (una tabla que nadie gestiona) o sin lo aprobado no hay contacto, y da false: canManage() y el 404 del
+     * formulario responden por su lado.
+     *
+     * @param SystemApprovalsMapper $element
+     * @param UserDataPackage $user
+     * @return bool
+     */
+    private static function isOwnApproval(SystemApprovalsMapper $element, UserDataPackage $user): bool
+    {
+        $manager = SystemApprovalManager::getInstance();
+        $referenceMapper = $manager->getMapperInstance($element->referenceTable, $element->referenceValue);
+        $approvalHandler = $manager->getHandler($element->referenceTable);
+        $hasReferenceMapper = $referenceMapper !== null && ($referenceMapper->id ?? null) !== null;
+        $contactUser = $approvalHandler !== null && $hasReferenceMapper ? $approvalHandler::getContactUser($referenceMapper) : null;
+        return $contactUser !== null && $contactUser->id == $user->id && $user->type != UsersModel::TYPE_USER_ROOT;
+    }
+
+    /**
+     * Si el usuario puede ver y resolver el elemento: C3, C5 y la autoridad sobre el tipo del perfil, como el listado,
+     * aplicados en PHP; a los limitados por C5, además lo pendiente, C1 y C4.
      *
      * Las rutas dejan entrar a más tipos de los que pueden aprobarlo todo: el alcance lo pone esto.
      *
@@ -599,6 +635,15 @@ class SystemApprovalsController extends AdminPanelController
         if (!in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_SELF, true) && (string) $record->referenceCreatedBy === (string) $user->id) {
             return false;
         }
+        //La fila de un perfil, solo con autoridad sobre su tipo: un institucional no resuelve la del principal ni la de un
+        //administrador general, como no puede editarlos.
+        if ((string) $element->referenceTable === UsersModel::TABLE) {
+            $subject = new UsersModel((int) $element->referenceValue);
+            //Lista blanca, como el listado: un tipo fuera de TYPES_USERS no se resuelve, tampoco por id.
+            if ($subject->id === null || !array_key_exists((int) $subject->type, UsersModel::TYPES_USERS) || !(new UsersModel((int) $user->id))->hasAuthorityOver((int) $subject->type)) {
+                return false;
+            }
+        }
         //C5: sin permiso global, la organización del creador es la suya y él es su administrador.
         $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($userType);
         $canApprovalAll = in_array($userType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
@@ -614,7 +659,8 @@ class SystemApprovalsController extends AdminPanelController
             if (!$isPending || !$isActive || !$passesC4) {
                 return false;
             }
-            //En dos pasos: `??` sobre la propiedad mágica pregunta a __isset, que UserDataPackage no tiene.
+            //En UserDataPackage, isset() da false aunque haya organización, y `??` sí devuelve el valor (medido):
+            //no cambies uno por otro.
             $organizationID = $user->organization;
             $organizationID ??= -1;
             return (string) $record->referenceOrganization === (string) $organizationID

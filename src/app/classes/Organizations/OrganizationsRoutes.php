@@ -100,27 +100,32 @@ class OrganizationsRoutes
                 $sidebar->addItem(new MenuGroup([
                     'name' => __(OrganizationsLang::LANG_GROUP, 'Gestión de la organización'),
                     'icon' => 'list',
-                    'items' => [
-                        new MenuItem([
-                            'text' => __(OrganizationsLang::LANG_GROUP, 'Organización'),
-                            'href' => OrganizationsController::routeName('forms-edit', [
-                                'id' => getLoggedFrameworkUser()->organization,
+                    'items' => array_merge(
+                        //Sin organización no hay a cuál enlazar: el usuario no recibe la entrada (pendientes.md 379.1).
+                        $currentUser->organization !== null ? [
+                            new MenuItem([
+                                'text' => __(OrganizationsLang::LANG_GROUP, 'Organización'),
+                                'href' => OrganizationsController::routeName('forms-edit', [
+                                    'id' => $currentUser->organization,
+                                ]),
+                                'visible' => OrganizationsController::allowedRoute('forms-edit', [
+                                    'id' => $currentUser->organization,
+                                ]),
                             ]),
-                            'visible' => OrganizationsController::allowedRoute('forms-edit', [
-                                'id' => getLoggedFrameworkUser()->organization,
+                        ] : [],
+                        [
+                            new MenuItem([
+                                'text' => __(OrganizationsLang::LANG_GROUP, 'Usuarios'),
+                                'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'),
+                                'visible' => Roles::hasPermissions('users-list', $currentUserType),
                             ]),
-                        ]),
-                        new MenuItem([
-                            'text' => __(OrganizationsLang::LANG_GROUP, 'Usuarios'),
-                            'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'),
-                            'visible' => Roles::hasPermissions('users-list', $currentUserType),
-                        ]),
-                        new MenuItem([
-                            'text' => __(OrganizationsLang::LANG_GROUP, 'Agregar usuarios'),
-                            'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('selection-create'),
-                            'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
-                        ]),
-                    ],
+                            new MenuItem([
+                                'text' => __(OrganizationsLang::LANG_GROUP, 'Agregar usuarios'),
+                                'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('selection-create'),
+                                'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
+                            ]),
+                        ]
+                    ),
                     'position' => 80,
                 ]));
             }

@@ -70,10 +70,12 @@ adjuntos, en `<folder>/attachments/…`), y `folder` es una columna de la public
   - por fecha, con una tarea del cron que sincroniza las programadas y las caducadas.
 - Una publicación visible tiene sus archivos con el nombre real: se sirven directos.
 - Una no visible los tiene con el sufijo:
-  - con sesión se sirven por PHP;
+  - con sesión se sirven por PHP, solo a quien puede ver la publicación o editarla
+    (`PublicationMapper::canBePreviewedBy()` o el permiso de su formulario);
   - sin sesión, el validador (`PublicationsController::uploadedFileValidator()` y
     `publicFileIsServable()`) vuelve a comprobar la visibilidad y falla cerrado.
-- Las carpetas sin publicación que las nombre son privadas.
+- Las carpetas sin publicación que las nombre son privadas: con sesión, sus archivos solo los recibe quien puede ver
+  todas las publicaciones (`PublicationMapper::CAN_VIEW_ALL`).
 
 ```php
 ProtectFileMiddleware::protect(

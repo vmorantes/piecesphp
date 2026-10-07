@@ -32,7 +32,7 @@ class HelperController extends BaseController
      *
      * @var ?BaseController Controlador base
      */
-    public ?BaseController $viewLocalRender = null;
+    public BaseController $viewLocalRender;
 
     /**
      * @param \stdClass $user Usuario logueado
@@ -61,7 +61,8 @@ class HelperController extends BaseController
      */
     public function localRender(string $view, array $data = [], bool $mode = true, bool $format = false)
     {
-        $this->viewLocalRender->setInstanceViewDir($this->viewLocalDir);
+        //realpath() solo falla si no existiera la carpeta de vistas del módulo, que viaja con él.
+        $this->viewLocalRender->setInstanceViewDir($this->viewLocalDir ?? __DIR__ . '/../Views/');
         $this->viewLocalRender->setVariables($data);
         return $this->viewLocalRender->render($view, $data, $mode, $format);
     }

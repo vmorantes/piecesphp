@@ -167,7 +167,8 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                         <div class="field required" translatable="<?= $fieldHandler->isTranslatable(); ?>">
                             <label><?= __($langGroup, 'Contenido'); ?></label>
                             <div rich-editor-adapter-component></div>
-                            <textarea name="<?= $fieldName; ?>" required><?= $element->getLangData($langCode, 'content', false, ''); ?></textarea>
+                            <?php //Escapado: un </textarea> en el contenido se saldría del campo; el editor lee el .value, que llega decodificado. ?>
+                            <textarea name="<?= $fieldName; ?>" required><?= htmlspecialchars((string) $element->getLangData($langCode, 'content', false, ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                         </div>
 
                     </div>
@@ -309,7 +310,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                         <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
                         <div class="field" translatable="<?= $fieldHandler->isTranslatable(); ?>">
                             <label><?= __($langGroup, 'Descripción'); ?></label>
-                            <textarea name="<?= $fieldName; ?>"><?= $element->getLangData($langCode, $fieldName, true, ''); ?></textarea>
+                            <textarea name="<?= $fieldName; ?>"><?= htmlspecialchars((string) $element->getLangData($langCode, $fieldName, true, ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                         </div>
 
                     </div>
@@ -351,14 +352,14 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
                             <?php foreach($element->getAttachmentsByLang($langCode, true) as $attachmentMapper): ?>
                             <?php $attachmentElement = new AttachmentPackage($element->id, $attachmentMapper->id, $attachmentMapper->attachmentName, false, $attachmentMapper->lang); ?>
-                            <?php $hasAttachment = $attachmentElement->hasAttachment(); ?>
                             <?php $attachmentMapper = $attachmentElement->getMapper(); ?>
+                            <?php $hasAttachment = $attachmentElement->hasAttachment() && $attachmentMapper !== null; ?>
                             <?php $fileLocation = $hasAttachment ? $attachmentMapper->fileLocation : ''; ?>
                             <?php $isImage = $hasAttachment ? $attachmentMapper->fileIsImage() : ''; ?>
                             <?php $existingFileAttr = $isImage ? "data-image" : "data-file"; ?>
                             <?php $existingFileAttr = "{$existingFileAttr}='{$fileLocation}'"; ?>
                             <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                            <div class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>" data-mapper-id="<?= $attachmentMapper->id; ?>">
+                            <div class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>" data-mapper-id="<?= $attachmentMapper !== null ? $attachmentMapper->id : ''; ?>">
                                 <div class="ui top right attached label green">
                                     <i class="paperclip icon"></i>
                                 </div>

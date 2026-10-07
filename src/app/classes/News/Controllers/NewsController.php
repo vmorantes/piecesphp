@@ -186,7 +186,7 @@ class NewsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), $element->category->id);
+            $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), $element->category instanceof NewsCategoryMapper ? $element->category->id : $element->category);
             $ignoreUserTypes = [
                 UsersModel::TYPE_USER_ROOT,
             ];
@@ -1104,6 +1104,10 @@ class NewsController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = NewsMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
@@ -1301,6 +1305,9 @@ class NewsController extends AdminPanelController
         $controller = new NewsController;
         $parser = function ($element) use ($controller) {
             $element = NewsMapper::objectToMapper($element);
+            if ($element === null) {
+                return '';
+            }
             $element = mb_convert_encoding($controller->render('public/util/item', [
                 'element' => $element,
                 'langGroup' => self::LANG_GROUP,
@@ -1309,6 +1316,9 @@ class NewsController extends AdminPanelController
         };
         $each = function ($element) {
             $mapper = NewsMapper::objectToMapper($element);
+            if ($mapper === null) {
+                return $element;
+            }
             $category = new NewsCategoryMapper($mapper->category);
             $element->profilesTarget = $mapper->profilesTarget;
             $element->createdBy = $mapper->createdBy;

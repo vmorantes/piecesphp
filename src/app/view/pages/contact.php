@@ -16,7 +16,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <form class="ui form" method="POST" action="<?= $contactURL; ?>" contact-form>
 
-                <input type="hidden" name="from" value="<?= get_current_url(); ?>">
+                <input type="hidden" name="from" value="<?= htmlspecialchars(get_current_url(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>">
 
                 <div class="field required">
                     <label><?= __(LANG_GROUP, 'Nombre'); ?></label>

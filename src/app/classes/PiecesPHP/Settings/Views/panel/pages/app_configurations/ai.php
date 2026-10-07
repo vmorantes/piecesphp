@@ -38,12 +38,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                     <div class="field">
                         <label><?= __($langGroup, 'API Key OpenAI'); ?></label>
-                        <input type="text" name="OpenAIApiKey" value="<?= get_config('OpenAIApiKey'); ?>">
+                        <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
+                        <input type="text" name="OpenAIApiKey" value="" autocomplete="off" placeholder="<?= mb_strlen((string) get_config('OpenAIApiKey')) > 0 ? __($langGroup, 'Hay una clave guardada: déjelo vacío para conservarla') : ''; ?>">
                     </div>
 
                     <div class="field">
                         <label><?= __($langGroup, 'API Key Mistral'); ?></label>
-                        <input type="text" name="MistralAIApiKey" value="<?= get_config('MistralAIApiKey'); ?>">
+                        <input type="text" name="MistralAIApiKey" value="" autocomplete="off" placeholder="<?= mb_strlen((string) get_config('MistralAIApiKey')) > 0 ? __($langGroup, 'Hay una clave guardada: déjelo vacío para conservarla') : ''; ?>">
                     </div>
 
                 </div>

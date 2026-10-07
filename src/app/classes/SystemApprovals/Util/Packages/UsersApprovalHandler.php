@@ -62,6 +62,9 @@ class UsersApprovalHandler extends BaseApprovalHandler
         if ($id !== null && $mapper == null) {
             $mapper = UsersModel::getBy($id, 'id', [], new UserDataPackage(1), true);
         }
+        if ($mapper === null) {
+            return $text;
+        }
         $organization = $mapper->organization;
         $organization = $organization !== null ? new OrganizationMapper($organization) : new OrganizationMapper();
         $isBaseOrg = $organization->id !== null && $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL;
@@ -95,9 +98,12 @@ class UsersApprovalHandler extends BaseApprovalHandler
         if (in_array($userMapper->type, $autoApprovalUserTypes) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE || in_array($userMapper->type, UsersModel::ARE_AUTO_APPROVAL)) {
             $approved = true;
         }
-        //Si la organización está aprobada
-        if (SystemApprovalManager::getInstance()->isApproved(OrganizationMapper::class, $organization->id)) {
-            $approved = true;
+        //Si la organización está aprobada. Solo para quien está activo o PENDIENTE: inactivo, bloqueado, rechazado y borrado
+        //no se tocan, ni su estado ni su fila de aprobación (pendientes.md 387.1). Antes reactivaba a cualquiera.
+        $statusesToApprove = [UsersModel::STATUS_USER_ACTIVE, UsersModel::STATUS_USER_APPROVED_PENDING];
+        $approvalMapper = null;
+        $organizationApproved = in_array((int) $userMapper->status, $statusesToApprove, true) && SystemApprovalManager::getInstance()->isApproved(OrganizationMapper::class, $organization->id);
+        if ($organizationApproved) {
             $approvalMapper = SystemApprovalsMapper::getByMultipleCriteries([
                 [
                     'column' => 'referenceTable',
@@ -108,11 +114,16 @@ class UsersApprovalHandler extends BaseApprovalHandler
                     'value' => $userMapper->id,
                 ],
             ], [], false, true);
+        }
+        //Un perfil que una persona rechazó no lo aprueba la organización aprobada: ni la fila ni el estado.
+        $rejectedByPerson = $approvalMapper !== null && (string) $approvalMapper->status === SystemApprovalsMapper::STATUS_REJECTED;
+        if ($organizationApproved && !$rejectedByPerson) {
+            $approved = true;
             if ($approvalMapper !== null) {
                 $approvalMapper->status = SystemApprovalsMapper::STATUS_APPROVED;
                 $approvalMapper->update();
             }
-            if ($userMapper->status != UsersModel::STATUS_USER_ACTIVE) {
+            if ((int) $userMapper->status === UsersModel::STATUS_USER_APPROVED_PENDING) {
                 $userMapper->status = UsersModel::STATUS_USER_ACTIVE;
                 $userMapper->update();
             }
@@ -127,8 +138,16 @@ class UsersApprovalHandler extends BaseApprovalHandler
      */
     public static function onApprovedSpecificMapper(UsersModel $element)
     {
-        $element->status = UsersModel::STATUS_USER_ACTIVE;
-        $element->update();
+        //Solo el pendiente y el rechazado: inactivo y borrado no se tocan. Antes activaba a cualquiera. Un bloqueado sigue
+        //bloqueado: se mueve su estado guardado, y al desbloquear vuelve aprobado.
+        if ((int) $element->status === UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+            //Si se desbloqueó entre tanto, se aplica a su estado vivo. RETORNO-IGNORADO: sin [pendiente, rechazado] no hay
+            //nada que mover.
+            UsersModel::applyStatusTransition((int) $element->id, [UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::STATUS_USER_REJECTED], UsersModel::STATUS_USER_ACTIVE);
+        } elseif (in_array((int) $element->status, [UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::STATUS_USER_REJECTED], true)) {
+            $element->status = UsersModel::STATUS_USER_ACTIVE;
+            $element->update();
+        }
     }
 
     /**
@@ -138,8 +157,16 @@ class UsersApprovalHandler extends BaseApprovalHandler
      */
     public static function onRejectedSpecificMapper(UsersModel $element): void
     {
-        $element->status = UsersModel::STATUS_USER_REJECTED;
-        $element->update();
+        //Solo el activo y el pendiente: inactivo y borrado no se tocan. Antes rechazaba a cualquiera. Un bloqueado sigue
+        //bloqueado: se mueve su estado guardado, y al desbloquear vuelve rechazado.
+        if ((int) $element->status === UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+            //Si se desbloqueó entre tanto, se aplica a su estado vivo. RETORNO-IGNORADO: sin [activo, pendiente] no hay nada
+            //que mover.
+            UsersModel::applyStatusTransition((int) $element->id, [UsersModel::STATUS_USER_ACTIVE, UsersModel::STATUS_USER_APPROVED_PENDING], UsersModel::STATUS_USER_REJECTED);
+        } elseif (in_array((int) $element->status, [UsersModel::STATUS_USER_ACTIVE, UsersModel::STATUS_USER_APPROVED_PENDING], true)) {
+            $element->status = UsersModel::STATUS_USER_REJECTED;
+            $element->update();
+        }
     }
 
     /**

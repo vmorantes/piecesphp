@@ -334,6 +334,10 @@ class MyProfileController extends AdminPanelController
                 //Guardar el perfil propio ES el camino legítimo de creación: si aún no
                 //existe la fila, se materializa aquí y no en un constructor.
                 $mapper = UserProfileMapper::createProfile($id);
+                //Null solo si el usuario no existe o la fila no se creó; aquí hay sesión, así que es un fallo de verdad.
+                if ($mapper === null) {
+                    throw new \Exception('No se pudo leer ni crear el perfil del usuario ' . $id);
+                }
                 $lang = Config::get_default_lang();
 
                 $mapper->setLangData($lang, 'jobPosition', $jobPosition);

@@ -238,9 +238,9 @@ class AdminPanelController extends BaseController
             if ($success) {
                 $result->setValue('reload', true);
                 $result
-                    ->setMessage($message_create)
-                    ->operation($operation_name)
-                    ->setSuccess(true);
+                    ->setMessage($message_create);
+                //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
             } else {
                 $result
                     ->setMessage($message_unknow_error);

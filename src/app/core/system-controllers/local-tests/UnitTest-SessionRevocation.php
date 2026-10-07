@@ -223,6 +223,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         return (int) (((array) $m->result())[0]->ultimo ?? 0);
     })();
     $publicacionID = null;
+    $publicacionKID = null;
     $ids = [];
 
     try {
@@ -487,11 +488,34 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             }
         }
         $check($recortada !== null, 'pk0 banco: hay una ruta del rol general fuera del recorte que el aprobado abre', count($candidatas) . ' candidatas');
-        [$kProtegida, $kPublica] = $medir('K general NO aprobado, organización pendiente', $noAprobado);
+        [$kProtegida, ] = $medir('K general NO aprobado, organización pendiente', $noAprobado);
+        //Su señal pública: un borrador SUYO. El de arriba es de otro creador y, desde F3 (pendientes.md 380), un general
+        //solo ve los borradores de su organización: lo que se mide es la sesión, no el permiso de borradores.
+        $pk = new PublicationMapper();
+        $pk->baseLang = $lang;
+        foreach (['title' => "{$prefijo} borrador de K", 'content' => 'Borrador de K.', 'seoDescription' => '', 'publicDate' => new \DateTime(), 'startDate' => null, 'endDate' => null, 'category' => $categoria, 'visits' => 0, 'author' => $ids['pK'], 'folder' => str_replace('.', '', uniqid()), 'featured' => PublicationMapper::UNFEATURED, 'mainImage' => 'statics/images/zz-prueba.jpg', 'thumbImage' => 'statics/images/zz-prueba.jpg', 'ogImage' => ''] as $campo => $valor) {
+            $pk->setLangData($lang, $campo, $valor);
+        }
+        $pk->status = PublicationMapper::DRAFT;
+        $usuarioPrevio = get_config('current_user');
+        $guardadoPrevio = get_config('pcsphp_current_user_stored');
+        try {
+            set_config('current_user', (object) ['id' => $ids['pK']]);
+            set_config('pcsphp_current_user_stored', null);
+            $pk->save();
+        } finally {
+            set_config('current_user', $usuarioPrevio);
+            set_config('pcsphp_current_user_stored', $guardadoPrevio);
+        }
+        $publicacionKID = $pk->id !== null ? (int) $pk->id : null;
+        $rutaPublicaK = (string) $ruta($nombres['publica'], ['slug' => $pk->getSlug()]);
+        $kPublica = $pedir('GET', $rutaPublicaK, $noAprobado, [], false)['status'];
+        $kPublicaSinSesion = $pedir('GET', $rutaPublicaK, null, [], false)['status'];
+        echoTerminal("      MEDIDA K, su propio borrador: con sesión HTTP {$kPublica} · sin sesión HTTP {$kPublicaSinSesion}");
         $kRecortada = $recortada !== null ? $pedir('GET', (string) $ruta($recortada), $noAprobado)['status'] : 0;
         echoTerminal("      MEDIDA K, ruta recortada {$recortada} (XHR): no aprobado HTTP {$kRecortada} · aprobado HTTP 200");
         $check($kProtegida === 'DENTRO', 'pk1 K: el no aprobado ENTRA: conserva su espacio', $kProtegida);
-        $check($kPublica === 200, 'pk2 K: y la ruta pública lo ve como identificado', "HTTP {$kPublica}");
+        $check($kPublica === 200 && $kPublicaSinSesion === 404, 'pk2 K: y la ruta pública lo ve como identificado (su borrador: 200 con sesión, 404 sin ella)', "HTTP {$kPublica} y {$kPublicaSinSesion}");
         $check($kRecortada === 403, "pk3 K: pero {$recortada}, que su rol tiene, le responde 403: el recorte sigue aplicándose", "HTTP {$kRecortada}");
         //La lista de lo que conserva el no aprobado nombra rutas por su nombre: si una se renombra y la lista no, la pierde sin ruido.
         $kMapbox = $pedir('GET', (string) $ruta('configurations-integrations-mapbox-key'), $noAprobado)['status'];
@@ -645,11 +669,13 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
                 $config->delete(['name' => SessionToken::MINIMUM_DATE_CONFIG])->execute();
             }
             $retirado[] = 'marca global ' . ($marcaGlobalExistia ? 'restaurada' : 'retirada');
-            if ($publicacionID !== null) {
-                $pub = PublicationMapper::model();
-                $pub->resetAll();
-                $pub->delete(['id' => $publicacionID])->execute();
-                $retirado[] = "publicación {$publicacionID}";
+            foreach ([$publicacionID, $publicacionKID] as $idPublicacion) {
+                if ($idPublicacion !== null) {
+                    $pub = PublicationMapper::model();
+                    $pub->resetAll();
+                    $pub->delete(['id' => $idPublicacion])->execute();
+                    $retirado[] = "publicación {$idPublicacion}";
+                }
             }
             $ahora = $usuariosDelPrefijo();
             //Los registros de acciones apuntan a los usuarios: se borran antes, solo los de esta prueba.
@@ -692,7 +718,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             $referencias = [
                 UsersModel::TABLE => array_map(fn($u) => (int) $u->id, $ahora),
                 OrganizationMapper::TABLE => $idsOrganizaciones,
-                PublicationMapper::TABLE => $publicacionID !== null ? [$publicacionID] : [],
+                PublicationMapper::TABLE => array_values(array_filter([$publicacionID, $publicacionKID], fn ($id) => $id !== null)),
             ];
             $quedanAprobaciones = 0;
             foreach ($referencias as $tabla => $idsDeTabla) {
@@ -721,7 +747,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
 
-        $quedaPublicacion = $publicacionID !== null && PublicationMapper::existsByID($publicacionID);
+        $quedaPublicacion = ($publicacionID !== null && PublicationMapper::existsByID($publicacionID)) || ($publicacionKID !== null && PublicationMapper::existsByID($publicacionKID));
         $logsRestantes = LogsMapper::model();
         $logsRestantes->resetAll();
         $logsRestantes->select()->where(new WhereSegment([

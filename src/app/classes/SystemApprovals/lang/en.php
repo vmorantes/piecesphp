@@ -35,6 +35,7 @@ return [
     "Todas" => "All",
     "Descargar" => "Download",
     "Persona encargada" => "Person in charge",
+    "Sin encargado" => "No person in charge",
     "Nombres" => "First names",
     "Página web" => "Website",
     "día(s)" => "day(s)",

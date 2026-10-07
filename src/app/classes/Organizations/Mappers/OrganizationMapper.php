@@ -1371,6 +1371,8 @@ class OrganizationMapper extends EntityMapperExtensible
             'latitude' => 0.0,
             'affiliatedInstitutions' => [],
             'administrator' => null,
+            //Sin langData (una fila importada o a medio crear) no hay traducciones: un objeto vacío, no un null de objectToMapper().
+            'langData' => new \stdClass,
         ];
 
         foreach ($element as $property => $value) {

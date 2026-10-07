@@ -451,11 +451,13 @@ class NewsletterController extends AdminPanelController
                 'email',
                 null,
                 function ($value) {
-                    return is_string($value) && trim($value) !== '';
+                    //Ruta pública sin sesión: solo un correo válido. Antes guardaba cualquier texto, y el listado lo pintaba.
+                    return is_string($value) && filter_var(trim($value), \FILTER_VALIDATE_EMAIL) !== false;
                 },
                 false,
                 function ($value) {
-                    return clean_string($value);
+                    //Recortado como se validó: si no, el mismo correo con un espacio entra dos veces.
+                    return trim(clean_string($value));
                 }
             ),
         ]);
@@ -786,6 +788,10 @@ class NewsletterController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = NewsletterSuscriberMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
@@ -808,8 +814,9 @@ class NewsletterController extends AdminPanelController
                 $columns = [];
 
                 $columns[] = $e->idPadding;
-                $columns[] = $mapper->nameDisplay();
-                $columns[] = $mapper->emailDisplay();
+                //Escapados: el correo llega de una suscripción pública, y los registros de antes no se validaron.
+                $columns[] = htmlspecialchars((string) $mapper->nameDisplay(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $columns[] = htmlspecialchars((string) $mapper->emailDisplay(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $columns[] = $e->acceptUpdatesDisplay;
                 $columns[] = $buttons;
                 return $columns;

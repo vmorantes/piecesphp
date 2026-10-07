@@ -271,7 +271,7 @@ class DocumentsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $documentTypes = array_to_html_options(DocumentTypesMapper::allForSelect('', ''), $element->documentType->id);
+            $documentTypes = array_to_html_options(DocumentTypesMapper::allForSelect('', ''), $element->documentType instanceof DocumentTypesMapper ? $element->documentType->id : $element->documentType);
             $manyLangs = count($allowedLangs) > 1 && !empty($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
@@ -857,6 +857,10 @@ class DocumentsController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = DocumentsMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);

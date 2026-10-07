@@ -36,7 +36,6 @@ class SystemApprovalsMiddleware
         $currentUser = getLoggedFrameworkUser();
         if ($currentUser !== null && $currentUser->type !== UsersModel::TYPE_USER_ROOT) {
 
-            $rolesBasePermissions = get_config('roles')['baseInitialSegmentedPermissions'];
             $allRolesConfig = Roles::getRoles();
             $currentType = $currentUser->type;
 
@@ -45,8 +44,7 @@ class SystemApprovalsMiddleware
                     $isApproved = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $currentUser->id);
                     $isApproved = $isApproved ? $isApproved : UsersApprovalHandler::isAutoApproval($currentUser->getMapper());
                     if (!$isApproved) {
-                        $otherAllowedRoutes = array_filter($roleConfig['allowed_routes'], fn($e) => self::keepsWhenNotApproved((string) $e));
-                        $roleConfig['allowed_routes'] = array_merge($rolesBasePermissions['generals'], $otherAllowedRoutes);
+                        $roleConfig['allowed_routes'] = UsersModel::restrictRoutes($roleConfig['allowed_routes']);
                         $allRolesConfig[$roleConfigKey] = $roleConfig;
                     }
                     break;
@@ -67,16 +65,7 @@ class SystemApprovalsMiddleware
      */
     public static function keepsWhenNotApproved(string $routeName): bool
     {
-        return $routeName === 'configurations-integrations-mapbox-key'
-            || str_starts_with($routeName, 'my-profile-admin-')
-            || str_starts_with($routeName, 'my-organization-profile-admin-')
-            || str_starts_with($routeName, 'profile-organization-admin-')
-            || str_starts_with($routeName, 'profile-admin-')
-            //Solo enviar la edición del propio perfil y los ajustes de su cuenta: «users-» entero concedería la gestión de usuarios.
-            || $routeName === 'users-edit-request'
-            || str_starts_with($routeName, 'user-system-features-')
-            || str_starts_with($routeName, 'my-space-admin-')
-            || str_starts_with($routeName, 'api-admin-')
-            || str_starts_with($routeName, 'SAMPLE');
+        //La lista vive en UsersModel: el recorte por estado (index.php §8) usa la misma.
+        return UsersModel::keepsWhenRestricted($routeName);
     }
 }

@@ -825,6 +825,11 @@ class BuiltInBannerMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    //Sin langData el banner no tiene traducciones: un objeto vacío, no un mapper null que tumbaba sus
+                    //listados con un 500, también el público.
+                    if ($value instanceof \stdClass && !property_exists($value, 'langData')) {
+                        $value->langData = new \stdClass;
+                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

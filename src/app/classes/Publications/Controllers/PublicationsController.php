@@ -232,7 +232,7 @@ class PublicationsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
+            $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category instanceof PublicationCategoryMapper ? $element->category->id : $element->category);
             $searchUsersURL = $this->urlForSearchUsers;
 
             $title = __(self::LANG_GROUP, 'Edición de publicación');
@@ -718,11 +718,17 @@ class PublicationsController extends AdminPanelController
                     $mapper = new PublicationMapper((int) $id);
                     $exists = !is_null($mapper->id);
 
+                    //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
+                    if ($exists && !self::allowedRoute('forms-edit', ['id' => $mapper->id])) {
+                        return throw403($request);
+                    }
+
                     if ($exists) {
 
                         $baseLang = $mapper->baseLang;
                         $isBaseLang = $lang == $baseLang;
-                        $translationData = clone $mapper->langData;
+                        //langData viene siempre como objeto (por defecto, vacío); una copia de nada sería un 500.
+                        $translationData = $mapper->langData instanceof \stdClass ? clone $mapper->langData : new \stdClass;
                         $translationExists = !$isBaseLang ? property_exists($translationData, $lang) : true;
 
                         $mapper->setLangData($lang, 'title', $title);
@@ -1170,6 +1176,10 @@ class PublicationsController extends AdminPanelController
         $status = $status === 'ANY' ? null : $status;
         $currentUser = getLoggedFrameworkUser();
         [$status, $ignoreStatus] = self::publicStatusFilter($status, $ignoreStatus, $currentUser !== null ? (int) $currentUser->type : null);
+        //Lo que no está activo solo se ve en la propia organización; sin ella, nada (pendientes.md 380). Lo activo, igual.
+        $organizationScope = $currentUser !== null && !in_array((int) $currentUser->type, PublicationMapper::CAN_VIEW_ALL)
+            ? ($currentUser->organization !== null ? (int) $currentUser->organization : -1)
+            : null;
 
         if (self::ENABLE_CACHE) {
 
@@ -1199,7 +1209,8 @@ class PublicationsController extends AdminPanelController
                 $featured,
                 $ignoreSlugs,
                 $request->getQueryParam('random', null) === 'yes',
-                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp())
+                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
+                $organizationScope
             );
 
             //Validar cacheo por cabeceras
@@ -1228,7 +1239,7 @@ class PublicationsController extends AdminPanelController
 
                 if (!$hasCache) {
 
-                    $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus, false, $ignoreSlugs);
+                    $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus, false, $ignoreSlugs, $organizationScope);
                     $response = $response->withJson($result);
 
                     //Definir respuesta para la generación del archivo estático
@@ -1246,7 +1257,7 @@ class PublicationsController extends AdminPanelController
         } else {
 
             $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
-            $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus, false, $ignoreSlugs);
+            $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus, false, $ignoreSlugs, $organizationScope);
             $response = $response->withJson($result);
 
         }
@@ -1300,6 +1311,9 @@ class PublicationsController extends AdminPanelController
                 if (($organizationAdmin->id ?? null) !== $currentUserID && self::SOLO_PROPIAS) {
                     $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
                 }
+            } else {
+                //Sin organización no hay de cuál ver: falla cerrada, ninguna fila (pendientes.md 379.2). Nunca sin filtro.
+                $havingItems[] = new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, -1, HavingItem::AND_OPERATOR);
             }
 
         }
@@ -1351,6 +1365,10 @@ class PublicationsController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = PublicationMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
@@ -1417,13 +1435,14 @@ class PublicationsController extends AdminPanelController
      * @param string[] $ignoreSlugs
      * @param bool $random
      * @param string $dataStamp
+     * @param int|null $organizationScope La organización que acota lo no activo: dos usuarios de distinta no comparten respuesta
      * @return string
      */
-    protected static function listCacheChecksum(string $lang, int $page, int $perPage, ?int $category, ?int $status, bool $ignoreStatus, ?string $title, ?int $featured, array $ignoreSlugs, bool $random, string $dataStamp): string
+    protected static function listCacheChecksum(string $lang, int $page, int $perPage, ?int $category, ?int $status, bool $ignoreStatus, ?string $title, ?int $featured, array $ignoreSlugs, bool $random, string $dataStamp, ?int $organizationScope = null): string
     {
         //TODO LO QUE CAMBIA LA RESPUESTA ENTRA EN LA CLAVE. Sin `ignoreStatus`, el `status=ANY` de quien
         //tiene permiso y el listado por defecto compartían respuesta, y se la llevaba un anónimo.
-        return sha1(json_encode([$lang, $page, $perPage, $category, $status, $ignoreStatus, $title, $featured, array_values($ignoreSlugs), $random, $dataStamp], \JSON_THROW_ON_ERROR));
+        return sha1(json_encode([$lang, $page, $perPage, $category, $status, $ignoreStatus, $title, $featured, array_values($ignoreSlugs), $random, $dataStamp, $organizationScope], \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -1445,8 +1464,9 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
-     * Validador de la carpeta de subidas (protected-files.php): con sesión, todo; sin ella, solo
-     * los archivos de una publicación visible al público.
+     * Validador de la carpeta de subidas (protected-files.php): sin sesión, solo los archivos de una publicación visible
+     * al público; con sesión, además los de la que el usuario puede previsualizar o editar, y lo que no es de ninguna si
+     * no es privado (lo privado sin publicación, solo CAN_VIEW_ALL).
      *
      * @param Request $request
      * @param string $filePath Ruta real del archivo pedido
@@ -1454,12 +1474,29 @@ class PublicationsController extends AdminPanelController
      */
     public static function uploadedFileValidator(Request $request, string $filePath): bool
     {
-        if (SessionToken::isActiveSession((string) SessionToken::getJWTReceived())) {
-            return true;
-        }
-        return self::publicFileIsServable($filePath, append_to_path_system(get_config('upload_dir'), self::UPLOAD_DIR), function (string $folder): ?PublicationMapper {
+        $publicationsDir = append_to_path_system(get_config('upload_dir'), self::UPLOAD_DIR);
+        $findByFolder = function (string $folder): ?PublicationMapper {
             return PublicationMapper::getBy($folder, 'folder', true);
-        });
+        };
+        //Con sesión es la que index.php aceptó: un token firmado pero revocado, o de un usuario inactivo, no deja usuario y
+        //vale como sin sesión (sin esto, allowedRoute() concedía sin usuario).
+        if (SessionToken::isActiveSession((string) SessionToken::getJWTReceived()) && getLoggedFrameworkUser() !== null) {
+            //Con sesión, lo de una publicación no pública solo a quien puede verla (pendientes.md 382). Lo PRIVADO que no
+            //es de ninguna (raíz, carpetas huérfanas, datos antiguos), falla cerrada: solo CAN_VIEW_ALL.
+            $publication = self::publicationOfFile($filePath, $publicationsDir, $findByFolder);
+            if ($publication === null) {
+                $currentUser = getLoggedFrameworkUser();
+                return !str_ends_with($filePath, \PiecesPHP\Core\Statics\ProtectedUploads::suffix())
+                    || ($currentUser !== null && in_array((int) $currentUser->type, PublicationMapper::CAN_VIEW_ALL));
+            }
+            return $publication->isVisibleToPublic() || PublicationMapper::canBePreviewedBy(
+                $publication,
+                getLoggedFrameworkUser(),
+                $publication->status == PublicationMapper::ACTIVE && $publication->isActiveByDates()
+            //Quien puede editarla (el autor de otra organización, por ejemplo) ve sus archivos en el formulario.
+            ) || self::allowedRoute('forms-edit', ['id' => $publication->id]);
+        }
+        return self::publicFileIsServable($filePath, $publicationsDir, $findByFolder);
     }
 
     /**
@@ -1560,21 +1597,36 @@ class PublicationsController extends AdminPanelController
     protected static function publicFileIsServable(string $filePath, string $publicationsDir, callable $findByFolder): bool
     {
         //FALLA CERRADO: lo que no se pueda atribuir a una publicación visible no se sirve sin sesión.
+        $publication = self::publicationOfFile($filePath, $publicationsDir, $findByFolder);
+        return $publication instanceof PublicationMapper && $publication->isVisibleToPublic();
+    }
+
+    /**
+     * La publicación de un archivo: la de la carpeta de su primer segmento bajo publications/. Null si está fuera, en la
+     * raíz o en una carpeta que no es de ninguna.
+     *
+     * @param string $filePath Ruta real del archivo pedido
+     * @param string $publicationsDir Carpeta de subidas de publicaciones
+     * @param callable(string): (PublicationMapper|null) $findByFolder
+     * @return PublicationMapper|null
+     */
+    protected static function publicationOfFile(string $filePath, string $publicationsDir, callable $findByFolder): ?PublicationMapper
+    {
         $base = realpath($publicationsDir);
         if ($base === false) {
-            return false;
+            return null;
         }
         $base = rtrim($base, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR;
         if (mb_strpos($filePath, $base) !== 0) {
-            return false;
+            return null;
         }
         //Un archivo suelto en la raíz no está en la carpeta de ninguna publicación.
         $segments = explode(\DIRECTORY_SEPARATOR, mb_substr($filePath, mb_strlen($base)));
         if (count($segments) < 2 || $segments[0] === '') {
-            return false;
+            return null;
         }
         $publication = $findByFolder($segments[0]);
-        return $publication instanceof PublicationMapper && $publication->isVisibleToPublic();
+        return $publication instanceof PublicationMapper ? $publication : null;
     }
 
     /**
@@ -1587,6 +1639,7 @@ class PublicationsController extends AdminPanelController
      * @param bool $ignoreStatus =false
      * @param bool $ignoreDateLimit =false
      * @param string[] $ignoreSlugs =[]
+     * @param int|null $nonActiveOrganization =null Si viene, lo que no está activo solo sale de esa organización
      * @return PaginationResult
      */
     public static function _all(
@@ -1598,7 +1651,8 @@ class PublicationsController extends AdminPanelController
         ?string $title = null,
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false,
-        array $ignoreSlugs = []
+        array $ignoreSlugs = [],
+        ?int $nonActiveOrganization = null
     ) {
         $page ??= 1;
         $perPage ??= 10;
@@ -1672,6 +1726,13 @@ class PublicationsController extends AdminPanelController
             $having[] = "{$beforeOperator} ({$critery})";
         }
 
+        if ($nonActiveOrganization !== null) {
+            $active = PublicationMapper::ACTIVE;
+            $beforeOperator = !empty($having) ? $and : '';
+            $critery = "{$table}.status = {$active} OR organizationID = {$nonActiveOrganization}";
+            $having[] = "{$beforeOperator} ({$critery})";
+        }
+
         $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
         $now = $now->getTimestamp();
         $unixNowDate = "FROM_UNIXTIME({$now})";
@@ -1729,6 +1790,9 @@ class PublicationsController extends AdminPanelController
 
         $parser = function ($element) {
             $element = PublicationMapper::objectToMapper($element);
+            if ($element === null) {
+                return '';
+            }
             $element = mb_convert_encoding(PublicationsPublicController::view('public/util/item', [
                 'element' => $element,
             ], false, false), 'UTF-8');
@@ -1736,6 +1800,9 @@ class PublicationsController extends AdminPanelController
         };
         $each = function ($element) {
             $mapper = PublicationMapper::objectToMapper($element);
+            if ($mapper === null) {
+                return $element;
+            }
             $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
             $excerpt = $mapper->excerpt(253);
             $excerptAlt = $mapper->excerpt(102);
@@ -1811,9 +1878,12 @@ class PublicationsController extends AdminPanelController
 
                         $createdByID = (int) $publication->createdBy;
                         $authorID = (int) $publication->author;
-                        $createdByOrganizationID = (int) UsersModel::getBy($publication->createdBy, 'id')->organization;
+                        //El creador existe siempre (la clave foránea createdBy impide borrarlo); sin él no hay organización.
+                        $creator = UsersModel::getBy($publication->createdBy, 'id');
+                        $createdByOrganizationID = $creator !== null ? (int) $creator->organization : -1;
                         $createdByOrganizationRecord = OrganizationMapper::getBy($createdByOrganizationID, 'id', true);
-                        $createdByOrganizationAdminID = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator->id : null;
+                        $createdByOrganizationAdmin = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator : null;
+                        $createdByOrganizationAdminID = $createdByOrganizationAdmin instanceof UsersModel ? $createdByOrganizationAdmin->id : (is_int($createdByOrganizationAdmin) ? $createdByOrganizationAdmin : null);
                         $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
                         $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
                         $allowByOrg = $currentIsSameOrg && $currentIsOrgAdmin;
@@ -1836,9 +1906,12 @@ class PublicationsController extends AdminPanelController
 
                         $createdByID = (int) $publication->createdBy;
                         $authorID = (int) $publication->author;
-                        $createdByOrganizationID = (int) UsersModel::getBy($publication->createdBy, 'id')->organization;
+                        //El creador existe siempre (la clave foránea createdBy impide borrarlo); sin él no hay organización.
+                        $creator = UsersModel::getBy($publication->createdBy, 'id');
+                        $createdByOrganizationID = $creator !== null ? (int) $creator->organization : -1;
                         $createdByOrganizationRecord = OrganizationMapper::getBy($createdByOrganizationID, 'id', true);
-                        $createdByOrganizationAdminID = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator->id : null;
+                        $createdByOrganizationAdmin = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator : null;
+                        $createdByOrganizationAdminID = $createdByOrganizationAdmin instanceof UsersModel ? $createdByOrganizationAdmin->id : (is_int($createdByOrganizationAdmin) ? $createdByOrganizationAdmin : null);
                         $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
                         $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
                         $allowByOrg = $currentIsSameOrg && $currentIsOrgAdmin;

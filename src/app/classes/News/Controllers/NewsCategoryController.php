@@ -683,6 +683,10 @@ class NewsCategoryController extends AdminPanelController
 
                     try {
 
+                        //Null solo sin conexión, que el arranque ya exige: aquí sería un fallo de verdad, y el catch lo registra.
+                        if ($pdo === null) {
+                            throw new \Exception('Sin conexión a la base de datos al borrar la categoría ' . $id);
+                        }
                         $pdo->beginTransaction();
 
                         foreach ($transactionSQLDeleteQueries as $sqlQueryConfig) {
@@ -706,7 +710,9 @@ class NewsCategoryController extends AdminPanelController
 
                     } catch (\Exception $e) {
                         $reference = log_exception($e);
-                        $pdo->rollBack();
+                        if ($pdo !== null && $pdo->inTransaction()) {
+                            $pdo->rollBack();
+                        }
                         $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
                     }
@@ -837,6 +843,10 @@ class NewsCategoryController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = NewsCategoryMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
@@ -927,6 +937,9 @@ class NewsCategoryController extends AdminPanelController
         };
         $each = function ($element) use ($absolutePathUrl) {
             $mapper = NewsCategoryMapper::objectToMapper($element);
+            if ($mapper === null) {
+                return $element;
+            }
             $element->iconImage = $absolutePathUrl ? baseurl($mapper->iconImage) : $mapper->iconImage;
             unset($element->meta);
             foreach ($element as $key => $value) {

@@ -56,7 +56,7 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
         $mapper = $reference instanceof PublicationMapper ? $reference : new PublicationMapper($reference);
         //Auto aprobación cuando lo crea ciertos tipos de usuarios
         $createdBy = $mapper->createdBy;
-        $createdByType = $createdBy->type;
+        $createdByType = $createdBy instanceof UsersModel ? $createdBy->type : null;
         $autoApprovalUserTypes = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,

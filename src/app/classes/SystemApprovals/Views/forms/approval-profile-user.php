@@ -2,6 +2,8 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
 use PiecesPHP\App\Locations\LocationsLang;
+use PiecesPHP\App\Locations\Mappers\CityMapper;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
@@ -18,9 +20,12 @@ $profileMapper = $userPackage->profile;
 $organizationMapper = $userPackage->organizationMapper;
 $affiliatedInstitutions = $profileMapper->affiliatedInstitutions;
 $affiliatedInstitutions ??= [];
-$organizationText = $organizationMapper->currentLangData('name');
+//Lo que escribe un usuario se escapa al pintar: nada lo limpia al entrar (pendientes.md 394).
+$escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+//Un usuario puede no tener organización (el administrador general, por ejemplo): se pinta «N/A», no un 500.
+$organizationText = $organizationMapper !== null ? $organizationMapper->currentLangData('name') : __($langGroup, 'N/A');
 $userTypeText = UsersModel::getTypeUserName($userPackage->type);
-$isBaseOrganization = $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
+$isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
 if($isBaseOrganization && ORGANIZATIONS_MODULE){
     $organizationText = __($langGroup, 'N/A');
 }
@@ -73,17 +78,17 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <button type="submit" style="display: none;" save></button>
 
             <div class="base-title size2"><?= __($langGroup, 'Nombres'); ?></div>
-            <div class="base-text mark"><?= $mapper->getNames(); ?></div>
+            <div class="base-text mark"><?= $escape($mapper->getNames()); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title size2"><?= __($langGroup, 'Apellidos'); ?></div>
-            <div class="base-text mark"><?= $mapper->getLastNames(); ?></div>
+            <div class="base-text mark"><?= $escape($mapper->getLastNames()); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title size2"><?= __($langGroup, 'Organización'); ?></div>
-            <div class="base-text mark"><?= $organizationText; ?></div>
+            <div class="base-text mark"><?= $escape($organizationText); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -93,12 +98,12 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?= __($langGroup, 'Usuario'); ?></div>
-            <div class="base-text"><?= $mapper->username; ?></div>
+            <div class="base-text"><?= $escape($mapper->username); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?= __($langGroup, 'Correo electrónico'); ?></div>
-            <div class="base-text"><?= $mapper->email; ?></div>
+            <div class="base-text"><?= $escape($mapper->email); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -106,7 +111,7 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = $profileMapper->getPhone(); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -114,7 +119,7 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = $profileMapper->getLinkedinLink(); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -122,7 +127,7 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = $profileMapper->getWebsiteLink(); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -130,7 +135,7 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = $profileMapper->currentLangData('nationality'); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -138,23 +143,23 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = $profileMapper->currentLangData('jobPosition'); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?= __($langGroup, 'País'); ?></div>
-            <?php $text = $profileMapper->country !== null ? __(LocationsLang::LANG_GROUP_NAMES, $profileMapper->country->name) : ''; ?>
+            <?php $text = $profileMapper->country instanceof CountryMapper ? __(LocationsLang::LANG_GROUP_NAMES, $profileMapper->country->name) : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?= __($langGroup, 'Ciudad'); ?></div>
-            <?php $text = $profileMapper->city !== null ? __(LocationsLang::LANG_GROUP_NAMES, $profileMapper->city->name) : ''; ?>
+            <?php $text = $profileMapper->city instanceof CityMapper ? __(LocationsLang::LANG_GROUP_NAMES, $profileMapper->city->name) : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -162,20 +167,20 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             <?php $text = $profileMapper->latitude !== null ? (string) $profileMapper->latitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?= __($langGroup, 'Longitud'); ?></div>
-            <?php $text = $profileMapper->latitude !== null ? (string) $profileMapper->latitude : ''; ?>
+            <?php $text = $profileMapper->longitude !== null ? (string) $profileMapper->longitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?= $text; ?></div>
+            <div class="base-text"><?= $escape($text); ?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
-            <div class="base-text"><?= !empty($affiliatedInstitutions) ? implode(', ', $affiliatedInstitutions) : '-'; ?></div>
+            <div class="base-text"><?= !empty($affiliatedInstitutions) ? implode(', ', array_map($escape, $affiliatedInstitutions)) : '-'; ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -183,14 +188,14 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
                 <div class="base-title size3"><?= __($langGroup, 'Imágenes'); ?></div>
                 <div class="base-horizontal-space"></div>
                 <div class="form-attachments-regular">
-                    <div data-trigger-open-link="<?= $userPackage->getAvatarURL(); ?>" class="attach-placeholder tall">
+                    <div data-trigger-open-link="<?= $escape($userPackage->getAvatarURL()); ?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                         <div class="ui top right attached label green">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
                             <div class="image fullsize">
-                                <img src="<?= $userPackage->getAvatarURL(); ?>">
+                                <img src="<?= $escape($userPackage->getAvatarURL()); ?>">
                             </div>
                             <div class="text">
                                 <div class="header">

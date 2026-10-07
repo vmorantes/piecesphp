@@ -899,6 +899,10 @@ class BuiltInBannerController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = BuiltInBannerMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);

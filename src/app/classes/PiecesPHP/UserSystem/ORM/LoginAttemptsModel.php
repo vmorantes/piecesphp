@@ -153,7 +153,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function getAttempts(Request $request)
     {
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
@@ -227,7 +227,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     public static function getLoggedUsers(Request $request)
     {
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
@@ -310,7 +310,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function getNotLoggedUsers(Request $request)
     {
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;

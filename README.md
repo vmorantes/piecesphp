@@ -3,73 +3,88 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/vmorantes/piecesphp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-Framework PHP modular para aplicaciones web administrativas multi-idioma sobre stack
-LAMP. Construido sobre [Slim 4](https://www.slimframework.com/) con un núcleo propio que
-añade ORM, sistema de permisos por ruta, internacionalización, gestión de estáticos y una
-capa de tareas de terminal.
+Framework PHP modular para aplicaciones web administrativas multi-idioma. Construido sobre
+[Slim 4](https://www.slimframework.com/) con un núcleo propio que añade ORM, permisos por ruta, internacionalización,
+gestión de estáticos y una capa de tareas de terminal.
 
-No es solo un framework: incluye un conjunto de módulos de negocio listos para usar
-(usuarios, publicaciones, documentos, formularios, organizaciones, reportes y más), cada
-uno activable o desactivable con una constante.
+No es solo un framework: trae módulos de negocio listos para usar (usuarios, publicaciones, documentos, formularios,
+organizaciones, reportes y más), cada uno activable o desactivable con una constante.
 
 ---
 
 ## Características
 
-- **Enrutado con permisos integrados** — las rutas se declaran con `Route` y `RouteGroup`;
-  el nombre de la ruta *es* el identificador de permiso, así que autorizar una acción y
-  publicarla son el mismo acto.
-- **ORM propio de entidades** — mapeo por `$fields`, relaciones con carga automática de
-  mappers, meta-propiedades sobre columnas JSON y generación del `CREATE TABLE` desde el
-  propio modelo.
-- **Multi-idioma de punta a punta** — detección por URL, cookie o navegador; grupos de
-  traducción por módulo; traducciones editables desde el panel; formatos de fecha y
-  locales de base de datos por idioma.
-- **Arquitectura modular** — cada módulo es una carpeta autocontenida con sus rutas,
-  controladores, mappers, vistas, estáticos y traducciones.
-- **Terminal y tareas** — CLI con autocompletado, cronjobs con interfaz fluida, colas de
-  procesamiento asíncrono y acciones personalizadas.
-- **Servidor de estáticos propio** — compilación de SASS al vuelo, versionado de caché y
-  protección de directorios por sesión.
-- **Sistema de eventos** — desacoplamiento por contextos y escuchadores.
+- **Enrutado con permisos integrados**: las rutas se declaran con `Route` y `RouteGroup`, y el nombre de la ruta *es* el
+  identificador de permiso, así que autorizar una acción y publicarla son el mismo acto.
+- **ORM propio de entidades**: mapeo por `$fields`, relaciones con carga automática, meta-propiedades sobre columnas
+  JSON y el `CREATE TABLE` generado desde el propio modelo.
+- **Multi-idioma de punta a punta**: detección por URL, cookie o navegador; grupos de traducción por módulo;
+  traducciones editables desde el panel.
+- **Arquitectura modular**: cada módulo es una carpeta autocontenida con sus rutas, controladores, mappers, vistas,
+  estáticos y traducciones.
+- **Terminal y tareas**: CLI con autocompletado, tareas programadas, colas de trabajos y acciones propias.
+- **Estáticos propios**: compilación de SASS, versionado de caché y archivos protegidos por sesión.
+- **Correo con registro**: envío declarado por entorno, registro de cada correo con su cuerpo cifrado, y diagnóstico
+  desde la terminal.
 
 ## Requisitos
 
-- **PHP** — ver el rango declarado en [`src/composer.json`](./src/composer.json)
-- **Extensiones**: `openssl`, `pcre`, `hash`, `session`, `json`, `pdo`, `pdo_mysql`,
-  `mysqli`, `pdo_sqlite`, `sqlite3`, `xml`, `xsl`, `xmlwriter`, `xmlreader`, `ctype`,
-  `mbstring`, `fileinfo`, `gd`, `zip`, `curl`
-- **MySQL / MariaDB**
-- **Apache** con `rewrite`, `headers` y `ssl` habilitados
-- **Composer**, **Node.js 22.x LTS** y **Gulp CLI** para el entorno de desarrollo
+- **PHP 8.5** (el rango exacto está en [`src/composer.json`](./src/composer.json)). Ubuntu 26.04 LTS lo trae en sus
+  repositorios oficiales.
+- **Extensiones**: las `ext-*` de `src/composer.json`; la [guía de PHP](./source-docs/project/docs/environments/content/lamp/content/PHP.md)
+  dice qué paquete trae cada una.
+- **MySQL o MariaDB**.
+- **Apache** con `rewrite`, `headers` y `ssl` habilitados.
+- **Composer**, **Node.js 22.x LTS** y **Gulp CLI** para compilar los estáticos.
 
-## Instalación rápida
+## Instalación
 
 ```bash
-# Dependencias PHP
-cd src && composer install
+# La rama last-stable apunta siempre a la última versión estable
+git clone --branch last-stable <url-de-este-repositorio> mi-proyecto
+cd mi-proyecto
 
-# Dependencias y compilación de front
-cd .. && npm install
-cd src && gulp init-project
+# Dependencias PHP (src/vendor no viene en el repositorio)
+cd src && composer install && cd ..
+
+# Dependencias y compilación de los estáticos
+npm install
+cd src && gulp init-project && cd ..
 
 # Permisos y propiedad
 ./permissions-and-property.sh
+
+# Declarar el entorno: local o producción
+cp src/app/config/environment.example.php src/app/config/environment.php
 ```
 
-Configura la conexión en `src/app/config/database.php` y carga los scripts SQL de
-[`databases/`](./databases). Activa o desactiva módulos en
-`src/app/config/constants.php`.
+Después, configura la conexión en `src/app/config/database.php`, carga los scripts SQL de
+[`databases/`](./databases) y activa o desactiva módulos en `src/app/config/constants.php`.
 
-La guía completa de despliegue está en
+**Antes de exponer la instalación**, cambia la contraseña de los usuarios de ejemplo que trae
+`databases/piecesphp_data.sql` (entre ellos `root` y `admin-general`), o bórralos: sus hashes son públicos, porque viajan
+en este repositorio.
+
+La guía completa, con el despliegue en Ubuntu 26.04, está en
 [`source-docs/project/docs/piecesphp/content/general.md`](./source-docs/project/docs/piecesphp/content/general.md).
+
+## Comprobar la instalación
+
+```bash
+bin/check-routes              # las rutas; funciona aunque la aplicación no arranque
+bin/cli verify-integrity      # la integridad estructural
+bin/cli gates                 # las suites de prueba, solo en una instalación declarada `local`
+```
+
+Algunas comprobaciones dicen **«[NO APLICA EN LA DISTRIBUCIÓN]»**: dependen de herramientas del repositorio donde se
+desarrolla el framework, que no viajan con esta copia. El resultado final dice cuántas no se hicieron.
 
 ## Estructura
 
 ```
-bin/            Ejecutables y herramientas de desarrollo (CLI, PHPStan, Rector)
+bin/            La terminal (bin/cli), la comprobación de rutas y utilidades de estáticos
 databases/      Scripts SQL: estructura, datos, vistas y funciones
-files/          Recursos auxiliares y documentación de la API
+files/          Recursos auxiliares
 source-docs/    Fuentes de la documentación (MkDocs)
 src/            Raíz de la aplicación web
 ├── index.php     Front controller único, para web y terminal
@@ -86,103 +101,36 @@ tasks/          Tareas automatizadas de Composer
 ## Terminal
 
 ```bash
-bin/cli <acción> [parámetros]        # atajo local
-php index.php cli <acción> [...]     # forma explícita
+bin/cli help                      # lista las acciones disponibles
+bin/cli help task=<acción>        # la descripción de una
 ```
 
-| Acción | Descripción |
-| :-- | :-- |
-| `help` | Lista las acciones disponibles |
-| `db-backup` | Respalda la base de datos (SQL, JSON, CSV, PHP o XML, con compresión opcional) |
-| `bundle` | Empaqueta la aplicación y/o los estáticos |
-| `clean-cache`, `clean-logs`, `clean-all` | Limpieza de caché y registros |
-| `run-cronjobs` | Ejecuta las tareas programadas que corresponda |
-| `process-queue` | Procesa la cola de trabajos en segundo plano |
-| `scan-missing-lang` | Informe de traducciones faltantes |
+`bin/cli` elige PHP 8.5 y trabaja sobre la instalación local. Autocompletado con `source bin/pieces-completion.bash`
+(o `.zsh`). La lista de acciones, con sus parámetros, en la
+[guía de la terminal](./source-docs/project/docs/piecesphp/content/terminal.md).
 
-Autocompletado disponible con `source bin/pieces-completion.bash` (o `.zsh`).
+## Trabajar con agentes de IA
 
-## Configuración de git, una vez por copia
-
-El repositorio fija los finales de línea con `.gitattributes` —CRLF por defecto, LF en
-`*.sh` y en los ejecutables de `bin/`—, así que **no hay que configurar nada para que
-funcione**. Pero hay dos ajustes locales que conviene poner una sola vez:
+Este repositorio trae un andamiaje para trabajar con agentes de programación: [`AGENTS.md`](./AGENTS.md) es el punto de
+entrada, y [`.agents/context/`](./.agents/context/README.md) explica la arquitectura, las convenciones y las recetas del
+framework. Si los usas, activa el control de los commits:
 
 ```bash
-# 1. Que `git blame` se salte la renormalización de finales de línea.
-#    Sin esto, los archivos grandes atribuyen TODAS sus líneas a ese commit.
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-
-# 2. Que las fusiones ignoren las diferencias de finales de línea.
-#    Imprescindible al ACTUALIZAR UN DESPLIEGUE que venga de antes de la renormalización:
-#    sin esto salen conflictos en cada archivo que el despliegue haya tocado.
-git config merge.renormalize true
+git config core.hooksPath .agents/scripts/git-hooks
 ```
 
-El segundo también se puede dar por fusión suelta, sin configurarlo:
-
-```bash
-git merge -X renormalize <rama>
-```
-
-**Comprobado en una fusión de prueba**: un despliegue con cambios propios sobre archivos
-afectados da **2 conflictos sin la opción y 0 con ella**, conservando sus cambios locales.
-
-## Comprobar que la aplicación responde entera
-
-```bash
-bin/cli route-inventory
-bin/walk-routes --base=https://tu-host/ruta/src
-```
-
-Pide **todas las rutas GET** que el framework declara y después **todos los assets** de las
-páginas visitadas. No escribe nada: descarta por nombre y por URL cualquier ruta de
-escritura. Con `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` en el entorno, recorre también la zona
-administrativa.
-
-Los assets son la mitad que importa: **un asset que revienta no rompe la página**, así que
-un paseo a mano no lo ve.
-
-## Cómo se empuja en este repositorio
-
-El repositorio de desarrollo vive **solo en GitHub**, privado. Las copias de GitLab y Bitbucket se retiraron (PO,
-2026-09-19); en Bitbucket siguen los cuatro paquetes `piecesphp/*` y el sitio de documentación. La versión para clonar se
-publicará en un repositorio aparte, público.
-
-```bash
-bin/push-all              # la rama actual, a todos los remotos
-bin/push-all --dry-run    # enseña qué haría, sin empujar
-```
-
-No lleva la lista escrita dentro: pregunta a `git remote`, así que un remoto nuevo entra
-solo. Y si uno falla, sigue con los demás y avisa al final de cuáles quedaron fuera.
-
-Además, **`dev` tiene que rastrear a `origin/dev`**. Sin eso `git status` no dice «adelante
-N» y es fácil dar por empujado lo que no lo está:
-
-```bash
-git branch --set-upstream-to=origin/dev dev
-```
-
-> Las dos cosas salen del mismo incidente: se dio por empujado un trabajo que no lo estaba, y
-> ocho commits se quedaron atrás **sin que nada lo dijera** — ni el `status`, porque no había
-> upstream, ni el push, porque solo había ido a un remoto.
 ## Documentación
 
 | Recurso | Contenido |
 | :-- | :-- |
-| [`source-docs/project/docs/piecesphp/`](./source-docs/project/docs/piecesphp/) | Guías del framework: estructura, rutas, mappers, terminal, permisos, Gulp |
+| [`source-docs/project/docs/`](./source-docs/project/docs/) | Guías del framework y de los entornos de despliegue |
+| [`source-docs/api/`](./source-docs/api) | La API y su colección de Postman |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Qué cambia en cada versión, con los cambios incompatibles marcados |
 | [DeepWiki](https://deepwiki.com/vmorantes/piecesphp) | Recorrido del código generado automáticamente |
-| [`CHANGELOG.md`](./CHANGELOG.md) | Historial de versiones |
-| [`.agents/context/21-pruebas-y-puertas.md`](./.agents/context/21-pruebas-y-puertas.md) | Pruebas unitarias y de desarrollo |
-| [`source-docs/api/`](./source-docs/api) | Documentación de la API y colección de Postman |
 
-La documentación se publica como sitio estático con MkDocs a partir de
-`source-docs/project`.
+La documentación se publica como sitio estático con MkDocs a partir de `source-docs/project`.
 
 ## Paquetes relacionados
-
-El framework se apoya en librerías propias publicadas por separado:
 
 | Paquete | Función |
 | :-- | :-- |

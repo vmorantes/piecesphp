@@ -6,7 +6,9 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
+use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
@@ -55,9 +57,18 @@ class AvatarController extends BaseController
             'message' => '',
         ];
 
+        //El avatar de otro, solo quien puede gestionarlo (su formulario de edición); el propio, siempre. Antes que la
+        //imagen: sin permiso no importa qué se mande.
+        if (!is_null($user_id)) {
+            $actor = new UsersModel(getLoggedFrameworkUserOrFail()->id);
+            if (!Validator::isInteger($user_id) || !UsersController::canManageUser($actor, new UsersModel((int) $user_id))) {
+                return throw403($request);
+            }
+        }
+
         if (!is_null($user_id) && !is_null($image)) {
 
-            $uploaded = AvatarModel::save($user_id, $image);
+            $uploaded = AvatarModel::save((int) $user_id, $image);
 
             if ($uploaded) {
                 $json_response['success'] = $uploaded;

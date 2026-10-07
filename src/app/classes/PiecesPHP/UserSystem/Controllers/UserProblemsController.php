@@ -10,6 +10,8 @@ use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
@@ -256,6 +258,14 @@ class UserProblemsController extends UsersController
                     ],
                 ]);
 
+                //A quien no está bloqueado no se le crea ni se le envía código, y la respuesta es la de un envío: no dice su
+                //estado. Antes recibía un código que, con los intentos al máximo, lo dejaba activo.
+                if ($usuario !== null && trim($type) === self::TYPE_USER_BLOCKED && (int) $usuario->status !== UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+                    $json_response['send_mail'] = true;
+                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
+                    return $response->withJson($json_response);
+                }
+
                 //Verificación de existencia
                 if ($usuario !== null) {
 
@@ -367,9 +377,12 @@ class UserProblemsController extends UsersController
                             $is_block = $user->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK;
                             $blocked_by_attempts = $user->failedAttempts >= UsersController::MAX_ATTEMPTS;
 
-                            if ($blocked_by_attempts) {
+                            //Solo el bloqueado: antes, con los intentos al máximo, dejaba activo a cualquiera (pendiente, rechazado,
+                            //inactivo o borrado). Vuelve al estado que tenía al bloquearse.
+                            if ($is_block && $blocked_by_attempts) {
                                 $user = new UsersModel($user->id);
-                                $unblocked = $user->resetAttempts($user->id) && $user->changeStatus(UsersModel::STATUS_USER_ACTIVE, $user->id);
+                                [$statusIfNoneSaved, $statusOverride] = self::statusesForUnblock($user);
+                                $unblocked = $user->unblockFromAttempts((int) $user->id, $statusIfNoneSaved, $statusOverride);
 
                                 if ($unblocked) {
                                     $json_response['success'] = true;
@@ -489,6 +502,39 @@ class UserProblemsController extends UsersController
         }
 
         return $response->withJson($json_response);
+    }
+
+    /**
+     * Con qué estado vuelve un bloqueado: [sin estado guardado, el que manda sobre lo guardado].
+     *
+     * La fila de aprobación del perfil manda: rechazada, vuelve rechazado aunque se guardara otro estado. Sin estado
+     * guardado: aprobada o tipo que se aprueba solo, activo; si no, por aprobar. Con el módulo de aprobaciones apagado no
+     * hay filas que consultar: activo.
+     *
+     * @param UsersModel $user
+     * @return array{0:int,1:int|null}
+     */
+    private static function statusesForUnblock(UsersModel $user): array
+    {
+        if (!SystemApprovalsRoutes::ENABLE) {
+            return [UsersModel::STATUS_USER_ACTIVE, null];
+        }
+        $approval = SystemApprovalsMapper::getByMultipleCriteries([
+            [
+                'column' => 'referenceTable',
+                'value' => UsersModel::TABLE,
+            ],
+            [
+                'column' => 'referenceValue',
+                'value' => $user->id,
+            ],
+        ], [], false, true);
+        $approvalStatus = $approval !== null ? (string) $approval->status : null;
+        if ($approvalStatus === SystemApprovalsMapper::STATUS_REJECTED) {
+            return [UsersModel::STATUS_USER_REJECTED, UsersModel::STATUS_USER_REJECTED];
+        }
+        $active = $approvalStatus === SystemApprovalsMapper::STATUS_APPROVED || in_array((int) $user->type, UsersModel::ARE_AUTO_APPROVAL, true);
+        return [$active ? UsersModel::STATUS_USER_ACTIVE : UsersModel::STATUS_USER_APPROVED_PENDING, null];
     }
 
     /**

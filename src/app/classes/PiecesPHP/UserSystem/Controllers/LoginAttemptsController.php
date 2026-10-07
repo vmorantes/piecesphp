@@ -172,13 +172,8 @@ class LoginAttemptsController extends AdminPanelController
     public function attemptsExport(Request $request, Response $response)
     {
 
-        $model = (new LoginAttemptsModel())->getModel();
-
-        $model->select();
-
-        $model->execute();
-
-        $result = (array) $model->result();
+        //all() filtra por organización con la misma regla que el listado: exportar no puede enseñar más que mirar.
+        $result = LoginAttemptsModel::all();
 
         $columns = [
             'Indicador' => [
@@ -211,24 +206,9 @@ class LoginAttemptsController extends AdminPanelController
     public function notLoggedExport(Request $request, Response $response)
     {
 
-        $logins_table = LoginAttemptsModel::TABLE;
-        $users_table = 'pcsphp_users';
-
-        $success = LoginAttemptsModel::SUCCESS_ATTEMPT;
-
-        $on = "$logins_table.userID = $users_table.id AND $logins_table.success = $success";
-        $where = '';
-
-        $where .= "$users_table.id NOT IN ";
-        $where .= "(SELECT $users_table.id FROM $users_table INNER JOIN $logins_table ON $on GROUP BY $users_table.id)";
-
-        $model = (new UsersModel())->getModel();
-
-        $model->select()->where($where);
-
-        $model->execute();
-
-        $result = $model->result();
+        //UsersModel::all() filtra por organización con la misma regla que el listado: exportar no puede enseñar más que mirar.
+        $logged = self::usersWithSuccessfulLogin();
+        $result = array_values(array_filter(UsersModel::all(), fn($e) => !isset($logged[(int) $e->id])));
 
         $columns = [
             'ID' => [
@@ -252,24 +232,13 @@ class LoginAttemptsController extends AdminPanelController
     public function loggedExport(Request $request, Response $response)
     {
 
-        $logins_table = LoginAttemptsModel::TABLE;
-        $users_table = 'pcsphp_users';
-
-        $success = LoginAttemptsModel::SUCCESS_ATTEMPT;
-
-        $on = "$logins_table.userID = $users_table.id AND $logins_table.success = $success";
-
-        $model = (new UsersModel())->getModel();
-
-        $model->select()->innerJoin($logins_table, $on)->groupBy("{$users_table}.id");
-
-        $model->execute();
-
-        $result = $model->result();
+        //UsersModel::all() filtra por organización con la misma regla que el listado: exportar no puede enseñar más que mirar.
+        $logged = self::usersWithSuccessfulLogin();
+        $result = array_values(array_filter(UsersModel::all(), fn($e) => isset($logged[(int) $e->id])));
 
         $columns = [
             'ID' => [
-                'dataKey' => 'userID',
+                'dataKey' => 'id',
             ],
             'Nombre' => [
                 'format' => function ($e) {
@@ -278,12 +247,13 @@ class LoginAttemptsController extends AdminPanelController
             ],
             'Último acceso' => [
                 'format' => function ($e) {
-                    return LoginAttemptsModel::lastLogin($e->userID)->format('d-m-Y H:i:s');
+                    $lastLogin = LoginAttemptsModel::lastLogin((int) $e->id);
+                    return $lastLogin !== null ? $lastLogin->format('d-m-Y H:i:s') : '-';
                 },
             ],
             'Tiempo en plataforma' => [
                 'format' => function ($e) {
-                    $timeOnPlatfom = TimeOnPlatformModel::getRecordByUser($e->userID);
+                    $timeOnPlatfom = TimeOnPlatformModel::getRecordByUser((int) $e->id);
                     return !is_null($timeOnPlatfom) ? round($timeOnPlatfom->minutes, 0) . ' minuto(s)' : 'Sin registro';
                 },
             ],
@@ -291,6 +261,27 @@ class LoginAttemptsController extends AdminPanelController
 
         return self::exportExcelFile($response, $columns, $result, 'Registro de ingreso');
 
+    }
+
+    /**
+     * Los usuarios con al menos un ingreso exitoso, como claves.
+     *
+     * @return array<int,true>
+     */
+    private static function usersWithSuccessfulLogin(): array
+    {
+        $model = LoginAttemptsModel::model();
+        $model->select('userID')->where([
+            'success' => LoginAttemptsModel::SUCCESS_ATTEMPT,
+        ])->groupBy('userID');
+        $model->execute();
+        $logged = [];
+        foreach ((array) $model->result() as $row) {
+            if ($row->userID !== null) {
+                $logged[(int) $row->userID] = true;
+            }
+        }
+        return $logged;
     }
 
     /**

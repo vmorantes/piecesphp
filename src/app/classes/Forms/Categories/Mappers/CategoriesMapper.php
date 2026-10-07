@@ -763,6 +763,10 @@ class CategoriesMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    //Sin langData la categoría no tiene traducciones: un objeto vacío, no un mapper null que tumbaba su listado.
+                    if ($value instanceof \stdClass && !property_exists($value, 'langData')) {
+                        $value->langData = new \stdClass;
+                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

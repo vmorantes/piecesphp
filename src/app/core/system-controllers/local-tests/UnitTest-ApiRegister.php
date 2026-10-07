@@ -127,6 +127,9 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
         $usuarioA4 = $usuario('a4');
         if ($usuarioA4 !== null) { $creados['usuarios'][] = (string) $usuarioA4->username; }
         $check(($cuerpoA4['success'] ?? null) === false, 'a4 el alta sin organización falla', mb_substr($textoA4, 0, 200));
+        //Por la organización, no por otra cosa: sin sesión, un alta que no llegara al núcleo también fallaría.
+        $mensajeA4 = is_array($cuerpoA4) ? (string) ($cuerpoA4['message'] ?? '') : '';
+        $check($mensajeA4 === __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Debe seleccionar una organización.'), 'a4 y falla por la organización obligatoria, con su mensaje', mb_substr($mensajeA4, 0, 200));
         $check($usuarioA4 === null, 'a4 y no queda usuario con el -10', $usuarioA4 !== null ? 'organización ' . var_export($usuarioA4->organization, true) : '');
         $conMenosDiez = UsersModel::model();
         $conMenosDiez->resetAll();

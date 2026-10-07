@@ -94,9 +94,21 @@ class UsersModel extends EntityMapperExtensible
         self::STATUS_USER_REJECTED,
         self::STATUS_USER_DELETED,
     ];
+    /**
+     * Clave de `meta` con el estado que tenía el usuario al bloquearse por intentos.
+     */
+    const META_STATUS_BEFORE_BLOCK = 'statusBeforeBlock';
     const STATUSES_INACTIVE_EQUIVALENT = [
         self::STATUS_USER_INACTIVE,
         self::STATUS_USER_DELETED,
+    ];
+    /**
+     * Entran, pero solo a lo suyo (P103/P104): su rol se reduce a las rutas generales y a keepsWhenRestricted().
+     * Lo aplica index.php §8, con el módulo de aprobaciones encendido o apagado.
+     */
+    const STATUSES_RESTRICTED_TO_OWN = [
+        self::STATUS_USER_APPROVED_PENDING,
+        self::STATUS_USER_REJECTED,
     ];
     const ARE_AUTO_APPROVAL = [
         self::TYPE_USER_ROOT,
@@ -258,6 +270,41 @@ class UsersModel extends EntityMapperExtensible
 
         return parent::update();
 
+    }
+
+    /**
+     * Las rutas de su rol que conserva un usuario acotado a lo suyo (sin aprobar por el módulo, o en un estado de
+     * STATUSES_RESTRICTED_TO_OWN), además de las generales.
+     *
+     * @param string $routeName
+     * @return bool
+     */
+    public static function keepsWhenRestricted(string $routeName): bool
+    {
+        return $routeName === 'configurations-integrations-mapbox-key'
+            || str_starts_with($routeName, 'my-profile-admin-')
+            || str_starts_with($routeName, 'my-organization-profile-admin-')
+            || str_starts_with($routeName, 'profile-organization-admin-')
+            || str_starts_with($routeName, 'profile-admin-')
+            //Solo enviar la edición del propio perfil y los ajustes de su cuenta: «users-» entero concedería la gestión de usuarios.
+            || $routeName === 'users-edit-request'
+            || str_starts_with($routeName, 'user-system-features-')
+            || str_starts_with($routeName, 'my-space-admin-')
+            || str_starts_with($routeName, 'api-admin-')
+            || str_starts_with($routeName, 'SAMPLE');
+    }
+
+    /**
+     * El recorte: las rutas generales más las del rol que conserva keepsWhenRestricted(). Aplicarlo dos veces da lo mismo.
+     *
+     * @param string[] $allowedRoutes Las rutas del rol
+     * @return string[]
+     */
+    public static function restrictRoutes(array $allowedRoutes): array
+    {
+        $generals = get_config('roles')['baseInitialSegmentedPermissions']['generals'] ?? [];
+        $kept = array_filter($allowedRoutes, fn($e) => self::keepsWhenRestricted((string) $e));
+        return array_values(array_unique(array_merge(is_array($generals) ? $generals : [], $kept)));
     }
 
     /**
@@ -583,11 +630,239 @@ class UsersModel extends EntityMapperExtensible
     public function changeStatus($status, $id)
     {
         $this->updateModifiedAt($id);
+        //Bloquear guarda en `meta` el estado de antes, en la MISMA sentencia: unblockFromAttempts() lo devuelve, y una
+        //escritura de `meta` entre leer y escribir (los filtros guardados) no se pierde.
+        if ((int) $status === self::STATUS_USER_ATTEMPTS_BLOCK) {
+            //`meta` antes que `status`: las asignaciones de un UPDATE se evalúan de izquierda a derecha. Un `meta` que no es
+            //un objeto JSON se deja como está (sin estado guardado, el desbloqueo usa su respaldo).
+            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = CASE'
+                . " WHEN meta IS NULL OR meta = '' OR meta = '[]' THEN JSON_OBJECT(?, status)"
+                . " WHEN JSON_VALID(meta) AND JSON_TYPE(meta) = 'OBJECT' THEN JSON_SET(meta, ?, status)"
+                . ' ELSE meta END, status = ? WHERE id = ? AND status <> ?');
+            return $statement->execute([
+                self::META_STATUS_BEFORE_BLOCK,
+                '$.' . self::META_STATUS_BEFORE_BLOCK,
+                self::STATUS_USER_ATTEMPTS_BLOCK,
+                (int) $id,
+                self::STATUS_USER_ATTEMPTS_BLOCK,
+            ]);
+        }
         $model = $this->getModel();
         $model->resetAll();
         return $model->update([
             'status' => $status,
         ])->where(['id' => $id])->execute();
+    }
+
+    /**
+     * Desbloquea al bloqueado por intentos y le devuelve el estado que tenía al bloquearse. A quien no está bloqueado
+     * no lo toca.
+     *
+     * @param int $id
+     * @param int $statusIfNoneSaved Para un bloqueo sin estado guardado (anterior a guardarlo)
+     * @param int|null $statusOverride Manda sobre lo guardado (un perfil rechazado vuelve rechazado). Los dos los decide
+     *                                 quien llama: el modelo no conoce las aprobaciones
+     * @return bool Si desbloqueó: false también si otra petición lo cambió antes
+     */
+    public function unblockFromAttempts(int $id, int $statusIfNoneSaved, ?int $statusOverride = null): bool
+    {
+        $path = '$.' . self::META_STATUS_BEFORE_BLOCK;
+        //El estado Y lo guardado que se leyó, en el WHERE: si una resolución lo cambió, no se pisa; se relee una vez y, si
+        //no casa, no se desbloquea. La clave se quita en la base, sin reescribir el resto de `meta`.
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            $fresh = static::freshStatusAndMeta($id);
+            if ($fresh === null || $fresh['status'] !== self::STATUS_USER_ATTEMPTS_BLOCK) {
+                return false;
+            }
+            $rawSaved = $fresh['meta'][self::META_STATUS_BEFORE_BLOCK] ?? null;
+            $status = $statusOverride ?? self::validStatusBeforeBlock($rawSaved) ?? $statusIfNoneSaved;
+            $this->updateModifiedAt($id);
+            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET status = ?, failedAttempts = 0,'
+                . ' meta = IF(JSON_VALID(meta), JSON_REMOVE(meta, ?), meta) WHERE id = ? AND status = ? AND ' . self::sqlSavedStatusIs());
+            $statement->execute([$status, $path, $id, self::STATUS_USER_ATTEMPTS_BLOCK, $path, $path, $path, self::validStatusBeforeBlock($rawSaved) ?? -1]);
+            if ($statement->rowCount() > 0) {
+                return true;
+            }
+        }
+        //RETORNO-IGNORADO: lo que importa es dejar constancia; la referencia no tiene a quién darse.
+        log_exception(new \RuntimeException("Desbloqueo no aplicado al usuario {$id}: su estado guardado cambió dos veces entre la lectura y la escritura."));
+        return false;
+    }
+
+    /**
+     * El estado que tenía al bloquearse, si sigue bloqueado y lo tiene guardado.
+     *
+     * @param int $id
+     * @return int|null
+     */
+    public static function statusBeforeBlock(int $id): ?int
+    {
+        $fresh = static::freshStatusAndMeta($id);
+        if ($fresh === null || $fresh['status'] !== self::STATUS_USER_ATTEMPTS_BLOCK) {
+            return null;
+        }
+        return self::validStatusBeforeBlock($fresh['meta'][self::META_STATUS_BEFORE_BLOCK] ?? null);
+    }
+
+    /**
+     * Una transición de estado sobre un bloqueado: se aplica a su estado guardado y el usuario sigue bloqueado. Así una
+     * aprobación o un rechazo resueltos durante el bloqueo no se pierden al desbloquear.
+     *
+     * @param int $id
+     * @param int[] $from Los estados guardados que la transición mueve
+     * @param int $to
+     * @return bool Si la aplicó
+     */
+    public static function transitionStatusBeforeBlock(int $id, array $from, int $to): bool
+    {
+        $path = '$.' . self::META_STATUS_BEFORE_BLOCK;
+        //Con el valor leído en el WHERE: si cambió, no se pisa; se relee una vez y, si no casa, no se transiciona. CAST: el
+        //marcador llega como cadena y JSON_SET guardaría "1", que validStatusBeforeBlock() no reconoce.
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            $saved = static::statusBeforeBlock($id);
+            if ($saved === null || !in_array($saved, $from, true)) {
+                return false;
+            }
+            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = JSON_SET(meta, ?, CAST(? AS SIGNED))'
+                . ' WHERE id = ? AND status = ? AND JSON_VALID(meta) AND JSON_EXTRACT(meta, ?) = CAST(? AS SIGNED)');
+            $statement->execute([$path, $to, $id, self::STATUS_USER_ATTEMPTS_BLOCK, $path, $saved]);
+            if ($statement->rowCount() > 0) {
+                return true;
+            }
+        }
+        //RETORNO-IGNORADO: lo que importa es dejar constancia; la referencia no tiene a quién darse.
+        log_exception(new \RuntimeException("Transición no aplicada al usuario {$id}: su estado guardado cambió dos veces entre la lectura y la escritura."));
+        return false;
+    }
+
+    /**
+     * Si un usuario entra solo a lo suyo: pendiente o rechazado, y el bloqueado que lo era al bloquearse o del que no se
+     * guardó nada. Un bloqueado que era activo conserva su rol: el bloqueo protege la contraseña, no recorta.
+     *
+     * @param int $id
+     * @param int $status
+     * @return bool
+     */
+    public static function isRestrictedToOwn(int $id, int $status): bool
+    {
+        if (in_array($status, self::STATUSES_RESTRICTED_TO_OWN, true)) {
+            return true;
+        }
+        if ($status !== self::STATUS_USER_ATTEMPTS_BLOCK) {
+            return false;
+        }
+        $saved = static::statusBeforeBlock($id);
+        return $saved === null || in_array($saved, self::STATUSES_RESTRICTED_TO_OWN, true);
+    }
+
+    /**
+     * Lo guardado en `meta`, en SQL con la misma regla que validStatusBeforeBlock(): un entero JSON de los que entran, y
+     * si no (sin clave, otro tipo, otro valor, `meta` no JSON), -1, que es «sin guardado». Por tipo y no por texto: como
+     * texto, un `true` o un `1.0` no casaban nunca y el desbloqueo fallaba para siempre. Cuatro marcadores: la ruta tres
+     * veces y el valor de validStatusBeforeBlock() ?? -1.
+     *
+     * @return string
+     */
+    private static function sqlSavedStatusIs(): string
+    {
+        //La pertenencia, sobre el texto JSON exacto: `3e0` es INTEGER para MariaDB y CAST lo da como 3, pero PHP lo decodifica
+        //como float y no lo reconoce.
+        $allowed = implode(', ', array_map(fn ($status) => "'" . (int) $status . "'", self::STATUSES_OK_FOR_LOGIN_ON_NO_REQUIRE_APPROBATION));
+        return "IF(JSON_VALID(meta) AND JSON_TYPE(JSON_EXTRACT(meta, ?)) = 'INTEGER' AND CAST(JSON_EXTRACT(meta, ?) AS CHAR) IN ({$allowed}),"
+            . ' CAST(JSON_EXTRACT(meta, ?) AS SIGNED), -1) = ?';
+    }
+
+    /**
+     * Una transición de estado, en la base: si está bloqueado, sobre lo guardado (sigue en 2); si no, sobre el estado vivo,
+     * con el leído en el WHERE. Así una resolución que pierde la carrera con el desbloqueo no se pierde: se aplica al
+     * estado al que volvió.
+     *
+     * @param int $id
+     * @param int[] $from
+     * @param int $to
+     * @return bool Si la aplicó
+     */
+    public static function applyStatusTransition(int $id, array $from, int $to): bool
+    {
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            $fresh = static::freshStatusAndMeta($id);
+            if ($fresh === null) {
+                return false;
+            }
+            if ($fresh['status'] === self::STATUS_USER_ATTEMPTS_BLOCK) {
+                $saved = self::validStatusBeforeBlock($fresh['meta'][self::META_STATUS_BEFORE_BLOCK] ?? null);
+                if ($saved === null || !in_array($saved, $from, true)) {
+                    return false;
+                }
+                if (static::transitionStatusBeforeBlock($id, $from, $to)) {
+                    return true;
+                }
+                continue;
+            }
+            if (!in_array($fresh['status'], $from, true)) {
+                return false;
+            }
+            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET status = ? WHERE id = ? AND status = ?');
+            $statement->execute([$to, $id, $fresh['status']]);
+            if ($statement->rowCount() > 0) {
+                (new static())->updateModifiedAt($id);
+                return true;
+            }
+        }
+        //RETORNO-IGNORADO: lo que importa es dejar constancia; la referencia no tiene a quién darse.
+        log_exception(new \RuntimeException("Transición de estado no aplicada al usuario {$id}: su estado cambió dos veces entre la lectura y la escritura."));
+        return false;
+    }
+
+    /**
+     * El estado que cuenta para una resolución: el vivo, o el guardado si está bloqueado (null si no hay guardado).
+     *
+     * @param int $id
+     * @return int|null
+     */
+    public static function effectiveStatus(int $id): ?int
+    {
+        $fresh = static::freshStatusAndMeta($id);
+        if ($fresh === null) {
+            return null;
+        }
+        return $fresh['status'] === self::STATUS_USER_ATTEMPTS_BLOCK ? self::validStatusBeforeBlock($fresh['meta'][self::META_STATUS_BEFORE_BLOCK] ?? null) : $fresh['status'];
+    }
+
+    /**
+     * Solo se bloquea a quien puede iniciar sesión: otro valor guardado no es de un bloqueo y no se devuelve.
+     *
+     * @param mixed $saved
+     * @return int|null
+     */
+    private static function validStatusBeforeBlock($saved): ?int
+    {
+        return is_int($saved) && in_array($saved, self::STATUSES_OK_FOR_LOGIN_ON_NO_REQUIRE_APPROBATION, true) ? $saved : null;
+    }
+
+    /**
+     * El estado y el `meta` del usuario, frescos de la base (no los que este mapper leyó antes).
+     *
+     * @param int $id
+     * @return array{status:int,meta:array<string,mixed>}|null
+     */
+    protected static function freshStatusAndMeta(int $id): ?array
+    {
+        $model = self::model();
+        $model->resetAll();
+        $model->select(['status', 'meta'])->where(new WhereSegment([WhereItem::isEqual('id', $id)]))->execute();
+        $row = ((array) $model->result())[0] ?? null;
+        if (!is_object($row)) {
+            return null;
+        }
+        $row = get_object_vars($row);
+        $raw = $row['meta'] ?? null;
+        $meta = is_string($raw) && $raw !== '' ? json_decode($raw, true) : $raw;
+        $meta = is_object($meta) ? (array) json_decode((string) json_encode($meta), true) : $meta;
+        return [
+            'status' => (int) ($row['status'] ?? -1),
+            'meta' => is_array($meta) ? $meta : [],
+        ];
     }
 
     /**
@@ -639,13 +914,13 @@ class UsersModel extends EntityMapperExtensible
             $model = $this->getModel();
             $model->resetAll();
             return $model->update([
-                'modifiedAt' => date('Y-m-d h:i:s'),
+                'modifiedAt' => date('Y-m-d H:i:s'),
             ])->where(['email' => $criterio])->execute();
         } else {
             $model = $this->getModel();
             $model->resetAll();
             return $model->update([
-                'modifiedAt' => date('Y-m-d h:i:s'),
+                'modifiedAt' => date('Y-m-d H:i:s'),
             ])->where(['id' => $criterio])->execute();
         }
     }
@@ -850,7 +1125,7 @@ class UsersModel extends EntityMapperExtensible
         $model->execute();
         $users = $model->result();
 
-        foreach ($users as $user) {
+        foreach ($users ?? [] as $user) {
             $userMapper = new UsersModel($user->id);
             $options[(string) $userMapper->id] = $userMapper->getFullName() . " ({$userMapper->username})";
         }
@@ -1078,7 +1353,7 @@ class UsersModel extends EntityMapperExtensible
             $result = $model->result();
 
             if ($asMapper) {
-                foreach ($result as $key => $value) {
+                foreach ($result ?? [] as $key => $value) {
                     $result[$key] = new UsersModel($value->id);
                 }
             }

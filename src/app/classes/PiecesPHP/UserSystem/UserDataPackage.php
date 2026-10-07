@@ -41,7 +41,7 @@ use PiecesPHP\UserSystem\Profile\UserProfileMapper;
  * @property-read string $avatar
  * @property-read bool $hasAvatar
  * @property-read OTPSecretsUsersMapper|null $TOTPData
- * @property-read UserProfileMapper|null $profile
+ * @property-read UserProfileMapper $profile
  */
 class UserDataPackage
 {

@@ -80,7 +80,7 @@ class OrganizationProfileController extends AdminPanelController
         $organizationMapper = new OrganizationMapper($organizationID);
         try {
             $administrator = $organizationMapper->administrator;
-            $administrator = $administrator !== null && $administrator->id !== null ? $administrator->id : -1;
+            $administrator = $administrator instanceof UsersModel && $administrator->id !== null ? $administrator->id : (is_int($administrator) ? $administrator : -1);
             $adminUser = new UserDataPackage($administrator);
         } catch (\Exception) {}
 

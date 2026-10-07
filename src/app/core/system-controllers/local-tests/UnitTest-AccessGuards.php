@@ -39,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $mensaje = 'mensaje-de-control';
 
     //──── 1. BaseHashEncryption::hashVerify ─────────────────────────────────────────────
-    echoTerminal('[1/18]hashVerify() RECHAZA una firma que no es la suya');
+    echoTerminal('[1/19]hashVerify() RECHAZA una firma que no es la suya');
 
     $firmaBuena = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -77,7 +77,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. BaseToken::verify, y el valor que NO es falsy ──────────────────────────────
-    echoTerminal('[2/18]verify() rechaza, y su código de error SÍ es truthy');
+    echoTerminal('[2/19]verify() rechaza, y su código de error SÍ es truthy');
 
     $firmaToken = hash_hmac('SHA256', $mensaje, $llave, true);
 
@@ -104,7 +104,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. decode() no entrega el contenido de un token con firma alterada ────────────
-    echoTerminal('[3/18]decode() y check() RECHAZAN un token manipulado');
+    echoTerminal('[3/19]decode() y check() RECHAZAN un token manipulado');
 
     $tokenBueno = BaseToken::encode(['dato' => 'valor-original'], $llave, 'HS256');
     $partes = explode('.', $tokenBueno);
@@ -187,7 +187,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Roles::hasPermissions ──────────────────────────────────────────────────────
-    echoTerminal('[4/18]hasPermissions() niega lo que no está concedido');
+    echoTerminal('[4/19]hasPermissions() niega lo que no está concedido');
 
     $roles = Roles::getRoles();
     $rutas = get_routes();
@@ -259,7 +259,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. get_route_roles_allowed y su cadena sin `else` ─────────────────────────────
-    echoTerminal('[5/18]get_route_roles_allowed() con un `$type` que no contempla');
+    echoTerminal('[5/19]get_route_roles_allowed() con un `$type` que no contempla');
 
     //Hace falta una ruta que DECLARE roles: con la lista vacía, la rama sin `else` no se
     //distingue de la buena y la comprobación no significaría nada.
@@ -309,7 +309,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. Parameter: el acumulador que NACE en `true` ────────────────────────────────
-    echoTerminal('[6/18]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
+    echoTerminal('[6/19]Parameter::isValid() nace en `true`, y eso decide qué pasa sin validador');
 
     //RECHAZO: con validador y NO opcional, un valor que no pasa tiene que LANZAR.
     $soloEnteros = new Parameter('edad', null, static fn ($v): bool => is_int($v), false);
@@ -343,7 +343,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 7. Las rutas públicas de listado no devuelven borradores sin permiso ─────────
-    echoTerminal('[7/18]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
+    echoTerminal('[7/19]Las rutas públicas de listado solo devuelven lo publicado sin permiso');
 
     //Sin sesión, pedir un estado no cuenta; con permiso, sí. Si esto cae, un anónimo lista borradores.
     $filtroPub = new \ReflectionMethod(\Publications\Controllers\PublicationsController::class, 'publicStatusFilter');
@@ -370,7 +370,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 8. El SELECT de listado de usuarios no trae la contraseña (#055) ──────────────
-    echoTerminal('[8/18]UsersModel::fieldsToSelect() no selecciona la contraseña');
+    echoTerminal('[8/19]UsersModel::fieldsToSelect() no selecciona la contraseña');
 
     //Si esto cae, getBy(), all() y los informes de accesos vuelven a mandar el hash en la respuesta.
     $camposUsuarios = (new \ReflectionMethod(\PiecesPHP\UserSystem\ORM\UsersModel::class, 'fieldsToSelect'))->invoke(null);
@@ -381,7 +381,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 9. /users/all/ no devuelve la contraseña (#057) ─────────────────────────────
-    echoTerminal('[9/18] UsersController::_all() no devuelve la contraseña');
+    echoTerminal('[9/19] UsersController::_all() no devuelve la contraseña');
 
     //Si esto cae, cualquier usuario con sesión vuelve a poder pedir el hash de todos.
     $filasTodos = \PiecesPHP\UserSystem\Controllers\UsersController::_all(1, 5)->elements();
@@ -393,7 +393,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 10. canManage(): el alcance de las aprobaciones, en el servidor (#071) ─────────
-    echoTerminal('[10/18] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
+    echoTerminal('[10/19] SystemApprovalsController::canManage() aplica C3 y C5; al limitado por C5, además pendiente, C1 y C4');
 
     //Si esto cae, un administrador de organización aprueba lo de otra, o lo suyo, con un POST directo.
     $usuario = static function (int $id, int $type, ?int $organization): \PiecesPHP\UserSystem\UserDataPackage {
@@ -441,7 +441,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 11. Roles: registrar, conceder y fijar el rol actual (#089) ───────────────────
-    echoTerminal('[11/18] Roles RECHAZA lo duplicado, lo que no existe y el código que no está');
+    echoTerminal('[11/19] Roles RECHAZA lo duplicado, lo que no existe y el código que no está');
 
     //EL BANCO ES EL ESTADO ESTÁTICO: se fotografía y se repone. gates corre cada suite en su proceso, pero aquí no se confía en eso.
     $propiedadRoles = new \ReflectionProperty(Roles::class, 'roles');
@@ -531,7 +531,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 12. RequestRoute::getAttribute (#089) ─────────────────────────────────────────
-    echoTerminal('[12/18] getAttribute() no se inventa la ruta, y devuelve el valor por defecto de lo que no está');
+    echoTerminal('[12/19] getAttribute() no se inventa la ruta, y devuelve el valor por defecto de lo que no está');
 
     $peticion = new \PiecesPHP\Core\Routing\RequestRoute(
         'GET',
@@ -567,7 +567,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. Parameter: lo obligatorio rechaza; lo opcional se queda en su default (#089) ──
-    echoTerminal('[13/18] Parameter RECHAZA cuando es obligatorio, y lo opcional NUNCA falla: cae al valor por defecto');
+    echoTerminal('[13/19] Parameter RECHAZA cuando es obligatorio, y lo opcional NUNCA falla: cae al valor por defecto');
 
     $obligatorio = new Parameter('zz-bp', 0, static fn ($v): bool => is_int($v), false);
     $lanzoObligatorio = false;
@@ -608,7 +608,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 14. has_global_asset: el índice 0 es FALSY (#091, tanda B) ────────────────────
-    echoTerminal('[14/18] has_global_asset() no encuentra lo que no está, y su índice 0 es FALSY');
+    echoTerminal('[14/19] has_global_asset() no encuentra lo que no está, y su índice 0 es FALSY');
 
     //EL BANCO ES LA CONFIGURACIÓN: se fotografía y se repone.
     $assetsAntes = get_config('global_assets');
@@ -644,7 +644,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 15. RouteAdapter: el controlador y el nombre (#091, tanda B) ───────────────────
-    echoTerminal('[15/18] RouteAdapter RECHAZA un controlador que no es string ni callable');
+    echoTerminal('[15/19] RouteAdapter RECHAZA un controlador que no es string ni callable');
 
     /** @var array<int, array{0: string, 1: mixed}> $controladoresMalos */
     $controladoresMalos = [['un entero', 42], ['un array', []]];
@@ -672,7 +672,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 16. MenuGroup::isCurrent (#091, tanda B) ──────────────────────────────────────
-    echoTerminal('[16/18] isCurrent() no marca como actual una página que no lo es');
+    echoTerminal('[16/19] isCurrent() no marca como actual una página que no lo es');
 
     $serverAntes = $_SERVER;
 
@@ -703,7 +703,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 17. register_route: nombres repetidos y roles inexistentes (#091, tanda B) ─────
-    echoTerminal('[17/18] register_route() RECHAZA un nombre repetido y no concede a un rol que no existe');
+    echoTerminal('[17/19] register_route() RECHAZA un nombre repetido y no concede a un rol que no existe');
 
     //Un router de pega: register_route solo le pide map(), y a lo devuelto setName() y add(). Un RouteCollectorProxy de
     //verdad pediría la app de Slim, así que el objeto viaja como mixed y lo mapeado se anota fuera.
@@ -786,7 +786,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 18. processFromQuery NO es una guarda (#091, tanda B) ──────────────────────────
-    echoTerminal('[18/18] processFromQuery(): sus comparaciones laxas deciden el ORDEN, no el acceso');
+    echoTerminal('[18/19] processFromQuery(): sus comparaciones laxas deciden el ORDEN, no el acceso');
 
     //Sus laxas (1089, 1092 y 1125) deciden la dirección del orden, no el acceso: no hay rechazo que probar.
     //Lo que sí decide acceso ahí —el buscador y el HAVING por marcador— lo prueba UnitTest-SqlPlaceholders.
@@ -795,6 +795,47 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         'CONTRATO: la dirección se normaliza a ASC o DESC, así que un valor raro NO entra en el SQL',
         'Es lo único que decide esa laxa. Si alguien la cambiara por interpolar la dirección, esto se cae.');
     $check(str_contains($codigo, 'const INGNORE'), 'y la columna marcada INGNORE se ordena en PHP, no en SQL');
+    echoTerminal(' ');
+
+    //──── 19. DefaultAccessControlModules sin ruta resuelta (#948) ──────────────────────
+    echoTerminal('[19/19] DefaultAccessControlModules NIEGA cuando la petición no trae ruta, y no llega al manejador');
+
+    //El manejador lanza una excepción propia: verla es la prueba de que el control dejó pasar.
+    $manejador = new class implements \Psr\Http\Server\RequestHandlerInterface {
+        public function handle(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+        {
+            throw new \LogicException('zz-manejador-alcanzado');
+        }
+    };
+    //El validador concede siempre: lo que se prueba es la ruta que falta, no el permiso.
+    $control = new \PiecesPHP\RoutingUtils\DefaultAccessControlModules('zz-prueba-modulo', fn () => 'zz-concede');
+    $base = new \PiecesPHP\Core\Routing\RequestRoute(
+        'GET',
+        (new \Slim\Psr7\Factory\UriFactory())->createUri('http://localhost/zz-prueba-modulo'),
+        new \Slim\Psr7\Headers(),
+        [],
+        [],
+        (new \Slim\Psr7\Factory\StreamFactory())->createStream('')
+    );
+
+    $lanzada = null;
+    try {
+        $control->getResponse($base->withAttribute('route', null), $manejador);
+    } catch (\Throwable $e) {
+        $lanzada = get_class($e);
+    }
+    $check($lanzada === \Slim\Exception\HttpForbiddenException::class, 'sin ruta resuelta lanza HttpForbiddenException (403), así que el manejador NO se ejecuta', $lanzada ?? 'no lanzó');
+
+    //Canario: con una ruta resuelta fuera de su módulo, el control deja pasar. Si esto cae, lo de arriba no prueba nada.
+    $ruta = new \Slim\Routing\Route(['GET'], '/zz-otra', fn () => null, new \Slim\Psr7\Factory\ResponseFactory(), new \Slim\CallableResolver());
+    $ruta->setName('zz-otra-ruta');
+    $alcanzado = 'no llegó';
+    try {
+        $control->getResponse($base->withAttribute('route', $ruta), $manejador);
+    } catch (\Throwable $e) {
+        $alcanzado = $e->getMessage();
+    }
+    $check($alcanzado === 'zz-manejador-alcanzado', 'CANARIO: con una ruta de otro módulo llega al manejador', $alcanzado);
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

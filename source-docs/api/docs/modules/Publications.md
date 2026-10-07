@@ -61,7 +61,9 @@ xhr.send();
 - Devolución:
 	- Tipo: JSON
 	- Propiedades:
-		- publicationData: JSON|null La información del elemento o null en caso de no encontrar coincidencias
+		- publicationData: JSON La información del elemento.
+	- Errores:
+		- 404 si la publicación no existe o quien pregunta no puede verla: solo se entrega lo que la vista pública o la vista previa dejan ver (borradores, programadas y sin aprobar, solo a su organización o a quien puede verlas todas).
 	- Ejemplo:
 ```js
 //Solicitud
@@ -87,9 +89,8 @@ xhr.send();
         "content": ...,
         "seoDescription": ..,
         "author": {
-            ...,
-            ...,
-            ...,
+            "id": ...,
+            "fullName": ...
         },
         "category": {
             ...,

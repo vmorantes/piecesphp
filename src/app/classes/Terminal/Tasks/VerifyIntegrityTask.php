@@ -3957,6 +3957,23 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $failures[] = "no viaja {$file}, que es de los de bin/ que viajan (ADR 0049 §6).";
         }
 
+        //El README del público (pendientes.md 375): idéntico al README.distribucion.md de la etiqueta, y ni él ni la lista
+        //de commits de git blame viajan. Una etiqueta anterior que no lo trae deja el README.md del desarrollo, y se dice.
+        $readmePublico = shell_exec('git -C ' . escapeshellarg($root) . ' show ' . escapeshellarg('refs/tags/' . $tag . ':README.distribucion.md') . ' 2>/dev/null');
+        if (is_string($readmePublico) && $readmePublico !== '') {
+            $readme = 'README.md es el del público';
+            if ((string) @file_get_contents($dest . '/README.md') !== $readmePublico) {
+                $failures[] = "el README.md de la distribución no es el README.distribucion.md de {$tag}: viajaría el del repositorio de desarrollo.";
+            }
+        } else {
+            $readme = "AVISO: {$tag} no trae README.distribucion.md, así que README.md es el del desarrollo";
+        }
+        foreach (['README.distribucion.md', '.git-blame-ignore-revs'] as $quedan) {
+            if (isset($files[$quedan])) {
+                $failures[] = "viaja {$quedan}, que se queda (pendientes.md 375).";
+            }
+        }
+
         $mark = (string) @file_get_contents($dest . '/' . Distribution::MARK_FILE);
         if (!isset($files[Distribution::MARK_FILE]) || mb_strpos($mark, 'etiqueta: ' . $tag . "\n") !== 0) {
             $failures[] = 'la distribución no lleva su marca ' . Distribution::MARK_FILE . " con «etiqueta: {$tag}»: un clon no sabría que lo es.";
@@ -3966,7 +3983,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             echoTerminal("\e[94mINFO:\e[39m distribución de {$tag} generada y recorrida en " . number_format(microtime(true) - $started, 1) . ' s: '
                 . count($listed) . ' archivo(s); capa C 0 de ' . count($layers['C']) . ', A ' . count(array_intersect_key($layers['A'], $files))
                 . ', B ' . count(array_intersect_key($layers['B'], $files)) . '; ' . count($secureKeys) . ' en ' . self::SECURE_KEYS_DIR
-                . ', 0 de PHPStan, 0 extensiones de PHPStan, ' . count($bin) . ' de bin/; con su marca. ' . $byAuthority . '.');
+                . ', 0 de PHPStan, 0 extensiones de PHPStan, ' . count($bin) . ' de bin/; con su marca; ' . $readme . '. ' . $byAuthority . '.');
         }
         return $failures;
     }

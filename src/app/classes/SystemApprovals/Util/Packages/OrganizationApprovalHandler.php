@@ -59,7 +59,7 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
         $approved = $mapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
         //Auto aprobación cuando lo crea ciertos tipos de usuarios
         $createdBy = $mapper->createdBy;
-        $createdByType = $createdBy->type;
+        $createdByType = $createdBy instanceof UsersModel ? $createdBy->type : null;
         $autoApprovalUserTypes = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
@@ -87,6 +87,14 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
         $element->status = OrganizationMapper::ACTIVE;
         $element->update();
         foreach ($users as $user) {
+            //Solo activos y pendientes: inactivo, rechazado y borrado no se tocan, ni su estado ni su fila de aprobación.
+            //Antes los dejaba activos a todos. Un bloqueado sigue bloqueado: cuenta, y se mueve, su estado guardado.
+            $status = (int) $user->status;
+            $isBlocked = $status === UsersModel::STATUS_USER_ATTEMPTS_BLOCK;
+            $effectiveStatus = $isBlocked ? UsersModel::effectiveStatus((int) $user->id) : $status;
+            if (!in_array($effectiveStatus, [UsersModel::STATUS_USER_ACTIVE, UsersModel::STATUS_USER_APPROVED_PENDING], true)) {
+                continue;
+            }
             $approvalMapperUser = SystemApprovalsMapper::getByMultipleCriteries([
                 [
                     'column' => 'referenceTable',
@@ -97,12 +105,21 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
                     'value' => $user->id,
                 ],
             ], [], false, true);
+            //Un perfil que una persona rechazó no lo aprueba su organización: ni la fila ni el estado (pendientes.md 392).
+            if ($approvalMapperUser !== null && (string) $approvalMapperUser->status === SystemApprovalsMapper::STATUS_REJECTED) {
+                continue;
+            }
             if ($approvalMapperUser !== null) {
                 $approvalMapperUser->status = SystemApprovalsMapper::STATUS_APPROVED;
                 $approvalMapperUser->update();
             }
-            $user->status = UsersModel::STATUS_USER_ACTIVE;
-            $user->update();
+            if ($isBlocked) {
+                //Si se desbloqueó entre tanto, se aplica a su estado vivo. RETORNO-IGNORADO: sin [pendiente] no hay nada que mover.
+                UsersModel::applyStatusTransition((int) $user->id, [UsersModel::STATUS_USER_APPROVED_PENDING], UsersModel::STATUS_USER_ACTIVE);
+            } elseif ($status === UsersModel::STATUS_USER_APPROVED_PENDING) {
+                $user->status = UsersModel::STATUS_USER_ACTIVE;
+                $user->update();
+            }
         }
     }
 
@@ -120,9 +137,16 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
             ],
         ], [], new UserDataPackage(1), true);
         $users = !empty($users) ? $users : [];
+        //Solo el activo vuelve a pendiente: los demás estados no se tocan. Antes los dejaba a todos por aprobar. Un
+        //bloqueado sigue bloqueado y se mueve su estado guardado.
         foreach ($users as $user) {
-            $user->status = UsersModel::STATUS_USER_APPROVED_PENDING;
-            $user->update();
+            if ((int) $user->status === UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+                //Si se desbloqueó entre tanto, se aplica a su estado vivo. RETORNO-IGNORADO: sin [activo] no hay nada que mover.
+                UsersModel::applyStatusTransition((int) $user->id, [UsersModel::STATUS_USER_ACTIVE], UsersModel::STATUS_USER_APPROVED_PENDING);
+            } elseif ((int) $user->status === UsersModel::STATUS_USER_ACTIVE) {
+                $user->status = UsersModel::STATUS_USER_APPROVED_PENDING;
+                $user->update();
+            }
         }
     }
 

@@ -284,12 +284,13 @@ class ContactFormsController extends PublicAreaController
 
                     }
 
-                    //Solo con el CAPTCHA superado: un envío rechazado no suscribe a nadie.
-                    if (NewsletterRoutes::ENABLE) {
+                    //Solo con el CAPTCHA superado: un envío rechazado no suscribe a nadie. Y solo un correo válido: el
+                    //contacto se envía igual, pero un texto cualquiera no entra en la tabla del boletín.
+                    if (NewsletterRoutes::ENABLE && filter_var(trim($email), \FILTER_VALIDATE_EMAIL) !== false) {
                         //Agregar a suscriptores
                         $suscriber = new NewsletterSuscriberMapper();
                         $suscriber->name = $name;
-                        $suscriber->email = $email;
+                        $suscriber->email = trim($email);
                         $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
                         $suscriber->save(true);
                     }

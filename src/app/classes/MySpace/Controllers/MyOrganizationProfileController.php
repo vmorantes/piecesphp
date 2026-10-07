@@ -19,6 +19,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
@@ -78,7 +79,7 @@ class MyOrganizationProfileController extends AdminPanelController
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return void
+     * @return Response
      */
     public function myOrganizationProfileView(Request $request, Response $response, array $args)
     {
@@ -93,9 +94,13 @@ class MyOrganizationProfileController extends AdminPanelController
         //Verificar si tiene privilegios superiores
         $hasSuperPrivileges = self::hasSuperPrivileges($currentUser);
         if ($hasSuperPrivileges) {
-            $organizationMapper = self::getOrganizationFromParams($args);
-            $organizationID = $organizationMapper !== null ? $organizationMapper->id : null;
-            $organizationAdministratorID = $organizationMapper->administrator->id;
+            $organizationMapper = self::organizationForSuperUser($args, $currentUser);
+            //La organización sale de la URL, o es la propia sin ella: una que no existe es un 404, no un 500.
+            if ($organizationMapper === null) {
+                throw new NotFoundException($request, $response);
+            }
+            $organizationID = $organizationMapper->id;
+            $organizationAdministratorID = self::administratorIDOf($organizationMapper);
             if ($organizationAdministratorID === null) {
                 $setAdministratorForm = true;
             } else {
@@ -119,13 +124,17 @@ class MyOrganizationProfileController extends AdminPanelController
 
                 //Se toma de la organización del administrado o de la ingresada por URL si es root (para organizaciones que fueron huérfanas de admin)
                 $organizationMapper = $adminUser->type != UsersModel::TYPE_USER_ROOT ? $adminUser->organizationMapper : $organizationMapper;
+                //Null solo sin organización, y el acceso ya la exige (_allowedRoute): aquí sería un fallo de verdad.
+                if ($organizationMapper === null) {
+                    throw new NotFoundException($request, $response);
+                }
                 $organizationAdminMapper = $organizationMapper->administrator;
                 $organizationIDParam = $hasSuperPrivileges ? [
                     'organizationID' => $organizationID,
                 ] : [];
                 $action = self::routeName('actions-save-profile', $organizationIDParam);
                 $actionChangeAdministrator = self::routeName('actions-change-administrator', $organizationIDParam);
-                $optionsUsersAdministrators = array_to_html_options(UsersModel::allOrganizationUsersCanBeAdminForSelect($organizationMapper->id), $organizationMapper->administrator->id);
+                $optionsUsersAdministrators = array_to_html_options(UsersModel::allOrganizationUsersCanBeAdminForSelect($organizationMapper->id), self::administratorIDOf($organizationMapper));
 
                 $data = [];
                 $data['action'] = $action;
@@ -184,8 +193,10 @@ class MyOrganizationProfileController extends AdminPanelController
                 $this->helpController->render('panel/layout/footer');
             }
 
+            return $response;
+
         } else {
-            throw403($request);
+            return throw403($request);
         }
 
     }
@@ -205,15 +216,18 @@ class MyOrganizationProfileController extends AdminPanelController
         $organizationID = $currentUser->organization;
         //Verificar si tiene privilegios superiores
         if (self::hasSuperPrivileges($currentUser)) {
-            $organizationMapper = self::getOrganizationFromParams($args);
-            $organizationID = $organizationMapper !== null ? $organizationMapper->id : null;
-            $organizationAdministratorID = $organizationMapper->administrator->id;
+            $organizationMapper = self::organizationForSuperUser($args, $currentUser);
+            if ($organizationMapper === null) {
+                throw new NotFoundException($request, $response);
+            }
+            $organizationID = $organizationMapper->id;
+            $organizationAdministratorID = self::administratorIDOf($organizationMapper);
             if ($organizationAdministratorID !== null) {
                 $adminUser = new UserDataPackage($organizationAdministratorID);
             }
         }
-        if ($organizationID !== null && $adminUser->organizationMapper->administrator->id == $adminUser->id) {
-            $organizationMapper = $adminUser->organizationMapper;
+        $organizationMapper = $adminUser->organizationMapper;
+        if ($organizationID !== null && $organizationMapper !== null && self::administratorIDOf($organizationMapper) == $adminUser->id) {
             $parsedBody = $request->getParsedBody();
             $parsedBody['id'] = $organizationMapper->id;
             $request = $request->withParsedBody($parsedBody);
@@ -222,9 +236,8 @@ class MyOrganizationProfileController extends AdminPanelController
             $responseResult->setValue('reload', false);
             return $response->withJson($responseResult);
         } else {
-            throw403($request);
+            return throw403($request);
         }
-        return $response;
     }
 
 
@@ -300,17 +313,17 @@ class MyOrganizationProfileController extends AdminPanelController
             //Verificar si tiene privilegios superiores
             if (!$specialSuperiorPrivileges) {
 
-                if ($organizationID !== null && $adminUser->organizationMapper->administrator->id == $adminUser->id) {
-                    $organizationID = $adminUser->organizationMapper->id;
-                    $organizationMapper = $adminUser->organizationMapper;
+                $organizationMapper = $adminUser->organizationMapper;
+                if ($organizationID !== null && $organizationMapper !== null && self::administratorIDOf($organizationMapper) == $adminUser->id) {
+                    $organizationID = $organizationMapper->id;
                 } else {
-                    throw403($request);
+                    return throw403($request);
                 }
 
             } else {
                 $organizationMapper = self::getOrganizationFromParams($args);
                 if ($organizationMapper === null) {
-                    throw403($request);
+                    return throw403($request);
                 }
             }
 
@@ -379,6 +392,39 @@ class MyOrganizationProfileController extends AdminPanelController
     public static function hasSuperPrivileges(UserDataPackage $user)
     {
         return in_array($user->type, OrganizationMapper::PROFILE_EDITOR_SUPER);
+    }
+
+    /**
+     * El id del encargado de una organización, o null si no tiene. `administrator` puede llegar como el modelo,
+     * como su id o vacío: el `->id` directo reventaba con los dos últimos.
+     *
+     * @param OrganizationMapper $organization
+     * @return int|null
+     */
+    protected static function administratorIDOf(OrganizationMapper $organization): ?int
+    {
+        $administrator = $organization->administrator;
+        if ($administrator instanceof UsersModel) {
+            return $administrator->id !== null ? (int) $administrator->id : null;
+        }
+        return is_int($administrator) ? $administrator : null;
+    }
+
+    /**
+     * La organización que abre quien puede editar cualquiera: la de la dirección y, sin ella, la suya propia
+     * (pendientes.md 374.5). Null si la de la dirección no existe, o si no viene ninguna y él no tiene organización.
+     *
+     * @param array $args
+     * @param UserDataPackage $user
+     * @return OrganizationMapper|null
+     */
+    protected static function organizationForSuperUser(array $args, UserDataPackage $user): ?OrganizationMapper
+    {
+        if (($args['organizationID'] ?? null) !== null) {
+            return self::getOrganizationFromParams($args);
+        }
+        $own = $user->organizationMapper;
+        return $own !== null && $own->id !== null ? $own : null;
     }
 
     /**
@@ -476,7 +522,7 @@ class MyOrganizationProfileController extends AdminPanelController
                     }
 
                     $currentUserCanEditProfile = in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR);
-                    $currentUserIsOrganizationAdministrator = $organizationMapper->administrator->id == $currentUserID;
+                    $currentUserIsOrganizationAdministrator = $organizationMapper !== null && self::administratorIDOf($organizationMapper) == $currentUserID;
 
                     $allow = $currentUserIsOrganizationAdministrator;
 

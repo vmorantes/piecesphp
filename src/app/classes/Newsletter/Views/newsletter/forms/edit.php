@@ -38,12 +38,12 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input required type="text" name="name" maxlength="200" value="<?= $element->name; ?>">
+                    <input required type="text" name="name" maxlength="200" value="<?= htmlspecialchars((string) $element->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>">
                 </div>
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Email'); ?></label>
-                    <input required type="email" name="email" maxlength="200" value="<?= $element->email; ?>">
+                    <input required type="email" name="email" maxlength="200" value="<?= htmlspecialchars((string) $element->email, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>">
                 </div>
 
                 <div class="field">

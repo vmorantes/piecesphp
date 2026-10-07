@@ -573,6 +573,10 @@ class PublicationsCategoryController extends AdminPanelController
 
                     try {
 
+                        //Null solo sin conexión, que el arranque ya exige: aquí sería un fallo de verdad, y el catch lo registra.
+                        if ($pdo === null) {
+                            throw new \Exception('Sin conexión a la base de datos al borrar la categoría ' . $id);
+                        }
                         $pdo->beginTransaction();
 
                         foreach ($transactionSQLDeleteQueries as $sqlQueryConfig) {
@@ -596,7 +600,9 @@ class PublicationsCategoryController extends AdminPanelController
 
                     } catch (\Exception $e) {
                         $reference = log_exception($e);
-                        $pdo->rollBack();
+                        if ($pdo !== null && $pdo->inTransaction()) {
+                            $pdo->rollBack();
+                        }
                         $resultOperation->setValue('transactionError', CustomSlimErrorHandler::genericMessage($reference));
                         $resultOperation->setMessage($unknowErrorMessage);
                     }

@@ -424,6 +424,36 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Quién ve lo que NO es público (borrador, programado, sin aprobar): quien ve borradores y, si no puede verlo
+     * todo, solo lo de su organización (la del creador); sin ella, nada. Quien aprueba de todas (CAN_APPROVAL_ALL) ve
+     * además lo que espera su aprobación. Es la regla de la vista individual, de la API y de los archivos: el slug y
+     * el id se pueden fabricar, así que ninguna salida puede ser más generosa que el listado (pendientes.md 380-382).
+     *
+     * @param PublicationMapper $element
+     * @param \PiecesPHP\UserSystem\UserDataPackage|null $user
+     * @param bool $pendingApproval Si lo que se pide es activo y en fecha, a falta de aprobación (P25)
+     * @return bool
+     */
+    public static function canBePreviewedBy(PublicationMapper $element, ?\PiecesPHP\UserSystem\UserDataPackage $user, bool $pendingApproval = false): bool
+    {
+        if ($user === null || !in_array((int) $user->type, self::CAN_VIEW_DRAFT)) {
+            return false;
+        }
+        if (in_array((int) $user->type, self::CAN_VIEW_ALL)) {
+            return true;
+        }
+        if ($pendingApproval && in_array((int) $user->type, \SystemApprovals\Mappers\SystemApprovalsMapper::CAN_APPROVAL_ALL)) {
+            return true;
+        }
+        $own = $user->organization;
+        if ($own === null) {
+            return false;
+        }
+        $creator = $element->createdBy instanceof UsersModel ? $element->createdBy : new UsersModel((int) $element->createdBy);
+        return $creator->organization !== null && (int) $creator->organization === (int) $own;
+    }
+
+    /**
      * Si la ve un visitante sin permiso de borradores: existe, está activa, está en fecha y está aprobada.
      *
      * @return bool
@@ -1270,8 +1300,11 @@ class PublicationMapper extends EntityMapperExtensible
             }
         }
 
+        //Sin langData (una fila importada o a medio crear) la publicación no tiene traducciones: un objeto vacío, no un
+        //mapper null que tumbaba los listados del panel con un 500.
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
+            'langData' => new \stdClass,
         ];
 
         foreach ($element as $property => $value) {

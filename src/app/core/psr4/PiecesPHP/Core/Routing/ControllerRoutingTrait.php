@@ -97,8 +97,8 @@ trait ControllerRoutingTrait
      * Descansa por completo en `routeName()`, que devuelve cadena vacía cuando el usuario no
      * tiene permiso.
      *
-     * **22 controladoras instalan `DefaultAccessControlModules`**, cuyo veredicto de acceso es
-     * `routeName()` devolviendo cadena no vacía. En esos módulos este método NO decide
+     * **Las controladoras que instalan `DefaultAccessControlModules`** tienen como veredicto de
+     * acceso `routeName()` devolviendo cadena no vacía. En esos módulos este método NO decide
      * visibilidad: **DECIDE EL ACCESO**. Fuera de ellos sí decide solo visibilidad. Ver T148.
      *
      * @param string $name

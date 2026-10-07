@@ -264,11 +264,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v8.0.2');
+    define('APP_VERSION', 'v8.0.6');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-10-06'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-10-07'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];

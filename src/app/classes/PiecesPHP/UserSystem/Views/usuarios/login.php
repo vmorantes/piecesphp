@@ -35,7 +35,7 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
                     <img src="<?= get_config('logo'); ?>">
                 </div>
 
-                <form defauld-show login-form-js last-uri='<?= $requested_uri; ?>' class="ui form">
+                <form defauld-show login-form-js last-uri='<?= htmlspecialchars((string) $requested_uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>' class="ui form">
 
                     <div class="field">
                         <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Usuario'); ?></label>

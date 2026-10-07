@@ -103,7 +103,7 @@ use Documents\Mappers\DocumentsMapper;
 
                     <div class="field">
                         <label><?= __($langGroup, 'Descripción'); ?></label>
-                        <textarea name="description"><?= $element->description; ?></textarea>
+                        <textarea name="description"><?= htmlspecialchars((string) $element->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                     </div>
 
                 </div>

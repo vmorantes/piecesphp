@@ -2,6 +2,8 @@
     defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
     use PiecesPHP\App\Locations\LocationsLang;
+    use PiecesPHP\App\Locations\Mappers\CityMapper;
+    use PiecesPHP\App\Locations\Mappers\CountryMapper;
     use PiecesPHP\UserSystem\ORM\UsersModel;
     use Organizations\Mappers\OrganizationMapper;
     use PiecesPHP\UserSystem\UserDataPackage;
@@ -14,12 +16,11 @@
     $mapper = new OrganizationMapper($approvalMapper->referenceValue);
     $affiliatedInstitutions = $mapper->affiliatedInstitutions;
     $affiliatedInstitutions ??= [];
-    //Si no tiene admin se asigna el root
-    if ($mapper->administrator->id == null) {
-        $mapper->administrator = new UsersModel(1);
-        $mapper->update(false);
-    }
-    $adminUser = new UserDataPackage($mapper->administrator->id);
+    //Lo que escribe un usuario se escapa al pintar: nada lo limpia al entrar (pendientes.md 394).
+    $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    //Sin encargado se dice y no se toca nada: una vista solo mira (pendientes.md 374.6). Antes asignaba el usuario 1 y guardaba.
+    $administratorID = $mapper->administrator instanceof UsersModel ? $mapper->administrator->id : (is_int($mapper->administrator) ? $mapper->administrator : null);
+    $adminUser = $administratorID !== null ? new UserDataPackage($administratorID) : null;
 ?>
 <section class="module-view-container">
 
@@ -64,17 +65,17 @@
             <button type="submit" style="display: none;" save></button>
 
             <div class="base-title size3"><?=__($langGroup, 'Nombre de la organización');?></div>
-            <div class="base-text mark2"><?=$mapper->currentLangData('name');?></div>
+            <div class="base-text mark2"><?=$escape($mapper->currentLangData('name'));?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?=__($langGroup, 'Ubicación');?></div>
-            <?php $country = $mapper->country !== null ? __(LocationsLang::LANG_GROUP_NAMES, $mapper->country->name) : ''; ?>
-            <?php $city = $mapper->city !== null ? __(LocationsLang::LANG_GROUP_NAMES, $mapper->city->name) : ''; ?>
+            <?php $country = $mapper->country instanceof CountryMapper ? __(LocationsLang::LANG_GROUP_NAMES, $mapper->country->name) : ''; ?>
+            <?php $city = $mapper->city instanceof CityMapper ? __(LocationsLang::LANG_GROUP_NAMES, $mapper->city->name) : ''; ?>
             <?php $text = implode(', ', [$country, $city]); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?=$text;?></div>
+            <div class="base-text"><?=$escape($text);?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -82,44 +83,48 @@
             <?php $text = $mapper->latitude !== null ? (string) $mapper->latitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?=$text;?></div>
+            <div class="base-text"><?=$escape($text);?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?=__($langGroup, 'Longitud');?></div>
-            <?php $text = $mapper->latitude !== null ? (string) $mapper->latitude : ''; ?>
+            <?php $text = $mapper->longitude !== null ? (string) $mapper->longitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
-            <div class="base-text"><?=$text;?></div>
+            <div class="base-text"><?=$escape($text);?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?=__($langGroup, 'Instituciones a las que pertenece');?></div>
-            <div class="base-text"><?=!empty($affiliatedInstitutions) ? implode(', ', $affiliatedInstitutions) : '-';?></div>
+            <div class="base-text"><?=!empty($affiliatedInstitutions) ? implode(', ', array_map($escape, $affiliatedInstitutions)) : '-';?></div>
 
             <div class="base-horizontal-space"></div>
 
             <div class="base-title size3"><?=__($langGroup, 'Persona encargada');?></div>
             <div class="base-horizontal-space"></div>
+            <?php if ($adminUser === null): ?>
+            <div class="base-text"><?=__($langGroup, 'Sin encargado');?></div>
+            <?php else: ?>
             <div class="form-attachments-regular">
-                <div data-trigger-open-link="<?=$adminUser->getAvatarURL();?>" class="attach-placeholder tall">
+                <div data-trigger-open-link="<?=$escape($adminUser->getAvatarURL());?>" class="attach-placeholder tall">
                     <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                     <div class="ui top right attached label green">
                         <i class="paperclip icon"></i>
                     </div>
                     <label for="<?=$uniqueIdentifier;?>">
                         <div class="image fullsize">
-                            <img src="<?=$adminUser->getAvatarURL();?>">
+                            <img src="<?=$escape($adminUser->getAvatarURL());?>">
                         </div>
                         <div class="text">
                             <div class="header">
-                                <div class="title"><?=$adminUser->getMapper()->getFullName();?></div>
+                                <div class="title"><?=$escape($adminUser->getMapper()->getFullName());?></div>
                             </div>
                         </div>
                     </label>
                     <input type="file" accept="image/*" id="<?=$uniqueIdentifier;?>">
                 </div>
             </div>
+            <?php endif; ?>
 
             <div class="base-horizontal-space"></div>
 
@@ -127,14 +132,14 @@
                 <div class="base-title size3"><?=__($langGroup, 'Imágenes');?></div>
                 <div class="base-horizontal-space"></div>
                 <div class="form-attachments-regular">
-                    <div data-trigger-open-link="<?=$mapper->getLogoURL();?>" class="attach-placeholder tall">
+                    <div data-trigger-open-link="<?=$escape($mapper->getLogoURL());?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                         <div class="ui top right attached label green">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?=$uniqueIdentifier;?>">
                             <div class="image fullsize">
-                                <img src="<?=$mapper->getLogoURL();?>">
+                                <img src="<?=$escape($mapper->getLogoURL());?>">
                             </div>
                             <div class="text">
                                 <div class="header">

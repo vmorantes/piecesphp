@@ -41,7 +41,7 @@ lleva a donde se arregla. Algunos avisos salen además como **aviso flotante** e
 | `legacy-extensions-folder` | atención | root y administrador general | sí | Existe la carpeta vieja `app/config/final-configurations-includes`; se sigue cargando. | Moverla a `app/config/extensions` |
 | `backup-overdue` | atención | root | sí | La política de respaldos está encendida y el último respaldo es más viejo que dos veces el intervalo configurado, o no hay ninguno. | `configurations-system-backups` («Respaldos»); revisar que corran las tareas programadas |
 | `server-delegated-broken-links` | atención | root | no | Hay enlaces rotos en `statics/server-delegated`. | `system-status-maintenance` («Estado y cachés») |
-| `mail-test-mode` | info en local, atención fuera | root y administrador general | no | El correo está retenido (modo de pruebas activo). | `configurations-integrations-mail` («Correo») |
+| `mail-test-mode` | info en local, atención fuera | root | no | El correo está retenido (modo de pruebas activo). | `configurations-integrations-mail` («Correo») |
 | `mail-sin-declarar` | grave | root | no | La instalación no declara su entorno, así que el correo se retiene. | Crear `app/config/environment.php`, o declarar la entrega en «Correo» |
 | `mail-retenido-en-produccion` | grave | root | no | Entorno de producción con el correo retenido: nadie recibe nada. | «Correo»: poner la entrega en «Real» |
 | `mail-real-en-local` | grave | root | no | Máquina local con el correo saliendo de verdad por el SMTP. | «Correo»: poner la entrega en «Retenido» |

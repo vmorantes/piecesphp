@@ -649,8 +649,10 @@ class NewsCategoryMapper extends EntityMapperExtensible
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
+        //Sin langData (una fila importada o a medio crear) no hay traducciones: un objeto vacío, no un null de objectToMapper().
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
+            'langData' => new \stdClass,
         ];
 
         foreach ($element as $property => $value) {

@@ -62,6 +62,11 @@ if (PublicationsRoutes::ENABLE) {
 
         $categoryMapper = PublicationCategoryMapper::objectToMapper($i);
 
+        //Una fila incompleta (sin langData en su meta) da null: tumbaba la portada con un 500 para cualquiera.
+        if ($categoryMapper === null) {
+            continue;
+        }
+
         if ($categoryMapper->id != PublicationCategoryMapper::UNCATEGORIZED_ID) {
 
             $menuBlogGroup->addItem(new MenuItem([

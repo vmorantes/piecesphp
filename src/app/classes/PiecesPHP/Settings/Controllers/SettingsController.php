@@ -77,9 +77,9 @@ class SettingsController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
+    //Solo el principal: quien cambia el destino del correo con la contraseña guardada se la lleva (pendientes.md 404).
     const ROLES_EMAIL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_OS_TICKET = [
         UsersModel::TYPE_USER_ROOT,
@@ -99,11 +99,8 @@ class SettingsController extends AdminPanelController
     /**
      * Claves que solo el usuario principal puede escribir por la acción genérica.
      *
-     * CIERRE PROVISIONAL: la acción genérica escribe CUALQUIER configuración, y la abren dos
-     * roles, así que el administrador general podía apagar el sitio entero por esta vía sin pasar
-     * por la pantalla del modo, que es solo del principal. Esta lista tapa ese agujero; el
-     * destino es que cada configuración seria tenga su propia acción, con su permiso y su
-     * validación, en el paso de jerarquización de las configuraciones.
+     * SEGUNDA CAPA: la primera es GENERIC_SAVE_ALLOWED, que ya solo deja pasar colores de marca. Esta queda por si
+     * alguien amplía esa lista: ninguna de estas debe poder escribirla otro rol por aquí.
      *
      * Por constante, nunca por cadena escrita a mano: si una clave cambia de nombre, esto la sigue.
      *
@@ -113,7 +110,51 @@ class SettingsController extends AdminPanelController
         MaintenanceMode::ENABLED_CONFIG,
         MaintenanceMode::ALLOWED_ROLES_CONFIG,
         MaintenanceMode::RETRY_AFTER_CONFIG,
+        //Credenciales: cambiar el destino y dejar el secreto vacío lo enviaría a otro servidor (pendientes.md 402).
+        self::MAIL_CONFIG,
+        MailDelivery::CONFIG_NAME,
+        self::OS_TICKET_URL_CONFIG,
+        self::OS_TICKET_KEY_CONFIG,
+        //Las que tienen pantalla o tarea solo del principal (pendientes.md 405): un script inyectado lee la sesión de
+        //cualquiera; la fecha mínima echa a todos o deshace una revocación; y respaldos y avisos.
+        \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::CONFIG_NAME,
+        \PiecesPHP\Core\SessionToken::MINIMUM_DATE_CONFIG,
+        \PiecesPHP\Core\Backups\BackupPolicy::CONFIG_NAME,
+        \PiecesPHP\SystemStatus\SystemAlertRegistry::HIDDEN_CONFIG,
     ];
+    /**
+     * Lo ÚNICO que guarda la acción genérica: los colores de marca de la pestaña «Colores» (decisión del PO, pendientes.md
+     * 176.2). Todo lo demás tiene su acción propia, con su permiso y su validación. ROOT_ONLY_CONFIG_KEYS y el patrón del
+     * nombre se quedan como segunda capa.
+     *
+     * @var string[]
+     */
+    const GENERIC_SAVE_ALLOWED = [
+        'main_brand_color',
+        'second_brand_color',
+        'font_color_one',
+        'font_color_two',
+        'menu_color_background',
+        'menu_color_mark',
+        'menu_color_font',
+        'meta_theme_color',
+        'bg_tools_buttons',
+    ];
+    /**
+     * Los colores que se pintan con un alfa concatenado: #RRGGBB, o vacío (el selector lo permite).
+     *
+     * @var string[]
+     */
+    const BRAND_COLORS_SIX_HEX = [
+        'main_brand_color',
+        'menu_color_background',
+    ];
+    /**
+     * La configuración SMTP, cifrada, y las de osTicket.
+     */
+    const MAIL_CONFIG = 'mail';
+    const OS_TICKET_URL_CONFIG = 'osTicketAPI';
+    const OS_TICKET_KEY_CONFIG = 'osTicketAPIKey';
     const ROLES_ROUTES_VIEWS = [
         UsersModel::TYPE_USER_ROOT,
     ];
@@ -148,6 +189,14 @@ class SettingsController extends AdminPanelController
         'MistralAIApiKey',
         'translationAI',
         'translationAIEnable',
+    ];
+
+    /**
+     * De AI_CONFIG_KEYS, los secretos: el formulario no los pinta.
+     */
+    const AI_SECRET_CONFIG_KEYS = [
+        'OpenAIApiKey',
+        'MistralAIApiKey',
     ];
 
     const SEO_OPTION_TITLE_APP = 'title_app';
@@ -281,6 +330,8 @@ class SettingsController extends AdminPanelController
             $currentBackgroundConfigMapper = new SettingsModel('backgrounds');
             $oldImage = '';
             $currentBackgroundConfigValues = $currentBackgroundConfigMapper->value;
+            //Sin la opción guardada (o con otra forma) no hay fondos que recorrer.
+            $currentBackgroundConfigValues = is_array($currentBackgroundConfigValues) ? $currentBackgroundConfigValues : (is_object($currentBackgroundConfigValues) ? (array) $currentBackgroundConfigValues : []);
 
             foreach ($currentBackgroundConfigValues as $i => $v) {
                 if (mb_strlen($nameImage) > 0 && str_contains($v, $nameImage)) {
@@ -567,7 +618,8 @@ class SettingsController extends AdminPanelController
                     'lang',
                     null,
                     function ($value) {
-                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                        //Solo un idioma de la instalación: con él se forma el nombre de la opción y del archivo de la imagen.
+                        return is_string($value) && in_array($value, Config::get_allowed_langs(), true);
                     },
                     false
                 ),
@@ -1051,7 +1103,10 @@ class SettingsController extends AdminPanelController
                     $mailConfig->protocol($protocol);
                     $mailConfig->port($port);
                     $mailConfig->user($user);
-                    $mailConfig->password($password);
+                    //Vacía conserva la guardada: el formulario no la pinta. MailConfig ya la cargó descifrada.
+                    if ($password !== '') {
+                        $mailConfig->password($password);
+                    }
                     $mailConfig->name($name);
                     $mailConfig->testHost($testHost);
                     $mailConfig->testPort($testPort);
@@ -1208,11 +1263,17 @@ class SettingsController extends AdminPanelController
                     $key = new SettingsModel('osTicketAPIKey');
 
                     $url->value = $expectedParameters->getValue('url');
-                    $key->value = $expectedParameters->getValue('key');
+                    $newKey = $expectedParameters->getValue('key');
 
                     $successUrl = $url->id !== null ? $url->update() : $url->save();
-                    $successKey = $key->id !== null ? $key->update() : $key->save();
-                    $success = $successUrl || $successKey;
+                    //Vacía conserva la guardada: el formulario no la pinta.
+                    $successKey = true;
+                    if ($newKey !== '') {
+                        $key->value = $newKey;
+                        $successKey = $key->id !== null ? $key->update() : $key->save();
+                    }
+                    //Éxito solo si se guardó todo lo que había que guardar.
+                    $success = $successUrl && $successKey;
 
                     if ($success) {
                         $resultOperation->setMessage($successMessage);
@@ -1759,6 +1820,11 @@ class SettingsController extends AdminPanelController
 
                     foreach ($configurationsToSave as $configName => $configValue) {
 
+                        //Las claves de API no se pintan en el formulario: llega vacía si no se cambia, y vacía la conserva.
+                        if ($configValue === '' && in_array($configName, self::AI_SECRET_CONFIG_KEYS, true)) {
+                            continue;
+                        }
+
                         if ($configValue !== null) {
 
                             $isSameValue = get_config($configName) === $configValue;
@@ -2025,7 +2091,8 @@ class SettingsController extends AdminPanelController
                 'name',
                 null,
                 function ($value) {
-                    return is_string($value);
+                    //Solo nombres de clave: un espacio o una variante crearía una fila que la base iguala a otra.
+                    return is_string($value) && preg_match('/^[A-Za-z0-9_.-]+\z/', $value) === 1;
                 }
             ),
             new Parameter(
@@ -2089,7 +2156,38 @@ class SettingsController extends AdminPanelController
             $currentUser = getLoggedFrameworkUser();
             $isRoot = $currentUser !== null && (int) $currentUser->type === UsersModel::TYPE_USER_ROOT;
 
-            if (in_array($name, self::ROOT_ONLY_CONFIG_KEYS, true) && !$isRoot) {
+            //Antes de leer ni escribir nada: solo los colores de marca.
+            if (!in_array($name, self::GENERIC_SAVE_ALLOWED, true)) {
+
+                $result->setMessage(__(
+                    self::LANG_GROUP,
+                    'Esta acción solo guarda los colores de marca: cada configuración se cambia desde su propia pantalla.'
+                ));
+
+                return $res->withJson($result, 403);
+
+            }
+
+            //Y el valor, un color: lo pinta el CSS de cada página y la plantilla de los correos, y un valor que no es una
+            //cadena tira el sitio entero (pendientes.md 407). Lo que manda la pestaña: parse «uppercase» y sin merge.
+            if ($merge || $parse !== self::PARSE_TYPE_UPPERCASE || !self::isBrandColorValue($name, $value)) {
+
+                $result->setMessage(__(self::LANG_GROUP, 'El valor no es un color válido.'));
+
+                return $res->withJson($result);
+
+            }
+
+            $option = new SettingsModel($name);
+            $optionExists = !is_null($option->id);
+
+            //También contra el nombre de la fila que se va a escribir: la base puede encontrarla con una variante del
+            //texto pedido que la lista no reconoce.
+            $targetName = $optionExists ? (string) $option->name : $name;
+            //Sin distinguir mayúsculas: en una base con colación _ci, «MAIL» es la fila «mail».
+            $reservedLower = array_map('mb_strtolower', self::ROOT_ONLY_CONFIG_KEYS);
+            $targetIsReserved = in_array(mb_strtolower($targetName), $reservedLower, true) || in_array(mb_strtolower($name), $reservedLower, true);
+            if (in_array($name, self::ROOT_ONLY_CONFIG_KEYS, true) && !$isRoot || $targetIsReserved && !$isRoot) {
 
                 $result->setMessage(__(
                     self::LANG_GROUP,
@@ -2099,9 +2197,6 @@ class SettingsController extends AdminPanelController
                 return $res->withJson($result, 403);
 
             }
-
-            $option = new SettingsModel($name);
-            $optionExists = !is_null($option->id);
 
             if ($optionExists && $merge) {
 
@@ -2134,9 +2229,9 @@ class SettingsController extends AdminPanelController
             if ($success) {
 
                 $result
-                    ->setMessage($message_create)
-                    ->operation($operation_name)
-                    ->setSuccess(true);
+                    ->setMessage($message_create);
+                //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
 
             } else {
 
@@ -2428,6 +2523,29 @@ class SettingsController extends AdminPanelController
 
         return $input;
 
+    }
+
+    /**
+     * Si el valor es un color de marca válido para ese nombre: cadena; vacía (el selector la permite) o #RRGGBB para los
+     * que llevan alfa concatenado, y para el resto hex de 3, 4, 6 u 8 cifras o rgb()/rgba() numérico.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isBrandColorValue(string $name, $value): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+        if ($value === '') {
+            return true;
+        }
+        if (in_array($name, self::BRAND_COLORS_SIX_HEX, true)) {
+            return preg_match('/^#[0-9A-Fa-f]{6}\z/', $value) === 1;
+        }
+        return preg_match('/^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})\z/', $value) === 1
+            || preg_match('/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)\z/i', $value) === 1;
     }
 
     /**

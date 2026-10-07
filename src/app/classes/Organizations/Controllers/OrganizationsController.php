@@ -205,7 +205,7 @@ class OrganizationsController extends AdminPanelController
             $actionLines = is_array($element->actionLines) ? $element->actionLines : [];
             $optionsActionLines = array_to_html_options(OrganizationMapper::actionLinesForSelect('', '', $actionLines), $element->actionLines, true);
             $optionsEsal = array_to_html_options(OrganizationMapper::esalOptionsForSelect(), $element->esal);
-            $optionsUsersAdministrators = array_to_html_options(UsersModel::allOrganizationUsersCanBeAdminForSelect($element->id), $element->administrator->id);
+            $optionsUsersAdministrators = array_to_html_options(UsersModel::allOrganizationUsersCanBeAdminForSelect($element->id), $element->administrator instanceof UsersModel ? $element->administrator->id : $element->administrator);
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
@@ -1308,6 +1308,10 @@ class OrganizationsController extends AdminPanelController
             'on_set_data' => function ($e) {
 
                 $mapper = OrganizationMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
@@ -1561,7 +1565,8 @@ class OrganizationsController extends AdminPanelController
                     $id = ($getParam)('id');
                     $id = Validator::isInteger($id) ? (int) $id : -1;
                     $organization = OrganizationMapper::getBy($id, 'id');
-                    $organizationMeta = json_decode($organization->meta);
+                    //Una organización que no existe no tiene meta: no hay encargado, y el `if` de abajo niega.
+                    $organizationMeta = $organization !== null ? json_decode($organization->meta) : null;
                     $organizationAdministratorID = is_object($organizationMeta) && property_exists($organizationMeta, 'administrator') ? $organizationMeta->administrator : -1;
                     $isEditor = in_array($currentUserType, OrganizationMapper::EDITORS);
                     $initialInmutableID = OrganizationMapper::INITIAL_ID_GLOBAL;

@@ -752,6 +752,20 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             Roles::registerRoles($allRolesConfig, true);
         }
 
+        //Pendiente o rechazado: entra, pero solo a lo suyo (P103/P104), con el módulo de aprobaciones encendido o
+        //apagado; y el bloqueado que lo era al bloquearse (pendientes.md 392). El principal no se recorta, como en
+        //SystemApprovalsMiddleware. Después de la inyección del encargado, para que también la recorte.
+        if ($user !== null && $current_role !== null && (int) $user->type !== UsersModel::TYPE_USER_ROOT && UsersModel::isRestrictedToOwn((int) $user->id, (int) $user->status)) {
+            $allRolesConfig = Roles::getRoles();
+            foreach ($allRolesConfig as $roleConfigKey => $roleConfig) {
+                if ($current_role['code'] == $roleConfig['code']) {
+                    $roleConfig['allowed_routes'] = UsersModel::restrictRoutes($roleConfig['allowed_routes']);
+                    $allRolesConfig[$roleConfigKey] = $roleConfig;
+                }
+            }
+            Roles::registerRoles($allRolesConfig, true);
+        }
+
         //Acciones en caso de estar el sistema de aprobaciones activo
         if (SystemApprovalsRoutes::ENABLE) {
             $systemApprovalsReturnValue = SystemApprovalsMiddleware::handle($request, (new ResponseRouteFactory())->createResponse(), [], $handler);

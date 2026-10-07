@@ -112,7 +112,7 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
                             <div class="field required">
                                 <label><?= __($langGroup, 'Contenido'); ?> (<?= __('lang', $langOnCreation); ?>)</label>
                                 <div rich-editor-adapter-component="<?= $langOnCreation; ?>"><?= $element->getLangData($langOnCreation, $fieldName, false, ''); ?></div>
-                                <textarea name="<?= $fieldName; ?>[<?= $langOnCreation; ?>]" required><?= $element->getLangData($langOnCreation, $fieldName, false, ''); ?></textarea>
+                                <textarea name="<?= $fieldName; ?>[<?= $langOnCreation; ?>]" required><?= htmlspecialchars((string) $element->getLangData($langOnCreation, $fieldName, false, ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -121,7 +121,7 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
                             <div class="field required">
                                 <label><?= __($langGroup, 'Contenido'); ?></label>
                                 <div rich-editor-adapter-component="<?= $defaultLang; ?>"><?= $element->getLangData($defaultLang, $fieldName, false, ''); ?></div>
-                                <textarea name="<?= $fieldName; ?>[<?= $defaultLang; ?>]" required><?= $element->getLangData($defaultLang, $fieldName, false, ''); ?></textarea>
+                                <textarea name="<?= $fieldName; ?>[<?= $defaultLang; ?>]" required><?= htmlspecialchars((string) $element->getLangData($defaultLang, $fieldName, false, ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                             </div>
                         </div>
                         <?php endif; ?>

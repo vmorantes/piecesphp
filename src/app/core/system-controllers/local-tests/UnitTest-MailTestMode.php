@@ -211,7 +211,7 @@ CliActions::make('unit-tests:core/mail-test-mode', function ($args) {
         $texto = $retenido !== null ? $retenido->message() : '';
         $check($retenido !== null && SystemAlertRegistry::isActive($retenido), 'e1 con el correo retenido, el aviso de siempre está activo');
         $check(str_contains($texto, '127.0.0.1') && str_contains($texto, '1025'), 'e2 su mensaje dice servidor y puerto', mb_substr($texto, 0, 120));
-        $check($retenido !== null && $retenido->audience() === [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL] && !$retenido->showAsNag(), 'e3 root y administrador general, no flotante');
+        $check($retenido !== null && $retenido->audience() === [UsersModel::TYPE_USER_ROOT] && !$retenido->showAsNag(), 'e3 solo root (la configuración del correo es suya), no flotante');
         $check($retenido !== null && $retenido->severity() === (is_local() ? \PiecesPHP\SystemStatus\SystemAlert::SEVERITY_INFO : \PiecesPHP\SystemStatus\SystemAlert::SEVERITY_WARNING), 'e4 INFO en local, ATENCIÓN fuera de local');
 
         $sinDeclarar = SystemAlertRegistry::get('mail-sin-declarar');

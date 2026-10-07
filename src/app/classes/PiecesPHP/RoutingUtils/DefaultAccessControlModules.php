@@ -41,6 +41,10 @@ class DefaultAccessControlModules
     public function getResponse(RequestRoute $request, RequestHandlerInterface $handler): ResponseRoute
     {
         $route = $request->getRoute();
+        //Sin ruta resuelta no hay con qué decidir el acceso: se niega, nunca se deja pasar.
+        if ($route === null) {
+            return throw403($request);
+        }
         $routeName = $route->getName();
         $routeArguments = $route->getArguments();
         $routeArguments = is_array($routeArguments) ? $routeArguments : [];

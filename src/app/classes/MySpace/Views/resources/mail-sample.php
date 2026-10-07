@@ -6,7 +6,7 @@
         'note' => "Mensaje informativo del correo electrónico.",
         'url' => $refererURL !== null ? $refererURL : '#',
         'text_button' => 'Llamado a la acción',
-        'text_footer' => 'Texto del footer - ' . get_config('owner'),
+        'text_footer' => 'Texto del footer - ' . htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
     ]);
 
     $text = <<<EOF
@@ -40,7 +40,7 @@
         'url' => $refererURL !== null ? $refererURL : '#',
         'text_button' => 'Llamado a la acción',
         'text_footer' => strReplaceTemplate($footerTemplate, [
-            '{TITLE}' => get_config('owner'),
+            '{TITLE}' => htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
             '{TEXT}' => "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
         ]),
     ]);
@@ -60,7 +60,7 @@
         'url' => $refererURL !== null ? $refererURL : '#',
         'text_button' => 'Llamado a la acción',
         'text_footer' => strReplaceTemplate($footerTemplate, [
-            '{TITLE}' => get_config('owner'),
+            '{TITLE}' => htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
             '{TEXT}' => "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
         ]),
         'note' => "Mensaje informativo del correo electrónico.",

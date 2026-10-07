@@ -252,6 +252,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      *  - referenceUserNames
      *  - referenceUserLastNames
      *  - referenceUserFullName
+     *  - referenceUserType
      *  - referenceIsActive 1|0
      *  - statusText
      * @return string[]
@@ -269,6 +270,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         //Datos del contenido
         $referenceIsActive = $approvalManager->generateCaptureDataFromReferenceForTableOnSQL('isActive');
         $referenceCreatedByUserID = $approvalManager->generateCaptureDataFromReferenceForTableOnSQL('createdBy');
+        $referenceUserType = "(SELECT {$tableUsers}.type FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceUserOrganizationID = "(SELECT {$tableUsers}.organization FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceUserFirstNameSegment = "(SELECT {$tableUsers}.firstname FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceUserFirstLastNameSegment = "(SELECT {$tableUsers}.firstLastname FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
@@ -289,6 +291,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             "DATE_FORMAT({$table}.approvalAt, '{$formatDate}') AS approvalAtFormat",
             "TRIM({$referenceCreatedByUserID}) AS referenceCreatedBy",
             "TRIM({$referenceUserOrganizationID}) AS referenceOrganization",
+            "{$referenceUserType} AS referenceUserType",
             "TRIM({$referenceOrganizationAdministrator}) AS referenceOrganizationAdministrator",
             "TRIM({$referenceOrtanizationApprovalValue}) AS referenceOrtanizationApprovalValue",
             "TRIM({$referenceUserFirstNameSegment}) AS referenceUserFirstName",

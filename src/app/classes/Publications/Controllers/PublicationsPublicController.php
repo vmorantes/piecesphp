@@ -178,11 +178,7 @@ class PublicationsPublicController extends BaseController
 
             if ($exists && $this->user instanceof \stdClass) {
 
-                if (in_array($this->user->type, PublicationMapper::CAN_VIEW_DRAFT)) {
-                    $allowShow = true;
-                } else {
-                    $allowShow = false;
-                }
+                $allowShow = PublicationMapper::canBePreviewedBy($element, getLoggedFrameworkUser());
 
             } else {
                 $allowShow = false;
@@ -191,7 +187,7 @@ class PublicationsPublicController extends BaseController
         } else {
             $allowShow = $element->isVisibleToPublic();
             //P25: lo activo y en fecha que aún no está aprobado lo ven, como vista previa, los mismos que ven un borrador.
-            if (!$allowShow && $exists && $this->user instanceof \stdClass && in_array($this->user->type, PublicationMapper::CAN_VIEW_DRAFT)) {
+            if (!$allowShow && $exists && $this->user instanceof \stdClass && PublicationMapper::canBePreviewedBy($element, getLoggedFrameworkUser(), true)) {
                 $allowShow = $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
             }
         }

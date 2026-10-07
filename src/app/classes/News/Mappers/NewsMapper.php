@@ -264,6 +264,26 @@ class NewsMapper extends EntityMapperExtensible
     }
 
     /**
+     * Si el listado de noticias (NewsController::_all, con sus valores por defecto) se la daría a ese usuario: activa,
+     * sin borrador, en fecha y dirigida a su tipo, salvo CAN_VIEW_TARGET_ALL. La API de detalle no enseña más.
+     *
+     * @param \PiecesPHP\UserSystem\UserDataPackage|null $user
+     * @return bool
+     */
+    public function isVisibleTo(?\PiecesPHP\UserSystem\UserDataPackage $user): bool
+    {
+        if ($this->id === null || $this->status != self::ACTIVE || (int) $this->draft !== 0 || !$this->isActiveByDates()) {
+            return false;
+        }
+        $type = $user !== null ? (int) $user->type : -1;
+        if (in_array($type, self::CAN_VIEW_TARGET_ALL)) {
+            return true;
+        }
+        $targets = is_array($this->profilesTarget) ? $this->profilesTarget : (array) $this->profilesTarget;
+        return in_array($type, array_map('intval', $targets), true);
+    }
+
+    /**
      * Verifica si ya está disponible según startDate y endDate
      * @return string
      */
@@ -954,9 +974,11 @@ class NewsMapper extends EntityMapperExtensible
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
+        //Sin langData (una fila importada o a medio crear) no hay traducciones: un objeto vacío, no un null de objectToMapper().
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
             'draft' => 0,
+            'langData' => new \stdClass,
         ];
 
         foreach ($element as $property => $value) {

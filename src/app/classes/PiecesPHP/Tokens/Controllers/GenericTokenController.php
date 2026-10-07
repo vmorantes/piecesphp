@@ -200,9 +200,9 @@ class GenericTokenController extends AdminPanelController
                         ], __(self::LANG_GROUP, 'Mensaje'));
                         $result->setValue('reload', true);
                         $result
-                            ->setMessage(__(self::LANG_GROUP, 'El recurso no existe o el enlace ha expirado'))
-                            ->operation(__(self::LANG_GROUP, 'Mensaje'))
-                            ->setSuccess(false);
+                            ->setMessage(__(self::LANG_GROUP, 'El recurso no existe o el enlace ha expirado'));
+                        //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                        ($result->operation(__(self::LANG_GROUP, 'Mensaje')) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(false);
 
                     } else {
                         $this->render('layout/header-for-token');
@@ -362,9 +362,9 @@ class GenericTokenController extends AdminPanelController
                     $result->setValue('reload', true);
 
                     $result
-                        ->setMessage($message_sended)
-                        ->operation($operation_name)
-                        ->setSuccess(true);
+                        ->setMessage($message_sended);
+                    //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                    ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
 
                     self::deleteOwnToken($tokenElement);
 

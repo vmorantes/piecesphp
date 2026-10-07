@@ -188,18 +188,14 @@ rompen, **dejarían el modo inservible sin que nada fallara**:
    reenlace, el aviso se congela con la selección que hubiera al cargar y **nada falla**: el modal
    aparece o no aparece, y las dos cosas parecen normales.
 
-!!! warning "La acción genérica de configuraciones ya no puede encender el modo"
-    `configurations-generic-save` la abren **el principal y el administrador general**, y
-    **puede escribir cualquier configuración**. Las tres del modo mantenimiento están ahora en
-    `SettingsController::ROOT_ONLY_CONFIG_KEYS`, y esa acción **las rechaza con un 403** si quien
-    pide no es el principal. Comprobado antes de escribir, y por constante: si una clave cambia de
-    nombre, la lista la sigue.
+!!! info "La acción genérica de configuraciones no puede encender el modo"
+    `configurations-generic-save` (la abren **el principal y el administrador general**) solo guarda los **nueve
+    colores de marca** de la pestaña «Colores»: su lista de permitidos es `SettingsController::GENERIC_SAVE_ALLOWED`, y
+    cualquier otro nombre recibe un 403, también el principal. Es lo que decidió el propietario: cada configuración con
+    consecuencias tiene su propia acción, con su permiso y su validación.
 
-    **Es un cierre provisional, no el diseño final.** La acción genérica seguirá pudiendo escribir
-    cualquier otra configuración mientras exista. La decisión tomada es que **deje de servir para lo
-    serio**: en la jerarquización de las configuraciones, cada configuración con consecuencias tendrá
-    su propia acción, con su permiso y su validación, y la genérica quedará solo para las
-    preferencias de imagen de marca.
+    Las tres claves del modo mantenimiento siguen, además, en `SettingsController::ROOT_ONLY_CONFIG_KEYS` como segunda
+    barrera, comprobada antes de escribir y por constante.
 
 ## Límites conocidos
 

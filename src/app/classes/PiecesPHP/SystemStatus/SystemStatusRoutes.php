@@ -143,7 +143,8 @@ class SystemStatusRoutes
             },
             fn() => (new MailConfig())->testModeActive(),
             false,
-            [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL],
+            //Solo el principal: la configuración del correo es suya, y el texto lleva el host del sumidero.
+            [UsersModel::TYPE_USER_ROOT],
             false,
             'configurations-integrations-mail',
             __(SystemStatusController::LANG_GROUP, 'Correo')

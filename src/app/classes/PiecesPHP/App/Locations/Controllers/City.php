@@ -397,9 +397,9 @@ class City extends AdminPanelController
 
                         if ($saved) {
 
-                            $result->setMessage($success_create_message)
-                                ->operation($operation_name)
-                                ->setSuccess(true);
+                            $result->setMessage($success_create_message);
+                            //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                            ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
 
                             $result->setValue('redirect', true);
                             $result->setValue('redirect_to', $redirect_url_on_create);
@@ -429,9 +429,9 @@ class City extends AdminPanelController
                             $updated = $mapper->update();
 
                             if ($updated) {
-                                $result->setMessage($success_edit_message)
-                                    ->operation($operation_name)
-                                    ->setSuccess(true);
+                                $result->setMessage($success_edit_message);
+                                //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                                ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
                             } else {
                                 $result->setMessage($unknow_error_message);
                             }
@@ -592,7 +592,7 @@ class City extends AdminPanelController
             $model->execute(false, 1, 50);
             $queryResult = $model->result();
 
-            foreach ($queryResult as $row) {
+            foreach ($queryResult ?? [] as $row) {
                 if ($mode == 'normal') {
                     $element = [
                         'id' => $row->id,

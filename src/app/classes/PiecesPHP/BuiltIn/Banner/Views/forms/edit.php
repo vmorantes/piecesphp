@@ -133,7 +133,8 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
                     <div class="field">
                         <label><?= __($langGroup, 'Contenido'); ?></label>
                         <div rich-editor-adapter-component></div>
-                        <textarea name="content"><?= $element->getLangData($lang, 'content', false, ''); ?></textarea>
+                        <?php //Escapado: un </textarea> en el contenido se saldría del campo; el editor lee el .value, que llega decodificado. ?>
+                        <textarea name="content"><?= htmlspecialchars((string) $element->getLangData($lang, 'content', false, ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                     </div>
 
                 </div>

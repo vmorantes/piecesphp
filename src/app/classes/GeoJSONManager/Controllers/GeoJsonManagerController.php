@@ -160,7 +160,7 @@ class GeoJsonManagerController extends AdminPanelController
         $model->having($havingSegment);
         $model->execute();
         $result = $model->result();
-        foreach ($result as $profile) {
+        foreach ($result ?? [] as $profile) {
             $lat = $profile->latitude;
             $lng = $profile->longitude;
             if ($lat !== null && $lng !== null) {
@@ -252,7 +252,7 @@ class GeoJsonManagerController extends AdminPanelController
         }
         $model->execute();
         $result = $model->result();
-        foreach ($result as $profile) {
+        foreach ($result ?? [] as $profile) {
             $metaData = json_decode($profile->meta);
             $lat = property_exists($metaData, 'latitude') ? $metaData->latitude : null;
             $lng = property_exists($metaData, 'longitude') ? $metaData->longitude : null;

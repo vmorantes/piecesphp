@@ -11,7 +11,9 @@
     $note = isset($note) && is_string($note) ? $note : '';
     $hasURL = isset($url) && is_string($url);
     $text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
-    $text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . get_config('owner') . "</span></p>";
+    //La marca la escribe un administrador general (SEO y colores): se escapa al pintar, también dentro de <style>.
+    $brandColor = htmlspecialchars((string) get_config('main_brand_color'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</span></p>";
     $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
 ?>
 <!DOCTYPE html>
@@ -38,7 +40,7 @@
     .header {
         text-align: center;
         padding: 20px 0px 0px 0px;
-        border-top: <?=get_config('main_brand_color')?> 10px solid;
+        border-top: <?=$brandColor?> 10px solid;
     }
 
     .header img {
@@ -67,14 +69,14 @@
 
     a {
         display: inline-block;
-        color: <?=get_config('main_brand_color')?>;
-        text-decoration: underline dotted <?=get_config('main_brand_color')?>;
+        color: <?=$brandColor?>;
+        text-decoration: underline dotted <?=$brandColor?>;
     }
 
     .button,
     a.button {
         display: inline-block;
-        background-color: <?=get_config('main_brand_color')?>;
+        background-color: <?=$brandColor?>;
         color: white;
         padding: 12px 20px;
         text-decoration: none;
@@ -88,7 +90,7 @@
     }
 
     .footer {
-        background-color: <?=get_config('main_brand_color')?>;
+        background-color: <?=$brandColor?>;
         color: white;
         text-align: center;
         padding: 15px 0;

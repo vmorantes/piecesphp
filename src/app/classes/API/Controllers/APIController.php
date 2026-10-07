@@ -217,20 +217,30 @@ class APIController extends AdminPanelController
 
                 $publicationMapper = new PublicationMapper($id);
 
-                if ($publicationMapper->id !== null) {
-
-                    $elementData = $publicationMapper->humanReadable();
-                    $elementData['mainImage'] = baseurl($publicationMapper->mainImage);
-                    $elementData['thumbImage'] = baseurl($publicationMapper->thumbImage);
-                    $elementData['createdBy'] = $publicationMapper->createdBy->id ?? null;
-                    $elementData['modifiedBy'] = $publicationMapper->modifiedBy->id ?? null;
-                    unset($elementData['category']['meta']);
-                    unset($elementData['category']['META:langData']);
-                    unset($elementData['meta']);
-                    unset($elementData['META:langData']);
-                } else {
-                    $elementData = null;
+                //La API no enseña más que la vista pública: lo que no se ve, como lo que no existe, es un 404.
+                if ($publicationMapper->id === null || (!$publicationMapper->isVisibleToPublic() && !PublicationMapper::canBePreviewedBy(
+                    $publicationMapper,
+                    getLoggedFrameworkUser(),
+                    $publicationMapper->status == PublicationMapper::ACTIVE && $publicationMapper->isActiveByDates()
+                ))) {
+                    throw new NotFoundException($request, $response);
                 }
+
+                $elementData = $publicationMapper->humanReadable();
+                $elementData['mainImage'] = baseurl($publicationMapper->mainImage);
+                $elementData['thumbImage'] = baseurl($publicationMapper->thumbImage);
+                $elementData['createdBy'] = $publicationMapper->createdBy->id ?? null;
+                $elementData['modifiedBy'] = $publicationMapper->modifiedBy->id ?? null;
+                //El autor, por LISTA BLANCA: lo que enseña la vista pública. humanReadable() lo trae entero.
+                $author = $publicationMapper->author;
+                $elementData['author'] = $author instanceof UsersModel || is_int($author) ? [
+                    'id' => $author instanceof UsersModel ? $author->id : $author,
+                    'fullName' => $publicationMapper->authorFullName(),
+                ] : null;
+                unset($elementData['category']['meta']);
+                unset($elementData['category']['META:langData']);
+                unset($elementData['meta']);
+                unset($elementData['META:langData']);
 
                 $response = $response->withJson([
                     'publicationData' => $elementData,
@@ -398,21 +408,20 @@ class APIController extends AdminPanelController
 
             $newsMapper = new NewsMapper($id);
 
-            if ($newsMapper->id !== null) {
-
-                $elementData = $newsMapper->humanReadable();
-                $elementData['profilesTarget'] = (array) $newsMapper->profilesTarget;
-                $elementData['createdBy'] = $newsMapper->createdBy->id ?? null;
-                $elementData['modifiedBy'] = $newsMapper->modifiedBy->id ?? null;
-                $elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage']);
-                unset($elementData['category']['meta']);
-                unset($elementData['category']['META:langData']);
-                unset($elementData['meta']);
-                unset($elementData['META:langData']);
-
-            } else {
-                $elementData = null;
+            //La API no enseña más que el listado de noticias a ese usuario: lo que no ve, como lo que no existe, es un 404.
+            if ($newsMapper->id === null || !$newsMapper->isVisibleTo(getLoggedFrameworkUser())) {
+                throw new NotFoundException($request, $response);
             }
+
+            $elementData = $newsMapper->humanReadable();
+            $elementData['profilesTarget'] = (array) $newsMapper->profilesTarget;
+            $elementData['createdBy'] = $newsMapper->createdBy->id ?? null;
+            $elementData['modifiedBy'] = $newsMapper->modifiedBy->id ?? null;
+            $elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage']);
+            unset($elementData['category']['meta']);
+            unset($elementData['category']['META:langData']);
+            unset($elementData['meta']);
+            unset($elementData['META:langData']);
 
             $response = $response->withJson([
                 'newsData' => $elementData,
@@ -1249,7 +1258,7 @@ class APIController extends AdminPanelController
             $request = $request->withParsedBody($parsedBody);
 
             $controller = new UsersController();
-            $response = $controller->register($request, $response);
+            $response = $controller->createUserFromRequest($request, $response);
 
             //Acciones de REGISTRO EXTERNO PERSONALIZADO - INICIO
             $creationSuccess = json_decode($response->getBody()->__toString(), true)['success'];

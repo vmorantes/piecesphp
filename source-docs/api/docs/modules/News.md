@@ -60,7 +60,9 @@ xhr.send();
 - Devolución:
 	- Tipo: JSON
 	- Propiedades:
-		- newsData: JSON|null La información del elemento o null en caso de no encontrar coincidencias
+		- newsData: JSON La información del elemento.
+	- Errores:
+		- 404 si la noticia no existe o si su listado no se la daría a quien pregunta (inactiva, borrador, fuera de fecha o dirigida a otros perfiles).
 	- Ejemplo:
 ```js
 //Solicitud

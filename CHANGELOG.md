@@ -1,10 +1,229 @@
+# 8.0.6 (07-10-2026)
+
+## ⚠ CAMBIO INCOMPATIBLE — la acción genérica de configuración solo guarda los colores de marca
+
+`configurations-generic-save` responde **403** a cualquier opción que no sea uno de los nueve colores de marca
+(`SettingsController::GENERIC_SAVE_ALLOWED`). Si tu clon guardaba otras opciones por esa acción, dale a cada una su
+propia acción, con su permiso y su validación, como las de `SettingsController`.
+
+## ⚠ Seguridad — los cambios de estado de un usuario
+
+**Si tu instalación tiene usuarios sin privilegios de administración, actualiza.** Todo esto ya estaba en la `v7.1.0`.
+
+- **El código de desbloqueo ponía ACTIVO a cualquier usuario**, también a un rechazado, un pendiente, un inactivo o un
+  borrado. Ahora solo desbloquea al bloqueado por intentos y le devuelve el estado que tenía; si su perfil fue
+  rechazado, vuelve rechazado. A quien no está bloqueado no se le envía código, y la respuesta no lo delata.
+- **Aprobar o rechazar una organización o un perfil reescribía el estado de todos sus usuarios.** Ahora no reactiva a
+  inactivos ni borrados ni toca un perfil que una persona rechazó; si el usuario está bloqueado, la resolución se
+  conserva para cuando se desbloquee. La autoaprobación tampoco deshace ya el rechazo de un perfil.
+- **Cualquiera con permiso de aprobar podía aprobar su propia fila**, y un institucional podía resolver el perfil del
+  principal o de un administrador general. Ahora nadie resuelve su propia aprobación salvo el principal, hay que tener
+  autoridad sobre el tipo del usuario, y el listado de aprobaciones solo enseña lo que se puede resolver, también al
+  buscar o filtrar.
+- **Los formularios de aprobación pintaban sin escapar lo que escribe el usuario** (nombres, usuario, correo, datos del
+  perfil, títulos, anexos): un usuario podía ejecutar código en el navegador de quien lo aprobaba. Ahora se escapa al
+  pintar, y el contenido de una publicación se enseña aislado, sin ejecutar nada. Lo mismo en el listado.
+- **Datos que llegaban crudos a páginas públicas**: la dirección de vuelta de la pantalla de acceso y la del formulario
+  de contacto se escapan ahora al pintar.
+- **Cualquier visitante, sin cuenta, podía consultar la base de datos a través del alta del boletín**: el correo se
+  metía tal cual en la consulta que comprueba si ya existe. Ahora va como parámetro.
+- **Cualquier visitante, sin cuenta, podía dejar código en el listado de suscriptores del boletín**, por el alta del
+  boletín o por el formulario de contacto: el correo no se validaba y el listado lo pintaba tal cual, así que se
+  ejecutaba en quien lo abría. Ahora el alta del boletín exige un correo válido, el formulario de contacto solo suscribe
+  con uno válido, y el listado y el formulario de edición escapan el nombre y el correo.
+- **Las contraseñas y claves de configuración viajaban dentro del HTML** de sus formularios: las claves de API de los
+  servicios de IA, la contraseña del SMTP y la clave de osTicket. Ahora los formularios no las muestran; un campo que se
+  deja vacío conserva el valor guardado. La configuración del correo y de osTicket pasa a ser solo del principal: quien
+  la cambiaba podía apuntarla a otro servidor y llevarse la credencial guardada.
+- **La acción genérica de configuración dejaba a un administrador general escribir opciones reservadas al principal**,
+  entre ellas las que gobiernan los permisos y los scripts del panel. Ahora la acción genérica solo acepta las
+  colores de marca de su pantalla, valida que cada valor sea un color, y rechaza cualquier otra opción; las opciones
+  reservadas, además, solo las escribe el principal por su propia pantalla. **Si en tu instalación un usuario que no es
+  el principal pudo usar esa acción**, revisa la tabla `pcsphp_app_config` y borra las filas que no reconozcas: la
+  aplicación las sigue cargando.
+- **Los colores de marca y el titular de la configuración SEO se pintaban sin escapar en las plantillas de correo.**
+  Ahora se escapan.
+
+## Cambia — un usuario bloqueado por intentos
+
+Un usuario bloqueado por intentos fallidos no puede iniciar una sesión nueva, pero **no pierde la que tenía abierta**:
+el bloqueo protege la contraseña contra quien la prueba, y cortar la sesión daría a cualquiera la forma de echar a otro
+usuario. Si antes de bloquearse estaba pendiente o rechazado, sigue con el panel recortado a lo suyo. Inactivos y
+borrados sí pierden la sesión, como antes.
+
+## Corregido
+
+- La fecha de modificación de los usuarios se guardaba con el reloj de 12 horas: por la tarde, doce horas antes.
+- En el formulario de aprobación de una organización, «Longitud» enseñaba la latitud.
+- En los formularios de publicaciones, banners, noticias y documentos, un texto con `</textarea>` se salía del campo; y
+  un `&lt;b&gt;` guardado entraba al editor como negrita.
+
+## Cambia — el contenido enriquecido no se filtra: quien lo escribe es de confianza
+
+El HTML del editor (el contenido de las publicaciones y de cualquier campo enriquecido) se guarda y se pinta **tal
+cual**, a propósito: el editor permite «Insertar HTML» y las incrustaciones de medios. Quien tiene permiso para escribir
+publicaciones puede, por tanto, poner cualquier HTML, también código que se ejecuta en quien la abre. **Da ese permiso
+solo a quien confíes.** La única excepción es la vista de aprobación, que enseña el contenido aislado, sin ejecutar
+nada, para proteger a quien aprueba algo que aún no ha revisado.
+
+# 8.0.5 (06-10-2026)
+
+## ⚠ Seguridad — editar y crear usuarios exigía menos que sus formularios
+
+**Si tu instalación tiene usuarios sin privilegios de administración, actualiza.**
+
+- **Cualquier usuario con sesión, de cualquier tipo, podía editar a otro usuario** enviando la petición de edición:
+  su nombre de usuario, su correo, su estado, su organización y su contraseña, también la de un principal. El
+  formulario comprobaba la autoridad; la petición, no. Además, uno mismo podía cambiarse la contraseña sin dar la
+  actual, y el perfil le dejaba cambiarse el estado. Ahora la petición exige lo mismo que su formulario: el permiso,
+  que el tipo del usuario editado tenga rol, la autoridad sobre ese tipo, solo los estados que el formulario ofrece y,
+  para quien no gestiona todas las organizaciones, solo usuarios de la suya y sin moverlos a otra. Uno mismo se edita
+  como perfil y con su contraseña actual. El formulario de edición de otro usuario tampoco se abre ya si no se gestiona
+  su organización. Ya estaba en la `v7.1.0`.
+- **Cualquier usuario con sesión podía crear usuarios de cualquier tipo**, también un principal, y en cualquier
+  organización. Ahora el alta del panel exige lo mismo que su formulario: el permiso, la autoridad sobre el tipo, sus
+  estados y, para quien no gestiona todas, su propia organización. El alta pública por la API sigue igual, con su
+  propia política (usuario general o administrador de organización, pendiente de aprobación). Ya estaba en la `v7.1.0`.
+- **Cualquier usuario con sesión podía cambiar el avatar de otro.** Ahora solo el propio usuario o quien puede
+  gestionarlo. Ya estaba en la `v7.1.0`.
+- **La autoaprobación de usuarios ponía ACTIVO a cualquier usuario de una organización aprobada**, aunque estuviera
+  inactivo, bloqueado, rechazado o borrado, y lo hacía al navegar: bastaba una petición. Ahora solo pasa a activo a quien
+  estaba pendiente de aprobación; los demás estados no se tocan. Ya estaba en la `v7.1.0`.
+
+## ⚠ Seguridad — las publicaciones no públicas de otras organizaciones
+
+- **La API de detalle de publicaciones entregaba cualquier publicación a cualquier usuario con sesión** (borradores,
+  programadas, sin aprobar o de otra organización), **y con ella el usuario autor entero, incluido el hash de su
+  contraseña.** Ahora la API solo entrega lo que la vista pública o la vista previa dejan ver, y del autor solo su id y
+  su nombre. Ya estaba en la `v7.1.0`.
+- **Quien podía ver borradores sin poder ver todas las publicaciones recibía los de todas las organizaciones**, en el
+  JSON de publicaciones (con `status=ANY` o un estado no público) y en la vista individual, cuyo enlace se puede
+  construir. Ahora solo los de su organización; sin organización, ninguno. Quien aprueba publicaciones de todas las
+  organizaciones conserva la vista previa de lo que tiene pendiente de aprobar. Ya estaba en la `v7.1.0`.
+- **Quien podía editar publicaciones podía sobrescribir y publicar las de otra organización** enviando su id a la
+  acción de edición. Ahora la edición exige lo mismo que abrir su formulario. Ya estaba en la `v7.1.0`.
+- **Con sesión, los archivos privados de una publicación no pública se servían a cualquiera.** Ahora solo a quien puede
+  verla o editarla. Un archivo privado que no está en la carpeta de ninguna publicación (el código actual ya no los
+  produce, pero pueden venir de datos antiguos) solo lo recibe quien puede ver todas las publicaciones. Y un token que
+  la aplicación ya no acepta (revocado, o de un usuario dado de baja) no cuenta como sesión para estos archivos. Los
+  archivos privados llegaron después de la `v7.1.0`.
+- **La API de detalle de noticias entregaba cualquier noticia a cualquier usuario con sesión**: borradores, inactivas,
+  fuera de fecha o dirigidas a otros perfiles, aunque su listado sí las filtraba. Ahora solo entrega lo que el listado
+  le daría a ese usuario. Ya estaba en la `v7.1.0`.
+
+Lo activo y público no cambia para nadie.
+
+## Cambia — un usuario pendiente de aprobación o rechazado entra con el panel recortado
+
+Un usuario pendiente de aprobación o rechazado puede iniciar sesión, como antes, pero el panel solo le abre las rutas de
+lo suyo: su perfil, su espacio, sus datos y las generales. Antes entraba con todas las de su tipo. Funciona con el módulo
+de aprobaciones encendido o apagado. El principal no se recorta nunca, como ya hacía el módulo de aprobaciones. El
+recorte es por rutas; inactivos, bloqueados y borrados siguen sin poder iniciar
+sesión.
+
+## Cambia — los usuarios de ejemplo
+
+El `README` del repositorio público avisa de que los usuarios de ejemplo de `databases/piecesphp_data.sql` (entre ellos
+`root`) traen contraseñas cuyo hash es público: hay que cambiarlas o borrarlos antes de exponer la instalación.
+
+## ⚠ CAMBIO INCOMPATIBLE — el detalle de publicaciones y de noticias por la API
+
+- `GET …/api/publications/publications/detail?id=N` responde **404** cuando la publicación no existe (antes, 200 con
+  `{"publicationData": null}`) y cuando quien pregunta no puede verla (antes se entregaba entera). Y `author` pasa de
+  ser el usuario entero a `{"id": …, "fullName": …}`: un consumidor que leyera otros campos del autor tiene que
+  pedirlos por su lado, con su permiso.
+- El detalle de noticias de la API hace lo mismo: **404** para la noticia que no existe (antes, 200 con
+  `{"newsData": null}`) y para la que su listado no le daría a quien pregunta (antes se entregaba entera).
+
+## ⚠ Seguridad — un usuario sin organización ya no ve las publicaciones de todas
+
+Un usuario cuyo tipo exige organización y que no la tiene (un dato defectuoso: el alta y la edición lo impiden, pero
+puede llegar de una base antigua) recibía un error 500 en todo el panel. Ese error tapaba algo peor: sin él, el
+listado de publicaciones del panel no le aplicaba ningún filtro de organización y le habría enseñado las de todas.
+Ahora entra al panel, el menú no le ofrece la entrada «Organización» y el listado de publicaciones le sale vacío. Quien
+puede ver todas las publicaciones, y quien tiene organización, no notan nada.
+
+## Cambia — una organización sin traducciones se lee completa
+
+Una organización guardada sin `langData` en su `meta` ya se carga entera en lugar de quedarse en nada. Tiene dos
+efectos sobre el acceso, los dos coherentes con la política declarada: su encargado puede editar y borrar las
+publicaciones de los miembros de su organización, y los usuarios de una organización inactiva o borrada ya no pueden
+iniciar sesión (antes, si a la organización le faltaba `langData`, entraban). Lo que guarda la aplicación siempre lleva
+`langData`: esto solo toca filas escritas por otros medios.
+
+## Corregido — los listados del panel con datos sin traducciones
+
+Los listados del panel de noticias, categorías de noticias, organizaciones, y categorías y tipos de documento de los
+formularios respondían error 500 si alguna fila no tenía sus datos de idioma (`langData`) en `meta`. Ahora se listan
+con sus datos base. Editar una organización que no existe respondía 500 a todos, también al principal; ahora responde
+403 o 404.
+
+# 8.0.4 (06-10-2026)
+
+## ⚠ Seguridad — un administrador de organización exportaba los accesos de todas las organizaciones
+
+Desde los informes de acceso, un administrador de organización podía descargar las tres exportaciones (intentos de
+ingreso, usuarios con ingreso y usuarios sin ingreso) con los datos de **todas** las organizaciones: nombres de usuario,
+mensajes, IPs y fechas. Ahora cada exportación trae solo lo de su organización, con la misma regla que el listado en
+pantalla. El principal y el administrador general siguen viéndolo todo. Los intentos con un nombre de usuario que no
+existe se siguen viendo, por decisión del propietario: conservan la fidelidad del registro. Ya estaba en la
+`v7.1.0`. **Si tu instalación tiene administradores de organización, actualiza.**
+
+## Corregido — un banner sin traducciones ya no tumba los listados
+
+Un banner con sus datos de idioma incompletos hacía que respondieran error 500 el listado del panel, su JSON y el JSON
+público de banners, que no pide sesión. Ahora se lista con sus datos base. Venía de la `v7.1.0`.
+
+# 8.0.3 (06-10-2026)
+
+## Corregido — aprobaciones que daban error 500
+
+El formulario de una aprobación cuyo contenido no tiene quien lo gestione respondía 500, y ahora es un 404. El de un
+usuario sin organización también daba 500: ahora se pinta con la organización como «N/A». Y en esa misma pantalla, la
+«Longitud» mostraba la latitud. Venía de la `v7.1.0`.
+
+## Corregido — la aprobación de una organización ya no escribe al mirarla
+
+Abrir el formulario de aprobación de una organización sin encargado le asignaba el usuario 1 como encargado y lo
+guardaba: una página que solo se mira modificaba datos. Ahora muestra que no tiene encargado y no escribe nada.
+
+## Corregido — una publicación sin traducciones ya no tumba los listados
+
+Una publicación con sus datos de idioma incompletos (por ejemplo, importada a mano) hacía que el listado de
+publicaciones del panel respondiera error 500, y también la carga por AJAX del listado público. Ahora se lista con sus
+datos base en los dos. Venía de la `v7.1.0`.
+
+## Corregido — `permissions-and-property.sh` se puede ejecutar recién clonado
+
+El guion de permisos y propiedad, y `src/permissions.sh`, no llevaban permiso de ejecución, y `./permissions-and-property.sh`
+respondía «Permission denied» en un clon nuevo. Ahora lo llevan.
+
+## Cambia — el repositorio público lleva su propio README
+
+El `README.md` de la distribución hablaba del repositorio de desarrollo (cómo se empuja, herramientas que no viajan). Ahora
+la distribución lleva uno escrito para quien clona: instalación desde `last-stable`, entorno, comprobaciones que sí
+funcionan en un clon y la terminal.
+
+## Corregido — «mi organización» con una organización que no existe
+
+Quien puede editar cualquier organización (el principal o el administrador general) recibía un error 500 al abrir o
+guardar el perfil de una organización que no existe, o al entrar sin indicar ninguna. Ahora, sin organización en la
+dirección, abre la suya; y una que no existe responde 404. Venía de la `v7.1.0`.
+
+## Corregido — una categoría de publicaciones incompleta ya no tumba el sitio público
+
+El menú del sitio público recorre las categorías de publicaciones, y una con sus datos de idioma incompletos (por
+ejemplo, a medio crear o importada a mano) hacía que **la portada respondiera error 500** a cualquier visitante, y con
+ella las demás páginas públicas que pintan ese menú (las del área pública y las de publicaciones). Ahora esa
+categoría se salta y las demás se pintan igual. Venía de la `v7.1.0`.
+
 # 8.0.2 (06-10-2026)
 
 ## Corregido — solo los programas llevan permiso de ejecución
 
 La `v8.0.1` traía 627 archivos marcados como ejecutables, y casi todos no lo eran: 201 `.php`, 188 `.js`, imágenes,
-hojas de estilo, `.gitignore`, `.htaccess`. Ahora solo lo lleva lo que empieza por `#!` (los guiones de `bin/`, los
-hooks de git y los `.sh`), y la comprobación 9 de `bin/cli verify-integrity` falla si un archivo sin `#!` vuelve a
+hojas de estilo, `.gitignore`, `.htaccess`. Ahora **solo** puede llevarlo un archivo que empiece por `#!` (en la
+distribución, los guiones de `bin/` y los hooks de git; no todo lo que empieza por `#!` lo lleva), y la comprobación 9 de `bin/cli verify-integrity` falla si un archivo sin `#!` vuelve a
 llevarlo. No cambia el contenido de ningún archivo.
 
 ## Cambia — `PUBLICAR.txt` lleva la ruta del repositorio en cada orden

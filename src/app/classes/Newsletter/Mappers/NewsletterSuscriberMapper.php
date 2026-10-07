@@ -134,7 +134,9 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
      */
     public function createdAtDisplay()
     {
-        $value = $this->createdAt->format('d-m-Y');
+        //El tipo admite la cadena con que se asigna antes de guardar: se interpreta, no se le pide format().
+        $createdAt = $this->createdAt instanceof \DateTime ? $this->createdAt : new \DateTime($this->createdAt);
+        $value = $createdAt->format('d-m-Y');
         return $value;
     }
 
@@ -143,7 +145,8 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
      */
     public function updatedAtDisplay()
     {
-        $value = $this->updatedAt !== null ? $this->updatedAt->format('d-m-Y') : __(self::LANG_GROUP, 'Sin modificar');
+        $updatedAt = $this->updatedAt instanceof \DateTime || $this->updatedAt === null ? $this->updatedAt : new \DateTime($this->updatedAt);
+        $value = $updatedAt !== null ? $updatedAt->format('d-m-Y') : __(self::LANG_GROUP, 'Sin modificar');
         return $value;
     }
 
@@ -337,12 +340,10 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     {
         $model = self::model();
 
-        $where = [
-            "email = '$email'",
-        ];
-        $where = trim(implode(' ', $where));
-
-        $model->select()->where($where);
+        //Por marcador: el correo llega de un alta pública, y una comilla es legal en su parte local.
+        $model->select()->where([
+            'email' => $email,
+        ]);
 
         $model->execute();
 
