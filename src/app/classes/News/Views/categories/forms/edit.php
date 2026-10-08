@@ -59,14 +59,14 @@ use PiecesPHP\Core\Config;
 
                         <div class="field required">
                             <label><?= __($langGroup, 'Nombre'); ?></label>
-                            <input required type="text" name="name" maxlength="300" value="<?= $element->getLangData($selectedLang, 'name', false, ''); ?>">
+                            <input required type="text" name="name" maxlength="300" value="<?= escape_html($element->getLangData($selectedLang, 'name', false, '')); ?>">
                         </div>
 
                         <br>
 
                         <div class="field required">
                             <label><?= __($langGroup, 'Color'); ?></label>
-                            <input type="text" name="color" color-picker-js data-color-picker-alpha="yes" data-color-picker-format="rgb" value="<?= $element->color; ?>">
+                            <input type="text" name="color" color-picker-js data-color-picker-alpha="yes" data-color-picker-format="rgb" value="<?= escape_html($element->color); ?>">
                         </div>
 
                     </div>

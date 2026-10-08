@@ -134,7 +134,7 @@ class MyOrganizationProfileController extends AdminPanelController
                 ] : [];
                 $action = self::routeName('actions-save-profile', $organizationIDParam);
                 $actionChangeAdministrator = self::routeName('actions-change-administrator', $organizationIDParam);
-                $optionsUsersAdministrators = array_to_html_options(UsersModel::allOrganizationUsersCanBeAdminForSelect($organizationMapper->id), self::administratorIDOf($organizationMapper));
+                $optionsUsersAdministrators = array_to_html_options(array_map('escape_html', UsersModel::allOrganizationUsersCanBeAdminForSelect($organizationMapper->id)), self::administratorIDOf($organizationMapper));
 
                 $data = [];
                 $data['action'] = $action;
@@ -170,7 +170,7 @@ class MyOrganizationProfileController extends AdminPanelController
                 $actionChangeAdministrator = self::routeName('actions-change-administrator', $organizationIDParam);
                 $optionsUsersAdministratorsBase = UsersModel::allOrganizationUsersCanBeAdminForSelect($organizationID);
                 $hasAdminOptions = count(array_filter(array_keys($optionsUsersAdministratorsBase), fn($e) => mb_strlen((string) $e) > 0)) > 0;
-                $optionsUsersAdministrators = array_to_html_options($optionsUsersAdministratorsBase);
+                $optionsUsersAdministrators = array_to_html_options(array_map('escape_html', $optionsUsersAdministratorsBase));
 
                 $data = [];
                 $data['organizationMapper'] = $organizationMapper;

@@ -11,7 +11,7 @@ use Documents\Controllers\DocumentsController;
 
     <div class="home-hello-section-title">
         <div class="title"><?= __($langGroup, 'Hola,'); ?></div>
-        <div class="subtitle"><?= $subtitle; ?></div>
+        <div class="subtitle"><?= escape_html($subtitle); ?></div>
     </div>
 
     <div class="my-space-content">

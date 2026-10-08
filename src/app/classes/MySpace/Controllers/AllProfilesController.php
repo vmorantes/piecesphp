@@ -197,12 +197,12 @@ class AllProfilesController extends AdminPanelController
                 }
 
                 $orgClass = $isOrg ? 'org' : '';
-                $avatar = "<div class='avatar {$orgClass}'><img src='{$avatar}' /></div>";
-                $name = "<div class='name'>{$e->name}</div>";
+                $avatar = "<div class='avatar {$orgClass}'><img src='" . escape_html($avatar) . "' /></div>";
+                $name = "<div class='name'>" . escape_html($e->name) . "</div>";
 
 
                 $columns[] = "<div class='user-info'>{$avatar} {$name}</div>";
-                $columns[] = $e->fullLocation;
+                $columns[] = escape_html($e->fullLocation);
                 $columns[] = $buttons;
                 return $columns;
             },

@@ -309,10 +309,10 @@ class UsersController extends AdminPanelController
                 }
 
                 $columns[] = $element->idPadding;
-                $columns[] = $element->names;
-                $columns[] = $element->lastNames;
-                $columns[] = $element->email;
-                $columns[] = $element->username;
+                $columns[] = escape_html($element->names);
+                $columns[] = escape_html($element->lastNames);
+                $columns[] = escape_html($element->email);
+                $columns[] = escape_html($element->username);
                 $columns[] = $element->statusText;
                 $columns[] = $element->typeName;
                 $columns[] = implode(' ', $buttons);
@@ -421,32 +421,33 @@ class UsersController extends AdminPanelController
         $resultsQuery = $model->result();
         $resultsQuery = is_array($resultsQuery) ? $resultsQuery : [];
 
+        //Fomantic pinta `name` como HTML (preserveHTML): va escapado.
         foreach ($resultsQuery as $element) {
 
             $elementResult = [
                 'value' => $element->id,
-                'name' => $element->fullname,
+                'name' => escape_html($element->fullname),
             ];
 
             if ($typeResult == $RESULT_FULLNAME) {
 
                 $elementResult = [
                     'value' => $element->id,
-                    'name' => $element->fullname,
+                    'name' => escape_html($element->fullname),
                 ];
 
             } elseif ($typeResult == $RESULT_FULLNAME_USERNAME) {
 
                 $elementResult = [
                     'value' => $element->id,
-                    'name' => "{$element->fullname} ({$element->username})",
+                    'name' => escape_html("{$element->fullname} ({$element->username})"),
                 ];
 
             } elseif ($typeResult == $RESULT_USERNAME) {
 
                 $elementResult = [
                     'value' => $element->id,
-                    'name' => $element->username,
+                    'name' => escape_html($element->username),
                 ];
 
             }

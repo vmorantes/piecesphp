@@ -18,7 +18,7 @@
         '${loginLink}' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'),
         '${valueMailUser}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
         '${otherProblemsFormLink}' => \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'),
-        '${owner}' => get_config('owner'),
+        '${owner}' => escape_html(get_config('owner')),
         '${logoURL}' => get_config('logo'),
         '${partnersImageURL}' => get_config('partners'),
         '${backgroundURL}' => get_config('backgoundProblems'),

@@ -88,7 +88,7 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
                         <div class="eight wide column">
                             <div class="field required">
                                 <label><?= __($langGroup, 'Título'); ?> (<?= __('lang', $langOnCreation); ?>)</label>
-                                <input required type="text" name="<?= $fieldName; ?>[<?= $langOnCreation; ?>]" maxlength="300" value="<?= $element->getLangData($langOnCreation, $fieldName, false, ''); ?>">
+                                <input required type="text" name="<?= $fieldName; ?>[<?= $langOnCreation; ?>]" maxlength="300" value="<?= escape_html($element->getLangData($langOnCreation, $fieldName, false, '')); ?>">
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -96,7 +96,7 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
                         <div class="sixteen wide column">
                             <div class="field required">
                                 <label><?= __($langGroup, 'Título'); ?></label>
-                                <input required type="text" name="<?= $fieldName; ?>[<?= $defaultLang; ?>]" maxlength="300" value="<?= $element->getLangData($defaultLang, $fieldName, false, ''); ?>">
+                                <input required type="text" name="<?= $fieldName; ?>[<?= $defaultLang; ?>]" maxlength="300" value="<?= escape_html($element->getLangData($defaultLang, $fieldName, false, '')); ?>">
                             </div>
                         </div>
                         <?php endif; ?>

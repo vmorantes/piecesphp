@@ -708,7 +708,7 @@ class CategoriesController extends AdminPanelController
                 $columns = [];
 
                 $columns[] = $e->idPadding;
-                $columns[] = $e->categoryName;
+                $columns[] = escape_html($e->categoryName);
                 $columns[] = $buttons;
                 return $columns;
             },

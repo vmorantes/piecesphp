@@ -1,3 +1,113 @@
+# 8.0.7 (07-10-2026)
+
+## ⚠ Seguridad — lo que escriben los usuarios se pinta escapado
+
+Hasta ahora, muchas pantallas pintaban tal cual lo que un usuario había escrito, así que alguien podía guardar código
+en un campo suyo y ese código se ejecutaba en el navegador de quien lo miraba. Ahora se escapa al pintar en:
+
+- los perfiles de persona y de organización, «mi organización», mi perfil, mi espacio y la pantalla de seguridad;
+- las organizaciones, los usuarios y sus tarjetas y formularios por tipo, y el buscador de usuarios;
+- los documentos, sus tipos y el **nombre del archivo subido**, y las categorías de Formularios;
+- el banner, el autor de una publicación, los formularios de noticias y publicaciones y sus categorías, el mapa de
+  contenidos, el panel y la barra superior;
+- el propietario, la descripción y las palabras clave del SEO, que salen en el menú del panel y en páginas públicas;
+- **los informes de acceso**, incluido el nombre de usuario que alguien teclea al intentar entrar, que **cualquiera
+  puede escribir sin tener cuenta** y que se enseña a quien revisa los accesos; también su mensaje y su IP;
+- el listado de usuarios;
+- **el registro de actividad**, entero: el texto de cada entrada —que lleva dentro el nombre de usuario, y cualquier
+  usuario puede cambiar el suyo—, quién la hizo, la IP, la geolocalización y el saludo de su pantalla.
+
+Y en **todos los listados del panel que se cargan por JSON**: el registro de actividad, los usuarios, los intentos de
+acceso, el banner, las noticias y sus categorías, las publicaciones, las organizaciones, las aprobaciones, los
+documentos, los perfiles y los formularios. Se escapa **solo la parte variable** de cada celda: los botones, las
+etiquetas de estado y el diseño siguen siendo HTML, como antes.
+
+Además, los enlaces de web y de LinkedIn de un perfil **solo se enlazan si empiezan por `http://` o `https://`**; con
+cualquier otra cosa se enseña el texto, sin enlace.
+
+**El contenido del editor no cambia**: sigue guardándose y pintándose tal cual, a propósito (ver la nota de la
+`v8.0.6`). Quien tiene permiso para escribirlo es de confianza.
+
+## ⚠ Seguridad — la pantalla del registro de errores declara su permiso
+
+La pantalla que entrega el registro de errores del servidor —con las trazas, las rutas de los archivos y los mensajes
+internos— **no declaraba quién puede verla**. En la práctica solo entraba el administrador principal, pero porque lo
+decidía la regla general de permisos, no la pantalla. Ahora **la pantalla dice que es solo del administrador
+principal**, como ya hacían el registro de actividad y el de correos. Quien podía entrar antes sigue entrando igual: lo
+que cambia es que ahora está escrito.
+
+## ⚠ Seguridad — el nombre de los anexos, las rutas de las imágenes y el recortador
+
+Quedaban sitios donde la **ruta de una imagen o de un archivo** y el **nombre de un anexo** se pintaban sin escapar, y
+el nombre lo teclea quien sube el archivo. Ahora se escapan: la imagen de portada de la pantalla de inicio, el logotipo
+y el RUT de una organización, el logotipo de «mi organización», las imágenes de los formularios de publicaciones, el
+nombre de cada anexo —que además se pintaba como texto de la pantalla, así que **alguien podía guardar código en el
+nombre de un anexo y ese código se ejecutaba al abrir el formulario de quien lo revisa**— y la imagen del recortador
+compartido, con su nombre.
+
+## Cambia — el nombre de los archivos que se suben se sanea en todas las subidas
+
+El saneo que la `v8.0.6` estrenó en el banner **ya se aplica a las cinco subidas del framework** que guardan en disco el
+nombre que escribe quien sube: el banner, las organizaciones, las publicaciones, **los documentos** y los contenidos
+genéricos. El nombre se reduce a letras, números, guion bajo y guion, se recorta si es larguísimo y **pierde los
+puntos**: la extensión la pone el framework al mover el archivo —la del original, una vez validado contra los tipos
+permitidos—. **Los archivos ya subidos conservan su nombre.**
+
+Para quien clona: la función está en el núcleo, como `safe_upload_name()`, junto a `escape_html()`. Las dos se explican,
+con ejemplos copiables y con los errores que parecen correctos y no lo son, en «Escapado y nombres de subidas» de la
+documentación del proyecto.
+
+## ⚠ Seguridad — el nombre de las imágenes que se suben al banner
+
+**El nombre del archivo lo pone quien sube**, y llegaba tal cual a la ruta guardada, al disco y a la vista previa del
+listado, que lo interpretaba como HTML. Ahora el banner **sanea el nombre de las imágenes nuevas** (solo letras,
+números, guion bajo y guion; lo demás pasa a guion), lo recorta si es larguísimo, y su vista previa ya no interpreta la
+ruta como HTML. La extensión
+la sigue poniendo el framework, de la lista de imágenes permitidas. **Las imágenes ya subidas conservan su nombre**: si
+una se llamaba de forma extraña, vuelve a subirla.
+
+## Cambia — la vista previa de las subidas
+
+El ayudante de subida solo pinta el fondo de la vista previa **si la ruta es segura**; si trae comillas, paréntesis o
+espacios, la pantalla se ve sin fondo en vez de arriesgarse. Afecta a la edición de las categorías de noticias.
+
+## Cambia — el color de una categoría de noticias
+
+Solo se admite un color (hexadecimal, `rgb()` o `rgba()`). Se valida al guardar y, si una fila guardada antes trae otra
+cosa, **se pinta el color por defecto** (`#000000`) tanto en el listado del panel como en la tarjeta pública: ese valor
+se pintaba dentro de los estilos de la página, donde escapar no protege.
+
+Si una categoría guardada antes trae algo que no es un color (un nombre, `hsl()`…), al volver a guardarla hay que
+**elegir un color**: el valor viejo ya no se acepta.
+
+## Nuevo para quien desarrolla un clon — `escape_html()`
+
+`escape_html($valor)` escapa texto plano para pintarlo en HTML o en un atributo entre comillas. `null` da `''`, los
+escalares y los objetos con `__toString()` se convierten, y un array lanza `TypeError` en vez de pintar «Array». **No
+sirve** para JavaScript, para una URL ni para CSS, y **nunca** se aplica al contenido del editor.
+
+`Validator::isColor($valor)` dice si un valor es un color (hexadecimal de 3, 4, 6 u 8 cifras, o `rgb()`/`rgba()`
+numérico). Vive junto a `isInteger`, `isEmail` y las demás.
+
+## ⚠ CAMBIO INCOMPATIBLE — el texto del registro de actividad se escapa
+
+Si tu clon guardaba HTML en el texto de una entrada del registro de actividad (con una plantilla propia o metiendo
+marcado en el mensaje), ahora se verá como texto. En el framework no hay ninguna entrada que lleve marcado, así que
+esto solo afecta a quien lo haya añadido.
+
+## ⚠ CAMBIO INCOMPATIBLE — la función `escape_html()`
+
+Si tu clon declara su propia función global `escape_html()`, renómbrala: el núcleo ya la declara y, si no, la
+aplicación no arranca.
+
+## Cambia
+
+- La pantalla de colores **ya no acepta dejar vacíos** el color principal ni el fondo del menú: en blanco dejaban
+  botones y pies de correo ilegibles.
+- Se retira `SystemApprovals/Views/mailing/template_base.php`, una copia huérfana de la plantilla de correo que nadie
+  usaba y que se habría quedado atrás sin que nadie lo notara. La plantilla base de correo vive en el núcleo
+  (`app/view/mailing/`); el cuerpo de cada correo sigue donde estaba, en su módulo.
+
 # 8.0.6 (07-10-2026)
 
 ## ⚠ CAMBIO INCOMPATIBLE — la acción genérica de configuración solo guarda los colores de marca
@@ -36,7 +146,7 @@ propia acción, con su permiso y su validación, como las de `SettingsController
   deja vacío conserva el valor guardado. La configuración del correo y de osTicket pasa a ser solo del principal: quien
   la cambiaba podía apuntarla a otro servidor y llevarse la credencial guardada.
 - **La acción genérica de configuración dejaba a un administrador general escribir opciones reservadas al principal**,
-  entre ellas las que gobiernan los permisos y los scripts del panel. Ahora la acción genérica solo acepta las
+  entre ellas las que gobiernan los permisos y los scripts del panel. Ahora la acción genérica solo acepta los
   colores de marca de su pantalla, valida que cada valor sea un color, y rechaza cualquier otra opción; las opciones
   reservadas, además, solo las escribe el principal por su propia pantalla. **Si en tu instalación un usuario que no es
   el principal pudo usar esa acción**, revisa la tabla `pcsphp_app_config` y borra las filas que no reconozcas: la

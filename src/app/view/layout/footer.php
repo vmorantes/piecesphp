@@ -41,7 +41,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             </div>
 
             <div class="copy">
-                <?= get_config('owner'); ?> | <?= __(LANG_GROUP, 'Todos los derechos reservados'); ?>, <?= date('Y'); ?>
+                <?= escape_html(get_config('owner')); ?> | <?= __(LANG_GROUP, 'Todos los derechos reservados'); ?>, <?= date('Y'); ?>
             </div>
 
         </div>

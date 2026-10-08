@@ -575,7 +575,7 @@ class SystemApprovalsController extends AdminPanelController
 
                 $avatar = AvatarModel::getAvatar($e->referenceCreatedBy);
                 $avatar ??= baseurl('statics/images/default-avatar.png');
-                $avatar = "<div class='avatar'><img src='{$avatar}' /></div>";
+                $avatar = "<div class='avatar'><img src='" . escape_html($avatar) . "' /></div>";
                 //El nombre lo edita el propio usuario y no se limpia al entrar: se escapa al salir.
                 $fullName = htmlspecialchars((string) $e->referenceUserFullName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $userName = "<div class='name'>{$fullName}</div>";

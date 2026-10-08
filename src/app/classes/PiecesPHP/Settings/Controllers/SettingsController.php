@@ -141,7 +141,7 @@ class SettingsController extends AdminPanelController
         'bg_tools_buttons',
     ];
     /**
-     * Los colores que se pintan con un alfa concatenado: #RRGGBB, o vacío (el selector lo permite).
+     * Los colores que se pintan con un alfa concatenado: solo #RRGGBB. El vacío se rechaza aunque el selector lo permita.
      *
      * @var string[]
      */
@@ -578,6 +578,8 @@ class SettingsController extends AdminPanelController
                         $keywords = $value;
                         if (is_array($keywords) && !empty($keywords)) {
 
+                            //Valor y texto a la vez, escritos por quien tiene el SEO: se escapan los dos y la selección.
+                            $keywords = array_map('escape_html', array_filter($keywords, 'is_scalar'));
                             foreach ($keywords as $keyword) {
                                 $keywordsToSelect[$keyword] = $keyword;
                             }
@@ -2184,10 +2186,7 @@ class SettingsController extends AdminPanelController
             //También contra el nombre de la fila que se va a escribir: la base puede encontrarla con una variante del
             //texto pedido que la lista no reconoce.
             $targetName = $optionExists ? (string) $option->name : $name;
-            //Sin distinguir mayúsculas: en una base con colación _ci, «MAIL» es la fila «mail».
-            $reservedLower = array_map('mb_strtolower', self::ROOT_ONLY_CONFIG_KEYS);
-            $targetIsReserved = in_array(mb_strtolower($targetName), $reservedLower, true) || in_array(mb_strtolower($name), $reservedLower, true);
-            if (in_array($name, self::ROOT_ONLY_CONFIG_KEYS, true) && !$isRoot || $targetIsReserved && !$isRoot) {
+            if (self::isRootOnlyConfigName($name, $targetName) && !$isRoot) {
 
                 $result->setMessage(__(
                     self::LANG_GROUP,
@@ -2454,12 +2453,8 @@ class SettingsController extends AdminPanelController
                     $values[$lang] = [];
                 }
 
+                //En crudo: la vista escapa al pintar (escape_html); escapar también aquí lo duplica.
                 foreach ($valuesOnLang as $name => $value) {
-
-                    if (str_contains($name, self::SEO_OPTION_TITLE_APP_ON_FORM) || str_contains($name, self::SEO_OPTION_OWNER_ON_FORM)) {
-                        $value = htmlentities($value);
-                    }
-
                     $values[$lang][$name] = $value;
                 }
             }
@@ -2526,8 +2521,24 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * Si el valor es un color de marca válido para ese nombre: cadena; vacía (el selector la permite) o #RRGGBB para los
-     * que llevan alfa concatenado, y para el resto hex de 3, 4, 6 u 8 cifras o rgb()/rgba() numérico.
+     * Si la acción genérica debe reservar ese nombre al usuario principal (segunda capa: ROOT_ONLY_CONFIG_KEYS).
+     *
+     * Mira el nombre pedido y el de la fila que se escribiría, sin distinguir mayúsculas: en una base con colación _ci,
+     * «MAIL» es la fila «mail».
+     *
+     * @param string $requestedName
+     * @param string $targetName
+     * @return bool
+     */
+    public static function isRootOnlyConfigName(string $requestedName, string $targetName): bool
+    {
+        $reservedLower = array_map('mb_strtolower', self::ROOT_ONLY_CONFIG_KEYS);
+        return in_array(mb_strtolower($requestedName), $reservedLower, true) || in_array(mb_strtolower($targetName), $reservedLower, true);
+    }
+
+    /**
+     * Si el valor es un color de marca válido para ese nombre: cadena; #RRGGBB, nunca vacía, para los que llevan alfa
+     * concatenado, y para el resto vacía (el selector la permite), hex de 3, 4, 6 u 8 cifras o rgb()/rgba() numérico.
      *
      * @param string $name
      * @param mixed $value
@@ -2538,14 +2549,14 @@ class SettingsController extends AdminPanelController
         if (!is_string($value)) {
             return false;
         }
+        //Vacío solo donde no se concatena un alfa: en los otros dos deja botón y pie del correo en blanco sobre blanco.
         if ($value === '') {
-            return true;
+            return !in_array($name, self::BRAND_COLORS_SIX_HEX, true);
         }
         if (in_array($name, self::BRAND_COLORS_SIX_HEX, true)) {
             return preg_match('/^#[0-9A-Fa-f]{6}\z/', $value) === 1;
         }
-        return preg_match('/^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})\z/', $value) === 1
-            || preg_match('/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)\z/i', $value) === 1;
+        return Validator::isColor($value);
     }
 
     /**

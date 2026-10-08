@@ -40,7 +40,7 @@ $langGroupOrganizations = OrganizationsLang::LANG_GROUP;
                 <div class="container-standard-form">
 
                     <div class="section-fields-divider">
-                        <div class="title s20"><?= $organizationMapper->currentLangData('name'); ?></div>
+                        <div class="title s20"><?= escape_html($organizationMapper->currentLangData('name')); ?></div>
                     </div>
 
                     <div class="inputs-general-data">

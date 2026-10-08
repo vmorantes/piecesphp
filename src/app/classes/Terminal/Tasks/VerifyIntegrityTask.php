@@ -3410,9 +3410,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Las acciones de terminal se miran como rutas: `TerminalController` registra cada tarea con el prefijo
      * `terminal-`, y `bin/cli` arranca como terminal. Fuera del terminal la puerta no ve las acciones, y lo dice.
      *
-     * **Cinco vías de prueba**: ruta, acción, clave de configuración (`config`, del universo de
-     * `bin/censo-claves-config --universo`, que es el mismo cálculo de la 45), aviso registrado (`alert`) o guion de
-     * `bin/` versionado y ejecutable (`scripts`). Y desde el 2026-10-05 **cada `## Nuevo` de las secciones de la MAYOR en
+     * **Seis vías de prueba**: ruta, acción, clave de configuración (`config`, del universo de
+     * `bin/censo-claves-config --universo`, que es el mismo cálculo de la 45), aviso registrado (`alert`), guion de
+     * `bin/` versionado y ejecutable (`scripts`) o función global (`functions`, ADR 0056). La de funciones prueba
+     * EXISTENCIA (`function_exists` tras el arranque), no comportamiento: eso lo prueba la suite de la función. Y desde el 2026-10-05 **cada `## Nuevo` de las secciones de la MAYOR en
      * curso del CHANGELOG lo nombra alguna capacidad** en su `changelog`: se anunciaba `mail-demo` y nadie lo había
      * declarado. Solo obliga a los `## Nuevo`. Es la mayor y no la última sección: una 8.0.1 no deja sin anunciar lo de la 8.0.0.
      *
@@ -3436,17 +3437,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //Canario de dos caras por cada vía: lo que existe pasa y lo inventado falla, con el mismo validador.
         $sembrado = [
-            'zz-canario-existe' => ['routes' => ['users-form-login'], 'actions' => [], 'config' => ['upload_dir'], 'alert' => ['invalid-route-pattern'], 'scripts' => ['bin/cli'], 'announced' => []],
+            'zz-canario-existe' => ['routes' => ['users-form-login'], 'actions' => [], 'config' => ['upload_dir'], 'alert' => ['invalid-route-pattern'], 'scripts' => ['bin/cli'], 'functions' => ['basepath'], 'announced' => []],
             'zz-canario-falta' => ['routes' => ['zz-ruta-que-no-existe'], 'actions' => [], 'announced' => []],
             'zz-canario-clave' => ['config' => ['zz_clave_inventada'], 'announced' => []],
             'zz-canario-aviso' => ['alert' => ['zz-aviso-inventado'], 'announced' => []],
             'zz-canario-guion' => ['scripts' => ['bin/zz-guion-inventado'], 'announced' => []],
+            'zz-canario-funcion' => ['functions' => ['zz_funcion_inventada'], 'announced' => []],
         ];
         $canario = self::validateAnnouncedCapabilities($sembrado, $rutas, $root, $claves);
-        if (count($canario) !== 4 || !str_contains($canario[0], 'zz-ruta-que-no-existe')
+        if (count($canario) !== 5 || !str_contains($canario[0], 'zz-ruta-que-no-existe')
             || !str_contains($canario[1], 'zz_clave_inventada') || !str_contains($canario[2], 'zz-aviso-inventado')
-            || !str_contains($canario[3], 'zz-guion-inventado')) {
-            return ['canario muerto: el validador no distingue lo que existe de lo inventado (ruta, clave, aviso o guion); la comprobación no miró nada'];
+            || !str_contains($canario[3], 'zz-guion-inventado') || !str_contains($canario[4], 'zz_funcion_inventada')) {
+            return ['canario muerto: el validador no distingue lo que existe de lo inventado (ruta, clave, aviso, guion o función); la comprobación no miró nada'];
         }
         if (!$esTerminal) {
             return ['fuera del terminal las acciones de terminal no están registradas: esta comprobación solo vale desde bin/cli'];
@@ -3480,19 +3482,19 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($encabezados['nuevo'] as $nuevo) {
             if (!isset($nombrados[$nuevo])) {
-                $failures[] = "el CHANGELOG anuncia «## {$nuevo}» y ninguna capacidad de " . self::ANNOUNCED_CAPABILITIES_RELATIVE_PATH . ' lo nombra en su `changelog`: declárala con su ruta, acción, clave, aviso o guion';
+                $failures[] = "el CHANGELOG anuncia «## {$nuevo}» y ninguna capacidad de " . self::ANNOUNCED_CAPABILITIES_RELATIVE_PATH . ' lo nombra en su `changelog`: declárala con su ruta, acción, clave, aviso, guion o función';
             }
         }
 
         if (count($failures) === 0) {
-            $n = ['routes' => 0, 'actions' => 0, 'config' => 0, 'alert' => 0, 'scripts' => 0];
+            $n = ['routes' => 0, 'actions' => 0, 'config' => 0, 'alert' => 0, 'scripts' => 0, 'functions' => 0];
             foreach ($capacidades as $capacidad) {
                 foreach (array_keys($n) as $via) {
                     $n[$via] += count((array) ($capacidad[$via] ?? []));
                 }
             }
             echoTerminal("\e[94mINFO:\e[39m capacidades anunciadas: " . count($capacidades) . " en " . self::ANNOUNCED_CAPABILITIES_RELATIVE_PATH
-                . "; {$n['routes']} ruta(s), {$n['actions']} acción(es) de terminal, {$n['config']} clave(s) de configuración, {$n['alert']} aviso(s) y {$n['scripts']} guion(es),"
+                . "; {$n['routes']} ruta(s), {$n['actions']} acción(es) de terminal, {$n['config']} clave(s) de configuración, {$n['alert']} aviso(s), {$n['scripts']} guion(es) y {$n['functions']} función(es),"
                 . ' todos existen, y sus anuncios también. ' . count($encabezados['nuevo']) . " «## Nuevo» de las secciones {$secciones} del CHANGELOG, todos con capacidad."
                 . ' Solo obliga a los «## Nuevo»: lo anunciado dentro de otros encabezados no está obligado.');
         }
@@ -4516,7 +4518,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * Lo que falta de cada capacidad: rutas sin registrar, acciones sin su ruta `terminal-` y anuncios sin archivo.
+     * Lo que falta de cada capacidad: rutas sin registrar, acciones sin su ruta `terminal-`, funciones sin declarar y
+     * anuncios sin archivo.
      *
      * @param array<mixed> $capacidades
      * @param array<int|string> $rutas Los nombres de `get_routes()`.
@@ -4536,8 +4539,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $porClave = (array) ($capacidad['config'] ?? []);
             $porAviso = (array) ($capacidad['alert'] ?? []);
             $guiones = (array) ($capacidad['scripts'] ?? []);
-            if (count($servidas) + count($acciones) + count($porClave) + count($porAviso) + count($guiones) === 0) {
-                $failures[] = "{$nombre}: no nombra ninguna ruta, acción, clave, aviso ni guion; una capacidad sin quien la sirva no se anuncia";
+            $funciones = (array) ($capacidad['functions'] ?? []);
+            if (count($servidas) + count($acciones) + count($porClave) + count($porAviso) + count($guiones) + count($funciones) === 0) {
+                $failures[] = "{$nombre}: no nombra ninguna ruta, acción, clave, aviso, guion ni función; una capacidad sin quien la sirva no se anuncia";
+            }
+            foreach ($funciones as $funcion) {
+                if (!function_exists((string) $funcion)) {
+                    $failures[] = "{$nombre}: la función `{$funcion}` NO está declarada tras el arranque";
+                }
             }
             foreach ($guiones as $guion) {
                 $problema = self::scriptCapabilityProblem($root, (string) $guion);

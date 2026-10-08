@@ -69,8 +69,10 @@ if (PublicationsRoutes::ENABLE) {
 
         if ($categoryMapper->id != PublicationCategoryMapper::UNCATEGORIZED_ID) {
 
+            //Solo un escalar se escapa: lo demás sigue llegando a MenuItem, que pone su texto de respaldo.
+            $categoryName = $categoryMapper->currentLangData('name');
             $menuBlogGroup->addItem(new MenuItem([
-                'text' => $categoryMapper->currentLangData('name'),
+                'text' => is_scalar($categoryName) ? escape_html($categoryName) : $categoryName,
                 'visible' => true,
                 'href' => PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $categoryMapper->getSlug()]),
             ]));

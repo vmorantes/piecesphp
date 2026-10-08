@@ -349,7 +349,8 @@ class NewsCategoryController extends AdminPanelController
                 'color',
                 null,
                 function ($value) {
-                    return is_string($value) && trim($value) !== '';
+                    //Se pinta dentro de un style: solo un color de forma cerrada, lo demás inyectaría CSS.
+                    return is_string($value) && Validator::isColor(clean_string($value));
                 },
                 false,
                 function ($value) {
@@ -870,11 +871,13 @@ class NewsCategoryController extends AdminPanelController
 
                 $buttons = implode('', $buttons);
                 $columns = [];
-                $sampleColor = "<span style='display:inline-block; width: 40px; height: 40px; background-color: {$e->color};'></span>";
-                $iconImage = "<div style='text-align:center;'><img style='max-width: 100%; width: 90px' src='{$e->iconImage}'/></div>";
+                //Una fila vieja puede traer algo que no es un color: dentro de un style se pinta el de defecto.
+                $color = Validator::isColor($e->color) ? $e->color : NewsCategoryMapper::DEFAULT_COLOR;
+                $sampleColor = "<span style='display:inline-block; width: 40px; height: 40px; background-color: " . escape_html($color) . ";'></span>";
+                $iconImage = "<div style='text-align:center;'><img style='max-width: 100%; width: 90px' src='" . escape_html($e->iconImage) . "'/></div>";
 
                 $columns[] = $e->idPadding;
-                $columns[] = $e->name;
+                $columns[] = escape_html($e->name);
                 $columns[] = $sampleColor;
                 $columns[] = $iconImage;
                 $columns[] = $buttons;

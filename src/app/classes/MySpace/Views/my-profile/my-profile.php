@@ -14,6 +14,8 @@ $affiliatedInstitutions = $affiliatedInstitutions !== null ? $affiliatedInstitut
 $affiliatedInstitutionsOptions = [
     '' => __($langGroup, 'Añada las instituciones'),
 ];
+//Valor y texto los escribe el usuario; la selección se compara contra el valor ya escapado.
+$affiliatedInstitutions = array_map('escape_html', $affiliatedInstitutions);
 foreach($affiliatedInstitutions as $affiliatedInstitution){
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
@@ -54,11 +56,11 @@ $langGroupDatatables = 'datatables';
 
                     <div class="identity-profile-card">
                         <div class="avatar">
-                            <img src="<?= $currentUser->getAvatarURL(); ?>" alt="<?= $currentUser->getMapper()->getFullName(); ?>">
+                            <img src="<?= $currentUser->getAvatarURL(); ?>" alt="<?= escape_html($currentUser->getMapper()->getFullName()); ?>">
                         </div>
                         <div class="data">
-                            <div class="name"><?= $currentUser->getMapper()->getFullName(); ?></div>
-                            <div class="meta email"><?= $currentUser->getMapper()->email; ?></div>
+                            <div class="name"><?= escape_html($currentUser->getMapper()->getFullName()); ?></div>
+                            <div class="meta email"><?= escape_html($currentUser->getMapper()->email); ?></div>
                             <div class="actions">
                                 <button class="ui right labeled icon button green" external-trigger-edit-account>
                                     <?= __($langGroup, 'Editar'); ?>
@@ -77,7 +79,7 @@ $langGroupDatatables = 'datatables';
                         <div class="two fields">
                             <div class="field required">
                                 <label><?= __($langGroup, 'Cargo'); ?></label>
-                                <input type="text" required name="jobPosition" value="<?= $currentUser->profile->currentLangData('jobPosition'); ?>" placeholder=" ">
+                                <input type="text" required name="jobPosition" value="<?= escape_html($currentUser->profile->currentLangData('jobPosition')); ?>" placeholder=" ">
                             </div>
                             <div class="field">
                                 <label><?= __($langGroup, 'Teléfono'); ?></label>
@@ -86,7 +88,7 @@ $langGroupDatatables = 'datatables';
                                         <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(getPhoneAreas(), $currentUser->profile->currentLangData('phoneCode')); ?></select>
                                     </div>
                                     <div class="fourteen wide field">
-                                        <input type="tel" name="phoneNumber" value="<?= $currentUser->profile->currentLangData('phoneNumber'); ?>">
+                                        <input type="tel" name="phoneNumber" value="<?= escape_html($currentUser->profile->currentLangData('phoneNumber')); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -99,14 +101,14 @@ $langGroupDatatables = 'datatables';
                             </div>
                             <div class="field">
                                 <label><?= __($langGroup, 'Enlace LinkedIn'); ?></label>
-                                <input type="url" name="linkedinLink" value="<?= $currentUser->profile->currentLangData('linkedinLink'); ?>">
+                                <input type="url" name="linkedinLink" value="<?= escape_html($currentUser->profile->currentLangData('linkedinLink')); ?>">
                             </div>
                         </div>
 
                         <div class="two fields">
                             <div class="field">
                                 <label><?= __($langGroup, 'Enlace página web'); ?></label>
-                                <input type="url" name="websiteLink" value="<?= $currentUser->profile->currentLangData('websiteLink'); ?>">
+                                <input type="url" name="websiteLink" value="<?= escape_html($currentUser->profile->currentLangData('websiteLink')); ?>">
                             </div>
                         </div>
                         <div class="horizontal-space"></div>

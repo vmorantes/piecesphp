@@ -8,9 +8,17 @@ Hestia Control Panel (HestiaCP) es un panel de control potente y ligero diseñad
 > HestiaCP 1.9.0, y Ubuntu 26.04, desde la 1.10.0.
 
 > [!IMPORTANT]
-> **PiecesPHP exige PHP `>=8.5 <8.6`.** HestiaCP ofrece PHP 8.5 desde la versión 1.10.0, y es además la versión por
-> defecto de su instalador. Con `--multiphp '8.5'` instala solo esa; el dominio web debe usar la plantilla de PHP-FPM
-> 8.5.
+> **Dos cosas distintas, y conviene no confundirlas:**
+>
+> - **Lo que exige PiecesPHP:** PHP `>=8.5 <8.6`. HestiaCP ofrece PHP 8.5 desde su versión 1.10.0 y es la de su
+>   instalador por defecto. El dominio donde viva el framework **debe usar la plantilla de PHP-FPM 8.5**.
+> - **Lo que lleva el servidor:** esta guía instala **todas** las versiones de PHP que ofrece HestiaCP, de la **5.6** a
+>   la más reciente, porque un panel de control aloja varios proyectos y los antiguos necesitan la suya. Que el servidor
+>   tenga PHP 5.6 instalado no cambia el piso de PiecesPHP: lo que decide es **la plantilla del dominio**, no lo que haya
+>   en el sistema.
+>
+> Las versiones de su MultiPHP son **5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3 y 8.4**, más la **8.5** desde la
+> 1.10.0. Una suelta se añade después con `v-add-web-php <versión>`.
 
 Este tutorial está ajustado a la **versión 1.10.5**. En Ubuntu 26.04, el instalador toma PHP del repositorio de Ondřej
 Surý (`packages.sury.org/php`) y MariaDB 11.8 del repositorio de MariaDB; no instales antes Apache, nginx, MariaDB ni
@@ -65,19 +73,34 @@ El instalador comprueba que no haya ya instalados `exim4`, `mariadb-server`, `ap
 si los encuentra ofrece desinstalarlos antes de seguir. Ubuntu Server trae `ufw`: acepta quitarlo, porque HestiaCP
 gestiona su propio cortafuegos.
 
-### Opción A: Instalación estándar (Recomendada)
-Esta opción instala PHP 8.5 y cuotas de disco, desactivando ClamAV para ahorrar recursos.
-
 > [!WARNING]
-> `--multiphp yes` instala **todas las versiones de PHP que ofrezca el instalador**, incluidas las que están por debajo
-> del piso de PiecesPHP (8.5). Para instalar solo la que exige el framework, indícala: `--multiphp '8.5'`.
+> **Lo que decidas aquí no se puede añadir después.** HestiaCP **no admite reejecutar el instalador** para agregar
+> paquetes a una instalación que ya existe: si quieres PostgreSQL, tiene que ir en esta orden, ahora. Añadirlo más tarde
+> significa reinstalar el servidor.
+>
+> Por eso estas dos opciones van encendidas:
+>
+> - **`--multiphp yes`**: todas las versiones de PHP. Ocupa más disco y obliga a instalar las extensiones **por cada
+>   versión** (ver «Módulos PHP y Apache»), pero deja el servidor listo para proyectos de cualquier edad.
+> - **`--postgresql yes`** junto con **`--mysql yes`**: las dos bases conviven. `--postgresql` viene **apagado** de
+>   fábrica, así que hay que pedirlo expresamente.
+>
+> **PiecesPHP no usa PostgreSQL**: `src/composer.json` pide `ext-pdo_mysql` y `ext-mysqli` —y también `ext-sqlite3` y
+> `ext-pdo_sqlite`, que exige porque la biblioteca de base de datos del framework las soporta—, y no hay una sola
+> mención de PostgreSQL en su núcleo ni en sus módulos. PostgreSQL está aquí para **los demás proyectos del servidor**, no para el framework.
+
+### Opción A: Instalación estándar (Recomendada)
+Esta opción instala **todas las versiones de PHP**, **MariaDB y PostgreSQL**, y cuotas de disco, desactivando ClamAV
+para ahorrar recursos.
 
 ```bash
 sudo bash hst-install.sh \
     --hostname $HESTIA_DOMAIN \
     --email $HESTIA_EMAIL \
     --password $HESTIA_PASSWORD \
-    --multiphp '8.5' \
+    --multiphp yes \
+    --mysql yes \
+    --postgresql yes \
     --clamav no \
     --quota yes
 ```
@@ -89,13 +112,13 @@ Si requiere control total sobre todos los servicios:
 sudo bash hst-install.sh \
     --apache yes \
     --phpfpm yes \
-    --multiphp '8.5' \
+    --multiphp yes \
     --vsftpd yes \
     --proftpd no \
     --named yes \
     --mysql yes \
     --mysql8 no \
-    --postgresql no \
+    --postgresql yes \
     --exim yes \
     --dovecot yes \
     --clamav no \
@@ -133,11 +156,24 @@ Una vez finalizada la instalación, podrá acceder a través de:
 
 ## 🛠️ Otros Ajustes Necesarios
 
-### Módulos PHP y Apache (Recomendados para PiecesPHP)
+### Módulos PHP y Apache
+
+Con MultiPHP hay **una instalación de PHP por versión**, así que las extensiones se instalan **para cada una**. Esta
+orden no las nombra a mano: lee las versiones que HestiaCP dejó instaladas y recorre esa lista, así que sigue valiendo
+cuando HestiaCP añada una nueva.
+
 ```bash
-# Extensiones para PHP 8.5 (las que declara src/composer.json; ver la guía de PHP de LAMP).
-# HestiaCP ya instala common, xml (incluye xsl), mbstring, gd, curl, zip y mysql; falta sqlite3.
-sudo apt install -y php8.5-{common,xml,mbstring,gd,curl,zip,mysql,sqlite3}
+# Qué versiones instaló HestiaCP
+ls -1 /etc/php
+
+# Extensiones para cada versión instalada
+for V in $(ls -1 /etc/php); do
+    case "$V" in
+        5.*|7.*) EXTRA="php$V-json" ;;   # en PHP 8.0+ json es del núcleo y su paquete ya no existe
+        *)       EXTRA="" ;;
+    esac
+    sudo apt install -y php$V-{common,xml,mbstring,gd,curl,zip,mysql,sqlite3,pgsql} $EXTRA
+done
 
 # Activar módulos de Apache vitales (solo si instalaste Apache, como en las dos opciones de arriba)
 sudo a2enmod rewrite headers ssl
@@ -146,8 +182,22 @@ sudo a2enmod rewrite headers ssl
 sudo systemctl restart apache2
 ```
 
-### Configuración de Base de Datos
-*   [Guía de configuración de MariaDB](../lamp/content/MariaDB.md)
+- **`mysql`** trae `mysqli` y `pdo_mysql`, que son las dos que pide `src/composer.json`; **`xml`** incluye `xsl`.
+  **`pgsql`** es para los otros proyectos del servidor: **el framework no la usa**.
+- **`json` solo se instala en 5.6 y 7.x.** Desde PHP 8.0 está en el núcleo y no hay paquete que instalar: una línea
+  única para todas las versiones falla justo por eso.
+- *Sin verificar:* el nombre exacto de algún paquete de extensión en las versiones más viejas de Surý (5.6 y 7.0). Si
+  uno no existe para una versión concreta, **`apt` aborta la línea entera y no instala nada de ella**: repite la orden
+  para esa versión **sin el paquete que falte**, y anótalo. Ninguna de esas versiones la usa PiecesPHP.
+- *Sin verificar:* que en HestiaCP `/etc/php` no contenga alguna entrada que no sea una versión. Si el bucle te saca
+  algo raro, míralo antes de instalar.
+- Para el dominio de PiecesPHP, lo que manda es su **plantilla de PHP-FPM 8.5**, no las versiones que haya instaladas.
+
+### Bases de datos
+
+*   [Guía de configuración de MariaDB](../lamp/content/MariaDB.md) — la que usa PiecesPHP.
+*   **PostgreSQL** queda instalado y se administra **desde el panel de HestiaCP**, en su sección de bases de datos. No
+    hay guía propia porque **el framework no lo necesita**: está para los demás proyectos del servidor.
 
 ### Gestión de Paquetes PHP (Composer)
 Instale Composer de manera global:

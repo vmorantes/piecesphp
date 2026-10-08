@@ -62,7 +62,7 @@ use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input type="text" name="documentTypeName" required value="<?= $element->getLangData($lang, 'documentTypeName'); ?>">
+                    <input type="text" name="documentTypeName" required value="<?= escape_html($element->getLangData($lang, 'documentTypeName')); ?>">
                 </div>
 
                 <div class="field">

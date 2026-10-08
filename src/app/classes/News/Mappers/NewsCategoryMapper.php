@@ -71,6 +71,10 @@ class NewsCategoryMapper extends EntityMapperExtensible
     const UNCATEGORIZED_ID = -10;
     const NEW_OPPORTUNITIES_ID = 150;
     const DEFAULT_ICON = 'statics/images/news/default-icon-category.png';
+    /**
+     * El color que se pinta si la fila no trae uno de forma cerrada (Validator::isColor): va dentro de un style.
+     */
+    const DEFAULT_COLOR = '#000000';
 
     const TABLE = 'news_categories';
     const LANG_GROUP = NewsLang::LANG_GROUP;

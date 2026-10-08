@@ -23,8 +23,8 @@ $contactInformation = [
         'text' => $adminUser->profile->getPhone(),
         'icon' => '<i class="phone alternate icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
-            $value = str_replace([' ', '(', ')'], '', $value);
+            $originalValue = escape_html($value);
+            $value = escape_html(str_replace([' ', '(', ')'], '', $value));
             $icon = "<div class='icon'>{$icon}</div>";
             $text = "<div class='text'>{$originalValue}</div>";
             return "<a href='tel:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
@@ -34,9 +34,9 @@ $contactInformation = [
         'text' => $adminUser->email,
         'icon' => '<i class="envelope outline icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
+            $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
+            $text = "<div class='text'>{$value}</div>";
             return "<a href='mailto:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
         },
     ],
@@ -44,20 +44,24 @@ $contactInformation = [
         'text' => $adminUser->profile->getWebsiteLink(),
         'icon' => '<i class="globe icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
+            //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
+            $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
+            $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
-            return "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='text'>{$value}</div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
         },
     ],
     [
         'text' => $adminUser->profile->getLinkedinLink(),
         'icon' => '<i class="linkedin in icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
+            //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
+            $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
+            $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
-            return "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='text'>{$value}</div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
         },
     ],
 ];
@@ -88,15 +92,15 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
 
                 <div class="section organization-data">
                     <div class="avatar">
-                        <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= $organizationMapper->currentLangData('name'); ?>">
+                        <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
                     </div>
                     <div class="data">
-                        <div class="name"><?= $organizationMapper->currentLangData('name'); ?></div>
+                        <div class="name"><?= escape_html($organizationMapper->currentLangData('name')); ?></div>
                         <div class="meta location">
                             <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
                             <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
                             |
-                            <?= $organizationMapper->currentLangData('activitySector'); ?>
+                            <?= escape_html($organizationMapper->currentLangData('activitySector')); ?>
                         </div>
                     </div>
                     <?php if($currentUserIsAdmin): ?>
@@ -114,7 +118,7 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                     <div class="person-contact-data">
                         <div class="topbar">
                             <div class="avatar">
-                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= $adminUser->getMapper()->getFullName(); ?>">
+                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
                             </div>
                             <div class="actions">
                                 <a class="button-link" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
@@ -124,7 +128,7 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                             </div>
                         </div>
                         <div class="data">
-                            <div class="name"><?= $adminUser->getMapper()->getFullName(); ?></div>
+                            <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
                         </div>
                     </div>
                     <div class="information-list">
@@ -139,7 +143,7 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                     <div class="title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
                     <div class="container-tags">
                         <?php foreach($affiliatedInstitutions as $institution): ?>
-                        <div class="tag"><?= $institution; ?></div>
+                        <div class="tag"><?= escape_html($institution); ?></div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -165,7 +169,7 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                     <div class="person-contact-data">
                         <div class="topbar">
                             <div class="avatar">
-                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= $adminUser->getMapper()->getFullName(); ?>">
+                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
                             </div>
                             <div class="actions">
                                 <a class="button-link" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
@@ -175,7 +179,7 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                             </div>
                         </div>
                         <div class="data">
-                            <div class="name"><?= $adminUser->getMapper()->getFullName(); ?></div>
+                            <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
                         </div>
                     </div>
                     <div class="information-list">

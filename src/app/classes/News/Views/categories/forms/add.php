@@ -49,7 +49,7 @@ $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup
 
                         <div class="field required">
                             <label><?= __($langGroup, 'Color'); ?></label>
-                            <input type="text" name="color" value="#000000" color-picker-js data-color-picker-alpha="yes" data-color-picker-format="rgb">
+                            <input type="text" name="color" value="<?= \News\Mappers\NewsCategoryMapper::DEFAULT_COLOR; ?>" color-picker-js data-color-picker-alpha="yes" data-color-picker-format="rgb">
                         </div>
 
                     </div>

@@ -45,7 +45,8 @@
         ".agents/docs/adr/0018-*",
         ".agents/docs/adr/0021-*",
         ".agents/docs/adr/0022-*",
-        ".agents/docs/adr/0023-*"
+        ".agents/docs/adr/0023-*",
+        ".agents/docs/adr/0055-*"
       ]
     },
     "C": {
@@ -104,6 +105,8 @@
         ".agents/docs/adr/0051-*",
         ".agents/docs/adr/0052-*",
         ".agents/docs/adr/0053-*",
+        ".agents/docs/adr/0054-*",
+        ".agents/docs/adr/0056-*",
         ".agents/docs/auditorias/*",
         ".agents/estado/AHORA.md",
         ".agents/estado/PO.md",

@@ -203,9 +203,15 @@ class OrganizationsController extends AdminPanelController
             $optionsStatus = array_to_html_options(OrganizationMapper::statusesForSelect(), $element->status);
             $optionsSizes = array_to_html_options(OrganizationMapper::sizesForSelect(), $element->size);
             $actionLines = is_array($element->actionLines) ? $element->actionLines : [];
-            $optionsActionLines = array_to_html_options(OrganizationMapper::actionLinesForSelect('', '', $actionLines), $element->actionLines, true);
+            //Las líneas añadidas a mano son valor y texto a la vez: se escapan las dos cosas y la selección también.
+            $escapedActionLines = array_map('escape_html', array_filter($actionLines, 'is_scalar'));
+            $actionLinesOptions = [];
+            foreach (OrganizationMapper::actionLinesForSelect('', '', $actionLines) as $actionLineValue => $actionLineText) {
+                $actionLinesOptions[escape_html($actionLineValue)] = escape_html($actionLineText);
+            }
+            $optionsActionLines = array_to_html_options($actionLinesOptions, $escapedActionLines, true);
             $optionsEsal = array_to_html_options(OrganizationMapper::esalOptionsForSelect(), $element->esal);
-            $optionsUsersAdministrators = array_to_html_options(UsersModel::allOrganizationUsersCanBeAdminForSelect($element->id), $element->administrator instanceof UsersModel ? $element->administrator->id : $element->administrator);
+            $optionsUsersAdministrators = array_to_html_options(array_map('escape_html', UsersModel::allOrganizationUsersCanBeAdminForSelect($element->id)), $element->administrator instanceof UsersModel ? $element->administrator->id : $element->administrator);
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
@@ -1357,11 +1363,11 @@ class OrganizationsController extends AdminPanelController
 
                 $name = mb_strlen($e->name) <= 54 ? $e->name : mb_substr($e->name, 0, 51) . '...';
 
-                $columns[] = $e->code;
-                $columns[] = $e->nit;
-                $columns[] = $name;
-                $columns[] = $e->countryName;
-                $columns[] = $e->cityName;
+                $columns[] = escape_html($e->code);
+                $columns[] = escape_html($e->nit);
+                $columns[] = escape_html($name);
+                $columns[] = escape_html($e->countryName);
+                $columns[] = escape_html($e->cityName);
                 $columns[] = $buttons;
                 return $columns;
             },
@@ -1647,6 +1653,8 @@ class OrganizationsController extends AdminPanelController
                     if ($lastPointIndex !== false) {
                         $name = mb_substr($name, 0, $lastPointIndex);
                     }
+
+                    $name = safe_upload_name($name);
 
                 }
 

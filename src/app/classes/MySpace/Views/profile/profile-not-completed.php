@@ -33,10 +33,10 @@ $currentUserIsSameProfile = $currentUser->id == $userOfProfile->id;
             <div class="main-content">
                 <div class="section personal-data">
                     <div class="avatar">
-                        <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= $userOfProfile->getMapper()->getFullName(); ?>">
+                        <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= escape_html($userOfProfile->getMapper()->getFullName()); ?>">
                     </div>
                     <div class="data">
-                        <div class="name"><?= $userOfProfile->getMapper()->getFullName(); ?></div>
+                        <div class="name"><?= escape_html($userOfProfile->getMapper()->getFullName()); ?></div>
                     </div>
                     <?php if($currentUserIsSameProfile): ?>
                     <div class="actions">

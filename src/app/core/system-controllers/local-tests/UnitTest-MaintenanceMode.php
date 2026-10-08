@@ -206,7 +206,7 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
             $check(in_array($clave, $reservadas, true), "i1 «{$clave}» está reservada");
         }
         $fuenteAccion = (string) @file_get_contents(basepath('app/classes/PiecesPHP/Settings/Controllers/SettingsController.php'));
-        $posGuarda = mb_strpos($fuenteAccion, 'ROOT_ONLY_CONFIG_KEYS, true) && !$isRoot');
+        $posGuarda = mb_strpos($fuenteAccion, 'isRootOnlyConfigName($name, $targetName) && !$isRoot');
         $posEscritura = mb_strpos($fuenteAccion, '$success = $option->update();');
         $check($posGuarda !== false, 'i2 la comprobación sigue en la acción genérica');
         //DISCRIMINANTE: una comprobación DESPUÉS de escribir deja pasar la escritura y devuelve 403

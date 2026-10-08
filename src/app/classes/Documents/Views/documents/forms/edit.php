@@ -74,7 +74,7 @@ use Documents\Mappers\DocumentsMapper;
 
                         <div class="field required">
                             <label><?= __($langGroup, 'Nombre del documento'); ?></label>
-                            <input type="text" name="documentName" required value="<?= $element->documentName; ?>">
+                            <input type="text" name="documentName" required value="<?= escape_html($element->documentName); ?>">
                         </div>
 
                     </div>
@@ -84,7 +84,7 @@ use Documents\Mappers\DocumentsMapper;
                         <label><?= __($langGroup, 'Documento'); ?></label>
 
                         <div preview>
-                            <a target="_blank" href="<?= $element->document; ?>" class="ui button icon labeled blue">
+                            <a target="_blank" href="<?= escape_html($element->document); ?>" class="ui button icon labeled blue">
                                 <i class="ui icon download"></i>
                                 <?= __($langGroup, 'Ver documento'); ?>
                             </a>

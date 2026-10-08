@@ -45,14 +45,14 @@ $getName = function ($name, $lang) {
                                 <label><?= __($langGroup, 'Título del sitio'); ?></label>
                                 <?php $property = SettingsController::SEO_OPTION_TITLE_APP_ON_FORM; ?>
                                 <?php $propertyLang = ($getName)($property, $lang); ?>
-                                <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
+                                <input type="text" name="<?= $property; ?>" value="<?= escape_html($values[$propertyLang]); ?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
                             </div>
 
                             <div class="field required">
                                 <label><?= __($langGroup, 'Propietario'); ?></label>
                                 <?php $property = SettingsController::SEO_OPTION_OWNER_ON_FORM; ?>
                                 <?php $propertyLang = ($getName)($property, $lang); ?>
-                                <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
+                                <input type="text" name="<?= $property; ?>" value="<?= escape_html($values[$propertyLang]); ?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
                             </div>
 
                         </div>
@@ -63,7 +63,7 @@ $getName = function ($name, $lang) {
                         <label><?= __($langGroup, 'Descripción'); ?></label>
                         <?php $property = SettingsController::SEO_OPTION_DESCRIPTION_ON_FORM; ?>
                         <?php $propertyLang = ($getName)($property, $lang); ?>
-                        <textarea required name="<?= $property; ?>" placeholder="<?= __($langGroup, 'Descripción de la página.'); ?>" required><?= $values[$propertyLang]; ?></textarea>
+                        <textarea required name="<?= $property; ?>" placeholder="<?= __($langGroup, 'Descripción de la página.'); ?>" required><?= escape_html($values[$propertyLang]); ?></textarea>
                     </div>
 
                     <div class="field">

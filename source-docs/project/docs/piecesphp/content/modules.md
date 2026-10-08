@@ -33,8 +33,13 @@ src/app/classes/MiModulo/
 └── lang/{es.php,en.php}
 ```
 
-Otras carpetas que aparecen en módulos existentes cuando hacen falta: `Util/`, `Enums/`, `Queries/`, `Adapters/`,
-`lang/lang-public/` (textos de la zona pública), `Views/mailing/`.
+Otras carpetas que aparecen en módulos existentes cuando hacen falta: `Util/`, `Enums/`, `Queries/`, `Adapters/` y
+`lang/lang-public/` (textos de la zona pública).
+
+Las **plantillas BASE de correo** (cabecera, estilos y pie) viven en el núcleo (`app/view/mailing/`), y **ningún
+módulo guarda una copia**: una copia dentro de un módulo se queda atrás sin que nadie lo note. El **cuerpo** de un
+correo propio sí vive en el módulo —por ejemplo, `src/app/classes/PiecesPHP/UserSystem/Views/usuarios/mail/`— y pinta la base del
+núcleo con `render('mailing/template_base', …)`.
 
 ## 3. Las traducciones: `MiModuloLang.php`
 

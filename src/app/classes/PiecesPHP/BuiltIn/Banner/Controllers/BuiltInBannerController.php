@@ -936,10 +936,10 @@ class BuiltInBannerController extends AdminPanelController
                 $dates = !empty($dates) ? implode(' a ', $dates) : 'N/A';
 
                 $columns[] = $e->idPadding;
-                $columns[] = $title;
+                $columns[] = escape_html($title);
                 $columns[] = $e->orderPosition;
-                $columns[] = $e->desktopImage !== null ? "<a class='ui button icon blue' href='#' data-image-preview='{$e->desktopImage}'><i class='icon image'></i></a>" : 'N/A';
-                $columns[] = $e->mobileImage !== null && mb_strlen($e->mobileImage) > 0 ? "<a class='ui button icon blue' href='#' data-image-preview='{$e->mobileImage}'><i class='icon image'></i></a>" : 'N/A';
+                $columns[] = $e->desktopImage !== null ? "<a class='ui button icon blue' href='#' data-image-preview='" . escape_html($e->desktopImage) . "'><i class='icon image'></i></a>" : 'N/A';
+                $columns[] = $e->mobileImage !== null && mb_strlen($e->mobileImage) > 0 ? "<a class='ui button icon blue' href='#' data-image-preview='" . escape_html($e->mobileImage) . "'><i class='icon image'></i></a>" : 'N/A';
                 $columns[] = $dates;
                 $columns[] = $buttons;
                 return $columns;
@@ -1173,6 +1173,19 @@ class BuiltInBannerController extends AdminPanelController
     }
 
     /**
+     * El nombre de un archivo subido, sin extensión, reducido a letras, números, «_» y «-», y a 100 bytes. Lo elige quien
+     * sube y va a una ruta que se pinta en atributos y en el JavaScript de la vista previa. Sin puntos: la extensión la pone
+     * moveTo() de la original ya validada, y así no se forma «shell.php.png». Si no queda nada, uno generado.
+     *
+     * @param string $name
+     * @return string
+     */
+    public static function safeUploadName(string $name): string
+    {
+        return safe_upload_name($name);
+    }
+
+    /**
      * @param string $nameOnFiles
      * @param string $folder
      * @param string $currentRoute
@@ -1214,6 +1227,8 @@ class BuiltInBannerController extends AdminPanelController
                     if ($lastPointIndex !== false) {
                         $name = mb_substr($name, 0, $lastPointIndex);
                     }
+
+                    $name = self::safeUploadName($name);
 
                 }
 

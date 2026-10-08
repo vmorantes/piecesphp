@@ -61,7 +61,7 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
                                 <i class="paperclip icon"></i>
                             </div>
                             <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="<?= $element->getLangData($lang, 'desktopImage', false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                <div data-image="<?= escape_html($element->getLangData($lang, 'desktopImage', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                     <i class="icon upload"></i>
                                     <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                                 </div>
@@ -83,7 +83,7 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
                                 <i class="paperclip icon"></i>
                             </div>
                             <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="<?= $element->getLangData($lang, 'mobileImage', false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                <div data-image="<?= escape_html($element->getLangData($lang, 'mobileImage', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                     <i class="icon upload"></i>
                                     <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                                 </div>
@@ -109,7 +109,7 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 
                     <div class="field">
                         <label><?= __($langGroup, 'Enlace'); ?></label>
-                        <input type="text" name="link" value="<?= $element->getLangData($lang, 'link', false, ''); ?>">
+                        <input type="text" name="link" value="<?= escape_html($element->getLangData($lang, 'link', false, '')); ?>">
                     </div>
 
                     <div class="two fields">
@@ -127,7 +127,7 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
                     </div>
                     <div class="field">
                         <label><?= __($langGroup, 'Nombre'); ?></label>
-                        <input type="text" name="title" maxlength="300" value="<?= $element->getLangData($lang, 'title', false, ''); ?>" placeholder="">
+                        <input type="text" name="title" maxlength="300" value="<?= escape_html($element->getLangData($lang, 'title', false, '')); ?>" placeholder="">
                     </div>
 
                     <div class="field">

@@ -55,12 +55,12 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
 
                         <div class="field required">
                             <label><?= __($langGroup, 'Nombre de la organización'); ?></label>
-                            <input required type="text" name="name" maxlength="300" placeholder="" value="<?= $element->getLangData($lang, 'name', false, ''); ?>">
+                            <input required type="text" name="name" maxlength="300" placeholder="" value="<?= escape_html($element->getLangData($lang, 'name', false, '')); ?>">
                         </div>
                         <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'Sector de actividad'); ?></label>
-                            <input required type="text" name="activitySector" value="<?= $element->getLangData($lang, 'activitySector', false, ''); ?>">
+                            <input required type="text" name="activitySector" value="<?= escape_html($element->getLangData($lang, 'activitySector', false, '')); ?>">
                         </div>
                         <br>
                         <div class="two fields">
@@ -103,14 +103,14 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
                                         <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(getPhoneAreas(), $element->phoneCode); ?></select>
                                     </div>
                                     <div class="thirteen wide field">
-                                        <input type="tel" name="phone" value="<?= $element->getLangData($lang, 'phone', false, ''); ?>">
+                                        <input type="tel" name="phone" value="<?= escape_html($element->getLangData($lang, 'phone', false, '')); ?>">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="field">
                                 <label><?= __($langGroup, 'Correo de la organización'); ?></label>
-                                <input type="email" name="informativeEmail" placeholder="" value="<?= $element->getLangData($lang, 'informativeEmail', false, ''); ?>">
+                                <input type="email" name="informativeEmail" placeholder="" value="<?= escape_html($element->getLangData($lang, 'informativeEmail', false, '')); ?>">
                             </div>
 
                         </div>
@@ -118,11 +118,11 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
                         <div class="two fields">
                             <div class="field">
                                 <label><?= __($langGroup, 'Enlace LinkedIn'); ?></label>
-                                <input type="url" name="linkedinLink" value="<?= $element->getLangData($lang, 'linkedinLink', false); ?>">
+                                <input type="url" name="linkedinLink" value="<?= escape_html($element->getLangData($lang, 'linkedinLink', false)); ?>">
                             </div>
                             <div class="field">
                                 <label><?= __($langGroup, 'Enlace página web'); ?></label>
-                                <input type="url" name="websiteLink" value="<?= $element->getLangData($lang, 'websiteLink', false); ?>">
+                                <input type="url" name="websiteLink" value="<?= escape_html($element->getLangData($lang, 'websiteLink', false)); ?>">
                             </div>
                         </div>
                     </div>
@@ -136,7 +136,7 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
                         <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'NIT'); ?></label>
-                            <input required type="text" name="nit" placeholder="" value="<?= $element->getLangData($lang, 'nit', false, ''); ?>">
+                            <input required type="text" name="nit" placeholder="" value="<?= escape_html($element->getLangData($lang, 'nit', false, '')); ?>">
                         </div>
                         <br>
                         <div class="field">
@@ -146,12 +146,12 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
                         <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'Dirección'); ?></label>
-                            <input required type="text" name="address" placeholder="" value="<?= $element->getLangData($lang, 'address', false, ''); ?>">
+                            <input required type="text" name="address" placeholder="" value="<?= escape_html($element->getLangData($lang, 'address', false, '')); ?>">
                         </div>
                         <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'Correo de facturación'); ?></label>
-                            <input required type="email" name="billingEmail" placeholder="" value="<?= $element->getLangData($lang, 'billingEmail', false, ''); ?>">
+                            <input required type="email" name="billingEmail" placeholder="" value="<?= escape_html($element->getLangData($lang, 'billingEmail', false, '')); ?>">
                         </div>
 
                     </div>
@@ -182,7 +182,7 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-image="<?= $element->getLangData($lang, 'logo', false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                            <div data-image="<?= escape_html($element->getLangData($lang, 'logo', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                 <i class="icon upload"></i>
                                 <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                             </div>
@@ -203,7 +203,7 @@ $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-file="<?= $element->getLangData($lang, 'rut', false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                            <div data-file="<?= escape_html($element->getLangData($lang, 'rut', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                 <i class="icon upload"></i>
                                 <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                             </div>

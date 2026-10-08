@@ -20,7 +20,7 @@ $canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkU
 
             <option value=""><?=__($langGroup, 'Organización');?></option>
             <?php foreach ($organizations as $organization): ?>
-            <option <?= $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL ? 'selected' : '' ?> value="<?=$organization->id;?>"><?=$organization->name;?></option>
+            <option <?= $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL ? 'selected' : '' ?> value="<?=$organization->id;?>"><?= escape_html($organization->name); ?></option>
             <?php endforeach;?>
 
         </select>

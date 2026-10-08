@@ -239,7 +239,7 @@ $allowedManyLangs = count($langs) > 1;
                         <?php $fileLocation = $hasAttachment ? $attachmentMapper->fileLocation : ''; ?>
                         <?php $isImage = $hasAttachment ? $attachmentMapper->fileIsImage() : ''; ?>
                         <?php $existingFileAttr = $isImage ? "data-image" : "data-file"; ?>
-                        <?php $existingFileAttr = "{$existingFileAttr}='{$fileLocation}'"; ?>
+                        <?php $existingFileAttr = "{$existingFileAttr}='" . escape_html($fileLocation) . "'"; ?>
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                         <div class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>">
                             <div class="ui top right attached label green">

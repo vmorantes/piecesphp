@@ -48,7 +48,7 @@ const FEATURE_TYPE_PROFILES = '<?= FeaturesTypes::PROFILES->value; ?>'
                     <div class="field">
                         <label><?= __($langGroup, 'Organización'); ?></label>
                         <select name="organizations[]" multiple class="ui dropdown multiple search special-tags" control-organizations>
-                            <?= array_to_html_options(OrganizationMapper::allForSelect('', '', false, false, __($langGroup, 'Sin organización')), null); ?>
+                            <?= array_to_html_options(array_map('escape_html', OrganizationMapper::allForSelect('', '', false, false, __($langGroup, 'Sin organización'))), null); ?>
                         </select>
                         <div class="current-selection-filter organizations"></div>
                     </div>

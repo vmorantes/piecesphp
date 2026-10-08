@@ -26,7 +26,7 @@ if($isEnabled2FA && !$wasViewedQRData){
 
     <div class="home-hello-section-title">
         <div class="title"><?= __($langGroup, 'Seguridad de usuario'); ?></div>
-        <div class="subtitle"><?= $subtitle; ?></div>
+        <div class="subtitle"><?= escape_html($subtitle); ?></div>
     </div>
 
     <div class="tabs-controls">
@@ -70,7 +70,7 @@ if($isEnabled2FA && !$wasViewedQRData){
                             <small><?= __($langGroup, 'Es recomendable que pruebe que su aplicación de autenticación está generando correctamente los códigos antes de confirmar.'); ?></small>
                         </div>
                         <br>
-                        <input type="hidden" name="username" value="<?= $username; ?>">
+                        <input type="hidden" name="username" value="<?= escape_html($username); ?>">
 
                         <div class="two fields">
                             <div class="field">
@@ -106,7 +106,7 @@ if($isEnabled2FA && !$wasViewedQRData){
                 <?php if(!$isEnabled2FA): ?>
                 <div class="field required">
                     <label><?= __($langGroup, 'Título de la clave (para identificarla en la app)'); ?></label>
-                    <input type="text" name="issuerName" value="<?= $totpAlias; ?>" required>
+                    <input type="text" name="issuerName" value="<?= escape_html($totpAlias); ?>" required>
                 </div>
                 <?php endif; ?>
 

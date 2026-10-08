@@ -35,10 +35,10 @@ $currentUserIsAdmin = $currentUser->id == $adminUser->id;
 
                 <div class="section organization-data">
                     <div class="avatar">
-                        <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= $organizationMapper->currentLangData('name'); ?>">
+                        <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
                     </div>
                     <div class="data">
-                        <div class="name"><?= $organizationMapper->currentLangData('name'); ?></div>
+                        <div class="name"><?= escape_html($organizationMapper->currentLangData('name')); ?></div>
                     </div>
                     <?php if($currentUserIsAdmin): ?>
                     <div class="actions">

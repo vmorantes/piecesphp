@@ -67,6 +67,7 @@ nav:
             - Exportador BBDD Nativo: piecesphp/new-features/database-exporter.md
             - Respaldos de la base de datos: piecesphp/new-features/backups.md
             - Registro de sesiones caducadas: piecesphp/new-features/expired-sessions-log.md
+            - Escapado y nombres de subidas: piecesphp/new-features/escapado-y-subidas.md
             - Importar y exportar datos:
                 - piecesphp/new-features/data-transfer.md
                 - Usar el panel: piecesphp/new-features/data-transfer/panel.md

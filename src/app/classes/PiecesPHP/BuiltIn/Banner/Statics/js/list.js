@@ -51,13 +51,10 @@ window.addEventListener('load', function () {
 
 	function openImageModal(src, imageModalID) {
 		$(`#${imageModalID}`).remove()
-		let modalHtml = `<div id="${imageModalID}" class="ui modal">
-							<i class="close icon"></i>
-							<div class="content">
-								<img src="${src}" class="ui centered image fluid">
-							</div>
-						</div>`
-		$('body').append(modalHtml)
+		//La ruta llega del atributo ya decodificada: va por attr(), nunca dentro de una cadena de HTML.
+		const modal = $('<div class="ui modal"><i class="close icon"></i><div class="content"></div></div>').attr('id', imageModalID)
+		modal.find('.content').append($('<img class="ui centered image fluid">').attr('src', src))
+		$('body').append(modal)
 		$(`#${imageModalID}`).modal({
 			onHidden: function () {
 				$(`#${imageModalID}`).remove()

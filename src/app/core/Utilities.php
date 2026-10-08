@@ -534,6 +534,48 @@ function clean_string(string $string)
 }
 
 /**
+ * Escapa un valor para pintarlo como texto plano en HTML o dentro de un atributo entre comillas.
+ *
+ * NO sirve para JavaScript, URL ni CSS: ahí hace falta su propio escape. Dentro de CSS no protege aunque el atributo
+ * quede cerrado: `style="color: <?= escape_html($c) ?>"` deja pasar `red; background: url(…)`. NUNCA se aplica al
+ * contenido enriquecido (el HTML del editor), que se pinta tal cual: escaparlo lo estropea.
+ * No valida el esquema de un href: `javascript:` sale intacto.
+ *
+ * null da ''; un array o un objeto no convertible lanza TypeError, para que se vea en vez de
+ * pintar «Array».
+ *
+ * @param mixed $value
+ * @return string
+ * @throws \TypeError
+ */
+function escape_html(mixed $value): string
+{
+    if ($value === null) {
+        return '';
+    }
+    if (!is_scalar($value) && !($value instanceof \Stringable)) {
+        throw new \TypeError('escape_html() solo acepta null, escalares o Stringable; recibió ' . get_debug_type($value) . '.');
+    }
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+/**
+ * El nombre de un archivo subido, sin extensión, reducido a letras, números, «_» y «-», y a 100 bytes. Lo elige quien
+ * sube y va a una ruta que se pinta en atributos y en el JavaScript de la vista previa. Sin puntos: la extensión la pone
+ * moveTo() de la original ya validada, y así no se forma «shell.php.png». Si no queda nada, uno generado.
+ *
+ * @param string $name
+ * @return string
+ */
+function safe_upload_name(string $name): string
+{
+    $safe = (string) preg_replace('/[^A-Za-z0-9_-]+/', '-', $name);
+    //Solo ASCII de un byte: cortar por bytes no parte ningún carácter.
+    $safe = trim(substr(trim($safe, '-'), 0, 100), '-');
+    return $safe !== '' ? $safe : 'file_' . uniqid();
+}
+
+/**
  * Verifica si un conjunto de indices está en un array.
  *
  * @param array $keys Array cuyos valores sean los índices que se buscan.

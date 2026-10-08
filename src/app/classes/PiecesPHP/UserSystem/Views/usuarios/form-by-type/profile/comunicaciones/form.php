@@ -81,7 +81,7 @@ $langGroup = UsersController::LANG_GROUP;
                 <?=__($langGroup, 'email-standard');?>
             </div>
 
-            <input required type="email" name="email" value="<?=$edit_user->email;?>">
+            <input required type="email" name="email" value="<?= escape_html($edit_user->email); ?>">
 
         </div>
 

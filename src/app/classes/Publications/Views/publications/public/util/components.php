@@ -37,7 +37,8 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                     <span><?= $escape($element->authorFullName()); ?></span>
                 </div>
                 <div class="description">
-                    <?= $excerptContent; ?>
+                    <?php //Texto sacado del editor con strip_tags: trae sus entidades, que se decodifican antes de escapar una sola vez. ?>
+                    <?= escape_html(html_entity_decode($excerptContent, ENT_QUOTES | ENT_HTML5, 'UTF-8')); ?>
                 </div>
                 <div class="extra">
                     <?= $element->publicDateFormat(); ?>

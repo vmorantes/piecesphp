@@ -103,3 +103,6 @@ procedencia.
 | [0051](0051-el-cuerpo-se-cifra-con-clave-derivada.md) | El cuerpo del correo se cifra con una clave derivada de la de la aplicación (precisa el 0048 §2; su §2 lo reemplaza el 0052) | sí | Aceptada |
 | [0052](0052-la-clave-de-relleno-solo-impide-fuera-de-local.md) | Con la clave de relleno, el cuerpo del correo no se guarda solo fuera de una instalación local (reemplaza el 0051 §2) | sí | Aceptada |
 | [0053](0053-la-candidata-de-la-estable-ya-dice-v8.md) | La candidata de la estable ya dice `v8.0.0` por dentro, y las dos etiquetas van al mismo commit (precisa el 0031) | no | Aceptada |
+| [0054](0054-los-recuentos-de-los-listados-no-ejecutan-sql-compilado.md) | Los recuentos de los listados se ejecutan con los valores enlazados, y el paquete deja de reinterpretar el reemplazo (P108) | sí | Aceptada |
+| [0055](0055-la-base-solo-da-valor-a-las-opciones-declaradas.md) | La base de datos solo da valor a las opciones que la aplicación declara; lo demás no se aplica y se registra (P109) | sí | Aceptada |
+| [0056](0056-una-funcion-anunciada-se-prueba-con-su-declaracion.md) | La comprobación 39 admite una sexta vía, `functions`: una función anunciada se prueba con su declaración (precisa la 39) | sí | Aceptada |

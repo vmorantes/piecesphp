@@ -208,9 +208,10 @@ class LoginAttemptsModel extends BaseEntityMapper
             'on_set_data' => function ($e) use ($success) {
                 $columns = [];
                 $columns[] = $e->success == $success ? '<i class="check circle icon" style="visibility: visible;"></i>' : '<i class="times circle icon"></i>';
-                $columns[] = $e->usernameAttempt;
-                $columns[] = $e->message;
-                $columns[] = $e->ip;
+                //El usuario lo teclea cualquiera sin sesión en el login; el mensaje lo lleva dentro al bloquear.
+                $columns[] = escape_html($e->usernameAttempt);
+                $columns[] = escape_html($e->message);
+                $columns[] = escape_html($e->ip);
                 $columns[] = $e->dateFormat;
                 return $columns;
             },
@@ -293,8 +294,8 @@ class LoginAttemptsModel extends BaseEntityMapper
 
                 $columns = [];
                 $columns[] = $e->idPadding;
-                $columns[] = $e->username;
-                $columns[] = $e->fullname;
+                $columns[] = escape_html($e->username);
+                $columns[] = escape_html($e->fullname);
                 $columns[] = $e->lastLoginDate;
                 $columns[] = !is_null($timeOnPlatformMinutes) ? round($timeOnPlatformMinutes, 0) . ' ' . __(LOGIN_REPORT_LANG_GROUP, 'minuto(s)') : __(LOGIN_REPORT_LANG_GROUP, 'Sin registro');
                 return $columns;
@@ -367,8 +368,8 @@ class LoginAttemptsModel extends BaseEntityMapper
             'on_set_data' => function ($e) {
                 $columns = [];
                 $columns[] = $e->idPadding;
-                $columns[] = $e->username;
-                $columns[] = $e->fullname;
+                $columns[] = escape_html($e->username);
+                $columns[] = escape_html($e->fullname);
                 return $columns;
             },
         ]);

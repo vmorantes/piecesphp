@@ -142,6 +142,29 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
         implode(' · ', $noUsables) ?: 'ninguno');
     echoTerminal(' ');
 
+    //─── 5 · Las rutas de los registros declaran su rol ──────────────────────────────────────────────
+    echoTerminal('[5] Las rutas de los registros (errores, acciones, correos, intentos) declaran sus roles, no los heredan');
+    //Sin roles declarados, lo que niega es la regla por omisión del catálogo (root tiene `all`), no la ruta. Un cambio
+    //en esa regla o un require_login quitado abriría la traza completa de los errores (pendientes.md 434.1).
+    $patronRegistros = '/^(admin-error-log|actions-logs-|system-status-mail-log|login-attempts-)/';
+    $deRegistros = [];
+    $sinDeclarar = [];
+    foreach ($rutas as $nombre => $info) {
+        $nombreReal = (string) ($info['name'] ?? $nombre);
+        if (preg_match($patronRegistros, $nombreReal) !== 1) {
+            continue;
+        }
+        $deRegistros[$nombreReal] = true;
+        if (!(bool) ($info['require_login'] ?? false) || ($info['roles_allowed'] ?? []) === []) {
+            $sinDeclarar[] = $nombreReal;
+        }
+    }
+    $check(count($deRegistros) >= 10, '5a CANARIO: el patrón ve las rutas de registros', count($deRegistros) . ': ' . implode(', ', array_keys($deRegistros)));
+    $check($sinDeclarar === [], '5b ninguna ruta de registros se queda sin login y sin roles declarados', implode(', ', $sinDeclarar) ?: '-');
+    $rolesError = array_values(array_map('intval', (array) ($rutas['admin-error-log']['roles_allowed'] ?? [])));
+    $check(isset($rutas['admin-error-log']) && $rolesError === [UsersModel::TYPE_USER_ROOT], '5c admin-error-log, que entrega la traza entera, declara solo root', '[' . implode(', ', $rolesError) . ']');
+    echoTerminal(' ');
+
     $total = $passed + $failed;
     echoTerminal($failed === 0
         ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"

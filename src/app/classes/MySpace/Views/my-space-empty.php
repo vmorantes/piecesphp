@@ -9,7 +9,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     <div class="home-hello-section-title">
         <div class="title"><?= __($langGroup, 'Hola,'); ?></div>
-        <div class="subtitle"><?= $subtitle; ?></div>
+        <div class="subtitle"><?= escape_html($subtitle); ?></div>
     </div>
 
 </div>

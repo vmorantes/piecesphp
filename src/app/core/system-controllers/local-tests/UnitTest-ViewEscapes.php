@@ -498,6 +498,17 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $check($r['status'] === 403 && $filas === 0, "i{$n} un nombre de clave inventado se rechaza (403) y no crea fila", "HTTP {$r['status']}, filas {$filas}");
         $database->exec("DELETE FROM `{$tablaOpciones}` WHERE name LIKE 'zz_clave_prueba%'");
         $n++;
+        //La SEGUNDA capa, llamada directamente: por HTTP la lista de permitidos da el 403 antes y la taparía.
+        $controladorAjustes = \PiecesPHP\Settings\Controllers\SettingsController::class;
+        $todasReservadas = true;
+        foreach ($controladorAjustes::ROOT_ONLY_CONFIG_KEYS as $reservada) {
+            $todasReservadas = $todasReservadas && $controladorAjustes::isRootOnlyConfigName($reservada, 'zz_otra') && $controladorAjustes::isRootOnlyConfigName('zz_otra', $reservada) && $controladorAjustes::isRootOnlyConfigName(mb_strtoupper($reservada), mb_strtoupper($reservada));
+        }
+        $check(count($controladorAjustes::ROOT_ONLY_CONFIG_KEYS) > 0 && $todasReservadas, "i{$n} la segunda capa reserva cada clave por el nombre pedido, por el de la fila y en mayúsculas", count($controladorAjustes::ROOT_ONLY_CONFIG_KEYS) . ' claves');
+        $n++;
+        $libres = array_filter($coloresMarca, fn (string $color): bool => $controladorAjustes::isRootOnlyConfigName($color, $color));
+        $check($libres === [], "i{$n} CANARIO: y no reserva ningún color de marca", implode(', ', $libres));
+        $n++;
         $avisoCorreo = \PiecesPHP\SystemStatus\SystemAlertRegistry::all()['mail-test-mode'] ?? null;
         $check($avisoCorreo !== null && $avisoCorreo->audience() === [UsersModel::TYPE_USER_ROOT], "i{$n} el aviso del correo retenido es solo para el principal", $avisoCorreo !== null ? (string) json_encode($avisoCorreo->audience()) : 'sin aviso');
 
@@ -539,6 +550,8 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             'sin parse' => ['name' => 'second_brand_color', 'value' => '#FFFFFF'],
             '#FFF donde va #RRGGBB' => ['name' => 'main_brand_color', 'value' => '#FFF', 'parse' => 'uppercase'],
             'rgba con texto' => ['name' => 'menu_color_mark', 'value' => 'rgba(1, 2, 3, 0.5) zz', 'parse' => 'uppercase'],
+            'vacío donde va #RRGGBB (main_brand_color)' => ['name' => 'main_brand_color', 'value' => '', 'parse' => 'uppercase'],
+            'vacío donde va #RRGGBB (menu_color_background)' => ['name' => 'menu_color_background', 'value' => '', 'parse' => 'uppercase'],
         ];
         foreach ($malos as $como => $cuerpo) {
             $antes = $crudoDe($cuerpo['name']);
@@ -550,6 +563,9 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             $n++;
         }
         $check(\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('menu_color_mark', 'rgba(255, 255, 255, 0.2)') && \PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('main_brand_color', '#6435C9') && \PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('font_color_one', ''), "k{$n} CANARIO: los valores de hoy (rgba(...) y #RRGGBB) y el vacío casan");
+        $n++;
+        //Sin pasar por HTTP: la lista de arriba tiene que fallar por la gramática, no por otra guarda.
+        $check(!\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('main_brand_color', '') && !\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('menu_color_background', ''), "k{$n} el vacío no casa en los dos colores con alfa concatenado");
         $n++;
         $rolesAntes = $crudoDe('roles');
         $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => 'roles', 'value' => 'zz-no-debe-guardarse']);

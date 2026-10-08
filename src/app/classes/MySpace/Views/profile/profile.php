@@ -20,8 +20,8 @@ $contactInformation = [
         'text' => $userOfProfile->profile->getPhone(),
         'icon' => '<i class="phone alternate icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
-            $value = str_replace([' ', '(', ')'], '', $value);
+            $originalValue = escape_html($value);
+            $value = escape_html(str_replace([' ', '(', ')'], '', $value));
             $icon = "<div class='icon'>{$icon}</div>";
             $text = "<div class='text'>{$originalValue}</div>";
             return "<a href='tel:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
@@ -31,9 +31,9 @@ $contactInformation = [
         'text' => $userOfProfile->email,
         'icon' => '<i class="envelope outline icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
+            $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
+            $text = "<div class='text'>{$value}</div>";
             return "<a href='mailto:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
         },
     ],
@@ -41,20 +41,24 @@ $contactInformation = [
         'text' => $userOfProfile->profile->getWebsiteLink(),
         'icon' => '<i class="globe icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
+            //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
+            $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
+            $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
-            return "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='text'>{$value}</div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
         },
     ],
     [
         'text' => $userOfProfile->profile->getLinkedinLink(),
         'icon' => '<i class="linkedin in icon"></i>',
         'parse' => function(string $value, string $icon) {
-            $originalValue = $value;
+            //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
+            $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
+            $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
-            return "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='text'>{$value}</div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
         },
     ],
 ];
@@ -85,15 +89,15 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
 
                 <div class="section personal-data">
                     <div class="avatar">
-                        <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= $userOfProfile->getMapper()->getFullName(); ?>">
+                        <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= escape_html($userOfProfile->getMapper()->getFullName()); ?>">
                     </div>
                     <div class="data">
-                        <div class="name"><?= $userOfProfile->getMapper()->getFullName(); ?></div>
+                        <div class="name"><?= escape_html($userOfProfile->getMapper()->getFullName()); ?></div>
                         <div class="meta location">
                             <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
                             <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
                             |
-                            <?= $userOfProfile->profile->currentLangData('jobPosition'); ?>
+                            <?= escape_html($userOfProfile->profile->currentLangData('jobPosition')); ?>
                         </div>
                     </div>
                     <?php if($currentUserIsSameProfile): ?>
@@ -120,7 +124,7 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                     <div class="title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
                     <div class="container-tags">
                         <?php foreach($affiliatedInstitutions as $institution): ?>
-                        <div class="tag"><?= $institution; ?></div>
+                        <div class="tag"><?= escape_html($institution); ?></div>
                         <?php endforeach; ?>
                     </div>
                 </div>

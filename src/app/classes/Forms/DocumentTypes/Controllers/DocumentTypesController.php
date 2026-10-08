@@ -709,7 +709,7 @@ class DocumentTypesController extends AdminPanelController
                 $columns = [];
 
                 $columns[] = $e->idPadding;
-                $columns[] = $e->documentTypeName;
+                $columns[] = escape_html($e->documentTypeName);
                 $columns[] = $buttons;
                 return $columns;
             },

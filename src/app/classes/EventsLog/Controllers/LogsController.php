@@ -157,16 +157,17 @@ class LogsController extends AdminPanelController
 
                 $columns[] = $e->idPadding;
                 $columns[] = $e->moduleName;
-                $columns[] = $e->textMessageReplacement;
+                //Plantillas de texto plano con el usuario dentro, que cambia cualquiera: se escapa el resultado.
+                $columns[] = escape_html($e->textMessageReplacement);
                 //`createdBy` no basta: con suplantación es el suplantado, y sin nadie conectado es
                 //un 1 que no significa el principal. `meta.actor` dice quién actuaba de verdad.
-                $columns[] = LogsMapper::actorLabel(
+                $columns[] = escape_html(LogsMapper::actorLabel(
                     isset($e->actorKind) && is_string($e->actorKind) ? $e->actorKind : null,
                     isset($e->actorUser) && is_string($e->actorUser) ? $e->actorUser : null,
                     isset($e->createdByUser) && is_string($e->createdByUser) ? $e->createdByUser : null
-                );
-                $columns[] = $e->ip;
-                $columns[] = $e->geolocationByIp;
+                ));
+                $columns[] = escape_html($e->ip);
+                $columns[] = escape_html($e->geolocationByIp);
                 $columns[] = ucfirst($e->createdAtFormat);
                 return $columns;
             },

@@ -41,11 +41,11 @@ $avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->
     <div class="person-title">
         <?php if ($avatar !== null) : ?>
         <div class="image">
-            <img src="<?= $avatar; ?>" alt="<?= $user->getFullName(); ?>">
+            <img src="<?= $avatar; ?>" alt="<?= escape_html($user->getFullName()); ?>">
         </div>
         <?php endif; ?>
         <div class="text">
-            <span class="mark"><?= __($langGroup, 'Hola'); ?>,&nbsp;</span> <?= $user->getFullName(); ?>
+            <span class="mark"><?= __($langGroup, 'Hola'); ?>,&nbsp;</span> <?= escape_html($user->getFullName()); ?>
         </div>
     </div>
 

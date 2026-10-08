@@ -23,10 +23,10 @@ $activitySector ??= '';
     </div>
     <div class="content">
         <div class="title">
-            <?= $mapper->currentLangData('name'); ?>
+            <?= escape_html($mapper->currentLangData('name')); ?>
         </div>
         <?php if(mb_strlen($activitySector) > 0): ?>
-        <div class="subtitle"><?= $activitySector; ?></div>
+        <div class="subtitle"><?= escape_html($activitySector); ?></div>
         <?php endif; ?>
         <div class="meta">
             <?php if(mb_strlen($location) > 0): ?>

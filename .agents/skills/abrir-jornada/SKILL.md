@@ -49,8 +49,12 @@ hacen falta más, el estado está mal repartido y eso se corrige, no se compensa
 | 4 | `.agents/docs/pendientes.md` | Los encargos del PO que aún no son trabajo (LEY 33) |
 | 5 | `.agents/docs/roadmap.md` | Qué falta hasta la versión en curso y en qué orden |
 | 6 | Los ADR con fecha de los últimos siete días, de `.agents/docs/adr/` | Lo que se decidió y no se ha implementado entero |
+| 7 | La bandeja del PO: `python3 -B .agents/scripts/vikunja.py revisar` | Lo que contestó, marcó hecho o pidió desde el último cierre |
 
-Y **dos mediciones, no dos recuerdos**:
+La fila 7 está **aquí y no en `AHORA.md`**: `AHORA.md` es podable, así que una obligación escrita solo allí se pierde
+el día que se poda. `cerrar-jornada` §2.0 tiene la simétrica.
+
+Y **tres mediciones, no tres recuerdos** —el árbol, el historial y la bandeja—:
 
 ```bash
 git -C . --no-optional-locks status --short
@@ -69,7 +73,12 @@ Se contestan **en voz alta, en el chat, numeradas**, antes de hacer nada más. C
 
 1. **¿En qué repositorio y en qué rama estoy, y está el árbol limpio?** — medido, no leído.
 2. **¿Qué está en vuelo?** ¿Hay una instrucción enviada sin reporte? Si la hay, **no se emite
-   otra** (20 §2) y lo primero es esperar o preguntar a la otra sesión.
+   otra** (20 §2) y lo primero es esperar o preguntar a la otra sesión. **Se contesta contra el disco, no contra el
+   chat**: el archivo del tramo lleva una línea por cada reporte recibido (`cerrar-jornada` §2.1bis), y el árbol y el
+   `git log` dicen si su trabajo está hecho. Si el estado dice «en vuelo» y los commits de esa ronda ya existen con el
+   árbol limpio, **lo que falta es el reporte, no el trabajo**: se pide a la otra sesión y se anota, y si el canal lo
+   perdió —un `/clear` borra la prueba de que se envió— se reconstruye desde git **marcando lo que queda sin
+   verificar**. Pasó el 2026-10-07 con `#1010`.
 3. **¿Qué número de contador toca?** Los dos: el `#NNN` compartido con el coder y el `A-NNN` de los
    mensajes al PO.
 4. **¿Qué espera al PO, con su `P<n>` y su predeterminado?** Y **¿hay avisos sin marcar en el buzón

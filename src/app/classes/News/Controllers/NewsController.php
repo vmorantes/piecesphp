@@ -120,7 +120,7 @@ class NewsController extends AdminPanelController
         $langsOptions = array_to_html_options(HelperController::getLangsForSelect(), Config::get_default_lang());
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
-        $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), null);
+        $allCategories = array_to_html_options(array_map('escape_html', array_filter(NewsCategoryMapper::allForSelect(), 'is_scalar')), null);
         $ignoreUserTypes = [
             UsersModel::TYPE_USER_ROOT,
         ];
@@ -186,7 +186,7 @@ class NewsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), $element->category instanceof NewsCategoryMapper ? $element->category->id : $element->category);
+            $allCategories = array_to_html_options(array_map('escape_html', array_filter(NewsCategoryMapper::allForSelect(), 'is_scalar')), $element->category instanceof NewsCategoryMapper ? $element->category->id : $element->category);
             $ignoreUserTypes = [
                 UsersModel::TYPE_USER_ROOT,
             ];
@@ -1138,8 +1138,8 @@ class NewsController extends AdminPanelController
                 $newsTitle = mb_strlen($e->newsTitle) <= 54 ? $e->newsTitle : mb_substr($e->newsTitle, 0, 51) . '...';
 
                 $columns[] = $e->idPadding;
-                $columns[] = $newsTitle;
-                $columns[] = $e->categoryName;
+                $columns[] = escape_html($newsTitle);
+                $columns[] = escape_html($e->categoryName);
                 $columns[] = $e->startDateFormat;
                 $columns[] = $e->endDateFormat;
                 $columns[] = $tag;

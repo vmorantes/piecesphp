@@ -579,6 +579,8 @@ class GenericContentController extends AdminPanelController
                         $name = mb_substr($name, 0, $lastPointIndex);
                     }
 
+                    $name = safe_upload_name($name);
+
                 }
 
                 if (!is_null($currentRoute)) {

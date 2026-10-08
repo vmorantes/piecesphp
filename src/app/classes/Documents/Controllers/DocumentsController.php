@@ -132,7 +132,7 @@ class DocumentsController extends AdminPanelController
         $action = self::routeName('actions-add');
         $listDocumentsTypesLink = DocumentTypesController::routeName('list');
         $addDocumentTypeLink = DocumentTypesController::routeName('forms-add');
-        $documentTypes = array_to_html_options(DocumentTypesMapper::allForSelect('', ''), null);
+        $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), null);
 
         $title = __(self::LANG_GROUP, 'Gestión de') . ' ' . self::$pluralTitle;
 
@@ -219,7 +219,7 @@ class DocumentsController extends AdminPanelController
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
-        $documentTypes = array_to_html_options(DocumentTypesMapper::allForSelect('', ''), null);
+        $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), null);
         $standalone = true;
 
         $data = [];
@@ -271,7 +271,7 @@ class DocumentsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $documentTypes = array_to_html_options(DocumentTypesMapper::allForSelect('', ''), $element->documentType instanceof DocumentTypesMapper ? $element->documentType->id : $element->documentType);
+            $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), $element->documentType instanceof DocumentTypesMapper ? $element->documentType->id : $element->documentType);
             $manyLangs = count($allowedLangs) > 1 && !empty($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
@@ -883,8 +883,8 @@ class DocumentsController extends AdminPanelController
                 $columns = [];
 
                 $columns[] = $e->idPadding;
-                $columns[] = $e->documentTypeName;
-                $columns[] = $e->documentName;
+                $columns[] = escape_html($e->documentTypeName);
+                $columns[] = escape_html($e->documentName);
                 $columns[] = $buttons;
                 return $columns;
             },
@@ -1267,6 +1267,8 @@ class DocumentsController extends AdminPanelController
                     if ($lastPointIndex !== false) {
                         $name = mb_substr($name, 0, $lastPointIndex);
                     }
+
+                    $name = safe_upload_name($name);
 
                 }
 

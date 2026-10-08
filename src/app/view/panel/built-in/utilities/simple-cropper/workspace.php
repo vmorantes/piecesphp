@@ -18,7 +18,7 @@ $cropText = isset($cropText) && is_string($cropText)  ? $cropText : __(CROPPER_A
         <input type="file" file<?= $type !== null ? " accept={$type}" : ''; ?><?= $required ? ' required' : ''; ?>>
 
         <div class="image-container">
-            <img class="preview" default-reference-image="<?= $defaultReferenceImage; ?>" src="<?= $referenceImage; ?>" <?= mb_strlen($image) > 0 ? ' is-final' : ''; ?> />
+            <img class="preview" default-reference-image="<?= escape_html($defaultReferenceImage); ?>" src="<?= escape_html($referenceImage); ?>" <?= mb_strlen($image) > 0 ? ' is-final' : ''; ?> />
         </div>
 
         <div class="controls edition">

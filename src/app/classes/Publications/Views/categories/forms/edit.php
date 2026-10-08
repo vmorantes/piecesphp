@@ -63,7 +63,7 @@ foreach ($otherLangs as $lang) {
                         <small>(<?= __('lang', $baseLang); ?>)</small>
                         <?php endif; ?>
                     </label>
-                    <input required type="text" name="name[<?= $baseLang ?>]" maxlength="300" value="<?= $element->getLangData($baseLang, 'name', false, ''); ?>">
+                    <input required type="text" name="name[<?= $baseLang ?>]" maxlength="300" value="<?= escape_html($element->getLangData($baseLang, 'name', false, '')); ?>">
                 </div>
 
                 <?php foreach($langsTabs as $langCode => $langName): ?>
@@ -73,7 +73,7 @@ foreach ($otherLangs as $lang) {
                         <?= __($langGroup, 'Nombre'); ?>
                         <small>(<?= $langName; ?>)</small>
                     </label>
-                    <input type="text" name="name[<?= $langCode ?>]" maxlength="300" value="<?= $element->getLangData($langCode, 'name', false, ''); ?>">
+                    <input type="text" name="name[<?= $langCode ?>]" maxlength="300" value="<?= escape_html($element->getLangData($langCode, 'name', false, '')); ?>">
                 </div>
                 <?php endif; ?>
                 <?php endforeach; ?>

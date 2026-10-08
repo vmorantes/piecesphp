@@ -45,7 +45,7 @@ if($mapper->type == UsersModel::TYPE_USER_GENERAL){
                     <div class="status"></div>
                 </div>
                 <div class="info">
-                    <span><?= ($getExcerpt)($mapper->getFullName(), 30); ?></span>
+                    <span><?= escape_html(($getExcerpt)($mapper->getFullName(), 30)); ?></span>
                 </div>
             </div>
 
@@ -66,16 +66,16 @@ if($mapper->type == UsersModel::TYPE_USER_GENERAL){
             </div>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user.svg') ?>">
-                <span data-tooltip="<?= $mapper->username; ?>"><?= ($getExcerpt)($mapper->username, 30); ?></span>
+                <span data-tooltip="<?= escape_html($mapper->username); ?>"><?= escape_html(($getExcerpt)($mapper->username, 30)); ?></span>
             </div>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/email.svg') ?>">
-                <span data-tooltip="<?= $mapper->email; ?>"><?= ($getExcerpt)($mapper->email, 30); ?></span>
+                <span data-tooltip="<?= escape_html($mapper->email); ?>"><?= escape_html(($getExcerpt)($mapper->email, 30)); ?></span>
             </div>
             <?php if($canModifyAll && $organizationMapper !== null && ORGANIZATIONS_MODULE): ?>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user_organization.svg') ?>">
-                <span data-tooltip="<?= $organizationMapper->currentLangData('name'); ?>"><?= ($getExcerpt)($organizationMapper->currentLangData('name'), 30); ?></span>
+                <span data-tooltip="<?= escape_html($organizationMapper->currentLangData('name')); ?>"><?= escape_html(($getExcerpt)($organizationMapper->currentLangData('name'), 30)); ?></span>
             </div>
             <?php endif; ?>
         </div>

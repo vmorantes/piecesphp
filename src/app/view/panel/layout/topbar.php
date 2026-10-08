@@ -242,7 +242,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
                 <i class="icon user outline"></i>
                 <?php endif; ?>
             </div>
-            <span><?= $currentUser->firstname . ' ' . $currentUser->firstLastname; ?></span>
+            <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->firstLastname); ?></span>
         </div>
         <i class="angle down icon"></i>
     </div>
@@ -299,8 +299,8 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
             </div>
 
             <div class="names">
-                <span><?= $currentUser->firstname . ' ' . $currentUser->secondname; ?></span>
-                <span><?= $currentUser->firstLastname . ' ' . $currentUser->secondLastname; ?></span>
+                <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname); ?></span>
+                <span><?= escape_html($currentUser->firstLastname . ' ' . $currentUser->secondLastname); ?></span>
             </div>
 
             <div class="text">
@@ -308,7 +308,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
                     <?= $currentUser->getTypeText(); ?>
                 </div>
                 <div class="meta">
-                    <?= $currentUser->email; ?>
+                    <?= escape_html($currentUser->email); ?>
                 </div>
             </div>
         </div>
@@ -423,7 +423,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
         </div>
 
         <div class="info">
-            <span><?= $currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname; ?></span>
+            <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname); ?></span>
             <small><?= $currentUser->getTypeText(); ?></small>
             <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar foto'); ?></a>
         </div>
@@ -457,10 +457,10 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
                     <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nombres'); ?></label>
                     <div class="two fields">
                         <div class="field">
-                            <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer nombre'); ?>" required value="<?= $currentUser->firstname ?>">
+                            <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer nombre'); ?>" required value="<?= escape_html($currentUser->firstname); ?>">
                         </div>
                         <div class="field">
-                            <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo nombre'); ?>" value="<?= $currentUser->secondname ?>">
+                            <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo nombre'); ?>" value="<?= escape_html($currentUser->secondname); ?>">
                         </div>
                     </div>
                 </div>
@@ -469,21 +469,21 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
                     <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Apellidos'); ?></label>
                     <div class="two fields">
                         <div class="field">
-                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= $currentUser->firstLastname ?>">
+                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= escape_html($currentUser->firstLastname); ?>">
                         </div>
                         <div class="field">
-                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= $currentUser->secondLastname ?>">
+                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= escape_html($currentUser->secondLastname); ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="field">
                     <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario'); ?></label>
-                    <input required type="text" name="username" placeholder="" value="<?= $currentUser->username ?>">
+                    <input required type="text" name="username" placeholder="" value="<?= escape_html($currentUser->username); ?>">
                 </div>
                 <div class="field">
                     <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Correo'); ?></label>
-                    <input required type="email" name="email" placeholder="" value="<?= $currentUser->email ?>">
+                    <input required type="email" name="email" placeholder="" value="<?= escape_html($currentUser->email); ?>">
                 </div>
                 <div class="align-right">
                     <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>

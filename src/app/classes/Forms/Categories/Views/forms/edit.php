@@ -62,7 +62,7 @@ use Forms\Categories\Mappers\CategoriesMapper;
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input type="text" name="categoryName" required value="<?= $element->getLangData($lang, 'categoryName'); ?>">
+                    <input type="text" name="categoryName" required value="<?= escape_html($element->getLangData($lang, 'categoryName')); ?>">
                 </div>
 
                 <div class="field">

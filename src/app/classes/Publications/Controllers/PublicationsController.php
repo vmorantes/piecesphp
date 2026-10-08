@@ -166,7 +166,7 @@ class PublicationsController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
         //NOTE: Solo sobre proyecto, seleccionar por defecto categoría base
-        $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), PublicationCategoryMapper::UNCATEGORIZED_ID);
+        $allCategories = array_to_html_options(array_map('escape_html', array_filter(PublicationCategoryMapper::allForSelect(), 'is_scalar')), PublicationCategoryMapper::UNCATEGORIZED_ID);
         $searchUsersURL = $this->urlForSearchUsers;
 
         $title = __(self::LANG_GROUP, 'Agregar publicación');
@@ -232,7 +232,7 @@ class PublicationsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category instanceof PublicationCategoryMapper ? $element->category->id : $element->category);
+            $allCategories = array_to_html_options(array_map('escape_html', array_filter(PublicationCategoryMapper::allForSelect(), 'is_scalar')), $element->category instanceof PublicationCategoryMapper ? $element->category->id : $element->category);
             $searchUsersURL = $this->urlForSearchUsers;
 
             $title = __(self::LANG_GROUP, 'Edición de publicación');
@@ -1405,11 +1405,11 @@ class PublicationsController extends AdminPanelController
                 $title = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
 
                 $columns[] = $e->idPadding;
-                $columns[] = $title;
-                $columns[] = $e->categoryName;
+                $columns[] = escape_html($title);
+                $columns[] = escape_html($e->categoryName);
                 $columns[] = $e->visits;
                 $columns[] = $e->publicDateFormat;
-                $columns[] = $e->authorUser;
+                $columns[] = escape_html($e->authorUser);
                 $columns[] = $tag;
                 $columns[] = $e->featuredDisplay;
                 $columns[] = $buttons;
@@ -1985,6 +1985,8 @@ class PublicationsController extends AdminPanelController
                         if ($lastPointIndex !== false) {
                             $name = mb_substr($name, 0, $lastPointIndex);
                         }
+
+                        $name = safe_upload_name($name);
 
                     }
 

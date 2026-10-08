@@ -22,6 +22,8 @@ $affiliatedInstitutions = $affiliatedInstitutions !== null ? $affiliatedInstitut
 $affiliatedInstitutionsOptions = [
     '' => __($langGroup, 'Añada las instituciones'),
 ];
+//Valor y texto los escribe el usuario; la selección se compara contra el valor ya escapado.
+$affiliatedInstitutions = array_map('escape_html', $affiliatedInstitutions);
 foreach($affiliatedInstitutions as $affiliatedInstitution){
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
@@ -86,7 +88,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
                                     <div class="field required">
                                         <label><?= __($langGroupOrganizations, 'Nombre de la organización'); ?></label>
-                                        <input required type="text" name="name" maxlength="300" value="<?= $organizationMapper->currentLangData('name'); ?>">
+                                        <input required type="text" name="name" maxlength="300" value="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
                                     </div>
 
                                     <div class="<?= $classNumberFieldByQty; ?> fields">
@@ -94,7 +96,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                         <?php $shortLang = ucfirst(strtolower(__('langShort', $allowedLang))); ?>
                                         <div class="field required">
                                             <label><?= __($langGroupOrganizations, 'Sector de actividad'); ?> - <?= $shortLang; ?></label>
-                                            <input required type="text" name="activitySector[<?= $allowedLang; ?>]" value="<?= $organizationMapper->getLangData($allowedLang, 'activitySector', false); ?>">
+                                            <input required type="text" name="activitySector[<?= $allowedLang; ?>]" value="<?= escape_html($organizationMapper->getLangData($allowedLang, 'activitySector', false)); ?>">
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -107,7 +109,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                                 <i class="paperclip icon"></i>
                                             </div>
                                             <label for="<?= $uniqueIdentifier; ?>">
-                                                <div data-image="<?= $organizationMapper->currentLangData('logo'); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                                <div data-image="<?= escape_html($organizationMapper->currentLangData('logo')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                                     <i class="icon upload"></i>
                                                     <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                                                 </div>
@@ -130,7 +132,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                         <div class="two fields">
                             <div class="field required">
                                 <label><?= __($langGroupOrganizations, 'Correo electrónico'); ?></label>
-                                <input type="text" required name="informativeEmail" value="<?= $organizationMapper->currentLangData('informativeEmail'); ?>">
+                                <input type="text" required name="informativeEmail" value="<?= escape_html($organizationMapper->currentLangData('informativeEmail')); ?>">
                             </div>
                             <div class="field">
                                 <label><?= __($langGroupOrganizations, 'Teléfono'); ?></label>
@@ -139,7 +141,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                         <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(getPhoneAreas(), $organizationMapper->phoneCode); ?></select>
                                     </div>
                                     <div class="fourteen wide field">
-                                        <input type="tel" name="phone" value="<?= $organizationMapper->currentLangData('phone'); ?>">
+                                        <input type="tel" name="phone" value="<?= escape_html($organizationMapper->currentLangData('phone')); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -148,11 +150,11 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                         <div class="two fields">
                             <div class="field">
                                 <label><?= __($langGroupOrganizations, 'Enlace LinkedIn'); ?></label>
-                                <input type="url" name="linkedinLink" value="<?= $organizationMapper->currentLangData('linkedinLink'); ?>">
+                                <input type="url" name="linkedinLink" value="<?= escape_html($organizationMapper->currentLangData('linkedinLink')); ?>">
                             </div>
                             <div class="field">
                                 <label><?= __($langGroupOrganizations, 'Enlace página web'); ?></label>
-                                <input type="url" name="websiteLink" value="<?= $organizationMapper->currentLangData('websiteLink'); ?>">
+                                <input type="url" name="websiteLink" value="<?= escape_html($organizationMapper->currentLangData('websiteLink')); ?>">
                             </div>
                         </div>
 
@@ -164,11 +166,11 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
                         <div class="identity-profile-card">
                             <div class="avatar">
-                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= $adminUser->getMapper()->getFullName(); ?>">
+                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
                             </div>
                             <div class="data">
-                                <div class="name"><?= $adminUser->getMapper()->getFullName(); ?></div>
-                                <div class="meta email"><?= $adminUser->getMapper()->email; ?></div>
+                                <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
+                                <div class="meta email"><?= escape_html($adminUser->getMapper()->email); ?></div>
                                 <div class="actions">
                                     <a class="ui right labeled icon button brand-color" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
                                         <?= __($langGroup, 'Ver perfil'); ?>

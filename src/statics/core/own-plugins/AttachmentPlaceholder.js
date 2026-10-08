@@ -149,10 +149,10 @@ function AttachmentPlaceholder(attachContainer) {
 			const blob = new Blob([fileReader.result], {
 				type: mimeType,
 			})
-			filenameContainer.html(fileName)
+			filenameContainer.text(fileName)
 			imagePreview.attr('src', mimeType.indexOf('image/') != -1 ? URL.createObjectURL(blob) : 'statics/images/attachment-placeholder.png')
 			imagePreview.on('load', function () {
-				imagePreviewCaption.html(onChangeText)
+				imagePreviewCaption.text(onChangeText)
 				removeGenericLoader(loaderAttachmentName)
 			})
 			imagePreview.on('error', function () {
@@ -221,13 +221,14 @@ function AttachmentPlaceholder(attachContainer) {
 			if (!attachContainer.hasClass('attached')) {
 				attachContainer.addClass('attached')
 			}
-			imagePreviewCaption.html(onChangeText)
+			imagePreviewCaption.text(onChangeText)
 
 			fetch(imageSetted).then(function (response) {
 				mimeType = response.headers.get("content-type")
 				return response.blob()
 			}).then(function (blob) {
-				iconPlaceholderUpload.replaceWith($(`<img src="${imageSetted}"/>`))
+				//Las rutas llegan del atributo ya decodificadas: van por attr(), nunca dentro de una cadena de HTML.
+				iconPlaceholderUpload.replaceWith($('<img/>').attr('src', imageSetted))
 				selectedFile = new File([blob], filename, { type: mimeType })
 			}).finally(function () {
 				removeGenericLoader(initialImageLoaderName)
@@ -242,15 +243,15 @@ function AttachmentPlaceholder(attachContainer) {
 			if (!attachContainer.hasClass('attached')) {
 				attachContainer.addClass('attached')
 			}
-			imagePreviewCaption.html(onChangeText)
+			imagePreviewCaption.text(onChangeText)
 
 			fetch(fileNoImageSetted).then(function (response) {
 				mimeType = response.headers.get("content-type")
 				return response.blob()
 			}).then(function (blob) {
-				filenameContainer.html(`<a target="_blank" href="${fileNoImageSetted}" see-file><i class="external alternate icon"></i></a>`)
+				filenameContainer.empty().append($('<a target="_blank" see-file></a>').attr('href', fileNoImageSetted).append('<i class="external alternate icon"></i>'))
 				if (mimeType.indexOf('image/') != -1) {
-					iconPlaceholderUpload.replaceWith($(`<img src="${fileNoImageSetted}"/>`))
+					iconPlaceholderUpload.replaceWith($('<img/>').attr('src', fileNoImageSetted))
 				} else {
 					iconPlaceholderUpload.replaceWith($(`<img src='statics/images/attachment-placeholder.png'/>`))
 				}

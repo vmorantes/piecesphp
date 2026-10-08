@@ -33,6 +33,25 @@ que el coder la commitee. Esa ronda es parte del cierre, no del día siguiente.
 
 ## 2. El orden del cierre
 
+### 2.0. Antes del árbol: la bandeja del PO y los reportes sin anotar
+
+Dos lecturas que no están en este repositorio y que el cierre no puede saltarse.
+
+**La primera es la bandeja del PO.** `abrir-jornada` ya obliga a revisarla; el cierre también, y por un motivo medido:
+el 2026-10-06 el PO marcó una tarea como hecha y el cierre de esa jornada se escribió sin verlo, así que `AHORA.md`
+pasó la noche pidiéndole algo que él ya había hecho.
+
+```bash
+python3 -B .agents/scripts/vikunja.py revisar
+```
+
+Lo que salga se reparte **antes** de escribir `AHORA.md`: lo que contestó, a `pendientes.md` con su número; lo que
+marcó hecho, fuera de `PO.md` §3; lo que preguntó, a `PO.md` §2. **Si `revisar` falla**, el cierre sigue, pero el
+resumen al PO lo dice con esas palabras: «no pude leer tu Vikunja».
+
+**La segunda es la cadena con el coder.** Se comprueba que **ningún reporte recibido esté sin anotar** y que ninguna
+ronda enviada siga en vuelo. Si una lo está, se termina primero (§1): nunca se cierra con una ronda a medias.
+
 ### 2.1. Primero el árbol, que es lo único que no se puede arreglar mañana
 
 ```bash
@@ -42,6 +61,23 @@ git -C . --no-optional-locks status --short
 Todo lo del arquitecto que esté sin commitear se reparte en su ronda: el código en commits propios,
 la documentación en `docs:` y `.agents/estado/` en su `docs(estado):` aparte. Lo que quede sin
 commitear se **nombra** en el resumen al PO, con el motivo.
+
+### 2.1bis. El reporte se deposita en el tramo, y el cierre se anota al RECIBIRLO
+
+**Una ronda se anota como cerrada cuando llega su reporte, nunca cuando sale su instrucción.** Es el defecto que el PO
+señaló el 2026-10-07: el cierre de esa jornada escribió `#1010` como «en vuelo» cuando sus dos commits ya estaban
+hechos, y la segunda apertura de ese mismo día tuvo que preguntarle al coder por un reporte que ya existía.
+
+**Y el reporte deja rastro en disco.** Un reporte vive solo en el canal, así que un `/clear` en cualquiera de las dos
+sesiones lo borra sin dejar prueba de que se envió. Por eso, **al recibir cada reporte**, el arquitecto pega en el
+archivo del tramo (§2.4) una línea con: el número, la hora, el estado, **los hashes de los commits** y los cuatro
+números. Con eso, una sesión nueva reconstruye la cadena desde el repositorio y no desde la memoria de nadie.
+
+Lo que NO se pega: salidas enteras de verificación, ni nada que lleve un secreto.
+
+**Cuando el rastro falta** —porque el canal se perdió— se escribe lo que se puede medir y **se marca lo que no**:
+«reconstruido desde git; los cuatro números, SIN VERIFICAR». Un hueco dicho es estado; un hueco tapado con una
+suposición es una trampa.
 
 ### 2.2. Después `AHORA.md`, contra el contrato de las nueve
 
@@ -148,9 +184,16 @@ que se hicieron a mano**:
 | **El tope** | `AHORA.md` ≤ 200 líneas | Lo pasa |
 | **Un solo «al retomar»** | Cuenta los bloques de arranque de `AHORA.md` | Hay más de uno |
 | **Los contadores** | El `A-NNN` de `AHORA.md` contra el último del buzón de `PO.md`; el `#NNN` contra el último mensaje de la cadena | No cuadran |
+| **La bandeja del PO, revisada** | Que este cierre corrió `vikunja.py revisar` (§2.0) | No se corrió |
+| **Ningún reporte sin anotar** | Que cada reporte recibido tiene su línea en el archivo del tramo, y que ninguna ronda enviada sigue en vuelo (§2.0, §2.1bis) | Falta una |
+| **Los puntos `S` cuadran** | Que las etiquetas `S` que nombra `AHORA.md` existen en `PO.md`, y al revés | Sobra o falta una |
 
 Son del arquitecto —`.agents/` es suyo— y las implementa el coder en una ronda, con su prueba de
 rechazo: **una puerta que no se ha visto fallar no se ha visto funcionar**.
+
+Las tres últimas nacen del 2026-10-07: el cierre de la víspera no miró la bandeja del PO y dejó `AHORA.md` pidiéndole
+algo ya hecho; un `/clear` borró la prueba de que un reporte se había enviado; y el punto `S7` vivía en `AHORA.md` sin
+estar en `PO.md`, que es el único sitio donde deben vivir las cosas del PO (`pendientes.md` 425.4 y 426.1).
 
 ## 5. Lo que este cierre NO es
 

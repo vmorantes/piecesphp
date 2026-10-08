@@ -155,6 +155,22 @@ class Validator
     }
 
     /**
+     * Si el valor es un color de CSS de forma cerrada: hex de 3, 4, 6 u 8 cifras, o rgb()/rgba() numérico. La cadena
+     * vacía no es un color. Nada más cabe: es lo que permite pintarlo dentro de un `style` sin inyectar CSS.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isColor($value)
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+        return preg_match('/^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})\z/', $value) === 1
+            || preg_match('/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)\z/i', $value) === 1;
+    }
+
+    /**
      * @param mixed $value
      * @param string $format
      * @param bool $excel

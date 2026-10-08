@@ -59,14 +59,14 @@ $workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
             <?php if ($withTitle): ?>
             <div class="field required">
                 <label><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Título de la imagen'); ?></label>
-                <input type="text" cropper-title-export<?= mb_strlen($imageName)> 0 ? " value='{$imageName}'" : ''; ?>>
+                <input type="text" cropper-title-export<?= mb_strlen($imageName)> 0 ? " value='" . escape_html($imageName) . "'" : ''; ?>>
             </div>
             <?php else:?>
-            <input type="hidden" cropper-title-export<?= mb_strlen($imageName) > 0 ? " value='{$imageName}'" : ''; ?>>
+            <input type="hidden" cropper-title-export<?= mb_strlen($imageName) > 0 ? " value='" . escape_html($imageName) . "'" : ''; ?>>
             <?php endif;?>
 
             <div class="field">
-                <canvas data-image='<?=$image?>'></canvas>
+                <canvas data-image='<?= escape_html($image); ?>'></canvas>
             </div>
 
         </div>

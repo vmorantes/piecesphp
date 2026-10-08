@@ -19,7 +19,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
     <div class="home-hello-section-title">
         <div class="title"><?= __($langGroup, 'Hola,'); ?></div>
-        <div class="subtitle"><?= $subtitle; ?></div>
+        <div class="subtitle"><?= escape_html($subtitle); ?></div>
     </div>
 
     <div class="tabs-controls">
@@ -373,7 +373,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
                 <form action="<?= UserSystemFeaturesController::routeName('check-totp'); ?>" class="ui form" method="POST" totp>
                     <div class="fields two">
                         <div class="field">
-                            <input type="text" name="username" required readonly value="<?= $username; ?>">
+                            <input type="text" name="username" required readonly value="<?= escape_html($username); ?>">
                         </div>
                         <div class="field">
                             <input type="text" name="totp" required value="">

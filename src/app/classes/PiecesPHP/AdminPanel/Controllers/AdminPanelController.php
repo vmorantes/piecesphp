@@ -305,7 +305,11 @@ class AdminPanelController extends BaseController
                 $classname . ':errorLog',
                 'admin-error-log',
                 'GET',
-                true
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
+                ]
             ),
         ]);
 

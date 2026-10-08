@@ -9,10 +9,10 @@ use Documents\Mappers\DocumentsMapper;
  */
 ?>
 
-<a class="card" target="_blank" href="<?= $mapper->currentLangData('document'); ?>">
+<a class="card" target="_blank" href="<?= escape_html($mapper->currentLangData('document')); ?>">
     <?php if(mb_strlen($mapper->currentLangData('documentImage')) > 0): ?>
     <div class="image">
-        <img src="<?= $mapper->currentLangData('documentImage'); ?>">
+        <img src="<?= escape_html($mapper->currentLangData('documentImage')); ?>">
     </div>
     <?php else: ?>
     <div class="image">
@@ -20,23 +20,23 @@ use Documents\Mappers\DocumentsMapper;
     </div>
     <?php endif; ?>
     <div class="content">
-        <div class="header"><?= $mapper->currentLangData('documentName'); ?></div>
+        <div class="header"><?= escape_html($mapper->currentLangData('documentName')); ?></div>
         <div class="meta">
             <div>
-                <?= basename($mapper->currentLangData('document')); ?>
+                <?= escape_html(basename((string) $mapper->currentLangData('document'))); ?>
             </div>
             <div>
                 <?= $mapper->createdAtFormat(); ?>
             </div>
         </div>
         <div class="description">
-            <?= $mapper->currentLangData('description'); ?>
+            <?= escape_html($mapper->currentLangData('description')); ?>
         </div>
     </div>
     <div class="extra content">
         <span>
             <i class="file icon"></i>
-            <?= $mapper->documentType->currentLangData('documentTypeName'); ?>
+            <?= escape_html($mapper->documentType->currentLangData('documentTypeName')); ?>
         </span>
     </div>
 </a>

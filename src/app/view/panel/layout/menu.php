@@ -123,7 +123,7 @@ $sidebarMenu = get_sidebar_menu();
         </article>
 
         <div class="footer-sidebar">
-            <span only-expanded class="main"><?= get_config('owner'); ?></span>
+            <span only-expanded class="main"><?= escape_html(get_config('owner')); ?></span>
             <span only-expanded class="text"><?= __(LANG_GROUP, 'Todos los derechos reservados'); ?></span>
             <span class="meta"><?= date('Y'); ?></span>
             <div menu-footer-images class="images-grup">

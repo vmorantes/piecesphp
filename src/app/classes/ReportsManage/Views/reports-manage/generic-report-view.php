@@ -10,7 +10,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
     <div class="home-hello-section-title">
         <div class="title"><?= __($langGroup, 'Hola,'); ?></div>
-        <div class="subtitle"><?= $subtitle; ?></div>
+        <div class="subtitle"><?= escape_html($subtitle); ?></div>
     </div>
 
     <div class="statistics-section one-column">

@@ -12,7 +12,7 @@ $user = getLoggedFrameworkUserOrFail(true)->userMapper;
 
         <h3 class="title-list subtitle small">
             <?= __('general', 'Bienvenido(a)'); ?>
-            <span class="subtitle"><?= $user->getFullName(); ?></span>
+            <span class="subtitle"><?= escape_html($user->getFullName()); ?></span>
         </h3>
 
     </div>

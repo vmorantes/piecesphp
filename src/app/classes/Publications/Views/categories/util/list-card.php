@@ -14,13 +14,13 @@ use Publications\Mappers\PublicationMapper;
 
 ?>
 <div class="list-card">
-    <div class="corner-icon" data-tooltip="<?= $mapper->currentLangData('name'); ?>">
+    <div class="corner-icon" data-tooltip="<?= escape_html($mapper->currentLangData('name')); ?>">
         <div class="icon">
             <i class="newspaper outline icon"></i>
         </div>
     </div>
     <div class="meta-title"><?= __($langGroup, 'Categoría'); ?></div>
-    <div class="title"><?= $mapper->currentLangData('name'); ?></div>
+    <div class="title"><?= escape_html($mapper->currentLangData('name')); ?></div>
     <div class="content">
         <div class="two-columns rows-mode">
             <div class="column">

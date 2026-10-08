@@ -123,7 +123,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                         <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
                         <div class="field required" translatable="<?= $fieldHandler->isTranslatable(); ?>">
                             <label><?= __($langGroup, 'Nombre'); ?></label>
-                            <input required type="text" name="title" maxlength="300" value="<?= $element->getLangData($langCode, 'title', false, ''); ?>" placeholder=" ">
+                            <input required type="text" name="title" maxlength="300" value="<?= escape_html($element->getLangData($langCode, 'title', false, '')); ?>" placeholder=" ">
                         </div>
 
                         <?php $fieldName = 'author'; ?>
@@ -131,7 +131,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                         <div class="field required" translatable="<?= $fieldHandler->isTranslatable(); ?>">
                             <label><?= __($langGroup, 'Autor'); ?></label>
                             <select class="ui dropdown search" name="<?= $fieldName; ?>" data-search-url="<?= $searchUsersURL; ?>" required>
-                                <option value="<?= $element->author->id; ?>"><?= $element->author->getFullName(); ?></option>
+                                <option value="<?= $element->author->id; ?>"><?= escape_html($element->author->getFullName()); ?></option>
                             </select>
                         </div>
 
@@ -191,7 +191,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                                     <i class="paperclip icon"></i>
                                 </div>
                                 <label for="<?= $uniqueIdentifier; ?>">
-                                    <div data-image="<?= $element->getLangData($langCode, $fieldName, false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                    <div data-image="<?= escape_html($element->getLangData($langCode, $fieldName, false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                         <i class="icon upload"></i>
                                         <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                                     </div>
@@ -215,7 +215,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                                     <i class="paperclip icon"></i>
                                 </div>
                                 <label for="<?= $uniqueIdentifier; ?>">
-                                    <div data-image="<?= $element->getLangData($langCode, $fieldName, false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                    <div data-image="<?= escape_html($element->getLangData($langCode, $fieldName, false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                         <i class="icon upload"></i>
                                         <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                                     </div>
@@ -288,7 +288,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                                 <i class="paperclip icon"></i>
                             </div>
                             <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="<?= $element->getLangData($langCode, $fieldName, false, ''); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                <div data-image="<?= escape_html($element->getLangData($langCode, $fieldName, false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                     <i class="icon upload"></i>
                                     <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                                 </div>
@@ -357,7 +357,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                             <?php $fileLocation = $hasAttachment ? $attachmentMapper->fileLocation : ''; ?>
                             <?php $isImage = $hasAttachment ? $attachmentMapper->fileIsImage() : ''; ?>
                             <?php $existingFileAttr = $isImage ? "data-image" : "data-file"; ?>
-                            <?php $existingFileAttr = "{$existingFileAttr}='{$fileLocation}'"; ?>
+                            <?php $existingFileAttr = "{$existingFileAttr}='" . escape_html($fileLocation) . "'"; ?>
                             <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                             <div class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>" data-mapper-id="<?= $attachmentMapper !== null ? $attachmentMapper->id : ''; ?>">
                                 <div class="ui top right attached label green">
@@ -371,11 +371,11 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                                     <div class="text">
                                         <div class="filename"></div>
                                         <div class="header">
-                                            <div class="title"><?= $attachmentElement->getDisplayName(); ?></div>
+                                            <div class="title"><?= escape_html($attachmentElement->getDisplayName()); ?></div>
                                         </div>
                                         <div class="name">
                                             <label><?= __($langGroup, 'Título'); ?></label>
-                                            <input type="text" attachment-name value="<?= $attachmentElement->getDisplayName(); ?>" data-file-name="<?= $attachmentElement->getDisplayName(); ?>">
+                                            <input type="text" attachment-name value="<?= escape_html($attachmentElement->getDisplayName()); ?>" data-file-name="<?= escape_html($attachmentElement->getDisplayName()); ?>">
                                         </div>
                                     </div>
                                 </label>

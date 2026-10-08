@@ -48,7 +48,7 @@ $contentName = $element->userSetContentName();
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-image="<?= $value; ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                            <div data-image="<?= escape_html($value); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
                                 <i class="icon upload"></i>
                                 <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
                             </div>

@@ -32,10 +32,10 @@ $jobPosition ??= '';
     </div>
     <div class="content">
         <div class="title">
-            <?= $element->fullname; ?>
+            <?= escape_html($element->fullname); ?>
         </div>
         <?php if(mb_strlen($jobPosition) > 0): ?>
-        <div class="subtitle"><?= $jobPosition; ?></div>
+        <div class="subtitle"><?= escape_html($jobPosition); ?></div>
         <?php endif; ?>
         <div class="meta">
             <?php if(mb_strlen($location) > 0): ?>
