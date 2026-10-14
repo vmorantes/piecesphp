@@ -6,6 +6,7 @@
 namespace PiecesPHP\Core\Utilities\Helpers;
 
 use PDOException;
+use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\ORM\ORM;
@@ -603,8 +604,16 @@ class DataTablesHelper
                         $fields = $mapper->getFields();
 
                         $element = (object) $element->humanReadable();
+                        $hidden = $mapper instanceof BaseEntityMapper ? $mapper::hiddenFields() : [];
 
                         foreach ($fields as $name => $field) {
+
+                            //Un campo oculto no viene en humanReadable(). Su celda se queda vacía y no se salta: la fila es
+                            //posicional, y saltarla correría todas las columnas de después bajo la cabecera equivocada.
+                            if (in_array($name, $hidden, true)) {
+                                $properties[] = '';
+                                continue;
+                            }
 
                             $value = '';
                             $reference_table = $field['reference_table'];
@@ -751,13 +760,12 @@ class DataTablesHelper
 
             }
 
-            $filterCountSQLGenerated = $filterCount->getCompiledSQL(true);
-
-            $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $filterCountSQLGenerated . ") AS table_derivate";
-
-            $filterCountPrepared = $filterCount->prepare("$filterCountSQL");
+            //SE EJECUTA ENLAZADO (ADR 0054): el valor de la búsqueda no entra en el texto de la consulta. El texto
+            //compilado con sus valores solo se registra, para depurar.
+            $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $filterCount->getCompiledSQL(true) . ") AS table_derivate";
+            $filterCountPrepared = $filterCount->prepare("SELECT COUNT(*) AS total FROM (" . $filterCount->getPreparedSQL() . ") AS table_derivate");
             $fiterCountGeneratedSQL = $filterCountSQL;
-            $filterCountPrepared->execute();
+            $filterCountPrepared->execute($filterCount->getReplaceWhereAndHavingValues());
             $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
 
             $filterCountTotal = !empty($filterCountResult) ? (int) $filterCountResult[0]->total : 0;
@@ -787,8 +795,8 @@ class DataTablesHelper
             }
             $totalCountSQL = "SELECT COUNT(*) AS total FROM (" . $totalCount->getCompiledSQL(true) . ") AS table_derivate";
             $totalCountGeneratedSQL = $totalCountSQL;
-            $totalCountPrepared = $totalCount->prepare($totalCountSQL);
-            $totalCountPrepared->execute();
+            $totalCountPrepared = $totalCount->prepare("SELECT COUNT(*) AS total FROM (" . $totalCount->getPreparedSQL() . ") AS table_derivate");
+            $totalCountPrepared->execute($totalCount->getReplaceWhereAndHavingValues());
             $totalCountResult = $totalCountPrepared->fetchAll(\PDO::FETCH_OBJ);
             $executedSQL['totalCount'] = str_replace(["\r", "\n"], '', $totalCountSQL);
 

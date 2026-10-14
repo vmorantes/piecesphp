@@ -12,7 +12,6 @@ use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
-use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -49,15 +48,16 @@ class TimerController extends BaseController
     public function timeOnPlatform(Request $request, Response $response)
     {
         $seconds = $request->getParsedBodyParam('seconds', null);
-        $user_id = $request->getParsedBodyParam('user_id', null);
-        $valid_user = Validator::isInteger($user_id) && !is_null((new UsersModel($user_id))->id);
+        //El usuario sale de la sesión a propósito: el `user_id` del cuerpo se ignora, o se sumaría tiempo a otro.
+        $currentUser = getLoggedFrameworkUser();
+        $user_id = $currentUser !== null ? $currentUser->id : null;
         $valid_time = is_numeric($seconds);
 
         $response_json = [
             'success' => true,
         ];
 
-        if ($valid_time && $valid_user) {
+        if ($valid_time && $user_id !== null) {
             $seconds = (float) $seconds;
             $response_json['success'] = TimeOnPlatformModel::addTime($user_id, $seconds / 60);
             return $response->withJson($response_json);

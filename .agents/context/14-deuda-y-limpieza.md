@@ -345,7 +345,7 @@ cambios de GD y de manejo de fuentes.
 | **`FileManager`** | 1.309 | 0 acoplamiento. Es un envoltorio de elFinder, dependencia pesada (`studio-42/elfinder`). Marcado «por renovar». ¿Lo usa alguien de verdad? |
 | **`Newsletter`** | 1.982 | Hoja aislada; solo `ContactFormsController` y `PublicAreaController`. Función muy delgada (tabla `newsletter_sucribers`, con errata en el nombre) |
 | **`EventsLog`** | 1.210 | Solo lo usa `APIController`. Útil si se audita de verdad; muerto si nadie mira `actions_log` |
-| **Temporizador** | — | `ACTIVE_TIMER` solo se lee en `app/view/panel/layout/header.php`. `TimerController` sigue registrado en `routes.php`. Hoy es un vestigio: el propietario descartó el 2026-09-15 la intención de rehacerlo |
+| **Temporizador** | — | `ACTIVE_TIMER` solo se lee en `app/view/panel/layout/header.php`. `TimerController` sigue registrado en `routes.php`. **Se queda** (PO, 2026-10-08: «nunca lo descarté»). Lo que descartó el 2026-09-15 fue REHACERLO, una intención del viejo `TODO.md` (`pendientes.md:1986`); esta fila lo leyó como «vestigio» y era falso (499.7.8) |
 
 ### Riesgo alto — no borrar, reestructurar
 

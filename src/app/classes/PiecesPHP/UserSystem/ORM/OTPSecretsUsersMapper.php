@@ -80,6 +80,14 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
 
     const TABLE = 'pcsphp_users_otp_secrets';
 
+    /**
+     * Los secretos del doble factor no se serializan nunca: con la referencia a UsersModel, un json_encode de esta
+     * clase entregaría el secreto y, sin HIDDEN_FIELDS en el usuario, también el hash de su dueño.
+     *
+     * @var string[]
+     */
+    const HIDDEN_FIELDS = ['secret', 'oneUseCode', 'twoAuthFactorSecurityCode'];
+
     const DEFAULT_INTERVAL_TOTP = 30;
     const METHOD_TOTP = 'TOTP';
     const METHOD_ONE_USE_CODE = 'ONE_USE_CODE';

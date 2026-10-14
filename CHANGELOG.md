@@ -1,3 +1,272 @@
+# 8.0.8 (09-10-2026)
+
+## ⚠ Seguridad — una tabla puede declarar qué columnas no salen NUNCA, y el framework lo respeta solo
+
+**Esto cerraba una trampa, no una fuga en curso, y conviene decirlo así.** Cuando una pantalla pedía los datos de algo
+que apunta a un usuario —una noticia y su autor, un documento y quien lo creó—, el framework devolvía **la ficha entera
+de ese usuario, con su contraseña cifrada dentro**. No se filtraba por casualidad: **tres controladores se acordaban de
+taparlo a mano**. Nada obligaba al cuarto, y PiecesPHP se clona.
+
+Ahora **la tabla declara qué columnas suyas no se serializan jamás**, en una línea, y el framework lo cumple por su
+cuenta en **las cuatro vías** por las que un dato puede salir: pedir el registro **directo**, pedirlo **anidado** dentro
+de otro, a través de una **meta-propiedad**, y **convirtiéndolo a texto**. Se oculta **siempre**, no solo cuando va
+anidado: si solo se filtrara anidado, bastaría pedir el registro de frente para que el dato saliera.
+
+Lo declaran dos tablas del framework: la de **usuarios** —la contraseña, su JSON interno, el contador de intentos
+fallidos y la marca de revocación de sesiones— y la de los **secretos del doble factor** —los tres—. Esa segunda
+importa porque **apunta al usuario**: una serialización suya entregaba el secreto del doble factor **y** el hash de su
+dueño de un golpe.
+
+**Y una cosa que conviene saber y que NO es una ruptura, aunque lo parezca**: el ORM usa esa conversión a texto
+también al guardar, pero **solo** en un caso que el framework no tiene —una columna de texto declarada como
+*referencia* que recibe un registro de otra clase; ninguna de las 39 referencias del framework es de texto—. Asignar un
+registro a una columna de texto **normal nunca guardó su JSON**, ni antes ni ahora: el ORM lo rechaza antes de
+convertirlo. Así que **por ahí nunca salió un hash**.
+
+**Lo que no cambia**: la columna sigue existiendo y se lee y escribe igual; la **descripción** de los campos sigue
+saliendo completa, porque es la definición de la tabla y no tiene valores dentro; y las protecciones que los tres
+controladores hacían a mano **se quedan**, porque dos capas no estorban.
+
+**Y una cosa que apareció al arreglarlo, y que sola justifica el cambio:** hay un camino del ayudante de tablas que,
+con un registro de usuarios, **habría pintado el hash en una tabla del panel**. No lo usa ningún controlador del
+framework, así que nunca ocurrió; se midió que, sin la declaración, pintaría **23 celdas con forma de hash** en las 27
+filas de una instalación de prueba. En ese camino la celda del campo oculto va **vacía y no se salta**: la fila se
+construye por posición, así que saltar una columna correría todas las siguientes.
+
+Todo esto lo vigila una suite nueva, y **se la ha visto fallar**: vaciando la declaración, doce de sus veintidós
+comprobaciones se ponen en rojo. Busca **el valor y no solo el nombre** del campo, para cazar la fuga aunque alguien
+renombre la columna.
+
+## ⚠ Seguridad — los totales de los listados del panel ya no ejecutan la búsqueda como texto
+
+Un listado del panel enseña sus filas y, debajo, dos totales: cuántas hay con la búsqueda y cuántas sin ella. Las filas
+se pedían bien —la búsqueda viajaba como un dato aparte—, pero **los dos totales se calculaban pegando lo que el usuario
+había escrito dentro del texto de la consulta**, y ejecutando ese texto. Ahora los totales se piden como las filas: la
+consulta por un lado y la búsqueda por otro.
+
+**Y se ve con un caso concreto**: una búsqueda con **dos espacios seguidos** daba un total falso, porque al armar el
+texto se colapsaban en uno. Medido en tres formas de listado: la búsqueda real encontraba una fila y el total decía cero.
+
+Necesita **`piecesphp/database` 5.3.0**, que trae el método nuevo con el que se arma la consulta para ejecutarla
+enlazando; el `composer.lock` ya la fija.
+
+**Si tu clon ejecuta en algún sitio el texto de `getCompiledSQL(true)`**, cámbialo por `getPreparedSQL()` con sus
+valores enlazados: `getCompiledSQL(true)` es para registrar y depurar, no para ejecutar. Lo vigila una suite nueva,
+`unit-tests:core/datatables-counts`, que compara los dos totales con las filas reales en cuatro formas de listado.
+
+## Retira — el CSS muerto del navegador de contenidos, sin cambiar el aspecto
+
+Fuera **`src/app/classes/ContentNavigationHub/Statics/sass/detail-view.scss`**: ninguna página la cargaba y ninguna hoja
+la importaba, así que su CSS no llegaba a ningún sitio. Y fuera las reglas de las otras hojas del módulo que estilaban un
+marcado que nada emite: **59 reglas**, casi todas colgadas de una clase de listado que ninguna vista usa.
+
+**El aspecto no cambia, y está medido**: comparado el CSS compilado regla a regla, lo único que desaparece son
+exactamente las reglas previstas, y no aparece ni cambia ninguna otra. Antes de quitar cada una se buscaron sus clases
+también como trozo de texto en el código, por si alguna se armaba concatenando: ninguna.
+
+**Si tu clon cargaba `detail-view.css`** en una vista propia, esa hoja ya no se genera: copia lo que uses a tu módulo.
+
+## Cambia — las hojas de perfil de MySpace comparten su cuerpo, y el CSS es el mismo byte a byte
+
+Las dos vistas de perfil —la personal y la de organización— y sus dos formularios tenían cada uno su hoja de estilos,
+copiada de la otra casi entera. Ahora cada pareja comparte un parcial, en la carpeta `includes` de las hojas de
+estilo de MySpace: `_profile-view.scss` y `_profile-form.scss`, con un `@mixin` al que cada hoja pasa lo suyo —la clase
+de su sección, su color de acento y el bloque que solo tiene la de organización—. Son **401 renglones de SCSS menos**,
+contando ya los dos parciales.
+
+**El aspecto no cambia, y está medido**: la huella del CSS compilado da IDÉNTICA y los cuatro `.css` son los mismos byte
+a byte.
+
+**Si tu clon editó alguna de esas cuatro hojas** (`profile.scss`, `profile-organization.scss`, `my-profile.scss`,
+`my-organization-profile.scss`), al actualizar tendrás conflicto: lo común está ahora en el parcial, y lo tuyo va o en el
+parcial —si vale para las dos— o en el bloque que cada hoja pasa al `@mixin`.
+
+## Otra herramienta nueva: `bin/cli seed`, datos de prueba que se escriben y se deshacen
+
+Llena la base **local** con registros de prueba reconocibles, para ver una pantalla con contenido sin crearlo a mano, y
+los quita después **por id**, sin tocar nada más. **Sin pedir nada, solo simula**: escribir hay que pedirlo con
+`escribir=yes`, y deshacerlo con `limpiar=yes`. Solo escribe en una instalación que sea local por las dos vías —la
+terminal y su `environment.php`—, en una sola transacción, y se niega a sembrar dos veces.
+
+Cada módulo aporta los suyos **sin tocar el framework**: una clase en la carpeta `Seeds/` del módulo. Hoy siembra
+dieciséis tablas: organizaciones, usuarios, países, regiones, ciudades, puntos, noticias y sus categorías, publicaciones
+con sus categorías y sus adjuntos, banners, documentos con sus tipos, categorías de formularios y suscriptores del
+boletín.
+
+**Las tablas con archivos llevan archivos PROPIOS**: el sembrador copia una imagen de muestra a una carpeta que es solo
+de esa fila, y al limpiar borra la carpeta entera. Nunca apunta a un archivo del repositorio, porque al cambiar la imagen
+de un registro el panel borra la anterior. Y el limpiado borra también **lo que la aplicación crea sola** por cada fila
+sembrada —los perfiles y las aprobaciones—, distinguiendo las aprobaciones de cada tabla para no llevarse las de otra
+con el mismo número.
+
+Guía: «Datos de prueba», en la documentación para desarrolladores.
+
+## Otra herramienta nueva: `bin/huella-css`, para demostrar que tu CSS sigue haciendo lo mismo
+
+Sirve para una cosa concreta y difícil: **reorganizar hojas de estilo sin cambiar el aspecto, y poder probarlo**.
+Guarda un calco del CSS compilado, y después de tus cambios te dice si sigue siendo el mismo.
+
+Lo que la distingue de comparar los archivos con un `diff`:
+
+- **Guarda el ORDEN**, y eso es lo que la hace útil. En CSS, cuando dos reglas tocan la misma propiedad gana la que
+  viene después, así que **mover una regla de sitio puede cambiar el resultado sin cambiar ni un carácter de su
+  contenido**. Un `diff` de texto no ve eso; esta sí.
+- **Clasifica la diferencia en cuatro**: una regla que **desaparece**, una **nueva**, una cuyas **declaraciones**
+  cambian, y una que **solo cambia de posición**. Así una revisión sabe de qué está hablando.
+- **Y tiene un modo para cuando sí quieres borrar**: le pasas la lista de selectores que esperas perder y aprueba solo
+  si las únicas diferencias son esas. Cualquier otra cosa sale en rojo.
+- **Se niega a dar un veredicto si no se ve a sí misma.** Antes de comparar, se altera por dentro de cuatro formas y
+  exige acertar las cuatro; si una falla, **no dice «idéntica»: se para**.
+
+Lo normaliza poco a propósito: colapsa espacios y pone en minúsculas los nombres de propiedad, pero **no toca los
+valores** —en `content` y en `url()` las mayúsculas cuentan— y **no deduplica, no fusiona y no reordena nada**. Es un
+calco, no un resumen.
+
+## Una herramienta nueva: `bin/censo-scss`, para saber qué CSS tuyo no se usa
+
+Si has heredado hojas de estilo que nadie se atreve a tocar, esta mide cuáles de sus clases están realmente en uso.
+No borra nada: solo cuenta y señala.
+
+Lo que la hace fiable, y es lo que distingue una cifra de una cifra en la que se puede confiar:
+
+- **Lee los selectores del CSS compilado, no del texto del SASS.** En SASS un nombre se construye anidando, con `&` y
+  con `&-sufijo`, así que **el nombre final no está escrito en ninguna línea del archivo**. Leer el `.scss` a mano
+  contaría nombres que no existen y se dejaría los que sí. Y con los mapas del compilador vuelve atrás, así que cada
+  clase se atribuye a **su archivo y su línea de origen**.
+- **Separa en cuatro grupos**, y dos están ahí para que no borres de más: lo que tu CSS **no inventa sino que pisa** de
+  Fomantic o de un plugin —borrarlo cambia el aspecto aunque la clase no aparezca en ningún archivo tuyo— y lo que tu
+  código **construye pegando un prefijo a una variable** (`'icono-' + tipo`, en JavaScript o en PHP), que no se puede
+  saber leyendo y por eso se marca «no verificable» en vez de «sin uso». Y si el nombre **entero** es una variable
+  (`'ui ' + color`), no lo marca: lo **cuenta y lo lista**, porque no hay a qué clase atribuirlo.
+- **Mide la regla, no la clase.** Una regla como `.a .b` no puede aplicarse nunca si falta **una sola** de las dos,
+  aunque la otra esté muy viva. Da las dos cifras: la de reglas que no pueden aplicarse nunca y, aparte, la estricta.
+- **Se niega a mentir.** Antes de dar un número comprueba que se ve a sí mismo: que una clase que sabe usada sale como
+  usada, que una inventada sale sin uso, y que su lógica de reglas acierta en seis casos cuyo resultado se conoce de
+  antemano. Si algo de eso falla, **no imprime cifras: se para**. Y declara siempre su propio universo: cuántas hojas
+  leyó, cuántos archivos miró y qué dejó fuera.
+
+Lo que **no** hace, y está en su propia ayuda: no mira variables, mixins ni animaciones —solo clases—; no ve el HTML
+que venga de tu base de datos; y **no prueba que algo se pueda borrar**. Eso lo prueba comparar el CSS compilado antes
+y después, que es otra herramienta.
+
+## ⚠ CAMBIOS INCOMPATIBLES — una hoja de estilos duplicada pasa a vivir en un solo sitio
+
+**Si tu proyecto importa estilos de MySpace o de Informes, mira esto antes de actualizar.**
+
+Dos módulos tenían **el mismo archivo de estilos**, copiado: 683 renglones idénticos hasta el último byte. Ahora
+vive una sola vez, en los recursos compartidos del panel, y los dos módulos lo usan desde ahí.
+
+- **Desaparecen** `src/app/classes/MySpace/Statics/sass/imports/_grapsh_and_statistics.scss` y
+  `src/app/classes/ReportsManage/Statics/sass/reports-manage/_report-design.scss`.
+- **Aparece** `src/statics/core/sass/includes/_graphs-and-statistics.scss`, con el mismo contenido y el nombre
+  corregido —el original decía `grapsh`—.
+- **Si alguna hoja tuya importaba una de las dos**, cámbiala por la nueva. No hay capa de compatibilidad: una ruta de
+  `@use` que no existe **rompe la compilación**, así que lo vas a ver en cuanto compiles, no en producción.
+
+**Y el CSS que sale es el mismo, byte a byte: los archivos compilados ni siquiera se reescriben**; solo cambian sus
+mapas de origen, que es lo único que debía cambiar. No es una afirmación: lo comprueba `bin/huella-css`, que guarda
+un calco ordenado del CSS compilado antes del cambio y lo enfrenta al de después. Si hubiera cambiado una
+declaración, una regla o incluso **el orden** de una regla, el cambio no se habría publicado.
+
+## ⚠ CAMBIOS INCOMPATIBLES — tres cosas que podía escribir casi cualquier usuario con cuenta
+
+**Si tu proyecto depende de que usuarios sin privilegios de administración toquen el banner o la imagen de inicio,
+lee esto antes de actualizar.** Son decisiones de permisos, no correcciones de un error, y las tomó el propietario del
+framework con la medición delante.
+
+Y conviene saber **por qué nadie se había dado cuenta**: en PiecesPHP, declarar un rol en una ruta **concede** el
+permiso y no se lo quita a nadie; el acceso real es la unión de lo que declara la pantalla y lo que da la configuración
+de roles. Las tres de abajo se declaraban abiertas a todos los roles, o a casi todos, y eso basta para que entren.
+Está explicado en la documentación para desarrolladores, en «Permisos de ruta».
+
+- **El banner del sitio** (listar, crear, editar y borrar) pasa a ser de **Comunicaciones, Administrador general y
+  Principal**. Antes lo listaban los seis tipos de usuario y lo podían crear, editar y borrar cinco de ellos. **Ojo con
+  el otro lado del cambio:** Comunicaciones, que es el rol al que esto le corresponde, **no podía** tocar el banner
+  hasta ahora, y ahora sí; y lo pierden Administrador de organización, Usuario general e Institucional.
+- **La imagen de inicio del sitio** pasa a ser **solo del usuario principal**. Antes la podían cambiar los seis tipos.
+  El framework base no la pinta en ninguna página —la consumen las aplicaciones de cada proyecto—, pero la pantalla
+  escribía igual.
+  **Y un detalle que importa si tocas esa zona:** la imagen se guarda por la **acción común de los ajustes**, que
+  sigue declarada abierta a todos los roles; lo que la limita al principal es una comprobación **dentro del
+  controlador**. Los otros dos ajustes que pasan por esa misma acción —el límite de tokens y las claves de Mapbox— ya
+  eran solo del principal, así que hoy los tres lo son. Si amplías esa acción con un ajuste nuevo, **necesita su propia
+  comprobación**: sin ella **nace cerrado para todos**, porque el controlador rechaza cualquier ajuste que no
+  reconozca, también al usuario principal —y no con un 403: la denegación la captura el propio método y responde con su
+  mensaje de error genérico—. Lo que puede nacer abierto es un ajuste **con una comprobación demasiado ancha**. La
+  guarda la pone el controlador, no la ruta.
+- **El contador de tiempo en la plataforma ya no acepta a qué usuario sumarle el tiempo**: lo suma siempre al usuario
+  de la sesión. Antes la petición llevaba el identificador del usuario en el cuerpo, así que cualquiera con cuenta
+  podía inflarle el tiempo a otro, y ese tiempo alimenta informes. **La pantalla no cambia y el panel sigue
+  funcionando igual**: el único sitio que llamaba a esa dirección ya enviaba el usuario de la sesión. Si tu proyecto la
+  llamaba con el identificador de otro usuario a propósito, deja de funcionar y tendrás que registrar el tiempo de otra
+  forma. **La dirección sigue abierta a todos los roles, y es deliberado**: todo usuario tiene que poder registrar su
+  propio tiempo.
+
+## ⚠ Seguridad — el gestor de archivos ya no acepta nombres que un servidor pueda ejecutar
+
+Los dos gestores de archivos del panel —el completo y el que se abre desde el editor de texto— aceptaban **cualquier
+tipo de archivo**, así que un usuario con permiso para subir podía dejar un `shell.php` dentro de la carpeta que el
+servidor publica. Que eso
+no se ejecutara dependía por completo del archivo `.htaccess` que trae el proyecto, es decir, **del servidor, no del
+framework**: con `AllowOverride None` —que es lo que recomienda la propia documentación de Apache— o detrás de nginx,
+donde no hay `.htaccess`, esa única defensa desaparece. **Y PiecesPHP se clona**, así que no puede depender de cómo
+tenga montado el servidor cada quien.
+
+Ahora el propio gestor **rechaza el nombre antes de escribir nada**, y lo hace por el nombre y no por el contenido,
+porque lo que decide si un servidor ejecuta un archivo es su extensión: un `shell.php` con cabecera de imagen engaña a
+cualquier comprobación de contenido. Se rechazan las extensiones que un servidor web puede ejecutar —la familia de PHP
+(`.php`, `.php5`, `.phtml`, `.phtm`, `.phps`, `.phar`, `.pht`), los CGI (`.cgi`, `.fcgi`), otras plataformas (`.asp`,
+`.aspx`, `.jsp`, `.jspx`), las inclusiones del servidor (`.shtml`, `.shtm`) y la configuración de Apache
+(`.htaccess`, `.htpasswd`)— **en cualquier posición del nombre**, no solo al final: `shell.php.jpg` también se rechaza,
+porque un servidor configurado con `AddHandler` lo ejecutaría.
+
+Lo que sí se sigue pudiendo subir no cambia: documentos, hojas de cálculo, imágenes, audio, vídeo, comprimidos y
+cualquier nombre con varios puntos, **siempre que ninguno de sus tramos sea una de esas extensiones**. Y quien clona
+puede **ampliar o reducir** esa lista: está en una constante del gestor, documentada, no repartida por el código.
+
+La comprobación entra por donde el propio gestor valida los nombres, así que **alcanza también a otras tres cosas**, y
+las tres nos parecen deseables: ya no se puede **crear una carpeta** llamada `x.php`, ni **restaurar de la papelera** o
+copiar un archivo así **desde otra de las raíces** del gestor, ni **extraer de un comprimido** un archivo con uno de
+esos nombres —al descomprimir, el gestor descarta lo que no pasa—. Tampoco se puede **rebautizar** un archivo que ya
+esté en disco a un nombre ejecutable.
+
+Lo que sí se sigue pudiendo hacer con lo que ya está en disco: **moverlo o copiarlo dentro de su misma raíz**, que no
+pasa por esta comprobación, y **borrarlo o mandarlo a la papelera**. La papelera **no** lleva la comprobación, y es a
+propósito: si la llevara, un `.php` antiguo no se podría tirar.
+
+El juego de caracteres prohibidos en un nombre **no cambia en ninguna plataforma**: sigue siendo el mismo que ya
+aplicaba el gestor, incluidos los que solo se prohíben en Windows.
+
+**Si tu proyecto subía a propósito archivos con alguna de esas extensiones** por el gestor —no es un uso previsto, pero
+puede pasar—, dejará de poder hacerlo y tendrás que ampliar la lista a conciencia.
+
+## ⚠ Seguridad — el nombre de un grupo de componentes se valida contra los que existen
+
+La dirección pública que sirve las plantillas de componentes tomaba el nombre del grupo **de la URL** y lo metía dentro
+de la ruta del archivo que carga, sin comprobar nada: la única comprobación que había miraba una carpeta que existe
+siempre. Hoy eso **no se podía aprovechar**, pero por el servidor —Apache frena esas direcciones—, **no por el
+framework**; en otro servidor, u otra configuración, podía ser distinto. **Y PiecesPHP se clona**, así que no puede
+depender de cómo esté montado el servidor de cada quien.
+
+Ahora el grupo tiene que ser **uno de los que existen de verdad** (se calculan solos, de lo que hay en el proyecto: un
+grupo nuevo funciona sin tocar nada) **y** tener forma de nombre: solo letras, números, guion bajo y guion. Lo que no
+cumpla las dos cosas da **404 limpio**, en vez del error 500 que antes **enseñaba la ruta interna del servidor** en las
+instalaciones locales.
+
+## Corrige lo que dijo la `v8.0.7` sobre el permiso de la pantalla de errores
+
+La `v8.0.7` anunció que la pantalla del registro de errores «dice que es solo del administrador principal». **Eso era
+cierto como declaración y engañoso leído como garantía**, y conviene decirlo claro porque afecta a cómo se entienden
+los permisos de todo el framework:
+
+**Declarar un rol en una ruta CONCEDE ese permiso; no impide que otro rol lo tenga.** Lo que una ruta declara se **suma**
+a lo que la configuración de roles conceda, y el acceso real es la unión de las dos cosas. Así que la pantalla de errores
+declara que es del administrador principal —y con eso la conserva aunque se la quiten de la configuración—, pero **si
+alguien añade esa ruta a un rol general, ese rol entra**, y la declaración no lo frena.
+
+No ha cambiado el comportamiento: entra quien entraba. Lo que cambia es que **ahora está explicado**, y que la
+documentación para desarrolladores lo dice con sus dos consecuencias.
+
 # 8.0.7 (07-10-2026)
 
 ## ⚠ Seguridad — lo que escriben los usuarios se pinta escapado

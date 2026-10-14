@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+# Huella del CSS compilado: demuestra que una limpieza del SCSS NO cambió el aspecto.
+#
+# Compila con `gulp sass-all` y, por cada hoja propia, guarda la lista ORDENADA de sus reglas: la cadena de @media,
+# @supports, @layer o @container que la envuelve, su lista de selectores tal como está escrita y sus declaraciones en
+# su orden. En CSS el ORDEN manda —dos reglas que tocan la misma propiedad se resuelven por orden de aparición—, así que
+# la huella lo guarda, y mover una regla de sitio sale en rojo aunque su contenido no cambie. Escribe
+# files/dev/css-fingerprint.json (ADR 0006).
+#
+# Uso:
+#   bin/huella-css --guardar                 compila y guarda la huella
+#   bin/huella-css --comparar                compila y la compara con la guardada: 0 si es idéntica, 1 si no
+#   bin/huella-css --comparar --esperado <f> como --comparar, pero las DESAPARICIONES de los selectores listados en <f>
+#                                            (uno por línea) no cuentan: sale 0 si son las únicas diferencias
+#   bin/huella-css --sin-compilar …          usa el CSS que ya haya en disco
+#
+# Las diferencias salen por hoja y en cuatro grupos: reglas que DESAPARECEN, reglas NUEVAS, reglas cuyas DECLARACIONES
+# cambian (mismo contexto y selectores) y reglas que solo cambian de POSICIÓN (mismo contenido, otro sitio).
+#
+# Lo que es un calco fiel, a propósito: no se deduplican reglas iguales, no se fusionan reglas con el mismo selector, no
+# se reordena nada y el VALOR de una declaración no se toca (en `content` y en `url()` las mayúsculas cuentan). Solo se
+# colapsan los espacios de selectores y condiciones, y el nombre de la propiedad va en minúsculas.
+#
+# Lo que NO mira, y se dice para que un «idéntica» no engañe (LEY 15):
+#   - el CSS de terceros (src/statics/plugins/), los .min.css, los .css de fuentes y los mapas;
+#   - el HTML: una regla idéntica que deja de casar porque cambió el marcado no sale aquí;
+#   - el orden ENTRE hojas: en qué orden las carga cada página lo decide el PHP, no el SCSS;
+#   - lo que el navegador hace con el CSS: dos huellas distintas pueden verse igual, pero dos iguales se ven igual.
+import hashlib, importlib.machinery, importlib.util, json, os, re, subprocess, sys
+
+ROOT = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True, text=True, check=True).stdout.strip()
+os.chdir(ROOT)
+OUT = 'files/dev/css-fingerprint.json'
+
+#La correspondencia de cada .scss con su .css y la lectura de selectores son las de bin/censo-scss: se importan para que
+#la correspondencia con src/gulpfile.js viva en un solo sitio.
+_loader = importlib.machinery.SourceFileLoader('censo_scss', os.path.join(ROOT, 'bin', 'censo-scss'))
+_spec = importlib.util.spec_from_loader('censo_scss', _loader)
+censo = importlib.util.module_from_spec(_spec)
+_loader.exec_module(censo)
+
+
+#──── Lectura canónica ────────────────────────────────────────────────────────────────────────────
+
+def collapse(text):
+    return re.sub(r'\s+', ' ', text).strip()
+
+
+def parse_block(css, i, n):
+    """Lee el contenido de un bloque hasta su '}' (o el final) y devuelve (declaraciones, hijos, índice). Los hijos son
+    (preludio, declaraciones, hijos) en orden de documento; un ';' de primer nivel cierra una declaración o una sentencia."""
+    decls, children = [], []
+    start, depth, quote = i, 0, None
+    while i < n:
+        c = css[i]
+        if quote:
+            if c == '\\':
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+        elif c in '"\'':
+            quote = c
+        elif c == '(':
+            depth += 1
+        elif c == ')':
+            depth -= 1
+        elif depth == 0 and c == ';':
+            piece = css[start:i].strip()
+            if piece:
+                decls.append(piece)
+            start = i + 1
+        elif depth == 0 and c == '{':
+            prelude = css[start:i].strip()
+            sub_decls, sub_children, i = parse_block(css, i + 1, n)
+            children.append((prelude, sub_decls, sub_children))
+            start = i + 1
+        elif depth == 0 and c == '}':
+            piece = css[start:i].strip()
+            if piece:
+                decls.append(piece)
+            return decls, children, i
+        i += 1
+    piece = css[start:n].strip()
+    if piece:
+        decls.append(piece)
+    return decls, children, n
+
+
+def declaration(text):
+    name, sep, value = text.partition(':')
+    if not sep:
+        return [collapse(text), None]
+    return [name.strip().lower(), value.strip()]
+
+
+def fingerprint_of(css):
+    """La lista ordenada de reglas: [contexto, selectores, declaraciones]. Una sentencia de primer nivel (@charset,
+    @import) es una regla sin declaraciones con la sentencia como selector."""
+    css = censo.strip_comments(css)
+    decls, children, _ = parse_block(css, 0, len(css))
+    rules = []
+
+    def walk(context, items_decls, items_children, own_selector):
+        if own_selector is not None and (items_decls or not items_children):
+            rules.append([context, own_selector, [declaration(d) for d in items_decls]])
+        for prelude, sub_decls, sub_children in items_children:
+            if sub_children and not prelude.startswith('@') and not sub_decls:
+                walk(context + [collapse(prelude)], sub_decls, sub_children, None)
+            elif prelude.startswith('@') and sub_children:
+                walk(context + [collapse(prelude)], sub_decls, sub_children, [collapse(prelude)] if sub_decls else None)
+            else:
+                walk(context, sub_decls, sub_children, [collapse(s) for s in censo.split_selector_list(prelude)] or [collapse(prelude)])
+
+    for statement in decls:
+        rules.append([[], [collapse(statement)], []])
+    walk([], [], children, None)
+    return rules
+
+
+def sheet_hash(rules):
+    return hashlib.sha256(json.dumps(rules, ensure_ascii=False, separators=(',', ':')).encode('utf-8')).hexdigest()
+
+
+def build():
+    scss_all = censo.git_files('*.scss')
+    roots = [s for s in scss_all if not os.path.basename(s).startswith('_')]
+    sheets, missing = {}, []
+    for scss in sorted(roots):
+        css = censo.css_of(scss)
+        if css is None or not os.path.isfile(css):
+            missing.append(f'{scss} -> {css}')
+            continue
+        sheets[css] = fingerprint_of(open(css, encoding='utf-8').read())
+    return sheets, missing, len(roots)
+
+
+#──── Comparación ─────────────────────────────────────────────────────────────────────────────────
+
+def key_of(rule):
+    return json.dumps(rule[:2], ensure_ascii=False)
+
+
+def full_of(rule):
+    return json.dumps(rule, ensure_ascii=False)
+
+
+def diff_sheet(old, new):
+    """Los cuatro grupos. Primero lo que conserva su orden relativo (la subsecuencia común más larga); de lo que queda,
+    lo que está igual en los dos lados se ha MOVIDO; lo que comparte contexto y selectores ha cambiado sus
+    DECLARACIONES; el resto desaparece o es nuevo."""
+    import difflib
+    a, b = [full_of(r) for r in old], [full_of(r) for r in new]
+    matcher = difflib.SequenceMatcher(None, a, b, autojunk=False)
+    kept_a, kept_b = set(), set()
+    for block in matcher.get_matching_blocks():
+        kept_a.update(range(block.a, block.a + block.size))
+        kept_b.update(range(block.b, block.b + block.size))
+    rest_a = [i for i in range(len(a)) if i not in kept_a]
+    rest_b = [j for j in range(len(b)) if j not in kept_b]
+    moved, changed = [], []
+    for i in list(rest_a):
+        j = next((j for j in rest_b if b[j] == a[i]), None)
+        if j is not None:
+            moved.append((i, j))
+            rest_a.remove(i)
+            rest_b.remove(j)
+    for i in list(rest_a):
+        j = next((j for j in rest_b if key_of(new[j]) == key_of(old[i])), None)
+        if j is not None:
+            changed.append((i, j))
+            rest_a.remove(i)
+            rest_b.remove(j)
+    return {
+        'desaparecen': [old[i] for i in rest_a],
+        'nuevas': [new[j] for j in rest_b],
+        'declaraciones': [(old[i], new[j]) for i, j in changed],
+        'posicion': [(old[i], i + 1, j + 1) for i, j in moved],
+    }
+
+
+def describe(rule):
+    context = ' › '.join(rule[0])
+    return (f'[{context}] ' if context else '') + ', '.join(rule[1])
+
+
+def canary(sheets):
+    """La huella tiene que verse a sí misma: idéntica contra sí, y cada alteración en su grupo y solo en él."""
+    name, rules = max(sheets.items(), key=lambda kv: len(kv[1]))
+    if len(rules) < 4:
+        return False, 'ninguna hoja tiene cuatro reglas'
+    groups = ['desaparecen', 'nuevas', 'declaraciones', 'posicion']
+    same = diff_sheet(rules, json.loads(json.dumps(rules)))
+    if any(same[g] for g in groups):
+        return False, f'{name} contra sí misma no da idéntica'
+    target = next(i for i, r in enumerate(rules) if r[2] and r[2][0][1] is not None)
+    swap = next(i for i in range(len(rules) - 1) if full_of(rules[i]) != full_of(rules[i + 1]))
+    cases = {}
+    altered = json.loads(json.dumps(rules))
+    altered[target][2][0][1] += ' zz-huella-canario'
+    cases['declaraciones'] = altered
+    cases['desaparecen'] = rules[:target] + rules[target + 1:]
+    cases['nuevas'] = rules[:target] + [[[], ['.zz-huella-canario'], [['color', 'red']]]] + rules[target:]
+    swapped = list(rules)
+    swapped[swap], swapped[swap + 1] = swapped[swap + 1], swapped[swap]
+    cases['posicion'] = swapped
+    for expected, mutated in cases.items():
+        result = diff_sheet(rules, mutated)
+        hits = [g for g in groups if result[g]]
+        if hits != [expected]:
+            return False, f'una alteración de «{expected}» en {name} da: {hits or "idéntica"}'
+    return True, f'{name}: idéntica contra sí, y las cuatro alteraciones en memoria caen cada una en su grupo'
+
+
+def main():
+    args = sys.argv[1:]
+    if not args or '--help' in args or '-h' in args:
+        print(open(__file__, encoding='utf-8').read().split('\nimport ', 1)[0].split('\n', 1)[1].replace('# ', '').replace('#', ''))
+        return 0
+    mode = '--guardar' if '--guardar' in args else '--comparar' if '--comparar' in args else None
+    if mode is None:
+        print('PARA: falta el modo, --guardar o --comparar (bin/huella-css --help).')
+        return 2
+    expected = set()
+    if '--esperado' in args:
+        position = args.index('--esperado')
+        if position + 1 >= len(args) or not os.path.isfile(args[position + 1]):
+            print('PARA: --esperado necesita un archivo que exista.')
+            return 2
+        expected = {collapse(line) for line in open(args[position + 1], encoding='utf-8') if line.strip()}
+
+    if '--sin-compilar' not in args:
+        compiled = subprocess.run(['gulp', 'sass-all'], cwd='src', capture_output=True, text=True)
+        if compiled.returncode != 0:
+            print('PARA: `gulp sass-all` falló:\n' + compiled.stdout + compiled.stderr)
+            return 2
+        print('compilado: gulp sass-all')
+
+    sheets, missing, roots = build()
+    if missing:
+        print('PARA: hojas raíz sin su CSS compilado:\n  ' + '\n  '.join(missing))
+        return 2
+    ok, detail = canary(sheets)
+    if not ok:
+        print(f'PARA: el canario falla — {detail}. Sin él no hay veredicto.')
+        return 2
+    total_rules = sum(len(r) for r in sheets.values())
+    contexts = sum(1 for r in sheets.values() for rule in r if rule[0])
+    print('== Universo (LEY 15)')
+    print(f'hojas propias: {len(sheets)} (de {roots} raíces .scss) · reglas: {total_rules}, de ellas {contexts} dentro de @media/@supports/…')
+    print(f'fuera: {censo.THIRD_PARTY_DIR}, los .min.css, los .css de fuentes, los mapas, el HTML y el orden entre hojas')
+    print(f'canario: {detail} — OK')
+
+    if mode == '--guardar':
+        result = {
+            '_doc': 'Huella del CSS compilado (bin/huella-css --help): por hoja, la lista ORDENADA de reglas [contexto, selectores, declaraciones].',
+            'sheets_count': len(sheets),
+            'rules_count': total_rules,
+            'hash': hashlib.sha256(''.join(sheet_hash(sheets[s]) for s in sorted(sheets)).encode('utf-8')).hexdigest(),
+            'summary': {s: {'rules': len(sheets[s]), 'hash': sheet_hash(sheets[s])} for s in sorted(sheets)},
+            'sheets': {s: sheets[s] for s in sorted(sheets)},
+        }
+        text = json.dumps(result, ensure_ascii=False, indent=1)
+        with open(OUT, 'w', encoding='utf-8', newline='\n') as handle:
+            handle.write(text + '\n')
+        print(f'\nhuella-css guardada: {len(sheets)} hoja(s), {total_rules} regla(s), hash {result["hash"][:16]}; escrito {OUT}')
+        return 0
+
+    if not os.path.isfile(OUT):
+        print(f'PARA: no hay huella guardada en {OUT}: primero bin/huella-css --guardar.')
+        return 2
+    saved = json.load(open(OUT, encoding='utf-8'))
+    if saved.get('sheets_count') != len(sheets) or set(saved.get('sheets', {})) != set(sheets):
+        gone = sorted(set(saved.get('sheets', {})) - set(sheets))
+        born = sorted(set(sheets) - set(saved.get('sheets', {})))
+        print(f'PARA: la huella guardada tiene {saved.get("sheets_count")} hoja(s) y hoy hay {len(sheets)}.'
+              + (f' Faltan: {", ".join(gone)}.' if gone else '') + (f' Nuevas: {", ".join(born)}.' if born else ''))
+        return 2
+
+    red, expected_hits = 0, set()
+    for name in sorted(sheets):
+        result = diff_sheet(saved['sheets'][name], sheets[name])
+        allowed = [r for r in result['desaparecen'] if expected and set(r[1]) <= expected]
+        unexpected_gone = [r for r in result['desaparecen'] if r not in allowed]
+        expected_hits.update(s for r in allowed for s in r[1])
+        if not any(result.values()):
+            continue
+        print(f'\n== {name}')
+        for rule in allowed:
+            print(f'  desaparece, PREVISTA: {describe(rule)}')
+        for rule in unexpected_gone:
+            print(f'  DESAPARECE: {describe(rule)}')
+        for rule in result['nuevas']:
+            print(f'  NUEVA: {describe(rule)}')
+        for before, after in result['declaraciones']:
+            print(f'  DECLARACIONES: {describe(before)}')
+            print(f'      antes:   {"; ".join(f"{p}: {v}" for p, v in before[2])}')
+            print(f'      después: {"; ".join(f"{p}: {v}" for p, v in after[2])}')
+        for rule, was, now in result['posicion']:
+            print(f'  POSICIÓN: {describe(rule)} — era la regla {was}, ahora la {now}')
+        red += len(unexpected_gone) + len(result['nuevas']) + len(result['declaraciones']) + len(result['posicion'])
+    missing_expected = sorted(expected - expected_hits)
+    if missing_expected:
+        print(f'\naviso: {len(missing_expected)} selector(es) de --esperado no desaparecieron: {", ".join(missing_expected)}')
+    if red:
+        print(f'\nhuella-css: DISTINTA — {red} diferencia(s) no previstas')
+        return 1
+    print('\nhuella-css: IDÉNTICA' + (f' salvo {len(expected_hits)} selector(es) previstos' if expected_hits else ''))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

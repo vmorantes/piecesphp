@@ -21,20 +21,28 @@ $this->helpController->render('panel/layout/footer');
 Anidamiento resultante:
 
 ```
-body.<$bodyClasses>                                   panel/layout/header.php:36
-├─ div.ui.modal[support-js]                           header.php:38
-├─ (topbar, salvo $noTopBar = true)                   header.php:64-66 → panel/layout/topbar.php
-│  ├─ div.ui.bottom.fixed.nag[app-key-placeholder-nag]  topbar.php:324
-│  ├─ div.ui-pcs.topbar-switches                      topbar.php:330
-│  │  └─ .topbar-toggle: user-options, notifications-options, admin-options, exit-as-logged-options
-│  ├─ div.topbar-content (usuario, noticias, administrativo)   topbar.php:370, :443, :461
-│  └─ modales del sistema: noticias :619, idioma :629, «conectarse como» :651; toast de borrado de cuenta :702
-└─ div.ui-pcs.container-sidebar                       header.php:68
-   ├─ aside[main-aside].ui-pcs.sidebar                panel/layout/menu.php:8
-   └─ div.content.<$containerClasses>                 header.php:87
+body.<$bodyClasses>                                   panel/layout/header.php:38
+├─ div.ui.modal[support-js]                           header.php:41
+├─ (topbar, salvo $noTopBar = true)                   header.php:67-68 → panel/layout/topbar.php
+│  ├─ div.ui.bottom.fixed.nag[system-alert-nag][data-key]  topbar.php:229, uno por aviso (SystemAlertRegistry::nagsFor(), :225)
+│  ├─ div.ui-pcs.topbar-switches                      topbar.php:235
+│  │  └─ .topbar-toggle: user-options :236, notifications-options :251, admin-options :259, exit-as-logged-options :267
+│  ├─ div.topbar-content.close (usuario :275, noticias :348, administrativo :366)
+│  └─ modales del sistema: noticias :524, idioma :534, «conectarse como» :556; toast de borrado de cuenta :607
+└─ div.ui-pcs.container-sidebar                       header.php:71
+   ├─ aside[main-aside].ui-pcs.sidebar > div.content  panel/layout/menu.php:8 y :14 (desplazamiento PROPIO)
+   └─ div.content.<$containerClasses>                 header.php:90 (desplazamiento de la pantalla)
       └─ LA VISTA DEL MÓDULO → section.module-view-container
 footer.php cierra .content y .container-sidebar (:2-3) y carga el JS (:4-15)
 ```
+
+Líneas medidas el 2026-10-09 con `grep -n`.
+
+**La página no se desplaza: se desplazan dos cajas.** `.container-sidebar > .content` lleva `overflow-y: auto` y
+`height: 100vh` (`src/statics/core/sass/includes/components/_container-aside.scss:17-22`), y el menú lateral tiene su
+propio desplazamiento. Por eso una captura con `fullPage` sale del alto de la ventana. Los paneles `.topbar-options`
+cerrados también se desplazan, pero miden 0 px de ancho y quedan fuera de la ventana: quien mida alturas tiene que
+filtrar por caja visible (lo hace `bin/navegador`, §8).
 
 Variantes sin lateral: `panel/layout/header-no-sidebar.php` y `footer-no-sidebar.php`.
 
@@ -76,25 +84,25 @@ El CSS de todas estas clases vive en `src/statics/core/sass/admin_app_base.scss`
 | Un formulario | `form.ui.form` + `container-standard-form` + `genericFormHandler` | `Publications/Views/publications/forms/add.php` |
 | Un botón primario / secundario | `ui button brand-color` / `ui button brand-color alt` | `list.php:30-38` |
 | Pestañas | `.tabs-controls` + `ui tab` y `.tab()` sobre `[data-tab]` | `list.php:45-52` |
-| Un desplegable | `ui dropdown` (con `search` si filtra) y `configFomanticDropdown()` | `topbar.php:651` y `configurations.js:1568` |
+| Un desplegable | `ui dropdown` (con `search` si filtra) y `configFomanticDropdown()` | `topbar.php:556` y `configurations.js:1569` |
 | Un mensaje de éxito o error tras una acción | `successMessage` / `warningMessage` / `infoMessage` / `errorMessage` (`helpers.js:15/87/159/231`): un `toast` de Fomantic arriba al centro | cualquier `*-form.js` |
-| Un aviso permanente del sistema | `ui bottom fixed nag`. **Hoy solo el de `app_key`** (`topbar.php:318-327`, `admin-area/js/main.js:208-221`); otro uso se habla antes con el PO | `topbar.php:324` |
-| Un modal | `div.ui.modal[<atributo>]` y `$(sel).modal(...).modal('show')`; no hay helper genérico | `topbar.php:629` y `configurations.js:1537-1556` |
-| Subir y recortar una imagen | `modalImageUploaderForCropperAdminViews()` (`AppHelpers.php:2925`) | `topbar.php:679` |
+| Un aviso permanente del sistema | `ui bottom fixed nag` con `system-alert-nag` y `data-key`, uno por aviso que registre `SystemAlertRegistry` (`topbar.php:225-229`; el cierre se recuerda por clave, `admin-area/js/main.js:169-174`). Hoy, el de la `app_key` de relleno (`app-key-placeholder`); otro uso se habla antes con el PO | `topbar.php:229` |
+| Un modal | `div.ui.modal[<atributo>]` y `$(sel).modal(...).modal('show')`; no hay helper genérico | `topbar.php:534` y `configurations.js:1539-1556` |
+| Subir y recortar una imagen | `modalImageUploaderForCropperAdminViews()` (`AppHelpers.php:2961`) | `topbar.php:577` |
 | Una tabla vacía | El texto `emptyTable`/`zeroRecords` de DataTables (`statics/core/js/translations/es.js:100/111`); en tarjetas, `helpers.js:1055` | — |
 | Un 403/404 | `forbiddenHandler`/`notFoundHandler` (`config/containers.php:227`, `:165`) pintan `pages/403` y `pages/404`, **sin el layout del panel**; JSON si la petición es XHR | `src/app/view/pages/404.php` |
 
 ## 4. Piezas que despliega el sistema
 
 - **Lateral de usuario:** no es `ui sidebar`: es `.topbar-content` + `.topbar-options.user-options`
-  (`topbar.php:370-437`), abierto y cerrado por JS propio (`configurations.js:824-870`), CSS en
+  (`topbar.php:275` y `:287`), abierto y cerrado por JS propio (`pcsAdminTopbars()`, `configurations.js:813`), CSS en
   `includes/components/_topbar.scss`.
-- **Cambio de idioma:** opción con `change-system-lang-trigger` (`topbar.php:43-51`) y modal (`:629`, solo con varios
+- **Cambio de idioma:** opción con `change-system-lang-trigger` (un `MenuGroup` de `topbar.php:43-52`) y modal (`:534`, solo con varios
   idiomas). `handleGlobalChangeLangModal` escribe la cookie `cookie_lang_definer` y recarga: no hay ruta.
-- **Conectarse como otro usuario (solo root):** modal `connect-as-another-user-modal` (`topbar.php:651`) con
-  búsqueda en la ruta `users-search-dropdown`; `handleConnectAsAnotherUser` (`configurations.js:1564-1586`) escribe
-  la cookie `asUserID` y recarga; el servidor lo resuelve en `src/index.php:595-620`. Salir:
-  `.topbar-toggle.exit-as-logged-options` (`topbar.php:362`).
+- **Conectarse como otro usuario (solo root):** modal `connect-as-another-user-modal` (`topbar.php:556`) con
+  búsqueda en la ruta `users-search-dropdown`; `handleConnectAsAnotherUser` (`configurations.js:1564`) escribe
+  la cookie `asUserID` y recarga; el servidor lo resuelve en `src/index.php:548-573`. Salir:
+  `.topbar-toggle.exit-as-logged-options` (`topbar.php:267`). Líneas del §4 medidas el 2026-10-09.
 
 ## 5. Estética: lo que ya hay
 
@@ -153,3 +161,17 @@ El CSS de todas estas clases vive en `src/statics/core/sass/admin_app_base.scss`
 Los parciales (`panel/built-in/utilities/*`, `util/*`, `map-elements`) no son páginas y no cuentan. **Alinear esas
 vistas no es un lote hasta que el PO lo decida**; su objetivo, si llega, es «parecerse un poco más», no copiar
 Publications.
+
+## 8. Capturas del panel
+
+`bin/navegador --capturas <carpeta>` guarda una imagen de cada pantalla de `--pantallas` (bloque DO, 2026-10-09):
+
+- **La pantalla entera**: tras las comprobaciones, mide la caja visible con desplazamiento propio más alta —el
+  contenido o el menú lateral (§1)— y agranda la ventana hasta ella (tope 20.000 px, que la línea declara). A 1440 px
+  de ancho, el menú lateral mide 1.398 px: una pantalla corta sale con hueco bajo el contenido.
+- **`--ancho <px>`** (por omisión 1440); a 390 el menú lateral se pliega.
+- **`--oculta '<selector>[,…]'`**: oculta lo que se diga antes de medir y capturar, y lo declara por pantalla con su
+  número de elementos. El aviso de la `app_key` de relleno: `'[system-alert-nag][data-key="app-key-placeholder"]'`.
+- **Con datos**: se siembra, se captura y se limpia en la misma ronda (`13-recetas.md`, receta 8d).
+- **El canal al PO**: el coder deja las capturas en `/tmp/pcsphp-capturas/<fecha>-<familia>-<ancho>/`; el arquitecto
+  las lee y se las envía con el documento de propuesta.

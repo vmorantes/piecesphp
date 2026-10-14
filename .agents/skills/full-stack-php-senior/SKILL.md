@@ -45,7 +45,7 @@ para esto exactamente. No reconstruyas por exploración lo que ya está descrito
 | Qué es lastre y qué no | `14-deuda-y-limpieza.md` |
 | Clonar `Publications` a un módulo nuevo | `15-plantilla-clonar-publications.md` |
 | La migración de PHP, ya ejecutada | `historico/` |
-| **Qué queda por hacer y en qué orden** | `18-siguientes-ventanas.md` |
+| **Qué queda por hacer y en qué orden** | `../docs/abierto.md` y `../docs/roadmap.md` |
 
 Empieza por `README.md` de esa carpeta. Si algo del contexto contradice al código, **gana
 el código**: corrígelo y avisa.

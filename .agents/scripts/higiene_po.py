@@ -17,7 +17,7 @@ AVISA, sin fallar:
   - una pregunta abierta SIN ninguna fecha: no se puede envejecer, y decirlo es parte de medir.
 
 NO MIRA, y hay que decirlo:
-  - si la respuesta del PO se APLICÓ: eso vive en `../docs/pendientes.md` y no se deduce de aquí;
+  - si la respuesta del PO se APLICÓ: eso vive en `../docs/decisiones-del-po.md` y no se deduce de aquí;
   - si una pregunta está bien redactada o lleva su predeterminado;
   - ni las secciones 3 y 4 (acciones y «sin prisa»), que por su naturaleza duran.
 
@@ -95,7 +95,7 @@ def main() -> int:
     for numero, linea in mapa[preguntas]:
         if RE_PREGUNTA.search(linea) and RE_CIERRE.search(linea):
             fallos.append("%s:%d una pregunta cerrada sigue en la sección de abiertas; su decisión va "
-                          "a ../docs/pendientes.md. «%s»" % (ruta, numero, linea.strip()[:96]))
+                          "a ../docs/decisiones-del-po.md. «%s»" % (ruta, numero, linea.strip()[:96]))
 
     #El envejecimiento se mide sobre la fecha ESCRITA: no hay otra por pregunta. Se dice cuando falta.
     for numero, linea in mapa[preguntas]:

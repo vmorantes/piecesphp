@@ -1,117 +1,31 @@
-@use '../../../../../statics/core/sass/includes/variables_app_base' as *;
-@use '../../../../../statics/core/sass/includes/functions_app_base' as *;
+@use 'includes/profile-form' as *;
 
-$fontModule:$fontGlobal;
-$grey:#707070;
+@include profile-form('general-data-form') {
+    .ui.modal[change-organization-admin-modal] {
+        width: 600px;
+        max-width: 100%;
+        height: 400px;
+        max-height: 100%;
 
-form.ui.form.my-profile {}
-
-.general-data-form {
-    #map {
-        height: 250px;
-    }
-}
-
-.identity-profile-card {
-
-    display: grid;
-    grid-template-columns: 120px auto;
-    justify-content: center;
-    align-items: center;
-    column-gap: 35px;
-    row-gap: 15px;
-    width: 526px;
-    max-width: 100%;
-    margin-bottom: 50px;
-    container-type: inline-size;
-
-    .avatar {
-        width: 120px;
-        height: 120px;
-
-        img {
-            border-radius: 100%;
-        }
-    }
-
-    .data {
-
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        column-gap: 10px;
-        font-family: $fontModule;
-
-        .name {
-            width: 100%;
-            font-weight: $fwMedium;
-            font-size: pxToRem(23);
-            line-height: pxToRem(32);
-            color: var(--main-brand-color);
-            margin-bottom: 15px;
-        }
-
-        .meta {
-            width: 100%;
-            font-weight: $fwRegular;
-            font-size: pxToRem(15);
-            line-height: pxToRem(24);
-            color: $grey;
-            margin-bottom: 24px;
-        }
-
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            width: 100%;
-            column-gap: 24px;
-            row-gap: 5px;
-        }
-    }
-}
-
-.ui.modal[change-organization-admin-modal] {
-    width: 600px;
-    max-width: 100%;
-    height: 400px;
-    max-height: 100%;
-
-    >.content {
-        display: grid;
-        grid-template-columns: 100%;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        width: 100%;
-
-        .ui.form {
+        >.content {
             display: grid;
             grid-template-columns: 100%;
             justify-content: center;
             align-items: center;
-            gap: 35px;
-            text-align: center;
+            height: 100%;
             width: 100%;
-            max-width: 375px;
-            margin: 0 auto;
+
+            .ui.form {
+                display: grid;
+                grid-template-columns: 100%;
+                justify-content: center;
+                align-items: center;
+                gap: 35px;
+                text-align: center;
+                width: 100%;
+                max-width: 375px;
+                margin: 0 auto;
+            }
         }
     }
 }
-
-@container container-standard-form (max-width:450px) {
-    .identity-profile-card {
-        grid-template-columns: auto;
-        justify-items: center;
-        text-align: center;
-    }
-}
-
-@media screen and (max-width: $rsXLarge) {}
-
-@media screen and (max-width: $rsLarge) {}
-
-@media screen and (max-width: $rsLarge2) {}
-
-@media screen and (max-width: $rsLarge3) {}
-
-@media screen and (max-width: $rsTablet) {}

@@ -91,10 +91,34 @@ versiona** (18 T129). En los paquetes se etiqueta con soltura (PO, 2026-08-27, c
 - **Todas las preguntas abiertas al PO, sus acciones y lo «sin prisa» viven en `.agents/estado/PO.md`**, siempre al día.
   Ningún otro archivo las copia; `AHORA.md` y la guía personal apuntan ahí.
 - **Todo aviso que el arquitecto le da al PO mientras trabaja va además al buzón de `PO.md`**, como `- [ ]` con fecha y
-  el `A-NNN` del mensaje. El PO marca `[X]` al leerlo, y el arquitecto borra lo marcado al cerrar la jornada. Nace de que
+  el `A-NNN` del mensaje. El PO marca `[X]` al leerlo, y el arquitecto borra lo marcado en cuanto lo ve (PO, 2026-09-26). Nace de que
   los avisos dados a mitad de trabajo se perdían en el chat.
 - El PO puede editar `PO.md` (marcar `[X]`). El coder lo excluye de sus criterios de `git status`, como el resto de
   `estado/`.
+
+### Los CUATRO canales con el PO, y cada uno tiene su motivo
+
+Cuatro, y mezclarlos los estropea: un canal que recibe de todo deja de leerse.
+
+| Canal | Para qué | Por qué ese y no otro |
+| :-- | :-- | :-- |
+| **El chat** | Trabajar: explicar, proponer, contestar | Es donde él dirige |
+| **Su Vikunja** (`.agents/scripts/vikunja.py`, perfil `piecesphp`) | Lo que tiene que **ver o decidir**: las preguntas, como **tarea** con etiqueta `PO`, y los avisos como comentario | **Una tarea se queda; un comentario se pierde** (`../docs/pendientes.md` 443.1 y 450.1) |
+| **El correo** (`mail-notify`, sin `--to`) | El **resumen de cierre** de la jornada | Lo pidió así (370). Solo cuenta con `"ok": true` |
+| **Telegram** (`telegram-notify`, un destino, **sin `--perfil`**) | **Solo lo URGENTE** | Suena en su móvil (PO, 2026-10-08) |
+
+**Qué es urgente, y nada más que esto** (`../docs/pendientes.md` 483.3): un fallo de seguridad **VIVO** —no latente— en
+algo que él ya publicó; un error **destructivo** hecho o a punto de hacerse; **todo el trabajo parado** esperándole; o
+algo **irreversible** que necesite su palabra en el momento. **No** van por ahí los avances, los hallazgos que pueden
+esperar ni las preguntas con predeterminado.
+
+**Y un límite del canal**: `telegram-notify` **parte** un texto de más de 4.096 caracteres en varios mensajes. Otro
+motivo para que lo urgente sea corto.
+
+**Todo mensaje al PO, por cualquier canal, lleva su `A-NNN` y su HORA CON SEGUNDOS en la primera línea**, por corto que
+sea y aunque solo cuente el avance. Él lo ha corregido **tres veces en dos días** (443, 462.7 y 481): sin la etiqueta no
+puede citar, y sin la hora no sabe si lo que lee es de hace diez minutos o de hace dos horas.
+
 
 ### Preguntas al PO (20 §2)
 
@@ -277,7 +301,8 @@ El PO nombra la tarea (o una lista, o «el mapa hasta la MAJOR»). A partir de a
 instruye sin pedir más permiso, dentro de los límites de arriba. El arquitecto **no** elige en
 qué se trabaja: detectar que algo conviene y decirlo en prosa (y en `AHORA.md`) es su trabajo;
 convertirlo en un recuadro sin que el PO lo haya nombrado, no. Todo encargo del PO produce su
-línea en `.agents/docs/pendientes.md` en el mismo turno (LEY 33).
+línea en `.agents/docs/abierto.md` en el mismo turno, y toda decisión suya, su fila en
+`.agents/docs/decisiones-del-po.md` (LEY 33, regla 60).
 
 ## Identificación de los mensajes
 

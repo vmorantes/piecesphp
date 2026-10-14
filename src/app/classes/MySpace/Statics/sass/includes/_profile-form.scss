@@ -1,0 +1,96 @@
+@use '../../../../../../statics/core/sass/includes/variables_app_base' as *;
+@use '../../../../../../statics/core/sass/includes/functions_app_base' as *;
+
+//El cuerpo común de los formularios de perfil: $form es la clase del formulario de datos.
+//@content va tras .identity-profile-card, donde la de organización añade su modal.
+$fontModule:$fontGlobal;
+$grey:#707070;
+
+@mixin profile-form($form) {
+
+    form.ui.form.my-profile {}
+
+    .#{$form} {
+        #map {
+            height: 250px;
+        }
+    }
+
+    .identity-profile-card {
+
+        display: grid;
+        grid-template-columns: 120px auto;
+        justify-content: center;
+        align-items: center;
+        column-gap: 35px;
+        row-gap: 15px;
+        width: 526px;
+        max-width: 100%;
+        margin-bottom: 50px;
+        container-type: inline-size;
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+
+            img {
+                border-radius: 100%;
+            }
+        }
+
+        .data {
+
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            column-gap: 10px;
+            font-family: $fontModule;
+
+            .name {
+                width: 100%;
+                font-weight: $fwMedium;
+                font-size: pxToRem(23);
+                line-height: pxToRem(32);
+                color: var(--main-brand-color);
+                margin-bottom: 15px;
+            }
+
+            .meta {
+                width: 100%;
+                font-weight: $fwRegular;
+                font-size: pxToRem(15);
+                line-height: pxToRem(24);
+                color: $grey;
+                margin-bottom: 24px;
+            }
+
+            .actions {
+                display: flex;
+                flex-wrap: wrap;
+                width: 100%;
+                column-gap: 24px;
+                row-gap: 5px;
+            }
+        }
+    }
+
+        @content;
+
+    @container container-standard-form (max-width:450px) {
+        .identity-profile-card {
+            grid-template-columns: auto;
+            justify-items: center;
+            text-align: center;
+        }
+    }
+
+    @media screen and (max-width: $rsXLarge) {}
+
+    @media screen and (max-width: $rsLarge) {}
+
+    @media screen and (max-width: $rsLarge2) {}
+
+    @media screen and (max-width: $rsLarge3) {}
+
+    @media screen and (max-width: $rsTablet) {}
+}

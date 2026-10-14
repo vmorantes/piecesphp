@@ -37,7 +37,9 @@ Lo que se añada a `files/dev/` tiene que tener un instrumento que lo escriba o 
 | `files/dev/` | Datos de instrumentos: tabla siguiente |
 
 `files/dev/`, medido el 2026-09-14 buscando el nombre de cada archivo en `bin/` y `src/` con
-`git grep -l`. La columna dice quién lo usa, no si lo escribe o lo lee:
+`git grep -l`, y ampliado al añadirse cada artefacto nuevo. La columna dice quién lo usa, no si lo escribe o
+lo lee. **La tabla se quedó corta entre el 2026-09-14 y el 2026-10-08**: `campaign-removals.json` llevaba
+semanas en uso y sin fila. Si añades un artefacto, su fila va en el mismo commit.
 
 | Archivo | Quién lo usa |
 | :-- | :-- |
@@ -51,6 +53,9 @@ Lo que se añada a `files/dev/` tiene que tener un instrumento que lo escriba o 
 | `public-routes-in-guarded-modules.json` | `verify-integrity` |
 | `reading-forms-baseline.json` | `bin/censo-formas-de-lectura` |
 | `shared-toolchain.json` | `verify-integrity` (instrumental común de los cinco repositorios) |
+| `css-fingerprint.json` | `bin/huella-css`. El calco **ordenado** del CSS compilado: la puerta de «se ve igual». Pesa ~700 KB **a propósito**, con el detalle de cada regla, porque sin él no se puede auditar una consolidación |
+| `scss-census.json` | `bin/censo-scss`. Las clases declaradas salen del **CSS compilado**, no del texto del SASS |
+| `campaign-removals.json` | `bin/censo-borrados` y la comprobación 40 de `verify-integrity`. **Ojo: la 40 compara la CUENTA de archivos, no el contenido**, así que el artefacto puede estar al día por número y rancio por dentro (`../docs/pendientes.md` 475) |
 | `sql-concat-baseline.json`, `sql-concat-declared.json` | `bin/censo-sql-concatenado`. El segundo, también la suite `UnitTest-SqlPlaceholders` |
 | `volatile-state.json` | `bin/walk-attribute`, `verify-integrity` (tablas volátiles) |
 | `route-inventory.json` (ignorado) | `RouteInventoryTask` de `bin/cli`, `bin/walk-routes`, `bin/walk-attribute`, `verify-integrity` |

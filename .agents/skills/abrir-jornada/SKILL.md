@@ -46,7 +46,8 @@ hacen falta más, el estado está mal repartido y eso se corrige, no se compensa
 | 1 | `.agents/estado/AHORA.md` | Qué pasa ahora, los dos contadores, qué espera al PO |
 | 2 | `.agents/estado/PO.md` | Las preguntas abiertas y el buzón de avisos sin leer |
 | 3 | El archivo más reciente de `.agents/estado/tramos/` | Dónde se cortó el último tramo y por qué |
-| 4 | `.agents/docs/pendientes.md` | Los encargos del PO que aún no son trabajo (LEY 33) |
+| 4 | `.agents/docs/abierto.md`, ENTERO | **Todo lo abierto**, una línea por cosa, con su destino. Si una decisión del PO no está aquí, se pierde (P51, 2026-10-08) |
+| 4b | `.agents/docs/decisiones-del-po.md`, las filas de los últimos días | Lo que el PO decidió; el detalle, en el tramo de ese día |
 | 5 | `.agents/docs/roadmap.md` | Qué falta hasta la versión en curso y en qué orden |
 | 6 | Los ADR con fecha de los últimos siete días, de `.agents/docs/adr/` | Lo que se decidió y no se ha implementado entero |
 | 7 | La bandeja del PO: `python3 -B .agents/scripts/vikunja.py revisar` | Lo que contestó, marcó hecho o pidió desde el último cierre |

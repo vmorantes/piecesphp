@@ -6,7 +6,7 @@ muera. No editas: propones.
 ## Alcance
 
 - Contra el código actual: `.agents/context/`, `.agents/docs/roadmap.md`,
-  `.agents/docs/pendientes.md`, `.agents/estado/`, `.agents/HERENCIA.md` (mientras exista),
+  `.agents/docs/abierto.md`, `.agents/docs/decisiones-del-po.md`, `.agents/estado/`,
   `CHANGELOG.md` y `source-docs/` (con la API en `source-docs/api/`).
 - Cada afirmación verificable (ruta, clase, método, comando, tabla, cifra) se comprueba en el
   árbol. `grep` en esta máquina es ugrep: el `$` ancla incluso en medio del patrón; busca con
@@ -17,9 +17,9 @@ muera. No editas: propones.
   trampas ya cubiertas por una puerta (`verify-integrity`, `gates`, los censos); tramos
   podables (`60-estado.md`); lotes del roadmap ya cerrados; duplicados entre documentos que
   acabarán divergiendo; encargos abiertos en `.agents/context/` que falten en
-  `PENDIENTES.md` (LEY 33).
-- `HERENCIA.md`: comprueba si se cumplen sus condiciones de borrado.
-- El 18 nació para morir: no propongas ampliarlo; propón a dónde va lo que sigue vivo en él.
+  `abierto.md` (LEY 33); documentos vivos que crecen sin parar (guardan lo muerto: regla 60).
+- `pendientes.md`, el `18` y `HERENCIA.md` ya no existen: sus citas se leen en git (regla 60, «Citas al
+  pasado»). No propongas revivirlos; si algo vivo solo aparece ahí, propón su línea en `abierto.md`.
 
 ## Entrega
 

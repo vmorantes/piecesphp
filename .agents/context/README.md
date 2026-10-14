@@ -5,11 +5,14 @@
 > | Vienes a… | Lee |
 > | :-- | :-- |
 > | **USAR el framework** — crear un módulo, tocar rutas, mappers, vistas, traducciones | **`01`–`15`**. Empieza por el índice de abajo |
-> | **MANTENERLO** — trabajar sobre la campaña de calidad, con o sin agente | [`../estado/AHORA.md`](../estado/AHORA.md) (dónde estamos), [`../docs/roadmap.md`](../docs/roadmap.md) (qué falta), **`19`** (las leyes), **`20`** (el contrato), **`18`** (el registro hasta T168) e [`historico/`](./historico/) |
+> | **MANTENERLO** — trabajar sobre la campaña de calidad, con o sin agente | [`../estado/AHORA.md`](../estado/AHORA.md) (dónde estamos), [`../docs/roadmap.md`](../docs/roadmap.md) (qué falta), **`19`** (las leyes), **`20`** (el contrato) e [`historico/`](./historico/). Lo abierto, en [`../docs/abierto.md`](../docs/abierto.md) |
 >
-> **No las mezcles.** `18` es un registro que **nació para morir** y no es material de
-> aterrizaje; `19` es durable y **no** se disuelve. Si has venido a escribir un módulo, tu
-> puerta es la primera y no necesitas nada de la segunda.
+> **No las mezcles.** Si has venido a escribir un módulo, tu puerta es la primera y no necesitas
+> nada de la segunda.
+>
+> **«Ver T120» o «`pendientes.md` 380» en un comentario del código** cita el registro de la campaña,
+> borrado del árbol el 2026-10-08: se lee en git, `git show ecd2407f:.agents/context/18-siguientes-ventanas.md`
+> o `git show ecd2407f:.agents/docs/pendientes.md` (`../rules/60-estado.md`, «Citas al pasado»).
 
 Documentación de contexto para agentes de IA que trabajen sobre este repositorio.
 Está escrita para ser leída **antes** de tocar código: describe cómo está armado el
@@ -39,8 +42,7 @@ framework, qué convenciones son obligatorias y dónde vive cada cosa.
 | [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md) | Análisis de módulos: duplicados, acoplamiento, candidatos a eliminar |
 | [15-plantilla-clonar-publications.md](./15-plantilla-clonar-publications.md) | Búsqueda y reemplazo paso a paso para derivar un módulo desde `Publications` |
 | [16-frontend-arquitectura.md](./16-frontend-arquitectura.md) | Esqueleto del panel, qué componente usar por situación, piezas del sistema, estética y prohibiciones |
-| [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Backlog actual**: qué queda, en qué orden y qué desbloquea cada cosa |
-| [19-leyes.md](./19-leyes.md) | **Las leyes**, con el caso que funda cada una. DURABLE: no se disuelve con el 18 |
+| [19-leyes.md](./19-leyes.md) | **Las leyes**, con el caso que funda cada una. DURABLE |
 | [20-contrato-de-trabajo.md](./20-contrato-de-trabajo.md) | Cómo se trabaja aquí: los tres roles, el formato de las instrucciones, el estado abierto |
 | [21-pruebas-y-puertas.md](./21-pruebas-y-puertas.md) | Cómo se corren las pruebas y qué comprueban `verify-integrity` y `gates`. Hasta el 2026-09-14 era `files/dev/tests.md` (ADR 0006). **Desfasado**: dice «dieciséis» comprobaciones y hay 26 |
 | [historico/](./historico/) | Documentos **ejecutados y cerrados**. Nada de ahí es trabajo pendiente |

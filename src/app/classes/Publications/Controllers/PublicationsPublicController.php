@@ -463,7 +463,7 @@ class PublicationsPublicController extends BaseController
             $view_data['user'] = $this->user;
             $this->user->avatar = AvatarModel::getAvatar((int) $this->user->id);
             $this->user->hasAvatar = !is_null($this->user->avatar);
-            unset($this->user->password);
+            unset($this->user->password, $this->user->meta, $this->user->failedAttempts, $this->user->sessionsValidFrom);
         }
 
         $this->setVariables($view_data);

@@ -1,0 +1,526 @@
+#!/usr/bin/env python3
+# Censo del SCSS propio por SELECTORES COMPILADOS: qué clases declara nuestro SASS y cuáles no nombra nadie.
+#
+# Las clases declaradas se leen del CSS que produce `gulp sass-all`, no del texto del SCSS: con el anidado, `&` y
+# `&-sufijo`, el nombre final de un selector no está escrito en ninguna línea del .scss. El .css.map de cada hoja dice de
+# qué archivo y línea sale cada regla, y así se agrupa por archivo de origen. Escribe files/dev/scss-census.json (ADR 0006).
+#
+# Uso:
+#   bin/censo-scss                compila con `gulp sass-all` (no ensucia el árbol: el CSS compilado está ignorado) y censa
+#   bin/censo-scss --sin-compilar censa el CSS que ya haya en disco
+#   bin/censo-scss --help
+#
+# Cubos, por CLASE DISTINTA (no por ocurrencia):
+#   VIVA               aparece como token literal en el universo de uso;
+#   SIN USO LITERAL    no aparece: CANDIDATA a poda, no «muerta»;
+#   SOBRESCRITURA      también la declara el CSS de un tercero (Fomantic, plugins): la pisamos, y su HTML lo genera la
+#                      biblioteca. NUNCA es candidata, aparezca o no en nuestro código;
+#   NO VERIFICABLE     empieza por un prefijo que algún sitio completa concatenando ('btn-' + x, "icon-{$x}"): desde el
+#                      texto no se puede saber si se usa.
+#
+# Lo que NO hace, y se dice para que una cifra no engañe (LEY 15):
+#   - no borra nada, y no prueba que algo se pueda borrar: eso lo prueba comparar el CSS compilado antes y después;
+#   - solo mira CLASES: ni @media, ni animaciones, ni variables, ni mixins, ni selectores de etiqueta o de id;
+#   - no ve el HTML que llegue de la base de datos, el que escriba un clon ni el que arme un tercero con nombres nuestros;
+#   - un nombre ENTERO dinámico ('ui ' + color) no se puede atribuir a ninguna clase: esos sitios se cuentan y se listan;
+#   - un SUFIJO concatenado (x + '-activo') no marca nada como no verificable: solo los prefijos;
+#   - las líneas de un .scss se atribuyen por el .css.map: una línea sin regla propia (una llave sola, un comentario,
+#     una variable) no cuenta para nadie.
+import json, os, re, subprocess, sys
+
+OUT = 'files/dev/scss-census.json'
+ROOT = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True, text=True, check=True).stdout.strip()
+os.chdir(ROOT)
+
+#Las tareas de src/gulpfile.js que llama sass-all: carpeta de las hojas -> carpeta del CSS. Los módulos cambian la
+#primera «sass» de la ruta por «css» (sassCompileModules); statics/sass/imports/ no se compila (compileSassFiles).
+TASKS = [
+    ('src/statics/core/own-plugins/sass/', 'src/statics/core/own-plugins/css/'),
+    ('src/statics/core/sass/', 'src/statics/core/css/'),
+    ('src/statics/login-and-recovery/sass/', 'src/statics/login-and-recovery/css/'),
+    ('src/statics/sass/', 'src/statics/css/'),
+    ('src/app/classes/', 'src/app/classes/'),
+]
+THIRD_PARTY_DIR = 'src/statics/plugins/'
+CANARY_LIVE = 'ui-pcs-global-loader'
+CANARY_INVENTED = 'zz-censo-scss-canario-que-no-existe'
+TOKEN_CHARS = r'A-Za-z0-9_-'
+
+
+def git_files(*patterns):
+    out = subprocess.run(['git', '--no-optional-locks', 'ls-files', '--', *patterns], capture_output=True, text=True, check=True).stdout
+    return [line for line in out.splitlines() if line]
+
+
+def task_of(scss):
+    for base, dest in TASKS:
+        if scss.startswith(base):
+            if base == 'src/statics/sass/' and scss.startswith('src/statics/sass/imports/'):
+                return None
+            if base == 'src/app/classes/' and '/sass/' not in scss:
+                return None
+            return base, dest
+    return None
+
+
+def css_of(scss):
+    task = task_of(scss)
+    if task is None:
+        return None
+    base, dest = task
+    rel = scss[len(base):]
+    if base == 'src/app/classes/':
+        folder, name = os.path.split(rel)
+        rel = os.path.join(folder.replace('sass', 'css', 1), name)
+    return dest + rel[:-len('.scss')] + '.css'
+
+
+#──── Lectura del CSS ─────────────────────────────────────────────────────────────────────────────
+
+def strip_comments(css):
+    return re.sub(r'/\*.*?\*/', lambda m: ' ' * len(m.group(0)), css, flags=re.S)
+
+
+def rules_of(css):
+    """Reglas de estilo con su selector y su tramo [inicio, fin) en el texto. Recorre @media, @supports y demás bloques
+    condicionales; salta @keyframes, @font-face y cualquier otro cuyo interior no sean reglas."""
+    css = strip_comments(css)
+    rules = []
+    stack = []  #'rule' (con su índice en rules), 'rules' (bloque que contiene reglas) u 'other'
+    prelude_start = 0
+    quote = None
+    i, n = 0, len(css)
+    while i < n:
+        c = css[i]
+        if quote:
+            if c == '\\':
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+        elif c in '"\'':
+            quote = c
+        elif c == '{':
+            raw = css[prelude_start:i]
+            prelude = raw.strip()
+            parent_has_rules = all(kind == 'rules' for kind, _ in stack)
+            if not parent_has_rules:
+                stack.append(('other', None))
+            elif prelude.startswith('@'):
+                nested = re.match(r'@(media|supports|layer|container|document|-moz-document|scope)\b', prelude) is not None
+                stack.append(('rules' if nested else 'other', None))
+            else:
+                rules.append([prelude, prelude_start + len(raw) - len(raw.lstrip()), n])
+                stack.append(('rule', len(rules) - 1))
+            prelude_start = i + 1
+        elif c == '}':
+            if stack:
+                kind, index = stack.pop()
+                if kind == 'rule':
+                    rules[index][2] = i + 1
+            prelude_start = i + 1
+        elif c == ';' and all(kind == 'rules' for kind, _ in stack):
+            prelude_start = i + 1
+        i += 1
+    return [tuple(rule) for rule in rules]
+
+
+CLASS_RE = re.compile(r'\.((?:-?[_a-zA-Z]|--|\\.)(?:[_a-zA-Z0-9-]|\\.)*)')
+
+
+def split_selector_list(selector):
+    """Los selectores de una lista, partidos por las comas de primer nivel (no las de :is(), :not() o [..])."""
+    parts, depth, current = [], 0, ''
+    for c in selector:
+        if c in '([':
+            depth += 1
+        elif c in ')]':
+            depth -= 1
+        if c == ',' and depth == 0:
+            parts.append(current.strip())
+            current = ''
+        else:
+            current += c
+    if current.strip():
+        parts.append(current.strip())
+    return parts
+
+
+def required_classes(complex_selector):
+    """Las clases que el elemento TIENE que llevar para que el selector case: fuera de paréntesis, así que :not(.x),
+    :is(.x, .y) o :has(.x) no obligan a nada."""
+    flat, depth = '', 0
+    for c in complex_selector:
+        if c == '(':
+            depth += 1
+        elif c == ')':
+            depth -= 1
+        elif depth == 0:
+            flat += c
+    return classes_of(flat)
+
+
+def selector_never_matches(complex_selector, absent):
+    """Un selector no casa nunca si exige al menos una clase ausente. Sin clases exigidas no se juzga."""
+    return bool(required_classes(complex_selector) & absent)
+
+
+def rule_never_matches(selector, absent):
+    parts = split_selector_list(selector)
+    return bool(parts) and all(selector_never_matches(part, absent) for part in parts)
+
+
+def classes_of(selector):
+    selector = re.sub(r'\[[^\]]*\]', ' ', selector)
+    selector = re.sub(r'"[^"]*"|\'[^\']*\'', ' ', selector)
+    return {re.sub(r'\\(.)', r'\1', m.group(1)) for m in CLASS_RE.finditer(selector)}
+
+
+#──── Mapas de origen ─────────────────────────────────────────────────────────────────────────────
+
+B64 = {c: i for i, c in enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/')}
+
+
+def vlq(segment):
+    values, shift, value = [], 0, 0
+    for c in segment:
+        digit = B64[c]
+        value += (digit & 31) << shift
+        if digit & 32:
+            shift += 5
+        else:
+            values.append(-(value >> 1) if value & 1 else value >> 1)
+            shift, value = 0, 0
+    return values
+
+
+def decode_map(mappings):
+    """Por línea generada, la lista de (columna, fuente, línea de origen), todo en base 0."""
+    lines, src, oline = [], 0, 0
+    for gline in mappings.split(';'):
+        col, segs = 0, []
+        for seg in gline.split(','):
+            if not seg:
+                continue
+            v = vlq(seg)
+            col += v[0]
+            if len(v) >= 4:
+                src += v[1]
+                oline += v[2]
+                segs.append((col, src, oline))
+        lines.append(segs)
+    return lines
+
+
+def utf16_col(text, offset, line_start):
+    return len(text[line_start:offset].encode('utf-16-le')) // 2
+
+
+#──── Universo de uso ─────────────────────────────────────────────────────────────────────────────
+
+def usage_files():
+    files = []
+    for path in git_files('src/app', 'src/index.php'):
+        if path.startswith('src/app/logs/'):
+            continue
+        if re.search(r'\.(php|js|ts|html|json)$', path) and not path.endswith('.min.js'):
+            files.append(path)
+    for path in git_files('src/statics'):
+        if re.search(r'/(plugins|vendor|node_modules)/', path) or path.endswith('.min.js'):
+            continue
+        if re.search(r'\.(js|ts)$', path):
+            files.append(path)
+    return sorted(set(files))
+
+
+CONCAT_PATTERNS = [
+    ('js', re.compile(r'([\'"])[^\'"\n]*?([' + TOKEN_CHARS + r']*[A-Za-z][' + TOKEN_CHARS + r']*[-_])\1\s*\+')),
+    ('js', re.compile(r'`[^`]*?([' + TOKEN_CHARS + r']*[A-Za-z][' + TOKEN_CHARS + r']*[-_])\$\{')),
+    ('php', re.compile(r'([\'"])[^\'"\n]*?([' + TOKEN_CHARS + r']*[A-Za-z][' + TOKEN_CHARS + r']*[-_])\1\s*\.\s*[\$A-Za-z(]')),
+    ('php', re.compile(r'"[^"\n]*?([' + TOKEN_CHARS + r']*[A-Za-z][' + TOKEN_CHARS + r']*[-_])(?:\{\$|\$[A-Za-z_])')),
+]
+WHOLE_DYNAMIC = [
+    ('js', re.compile(r'class(?:Name)?\s*[=:]\s*[\'"][^\'"\n]*\s[\'"]\s*\+|addClass\(\s*[A-Za-z_$]|classList\.(?:add|toggle)\(\s*[A-Za-z_$]')),
+    ('php', re.compile(r'class=[\'"][^\'"\n]*\s[\'"]\s*\.\s*\$|class="[^"\n]*\s(?:\{\$|\$[A-Za-z_])')),
+]
+
+
+def kind_of(path):
+    return 'php' if path.endswith(('.php', '.html')) else 'js'
+
+
+#──── Censo ───────────────────────────────────────────────────────────────────────────────────────
+
+def main():
+    if '--help' in sys.argv or '-h' in sys.argv:
+        print(open(__file__, encoding='utf-8').read().split('\nimport ', 1)[0].split('\n', 1)[1].replace('# ', '').replace('#', ''))
+        return 0
+    if '--sin-compilar' not in sys.argv:
+        compiled = subprocess.run(['gulp', 'sass-all'], cwd='src', capture_output=True, text=True)
+        if compiled.returncode != 0:
+            print('PARA: `gulp sass-all` falló:\n' + compiled.stdout + compiled.stderr)
+            return 2
+        print('compilado: gulp sass-all')
+
+    scss_all = git_files('*.scss')
+    roots = [s for s in scss_all if not os.path.basename(s).startswith('_')]
+    missing, sheets = [], []
+    for scss in roots:
+        css = css_of(scss)
+        if css is None or not os.path.isfile(css) or not os.path.isfile(css + '.map'):
+            missing.append(f'{scss} -> {css}')
+        else:
+            sheets.append((scss, css))
+    if missing:
+        print('PARA: hojas sin su CSS o su mapa compilado:\n  ' + '\n  '.join(missing))
+        return 2
+
+    #Declaradas: clase -> {fuentes}, y las reglas con sus líneas de origen.
+    declared = {}
+    touches = {}
+    rules_all = []
+    sources_seen = set()
+    for scss, css in sheets:
+        text = open(css, encoding='utf-8').read()
+        smap = json.load(open(css + '.map', encoding='utf-8'))
+        #gulp escribe las fuentes del mapa relativas a file.base, que es la carpeta fija del glob de su tarea.
+        base = task_of(scss)[0]
+        resolved = [os.path.normpath(os.path.join(base, source)) for source in smap['sources']]
+        unresolved = [r for r in resolved if not os.path.isfile(r)]
+        if unresolved:
+            print(f'PARA: el mapa de {css} nombra fuentes que no existen: {unresolved}')
+            return 2
+        sources_seen.update(resolved)
+        mapping = decode_map(smap['mappings'])
+        line_starts = [0] + [m.end() for m in re.finditer(r'\n', text)]
+
+        def position(offset):
+            line = max(0, next((k for k in range(len(line_starts) - 1, -1, -1) if line_starts[k] <= offset), 0))
+            return line, utf16_col(text, offset, line_starts[line])
+
+        for selector, start, end in rules_of(text):
+            classes = classes_of(selector)
+            sline, scol = position(start)
+            eline, ecol = position(end)
+            touched = set()
+            origin = None
+            for gline in range(sline, min(eline, len(mapping) - 1) + 1):
+                for col, src, oline in mapping[gline]:
+                    after_start = gline > sline or col >= scol
+                    before_end = gline < eline or col < ecol
+                    if after_start and before_end:
+                        touched.add((resolved[src], oline))
+                    if gline == sline and col <= scol:
+                        origin = (resolved[src], oline)
+            if origin is not None:
+                touched.add(origin)
+            for name in classes:
+                #El origen es el archivo donde está escrito el selector; las demás líneas que toca la regla pueden ser de
+                #mixins o variables de otro archivo.
+                declared.setdefault(name, set())
+                if origin is not None:
+                    declared[name].add(origin[0])
+                touches.setdefault(name, set()).update(src for src, _ in touched)
+            rules_all.append({'selector': selector, 'classes': classes, 'touched': touched, 'origin': origin})
+
+    #Terceros.
+    third = {}
+    third_files = sorted(p for p in git_files(THIRD_PARTY_DIR) if p.endswith('.css'))
+    for path in third_files:
+        for selector, _, _ in rules_of(open(path, encoding='utf-8', errors='replace').read()):
+            for name in classes_of(selector):
+                third.setdefault(name, set()).add(path)
+
+    #Uso.
+    files = usage_files()
+    tokens = set()
+    texts = {}
+    for path in files:
+        text = open(path, encoding='utf-8', errors='replace').read()
+        texts[path] = text
+        tokens.update(t for t in re.split(r'[^' + TOKEN_CHARS + r']+', text) if t)
+    odd = [name for name in declared if re.search(r'[^' + TOKEN_CHARS + r']', name)]
+
+    def used(name):
+        if name in odd:
+            return any(name in text for text in texts.values())
+        return name in tokens
+
+    prefixes, concat_sites, whole_sites = {}, [], []
+    for path, text in texts.items():
+        kind = kind_of(path)
+        for pkind, pattern in CONCAT_PATTERNS:
+            if pkind != kind:
+                continue
+            for m in pattern.finditer(text):
+                prefix = m.group(m.lastindex)
+                line = text.count('\n', 0, m.start()) + 1
+                prefixes.setdefault(prefix, []).append(f'{path}:{line}')
+        for pkind, pattern in WHOLE_DYNAMIC:
+            if pkind != kind:
+                continue
+            for m in pattern.finditer(text):
+                whole_sites.append(f'{path}:{text.count(chr(10), 0, m.start()) + 1}')
+
+    def bucket(name):
+        if name in third:
+            return 'SOBRESCRITURA'
+        if used(name):
+            return 'VIVA'
+        hits = [p for p in prefixes if name.startswith(p)]
+        if hits:
+            return 'NO VERIFICABLE'
+        return 'SIN USO LITERAL'
+
+    #Canario (LEY 16): una clase usada a sabiendas sale viva, y una inventada no.
+    #El vivo tiene que salir por el camino de tokens, no por el de respaldo de los nombres con caracteres escapados.
+    canary_ok = CANARY_LIVE in declared and CANARY_LIVE in tokens and bucket(CANARY_LIVE) == 'VIVA' and not used(CANARY_INVENTED)
+    #Y la regla que no puede casar: con la inventada ausente, muere el selector que la exige y vive el que no.
+    absent_probe = {CANARY_INVENTED}
+    logic = {
+        f'.{CANARY_LIVE} .{CANARY_INVENTED}': True,
+        f'.{CANARY_LIVE}.{CANARY_INVENTED}:hover': True,
+        f'.{CANARY_LIVE}': False,
+        f'.{CANARY_LIVE}:not(.{CANARY_INVENTED})': False,
+        'body a': False,
+        f'.{CANARY_INVENTED}, .{CANARY_LIVE}': False,
+    }
+    logic_ok = all(rule_never_matches(sel, absent_probe) == expected for sel, expected in logic.items())
+    if not logic_ok:
+        print('PARA: el canario de la regla que no puede casar falla: ' + ', '.join(
+            f'«{sel}» -> {rule_never_matches(sel, absent_probe)}' for sel in logic))
+        return 2
+    if not canary_ok:
+        print(f'PARA: el canario falla — «{CANARY_LIVE}» declarada: {CANARY_LIVE in declared}, '
+              f'cubo: {bucket(CANARY_LIVE) if CANARY_LIVE in declared else "-"}; «{CANARY_INVENTED}» usada: {used(CANARY_INVENTED)}')
+        return 2
+
+    buckets = {name: bucket(name) for name in declared}
+    candidates = {name for name, b in buckets.items() if b == 'SIN USO LITERAL'}
+    unverifiable_by = {}
+    for name, b in buckets.items():
+        if b == 'NO VERIFICABLE':
+            for p in prefixes:
+                if name.startswith(p):
+                    unverifiable_by.setdefault(p, []).append(name)
+
+    #Cota inferior (ESTRICTA): las líneas que solo tocan reglas cuyas clases son TODAS candidatas.
+    other_lines, cand_lines = set(), set()
+    class_lines = {}
+    for rule in rules_all:
+        classes, touched = rule['classes'], rule['touched']
+        if classes and classes <= candidates:
+            cand_lines.update(touched)
+            for name in classes:
+                class_lines.setdefault(name, set()).update(touched)
+        else:
+            other_lines.update(touched)
+    only_cand = cand_lines - other_lines
+
+    #La BUENA: las líneas que solo tocan reglas que no pueden casar nunca. Ausente = SIN USO LITERAL; las de terceros y
+    #las no verificables cuentan como presentes.
+    dead_lines, live_lines = set(), set()
+    for rule in rules_all:
+        rule['dead'] = rule_never_matches(rule['selector'], candidates)
+        (dead_lines if rule['dead'] else live_lines).update(rule['touched'])
+    only_dead = dead_lines - live_lines
+    dead_rules = [r for r in rules_all if r['dead']]
+    unique_dead = {}
+    for rule in dead_rules:
+        if rule['origin'] is None:
+            continue
+        key = (rule['origin'][0], rule['origin'][1] + 1, rule['selector'])
+        unique_dead.setdefault(key, set()).update(x for x in rule['touched'] if x in only_dead)
+
+    per_scss = {}
+    for scss in sorted(scss_all):
+        total = sum(1 for _ in open(scss, encoding='utf-8'))
+        names = sorted(n for n in candidates if scss in declared[n])
+        lines = sorted(l + 1 for s, l in only_cand if s == scss)
+        lines_dead = sorted(l + 1 for s, l in only_dead if s == scss)
+        rules_here = sum(1 for (src, _, _) in unique_dead if src == scss)
+        if names or lines or lines_dead:
+            per_scss[scss] = {'lines_total': total, 'lines_strict': len(lines), 'lines_never_match': len(lines_dead),
+                              'dead_rules': rules_here, 'unused_classes': names, 'lines_strict_list': lines,
+                              'lines_never_match_list': lines_dead}
+
+    counts = {b: sum(1 for v in buckets.values() if v == b) for b in ['VIVA', 'SIN USO LITERAL', 'SOBRESCRITURA', 'NO VERIFICABLE']}
+    substring_too = sorted(n for n in candidates if any(n in text for text in texts.values()))
+
+    #Salida legible.
+    print('== Universo (LEY 15)')
+    print(f'hojas .scss versionadas: {len(scss_all)} ({len(roots)} raíces, {len(scss_all) - len(roots)} parciales); fuentes vistas en los mapas: {len(sources_seen)}')
+    not_seen = sorted(set(scss_all) - sources_seen)
+    print(f'.scss que no aparece en ningún mapa: {len(not_seen)}' + (': ' + ', '.join(not_seen) if not_seen else ''))
+    print(f'.css propios leídos: {len(sheets)} · .css de terceros leídos: {len(third_files)} (en {THIRD_PARTY_DIR})')
+    print(f'archivos de uso: {len(files)} — src/app (.php .js .ts .html .json, sin logs/ ni .min.js), src/index.php, '
+          'y src/statics (.js .ts, sin plugins/, vendor/, node_modules ni .min.js)')
+    print('excluido del uso: los .scss y .css, src/vendor/, src/statics/plugins/, node_modules, *.min.js, src/app/logs/')
+    print(f'canario: «{CANARY_LIVE}» VIVA, «{CANARY_INVENTED}» sin uso, y {len(logic)} selectores de prueba de la regla que no puede casar — OK')
+    print('')
+    print('== Cubos, en CLASES DISTINTAS (no ocurrencias); uso = token literal [A-Za-z0-9_-] completo')
+    for b, k in counts.items():
+        print(f'{b:18} {k}')
+    print(f'{"TOTAL":18} {len(declared)}')
+    print(f'de las SIN USO, presentes como SUBCADENA de otro token: {len(substring_too)} (un grep -F sin límites las daría por vivas)')
+    print('')
+    print(f'== Sitios que concatenan un nombre: {sum(len(v) for v in prefixes.values())} con prefijo, {len(whole_sites)} con nombre entero dinámico (no atribuibles)')
+    for p, names in sorted(unverifiable_by.items()):
+        print(f'  «{p}» ({len(prefixes[p])} sitio(s)) deja NO VERIFICABLES: {", ".join(sorted(names))}')
+    print('')
+    total_lines = sum(sum(1 for _ in open(s, encoding='utf-8')) for s in scss_all)
+    unique_rules = {(r['origin'][0], r['origin'][1], r['selector']) for r in rules_all if r['origin'] is not None}
+    print('== Reglas que NO PUEDEN CASAR NUNCA (cada selector de su lista exige al menos una clase SIN USO LITERAL;')
+    print('   las de terceros y las no verificables cuentan como presentes; un selector sin clases no se juzga)')
+    print(f'reglas compiladas: {len(dead_rules)} muertas de {len(rules_all)} (contando cada hoja que incluye la parcial); '
+          f'distintas por origen y selector: {len(unique_dead)} de {len(unique_rules)}')
+    print(f'líneas que SOLO son de reglas que no pueden casar: {len(only_dead)} de {total_lines}')
+    print(f'cota inferior ESTRICTA (todas las clases de la regla sin uso): {len(only_cand)} de {total_lines}')
+    print('')
+    print('== Por archivo de origen: no-pueden-casar / estricta / líneas del archivo, reglas muertas, clases SIN USO')
+    for scss, data in sorted(per_scss.items(), key=lambda kv: (-kv[1]['lines_never_match'], -kv[1]['lines_strict'])):
+        print(f'{scss}  {data["lines_never_match"]} / {data["lines_strict"]} / {data["lines_total"]}  '
+              f'({data["dead_rules"]} regla(s), {len(data["unused_classes"])} clase(s))')
+        if data['unused_classes']:
+            print('    ' + ', '.join(data['unused_classes']))
+    print('')
+    print('== Las reglas que no pueden casar con más líneas propias')
+    for (src, line, selector), lines in sorted(unique_dead.items(), key=lambda kv: (-len(kv[1]), kv[0]))[:10]:
+        print(f'  {len(lines):3}  {src}:{line}  {selector[:120]}')
+
+    result = {
+        '_doc': 'Censo del SCSS por selectores compilados (bin/censo-scss --help). Clases distintas, uso por token literal. Candidata no es muerta: la poda la prueba la comparación del CSS compilado.',
+        'universe': {
+            'scss': len(scss_all), 'scss_roots': len(roots), 'css_own': len(sheets), 'css_third_party': len(third_files),
+            'usage_files': len(files), 'scss_not_in_any_map': not_seen,
+        },
+        'canary': {'live': CANARY_LIVE, 'invented': CANARY_INVENTED},
+        'counts': counts,
+        'unused_also_as_substring': substring_too,
+        'concat_prefixes': {p: sorted(set(v)) for p, v in sorted(prefixes.items())},
+        'whole_dynamic_sites': sorted(set(whole_sites)),
+        'classes': {
+            name: {
+                'bucket': buckets[name],
+                'sources': sorted(declared[name]),
+                'touches': sorted(touches.get(name, set())),
+                **({'third_party': sorted(third[name])} if name in third else {}),
+                **({'lines_strict': len({x for x in class_lines.get(name, set()) if x in only_cand})} if name in candidates else {}),
+            } for name in sorted(declared)
+        },
+        'lines': {'total': total_lines, 'never_match': len(only_dead), 'strict': len(only_cand)},
+        'rules': {'compiled': len(rules_all), 'compiled_never_match': len(dead_rules),
+                  'distinct': len(unique_rules), 'distinct_never_match': len(unique_dead)},
+        'dead_rules': [{'source': src, 'line': line, 'selector': selector, 'own_lines': len(lines)}
+                       for (src, line, selector), lines in sorted(unique_dead.items(), key=lambda kv: (-len(kv[1]), kv[0]))],
+        'per_scss': per_scss,
+    }
+    with open(OUT, 'w', encoding='utf-8', newline='\n') as handle:
+        json.dump(result, handle, ensure_ascii=False, indent=4)
+        handle.write('\n')
+    print(f'\ncenso-scss ejecutado: {len(declared)} clase(s) en {len(sheets)} .css; escrito {OUT}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -32,6 +32,15 @@ class BaseEntityMapper extends EntityMapper
 {
 
     /**
+     * Campos que no se serializan NUNCA, por ninguna vía: ni humanReadable(), ni su recursión sobre
+     * las referencias, ni jsonSerialize(). Cada mapper declara los suyos; se ocultan siempre, también
+     * cuando el mapper se pide directamente y no anidado.
+     *
+     * @var string[]
+     */
+    const HIDDEN_FIELDS = [];
+
+    /**
      * @var array<string,array<string,mixed>>
      */
     protected $fields = [];
@@ -85,6 +94,64 @@ class BaseEntityMapper extends EntityMapper
         }
 
         $this->setLcTimeNamesOnce(fn () => $this->getModel()->getDatabase());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function humanReadable()
+    {
+        $data = parent::humanReadable();
+        foreach (static::HIDDEN_FIELDS as $hidden) {
+            unset($data[$hidden]);
+        }
+        return $data;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        foreach (static::HIDDEN_FIELDS as $hidden) {
+            unset($data[$hidden]);
+        }
+        return $data;
+    }
+
+    /**
+     * El de vendor vuelca todos los campos con json_encode(): sin esto, un `echo $mapper` en una vista imprime el hash.
+     * Si el JSON no se puede rehacer devuelve `{}`, nunca el volcado sin filtrar.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        $json = parent::__toString();
+        if (count(static::HIDDEN_FIELDS) === 0) {
+            return $json;
+        }
+        //Como objeto y no como array: así un `{}` vacío sigue saliendo `{}` y no `[]`.
+        $data = json_decode($json);
+        if (!$data instanceof \stdClass) {
+            return '{}';
+        }
+        foreach (static::HIDDEN_FIELDS as $hidden) {
+            unset($data->$hidden);
+        }
+        $filtered = json_encode($data, \JSON_PRETTY_PRINT);
+        return is_string($filtered) ? $filtered : '{}';
+    }
+
+    /**
+     * Los campos que este mapper no deja serializar (HIDDEN_FIELDS).
+     *
+     * @return string[]
+     */
+    public static function hiddenFields(): array
+    {
+        return static::HIDDEN_FIELDS;
     }
 
     /**

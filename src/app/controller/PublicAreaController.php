@@ -498,7 +498,7 @@ class PublicAreaController extends BaseController
             $this->user->avatar = AvatarModel::getAvatar($this->user->id);
             $this->user->hasAvatar = !is_null($this->user->avatar);
             $this->user->id = BaseHashEncryption::encrypt(base64_encode($this->user->id), self::class);
-            unset($this->user->password);
+            unset($this->user->password, $this->user->meta, $this->user->failedAttempts, $this->user->sessionsValidFrom);
         }
 
         $this->setVariables($view_data);

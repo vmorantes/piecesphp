@@ -68,6 +68,9 @@ nav:
             - Respaldos de la base de datos: piecesphp/new-features/backups.md
             - Registro de sesiones caducadas: piecesphp/new-features/expired-sessions-log.md
             - Escapado y nombres de subidas: piecesphp/new-features/escapado-y-subidas.md
+            - Permisos de ruta: piecesphp/new-features/permisos-de-ruta.md
+            - Campos que no salen nunca: piecesphp/new-features/campos-ocultos.md
+            - Datos de prueba: piecesphp/new-features/datos-de-prueba.md
             - Importar y exportar datos:
                 - piecesphp/new-features/data-transfer.md
                 - Usar el panel: piecesphp/new-features/data-transfer/panel.md

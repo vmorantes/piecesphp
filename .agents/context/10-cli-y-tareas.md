@@ -402,8 +402,8 @@ versiones y ciega las deprecaciones de la más nueva. Carga `phpstan/phpstan-dep
 
 > **La cifra visible no es el total.** Los `ignoreErrors` silencian unas tres veces más
 > errores de los que se ven. Antes de concluir que algo «está limpio», comprueba si no
-> está simplemente suprimido — la auditoría de las entradas está en
-> [18-siguientes-ventanas.md](./18-siguientes-ventanas.md).
+> está simplemente suprimido — la auditoría de las entradas estaba en el `18`, que salió del árbol
+> el 2026-10-08: se lee en git (`../rules/60-estado.md`, «Citas al pasado»).
 
 ## Refactor automatizado
 

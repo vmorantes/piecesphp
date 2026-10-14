@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core\Database\Meta;
 
+use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\EntityMapper;
 
 /**
@@ -600,8 +601,13 @@ class MetaProperty
         $dataHuman = $mapper->humanReadable();
 
         $subFields = array_keys($mapper->getFields());
+        $hidden = $mapper instanceof BaseEntityMapper ? $mapper::hiddenFields() : [];
 
         foreach ($subFields as $nameSubField) {
+
+            if (in_array($nameSubField, $hidden, true)) {
+                continue;
+            }
 
             if (is_subclass_of($mapper->$nameSubField, EntityMapper::class)) {
 

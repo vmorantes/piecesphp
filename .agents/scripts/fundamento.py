@@ -16,7 +16,8 @@ no significa «decisión correcta», y esta herramienta no opina de lo segundo.
 
 QUÉ RECONOCE
   pendientes.md#NNN   el punto NNN existe en .agents/docs/pendientes.md (una línea «NNN. »); se
-                      admite un subpunto, «#208.5», comprobando su punto entero
+                      admite un subpunto, «#208.5», comprobando su punto entero. El diario se borró
+                      del árbol el 2026-10-08 (E9): se lee en git, en PASADO (regla 60)
   <hash>              de 7 a 40 hexadecimales: `git cat-file -e` dice que el objeto está
   archivo:LÍNEA       el archivo existe y tiene al menos esa línea; se busca por nombre si la ruta
                       no es completa, y si hay varios candidatos se dice
@@ -49,6 +50,8 @@ import subprocess
 import sys
 
 PENDIENTES = ".agents/docs/pendientes.md"
+#El último commit en que el diario y el 18 existían (regla 60, «Citas al pasado»). Fijo: el pasado no cambia.
+PASADO = "ecd2407f"
 RE_MARCA = re.compile(r"\[\[FUNDAMENTO\]\](.*)$", re.M)
 RE_PENDIENTE = re.compile(r"^pendientes\.md#(\d+)(?:\.\d+)?$", re.I)
 RE_HASH = re.compile(r"^[0-9a-f]{7,40}$")
@@ -73,11 +76,10 @@ RE_PARECE = re.compile(r"\.md#|\.\w+:\d+|\b[0-9a-f]{7,40}\b|\bPO,?\s+\d{4}-", re
 
 
 def punto_existe(numero: str) -> bool:
-    try:
-        texto = open(PENDIENTES, encoding="utf-8").read()
-    except OSError:
+    r = subprocess.run(["git", "show", "%s:%s" % (PASADO, PENDIENTES)], capture_output=True, text=True)
+    if r.returncode != 0:
         return False
-    return re.search(r"^%s\.\s" % re.escape(numero), texto, re.M) is not None
+    return re.search(r"^%s\.\s" % re.escape(numero), r.stdout, re.M) is not None
 
 
 def objeto_existe(hash_corto: str) -> bool:
@@ -95,9 +97,15 @@ def ley_existe(numero: str) -> bool:
 
 
 def fecha_del_po(fecha: str) -> bool:
-    r = subprocess.run(["git", "grep", "-l", "-E", "PO,? %s" % fecha, "--", ".agents"],
-                       capture_output=True, text=True)
-    return r.returncode == 0 and r.stdout.strip() != ""
+    #En el árbol de hoy o en el PASADO: muchas fechas del PO solo las guardaba el diario borrado. La prueba se excluye:
+    #lleva la fecha inventada como literal y la daba por buena.
+    for donde in ([], [PASADO]):
+        r = subprocess.run(["git", "grep", "-l", "-E", "PO,? %s" % fecha] + donde
+                           + ["--", ".agents", ":!.agents/scripts/probar_fundamento.py"],
+                           capture_output=True, text=True)
+        if r.returncode == 0 and r.stdout.strip() != "":
+            return True
+    return False
 
 
 def archivo_con_linea(ruta: str, linea: int):

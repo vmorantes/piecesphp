@@ -67,6 +67,13 @@ class ComponentProvider extends AdminPanelController
     public function provide(Request $request, Response $response)
     {
 
+        //EL GRUPO ACABA EN UN require: solo pasa uno que exista en Views/ y con forma de nombre, sin depender de que el
+        //servidor normalice los «..». Fuera del try, que captura \Exception y convertiría el 404 en una respuesta.
+        $requestedGroup = $request->getAttribute('group');
+        if (!is_string($requestedGroup) || preg_match('/^[A-Za-z0-9_-]+$/', $requestedGroup) !== 1 || !in_array($requestedGroup, $this->availableGroups(), true)) {
+            throw new NotFoundException($request, $response);
+        }
+
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
 
         //Definición de validaciones y procesamiento
@@ -128,6 +135,23 @@ class ComponentProvider extends AdminPanelController
         }
 
         return $response;
+    }
+
+    /**
+     * Los grupos que se pueden servir: los directorios de Views/ con un components.php, y con forma de nombre.
+     *
+     * @return string[]
+     */
+    public function availableGroups(): array
+    {
+        $groups = [];
+        $directory = $this->getInstanceViewDir();
+        foreach (scandir($directory) ?: [] as $entry) {
+            if (is_string($entry) && preg_match('/^[A-Za-z0-9_-]+$/', $entry) === 1 && is_file($directory . $entry . '/components.php')) {
+                $groups[] = $entry;
+            }
+        }
+        return $groups;
     }
 
     /**

@@ -147,19 +147,27 @@ $n->newsTitle = 'Editado';
 $n->update();
 
 // Consultar (ActiveRecord)
-$rows = NewsMapper::model()
-    ->select()
-    ->where('status', NewsMapper::ACTIVE)
-    ->orderBy('createdAt DESC')
-    ->execute()
-    ->result();
+$model = NewsMapper::model();
+$model->select()
+    ->where(['status' => NewsMapper::ACTIVE])
+    ->orderBy('createdAt DESC');
+$rows = $model->execute() ? $model->result() : [];
 ```
+
+`where()` recibe UN argumento: `where('status', X)` no filtra por `X`, el segundo se ignora. Y `execute()` devuelve
+`bool`, no el modelo: no se le encadena `->result()`.
 
 `Mapper::model()` devuelve el `ActiveRecordModel` subyacente. La API de
 `ActiveRecord` incluye: `select, insert, update, delete, join, leftJoin, rightJoin,
 innerJoin, where, having, groupBy, orderBy, row, getAll, get, setTypeResult,
-setSelectClass, execute, result, rowCount, lastInsertId, getCompiledSQL,
+setSelectClass, execute, result, rowCount, lastInsertId, getCompiledSQL, getPreparedSQL,
 getLastSQLExecuted, resetWhere/resetJoins/resetAll`.
+
+**Para envolver una consulta en otra** —un recuento—, `getPreparedSQL()` (desde `piecesphp/database` 5.3.0) da el texto
+con sus marcadores, y se ejecuta con `prepare()` y `getReplaceWhereAndHavingValues()`. **`getCompiledSQL(true)` es para
+registrar, nunca para ejecutar**: además de pegar los valores, colapsa dos espacios seguidos DENTRO de ellos (su
+`str_replace('  ', ' ')` va después de colocarlos), así que una búsqueda con doble espacio daba un total falso. Modelo:
+los dos recuentos de `DataTablesHelper::process()`; los vigila `unit-tests:core/datatables-counts` (bloque DJ).
 
 ### Qué significa —y qué NO— el valor que devuelven
 

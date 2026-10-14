@@ -375,6 +375,54 @@ el activo lanza, el aviso es inactivo y va a `log_exception()`. Guía: `source-d
 Enlaces de `server-delegated`: `ServerDelegatedLinks::scan()/deleteBroken()` (nunca siguen un enlace); la vista
 Mantenimiento lo hace como `www-data`, sin privilegios de administrador del sistema.
 
+## Receta 8d — Los datos de prueba de un módulo
+
+Una clase en la carpeta `Seeds/` del módulo (`src/app/classes/<Modulo>/`) que extienda `Terminal\Seeding\ModuleSeeder` (`mapper()`,
+`markerColumn()`, `row()`; opcionales `dependsOn()`, `ownedRows()`, `ownedFolder()`, `defaultCount()`). Con archivos:
+`SeedContext::copyToUploads()` y `ownedFolder()`; modelo, `Publications/Seeds/PublicationsSeeder.php`. La descubre `SeedPlanner` con el
+mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=yes` y `limpiar=yes` solo con
+`module=all` y solo en local (`--local` **y** `environment.php` en `local`). Modelo con dependencia:
+`PiecesPHP/App/Locations/Seeds/StatesSeeder.php`. Guía: `source-docs/.../new-features/datos-de-prueba.md`.
+**Trampas medidas (bloques DC y DE, `#1145`-`#1157`):**
+- `requiredFields()` mira el VALOR de `default`, no su presencia: el ORM rellena `'default' => null` en toda opción que
+  falte (`EntityMapper.php:1207`). Con `array_key_exists` daba `[]` en los 29 mappers. Lo vigilan el canario
+  (`username` de usuarios) y la comprobación 3f de `unit-tests:core/seed-planner`.
+- **Simular no llama a `save()`**: lo que el mapper exige al guardar solo sale con `escribir=yes`.
+- **`bin/cli seed` tiene sesión (usuario id 1 FIJO, `src/index.php:313-326`); las suites (`CliActions`) NO.**
+  `unit-tests:core/seed-round-trip` fija la del usuario principal (`set_config('current_user', …)`) y la restaura en un
+  `finally`, como `UnitTest-UsersRegisterProfile.php:67-68` y `:99-100`.
+- **Las aprobaciones**: `SystemApprovalManager::init()` crea en cada arranque una fila por organización, usuario y
+  publicación sin ella (`referenceTable` = tabla, `referenceValue` = id como texto). Se declaran con
+  `ownedRows()` en su forma con `where` (`referenceTable`). **Sin el `where`, el `IN` borra aprobaciones de otra tabla
+  con el mismo id**: lo caza la aprobación señuelo de `seed-round-trip`. En un mismo proceso no existen hasta que se
+  llama a `init()`: la suite lo llama tras escribir.
+- **Archivos: NUNCA apuntar a un archivo versionado.** Al sustituir la imagen, cinco controladores hacen `unlink()` del
+  anterior sin protección (Publications, BuiltInBanner, Documents, Organizations, GenericContent); NewsCategory se salta
+  su `DEFAULT_ICON`. Se copia con `copyToUploads()` (origen en `statics/images/`, carpeta con el prefijo; privado =
+  sufijo de `ProtectedUploads`, como nace la subida de esa tabla) y se borra la carpeta entera con `ownedFolder()`.
+  Guardas en `SeedPlanner::ownedFolderPath()`: base en `statics/uploads/`, valor `^zz-siembra-[A-Za-z0-9_-]+$`, ruta
+  real dentro de la base, sin enlaces. **`src/statics/uploads/` está ignorado por git**: los restos se buscan con
+  `find src/statics/uploads -maxdepth 3 -name 'zz-siembra-*'`.
+- **Una publicación sembrada por el usuario principal se autoaprueba**, y siendo activa y en fechas es visible: sus
+  archivos se sirven SIN sesión aunque en disco sigan con `.protected` (`ServerStatics` la valida). Los documentos sin sesión dan 403 (medido); con sesión, sin medir.
+- **Una lista exacta de seeders en una suite** («y solo esos») se actualiza en el MISMO commit que añade el seeder.
+- **Medir por HTTP ensucia el punto de partida**: el login deja una fila en `login_attempts` y `gates` da «SUCIO». La
+  ronda que pida mediciones HTTP y «partió LIMPIA» lleva el borrado de esa fila por id en su plan.
+  **Cómo, sin cliente de base de datos** (`#1198`, 2026-10-09): una acción temporal `zz-scratch:` escrita en el
+  scratchpad (`CliActions::make(...)->register()`, `(new \PiecesPHP\Core\BaseModel())->getDatabase()` y sentencias
+  preparadas), que lee `id, userID, success, date` y si el usuario empieza por `zz-agente-` (sin imprimirlo), con
+  `date >= <hora del db-backup>`, y borra con
+  `WHERE id IN (…) AND date >= ?` —la fecha acota el borrado aunque un id venga mal—. Se carga **copiándola** a
+  `src/app/core/system-controllers/local-tests/` (todo `.php` de ahí se incluye al arrancar `bin/cli`), y copia,
+  ejecución, `rm` y `git status` van en **una sola llamada de shell**. **La ruta del `rm` va literal**: la guarda de
+  hooks bloquea un `rm` sobre una ruta en variable, y al bloquear para la llamada entera.
+  **Con el perfil persistente de `bin/navegador` y la sesión aún viva no se crea fila**: solo la deja la primera
+  entrada, o la de después de caducar. La lectura se hace igual y el reporte dice «0 filas» (`#1204`).
+- **La base NO se queda sembrada** (2026-10-09): lo sembrado lleva `zz-`, `gates` lo cuenta como resto y toda corrida
+  sale «partió SUCIA» (ADR 0047). La ronda que necesite datos para mirar pantallas hace, en este orden: `db-backup`,
+  `seed module=all escribir=yes`, la medición, `seed module=all limpiar=yes`, el borrado de `login_attempts` de arriba y
+  `bin/cli gates only=unit-tests:core/app-version`, que imprime el punto de partida en menos de un minuto.
+
 ## Receta 9 — Reglas de autorización propias con `_allowedRoute()`
 
 `routeName()` ya comprueba los roles. **`_allowedRoute()` es para lo que los roles no pueden

@@ -1504,8 +1504,11 @@ class APIController extends AdminPanelController
                         $userLoginData['misc'] = [
                             'avatar' => $avatar,
                         ];
+                        //Lista NEGRA, no blanca: los excluidos de files/dev/login-user-data-declared.json que no deben salir nunca.
                         unset($userLoginData['password']);
                         unset($userLoginData['meta']);
+                        unset($userLoginData['failedAttempts']);
+                        unset($userLoginData['sessionsValidFrom']);
 
                         foreach ($userLoginData as $k => $i) {
                             if (str_contains($k, 'META:')) {

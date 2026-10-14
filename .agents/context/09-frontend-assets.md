@@ -176,6 +176,29 @@ Statics/
 Un JS por vista, con el mismo nombre que la acción del controlador. Se cargan con
 `set_custom_assets([Routes::staticRoute('js/<entidad>/<archivo>.js')], 'js')`.
 
+### Consolidar SCSS sin cambiar el aspecto (bloques CU y DH)
+
+- **La puerta**: `bin/huella-css --comparar` IDÉNTICA, y además la **hora** de los `.css`: `writeIfChanged` solo
+  reescribe si el contenido cambia, así que un `.css` que no se reescribe es igual byte a byte. Si uno se reescribe,
+  guarda su copia y su `sha1sum` ANTES y compara con `cmp`.
+- **Las cifras**: `bin/censo-scss` antes y después; los renglones bajan y las **reglas compiladas** no se mueven.
+- **Dos hojas casi iguales** van a un parcial con `@mixin` (lo distinto, por parámetro o interpolación) y la hoja que
+  añade un bloque lo pasa como `@content`. **El contenido HEREDA el selector del sitio donde está `@content` dentro del
+  mixin** (medido con dart-sass 1.105.1 en `#1169`): el bloque se pasa SIN su selector padre, y tiene que llevar las
+  llaves equilibradas. Un `diff` alinea por llaves y engaña sobre dónde empieza y acaba un bloque: léelo compilado.
+- **Los parciales de un módulo van en `Statics/sass/includes/`**, como los del núcleo
+  (`src/statics/core/sass/includes/`). **`Statics/sass/imports/` de `MySpace` es una ruta que la campaña movió**: volver a
+  crearla pone 160 «restos» en `verify-integrity`.
+- Modelo: `src/app/classes/MySpace/Statics/sass/includes/_profile-view.scss` y `_profile-form.scss`.
+- **Podar reglas muertas** (bloque DI): la lista de lo que se espera que desaparezca va a `bin/huella-css --comparar
+  --esperado <archivo>` con **un selector por línea, partidos** —una regla con varios selectores solo cuenta como
+  prevista si están TODOS (`bin/huella-css:283`)—. Y antes de quitar una regla, sus clases se buscan también como
+  **subcadena** en `.php`, `.js` y `.ts`: «muerta» en el censo es que no aparece como palabra, y una clase concatenada
+  sí llega a la página.
+- **`bin/huella-css` y `bin/censo-scss` se paran si una hoja raíz VERSIONADA no está en disco**: toman las raíces de lo
+  versionado. Para quitar una hoja entera, se mide la poda con la hoja puesta, su ausencia con `gulp sass-all` y el sha1
+  de los demás `.css`, y la huella completa después del `git rm`.
+
 ## Estilo de archivos (`.editorconfig`)
 
 - UTF-8, `insert_final_newline = true`.

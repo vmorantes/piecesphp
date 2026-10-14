@@ -165,6 +165,94 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     $check(isset($rutas['admin-error-log']) && $rolesError === [UsersModel::TYPE_USER_ROOT], '5c admin-error-log, que entrega la traza entera, declara solo root', '[' . implode(', ', $rolesError) . ']');
     echoTerminal(' ');
 
+    //─── 6 · El acceso EFECTIVO de las pantallas que decidió el PO ───────────────────────────────────
+    echoTerminal('[6] El acceso efectivo (declaración y catálogo juntos) de banners, imagen de inicio y tiempo en plataforma');
+    //Se mide con get_route_roles_allowed(), que une lo declarado con roles.php: declarar concede pero no restringe, así
+    //que mirar solo roles_allowed no diría quién entra (pendientes.md 468).
+    $efectivo = function (string $nombre) use ($rutas): ?array {
+        if (!isset($rutas[$nombre])) {
+            return null;
+        }
+        $codigos = array_values(array_map('intval', get_route_roles_allowed($nombre)));
+        sort($codigos);
+        return $codigos;
+    };
+    $ordenar = function (array $codigos): array {
+        sort($codigos);
+        return $codigos;
+    };
+    $comunicacionYSuperiores = $ordenar([UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL, UsersModel::TYPE_USER_COMUNICACIONES]);
+    $soloPrincipal = [UsersModel::TYPE_USER_ROOT];
+    $todos = $ordenar(array_map('intval', array_keys(UsersModel::TYPES_USERS)));
+    $esperado = [];
+    foreach (['-list', '-forms-add', '-forms-edit', '-ajax-all', '-datatables', '-actions-add', '-actions-edit', '-actions-delete'] as $sufijo) {
+        $esperado['built-in-banner-admin' . $sufijo] = [$comunicacionYSuperiores, 'Comunicaciones y superiores'];
+    }
+    $esperado['helpers-system-generic-content-admin-forms-home-image'] = [$soloPrincipal, 'solo Principal'];
+    //La portada se guarda por la acción común de los ajustes, abierta a todos A PROPÓSITO: quien la cierra a Principal es
+    //la comprobación interna con HOME_IMAGE_PERMISSIONS, que se mide en 6c.
+    $esperado['helpers-system-generic-content-admin-actions-edit'] = [$todos, 'todos, y la imagen la filtra el controlador'];
+    //Cada usuario registra SU tiempo: abierta a todos es deliberado, y lo que impide sumarlo a otro es la sección [7].
+    $esperado['timing-add'] = [$todos, 'todos, deliberado: cada uno registra su propio tiempo'];
+
+    $vacias = [];
+    foreach (array_keys($esperado) as $nombre) {
+        $codigos = $efectivo($nombre);
+        if ($codigos === null || $codigos === []) {
+            $vacias[] = $nombre . ($codigos === null ? ' (no existe)' : ' (vacía)');
+        }
+    }
+    $check($vacias === [], '6a CANARIO: las ' . count($esperado) . ' rutas existen y el instrumento les ve algún rol', implode(', ', $vacias) ?: '-');
+    foreach ($esperado as $nombre => [$roles, $texto]) {
+        $codigos = $efectivo($nombre) ?? [];
+        $check($codigos === $roles, "6b {$nombre}: {$texto}", 'efectivo [' . implode(', ', $codigos) . '] | esperado [' . implode(', ', $roles) . ']');
+    }
+    $imagen = array_values(array_map('intval', \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::HOME_IMAGE_PERMISSIONS));
+    $check($imagen === $soloPrincipal, '6c HOME_IMAGE_PERMISSIONS, que filtra la imagen dentro de la acción común, es solo Principal', '[' . implode(', ', $imagen) . ']');
+    echoTerminal(' ');
+
+    //─── 7 · El tiempo en plataforma se suma al usuario de la SESIÓN ─────────────────────────────────
+    echoTerminal('[7] timeOnPlatform() toma el usuario de la sesión y no vuelve a leer `user_id` de la petición');
+    //Por estructura y sin tocar la base: addTime() escribe. Se tokeniza el cuerpo del método, así que un comentario que
+    //nombre `user_id` no cuenta.
+    $metodo = new \ReflectionMethod(\PiecesPHP\UserSystem\Controllers\TimerController::class, 'timeOnPlatform');
+    $lineas = file((string) $metodo->getFileName()) ?: [];
+    $cuerpo = implode('', array_slice($lineas, $metodo->getStartLine() - 1, $metodo->getEndLine() - $metodo->getStartLine() + 1));
+    $tokens = token_get_all('<?php ' . $cuerpo);
+    $leeUserId = 0;
+    $llamaSesion = 0;
+    foreach ($tokens as $i => $token) {
+        if (!is_array($token)) {
+            continue;
+        }
+        if ($token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'"') === 'user_id') {
+            $leeUserId++;
+        }
+        if ($token[0] === T_STRING && $token[1] === 'getLoggedFrameworkUser' && ($tokens[$i + 1] ?? null) === '(') {
+            $llamaSesion++;
+        }
+    }
+    $check(mb_strlen($cuerpo) > 0 && str_contains($cuerpo, 'addTime'), '7a CANARIO: el censo ve el cuerpo del método, con su addTime()', mb_strlen($cuerpo) . ' bytes');
+    $check($leeUserId === 0, '7b ninguna cadena `user_id` en el código del método: el cuerpo de la petición no decide a quién se le suma', $leeUserId . ' ocurrencia(s)');
+    $check($llamaSesion === 1, '7c el usuario sale de getLoggedFrameworkUser()', $llamaSesion . ' llamada(s)');
+    echoTerminal(' ');
+
+    //─── 8 · La acción común de los ajustes sigue filtrando la imagen con su constante ───────────────
+    echoTerminal('[8] GenericContentController::action() sigue comprobando HOME_IMAGE_PERMISSIONS');
+    //6c mide el VALOR de la constante; esto mide que la acción común, abierta a todos por ruta, la siga usando.
+    $accion = new \ReflectionMethod(\PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::class, 'action');
+    $lineasAccion = file((string) $accion->getFileName()) ?: [];
+    $cuerpoAccion = implode('', array_slice($lineasAccion, $accion->getStartLine() - 1, $accion->getEndLine() - $accion->getStartLine() + 1));
+    $usosConstante = 0;
+    foreach (token_get_all('<?php ' . $cuerpoAccion) as $token) {
+        if (is_array($token) && $token[0] === T_STRING && $token[1] === 'HOME_IMAGE_PERMISSIONS') {
+            $usosConstante++;
+        }
+    }
+    $check(str_contains($cuerpoAccion, 'CONTENT_HOME_IMAGE'), '8a CANARIO: el censo ve el cuerpo de action(), con su rama de la imagen de inicio', mb_strlen($cuerpoAccion) . ' bytes');
+    $check($usosConstante >= 1, '8b action() nombra HOME_IMAGE_PERMISSIONS en código, no en un comentario', $usosConstante . ' uso(s)');
+    echoTerminal(' ');
+
     $total = $passed + $failed;
     echoTerminal($failed === 0
         ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"

@@ -67,7 +67,7 @@ Cuando detecta la tubería, **limpia los códigos ISO de colores** para evitar q
 ### Todas, de un vistazo
 
 Medido contra `src/app/classes/Terminal/Tasks/` el 2026-10-05 (una acción por archivo de esa carpeta, salvo las
-auxiliares abstractas). `bin/cli help` da la lista de tu versión; `bin/cli help task=<acción>` filtra por una.
+auxiliares abstractas); `seed`, añadida el 2026-10-08. `bin/cli help` da la lista de tu versión; `bin/cli help task=<acción>` filtra por una.
 Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no `help`.
 
 | Acción | Parámetros | Qué hace |
@@ -82,6 +82,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | `process-queue` | `--limit` (def. 60) | Worker de la cola |
 | `scheme-create` | `module=<Nombre>\|all`, `output=` | **Emite** el `CREATE TABLE` de los mappers del módulo, padres antes que hijas. No lo ejecuta |
 | `scheme-drop` | `module=<Nombre>\|all`, `output=` | **Emite** el `DROP TABLE`, hijas antes que padres. No lo ejecuta |
+| `seed` | `module=<Nombre>\|all`, `cantidad=<n>`, `escribir=yes`, `limpiar=yes` | Siembra datos de prueba en la base **local**. Sin `escribir=yes` ni `limpiar=yes` **solo simula**; escribir y limpiar van con `module=all`. Ver [Datos de prueba](../new-features/datos-de-prueba.md) |
 | `verify-integrity` | `update-snapshot`, `list-narrative` | Las comprobaciones estructurales del repositorio (las que lista `bin/cli verify-integrity`) |
 | `gates` | `only=<trozo>`, `with=external` | Corre **todas** las suites de pruebas y falla si alguna no corrió. `with=external` incluye las que salen a la red o envían correo |
 | `snapshot` | `label=`, `compare=a,b`, `dir=` | Foto de la base y del árbol, y su diferencia |

@@ -326,6 +326,11 @@ CliActions::make('unit-tests:core/other-doors', function ($args) {
         $inexistente = (int) $database->query('SELECT COALESCE(MAX(id), 0) + 1000 FROM `' . NewsMapper::TABLE . '`')->fetchColumn();
         $r = $pedir($detalleNoticia($inexistente), $generalA);
         $check($r['status'] === 404, 'i5 una que no existe: 404', "HTTP {$r['status']}: " . mb_substr($r['body'], 0, 60));
+        //Sobre la visible de i1: la que sí llega es la que podría arrastrar la ficha del autor.
+        $check(is_array($datos) && !$claveSecreta($datos), 'i6 ninguna clave de secreto (password, hash, token) en la noticia visible');
+        //modifiedBy puede ser null en una noticia sin editar; createdBy, no.
+        $autores = ['createdBy' => $datos['newsData']['createdBy'] ?? null, 'modifiedBy' => $datos['newsData']['modifiedBy'] ?? null];
+        $check(is_scalar($autores['createdBy']) && ($autores['modifiedBy'] === null || is_scalar($autores['modifiedBy'])), 'i7 createdBy y modifiedBy llegan como escalares, no como la ficha del usuario', json_encode(array_map('get_debug_type', $autores)) ?: '');
 
         echoTerminal('');
         echoTerminal('[j] H1 · un archivo privado que no es de ninguna publicación');

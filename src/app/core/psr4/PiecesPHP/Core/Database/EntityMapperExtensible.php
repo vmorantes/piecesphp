@@ -308,6 +308,11 @@ class EntityMapperExtensible extends BaseEntityMapper
 
         foreach ($fields as $name) {
 
+            //Un campo oculto no vuelve por la recursión aunque sea una referencia.
+            if (in_array($name, static::HIDDEN_FIELDS, true)) {
+                continue;
+            }
+
             $value = $this->$name;
 
             if (is_subclass_of($value, EntityMapper::class)) {
@@ -331,8 +336,13 @@ class EntityMapperExtensible extends BaseEntityMapper
         $dataHuman = $mapper->humanReadable();
 
         $subFields = array_keys($mapper->getFields());
+        $hidden = $mapper instanceof BaseEntityMapper ? $mapper::hiddenFields() : [];
 
         foreach ($subFields as $nameSubField) {
+
+            if (in_array($nameSubField, $hidden, true)) {
+                continue;
+            }
 
             if (is_subclass_of($mapper->$nameSubField, EntityMapper::class)) {
 

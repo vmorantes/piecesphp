@@ -11,10 +11,10 @@ anterior. Compartido por todas las herramientas; Claude Code lo ve además a tra
 | `context/` | Qué hay y qué muerde. Denso, verdad **hoy**. Tiene dos puertas: usar el framework o mantenerlo |
 | `docs/adr/` | Por qué se decidió así. Inmutables. **Lo más importante para un agente** |
 | `docs/bitacora/` | Cómo se llegó hasta ahí, una entrada por tarea cerrada |
-| `docs/roadmap.md` | El mapa de lo que falta hasta la MAJOR, en orden |
-| `docs/pendientes.md` | Encargos y decisiones del PO que aún no son trabajo (LEY 33) |
+| `docs/abierto.md` | **Todo lo abierto**, una línea por cosa, con su destino (LEY 33) |
+| `docs/decisiones-del-po.md` | Las decisiones del PO, una fila cada una |
+| `docs/roadmap.md` | El orden de lo abierto |
 | `docs/roadmap-posterior/` | Lo que va después de la MAJOR: 16 documentos |
-| `HERENCIA.md` | **Borrable.** El traspaso de la campaña anterior al modelo de tres roles |
 | `personas/` | **Fuente** de los subagentes: cuerpo del prompt, sin frontmatter |
 | `agents/` | Subagentes para Antigravity, **generados** (no editar) |
 | `skills/` | Skills compartidas; `.claude/skills/` enlaza aquí |
@@ -27,13 +27,13 @@ Fuera de aquí: `AGENTS.md` (entrada genérica y **fuente de las reglas del proy
 
 1. `estado/AHORA.md` y el último archivo de `estado/tramos/` — dónde estamos.
 2. `rules/` — lo que no se hace nunca y cómo se colabora.
-3. `HERENCIA.md` — mientras exista: qué cambió de modelo, qué exige el PO y qué quedó abierto.
-4. `context/README.md` — y por la puerta que te toque:
+3. `context/README.md` — y por la puerta que te toque:
    - **usar el framework** (un módulo, rutas, mappers, vistas): `context/01`–`15`;
    - **mantenerlo** (la campaña hacia la MAJOR): `context/20` (cómo se trabaja, §3 y §5),
-     `context/19` (las leyes) y, cuando haga falta el detalle de una tarea, `context/18`.
-5. `docs/adr/README.md` — el índice; los ADR que toque tu tarea, enteros.
-6. `docs/roadmap.md` y `docs/pendientes.md` — si toca elegir, proponer o instruir.
+     `context/19` (las leyes). Las citas a `pendientes.md` y a las entradas `T###` se leen en git (`rules/60-estado.md`,
+     «Citas al pasado»).
+4. `docs/adr/README.md` — el índice; los ADR que toque tu tarea, enteros.
+5. `docs/abierto.md`, `docs/decisiones-del-po.md` y `docs/roadmap.md` — si toca elegir, proponer o instruir.
 
 ## Documentación para agentes y para personas
 
@@ -41,8 +41,8 @@ Fuera de aquí: `AGENTS.md` (entrada genérica y **fuente de las reglas del proy
 | :-- | :-- | :-- |
 | Quien usa el framework | `README.md`, `source-docs/` (la API en `source-docs/api/`), `context/01`–`16` y `21` | Qué es, cómo se instala y se usa |
 | Quien clona y actualiza | `CHANGELOG.md` | Qué cambió para él, rupturas incluidas |
-| Quien lo mantiene | `context/18`, `19`, `20`, `historico/` | La campaña, sus leyes y su contrato |
-| El PO | `estado/`, `docs/pendientes.md` | Qué se hizo y qué espera de él |
+| Quien lo mantiene | `context/19`, `20`, `historico/` | La campaña, sus leyes y su contrato |
+| El PO | `estado/`, `docs/decisiones-del-po.md` | Qué se hizo, qué decidió y qué espera de él |
 | Agentes | `docs/adr/`, `docs/bitacora/`, `docs/roadmap.md` | Por qué, cómo se llegó, qué falta |
 
 Una sola regla los mantiene sanos: **ninguno puede mentir.** Si un cambio de código invalida un
@@ -57,8 +57,8 @@ Todo archivo versionado de `.agents/`, `.claude/`, `AGENTS.md` y `CLAUDE.md` per
 - **A, la metodología**: reglas, personas, guiones, las skills de trabajo, `.claude/` y los ADR de cómo se trabaja.
 - **B, desarrollar sobre PiecesPHP**: `AGENTS.md`, `context/01`–`16` y `21`, la skill de PHP y los ADR que
   condicionan el código (0006, 0009, 0012, 0018).
-- **C, mantener el framework**: la campaña (estado, tramos, bitácora, mapa, `pendientes`, `18`–`20`, `historico/`,
-  `HERENCIA.md` y los ADR de campaña).
+- **C, mantener el framework**: la campaña (estado, tramos, bitácora, mapa, `abierto`, `decisiones-del-po`, `19`–`20`, `historico/`
+  y los ADR de campaña).
 
 Un clon recibe A y B con el estado vacío; C se queda aquí. **Un archivo nuevo se clasifica en el mismo commit**:
 `verificar.sh` corre `scripts/capas.py`, que falla si un archivo no tiene capa, si tiene dos o si un patrón no casa

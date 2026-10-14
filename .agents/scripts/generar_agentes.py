@@ -105,7 +105,7 @@ AGENTES = {
         "antigravity": {"model": "flash"},
     },
     "context-curator": {
-        "description": "Audita la documentación contra el código: detecta lo falso, lo muerto, lo podable y las cifras sin método (context, roadmap, PENDIENTES, estado/tramos, HERENCIA). Use PROACTIVELY al cerrar un tramo o cuando un cambio haya movido rutas, funciones o cifras. Solo propone.",
+        "description": "Audita la documentación contra el código: detecta lo falso, lo muerto, lo podable y las cifras sin método (context, roadmap, abierto, decisiones, estado/tramos). Use PROACTIVELY al cerrar un tramo o cuando un cambio haya movido rutas, funciones o cifras. Solo propone.",
         "herramientas": LECTURA_SHELL,
         "claude": {"model": "sonnet", "effort": "medium"},
         "antigravity": {"model": "flash"},

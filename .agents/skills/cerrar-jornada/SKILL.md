@@ -45,7 +45,7 @@ pasó la noche pidiéndole algo que él ya había hecho.
 python3 -B .agents/scripts/vikunja.py revisar
 ```
 
-Lo que salga se reparte **antes** de escribir `AHORA.md`: lo que contestó, a `pendientes.md` con su número; lo que
+Lo que salga se reparte **antes** de escribir `AHORA.md`: lo que contestó, a `decisiones-del-po.md` y `abierto.md`; lo que
 marcó hecho, fuera de `PO.md` §3; lo que preguntó, a `PO.md` §2. **Si `revisar` falla**, el cierre sigue, pero el
 resumen al PO lo dice con esas palabras: «no pude leer tu Vikunja».
 
@@ -120,14 +120,15 @@ Y lo demás, por su sitio (regla 60):
 
 - **`tramos/`**: se conservan los 10 más recientes; uno más viejo se borra cuando lo que importaba
   está en la bitácora, un ADR o el `CHANGELOG`.
-- **`pendientes.md`**: lo resuelto se tacha con el número de la ronda que lo resolvió.
+- **`abierto.md`**: lo cerrado sale con su commit; lo nuevo del día entra con su destino. **Toda decisión del PO del día
+  tiene su línea aquí y en `decisiones-del-po.md`**: es la comprobación que faltó con la P51 (`pendientes.md` 497).
+- **`decisiones-del-po.md`**: lo revocado se tacha con quién lo sustituye; nada se borra.
 - **`roadmap.md`**: lo cerrado sale.
 - **`context/`**: lo que el código ya no hace se borra; una trampa cubierta por una puerta se queda
   en una línea con el nombre de la puerta.
 - **ADR**: nunca se borran; se reemplazan.
 - **Las «correcciones al registro»**: una fila que lleva días diciendo «pendiente» **miente sobre sí
-  misma**. En el cierre se resuelve o se convierte en entrada de `pendientes.md` con su número, y la
-  fila se va.
+  misma**. En el cierre se resuelve o se convierte en línea de `abierto.md`, y la fila se va.
 
 El subagente `context-curator` propone; el arquitecto decide y ejecuta.
 

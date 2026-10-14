@@ -53,6 +53,15 @@ class FileManagerController extends AdminPanelController
     const BASE_JS_DIR = 'js';
     const LANG_GROUP = FileManagerLang::LANG_GROUP;
 
+    /**
+     * Extensiones que un servidor web puede EJECUTAR: el gestor las rechaza en cualquier posición del nombre.
+     * Por nombre y no por tipo: un `shell.php` con cabecera de imagen pasa cualquier filtro de contenido.
+     */
+    const NOT_ACCEPTED_EXTENSIONS = [
+        'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'phtm', 'phps', 'phar', 'pht',
+        'cgi', 'fcgi', 'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -227,6 +236,24 @@ class FileManagerController extends AdminPanelController
     }
 
     /**
+     * El patrón de `acceptedName` de los volúmenes de subida del gestor.
+     *
+     * Declarar la opción SUSTITUYE la del driver local, que es distinta en cada plataforma, así
+     * que el juego de caracteres prohibidos se arma desde `DIRECTORY_SEPARATOR`: sin esto,
+     * Windows perdería `\ : * ? " < > |`. Y las extensiones se rechazan en CUALQUIER posición
+     * del nombre, porque un servidor con `AddHandler` ejecuta `shell.php.jpg`.
+     *
+     * @return string
+     */
+    public static function acceptedNamePattern(): string
+    {
+        $extensions = array_map(fn (string $e): string => preg_quote($e, '/'), self::NOT_ACCEPTED_EXTENSIONS);
+        $extensions = implode('|', $extensions);
+        $forbidden = DIRECTORY_SEPARATOR === '/' ? '\/\x00' : '\/\x00\\\:*?"<>|';
+        return '/^(?![\.' . $forbidden . '])(?!.*\.(?:' . $extensions . ')(?:\.|$))[^' . $forbidden . ']+$/i';
+    }
+
+    /**
      * @param array $dirs
      * @param array $trashes
      * @param string $base
@@ -261,6 +288,7 @@ class FileManagerController extends AdminPanelController
                     'allow',
                 ],
                 'accessControl' => $accessControlDefault,
+                'acceptedName' => self::acceptedNamePattern(),
                 //Lo privado lleva el sufijo en disco: elFinder no deja renombrarlo, moverlo ni quitárselo.
                 'attributes' => [
                     [

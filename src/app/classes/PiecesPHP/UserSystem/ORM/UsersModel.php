@@ -172,6 +172,15 @@ class UsersModel extends EntityMapperExtensible
     const LANG_GROUP = UserDataPackage::LANG_GROUP;
     const TABLE = 'pcsphp_users';
 
+    /**
+     * No se serializan nunca. Motivos, de files/dev/login-user-data-declared.json: password «nunca viaja: es el hash
+     * de la contraseña»; meta «nunca viaja: JSON interno del mapper»; failedAttempts, «telemetría de seguridad»;
+     * sessionsValidFrom, «condición de acceso, no dato del usuario».
+     *
+     * @var string[]
+     */
+    const HIDDEN_FIELDS = ['password', 'meta', 'failedAttempts', 'sessionsValidFrom'];
+
     protected $table = self::TABLE;
 
     protected $fields = [

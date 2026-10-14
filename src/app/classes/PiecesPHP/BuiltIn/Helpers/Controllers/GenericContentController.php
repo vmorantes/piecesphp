@@ -82,11 +82,6 @@ class GenericContentController extends AdminPanelController
 
     const HOME_IMAGE_PERMISSIONS = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
-        UsersModel::TYPE_USER_GENERAL,
-        UsersModel::TYPE_USER_INSTITUCIONAL,
-        UsersModel::TYPE_USER_COMUNICACIONES,
     ];
 
     public function __construct()
