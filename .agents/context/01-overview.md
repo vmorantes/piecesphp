@@ -14,8 +14,8 @@ montado encima de Slim 4**.
 
 - Repo público de referencia: <https://github.com/vmorantes/piecesphp>
 - DeepWiki: <https://deepwiki.com/vmorantes/piecesphp>
-- Versión en código: `APP_VERSION = v7.0.6` (`src/app/core/bootstrap.php`),
-  fecha `2026-04-05`.
+- Versión en código: `APP_VERSION` y `APP_VERSION_DATE` en `src/app/core/bootstrap.php:211-219` (se leen ahí: una cifra
+  copiada aquí se pudre).
 
 ## El principio que hay que saber antes de tocar nada: EL FRAMEWORK SE AUTOINICIALIZA
 

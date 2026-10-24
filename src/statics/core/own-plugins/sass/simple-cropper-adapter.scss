@@ -1,6 +1,9 @@
 @use '../../sass/includes/functions' as *;
 @use '../../sass/includes/variables' as *;
 
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$-controlsDividerColor: #e1e1e1;
+
 $fontModule: $fontGlobal;
 
 .simple-cropper {
@@ -80,7 +83,7 @@ $fontModule: $fontGlobal;
 
             &.finalize {
 
-                border-top: 1px solid #e1e1e1;
+                border-top: 1px solid $-controlsDividerColor;
                 padding-top: 30px;
 
                 >a {

@@ -99,7 +99,7 @@ function LocationsAdapter(attributes = {
 			for (let region of regions) {
 				let option = document.createElement('option')
 				option.value = region.name
-				option.innerHTML = region.name
+				option.textContent = region.name
 				if (hasDefault) {
 					if (region.name == defaultValue) {
 						option.setAttribute('selected', true)
@@ -219,7 +219,7 @@ function LocationsAdapter(attributes = {
 			for (let country of countries) {
 				let option = document.createElement('option')
 				option.value = country.id
-				option.innerHTML = country.name
+				option.textContent = country.name
 				if (hasDefault) {
 					if (country.id == defaultValue) {
 						option.setAttribute('selected', true)
@@ -364,7 +364,7 @@ function LocationsAdapter(attributes = {
 				for (let state of states) {
 					let option = document.createElement('option')
 					option.value = state.id
-					option.innerHTML = state.name
+					option.textContent = state.name
 					if (hasDefault) {
 						if (defaultValues.indexOf(state.id) !== -1) {
 							option.setAttribute('selected', true)
@@ -575,7 +575,7 @@ function LocationsAdapter(attributes = {
 				for (let city of cities) {
 					let option = document.createElement('option')
 					option.value = city.id
-					option.innerHTML = city.name
+					option.textContent = city.name
 					if (hasDefault) {
 						if (defaultValues.indexOf(city.id) !== -1) {
 							option.setAttribute('selected', true)
@@ -786,7 +786,7 @@ function LocationsAdapter(attributes = {
 				for (let point of points) {
 					let option = document.createElement('option')
 					option.value = point.id
-					option.innerHTML = point.name
+					option.textContent = point.name
 					if (hasDefault) {
 						if (defaultValues.indexOf(point.id) !== -1) {
 							option.setAttribute('selected', true)
@@ -918,7 +918,7 @@ function LocationsAdapter(attributes = {
 			for (let country of countries) {
 				let option = document.createElement('option')
 				option.value = country.id
-				option.innerHTML = country.name
+				option.textContent = country.name
 				if (hasDefault) {
 					if (country.id == defaultValue) {
 						option.setAttribute('selected', true)
@@ -1076,7 +1076,7 @@ function LocationsAdapter(attributes = {
 				for (let city of cities) {
 					let option = document.createElement('option')
 					option.value = city.id
-					option.innerHTML = city.name
+					option.textContent = city.name
 					if (hasDefault) {
 						if (defaultValues.indexOf(city.id) !== -1) {
 							option.setAttribute('selected', true)

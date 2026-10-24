@@ -7,7 +7,10 @@
 namespace Organizations;
 
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use Organizations\Controllers\MyOrganizationProfileController;
+use Organizations\Controllers\OrganizationProfileController;
 use Organizations\Controllers\OrganizationsController;
+use Organizations\Geo\OrganizationsGeoSource;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
@@ -16,8 +19,9 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\Geo\GeoSourceRegistry;
 
 /**
  * OrganizationsRoutes.
@@ -47,20 +51,37 @@ class OrganizationsRoutes
 
             $groupAdministration = OrganizationsController::routes($groupAdministration);
 
-            self::staticResolver($groupAdministration);
-
-            OrganizationsLang::injectLang();
-
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 
+            GeoSourceRegistry::register(new OrganizationsGeoSource());
+
         }
+
+        //Fuera del ENABLE: los perfiles de organización (profileRoutes) existen siempre y los necesitan.
+        //Los estáticos se piden sin sesión: van con lo público (P51).
+        self::staticResolver($groupPublic);
+        OrganizationsLang::injectLang();
 
         return [
             'groupAdministration' => $groupAdministration,
             'groupPublic' => $groupPublic,
         ];
+    }
+
+    /**
+     * Los perfiles de organización van en la zona administrativa, no en el grupo de `routes()`: ahí cambiarían su URL.
+     * No miran ENABLE: antes vivían en MySpace, que siempre está activo; sus estáticos y su idioma, tampoco (routes()).
+     *
+     * @param RouteGroup $groupAdministration
+     * @return RouteGroup
+     */
+    public static function profileRoutes(RouteGroup $groupAdministration): RouteGroup
+    {
+        $groupAdministration = MyOrganizationProfileController::routes($groupAdministration);
+        $groupAdministration = OrganizationProfileController::routes($groupAdministration);
+        return $groupAdministration;
     }
 
     /**
@@ -90,16 +111,16 @@ class OrganizationsRoutes
             if ($dontRequireOrganization) {
                 $sidebar->addItem(new MenuGroup([
                     'name' => __(OrganizationsLang::LANG_GROUP, 'Gestión de organizaciones'),
-                    'icon' => 'list',
+                    'icon' => 'building outline',
                     'href' => OrganizationsController::routeName('list'),
                     'visible' => OrganizationsController::allowedRoute('list'),
-                    'position' => 80,
+                    'position' => MenuGroupCollection::BAND_PEOPLE,
                     'asLink' => true,
                 ]));
             } else {
                 $sidebar->addItem(new MenuGroup([
                     'name' => __(OrganizationsLang::LANG_GROUP, 'Gestión de la organización'),
-                    'icon' => 'list',
+                    'icon' => 'building outline',
                     'items' => array_merge(
                         //Sin organización no hay a cuál enlazar: el usuario no recibe la entrada (pendientes.md 379.1).
                         $currentUser->organization !== null ? [
@@ -126,7 +147,7 @@ class OrganizationsRoutes
                             ]),
                         ]
                     ),
-                    'position' => 80,
+                    'position' => MenuGroupCollection::BAND_PEOPLE + 1,
                 ]));
             }
 

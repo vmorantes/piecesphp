@@ -19,6 +19,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -211,24 +212,28 @@ class PublicationsCategoryController extends AdminPanelController
         $addLink = self::routeName('forms-add');
         $processTableLink = self::routeName('datatables');
 
-        $title = __(self::LANG_GROUP, 'Categorías');
-        $description = __(self::LANG_GROUP, 'Listado de categorías');
+        $title = __(self::LANG_GROUP, 'Categorías de publicaciones');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = (string) $addLink !== '';
+        $data['addAction'] = self::routeName('actions-add');
+        $data['langs'] = Config::get_allowed_langs();
+        $data['defaultLang'] = Config::get_default_lang();
         $data['title'] = $title;
-        $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
-            $title,
-        ]);
+            __(self::LANG_GROUP, 'Publicaciones') => [
+                'url' => PublicationsController::routeName('list'),
+            ],
+            __(self::LANG_GROUP, 'Categorías'),
+        ];
 
         set_custom_assets([
             PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -698,12 +703,16 @@ class PublicationsCategoryController extends AdminPanelController
 
         $selectFields = PublicationCategoryMapper::fieldsToSelect();
 
+        //Por POSICIÓN, como las columnas de la vista; el nombre busca también por número.
         $columnsOrder = [
-            'name',
+            ['name', PublicationCategoryMapper::TABLE . '.id'],
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
         DataTablesHelper::setTablePrefixOnSearch(false);
+
+        $langs = Config::get_allowed_langs();
+        $editAction = self::routeName('actions-edit');
 
         $result = DataTablesHelper::process([
 
@@ -712,41 +721,49 @@ class PublicationsCategoryController extends AdminPanelController
             'columns_order' => $columnsOrder,
             'mapper' => new PublicationCategoryMapper(),
             'request' => $request,
-            'on_set_data' => function ($e) {
+            'on_set_data' => function ($e) use ($langs, $editAction) {
+
+                $mapper = PublicationCategoryMapper::objectToMapper($e);
+                //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
+                if ($mapper === null) {
+                    return null;
+                }
+
+                $hasEdit = self::allowedRoute('forms-edit', ['id' => $mapper->id]);
+                $hasDelete = self::allowedRoute('actions-delete', ['id' => $mapper->id]);
+                $name = (string) $mapper->currentLangData('name');
+
+                $direct = null;
+                if ($hasEdit) {
+                    //Editar abre la ventana del listado con sus valores; su enlace, la página, queda para quien no la tenga.
+                    $values = ['id' => (string) $mapper->id, 'baseLang' => (string) $mapper->baseLang, '__required' => ["name[{$mapper->baseLang}]"]];
+                    foreach ($langs as $lang) {
+                        $values["name[{$lang}]"] = (string) $mapper->getLangData($lang, 'name', false, '');
+                    }
+                    $direct = RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('forms-edit', ['id' => $mapper->id]), 'edit', [
+                        'data-content-modal' => 'publications-category-modal',
+                        'data-content-modal-values' => json_encode($values, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR),
+                        'data-content-modal-action' => $editAction,
+                        'data-content-modal-title' => sprintf(__(self::LANG_GROUP, 'Editar: %s'), $name),
+                    ]);
+                }
+                $menu = [];
+                if ($hasDelete) {
+                    $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-publication-category-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
+                }
+
                 return [
-                    '',
-                    '',
+                    escape_html($name),
+                    RowActions::cell($direct, $menu),
                 ];
             },
 
         ]);
-
-        $rawData = DataTablesHelper::rawRows($result);
-
-        foreach ($rawData as $index => $element) {
-
-            $mapper = new PublicationCategoryMapper($element->id);
-
-            $rawData[$index] = $this->render(
-                'util/list-card',
-                [
-                    'mapper' => $mapper,
-                    'editLink' => self::routeName('forms-edit', [
-                        'id' => $mapper->id,
-                    ]),
-                    'hasEdit' => self::allowedRoute('forms-edit', [
-                        'id' => $mapper->id,
-                    ]),
-                    'deleteRoute' => self::routeName('actions-delete', ['id' => $mapper->id]),
-                    'hasDelete' => self::allowedRoute('actions-delete', ['id' => $mapper->id]),
-                    'langGroup' => self::LANG_GROUP,
-                ],
-                false
-            );
-
-        }
-
-        $result->setValue('rawData', $rawData);
 
         return $response->withJson($result->getValues());
     }

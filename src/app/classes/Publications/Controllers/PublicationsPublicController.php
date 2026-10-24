@@ -317,7 +317,8 @@ class PublicationsPublicController extends BaseController
         foreach ($allRows(PublicationCategoryMapper::model()) as $row) {
             try {
                 $category = $row instanceof \stdClass ? PublicationCategoryMapper::objectToMapper($row) : null;
-                if ($category === null) {
+                //«Sin categoría» es la de reserva de las publicaciones sin la suya: no es una sección del sitio.
+                if ($category === null || (int) $category->id === PublicationCategoryMapper::UNCATEGORIZED_ID) {
                     continue;
                 }
                 foreach ($langs as $lang) {

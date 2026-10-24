@@ -16,9 +16,9 @@ use Terminal\Seeding\SeedContext;
 /**
  * UsersSeeder.
  *
- * Usuarios de prueba, uno por cada tipo salvo el principal, repartidos entre las organizaciones
- * sembradas. El correo usa el dominio reservado `.invalid`, que no se entrega nunca. Su clave es
- * aleatoria y no se guarda: nadie entra con ellos.
+ * Usuarios de prueba, tres por cada tipo salvo el principal (el Directorio necesita varias personas),
+ * repartidos entre las organizaciones sembradas. El correo usa el dominio reservado `.invalid`, que no se
+ * entrega nunca. Su clave es aleatoria y no se guarda: nadie entra con ellos.
  *
  * @package     PiecesPHP\UserSystem\Seeds
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -26,6 +26,9 @@ use Terminal\Seeding\SeedContext;
  */
 class UsersSeeder extends ModuleSeeder
 {
+
+    /** Cuántos usuarios de cada tipo; `UserProfilesSeeder` cuenta con él. */
+    const USERS_PER_TYPE = 3;
 
     public function mapper(): string
     {
@@ -59,7 +62,7 @@ class UsersSeeder extends ModuleSeeder
 
     public function defaultCount(): int
     {
-        return count(self::types());
+        return self::USERS_PER_TYPE * count(self::types());
     }
 
     /**
@@ -91,7 +94,7 @@ class UsersSeeder extends ModuleSeeder
      *
      * @return int[]
      */
-    protected static function types(): array
+    public static function types(): array
     {
         return array_values(array_filter(array_map('intval', array_keys(UsersModel::TYPES_USERS)), static fn (int $type): bool => $type !== UsersModel::TYPE_USER_ROOT));
     }

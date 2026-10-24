@@ -33,14 +33,6 @@ theme:
 
 nav:
     - Home: index.md
-    - Entornos:
-        - environments/index.md
-        - Configuración y Tips VPS: environments/content/vps/index.md
-        - LAMP: environments/content/lamp/index.md
-        - HestiaCP: environments/content/hestiacp/index.md
-        - Tomcat: environments/content/tomcat/index.md 
-        - Docker: environments/content/docker/index.md
-        - Mailpit: environments/content/mailpit/index.md
     - PiecesPHP Framework: 
         - piecesphp/index.md
         - Despliegue: piecesphp/content/general.md
@@ -55,6 +47,11 @@ nav:
         - Mantener el framework: piecesphp/content/maintain.md
         - Características Avanzadas:
             - Avisos del sistema y mantenimiento: piecesphp/new-features/system-status.md
+            - Salud de la instalación: piecesphp/new-features/system-health.md
+            - Registros: piecesphp/new-features/registros.md
+            - El geovisor: piecesphp/new-features/geovisor.md
+            - Errores y excepciones: piecesphp/new-features/errores-y-excepciones.md
+            - La clave de la aplicación: piecesphp/new-features/clave-de-la-aplicacion.md
             - Modo mantenimiento: piecesphp/new-features/maintenance-mode.md
             - Identidad, SEO y scripts: piecesphp/new-features/seo-y-scripts.md
             - Sistema de Colas: piecesphp/new-features/queues.md
@@ -70,6 +67,11 @@ nav:
             - Escapado y nombres de subidas: piecesphp/new-features/escapado-y-subidas.md
             - Permisos de ruta: piecesphp/new-features/permisos-de-ruta.md
             - Campos que no salen nunca: piecesphp/new-features/campos-ocultos.md
+            - Preguntar al usuario: piecesphp/new-features/preguntar.md
+            - Pantallas de contenido: piecesphp/new-features/pantallas-de-contenido.md
+            - Categorías genéricas: piecesphp/new-features/categorias-genericas.md
+            - Componentes HTML por grupo: piecesphp/new-features/componentes.md
+            - Gráficos y estadísticas: piecesphp/new-features/estadisticas.md
             - Datos de prueba: piecesphp/new-features/datos-de-prueba.md
             - Importar y exportar datos:
                 - piecesphp/new-features/data-transfer.md
@@ -78,14 +80,6 @@ nav:
                 - Crear un exportador o un informe: piecesphp/new-features/data-transfer/exportador.md
                 - Referencia: piecesphp/new-features/data-transfer/referencia.md
                 - Migrar desde BaseExportData: piecesphp/new-features/data-transfer/migrar-desde-baseexportdata.md
-    - Rendimiento: 
-        - performance/index.md
-        - ZRam: performance/content/zram.md
-        - Apache + PHP-FPM: performance/content/apache-php-fpm.md
-    - Herramientas:
-        - tools/index.md
-        - Mautic + RabbitMQ: tools/content/mautic-rabbitmq.md
-        - GeoServer: tools/content/geoserver.md
     - Changelog: changelog.md
 
 site_dir: ../../docs

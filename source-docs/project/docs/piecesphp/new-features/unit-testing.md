@@ -4,6 +4,20 @@
 > las corre y **falla si alguna no terminó** (sin su línea de balance, la suite no cuenta como pasada). `only=<trozo>`
 > filtra por nombre; `with=external` incluye las que salen a la red o envían correo, que por defecto no corren. Lo de
 > abajo explica cómo correr y escribir una suite suelta.
+>
+> **Solo las del área tocada:** `bin/cli gates changed-since=<commit>` corre las suites sin área, la suite cuyo archivo
+> cambió y las que declaran un área tocada desde ese commit; si el cambio cae fuera de una carpeta de módulo
+> (`GatesTask::AREA_MODULES`), las corre todas. Una suite declara su área en su cabecera, antes de `CliActions::make`,
+> con una línea por carpeta de módulo que prueba:
+>
+> ```php
+> //El libro de tareas programadas y el cerrojo de las tareas sin franja.
+> //@areas src/app/classes/PiecesPHP/SystemStatus/
+> ```
+>
+> `bin/cli verify-integrity` comprueba que cada área exista y sea de un módulo de la lista. Sin área, la suite corre
+> siempre. `bin/verify --changed-since=<commit>` hace lo mismo con la verificación entera, y lo dice en su última
+> línea: esa verificación parcial no sirve para dar algo por terminado.
 
 PiecesPHP integra un sistema de pruebas unitarias personalizadas que se ejecutan directamente desde la línea de comandos, permitiendo validar componentes del core y clases del negocio de forma rápida y desacoplada del servidor web.
 

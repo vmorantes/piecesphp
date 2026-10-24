@@ -10,22 +10,20 @@
 - Devolución:
 	- Tipo: JSON
 	- Propiedades: 
-		- userData: JSON Datos del usuario. Las claves van en camelCase: `id`, `organization`, `username`, `firstname`, `secondname`, `firstLastname`, `secondLastname`, `email`, `type`, `status`, `failedAttempts`, `createdAt`, `modifiedAt`, `sessionsValidFrom` y `misc` (el avatar y las meta-propiedades del usuario). No incluye la contraseña. A diferencia del paquete `userData` del login, **no es una lista corta**: trae todos esos campos.
+		- userData: JSON Datos del usuario. Las claves van en camelCase: `id`, `organization`, `username`, `firstname`, `secondname`, `firstLastname`, `secondLastname`, `email`, `type`, `status`, `createdAt`, `modifiedAt` y `misc` (el avatar). No incluye la contraseña, los intentos fallidos (`failedAttempts`) ni la marca de revocación (`sessionsValidFrom`): la API los quita. A diferencia del paquete `userData` del login, **no es una lista corta**: trae todos esos campos.
 		- Formato de cada clave (sale de `UsersModel::humanReadable()`, que convierte cada campo según su tipo en el mapper):
-			- `id`, `type`, `status`, `failedAttempts`: número entero.
+			- `id`, `type`, `status`: número entero.
 			- `organization`: número entero, o `null` si el usuario no pertenece a ninguna organización.
 			- `username`, `firstname`, `firstLastname`, `email`: texto.
 			- `secondname`, `secondLastname`: texto (vacío por defecto), o `null`.
 			- `createdAt`, `modifiedAt`: texto con fecha y hora en formato `AAAA-MM-DD hh:mm:ss`.
-			- `sessionsValidFrom`: texto con el mismo formato, o `null` si nunca se revocaron las sesiones del usuario.
-			- `misc.avatar`: URL absoluta del avatar (`<baseURL>/statics/uploads/avatars/<id>/avatar.jpg`), o `null` si el usuario no tiene avatar. `misc` lleva además una clave por cada meta-propiedad registrada en el mapper de usuarios; el framework no registra ninguna.
+			- `misc.avatar`: URL absoluta del avatar (`<baseURL>/statics/uploads/avatars/<id>/avatar.jpg`), o `null` si el usuario no tiene avatar.
 	- Ejemplo (valores de muestra):
 ```js
 //Solicitud
 var data = new FormData();
 
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -38,6 +36,7 @@ var requestURL = new URL("https://domain.tld/core/api/users/get-data-user");
 requestURL.searchParams.set('id', 50); //Tiene que ser el id del usuario en sesión
 
 xhr.open("GET", requestURL.href);
+xhr.setRequestHeader("JWTAuth", token); //El token del inicio de sesión: ver «La sesión» en el índice
 
 xhr.send(data);
 
@@ -54,10 +53,8 @@ xhr.send(data);
         "email": "usuario@domain.tld",
         "type": 2,
         "status": 1,
-        "failedAttempts": 0,
         "createdAt": "2026-01-01 10:00:00",
         "modifiedAt": "2026-01-02 10:00:00",
-        "sessionsValidFrom": null,
         "misc": {
             "avatar": "https://domain.tld/statics/uploads/avatars/50/avatar.jpg"
         }
@@ -111,7 +108,6 @@ data.append("password", "123456");
 data.append("overwriteSession", "no");
 
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -161,7 +157,7 @@ xhr.send(data);
 	- type: text (opcional) Tipo de usuario. Solo se aceptan «usuario general» y «administrador de organización»; cualquier otro valor cae a «usuario general»
 	- organizationID: text (opcional) Organización a la que se une. Cifrado con `BaseHashEncryption`. El valor literal `NONE` pide crear una organización nueva
 	- organizationName: text (obligatorio si `organizationID` es `NONE`) Nombre de la organización que se va a crear
-	- phoneCode / phoneNumber: text (opcional) Se guardan en el perfil
+	- phoneCode / phoneNumber: text (opcional) Se guardan en el perfil. **Desde la `9.0.0`, `phoneCode` tiene que ser el prefijo de un país activo** (Ubicaciones › Países); si no lo es, el alta sigue, el perfil queda sin prefijo y el `message` de la respuesta añade «El prefijo telefónico no es de ningún país activo.»
 - Alta con organización nueva:
 	- con `organizationID=NONE` y `organizationName`, el alta **crea primero la organización** y después el usuario;
 	- ese usuario queda como **administrador de esa organización**, y su tipo pasa a «administrador de organización» aunque `type` diga otra cosa;
@@ -192,7 +188,6 @@ data.append("first_lastname", "Apellido");
 //data.append("organizationName", "Nombre de la organización");
 
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -242,7 +237,6 @@ data.append("id", "3");
 data.append("username", "username_new");
 
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -251,6 +245,7 @@ xhr.addEventListener("readystatechange", function() {
 });
 
 xhr.open("POST", "https://domain.tld/core/api/users/edit/");
+xhr.setRequestHeader("JWTAuth", token); //El token del inicio de sesión: ver «La sesión» en el índice
 
 xhr.send(data);
 
@@ -284,7 +279,6 @@ data.append("id", "3");
 data.append("image", fileInput.files[0], "profile-image.jpg");
  
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -293,6 +287,7 @@ xhr.addEventListener("readystatechange", function() {
 });
 
 xhr.open("POST", "https://domain.tld/core/api/users/profile-image/");
+xhr.setRequestHeader("JWTAuth", token); //El token del inicio de sesión: ver «La sesión» en el índice
 
 xhr.send(data);
 
@@ -323,7 +318,6 @@ var data = new FormData();
 data.append("username", "mail@domain.tld");
  
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -369,7 +363,6 @@ data.append("password", "123456");
 data.append("repassword", "123456");
  
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {

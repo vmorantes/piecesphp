@@ -3,6 +3,7 @@
 //La URL vieja de una publicación redirige con un 301 a la verdadera, y nunca la de un borrador ni la de una
 //programada: su cabecera Location llevaría el título. Por HTTP. Crea un principal y tres publicaciones zz-.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -62,8 +63,8 @@ CliActions::make('unit-tests:core/publications-true-url', function ($args) {
     $cabeceraToken = SessionToken::tokenName();
     $pedir = function (string $path, ?string $jwt = null) use ($base, $cabeceraToken): array {
         $location = null;
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => str_contains($path, '://') ? $path : $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -126,7 +127,7 @@ CliActions::make('unit-tests:core/publications-true-url', function ($args) {
         $u->modifiedAt = $u->createdAt;
         $u->save();
         $ids['root'] = (int) $u->id;
-        $root = SessionToken::generateToken(['id' => $ids['root']], null, null, false);
+        $root = UserSessions::issueToken($ids['root']);
 
         $molde = PublicationCategoryMapper::model();
         $molde->resetAll();

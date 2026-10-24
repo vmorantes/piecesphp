@@ -380,14 +380,17 @@ class UserSystemFeaturesController extends AdminPanelController
     }
 
     /**
-     * @param RouteGroup $group
-     * @return RouteGroup
+     * @param RouteGroup $groupAdministration Las rutas con sesión: el doble factor desde el perfil (P51).
+     * @param RouteGroup|null $groupPublic Las rutas sin sesión: las que usa el formulario de acceso.
+     * @return RouteGroup[] Con los índices groupAdministration y groupPublic
      */
-    public static function routes(RouteGroup $group)
+    public static function routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null)
     {
+        //Opcional porque `AdminPanelController::routes()` recibe un grupo: sin el público, todo va al único.
+        $groupPublic ??= $groupAdministration;
         $routes = [];
 
-        $groupSegmentURL = $group->getGroupSegment();
+        $groupSegmentURL = $groupAdministration->getGroupSegment();
 
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = ($lastIsBar ? '' : '/') . self::$URLDirectory;
@@ -464,15 +467,23 @@ class UserSystemFeaturesController extends AdminPanelController
 
         ];
 
-        $group->register($routes);
-
-        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
+        //Cada ruta va al grupo que dice su `require_login`. El control de acceso va en los DOS: antes de la P51 las dos
+        //mitades compartían grupo, y el middleware las cubría a ambas.
+        foreach ($routes as $route) {
+            ($route->requireLogin() === true ? $groupAdministration : $groupPublic)->register([$route]);
+        }
+        $control = function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
             return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
                 return self::routeName($name, $params);
             }))->getResponse($request, $handler);
-        });
+        };
+        $groupAdministration->addMiddleware($control);
+        $groupPublic->addMiddleware($control);
 
-        return $group;
+        return [
+            'groupAdministration' => $groupAdministration,
+            'groupPublic' => $groupPublic,
+        ];
     }
 
     /**

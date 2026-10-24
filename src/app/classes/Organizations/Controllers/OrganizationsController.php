@@ -8,10 +8,9 @@ namespace Organizations\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use MySpace\Controllers\MyOrganizationProfileController;
-use MySpace\Controllers\OrganizationProfileController;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\Exceptions\SafeException;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
@@ -30,6 +29,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -53,9 +53,10 @@ class OrganizationsController extends AdminPanelController
     use ControllerRoutingTrait;
 
     /**
+     * Vacío: el grupo ya es `/admin/organizations` (P51), como publicaciones bajo `/admin`.
      * @var string
      */
-    protected static $URLDirectory = 'admin';
+    protected static $URLDirectory = '';
     /**
      * @var string
      */
@@ -146,7 +147,7 @@ class OrganizationsController extends AdminPanelController
         $data['optionsSizes'] = $optionsSizes;
         $data['optionsActionLines'] = $optionsActionLines;
         $data['optionsEsal'] = $optionsEsal;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -154,7 +155,7 @@ class OrganizationsController extends AdminPanelController
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/add', $data);
@@ -236,7 +237,7 @@ class OrganizationsController extends AdminPanelController
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -244,7 +245,7 @@ class OrganizationsController extends AdminPanelController
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
 
             $this->helpController->render('panel/layout/header');
             $this->render('forms/edit', $data, true, false);
@@ -284,12 +285,12 @@ class OrganizationsController extends AdminPanelController
         $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         set_custom_assets([
             OrganizationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -310,6 +311,22 @@ class OrganizationsController extends AdminPanelController
      * @return Response
      */
     public function action(Request $request, Response $response)
+    {
+        //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
+        return $this->saveOrganization($request, $response, self::isEditRoute($request));
+    }
+
+    /**
+     * El guardado de una organización, con la operación ya decidida por el servidor: `action()` la saca del nombre de su
+     * ruta, y «Mi organización» (`MyOrganizationProfileController::saveProfileAction()`), cuya ruta no es de alta ni de
+     * edición, la fija en edición tras su propia autorización. Un id del cuerpo que no case con la operación da 400.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param bool $isEdit
+     * @return Response
+     */
+    public function saveOrganization(Request $request, Response $response, bool $isEdit): Response
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -599,7 +616,8 @@ class OrganizationsController extends AdminPanelController
                 'administrator',
                 null,
                 function ($value) {
-                    return Validator::isInteger($value);
+                    //Un usuario que no existe, o Eliminado, no se elige como encargado.
+                    return Validator::isInteger($value) && UsersModel::existsAndNotDeleted((int) $value);
                 },
                 true,
                 function ($value) {
@@ -632,6 +650,7 @@ class OrganizationsController extends AdminPanelController
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
         $notAllowedLangMessage = __(self::LANG_GROUP, 'El idioma "%s" no está permitido.');
+        $invalidPhoneCodeMessage = __(LOCATIONS_LANG_GROUP, 'El prefijo telefónico no es de ningún país activo.');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -687,18 +706,6 @@ class OrganizationsController extends AdminPanelController
             $status = $expectedParameters->getValue('status');
             $administrator = $expectedParameters->getValue('administrator');
 
-            if (Validator::isDouble($latitude) && Validator::isDouble($longitude)) {
-                //NOTE: Esto debería ser provisional
-                //Opcional: Modifico arbitrariamente las coordenadas
-                $maxOffset = 0.6000;
-                $latOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
-                $lngOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
-                $latitude += $latOffset;
-                $longitude += $lngOffset;
-            }
-
-            //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
-            $isEdit = self::isEditRoute($request);
             if ($isEdit !== ($id !== -1)) {
                 return self::rejectOperationMismatch($request, $response, $isEdit, $id);
             }
@@ -717,6 +724,10 @@ class OrganizationsController extends AdminPanelController
 
                 if (!$isEdit) {
                     //Nuevo. El alta vive en createOrganization(): el alta pública por API llama a ESE MISMO método (P37).
+
+                    if (!CountryMapper::acceptsPhoneCode($phoneCode, null)) {
+                        throw new SafeException($invalidPhoneCodeMessage);
+                    }
 
                     $mapper = self::createOrganization([
                         'lang' => $lang,
@@ -812,6 +823,9 @@ class OrganizationsController extends AdminPanelController
                     if ($exists) {
 
                         $invalidVal = $valueOnNotRequest;
+                        if ($phoneCode !== $invalidVal && !CountryMapper::acceptsPhoneCode($phoneCode, $mapper->phoneCode)) {
+                            throw new SafeException($invalidPhoneCodeMessage);
+                        }
                         if ($name !== $invalidVal) {$mapper->setLangData($lang, 'name', $name);}
                         if ($nit !== $invalidVal) {$mapper->setLangData($lang, 'nit', $nit);}
                         if ($size !== $invalidVal) {$mapper->setLangData($lang, 'size', $size);}
@@ -1319,7 +1333,6 @@ class OrganizationsController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
                 $editProfileLink = MyOrganizationProfileController::routeName('my-organization-profile', [
@@ -1331,34 +1344,25 @@ class OrganizationsController extends AdminPanelController
                 ], true);
                 $hasProfileViewLink = mb_strlen($profileViewLink) > 0;
 
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editIcon = "<i class='icon edit'></i>";
-                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
-                    $buttons[] = $editButton;
-                }
+                //Una directa (Editar) y el resto en el menú; ningún icono repetido entre acciones distintas.
+                $menu = [];
                 if ($hasEditProfile) {
-                    $editProfileText = __(self::LANG_GROUP, 'Editar perfil');
-                    $editProfileIcon = "<i class='icon edit'></i>";
-                    $editProfileButton = "<a title='{$editProfileText}' href='{$editProfileLink}' class='ui button brand-color alt icon'>{$editProfileIcon}</a>";
-                    $buttons[] = $editProfileButton;
+                    $menu[] = RowActions::action(__(self::LANG_GROUP, 'Perfil público'), $editProfileLink, 'id card outline');
+                }
+                if ($hasProfileViewLink && $e->id != OrganizationMapper::INITIAL_ID_GLOBAL) {
+                    $menu[] = RowActions::action(__(self::LANG_GROUP, 'Ver perfil'), $profileViewLink, 'eye');
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-organization-button>{$deleteIcon}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-organization-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
-                if ($hasProfileViewLink && $e->id != OrganizationMapper::INITIAL_ID_GLOBAL) {
-                    $profileViewText = __(self::LANG_GROUP, 'Ver perfil');
-                    $profileViewIcon = "<i class='icon address card outline'></i>";
-                    $profileViewButton = "<a title='{$profileViewText}' href='{$profileViewLink}' class='ui button blue icon'>{$profileViewIcon}</a>";
-                    $buttons[] = $profileViewButton;
-                }
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('forms-edit', ['id' => $e->id]), 'edit') : null;
 
-                $buttons = implode('', $buttons);
+                $buttons = RowActions::cell($direct, $menu);
                 $columns = [];
 
                 $name = mb_strlen($e->name) <= 54 ? $e->name : mb_substr($e->name, 0, 51) . '...';

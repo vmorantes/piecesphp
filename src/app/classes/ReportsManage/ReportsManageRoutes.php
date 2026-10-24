@@ -12,7 +12,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 use ReportsManage\Controllers\ReportsManageController;
 
@@ -47,6 +47,8 @@ class ReportsManageRoutes
             self::staticResolver($groupAdministration);
 
             ReportsManageLang::injectLang();
+            //Su tarjeta del inicio del panel, después del idioma: su título se traduce al registrarse.
+            ReportsManageController::registerDashboardCard();
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();

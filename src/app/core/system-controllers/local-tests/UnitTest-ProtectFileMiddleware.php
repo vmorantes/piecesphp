@@ -2,7 +2,7 @@
 
 //Una carpeta de subidas sin proteger la sirve Apache directo. Ver el 20 §7, «UPLOADS».
 
-use PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware;
+use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;

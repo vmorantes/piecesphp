@@ -5,6 +5,7 @@
 use API\Controllers\APIController;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\Terminal\TaskRunMapper;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/cron-jobs';
@@ -160,12 +161,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[6/7] La clave del cron falla cerrada y compara con hash_equals()');
 
     $clave = new \ReflectionMethod(APIController::class, 'cronJobKeyAccepted');
-    $check($clave->invoke(null, '', '', null) === false, "sin clave configurada (''), una petición sin cabecera → 403");
-    $check($clave->invoke(null, null, '', null) === false, 'clave no configurada (null) → 403');
-    $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', 'clave-de-prueba-de-esta-suite', null) === true, 'DISCRIMINANTE: la cabecera correcta pasa');
-    $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', 'otra', null) === false, 'otra cabecera → 403');
-    $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', '', 'clave-de-prueba-de-esta-suite') === true, 'el parámetro GET correcto pasa (compatibilidad)');
-    $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', '', 'otra') === false, 'otro parámetro GET → 403');
+    $check($clave->invoke(null, '', '') === false, "sin clave configurada (''), una petición sin cabecera → 403");
+    $check($clave->invoke(null, null, '') === false, 'clave no configurada (null) → 403');
+    $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', 'clave-de-prueba-de-esta-suite') === true, 'DISCRIMINANTE: la cabecera correcta pasa');
+    $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', 'otra') === false, 'otra cabecera → 403');
+    $check($clave->getNumberOfParameters() === 2, 'la llave solo por cabecera: el método no recibe el parámetro de consulta');
     echoTerminal(' ');
 
     //──── 6b. La identidad: estado y candado propios aunque los nombres se parezcan (P94) ───────
@@ -190,6 +190,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $elemento->isDir() ? rmdir($elemento->getPathname()) : unlink($elemento->getPathname());
     }
     $check(rmdir($banco) && !file_exists($banco), 'el directorio de estado temporal se borra al acabar');
+    //El libro de tareas (G10) anota lo que ejecutan estas tareas sintéticas: sus líneas se van con el banco.
+    $base = (new \PiecesPHP\Core\BaseModel())->getDatabase();
+    if ($base !== null && TaskRunMapper::tableExists()) {
+        $borrar = $base->prepare('DELETE FROM `' . TaskRunMapper::TABLE . '` WHERE taskName LIKE ?');
+        //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION; lo comprueba la cuenta que sigue.
+        $borrar->execute(['zz-prueba cron %']);
+        $quedan = $base->prepare('SELECT COUNT(*) FROM `' . TaskRunMapper::TABLE . '` WHERE taskName LIKE ?');
+        //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION; lo que cuenta es la cifra que sigue.
+        $quedan->execute(['zz-prueba cron %']);
+        $check((int) $quedan->fetchColumn() === 0, 'las líneas del libro de tareas de esta suite se borran al acabar');
+    }
 
     //──── Balance ───────────────────────────────────────────────────────────────────────────────
     //──── 7. API_CRONJOBS enciende su ruta sola ────────────────────────────────────────────────
@@ -242,4 +253,4 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             : "{$failed} comprobaciones fallaron.",
     ];
 
-})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_FILES, CliActions::EFFECT_DATABASE])->register();

@@ -3,6 +3,7 @@
 //Una noticia o una categoría sin langData en su meta no tumba los listados del panel: se listan con sus campos base.
 //Por HTTP. Siembra dos categorías, dos noticias y un principal, todos zz-, y los retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
@@ -63,8 +64,8 @@ CliActions::make('unit-tests:core/news-incomplete', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -103,7 +104,7 @@ CliActions::make('unit-tests:core/news-incomplete', function ($args) {
         $u->modifiedAt = $u->createdAt;
         $u->save();
         $usuario = (int) $u->id;
-        $root = SessionToken::generateToken(['id' => $usuario], null, null, false);
+        $root = UserSessions::issueToken($usuario);
 
         //Lo completo es el canario: si los listados dejaran de pintar filas, la prueba de lo incompleto pasaría sola.
         foreach (['completa' => ['baseLang' => 'es', 'langData' => new \stdClass], 'incompleta' => ['baseLang' => 'es']] as $sufijo => $meta) {

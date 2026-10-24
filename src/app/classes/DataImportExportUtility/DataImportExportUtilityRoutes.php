@@ -17,7 +17,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 /**
@@ -103,10 +103,10 @@ class DataImportExportUtilityRoutes
             $sidebar->addItem(new MenuGroup([
                 'name' => __(DataImportExportUtilityLang::LANG_GROUP, 'Importar y exportar'),
                 'asLink' => true,
-                'icon' => 'file excel',
+                'icon' => 'exchange alternate',
                 'href' => DataTransferController::routeName('hub'),
                 'visible' => DataTransferController::allowedRoute('hub'),
-                'position' => 8000,
+                'position' => MenuGroupCollection::BAND_DATA + 20,
             ]));
 
         }

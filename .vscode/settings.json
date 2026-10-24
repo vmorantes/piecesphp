@@ -1,0 +1,73 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "src/vendor": false,
+        "**/node_modules": true,
+        "tasks/output": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "tasks/output": true,
+        "src/bundle": true
+    },
+    "files.associations": {
+        "*.neon": "yaml"
+    },
+    "html.format.wrapLineLength": 0,
+    "html.format.wrapAttributes": "auto",
+    "html.format.wrapAttributesIndentSize": 0,
+    "html.format.maxPreserveNewLines": 1,
+    "html.format.preserveNewLines": true,
+    "phpfmt.indent_with_space": 4,
+    "phpfmt.psr2": true,
+    "phpfmt.passes": [
+        "AlignPHPCode",
+        "AutoSemicolon",
+        "MergeNamespaceWithOpenTag",
+        "RemoveSemicolonAfterCurly",
+        "RestoreComments",
+        "ShortArray",
+        "ExtraCommaInArray"
+    ],
+    "[javascript]": {
+        "editor.formatOnSave": true,
+        "js/ts.format.semicolons": "remove"
+    },
+    "editor.wordWrap": "on",
+    "editor.multiCursorModifier": "ctrlCmd",
+    "editor.multiCursorMergeOverlapping": true,
+    "intelephense.environment.phpVersion": "8.5",
+    "intelephense.diagnostics.exclude": {
+        "src/app/classes/**/Views/**/*.php": [
+            "P1008"
+        ],
+        "src/app/view/**/*.php": [
+            "P1008"
+        ]
+    },
+    "[php]": {
+        "editor.defaultFormatter": "kokororin.vscode-phpfmt",
+        "editor.formatOnSave": false
+    },
+    "[html]": {
+        "editor.formatOnSave": true
+    },
+    "explorer.confirmDelete": true,
+    "[scss]": {
+        "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": false
+}

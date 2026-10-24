@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\SystemStatus\Controllers;
 
+use PiecesPHP\SystemStatus\SystemHealth;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Settings\ORM\SettingsModel;
@@ -26,8 +27,16 @@ use PiecesPHP\SystemStatus\ServerDelegatedLinks;
 use PiecesPHP\SystemStatus\SystemAlert;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
+use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Logs\Controllers\LogsController;
+use PiecesPHP\Logs\LogTab;
+use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\Terminal\TaskRunMapper;
 
 /**
  * SystemStatusController - Las páginas «Avisos del sistema» y «Estado y cachés».
@@ -57,6 +66,21 @@ class SystemStatusController extends AdminPanelController
     protected $helpController = null;
 
     const LANG_GROUP = 'system-status';
+
+    /**
+     * La key de su pestaña en «Registros».
+     */
+    const MAIL_LOG_TAB = 'mails';
+
+    /**
+     * Las entregas con que se anota un correo: la resuelta (MailDelivery::resolved()), nunca «auto».
+     */
+    const MAIL_LOG_DELIVERIES = [MailDelivery::SINK, MailDelivery::REAL];
+
+    /**
+     * La key de la pestaña «Tareas programadas» en «Registros».
+     */
+    const TASK_RUNS_TAB = 'tasks';
 
     /**
      * Rutas rotas que la página de mantenimiento enumera.
@@ -100,7 +124,7 @@ class SystemStatusController extends AdminPanelController
         ], 'js');
         //El armazón de configuración, y con él el relleno a cero: una hoja para las tres pantallas del módulo.
         set_custom_assets([
-            'statics/core/css/app_config/system-status.css',
+            SystemStatusRoutes::staticRoute('css/system-status.css'),
         ], 'css');
 
         $title = __(self::LANG_GROUP, 'Avisos del sistema');
@@ -113,10 +137,26 @@ class SystemStatusController extends AdminPanelController
             'rows' => self::alertRows($userType),
             'isRoot' => $userType === UsersModel::TYPE_USER_ROOT,
             'toggleURL' => self::routeName('alerts-toggle'),
-        ]);
+        ] + self::systemHeader($title, __(self::LANG_GROUP, 'Lo que el sistema detecta y conviene revisar, y qué avisos se muestran.'), $this->helpController));
         $this->helpController->render('panel/layout/footer');
 
         return $response;
+    }
+
+    /**
+     * La cabecera de una pantalla del grupo Sistema de Configuración: la misma que las de SettingsController
+     * (SettingsController::sectionHeaderData()), con el HelperController que pinta las piezas.
+     *
+     * @param string $title Ya traducido
+     * @param string $description Ya traducida
+     * @param HelperController $helpController
+     * @return array{title:string,description:string,breadcrumbs:array<string|int,string|array{url:string}>,indexLink:string,helpController:HelperController}
+     */
+    protected static function systemHeader(string $title, string $description, HelperController $helpController): array
+    {
+        return SettingsController::sectionHeaderData(__(SettingsController::LANG_GROUP, 'Sistema'), $title, $description) + [
+            'helpController' => $helpController,
+        ];
     }
 
     /**
@@ -170,12 +210,11 @@ class SystemStatusController extends AdminPanelController
         if (!$done) {
             return $response->withJson(['error' => __(self::LANG_GROUP, 'No se pudo guardar el cambio.')], 500);
         }
-        self::logAction(sprintf(
-            __(self::LANG_GROUP, '%s %s el aviso del sistema «%s».'),
-            self::currentUsername(),
-            $hidden === 'yes' ? __(self::LANG_GROUP, 'ocultó') : __(self::LANG_GROUP, 'mostró'),
-            (string) $key
-        ));
+        self::logAction(LogsMapper::MSG_SYSTEM_ALERT_TOGGLED, [
+            '%username%' => self::currentUsername(),
+            '%action%' => $hidden === 'yes' ? __(self::LANG_GROUP, 'ocultó') : __(self::LANG_GROUP, 'mostró'),
+            '%alert%' => (string) $key,
+        ]);
         return $response->withJson(['key' => $key, 'hidden' => $hidden === 'yes']);
     }
 
@@ -191,7 +230,7 @@ class SystemStatusController extends AdminPanelController
         ], 'js');
         //El armazón de configuración, y con él el relleno a cero: una hoja para las tres pantallas del módulo.
         set_custom_assets([
-            'statics/core/css/app_config/system-status.css',
+            SystemStatusRoutes::staticRoute('css/system-status.css'),
         ], 'css');
 
         $title = __(self::LANG_GROUP, 'Estado y cachés');
@@ -204,7 +243,35 @@ class SystemStatusController extends AdminPanelController
             'brokenLinksURL' => self::routeName('maintenance-broken-links'),
             'cleanURL' => self::routeName('maintenance-clean'),
             'cacheCleanURL' => SettingsController::routeName('system-cache-clean'),
-        ]));
+        ], self::systemHeader($title, __(self::LANG_GROUP, 'Cómo está la instalación y las cachés que se pueden vaciar.'), $this->helpController)));
+        $this->helpController->render('panel/layout/footer');
+
+        return $response;
+    }
+
+    /**
+     * La Salud de la instalación (P179): versiones, entorno, base de datos, tareas y carpetas, cada fila con su origen.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function health(Request $request, Response $response)
+    {
+        set_custom_assets([
+            SystemStatusRoutes::staticRoute('css/system-status.css'),
+        ], 'css');
+
+        $title = __(self::LANG_GROUP, 'Salud de la instalación');
+        set_title($title);
+
+        $this->helpController->render('panel/layout/header');
+        $this->render('health', [
+            'langGroup' => self::LANG_GROUP,
+            'title' => $title,
+            'rows' => SystemHealth::rows(),
+            'groupTitles' => SystemHealth::groupTitles(),
+        ] + self::systemHeader($title, __(self::LANG_GROUP, 'Cómo está esta instalación: versiones, entorno, base de datos, tareas y carpetas.'), $this->helpController));
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -238,22 +305,23 @@ class SystemStatusController extends AdminPanelController
     public function maintenanceBrokenLinks(Request $request, Response $response)
     {
         $result = ServerDelegatedLinks::deleteBroken();
-        self::logAction(sprintf(
-            __(self::LANG_GROUP, '%s borró %d enlace(s) roto(s) de server-delegated y %d carpeta(s) vacía(s); %d no se pudieron borrar por falta de permiso. Enlaces: %s'),
-            self::currentUsername(),
-            count($result['deleted']),
-            count($result['emptiedDirectories']),
-            $result['failed'],
-            count($result['deleted']) > 0 ? implode(', ', $result['deleted']) : '—'
-        ));
+        self::logAction(LogsMapper::MSG_BROKEN_LINKS_DELETED, [
+            '%username%' => self::currentUsername(),
+            '%deleted%' => (string) count($result['deleted']),
+            '%directories%' => (string) count($result['emptiedDirectories']),
+            '%failed%' => (string) $result['failed'],
+            '%links%' => count($result['deleted']) > 0 ? implode(', ', $result['deleted']) : '—',
+        ]);
         return $response->withJson($result);
     }
 
     /**
+     * El enlace «Cómo arreglarlo», o '' si quien mira no puede entrar en la ruta de arreglo.
+     *
      * @param SystemAlert $alert
      * @return string
      */
-    private static function fixURL(SystemAlert $alert): string
+    public static function fixURL(SystemAlert $alert): string
     {
         //La ruta de arreglo puede ser de cualquier módulo: se pregunta por su nombre completo, con permiso.
         $name = (string) $alert->fixRoute();
@@ -262,7 +330,10 @@ class SystemStatusController extends AdminPanelController
             return '';
         }
         $url = get_route($name, [], true);
-        return is_string($url) ? $url : '';
+        if (!is_string($url) || $url === '') {
+            return '';
+        }
+        return $alert->fixQuery() !== [] ? $url . '?' . http_build_query($alert->fixQuery()) : $url;
     }
 
     /**
@@ -275,15 +346,17 @@ class SystemStatusController extends AdminPanelController
     }
 
     /**
-     * En el registro de acciones del panel (EventsLog): quién y cuándo los pone el mapper.
+     * En el registro de acciones del panel (EventsLog), con su tipo: quién y cuándo los pone el mapper.
      *
-     * @param string $message
+     * @param string $type Uno de LogsMapper::MSG_*
+     * @param array<string,string> $variables
+     * @param string|null $mailLogID La fila del registro de correos, si la acción es sobre una
      * @return void
      */
-    private static function logAction(string $message): void
+    private static function logAction(string $type, array $variables, ?string $mailLogID = null): void
     {
         if (LogsRoutes::ENABLE) {
-            LogsMapper::addLog(LogsMapper::MSG_GENERIC, ['%message%' => $message]);
+            LogsMapper::addLog($type, $variables, $mailLogID !== null ? 'id' : null, $mailLogID, $mailLogID !== null ? MailLogMapper::TABLE : null);
         }
     }
 
@@ -328,7 +401,7 @@ class SystemStatusController extends AdminPanelController
             static_files_cache_stamp(true);
             $after = (string) static_files_cache_stamp();
             //El coste va en el acuse: quien lo pulsa tiene que verlo, no deducirlo.
-            $message = __(self::LANG_GROUP, 'Hecho. Todos los visitantes volverán a descargar los estilos y los scripts.');
+            $message = __(self::LANG_GROUP, 'Hecho. Todos los visitantes volverán a descargar los estilos, los scripts y las imágenes de las páginas.');
 
         } elseif ($target === 'server-delegated-links') {
 
@@ -390,20 +463,20 @@ class SystemStatusController extends AdminPanelController
             ? max(0, $before - $after)
             : 0;
 
-        self::logAction($target === 'server-delegated-links'
-            ? sprintf(
-                __(self::LANG_GROUP, '%s borró «%s» desde mantenimiento: %d enlace(s) borrado(s); %d no se pudieron borrar por falta de permiso.'),
-                self::currentUsername(),
-                $target,
-                count((array) ($extra['deleted'] ?? [])),
-                (int) ($extra['failed'] ?? 0)
-            )
-            : sprintf(
-                __(self::LANG_GROUP, '%s borró «%s» desde mantenimiento: %d byte(s) liberado(s).'),
-                self::currentUsername(),
-                $target,
-                $freed
-            ));
+        if ($target === 'server-delegated-links') {
+            self::logAction(LogsMapper::MSG_MAINTENANCE_LINKS_CLEANED, [
+                '%username%' => self::currentUsername(),
+                '%target%' => $target,
+                '%deleted%' => (string) count((array) ($extra['deleted'] ?? [])),
+                '%failed%' => (string) (int) ($extra['failed'] ?? 0),
+            ]);
+        } else {
+            self::logAction(LogsMapper::MSG_MAINTENANCE_CACHE_CLEANED, [
+                '%username%' => self::currentUsername(),
+                '%target%' => $target,
+                '%freed%' => (string) $freed,
+            ]);
+        }
 
         //`status` recalculado, y es obligatorio: sin él la tabla sigue diciendo la cifra vieja al lado
         //de un mensaje que dice que se borró.
@@ -432,7 +505,7 @@ class SystemStatusController extends AdminPanelController
         ], 'js');
         //El armazón de configuración, y con él el relleno a cero: una hoja para las tres pantallas del módulo.
         set_custom_assets([
-            'statics/core/css/app_config/system-status.css',
+            SystemStatusRoutes::staticRoute('css/system-status.css'),
         ], 'css');
 
         $title = __(self::LANG_GROUP, 'Sitio en mantenimiento');
@@ -450,10 +523,8 @@ class SystemStatusController extends AdminPanelController
             'retryAfter' => MaintenanceMode::retryAfter(),
             'retryAfterMax' => MaintenanceMode::RETRY_AFTER_MAX,
             'rootCode' => UsersModel::TYPE_USER_ROOT,
-            //Sin breadcrumb: las pantallas de configuración no lo llevan, y ésta es una de ellas.
-            //Vuelve cuando las configuraciones tengan una jerarquía real que mostrar (PO, 2026-09-25).
             'currentRole' => $usuario !== null ? (int) $usuario->type : null,
-        ]);
+        ] + self::systemHeader($title, __(self::LANG_GROUP, 'Cerrar el sitio público por mantenimiento y quién puede seguir entrando.'), $this->helpController));
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -504,11 +575,10 @@ class SystemStatusController extends AdminPanelController
             ], 500);
         }
 
-        self::logAction(sprintf(
-            __(self::LANG_GROUP, '%s %s el modo mantenimiento del sitio.'),
-            self::currentUsername(),
-            $enabled ? __(self::LANG_GROUP, 'encendió') : __(self::LANG_GROUP, 'apagó')
-        ));
+        self::logAction(LogsMapper::MSG_SITE_MAINTENANCE_TOGGLED, [
+            '%username%' => self::currentUsername(),
+            '%action%' => $enabled ? __(self::LANG_GROUP, 'encendió') : __(self::LANG_GROUP, 'apagó'),
+        ]);
 
         return $response->withJson([
             'success' => true,
@@ -520,11 +590,7 @@ class SystemStatusController extends AdminPanelController
     }
 
     /**
-     * La pantalla del registro de correos: qué se mandó, a dónde y si llegó.
-     *
-     * **Solo el usuario principal**, y el motivo no es la costumbre: la tabla guarda los
-     * DESTINATARIOS de cada correo, que son datos personales de quien no pidió salir en ninguna
-     * lista. Lo mismo que el registro de actividad.
+     * La pantalla vieja del registro de correos: ahora es una pestaña de «Registros».
      *
      * @param Request $request
      * @param Response $response
@@ -532,20 +598,50 @@ class SystemStatusController extends AdminPanelController
      */
     public function mailLog(Request $request, Response $response)
     {
-        set_custom_assets([
-            SystemStatusRoutes::staticRoute('js/mail-log.js'),
-        ], 'js');
-        set_custom_assets([
-            'statics/core/css/app_config/system-status.css',
-        ], 'css');
+        if (!LogsController::allowedRoute('index')) {
+            return throw403($request);
+        }
+        return $response->withRedirect(LogsController::routeName('index') . '?' . http_build_query(['tab' => self::MAIL_LOG_TAB]));
+    }
 
-        $title = __(self::LANG_GROUP, 'Registro de correos');
-        set_title($title);
+    /**
+     * Una fecha del filtro (DD-MM-AAAA, la del calendario del panel) como AAAA-MM-DD; null si no lo es.
+     *
+     * @param mixed $value
+     * @return string|null
+     */
+    protected static function mailLogDate($value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $date = \DateTime::createFromFormat('!d-m-Y', trim($value));
+        return $date !== false && $date->format('d-m-Y') === trim($value) ? $date->format('Y-m-d') : null;
+    }
 
-        $this->helpController->render('panel/layout/header');
-        $this->render('mail-log', [
+    /**
+     * La pestaña «Correos enviados» de «Registros»: qué se mandó, a dónde y si llegó.
+     *
+     * **Solo el usuario principal**, y el motivo no es la costumbre: la tabla guarda los
+     * DESTINATARIOS de cada correo, que son datos personales de quien no pidió salir en ninguna
+     * lista. Lo mismo que el registro de actividad.
+     *
+     * @param Request $request
+     * @param string $tabURL
+     * @return string
+     */
+    public static function mailLogTab(Request $request, string $tabURL): string
+    {
+        add_global_asset(SystemStatusRoutes::staticRoute('js/mail-log.js'), 'js');
+
+        return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('mail-log', [
             'langGroup' => self::LANG_GROUP,
-            'title' => $title,
+            'results' => [
+                MailLogMapper::RESULT_DELIVERED => __(self::LANG_GROUP, 'Entregado'),
+                MailLogMapper::RESULT_OUTBOX => __(self::LANG_GROUP, 'En el buzón'),
+                MailLogMapper::RESULT_FAILED => __(self::LANG_GROUP, 'No llegó'),
+            ],
+            'deliveries' => self::MAIL_LOG_DELIVERIES,
             'processTableLink' => self::routeName('mail-log-datatables'),
             //Sin la tabla no hay nada que listar, y hay que DECIRLO: una tabla vacía se lee como
             //«no se ha mandado ningún correo», que es una conclusión distinta y falsa.
@@ -556,10 +652,208 @@ class SystemStatusController extends AdminPanelController
             //Sin el permiso del cuerpo, la columna NO existe para ese usuario (ADR 0048 §5): ni
             //cabecera, ni celda, ni un aviso de que hay algo que no puede ver.
             'canSeeBody' => self::canSeeMailBody(),
-        ]);
-        $this->helpController->render('panel/layout/footer');
+        ], false);
+    }
 
-        return $response;
+    /**
+     * @return void
+     */
+    public static function registerLogTab(): void
+    {
+        LogTabRegistry::register(new LogTab(
+            self::MAIL_LOG_TAB,
+            __(self::LANG_GROUP, 'Correos enviados'),
+            'envelope open outline',
+            self::$baseRouteName . '-mail-log-datatables',
+            fn(Request $request, string $tabURL): string => self::mailLogTab($request, $tabURL),
+            20
+        ));
+        LogTabRegistry::register(new LogTab(
+            self::TASK_RUNS_TAB,
+            __(self::LANG_GROUP, 'Tareas programadas'),
+            'clock outline',
+            self::$baseRouteName . '-task-runs-datatables',
+            fn(Request $request, string $tabURL): string => self::taskRunsTab($request, $tabURL),
+            60
+        ));
+    }
+
+    /**
+     * La pestaña «Tareas programadas» de «Registros»: el estado de cada tarea registrada y, debajo, el libro de
+     * ejecuciones (G10). Solo root, como el resto de lo que anota el sistema.
+     *
+     * @param Request $request
+     * @param string $tabURL
+     * @return string
+     */
+    public static function taskRunsTab(Request $request, string $tabURL): string
+    {
+        add_global_asset(SystemStatusRoutes::staticRoute('js/task-runs.js'), 'js');
+        $now = new \DateTime();
+        $latest = TaskRunMapper::latestByTask();
+        $tasks = [];
+        foreach (CronJobTask::getCronJobs() as $task) {
+            $name = $task->getName();
+            $state = $task->getState();
+            //Sin franja no hay .json: lo último que se sabe es la última línea del libro.
+            $lastResult = $state['lastResult'] ?? null;
+            $lastAt = $state['lastAttemptAt'] ?? null;
+            $lastError = $state['lastError'] ?? null;
+            if ($lastResult === null && isset($latest[$name])) {
+                $lastResult = $latest[$name]['status'] === CronJobTask::STATUS_EXECUTED ? 'success' : 'failed';
+                $lastAt = $latest[$name]['startedAt'];
+                $lastError = $lastResult === 'failed' ? $latest[$name]['message'] : null;
+            }
+            $next = $task->nextDueSlot($now);
+            $tasks[] = [
+                'name' => $name,
+                'schedule' => self::describeSchedule($task->getSchedule()),
+                'lastResult' => $lastResult,
+                'lastAt' => is_string($lastAt) && strtotime($lastAt) !== false ? date('d-m-Y H:i', (int) strtotime($lastAt)) : '',
+                'lastError' => is_string($lastError) ? $lastError : '',
+                'next' => $next !== null ? $next->format('d-m-Y H:i') : '',
+            ];
+        }
+        return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('task-runs', [
+            'langGroup' => self::LANG_GROUP,
+            'processTableLink' => self::routeName('task-runs-datatables'),
+            'tableExists' => TaskRunMapper::tableExists(),
+            'updateFile' => TaskRunMapper::UPDATE_FILE,
+            'tasks' => $tasks,
+            'cron' => self::cronCheatsheet(self::registeredRuns($latest), $now),
+        ], false);
+    }
+
+    /**
+     * La ayuda del cron solo mira tareas registradas: una fila de otra (sembrada, retirada) no dice si el cron corre hoy.
+     *
+     * @param array<string,array{status:string,startedAt:string,message:string|null}> $latest TaskRunMapper::latestByTask()
+     * @return array<string,array{status:string,startedAt:string,message:string|null}>
+     */
+    public static function registeredRuns(array $latest): array
+    {
+        $names = array_map(static fn (CronJobTask $task): string => $task->getName(), CronJobTask::getCronJobs());
+        return array_intersect_key($latest, array_flip($names));
+    }
+
+    /**
+     * La chuleta del cron de ESTA instalación, derivada y no escrita a mano: la línea de crontab con la ruta real de su
+     * `index.php` (en un servidor no hay `src/`: su contenido es la raíz desplegada), la URL de la ruta por HTTP y si hay
+     * llave. La llave no sale nunca de aquí: solo si está configurada. Abierta si no hay ejecuciones en 24 h.
+     *
+     * @param array<string,array{status:string,startedAt:string,message:string|null}> $latest TaskRunMapper::latestByTask()
+     * @param \DateTime $now
+     * @return array{line:string,url:string,keyConfigured:bool,lastRunAgo:string|null,open:bool}
+     */
+    public static function cronCheatsheet(array $latest, \DateTime $now): array
+    {
+        $last = null;
+        foreach ($latest as $run) {
+            $at = strtotime($run['startedAt']);
+            if ($at !== false && ($last === null || $at > $last)) {
+                $last = $at;
+            }
+        }
+        $ago = null;
+        if ($last !== null) {
+            $minutes = max(0, intdiv($now->getTimestamp() - $last, 60));
+            $ago = $minutes < 60
+                ? sprintf(__(self::LANG_GROUP, 'hace %d min'), $minutes)
+                : ($minutes < 48 * 60 ? sprintf(__(self::LANG_GROUP, 'hace %d h'), intdiv($minutes, 60)) : sprintf(__(self::LANG_GROUP, 'hace %d días'), intdiv($minutes, 24 * 60)));
+        }
+        $key = get_config('CronJobKey');
+        return [
+            'line' => '* * * * * php8.5 ' . basepath('index.php') . ' cli run-cronjobs run',
+            'url' => \API\Controllers\APIController::routeName('cron-jobs', ['actionType' => 'run'], true),
+            'keyConfigured' => is_string($key) && $key !== '',
+            'lastRunAgo' => $ago,
+            'open' => $last === null || $now->getTimestamp() - $last > 24 * 3600,
+        ];
+    }
+
+    /**
+     * El libro de ejecuciones, filtrable por tarea y por resultado. Todo filtro va por marcador y todo lo que sale,
+     * escapado: el mensaje es el de la tarea.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function taskRunsDataTables(Request $request, Response $response)
+    {
+        $table = TaskRunMapper::TABLE;
+        $where = [];
+        $task = $request->getQueryParam('task', '');
+        if (is_string($task) && trim($task) !== '') {
+            $where[] = new WhereItem("{$table}.taskName", WhereItem::EQUAL_OPERATOR, mb_substr(trim($task), 0, 191), WhereItem::AND_OPERATOR);
+        }
+        $status = $request->getQueryParam('status', '');
+        if (is_string($status) && in_array($status, [CronJobTask::STATUS_EXECUTED, CronJobTask::STATUS_FAILED], true)) {
+            $where[] = new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $status, WhereItem::AND_OPERATOR);
+        }
+        $labels = [
+            CronJobTask::STATUS_EXECUTED => ['green', __(self::LANG_GROUP, 'Ejecutada')],
+            CronJobTask::STATUS_FAILED => ['red', __(self::LANG_GROUP, 'Fallida')],
+        ];
+
+        DataTablesHelper::setTablePrefixOnOrder(false);
+        DataTablesHelper::setTablePrefixOnSearch(false);
+
+        $result = DataTablesHelper::process([
+            'where_segment' => $where !== [] ? new WhereSegment($where) : null,
+            'select_fields' => [
+                "{$table}.id",
+                "{$table}.taskName",
+                "{$table}.slot",
+                "{$table}.triggeredBy",
+                "{$table}.status",
+                "{$table}.attempt",
+                "{$table}.startedAt",
+                "{$table}.durationMs",
+                "{$table}.message",
+            ],
+            'columns_order' => ['startedAt', 'taskName', 'triggeredBy', 'status', 'attempt', 'durationMs'],
+            'custom_order' => ['id' => 'DESC'],
+            'mapper' => new TaskRunMapper(),
+            'request' => $request,
+            'on_set_data' => function ($e) use ($labels): array {
+                $status = is_string($e->status ?? null) ? $e->status : '';
+                [$color, $label] = $labels[$status] ?? ['grey', $status];
+                $message = is_string($e->message ?? null) ? $e->message : '';
+                $slot = is_string($e->slot ?? null) && strtotime($e->slot) !== false ? date('d-m-Y H:i', (int) strtotime($e->slot)) : '';
+                return [
+                    escape_html(is_string($e->startedAt ?? null) && strtotime($e->startedAt) !== false ? date('d-m-Y H:i:s', (int) strtotime($e->startedAt)) : ''),
+                    escape_html((string) ($e->taskName ?? '')) . ($slot !== '' ? '<small class="task-runs-slot">' . escape_html(sprintf(__(self::LANG_GROUP, 'franja %s'), $slot)) . '</small>' : ''),
+                    escape_html((string) ($e->triggeredBy ?? '')),
+                    '<span class="ui ' . escape_html($color) . ' label">' . escape_html($label) . '</span>'
+                        . ($message !== '' ? '<small class="task-runs-message">' . escape_html($message) . '</small>' : ''),
+                    escape_html((string) ($e->attempt ?? '')),
+                    escape_html(isset($e->durationMs) && is_numeric($e->durationMs) ? $e->durationMs . ' ms' : ''),
+                ];
+            },
+        ]);
+
+        return $response->withJson($result->getValues());
+    }
+
+    /**
+     * La programación de una tarea, legible.
+     *
+     * @param array{kind: string, minute?: int, time?: string, day?: int, period: string}|null $schedule
+     * @return string
+     */
+    protected static function describeSchedule(?array $schedule): string
+    {
+        if ($schedule === null) {
+            return __(self::LANG_GROUP, 'Sin franja: cada vez que se disparan las tareas y su condición se cumple');
+        }
+        $days = [__(self::LANG_GROUP, 'domingo'), __(self::LANG_GROUP, 'lunes'), __(self::LANG_GROUP, 'martes'), __(self::LANG_GROUP, 'miércoles'), __(self::LANG_GROUP, 'jueves'), __(self::LANG_GROUP, 'viernes'), __(self::LANG_GROUP, 'sábado')];
+        return match ($schedule['kind']) {
+            'hourly' => sprintf(__(self::LANG_GROUP, 'Cada hora, al minuto %d'), $schedule['minute'] ?? 0),
+            'daily' => sprintf(__(self::LANG_GROUP, 'Cada día a las %s'), $schedule['time'] ?? ''),
+            'weekly' => sprintf(__(self::LANG_GROUP, 'Cada semana, el %s a las %s'), $days[$schedule['day'] ?? 0] ?? '', $schedule['time'] ?? ''),
+            default => $schedule['kind'],
+        };
     }
 
     /**
@@ -588,10 +882,35 @@ class SystemStatusController extends AdminPanelController
         //columna en la tabla ni eso, que el SELECT fallaría.
         $tieneCuerpo = MailLogMapper::bodyColumnExists() ? "({$tabla}.body IS NOT NULL) AS hasBody" : '0 AS hasBody';
 
+        //Los filtros llegan en la dirección de los datos (mail-log.js) y van con marcadores: solo valores conocidos o
+        //texto acotado, nunca SQL.
+        $where = [];
+        $from = self::mailLogDate($request->getQueryParam('from', ''));
+        if ($from !== null) {
+            $where[] = new WhereItem("{$tabla}.sentAt", WhereItem::GREATER_OR_EQUAL_OPERATOR, $from . ' 00:00:00', WhereItem::AND_OPERATOR);
+        }
+        $to = self::mailLogDate($request->getQueryParam('to', ''));
+        if ($to !== null) {
+            $where[] = new WhereItem("{$tabla}.sentAt", WhereItem::LESS_OR_EQUAL_OPERATOR, $to . ' 23:59:59', WhereItem::AND_OPERATOR);
+        }
+        $filterResult = $request->getQueryParam('result', '');
+        if (is_string($filterResult) && in_array($filterResult, MailLogMapper::RESULTS, true)) {
+            $where[] = new WhereItem("{$tabla}.result", WhereItem::EQUAL_OPERATOR, $filterResult, WhereItem::AND_OPERATOR);
+        }
+        $filterDelivery = $request->getQueryParam('delivery', '');
+        if (is_string($filterDelivery) && in_array($filterDelivery, self::MAIL_LOG_DELIVERIES, true)) {
+            $where[] = new WhereItem("{$tabla}.delivery", WhereItem::EQUAL_OPERATOR, $filterDelivery, WhereItem::AND_OPERATOR);
+        }
+        $filterOrigin = $request->getQueryParam('origin', '');
+        if (is_string($filterOrigin) && trim($filterOrigin) !== '') {
+            $where[] = new WhereItem("{$tabla}.origin", WhereItem::LIKE_OPERATOR, '%' . mb_substr(trim($filterOrigin), 0, 100) . '%', WhereItem::AND_OPERATOR);
+        }
+
         DataTablesHelper::setTablePrefixOnOrder(false);
         DataTablesHelper::setTablePrefixOnSearch(false);
 
         $result = DataTablesHelper::process([
+            'where_segment' => $where !== [] ? new WhereSegment($where) : null,
             'select_fields' => [
                 "{$tabla}.id",
                 "{$tabla}.sentAt",
@@ -687,10 +1006,10 @@ class SystemStatusController extends AdminPanelController
         //Con la clave derivada del ADR 0051; nunca lanza: lo que no se lee es «ilegible», no un 500.
         $claro = MailLogMapper::decryptBody($fila['body']);
         if ($claro === null) {
-            self::logAction(sprintf(__(self::LANG_GROUP, '%s pidió el cuerpo del correo #%d del registro, y no se pudo descifrar.'), self::currentUsername(), (int) $id));
+            self::logAction(LogsMapper::MSG_MAIL_BODY_UNREADABLE, ['%username%' => self::currentUsername(), '%id%' => (string) (int) $id], (string) (int) $id);
             return $response->withJson(['status' => 'ilegible', 'body' => null, 'message' => __(self::LANG_GROUP, 'No se pudo descifrar el cuerpo: se guardó con otra clave o está dañado.')]);
         }
-        self::logAction(sprintf(__(self::LANG_GROUP, '%s vio el cuerpo del correo #%d del registro.'), self::currentUsername(), (int) $id));
+        self::logAction(LogsMapper::MSG_MAIL_BODY_VIEWED, ['%username%' => self::currentUsername(), '%id%' => (string) (int) $id], (string) (int) $id);
         //Un cuerpo con UTF-8 inválido se enseña con U+FFFD donde falle: json_encode sin la opción lanza y daba 500.
         return $response->withJson(['status' => 'ok', 'body' => $claro], null, \JSON_INVALID_UTF8_SUBSTITUTE);
     }
@@ -715,6 +1034,7 @@ class SystemStatusController extends AdminPanelController
         $root = [UsersModel::TYPE_USER_ROOT];
 
         $group->register([
+            new Route("{$startRoute}/health[/]", self::class . ':health', self::$baseRouteName . '-health', 'GET', true, null, $root),
             new Route("{$startRoute}/alerts[/]", self::class . ':alerts', self::$baseRouteName . '-alerts', 'GET', true, null, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]),
             new Route("{$startRoute}/alerts/toggle[/]", self::class . ':alertsToggle', self::$baseRouteName . '-alerts-toggle', 'POST', true, null, $root),
             new Route("{$startRoute}/maintenance[/]", self::class . ':maintenance', self::$baseRouteName . '-maintenance', 'GET', true, null, $root),
@@ -729,6 +1049,8 @@ class SystemStatusController extends AdminPanelController
             new Route("{$startRoute}/mail-log/datatables[/]", self::class . ':mailLogDataTables', self::$baseRouteName . '-mail-log-datatables', 'GET', true, null, $root),
             //El cuerpo, con SU PROPIO nombre: es otro permiso que el del listado (ADR 0048 §5).
             new Route("{$startRoute}/mail-log/body/{id}[/]", self::class . ':mailLogBody', self::$baseRouteName . '-mail-log-body', 'GET', true, null, $root),
+            //El libro de las tareas programadas (G10).
+            new Route("{$startRoute}/task-runs/datatables[/]", self::class . ':taskRunsDataTables', self::$baseRouteName . '-task-runs-datatables', 'GET', true, null, $root),
         ]);
 
         $group->addMiddleware(function (Request $request, $handler) {

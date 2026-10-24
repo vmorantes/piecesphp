@@ -14,9 +14,9 @@ Un rol puede llegar a una ruta por dos caminos:
 
 ```php
 new Route(
-    "{$startRoute}error-log[/]",
-    self::class . ':errorLog',
-    'admin-error-log',
+    "{$startRoute}/errors[/]",
+    self::class . ':errorsData',
+    self::$baseRouteName . '-errors',      // logs-admin-errors
     'GET',
     true,                                   // require_login
     null,
@@ -107,10 +107,26 @@ Lo que hay que saber es lo que pasa después:
 > que el 403 llegue de verdad, la llamada tiene que quedar **fuera** del `try` que captura `\Exception`, o ese `catch`
 > tiene que **relanzar** `HttpForbiddenException` antes de tratar lo demás.
 
+Desde la `9.0.0` el propio framework lo hace así en todos sus controladores: un `catch (HttpForbiddenException $e)` que
+relanza va **antes** del que recoge `\Exception`. Es la forma que conviene copiar en los módulos propios:
+
+```php
+try {
+    if (!$puedeEditar) {
+        return throw403($request);
+    }
+    // …
+} catch (HttpForbiddenException $e) {
+    throw $e; // la denegación sale como 403, no como error genérico
+} catch (\Exception $e) {
+    // …
+}
+```
+
 ## Cómo saber quién entra de verdad
 
 - **Para preguntarlo en código**, `get_route_roles_allowed()` es la función que **combina las dos fuentes**. Es la que
-  usan la pantalla `/configurations/routes/` del panel y la actualización de la matriz de permisos
+  usan la pantalla «Rutas y permisos» del panel (la ruta `configurations-system-routes`) y la actualización de la matriz de permisos
   (`bin/cli verify-integrity update-permissions=yes`). **La matriz medida por HTTP (`bin/walk-matrix`) no usa esta
   función**: pregunta al servidor, y por eso sirve de contraste.
 - **`rolesAllowed` por sí solo no contesta la pregunta.** El inventario de rutas (`bin/cli route-inventory`) lo expone

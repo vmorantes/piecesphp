@@ -98,6 +98,41 @@ el mismo cambio**.
 > «declaradas» que dice el artefacto son MENOS de las que mide el campo** (ver la memoria
 > `trinquete-declaradas-count-mayor`). El 2026-10-02 el artefacto decía 79 y el campo medía 89 sin que nada fallara.
 
+## La verificación por área (ADR 0062, bloque GD, 2026-10-16)
+
+```bash
+bin/verify --changed-since=<commit>          # check-routes, phpstan y verify-integrity enteras; gates por área
+bin/cli gates changed-since=<commit>         # solo gates, por área
+```
+
+- **Qué corre** (`GatesTask::selectByArea()`): las suites sin `//@areas` (siempre), la suite cuyo archivo cambió, y las
+  que tienen un área que casa con un cambio. **Todas** si algún cambio no es documentación (`.agents/`, `.claude/`,
+  `source-docs/`, `.md` de la raíz) ni cae en `GatesTask::AREA_MODULES` ni es el archivo de una suite. La línea
+  «SELECCIÓN POR ÁREA» dice cuántas y por qué, y si las fuerza todas, el primer archivo que lo hizo.
+- **Cambiados** = `git diff --name-only <commit>` más lo nuevo sin seguimiento. Un commit que no existe: error y salida 1.
+- **La parcial no cierra nada**: su última línea es «VERIFICACIÓN PARCIAL … NO vale para cerrar un bloque ni para avalar
+  una etiqueta». Al cerrar un bloque, al etiquetar y al cerrar la jornada, `bin/verify` sin argumento.
+- **Declarar un área**: una línea `//@areas src/app/classes/<Módulo>/` por carpeta en la cabecera de la suite, antes de
+  `CliActions::make`. **Regla mecánica** (la de GD3): las carpetas de `AREA_MODULES` que contienen una clase que la suite
+  importa con `use`. Si no importa ninguna, no lleva área. La **53** exige que cada área exista y caiga en la lista; la
+  **8** no cuenta `@areas` como prosa, y solo en `local-tests/`.
+- **Medido el 2026-10-16** (`#1489`): 12 de 155 suites con área (las más lentas; `input-guards`, 39,6 s, sin área por la
+  regla). Con solo `.agents/estado/` cambiado corrieron 142 de 154 en 118 s, frente a 184 s la entera: **hoy ahorra
+  poco**; crece a medida que las suites declaren su área. Cada línea de suite lleva su tiempo: «(12,3 s)».
+- **Trampa de la demostración**: `changed-since=HEAD~1` depende de qué commit es `HEAD~1`. Si es un artefacto de
+  `files/`, fuerza todas (`files/` es núcleo). Para demostrar, un hash literal.
+
+### La 52: nadie llama desde el código a un método que decide la operación por la ruta (P167)
+
+Los diez `action()` que llaman a `BaseController::isEditRoute()` sacan alta o edición del **nombre de la ruta**. Llamados
+desde otro código, con otra ruta, fallan en silencio: así estuvo «Mi organización» sin guardar desde la `v8.0.0`
+(`#1447`). La 52 busca esos métodos en `src/app/classes` y `src/app/core` y falla si el código los llama con un
+receptor que sabe resolver (`new Clase`, `Clase::`, `$this`/`self`/`static`/`parent` en la clase o una hija, una
+variable con `new Clase` en la misma función). Las llamadas de `local-tests/` no cuentan: `core/operation-from-route`
+llama a propósito, y una suite que llame mal falla en su balance. Cuesta 0,18-0,24 s. **Lo que hay que hacer en su
+lugar**: extraer el cuerpo a un método que reciba la operación (`saveOrganization(…, bool $isEdit)`; receta 4 de
+`13-recetas.md`).
+
 ## La línea base de PHPStan
 
 `PHPStanResult.Summary.baseline.txt` **no es una corrida viva**: es el punto de

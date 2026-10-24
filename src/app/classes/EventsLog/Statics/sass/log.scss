@@ -1,3 +1,6 @@
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$personImageShadow: rgba(0, 0, 0, 0.5);
+
 $gray: #4D525A;
 
 .container-standard-table {
@@ -18,7 +21,7 @@ $gray: #4D525A;
 
         img {
             border-radius: 100%;
-            box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0px 1px 10px $personImageShadow;
         }
     }
 
@@ -48,4 +51,10 @@ $gray: #4D525A;
         }
     }
 
+}
+
+//El detalle de una acción: los datos y la meta, en JSON, sin salirse de la ventana.
+.actions-log-pre {
+    white-space: pre-wrap;
+    word-break: break-word;
 }

@@ -13,6 +13,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\TerminalData;
@@ -98,12 +99,16 @@ class SessionsRevokeAllTask extends TerminalTaskAbstract
             }
         }
 
+        //Y las filas (fase B): la marca global echa a todos; las filas dejan de salir como abiertas.
+        $closedRows = UserSessions::closeAll(UserSessions::REASON_REVOKE_ALL_GLOBAL);
+
         LogsMapper::addLog(LogsMapper::MSG_REVOKE_ALL_SESSIONS, [
             '%users%' => (string) $users,
         ]);
 
         echoTerminal("\e[94mINFO:\e[39m marca global: {$previous} → {$now}");
         echoTerminal("\e[94mINFO:\e[39m pierden la sesión todos los que tuvieran una abierta: hasta {$users} usuario(s) no inactivos.");
+        echoTerminal("\e[94mINFO:\e[39m filas de sesión cerradas: {$closedRows}.");
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
     }

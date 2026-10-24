@@ -95,6 +95,13 @@ class TasksManager
 
         if ($toolsDir && is_dir($toolsDir)) {
 
+            //La distribución lleva bin/tools sin su composer.json (bin/distribution-exclude.txt): sin esto, composer
+            //install fallaba en todo clon de la distribución.
+            if (!is_file($toolsDir . '/composer.json')) {
+                echo "[PiecesPHP] Sin instrumental de desarrollo en esta copia (bin/tools/composer.json no existe; la distribución no lo lleva): no se instala.\n";
+                return;
+            }
+
             // 1. Instalar tools segun el lock. SIEMPRE `install`: `update` ignoraria
             //`bin/tools/composer.lock`, que esta versionado, y dos clones medirian con
             //analizadores distintos. Subir una herramienta se hace a mano en `bin/tools`.

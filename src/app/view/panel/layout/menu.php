@@ -126,10 +126,19 @@ $sidebarMenu = get_sidebar_menu();
             <span only-expanded class="main"><?= escape_html(get_config('owner')); ?></span>
             <span only-expanded class="text"><?= __(LANG_GROUP, 'Todos los derechos reservados'); ?></span>
             <span class="meta"><?= date('Y'); ?></span>
+            <?php //La de fábrica es un relleno «280x50»: no se pinta mientras siga siendo esa, ni su caja si no queda ninguna. ?>
+            <?php $partnersImage = !\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partners'); ?>
+            <?php $partnersVerticalImage = !\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partnersVertical'); ?>
+            <?php if ($partnersImage || $partnersVerticalImage): ?>
             <div menu-footer-images class="images-grup">
+                <?php if ($partnersImage): ?>
                 <img class="horizontal" src="<?= get_config('partners'); ?>">
+                <?php endif; ?>
+                <?php if ($partnersVerticalImage): ?>
                 <img class="vertical" src="<?= get_config('partnersVertical'); ?>">
+                <?php endif; ?>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </aside> <!-- .ui-pcs.sidebar -->

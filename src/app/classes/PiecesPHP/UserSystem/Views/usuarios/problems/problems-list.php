@@ -4,6 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="front-configurations" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <base href="<?= baseurl(); ?>">
@@ -20,7 +21,7 @@
         '${otherProblemsFormLink}' => \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'),
         '${owner}' => escape_html(get_config('owner')),
         '${logoURL}' => get_config('logo'),
-        '${partnersImageURL}' => get_config('partners'),
+        '${partnersImage}' => \PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partners') ? '' : '<img src="' . escape_html((string) get_config('partners')) . '">',
         '${backgroundURL}' => get_config('backgoundProblems'),
         '${mailSystem}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
     ]); ?>

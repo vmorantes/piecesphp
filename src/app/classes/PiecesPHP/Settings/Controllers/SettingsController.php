@@ -6,12 +6,14 @@
 
 namespace PiecesPHP\Settings\Controllers;
 
+use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\Controllers\HelperController;
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Backups\BackupRotation;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Settings\ORM\SettingsModel;
+use PiecesPHP\Settings\Mail\MailTester;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
@@ -23,7 +25,7 @@ use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 use PiecesPHP\Core\MaintenanceMode;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -41,6 +43,7 @@ use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\Settings\SettingsRoutes;
 
 /**
  * SettingsController.
@@ -53,6 +56,15 @@ class SettingsController extends AdminPanelController
 {
 
     use ControllerRoutingTrait;
+    /**
+     * El sha1 de las imágenes de socios que trae el framework (statics/images/): un relleno «280x50». Una imagen propia
+     * en PNG se guarda en el MISMO archivo, así que se distingue por el contenido y no por la ruta.
+     */
+    const FACTORY_BRAND_IMAGES = [
+        'partners' => 'a9859251d2b678dae97487514bf7b27190826277',
+        'partnersVertical' => 'f9b63958f1c2945f7c54362975eba26d65ec92df',
+    ];
+
     const PARSE_TYPE_STRING = 'string';
     const PARSE_TYPE_BOOL = 'bool';
     const PARSE_TYPE_INT = 'int';
@@ -181,6 +193,8 @@ class SettingsController extends AdminPanelController
     const SECURITY_CONFIG_KEYS = [
         'check_aud_on_auth',
         'hide_app_key_warning',
+        \PiecesPHP\Core\SessionToken::INACTIVITY_CONFIG,
+        \PiecesPHP\Core\SessionToken::CEILING_CONFIG,
     ];
     const AI_CONFIG_KEYS = [
         'modelOpenAI',
@@ -278,11 +292,11 @@ class SettingsController extends AdminPanelController
             import_cropper();
 
             set_custom_assets([
-                'statics/core/js/app_config/backgrounds.js',
+                SettingsRoutes::staticRoute('js/backgrounds.js'),
             ], 'js');
 
             set_custom_assets([
-                'statics/core/css/app_config/backgrounds.css',
+                SettingsRoutes::staticRoute('css/backgrounds.css'),
             ], 'css');
 
             $actionURL = self::routeName('appearance-backgrounds');
@@ -290,7 +304,7 @@ class SettingsController extends AdminPanelController
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
-            ];
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Fondos'), __(self::LANG_GROUP, 'Las imágenes de fondo del acceso y de la página de problemas para iniciar sesión.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -417,11 +431,11 @@ class SettingsController extends AdminPanelController
             import_cropper();
 
             set_custom_assets([
-                'statics/core/js/app_config/logos-favicons.js',
+                SettingsRoutes::staticRoute('js/logos-favicons.js'),
             ], 'js');
 
             set_custom_assets([
-                'statics/core/css/app_config/logos-favicons.css',
+                SettingsRoutes::staticRoute('css/logos-favicons.css'),
             ], 'css');
 
             $actionURL = self::routeName('appearance-brand-images');
@@ -435,7 +449,7 @@ class SettingsController extends AdminPanelController
                 'partners' => get_config('partners'),
                 'partnersVertical' => get_config('partnersVertical'),
                 'mailingLogo' => get_config('mailing_logo'),
-            ];
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Imágenes de marca'), __(self::LANG_GROUP, 'El logotipo, el favicon y las imágenes que identifican la plataforma.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -556,12 +570,8 @@ class SettingsController extends AdminPanelController
             import_cropper();
 
             set_custom_assets([
-                'statics/core/js/app_config/seo.js',
+                SettingsRoutes::staticRoute('js/seo.js'),
             ], 'js');
-
-            set_custom_assets([
-                'statics/core/css/app_config/seo.css',
-            ], 'css');
 
             $actionURL = self::routeName('appearance-seo');
 
@@ -603,7 +613,7 @@ class SettingsController extends AdminPanelController
                 'actionURL' => $actionURL,
                 'SEOValues' => $SEOValues,
                 'xAccount' => SettingsModel::getConfigValue(self::SEO_OPTION_X_ACCOUNT),
-            ];
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Identidad y SEO'), __(self::LANG_GROUP, 'Cómo se presenta la plataforma en los buscadores y al compartirla.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -880,6 +890,39 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * «Probar conexión», en Correo (solo root): conecta con el SMTP que usaría un envío, sin enviar (MailTester::probe()).
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function emailProbe(Request $req, Response $res)
+    {
+        return $res->withJson(MailTester::probe());
+    }
+
+    /**
+     * «Enviar correo de prueba», en Correo (solo root): a la dirección que se escriba o, vacía, a la del usuario.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function emailTestSend(Request $req, Response $res)
+    {
+        $to = $req->getParsedBodyParam('to', '');
+        $to = is_string($to) ? trim($to) : '';
+        if ($to === '') {
+            $user = getLoggedFrameworkUser();
+            $to = $user !== null ? trim((string) $user->email) : '';
+        }
+        if (!Validator::isEmail($to)) {
+            return $res->withJson(['success' => false, 'message' => __(self::LANG_GROUP, 'La dirección no es un correo válido.')], 400);
+        }
+        return $res->withJson(MailTester::send($to));
+    }
+
+    /**
      * @param Request $req
      * @param Response $res
      * @return Response
@@ -895,12 +938,8 @@ class SettingsController extends AdminPanelController
         if ($requestMethod == 'GET') {
 
             set_custom_assets([
-                'statics/core/js/app_config/email.js',
+                SettingsRoutes::staticRoute('js/email.js'),
             ], 'js');
-
-            set_custom_assets([
-                'statics/core/css/app_config/email.css',
-            ], 'css');
 
             $actionURL = self::routeName('integrations-mail');
 
@@ -909,8 +948,11 @@ class SettingsController extends AdminPanelController
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
+                'probeURL' => self::routeName('integrations-mail-probe'),
+                'testSendURL' => self::routeName('integrations-mail-test-send'),
+                'currentEmail' => (string) (getLoggedFrameworkUser()->email ?? ''),
                 'element' => $element,
-            ];
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Integraciones'), __(self::LANG_GROUP, 'Correo'), __(self::LANG_GROUP, 'Desde dónde y cómo sale el correo de la plataforma.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -1184,12 +1226,8 @@ class SettingsController extends AdminPanelController
         if ($requestMethod == 'GET') {
 
             set_custom_assets([
-                'statics/core/js/app_config/os-ticket.js',
+                SettingsRoutes::staticRoute('js/os-ticket.js'),
             ], 'js');
-
-            set_custom_assets([
-                'statics/core/css/app_config/os-ticket.css',
-            ], 'css');
 
             $actionURL = self::routeName('integrations-osticket');
             $url = get_config('osTicketAPI');
@@ -1200,7 +1238,7 @@ class SettingsController extends AdminPanelController
                 'actionURL' => $actionURL,
                 'url' => $url,
                 'key' => $key,
-            ];
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Integraciones'), __(self::LANG_GROUP, 'OsTicket'), __(self::LANG_GROUP, 'La conexión con el sistema de soporte osTicket.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -1320,7 +1358,9 @@ class SettingsController extends AdminPanelController
      */
     public function security(Request $req, Response $res)
     {
-        return $this->securityOrAI($req, $res, 'system-security', __(self::LANG_GROUP, 'Seguridad'), 'security', self::SECURITY_CONFIG_KEYS);
+        $title = __(self::LANG_GROUP, 'Seguridad');
+        $header = $this->sectionHeader(__(self::LANG_GROUP, 'Sistema'), $title, __(self::LANG_GROUP, 'Las opciones de seguridad de la plataforma.'));
+        return $this->securityOrAI($req, $res, 'system-security', $title, 'security', self::SECURITY_CONFIG_KEYS, $header);
     }
 
     /**
@@ -1330,7 +1370,9 @@ class SettingsController extends AdminPanelController
      */
     public function ai(Request $req, Response $res)
     {
-        return $this->securityOrAI($req, $res, 'integrations-ai', __(self::LANG_GROUP, 'Inteligencia artificial'), 'ai', self::AI_CONFIG_KEYS);
+        $title = __(self::LANG_GROUP, 'Inteligencia artificial');
+        $header = $this->sectionHeader(__(self::LANG_GROUP, 'Integraciones'), $title, __(self::LANG_GROUP, 'Los proveedores y las claves de las funciones de inteligencia artificial.'));
+        return $this->securityOrAI($req, $res, 'integrations-ai', $title, 'ai', self::AI_CONFIG_KEYS, $header);
     }
 
     /**
@@ -1347,14 +1389,14 @@ class SettingsController extends AdminPanelController
         set_title(__($langGroup, 'Archivos para buscadores'));
 
         set_custom_assets([
-            'statics/core/js/app_config/site-files.js',
+            SettingsRoutes::staticRoute('js/site-files.js'),
         ], 'js');
         set_custom_assets([
-            'statics/core/css/app_config/site-files.css',
+            SettingsRoutes::staticRoute('css/site-files.css'),
         ], 'css');
 
         $added = fn(string $name): string => is_string($value = SettingsModel::getConfigValue($name)) ? $value : '';
-        $data = [
+        $data = $this->sectionHeader(__($langGroup, 'Apariencia'), __($langGroup, 'Archivos para buscadores'), __($langGroup, 'Lo que leen los buscadores y las inteligencias artificiales: robots.txt, humans.txt y llms.txt.')) + [
             'langGroup' => $langGroup,
             'actionURL' => self::routeName('appearance-site-files-save'),
             'files' => [
@@ -1429,10 +1471,10 @@ class SettingsController extends AdminPanelController
         set_title(__($langGroup, 'Scripts'));
 
         set_custom_assets([
-            'statics/core/js/app_config/scripts.js',
+            SettingsRoutes::staticRoute('js/scripts.js'),
         ], 'js');
         set_custom_assets([
-            'statics/core/css/app_config/scripts.css',
+            SettingsRoutes::staticRoute('css/scripts.css'),
         ], 'css');
 
         $data = [
@@ -1449,7 +1491,7 @@ class SettingsController extends AdminPanelController
                 ExtraScripts::POSITION_BODY_START => __($langGroup, 'Al empezar la página'),
                 ExtraScripts::POSITION_BODY_END => __($langGroup, 'Al final de la página'),
             ],
-        ];
+        ] + $this->sectionHeader(__($langGroup, 'Integraciones'), __($langGroup, 'Scripts'), __($langGroup, 'El código que se añade a las páginas del sitio, del panel o de los dos, como la analítica.'));
 
         $this->render('panel/layout/header');
         $this->settingsViews->render('panel/pages/app_configurations/scripts', $data);
@@ -1518,27 +1560,15 @@ class SettingsController extends AdminPanelController
         set_title(__($langGroup, 'Respaldos'));
 
         set_custom_assets([
-            'statics/core/js/app_config/backups.js',
+            SettingsRoutes::staticRoute('js/backups.js'),
         ], 'js');
         set_custom_assets([
-            'statics/core/css/app_config/backups.css',
+            SettingsRoutes::staticRoute('css/backups.css'),
         ], 'css');
 
         $policy = BackupPolicy::current();
-        $directory = BackupPolicy::dumpsDirectory();
-        $plan = BackupRotation::plan(BackupRotation::namesIn($directory), $policy);
-
-        //El tamaño sale solo de los respaldos que la conservación mira: lo ajeno no es nuestro.
-        $bytes = 0;
-        $latest = null;
-        foreach (array_merge($plan['keep'], $plan['delete']) as $name) {
-            $size = @filesize("{$directory}/{$name}");
-            $bytes += is_int($size) ? $size : 0;
-            $date = BackupRotation::dateFromName($name);
-            if ($date !== null && ($latest === null || $date > $latest)) {
-                $latest = $date;
-            }
-        }
+        $backups = self::backupStatus();
+        $plan = $backups['plan'];
 
         $data = [
             'langGroup' => $langGroup,
@@ -1552,11 +1582,11 @@ class SettingsController extends AdminPanelController
                 'keep_monthly' => [BackupPolicy::MIN_KEEP_PERIOD, BackupPolicy::MAX_KEEP_PERIOD],
             ],
             'status' => [
-                'total' => count($plan['keep']) + count($plan['delete']),
-                'bytes' => $bytes,
-                'latest' => $latest,
-                'next' => $latest !== null ? $latest->modify("+{$policy['interval_minutes']} minutes") : null,
-                'due' => BackupPolicy::isDue(),
+                'total' => $backups['total'],
+                'bytes' => $backups['bytes'],
+                'latest' => $backups['latest'],
+                'next' => $backups['next'],
+                'due' => $backups['due'],
             ],
             'plan' => [
                 'keep' => count($plan['keep']),
@@ -1565,7 +1595,14 @@ class SettingsController extends AdminPanelController
             ],
             'tables' => self::databaseTables(),
             'codeExcluded' => BackupPolicy::codeExcludedDataTables(),
-        ];
+        ] + $this->sectionHeader(
+            __(self::LANG_GROUP, 'Sistema'),
+            __(self::LANG_GROUP, 'Respaldos'),
+            __(self::LANG_GROUP, 'Cada cuánto se respalda la base de datos, cuántos respaldos se guardan y qué tablas salen sin sus filas.')
+        );
+
+        //Las cuatro cifras de «Cómo está ahora», con las piezas de estadística.
+        add_global_asset('statics/core/css/graphs-and-statistics.css', 'css');
 
         $this->render('panel/layout/header');
         $this->settingsViews->render('panel/pages/app_configurations/backups', $data);
@@ -1617,11 +1654,45 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * Lo que dice la pantalla de Respaldos sobre los respaldos hechos: cuántos, cuánto ocupan, el último, el siguiente y
+     * el plan de conservación. Lo usa también la Salud de la instalación.
+     *
+     * @return array{total:int,bytes:int,latest:?\DateTimeImmutable,next:?\DateTimeImmutable,due:bool,plan:array{keep:string[],delete:string[],ignored:string[]}}
+     */
+    public static function backupStatus(): array
+    {
+        $policy = BackupPolicy::current();
+        $directory = BackupPolicy::dumpsDirectory();
+        $plan = BackupRotation::plan(BackupRotation::namesIn($directory), $policy);
+
+        //El tamaño sale solo de los respaldos que la conservación mira: lo ajeno no es nuestro.
+        $bytes = 0;
+        $latest = null;
+        foreach (array_merge($plan['keep'], $plan['delete']) as $name) {
+            $size = @filesize("{$directory}/{$name}");
+            $bytes += is_int($size) ? $size : 0;
+            $date = BackupRotation::dateFromName($name);
+            if ($date !== null && ($latest === null || $date > $latest)) {
+                $latest = $date;
+            }
+        }
+
+        return [
+            'total' => count($plan['keep']) + count($plan['delete']),
+            'bytes' => $bytes,
+            'latest' => $latest,
+            'next' => $latest !== null ? $latest->modify("+{$policy['interval_minutes']} minutes") : null,
+            'due' => BackupPolicy::isDue(),
+            'plan' => $plan,
+        ];
+    }
+
+    /**
      * Los nombres de las tablas de la base, para validar las que salen sin filas.
      *
      * @return string[] Vacío si no hay conexión: entonces no se puede validar ninguna.
      */
-    protected static function databaseTables(): array
+    public static function databaseTables(): array
     {
         $db = (new \PiecesPHP\Core\BaseModel())->getDatabase();
         if ($db === null) {
@@ -1641,9 +1712,10 @@ class SettingsController extends AdminPanelController
      * @param string $title Ya traducido.
      * @param string $asset El nombre de su vista, su hoja y su script.
      * @param string[] $keys Las configuraciones que esta pantalla valida y escribe.
+     * @param array<string,mixed> $header La cabecera de su grupo (sectionHeader()); vacía, la vista no la pinta.
      * @return Response
      */
-    private function securityOrAI(Request $req, Response $res, string $routeSuffix, string $title, string $asset, array $keys)
+    private function securityOrAI(Request $req, Response $res, string $routeSuffix, string $title, string $asset, array $keys, array $header = [])
     {
         $langGroup = self::LANG_GROUP;
 
@@ -1654,19 +1726,22 @@ class SettingsController extends AdminPanelController
         if ($requestMethod == 'GET') {
 
             set_custom_assets([
-                "statics/core/js/app_config/{$asset}.js",
+                SettingsRoutes::staticRoute("js/{$asset}.js"),
             ], 'js');
 
-            set_custom_assets([
-                "statics/core/css/app_config/{$asset}.css",
-            ], 'css');
+            //Su hoja, si la tiene: la de la IA se quedó vacía con la cabecera del panel y salió.
+            if ($asset === 'security') {
+                set_custom_assets([
+                    SettingsRoutes::staticRoute('css/security.css'),
+                ], 'css');
+            }
 
             $actionURL = self::routeName($routeSuffix);
 
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
-            ];
+            ] + $header;
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -1699,6 +1774,31 @@ class SettingsController extends AdminPanelController
                     true,
                     function ($value) {
                         return ($value === 1 || $value == '1' || $value === true);
+                    }
+                ),
+                //La sesión (P142): días en el formulario, segundos en la configuración; 0 = sin ese límite.
+                \PiecesPHP\Core\SessionToken::INACTIVITY_CONFIG => new Parameter(
+                    \PiecesPHP\Core\SessionToken::INACTIVITY_CONFIG,
+                    null,
+                    function ($value) {
+                        //Se valida dos veces: lo que llega (días, en texto) y lo que devuelve parse() (segundos, entero).
+                        return is_int($value) ? \PiecesPHP\Core\SessionToken::lifetimeIsValid($value) : Validator::isInteger($value) && (int) $value >= 0 && (int) $value <= 365;
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value * 86400;
+                    }
+                ),
+                \PiecesPHP\Core\SessionToken::CEILING_CONFIG => new Parameter(
+                    \PiecesPHP\Core\SessionToken::CEILING_CONFIG,
+                    null,
+                    function ($value) {
+                        //Se valida dos veces: lo que llega (días, en texto) y lo que devuelve parse() (segundos, entero).
+                        return is_int($value) ? \PiecesPHP\Core\SessionToken::lifetimeIsValid($value) : Validator::isInteger($value) && (int) $value >= 0 && (int) $value <= 365;
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value * 86400;
                     }
                 ),
                 'modelOpenAI' => new Parameter(
@@ -1808,6 +1908,12 @@ class SettingsController extends AdminPanelController
                         'hide_app_key_warning' => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
                             '%s' => __(self::LANG_GROUP, 'Ocultar en el panel el aviso de app_key de relleno'),
                         ]),
+                        \PiecesPHP\Core\SessionToken::INACTIVITY_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Días sin actividad que cierran la sesión'),
+                        ]),
+                        \PiecesPHP\Core\SessionToken::CEILING_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Días desde que se abrió que la cierran (tope)'),
+                        ]),
                         'modelOpenAI' => __(self::LANG_GROUP, 'Modelo de OpenAI actualizado'),
                         'modelMistral' => __(self::LANG_GROUP, 'Modelo de Mistral actualizado'),
                         'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key de OpenAI actualizada'),
@@ -1907,13 +2013,20 @@ class SettingsController extends AdminPanelController
         set_title(__(self::LANG_GROUP, 'Rutas y permisos'));
 
         set_custom_assets([
-            'statics/core/css/app_config/routes.css',
+            SettingsRoutes::staticRoute('css/routes.css'),
         ], 'css');
+        set_custom_assets([
+            SettingsRoutes::staticRoute('js/routes.js'),
+        ], 'js');
 
         $this->render('panel/layout/header');
         $this->settingsViews->render('panel/pages/app_configurations/routes', [
-            'routes' => get_routes(),
-        ]);
+            'groups' => self::routesByModule(get_routes()),
+        ] + $this->sectionHeader(
+            __(self::LANG_GROUP, 'Sistema'),
+            __(self::LANG_GROUP, 'Rutas y permisos'),
+            __(self::LANG_GROUP, 'Qué rutas existen y qué tipos de usuario pueden usar cada una.')
+        ));
         $this->render('panel/layout/footer');
 
         return $res;
@@ -1930,15 +2043,22 @@ class SettingsController extends AdminPanelController
      */
     public function indexView(Request $req, Response $res)
     {
-        set_title(__(self::LANG_GROUP, 'Configuración'));
-
-        set_custom_assets([
-            'statics/core/css/app_config/index.css',
-        ], 'css');
+        $title = __(self::LANG_GROUP, 'Configuración');
+        set_title($title);
 
         $this->render('panel/layout/header');
         $this->settingsViews->render('panel/pages/app_configurations/index', [
             'langGroup' => self::LANG_GROUP,
+            'title' => $title,
+            'description' => __(self::LANG_GROUP, 'Lo que se ajusta de esta instalación: su aspecto, sus integraciones y el sistema.'),
+            'breadcrumbs' => [
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+                ],
+                $title,
+            ],
+            //Las piezas del panel (page-header.php) se pintan desde src/app/view, no desde las vistas de Settings.
+            'helpController' => new HelperController($this->user, $this->getGlobalVariables()),
             'groups' => array_values(array_filter(self::panelGroups(), fn(array $group) => $group['visible'])),
         ]);
         $this->render('panel/layout/footer');
@@ -1971,6 +2091,13 @@ class SettingsController extends AdminPanelController
             'href' => (string) SystemStatusController::routeName($suffix, [], true),
             'visible' => SystemStatusController::allowedRoute($suffix),
         ];
+        //Las dos «variables de entorno» del módulo de ayudantes (P134 a): misma ruta, ahora agrupadas aquí.
+        $helpers = fn(string $suffix, string $name, string $icon): array => [
+            'name' => $name,
+            'icon' => $icon,
+            'href' => (string) GenericContentController::routeName($suffix, [], true),
+            'visible' => GenericContentController::allowedRoute($suffix),
+        ];
 
         $groups = [
             __($langGroup, 'Apariencia') => [
@@ -1982,15 +2109,17 @@ class SettingsController extends AdminPanelController
             ],
             __($langGroup, 'Integraciones') => [
                 $own('integrations-mail', __($langGroup, 'Correo'), 'envelope outline'),
-                $own('integrations-osticket', __($langGroup, 'OsTicket'), 'file alternate outline'),
+                $own('integrations-osticket', __($langGroup, 'OsTicket'), 'life ring outline'),
                 $own('integrations-ai', __($langGroup, 'Inteligencia artificial'), 'microchip'),
+                $helpers('forms-tokens-limit', __($langGroup, 'Límite de tokens de IA'), 'tachometer alternate'),
+                $helpers('forms-mapbox-keys', __($langGroup, 'Llaves de MapBox'), 'map'),
                 $own('integrations-scripts', __($langGroup, 'Scripts'), 'code'),
             ],
             __($langGroup, 'Sistema') => [
+                $status('health', __($statusLangGroup, 'Salud de la instalación'), 'heartbeat'),
                 $status('alerts', __($statusLangGroup, 'Avisos del sistema'), 'bell outline'),
                 $status('maintenance', __($statusLangGroup, 'Estado y cachés'), 'wrench'),
                 $status('site-maintenance', __($statusLangGroup, 'Sitio en mantenimiento'), 'power off'),
-                $status('mail-log', __($statusLangGroup, 'Registro de correos'), 'envelope open outline'),
                 $own('system-routes', __($langGroup, 'Rutas y permisos'), 'shield alternate'),
                 $own('system-security', __($langGroup, 'Seguridad'), 'lock'),
                 $own('system-backups', __($langGroup, 'Respaldos'), 'database'),
@@ -2009,6 +2138,52 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * La cabecera de una pantalla de un grupo de la configuración (diseno/02-configuracion.md §2.1): migas, título, su
+     * frase, el HelperController que pinta las piezas del panel (las vistas de Settings pintan desde su carpeta) y el
+     * índice, al que vuelve «Cancelar».
+     *
+     * @param string $section El grupo del índice (Apariencia, Integraciones…), ya traducido: miga sin enlace.
+     * @param string $title
+     * @param string $description
+     * @return array{title:string,description:string,breadcrumbs:array<string|int,string|array{url:string}>,helpController:HelperController,indexLink:string}
+     */
+    private function sectionHeader(string $section, string $title, string $description): array
+    {
+        return self::sectionHeaderData($section, $title, $description) + [
+            'helpController' => new HelperController($this->user, $this->getGlobalVariables()),
+        ];
+    }
+
+    /**
+     * Los datos de la cabecera de una pantalla de un grupo de la configuración, sin el HelperController: la usan también
+     * las pantallas de Sistema de SystemStatusController, que pintan con el suyo.
+     *
+     * @param string $section El grupo del índice (Apariencia, Integraciones, Sistema), ya traducido: miga sin enlace.
+     * @param string $title
+     * @param string $description
+     * @return array{title:string,description:string,breadcrumbs:array<string|int,string|array{url:string}>,indexLink:string}
+     */
+    public static function sectionHeaderData(string $section, string $title, string $description): array
+    {
+        $indexLink = self::routeName('index');
+        return [
+            'title' => $title,
+            'description' => $description,
+            'breadcrumbs' => [
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+                ],
+                __(self::LANG_GROUP, 'Configuración') => [
+                    'url' => $indexLink,
+                ],
+                $section,
+                $title,
+            ],
+            'indexLink' => $indexLink,
+        ];
+    }
+
+    /**
      * La pantalla de colores. Conserva el contenedor de pestañas con permiso por pestaña, que hoy tiene una.
      *
      * @param Request $req
@@ -2023,10 +2198,10 @@ class SettingsController extends AdminPanelController
         import_spectrum();
 
         set_custom_assets([
-            'statics/core/css/app_config/configurations.css',
+            SettingsRoutes::staticRoute('css/configurations.css'),
         ], 'css');
         set_custom_assets([
-            'statics/core/js/app_config/colors.js',
+            SettingsRoutes::staticRoute('js/colors.js'),
         ], 'js');
 
         $langGroup = SettingsController::LANG_GROUP;
@@ -2050,6 +2225,9 @@ class SettingsController extends AdminPanelController
                 $data = [
                     'langGroup' => $langGroup,
                     'actionGenericURL' => $actionGenericURL,
+                    //La barra de guardar de cada formulario es una pieza del panel.
+                    'helpController' => new HelperController($this->user, $this->getGlobalVariables()),
+                    'indexLink' => self::routeName('index'),
                 ];
 
                 $tabsTitles['general'] = __($langGroup, 'Colores');
@@ -2063,7 +2241,7 @@ class SettingsController extends AdminPanelController
             'langGroup' => $langGroup,
             'tabsTitles' => $tabsTitles,
             'tabsItems' => $tabsItems,
-        ];
+        ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Colores'), __(self::LANG_GROUP, 'Los colores de marca, del menú, de la barra del móvil y de los botones de arriba a la derecha.'));
 
         $this->render('panel/layout/header');
         $this->settingsViews->render("{$baseViewDir}/configurations", $data);
@@ -2227,6 +2405,10 @@ class SettingsController extends AdminPanelController
 
             if ($success) {
 
+                //La hoja de variables se sirve con dos meses de caché: con la marca nueva su URL cambia y el color se ve ya. Solo
+                //la marca, como «Borrar todo lo temporal» (recreateStaticCacheStamp()), sin WebP ni enlaces.
+                static_files_cache_stamp(true);
+
                 $result
                     ->setMessage($message_create);
                 //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
@@ -2269,7 +2451,7 @@ class SettingsController extends AdminPanelController
     public function mapboxKey(Request $req, Response $res)
     {
         $mapboxKeys = GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS);
-        $key = is_local() ? $mapboxKeys['keyLocal'] : $mapboxKeys['keyDomain'];
+        $key = (string) ($mapboxKeys[is_local() ? 'keyLocal' : 'keyDomain'] ?? '');
         $res = $res->write($key);
         return $res;
     }
@@ -2465,6 +2647,74 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * Las rutas de la pantalla «Rutas y permisos», agrupadas por módulo.
+     *
+     * El módulo sale del controlador y no de $baseRouteName: el arreglo de la ruta no guarda su grupo.
+     * Las rutas con un cierre como controlador se quedan fuera.
+     *
+     * @param array<string,array<string,mixed>> $routes Lo que devuelve get_routes()
+     * @return array<string,list<array{name:string,route:string,sample:string,shortController:string,controller:string,requireLogin:bool,roles:list<string>,allRoles:bool}>>
+     */
+    private static function routesByModule(array $routes)
+    {
+        $allCodes = array_map('strval', array_keys(UsersModel::getTypesUser()));
+        sort($allCodes);
+
+        $groups = [];
+
+        foreach ($routes as $name => $information) {
+
+            if (!is_string($information['controller'])) {
+                continue;
+            }
+
+            $name = (string) $name;
+            $routeName = (string) $information['name'];
+            $controller = str_replace(':', '::', $information['controller']);
+            $class = ltrim(explode(':', $information['controller'])[0], '\\');
+            $classParts = explode('\\', $class);
+
+            $controllersPosition = strpos($class, '\\Controllers\\');
+            $module = $controllersPosition !== false
+                ? substr($class, 0, $controllersPosition)
+                : implode('\\', array_slice($classParts, 0, -1));
+            if (str_starts_with($module, 'PiecesPHP\\')) {
+                $module = substr($module, strlen('PiecesPHP\\'));
+            }
+            if ($module === '') {
+                $module = 'PiecesPHP';
+            }
+
+            $requireLogin = (bool) $information['require_login'];
+            $roles = [];
+            $allRoles = false;
+            if ($requireLogin) {
+                $roles = array_values(array_map('strval', get_route_roles_allowed($name, 'name')));
+                $codes = array_values(array_unique(array_map('strval', get_route_roles_allowed($name, 'code'))));
+                sort($codes);
+                $allRoles = $codes === $allCodes;
+            }
+
+            $groups[$module][] = [
+                'name' => $routeName,
+                'route' => (string) $information['route'],
+                //Sin $silentOnNotExists, get_route() lanza antes que devolver null.
+                'sample' => str_replace(baseurl(), '', get_route_sample($routeName) ?? ''),
+                'shortController' => end($classParts) . '::' . (explode(':', $information['controller'])[1] ?? ''),
+                'controller' => $controller,
+                'requireLogin' => $requireLogin,
+                'roles' => $roles,
+                'allRoles' => $allRoles,
+            ];
+
+        }
+
+        uksort($groups, 'strnatcasecmp');
+
+        return $groups;
+    }
+
+    /**
      * @param mixed $input
      * @param string|array $parse
      * @return mixed
@@ -2534,6 +2784,20 @@ class SettingsController extends AdminPanelController
     {
         $reservedLower = array_map('mb_strtolower', self::ROOT_ONLY_CONFIG_KEYS);
         return in_array(mb_strtolower($requestedName), $reservedLower, true) || in_array(mb_strtolower($targetName), $reservedLower, true);
+    }
+
+    /**
+     * Si la imagen de esa configuración es todavía la de fábrica: entonces no se pinta, porque es un relleno.
+     *
+     * @param string $configName Una clave de FACTORY_BRAND_IMAGES
+     * @return bool
+     */
+    public static function isFactoryBrandImage(string $configName): bool
+    {
+        $value = get_config($configName);
+        $file = is_string($value) && $value !== '' ? basepath($value) : '';
+        return array_key_exists($configName, self::FACTORY_BRAND_IMAGES) && $file !== '' && is_file($file)
+            && sha1_file($file) === self::FACTORY_BRAND_IMAGES[$configName];
     }
 
     /**
@@ -2918,6 +3182,24 @@ class SettingsController extends AdminPanelController
                 null,
                 self::ROLES_EMAIL
             ),
+            new Route(
+                "{$startRoute}/integrations/mail/probe[/]",
+                $classname . ':emailProbe',
+                self::$baseRouteName . '-' . 'integrations-mail-probe',
+                'POST',
+                true,
+                null,
+                self::ROLES_EMAIL
+            ),
+            new Route(
+                "{$startRoute}/integrations/mail/test-send[/]",
+                $classname . ':emailTestSend',
+                self::$baseRouteName . '-' . 'integrations-mail-test-send',
+                'POST',
+                true,
+                null,
+                self::ROLES_EMAIL
+            ),
 
             //OsTicket
             new Route(
@@ -2958,7 +3240,7 @@ class SettingsController extends AdminPanelController
 
         //Inject lang
         if (APP_CONFIGURATION_MODULE) {
-            $injector = new LangInjector(basepath('app/lang/app_config'), Config::get_allowed_langs());
+            $injector = new LangInjector(dirname(__DIR__) . '/lang', Config::get_allowed_langs());
             $injector->injectGroup(self::LANG_GROUP);
         }
 

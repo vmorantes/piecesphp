@@ -8,6 +8,7 @@ namespace News\Seeds;
 
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
+use News\Mappers\NewsReadedMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
@@ -55,6 +56,17 @@ class NewsSeeder extends ModuleSeeder
         return [NewsCategoryMapper::class];
     }
 
+    /**
+     * Abrir una noticia sembrada crea su fila de lectura, que apunta a ella con clave foránea: sin
+     * declararla, el limpiado no puede borrar la noticia.
+     *
+     * @return array<string,string|array{column: string, where: array<string,string|int>}>
+     */
+    public function ownedRows(): array
+    {
+        return [NewsReadedMapper::TABLE => 'news'];
+    }
+
     public function defaultCount(): int
     {
         return 12;
@@ -85,6 +97,10 @@ class NewsSeeder extends ModuleSeeder
             'folder' => $this->text('noticia', $index),
             'createdBy' => $this->author,
             'status' => NewsMapper::ACTIVE,
+            //Lo que el formulario exige al guardar: sin perfiles ni fechas, una noticia sembrada no se podía editar.
+            'profilesTarget' => array_values(array_filter(array_map('intval', array_keys(UsersModel::TYPES_USERS)), fn (int $type): bool => $type !== UsersModel::TYPE_USER_ROOT)),
+            'startDate' => (new \DateTime('today'))->setTime(8, 0),
+            'endDate' => (new \DateTime('today'))->setTime(20, 0)->modify('+1 year'),
         ];
     }
 

@@ -13,27 +13,25 @@ use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 $defaultLang = Config::get_default_lang();
 $allowedLangs = Config::get_allowed_langs();
 $contentName = $element->userSetContentName();
+$centerName = GenericContentPseudoMapper::CONTENT_MAP_DEFAULT_CENTER;
+$center = GenericContentPseudoMapper::mapDefaultCenter();
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera de Configuración (diseno/02-configuracion.md §2.1).
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <br>
+        <form method='POST' action="<?= $action; ?>" class="ui form initial generic" data-content-form>
 
-        <div class="container-standard-form mw-800">
-
-            <form method='POST' action="<?= $action; ?>" class="ui form generic">
+            <div class="container-standard-form mw-800">
 
                 <input type="hidden" name="configName" value="<?= $contentName; ?>">
                 <?php foreach($allowedLangs as $lang): ?>
@@ -54,17 +52,51 @@ $contentName = $element->userSetContentName();
                 <?php endif; ?>
                 <?php endforeach; ?>
 
-                <br><br>
+            </div>
 
-                <div class="field">
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
+            <?php
+            //La barra al final del formulario (§2.3), como en el resto de Configuración: «Cancelar» vuelve a su índice.
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
+
+        </form>
+
+        <form method='POST' action="<?= $action; ?>" class="ui form initial generic" data-content-form>
+
+            <div class="container-standard-form mw-800">
+
+                <h3 class="ui header"><?= __($langGroup, 'Centro del mapa por omisión'); ?></h3>
+                <p><?= __($langGroup, 'Donde se abren los mapas cuando no tienen otra posición: el geovisor y los mapas de los perfiles.'); ?></p>
+
+                <input type="hidden" name="configName" value="<?= $centerName; ?>">
+                <div class="three fields">
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Longitud'); ?></label>
+                        <input type="number" step="any" min="-180" max="180" name="<?= $centerName; ?>[longitude]" value="<?= escape_html((string) $center['longitude']); ?>" required>
+                    </div>
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Latitud'); ?></label>
+                        <input type="number" step="any" min="-90" max="90" name="<?= $centerName; ?>[latitude]" value="<?= escape_html((string) $center['latitude']); ?>" required>
+                    </div>
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Acercamiento'); ?></label>
+                        <input type="number" step="any" min="0" max="22" name="<?= $centerName; ?>[zoom]" value="<?= escape_html((string) $center['zoom']); ?>" required>
                     </div>
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+            <?php
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
+
+        </form>
 
     </div>
 

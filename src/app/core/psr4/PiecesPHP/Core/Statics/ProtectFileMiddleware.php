@@ -165,7 +165,8 @@ class ProtectFileMiddleware
     public static function protectWithSession(string $directory): void
     {
         self::protect($directory, static function (Request $request, string $filePath): bool {
-            return SessionToken::isActiveSession((string) SessionToken::getJWTReceived());
+            //Con la sesión, no solo la firma (ADR 0061 §12): una sesión cerrada no abre archivos.
+            return \PiecesPHP\UserSystem\Authentication\UserSessions::jwtIsValid((string) SessionToken::getJWTReceived());
         }, null, self::POLICY_SESSION);
     }
 

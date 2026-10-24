@@ -1,13 +1,18 @@
 <?php
 
-//El administrador de organización solo ve y exporta los accesos de la suya; el principal y el general, todo. Por HTTP.
+//El administrador de organización solo ve y exporta los accesos de la suya; el principal y el general, las dos. Por HTTP.
 //Siembra dos organizaciones, usuarios e intentos, todos zz-, y los retira.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Logs/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Logs\Controllers\LogsController;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
@@ -62,8 +67,8 @@ CliActions::make('unit-tests:core/login-attempts-organization', function ($args)
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -124,8 +129,8 @@ CliActions::make('unit-tests:core/login-attempts-organization', function ($args)
             $usuarios[$sufijo] = (int) $u->id;
             return (int) $u->id;
         };
-        $root = SessionToken::generateToken(['id' => $crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL)], null, null, false);
-        $general = SessionToken::generateToken(['id' => $crearUsuario('admin-general', UsersModel::TYPE_USER_ADMIN_GRAL, OrganizationMapper::INITIAL_ID_GLOBAL)], null, null, false);
+        $root = UserSessions::issueToken($crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL));
+        $general = UserSessions::issueToken($crearUsuario('admin-general', UsersModel::TYPE_USER_ADMIN_GRAL, OrganizationMapper::INITIAL_ID_GLOBAL));
 
         $ahora = date('Y-m-d H:i:s');
         foreach (['propia', 'ajena'] as $cual) {
@@ -134,7 +139,7 @@ CliActions::make('unit-tests:core/login-attempts-organization', function ($args)
             $organizaciones[$cual] = (int) $database->lastInsertId();
         }
 
-        $adminOrg = SessionToken::generateToken(['id' => $crearUsuario('admin-org', UsersModel::TYPE_USER_ADMIN_ORG, $organizaciones['propia'])], null, null, false);
+        $adminOrg = UserSessions::issueToken($crearUsuario('admin-org', UsersModel::TYPE_USER_ADMIN_ORG, $organizaciones['propia']));
         foreach (['propia', 'ajena'] as $cual) {
             $conAcceso = $crearUsuario("{$cual}-entro", UsersModel::TYPE_USER_GENERAL, $organizaciones[$cual]);
             $crearUsuario("{$cual}-no-entro", UsersModel::TYPE_USER_GENERAL, $organizaciones[$cual]);
@@ -151,15 +156,27 @@ CliActions::make('unit-tests:core/login-attempts-organization', function ($args)
         $esperadoSinIngreso = $esperadoUsuarios - $esperadoIngreso;
         $todosIntentos = (int) $database->query("SELECT COUNT(*) FROM `{$tablaIntentos}`")->fetchColumn();
         $todosIngreso = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE id IN ({$conIngreso})")->fetchColumn();
-        $todosSinIngreso = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}`")->fetchColumn() - $todosIngreso;
+        //Sin el usuario de sistema: ningún listado lo enseña (B14).
+        $todosSinIngreso = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE " . \PiecesPHP\UserSystem\ORM\UsersModel::excludeSystemUserSQL())->fetchColumn() - $todosIngreso;
 
-        echoTerminal('[a] El resumen (sin XHR): las cifras son de la propia');
-        $resumenIntentos = $pedir($camino('reports') . '?attempts=yes', $adminOrg);
-        $hayTotal = preg_match('/<span class="value">\s*(\d+)\s*<\/span>/', $resumenIntentos['body'], $total) === 1;
+        echoTerminal('[a] El resumen (sin XHR), en la pestaña «Accesos» de «Registros»: las cifras son de la propia');
+        //La pantalla vieja ya solo redirige a la pestaña: se pide la pestaña, que es donde están las cifras.
+        $registros = LogsController::routeName('index', [], true);
+        $registros = str_contains($registros, '://') ? (string) parse_url($registros, \PHP_URL_PATH) : $registros;
+        $registros = $prefijoBase !== '' && str_starts_with($registros, $prefijoBase) ? substr($registros, strlen($prefijoBase)) : $registros;
+        $resumenIntentos = $pedir($registros . '?tab=access&view=attempts', $adminOrg);
+        //Las cifras van en las piezas de estadísticas, por su data-type.
+        $cifra = fn(string $html, string $tipo): ?string => preg_match('/data-type="' . $tipo . '"[^>]*>(?:&nbsp;)?\s*(\d+)/', $html, $m) === 1 ? $m[1] : null;
+        $total = [1 => $cifra($resumenIntentos['body'], 'totalAttempts')];
+        $hayTotal = $total[1] !== null;
         $check($resumenIntentos['status'] === 200 && $hayTotal && $total[1] === (string) $esperadoIntentos, "a1 el total de intentos es el de la propia ({$esperadoIntentos})", "HTTP {$resumenIntentos['status']}, total " . ($total[1] ?? '¿?'));
-        $resumenIngreso = $pedir($camino('reports') . '?logged=yes', $adminOrg);
-        $hayTotalUsuarios = preg_match('/const totalUsers = `(\d+)`/', $resumenIngreso['body'], $totalUsuarios) === 1;
+        $resumenIngreso = $pedir($registros . '?tab=access&view=logged', $adminOrg);
+        $conIngresoPintados = $cifra($resumenIngreso['body'], 'loggedUsers');
+        $sinIngresoPintados = $cifra($resumenIngreso['body'], 'notLoggedUsers');
+        $hayTotalUsuarios = $conIngresoPintados !== null && $sinIngresoPintados !== null;
+        $totalUsuarios = [1 => $hayTotalUsuarios ? (string) ((int) $conIngresoPintados + (int) $sinIngresoPintados) : null];
         $check($resumenIngreso['status'] === 200 && $hayTotalUsuarios && $totalUsuarios[1] === (string) $esperadoUsuarios, "a2 el total de usuarios es el de la propia ({$esperadoUsuarios})", "HTTP {$resumenIngreso['status']}, total " . ($totalUsuarios[1] ?? '¿?'));
+        $check($conIngresoPintados === (string) $esperadoIngreso, "a2b y los que entraron, los de la propia ({$esperadoIngreso})", 'pintados ' . ($conIngresoPintados ?? '¿?'));
 
         $exportaciones = [
             'export-attempts' => ['propia' => "{$prefijo}-propia-entro", 'ajena' => "{$prefijo}-ajena-entro", 'filas' => $esperadoIntentos, 'todas' => $todosIntentos],
@@ -239,4 +256,4 @@ CliActions::make('unit-tests:core/login-attempts-organization', function ($args)
 
     return $balance();
 
-})->setDescription('El administrador de organización solo ve y exporta los accesos de la suya: el resumen y las tres exportaciones de intentos de acceso; el principal y el administrador general los ven todos. Por HTTP.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('El administrador de organización solo ve y exporta los accesos de la suya: el resumen y las tres exportaciones de intentos de acceso; el principal y el administrador general ven las dos organizaciones. Por HTTP.')->setEffects([CliActions::EFFECT_DATABASE])->register();

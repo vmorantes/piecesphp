@@ -126,39 +126,10 @@ class ScanMissingLangTask extends TerminalTaskAbstract
             //Agregar listado de mensajes faltantes
             if (file_exists($missingMessagesBaseFolderPath)) {
 
-                $messagesFiles = glob($missingMessagesBaseFolderPath . '/*/*/*.to-translate');
-                $messagesDataByLang = [];
-
-                foreach ($messagesFiles as $messageFile) {
-
-                    $messageFileRelative = trim(str_replace($missingMessagesBaseFolderPath, '', $messageFile));
-                    $messageText = file_get_contents($messageFile);
-                    $messageData = array_values(array_filter(explode('/', $messageFileRelative), fn($e) => is_string($e) && mb_strlen(trim($e)) > 0));
-
-                    if (count($messageData) == 3) {
-                        $groupName = $messageData[0];
-                        $lang = $messageData[1];
-                        if (!in_array($lang, $allowedLangs)) {
-                            continue;
-                        }
-                        if (in_array($lang, $excludeLang)) {
-                            continue;
-                        }
-                        if (in_array($groupName, $ignoreGroup)) {
-                            continue;
-                        }
-                        if (!array_key_exists($lang, $messagesDataByLang)) {
-                            $messagesDataByLang[$lang] = [];
-                        }
-                        if (!array_key_exists($groupName, $messagesDataByLang[$lang])) {
-                            $messagesDataByLang[$lang][$groupName] = [];
-                        }
-                        if (!array_key_exists($messageText, $messagesDataByLang[$lang][$groupName])) {
-                            $messagesDataByLang[$lang][$groupName][$messageText] = $messageText;
-                        }
-                    }
-
-                    $message[] = "\e[34mLeyendo: {$messageFileRelative}\e[39m";
+                $readLines = [];
+                $messagesDataByLang = self::collectMissing($missingMessagesBaseFolderPath, $allowedLangs, $excludeLang, $ignoreGroup, $readLines);
+                foreach ($readLines as $readLine) {
+                    $message[] = $readLine;
                 }
 
                 $fileMissingLangMessagePath = app_basepath("logs/missing-lang-messages.json");
@@ -422,4 +393,54 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         return $route;
     }
 
+    /**
+     * Reúne los .to-translate de <carpeta>/<grupo>/<idioma>/ en idioma > grupo > texto, solo de los idiomas permitidos y
+     * sin los idiomas y grupos excluidos.
+     *
+     * @param string $missingFolder
+     * @param string[] $allowedLangs
+     * @param string[] $excludeLang
+     * @param string[] $ignoreGroup
+     * @param string[] $readLines Las líneas «Leyendo: …» que imprime la tarea
+     * @return array<string,array<string,array<int|string,string|false>>> idioma > grupo > texto; el texto es false si no se pudo leer
+     */
+    public static function collectMissing(string $missingFolder, array $allowedLangs, array $excludeLang, array $ignoreGroup, array &$readLines = []): array
+    {
+        $messagesFiles = glob($missingFolder . '/*/*/*.to-translate');
+        $messagesDataByLang = [];
+
+        foreach ($messagesFiles as $messageFile) {
+
+            $messageFileRelative = trim(str_replace($missingFolder, '', $messageFile));
+            $messageText = file_get_contents($messageFile);
+            $messageData = array_values(array_filter(explode('/', $messageFileRelative), fn($e) => is_string($e) && mb_strlen(trim($e)) > 0));
+
+            if (count($messageData) == 3) {
+                $groupName = $messageData[0];
+                $lang = $messageData[1];
+                if (!in_array($lang, $allowedLangs)) {
+                    continue;
+                }
+                if (in_array($lang, $excludeLang)) {
+                    continue;
+                }
+                if (in_array($groupName, $ignoreGroup)) {
+                    continue;
+                }
+                if (!array_key_exists($lang, $messagesDataByLang)) {
+                    $messagesDataByLang[$lang] = [];
+                }
+                if (!array_key_exists($groupName, $messagesDataByLang[$lang])) {
+                    $messagesDataByLang[$lang][$groupName] = [];
+                }
+                if (!array_key_exists($messageText, $messagesDataByLang[$lang][$groupName])) {
+                    $messagesDataByLang[$lang][$groupName][$messageText] = $messageText;
+                }
+            }
+
+            $readLines[] = "\e[34mLeyendo: {$messageFileRelative}\e[39m";
+        }
+
+        return $messagesDataByLang;
+    }
 }

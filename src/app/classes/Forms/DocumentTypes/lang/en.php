@@ -1,7 +1,6 @@
 <?php
 
 return [
-	"Gestión de"                                                           => "Management of",
 	"Guardar"                                                              => "Save",
 	"Tipo de documento"                                                    => "Document Type",
 	"El tipo de documento que intenta modificar no existe."                => "The document type you are trying to modify does not exist.",
@@ -14,14 +13,18 @@ return [
 	"El tipo de documento que intenta eliminar no existe."                 => "The document type you are trying to delete does not exist.",
 	"Tipo de documento eliminado."                                         => "Document type deleted.",
 	"Tipos de documentos"                                                  => "Document types",
-	"Regresar"                                                             => "Return to",
-	"N°"                                                                   => "N°",
-	"Nombre de tipo"                                                       => "Type name",
 	"Acciones"                                                             => "Actions",
 	"Agregar"                                                              => "Add",
 	"Nombre"                                                               => "Name",
 	"Editar"                                                               => "Edit",
 	"Idiomas"                                                              => "Languages",
 	"Eliminar"                                                             => "Delete",
-	"Nombre del tipo de documento"                                         => "Name of document type",
+	"Tipos de documento"                                                   => "Document types",
+	"Nuevo tipo"                                                           => "New type",
+	"Documentos"                                                           => "Documents",
+	"Inicio"                                                               => "Home",
+	"Editar: %s"                                                           => "Edit: %s",
+	"Traducir"                                                             => "Translate",
+	"Cancelar"                                                             => "Cancel",
+	"¿Seguro de eliminar el elemento?"                                     => "Are you sure you want to delete this item?",
 ];

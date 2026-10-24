@@ -26,7 +26,6 @@ _Solo si está activo el módulo_
 ```js
 //Solicitud
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -35,6 +34,7 @@ xhr.addEventListener("readystatechange", function() {
 });
 
 xhr.open("GET", "https://domain.tld/core/api/news/list/?page=1&perPage=10");
+xhr.setRequestHeader("JWTAuth", token); //El token del inicio de sesión: ver «La sesión» en el índice
 
 xhr.send();
 
@@ -67,7 +67,6 @@ xhr.send();
 ```js
 //Solicitud
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -76,6 +75,7 @@ xhr.addEventListener("readystatechange", function() {
 });
 
 xhr.open("GET", "https://domain.tld/core/api/news/detail/?id=1");
+xhr.setRequestHeader("JWTAuth", token); //El token del inicio de sesión: ver «La sesión» en el índice
 
 xhr.send();
 
@@ -130,7 +130,6 @@ xhr.send();
 ```js
 //Solicitud
 var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
 
 xhr.addEventListener("readystatechange", function() {
   if(this.readyState === 4) {
@@ -139,6 +138,7 @@ xhr.addEventListener("readystatechange", function() {
 });
 
 xhr.open("GET", "https://domain.tld/core/api/news/categories/?page=1&perPage=10");
+xhr.setRequestHeader("JWTAuth", token); //El token del inicio de sesión: ver «La sesión» en el índice
 
 xhr.send();
 

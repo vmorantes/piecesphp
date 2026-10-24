@@ -1,3 +1,6 @@
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$markerColor: #E83D35;
+$markerDotColor: #800E11;
 
 //──── Mapa mapbox ───────────────────────────────────────────────────────────────────────
 .mapboxgl-map {
@@ -14,7 +17,7 @@
                 margin: 0;
                 padding: 0;
                 font-size: $markerSize;
-                color: #E83D35;
+                color: $markerColor;
                 width: max-content;
                 max-width: 100%;
 
@@ -28,7 +31,7 @@
                     content: ' ';
                     width: calc($markerSize/2);
                     height: calc($markerSize/2);
-                    background-color: #800E11;
+                    background-color: $markerDotColor;
                 }
             }
         }

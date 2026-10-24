@@ -26,39 +26,49 @@ class FfmpegAudioAdapter
      */
     protected $ffmpeg;
 
+    /**
+     * Posibles rutas por defecto comunes en servidores Linux/Mac
+     */
+    const COMMON_PATHS_FFMPEG = [
+        '/usr/bin/ffmpeg',
+        '/usr/local/bin/ffmpeg',
+        '/bin/ffmpeg',
+        '/opt/homebrew/bin/ffmpeg',
+    ];
+
+    const COMMON_PATHS_FFPROBE = [
+        '/usr/bin/ffprobe',
+        '/usr/local/bin/ffprobe',
+        '/bin/ffprobe',
+        '/opt/homebrew/bin/ffprobe',
+    ];
+
+    /**
+     * El ejecutable: la ruta dada si existe y, si no, la primera ruta común que exista y se pueda ejecutar. La usa
+     * también la Salud de la instalación, para decir si hay ffmpeg sin construir el adaptador.
+     *
+     * @param string[] $paths
+     * @param string|null $providedPath
+     * @return string|null
+     */
+    public static function findBinary(array $paths, ?string $providedPath = null): ?string
+    {
+        if ($providedPath !== null && file_exists($providedPath)) {
+            return $providedPath;
+        }
+        // Escaneo silencioso en rutas comunes
+        foreach ($paths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                return $path;
+            }
+        }
+        return null; // No lo encontramos
+    }
+
     public function __construct(?string $ffmpegPath = null, ?string $ffprobePath = null)
     {
-        // Posibles rutas por defecto comunes en servidores Linux/Mac
-        $commonPathsFfmpeg = [
-            '/usr/bin/ffmpeg',
-            '/usr/local/bin/ffmpeg',
-            '/bin/ffmpeg',
-            '/opt/homebrew/bin/ffmpeg',
-        ];
-
-        $commonPathsFfprobe = [
-            '/usr/bin/ffprobe',
-            '/usr/local/bin/ffprobe',
-            '/bin/ffprobe',
-            '/opt/homebrew/bin/ffprobe',
-        ];
-
-        // Función ayudante interna para encontrar el ejecutable
-        $findBinary = function (array $paths, ?string $providedPath = null) {
-            if ($providedPath !== null && file_exists($providedPath)) {
-                return $providedPath;
-            }
-            // Escaneo silencioso en rutas comunes
-            foreach ($paths as $path) {
-                if (file_exists($path) && is_executable($path)) {
-                    return $path;
-                }
-            }
-            return null; // No lo encontramos
-        };
-
-        $this->ffmpegPath = $findBinary($commonPathsFfmpeg, $ffmpegPath);
-        $this->ffprobePath = $findBinary($commonPathsFfprobe, $ffprobePath);
+        $this->ffmpegPath = self::findBinary(self::COMMON_PATHS_FFMPEG, $ffmpegPath);
+        $this->ffprobePath = self::findBinary(self::COMMON_PATHS_FFPROBE, $ffprobePath);
 
         $ffmpegExists = is_string($this->ffmpegPath) && file_exists($this->ffmpegPath);
         $ffprobeExists = is_string($this->ffprobePath) && file_exists($this->ffprobePath);

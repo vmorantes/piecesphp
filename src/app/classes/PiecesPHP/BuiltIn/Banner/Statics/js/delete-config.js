@@ -26,62 +26,47 @@ window.addEventListener('canDeleteBuiltInBanner', function (e) {
 		title = typeof title == 'string' && title.length > 0 ? title : _i18n(langGroup, 'Confirmación')
 		message = typeof message == 'string' && message.length > 0 ? message : _i18n(langGroup, '¿Seguro de eliminar el elemento?')
 
-		$('body').addClass('wait-to-action')
-		$.toast({
+		confirmAction({
 			title: title,
 			message: message,
-			displayTime: 0,
-			class: 'white',
-			position: 'top center',
-			classActions: 'top attached',
-			actions: [{
-				text: _i18n(langGroup, 'Sí'),
-				class: 'red',
-				click: function () {
+			confirmText: _i18n(langGroup, 'Sí'),
+			cancelText: _i18n(langGroup, 'No'),
+			confirmClass: 'red',
+		}).then(function (confirmed) {
 
-					showGenericLoader('ELIMINAR_ITEM')
+			if (!confirmed) {
+				return
+			}
 
-					let formData = new FormData()
+			showGenericLoader('ELIMINAR_ITEM')
 
-					postRequest(routeDelete).then(function (res) {
+			postRequest(routeDelete).then(function (res) {
 
-						let success = res.success
-						let name = res.name
-						let message = res.message
-						let values = res.values
-						let redirect = values.redirect
-						let redirect_to = values.redirect_to
+				let success = res.success
+				let name = res.name
+				let message = res.message
+				let values = res.values
+				let redirect = values.redirect
+				let redirect_to = values.redirect_to
 
-						if (success) {
+				if (success) {
 
-							successMessage(name, message)
+					successMessage(name, message)
 
-							setTimeout(function () {
-								if (redirect) {
-									window.location.href = redirect_to
-								}
-							}, 1000)
-
-
-						} else {
-							errorMessage(name, message)
+					setTimeout(function () {
+						if (redirect) {
+							window.location.href = redirect_to
 						}
+					}, 1000)
 
-					}).always(function () {
-						removeGenericLoader('ELIMINAR_ITEM')
-					})
-
-					$('body').removeClass('wait-to-action')
-
+				} else {
+					errorMessage(name, message)
 				}
-			}, {
-				text: _i18n(langGroup, 'No'),
-				class: 'blue',
-				click: function () {
-					$('body').removeClass('wait-to-action')
-					return true
-				}
-			}]
+
+			}).always(function () {
+				removeGenericLoader('ELIMINAR_ITEM')
+			})
+
 		})
 
 	}

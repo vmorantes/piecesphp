@@ -70,8 +70,10 @@ CliActions::make('unit-tests:core/data-transfer-hub', function ($args) {
     $peticion = fn(string $method, array $query = [], array $body = []) => (new RequestRoute($method, (new UriFactory())->createUri('http://localhost/zz'), new Headers(), [], [], (new StreamFactory())->createStream('')))->withQueryParams($query)->withParsedBody($body);
     $pintar = function () use ($dir): string {
         $langGroup = \DataImportExportUtility\DataImportExportUtilityLang::LANG_GROUP;
+        //La vista pinta la cabecera y la barra con las piezas del panel, por el ayudante del módulo.
+        $helpController = new \DataImportExportUtility\Controllers\HelperController();
         $title = 'Importar y exportar';
-        $breadcrumbs = '';
+        $breadcrumbs = [];
         $importers = DataTransferController::visibleImporters();
         $exporters = DataTransferController::visibleExporters();
         $user = getLoggedFrameworkUser();
@@ -107,7 +109,7 @@ CliActions::make('unit-tests:core/data-transfer-hub', function ($args) {
         $como($root);
         $html = $pintar();
         $check(str_contains($html, 'Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.') && !str_contains($html, 'Elige qué quieres importar.'), 'a1 subtítulo exacto');
-        $check(str_contains($html, 'class="tabs-controls"') && str_contains($html, 'data-tab="importar"') && str_contains($html, 'data-tab="exportar"') && substr_count($html, 'class="ui tab tab-element') === 2, 'a2 pestañas Importar y Exportar con la pieza del panel');
+        $check(str_contains($html, 'class="tabs-controls content-tabs"') && str_contains($html, 'data-tab="importar"') && str_contains($html, 'data-tab="exportar"') && substr_count($html, 'class="ui tab tab-element') === 2, 'a2 pestañas Importar y Exportar con la pieza del panel');
         $check(str_contains($html, 'Descarga la plantilla, llénala y súbela. Puedes validarla antes de guardar.') && str_contains($html, 'Elige los filtros y el formato, y descarga el archivo.'), 'a3 la línea de cada pestaña');
         $check(str_contains($html, 'data-transfer-row="import-users"') && str_contains($html, 'data-transfer-row="export-users"') && str_contains($html, htmlspecialchars((new UsersImportDefinition())->description(), ENT_QUOTES)), 'a4 una fila por entidad, con su descripción');
         $filaUsers = DataTransferController::importerHubRow('users', new UsersImportDefinition(), true);
@@ -200,8 +202,9 @@ CliActions::make('unit-tests:core/data-transfer-hub', function ($args) {
         $check($r->getStatusCode() === 200 && !DataTransferController::isDisabled('import', 'users'), 'd4 y vuelve a encender');
         $logs = LogsMapper::model();
         $logs->resetAll();
-        $logs->select(['id', 'textMessageVariables'])->where(new WhereSegment([new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $maxLogPrevio)]))->execute();
-        $registrados = array_filter((array) $logs->result(), fn($l) => str_contains((string) (((array) $l)['textMessageVariables'] ?? ''), 'de Importar y exportar'));
+        $logs->select(['id', 'textMessage'])->where(new WhereSegment([new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $maxLogPrevio)]))->execute();
+        //Con su tipo propio desde C4, ronda 2 (antes, un mensaje libre).
+        $registrados = array_filter((array) $logs->result(), fn($l) => (((array) $l)['textMessage'] ?? '') === LogsMapper::MESSAGES[LogsMapper::MSG_DATA_TRANSFER_TOGGLED]);
         $check(count($registrados) === 2, 'd5 cada cambio queda en el registro de acciones', (string) count($registrados));
 
     } catch (\Throwable $e) {
@@ -215,9 +218,14 @@ CliActions::make('unit-tests:core/data-transfer-hub', function ($args) {
             $borrar->resetAll();
             $borrar->delete(new WhereSegment([WhereItem::isEqual('name', $config)]))->execute();
         }
-        $logs = LogsMapper::model();
-        $logs->resetAll();
-        $logs->delete(new WhereSegment([new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $maxLogPrevio), WhereItem::like('textMessageVariables', '%de Importar y exportar%')]))->execute();
+        //Por SQL preparado: el registro de acciones no se borra por su mapper (update() devuelve false a propósito).
+        $baseLogs = LogsMapper::model()->getDatabase();
+        if ($baseLogs !== null) {
+            $baseLogs->prepare('DELETE FROM `' . LogsMapper::TABLE . '` WHERE `id` > ? AND `textMessage` = ?')->execute([$maxLogPrevio, LogsMapper::MESSAGES[LogsMapper::MSG_DATA_TRANSFER_TOGGLED]]);
+            $quedanLogs = $baseLogs->prepare('SELECT COUNT(*) FROM `' . LogsMapper::TABLE . '` WHERE `id` > ? AND `textMessage` = ?');
+            $quedanLogs->execute([$maxLogPrevio, LogsMapper::MESSAGES[LogsMapper::MSG_DATA_TRANSFER_TOGGLED]]);
+            $check((int) $quedanLogs->fetchColumn() === 0, 'z2 no queda ninguna línea de la prueba en el registro de acciones');
+        }
         set_config('current_user', $previoUsuario);
         set_config('pcsphp_current_user_stored', $previoGuardado);
         foreach (glob("{$dir}/*") ?: [] as $file) {

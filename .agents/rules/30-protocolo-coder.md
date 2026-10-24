@@ -103,7 +103,7 @@ Cuatro, y mezclarlos los estropea: un canal que recibe de todo deja de leerse.
 | Canal | Para qué | Por qué ese y no otro |
 | :-- | :-- | :-- |
 | **El chat** | Trabajar: explicar, proponer, contestar | Es donde él dirige |
-| **Su Vikunja** (`.agents/scripts/vikunja.py`, perfil `piecesphp`) | Lo que tiene que **ver o decidir**: las preguntas, como **tarea** con etiqueta `PO`, y los avisos como comentario | **Una tarea se queda; un comentario se pierde** (`../docs/pendientes.md` 443.1 y 450.1) |
+| **Su Vikunja** (`.agents/scripts/vikunja.py`, perfil `piecesphp`) | **Solo cuando él lo pida** (PO, 2026-10-15): por ejemplo, una pregunta que no contesta en varias rondas, o cuando se va y nos deja solos. Entonces, las preguntas como **tarea** con etiqueta `PO` y los avisos como comentario. Leerlo al abrir (`revisar`) sigue | **Una tarea se queda; un comentario se pierde** (`../docs/pendientes.md` 443.1 y 450.1); y **por defecto las preguntas van en el chat y en `PO.md`** |
 | **El correo** (`mail-notify`, sin `--to`) | El **resumen de cierre** de la jornada | Lo pidió así (370). Solo cuenta con `"ok": true` |
 | **Telegram** (`telegram-notify`, un destino, **sin `--perfil`**) | **Solo lo URGENTE** | Suena en su móvil (PO, 2026-10-08) |
 
@@ -415,6 +415,10 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
   - **Si la guarda provocada es de las que impiden escribir** (en la base, en disco o fuera), quitarla hace que la
     prueba ESCRIBA de verdad: antes, `bin/cli db-backup`, y después, comprobar que no queda nada y enumerarlo en el
     reporte. Nace de `#294`: una provocación del simulacro creó un usuario real en la base local.
+  - **El estado guardado es el de lo que la provocación puede TOCAR, no solo el del código**: si lo que se quita es una
+    guarda de borrado o de reescritura, la instrucción dicta copia y `sha1sum` de esos DATOS antes y después, y apaga
+    lo que corre solo (ganchos de arranque, tareas) durante la orden. Nace de `#1603`: una provocación de la poda de
+    errores vació el registro real de la instalación local; `#1602` la dictó sin esa copia.
   - **Si lo que se provoca es la propia guarda de hooks**, la prueba, la restauración y la suma
     van en UNA sola llamada de shell. Mientras la provocación está puesta, el hook que filtra las
     llamadas del coder está debilitado, y así la ventana no depende de la disciplina entre
@@ -458,7 +462,9 @@ verifica el **andamiaje de agentes**. La verificación del **producto** la nombr
 instrucción; para cambios en `src/` o `bin/`, por defecto **`bin/verify`**, que encadena
 `bin/check-routes` (una ruta mala tumba `bin/cli`, así que va primero y fuera de él), `bin/phpstan`
 contra `PHPStanResult.Summary.baseline.txt`, `bin/cli verify-integrity` y `bin/cli gates`, cada una
-con su línea de «ejecutada», y para en la primera que falla. Una suite omitida es una puerta fallada (LEY 13). Todo con PHP
+con su línea de «ejecutada», y para en la primera que falla. Una suite omitida es una puerta fallada (LEY 13). **En las
+rondas intermedias la instrucción puede dictar la parcial**, `bin/verify --changed-since=<commit de partida>` (ADR 0062);
+**la última ronda de un bloque, la que etiqueta y la que cierra la jornada llevan la entera.** Todo con PHP
 8.5: `bin/cli` lo elige solo; `php` a secas es 8.1.34.
 
 La salida **real** va en el reporte. Si falta una herramienta del sistema, se detiene y lo
@@ -530,6 +536,21 @@ que la instrucción no anunciaba, se dice en el reporte y se commitea igual (20 
 Nace de `#097`: el coder ajustó la invocación de `bin/guarda-add`, que `#093` dictaba mal, lo
 declaró entero y preguntó si debió parar.
 
+**Y el trámite tampoco para** (PO, 2026-10-21, P193: «en lugar de ganar eficiencia la estamos perdiendo»). Se AJUSTA y
+se DECLARA, sin esperar al arquitecto:
+
+- **Regenerar un artefacto que es una FOTO** (lo derivado del código: firmas, inventario de rutas, censos, huella del
+  CSS, permisos declarados, candidatos a fatal, el censo de borrados) con su propia herramienta, cuando la ronda lo deja
+  rancio. Va en el commit `chore(artefactos):` de la ronda, aunque el plan no lo nombrara.
+- **Un commit de más** (`test:` o `fix:`) que arregla lo que **la propia ronda** rompió y una puerta cazó después de
+  commitear: no se reescribe el commit anterior, se añade otro.
+- **Una suite de la lista de intermitentes** (`AHORA.md` §9, `abierto.md` G18) que cae dentro de `gates` y pasa sola
+  tres veces seguidas, si la ronda no toca lo que prueba.
+
+**Sigue PARANDO** lo que mueve un **TRINQUETE** (la línea base de PHPStan, las de claves huérfanas, retornos ignorados,
+concatenación SQL, restos de prueba, la matriz de permisos con celdas cambiadas): bajar es trabajo del bloque y se
+declara con su reparto; subir o cambiar una celda, se para. Y para todo fallo que no sea de esa lista.
+
 **Y el mismo criterio sobre la DOCUMENTACIÓN del arquitecto** (`#475`-`#477`, 2026-09-23). El coder la commitea sin
 editarla, pero **la lee antes**, y lo que encuentra se reparte así:
 
@@ -568,5 +589,7 @@ Nace de `#225`-`#236`: las claves de reCAPTCHA de prueba (ADR 0021).
 5. **Los cuatro números** de cada commit.
 6. **Desviaciones** — con su motivo.
 7. **Hallazgos** — se **reportan, no se arreglan**.
+8. **Tiempo** — minutos de producto (lo que la instrucción pide) y minutos de trámite (verificar, regenerar
+   artefactos, commitear, paradas), medidos con la hora de las salidas. El trámite tiene que bajar (P193).
 
 Un reporte que omite un fallo es peor que el fallo.

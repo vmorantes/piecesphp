@@ -2,17 +2,15 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
-	dataTablesServerProccesingOnCards('.table-to-cards', 20, {
-		drawCallbackEnd: function (cards) {
-			window.dispatchEvent(new Event('canDeletePublicationCategory'))
-		},
-	}, {
-		containerCardsClass: 'list-cards-container',
-		containerCardsSelector: '.list-cards-container',
-		cardsSelector: '.list-card',
-	})
+	const table = $('table[url]')
 
-	//Tooltip
-	$('[data-tooltip]').popup()
+	dataTableServerProccesing(table, table.attr('url'), 20, {
+		responsive: false,
+		autoWidth: false,
+		drawCallback: function () {
+			window.dispatchEvent(new Event('canDeletePublicationCategory'))
+			configMirrorScrollX()
+		},
+	}).DataTable()
 
 })

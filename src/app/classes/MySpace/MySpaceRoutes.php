@@ -6,20 +6,14 @@
 
 namespace MySpace;
 
-use MySpace\Controllers\AllProfilesController;
-use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\MyProfileController;
 use MySpace\Controllers\MySpaceController;
-use MySpace\Controllers\OrganizationProfileController;
-use MySpace\Controllers\ProfileController;
-use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
-use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 /**
@@ -49,10 +43,6 @@ class MySpaceRoutes
 
             $groupAdministration = MySpaceController::routes($groupAdministration);
             $groupAdministration = MyProfileController::routes($groupAdministration);
-            $groupAdministration = ProfileController::routes($groupAdministration);
-            $groupAdministration = MyOrganizationProfileController::routes($groupAdministration);
-            $groupAdministration = OrganizationProfileController::routes($groupAdministration);
-            $groupAdministration = AllProfilesController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
 
@@ -90,21 +80,6 @@ class MySpaceRoutes
              * @var MenuGroupCollection $sidebar
              */
             $sidebar = get_sidebar_menu();
-
-            $sidebar->addItem(new MenuGroup(
-                [
-                    'name' => __(MySpaceLang::LANG_GROUP, 'Ejemplos de elementos'),
-                    'icon' => 'ol list',
-                    'position' => 9999,
-                    'items' => [
-                        new MenuItem([
-                            'text' => __(MySpaceLang::LANG_GROUP, 'Varios'),
-                            'visible' => MySpaceController::allowedRoute('example-resources'),
-                            'href' => MySpaceController::routeName('example-resources'),
-                        ]),
-                    ],
-                ]
-            ));
 
         }
 

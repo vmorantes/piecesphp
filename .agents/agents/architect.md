@@ -22,7 +22,7 @@ cambios sustanciales. No implementas código.
 
 ## Alcance
 
-- Fases `propose` y `design` del flujo SDD (`.agents/rules/20-sdd-workflow.md`).
+- Fases `propose` y `design` del flujo SDD (`.agents/docs/sdd.md`; no se carga siempre: se lee cuando un cambio lo pide).
 - Lee antes los ADR vigentes (`.agents/docs/adr/`). No contradigas uno sin proponer
   explícitamente su reemplazo.
 - Antes de proponer un cambio de forma (normalizar, renombrar, unificar, borrar por

@@ -17,6 +17,7 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -93,7 +94,7 @@ class City extends AdminPanelController
     {
         $action = self::routeName('actions-add');
         $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CityMapper::STATUS);
-        $status_options = array_to_html_options($status_options, CityMapper::ACTIVE);
+        $status_options = array_to_html_options(Locations::escapeOptions($status_options), escape_html(CityMapper::ACTIVE));
         $back_link = self::routeName('list');
 
         $data = [];
@@ -101,7 +102,7 @@ class City extends AdminPanelController
         $data['status_options'] = $status_options;
         $data['back_link'] = $back_link;
         $data['title'] = self::$title;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -112,10 +113,15 @@ class City extends AdminPanelController
                 'url' => $back_link,
             ],
             self::$title,
-        ]);
+        ];
+
+        $data['title'] = __(LOCATIONS_LANG_GROUP, 'Agregar') . ' ' . mb_strtolower(self::$title);
+        $data['fields'] = $this->formFields(null, $status_options);
+        $data['pieces'] = $this->helperController;
+        set_custom_assets([Locations::staticRoute('js/locations-forms.js')], 'js');
 
         $this->helperController->render('panel/layout/header');
-        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+        $this->helperController->localRender(self::$prefixParentEntity . '/_form', $data);
         $this->helperController->render('panel/layout/footer');
     }
 
@@ -134,7 +140,7 @@ class City extends AdminPanelController
         if (!is_null($element->id)) {
             $action = self::routeName('actions-edit');
             $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CityMapper::STATUS);
-            $status_options = array_to_html_options($status_options, $element->active);
+            $status_options = array_to_html_options(Locations::escapeOptions($status_options), escape_html($element->active));
             $back_link = self::routeName('list');
 
             $data = [];
@@ -143,7 +149,7 @@ class City extends AdminPanelController
             $data['element'] = $element;
             $data['back_link'] = $back_link;
             $data['title'] = self::$title;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -154,10 +160,15 @@ class City extends AdminPanelController
                     'url' => $back_link,
                 ],
                 self::$title,
-            ]);
+            ];
+
+            $data['title'] = __(LOCATIONS_LANG_GROUP, 'Editar') . ' ' . mb_strtolower(self::$title);
+            $data['fields'] = $this->formFields($element, $status_options);
+            $data['pieces'] = $this->helperController;
+            set_custom_assets([Locations::staticRoute('js/locations-forms.js')], 'js');
 
             $this->helperController->render('panel/layout/header');
-            $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+            $this->helperController->localRender(self::$prefixParentEntity . '/_form', $data);
             $this->helperController->render('panel/layout/footer');
         } else {
             throw new NotFoundException($request, $response);
@@ -179,7 +190,7 @@ class City extends AdminPanelController
         $data['add_link'] = $add_link;
         $data['has_add_link_permissions'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -187,10 +198,23 @@ class City extends AdminPanelController
                 'url' => \PiecesPHP\App\Locations\Controllers\Locations::routeName('', [], true),
             ],
             self::$pluralTitle,
-        ]);
+        ];
+
+        $data['addText'] = __(LOCATIONS_LANG_GROUP, 'Agregar') . ' ' . mb_strtolower(self::$title);
+        $data['columns'] = [
+            ['text' => __(LOCATIONS_LANG_GROUP, 'ID')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Código')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Nombre')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'País')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Departamento')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo')],
+        ];
+
+        $data['pieces'] = $this->helperController;
+        set_custom_assets([Locations::staticRoute('js/locations-list.js')], 'js');
 
         $this->helperController->render('panel/layout/header');
-        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+        $this->helperController->localRender(self::$prefixParentEntity . '/_list', $data);
         $this->helperController->render('panel/layout/footer');
     }
 
@@ -302,24 +326,21 @@ class City extends AdminPanelController
             'mapper' => new CityMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
-
-                $editButton = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
                 $editLink = self::routeName('forms-edit', [
                     'id' => $e->id,
                 ]);
 
-                if (mb_strlen($editLink) > 0) {
-                    $editText = __(LOCATIONS_LANG_GROUP, 'Editar');
-                    $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
-                }
+                //Sin permiso de edición, la celda va vacía.
+                $editButton = mb_strlen($editLink) > 0 ? RowActions::cell(RowActions::action(__(LOCATIONS_LANG_GROUP, 'Editar'), $editLink, 'edit')) : '';
 
+                //Lo que viene de la base sale escapado: DataTables pinta cada celda como HTML.
                 return [
                     $e->id,
-                    $e->code ?? '-',
-                    $e->name,
-                    $e->countryName,
-                    $e->stateName,
-                    __(LOCATIONS_LANG_GROUP, CityMapper::STATUS[$e->active]),
+                    escape_html($e->code ?? '-'),
+                    escape_html($e->name),
+                    escape_html($e->countryName),
+                    escape_html($e->stateName),
+                    escape_html(__(LOCATIONS_LANG_GROUP, CityMapper::STATUS[$e->active])),
                     $editButton,
                 ];
 
@@ -763,6 +784,30 @@ class City extends AdminPanelController
         return $pagination;
     }
 
+
+    /**
+     * Los campos del formulario de alta (sin elemento) y de edición, para la plantilla locations/_form.
+     *
+     * @param CityMapper|null $element
+     * @param string $statusOptions
+     * @return array<int,array<string,mixed>>
+     */
+    protected function formFields(?CityMapper $element, string $statusOptions): array
+    {
+        $fields = [];
+        //Las relaciones llegan como mapeador o como id: solo se leen si son mapeador.
+        $state = $element !== null && $element->state instanceof StateMapper ? $element->state : null;
+        $country = $state !== null && $state->country instanceof \PiecesPHP\App\Locations\Mappers\CountryMapper ? $state->country : null;
+        if ($element !== null) {
+            $fields[] = ['kind' => 'hidden', 'name' => 'id', 'value' => $element->id];
+        }
+        $fields[] = ['kind' => 'select', 'name' => 'country', 'label' => __(LOCATIONS_LANG_GROUP, 'País'), 'required' => true, 'attributes' => ['locations-component-auto-filled-country' => $country !== null ? (string) $country->id : '']];
+        $fields[] = ['kind' => 'select', 'name' => 'state', 'label' => __(LOCATIONS_LANG_GROUP, 'Departamento'), 'required' => true, 'attributes' => ['locations-component-auto-filled-state' => $state !== null ? (string) $state->id : '']];
+        $fields[] = ['kind' => 'input', 'name' => 'name', 'label' => __(LOCATIONS_LANG_GROUP, 'Nombre'), 'required' => true, 'maxlength' => 255, 'value' => $element !== null ? $element->name : ''];
+        $fields[] = ['kind' => 'input', 'name' => 'code', 'label' => __(LOCATIONS_LANG_GROUP, 'Código'), 'maxlength' => 255, 'value' => $element !== null ? ($element->code ?? '') : ''];
+        $fields[] = ['kind' => 'select', 'name' => 'active', 'label' => __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo'), 'required' => true, 'options' => $statusOptions];
+        return $fields;
+    }
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

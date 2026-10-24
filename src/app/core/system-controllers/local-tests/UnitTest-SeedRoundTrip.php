@@ -90,6 +90,16 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
     set_config('pcsphp_current_user_stored', null);
     $decoyId = null;
     $count = 2;
+    //El meta de las organizaciones que NO son de la siembra: afterAll() no puede tocarlo.
+    $foreignMeta = function () use ($database): string {
+        if ($database === null) {
+            return '';
+        }
+        $statement = $database->prepare('SELECT id, meta FROM `' . OrganizationMapper::TABLE . '` WHERE name NOT LIKE ? ORDER BY id');
+        $statement->execute([ModuleSeeder::PREFIX . '%']);
+        return sha1((string) json_encode($statement->fetchAll(\PDO::FETCH_ASSOC)));
+    };
+    $foreignBefore = $foreignMeta();
     try {
         echoTerminal('[1] La siembra, de todos los sembradores');
         $written = SeedPlanner::write($ordered, $count, new SeedContext([], true));
@@ -127,6 +137,20 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
         $check(count($markers) === $count * count($ordered) && count($unprefixed) === 0, '1c todas las filas sembradas llevan el prefijo ' . ModuleSeeder::PREFIX, count($markers) . ' leídas, ' . count($unprefixed) . ' sin prefijo');
         $empty = array_filter($folders, static fn (string $folder): bool => count(\PiecesPHP\Core\Statics\ProtectedUploads::listFiles($folder)) === 0);
         $check(count($folders) === $count * count($bases) && count($empty) === 0, '1d cada fila con carpeta propia la tiene en disco, con sus archivos', count($folders) . ' carpeta(s), ' . count($empty) . ' vacía(s) o ausente(s)');
+        $notWritable = [];
+        foreach ($folders as $folder) {
+            $paths = is_dir($folder) ? [$folder] : [];
+            foreach (is_dir($folder) ? new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) : [] as $item) {
+                $paths[] = $item->getPathname();
+            }
+            foreach ($paths as $path) {
+                $needed = is_dir($path) ? 0007 : 0006;
+                if ((fileperms($path) & $needed) !== $needed) {
+                    $notWritable[] = str_replace(basepath(), '', $path) . ' ' . decoct(fileperms($path) & 0777);
+                }
+            }
+        }
+        $check(count($folders) > 0 && count($notWritable) === 0, '1g lo sembrado en disco lo puede escribir el servidor web (otro usuario): carpetas o+rwx, archivos o+rw', implode(', ', array_slice($notWritable, 0, 5)) . (count($notWritable) > 5 ? ' …' : ''));
 
         $orgIds = $written[OrganizationMapper::class] ?? [];
         $userIds = $written[UsersModel::class] ?? [];
@@ -138,6 +162,30 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
         }
         $broken = array_filter($references, static fn (array $row): bool => (int) $row['found'] !== 1 || !in_array((int) $row['organization'], $orgIds, true));
         $check(count($references) === $count && count($broken) === 0, '1e cada usuario sembrado apunta a una organización sembrada que existe', json_encode($references) ?: '');
+
+        $withEditor = 0;
+        $wrongAdmin = [];
+        foreach ($orgIds as $orgId) {
+            if ($database === null || count($userIds) === 0) {
+                break;
+            }
+            $statement = $database->prepare('SELECT id FROM `' . UsersModel::TABLE . '` WHERE organization = ? AND type IN (' . implode(', ', OrganizationMapper::PROFILE_EDITOR) . ') AND id IN (' . implode(', ', array_fill(0, count($userIds), '?')) . ')');
+            $statement->execute(array_merge([$orgId], $userIds));
+            $editors = array_map('intval', $statement->fetchAll(\PDO::FETCH_COLUMN));
+            if (count($editors) === 0) {
+                continue;
+            }
+            $withEditor++;
+            $statement = $database->prepare('SELECT meta FROM `' . OrganizationMapper::TABLE . '` WHERE id = ?');
+            $statement->execute([$orgId]);
+            $meta = json_decode((string) $statement->fetchColumn(), true);
+            $admin = is_array($meta) && is_numeric($meta['administrator'] ?? null) ? (int) $meta['administrator'] : null;
+            if (!in_array($admin, $editors, true)) {
+                $wrongAdmin[] = "{$orgId} → " . var_export($admin, true) . ' (candidatos ' . implode(', ', $editors) . ')';
+            }
+        }
+        $check($withEditor >= 1 && count($wrongAdmin) === 0, '1h cada organización sembrada con un usuario sembrado que puede ser encargado lo tiene de encargado, y es de ella', "{$withEditor} con candidato; " . implode('; ', $wrongAdmin));
+        $check($foreignMeta() === $foreignBefore, '1i el meta de las organizaciones no sembradas no cambia al sembrar');
 
         //Lo que hace cualquier arranque de la aplicación: crear las aprobaciones de lo nuevo.
         SystemApprovalManager::init();
@@ -187,6 +235,7 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
         $check($removedRows >= $count * count($ordered) + $expectedApprovals,'2e el limpiado enumera lo que borró, aprobaciones incluidas', "{$removedRows} fila(s)");
         $again = SeedPlanner::clean($ordered);
         $check(array_sum(array_map(static fn (array $t): int => count($t['ids']), $again)) === 0, '2f limpiar sin nada sembrado no borra nada y no falla');
+        $check($foreignMeta() === $foreignBefore, '2g el meta de las organizaciones no sembradas sigue igual tras limpiar');
         echoTerminal(' ');
 
         echoTerminal('[3] Un sembrador que falla a mitad no deja ni filas ni archivos');

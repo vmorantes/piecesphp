@@ -82,7 +82,9 @@ function WMSTileLayer(parameters) {
 					`El valor de la opción ${option} es erróneo en WMSTileLayer`,
 					inputOption,
 				]
-				alert('Error en WMSTileLayer')
+				if (typeof errorMessage === 'function') {
+					errorMessage('Error en WMSTileLayer', text[0])
+				}
 				console.error(text)
 			}
 
@@ -94,7 +96,9 @@ function WMSTileLayer(parameters) {
 				let text = [
 					`La opción ${option} es obligatoria para WMSTileLayer`,
 				]
-				alert('Error en WMSTileLayer')
+				if (typeof errorMessage === 'function') {
+					errorMessage('Error en WMSTileLayer', text[0])
+				}
 				console.error(text)
 			}
 

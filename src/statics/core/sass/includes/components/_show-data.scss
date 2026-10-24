@@ -1,5 +1,10 @@
 @use '../variables' as *;
 @use '../functions' as *;
+
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$-cardIconBackground: #F4F3F0;
+$-dividerDescriptionColor: #AAAAAA;
+
 @mixin list-data-cards {
 
     font-family: $fontGlobal;
@@ -17,12 +22,12 @@
         padding: pxToRem(25);
         padding-bottom: pxToRem(15);
         border-radius: pxToRem(10);
-        border: 1px solid rgba(112, 112, 112, 0.15);
-        box-shadow: 0px 3px 6px rgba(112, 112, 112, 0.15);
+        border: 1px solid $colorBorderSoft;
+        box-shadow: 0px 3px 6px $colorBorderSoft;
         background-color: white;
         font-weight: $fwRegular;
         line-height: 1;
-        color: #1B1C1D;
+        color: $colorTextStrong;
 
         &.height-max-content {
             height: max-content;
@@ -35,7 +40,7 @@
             transform: translateY(-50%);
             padding: pxToRem(14);
             border-radius: pxToRem(14);
-            background-color: #F4F3F0;
+            background-color: $-cardIconBackground;
 
             >.icon {
                 display: grid;
@@ -131,7 +136,7 @@
         }
 
         .footer {
-            border-top: 1px solid rgba(112, 112, 112, 0.15);
+            border-top: 1px solid $colorBorderSoft;
             margin-top: pxToRem(15);
             margin-left: pxToRem(-25);
             margin-right: pxToRem(-25);
@@ -208,7 +213,7 @@
                 height: 52px;
                 padding: pxToRem(14);
                 border-radius: pxToRem(14);
-                background-color: #F4F3F0;
+                background-color: $-cardIconBackground;
 
                 >.icon {
                     display: grid;
@@ -250,7 +255,7 @@
                     }
 
                     >.data {
-                        color: #707070;
+                        color: $colorTextMuted;
 
                         &:not(:last-child) {
                             margin-bottom: 2px;
@@ -321,7 +326,7 @@
             font-weight: $fwLight;
             font-size: pxToRem(15);
             line-height: pxToRem(15+5);
-            color: #AAAAAA;
+            color: $-dividerDescriptionColor;
 
             &.fs16 {
                 font-weight: $fwRegular;
@@ -336,11 +341,11 @@
             }
 
             &.black {
-                color: #1B1C1D;
+                color: $colorTextStrong;
             }
 
             &.grey {
-                color: #707070;
+                color: $colorTextMuted;
             }
         }
 

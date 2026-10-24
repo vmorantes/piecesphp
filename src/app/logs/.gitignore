@@ -4,5 +4,8 @@ olds/*
 error.plain.log
 deprecations.log
 error.unique.message.log
+error.log.jsonl
+error-traces/
+error-soft/
 !.gitignore
 !missing-lang-messages.json

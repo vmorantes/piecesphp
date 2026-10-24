@@ -2,7 +2,14 @@
 
 //Un marcador distinto por campo: que otra salida del mismo texto no tape un «no sale crudo».
 //El contenido enriquecido es el canario: tiene que salir EXACTAMENTE como se guardó.
+//@areas src/app/classes/Documents/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\BaseModel;
@@ -62,8 +69,8 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt, ?array $query = null) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/') . ($query !== null ? '?' . http_build_query($query) : ''),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -205,7 +212,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             $usuarios[] = (int) $u->id;
             return (int) $u->id;
         };
-        $jwtDe = fn (int $id): string => SessionToken::generateToken(['id' => $id], null, null, false);
+        $jwtDe = fn (int $id): string => UserSessions::issueToken($id);
         $aprobar = function (string $tablaReferencia, int $id) use ($database, $tablaAprobaciones, $prefijo, $ahora, &$rootID): void {
             $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
                 ->execute(["{$prefijo}-aprobacion", (string) $id, $tablaReferencia, $ahora, $ahora, $rootID, SystemApprovalsMapper::STATUS_APPROVED]);
@@ -233,7 +240,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         };
         $orgID = $insertarOrganizacion([
             'name' => $m('zzo'), 'nit' => $m('zznit'), 'activitySector' => $m('zzs'), 'actionLines' => json_encode([$m('zzal')]),
-            'country' => $pais, 'city' => $ciudad, 'address' => $m('zzaddr'), 'phone' => $m('zzph'), 'linkedinLink' => $m('zzoli'),
+            'country' => $pais, 'city' => $ciudad, 'address' => $m('zzaddr'), 'phone' => $m('zzph'), 'linkedinLink' => 'https://zz.test/?q=' . $m('zzoli'),
             'websiteLink' => $m('zzowe'), 'informativeEmail' => $m('zzie'), 'billingEmail' => $m('zzbe'), 'logo' => null,
         ], ['phoneCode' => '+57', 'latitude' => 10.5, 'longitude' => -74.5, 'affiliatedInstitutions' => [$m('zzinst')]]);
         $org2ID = $insertarOrganizacion(['name' => $m('zzot'), 'activitySector' => 'zz'], ['phoneCode' => '+57', 'latitude' => 10.5, 'longitude' => -74.5, 'affiliatedInstitutions' => []]);
@@ -321,8 +328,8 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //──── [c] Perfiles: incompletos, completos y sus enlaces ─────────────────────────────
         echoTerminal('');
         echoTerminal('[c] Los perfiles de persona y de organización, incompletos y completos; los enlaces sin http(s) no van al href');
-        $rutaPerfil = $camino(\MySpace\Controllers\ProfileController::routeName('profile', ['userID' => $adminID], true));
-        $rutaPerfilOrg = $camino(\MySpace\Controllers\OrganizationProfileController::routeName('profile', ['organizationID' => $orgID], true));
+        $rutaPerfil = $camino(\Directory\Controllers\ProfileController::routeName('profile', ['userID' => $adminID], true));
+        $rutaPerfilOrg = $camino(\Organizations\Controllers\OrganizationProfileController::routeName('profile', ['organizationID' => $orgID], true));
         $r = $pedir($rutaPerfil, $jwtRoot);
         $escapado($r['body'], 'zzn', 'c1 profile/profile-not-completed.php: el nombre del usuario', $r['status']);
         $r = $pedir($rutaPerfilOrg, $jwtRoot);
@@ -334,13 +341,14 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             $escapado($perfil['body'], $clave, "c3 profile/profile.php: {$que}", $perfil['status']);
         }
         $perfilOrg = $pedir($rutaPerfilOrg, $jwtRoot);
-        foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzn' => 'el administrador', 'zzinst' => 'una institución', 'zzpn' => 'el teléfono del administrador'] as $clave => $que) {
+        //El contacto es el de la organización, no el de su encargado (#1433 H2).
+        foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzn' => 'el administrador', 'zzinst' => 'una institución', 'zzph' => 'el teléfono', 'zzie' => 'el correo informativo', 'zzowe' => 'la web', 'zzoli' => 'LinkedIn'] as $clave => $que) {
             $escapado($perfilOrg['body'], $clave, "c4 profile-organization/profile.php: {$que}", $perfilOrg['status']);
         }
-        foreach (['profile.php' => $perfil, 'profile-organization/profile.php' => $perfilOrg] as $vista => $pagina) {
-            $check(!str_contains($pagina['body'], "href='javascript:") && str_contains($pagina['body'], $esc("javascript:zzWeb('" . $crudo('zzweb') . "')")), "c5 {$vista}: la web «javascript:» sale como texto, sin enlace", "HTTP {$pagina['status']}");
-            $check(str_contains($pagina['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzlin')) . "'"), "c6 {$vista}: CANARIO, LinkedIn con https sí es enlace, escapado", "HTTP {$pagina['status']}");
-        }
+        $check(!str_contains($perfil['body'], "href='javascript:") && str_contains($perfil['body'], $esc("javascript:zzWeb('" . $crudo('zzweb') . "')")), 'c5 profile.php: la web «javascript:» sale como texto, sin enlace', "HTTP {$perfil['status']}");
+        $check(str_contains($perfil['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzlin')) . "'"), 'c6 profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfil['status']}");
+        $check(!str_contains($perfilOrg['body'], "href='javascript:") && !str_contains($perfilOrg['body'], "href='" . $esc($m('zzowe'))) && str_contains($perfilOrg['body'], $esc($m('zzowe'))), 'c5 profile-organization/profile.php: la web sin http(s) sale como texto, sin enlace', "HTTP {$perfilOrg['status']}");
+        $check(str_contains($perfilOrg['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzoli')) . "'"), 'c6 profile-organization/profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfilOrg['status']}");
 
         $database->prepare("UPDATE `{$tablaPerfiles}` SET websiteLink = ? WHERE belongsTo = ?")->execute(["JaVaScRiPt:zzWeb('" . $crudo('zzweb') . "')", $adminID]);
         $r = $pedir($rutaPerfil, $jwtRoot);
@@ -349,7 +357,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //──── [d] Mi organización y la asignación de administrador ─────────────────────────────
         echoTerminal('');
         echoTerminal('[d] El formulario de la organización propia y el de asignar administrador');
-        $rutaMiOrg = fn (int $id): string => $camino(\MySpace\Controllers\MyOrganizationProfileController::routeName('my-organization-profile', ['organizationID' => $id], true));
+        $rutaMiOrg = fn (int $id): string => $camino(\Organizations\Controllers\MyOrganizationProfileController::routeName('my-organization-profile', ['organizationID' => $id], true));
         $miOrg = $pedir($rutaMiOrg($orgID), $jwtRoot);
         foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzie' => 'el correo informativo', 'zzph' => 'el teléfono', 'zzoli' => 'LinkedIn', 'zzowe' => 'la web', 'zzn' => 'el administrador (y su opción)', 'zzm' => 'el correo del administrador', 'zzinst' => 'las instituciones (opción y valor)'] as $clave => $que) {
             $escapado($miOrg['body'], $clave, "d1 my-organization-profile.php: {$que}", $miOrg['status']);
@@ -371,11 +379,8 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //──── [f] Usuarios: formularios por tipo y la tarjeta del listado ───────────────────────
         echoTerminal('');
         echoTerminal('[f] Los formularios de usuario por tipo y la tarjeta del listado');
-        //El {type} del alta va cifrado, como lo arma la pantalla de selección (UsersController::selectionTypeToCreate).
-        $controladorUsuarios = new \ReflectionClass(\PiecesPHP\UserSystem\Controllers\UsersController::class);
-        $ofuscado = (string) $controladorUsuarios->getProperty('ofuscate')->getDefaultValue();
-        $claveTipo = (string) $controladorUsuarios->getProperty('password')->getDefaultValue();
-        $tipoCifrado = fn (int $tipo): string => \PiecesPHP\Core\BaseHashEncryption::encrypt(strrev($ofuscado) . ":{$tipo}:" . $ofuscado, $claveTipo);
+        //El {type} del alta va firmado, como lo arma la pantalla de selección (UsersController::selectionTypeToCreate).
+        $tipoCifrado = fn (int $tipo): string => \PiecesPHP\UserSystem\Controllers\UsersController::signedType($tipo);
         foreach ([UsersModel::TYPE_USER_ADMIN_ORG => 'admin-organization', UsersModel::TYPE_USER_COMUNICACIONES => 'comunicaciones', UsersModel::TYPE_USER_GENERAL => 'general', UsersModel::TYPE_USER_INSTITUCIONAL => 'institucional'] as $tipo => $carpeta) {
             $r = $pedir($camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-create', ['type' => $tipoCifrado($tipo)], true)), $jwtRoot);
             $escapado($r['body'], 'zzo', "f1 form-by-type/create/{$carpeta}: la organización en su opción", $r['status']);
@@ -451,35 +456,36 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $documentos[] = (int) $database->lastInsertId();
         $celdas = $celdasDe($pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla)['body'], 'rawData');
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso falla.
-        preg_match('#<a class="card" target="_blank" href="([^"]*zz-doc-plano\.txt)"#', $celdas, $enlace);
+        preg_match('#<a class="ui bottom attached button" target="_blank" rel="noopener" href="([^"]*zz-doc-plano\.txt)"#', $celdas, $enlace);
         $href = html_entity_decode($enlace[1] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $descarga = $href !== '' ? $pedir($camino(str_contains($href, '://') ? $href : '/' . ltrim($href, '/')), $jwtRoot) : ['status' => 0, 'body' => ''];
         $check($creado && $descarga['status'] === 200 && $descarga['body'] === 'zz-contenido-del-documento', 'j3 CANARIO: el enlace del explorador descarga el archivo', "HTTP {$descarga['status']}, href " . mb_substr($href, -70));
 
-        //──── [h] Mapa de contenidos ───────────────────────────────────────────────────────
+        //──── [h] El geovisor ──────────────────────────────────────────────────────────────
+        //Los puntos y el detalle viajan en JSON tal cual: el cliente los pone con textContent.
         echoTerminal('');
-        echoTerminal('[h] El mapa de contenidos: el filtro de organizaciones y las tarjetas');
-        $r = $pedir($camino(\ContentNavigationHub\Controllers\ContentNavigationHubController::routeName('contents-map', [], true)), $jwtRoot);
-        $escapado($r['body'], 'zzo', 'h1 contents/map.php: la organización en su opción', $r['status']);
-        $puntos = $pedir($camino(\GeoJSONManager\Controllers\GeoJsonManagerController::routeName('contents-geojson-features', [], true)), $jwtRoot, ['featuresType' => \GeoJSONManager\Enums\FeaturesTypes::PROFILES->value]);
+        echoTerminal('[h] El geovisor: el filtro de organizaciones, los puntos y el detalle');
+        $r = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('viewer', [], true)), $jwtRoot);
+        $escapado($r['body'], 'zzo', 'h1 Geo/Views/viewer.php: la organización en la opción de su filtro', $r['status']);
+        $puntos = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('points', [], true)) . '?' . http_build_query(['bbox' => '-75,10,-74,11', 'sources' => ['persons', 'organizations']]), $jwtRoot);
         $geo = json_decode($puntos['body'], true);
-        $tarjetaPersona = '';
-        $tarjetaOrg = '';
+        $deFuente = ['persons' => null, 'organizations' => null];
         foreach ((is_array($geo) && is_array($geo['features'] ?? null) ? $geo['features'] : []) as $feature) {
-            $card = (string) ($feature['properties']['cardHTML'] ?? '');
-            //Por el marcador exacto, crudo o escapado: «zzo» también está dentro de «zzot».
-            $tiene = fn (string $clave): bool => str_contains($card, $crudo($clave)) || str_contains($card, $esc($crudo($clave)));
-            if (str_contains($card, 'profile-user') && $tiene('zzn')) {
-                $tarjetaPersona = $card;
-            }
-            if (str_contains($card, 'profile-org') && $tiene('zzo')) {
-                $tarjetaOrg = $card;
+            $titulo = (string) ($feature['properties']['title'] ?? '');
+            $clave = $feature['properties']['source'] === 'persons' ? 'zzn' : 'zzo';
+            //Por el marcador exacto: «zzo» también está dentro de «zzot».
+            if (str_contains($titulo, $crudo($clave)) && !str_contains($titulo, $crudo('zzot'))) {
+                $deFuente[$feature['properties']['source']] = $feature;
             }
         }
-        $escapado($tarjetaPersona, 'zzn', 'h2 map-elements/profile-person-card.php: el nombre', $puntos['status']);
-        $escapado($tarjetaPersona, 'zzjob', 'h3 y el cargo', $puntos['status']);
-        $escapado($tarjetaOrg, 'zzo', 'h4 map-elements/profile-org-card.php: el nombre', $puntos['status']);
-        $escapado($tarjetaOrg, 'zzs', 'h5 y el sector', $puntos['status']);
+        $sinHTML = fn (?array $feature, string $clave): bool => $feature !== null && str_contains((string) $feature['properties']['title'], $crudo($clave))
+            && !str_contains((string) $feature['properties']['title'], $esc($crudo($clave))) && count(array_diff(array_keys($feature['properties']), ['source', 'id', 'title', 'thumbnail'])) === 0;
+        $check($sinHTML($deFuente['persons'], 'zzn'), 'h2 el punto de la persona: su nombre viaja tal cual, sin HTML que escapar en el servidor', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['persons']), 0, 200));
+        $check($sinHTML($deFuente['organizations'], 'zzo'), 'h4 el de la organización, igual', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['organizations']), 0, 200));
+        $idPersona = (int) ($deFuente['persons']['properties']['id'] ?? 0);
+        $detalle = json_decode($pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('point', ['source' => 'persons', 'id' => $idPersona], true)), $jwtRoot)['body'], true);
+        $cargo = is_array($detalle) ? (string) ($detalle['detail']['jobPosition'] ?? '') : '';
+        $check(str_contains($cargo, $crudo('zzjob')) && !str_contains($cargo, $esc($crudo('zzjob'))), 'h3 el detalle de la persona: el cargo, tal cual', mb_substr($cargo, 0, 120));
 
         //──── [i] Banner, autor de la publicación y registro de actividad ──────────────────────
         echoTerminal('');
@@ -493,19 +499,18 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $escapado($r['body'], 'zzbl', 'i2 Banner/forms/edit.php: el enlace', $r['status']);
         $r = $pedir($camino(\Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true)), $jwtRoot);
         $escapado($r['body'], 'zzn', 'i3 publications/forms/edit.php: el autor en su opción', $r['status']);
-        //El registro de actividad saluda al usuario en sesión: uno principal con el marcador en el nombre.
+        //El registro de actividad, con un principal que lleva el marcador en el nombre. Desde el armazón (C4, ronda 2) la
+        //pantalla ya no saluda: se mira que el nombre no salga crudo en ninguna parte de la página.
         $principalMarcado = $crearUsuario(UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL, $m('zzlog'), 'Zz', "{$prefijo}-log@example.com", "{$prefijo}-" . $m('zzlogu'));
         $r = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('list', [], true)), $jwtDe($principalMarcado));
-        //La barra superior pinta el nombre propio aparte (ronda siguiente): aquí se mira el saludo y el alt del avatar.
-        $nombreLog = $esc($m('zzlog') . ' Zz');
-        $check($r['status'] === 200 && (bool) preg_match('#,&nbsp;</span>\s*' . preg_quote($nombreLog, '#') . '#', $r['body']) && !(bool) preg_match('#,&nbsp;</span>\s*' . preg_quote($m('zzlog'), '#') . '#', $r['body']), 'i4 EventsLog/log/list.php: el saludo pinta el nombre escapado (sin avatar no hay alt que mirar)', "HTTP {$r['status']}");
+        $check($r['status'] === 200 && !str_contains($r['body'], $m('zzlog')), 'i4 EventsLog/log/list.php: el nombre marcado no sale crudo en la pantalla', "HTTP {$r['status']}");
 
         //──── [k] Intentos de acceso y registro de actividad (listados por JSON) ──────────────
         echoTerminal('');
         echoTerminal('[k] El usuario tecleado en el login, sin sesión, sale escapado en el informe de intentos; y el autor en el registro');
         $usuarioTecleado = $m('zzlogin');
-        $intentoPost = curl_init();
-        curl_setopt_array($intentoPost, [
+        $intentoPost = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($intentoPost, [
             CURLOPT_URL => $base . '/' . ltrim($camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('login-request', [], true)), '/'),
             CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTPHEADER => ['X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true,
@@ -551,7 +556,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $r = $pedir($camino(\Publications\Controllers\PublicationsCategoryController::routeName('forms-edit', ['id' => $categoriaPublicacionID], true)), $jwtRoot);
         $escapado($r['body'], 'zzpcat', 'l9 Publications/categories/forms/edit.php: el nombre', $r['status']);
         $r = $pedir($camino(\Publications\Controllers\PublicationsCategoryController::routeName('datatables', [], true)), $jwtRoot, $tabla);
-        $escapado($celdasDe($r['body'], 'rawData'), 'zzpcat', 'l10 Publications/categories/util/list-card.php: el nombre', $r['status']);
+        $escapado($celdasDe($r['body']), 'zzpcat', 'l10 Publications/categories datatables: el nombre en su celda', $r['status']);
         $r = $pedir($camino(\Publications\Controllers\PublicationsController::routeName('forms-add', [], true)), $jwtRoot);
         $escapado($r['body'], 'zzpcat', 'l11 publications/forms/add.php: la categoría en su opción', $r['status']);
         //Antes de cambiar el título: con él cambia el slug y la página pública redirige.
@@ -581,14 +586,12 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $r = $pedir($camino(\MySpace\Controllers\MySpaceController::routeName('user-security', [], true)), $jwtAdmin);
         $escapado($r['body'], 'zzu' . $sufijo, 'l20 user-security.php: el usuario', $r['status']);
         $jwtLog = $jwtDe($principalMarcado);
-        //Mi espacio y el panel redirigen al administrador de organización: los mira el principal marcado.
-        foreach (['my-space.php' => $camino(\MySpace\Controllers\MySpaceController::routeName('my-space', [], true)), 'dashboard.php' => $camino(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true))] as $vista => $ruta) {
+        //El panel redirige al administrador de organización: lo mira el principal marcado.
+        foreach (['dashboard.php' => $camino(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true))] as $vista => $ruta) {
             $r = $pedir($ruta, $jwtLog);
             $escapado($r['body'], 'zzlog', "l16 {$vista} y la barra superior: el nombre propio", $r['status']);
             $escapado($r['body'], 'zzlogu', "l17 {$vista} y la barra superior: el usuario propio", $r['status']);
         }
-        $r = $pedir($camino(\MySpace\Controllers\MySpaceController::routeName('example-resources', [], true)), $jwtLog);
-        $escapado($r['body'], 'zzlogu', 'l21 example-resources.php: el usuario', $r['status']);
         $r = $pedir($camino(\ReportsManage\Controllers\ReportsManageController::routeName('generic-report-view', [], true)), $jwtLog);
         $escapado($r['body'], 'zzlog', 'l22 generic-report-view.php: el nombre en el subtítulo', $r['status']);
         //Las palabras clave del SEO, plantadas en su fila.
@@ -613,8 +616,8 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         echoTerminal('');
         echoTerminal('[m] Un usuario general con HTML en su usuario cierra sus sesiones; el registro lo pinta escapado');
         $generalMarcado = $crearUsuario(UsersModel::TYPE_USER_GENERAL, $orgID, 'Zz', 'Registro', "{$prefijo}-rev@example.com", "{$prefijo}-" . $m('zzrev'));
-        $cierre = curl_init();
-        curl_setopt_array($cierre, [
+        $cierre = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($cierre, [
             CURLOPT_URL => $base . '/' . ltrim($camino(\MySpace\Controllers\MySpaceController::routeName('revoke-my-sessions', [], true)), '/'),
             CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTPHEADER => ["{$cabeceraToken}: " . $jwtDe($generalMarcado), 'X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true, CURLOPT_POSTFIELDS => '',
@@ -654,8 +657,8 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $colorDe = fn (): string => (string) $database->query("SELECT color FROM `news_categories` WHERE id = {$categoriaNoticiaID}")->fetchColumn();
         $rutaGuardarCategoria = $camino(\News\Controllers\NewsCategoryController::routeName('actions-edit', [], true));
         $guardarCategoria = function (string $color) use ($base, $rutaGuardarCategoria, $cabeceraToken, $jwtRoot, $categoriaNoticiaID, $lang, $m): string {
-            $peticion = curl_init();
-            curl_setopt_array($peticion, [
+            $peticion = \Terminal\TestRun::curlInit();
+            \Terminal\TestRun::curlSetoptArray($peticion, [
                 CURLOPT_URL => $base . '/' . ltrim($rutaGuardarCategoria, '/'), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
                 CURLOPT_HTTPHEADER => ["{$cabeceraToken}: {$jwtRoot}", 'X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => http_build_query(['id' => $categoriaNoticiaID, 'lang' => $lang, 'name' => $m('zzncat'), 'color' => $color]),
@@ -684,7 +687,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             'documentos' => [\Documents\Controllers\DocumentsController::routeName('datatables', [], true), ['zzdn' => 'el nombre', 'zzdt' => 'el tipo']],
             'tipos de documento' => [\Forms\DocumentTypes\Controllers\DocumentTypesController::routeName('datatables', [], true), ['zzdt' => 'el nombre']],
             'categorías de Formularios' => [\Forms\Categories\Controllers\CategoriesController::routeName('datatables', [], true), ['zzcat' => 'el nombre']],
-            'perfiles' => [\MySpace\Controllers\AllProfilesController::routeName('datatables', [], true), ['zzn' => 'el nombre de la persona', 'zzo' => 'el nombre de la organización']],
+            'perfiles' => [\Directory\Controllers\AllProfilesController::routeName('datatables', [], true), ['zzn' => 'el nombre de la persona', 'zzo' => 'el nombre de la organización']],
         ];
         foreach ($entidades as $listado => [$ruta, $claves]) {
             $r = $pedir($camino($ruta), $jwtRoot, $tabla);
@@ -836,7 +839,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
                 "data-image=\"<?= escape_html(\$element->getLangData(\$lang, 'logo', false, '')); ?>\"" => 1,
                 "data-file=\"<?= escape_html(\$element->getLangData(\$lang, 'rut', false, '')); ?>\"" => 1,
             ],
-            'app/classes/MySpace/Views/my-organization-profile/my-organization-profile.php' => [
+            'app/classes/Organizations/Views/my-organization-profile/my-organization-profile.php' => [
                 "data-image=\"<?= escape_html(\$organizationMapper->currentLangData('logo')); ?>\"" => 1,
             ],
             'app/classes/Publications/Views/publications/forms/edit.php' => [

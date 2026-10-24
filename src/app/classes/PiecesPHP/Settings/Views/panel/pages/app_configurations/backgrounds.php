@@ -1,18 +1,31 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+/**
+ * @var string $langGroup
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ */
 ?>
+<section class="module-view-container backgrounds-view">
 
-<main class="backgrounds-view">
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Fondos'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Apariencia'); ?></span>
-        </div>
-        <div class="body-card max">
+    <div class="limiter-content">
 
-            <span class="card-tag">
-                <?= __($langGroup, 'Login'); ?>
-            </span>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1). Las imágenes se guardan desde el
+        //recortador de su modal, con sus propios botones: aquí no hay barra de guardar.
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
+
+        <div class="container-standard-form">
+
+            <div class="form-section-title"><?= __($langGroup, 'Login'); ?></div>
 
             <div class="cards-list">
 
@@ -79,9 +92,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             </div>
 
-            <span class="card-tag">
-                <?= __($langGroup, 'Otros fondos'); ?>
-            </span>
+            <div class="form-section-title"><?= __($langGroup, 'Otros fondos'); ?></div>
 
             <div class="cards-list">
 
@@ -143,5 +154,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             </div>
 
         </div>
-    </section>
-</main>
+
+    </div>
+
+</section>

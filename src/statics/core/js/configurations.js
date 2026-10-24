@@ -80,6 +80,26 @@ pcsphpGlobals.langMessagesFromServerURL = (function () {
 	return langMessagesFromServerURL
 })()
 pcsphpGlobals.langMessagesFromServerURLRequested = []
+//La dirección de la clave de Mapbox la pone el layout del panel, deducida de su nombre (P51): nada de escribirla aquí.
+pcsphpGlobals.mapboxKeyURL = (function () {
+	const meta = document.querySelector('html head meta[name="mapbox-key-url"]')
+	const value = meta !== null ? meta.getAttribute('value') : null
+	const url = typeof value == 'string' ? atob(value).trim() : ''
+	return url.length > 0 ? url : null
+})()
+//El centro por omisión de los mapas (Configuración › Integraciones › Llaves de MapBox), por el mismo camino: el layout.
+//`null` si no llega, y cada mapa usa entonces el suyo de reserva.
+pcsphpGlobals.mapDefaultCenter = (function () {
+	const meta = document.querySelector('html head meta[name="map-default-center"]')
+	const value = meta !== null ? meta.getAttribute('value') : null
+	try {
+		const center = typeof value == 'string' ? JSON.parse(atob(value)) : null
+		const valid = center !== null && typeof center == 'object' && ['longitude', 'latitude', 'zoom'].every((name) => typeof center[name] == 'number' && isFinite(center[name]))
+		return valid ? { longitude: center.longitude, latitude: center.latitude, zoom: center.zoom } : null
+	} catch (error) {
+		return null
+	}
+})()
 
 //──── Lenguaje ──────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.lang = (function () {
@@ -253,6 +273,7 @@ if (typeof $ !== 'undefined') {
 		configColorPickers()
 		pcsAdminSideBar('.ui-pcs.sidebar')
 		pcsAdminTopbars()
+		pcsContentTabsActiveInView()
 		genericFormHandler()
 		configRichEditor()
 
@@ -970,7 +991,7 @@ function pcsAdminTopbars() {
 	function closeProfile() {
 		profileContainer.removeClass('activated')
 		profileContainer.addClass('desactivated')
-		profileContainer.on('animationend', () => {
+		profileContainer.one('animationend', () => {
 			profileContainer.removeClass('desactivated')
 		})
 	}
@@ -979,7 +1000,8 @@ function pcsAdminTopbars() {
 		const tabs = profileContainer.find('[data-tab]')
 		const views = profileContainer.find('[data-view]')
 
-		tabs.on('click', (e) => {
+		//Se llama cada vez que se abre el lateral: sin el .off, cada apertura sumaba otro manejador a cada pestaña.
+		tabs.off('click.profileTabs').on('click.profileTabs', (e) => {
 			var target = $(e.target)
 
 			if (target[0].nodeName === 'I' || target[0].nodeName === 'SPAN') {
@@ -1024,7 +1046,7 @@ function pcsAdminTopbars() {
 
 			formData.set('is_profile', 'yes')
 
-			postRequest('users/edit/', formData)
+			postRequest($('.profile-content-system').attr('data-url'), formData)
 				.done((res) => {
 					if (res.success) {
 						successMessage(res.message)
@@ -1588,6 +1610,40 @@ function handleConnectAsAnotherUser() {
 }
 
 window.dispatchEvent(new Event(pcsphpGlobals.events.configurationsLoad))
+/**
+ * En el móvil, .content-tabs es una fila que se desliza: la pestaña activa, entera a la vista al cargar y al cambiar.
+ * Con scrollLeft y no con scrollIntoView, que también movería la página en vertical.
+ * @returns {void}
+ */
+function pcsContentTabsActiveInView() {
+	const show = function (container) {
+		const active = container.querySelector('.active')
+		if (active === null) {
+			return
+		}
+		const box = container.getBoundingClientRect()
+		const tab = active.getBoundingClientRect()
+		if (tab.left < box.left) {
+			container.scrollLeft -= box.left - tab.left
+		} else if (tab.right > box.right) {
+			container.scrollLeft += tab.right - box.right
+		}
+	}
+	document.querySelectorAll('.content-tabs').forEach(function (container) {
+		show(container)
+		container.addEventListener('click', function () {
+			//Fomantic cambia la clase activa en el mismo clic: se mira después.
+			setTimeout(function () {
+				show(container)
+			}, 0)
+		})
+		//Y otra vez al acabar su transición: la activa cambia de ancho mientras dura.
+		container.addEventListener('transitionend', function () {
+			show(container)
+		})
+	})
+}
+
 window.addEventListener('load', function () {
 	window.dispatchEvent(new Event(pcsphpGlobals.events.configurationsAndWindowLoad))
 	autoTranslateFromLangGroupHTML()

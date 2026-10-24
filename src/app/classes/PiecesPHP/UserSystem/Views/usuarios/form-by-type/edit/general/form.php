@@ -8,152 +8,147 @@ $langGroup = UsersController::LANG_GROUP;
 $organizations = OrganizationMapper::all(false);
 $canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
 ?>
-<h3><?=__($langGroup, 'profile');?>: <?=htmlentities("$edit_user->firstname $edit_user->firstLastname");?></h3>
+<form class="ui form initial users edit general" action="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('edit-request'); ?>" data-content-form>
 
-<form class="ui form users edit general" action="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('edit-request'); ?>">
+    <div class="container-standard-form">
 
-    <input type="hidden" name='id' value="<?=$edit_user->id;?>">
+        <input type="hidden" name='id' value="<?=$edit_user->id;?>">
 
-    <?php if($canModifyAll): ?>
-    <div class="field">
+        <?php if($canModifyAll): ?>
+        <div class="field">
 
-        <select class="ui dropdown" required name="organization" <?= ORGANIZATIONS_MODULE ? '' : 'hidden' ?>>
+            <select class="ui dropdown" required name="organization" <?= ORGANIZATIONS_MODULE ? '' : 'hidden' ?>>
 
-            <option value=""><?=__($langGroup, 'Organización');?></option>
-            <?php foreach ($organizations as $organization): ?>
-            <option value="<?=$organization->id;?>" <?=$organization->id == $edit_user->organization ? 'selected' : '';?>><?= escape_html($organization->name); ?></option>
-            <?php endforeach;?>
+                <option value=""><?=__($langGroup, 'Organización');?></option>
+                <?php foreach ($organizations as $organization): ?>
+                <option value="<?=$organization->id;?>" <?=$organization->id == $edit_user->organization ? 'selected' : '';?>><?= escape_html($organization->name); ?></option>
+                <?php endforeach;?>
 
-        </select>
+            </select>
 
-    </div>
-    <?php else: ?>
-    <input type="hidden" name="organization" value="<?= getLoggedFrameworkUserOrFail()->organization; ?>">
-    <?php endif; ?>
+        </div>
+        <?php else: ?>
+        <input type="hidden" name="organization" value="<?= getLoggedFrameworkUserOrFail()->organization; ?>">
+        <?php endif; ?>
 
-    <div class="ui grid">
+        <div class="ui grid">
 
-        <div class="doubling two column row">
+            <div class="doubling two column row">
 
-            <div class="column">
+                <div class="column">
 
-                <div class="field">
-                    <input required type="text" name="firstname" placeholder="<?=__($langGroup, 'firstname');?>" value="<?=htmlentities($edit_user->firstname);?>">
+                    <div class="field">
+                        <input required type="text" name="firstname" placeholder="<?=__($langGroup, 'firstname');?>" value="<?=htmlentities($edit_user->firstname);?>">
+                    </div>
+
+                </div>
+
+                <div class="column">
+
+                    <div class="field">
+                        <input type="text" name="secondname" placeholder="<?=__($langGroup, 'secondname');?>" value="<?=htmlentities($edit_user->secondname);?>">
+                    </div>
+
                 </div>
 
             </div>
 
-            <div class="column">
+            <div class="doubling two column row">
 
-                <div class="field">
-                    <input type="text" name="secondname" placeholder="<?=__($langGroup, 'secondname');?>" value="<?=htmlentities($edit_user->secondname);?>">
+                <div class="column">
+
+                    <div class="field">
+                        <input required type="text" name="first_lastname" placeholder="<?=__($langGroup, 'first-lastname');?>" value="<?=htmlentities($edit_user->firstLastname);?>">
+                    </div>
+
+                </div>
+
+                <div class="column">
+
+                    <div class="field">
+                        <input type="text" name="second_lastname" placeholder="<?=__($langGroup, 'second-lastname');?>" value="<?=htmlentities($edit_user->secondLastname);?>">
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
 
-        <div class="doubling two column row">
+        <br>
 
-            <div class="column">
+        <div class="field required">
 
-                <div class="field">
-                    <input required type="text" name="first_lastname" placeholder="<?=__($langGroup, 'first-lastname');?>" value="<?=htmlentities($edit_user->firstLastname);?>">
+            <div class="ui labeled input">
+                <div class="ui label">
+                    <i class="icon user outline large"></i>
+                    <?=__($langGroup, 'user');?>
+                </div>
+                <input required type="text" name="username" value="<?= htmlentities($edit_user->username);?>">
+            </div>
+
+        </div>
+
+        <div class="field required">
+
+            <div class="ui labeled input">
+
+                <div class="ui label">
+                    <i class="icon mail outline large"></i>
+                    <?=__($langGroup, 'email-standard');?>
                 </div>
 
+                <input required type="email" name="email" value="<?=htmlentities($edit_user->email);?>">
+
             </div>
 
-            <div class="column">
+        </div>
 
-                <div class="field">
-                    <input type="text" name="second_lastname" placeholder="<?=__($langGroup, 'second-lastname');?>" value="<?=htmlentities($edit_user->secondLastname);?>">
+        <div class="field">
+
+            <div class="ui labeled input">
+
+                <div class="ui label">
+                    <i class="icon key  large"></i>
+                    <?=__($langGroup, 'password_restored');?>
                 </div>
+                <input type="password" name="password" value="">
 
             </div>
 
         </div>
 
-    </div>
+        <div class="field">
 
-    <br>
-
-    <div class="field required">
-
-        <div class="ui labeled input">
-            <div class="ui label">
-                <i class="icon user outline large"></i>
-                <?=__($langGroup, 'user');?>
+            <div class="ui labeled input">
+                <div class="ui label">
+                    <i class="icon key  large"></i>
+                    <?=__($langGroup, 'confirm-password');?>
+                </div>
+                <input type="password" name="password2" value="">
             </div>
-            <input required type="text" name="username" value="<?= htmlentities($edit_user->username);?>">
-        </div>
-
-    </div>
-
-    <div class="field required">
-
-        <div class="ui labeled input">
-
-            <div class="ui label">
-                <i class="icon mail outline large"></i>
-                <?=__($langGroup, 'email-standard');?>
-            </div>
-
-            <input required type="email" name="email" value="<?=htmlentities($edit_user->email);?>">
 
         </div>
 
-    </div>
+        <div class="field required">
 
-    <div class="field">
+            <select class="ui dropdown" required name="status">
 
-        <div class="ui labeled input">
+                <option value=""><?=__($langGroup, 'status');?></option>
+                <?php foreach ($status_options as $name => $value): ?>
+                <?php if ($value == $edit_user->status): ?>
+                <option selected value="<?=$value;?>"><?=$name;?></option>
+                <?php else: ?>
+                <option value="<?=$value;?>"><?=$name;?></option>
+                <?php endif;?>
+                <?php endforeach;?>
 
-            <div class="ui label">
-                <i class="icon key  large"></i>
-                <?=__($langGroup, 'password_restored');?>
-            </div>
-            <input type="password" name="password" value="">
+            </select>
 
         </div>
 
     </div>
 
-    <div class="field">
-
-        <div class="ui labeled input">
-            <div class="ui label">
-                <i class="icon key  large"></i>
-                <?=__($langGroup, 'confirm-password');?>
-            </div>
-            <input type="password" name="password2" value="">
-        </div>
-
-    </div>
-
-    <div class="field required">
-
-        <select class="ui dropdown" required name="status">
-
-            <option value=""><?=__($langGroup, 'status');?></option>
-            <?php foreach ($status_options as $name => $value): ?>
-            <?php if ($value == $edit_user->status): ?>
-            <option selected value="<?=$value;?>"><?=$name;?></option>
-            <?php else: ?>
-            <option value="<?=$value;?>"><?=$name;?></option>
-            <?php endif;?>
-            <?php endforeach;?>
-
-        </select>
-
-    </div>
-
-    <div class="field">
-
-        <button type="submit" class="ui button green">
-            <i class="save icon"></i>
-            <?=__($langGroup, 'save');?>
-        </button>
-
-    </div>
+    <?php $this->helpController->_render('panel/built-in/content/form-action-bar.php', ['saveText' => __($langGroup, 'save')]); ?>
 
 </form>

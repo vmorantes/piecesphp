@@ -1,6 +1,6 @@
 # API
 
-_Para las rutas que requieren autorización es necesario enviar la cabecera JWTAuth con el valor del token de autenticación._
+_Para las rutas que requieren autorización es necesario enviar la cabecera `JWTAuth` (o la que fije la instalación: ver «La sesión») con el valor del token de autenticación._
 
 ### [Publications](./modules/Publications.md)
 ### [News](./modules/News.md)
@@ -32,6 +32,28 @@ const res = await fetch(`${API}/publications/all/`, {
 ```
 
 - La cookie de sesión del panel lleva `SameSite=Lax`: un navegador no la manda en peticiones de otro sitio.
+
+## La sesión, desde la `9.0.0`
+
+- **El nombre de la cabecera** es el de `$config['session_token_name']` (`src/app/config/config.php`; `JWTAuth` por
+  omisión). El servidor lee la cabecera con ese nombre y, si no viene, la cookie del mismo nombre
+  (`SessionToken::getJWTReceived()`). **Si una instalación lo cambia** (`bin/cli session-name escribir=yes` lo propone),
+  cada cliente externo tiene que mandar el nombre nuevo.
+- **Cada inicio de sesión tiene su fila en el servidor**, y el token lleva su identificador: en cada petición se
+  comprueba que la fila exista, sea del mismo usuario, no esté cerrada y no haya caducado. Un token emitido antes de la
+  `9.0.0` no tiene fila: **al actualizar, todos vuelven a iniciar sesión una vez**.
+- **Caduca por inactividad y por tope**: `session_inactivity` (31 días sin uso, por omisión) y `session_ceiling` (365
+  días desde que se abrió). El `exp` del token es el tope, **no** el momento en que la sesión muere: una sesión puede
+  estar cerrada con el `exp` vivo, porque caducó por inactividad o porque se cerró desde el panel.
+- **Comprobar si un token vale**: `POST {{baseURL}}/users/verify/` con el token en la cabecera responde
+  `{"auth": false, "isAuth": true|false, …}`. `isAuth` es `false` también si la organización del usuario no puede
+  entrar.
+- **Cerrar la sesión**: `POST {{baseURL}}/admin/users/sessions/logout/` con el token responde `{"success": true}` y
+  cierra la fila. Borrar el token solo en el cliente la deja abierta hasta que caduca.
+- **Sin sesión, una ruta que la exige responde `401`** con `WWW-Authenticate: Bearer` y
+  `{"error": "RESTRICTED_AREA", "message": …}`, si la petición lleva `X-Requested-With: XMLHttpRequest`; sin esa
+  cabecera, redirige al acceso. Las rutas de `core/api/users/…` no exigen sesión en su declaración: es el controlador el
+  que responde `403` cuando falta.
 
 ## Qué rutas existen: las banderas
 

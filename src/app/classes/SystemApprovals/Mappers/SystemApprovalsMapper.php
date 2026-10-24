@@ -46,10 +46,12 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'type' => 'text',
         ],
         'referenceValue' => [
-            'type' => 'text',
+            'type' => 'varchar',
+            'length' => 191,
         ],
         'referenceTable' => [
-            'type' => 'text',
+            'type' => 'varchar',
+            'length' => 191,
         ],
         'referenceDate' => [
             'type' => 'text',

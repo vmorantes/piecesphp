@@ -106,3 +106,12 @@ procedencia.
 | [0054](0054-los-recuentos-de-los-listados-no-ejecutan-sql-compilado.md) | Los recuentos de los listados se ejecutan con los valores enlazados, y el paquete deja de reinterpretar el reemplazo (P108) | sí | Aceptada |
 | [0055](0055-la-base-solo-da-valor-a-las-opciones-declaradas.md) | La base de datos solo da valor a las opciones que la aplicación declara; lo demás no se aplica y se registra (P109) | sí | Aceptada |
 | [0056](0056-una-funcion-anunciada-se-prueba-con-su-declaracion.md) | La comprobación 39 admite una sexta vía, `functions`: una función anunciada se prueba con su declaración (precisa la 39) | sí | Aceptada |
+| [0057](0057-los-cuatro-numeros-se-fijan-con-el-arbol-delante.md) | Los cuatro números se fijan con el árbol delante, no de antemano (precisa la regla 30) | sí | Aceptada |
+| [0058](0058-las-capturas-para-el-po-van-a-sus-documentos.md) | Las capturas para el PO van a `~/Documentos/PiecesPHP`, y la guarda abre solo esa carpeta (precisa la regla 40 §3) | sí | Aceptada |
+| [0059](0059-el-geovisor-es-una-pieza-con-fuentes-registradas.md) | El geovisor es una pieza del framework con fuentes registradas; dos módulos fuera (el PO, P131 a) | sí | Aceptada |
+| [0060](0060-errores-graves-y-suaves.md) | Errores graves y suaves: los suaves no rompen en producción y sí en local; la traza, una vez por huella (P132, delegada) | sí | Aceptada |
+| [0061](0061-el-cifrado-de-verdad-y-la-clave-que-se-cambia-sin-perder-nada.md) | El cifrado, de verdad (AES-256-GCM, una llave por propósito desde `app_key`), con llavero y rotación sin pérdidas (P137-P139) | sí | Aceptada |
+| [0062](0062-la-verificacion-se-elige-por-lo-que-se-toco.md) | La verificación se elige por lo que se tocó (`@areas` y `changed-since`), y entera en cada cierre (P168) | sí | Aceptada |
+| [0063](0063-los-errores-de-las-pruebas-se-podan.md) | Los errores que escriben las pruebas se marcan y se podan al terminar; un error real nunca se poda (P191) | sí | Aceptada |
+| [0064](0064-el-aviso-de-errores-nuevos-no-ensena-la-cifra.md) | El aviso de errores nuevos del pie no enseña la cifra (P195 a) | no | Aceptada |
+| [0065](0065-los-artefactos-eligen-las-suites-que-los-leen.md) | Un artefacto de instrumento elige solo las suites que lo leen; reemplaza esa parte del ADR 0062 §2 (E13 (5)) | sí | Aceptada |

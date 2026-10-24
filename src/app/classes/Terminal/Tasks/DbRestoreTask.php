@@ -71,10 +71,19 @@ class DbRestoreTask extends TerminalTaskAbstract
         $file = is_string($file) ? trim($file) : '';
         $confirm = TerminalData::instance()->getArgument('confirm', '');
 
-        if ($file === '' || !is_file($file)) {
-            echoTerminal("\e[31mERROR:\e[39m falta file=<ruta> o no existe. Ejemplo: bin/cli db-restore file=dumps/x.sql confirm=yes");
+        if ($file === '') {
+            echoTerminal("\e[31mERROR:\e[39m falta file=<ruta>. Ejemplo: bin/cli db-restore file=dumps/x.sql confirm=yes");
             exit(1);
         }
+
+        $resolved = self::resolveDumpPath($file);
+        if ($resolved === null) {
+            $src = rtrim(str_replace('\\', '/', basepath('')), '/');
+            $root = dirname($src);
+            echoTerminal("\e[31mERROR:\e[39m «{$file}» no existe ni en {$src} ni en {$root}. Ejemplo: bin/cli db-restore file=dumps/x.sql confirm=yes");
+            exit(1);
+        }
+        $file = $resolved;
 
         //DESTRUYE DATOS: sin confirmación explícita no se hace nada.
         if ($confirm !== 'yes') {
@@ -131,6 +140,24 @@ class DbRestoreTask extends TerminalTaskAbstract
 
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(count($failures) > 0 ? 1 : 0);
+    }
+
+    /**
+     * La ruta del volcado que exista: tal cual (absoluta o relativa a la carpeta actual, que con `bin/cli` es `src/`),
+     * contra `src/` y contra la raíz del proyecto, en ese orden.
+     *
+     * @param string $file
+     * @return string|null null si no está en ninguna
+     */
+    protected static function resolveDumpPath(string $file): ?string
+    {
+        $src = rtrim(str_replace('\\', '/', basepath('')), '/');
+        foreach ([$file, $src . '/' . $file, dirname($src) . '/' . $file] as $candidate) {
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+        return null;
     }
 
     /**

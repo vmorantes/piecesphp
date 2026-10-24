@@ -266,7 +266,9 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 			mapboxOptions.container = idContainer
 
 			const ignoreDefaultCss = configurations.ignoreDefaultCss === true
-			if (!ignoreDefaultCss) {
+			//Sin llave no hay mapa: el contenedor no se agranda y el aviso ocupa lo suyo.
+			const hasKey = typeof instanceKey == 'string' && instanceKey.trim().length > 0
+			if (!ignoreDefaultCss && hasKey) {
 				container.parent().css({
 					position: 'relative',
 					height: '500px',
@@ -282,10 +284,19 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 			}
 
 			if (container.length > 0) {
+				//Sin llave, mapbox-gl lanza en su constructor y corta todo lo de después: se avisa en el sitio del mapa y no
+				//se crea. La promesa queda pendiente, como cuando no hay contenedor. `visible`: dentro de un `ui form`, Fomantic
+				//oculta el mensaje que no lo lleva.
+				if (!hasKey) {
+					container.empty().append($('<div class="ui warning visible message"></div>').text(_i18n(langGroup, 'Falta la llave de MapBox: configúrela en Integraciones › Llaves de MapBox.')))
+					return
+				}
 				mapboxgl.accessToken = instanceKey
 
-				let longitude = defaultLongitude === null ? -74.8199524 : defaultLongitude
-				let latitude = defaultLatitude === null ? 4.6854957 : defaultLatitude
+				//Sin posición propia, el centro por omisión de Integraciones; si tampoco llega, el de reserva.
+				const configuredCenter = typeof pcsphpGlobals == 'object' && pcsphpGlobals.mapDefaultCenter ? pcsphpGlobals.mapDefaultCenter : null
+				let longitude = defaultLongitude === null ? (configuredCenter !== null ? configuredCenter.longitude : -74.8199524) : defaultLongitude
+				let latitude = defaultLatitude === null ? (configuredCenter !== null ? configuredCenter.latitude : 4.6854957) : defaultLatitude
 
 				let mapboxInstance = new mapboxgl.Map(mapboxOptions)
 
@@ -483,6 +494,32 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 		let latitudeSetted = ''
 
 		let hasInputsControl = longitudeInput.length > 0 && latitudeInput.length > 0
+
+		//Sin llave no hay mapa que ponga la ubicación: los dos campos ocultos pasan a teclearse y los botones del mapa sobran.
+		if (hasInputsControl && (typeof instanceKey != 'string' || instanceKey.trim().length === 0)) {
+			$(latitudeInput).attr({ type: 'number', step: 'any', min: -90, max: 90, placeholder: _i18n(langGroup, 'Latitud'), 'aria-label': _i18n(langGroup, 'Latitud') })
+			$(longitudeInput).attr({ type: 'number', step: 'any', min: -180, max: 180, placeholder: _i18n(langGroup, 'Longitud'), 'aria-label': _i18n(langGroup, 'Longitud') })
+			//Con un valor dentro, el placeholder desaparece y no se sabe cuál es cuál: cada uno lleva su etiqueta.
+			for (const [input, text] of [[$(latitudeInput), _i18n(langGroup, 'Latitud')], [$(longitudeInput), _i18n(langGroup, 'Longitud')]]) {
+				if (!input.attr('id')) {
+					input.attr('id', generateUniqueID())
+				}
+				input.before($('<label></label>').attr('for', input.attr('id')).text(text))
+			}
+			//La segunda etiqueta, separada del campo de arriba: sin margen quedaba pegada a él (a 390, en Mi perfil). En
+			//bloque, porque una etiqueta suelta es inline y no toma el margen.
+			$(longitudeInput).prev('label').css({ display: 'block', 'margin-top': '1em' })
+			$(triggerDrawView).hide()
+			$(triggerSatelitalView).hide()
+			$(triggerCenterView).hide()
+			//Su contenedor, solo si no lleva más que esos botones y notas (<small>): la nota de mover el cursor sobra sin mapa.
+			const buttonsHolder = $(triggerCenterView).parent()
+			const onlyButtons = buttonsHolder.children().toArray().every((child) => child.tagName === 'SMALL' || [triggerDrawView, triggerSatelitalView, triggerCenterView].some((trigger) => $(trigger).is(child)))
+			if (buttonsHolder.length > 0 && onlyButtons) {
+				buttonsHolder.hide()
+			}
+		}
+
 		let hasAltitudeInput = altitudeInput.length > 0
 		let hasAccuracyInput = accuracyInput.length > 0
 
@@ -922,6 +959,9 @@ MapBoxAdapter.registerDynamicMessages = function (name) {
 		'Información': 'Information',
 		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'The location "%r" was not found on the map, an approximate position will be used.',
 		'La ubicación "%r" no se encontró en el mapa.': 'The location "%r" was not found on the map.',
+		'Falta la llave de MapBox: configúrela en Integraciones › Llaves de MapBox.': 'The MapBox key is missing: set it in Integrations › MapBox keys.',
+		'Latitud': 'Latitude',
+		'Longitud': 'Longitude',
 	}
 
 	for (let i in es) {

@@ -2,7 +2,12 @@
 
 //Un POST no concede más que su GET: editar o crear usuarios exige la autoridad del formulario, y las publicaciones no
 //activas solo se ven en su organización. Por HTTP. Siembra usuarios, organizaciones y publicaciones zz-, y los retira.
+//@areas src/app/classes/API/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use API\Controllers\APIController;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -66,7 +71,7 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt, ?array $post = null) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
+        $handle = \Terminal\TestRun::curlInit();
         $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
@@ -80,7 +85,7 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
             $opciones[CURLOPT_POST] = true;
             $opciones[CURLOPT_POSTFIELDS] = http_build_query($post);
         }
-        curl_setopt_array($handle, $opciones);
+        \Terminal\TestRun::curlSetoptArray($handle, $opciones);
         $body = curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
@@ -128,7 +133,7 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
             $u->save();
             $usuarios[$sufijo] = (int) $u->id;
             $claves[$sufijo] = $clave;
-            return SessionToken::generateToken(['id' => (int) $u->id], null, null, false);
+            return UserSessions::issueToken((int) $u->id);
         };
         $global = OrganizationMapper::INITIAL_ID_GLOBAL;
         $crearUsuario('victima-root', UsersModel::TYPE_USER_ROOT, $global);
@@ -238,6 +243,9 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
         $cuerpoApi = json_decode($api['body'], true);
         $mensajeApi = is_array($cuerpoApi) ? (string) ($cuerpoApi['message'] ?? '') : '';
         $check($mensajeApi === __(UsersController::LANG_GROUP, 'Debe seleccionar una organización.'), 'k2 sin sesión, el alta pública llega al núcleo y responde su validación', "HTTP {$api['status']}: " . mb_substr($mensajeApi, 0, 160));
+        //Antes respondía 200 con el cuerpo vacío: k2 es su canario, la misma ruta sí llega a una acción que existe.
+        $inexistente = $pedir($camino(APIController::routeName('users-actions', ['actionType' => 'zz-no-existe'], true)), $adminGeneral, ['zz' => '1']);
+        $check($inexistente['status'] === 404, 'k3 con sesión, un POST a una acción de usuarios que no existe responde 404', "HTTP {$inexistente['status']}: " . mb_substr($inexistente['body'], 0, 80));
 
         echoTerminal('');
         echoTerminal('[f] Los canarios: quien SÍ tiene autoridad, edita y crea');

@@ -233,7 +233,31 @@ class PiecesPHPSystemUserHelper {
 	}
 
 	logout() {
-		this.deleteSession()
+		this.logoutOnServer()
+	}
+
+	/**
+	 * Cierra la sesión EN EL SERVIDOR (su fila; ADR 0026, fase B) y después borra la de este navegador, salga bien o mal.
+	 * La dirección la da el servidor en <meta name="logout-url">; sin ella, solo se borra la del navegador.
+	 * @param {Boolean} reload
+	 */
+	logoutOnServer(reload = true) {
+		const instance = this
+		const meta = document.querySelector('html head meta[name="logout-url"]')
+		let url = meta !== null ? meta.getAttribute('value') : null
+		url = typeof url === 'string' && url.trim().length > 0 ? atob(url.trim()) : ''
+		let JWT = this.getJWT()
+		const JWTFromCookie = this.getCookie(PiecesPHPSystemUserHelper.localJWTAuthName)
+		JWT = JWT.length > 0 ? JWT : (typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : '')
+		if (url === '' || JWT.length === 0) {
+			instance.deleteSession(reload)
+			return
+		}
+		const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+		headers[PiecesPHPSystemUserHelper.localJWTAuthName] = JWT
+		fetch(url, { method: 'POST', credentials: 'same-origin', headers: headers })
+			.catch(() => null)
+			.finally(() => instance.deleteSession(reload))
 	}
 
 	setTriggerLogout(selector) {
@@ -253,7 +277,7 @@ class PiecesPHPSystemUserHelper {
 				clone.addEventListener('click', function (e) {
 					e.stopPropagation()
 					e.preventDefault()
-					instance.deleteSession()
+					instance.logoutOnServer()
 				})
 
 			}
@@ -276,7 +300,9 @@ class PiecesPHPSystemUserHelper {
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localUserDataName)
-			if (reload) {
+			//En el login no se recarga: la recarga perdería la URL a la que volver, que llega en un aviso de un solo uso.
+			const isLoginPage = document.querySelector('[login-form-js]') !== null
+			if (reload && !isLoginPage) {
 				window.location.reload()
 			}
 		}

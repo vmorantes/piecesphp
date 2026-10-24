@@ -47,7 +47,8 @@ python3 -B .agents/scripts/vikunja.py revisar
 
 Lo que salga se reparte **antes** de escribir `AHORA.md`: lo que contestó, a `decisiones-del-po.md` y `abierto.md`; lo que
 marcó hecho, fuera de `PO.md` §3; lo que preguntó, a `PO.md` §2. **Si `revisar` falla**, el cierre sigue, pero el
-resumen al PO lo dice con esas palabras: «no pude leer tu Vikunja».
+resumen al PO lo dice con esas palabras: «no pude leer tu Vikunja». **Y no se espera**: se lanza en segundo plano, porque
+Vikunja es una herramienta más y todo lo que importa vive en el repositorio (PO, 2026-10-14).
 
 **La segunda es la cadena con el coder.** Se comprueba que **ningún reporte recibido esté sin anotar** y que ninguna
 ronda enviada siga en vuelo. Si una lo está, se termina primero (§1): nunca se cierra con una ronda a medias.

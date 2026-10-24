@@ -147,52 +147,12 @@ class BundleTask extends TerminalTaskAbstract
             $all = $expectedParameters->getValue('all');
             $zip = $expectedParameters->getValue('zip');
 
-            $bundleDirectory = basepath("bundle");
-
-            if (!file_exists($bundleDirectory)) {
-                mkdir($bundleDirectory, 0755, true);
-            } else {
-                $bundleDirectoryObject = new DirectoryObject($bundleDirectory);
-                $bundleDirectoryObject->process();
-                $bundleDirectoryObject->delete(false);
-            }
-
-            $appDirectory = new DirectoryObject(basepath('app'));
-            $staticsDirectory = new DirectoryObject(basepath('statics'));
-            $hasOutput = false;
-
             if ($all) {
                 $app = true;
                 $statics = true;
             }
 
-            if ($app) {
-                $ignore = new FilesIgnore([]);
-                $ignore->addRegExpr("sass$");
-                $ignore->addRegExpr("app/cache$");
-                $ignore->addRegExpr("app/logs$");
-                $appDirectory->process($ignore);
-                $appDirectory->copyContentTo(append_to_url($bundleDirectory, 'app'));
-                $hasOutput = true;
-            }
-
-            if ($statics) {
-                $ignore = new FilesIgnore([]);
-                $ignore->addRegExpr("sass$");
-                $ignore->addRegExpr("statics/plugins$");
-                $ignore->addRegExpr("statics/uploads$");
-                $ignore->addRegExpr("statics/filemanager$");
-                $staticsDirectory->process($ignore);
-                $staticsDirectory->copyContentTo(append_to_url($bundleDirectory, 'statics'));
-                $hasOutput = true;
-            }
-
-            if ($zip) {
-                $bundleDirectoryObject = new DirectoryObject($bundleDirectory);
-                $bundleDirectoryObject->process();
-                $bundleDirectoryObject->copyTo(basepath('bundle'), true);
-                $bundleDirectoryObject->delete(false);
-            }
+            $hasOutput = self::bundleInto(basepath('bundle'), basepath('app'), basepath('statics'), $app, $statics, $zip);
 
             if (!$hasOutput) {
                 echoTerminal('No se procesó ninguna información');
@@ -242,4 +202,62 @@ class BundleTask extends TerminalTaskAbstract
         return $route;
     }
 
+    /**
+     * La copia de bundle: vacía (o crea) el destino y copia en él app y statics sin lo que no viaja; con $zip, deja el
+     * resultado comprimido en el mismo destino.
+     *
+     * @param string $destination
+     * @param string $appSource
+     * @param string $staticsSource
+     * @param bool $app
+     * @param bool $statics
+     * @param bool $zip
+     * @return bool true si copió algo
+     */
+    public static function bundleInto(string $destination, string $appSource, string $staticsSource, bool $app, bool $statics, bool $zip): bool
+    {
+        $bundleDirectory = $destination;
+
+        if (!file_exists($bundleDirectory)) {
+            mkdir($bundleDirectory, 0755, true);
+        } else {
+            $bundleDirectoryObject = new DirectoryObject($bundleDirectory);
+            $bundleDirectoryObject->process();
+            $bundleDirectoryObject->delete(false);
+        }
+
+        $appDirectory = new DirectoryObject($appSource);
+        $staticsDirectory = new DirectoryObject($staticsSource);
+        $hasOutput = false;
+
+        if ($app) {
+            $ignore = new FilesIgnore([]);
+            $ignore->addRegExpr("sass$");
+            $ignore->addRegExpr("app/cache$");
+            $ignore->addRegExpr("app/logs$");
+            $appDirectory->process($ignore);
+            $appDirectory->copyContentTo(append_to_url($bundleDirectory, 'app'));
+            $hasOutput = true;
+        }
+
+        if ($statics) {
+            $ignore = new FilesIgnore([]);
+            $ignore->addRegExpr("sass$");
+            $ignore->addRegExpr("statics/plugins$");
+            $ignore->addRegExpr("statics/uploads$");
+            $ignore->addRegExpr("statics/filemanager$");
+            $staticsDirectory->process($ignore);
+            $staticsDirectory->copyContentTo(append_to_url($bundleDirectory, 'statics'));
+            $hasOutput = true;
+        }
+
+        if ($zip) {
+            $bundleDirectoryObject = new DirectoryObject($bundleDirectory);
+            $bundleDirectoryObject->process();
+            $bundleDirectoryObject->copyTo($destination, true);
+            $bundleDirectoryObject->delete(false);
+        }
+
+        return $hasOutput;
+    }
 }

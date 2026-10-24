@@ -10,6 +10,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\TerminalData;
 
@@ -280,9 +281,9 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
 
         $check(SessionToken::isActiveSession($emitido) === true && SessionToken::isActiveSession('') === false, 'i4 el contrato de isActiveSession() no cambió');
 
-        //i5: lo que emite EL FRAMEWORK, que son tres llamadas; el token de i1 lo fabrica esta suite.
+        //i5: lo que emite EL FRAMEWORK, tres llamadas (la renovación de index.php; sesión y terminal de UserSessions).
         //MÉTODO: de cada llamada a generateToken( en esos dos archivos, se mira su primer array hasta el «]».
-        $emisores = ['index.php' => basepath('index.php'), 'UsersController.php' => basepath('app/classes/PiecesPHP/UserSystem/Controllers/UsersController.php')];
+        $emisores = ['index.php' => basepath('index.php'), 'UserSessions.php' => basepath('app/classes/PiecesPHP/UserSystem/Authentication/UserSessions.php')];
         $conTipo = [];
         $llamadas = 0;
         foreach ($emisores as $nombre => $ruta) {
@@ -408,50 +409,52 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
                 'l3 y ya no queda el ternario que pasaba null a setItem()');
         }
 
-        //─── m · La duración de la sesión sale de la configuración ───────────────────────────────
+        //─── m · Inactividad y tope salen de la configuración; session_duration ya no manda (P142) ─
         echoTerminal(' ');
-        echoTerminal('[m] La duración sale de la configuración, y una inválida cae al valor por defecto');
+        echoTerminal('[m] La inactividad y el tope salen de la configuración, un valor inválido cae al de por omisión, y session_duration ya no manda');
 
-        $duracionPrevia = get_config(SessionToken::DURATION_CONFIG);
+        $previas = [];
+        foreach ([SessionToken::INACTIVITY_CONFIG, SessionToken::CEILING_CONFIG, SessionToken::DURATION_CONFIG] as $clave) {
+            $previas[$clave] = get_config($clave);
+        }
+        //Lo que vive un token emitido, de su carga: lo que de verdad se mide, no lo que dice el método.
+        $duracionDelToken = function (string $token): ?int {
+            $partes = explode('.', $token);
+            $carga = isset($partes[1]) ? json_decode((string) base64_decode(strtr($partes[1], '-_', '+/')), true) : null;
+            return is_array($carga) && isset($carga['iat'], $carga['exp']) ? (int) $carga['exp'] - (int) $carga['iat'] : null;
+        };
         try {
-            set_config(SessionToken::DURATION_CONFIG, null);
-            $check(SessionToken::duration() === SessionToken::DURATION,
-                'm1 sin configurar, la de siempre: 31 días', SessionToken::duration() . ' s');
+            set_config(SessionToken::INACTIVITY_CONFIG, null);
+            set_config(SessionToken::CEILING_CONFIG, null);
+            $check(SessionToken::inactivity() === SessionToken::INACTIVITY && SessionToken::ceiling() === SessionToken::CEILING,
+                'm1 sin configurar, las de siempre: 31 días sin actividad y un tope de 365', SessionToken::inactivity() . ' / ' . SessionToken::ceiling() . ' s');
 
-            set_config(SessionToken::DURATION_CONFIG, 3600);
-            $check(SessionToken::duration() === 3600, 'm2 configurada, la configurada', SessionToken::duration() . ' s');
+            set_config(SessionToken::INACTIVITY_CONFIG, 3600);
+            set_config(SessionToken::CEILING_CONFIG, (string) 7200);
+            $check(SessionToken::inactivity() === 3600 && SessionToken::ceiling() === 7200, 'm2 configuradas, las configuradas (también un entero escrito como texto)');
 
-            //Y el canario: una duración configurada sigue emitiendo un token que ABRE sesión.
-            $configurado = SessionToken::generateToken(['id' => 1], null, null, false);
-            $check(SessionToken::isActiveSession($configurado) === true,
-                'm3 y el token que emite sigue abriendo sesión');
+            set_config(SessionToken::INACTIVITY_CONFIG, 0);
+            set_config(SessionToken::CEILING_CONFIG, '0');
+            $check(SessionToken::inactivity() === 0 && SessionToken::ceiling() === 0 && UserSessions::tokenLifetime() === UserSessions::SESSION_TOKEN_NO_CEILING,
+                'm3 el 0 vale («sin ese límite») y, sin tope, el token de sesión vive SESSION_TOKEN_NO_CEILING');
 
-            //LO QUE DE VERDAD SE MIDE: que el token EMITIDO dure lo configurado. Sin esto, la prueba pasa aunque
-            //`generateToken()` siga clavando el literal, porque `duration()` acierta sola. Cazado provocándola.
-            $duracionDelToken = function (string $token): ?int {
-                $partes = explode('.', $token);
-                $carga = isset($partes[1]) ? json_decode((string) base64_decode(strtr($partes[1], '-_', '+/')), true) : null;
-                return is_array($carga) && isset($carga['iat'], $carga['exp']) ? (int) $carga['exp'] - (int) $carga['iat'] : null;
-            };
-            $check($duracionDelToken($configurado) === 3600,
-                'm3bis y el token emitido dura lo configurado, no el literal',
-                var_export($duracionDelToken($configurado), true) . ' s');
-
-            set_config(SessionToken::DURATION_CONFIG, null);
-            $check($duracionDelToken(SessionToken::generateToken(['id' => 1], null, null, false)) === SessionToken::DURATION,
-                'm3ter y sin configurar, el token emitido dura 31 días');
-
-            foreach ([0, -1, 'texto', SessionToken::DURATION_MAX + 1, 1.5, true, []] as $malo) {
-                set_config(SessionToken::DURATION_CONFIG, $malo);
-                $check(SessionToken::duration() === SessionToken::DURATION,
-                    'm4 una duración inválida (' . (is_array($malo) ? 'array' : var_export($malo, true)) . ') cae al valor por defecto',
-                    SessionToken::duration() . ' s');
+            foreach ([-1, 'texto', SessionToken::DURATION_MAX + 1, 1.5, true, []] as $malo) {
+                set_config(SessionToken::INACTIVITY_CONFIG, $malo);
+                set_config(SessionToken::CEILING_CONFIG, $malo);
+                $check(SessionToken::inactivity() === SessionToken::INACTIVITY && SessionToken::ceiling() === SessionToken::CEILING,
+                    'm4 un valor inválido (' . (is_array($malo) ? 'array' : var_export($malo, true)) . ') cae al de por omisión en las dos');
             }
 
-            set_config(SessionToken::DURATION_CONFIG, (string) 7200);
-            $check(SessionToken::duration() === 7200, 'm5 y un entero escrito como texto vale', SessionToken::duration() . ' s');
+            //session_duration, aunque esté configurada, ya no mueve nada: el token sin vida pedida (el del terminal) dura 31 días.
+            set_config(SessionToken::DURATION_CONFIG, 3600);
+            $sinVida = SessionToken::generateToken(['id' => 1], null, null, false);
+            $check(SessionToken::duration() === SessionToken::DURATION && $duracionDelToken($sinVida) === SessionToken::DURATION,
+                'm5 DISCRIMINANTE: session_duration configurada ya no manda; el token sin vida pedida dura 31 días', var_export($duracionDelToken($sinVida), true) . ' s');
+            $check(SessionToken::isActiveSession($sinVida) === true, 'm6 CANARIO: y ese token sigue abriendo sesión');
         } finally {
-            set_config(SessionToken::DURATION_CONFIG, $duracionPrevia);
+            foreach ($previas as $clave => $valor) {
+                set_config($clave, $valor);
+            }
         }
 
         //─── n · La marca global sale de la configuración (ADR 0026) ─────────────────────────────

@@ -2,6 +2,14 @@
 @use 'includes/variables' as *;
 @use 'includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
 @use 'includes/components' as *;
+
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$bodyBackground: #FCFCFC;
+$devCssModeBackground: rgba(255, 0, 0, .1);
+$footerBorderColor: rgba(0, 0, 0, 0.14);
+$imageActionHoverBackground: #7070700d;
+$imageActionHoverColor: #5b5b5b;
+
 @import url('../../fonts/public-sans/public-sans.css');
 @import url('../../fonts/poppins/poppins.css');
 
@@ -18,7 +26,7 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    background-color: #FCFCFC;
+    background-color: $bodyBackground;
 }
 
 .#{$globalClassPcs} {
@@ -30,7 +38,7 @@ body {
 
     &,
     * {
-        background: rgba(255, 0, 0, .1);
+        background: $devCssModeBackground;
         box-shadow: 0 0 0 1px red;
     }
 }
@@ -278,7 +286,7 @@ footer.#{$globalClassPcs} {
         display: flex;
         align-content: center;
         padding: 10px 15px;
-        border-top: 1px rgba(0, 0, 0, 0.14) solid;
+        border-top: 1px $footerBorderColor solid;
 
         .logo-developed {
             img {
@@ -479,7 +487,7 @@ a.ui.button {
         margin-bottom: 100px;
         position: relative;
         bottom: -30%;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 0px 10px 0px $colorShadowSoft;
 
         &.no-gap {
             gap: 0;
@@ -542,7 +550,7 @@ a.ui.button {
     width: 400px;
     height: 150px;
     border-radius: 15px;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 10px 0px $colorShadowSoft;
     display: flex;
     gap: 15px;
     padding: 0 10px 0 0;
@@ -584,7 +592,7 @@ a.ui.button {
             }
 
             >.hover-content {
-                background-color: #7070700d;
+                background-color: $imageActionHoverBackground;
                 border-radius: 15px;
                 width: 150px;
                 height: 150px;
@@ -600,14 +608,14 @@ a.ui.button {
                     margin: 0;
                     padding: 0;
                     font-size: 45px;
-                    color: #5b5b5b;
+                    color: $imageActionHoverColor;
                     margin: 0 auto;
                 }
 
                 >span {
                     font-family: $fontGlobal;
                     font-weight: $fwMedium;
-                    color: #5b5b5b;
+                    color: $imageActionHoverColor;
                     font-size: 12px;
                     margin-top: 15px;
                 }

@@ -18,62 +18,47 @@ window.addEventListener('canDeleteNews', function (e) {
 
 		let routeDelete = e.currentTarget.dataset.route
 
-		iziToast.question({
-			timeout: false,
-			close: false,
-			overlay: true,
-			displayMode: 'once',
-			id: 'question',
-			zindex: 999,
+		confirmAction({
 			title: _i18n(langGroup, 'Confirmación'),
 			message: _i18n(langGroup, '¿Seguro de eliminar el elemento?'),
-			position: 'center',
-			buttons: [
-				['<button>' + _i18n(langGroup, 'Sí') + '</button>', function (instance, toast) {
+			confirmText: _i18n(langGroup, 'Sí'),
+			cancelText: _i18n(langGroup, 'No'),
+			confirmClass: 'red',
+		}).then(function (confirmed) {
 
-					showGenericLoader('ELIMINAR_ITEM')
+			if (!confirmed) {
+				return
+			}
 
-					instance.hide({
-						onClosed: () => {
+			showGenericLoader('ELIMINAR_ITEM')
 
-							let formData = new FormData()
+			postRequest(routeDelete).then(function (res) {
 
-							postRequest(routeDelete).then(function (res) {
+				let success = res.success
+				let name = res.name
+				let message = res.message
+				let values = res.values
+				let redirect = values.redirect
+				let redirect_to = values.redirect_to
 
-								let success = res.success
-								let name = res.name
-								let message = res.message
-								let values = res.values
-								let redirect = values.redirect
-								let redirect_to = values.redirect_to
+				if (success) {
 
-								if (success) {
+					successMessage(name, message)
 
-									successMessage(name, message)
-
-									setTimeout(function () {
-										if (redirect) {
-											window.location.href = redirect_to
-										}
-									}, 1000)
-
-
-								} else {
-									errorMessage(name, message)
-								}
-
-							}).always(function () {
-								removeGenericLoader('ELIMINAR_ITEM')
-							})
-
+					setTimeout(function () {
+						if (redirect) {
+							window.location.href = redirect_to
 						}
-					}, toast)
+					}, 1000)
 
-				}, true],
-				['<button>' + _i18n(langGroup, 'No') + '</button>', function (instance, toast) {
-					instance.hide({}, toast)
-				}],
-			],
+				} else {
+					errorMessage(name, message)
+				}
+
+			}).always(function () {
+				removeGenericLoader('ELIMINAR_ITEM')
+			})
+
 		})
 
 	}

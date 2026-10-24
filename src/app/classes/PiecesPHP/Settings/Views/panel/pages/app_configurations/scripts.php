@@ -7,6 +7,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var array<int,array{label:string,zone:string,position:string,active:bool,code:string}> $entries
  * @var array<string,string> $zones
  * @var array<string,string> $positions
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 $entryHTML = function (array $entry) use ($escape, $langGroup, $zones, $positions): string {
@@ -55,20 +60,25 @@ $entryHTML = function (array $entry) use ($escape, $langGroup, $zones, $position
     return (string) ob_get_clean();
 };
 ?>
-<main class="scripts-view" data-scripts-view>
+<section class="module-view-container scripts-view" data-scripts-view>
 
-    <section class="main-body-header">
+    <div class="limiter-content">
 
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Scripts'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Integraciones'); ?></span>
-        </div>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <div class="body-card">
+        <?php //Fuera del formulario: dentro de un `.ui.form`, Fomantic oculta los `.warning.message`. ?>
+        <div class="ui warning message"><?= __($langGroup, 'El código se pega tal cual en las páginas que elijas. Úsalo solo con código de servicios en los que confíes (analítica, chat, píxeles de publicidad).'); ?></div>
 
-            <div class="ui warning message"><?= __($langGroup, 'El código se pega tal cual en las páginas que elijas. Úsalo solo con código de servicios en los que confíes (analítica, chat, píxeles de publicidad).'); ?></div>
+        <form class="ui form initial" action="<?= $escape($actionURL); ?>" method="POST" data-scripts-form data-content-form>
 
-            <form class="ui form" action="<?= $escape($actionURL); ?>" method="POST" data-scripts-form>
+            <div class="container-standard-form">
 
                 <div data-scripts-list>
                     <?php foreach ($entries as $entry): ?>
@@ -78,15 +88,22 @@ $entryHTML = function (array $entry) use ($escape, $langGroup, $zones, $position
 
                 <template data-script-template><?= $entryHTML(['label' => '', 'zone' => \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::ZONE_PUBLIC, 'position' => \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::POSITION_HEAD, 'active' => true, 'code' => '']); ?></template>
 
-                <div class="main-buttons">
-                    <button type="button" class="ui button brand-color alt" data-script-add><?= __($langGroup, 'Añadir script'); ?></button>
-                    <button type="submit" class="ui button brand-color" data-scripts-save><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+                <?php //Añadir es de la lista, no del formulario: va con ella y no en la barra. ?>
+                <button type="button" class="ui button brand-color alt" data-script-add><?= __($langGroup, 'Añadir script'); ?></button>
 
-            </form>
+            </div>
 
-        </div>
+            <?php
+            //La barra al final del formulario (§2.3); su JS busca `data-scripts-save` en Guardar.
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'saveAttributes' => ['data-scripts-save' => ''],
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
 
-    </section>
+        </form>
 
-</main>
+    </div>
+
+</section>

@@ -2,7 +2,7 @@
 
 //Lo que sirve PHP: rangos, caché privada para lo validado, Vary y ETag. Solo funciones puras, sin HTTP.
 
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Terminal\CliActions;
 
 $cliTaskName = 'unit-tests';

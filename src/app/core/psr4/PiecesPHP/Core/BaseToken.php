@@ -5,6 +5,9 @@
  */
 namespace PiecesPHP\Core;
 
+use PiecesPHP\Core\Crypto\AppKeyring;
+use PiecesPHP\Core\Crypto\Sealed;
+
 /**
  * BaseToken - Implementación básica para generar tokens.
  *
@@ -66,7 +69,8 @@ class BaseToken
             $expire = $time + self::$expire_time;
         }
 
-        $data = BaseHashEncryption::encrypt(json_encode($data, \JSON_THROW_ON_ERROR), $key);
+        //Cifrado de verdad (ADR 0061): el Vigenère de antes dejaba sacar la clave desde los propios tokens.
+        $data = Sealed::seal(json_encode($data, \JSON_THROW_ON_ERROR), Sealed::PURPOSE_TOKEN_DATA, new AppKeyring($key, [], AppKeyring::SOURCE_DEFAULT));
 
         if ($aud) {
             $token = [
@@ -203,8 +207,8 @@ class BaseToken
 
             if (is_object($data)) {
                 $data = $data->data;
-                $data = BaseHashEncryption::decrypt($data, $key);
-                $data = json_decode($data);
+                $plain = is_string($data) ? Sealed::open($data, Sealed::PURPOSE_TOKEN_DATA, new AppKeyring($key, [], AppKeyring::SOURCE_DEFAULT)) : null;
+                $data = $plain !== null ? json_decode($plain) : null;
             }
 
         } else {

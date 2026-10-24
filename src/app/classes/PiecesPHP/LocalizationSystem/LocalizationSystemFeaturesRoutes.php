@@ -10,7 +10,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController;
 
@@ -32,14 +32,15 @@ class LocalizationSystemFeaturesRoutes
     const ENABLE = true;
 
     /**
-     * @param RouteGroup $groupAdministration
-     * @return RouteGroup[] Con los índices groupAdministration
+     * @param RouteGroup $groupAdministration Los estáticos del módulo.
+     * @param RouteGroup $groupServices Los mensajes de idioma, que piden todos los layouts, también los públicos (P51).
+     * @return RouteGroup[] Con los índices groupAdministration y groupServices
      */
-    public static function routes(RouteGroup $groupAdministration)
+    public static function routes(RouteGroup $groupAdministration, RouteGroup $groupServices)
     {
         if (self::ENABLE) {
 
-            $groupAdministration = LocalizationSystemController::routes($groupAdministration);
+            LocalizationSystemController::routes($groupServices);
 
             self::staticResolver($groupAdministration);
 
@@ -53,6 +54,7 @@ class LocalizationSystemFeaturesRoutes
 
         return [
             'groupAdministration' => $groupAdministration,
+            'groupServices' => $groupServices,
         ];
     }
 

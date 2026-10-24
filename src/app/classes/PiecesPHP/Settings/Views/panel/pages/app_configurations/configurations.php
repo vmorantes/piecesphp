@@ -1,45 +1,30 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use PiecesPHP\Settings\Controllers\SettingsController;
-
-$langGroup = SettingsController::LANG_GROUP;
-$isFirstTitle = true;
-$isFirstItem = true;
-
-$view = $tabsItems['general'];
-$title = $tabsTitles['general'];
+/**
+ * @var array<string,string> $tabsItems
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ */
+$view = $tabsItems['general'] ?? '';
 ?>
+<section class="module-view-container colors-view">
 
-<main class="colors-view">
+    <div class="limiter-content">
 
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, $title); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Apariencia'); ?></span>
-        </div>
-        <div class="body-card trasparent no-padding">
-            <?= $view; ?>
-        </div>
-    </section>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-</main>
+        <?= $view; ?>
 
-<script>
-    window.addEventListener('load', function(e) {
+    </div>
 
-        //Inicializaciones generales
-        $('.ui.top.menu .item').tab()
-        $('.ui.checkbox').checkbox()
-        $('.ui.dropdown.additions')
-            .dropdown({
-                allowAdditions: true
-            })
-
-    })
-</script>
-<style>
-    .ui.form {
-        max-width: 800px;
-    }
-</style>
+</section>

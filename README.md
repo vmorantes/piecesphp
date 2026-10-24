@@ -31,8 +31,8 @@ organizaciones, reportes y más), cada uno activable o desactivable con una cons
 
 - **PHP 8.5** (el rango exacto está en [`src/composer.json`](./src/composer.json)). Ubuntu 26.04 LTS lo trae en sus
   repositorios oficiales.
-- **Extensiones**: las `ext-*` de `src/composer.json`; la [guía de PHP](./source-docs/project/docs/environments/content/lamp/content/PHP.md)
-  dice qué paquete trae cada una.
+- **Extensiones**: las `ext-*` de `src/composer.json`; [Despliegue](./source-docs/project/docs/piecesphp/content/general.md)
+  dice qué paquete de Ubuntu trae cada una.
 - **MySQL o MariaDB**.
 - **Apache** con `rewrite`, `headers` y `ssl` habilitados.
 - **Composer**, **Node.js 22.x LTS** y **Gulp CLI** para compilar los estáticos.

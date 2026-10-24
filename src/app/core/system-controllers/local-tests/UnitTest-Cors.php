@@ -71,8 +71,8 @@ CliActions::make('unit-tests:core/cors', function ($args) {
                 $pedidas[] = $linea;
             }
         }
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($datos, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,

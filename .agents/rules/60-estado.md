@@ -34,7 +34,9 @@ No copia descripciones. Si un lote aparece en dos documentos, uno describe y el 
 - **Lo que necesite al PO** va arriba en `AHORA.md`, bajo «Espera al PO», con su número `P<n>` y
   su predeterminado, además de en el chat.
 - **Todo encargo, decisión o «recuérdame» del PO** produce, en el mismo turno (LEY 33): su línea en
-  `.agents/docs/abierto.md` si es trabajo, su fila en `.agents/docs/decisiones-del-po.md` si es una decisión, y el
+  `.agents/docs/abierto.md` si es trabajo, su fila en `.agents/docs/decisiones-del-po.md` si es una decisión —con su
+  columna «Destino»: `criterio`, el ID de su línea de `abierto.md`, `hecho · <ref>` o `tachada`; lo comprueba
+  `verificar.sh`—, y el
   detalle —sus palabras, el contexto, lo medido— en el archivo del tramo. Si es estructural, además su ADR.
 - `.agents/estado/` es la excepción a «no escribir con tanda en vuelo»: solo lo escribe el
   arquitecto y el coder la excluye de sus criterios de `git status`. Se commitea en commits

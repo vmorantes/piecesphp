@@ -63,40 +63,22 @@ window.addEventListener('load', function () {
 						securityCodeContainer.html(securityCode)
 						activateDoButton.on('click', function (e) {
 							e.preventDefault()
-							$('body').addClass('wait-to-action')
-							$.toast({
+							confirmAction({
 								title: _i18n(langGroup, 'Confirmar'),
 								message: _i18n(langGroup, '¿Está seguro?'),
-								displayTime: 0,
-								class: 'white',
-								position: 'top center',
-								classActions: 'top attached',
-								actions: [
-									{
-										text: _i18n(langGroup, 'Sí'),
-										class: 'red',
-										click: function () {
-											const loader2 = 'qr'
-											showGenericLoader(loader2)
-											fetch(activateURL, {
-												method: 'POST',
-											}).then(function () {
-												window.location.reload()
-											}).finally(function () {
-												removeGenericLoader(loader2)
-											})
-											$('body').removeClass('wait-to-action')
-										}
-									},
-									{
-										text: _i18n(langGroup, 'No'),
-										class: 'blue',
-										click: function () {
-											$('body').removeClass('wait-to-action')
-											return true
-										}
-									}
-								]
+								confirmClass: 'red',
+							}).then(function (confirmed) {
+								if (confirmed) {
+									const loader2 = 'qr'
+									showGenericLoader(loader2)
+									fetch(activateURL, {
+										method: 'POST',
+									}).then(function () {
+										window.location.reload()
+									}).finally(function () {
+										removeGenericLoader(loader2)
+									})
+								}
 							})
 						})
 

@@ -5,6 +5,11 @@ use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Core\Config;
 /**
  * @var string|null $xAccount
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 $getName = function ($name, $lang) {
@@ -13,13 +18,20 @@ $getName = function ($name, $lang) {
 };
 ?>
 
-<main class="seo-view">
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Identidad y SEO'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Apariencia'); ?></span>
-        </div>
-        <div class="body-card no-gap">
+<section class="module-view-container seo-view">
+
+    <div class="limiter-content">
+
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
+
+        <div>
             <div class="ui top attached tabular menu">
                 <?php $isFirstTab = true; ?>
                 <?php foreach ($SEOValues as $lang => $values) : ?>
@@ -33,7 +45,7 @@ $getName = function ($name, $lang) {
             <?php foreach ($SEOValues as $lang => $values) : ?>
             <div class="ui bottom attached<?= $isFirstTab ? ' active ' : ' '; ?>tab segment" data-tab="<?= $lang; ?>">
 
-                <form action="<?= $actionURL; ?>" method="POST" class="ui form seo" lang="<?= $lang; ?>">
+                <form action="<?= $actionURL; ?>" method="POST" class="ui form initial seo" lang="<?= $lang; ?>" data-content-form>
 
                     <input type="hidden" name="lang" value="<?= $lang; ?>">
 
@@ -129,11 +141,13 @@ $getName = function ($name, $lang) {
                         </div>
                     </div>
 
-                    <div class="save-button">
-                        <button class="ui button primary" type="submit">
-                            <?= __($langGroup, 'Guardar'); ?>
-                        </button>
-                    </div>
+                    <?php
+                    //La barra al final del formulario (§2.3).
+                    $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                        'saveText' => __($langGroup, 'Guardar'),
+                        'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+                    ]);
+                    ?>
 
                     <?php
                         //Modal edición de imagen de SEO
@@ -169,6 +183,7 @@ $getName = function ($name, $lang) {
             <?php $isFirstTab = false; ?>
             <?php endforeach; ?>
         </div>
-        <div class="divider"></div>
-    </section>
-</main>
+
+    </div>
+
+</section>

@@ -17,11 +17,6 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
-use PiecesPHP\Core\Validation\Parameters\Parameter;
-use PiecesPHP\Core\Validation\Parameters\Parameters;
 
 /**
  * ComponentProvider.
@@ -44,18 +39,12 @@ class ComponentProvider extends AdminPanelController
      */
     protected static $baseRouteName = 'components-provider';
 
-    /**
-     * @var HelperController
-     */
-    protected $helpController = null;
-
     const BASE_JS_DIR = 'js';
     const LANG_GROUP = ComponentProviderLang::LANG_GROUP;
 
     public function __construct()
     {
         parent::__construct();
-        $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
     }
 
@@ -68,73 +57,16 @@ class ComponentProvider extends AdminPanelController
     {
 
         //EL GRUPO ACABA EN UN require: solo pasa uno que exista en Views/ y con forma de nombre, sin depender de que el
-        //servidor normalice los «..». Fuera del try, que captura \Exception y convertiría el 404 en una respuesta.
+        //servidor normalice los «..». Sin try alrededor del render: un 404 o un fallo de la vista no se vuelven un 200.
         $requestedGroup = $request->getAttribute('group');
         if (!is_string($requestedGroup) || preg_match('/^[A-Za-z0-9_-]+$/', $requestedGroup) !== 1 || !in_array($requestedGroup, $this->availableGroups(), true)) {
             throw new NotFoundException($request, $response);
         }
 
-        //──── Entrada ───────────────────────────────────────────────────────────────────────────
+        $output = $this->render("{$requestedGroup}/components", [], false);
+        $response = $response->write(is_string($output) ? $output : '');
 
-        //Definición de validaciones y procesamiento
-        $expectedParameters = new Parameters([
-            new Parameter(
-                'group',
-                null,
-                function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-        ]);
-
-        //Obtención de datos
-        $inputData = $request->getAttributes();
-
-        //Asignación de datos para procesar
-        $expectedParameters->setInputValues($inputData);
-
-        //──── Acciones ──────────────────────────────────────────────────────────────────────────
-        try {
-
-            //Intenta validar, si todo sale bien el código continúa
-            $expectedParameters->validate();
-
-            //Información del formulario
-            /**
-             * @var string $group
-             */
-            $group = $expectedParameters->getValue('group');
-
-            $componentPath = "{$group}/components";
-            $componentFullPath = $this->getInstanceViewDir();
-            $componentExists = file_exists($componentFullPath);
-
-            if ($componentExists) {
-                $output = $this->render($componentPath, [], false);
-                $response = $response->write(is_string($output) ? $output : '');
-            } else {
-                throw new NotFoundException($request, $response);
-            }
-
-        } catch (MissingRequiredParameterException $e) {
-            $response = $response->write($e->getMessage());
-            log_exception($e);
-        } catch (ParsedValueException $e) {
-            $response = $response->write($e->getMessage());
-            log_exception($e);
-        } catch (InvalidParameterValueException $e) {
-            $response = $response->write($e->getMessage());
-            log_exception($e);
-        } catch (\Exception $e) {
-            $response = $response->write($e->getMessage());
-            log_exception($e);
-        }
-
-        return $response;
+        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
     }
 
     /**
@@ -189,7 +121,7 @@ class ComponentProvider extends AdminPanelController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route( //Vista del listado
+            new Route( //Las piezas HTML de un grupo: Views/<grupo>/components.php
                 "{$startRoute}/provide/{group}[/]",
                 $classname . ':provide',
                 self::$baseRouteName . '-provide',

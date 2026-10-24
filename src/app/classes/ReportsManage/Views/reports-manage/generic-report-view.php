@@ -1,174 +1,74 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\UserSystem\ORM\UsersModel;
 /**
  * @var string $langGroup
- * @var string $editLink
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
  */
+//Los dos primeros países y «otros»: generic-report.js pone el nombre que trae el JSON, el valor por su data-type y oculta
+//la fila de un país que falte; las tortas usan estos mismos colores.
+$countriesLegend = fn (string $dataTypePrefix): array => [
+    ['name' => '', 'dataType' => "{$dataTypePrefix}Country1", 'level' => 'primary', 'color' => 'var(--main-brand-color)', 'valueModifiers' => ['neutral', 'right']],
+    ['name' => '', 'dataType' => "{$dataTypePrefix}Country2", 'level' => 'secondary', 'color' => 'var(--second-brand-color)', 'valueModifiers' => ['neutral', 'right']],
+    ['name' => __($langGroup, 'Otros países'), 'dataType' => "{$dataTypePrefix}Others", 'level' => 'secondary', 'color' => 'var(--statistics-disabled-color)', 'valueModifiers' => ['neutral', 'right']],
+];
 ?>
-<div class="module-view-container">
+<section class="module-view-container">
 
-    <div class="home-hello-section-title">
-        <div class="title"><?= __($langGroup, 'Hola,'); ?></div>
-        <div class="subtitle"><?= escape_html($subtitle); ?></div>
-    </div>
+    <div class="limiter-content">
 
-    <div class="statistics-section one-column">
+        <?php
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <div class="three-columns-grid one-on-break-1">
-
-            <div class="card-statistic tall fullw-on-break-1" data-type="researchersData">
-                <div class="toolbar">
-                    <div class="title big"><?= __($langGroup, 'Total de usuarios generales'); ?></div>
-                    <div class="help" data-tooltip="">
-                        <i class="icon help"></i>
-                    </div>
-                </div>
-                <div class="data">
-                    <div class="apex-chart"></div>
-                </div>
-                <div class="chart-data">
-                    <div class="item primary" style="--custom-color: #3558A2;">
-                        <div class="color circle"></div>
-                        <div class="name"><?= __($langGroup, 'Colombia'); ?></div>
-                        <div data-type="totalResearchersQtyColombia" class="value neutral right">&nbsp;0&nbsp;</div>
-                    </div>
-                    <div class="item secondary" style="--custom-color: #254079;">
-                        <div class="color circle"></div>
-                        <div class="name"><?= __($langGroup, 'Francia'); ?></div>
-                        <div data-type="totalResearchersQtyFrancia" class="value neutral right">&nbsp;0&nbsp;</div>
-                    </div>
-                    <div class="item secondary" style="--custom-color: #7A7A7A;">
-                        <div class="color circle"></div>
-                        <div class="name"><?= __($langGroup, 'Otros países'); ?></div>
-                        <div data-type="totalResearchersQtyOthers" class="value neutral right">&nbsp;0&nbsp;</div>
-                    </div>
-                </div>
-                <div class="footer">
-                    <div></div>
-                    <div class="action-button">
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-statistic tall fullw-on-break-1" data-type="organizationsData">
-                <div class="toolbar">
-                    <div class="title big"><?= __($langGroup, 'Total Organizaciones'); ?></div>
-                    <div class="help" data-tooltip="">
-                        <i class="icon help"></i>
-                    </div>
-                </div>
-                <div class="data">
-                    <div class="apex-chart"></div>
-                </div>
-                <div class="chart-data">
-                    <div class="item primary" style="--custom-color: #3558A2;">
-                        <div class="color circle"></div>
-                        <div class="name"><?= __($langGroup, 'Colombia'); ?></div>
-                        <div data-type="totalOrganizationsQtyColombia" class="value neutral right">&nbsp;0&nbsp;</div>
-                    </div>
-                    <div class="item secondary" style="--custom-color: #254079;">
-                        <div class="color circle"></div>
-                        <div class="name"><?= __($langGroup, 'Francia'); ?></div>
-                        <div data-type="totalOrganizationsQtyFrancia" class="value neutral right">&nbsp;0&nbsp;</div>
-                    </div>
-                    <div class="item secondary" style="--custom-color: #7A7A7A;">
-                        <div class="color circle"></div>
-                        <div class="name"><?= __($langGroup, 'Otros países'); ?></div>
-                        <div data-type="totalOrganizationsQtyOthers" class="value neutral right">&nbsp;0&nbsp;</div>
-                    </div>
-                </div>
-                <div class="footer">
-                    <div></div>
-                    <div class="action-button">
-                    </div>
-                </div>
-            </div>
-
-            <div class="one-column-grid">
-
-                <div class="two-columns-grid two-on-break-1">
-
-
-
-                    <div class="card-statistic tall">
-                        <div class="toolbar">
-                            <div class="help" data-tooltip="">
-                                <i class="icon help"></i>
-                            </div>
-                        </div>
-                        <div class="data">
-                            <div data-type="totalRemainingTokens" class="number">0&nbsp;</div>
-                        </div>
-                        <div class="footer">
-                            <div class="caption">
-                                <?= __($langGroup, 'Tokens de IA disponibles'); ?>
-                            </div>
-                            <div class="action-button">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-statistic tall">
-                        <div class="toolbar">
-                            <div class="help" data-tooltip="">
-                                <i class="icon help"></i>
-                            </div>
-                        </div>
-                        <div class="data">
-                            <div data-type="totalPendingPublicationsQty" class="number">0&nbsp;</div>
-                        </div>
-                        <div class="footer two">
-                            <div class="caption">
-                                <?= __($langGroup, 'Publicaciones por validar'); ?>
-                            </div>
-                            <div class="action-button">
-                                <a class="button" href="#">
-                                    <i class="arrow right icon"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
+        <?php ob_start(); ?>
+        <div class="two-columns-grid">
+            <?php
+            //Como las cifras del inicio (home.php): el número y su concepto juntos, dentro de la tarjeta.
+            $this->helpController->_render('panel/built-in/statistics/statistic-card.php', [
+                'content' => (string) $this->helpController->_render('panel/built-in/statistics/number-cards.php', [
+                    'items' => [['dataType' => 'totalRemainingTokens', 'concept' => __($langGroup, 'Tokens de IA disponibles')]],
+                ], false, false),
+            ]);
+            $approvalsURL = \SystemApprovals\SystemApprovalsRoutes::ENABLE ? \SystemApprovals\Controllers\SystemApprovalsController::routeName('list') : null;
+            $this->helpController->_render('panel/built-in/statistics/statistic-card.php', [
+                'content' => (string) $this->helpController->_render('panel/built-in/statistics/number-cards.php', [
+                    'items' => [['dataType' => 'totalPendingPublicationsQty', 'concept' => __($langGroup, 'Publicaciones por validar')]],
+                ], false, false),
+                'footer' => $approvalsURL !== null ? ['caption' => __($langGroup, 'Ver las aprobaciones'), 'url' => $approvalsURL] : null,
+            ]);
+            ?>
         </div>
-
-    </div>
-
-    <?php //NOTE: Se oculta provisionlmente ?>
-    <div class="statistics-section one-column" style="display: none;">
-
-        <div class="two-columns-grid one-on-break-1">
-
-            <div class="one-column-grid">
-
-                <div class="card-statistic fullsize">
-                    <div class="toolbar">
-                        <div class="title big"><?= __($langGroup, 'Publicaciones aprobadas'); ?></div>
-                        <div class="help" data-tooltip="">
-                            <i class="icon help"></i>
-                        </div>
-                    </div>
-                    <div class="data">
-                        <div id="projection-charts"></div>
-                    </div>
-                    <div class="footer">
-                        <div></div>
-                        <div class="action-button">
-                            <a class="button" href="#">
-                                <i class="arrow right icon"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
+        <div class="two-columns-grid">
+            <?php
+            $this->helpController->_render('panel/built-in/statistics/chart-card.php', [
+                'attributes' => ['data-type' => 'peopleData'],
+                'title' => __($langGroup, 'Total de usuarios generales'),
+                'titleModifiers' => ['big'],
+                'chartAttributes' => ['class' => 'apex-chart'],
+                'legend' => $countriesLegend('peopleData'),
+            ]);
+            $this->helpController->_render('panel/built-in/statistics/chart-card.php', [
+                'attributes' => ['data-type' => 'organizationsData'],
+                'title' => __($langGroup, 'Total Organizaciones'),
+                'titleModifiers' => ['big'],
+                'chartAttributes' => ['class' => 'apex-chart'],
+                'legend' => $countriesLegend('organizationsData'),
+            ]);
+            ?>
         </div>
+        <?php
+        $this->helpController->_render('panel/built-in/statistics/statistics-section.php', [
+            'modifiers' => ['one-column'],
+            'content' => (string) ob_get_clean(),
+        ]);
+        ?>
 
     </div>
 
-</div>
+</section>

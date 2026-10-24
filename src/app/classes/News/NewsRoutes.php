@@ -14,7 +14,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 /**
@@ -89,7 +89,7 @@ class NewsRoutes
                 'href' => NewsController::routeName('list'),
                 'visible' => NewsController::allowedRoute('list'),
                 'asLink' => true,
-                'position' => 130,
+                'position' => MenuGroupCollection::BAND_CONTENTS + 10,
             ]));
 
         }

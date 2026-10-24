@@ -6,6 +6,8 @@
 
 namespace PiecesPHP\UserSystem\ORM;
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use Organizations\Mappers\OrganizationMapper;
@@ -125,6 +127,16 @@ class UsersModel extends EntityMapperExtensible
     const TYPE_USER_INSTITUCIONAL = 3;
     const TYPE_USER_COMUNICACIONES = 4;
     const TYPE_USER_GOOGLE_PLAY = 50;
+
+    /**
+     * El autor de lo hecho sin sesión (B14). Ni 0 (root, `empty()`) ni -1 (centinela de isDuplicateEmail/Username).
+     * Su fila: databases/actualizaciones/2026-10-14-usuario-de-sistema.sql.
+     */
+    const SYSTEM_USER_ID = -10;
+    /**
+     * Fuera de TYPES_USERS a propósito: no se ofrece en ningún formulario y no tiene rol.
+     */
+    const TYPE_USER_SYSTEM = 99;
 
     /**
      * @var array<int,string>
@@ -699,6 +711,41 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
+     * Guarda una clave en `meta` sin reescribir el resto: JSON_SET en la base, como el estado de antes del bloqueo. El
+     * valor se guarda como texto.
+     *
+     * @param int $id
+     * @param string $key Letras, cifras y _; empieza por letra
+     * @param string $value
+     * @return bool
+     * @throws \InvalidArgumentException Con una clave que no tiene esa forma: va dentro de una ruta JSON
+     */
+    public static function setMetaValue(int $id, string $key, string $value): bool
+    {
+        if (preg_match('/^[A-Za-z][A-Za-z0-9_]{0,63}$/', $key) !== 1) {
+            throw new \InvalidArgumentException("Clave de meta no válida: {$key}");
+        }
+        $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = CASE'
+            . " WHEN meta IS NULL OR meta = '' OR meta = '[]' THEN JSON_OBJECT(?, ?)"
+            . " WHEN JSON_VALID(meta) AND JSON_TYPE(meta) = 'OBJECT' THEN JSON_SET(meta, ?, ?)"
+            . ' ELSE meta END WHERE id = ?');
+        return $statement->execute([$key, $value, '$.' . $key, $value, $id]);
+    }
+
+    /**
+     * Una clave de `meta`, fresca de la base.
+     *
+     * @param int $id
+     * @param string $key
+     * @return mixed null si no está
+     */
+    public static function metaValue(int $id, string $key)
+    {
+        $fresh = static::freshStatusAndMeta($id);
+        return $fresh['meta'][$key] ?? null;
+    }
+
+    /**
      * El estado que tenía al bloquearse, si sigue bloqueado y lo tiene guardado.
      *
      * @param int $id
@@ -850,6 +897,19 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
+     * Si el usuario existe y no está Eliminado. Un Eliminado deja de existir en la práctica (PO, 2026-10-16): no se elige,
+     * aunque su fila se conserve por sus relaciones.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function existsAndNotDeleted(int $id): bool
+    {
+        $fresh = static::freshStatusAndMeta($id);
+        return $fresh !== null && $fresh['status'] !== self::STATUS_USER_DELETED;
+    }
+
+    /**
      * El estado y el `meta` del usuario, frescos de la base (no los que este mapper leyó antes).
      *
      * @param int $id
@@ -888,9 +948,15 @@ class UsersModel extends EntityMapperExtensible
     {
         $model = $this->getModel();
         $model->resetAll();
-        return $model->update([
+        $marked = $model->update([
             'sessionsValidFrom' => date('Y-m-d H:i:s'),
         ])->where(['id' => $id])->execute() === true;
+        //Y sus filas (fase B): la marca sigue siendo la que echa; la fila dice en la lista que ya no está abierta.
+        if ($marked) {
+            $actor = getLoggedFrameworkUser();
+            UserSessions::closeAllOfUser($id, $actor !== null ? (int) $actor->id : null, UserSessions::REASON_REVOKE_ALL_USER);
+        }
+        return $marked;
     }
 
     /**
@@ -987,6 +1053,7 @@ class UsersModel extends EntityMapperExtensible
 
         $where = [
             "type = {$type}",
+            'AND ' . self::excludeSystemUserSQL(),
         ];
 
         if (!empty($ignoreIDs)) {
@@ -1017,6 +1084,7 @@ class UsersModel extends EntityMapperExtensible
 
         $where = [
             '(type = ' . implode(' OR type = ', $types) . ')',
+            'AND ' . self::excludeSystemUserSQL(),
         ];
 
         if (!empty($ignoreIDs)) {
@@ -1127,9 +1195,11 @@ class UsersModel extends EntityMapperExtensible
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
+        //Un usuario Eliminado deja de existir en la práctica: no se elige como encargado.
         $model->select(self::fieldsToSelect())->where(implode(' ', [
             "{$table}.organization = {$organizationID} AND",
-            "{$table}.type IN ({$allowerdTypes})",
+            "{$table}.type IN ({$allowerdTypes}) AND",
+            "{$table}.status != " . self::STATUS_USER_DELETED,
         ]));
         $model->execute();
         $users = $model->result();
@@ -1163,6 +1233,38 @@ class UsersModel extends EntityMapperExtensible
         ])->execute();
 
         return !empty($model->result());
+    }
+
+    /**
+     * @param int|null $id
+     * @return bool
+     */
+    public static function isSystemUser(?int $id): bool
+    {
+        return $id === self::SYSTEM_USER_ID;
+    }
+
+    /**
+     * El criterio que deja fuera al usuario de sistema, para un WhereSegment.
+     *
+     * @param string $idColumn La columna del id, escrita en el código
+     * @param string $afterOperator
+     * @return WhereItem
+     */
+    public static function excludeSystemUserWhereItem(string $idColumn = 'id', string $afterOperator = WhereItem::AND_OPERATOR): WhereItem
+    {
+        return new WhereItem($idColumn, WhereItem::NOT_EQUAL_OPERATOR, self::SYSTEM_USER_ID, $afterOperator);
+    }
+
+    /**
+     * El mismo criterio en SQL, para las consultas que se arman como cadena. Solo constantes.
+     *
+     * @param string $idColumn La columna del id, escrita en el código
+     * @return string
+     */
+    public static function excludeSystemUserSQL(string $idColumn = 'id'): string
+    {
+        return "{$idColumn} != " . self::SYSTEM_USER_ID;
     }
 
     /**
@@ -1269,7 +1371,9 @@ class UsersModel extends EntityMapperExtensible
         $selectFields = self::fieldsToSelect();
         $model->select($selectFields);
 
-        $where = [];
+        $where = [
+            '(' . self::excludeSystemUserSQL() . ')',
+        ];
 
         if ($currentUser !== null) {
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
@@ -1349,9 +1453,11 @@ class UsersModel extends EntityMapperExtensible
                 }
             }
 
-            if (!empty($where)) {
-                $model->where(new WhereSegment($where));
-            }
+            //Lo pedido va en su propio grupo: sus OR no pueden saltarse la exclusión del usuario de sistema.
+            $whereSegment = new WhereSegment();
+            $whereSegment->addCriteria($where);
+            $whereSegment->addCritery(self::excludeSystemUserWhereItem());
+            $model->where($whereSegment);
 
             if (!empty($orderBy)) {
                 $model->orderBy($orderBy);

@@ -1,8 +1,7 @@
 -- Registro de todos los correos, con su resultado (ADR 0043 §5).
 --
--- Para CUALQUIER instalación, nueva o existente: la tabla es de un módulo de `src/app/classes`, así que NO vive en
--- `piecesphp_structure.sql` —ese archivo guarda las tablas del núcleo, que no tienen generador—. El SQL de abajo es
--- exactamente lo que emite:
+-- Para INSTALACIONES QUE YA EXISTEN: desde el 2026-10-10 la tabla viene también en `piecesphp_structure.sql`, con la
+-- columna del cuerpo. El SQL de abajo es exactamente lo que emite:
 --
 --     bin/cli scheme-create module=PiecesPHP/SystemStatus
 --

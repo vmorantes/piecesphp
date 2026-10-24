@@ -188,6 +188,18 @@ class UserDataPackage
     }
 
     /**
+     * Solo lectura: sin esto, un nombre nuevo creaba una propiedad dinámica en silencio.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return never
+     */
+    public function __set(string $name, mixed $value): never
+    {
+        throw new \LogicException("UserDataPackage no admite escrituras desde fuera: «{$name}».");
+    }
+
+    /**
      * @return UsersModel
      */
     public function getMapper()

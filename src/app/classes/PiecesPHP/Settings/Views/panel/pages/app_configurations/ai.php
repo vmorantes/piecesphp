@@ -4,17 +4,29 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 /**
  * @var string $langGroup
  * @var string $actionURL
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 ?>
+<section class="module-view-container ai-view">
 
-<main class="ai-view">
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Inteligencia artificial'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Integraciones'); ?></span>
-        </div>
-        <div class="body-card">
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form ai">
+    <div class="limiter-content">
+
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
+
+        <form action="<?= $actionURL; ?>" method="POST" class="ui form initial ai" data-content-form>
+
+            <div class="container-standard-form">
 
                 <div class="two fields">
 
@@ -65,11 +77,18 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
                 </div>
 
-                <div class="save-button">
-                    <button type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+            </div>
 
-            </form>
-        </div>
-    </section>
-</main>
+            <?php
+            //La barra al final del formulario (§2.3).
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
+
+        </form>
+
+    </div>
+
+</section>

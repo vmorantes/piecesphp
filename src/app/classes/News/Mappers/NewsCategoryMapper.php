@@ -445,7 +445,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
         $isUncategorized = false;
         $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
-        $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
+        $slug = $slug !== null ? BaseHashEncryption::deobfuscate(strtr($slug, '._', '-_'), self::TABLE) : null;
 
         if ($slug !== null) {
             $uncategorizedIDLen = mb_strlen(self::UNCATEGORIZED_ID);
@@ -471,7 +471,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
     public static function getEncryptIDForSlug(int $id)
     {
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
-        $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
+        $uniqid = strtr(BaseHashEncryption::obfuscate("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
     }
 

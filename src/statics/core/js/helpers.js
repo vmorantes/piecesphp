@@ -1,7 +1,6 @@
 ///<reference path="./helpers-lib/CookiesHandler.js" />
 ///<reference path="./helpers-lib/genericFormHandler.js" />
 ///<reference path="./helpers-lib/GenericLoaderElement.js" />
-///<reference path="./helpers-lib/GenericStepsViewHandler.js" />
 ///<reference path="./helpers-lib/UtilPieces.js" />
 /**
  * @description Mensaje modal con tipo success (toast fomantic|alert|izitoast)
@@ -67,10 +66,12 @@ function successMessage(title, message, onClose = null, options) {
 
 		iziToast[typeMessage](options)
 	} else {
-		window.alert(`${title}:\r\n${message}`)
-		if (typeof onClose == 'function') {
-			onClose()
-		}
+		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		})
 	}
 
 }
@@ -139,10 +140,12 @@ function warningMessage(title, message, onClose = null, options) {
 
 		iziToast[typeMessage](options)
 	} else {
-		window.alert(`${title}:\r\n${message}`)
-		if (typeof onClose == 'function') {
-			onClose()
-		}
+		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		})
 	}
 
 }
@@ -211,10 +214,12 @@ function infoMessage(title, message, onClose = null, options) {
 
 		iziToast[typeMessage](options)
 	} else {
-		window.alert(`${title}:\r\n${message}`)
-		if (typeof onClose == 'function') {
-			onClose()
-		}
+		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		})
 	}
 
 }
@@ -283,10 +288,12 @@ function errorMessage(title, message, onClose = null, options) {
 
 		iziToast[typeMessage](options)
 	} else {
-		window.alert(`${title}:\r\n${message}`)
-		if (typeof onClose == 'function') {
-			onClose()
-		}
+		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		})
 	}
 
 }
@@ -868,6 +875,8 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 		configDataTable.processing = true
 		configDataTable.serverSide = true
 		configDataTable.pageLength = perPage
+		//Si perPage no está entre las opciones, el selector de «Ver [ ] elementos» sale vacío: se añade, en orden.
+		configDataTable.lengthMenu = Array.from(new Set([10, 25, 50, 100, perPage])).sort((a, b) => a - b)
 
 		table.DataTable(configDataTable)
 

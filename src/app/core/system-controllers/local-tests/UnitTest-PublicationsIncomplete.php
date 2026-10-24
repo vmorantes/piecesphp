@@ -3,6 +3,7 @@
 //Una publicación incompleta —sin langData en su meta— no tumba los listados del panel (el de DataTables y el JSON de
 //todas): se lista con sus campos base. Por HTTP. Siembra dos publicaciones y un principal, todos zz-, y los retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -62,8 +63,8 @@ CliActions::make('unit-tests:core/publications-incomplete', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -100,7 +101,7 @@ CliActions::make('unit-tests:core/publications-incomplete', function ($args) {
         $u->modifiedAt = $u->createdAt;
         $u->save();
         $usuario = (int) $u->id;
-        $root = SessionToken::generateToken(['id' => $usuario], null, null, false);
+        $root = UserSessions::issueToken($usuario);
 
         //La categoría por defecto lleva id negativo (-10): se acepta cualquiera que exista.
         $categoria = $database->query('SELECT id FROM `' . \Publications\Mappers\PublicationCategoryMapper::TABLE . '` ORDER BY id LIMIT 1')->fetchColumn();

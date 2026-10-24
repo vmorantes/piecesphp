@@ -1,12 +1,23 @@
 @use '../../../../../statics/core/sass/includes/variables_app_base' as *;
 @use '../../../../../statics/core/sass/includes/functions_app_base' as *;
 
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$datasheetAccentColor: #3558A2;
+$datasheetSubtitleColor: #254079;
+$timeTagBackground: rgba(128, 128, 128, 0.575);
+$timeTagGreenBackground: rgba(33, 186, 69, 0.10);
+$timeTagOrangeBackground: rgba(242, 113, 28, 0.10);
+$timeTagOrangeColor: #F2711C;
+$timeTagRedBackground: rgba(219, 40, 40, 0.10);
+$timeTagIconBackground: rgba(128, 128, 128, 1);
+$avatarBorderHighlight: #FFE552;
+
 .datasheet {
     .base-title {
         font-size: pxToRem(14);
         font-weight: $fwRegular;
         line-height: pxToRem(24);
-        color: #3558A2;
+        color: $datasheetAccentColor;
 
         &.size2 {
             font-size: pxToRem(18);
@@ -24,7 +35,7 @@
             font-size: pxToRem(24);
             font-weight: $fwMedium;
             line-height: pxToRem(32);
-            color: #254079;
+            color: $datasheetSubtitleColor;
         }
     }
 
@@ -35,7 +46,7 @@
             font-size: pxToRem(16);
             font-weight: $fwRegular;
             line-height: pxToRem(24);
-            color: #1B1C1D;
+            color: $colorTextStrong;
         }
 
         &.mark {
@@ -69,7 +80,7 @@
         width: 100%;
         height: 1px;
         margin: 30px auto;
-        background: #3558A2;
+        background: $datasheetAccentColor;
     }
 }
 
@@ -85,35 +96,35 @@
     border-radius: 8px;
     font-size: 14px;
     line-height: 24px;
-    background-color: rgba(128, 128, 128, 0.575);
+    background-color: $timeTagBackground;
     color: black;
 
     &.green {
-        background-color: rgba(33, 186, 69, 0.10);
-        color: #21BA45;
+        background-color: $timeTagGreenBackground;
+        color: $colorSuccess;
 
         >.icon {
-            background-color: #21BA45;
+            background-color: $colorSuccess;
             color: white;
         }
     }
 
     &.orange {
-        background-color: rgba(242, 113, 28, 0.10);
-        color: #F2711C;
+        background-color: $timeTagOrangeBackground;
+        color: $timeTagOrangeColor;
 
         >.icon {
-            background-color: #F2711C;
+            background-color: $timeTagOrangeColor;
             color: white;
         }
     }
 
     &.red {
-        background-color: rgba(219, 40, 40, 0.10);
-        color: #DB2828;
+        background-color: $timeTagRedBackground;
+        color: $colorError;
 
         >.icon {
-            background-color: #DB2828;
+            background-color: $colorError;
             color: white;
         }
     }
@@ -133,7 +144,7 @@
         border-radius: 100%;
         width: 20px;
         height: 20px;
-        background-color: rgba(128, 128, 128, 1);
+        background-color: $timeTagIconBackground;
         color: white;
 
         i.icon {
@@ -154,7 +165,7 @@
         td {
             font-size: 16px;
             line-height: 24px;
-            color: #707070;
+            color: $colorTextMuted;
         }
     }
 
@@ -171,7 +182,7 @@
 
             img {
                 border-radius: 100%;
-                border: 2px solid #FFE552;
+                border: 2px solid $avatarBorderHighlight;
             }
         }
 
@@ -179,33 +190,8 @@
     }
 }
 
-.ui.form.filters {
-    .field.inline {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        justify-content: flex-start;
-        align-items: center;
-    }
-
-    .field {
-        .ui.dropdown {
-            height: 100%;
-
-            input {
-                height: 100%;
-            }
-
-            >.text {
-                vertical-align: middle;
-            }
-
-            .dropdown.icon {
-                height: 100%;
-
-                &::before {
-                    vertical-align: sub;
-                }
-            }
-        }
-    }
+//La descripción de una publicación, aislada en su iframe (approval-publications.php); el borde y el fondo, de `ui segment`.
+.datasheet iframe.approval-content-preview {
+    width: 100%;
+    min-height: 28rem;
 }

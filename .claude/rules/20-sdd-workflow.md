@@ -1,1 +1,0 @@
-../../.agents/rules/20-sdd-workflow.md

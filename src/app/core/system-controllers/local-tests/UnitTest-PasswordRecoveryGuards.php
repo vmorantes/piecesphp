@@ -1,8 +1,9 @@
 <?php
 
 //Escribe en la base local: crea dos usuarios zz y en el finally borra sus filas de pcsphp_recovery_password,
-//login_attempts (por usernameAttempt) y los dos usuarios. Ver ADR 0018.
+//login_attempts (por usernameAttempt), sus eventos del registro de acciones y los dos usuarios. Ver ADR 0018.
 
+use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
@@ -246,6 +247,12 @@ CliActions::make('unit-tests:core/password-recovery-guards', function ($args) {
     } finally {
         $database->prepare('DELETE FROM ' . LoginAttemptsModel::TABLE . ' WHERE usernameAttempt IN (?, ?)')->execute([$email, $emailB]);
         $database->prepare('DELETE FROM pcsphp_recovery_password WHERE email = ?')->execute([$email]);
+        //Los eventos de Registros › Tokens y códigos que dejan los códigos usados y rechazados de la prueba.
+        foreach ([$userID, $userIDB] as $id) {
+            if ($id !== null) {
+                $database->prepare('DELETE FROM ' . LogsMapper::TABLE . ' WHERE referenceSource = ? AND referenceValue = ?')->execute([UsersModel::TABLE, (string) $id]);
+            }
+        }
         if ($userID !== null) {
             $database->prepare('DELETE FROM ' . UsersModel::TABLE . ' WHERE id = ?')->execute([$userID]);
         }

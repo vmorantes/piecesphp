@@ -67,6 +67,24 @@ container.find('.name').text(element.attr('data-file-name'));
 Y **dentro de CSS escapar no protege**: si el valor acaba en un `style` o en una propiedad de fondo, hay que validar que
 la ruta es segura y, si no lo es, no pintarla.
 
+### Los desplegables: `array_to_html_options()` no escapa
+
+`array_to_html_options()` pega la clave y el texto de cada opción tal cual. Con datos que vienen de la base, escápalos
+**antes** de pasárselos, y escapa igual lo que va seleccionado: la opción se marca comparando la clave con ese valor, y
+si solo escapas un lado el formulario de edición pierde su selección.
+
+```php
+//Así lo hace Ubicaciones (App/Locations/Controllers/Country.php):
+$regionsOptions = array_to_html_options(
+    Locations::escapeOptions(CountryMapper::allRegionsForSelect()),
+    escape_html($element->region)
+);
+```
+
+`Locations::escapeOptions()` (`App/Locations/Controllers/Locations.php`) escapa la clave y el texto de cada opción y
+descarta lo que no sea escalar; en tu módulo, copia esas pocas líneas. Lo mismo vale en JavaScript: una `<option>` se
+rellena con `textContent` o con `new Option(texto, valor)`, nunca con `innerHTML`.
+
 ---
 
 ## `safe_upload_name()` — para el nombre de lo que se sube

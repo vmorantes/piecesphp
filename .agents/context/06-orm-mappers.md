@@ -105,6 +105,14 @@ Cuando un campo tiene `mapper`, al leer la propiedad se obtiene **la instancia d
 mapper relacionado**, no el entero. De ahí los docblocks tipo
 `@property int|UsersModel $createdBy`.
 
+**Sin sesión, el autor es el usuario de sistema, -10** (salvo en la terminal, que entra como root, el 1:
+`src/index.php:320-326`; una prueba que quiera el -10 desde la terminal vacía `current_user`, como `core/system-user` e1) (`UsersModel::SYSTEM_USER_ID`, B14, `c181cb64`), nunca el 1. Las
+columnas de autor tienen FK a `pcsphp_users`: una instalación sin `databases/actualizaciones/2026-10-14-usuario-de-sistema.sql`
+falla en todo lo que se anote sin sesión. Un listado o recuento de usuarios nuevo lo excluye con
+`UsersModel::excludeSystemUserWhereItem()` o `excludeSystemUserSQL()`; si no, el -10 aparece (lo cazaron tres suites en
+`e26b33bf`). Cuidado con «un usuario cualquiera» en una prueba (`LIMIT 1`): puede tocar el -10. Y `UsersController.php:300`
+marca DELETED a todo usuario sin rol al pintar el listado: el -10 se salta ahí por `isSystemUser`.
+
 ### Meta-propiedades (`EntityMapperExtensible`)
 
 Permiten añadir atributos sin migrar la tabla: se serializan en una columna JSON
@@ -203,10 +211,10 @@ una fila existía, o si una operación fue idempotente. Ahí hay que **releer**,
 
 > **TRAMPA CONFIRMADA (2026-10-02, `#773`): `objectToMapper()` devuelve `null` si falta UNA sola columna.**
 > Su `$allFilled` exige la fila entera, así que una consulta que no traiga todos los campos del mapper devuelve
-> `null` y **cualquier uso directo del resultado es un 500**. Tumbaba el mapa público de personas
-> (`profile-person-card.php`, `profile-person-point.php`): el arreglo es **omitir el elemento**, nunca rellenar.
-> Hay **58 archivos** con esa familia de errores en el informe de PHPStan —MySpace 33 y SystemApprovals 29 a la
-> cabeza—, censados en `files/dev/fatal-candidates.json`.
+> `null` y **cualquier uso directo del resultado es un 500**. Tumbaba el mapa público de personas del mapa viejo
+> (sus vistas salieron con él, 2026-10-21): el arreglo es **omitir el elemento**, nunca rellenar. Los errores de esa
+> familia que ve PHPStan están censados en `files/dev/fatal-candidates.json`, con su fecha, sus cifras por módulo y su
+> método dentro (`bin/censo-fatales`); las cifras se leen ahí, no aquí.
 
 ## Eventos automáticos
 
@@ -273,7 +281,7 @@ Ambos métodos vienen de `ActiveRecordModel`. Hay un caso real en
   marcador.
 - **`processFromQuery()`** (`DataTablesHelper.php:718`): el listado de una **tabla derivada**. Recibe en
   `fakeTable` una subconsulta SQL y en `tableName` su alias. Su propósito es legítimo (decidido el 2026-09-02) y
-  **no se retira**. Consumidor único hoy: `MySpace\Controllers\AllProfilesController.php:165`, que le pasa un
+  **no se retira**. Consumidor único hoy: `Directory\Controllers\AllProfilesController::dataTables()`, que le pasa un
   `UNION ALL` de perfiles.
   - **`fakeTable`, `where_string` y `having_string` son SQL crudo**: no hay segmento. Nunca llevan un valor de la
     petición; se componen con literales del servidor.

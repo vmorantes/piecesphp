@@ -20,6 +20,7 @@ HERMANO = os.path.join(PADRE, "database")
 HTML = os.path.join(PADRE, "html")
 AJENO = os.path.join(PADRE, "otro-proyecto")
 GUIA = os.path.join(PADRE, "guia-piecesphp-para-po")
+CAPTURAS_PO = os.path.join(os.path.expanduser("~"), "Documentos", "PiecesPHP")
 
 # En un clon de la distribución (ADR 0049) no están la historia de este repositorio ni la guía del PO: los casos que
 # las usan no prueban nada ahí, y se dicen uno a uno en vez de fallar o de callarse.
@@ -307,6 +308,9 @@ BASH_BLOQUEA = [
     f"rm -rf {PADRE}",
     # La raíz del repositorio de la guía del PO tampoco (ADR 0016).
     f"rm -rf {GUIA}",
+    # Ni la de sus capturas, ni un nombre que solo empieza como ella (ADR 0058).
+    f"rm -rf {CAPTURAS_PO}",
+    f"cp /tmp/x.png {CAPTURAS_PO}-x/x.png",
     # Una redirección no esconde una rama nueva ni una instalación.
     "git branch nueva 2>&1",
     "python3 -m pip install mkdocs 2>/dev/null",
@@ -421,6 +425,8 @@ BASH_PERMITE = [
     f"rm -rf {RAIZ}/src/app/cache/zz-algo",
     f"rm -rf {HERMANO}/zz-algo",
     f"rm -rf {GUIA}/site",
+    f"rm -rf {CAPTURAS_PO}/todas-1920x1080",
+    f"cp -r /tmp/pcsphp-capturas/todas {CAPTURAS_PO}/todas-1920x1080",
     # Leer la rama con una redirección no es crearla (la regla 30 dicta esta forma para los paquetes).
     "git branch --show-current 2>&1",
     f"git -C {HERMANO} --no-optional-locks branch --show-current 2>&1",
@@ -512,6 +518,7 @@ ESCRITURA_BLOQUEA = [
     {"file_path": os.path.join(RAIZ, "source-docs/x.md"), "content": "Esta guía fue generada por IA."},
     # Un nombre que empieza como el de la guía no hereda su permiso.
     {"file_path": GUIA + "-x/docs/index.md", "content": "x"},
+    {"file_path": CAPTURAS_PO + "-x/LEEME.md", "content": "x"},
 ]
 
 ESCRITURA_PERMITE = [
@@ -524,6 +531,7 @@ ESCRITURA_PERMITE = [
     {"file_path": "/tmp/banco/x.php", "content": "<?php"},
     {"file_path": os.path.join(HERMANO, "src/Nuevo.php"), "content": "<?php"},
     {"file_path": os.path.join(GUIA, "docs/index.md"), "content": "# Empieza aquí"},
+    {"file_path": os.path.join(CAPTURAS_PO, "LEEME.md"), "content": "# Capturas del panel"},
 ]
 
 

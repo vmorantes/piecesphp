@@ -43,7 +43,7 @@ window.addEventListener('load', function (e) {
 
 			new Promise(function (resolve) {
 
-				fetch('configurations/integrations/mapbox-key')
+				fetch(pcsphpGlobals.mapboxKeyURL)
 					.then(response => response.text())
 					.then(key => resolve(key))
 

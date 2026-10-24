@@ -1,5 +1,0 @@
-@use 'includes/profile-view' as *;
-
-$color7AB1E8: #7AB1E8;
-
-@include profile-view('personal-data', $color7AB1E8);

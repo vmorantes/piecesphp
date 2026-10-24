@@ -319,32 +319,17 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 				} else {
 
 					if (!waitForConfirmation) {
-						$('body').addClass('wait-to-action')
 						waitForConfirmation = true
-						$.toast({
+						confirmAction({
 							title: options.confirmation.title,
 							message: options.confirmation.message,
-							displayTime: 0,
-							class: 'white',
-							position: 'top center',
-							classActions: 'top attached',
-							actions: [{
-								text: `${options.confirmation.positive}`,
-								class: 'blue',
-								click: function () {
-									submit(thisForm)
-									$('body').removeClass('wait-to-action')
-									waitForConfirmation = false
-								}
-							}, {
-								text: `${options.confirmation.negative}`,
-								class: 'gray',
-								click: function () {
-									$('body').removeClass('wait-to-action')
-									waitForConfirmation = false
-									return true
-								}
-							}]
+							confirmText: `${options.confirmation.positive}`,
+							cancelText: `${options.confirmation.negative}`,
+						}).then((confirmed) => {
+							waitForConfirmation = false
+							if (confirmed) {
+								submit(thisForm)
+							}
 						})
 					}
 				}

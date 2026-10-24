@@ -7,10 +7,29 @@ $wideWidth: 710px;
 $fullsizeWidth: 100%;
 $rowGap: 10px;
 $columnGap: 10px;
-$numberCardColorDefault: #808080;
-$numberCardColorGreen: #21ba45;
-$numberCardColorOrange: #f2721c;
-$color1B1C1D: #1B1C1D;
+$numberCardColorGreen: var(--statistics-green-color, #21ba45);
+$numberCardColorOrange: var(--statistics-orange-color, #f2721c);
+
+//Los colores neutros de las piezas, por variable y en un solo sitio: el segundo valor es el de hoy, y un tema (el modo
+//oscuro, D16) los cambia sin tocar esta hoja. El marco de cada tarjeta lo pone Fomantic (`ui segment`), no esta hoja.
+$statisticsTrackColor: var(--statistics-track-color, #E2ECEF);
+$statisticsSurfaceColor: var(--statistics-surface-color, white);
+$statisticsTextMutedColor: var(--statistics-text-muted-color, #707070);
+$statisticsTextStrongColor: var(--statistics-text-strong-color, #1B1C1D);
+$statisticsTextBlackColor: var(--statistics-text-black-color, black);
+$statisticsDisabledColor: var(--statistics-disabled-color, gray);
+$statisticsHelpShadow: var(--statistics-help-shadow, rgba(0, 0, 0, 0.161));
+$statisticsLegendShadow: var(--statistics-legend-shadow, rgba(0, 0, 0, 0.541));
+$statisticsTooltipShadow: var(--statistics-tooltip-shadow, rgba(0, 0, 0, 0.1));
+$statisticsTooltipMutedColor: var(--statistics-tooltip-muted-color, #AFAFAF);
+//El color primario del panel: el del botón principal (`brand-color`, ui-pcs.scss), para el pie y la flecha de las tarjetas.
+$statisticsPrimaryColor: var(--main-brand-color);
+$statisticsOnPrimaryColor: var(--font-color-two, white);
+//Las tarjetas de una sección sin `one-column` (el inicio, Ubicaciones): hasta cuatro columnas iguales, de este ancho como
+//mínimo, separadas por este hueco.
+$dashboardCardMinWidth: 240px;
+$dashboardCardMaxColumns: 4;
+$dashboardCardGap: pxToRem(16);
 
 @mixin toolbarTitleCardStatistics() {
     display: inline-grid;
@@ -23,10 +42,6 @@ $color1B1C1D: #1B1C1D;
     width: 230px;
     max-width: 100%;
 
-    &.color-black {
-        color: black;
-    }
-
     &.wide {
         width: max-content;
     }
@@ -36,19 +51,33 @@ $color1B1C1D: #1B1C1D;
 
     font-family: $fontModule;
     font-weight: $fwRegular;
-    container-type: inline-size;
-    container-name: module-section;
 
+    //Un tablero: arranca en el borde del page-header y ocupa el ancho del contenido; en cada fila, todas las tarjetas del
+    //mismo ancho y del mismo alto (el de la más alta), sin alto fijo. Con `one-column`, las rejillas de dentro mandan.
+    //`auto-fill` con tope: la pista mínima es un cuarto del ancho (menos sus huecos), así que nunca hay más de cuatro, y con
+    //una o dos tarjetas las pistas vacías se quedan y no se estiran. Con `auto-fit` una sola ocupaba todo el ancho; con
+    //`auto-fill` a secas, a 1920 salían seis pistas estrechas.
     .statistics-section {
 
         display: grid;
-        grid-template-columns: auto auto auto auto;
-        row-gap: $rowGap;
-        column-gap: $columnGap;
-        width: $statisticsSectionWidth;
-        max-width: 100%;
-        margin: 0 auto $rowGap auto;
-        justify-content: center;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, max(#{$dashboardCardMinWidth}, calc((100% - #{$dashboardCardMaxColumns - 1} * #{$dashboardCardGap}) / #{$dashboardCardMaxColumns}))), 1fr));
+        align-items: stretch;
+        row-gap: $dashboardCardGap;
+        column-gap: $dashboardCardGap;
+        width: 100%;
+        margin: 0 0 pxToRem(16) 0;
+
+        >.card-statistic,
+        >.card-action {
+            min-width: 0;
+            min-height: 0;
+        }
+
+        //Plegada, una tarjeta del inicio solo trae su barra y su pie: no se estira al alto de la fila.
+        >.card-statistic:not(:has(> :not(.toolbar):not(.footer))) {
+            align-self: start;
+            height: auto;
+        }
 
         &.one-column {
             grid-template-columns: 100%;
@@ -76,7 +105,8 @@ $color1B1C1D: #1B1C1D;
 
         .three-columns-grid {
             display: grid;
-            grid-template-columns: auto auto auto;
+            //Columnas iguales: con `auto` la de contenido más largo (en Accesos, «Exportar datos») salía más ancha.
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             row-gap: $rowGap;
             column-gap: $columnGap;
 
@@ -93,7 +123,7 @@ $color1B1C1D: #1B1C1D;
         width: 200px;
         height: 200px;
         border-radius: 50%;
-        background: conic-gradient(var(--main-brand-color) calc(var(--progress) * 1%), #E2ECEF 0);
+        background: conic-gradient(var(--main-brand-color) calc(var(--progress) * 1%), #{$statisticsTrackColor} 0);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -108,7 +138,7 @@ $color1B1C1D: #1B1C1D;
             width: 80%;
             height: 80%;
             border-radius: 50%;
-            background-color: white;
+            background-color: $statisticsSurfaceColor;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -125,7 +155,18 @@ $color1B1C1D: #1B1C1D;
     .chart-data {
         width: 100%;
         max-width: max-content;
+        //Centrada en una rejilla y en la tarjeta, que es flex en columna.
         justify-self: center;
+        align-self: center;
+
+        //La leyenda enlazada con su gráfico (statistics-chart-legend.js): cada fila enciende o apaga su serie.
+        >.item[role="button"] {
+            cursor: pointer;
+        }
+
+        >.item.series-hidden {
+            opacity: 0.4;
+        }
 
         >.item {
 
@@ -181,7 +222,7 @@ $color1B1C1D: #1B1C1D;
                 &,
                 >.legend {
                     >.color {
-                        background-color: var(--custom-color, #E2ECEF);
+                        background-color: var(--custom-color, #{$statisticsTrackColor});
                     }
 
                     >.value {
@@ -196,7 +237,7 @@ $color1B1C1D: #1B1C1D;
                 >.color {
                     width: 15px;
                     height: 15px;
-                    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.541);
+                    box-shadow: 0px 0px 3px $statisticsLegendShadow;
 
                     &.circle {
                         border-radius: 100%;
@@ -206,7 +247,7 @@ $color1B1C1D: #1B1C1D;
                 >.name {
                     font-size: pxToRem(16);
                     line-height: pxToRem(16);
-                    color: #707070;
+                    color: $statisticsTextMutedColor;
                 }
 
                 >.value {
@@ -227,7 +268,7 @@ $color1B1C1D: #1B1C1D;
                             font-size: pxToRem(32);
                             line-height: pxToRem(32);
                             font-weight: $fwBold;
-                            color: $color1B1C1D;
+                            color: $statisticsTextStrongColor;
                         }
                         &.right {
                             text-align: right;
@@ -237,33 +278,38 @@ $color1B1C1D: #1B1C1D;
             }
 
             .text-black {
-                color: black !important;
+                color: $statisticsTextBlackColor !important;
             }
 
         }
     }
 
+    //La tarjeta: la barra arriba, el dato debajo y el pie SIEMPRE abajo y dentro (margin-top: auto).
     .card-statistic {
-        display: grid;
-        grid-template-columns: auto;
-        align-content: space-between;
-        background-color: white;
+        display: flex;
+        flex-direction: column;
+        row-gap: pxToRem(16);
         max-width: 100%;
         min-width: 350px;
-        min-height: 250px;
-        height: max-content;
-        padding: 20px 32px 32px 32px;
-        border-radius: 15px;
+        //Sin alto propio: en una rejilla, la fila las estira al alto de la más alta.
+        padding: pxToRem(20) pxToRem(24);
+        //Las tarjetas son hermanas en una rejilla: el margen vertical de `ui segment` las desalinearía.
+        margin: 0;
         container-type: inline-size;
         container-name: card-statistic;
 
-        &.horizontal-center {
-            align-content: center;
+        //El número grande (`number`) y el cuerpo de una tarjeta `horizontal-center` se centran en el alto que sobre; el pie
+        //sigue abajo. Las cifras compactas (number-cards) van arriba.
+        >.data,
+        &.horizontal-center>:not(.toolbar):not(.footer) {
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
+        //El alto mínimo, solo con `tall`: sin él, una tarjeta de cifra mide lo que su contenido y no deja medio cuadro vacío.
         &.tall {
             height: 100%;
-            max-height: 536px;
+            min-height: 250px;
         }
 
         &.wide {
@@ -275,17 +321,43 @@ $color1B1C1D: #1B1C1D;
         }
 
         &.bg-gray {
-            background-color: #E2ECEF;
+            background-color: $statisticsTrackColor;
         }
 
+        //El título a la izquierda; lo que traiga la barra (p. ej. plegar) y la ayuda, a la derecha, sin empujarlo. La
+        //altura mínima deja los títulos de una fila a la misma altura, lleven botón o no.
         >.toolbar {
-            position: relative;
+            display: flex;
+            align-items: flex-start;
+            column-gap: pxToRem(8);
             width: 100%;
-            height: auto;
-            padding-right: 35px;
 
+            //Arriba y con su propio alto mínimo: así cae a la misma altura en todas, lleve botón o no.
+            //La primera línea, a la altura de los botones (padding-top, no centrado): un título de dos líneas casa con
+            //los de una. Del color de título de la pieza, el de `card-action`.
             >.title {
                 @include toolbarTitleCardStatistics();
+                flex: 1 1 auto;
+                min-width: 0;
+                height: auto;
+                min-height: 30px;
+                align-items: start;
+                padding-top: 6px;
+                color: $statisticsTextBlackColor;
+
+                &,
+                &.wide {
+                    width: auto;
+                }
+            }
+
+            //Del tamaño de la ayuda: más alto, bajaba el título de su tarjeta respecto de las demás.
+            >.ui.button {
+                flex: 0 0 auto;
+                margin: 0;
+                padding: pxToRem(6);
+                min-height: 0;
+                line-height: 1;
             }
 
             >.help {
@@ -293,12 +365,10 @@ $color1B1C1D: #1B1C1D;
                 grid-template-columns: auto;
                 justify-content: center;
                 align-items: center;
-                position: absolute;
-                top: 50%;
-                right: 0px;
-                transform: translateY(-50%);
-                background-color: white;
-                box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.161);
+                flex: 0 0 26px;
+                margin-top: 2px;
+                background-color: $statisticsSurfaceColor;
+                box-shadow: 0px 3px 6px $statisticsHelpShadow;
                 border-radius: 100%;
                 width: 26px;
                 height: 26px;
@@ -318,7 +388,7 @@ $color1B1C1D: #1B1C1D;
                 font-weight: $fwBold;
                 font-size: pxToRem(56);
                 line-height: pxToRem(74);
-                color: #3558A2;
+                color: var(--main-brand-color);
             }
 
             >.text {
@@ -342,9 +412,11 @@ $color1B1C1D: #1B1C1D;
 
             display: flex;
             flex: 0 0 auto;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             justify-content: space-between;
             align-items: center;
+            column-gap: pxToRem(12);
+            margin-top: auto;
 
             &.two {
                 display: grid;
@@ -353,11 +425,10 @@ $color1B1C1D: #1B1C1D;
 
             >.caption {
                 font-weight: $fwMedium;
-                width: 100%;
-                max-width: 300px;
-                font-size: pxToRem(20);
-                line-height: pxToRem(28);
-                color: #1B1C1D;
+                min-width: 0;
+                font-size: pxToRem(15);
+                line-height: pxToRem(20);
+                color: $statisticsPrimaryColor;
             }
 
             >.meta-info {
@@ -370,19 +441,21 @@ $color1B1C1D: #1B1C1D;
             }
 
             >.action-button {
+                flex: 0 0 auto;
+
                 >.button {
                     display: grid;
                     grid-template-columns: auto;
                     justify-content: center;
                     align-items: center;
-                    border-radius: 10px;
-                    width: 50px;
-                    height: 50px;
-                    background-color: var(--second-brand-color);
-                    color: white;
+                    border-radius: 8px;
+                    width: 36px;
+                    height: 36px;
+                    background-color: $statisticsPrimaryColor;
+                    color: $statisticsOnPrimaryColor;
 
                     i.icon {
-                        font-size: pxToRem(18);
+                        font-size: pxToRem(15);
 
                         &.arrow.right {}
                     }
@@ -419,29 +492,23 @@ $color1B1C1D: #1B1C1D;
         }
     }
 
+    //La tarjeta de acción: la misma barra arriba (el título a la altura de los demás), el icono y la frase compactos, y el
+    //mismo pie que las de estadística, con su flecha.
     .card-action,
     a.card-action {
 
-        display: grid !important;
-        grid-template-columns: auto !important;
-        align-content: space-around !important;
-        row-gap: 10px;
-        background-color: #F4F3F0;
+        display: flex !important;
+        flex-direction: column;
+        row-gap: pxToRem(16);
         max-width: 100%;
         min-width: 350px;
-        min-height: 250px;
-        height: max-content;
-        padding: 20px 32px 32px 32px;
-        border-radius: 15px;
-        transition: 1.5s ease background;
+        padding: pxToRem(20) pxToRem(24);
+        margin: 0;
         text-decoration: none !important;
 
-        &:hover {
-            background-color: #FFFFFF;
-        }
-
-        &.horizontal-center {
-            align-content: center !important;
+        &.horizontal-center>.action-body {
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         &.not-allowed,
@@ -449,81 +516,43 @@ $color1B1C1D: #1B1C1D;
             opacity: 0.6;
             cursor: not-allowed;
 
-            &:hover {
-                background-color: #F4F3F0;
+            >.toolbar>.title,
+            >.action-body>.icon i.icon {
+                color: $statisticsDisabledColor;
             }
 
-            >.title,
-            >.icon i.icon {
-                color: gray;
+            >.footer>.action-button {
+                visibility: hidden;
             }
         }
 
+        //Como en `card-statistic`: el alto mínimo, solo con `tall`.
         &.tall {
             height: 100%;
-            max-height: 536px;
+            min-height: 250px;
         }
 
-        >.icon {
-            display: block;
-            width: max-content;
-            max-width: 100%;
-            margin: 0 auto;
+        >.toolbar {
+            display: flex;
+            align-items: flex-start;
+            min-height: 30px;
 
-            i.icon {
-                font-size: pxToRem(45);
-                line-height: pxToRem(45);
-                color: var(--main-brand-color);
-
-                &,
-                &::before,
-                &::after {
-                    margin: 0;
-                    padding: 0;
-                    width: fit-content;
-                    height: fit-content;
-                }
+            >.title {
+                @include toolbarTitleCardStatistics();
+                width: auto;
+                min-width: 0;
+                min-height: 30px;
+                align-items: start;
+                padding-top: 6px;
+                color: $statisticsTextBlackColor;
             }
         }
 
-        >.title {
-            font-weight: $fwSemiBold;
-            font-size: pxToRem(27);
-            line-height: pxToRem(27);
-            color: var(--main-brand-color);
-            text-align: center;
-            margin: 0 auto;
-            width: 100%;
-            max-width: 290px;
-        }
-
-        >.description {
-            font-weight: $fwRegular;
-            font-size: pxToRem(16);
-            line-height: pxToRem(16);
-            color: #707070;
-            text-align: center;
-            margin: 0 auto;
-            width: 290px;
-            max-width: 100%;
-        }
-    }
-
-    .numbers-cards {
-
-        display: flex;
-        flex-wrap: wrap;
-        column-gap: pxToRem(15);
-        row-gap: pxToRem(15);
-
-        >.number-card {
-
-            min-width: 200px;
-            width: 40%;
-            flex-grow: 1;
-            border-radius: 10px;
-            background-color: rgba($numberCardColorDefault, 0.08);
-            padding: pxToRem(18) pxToRem(24);
+        >.action-body {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr);
+            column-gap: pxToRem(12);
+            align-items: center;
 
             >.icon {
                 display: grid;
@@ -531,66 +560,132 @@ $color1B1C1D: #1B1C1D;
                 align-items: center;
                 width: 40px;
                 height: 40px;
-                color: white;
-                font-size: pxToRem(22);
                 border-radius: 100%;
-                background-color: $numberCardColorDefault;
-                margin-bottom: pxToRem(25);
+                background-color: $statisticsPrimaryColor;
+
+                i.icon {
+                    font-size: pxToRem(18);
+                    line-height: 1;
+                    color: $statisticsOnPrimaryColor;
+
+                    &,
+                    &::before,
+                    &::after {
+                        margin: 0;
+                        padding: 0;
+                        width: fit-content;
+                        height: fit-content;
+                    }
+                }
+            }
+
+            >.description {
+                font-weight: $fwRegular;
+                font-size: pxToRem(15);
+                line-height: pxToRem(20);
+                color: $statisticsTextMutedColor;
+            }
+        }
+
+        >.footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            column-gap: pxToRem(12);
+            margin-top: auto;
+
+            >.caption {
+                font-weight: $fwMedium;
+                min-width: 0;
+                font-size: pxToRem(15);
+                line-height: pxToRem(20);
+                color: $statisticsPrimaryColor;
+            }
+
+            >.action-button {
+                flex: 0 0 auto;
+            }
+
+            >.action-button>.button {
+                display: grid;
+                justify-content: center;
+                align-items: center;
+                border-radius: 8px;
+                width: 36px;
+                height: 36px;
+                background-color: $statisticsPrimaryColor;
+                color: $statisticsOnPrimaryColor;
+
+                i.icon {
+                    font-size: pxToRem(15);
+                }
+            }
+        }
+    }
+
+    //Las cifras: compactas y arriba. El icono con el color de la cifra; el número en el color de texto fuerte.
+    .numbers-cards {
+
+        display: grid;
+        grid-template-columns: 100%;
+        row-gap: pxToRem(14);
+
+        >.number-card {
+
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr);
+            grid-template-areas:
+                "icon number"
+                "icon concept"
+                "icon subconcept";
+            grid-template-rows: auto auto auto;
+            column-gap: pxToRem(12);
+            align-items: center;
+            --number-card-color: #{$statisticsPrimaryColor};
+
+            >.icon {
+                grid-area: icon;
+                align-self: start;
+                display: grid;
+                justify-content: center;
+                align-items: center;
+                width: 40px;
+                height: 40px;
+                color: $statisticsOnPrimaryColor;
+                font-size: pxToRem(18);
+                border-radius: 100%;
+                background-color: var(--number-card-color);
             }
 
             >.number {
-                font-size: pxToRem(36);
-                line-height: 1;
-                font-weight: $fwSemiBold;
-                margin-bottom: pxToRem(12);
-                color: $numberCardColorDefault;
+                grid-area: number;
+                font-size: pxToRem(28);
+                line-height: 1.1;
+                font-weight: $fwBold;
+                color: $statisticsTextStrongColor;
             }
 
             >.concept {
-                font-size: pxToRem(21);
-                line-height: 1;
-                font-weight: $fwBold;
-                margin-bottom: pxToRem(10);
-                color: $numberCardColorDefault;
+                grid-area: concept;
+                font-size: pxToRem(15);
+                line-height: pxToRem(20);
+                font-weight: $fwMedium;
+                color: $statisticsTextMutedColor;
             }
 
             >.subconcept {
-                font-size: pxToRem(18);
-                line-height: 1;
-                font-weight: $fwMedium;
-                color: #1B1C1D;
+                grid-area: subconcept;
+                font-size: pxToRem(14);
+                line-height: pxToRem(18);
+                color: $statisticsTextMutedColor;
             }
 
             &.green {
-                background-color: rgba($numberCardColorGreen, 0.08);
-
-                >.icon {
-                    background-color: $numberCardColorGreen;
-                }
-
-                >.number {
-                    color: $numberCardColorGreen;
-                }
-
-                >.concept {
-                    color: $numberCardColorGreen;
-                }
+                --number-card-color: #{$numberCardColorGreen};
             }
 
             &.orange {
-                background-color: rgba($numberCardColorOrange, 0.08);
-
-                >.icon {
-                    background-color: $numberCardColorOrange;
-                }
-
-                >.number {
-                    color: $numberCardColorOrange;
-                }
-
-                >.concept {
-                    color: $numberCardColorOrange;
-                }
+                --number-card-color: #{$numberCardColorOrange};
             }
         }
     }
@@ -600,10 +695,10 @@ $color1B1C1D: #1B1C1D;
         padding: 0;
     }
 
-    @container module-section (max-width: 1439px) {
+    //El contenedor es el del panel (admin_app_base.scss): esta hoja ya no le cambia el nombre.
+    @container module-view-container (max-width: 1439px) {
 
         .statistics-section {
-            grid-template-columns: max-content max-content;
 
             .card-statistic {
                 &.fullw-on-break-1 {
@@ -633,10 +728,9 @@ $color1B1C1D: #1B1C1D;
         }
     }
 
-    @container module-section (max-width: 725px) {
+    @container module-view-container (max-width: 725px) {
 
         .statistics-section {
-            grid-template-columns: 100% !important;
 
             .two-columns-grid {
                 grid-template-columns: 100% !important;
@@ -648,36 +742,4 @@ $color1B1C1D: #1B1C1D;
         }
     }
 
-}
-
-.mark-point-line-apex {
-    background: white;
-    padding: 8px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-
-    >.tag {
-        display: block;
-        font-weight: bold;
-    }
-
-    >.value {
-        display: block;
-        color: #D90429;
-        font-weight: bold;
-
-        &.alt {
-            color: #AFAFAF;
-        }
-    }
-
-    >.description {
-        display: block;
-        font-size: pxToRem(12);
-        color: black;
-    }
-}
-
-.toolbar-statistics-title-as-like {
-    @include toolbarTitleCardStatistics();
 }

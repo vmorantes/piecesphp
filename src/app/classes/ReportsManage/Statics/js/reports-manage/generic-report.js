@@ -14,23 +14,15 @@ window.addEventListener('load', function () {
 
 		showGenericLoader('getDataConfig')
 
+		//Los colores de las series salen de las variables del tema y no del JSON (lo lee la API): ApexCharts pinta en SVG y no
+		//entiende var(), así que se resuelven aquí, y el mismo color va a la leyenda de cada torta.
+		const seriesColors = resolveColors(['var(--main-brand-color)', 'var(--second-brand-color)', 'var(--statistics-disabled-color, gray)'])
+
 		const elementsToFill = [
 			{
-				dataType: 'researchersData',
+				dataType: 'peopleData',
 				fill: function (value) {
-					const dataType = this.dataType
-					const totalResearchersQty = value.totalResearchersQty
-					const totalResearchersQtyColombia = value.totalResearchersQtyColombia
-					const totalResearchersQtyFrancia = value.totalResearchersQtyFrancia
-					const totalResearchersQtyOthers = value.totalResearchersQtyOthers
-					const chartData = value.chartData
-					const mainDomElement = $(`[data-type="${dataType}"]`)
-					const chartElementContainer = mainDomElement.find('.apex-chart')
-					mainDomElement.find('[data-type="totalResearchersQtyColombia"]').html(formatNumberString(totalResearchersQtyColombia, '.', ','))
-					mainDomElement.find('[data-type="totalResearchersQtyFrancia"]').html(formatNumberString(totalResearchersQtyFrancia, '.', ','))
-					mainDomElement.find('[data-type="totalResearchersQtyOthers"]').html(formatNumberString(totalResearchersQtyOthers, '.', ','))
-
-					configDonutChart(getUniqueSelector(chartElementContainer.get(0)), chartData.series, chartData.labels, chartData.colors, chartData.style, chartData.background, chartData.unitText)
+					fillCountries(this.dataType, value, seriesColors)
 				},
 				getValueFromSource: function (source) {
 					const value = source[this.dataType]
@@ -40,31 +32,7 @@ window.addEventListener('load', function () {
 			{
 				dataType: 'organizationsData',
 				fill: function (value) {
-					const dataType = this.dataType
-					const totalOrganizationsQty = value.totalOrganizationsQty
-					const totalOrganizationsQtyColombia = value.totalOrganizationsQtyColombia
-					const totalOrganizationsQtyFrancia = value.totalOrganizationsQtyFrancia
-					const totalOrganizationsQtyOthers = value.totalOrganizationsQtyOthers
-					const chartData = value.chartData
-					const mainDomElement = $(`[data-type="${dataType}"]`)
-					const chartElementContainer = mainDomElement.find('.apex-chart')
-					mainDomElement.find('[data-type="totalOrganizationsQtyColombia"]').html(formatNumberString(totalOrganizationsQtyColombia, '.', ','))
-					mainDomElement.find('[data-type="totalOrganizationsQtyFrancia"]').html(formatNumberString(totalOrganizationsQtyFrancia, '.', ','))
-					mainDomElement.find('[data-type="totalOrganizationsQtyOthers"]').html(formatNumberString(totalOrganizationsQtyOthers, '.', ','))
-
-					configDonutChart(getUniqueSelector(chartElementContainer.get(0)), chartData.series, chartData.labels, chartData.colors, chartData.style, chartData.background, chartData.unitText)
-				},
-				getValueFromSource: function (source) {
-					const value = source[this.dataType]
-					return value
-				},
-			},
-			{
-				dataType: 'totalApprovedPublicationsQty',
-				fill: function (value) {
-					const dataType = this.dataType
-					const domElement = $(`[data-type="${dataType}"]`)
-					domElement.html(formatNumberString(value, '.', ','))
+					fillCountries(this.dataType, value, seriesColors)
 				},
 				getValueFromSource: function (source) {
 					const value = source[this.dataType]
@@ -112,107 +80,61 @@ window.addEventListener('load', function () {
 				const value = elementToFill.getValueFromSource(response)
 				elementToFill.fill(value)
 			}
-			configProjectionsDataHorizontal("#projection-charts", response.publicationsProjectionData)
 		}).finally(function () {
 			removeGenericLoader('getDataConfig')
 		})
 
 	}
 
-	function configProjectionsDataHorizontal(selector, data) {
-
-		const barColor = "var(--main-brand-color)"
-		const markerColor = "#254079"
-		const chartHeight = 180
-		const markerStrokeWidth = 5
-		const markerStrokeHeight = 12
-		const legendPosition = 'top'
-		const legendHorizontalAlign = 'right'
-		const chartType = 'bar'
-		const toolbarShow = false
-
-		const title = data.title
-		const projectionTitle = data.projectionTitle
-		const firstData = data.first
-		const secondData = data.second
-
-		const options = {
-			series: [
-				{
-					name: title,
-					data: [
-						{
-							x: firstData.title,
-							y: firstData.barValue,
-							goals: [
-								{
-									name: projectionTitle,
-									value: firstData.markerValue,
-									strokeWidth: markerStrokeWidth,
-									strokeHeight: markerStrokeHeight,
-									strokeColor: markerColor
-								}
-							]
-						},
-						{
-							x: secondData.title,
-							y: secondData.barValue,
-							goals: [
-								{
-									name: projectionTitle,
-									value: secondData.markerValue,
-									strokeWidth: markerStrokeWidth,
-									strokeHeight: markerStrokeHeight,
-									strokeColor: markerColor
-								}
-							]
-						}
-					]
-				}
-			],
-			chart: {
-				height: chartHeight,
-				type: chartType,
-				toolbar: {
-					show: toolbarShow
-				},
-			},
-			plotOptions: {
-				bar: {
-					horizontal: true,
-				}
-			},
-			colors: [barColor],
-			dataLabels: {
-				formatter: function (value, options) {
-					const elementData = options.w.config.series[options.seriesIndex].data[options.dataPointIndex]
-					if (elementData.x == firstData.title) {
-						return `${firstData.progressValue} / ${value}`
-					} else if (elementData.x == secondData.title) {
-						return `${secondData.progressValue} / ${value}`
-					} else {
-						return `${value}`
-					}
-				}
-			},
-			legend: {
-				position: legendPosition,
-				horizontalAlign: legendHorizontalAlign,
-				show: true,
-				showForSingleSeries: true,
-				customLegendItems: [title, projectionTitle],
-				markers: {
-					fillColors: [barColor, markerColor]
-				}
+	/**
+	 * La leyenda y la torta de una tarjeta por países: los dos primeros con su nombre (el del JSON) y «otros».
+	 * Un país que no esté no se pinta: ni su fila ni su porción.
+	 * @param {string} dataType
+	 * @param {{total:number,byCountry:{country:number,name:string,qty:number}[],others:number,chartData:Object}} value
+	 * @param {string[]} seriesColors Primero, segundo y «otros»
+	 */
+	function fillCountries(dataType, value, seriesColors) {
+		const mainDomElement = $(`[data-type="${dataType}"]`)
+		const chartElementContainer = mainDomElement.find('.apex-chart')
+		for (const position of [1, 2]) {
+			const valueElement = mainDomElement.find(`[data-type="${dataType}Country${position}"]`)
+			const row = valueElement.closest('.item')
+			const country = value.byCountry[position - 1]
+			if (country === undefined) {
+				row.hide()
+				continue
 			}
+			row.find('.name').text(country.name)
+			valueElement.html(formatNumberString(country.qty, '.', ','))
+			row.show()
 		}
-
-		const chart = new ApexCharts(document.querySelector(selector), options)
-		chart.render()
-
+		mainDomElement.find(`[data-type="${dataType}Others"]`).html(formatNumberString(value.others, '.', ','))
+		//Los colores de los países que hay, y el de «otros» siempre al final, como su fila de la leyenda.
+		const colors = value.byCountry.map((country, index) => seriesColors[index]).concat([seriesColors[2]])
+		const chartData = value.chartData
+		configDonutChart(getUniqueSelector(chartElementContainer.get(0)), chartData.series, chartData.labels, colors, chartData.style, chartData.background, chartData.unitText)
 	}
 
-	function configDonutChart(selector, series, labels, colors, style, background, unitText = '', emptyColor = '#e0e0e0') {
+	/**
+	 * @param {string[]} values Colores CSS, también var(--…, reserva)
+	 * @returns {string[]} El color que resuelve el navegador para cada uno
+	 */
+	function resolveColors(values) {
+		const probe = document.createElement('span')
+		probe.hidden = true
+		document.body.appendChild(probe)
+		const resolved = values.map((value) => {
+			probe.style.color = ''
+			probe.style.color = value
+			return getComputedStyle(probe).color
+		})
+		probe.remove()
+		return resolved
+	}
+
+	function configDonutChart(selector, series, labels, colors, style, background, unitText = '') {
+		//Sin datos, una sola porción del color de pista de las piezas de estadísticas.
+		const emptyColor = resolveColors(['var(--statistics-track-color, gainsboro)'])[0]
 		const chartHeight = 350
 		const donutThickness = 65
 		const radius = chartHeight / 2
@@ -263,24 +185,33 @@ window.addEventListener('load', function () {
 				width: 0,
 				colors: ['transparent']
 			},
+			//La leyenda es la de la tarjeta (chart-legend.php), enlazada abajo.
 			legend: {
-				position: 'bottom',
-				fontSize: style.fontSize,
-				fontWeight: style.fontWeight,
-				show: hasData,
+				show: false,
 			},
 			tooltip: {
 				enabled: hasData,
 				y: {
 					formatter: function (val) {
-						console.log(val)
 						return val + (unitText.length > 0 ? ` ${unitText}` : '')
 					}
 				}
 			}
 		}
-		const chart = new ApexCharts(document.querySelector(selector), options)
-		chart.render()
+		const container = document.querySelector(selector)
+		const chart = new ApexCharts(container, options)
+		const card = container !== null ? container.closest('.card-statistic') : null
+		const legend = card !== null ? card.querySelector('.chart-data') : null
+		//Cada fila de la leyenda, con el color de su serie: el de la vista es var(…) y sin reserva (chart-legend.php).
+		if (legend !== null) {
+			legend.querySelectorAll(':scope > .item').forEach((item, index) => {
+				if (typeof colors[index] == 'string') {
+					item.style.setProperty('--custom-color', colors[index])
+				}
+			})
+		}
+		//Sin datos el gráfico es una sola porción gris: no hay series que encender ni apagar.
+		chart.render().then(() => hasData && linkStatisticsChartLegend(chart, legend))
 	}
 
 })

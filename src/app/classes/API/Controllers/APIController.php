@@ -43,10 +43,12 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\Terminal\TaskRunMapper;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -1265,6 +1267,11 @@ class APIController extends AdminPanelController
             $username = $request->getParsedBodyParam('username');
             $phoneCode = $request->getParsedBodyParam('phoneCode');
             $phoneNumber = $request->getParsedBodyParam('phoneNumber');
+            //Un prefijo que no es de ningún país activo no se guarda, pero no deshace el alta: se dice en la respuesta.
+            $phoneCodeRejected = ($phoneCode !== null && !is_string($phoneCode)) || !CountryMapper::acceptsPhoneCode(is_string($phoneCode) ? $phoneCode : null, null);
+            if ($phoneCodeRejected) {
+                $phoneCode = null;
+            }
             $userCreated = false;
             if ($creationSuccess) {
                 $userByUsername = UsersModel::getBy($username, 'username', [], new UserDataPackage(1), true);
@@ -1302,11 +1309,19 @@ class APIController extends AdminPanelController
                     $data['text_button'] = __(self::LANG_GROUP, 'Iniciar sesión');
                     $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
                     if (!$mailer->checkSettedSMTP()) {
-                        $mailer->asGoDaddy();
+                        $mailer->asSystemMailer();
                     }
                     $mailer->send();
                     //Envío de correo - FIN
 
+                }
+            }
+
+            if ($userCreated && $phoneCodeRejected) {
+                $creationResult = $response->getRawJsonDataInserted();
+                if ($creationResult instanceof ResultOperations) {
+                    $creationResult->setMessage(trim($creationResult->getMessage() . ' ' . __(LOCATIONS_LANG_GROUP, 'El prefijo telefónico no es de ningún país activo.')));
+                    $response = $response->withJson($creationResult);
                 }
             }
 
@@ -1602,6 +1617,8 @@ class APIController extends AdminPanelController
                     ], 'id', $usuario->id, UsersModel::TABLE);
                 }
             }
+        } else {
+            throw new NotFoundException($request, $response);
         }
 
         return $response;
@@ -1618,7 +1635,7 @@ class APIController extends AdminPanelController
         $request = $request->withHeader('Accept', 'application/json');
 
         /**
-         * Ejemplo para programar cron job (la clave, en la cabecera: el parámetro GET queda en los logs de acceso):
+         * Ejemplo para programar cron job (la clave, solo en la cabecera: el parámetro GET quedaría en los logs de acceso):
          * Contenido: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
          * Tiempo: * * * * * (cada minuto: la franja, los reintentos y la ventana los pone cada tarea)
          */
@@ -1634,7 +1651,7 @@ class APIController extends AdminPanelController
                 'file' => __FILE__,
             ]);
         }
-        $cronJobKeyIsValid = self::cronJobKeyAccepted($CronJobKey, $request->getHeaderLine('Cron-Job-Key'), $request->getQueryParam('Cron-Job-Key'));
+        $cronJobKeyIsValid = self::cronJobKeyAccepted($CronJobKey, $request->getHeaderLine('Cron-Job-Key'));
 
         if (!$cronJobKeyIsValid) {
             return throw403($request, [
@@ -1643,8 +1660,6 @@ class APIController extends AdminPanelController
             ]);
         }
 
-        $currentUser = getLoggedFrameworkUser();
-        $isLogged = $currentUser !== null;
         $responseJSON = [
             'TasksRuns' => [],
         ];
@@ -1661,7 +1676,7 @@ class APIController extends AdminPanelController
             $now = new \DateTime();
             foreach ($systemCronjobs as $cronTask) {
                 //run(): franja, ventana, intentos, bloqueo y estado. La respuesta no lleva la traza.
-                $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->run($now);
+                $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->setTriggeredBy(TaskRunMapper::TRIGGER_HTTP)->run($now);
             }
 
         } else {
@@ -1675,18 +1690,15 @@ class APIController extends AdminPanelController
      * Si la petición trae la clave del cron. Falla cerrada: sin clave configurada no pasa nada.
      *
      * @param mixed $configuredKey get_config('CronJobKey')
-     * @param string $headerKey La cabecera Cron-Job-Key, que es la recomendada
-     * @param mixed $queryKey El parámetro GET Cron-Job-Key, por compatibilidad
+     * @param string $headerKey La cabecera Cron-Job-Key; el parámetro de consulta no se acepta (queda en los logs de acceso)
      * @return bool
      */
-    protected static function cronJobKeyAccepted($configuredKey, string $headerKey, $queryKey): bool
+    protected static function cronJobKeyAccepted($configuredKey, string $headerKey): bool
     {
         if (!is_string($configuredKey) || $configuredKey === '') {
             return false;
         }
-        $headerMatches = $headerKey !== '' && hash_equals($configuredKey, $headerKey);
-        $queryMatches = is_string($queryKey) && $queryKey !== '' && hash_equals($configuredKey, $queryKey);
-        return $headerMatches || $queryMatches;
+        return $headerKey !== '' && hash_equals($configuredKey, $headerKey);
     }
 
     /**

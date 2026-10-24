@@ -5,30 +5,20 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $backLink
  * @var string $action
  */
-$standalone = isset($standalone) && is_bool($standalone) ? $standalone : true;
-$submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup, 'Guardar');
 ?>
-<?php if($standalone): ?>
 <section class="module-view-container">
-    <?php endif; ?>
-    <?php if($standalone): ?>
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-    <?php endif; ?>
 
-    <?php if($standalone): ?><div class="limiter-content"><?php endif; ?>
+    <div class="limiter-content">
 
-        <?php if($standalone): ?><div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
+        ?>
 
-        <br><?php endif; ?>
-
-        <form method='POST' action="<?= $action; ?>" class="ui form news-categories initial <?= !$standalone ? 'max-w-1200 block-centered' : 'max-w-1200'; ?>">
+        <form method='POST' action="<?= $action; ?>" class="ui form news-categories initial max-w-1200" data-content-form>
 
             <div class="container-standard-form">
 
@@ -78,16 +68,17 @@ $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup
 
             </div>
 
-            <br>
-
-            <div class="field">
-                <button class="ui button brand-color" type="submit" save><?= $submitButtonText; ?></button>
-            </div>
+            <?php
+            //La barra al final del formulario (§2.3). utils.js guarda con el submit del form.
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'saveAttributes' => ['save' => ''],
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
+            ]);
+            ?>
 
         </form>
 
-        <?php if($standalone): ?>
-    </div><?php endif; ?>
+    </div>
 
-    <?php if($standalone): ?>
-</section><?php endif; ?>
+</section>

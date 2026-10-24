@@ -98,8 +98,8 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
 
     $pedir = function (string $metodo, string $url) use ($base): array {
         $recibidas = [];
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => str_contains($url, '://') ? $url : $base . '/' . ltrim($url, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -248,6 +248,11 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
         $check(count($conSufijo('traducida', 'es')) === 1 && count($conSufijo('traducida', 'en')) === 1, '2c la traducida, una vez en cada idioma');
         $soloES = $conSufijo('visible-a', 'es');
         $check(count(array_filter($locs, fn(string $l) => str_contains($l, "/{$prefijo}-visible-a-") && str_contains($l, 'i18n=en'))) === 0, '2d una publicación solo en español no tiene entrada en inglés');
+        //«Sin categoría» es la de reserva de las publicaciones sin la suya: no es una sección del sitio.
+        $sinCategoria = \Publications\Mappers\PublicationCategoryMapper::uncategorizedCategory();
+        $slugSinCategoria = (string) $sinCategoria->getSlug('es');
+        $check($slugSinCategoria !== '' && (int) $sinCategoria->id === \Publications\Mappers\PublicationCategoryMapper::UNCATEGORIZED_ID, '2e CANARIO: la categoría «Sin categoría» existe y tiene su slug', $slugSinCategoria);
+        $check(count(array_filter($locs, fn(string $l) => str_contains($l, '/' . $slugSinCategoria))) === 0, '2f «Sin categoría» no tiene entrada en el sitemap', (string) json_encode(array_values(array_filter($locs, fn(string $l) => str_contains($l, '/' . $slugSinCategoria)))));
         echoTerminal(' ');
 
         echoTerminal('[3] Cada URL del sitemap es la canónica que sirve su página');
@@ -264,7 +269,10 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
 
         echoTerminal('[4] Lo de antes ya no existe');
         $check(!is_array(get_route_info('configurations-appearance-seo-sitemap')), '4a la ruta del botón no está registrada');
-        $check($pedir('POST', '/configurations/appearance/seo/sitemap/')['status'] === 404, '4b y su URL da 404');
+        //La dirección del botón retirado colgaba de la pantalla de SEO: se deduce de su nombre, no se escribe (P51).
+        $seo = (string) \PiecesPHP\Settings\Controllers\SettingsController::routeName('appearance-seo');
+        $seo = str_contains($seo, '://') ? (string) parse_url($seo, \PHP_URL_PATH) : $seo;
+        $check($seo !== '' && $pedir('POST', rtrim($seo, '/') . '/sitemap/')['status'] === 404, '4b y su URL da 404', $seo);
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));

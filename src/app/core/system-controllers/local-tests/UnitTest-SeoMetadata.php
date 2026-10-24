@@ -3,6 +3,7 @@
 //Los metadatos de la cabecera y el JSON-LD por HTTP, leídos con un analizador de HTML (ADR 0036 y 0037).
 //Crea un principal y dos publicaciones zz-prueba-seo-*, y escribe los campos para compartir; lo devuelve todo como estaba.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -96,8 +97,8 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
     $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = []) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         $url = str_contains($path, '://') ? $path : $base . '/' . ltrim($path, '/');
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -107,8 +108,8 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
             CURLOPT_HTTPHEADER => $cabeceras,
         ]);
         if ($metodo === 'POST') {
-            curl_setopt($handle, CURLOPT_POST, true);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POST, true);
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
         }
         $body = curl_exec($handle);
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
@@ -203,7 +204,7 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
         $u->modifiedAt = $u->createdAt;
         $u->save();
         $ids['root'] = (int) $u->id;
-        $root = SessionToken::generateToken(['id' => $ids['root']], null, null, false);
+        $root = UserSessions::issueToken($ids['root']);
 
         //La categoría sale de las categorías, no de una publicación: sin publicaciones en la base, eso daba 0 y la clave foránea fallaba.
         $molde = \Publications\Mappers\PublicationCategoryMapper::model();

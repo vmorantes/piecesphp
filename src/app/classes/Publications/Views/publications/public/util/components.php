@@ -8,6 +8,8 @@ $slugsElements = array_key_exists('slugs', $_GET) ? (
     is_array($_GET['slugs']) ? $_GET['slugs'] : [$_GET['slugs']]
 ) : [];
 $slugsElements = array_filter(array_map(fn($e) => Validator::isString($e) ? (string) $e : null, $slugsElements), fn($e) => Validator::isString($e));
+//Tope: cada slug es una consulta y la ruta es pública. El cliente (listing.js, perPage: 5) manda como mucho 5.
+$slugsElements = array_slice(array_values($slugsElements), 0, 10);
 $idsElements = array_map(fn($e) => PublicationMapper::extractIDFromSlug("segment-" . $e), $slugsElements);
 $idsElements = array_filter($idsElements, fn($e) => Validator::isInteger($e));
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
@@ -26,8 +28,8 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
         $excerptContent = mb_strpos($excerptContent, '...') !== false ? $excerptContent : $excerptContent . '...';
     ?>
 
-    <component data-slug="<?= $element->preferSlug; ?>" name="special-main-item">
-        <a class="item" href="<?= $singleURL; ?>">
+    <component data-slug="<?= $escape($element->preferSlug); ?>" name="special-main-item">
+        <a class="item" href="<?= $escape($singleURL); ?>">
             <div class="ui large image">
                 <img src="<?= $escape($element->currentLangData('thumbImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>" loading="lazy">
             </div>
@@ -41,19 +43,19 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                     <?= escape_html(html_entity_decode($excerptContent, ENT_QUOTES | ENT_HTML5, 'UTF-8')); ?>
                 </div>
                 <div class="extra">
-                    <?= $element->publicDateFormat(); ?>
+                    <?= $escape($element->publicDateFormat()); ?>
                 </div>
             </div>
         </a>
     </component>
 
-    <component data-slug="<?= $element->preferSlug; ?>" name="special-secondary-item">
-        <a class="ui card" href="<?= $singleURL; ?>">
+    <component data-slug="<?= $escape($element->preferSlug); ?>" name="special-secondary-item">
+        <a class="ui card" href="<?= $escape($singleURL); ?>">
             <div class="image">
                 <img src="<?= $escape($element->currentLangData('thumbImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>" loading="lazy">
             </div>
             <div class="content">
-                <div class="header"><?= $element->publicDateFormat(); ?></div>
+                <div class="header"><?= $escape($element->publicDateFormat()); ?></div>
                 <div class="meta">
                     <span><?= $escape($element->authorFullName()); ?></span>
                 </div>

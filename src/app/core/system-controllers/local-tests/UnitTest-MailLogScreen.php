@@ -3,6 +3,7 @@
 //La pantalla del registro de correos: solo el usuario principal la abre, porque lista
 //DESTINATARIOS. Y lo que pinta va escapado. Crea dos usuarios zz-agente-maillog-*.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Email\MailDelivery;
@@ -67,9 +68,11 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
         }
         return '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
     };
+    //La pantalla es la pestaña «Correos enviados» de «Registros»; la ruta vieja solo redirige a ella.
     $rutas = [
-        'vista' => $ruta('system-status-mail-log'),
+        'vista' => $ruta('logs-admin-index') !== '' ? $ruta('logs-admin-index') . '?tab=' . SystemStatusController::MAIL_LOG_TAB : '',
         'datos' => $ruta('system-status-mail-log-datatables'),
+        'vieja' => $ruta('system-status-mail-log'),
     ];
     foreach ($rutas as $clave => $valor) {
         $check($valor !== '' && $valor !== '/', "c2 existe la ruta de la {$clave}", $valor);
@@ -86,8 +89,8 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
     $cabeceraToken = SessionToken::tokenName();
     $pedir = function (string $path, ?string $jwt = null) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -103,7 +106,7 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
         $body = is_string($body) ? $body : '';
         return ['status' => $status, 'body' => $body, 'json' => json_decode($body, true), 'type' => $tipo];
     };
-    $token = fn(int $id): string => SessionToken::generateToken(['id' => $id], null, null, false);
+    $token = fn(int $id): string => UserSessions::issueToken($id);
 
     $prefijo = 'zz-agente-maillog-' . bin2hex(random_bytes(3));
     $crear = function (string $sufijo, int $tipo) use ($prefijo): int {
@@ -149,6 +152,8 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
         $comoRoot = $pedir($rutas['vista'], $root);
         $check($comoRoot['status'] === 200, 'a1 el principal abre la pantalla (sin esto, todo 403 sería gratis)', "HTTP {$comoRoot['status']}");
         $check(str_contains($comoRoot['body'], 'mail-log-view'), 'a2 y la pantalla es la del registro de correos');
+        $vieja = $pedir($rutas['vieja'], $root);
+        $check(in_array($vieja['status'], [301, 302, 303], true), 'a2b la pantalla vieja redirige', "HTTP {$vieja['status']}");
 
         $comoAdmin = $pedir($rutas['vista'], $admin);
         $check($comoAdmin['status'] === 403, 'a3 un administrador general recibe 403 en la pantalla', "HTTP {$comoAdmin['status']}");
@@ -271,15 +276,16 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
         //─── f · El rastro: cada lectura, legible o no, deja su línea; sin contenido ni destinatarios ──
         echoTerminal(' ');
         echoTerminal('[f] Cada lectura del cuerpo queda en el registro de acciones');
-        $rastro = $baseDatos->prepare('SELECT `textMessageVariables`, `createdBy` FROM `' . LogsMapper::model()->getTable() . '` WHERE `id` > ? AND `textMessageVariables` LIKE ?');
+        //Con su tipo y la referencia a la fila del registro de correos (desde C4, ronda 2: ya no es un mensaje libre).
+        $rastro = $baseDatos->prepare('SELECT `textMessage`, `textMessageVariables`, `createdBy` FROM `' . LogsMapper::model()->getTable() . '` WHERE `id` > ? AND `referenceSource` = ? AND `referenceValue` = ?');
         $lineaDe = function (int $id) use ($rastro, $maxLogPrevio): array {
-            $rastro->execute([$maxLogPrevio, "%#{$id} del registro%"]);
+            $rastro->execute([$maxLogPrevio, MailLogMapper::TABLE, (string) $id]);
             return $rastro->fetchAll(\PDO::FETCH_ASSOC);
         };
         $vio = $lineaDe($idCuerpo);
-        $check(count($vio) >= 1 && str_contains((string) $vio[0]['textMessageVariables'], 'vio el cuerpo') && (int) $vio[0]['createdBy'] === $idRoot, 'f1 la lectura legible deja su línea, a nombre de quien la pidió', (string) count($vio));
+        $check(count($vio) >= 1 && $vio[0]['textMessage'] === LogsMapper::MESSAGES[LogsMapper::MSG_MAIL_BODY_VIEWED] && (int) $vio[0]['createdBy'] === $idRoot, 'f1 la lectura legible deja su línea, a nombre de quien la pidió', (string) count($vio));
         $noPudo = $lineaDe($idGzip);
-        $check(count($noPudo) >= 1 && str_contains((string) $noPudo[0]['textMessageVariables'], 'no se pudo descifrar'), 'f2 la ilegible también, y dice que no se pudo');
+        $check(count($noPudo) >= 1 && $noPudo[0]['textMessage'] === LogsMapper::MESSAGES[LogsMapper::MSG_MAIL_BODY_UNREADABLE], 'f2 la ilegible también, y dice que no se pudo');
         $todo = json_encode([$vio, $noPudo, $lineaDe($idIlegible)]);
         $check(!str_contains((string) $todo, 'ZZ CUERPO') && !str_contains((string) $todo, '@localhost.test'), 'f3 y ninguna lleva el contenido ni a quién iba');
         $check(count($lineaDe($idSinCuerpo)) === 0 && count($lineaDe($idCuerpo)) === 1, 'f4 una fila sin cuerpo no deja línea, y el 403 del administrador tampoco: no hubo lectura');

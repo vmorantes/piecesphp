@@ -37,19 +37,22 @@ HERMANOS = tuple(os.path.join(os.path.dirname(RAIZ), p) + os.sep for p in PAQUET
 # autorizó escribir ahí el 2026-09-15, nombrando el repositorio.
 GUIA_PO = os.path.join(os.path.dirname(RAIZ), "guia-piecesphp-para-po") + os.sep
 
+# Las capturas de pantalla que se le entregan al PO, y nada más (ADR 0058).
+CAPTURAS_PO = os.path.join(HOME, "Documentos", "PiecesPHP") + os.sep
+
 # Fuera del repositorio solo se escribe en temporales, en la memoria nativa de
-# Claude Code, en los repositorios hermanos y en el de la guía del PO.
+# Claude Code, en los repositorios hermanos, en el de la guía del PO y en sus capturas.
 ESCRIBIBLES_EXTRA = (
     "/tmp/",
     os.path.join(HOME, ".claude", "projects") + os.sep,
-) + HERMANOS + (GUIA_PO,)
+) + HERMANOS + (GUIA_PO, CAPTURAS_PO)
 
 # Dentro de estas zonas se borra; la zona ENTERA, no. Sin esto, `rm -rf /tmp` o
 # `rm -rf <raíz del repositorio>` pasaban, porque la raíz también es escribible
 # (aviso de la plantilla andamiaje-arquitecto-coder, verificado aquí el 2026-09-15).
 RAICES_PROTEGIDAS = tuple(
     os.path.realpath(p) for p in (RAIZ, "/tmp", os.path.join(HOME, ".claude", "projects"), HOME)
-) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS + (GUIA_PO,))
+) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS + (GUIA_PO, CAPTURAS_PO))
 
 # Las claves del producto no las lee un agente, tampoco desde Bash (40-salvaguardas.md §7):
 # settings.json solo niega la herramienta Read.

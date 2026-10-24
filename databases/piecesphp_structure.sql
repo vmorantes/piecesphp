@@ -20,6 +20,7 @@ CREATE TABLE `actions_log` (
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
+  KEY `createdAt` (`createdAt`),
   CONSTRAINT `actions_log_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -116,25 +117,6 @@ CREATE TABLE `forms_document_types` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
-DROP TABLE IF EXISTS `interest_research_area`;
-CREATE TABLE `interest_research_area` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `areaName` text DEFAULT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `status` int(11) NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `interest_research_area_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `interest_research_area_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-
 DROP TABLE IF EXISTS `locations_cities`;
 CREATE TABLE `locations_cities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -152,6 +134,8 @@ DROP TABLE IF EXISTS `locations_countries`;
 CREATE TABLE `locations_countries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(255) DEFAULT NULL,
+  `phoneCode` varchar(10) DEFAULT NULL,
+  `demonym` varchar(255) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `region` text DEFAULT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
@@ -199,6 +183,7 @@ CREATE TABLE `login_attempts` (
   `extraData` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `userID` (`userID`),
+  KEY `date` (`date`),
   CONSTRAINT `login_attempts_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -296,6 +281,7 @@ CREATE TABLE `organizations_elements` (
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
   `status` int(11) NOT NULL,
+  `publicVisible` tinyint(4) NOT NULL DEFAULT 1,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`),
@@ -323,9 +309,9 @@ CREATE TABLE `pcsphp_app_config` (
 DROP TABLE IF EXISTS `pcsphp_jobs_queue`;
 CREATE TABLE `pcsphp_jobs_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` text NOT NULL,
+  `name` varchar(191) NOT NULL,
   `data` longtext DEFAULT NULL,
-  `status` text NOT NULL,
+  `status` varchar(16) NOT NULL,
   `attempts` int(11) NOT NULL,
   `maxAttempts` int(11) NOT NULL,
   `errorMessage` text DEFAULT NULL,
@@ -334,6 +320,23 @@ CREATE TABLE `pcsphp_jobs_queue` (
   `scheduledAt` datetime DEFAULT NULL,
   `startedAt` datetime DEFAULT NULL,
   `finishedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `statusScheduledAtCreatedAt` (`status`,`scheduledAt`,`createdAt`),
+  KEY `statusStartedAt` (`status`,`startedAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+
+DROP TABLE IF EXISTS `pcsphp_mail_log`;
+CREATE TABLE `pcsphp_mail_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sentAt` datetime NOT NULL,
+  `recipients` text NOT NULL,
+  `subject` text DEFAULT NULL,
+  `origin` text DEFAULT NULL,
+  `delivery` text NOT NULL,
+  `result` text NOT NULL,
+  `reason` text DEFAULT NULL,
+  `body` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -346,6 +349,25 @@ CREATE TABLE `pcsphp_recovery_password` (
   `created` datetime NOT NULL,
   `expired` datetime NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+
+DROP TABLE IF EXISTS `pcsphp_task_runs`;
+CREATE TABLE `pcsphp_task_runs` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `taskName` varchar(191) NOT NULL,
+  `slot` datetime DEFAULT NULL,
+  `triggeredBy` varchar(16) NOT NULL,
+  `status` varchar(24) NOT NULL,
+  `attempt` int(11) NOT NULL DEFAULT 1,
+  `startedAt` datetime NOT NULL,
+  `finishedAt` datetime DEFAULT NULL,
+  `durationMs` int(11) DEFAULT NULL,
+  `message` varchar(500) DEFAULT NULL,
+  `host` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `taskNameStartedAt` (`taskName`,`startedAt`),
+  KEY `startedAt` (`startedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
@@ -394,6 +416,25 @@ CREATE TABLE `pcsphp_users` (
   PRIMARY KEY (`id`),
   KEY `organization` (`organization`),
   CONSTRAINT `pcsphp_users_ibfk_1` FOREIGN KEY (`organization`) REFERENCES `organizations_elements` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+
+DROP TABLE IF EXISTS `pcsphp_user_sessions`;
+CREATE TABLE `pcsphp_user_sessions` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `userID` int(11) NOT NULL,
+  `sessionHash` char(64) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `lastActivityAt` datetime NOT NULL,
+  `expiresAt` datetime NOT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `userAgent` varchar(255) DEFAULT NULL,
+  `closedAt` datetime DEFAULT NULL,
+  `closedBy` int(11) DEFAULT NULL,
+  `closeReason` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sessionHash` (`sessionHash`),
+  KEY `userID` (`userID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
@@ -502,8 +543,8 @@ DROP TABLE IF EXISTS `system_approvals_elements`;
 CREATE TABLE `system_approvals_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `referenceAlias` text NOT NULL,
-  `referenceValue` text NOT NULL,
-  `referenceTable` text NOT NULL,
+  `referenceValue` varchar(191) NOT NULL,
+  `referenceTable` varchar(191) NOT NULL,
   `referenceDate` text NOT NULL,
   `reason` text DEFAULT NULL,
   `createdAt` datetime NOT NULL,
@@ -515,6 +556,7 @@ CREATE TABLE `system_approvals_elements` (
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   KEY `approvalBy` (`approvalBy`),
+  KEY `reference` (`referenceTable`,`referenceValue`),
   CONSTRAINT `system_approvals_elements_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `system_approvals_elements_ibfk_2` FOREIGN KEY (`approvalBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -545,6 +587,7 @@ CREATE TABLE `user_system_profile` (
   `city` int(11) DEFAULT NULL,
   `latitude` double DEFAULT NULL,
   `longitude` double DEFAULT NULL,
+  `publicVisible` tinyint(4) NOT NULL DEFAULT 1,
   `belongsTo` bigint(20) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
@@ -557,6 +600,7 @@ CREATE TABLE `user_system_profile` (
   KEY `belongsTo` (`belongsTo`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
+  KEY `geo` (`longitude`,`latitude`),
   CONSTRAINT `user_system_profile_ibfk_1` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
   CONSTRAINT `user_system_profile_ibfk_2` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
   CONSTRAINT `user_system_profile_ibfk_3` FOREIGN KEY (`belongsTo`) REFERENCES `pcsphp_users` (`id`),

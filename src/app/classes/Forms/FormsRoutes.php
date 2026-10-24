@@ -35,8 +35,7 @@ class FormsRoutes
 
     /**
      * @param RouteGroup $groupAdministration
-     * @param RouteGroup $groupPublic
-     * @return RouteGroup[] Con los índices groupAdministration y groupPublic
+     * @return RouteGroup[] Con los índices groupAdministration
      */
     public static function routes(RouteGroup $groupAdministration)
     {
@@ -79,7 +78,7 @@ class FormsRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Formularios'),
-                'icon' => 'edit',
+                'icon' => 'clipboard list',
                 'items' => [
                     new MenuItem([
                         'text' => __(CategoriesLang::LANG_GROUP, 'Categorías'),
@@ -87,7 +86,7 @@ class FormsRoutes
                         'visible' => CategoriesController::allowedRoute('list'),
                     ]),
                 ],
-                'position' => 150,
+                'position' => MenuGroupCollection::BAND_CONTENTS + 30,
             ]));
 
         }

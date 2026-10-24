@@ -15,6 +15,12 @@ anterior. Compartido por todas las herramientas; Claude Code lo ve además a tra
 | `docs/decisiones-del-po.md` | Las decisiones del PO, una fila cada una |
 | `docs/roadmap.md` | El orden de lo abierto |
 | `docs/roadmap-posterior/` | Lo que va después de la MAJOR: 16 documentos |
+| `docs/diseno/` | Las propuestas de diseño por familia, con su lista (L1…) para comparar al terminar |
+| `docs/planes/` | Los planes de lo que sigue, cuando no caben en una línea de `abierto.md` |
+| `docs/auditorias/` | Auditorías de solo lectura, con su fecha |
+| `docs/inspiraciones/` | Lo leído de otros proyectos del PO que sirve de referencia (el geovisor, los informes) |
+| `docs/aportes-al-andamiaje.md` | Lo de aquí que le serviría al andamiaje genérico (H6) |
+| `docs/sdd.md` | El flujo por fases (explorar, proponer, especificar…) para un cambio sustancial. Ya no es regla: se lee cuando un cambio lo pide (2026-10-14) |
 | `personas/` | **Fuente** de los subagentes: cuerpo del prompt, sin frontmatter |
 | `agents/` | Subagentes para Antigravity, **generados** (no editar) |
 | `skills/` | Skills compartidas; `.claude/skills/` enlaza aquí |

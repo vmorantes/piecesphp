@@ -80,7 +80,8 @@ grupos de idioma (`ADMIN_MENU_LANG_GROUP`, `GENERAL_LANG_GROUP`, `LANG_GROUP`,
 `LOGIN_REPORT_LANG_GROUP`, `MAILING_GENERAL_LANG_GROUP`,
 `SUPPORT_FORM_ADMIN_LANG_GROUP`, `CROPPER_ADAPTER_LANG_GROUP`),
 constantes de IA (`AI_OPENAI`, `AI_MISTRAL`, `AI_MODELS`, `TRANSLATION_AI_LIST`) y
-datos de proyecto (`PHONE_AREA_CODES`, `NATIONALITIES`, `CURRENCIES`).
+datos de proyecto: ninguno desde la `9.0.0` (`CURRENCIES` salió sin uso; `PHONE_AREA_CODES` y `NATIONALITIES`, porque
+el prefijo telefónico y el gentilicio son datos de cada país: `CountryMapper::phoneCodeOptions()` y `demonymOptions()`).
 
 > **Para desactivar un módulo, se pone su constante en `false`.** La clase
 > `<Modulo>Routes` la lee como `const ENABLE = X_MODULE;` y no registra nada.
@@ -198,7 +199,7 @@ comprobación 41 de `verify-integrity`. Ayudantes para el clon: `set_configs_fro
 | Archivo | Para qué |
 | :-- | :-- |
 | `add-dynamic-translations.php` | Inyecta traducciones dinámicas (desde BD) |
-| `api-keys.php` | Llaves de servicios externos (Mapbox, GeoIP, reCAPTCHA…) |
+| `api-keys.php` | Llaves de `secure-keys/` con `set_configs_from_secure_keys()` (las de IA —OpenAI, Mistral, Groq—, la del cron y las dos de reCAPTCHA v3, secreta y de sitio); **MapBox no**: va en la base, desde Integraciones › Llaves de MapBox, y sin ella salta el aviso `mapbox-key-missing` |
 | `cli-actions.php` | Acciones CLI personalizadas (`CliActions::make()`) |
 | `cronjobs.php` | Tareas programadas (`CronJobTask::make()`) |
 | `event-listeners.php` | `BaseEventDispatcher::listen()` |

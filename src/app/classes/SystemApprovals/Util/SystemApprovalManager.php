@@ -345,15 +345,21 @@ class SystemApprovalManager
             $referenceTable = $class::getReferenceTable();
             $referenceColumn = $class::getReferenceColumn();
             $creationDateColumn = $class::getCreationDateColumn();
+            //El CAST no sobra: contra un entero, MariaDB compara como número y el índice `reference` solo sirve para referenceTable.
             $model = $mapperName::model();
             $model
                 ->select()
-                ->where("{$referenceTable}.{$referenceColumn} NOT IN (SELECT {$table}.referenceValue FROM {$table} WHERE {$table}.referenceTable = '{$referenceTable}')");
+                ->where("CAST({$referenceTable}.{$referenceColumn} AS CHAR) NOT IN (SELECT {$table}.referenceValue FROM {$table} WHERE {$table}.referenceTable = '{$referenceTable}')");
             $model->execute();
             $result = $model->result();
 
             //Configurar valores iniciales
+            //`excludesElement()` es de BaseApprovalHandler, no de la interfaz: un handler que solo la implemente no la tiene.
+            $excludes = method_exists($class, 'excludesElement');
             foreach ($result as $element) {
+                if ($excludes && $class::excludesElement((int) $element->id)) {
+                    continue;
+                }
                 $contentName = $class::getContentType($element->id);
                 $approval = $class::isAutoApproval($element->id);
                 $columnsAndValues = [
@@ -361,14 +367,14 @@ class SystemApprovalManager
                     'referenceValue' => "'{$element->$referenceColumn}'",
                     'referenceTable' => "'{$referenceTable}'",
                     'referenceDate' => "'{$element->$creationDateColumn}'",
-                    'createdBy' => 1,
+                    'createdBy' => UsersModel::SYSTEM_USER_ID,
                     'createdAt' => "'" . date('Y-m-d H:i:s') . "'",
                     'status' => "'{$pendingStatus}'",
                 ];
                 if ($approval) {
                     $columnsAndValues['status'] = "'{$approvedStatus}'";
                     $columnsAndValues['approvalAt'] = "'" . date('Y-m-d H:i:s') . "'";
-                    $columnsAndValues['approvalBy'] = 1;
+                    $columnsAndValues['approvalBy'] = UsersModel::SYSTEM_USER_ID;
                 }
                 $columns = implode(', ', array_keys($columnsAndValues));
                 $values = implode(', ', array_values($columnsAndValues));

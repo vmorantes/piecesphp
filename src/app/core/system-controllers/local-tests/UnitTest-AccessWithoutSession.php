@@ -46,11 +46,19 @@ CliActions::make('unit-tests:core/access-without-session', function ($args) {
 
     /**
      * @param list<string> $headers
-     * @return array{status:int,body:string,location:string}
+     * @return array{status:int,body:string,location:string,headers:array<string,string>}
      */
     $pedir = function (string $path, array $headers) use ($base): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        $recibidas = [];
+        \Terminal\TestRun::curlSetoptArray($handle, [
+            CURLOPT_HEADERFUNCTION => function ($curl, string $linea) use (&$recibidas): int {
+                $partes = explode(':', $linea, 2);
+                if (count($partes) === 2) {
+                    $recibidas[mb_strtolower(trim($partes[0]))] = trim($partes[1]);
+                }
+                return strlen($linea);
+            },
             CURLOPT_URL => $base . $path,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -64,7 +72,7 @@ CliActions::make('unit-tests:core/access-without-session', function ($args) {
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
         $location = (string) curl_getinfo($handle, CURLINFO_REDIRECT_URL);
         //Sin curl_close(): deprecado desde PHP 8.5 y sin efecto desde la 8.0, y aquí una deprecación aborta.
-        return ['status' => $status, 'body' => is_string($body) ? $body : '', 'location' => $location];
+        return ['status' => $status, 'body' => is_string($body) ? $body : '', 'location' => $location, 'headers' => $recibidas];
     };
 
     $protegida = 'admin-about-framework';
@@ -87,16 +95,18 @@ CliActions::make('unit-tests:core/access-without-session', function ($args) {
     echoTerminal(' ');
 
     //─── 1 · Petición de datos, con las cabeceras que pone el cliente ───────────────────────────
-    echoTerminal('[1] Una petición de datos sin sesión recibe 403, con las cabeceras que quiera');
+    echoTerminal('[1] Una petición de datos sin sesión recibe 401, con las cabeceras que quiera');
     $cabeceras = [
         'X-Requested-With: XMLHttpRequest',
         'Referer: ' . $base . $rutaAbierta,
     ];
     $r1 = $pedir($rutaProtegida, $cabeceras);
     $json1 = json_decode($r1['body'], true);
-    $check($r1['status'] === 403, '1a responde 403', 'HTTP ' . $r1['status']);
+    $check($r1['status'] === 401, '1a responde 401', 'HTTP ' . $r1['status']);
     $check(is_array($json1) && ($json1['error'] ?? null) === 'RESTRICTED_AREA',
         '1b y el cuerpo dice RESTRICTED_AREA', mb_substr($r1['body'], 0, 60));
+    $check(($r1['headers']['www-authenticate'] ?? null) === 'Bearer',
+        '1c con «WWW-Authenticate: Bearer»', var_export($r1['headers']['www-authenticate'] ?? null, true));
     echoTerminal(' ');
 
     //─── 2 · Petición normal ────────────────────────────────────────────────────────────────────
@@ -121,4 +131,4 @@ CliActions::make('unit-tests:core/access-without-session', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Sin sesión, una ruta con require_login niega por HTTP: 403 a una petición de datos y redirección a una normal.')->setEffects([CliActions::EFFECT_NETWORK])->register();
+})->setDescription('Sin sesión, una ruta con require_login niega por HTTP: 401 a una petición de datos y redirección a una normal.')->setEffects([CliActions::EFFECT_NETWORK])->register();

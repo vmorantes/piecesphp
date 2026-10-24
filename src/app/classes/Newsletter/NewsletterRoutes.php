@@ -13,7 +13,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 /**
@@ -42,7 +42,7 @@ class NewsletterRoutes
     {
         if (self::ENABLE) {
 
-            $groupAdministration = NewsletterController::routes($groupAdministration);
+            NewsletterController::routes($groupAdministration, $groupPublic);
 
             self::staticResolver($groupAdministration);
 
@@ -84,11 +84,11 @@ class NewsletterRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(NewsletterLang::LANG_GROUP, 'Suscriptores'),
-                'icon' => 'bell',
+                'icon' => 'envelope open outline',
                 'asLink' => true,
                 'href' => NewsletterController::routeName('list'),
                 'visible' => NewsletterController::allowedRoute('list'),
-                'position' => 150,
+                'position' => MenuGroupCollection::BAND_COMMUNICATION,
             ]));
 
         }

@@ -533,12 +533,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     );
     echoTerminal(' ');
 
-    //──── 12. MySpace: precedencia, y la búsqueda de la tabla derivada ──────────────────
+    //──── 12. El Directorio: precedencia, y la búsqueda de la tabla derivada ──────────────────
     echoTerminal('[12/20]`AllProfiles` parentiza, y `processFromQuery` va por marcador');
 
     //`A AND B OR C` se lee `(A AND B) OR C`: sin los paréntesis, los usuarios se listaban sin
     //comprobar su aprobación. Ver T166.
-    $perfiles = (string) @file_get_contents($raizSrc . '/app/classes/MySpace/Controllers/AllProfilesController.php');
+    $perfiles = (string) @file_get_contents($raizSrc . '/app/classes/Directory/Controllers/AllProfilesController.php');
     $check(
         $perfiles !== '' && mb_strpos($perfiles, 'AND (userType IS NULL OR userType IN') !== false,
         'AllProfiles: el criterio de tipo va PARENTIZADO',
@@ -663,21 +663,20 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $viaRechazo('news · newsTitle', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, $v)->totalElements(), $cargaLike, "'", false);
     $viaRechazo('news · ignoreSlugs', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
     $viaRechazo('organizations · name', fn (?string $v): int => \Organizations\Controllers\OrganizationsController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
-    //EN GEOJSON EL VALOR SALE DOS VECES en el mismo HAVING: dos comillas sueltas se emparejan y el
-    //SQL concatenado sigue siendo válido. `'(` no se empareja.
-    $contarRasgos = static fn ($coleccion): int => is_countable($coleccion) ? count($coleccion) : (is_iterable($coleccion) ? iterator_count($coleccion) : -1);
-    $viaRechazo('geojson · search (personas)', fn (?string $v): int => $contarRasgos(\GeoJSONManager\Controllers\GeoJsonManagerController::withPersonsProfiles(new \GeoJSONManager\Util\FeaturesCollection(), $v === null ? [] : ['search' => $v])), $cargaLike, "'(", false);
-    $viaRechazo('geojson · search (organizaciones)', fn (?string $v): int => $contarRasgos(\GeoJSONManager\Controllers\GeoJsonManagerController::withOrganizationsProfiles(new \GeoJSONManager\Util\FeaturesCollection(), $v === null ? [] : ['search' => $v])), $cargaLike, "'(", false);
+    //EL GEOVISOR BUSCA EN DOS COLUMNAS con el mismo valor: dos comillas sueltas se emparejan y el SQL concatenado
+    //seguiría siendo válido. `'(` no se empareja.
+    $viaRechazo('geovisor · search (personas)', fn (?string $v): int => (new \Directory\Geo\PersonsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
+    $viaRechazo('geovisor · search (organizaciones)', fn (?string $v): int => (new \Organizations\Geo\OrganizationsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
 
-    //SIN BASE: el grupo de búsqueda de GeoJSON deja la comilla fuera del SQL y el valor en los reemplazos.
+    //SIN BASE: la búsqueda del geovisor deja la comilla fuera del SQL y el valor en los reemplazos.
     try {
-        $grupoGeo = (new \ReflectionMethod(\GeoJSONManager\Controllers\GeoJsonManagerController::class, 'searchHavingGroup'))->invokeArgs(null, [['fullname', 'fullLocation'], $conComilla]);
+        $grupoGeo = \PiecesPHP\Geo\GeoSourceSql::addSearch(new HavingSegment(), ['fullname', 'fullLocation'], $conComilla);
         $sqlGeo = $grupoGeo->toString();
         $check(mb_strpos($sqlGeo, "'") === false && in_array('%' . $conComilla . '%', array_values($grupoGeo->getReplacementValues()), true),
-            'geojson · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', $sqlGeo);
-        $check(mb_substr_count($sqlGeo, ' OR ') === 1, 'geojson · search, sin base: fullname y fullLocation siguen unidos con OR', $sqlGeo);
+            'geovisor · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', $sqlGeo);
+        $check(mb_substr_count($sqlGeo, ' OR ') === 1, 'geovisor · search, sin base: fullname y fullLocation siguen unidos con OR', $sqlGeo);
     } catch (\Throwable $errorGeo) {
-        $check(false, 'geojson · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', 'EXCEPCIÓN: ' . $errorGeo->getMessage());
+        $check(false, 'geovisor · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', 'EXCEPCIÓN: ' . $errorGeo->getMessage());
     }
 
     //DOCUMENTS: el listado filtra por estado. Un par clave-valor en `implode()` dejaba `WHERE 1`.
@@ -756,7 +755,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $sonda('documents · existsByDocumentName', 'SELECT documentName FROM ' . \Documents\Mappers\DocumentsMapper::TABLE . ' WHERE status = ' . \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE . ' LIMIT 1', 'documentName', fn (string $v, array $f): bool => \Documents\Mappers\DocumentsMapper::existsByDocumentName($v, -1, true));
     $sonda('publication categories · existsByName', 'SELECT name FROM ' . \Publications\Mappers\PublicationCategoryMapper::TABLE . ' LIMIT 1', 'name', fn (string $v, array $f): bool => \Publications\Mappers\PublicationCategoryMapper::existsByName($v, -1));
     $sonda('publications · existsByTitle', 'SELECT title, category FROM ' . \Publications\Mappers\PublicationMapper::TABLE . ' WHERE status != ' . \Publications\Mappers\PublicationMapper::INACTIVE . ' LIMIT 1', 'title', fn (string $v, array $f): bool => \Publications\Mappers\PublicationMapper::existsByTitle($v, (int) ($f['category'] ?? 0), -1, true));
-    $usuarios = 'SELECT username FROM ' . \PiecesPHP\UserSystem\ORM\UsersModel::TABLE . ' LIMIT 1';
+    //Sin el usuario de sistema: los listados lo excluyen a propósito (B14) y la sonda no discriminaría.
+    $usuarios = 'SELECT username FROM ' . \PiecesPHP\UserSystem\ORM\UsersModel::TABLE . ' WHERE ' . \PiecesPHP\UserSystem\ORM\UsersModel::excludeSystemUserSQL() . ' LIMIT 1';
     $sonda('users · getBy', $usuarios, 'username', fn (string $v, array $f): bool => \PiecesPHP\UserSystem\ORM\UsersModel::getBy($v, 'username') !== null);
     $sonda('users · allByMultipleCriteries', $usuarios, 'username', fn (string $v, array $f): bool => !empty(\PiecesPHP\UserSystem\ORM\UsersModel::allByMultipleCriteries([['column' => 'username', 'value' => $v]])));
     $sonda('users · getByMultipleCriteries', $usuarios, 'username', fn (string $v, array $f): bool => \PiecesPHP\UserSystem\ORM\UsersModel::getByMultipleCriteries([['column' => 'username', 'value' => $v]]) !== null);

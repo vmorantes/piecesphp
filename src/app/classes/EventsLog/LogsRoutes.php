@@ -13,7 +13,8 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\CSSVariables;
 
 /**
  * LogsRoutes.
@@ -83,7 +84,7 @@ class LogsRoutes
                 'asLink' => true,
                 'visible' => LogsController::allowedRoute('list'),
                 'href' => LogsController::routeName('list'),
-                'position' => 2000,
+                'position' => MenuGroupCollection::BAND_ACTIVITY,
             ]));
 
         }
@@ -125,28 +126,8 @@ class LogsRoutes
          * @return Response
          */
         $cssGlobalVariables = function (Request $request, Response $response) {
-
-            $css = [
-                "--main-brand-color:" . '#282828' . ";",
-                "--font-color-two:" . 'white' . ";",
-            ];
-
-            $css = implode("\n", $css);
-
-            $css = ":root {\n{$css}\n}";
-
-            $lastModification = new \DateTime('2022-01-01 00:00:00');
-            $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $css);
-
-            foreach ($headersAndStatus['headers'] as $header => $value) {
-                $response = $response->withHeader($header, $value);
-            }
-
-            return $response
-                ->write($css)
-                ->withStatus($headersAndStatus['status'])
-                ->withHeader('Content-Type', 'text/css');
-
+            $css = CSSVariables::instance('global');
+            return $css->toResponse($request, $response, false);
         };
 
         $routeStatics = [

@@ -153,7 +153,7 @@ CliActions::make('unit-tests:core/mail-test-mode', function ($args) {
         echoTerminal('[c] Con el correo retenido no hay reserva por el sistema');
         $declarar(MailDelivery::REAL);
         $conReserva = new Mailer(false);
-        $conReserva->asGoDaddy();
+        $conReserva->asSystemMailer();
         $check(
             $conReserva->Host === 'localhost' && (int) $conReserva->Port === 25,
             'c1 CANARIO: con la entrega real, la reserva por el sistema sigue intacta',
@@ -163,7 +163,7 @@ CliActions::make('unit-tests:core/mail-test-mode', function ($args) {
         $sinReserva = new Mailer(false);
         $hostAntes = $sinReserva->Host;
         $puertoAntes = (int) $sinReserva->Port;
-        $sinReserva->asGoDaddy();
+        $sinReserva->asSystemMailer();
         $check(
             $sinReserva->Host === $hostAntes && (int) $sinReserva->Port === $puertoAntes && $hostAntes !== 'localhost',
             'c2 con el correo retenido, la reserva NO cambia el destino: sigue el sumidero',
@@ -242,6 +242,17 @@ CliActions::make('unit-tests:core/mail-test-mode', function ($args) {
                 && !$sinDeclarar->showAsNag() && !$retenidoProd->showAsNag() && !$realLocal->showAsNag(),
             'e12 ninguno de los tres bloquea ni se impone como flotante'
         );
+
+        //─── f · `test_mode` salió en la 9.0.0: una configuración guardada que lo traiga sigue cargando ────
+        echoTerminal('[f] Una configuración vieja con test_mode carga, y la clave no se expone');
+        //Solo en memoria (`set_config()` no escribe en la base): el `finally` repone la de antes.
+        $vieja = ['host' => 'zz-prueba-test-mode.localhost.test', 'test_mode' => 'on', 'test_host' => '127.0.0.1', 'test_port' => 1025];
+        set_config('mail', \PiecesPHP\Core\BaseHashEncryption::obfuscate((string) gzcompress((string) json_encode($vieja)), MailConfig::class));
+        $cargada = new MailConfig();
+        $check($cargada->host() === 'zz-prueba-test-mode.localhost.test', 'f1 CANARIO: la configuración vieja SÍ se cargó', var_export($cargada->host(), true));
+        $check(!array_key_exists('test_mode', $cargada->toArray()), 'f2 test_mode no vuelve en lo que se guarda', (string) json_encode(array_keys($cargada->toArray())));
+        $check(MailConfig::getValue('test_mode') === null && MailConfig::getValue('testMode') === null, 'f3 ni se lee por su nombre');
+        $check($cargada->testModeActive() === MailDelivery::goesToSink(), 'f4 y testModeActive() sigue siendo lo que decide MailDelivery, no la clave');
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());

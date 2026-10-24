@@ -1,14 +1,27 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use MySpace\Controllers\ProfileController;
+use Directory\Controllers\ProfileController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
  * @var string $langGroup
  * @var UserDataPackage $currentUser
  * @var string $action
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var \MySpace\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
+//La cuenta y el perfil público son dos ámbitos, con los mismos nombres e iconos en personas y organizaciones (PO, 2026-10-10).
+$secondaryActions = [];
+if (UsersController::allowedRoute('form-profile')) {
+    $secondaryActions[] = ['text' => __($langGroup, 'Cuenta'), 'url' => UsersController::routeName('form-profile'), 'icon' => 'user circle'];
+}
+if (ProfileController::allowedRoute('profile', ['userID' => $currentUser->id])) {
+    $secondaryActions[] = ['text' => __($langGroup, 'Ver mi perfil'), 'url' => ProfileController::routeName('profile', ['userID' => $currentUser->id]), 'icon' => 'eye'];
+}
 $affiliatedInstitutions = $currentUser->profile->affiliatedInstitutions;
 $affiliatedInstitutions = $affiliatedInstitutions !== null ? $affiliatedInstitutions : [];
 $affiliatedInstitutionsOptions = [
@@ -20,35 +33,30 @@ foreach($affiliatedInstitutions as $affiliatedInstitution){
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
 $langGroupDatatables = 'datatables';
+$currentPhoneCode = $currentUser->profile->currentLangData('phoneCode');
+$currentPhoneCode = is_string($currentPhoneCode) ? $currentPhoneCode : null;
+$currentNationality = $currentUser->profile->currentLangData('nationality');
+$currentNationality = is_string($currentNationality) ? $currentNationality : null;
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+            'secondaryActions' => $secondaryActions,
+        ]);
+        ?>
 
-        <br>
-
-        <div class="tabs-controls">
+        <div class="tabs-controls content-tabs">
             <div class="active" data-tab="personalData"><?= __($langGroup, 'Datos personales'); ?></div>
             <div data-tab="professionalData"><?= __($langGroup, 'Datos profesionales'); ?></div>
-            <div class="actions-buttons">
-                <a class="ui right labeled icon button blue" href="<?= ProfileController::routeName('profile', ['userID' => $currentUser->id]); ?>">
-                    <i class="address card outline icon"></i><?= __($langGroup, 'Ver mi perfil'); ?>
-                </a>
-            </div>
         </div>
 
-        <form method='POST' action="<?= $action; ?>" class="ui form my-profile">
+        <form method='POST' action="<?= $action; ?>" class="ui form initial my-profile" data-content-form>
 
             <div class="ui tab active personal-data-form" data-tab="personalData">
 
@@ -61,12 +69,6 @@ $langGroupDatatables = 'datatables';
                         <div class="data">
                             <div class="name"><?= escape_html($currentUser->getMapper()->getFullName()); ?></div>
                             <div class="meta email"><?= escape_html($currentUser->getMapper()->email); ?></div>
-                            <div class="actions">
-                                <button class="ui right labeled icon button green" external-trigger-edit-account>
-                                    <?= __($langGroup, 'Editar'); ?>
-                                    <i class="icon edit"></i>
-                                </button>
-                            </div>
                         </div>
                     </div>
 
@@ -84,10 +86,10 @@ $langGroupDatatables = 'datatables';
                             <div class="field">
                                 <label><?= __($langGroup, 'Teléfono'); ?></label>
                                 <div class="fields">
-                                    <div class="two wide field">
-                                        <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(getPhoneAreas(), $currentUser->profile->currentLangData('phoneCode')); ?></select>
+                                    <div class="six wide field">
+                                        <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(\PiecesPHP\App\Locations\Mappers\CountryMapper::phoneCodeOptions($currentPhoneCode, true), $currentPhoneCode !== null ? escape_html($currentPhoneCode) : null); ?></select>
                                     </div>
-                                    <div class="fourteen wide field">
+                                    <div class="ten wide field">
                                         <input type="tel" name="phoneNumber" value="<?= escape_html($currentUser->profile->currentLangData('phoneNumber')); ?>">
                                     </div>
                                 </div>
@@ -97,7 +99,7 @@ $langGroupDatatables = 'datatables';
                         <div class="two fields">
                             <div class="field required">
                                 <label><?= __($langGroup, 'Nacionalidad'); ?></label>
-                                <select name="nationality" class="ui dropdown auto" required><?= array_to_html_options(getNationalities(true, null, true), $currentUser->profile->currentLangData('nationality')); ?></select>
+                                <select name="nationality" class="ui dropdown auto" required><?= array_to_html_options(\PiecesPHP\App\Locations\Mappers\CountryMapper::demonymOptions($currentNationality, true), $currentNationality !== null ? escape_html($currentNationality) : null); ?></select>
                             </div>
                             <div class="field">
                                 <label><?= __($langGroup, 'Enlace LinkedIn'); ?></label>
@@ -139,7 +141,7 @@ $langGroupDatatables = 'datatables';
                                 <div class="column">
                                     <div class="section-fields-divider">
                                         <div class="title s20">
-                                            <?= __($langGroup, 'Ubique el marcador su la ubicación'); ?>
+                                            <?= __($langGroup, 'Ubique el marcador en la ubicación'); ?>
                                         </div>
                                     </div>
                                     <div class="field">
@@ -151,23 +153,11 @@ $langGroupDatatables = 'datatables';
 
                     </div>
 
-                    <br>
-
-                    <div class="field">
-                        <div class="ui right floated buttons">
-                            <button type="submit" class="ui button white" cancel><?= __($langGroup, 'Cancelar'); ?></button>
-                            <button type="submit" class="ui button brand-color" save><?= __($langGroup, 'Guardar'); ?></button>
-                        </div>
-                    </div>
-
                 </div>
 
             </div>
 
             <div class="ui tab" data-tab="professionalData">
-
-
-                <br>
 
                 <div class="container-standard-form">
                     <div class="field">
@@ -177,26 +167,28 @@ $langGroupDatatables = 'datatables';
 
                         <select name="affiliatedInstitutions[]" multiple class="ui dropdown multiple auto additions search"><?= array_to_html_options($affiliatedInstitutionsOptions, $affiliatedInstitutions, true); ?></select>
                     </div>
+                    <div class="field">
+                        <?php //P136: el oculto manda «0» cuando la casilla no va marcada; marcada, gana el «1» que va detrás. ?>
+                        <input type="hidden" name="publicVisible" value="0">
+                        <div class="ui checkbox">
+                            <input type="checkbox" name="publicVisible" value="1" id="my-profile-public-visible"<?= (int) ($currentUser->profile->publicVisible ?? 1) === 1 ? ' checked' : ''; ?>>
+                            <label for="my-profile-public-visible"><?= __($langGroup, 'Mostrar mi perfil en el directorio y en el mapa'); ?></label>
+                        </div>
+                    </div>
                 </div>
 
             </div>
 
+            <?php
+            //Una barra para las dos pestañas: guarda el formulario entero. Su JS busca [save] y [cancel].
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'saveAttributes' => ['save' => ''],
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'type' => 'submit', 'icon' => 'times', 'attributes' => ['cancel' => '']]],
+            ]);
+            ?>
+
         </form>
-
-        <br>
-
-
-        <br>
-
-        <div data-tab-related="professionalData" class="field global-clearfix" style="display: none;">
-            <div class="ui right floated buttons">
-                <button type="submit" class="ui button white" external-cancel><?= __($langGroup, 'Cancelar'); ?></button>
-                <button type="submit" class="ui button brand-color" external-save><?= __($langGroup, 'Guardar'); ?></button>
-            </div>
-        </div>
-
-        <br>
-
 
     </div>
 

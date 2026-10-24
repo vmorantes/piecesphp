@@ -1,7 +1,7 @@
 <?php
 
 //P56: cada error registrado lleva un código de referencia, y fuera de local la respuesta no enseña nada de la excepción.
-//Escribe entradas de prueba en logs/error.log.json y error.plain.log (el log es de la máquina): se quedan y se enumeran.
+//Escribe entradas de prueba en logs/error.log.jsonl y error.plain.log (el log es de la máquina): se quedan y se enumeran.
 
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
@@ -45,13 +45,12 @@ CliActions::make('unit-tests:core/error-reference', function ($args) {
 
         $reference = log_exception(new \RuntimeException('zz-error-reference a3'));
         $written[] = $reference;
-        $json = json_decode((string) file_get_contents("{$logDir}/error.log.json"), true);
-        $today = date('d-m-Y');
-        $entries = is_array($json) && isset($json[$today]) && is_array($json[$today]) ? $json[$today] : [];
+        $lines = preg_split('/\n/', trim((string) file_get_contents("{$logDir}/" . GenericHandler::FILE_ENTRIES)));
+        $entries = array_map(fn(string $line) => json_decode($line, true), is_array($lines) ? $lines : []);
         $inJSON = count(array_filter($entries, fn($e) => is_array($e) && ($e['reference'] ?? null) === $reference && ($e['message'] ?? null) === 'zz-error-reference a3')) === 1;
         $plain = (string) file_get_contents("{$logDir}/error.plain.log");
         $check(preg_match($pattern, $reference) === 1, 'a3 log_exception() devuelve una referencia con esa forma', $reference);
-        $check($inJSON, 'a4 la referencia está en error.log.json, en la entrada del día');
+        $check($inJSON, 'a4 la referencia está en error.log.jsonl, en su entrada');
         $check(str_contains($plain, "[ref {$reference}]") && str_contains($plain, 'zz-error-reference a3'), 'a5 y en error.plain.log');
         echoTerminal(' ');
 

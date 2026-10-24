@@ -121,7 +121,7 @@ return [
 $config['roles']['types'][] = [
     'code' => 1,
     'name' => 'ADMIN',
-    'allowed_routes' => ['users-list', 'admin-error-log']
+    'allowed_routes' => ['users-list', 'logs-admin-index']
 ];
 ```
 
@@ -145,7 +145,12 @@ Archivos cargados al final del ciclo de configuración para extender la funciona
   `src/app/core/extensions/`, no en la carpeta del clon**; se nombra aquí porque se carga en el mismo punto del
   ciclo. Los archivos que un clon edita son los ocho que lista el recuadro de abajo.
 
-- **`api-keys.php`**: Centraliza las llaves de servicios externos (Mapbox, GeoIP, reCAPTCHA, etc.) para uso en backend y frontend.
+- **`api-keys.php`**: lee de `secure-keys/` las llaves de servicios externos con `set_configs_from_secure_keys()`. El del
+  framework (`src/app/core/extensions/api-keys.php`) lee las de IA (OpenAI, Mistral, Groq), la del cron y las
+  dos de reCAPTCHA v3 (secreta y de sitio); las de tus
+  servicios van en `src/app/config/extensions/api-keys.php`. **La llave de MapBox no va aquí**: se guarda en la base desde
+  Configuración › Integraciones › Llaves de MapBox. Sin ella, cada mapa enseña un aviso, y un formulario que pide una
+  ubicación con el mapa (un punto de Ubicaciones, los perfiles) deja escribir la latitud y la longitud a mano.
 
 - **`cronjobs.php`**: Registro de tareas programadas (CronJobs).
 

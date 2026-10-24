@@ -133,8 +133,10 @@ CliActions::make('unit-tests:core/data-transfer-export-interface', function ($ar
     };
     $pintar = function (array $vars): string {
         $langGroup = \DataImportExportUtility\DataImportExportUtilityLang::LANG_GROUP;
+        //La vista pinta la cabecera y la barra con las piezas del panel, por el ayudante del módulo.
+        $helpController = new \DataImportExportUtility\Controllers\HelperController();
         $title = 'Niveles';
-        $breadcrumbs = '';
+        $breadcrumbs = [];
         $action = 'https://zz.test/export';
         $parameters = [];
         $reimport = null;

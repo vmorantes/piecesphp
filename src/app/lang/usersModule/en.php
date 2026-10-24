@@ -71,6 +71,7 @@ $lang = [
     'El usuario no está habilitado para usar la este método de inicio de sesión' => 'The user is not enabled to use this login method',
     'Agregar usuario' => 'Add user',
     'Agregar nuevo usuario ${type}' => 'Add new ${type} user',
+    'Elige qué tipo de usuario vas a crear.' => 'Choose which type of user you are going to create.',
     'Todos' => 'All',
     'Activos' => 'Active',
     'Inactivos' => 'Inactive',
@@ -81,7 +82,6 @@ $lang = [
     "Institucional" => "Institutional",
     "Inactivo" => "Inactive",
     "Investigación" => "Research",
-    "Regresar" => "Return",
     "Organización" => "Organization",
     "Debe seleccionar una organización." => "You must select an organization.",
     "Representante de una organización" => "Organization representative",
@@ -93,6 +93,16 @@ $lang = [
     "El usuario no existe." => "The user does not exist.",
     "Ya existe el nombre de usuario." => "The username already exists.",
     "Eliminado" => "Deleted",
+    "Inicio" => "Home",
+    "Quién entra al panel, con qué tipo y en qué estado." => "Who logs into the panel, with which type and in which status.",
+    "Cuenta" => "Account",
+    "Mi cuenta" => "My account",
+    "Sesiones" => "Sessions",
+    "Perfil público" => "Public profile",
+    "Cierra la sesión del usuario en todos sus dispositivos. Tendrá que volver a ingresar con su contraseña." => "Signs the user out on all their devices. They will have to sign in again with their password.",
+    "Cerrar sesiones" => "Sign out sessions",
+    "Se cerrarán todas las sesiones de %s." => "All sessions of %s will be closed.",
+    "Cerrar todas sus sesiones" => "Close all their sessions",
 ];
 
 return $lang;

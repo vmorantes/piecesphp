@@ -11,7 +11,7 @@ use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\SessionDataHandler;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\TerminalData;

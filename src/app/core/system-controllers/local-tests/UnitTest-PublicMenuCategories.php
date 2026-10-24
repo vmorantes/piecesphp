@@ -52,8 +52,8 @@ CliActions::make('unit-tests:core/public-menu-categories', function ($args) {
     }
 
     $pedir = function (string $path) use ($base): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,

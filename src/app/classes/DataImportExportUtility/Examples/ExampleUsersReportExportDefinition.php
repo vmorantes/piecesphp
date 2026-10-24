@@ -183,6 +183,9 @@ class ExampleUsersReportExportDefinition extends ExportDefinition
     private function filters(ExportContext $context, ?int $afterID = null): WhereSegment
     {
         $where = new WhereSegment();
+        $where->addCritery(UsersModel::excludeSystemUserWhereItem());
+        //Un usuario Eliminado deja de existir en la práctica: el informe no lo cuenta ni lo lista.
+        $where->addCritery(WhereItem::isNotEqual('status', UsersModel::STATUS_USER_DELETED));
         if ($afterID !== null) {
             $where->addCritery(new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $afterID));
         }

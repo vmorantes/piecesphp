@@ -178,8 +178,10 @@ CliActions::make('unit-tests:core/data-transfer-export-presets', function ($args
         $nombres1 = array_column($n1, 0);
         $check(in_array(['data-transfer-export-zz-presets-presets-save', 'POST', '/data-transfer/export/zz-presets/presets[/]'], $n2, true) && in_array(['data-transfer-export-zz-presets-presets-delete', 'POST', '/data-transfer/export/zz-presets/presets/delete[/]'], $n2, true) && !in_array('data-transfer-export-zz-presets-presets-save', $nombres1, true) && !in_array('data-transfer-export-zz-presets-presets-delete', $nombres1, true), 'd14 rutas de filtros solo en nivel 2', (string) json_encode($n2));
         $langGroup = \DataImportExportUtility\DataImportExportUtilityLang::LANG_GROUP;
+        //La vista pinta la cabecera y la barra con las piezas del panel, por el ayudante del módulo.
+        $helpController = new \DataImportExportUtility\Controllers\HelperController();
         $title = 'Presets';
-        $breadcrumbs = '';
+        $breadcrumbs = [];
         $action = 'https://zz.test/export';
         $parameters = [];
         $presets = ['A "b" <c>' => ['min' => '1']];

@@ -89,6 +89,7 @@ namespace MiModulo;
 
 use MiModulo\Controllers\MiModuloController;
 use PiecesPHP\Core\Menu\MenuGroup;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\InvocationStrategy;
@@ -124,7 +125,7 @@ class MiModuloRoutes
             'href'     => MiModuloController::routeName('list'),
             'visible'  => MiModuloController::allowedRoute('list'),
             'asLink'   => true,
-            'position' => 140,
+            'position' => MenuGroupCollection::BAND_CONTENTS + 40,
         ]));
 
         self::$init = true;
@@ -150,6 +151,12 @@ class MiModuloRoutes
     }
 }
 ```
+
+**Dónde cae en el menú.** El menú lateral se ordena por lo que se hace, en bandas de posición (constantes de
+`MenuGroupCollection`): `BAND_HOME` (0), `BAND_MY_SPACE` (100), `BAND_CONTENTS` (200), `BAND_PEOPLE` (300),
+`BAND_COMMUNICATION` (400), `BAND_DATA` (500), `BAND_ACTIVITY` (600) y `BAND_LANGUAGES` (900). Un módulo usa la banda de
+lo que hace más un desplazamiento propio que no repita otro: con dos posiciones iguales manda el orden en que se
+registraron los módulos. Y un icono que no use otra entrada del menú.
 
 ## 6. El controlador
 

@@ -37,7 +37,7 @@ abstract class SchemeSqlTask extends TerminalTaskAbstract
      * @param string $module
      * @return array{creators: SchemeCreator[], mappers: EntityMapper[], skipped: string[]}
      */
-    protected static function discover(string $module): array
+    public static function discover(string $module): array
     {
         $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
         $directories = [];

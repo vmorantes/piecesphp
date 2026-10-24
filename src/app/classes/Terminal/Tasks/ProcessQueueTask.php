@@ -255,85 +255,17 @@ class ProcessQueueTask extends TerminalTaskAbstract
                 $message[] = "\e[33mNo hay tareas pendientes en la cola.\e[39m";
             } else {
                 foreach ($pendingTasks as $taskData) {
+                    //TOMAR ES UN UPDATE CONDICIONAL: entre el SELECT y aquí otro trabajador pudo llevárselo.
+                    if (!QueueJobMapper::claim((int) $taskData->id)) {
+                        $message[] = "\e[90m-> Tarea ID {$taskData->id}: ya la tomó otro trabajador.\e[39m";
+                        continue;
+                    }
                     $task = new QueueJobMapper($taskData->id);
-                    $handlerName = $task->name;
-
-                    if (isset($handlers[$handlerName])) {
-                        $message[] = "\e[34m-> Tarea ID {$task->id} [{$handlerName}]: Procesando...\e[39m";
-
-                        // Marcar como en ejecución
-                        $task->status = QueueJobMapper::STATUS_RUNNING;
-                        $task->startedAt = date('Y-m-d H:i:s');
-                        $task->attempts = (int) $task->attempts + 1;
-                        $task->update();
+                    if (isset($handlers[$task->name])) {
                         $processed++;
-
-                        try {
-                            $handler = $handlers[$handlerName];
-
-                            // El mapper ya decodifica el campo 'json', pero nos aseguramos
-                            $data = $task->data;
-                            if (is_string($data)) {
-                                $data = json_decode($data, true);
-                            } elseif ($data instanceof \stdClass) {
-                                $data = json_decode(json_encode($data), true);
-                            }
-
-                            $result = $handler->execute($data);
-                            /** @var QueueHandlerResponse $result */;
-
-                            if ($result->isSuccess() && !$result->isRetry()) {
-                                $task->status = QueueJobMapper::STATUS_COMPLETED;
-                                $task->finishedAt = date('Y-m-d H:i:s');
-                                $task->errorMessage = null;
-                                $message[] = "\e[32m   [OK] {$result->getMessage()}\e[39m";
-                            } else {
-                                // Lógica de reintento / posposición
-                                $attempts = (int) $task->attempts;
-                                $maxAttempts = (int) $task->maxAttempts;
-
-                                if ($attempts < $maxAttempts) {
-                                    // Retroceso exponencial (1, 5, 15, 30, 60... minutos)
-                                    $backoffMinutes = [1, 5, 15, 30, 60];
-                                    $delayIndex = min($attempts - 1, count($backoffMinutes) - 1);
-                                    $delay = $backoffMinutes[$delayIndex];
-
-                                    // Si el handler sugiere un delay específico, lo usamos
-                                    if ($result->getDelay() >= 0) {
-                                        $delay = $result->getDelay();
-                                    }
-
-                                    $scheduledAt = new \DateTime();
-                                    $scheduledAt->modify("+{$delay} minutes");
-
-                                    $task->status = QueueJobMapper::STATUS_PENDING;
-                                    $task->scheduledAt = $scheduledAt->format('Y-m-d H:i:s');
-                                    $task->errorMessage = $result->getMessage();
-
-                                    if ($result->isRetry() && $result->isSuccess()) {
-                                        $message[] = "\e[34m   [WAIT] Tarea pospuesta voluntariamente, reintentando en {$delay} min (Intento {$attempts}/{$maxAttempts}). Info: {$result->getMessage()}\e[39m";
-                                    } else {
-                                        $message[] = "\e[33m   [REINTENTO] Falló, reintentando en {$delay} min (Intento {$attempts}/{$maxAttempts}). Error: {$result->getMessage()}\e[39m";
-                                    }
-                                } else {
-                                    $task->status = QueueJobMapper::STATUS_FAILED;
-                                    $task->errorMessage = $result->getMessage();
-                                    $message[] = "\e[31m   [ERROR FINAL] Se agotaron los reintentos ({$maxAttempts}). Error: {$result->getMessage()}\e[39m";
-                                }
-                            }
-                        } catch (\Throwable $e) {
-                            $task->status = QueueJobMapper::STATUS_FAILED;
-                            $task->errorMessage = "Excepción durante ejecución: " . $e->getMessage();
-                            $message[] = "\e[31m   [EXCEPCIÓN] {$e->getMessage()}\e[39m";
-                            log_exception($e);
-                        }
-
-                        $task->update();
-                    } else {
-                        $message[] = "\e[31m-> Tarea ID {$task->id}: Handler '{$handlerName}' no registrado.\e[39m";
-                        $task->status = QueueJobMapper::STATUS_FAILED;
-                        $task->errorMessage = "Handler '{$handlerName}' no registrado.";
-                        $task->update();
+                    }
+                    foreach (self::processJob($task, $handlers) as $line) {
+                        $message[] = $line;
                     }
                 }
             }
@@ -417,4 +349,98 @@ class ProcessQueueTask extends TerminalTaskAbstract
         return $route;
     }
 
+    /**
+     * Procesa UN trabajo ya tomado con claim(): ejecuta su manejador y deja la fila en su estado. No toca otros
+     * pendientes, así que una prueba puede recorrerlo con un trabajo suyo.
+     *
+     * @param QueueJobMapper $task
+     * @param array<string,QueueTask> $handlers
+     * @return string[] Las líneas de mensaje
+     */
+    public static function processJob(QueueJobMapper $task, array $handlers): array
+    {
+        $message = [];
+        $handlerName = $task->name;
+
+        if (isset($handlers[$handlerName])) {
+            $message[] = "\e[34m-> Tarea ID {$task->id} [{$handlerName}]: Procesando...\e[39m";
+
+            try {
+                $handler = $handlers[$handlerName];
+
+                // El mapper ya decodifica el campo 'json', pero nos aseguramos
+                $data = $task->data;
+                if (is_string($data)) {
+                    $data = json_decode($data, true);
+                } elseif ($data instanceof \stdClass) {
+                    $data = json_decode(json_encode($data), true);
+                }
+
+                $result = $handler->execute($data);
+                /** @var QueueHandlerResponse $result */;
+
+                if ($result->isSuccess() && !$result->isRetry()) {
+                    $task->status = QueueJobMapper::STATUS_COMPLETED;
+                    $task->finishedAt = date('Y-m-d H:i:s');
+                    $task->errorMessage = null;
+                    $message[] = "\e[32m   [OK] {$result->getMessage()}\e[39m";
+                } elseif ($result->isFail() && !$result->isRetry()) {
+                    $task->status = QueueJobMapper::STATUS_FAILED;
+                    $task->finishedAt = date('Y-m-d H:i:s');
+                    $task->errorMessage = $result->getMessage();
+                    $message[] = "\e[31m   [ERROR] Falló sin reintento. Error: {$result->getMessage()}\e[39m";
+                } else {
+                    // Lógica de reintento / posposición
+                    $attempts = (int) $task->attempts;
+                    $maxAttempts = (int) $task->maxAttempts;
+
+                    if ($attempts < $maxAttempts) {
+                        // Retroceso exponencial (1, 5, 15, 30, 60... minutos)
+                        $backoffMinutes = [1, 5, 15, 30, 60];
+                        $delayIndex = min($attempts - 1, count($backoffMinutes) - 1);
+                        $delay = $backoffMinutes[$delayIndex];
+
+                        // Si el handler sugiere un delay específico, lo usamos
+                        if ($result->getDelay() >= 0) {
+                            $delay = $result->getDelay();
+                        }
+
+                        $scheduledAt = new \DateTime();
+                        $scheduledAt->modify("+{$delay} minutes");
+
+                        $task->status = QueueJobMapper::STATUS_PENDING;
+                        $task->scheduledAt = $scheduledAt->format('Y-m-d H:i:s');
+                        $task->errorMessage = $result->getMessage();
+
+                        if ($result->isRetry() && $result->isSuccess()) {
+                            $message[] = "\e[34m   [WAIT] Tarea pospuesta voluntariamente, reintentando en {$delay} min (Intento {$attempts}/{$maxAttempts}). Info: {$result->getMessage()}\e[39m";
+                        } else {
+                            $message[] = "\e[33m   [REINTENTO] Falló, reintentando en {$delay} min (Intento {$attempts}/{$maxAttempts}). Error: {$result->getMessage()}\e[39m";
+                        }
+                    } else {
+                        $task->status = QueueJobMapper::STATUS_FAILED;
+                        $task->finishedAt = date('Y-m-d H:i:s');
+                        $task->errorMessage = $result->getMessage();
+                        $message[] = "\e[31m   [ERROR FINAL] Se agotaron los reintentos ({$maxAttempts}). Error: {$result->getMessage()}\e[39m";
+                    }
+                }
+            } catch (\Throwable $e) {
+                $task->status = QueueJobMapper::STATUS_FAILED;
+                $task->finishedAt = date('Y-m-d H:i:s');
+                $task->errorMessage = "Excepción durante ejecución: " . $e->getMessage();
+                $message[] = "\e[31m   [EXCEPCIÓN] {$e->getMessage()}\e[39m";
+                log_exception($e);
+            }
+
+            $task->update();
+        } else {
+            $message[] = "\e[31m-> Tarea ID {$task->id}: Handler '{$handlerName}' no registrado.\e[39m";
+            $task->status = QueueJobMapper::STATUS_FAILED;
+            $task->finishedAt = date('Y-m-d H:i:s');
+            $task->errorMessage = "Handler '{$handlerName}' no registrado.";
+            $task->update();
+        }
+
+        return $message;
+    }
 }

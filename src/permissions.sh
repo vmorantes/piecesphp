@@ -38,20 +38,8 @@ find . -type f -exec chmod 644 {} \;
 echo -e "\n[+] Estableciendo permisos para directorios de aplicación que requieren permisos de escritura..."
 echo -e "\n\t[+] Directorios: 2775 y archivos: 664"
 
-WRITABLE_DIRS=(
-    "app/logs"
-    "app/cache"
-    "app/lang/missing-lang-messages"
-    "app/lang/dynamic-translations"
-    "tmp"
-    "dumps"
-    "statics/css"
-    "statics/server-delegated"
-    "statics/uploads"
-    "statics/images"
-    "statics/filemanager"
-    "statics/login-and-recovery/images"
-)
+#La lista vive en app/config/writable-dirs.txt (relativa a src/): la leen los dos guiones y la Salud de la instalación.
+mapfile -t WRITABLE_DIRS < <(grep -v -e '^#' -e '^[[:space:]]*$' "app/config/writable-dirs.txt")
 
 for dir in "${WRITABLE_DIRS[@]}"; do
     if [ -d "$dir" ]; then

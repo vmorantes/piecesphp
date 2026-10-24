@@ -6,7 +6,7 @@ use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
 /**
  * @var string $langGroup
  * @var string $title
- * @var string $breadcrumbs
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
  * @var ExportParameter[] $parameters
  * @var string $action
  * @var array{title:string,url:string}|null $reimport
@@ -17,32 +17,31 @@ use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
  * @var array<string,array<string,mixed>>|null $presets Nivel 2 o más: los filtros guardados del usuario
  * @var string|null $presetSaveURL
  * @var string|null $presetDeleteURL
+ * @var \DataImportExportUtility\Controllers\HelperController $helpController Pinta las piezas del panel (la vista se pinta desde el módulo)
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 $engineLang = ImportRunner::LANG_GROUP;
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs; ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $escape($title); ?></div>
-            <div class="description"><?= __($langGroup, 'Elige los filtros y el formato, y descarga el archivo.'); ?></div>
-            <?php if (isset($reimport) && $reimport !== null): ?>
-            <div class="description" data-transfer-reimport>
-                <?= $escape(__($langGroup, 'Este archivo se puede volver a importar con')); ?>
-                <a href="<?= $escape($reimport['url']); ?>">“<?= $escape($reimport['title']); ?>”</a>.
-            </div>
-            <?php endif; ?>
+        <?php
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => __($langGroup, 'Elige los filtros y el formato, y descarga el archivo.'),
+        ]);
+        ?>
+
+        <?php if (isset($reimport) && $reimport !== null): ?>
+        <div class="ui info message visible" data-transfer-reimport>
+            <?= $escape(__($langGroup, 'Este archivo se puede volver a importar con')); ?>
+            <a href="<?= $escape($reimport['url']); ?>">“<?= $escape($reimport['title']); ?>”</a>.
         </div>
+        <?php endif; ?>
 
-        <br>
-
-        <form method="GET" action="<?= $escape($action); ?>" class="ui form data-transfer-export" data-transfer-export>
+        <form method="GET" action="<?= $escape($action); ?>" class="ui form initial data-transfer-export" data-transfer-export data-content-form>
             <div class="container-standard-form">
 
                 <?php if (isset($presets) && $presets !== null): ?>
@@ -54,8 +53,8 @@ $engineLang = ImportRunner::LANG_GROUP;
                         <option value="<?= $escape($presetName); ?>" data-query="<?= $escape(json_encode($presetQuery, \JSON_UNESCAPED_UNICODE) ?: '{}'); ?>"><?= $escape($presetName); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="button" class="ui button" data-transfer-preset-save><?= __($engineLang, 'Guardar estos filtros'); ?></button>
-                    <button type="button" class="ui button" data-transfer-preset-delete><?= __($engineLang, 'Borrar'); ?></button>
+                    <button type="button" class="ui basic button" data-transfer-preset-save><i class="save icon"></i><?= __($engineLang, 'Guardar estos filtros'); ?></button>
+                    <button type="button" class="ui basic red button" data-transfer-preset-delete><i class="trash alternate icon"></i><?= __($engineLang, 'Borrar'); ?></button>
                 </div>
                 <?php endif; ?>
 
@@ -150,18 +149,21 @@ $engineLang = ImportRunner::LANG_GROUP;
                     </select>
                 </div>
 
-                <button type="submit" class="ui button brand-color"><?= __($engineLang, 'Descargar'); ?></button>
-                <?php if (isset($previewURL) && $previewURL !== null): ?>
-                <button type="button" class="ui button" data-transfer-preview="<?= $escape($previewURL); ?>"><?= __($engineLang, 'Vista previa'); ?></button>
-                <?php endif; ?>
             </div>
+
+            <?php
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($engineLang, 'Descargar'),
+                'secondaryActions' => isset($previewURL) && $previewURL !== null
+                    ? [['text' => __($engineLang, 'Vista previa'), 'icon' => 'eye', 'attributes' => ['data-transfer-preview' => $previewURL]]]
+                    : [],
+            ]);
+            ?>
         </form>
 
         <?php if (isset($previewURL) && $previewURL !== null): ?>
         <div class="data-transfer-export-preview" data-transfer-preview-result aria-live="polite"></div>
         <?php endif; ?>
-
-        <br>
 
         <div class="data-transfer-export-errors" data-transfer-export-errors></div>
 

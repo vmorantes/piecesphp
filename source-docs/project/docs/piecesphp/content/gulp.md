@@ -32,13 +32,15 @@ Las que compilan terminan; las `*:watch` observan y no terminan (se cortan con `
 - `sass` y `sass:init` — Compilan los SASS del proyecto.
 - `sass:watch` — Observa `src/statics/sass/`.
 
-**Estilos del núcleo** (`src/statics/core/` y `src/statics/login-and-recovery/`):
+**Estilos del núcleo** (`src/statics/core/`):
 
 - `sass-compile-own-plugins` — Plugins propios (`statics/core/own-plugins/sass` → `own-plugins/css`).
 - `sass-compile-general` — Estilos generales del panel (`statics/core/sass` → `statics/core/css`).
-- `sass-compile-users` — Acceso y recuperación (`statics/login-and-recovery/sass` → `.../css`).
-- `sass-vendor:init` — Las tres anteriores a la vez.
-- `sass-vendor:watch` — Observa esas tres carpetas y recompila solo la que cambió.
+- `sass-vendor:init` — Las dos anteriores a la vez.
+- `sass-vendor:watch` — Observa esas dos carpetas y recompila solo la que cambió.
+
+Las hojas de acceso y recuperación están en su módulo (`src/app/classes/PiecesPHP/UserSystem/Statics/sass/`) y las compila
+`sass-modules`.
 
 **Estilos de los módulos** (`src/app/classes/**/sass/**/*.scss` → la carpeta `css/` hermana):
 

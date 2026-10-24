@@ -1,23 +1,39 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\Controllers\UserSessionsController;
 $langGroup = UsersController::LANG_GROUP;
 $onlyProfile = isset($onlyProfile) ? $onlyProfile : false;
 $onlyImage = isset($onlyImage) ? $onlyImage : false;
 //Misma regla que la ruta: solo root o administrador general, y a un root solo lo cierra otro root.
 $canRevokeSessions = !$create && !$onlyProfile && isset($edit_user) && UsersController::canRevokeSessionsOf((int) $edit_user->type);
 ?>
+<section class="module-view-container">
+
+<div class="limiter-content">
+
+<?php
+//La cabecera del panel (diseno/01-contenidos.md §2.1): las migas, el título y de quién es la cuenta.
+$this->helpController->_render('panel/built-in/content/page-header.php', [
+    'breadcrumbs' => $breadcrumbs ?? [],
+    'title' => $pageTitle ?? '',
+    'description' => $pageDescription ?? '',
+    'secondaryActions' => $pageSecondaryActions ?? [],
+]);
+?>
+
 <div class="user-form-component">
 
+    <?php //«Cuenta» y su icono son los mismos en usuarios y en organizaciones; dos pestañas nunca con el mismo icono. ?>
     <div class="ui pointing secondary menu items-pointing">
         <?php if (!$onlyImage): ?>
-        <a class="item active" data-tab="form-container"><?= __($langGroup, 'Datos de usuario'); ?><?= isset($typeName) ? " ({$typeName})" : '';?></a>
+        <a class="item active" data-tab="form-container"><i class="user circle icon"></i><?= __($langGroup, 'Cuenta'); ?></a>
         <?php endif;?>
         <?php if (!$create && !$onlyProfile): ?>
-        <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><?= __($langGroup, 'Foto de perfil'); ?></a>
+        <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><i class="image outline icon"></i><?= __($langGroup, 'Foto de perfil'); ?></a>
         <?php endif;?>
         <?php if ($canRevokeSessions): ?>
-        <a class="item" data-tab="sessions-container"><?= __($langGroup, 'Sesiones'); ?></a>
+        <a class="item" data-tab="sessions-container"><i class="clock outline icon"></i><?= __($langGroup, 'Sesiones'); ?></a>
         <?php endif;?>
     </div>
 
@@ -50,13 +66,9 @@ $canRevokeSessions = !$create && !$onlyProfile && isset($edit_user) && UsersCont
                     'image' => $hasAvatar ? $avatar : '',
                 ]); ?>
 
-                <br>
-
-                <div style="text-align:center;">
-                    <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar foto de perfil'); ?></button>
-                </div>
-
             </div>
+
+            <?php $this->helpController->_render('panel/built-in/content/form-action-bar.php', ['saveText' => __($langGroup, 'Guardar foto de perfil')]); ?>
 
         </form>
 
@@ -67,6 +79,10 @@ $canRevokeSessions = !$create && !$onlyProfile && isset($edit_user) && UsersCont
     <?php if ($canRevokeSessions): ?>
 
     <div class="ui bottom attached tab" data-tab="sessions-container">
+
+        <?= UserSessionsController::userSessionsHTML((int) $edit_user->id, false); ?>
+
+        <div class="ui divider"></div>
 
         <p><?= __($langGroup, 'Cierra la sesión del usuario en todos sus dispositivos. Tendrá que volver a ingresar con su contraseña.'); ?></p>
 
@@ -80,3 +96,7 @@ $canRevokeSessions = !$create && !$onlyProfile && isset($edit_user) && UsersCont
     <?php endif;?>
 
 </div>
+
+</div>
+
+</section>

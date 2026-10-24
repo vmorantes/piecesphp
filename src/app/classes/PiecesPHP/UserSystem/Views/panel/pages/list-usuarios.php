@@ -12,296 +12,287 @@ $processTablePending = $process_table . '?with-status=' . UsersModel::STATUS_USE
 $processTableRejected = $process_table . '?with-status=' . UsersModel::STATUS_USER_REJECTED;
 ?>
 
-<section class="module-view-container limit-size">
+<section class="module-view-container">
 
-    <div class="header-options">
+    <div class="limiter-content">
 
-        <div class="main-options">
+        <?php
+        //La cabecera del panel (diseno/01-contenidos.md §2.1): el alta, arriba, como acción principal.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+            'primaryAction' => $addLink !== '' ? ['text' => __($langGroup, 'Agregar usuario'), 'url' => $addLink, 'icon' => 'user plus'] : null,
+            'secondaryActions' => [],
+        ]);
+        ?>
 
-            <a href="<?=\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');?>" class="ui icon button brand-color alt2" title="<?=__($langGroup, 'Regresar');?>">
-                <i class="icon left arrow"></i>
-            </a>
+        <div class="cards-container-standard">
 
-        </div>
+            <div class="tabs-controls content-tabs">
+                <div class="active" data-tab="all"><?= __($langGroup, 'Todos'); ?></div>
+                <div data-tab="actives-elements"><?= __($langGroup, 'Activos'); ?></div>
+                <div data-tab="inactives"><?= __($langGroup, 'Inactivos'); ?></div>
+                <div data-tab="blocked"><?= __($langGroup, 'Bloqueados por intentos fallidos'); ?></div>
+                <div data-tab="pending"><?= __($langGroup, 'Por aprobar'); ?></div>
+                <div data-tab="rejected"><?= __($langGroup, 'No aprobados'); ?></div>
+            </div>
 
-        <div class="columns two">
+            <div class="ui tab tab-element active" data-tab="all">
 
-            <div class="column">
+                <div class="table-to-cards all padding-40">
 
-                <div class="section-title">
-                    <div class="title"><?=$title;?></div>
+                    <div class="ui form component-controls">
+                        <div class="fields">
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                                <div class="ui icon input">
+                                    <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                                <input type="number" length-pagination placeholder="10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <table url="<?= $processTableAll; ?>" style='display:none;'>
+
+                        <thead>
+
+                            <tr>
+                                <th><?=__($langGroup, '#');?></th>
+                                <th><?=__($langGroup, 'Nombres');?></th>
+                                <th><?=__($langGroup, 'Apellidos');?></th>
+                                <th><?=__($langGroup, 'Correo electrónico');?></th>
+                                <th><?=__($langGroup, 'Usuario');?></th>
+                                <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                                <th><?=__($langGroup, 'Tipo');?></th>
+                                <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
                 </div>
 
             </div>
 
-        </div>
+            <div class="ui tab tab-element" data-tab="actives-elements">
 
-    </div>
+                <div class="table-to-cards actives-elements padding-40">
 
-    <div class="cards-container-standard">
-
-        <div class="tabs-controls">
-            <div class="active" data-tab="all"><?= __($langGroup, 'Todos'); ?></div>
-            <div data-tab="actives-elements"><?= __($langGroup, 'Activos'); ?></div>
-            <div data-tab="inactives"><?= __($langGroup, 'Inactivos'); ?></div>
-            <div data-tab="blocked"><?= __($langGroup, 'Bloqueados por intentos fallidos'); ?></div>
-            <div data-tab="pending"><?= __($langGroup, 'Por aprobar'); ?></div>
-            <div data-tab="rejected"><?= __($langGroup, 'No aprobados'); ?></div>
-        </div>
-
-        <div class="ui tab tab-element active" data-tab="all">
-
-            <div class="table-to-cards all padding-40">
-
-                <div class="ui form component-controls">
-                    <div class="fields">
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Buscador')?></label>
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
-                                <i class="search icon"></i>
+                    <div class="ui form component-controls">
+                        <div class="fields">
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                                <div class="ui icon input">
+                                    <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                                <input type="number" length-pagination placeholder="10">
                             </div>
                         </div>
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
                     </div>
+
+                    <table url="<?= $processTableActives; ?>" style='display:none;'>
+
+                        <thead>
+
+                            <tr>
+                                <th><?=__($langGroup, '#');?></th>
+                                <th><?=__($langGroup, 'Nombres');?></th>
+                                <th><?=__($langGroup, 'Apellidos');?></th>
+                                <th><?=__($langGroup, 'Correo electrónico');?></th>
+                                <th><?=__($langGroup, 'Usuario');?></th>
+                                <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                                <th><?=__($langGroup, 'Tipo');?></th>
+                                <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
                 </div>
-
-                <table url="<?= $processTableAll; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?=__($langGroup, '#');?></th>
-                            <th><?=__($langGroup, 'Nombres');?></th>
-                            <th><?=__($langGroup, 'Apellidos');?></th>
-                            <th><?=__($langGroup, 'Correo electrónico');?></th>
-                            <th><?=__($langGroup, 'Usuario');?></th>
-                            <th><?=__($langGroup, 'Activo/Inactivo');?></th>
-                            <th><?=__($langGroup, 'Tipo');?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
 
             </div>
 
-        </div>
+            <div class="ui tab tab-element" data-tab="inactives">
 
-        <div class="ui tab tab-element" data-tab="actives-elements">
+                <div class="table-to-cards inactives padding-40">
 
-            <div class="table-to-cards actives-elements padding-40">
-
-                <div class="ui form component-controls">
-                    <div class="fields">
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Buscador')?></label>
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
-                                <i class="search icon"></i>
+                    <div class="ui form component-controls">
+                        <div class="fields">
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                                <div class="ui icon input">
+                                    <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                                <input type="number" length-pagination placeholder="10">
                             </div>
                         </div>
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
                     </div>
+
+                    <table url="<?= $processTableInactives; ?>" style='display:none;'>
+
+                        <thead>
+
+                            <tr>
+                                <th><?=__($langGroup, '#');?></th>
+                                <th><?=__($langGroup, 'Nombres');?></th>
+                                <th><?=__($langGroup, 'Apellidos');?></th>
+                                <th><?=__($langGroup, 'Correo electrónico');?></th>
+                                <th><?=__($langGroup, 'Usuario');?></th>
+                                <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                                <th><?=__($langGroup, 'Tipo');?></th>
+                                <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
                 </div>
-
-                <table url="<?= $processTableActives; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?=__($langGroup, '#');?></th>
-                            <th><?=__($langGroup, 'Nombres');?></th>
-                            <th><?=__($langGroup, 'Apellidos');?></th>
-                            <th><?=__($langGroup, 'Correo electrónico');?></th>
-                            <th><?=__($langGroup, 'Usuario');?></th>
-                            <th><?=__($langGroup, 'Activo/Inactivo');?></th>
-                            <th><?=__($langGroup, 'Tipo');?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
 
             </div>
 
-        </div>
+            <div class="ui tab tab-element" data-tab="blocked">
 
-        <div class="ui tab tab-element" data-tab="inactives">
+                <div class="table-to-cards blocked padding-40">
 
-            <div class="table-to-cards inactives padding-40">
-
-                <div class="ui form component-controls">
-                    <div class="fields">
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Buscador')?></label>
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
-                                <i class="search icon"></i>
+                    <div class="ui form component-controls">
+                        <div class="fields">
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                                <div class="ui icon input">
+                                    <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                                <input type="number" length-pagination placeholder="10">
                             </div>
                         </div>
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
                     </div>
+
+                    <table url="<?= $processTableBlocked; ?>" style='display:none;'>
+
+                        <thead>
+
+                            <tr>
+                                <th><?=__($langGroup, '#');?></th>
+                                <th><?=__($langGroup, 'Nombres');?></th>
+                                <th><?=__($langGroup, 'Apellidos');?></th>
+                                <th><?=__($langGroup, 'Correo electrónico');?></th>
+                                <th><?=__($langGroup, 'Usuario');?></th>
+                                <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                                <th><?=__($langGroup, 'Tipo');?></th>
+                                <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
                 </div>
-
-                <table url="<?= $processTableInactives; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?=__($langGroup, '#');?></th>
-                            <th><?=__($langGroup, 'Nombres');?></th>
-                            <th><?=__($langGroup, 'Apellidos');?></th>
-                            <th><?=__($langGroup, 'Correo electrónico');?></th>
-                            <th><?=__($langGroup, 'Usuario');?></th>
-                            <th><?=__($langGroup, 'Activo/Inactivo');?></th>
-                            <th><?=__($langGroup, 'Tipo');?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
 
             </div>
 
-        </div>
+            <div class="ui tab tab-element" data-tab="pending">
 
-        <div class="ui tab tab-element" data-tab="blocked">
+                <div class="table-to-cards pending padding-40">
 
-            <div class="table-to-cards blocked padding-40">
-
-                <div class="ui form component-controls">
-                    <div class="fields">
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Buscador')?></label>
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
-                                <i class="search icon"></i>
+                    <div class="ui form component-controls">
+                        <div class="fields">
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                                <div class="ui icon input">
+                                    <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                                <input type="number" length-pagination placeholder="10">
                             </div>
                         </div>
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
                     </div>
+
+                    <table url="<?= $processTablePending; ?>" style='display:none;'>
+
+                        <thead>
+
+                            <tr>
+                                <th><?=__($langGroup, '#');?></th>
+                                <th><?=__($langGroup, 'Nombres');?></th>
+                                <th><?=__($langGroup, 'Apellidos');?></th>
+                                <th><?=__($langGroup, 'Correo electrónico');?></th>
+                                <th><?=__($langGroup, 'Usuario');?></th>
+                                <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                                <th><?=__($langGroup, 'Tipo');?></th>
+                                <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
                 </div>
-
-                <table url="<?= $processTableBlocked; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?=__($langGroup, '#');?></th>
-                            <th><?=__($langGroup, 'Nombres');?></th>
-                            <th><?=__($langGroup, 'Apellidos');?></th>
-                            <th><?=__($langGroup, 'Correo electrónico');?></th>
-                            <th><?=__($langGroup, 'Usuario');?></th>
-                            <th><?=__($langGroup, 'Activo/Inactivo');?></th>
-                            <th><?=__($langGroup, 'Tipo');?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
 
             </div>
 
-        </div>
+            <div class="ui tab tab-element" data-tab="rejected">
 
-        <div class="ui tab tab-element" data-tab="pending">
+                <div class="table-to-cards rejected padding-40">
 
-            <div class="table-to-cards pending padding-40">
-
-                <div class="ui form component-controls">
-                    <div class="fields">
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Buscador')?></label>
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
-                                <i class="search icon"></i>
+                    <div class="ui form component-controls">
+                        <div class="fields">
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                                <div class="ui icon input">
+                                    <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                                <input type="number" length-pagination placeholder="10">
                             </div>
                         </div>
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
                     </div>
+
+                    <table url="<?= $processTableRejected; ?>" style='display:none;'>
+
+                        <thead>
+
+                            <tr>
+                                <th><?=__($langGroup, '#');?></th>
+                                <th><?=__($langGroup, 'Nombres');?></th>
+                                <th><?=__($langGroup, 'Apellidos');?></th>
+                                <th><?=__($langGroup, 'Correo electrónico');?></th>
+                                <th><?=__($langGroup, 'Usuario');?></th>
+                                <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                                <th><?=__($langGroup, 'Tipo');?></th>
+                                <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
                 </div>
-
-                <table url="<?= $processTablePending; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?=__($langGroup, '#');?></th>
-                            <th><?=__($langGroup, 'Nombres');?></th>
-                            <th><?=__($langGroup, 'Apellidos');?></th>
-                            <th><?=__($langGroup, 'Correo electrónico');?></th>
-                            <th><?=__($langGroup, 'Usuario');?></th>
-                            <th><?=__($langGroup, 'Activo/Inactivo');?></th>
-                            <th><?=__($langGroup, 'Tipo');?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
-
-            </div>
-
-        </div>
-
-        <div class="ui tab tab-element" data-tab="rejected">
-
-            <div class="table-to-cards rejected padding-40">
-
-                <div class="ui form component-controls">
-                    <div class="fields">
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Buscador')?></label>
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
-                                <i class="search icon"></i>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
-                    </div>
-                </div>
-
-                <table url="<?= $processTableRejected; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?=__($langGroup, '#');?></th>
-                            <th><?=__($langGroup, 'Nombres');?></th>
-                            <th><?=__($langGroup, 'Apellidos');?></th>
-                            <th><?=__($langGroup, 'Correo electrónico');?></th>
-                            <th><?=__($langGroup, 'Usuario');?></th>
-                            <th><?=__($langGroup, 'Activo/Inactivo');?></th>
-                            <th><?=__($langGroup, 'Tipo');?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
 
             </div>
 
@@ -310,19 +301,3 @@ $processTableRejected = $process_table . '?with-status=' . UsersModel::STATUS_US
     </div>
 
 </section>
-
-<script>
-window.onload = function(e) {
-    //Cards
-    dataTablesServerProccesingOnCards(".table-to-cards.all", 20, {});
-    dataTablesServerProccesingOnCards(".table-to-cards.actives-elements", 20, {});
-    dataTablesServerProccesingOnCards(".table-to-cards.inactives", 20, {});
-    dataTablesServerProccesingOnCards(".table-to-cards.blocked", 20, {});
-    dataTablesServerProccesingOnCards(".table-to-cards.pending", 20, {});
-    dataTablesServerProccesingOnCards(".table-to-cards.rejected", 20, {});
-    //Tabs
-    const tabs = $('.tabs-controls [data-tab]').tab({
-        onVisible: function(tabName) {}
-    })
-}
-</script>

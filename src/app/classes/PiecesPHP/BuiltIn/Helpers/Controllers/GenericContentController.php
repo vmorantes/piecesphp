@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\BuiltIn\Helpers\Controllers;
 
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Helpers\Exceptions\SafeException;
@@ -31,6 +32,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * GenericContentController.
@@ -100,7 +102,6 @@ class GenericContentController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(HelpersSystemRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(HelpersSystemRoutes::staticRoute(self::BASE_CSS_DIR . '/helpers-system.css'), 'css');
 
     }
 
@@ -135,12 +136,12 @@ class GenericContentController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/home-image', $data, true, false);
@@ -169,10 +170,10 @@ class GenericContentController extends AdminPanelController
 
         $action = self::routeName('actions-edit');
 
-        $title = __(self::LANG_GROUP, 'Límite de tokens');
-        $description = '';
+        $title = __(self::LANG_GROUP, 'Límite de tokens de IA');
+        $description = __(self::LANG_GROUP, 'Cuántos tokens se esperan como máximo en cada respuesta de las funciones de IA.');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $data = [];
         $data['action'] = $action;
@@ -180,12 +181,18 @@ class GenericContentController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        //Viven en Configuración › Integraciones (P134 a): sus migas y su «Cancelar», los de esa sección.
+        $data['indexLink'] = SettingsController::routeName('index');
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
+            __(self::LANG_GROUP, 'Configuración') => [
+                'url' => $data['indexLink'],
+            ],
+            __(self::LANG_GROUP, 'Integraciones'),
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/tokens-limit', $data, true, false);
@@ -215,9 +222,9 @@ class GenericContentController extends AdminPanelController
         $action = self::routeName('actions-edit');
 
         $title = __(self::LANG_GROUP, 'Llaves de MapBox');
-        $description = '';
+        $description = __(self::LANG_GROUP, 'Las llaves con las que se pintan los mapas.');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $data = [];
         $data['action'] = $action;
@@ -225,12 +232,18 @@ class GenericContentController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        //Viven en Configuración › Integraciones (P134 a): sus migas y su «Cancelar», los de esa sección.
+        $data['indexLink'] = SettingsController::routeName('index');
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
+            __(self::LANG_GROUP, 'Configuración') => [
+                'url' => $data['indexLink'],
+            ],
+            __(self::LANG_GROUP, 'Integraciones'),
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/mapbox-key', $data, true, false);
@@ -327,6 +340,18 @@ class GenericContentController extends AdminPanelController
                     return $parsed;
                 }
             ),
+            new Parameter(
+                GenericContentPseudoMapper::CONTENT_MAP_DEFAULT_CENTER,
+                [],
+                function ($value) {
+                    return is_array($value);
+                },
+                true,
+                function ($value) {
+                    //Los rangos los mira el guardado, para responder con su mensaje y no guardar nada.
+                    return is_array($value) ? array_intersect_key($value, GenericContentPseudoMapper::MAP_DEFAULT_CENTER) : [];
+                }
+            ),
         ]);
 
         //Obtención de datos
@@ -361,6 +386,7 @@ class GenericContentController extends AdminPanelController
             $configName = $expectedParameters->getValue('configName');
             $tokensLimit = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
             $mapboxKeys = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS);
+            $mapDefaultCenter = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_MAP_DEFAULT_CENTER);
             $homeImageByLang = [];
             $homeImageErrorMessages = [];
             foreach (UploadedFileAdapter::findAssociativePathsByName(GenericContentPseudoMapper::CONTENT_HOME_IMAGE) as $associativePath) {
@@ -386,6 +412,7 @@ class GenericContentController extends AdminPanelController
              * @var string $configName
              * @var array<string,int> $tokensLimit
              * @var array<string,string> $mapboxKeys
+             * @var array<string,mixed> $mapDefaultCenter
              */
 
             $currentUser = getLoggedFrameworkUserOrFail();
@@ -395,7 +422,7 @@ class GenericContentController extends AdminPanelController
                 if ($configName == GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT) {
                     $hasPermission = in_array($currentUserType, self::TOKENS_LIMIT_PERMISSION);
                 }
-                if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
+                if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS || $configName == GenericContentPseudoMapper::CONTENT_MAP_DEFAULT_CENTER) {
                     $hasPermission = in_array($currentUserType, self::MAPBOX_KEYS_PERMISSION);
                 }
                 if ($configName == GenericContentPseudoMapper::CONTENT_HOME_IMAGE) {
@@ -420,6 +447,18 @@ class GenericContentController extends AdminPanelController
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
                     $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $mapboxKeys, array_keys($mapboxKeys));
+                    $updated = $mapper->save();
+                } else if ($configName == GenericContentPseudoMapper::CONTENT_MAP_DEFAULT_CENTER) {
+                    $errors = GenericContentPseudoMapper::mapDefaultCenterErrors($mapDefaultCenter);
+                    if (count($errors) > 0) {
+                        throw new SafeException(implode("\n", $errors));
+                    }
+                    $mapper = new GenericContentPseudoMapper($configName);
+                    $mapper->setLangData(Config::get_default_lang(), $configName, [
+                        'longitude' => (float) $mapDefaultCenter['longitude'],
+                        'latitude' => (float) $mapDefaultCenter['latitude'],
+                        'zoom' => (float) $mapDefaultCenter['zoom'],
+                    ]);
                     $updated = $mapper->save();
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_HOME_IMAGE) {
                     $homeImagePathByLang = [];
@@ -462,6 +501,9 @@ class GenericContentController extends AdminPanelController
 
                 $resultOperation->setMessage($e->getMessage());
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+                throw $e;
             } catch (\Exception $e) {
                 $reference = log_exception($e);
 
@@ -483,6 +525,9 @@ class GenericContentController extends AdminPanelController
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (HttpForbiddenException $e) {
+            //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+            throw $e;
         } catch (\Exception $e) {
             $reference = log_exception($e);
 

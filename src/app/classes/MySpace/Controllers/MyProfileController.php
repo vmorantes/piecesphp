@@ -7,6 +7,7 @@
 namespace MySpace\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\Controllers\Util\ProfileTasksUtilities;
 use MySpace\Exceptions\SafeException;
@@ -90,8 +91,8 @@ class MyProfileController extends AdminPanelController
         $action = self::routeName('actions-save-profile');
 
         $title = __(self::LANG_GROUP, 'Mi perfil');
-        $description = __(self::LANG_GROUP, 'Gestionar');
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        $description = __(self::LANG_GROUP, 'Lo que los demás ven de ti en el Directorio y en el mapa.');
+        set_title($title);
 
         $data = [];
         $data['action'] = $action;
@@ -99,12 +100,13 @@ class MyProfileController extends AdminPanelController
         $data['currentUser'] = $currentUser;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['helpController'] = $this->helpController;
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         if (in_array($currentUser->type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE)) {
@@ -238,6 +240,18 @@ class MyProfileController extends AdminPanelController
                     return Validator::isDouble($value) ? (float) $value : null;
                 }
             ),
+            //P136: si el perfil se lista y se muestra. Sin enviar, no se toca.
+            new Parameter(
+                'publicVisible',
+                null,
+                function ($value) {
+                    return in_array($value, ['0', '1', 0, 1], true) || is_null($value);
+                },
+                true,
+                function ($value) {
+                    return is_null($value) ? null : (int) $value;
+                }
+            ),
             new Parameter(
                 'affiliatedInstitutions',
                 [],
@@ -320,16 +334,22 @@ class MyProfileController extends AdminPanelController
             $latitude = $expectedParameters->getValue('latitude');
             $longitude = $expectedParameters->getValue('longitude');
             $affiliatedInstitutions = $expectedParameters->getValue('affiliatedInstitutions');
-
-            //NOTE: Esto debería ser provisional
-            //Opcional: Modifico arbitrariamente las coordenadas
-            $maxOffset = 0.6000;
-            $latOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
-            $lngOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
-            $latitude += $latOffset;
-            $longitude += $lngOffset;
+            $publicVisible = $expectedParameters->getValue('publicVisible');
 
             try {
+
+                $lang = Config::get_default_lang();
+
+                //Se valida antes de crear el perfil: un rechazo no escribe nada.
+                $storedProfile = UserProfileMapper::getProfile($id);
+                $storedPhoneCode = $storedProfile !== null ? $storedProfile->getLangData($lang, 'phoneCode') : null;
+                $storedNationality = $storedProfile !== null ? $storedProfile->getLangData($lang, 'nationality') : null;
+                if (!CountryMapper::acceptsPhoneCode($phoneCode, is_string($storedPhoneCode) ? $storedPhoneCode : null)) {
+                    throw new SafeException(__(LOCATIONS_LANG_GROUP, 'El prefijo telefónico no es de ningún país activo.'));
+                }
+                if (!CountryMapper::acceptsDemonym($nationality, is_string($storedNationality) ? $storedNationality : null)) {
+                    throw new SafeException(__(LOCATIONS_LANG_GROUP, 'La nacionalidad no es de ningún país activo.'));
+                }
 
                 //Guardar el perfil propio ES el camino legítimo de creación: si aún no
                 //existe la fila, se materializa aquí y no en un constructor.
@@ -338,7 +358,6 @@ class MyProfileController extends AdminPanelController
                 if ($mapper === null) {
                     throw new \Exception('No se pudo leer ni crear el perfil del usuario ' . $id);
                 }
-                $lang = Config::get_default_lang();
 
                 $mapper->setLangData($lang, 'jobPosition', $jobPosition);
                 $mapper->setLangData($lang, 'phoneCode', $phoneCode);
@@ -351,6 +370,9 @@ class MyProfileController extends AdminPanelController
                 $mapper->setLangData($lang, 'latitude', $latitude);
                 $mapper->setLangData($lang, 'longitude', $longitude);
                 $mapper->affiliatedInstitutions = $affiliatedInstitutions;
+                if ($publicVisible !== null) {
+                    $mapper->publicVisible = $publicVisible;
+                }
 
                 $updated = $mapper->update();
                 $resultOperation->setSuccessOnSingleOperation($updated);

@@ -194,10 +194,11 @@ class SeedPlanner
      * @param ModuleSeeder[] $ordered Ya pasados por `order()`.
      * @param int|null $count Filas por tabla; null es la cantidad por defecto de cada seeder.
      * @param SeedContext $context Uno en modo escritura.
+     * @param string[] $afterAll Recibe lo que devuelve afterAll() de cada sembrador, en orden.
      * @return array<string,int[]> Mapper => ids escritos, en orden.
      * @throws \RuntimeException Con «PARA» si no es la instalación local, si ya hay algo sembrado o si una fila falla.
      */
-    public static function write(array $ordered, ?int $count, SeedContext $context): array
+    public static function write(array $ordered, ?int $count, SeedContext $context, array &$afterAll = []): array
     {
         if (!self::isLocalInstallation()) {
             throw new \RuntimeException('PARA: la siembra solo escribe en la instalación LOCAL (terminal con --local y environment.php en «local»), y esta no lo es.');
@@ -238,6 +239,11 @@ class SeedPlanner
                     }
                     $context->addSeeded($class, $row + ['id' => (int) $id]);
                     $written[$class][] = (int) $id;
+                }
+            }
+            foreach ($ordered as $seeder) {
+                foreach ($seeder->afterAll($context) as $line) {
+                    $afterAll[] = $line;
                 }
             }
             $database->commit();

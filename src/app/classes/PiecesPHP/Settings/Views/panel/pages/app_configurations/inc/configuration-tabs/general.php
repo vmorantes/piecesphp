@@ -1,13 +1,27 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use PiecesPHP\Settings\ORM\SettingsModel;
+
+/**
+ * @var string $langGroup
+ * @var string $actionGenericURL
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ */
+//La barra al final de cada formulario (diseno/02-configuracion.md §2.3): cada uno guarda lo suyo.
+$actionBar = function () use ($helpController, $langGroup, $indexLink): void {
+    $helpController->_render('panel/built-in/content/form-action-bar.php', [
+        'saveText' => __($langGroup, 'Guardar'),
+        'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+    ]);
+};
 ?>
 <?php if (mb_strlen($actionGenericURL) > 0) : ?>
 
 <div class="marca-colors card">
 
     <div class="body">
-        <form brand-colors action="<?= $actionGenericURL; ?>" method="POST" class="field">
+        <form brand-colors action="<?= $actionGenericURL; ?>" method="POST" class="ui form initial" data-content-form>
 
             <div class="card-title">
                 <span><?= __($langGroup, 'Colores de marca'); ?></span>
@@ -43,10 +57,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
                 </div>
             </div>
 
-            <div class="buttons-actions">
-                <button style="border-radius: 8px !important;" type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
-                <button style="border-radius: 8px !important;" type="reset" class="ui grey basic button"><?= __($langGroup, 'Cancelar'); ?></button>
-            </div>
+            <?php ($actionBar)(); ?>
 
         </form>
 
@@ -68,7 +79,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
 </div>
 
 <div class="menu-colors card">
-    <form menu-colors action="<?= $actionGenericURL; ?>" method="POST" class="ui form">
+    <form menu-colors action="<?= $actionGenericURL; ?>" method="POST" class="ui form initial" data-content-form>
         <div class="card-title">
             <span><?= __($langGroup, 'Colores de menú'); ?></span>
         </div>
@@ -106,11 +117,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
                 <input type="hidden" name="parse" value="uppercase">
             </div>
         </div>
-        <br>
-        <div class="buttons-actions">
-            <button style="border-radius: 8px !important;" type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
-            <button style="border-radius: 8px !important;" type="reset" class="ui grey basic button"><?= __($langGroup, 'Cancelar'); ?></button>
-        </div>
+        <?php ($actionBar)(); ?>
 
     </form>
 
@@ -130,7 +137,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
 </div>
 
 <div class="menu-mobile-colors card">
-    <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="ui form">
+    <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="ui form initial" data-content-form>
         <div class="card-title">
             <span><?= __($langGroup, 'Color barra móvil'); ?></span>
         </div>
@@ -142,10 +149,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
             <input type="hidden" name="parse" value="uppercase">
         </div>
 
-        <div class="buttons-actions">
-            <button style="border-radius: 8px !important;" type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
-            <button style="border-radius: 8px !important;" type="reset" class="ui grey basic button"><?= __($langGroup, 'Cancelar'); ?></button>
-        </div>
+        <?php ($actionBar)(); ?>
 
     </form>
     <div class="example">
@@ -166,7 +170,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
 </div>
 
 <div class="menu-tools-bg-colors card">
-    <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="ui form">
+    <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="ui form initial" data-content-form>
         <div class="card-title">
             <span><?= __($langGroup, 'Color de opciones<br>flotantes arriba-derecha'); ?></span>
         </div>
@@ -178,10 +182,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
             <input type="hidden" name="parse" value="uppercase">
         </div>
 
-        <div class="buttons-actions">
-            <button style="border-radius: 8px !important;" type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
-            <button style="border-radius: 8px !important;" type="reset" class="ui grey basic button"><?= __($langGroup, 'Cancelar'); ?></button>
-        </div>
+        <?php ($actionBar)(); ?>
 
     </form>
     <div class="example" style="visibility: hidden;">
@@ -200,7 +201,5 @@ use PiecesPHP\Settings\ORM\SettingsModel;
         </div>
     </div>
 </div>
-
-<br><br>
 
 <?php endif; ?>

@@ -89,6 +89,13 @@ var PCSPHP_TRANSLATIONS_EN = {
 		'Ha ocurrido un error desconocido.': 'An unknown error has occurred.',
 		'¡Listo!': 'Ready!',
 	},
+	confirmAction: {
+		'Confirmación': 'Confirmation',
+		'¿Está seguro de realizar esta acción?': 'Are you sure you want to do this?',
+		'Sí': 'Yes',
+		'No': 'No',
+		'Aceptar': 'OK',
+	},
 	loginForm: {
 		'Error': 'Error',
 		'Ha ocurrido un error inesperado, intente más tarde.': 'An unexpected error has occurred, try again later.',

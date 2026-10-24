@@ -3,6 +3,7 @@
 //Los scripts inyectados por HTTP: guardados por la acción real, salen en su zona y su punto, y solo el principal los escribe.
 //Crea dos usuarios zz-prueba-scripts-*, escribe `injected_scripts` y corre la migración; lo devuelve todo como estaba.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -78,8 +79,8 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
     $cabeceraToken = SessionToken::tokenName();
     $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = []) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -89,8 +90,8 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
             CURLOPT_HTTPHEADER => $cabeceras,
         ]);
         if ($metodo === 'POST') {
-            curl_setopt($handle, CURLOPT_POST, true);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POST, true);
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
         }
         $body = curl_exec($handle);
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
@@ -98,7 +99,7 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
         $body = is_string($body) ? $body : '';
         return ['status' => $status, 'body' => $body, 'json' => json_decode($body, true)];
     };
-    $token = fn(int $id): string => SessionToken::generateToken(['id' => $id], null, null, false);
+    $token = fn(int $id): string => UserSessions::issueToken($id);
     $guardado = function (): mixed {
         return SettingsModel::getConfigValue(ExtraScripts::CONFIG_NAME);
     };

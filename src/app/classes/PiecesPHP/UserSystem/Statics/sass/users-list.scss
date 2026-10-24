@@ -1,3 +1,8 @@
+@use '../../../../../../statics/core/sass/includes/variables' as *;
+
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$statusApprovalPendingColor: #ff9800;
+$statusRejectedColor: #a14a17;
 
 $mainColor : var(--main-brand-color);
 $second : var(--second-brand-color);
@@ -86,7 +91,7 @@ $second : var(--second-brand-color);
                 &.status-1-number {
                     >.image {
                         >.status {
-                            background-color: #21BA45;
+                            background-color: $colorSuccess;
                         }
                     }
                 }
@@ -104,7 +109,7 @@ $second : var(--second-brand-color);
                 &.status-3-number {
                     >.image {
                         >.status {
-                            background-color: #ff9800;
+                            background-color: $statusApprovalPendingColor;
                         }
                     }
                 }
@@ -113,7 +118,7 @@ $second : var(--second-brand-color);
                 &.status-4-number {
                     >.image {
                         >.status {
-                            background-color: #a14a17;
+                            background-color: $statusRejectedColor;
                         }
                     }
                 }
@@ -121,14 +126,11 @@ $second : var(--second-brand-color);
 
             }
 
-            >a {
-                >i {
-                    margin: 0;
-                    padding: 0;
-                    cursor: pointer;
-                    font-size: 20px;
-                    color: $mainColor;
-                }
+
+            //«Editar» no se encoge ni se parte aunque el nombre sea largo.
+            >.ui.button {
+                flex-shrink: 0;
+                white-space: nowrap;
             }
         }
 

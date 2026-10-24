@@ -18,45 +18,22 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
 
     <div class="limiter-content">
 
-        <div class="section-topbar">
-            <div class="section-title">
-                <div class="title"><?= $title ?></div>
-                <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-                <div class="description"><?= $description; ?></div>
-                <?php endif; ?>
-                <br>
-                <?= $approvalMapper->getTimeTag(); ?>
-            </div>
-            <div class="actions">
-            </div>
-        </div>
+        <?php
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+        ]);
+        ?>
+        <div class="approval-time"><?= $approvalMapper->getTimeTag(); ?></div>
 
-        <br>
-
-        <form method="POST" action="<?= $action; ?>" class="ui form system-approval datasheet">
-
-            <div class="container-standard-form mw-800">
-                <div class="field">
-                    <label><?= __($langGroup, 'Motivo'); ?></label>
-                    <textarea name="reason"></textarea>
-                </div>
-                <div class="field global-clearfix">
-                    <div class="ui right floated buttons">
-                        <button type="submit" class="ui button brand-color" approve-trigger><?= __($langGroup, 'Aprobar'); ?></button>
-                        <button type="submit" class="ui red button" reject-trigger><?= __($langGroup, 'Rechazar'); ?></button>
-                    </div>
-                </div>
-            </div>
-            <br>
+        <form method="POST" action="<?= $action; ?>" class="ui form initial system-approval datasheet" data-content-form>
 
             <input type="hidden" name="id" value="<?= $approvalMapper->id; ?>">
-            <button type="submit" style="display: none;" save></button>
+            <button type="submit" hidden save></button>
 
             <div class="base-title"><?= __($langGroup, 'Categoría'); ?></div>
             <div class="base-text"><?= $mapper->category instanceof PublicationCategoryMapper ? $escape($mapper->category->currentLangData('name')) : ''; ?></div>
@@ -97,7 +74,7 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
 
             <div class="base-title"><?= __($langGroup, 'Descripción'); ?></div>
             <?php //HTML del editor, que NADA limpia al guardar: se lee aislado, en un iframe sandbox SIN allow-scripts (pendientes.md 396). ?>
-            <iframe class="base-text" sandbox="" referrerpolicy="no-referrer" title="<?= $escape(__($langGroup, 'Descripción')); ?>" style="width: 100%; min-height: 28rem; border: 1px solid rgba(0, 0, 0, 0.15); background: #fff;" srcdoc="<?= $escape((string) $mapper->currentLangData('content')); ?>"></iframe>
+            <iframe class="base-text ui segment approval-content-preview" sandbox="" referrerpolicy="no-referrer" title="<?= $escape(__($langGroup, 'Descripción')); ?>" srcdoc="<?= $escape((string) $mapper->currentLangData('content')); ?>"></iframe>
 
             <div class="base-horizontal-space"></div>
 
@@ -179,6 +156,25 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
                     <?php endforeach; ?>
                 </div>
             </div>
+
+            <div class="base-horizontal-space"></div>
+
+            <div class="container-standard-form mw-800">
+                <div class="field">
+                    <label><?= __($langGroup, 'Motivo'); ?></label>
+                    <textarea name="reason"></textarea>
+                </div>
+            </div>
+
+            <?php
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Aprobar'),
+                'saveAttributes' => ['approve-trigger' => ''],
+                'secondaryActions' => [
+                    ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
+                ],
+            ]);
+            ?>
 
         </form>
 

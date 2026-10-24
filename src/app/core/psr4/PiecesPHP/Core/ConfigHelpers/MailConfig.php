@@ -6,6 +6,8 @@
 namespace PiecesPHP\Core\ConfigHelpers;
 
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\Crypto\Sealed;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Core\Email\MailDelivery;
 
 /**
@@ -17,10 +19,10 @@ use PiecesPHP\Core\Email\MailDelivery;
  */
 class MailConfig
 {
-    const TEST_MODE_AUTO = 'auto';
-    const TEST_MODE_ON = 'on';
-    const TEST_MODE_OFF = 'off';
-    const TEST_MODES = [self::TEST_MODE_AUTO, self::TEST_MODE_ON, self::TEST_MODE_OFF];
+    /**
+     * La opción donde se guarda, cifrada con Sealed::PURPOSE_MAIL_CONFIG (ADR 0061).
+     */
+    const CONFIG_NAME = 'mail';
 
 
     /**
@@ -68,10 +70,6 @@ class MailConfig
      */
     protected $smtpOptions;
     /**
-     * @var string 'auto' (por entorno), 'on' o 'off'
-     */
-    protected $testMode;
-    /**
      * @var string
      */
     protected $testHost;
@@ -83,22 +81,6 @@ class MailConfig
     public function __construct()
     {
         $this->loadConfigutarion();
-    }
-
-    /**
-     * @param string $value
-     * @return string|static
-     */
-    public function testMode(?string $value = null)
-    {
-
-        if ($value !== null) {
-            $this->testMode = in_array($value, self::TEST_MODES, true) ? $value : self::TEST_MODE_AUTO;
-            return $this;
-        } else {
-            return $this->testMode;
-        }
-
     }
 
     /**
@@ -326,14 +308,16 @@ class MailConfig
     public function loadConfigutarion()
     {
 
-        $mailConfig = get_config('mail');
+        $mailConfig = get_config(self::CONFIG_NAME);
 
         if (is_string($mailConfig)) {
-            $decryptData = self::decrypt($mailConfig);
-            $uncompressData = gzuncompress($decryptData);
+            $stored = $mailConfig;
+            $decryptData = self::decrypt($stored);
+            $uncompressData = $decryptData !== '' ? gzuncompress($decryptData) : false;
             $jsonDecodedData = is_string($uncompressData) ? json_decode($uncompressData, true) : null;
             if (is_array($jsonDecodedData)) {
                 $mailConfig = $jsonDecodedData;
+                self::sealLegacy($stored, $decryptData);
             } else {
                 $mailConfig = [];
             }
@@ -353,7 +337,6 @@ class MailConfig
             'port' => '465',
             'auto_tls' => true,
             'smtp_options' => [],
-            'test_mode' => self::TEST_MODE_AUTO,
             'test_host' => '127.0.0.1',
             'test_port' => 1025,
         ];
@@ -377,7 +360,6 @@ class MailConfig
         $this->port = $mailConfig['port'];
         $this->autoTls = $mailConfig['auto_tls'];
         $this->smtpOptions = $mailConfig['smtp_options'];
-        $this->testMode = in_array($mailConfig['test_mode'], self::TEST_MODES, true) ? $mailConfig['test_mode'] : self::TEST_MODE_AUTO;
         $this->testHost = (string) $mailConfig['test_host'];
         $this->testPort = (int) $mailConfig['test_port'];
 
@@ -402,7 +384,6 @@ class MailConfig
         $data['port'] = $this->port;
         $data['auto_tls'] = $this->autoTls;
         $data['smtp_options'] = $this->smtpOptions;
-        $data['test_mode'] = $this->testMode;
         $data['test_host'] = $this->testHost;
         $data['test_port'] = $this->testPort;
         return $data;
@@ -459,9 +440,6 @@ class MailConfig
         $data['smtp_options'] = $mailConfig->smtpOptions();
         $data['smtpOptions'] = $mailConfig->smtpOptions();
 
-        $data['test_mode'] = $mailConfig->testMode();
-        $data['testMode'] = $mailConfig->testMode();
-
         $data['test_host'] = $mailConfig->testHost();
         $data['testHost'] = $mailConfig->testHost();
 
@@ -478,16 +456,48 @@ class MailConfig
      */
     protected static function encrypt(string $value)
     {
-        return BaseHashEncryption::encrypt($value, self::class);
+        return Sealed::seal($value, Sealed::PURPOSE_MAIL_CONFIG);
     }
 
     /**
+     * Lo guardado en claro; '' si no se puede leer. Lo de antes de la 9 (ofuscado con la clase como clave, que es
+     * pública) se sigue leyendo, y loadConfigutarion() lo vuelve a guardar cifrado.
+     *
      * @param string $value
      * @return string
      */
     protected static function decrypt(string $value)
     {
-        return BaseHashEncryption::decrypt($value, self::class);
+        if (Sealed::isSealed($value)) {
+            return Sealed::open($value, Sealed::PURPOSE_MAIL_CONFIG) ?? '';
+        }
+        return BaseHashEncryption::deobfuscate($value, self::class);
+    }
+
+    /**
+     * Lo de antes de la 9 se guarda cifrado una vez (ADR 0061 §11). Solo si lo leído es lo que hay en la base: una
+     * prueba que fija la opción en memoria no escribe en ella.
+     *
+     * @param string $stored
+     * @param string $compressed
+     * @return void
+     */
+    private static function sealLegacy(string $stored, string $compressed): void
+    {
+        if (Sealed::isSealed($stored)) {
+            return;
+        }
+        try {
+            if (SettingsModel::getConfigValue(self::CONFIG_NAME) !== $stored) {
+                return;
+            }
+            $sealed = self::encrypt($compressed);
+            if (SettingsModel::setConfigValue(self::CONFIG_NAME, $sealed)) {
+                set_config(self::CONFIG_NAME, $sealed);
+            }
+        } catch (\Throwable $exception) {
+            log_soft_error('No se pudo volver a guardar cifrada la opción ' . self::CONFIG_NAME, ['error' => get_class($exception)]);
+        }
     }
 
 }

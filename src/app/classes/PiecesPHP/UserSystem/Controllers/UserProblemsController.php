@@ -6,6 +6,8 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
+use EventsLog\Mappers\LogsMapper;
+use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
@@ -91,10 +93,10 @@ class UserProblemsController extends UsersController
         /* Semantic */
         import_semantic();
         /* Librerías de la aplicación */
-        import_app_libraries();
+        import_app_libraries(['baseStyle']);
 
         set_custom_assets([
-            base_url('statics/login-and-recovery/css/problems.css'),
+            UserSystemFeaturesRoutes::staticRoute('css/problems.css'),
         ], 'css');
 
         set_custom_assets([
@@ -125,10 +127,10 @@ class UserProblemsController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries();
+        import_app_libraries(['baseStyle']);
 
         set_custom_assets([
-            base_url('statics/login-and-recovery/css/problems-form.css'),
+            UserSystemFeaturesRoutes::staticRoute('css/problems-form.css'),
         ], 'css');
 
         set_custom_assets([
@@ -159,10 +161,10 @@ class UserProblemsController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries();
+        import_app_libraries(['baseStyle']);
 
         set_custom_assets([
-            base_url('statics/login-and-recovery/css/problems-form.css'),
+            UserSystemFeaturesRoutes::staticRoute('css/problems-form.css'),
         ], 'css');
 
         set_custom_assets([
@@ -193,10 +195,10 @@ class UserProblemsController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries();
+        import_app_libraries(['baseStyle']);
 
         set_custom_assets([
-            base_url('statics/login-and-recovery/css/problems-form.css'),
+            UserSystemFeaturesRoutes::staticRoute('css/problems-form.css'),
         ], 'css');
 
         set_custom_assets([
@@ -257,6 +259,10 @@ class UserProblemsController extends UsersController
                         '=' => $username,
                     ],
                 ]);
+                //El usuario de sistema no pide códigos: para quien pide, no existe.
+                if ($usuario !== null && UsersModel::isSystemUser((int) $usuario->id)) {
+                    $usuario = null;
+                }
 
                 //A quien no está bloqueado no se le crea ni se le envía código, y la respuesta es la de un envío: no dice su
                 //estado. Antes recibía un código que, con los intentos al máximo, lo dejaba activo.
@@ -272,11 +278,13 @@ class UserProblemsController extends UsersController
                     //Datos de recuperación
                     $problems = new UserProblemsModel();
                     $problems->created = new \DateTime();
-                    $problems->expired = $problems->created->modify('+24 hour');
+                    //Sobre una copia: modify() cambia el objeto, y movía también la creación.
+                    $problems->expired = (clone $problems->created)->modify('+24 hour');
                     $problems->email = $usuario->email;
                     $problems->code = generate_code(6);
                     $problems->type = $type;
                     $problems->save();
+                    TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, self::tokenKind((string) $type), (int) $usuario->id, (string) $usuario->username);
 
                     //Envío de correo de recuperación
                     $json_response['send_mail'] = $this->sendCode($problems->code, $usuario, $type);
@@ -285,8 +293,8 @@ class UserProblemsController extends UsersController
                     $logRequest = new TicketsLogModel();
                     $logRequest->created = $problems->created;
                     $logRequest->email = $problems->email;
+                    //El código NO se registra: el registro no puede servir para resolver el problema (como en recuperación).
                     $logRequest->information = [
-                        'code' => $problems->code,
                         'email_sended' => $json_response['send_mail'],
                         'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
                     ];
@@ -355,6 +363,8 @@ class UserProblemsController extends UsersController
 
                 $user = new UsersModel();
                 $user = $problems !== null ? $user->getByEmail($problems->email) : null;
+                //Una fila de la base (stdClass), y nunca el usuario de sistema.
+                $user = $user instanceof \stdClass && !UsersModel::isSystemUser((int) $user->id) ? $user : null;
 
                 //Verificar que el usuario existe
                 if ($user !== null && $problems !== null) {
@@ -370,6 +380,7 @@ class UserProblemsController extends UsersController
                             $json_response['success'] = true;
                             $json_response['username'] = $user->username;
                             $json_response['message'] = __(self::LANG_GROUP, 'Su nombre de usuario es') . ': ' . $user->username;
+                            TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_FORGOTTEN_USER, (int) $user->id, (string) $user->username);
 
                             $problems->getModel()->delete("id = '$problems->id'")->execute();
                         } elseif ($problems->type == self::TYPE_USER_BLOCKED && $type == self::TYPE_USER_BLOCKED) {
@@ -385,6 +396,7 @@ class UserProblemsController extends UsersController
                                 $unblocked = $user->unblockFromAttempts((int) $user->id, $statusIfNoneSaved, $statusOverride);
 
                                 if ($unblocked) {
+                                    TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_BLOCKED_USER, (int) $user->id, (string) $user->username);
                                     $json_response['success'] = true;
                                     $json_response['username'] = $user->username;
                                     $json_response['message'] = __(self::LANG_GROUP, 'Su usuario ha sido desbloqueado.');
@@ -405,6 +417,7 @@ class UserProblemsController extends UsersController
                             $json_response['message'] = $this->getMessage($json_response['error']);
                         }
                     } else {
+                        TokenEvents::log(LogsMapper::MSG_TOKEN_REJECTED, self::tokenKind((string) $problems->type), (int) $user->id, (string) $user->username, ['%reason%' => TokenEvents::REASON_EXPIRED]);
                         $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
                         $json_response['message'] = $this->getMessage($json_response['error']);
                     }
@@ -414,6 +427,10 @@ class UserProblemsController extends UsersController
                 }
             } else {
 
+                //Sin la fila no se sabe de quién era el código.
+                if (in_array($type, [self::TYPE_USER_FORGET, self::TYPE_USER_BLOCKED], true)) {
+                    TokenEvents::log(LogsMapper::MSG_TOKEN_REJECTED, self::tokenKind($type), null, '', ['%reason%' => TokenEvents::REASON_NOT_FOUND]);
+                }
                 $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
                 $json_response['message'] = $this->getMessage($json_response['error']);
             }
@@ -502,6 +519,17 @@ class UserProblemsController extends UsersController
         }
 
         return $response->withJson($json_response);
+    }
+
+    /**
+     * La clase de código de Registros › Tokens y códigos que corresponde a un tipo de problema.
+     *
+     * @param string $type
+     * @return string
+     */
+    public static function tokenKind(string $type): string
+    {
+        return $type === self::TYPE_USER_FORGET ? TokenEvents::KIND_FORGOTTEN_USER : TokenEvents::KIND_BLOCKED_USER;
     }
 
     /**
@@ -602,7 +630,7 @@ class UserProblemsController extends UsersController
         $mail->AltBody = strip_tags($message);
 
         if (!$mail->checkSettedSMTP()) {
-            $mail->asGoDaddy();
+            $mail->asSystemMailer();
         }
 
         return $mail->send();
@@ -683,7 +711,7 @@ class UserProblemsController extends UsersController
                 $mail->AltBody = strip_tags($message);
 
                 if (!$mail->checkSettedSMTP()) {
-                    $mail->asGoDaddy();
+                    $mail->asSystemMailer();
                 }
 
                 $success = $mail->send();

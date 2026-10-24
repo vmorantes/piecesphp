@@ -30,11 +30,14 @@ src/statics/login-and-recovery/css/*
 **/.sass-cache
 docs/code/phpdoc-cache-*
 tasks/output
+#La salida de bin/cli bundle.
+src/bundle/
 .scannerwork
 vendor/**
 IGNORE.md
 IGNORE/
 docs/*
+docs-entornos/
 bin/phpstan.deadcode.generated.neon
 files/dev/route-inventory.json
 PHPStanResult.8.4.json

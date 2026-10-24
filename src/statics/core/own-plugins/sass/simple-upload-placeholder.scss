@@ -1,8 +1,13 @@
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$placeholderBorder: rgba(73, 73, 73, 0.3);
+$placeholderShadow: rgba(0, 0, 0, 0.25);
+$previewOverlayBackground: rgba(153, 153, 153, 0.727);
+
 .simple-upload-placeholder {
 
     position: relative;
-    border: 1px solid rgba(73, 73, 73, 0.3);
-    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.25);
+    border: 1px solid $placeholderBorder;
+    box-shadow: 0px 0px 8px 0px $placeholderShadow;
     margin: 0px !important;
     padding: 0px !important;
     overflow: hidden;
@@ -39,7 +44,7 @@
             transform: translate(-50%, -50%);
             width: 100%;
             height: 105%;
-            background-color: rgba(153, 153, 153, 0.727);
+            background-color: $previewOverlayBackground;
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center center;

@@ -11,6 +11,7 @@ use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
@@ -65,8 +66,22 @@ class Locations extends AdminPanelController
      */
     public function indexView(Request $request, Response $response)
     {
+        //Las tarjetas de la portada son piezas de estadísticas, que no traen su hoja.
+        add_global_asset('statics/core/css/graphs-and-statistics.css', 'css');
+
+        $data = [
+            'pieces' => $this->helperController,
+            'title' => self::$title,
+            'breadcrumbs' => [
+                __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                    'url' => AdminPanelController::routeName(''),
+                ],
+                self::$title,
+            ],
+        ];
+
         $this->helperController->render('panel/layout/header');
-        $this->helperController->localRender(self::$prefixEntity . '/main');
+        $this->helperController->localRender(self::$prefixEntity . '/main', $data);
         $this->helperController->render('panel/layout/footer');
         return $response;
     }
@@ -129,17 +144,58 @@ class Locations extends AdminPanelController
     }
 
     /**
-     * @param RouteGroup $group
-     * @return RouteGroup
+     * Las opciones de un desplegable, con la clave y el texto escapados: `array_to_html_options()` los pinta en crudo y
+     * aquí vienen de la base. Lo seleccionado se le pasa escapado igual (`escape_html()`), o su `in_array` deja de
+     * casarlo y el formulario de edición pierde la selección.
+     *
+     * @param array<int|string,mixed> $options
+     * @return array<int|string,string>
      */
-    public static function routes(RouteGroup $group)
+    public static function escapeOptions(array $options): array
     {
-        $group->active(LOCATIONS_ENABLED);
+        $escaped = [];
+        foreach ($options as $value => $text) {
+            if (is_scalar($text)) {
+                $escaped[escape_html($value)] = escape_html($text);
+            }
+        }
+        return $escaped;
+    }
+
+    /**
+     * La dirección de un estático del módulo (Statics/).
+     *
+     * @param string $segment
+     * @return string
+     */
+    public static function staticRoute(string $segment = '')
+    {
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, dirname(__DIR__) . '/Statics', LOCATIONS_ENABLED);
+    }
+
+    /**
+     * @param RouteGroup $groupAdministration Las rutas con sesión: la gestión, en el backoffice (P51).
+     * @param RouteGroup|null $groupPublic Las rutas sin sesión: las `ajax-all`, públicas desde el 2026-08-26.
+     * @return RouteGroup[] Con los índices groupAdministration y groupPublic
+     */
+    public static function routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null)
+    {
+        //Opcional porque `AdminPanelController::routes()` recibe un grupo: sin el público, todo va al único.
+        $groupPublic ??= $groupAdministration;
+        $groupAdministration->active(LOCATIONS_ENABLED);
+        $groupPublic->active(LOCATIONS_ENABLED);
         LocationsLang::injectLang();
+
+        //Cada ruta va al grupo que dice su `require_login`: así una ruta nueva no se equivoca de zona.
+        $registrar = function (array $rutas) use ($groupAdministration, $groupPublic): void {
+            foreach ($rutas as $ruta) {
+                ($ruta->requireLogin() === true ? $groupAdministration : $groupPublic)->register([$ruta]);
+            }
+        };
 
         $routes = [];
 
-        $groupSegmentURL = $group->getGroupSegment();
+        $groupSegmentURL = $groupAdministration->getGroupSegment();
 
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
@@ -158,49 +214,59 @@ class Locations extends AdminPanelController
             UsersModel::TYPE_USER_ROOT,
         ];
 
+        //Los estáticos del módulo (Statics/), sin sesión como los de los demás módulos: los pide Locations::staticRoute().
+        $staticsHandler = function (Request $request, Response $response, array $args) {
+            $server = new ServerStatics();
+            return $server->serve($request, $response, $args, dirname(__DIR__) . '/Statics');
+        };
+
         //General
+        $routes[] = new Route("{$startRoute}statics/[{params:.*}]", $staticsHandler, self::class, 'GET');
         $routes[] = new Route("[$startRoute]", static::class . ':indexView', self::$prefixEntity, 'GET', true, null, $permisos_listado);
         $routes[] = new Route("/generate-lang-file[/]", static::class . ':generateLangFile', self::$prefixEntity . '-generate-lang-file', 'GET', true, null, $permisos_traducciones);
 
-        $group->register($routes);
+        $registrar($routes);
 
         //Regiones
-        $group->register(
+        $registrar(
             self::genericManageRoutesRegions($startRoute, self::$prefixEntity, Region::class, 'regions', [
                 'edit' => $permisos_gestion,
                 'list' => $permisos_listado,
             ])
         );
         //Country
-        $group->register(
+        $registrar(
             self::genericManageRoutes($startRoute, self::$prefixEntity, Country::class, 'countries', [
                 'edit' => $permisos_gestion,
                 'list' => $permisos_listado,
             ])
         );
         //State
-        $group->register(
+        $registrar(
             self::genericManageRoutes($startRoute, self::$prefixEntity, State::class, 'states', [
                 'edit' => $permisos_gestion,
                 'list' => $permisos_listado,
             ])
         );
         //City
-        $group->register(
+        $registrar(
             self::genericManageRoutes($startRoute, self::$prefixEntity, City::class, 'cities', [
                 'edit' => $permisos_gestion,
                 'list' => $permisos_listado,
             ])
         );
         //Point
-        $group->register(
+        $registrar(
             self::genericManageRoutes($startRoute, self::$prefixEntity, Point::class, 'points', [
                 'edit' => $permisos_gestion,
                 'list' => $permisos_listado,
             ])
         );
 
-        return $group;
+        return [
+            'groupAdministration' => $groupAdministration,
+            'groupPublic' => $groupPublic,
+        ];
     }
 
     /**

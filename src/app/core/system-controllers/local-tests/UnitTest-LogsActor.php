@@ -69,7 +69,7 @@ CliActions::make('unit-tests:core/logs-actor', function ($args) {
 
     //Dos usuarios reales de la base: el principal y otro cualquiera.
     $root = (int) $database->query("SELECT id FROM `pcsphp_users` WHERE type = 0 ORDER BY id LIMIT 1")->fetchColumn();
-    $otro = (int) $database->query("SELECT id FROM `pcsphp_users` WHERE type <> 0 ORDER BY id LIMIT 1")->fetchColumn();
+    $otro = (int) $database->query("SELECT id FROM `pcsphp_users` WHERE type <> 0 AND " . \PiecesPHP\UserSystem\ORM\UsersModel::excludeSystemUserSQL() . ' ORDER BY id LIMIT 1')->fetchColumn();
     if (!$check($root > 0 && $otro > 0 && $root !== $otro, 'c1 hay un principal y otro usuario para el banco', "root={$root} otro={$otro}")) {
         return $balance();
     }
@@ -112,7 +112,8 @@ CliActions::make('unit-tests:core/logs-actor', function ($args) {
         set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
         $delSistema = $registrar('del-sistema');
         $creadas[] = (int) $delSistema->id;
-        $check((int) $campoDe((int) $delSistema->id, 'createdBy') === 1, 'c1 createdBy sigue en 1, porque la columna no acepta nulo (medido)');
+        //La columna no acepta nulo (medido): va al usuario de sistema, no al 1, que es un root real (B14).
+        $check((int) $campoDe((int) $delSistema->id, 'createdBy') === \PiecesPHP\UserSystem\ORM\UsersModel::SYSTEM_USER_ID, 'c1 createdBy es el usuario de sistema (-10), no el 1');
         $meta = $metaDe((int) $delSistema->id);
         $actor = $meta !== null ? ($meta->{LogsMapper::META_ACTOR} ?? null) : null;
         $check($actor !== null && ($actor->kind ?? null) === LogsMapper::ACTOR_SYSTEM, 'c2 pero meta declara que lo hizo el SISTEMA', (string) json_encode($actor));

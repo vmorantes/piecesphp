@@ -12,7 +12,7 @@ Hay cuatro capas, según quién lee y para qué:
 | :-- | :-- | :-- |
 | **Desarrollar sobre PiecesPHP** | Quien construye un proyecto a partir del framework | [PiecesPHP Framework](./piecesphp/index.md): estructura, rutas, mappers, terminal, [crear un módulo](./piecesphp/content/modules.md) y [el panel por dentro](./piecesphp/content/panel.md). La API, en la documentación aparte de `source-docs/api/` |
 | **Mantener y extender el framework** | Quien cambia el propio PiecesPHP | [Mantener el framework](./piecesphp/content/maintain.md) y el `CHANGELOG.md` de la raíz |
-| **Guías de entorno y herramientas** | Quien prepara un servidor o una herramienta | [Entornos](./environments/index.md), rendimiento y herramientas |
+| **Guías de entorno y herramientas** | Quien prepara un servidor o una herramienta | Viven en el repositorio de desarrollo (`source-docs/entornos`) y no viajan a los clones. Lo que el framework exige —PHP, sus extensiones y el correo de desarrollo— está en [Despliegue](./piecesphp/content/general.md) |
 | **Agentes de IA** | Los asistentes que trabajan en el repositorio | `AGENTS.md` y `.agents/`, en el repositorio; no se publican aquí |
 
 ## Consideraciones iniciales
@@ -24,9 +24,10 @@ PiecesPHP requiere el despliegue de un entorno LAMP, que es el acrónimo usado p
 * MySQL/MariaDB, el gestor de bases de datos
 * PHP, el lenguaje de programación
 
-A continuación, se proporciona una guía práctica para su implementación y puesta en funcionamiento en Ubuntu (versión 26.04 LTS)
+Lo que PiecesPHP exige de ese entorno en Ubuntu 26.04 LTS (la versión de PHP, sus extensiones y Apache) está en
+[Despliegue](./piecesphp/content/general.md).
 
-[Instalación de entorno LAMP](./environments/content/lamp/index.md){ .md-button }
+[Despliegue de PiecesPHP](./piecesphp/content/general.md){ .md-button }
 
 > Aunque gracias a WSL es posible el despliegue en sistemas windows, para más información visite los siguientes enlaces:
 

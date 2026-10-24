@@ -6,9 +6,11 @@
 
 namespace PiecesPHP\SystemStatus\Mappers;
 
+use PiecesPHP\Core\Crypto\EncryptedDataRegistry;
+use PiecesPHP\Core\Crypto\AppKeyring;
+use PiecesPHP\Core\Crypto\Sealed;
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\BaseEntityMapper;
-use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
@@ -31,7 +33,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
  * @property string $delivery
  * @property string $result
  * @property string|null $reason
- * @property string|null $body Cifrado con BaseHashEncryption; null si no se guardó cuerpo
+ * @property string|null $body Cifrado con Crypto\Sealed (antes de la 9, AES-CBC); null si no se guardó cuerpo
  *
  * @package     PiecesPHP\SystemStatus
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -320,19 +322,18 @@ class MailLogMapper extends BaseEntityMapper
     }
 
     /**
-     * Cifra el cuerpo con la clave derivada (ADR 0051), nunca con la cruda: esa descifra también lo que
-     * llega de fuera. Aparte para que una prueba pueda hacerlo fallar y comprobar que la fila se guarda.
+     * Cifra el cuerpo con Sealed y su propósito (ADR 0051 y 0061): AES-256-GCM con la llave derivada, y la huella de la
+     * clave para leerlo tras rotarla. Aparte para que una prueba pueda hacerlo fallar y comprobar que la fila se guarda.
      *
      * @param string $body
      * @return string
      */
     protected static function encryptBody(string $body): string
     {
-        $key = static::bodyKey();
-        if ($key === null) {
+        if (static::bodyKey() === null) {
             throw new \RuntimeException('Sin clave para cifrar el cuerpo: la de la aplicación es la de relleno.');
         }
-        return (string) BaseHashEncryption::encryptBidirectionalHash($body, $key);
+        return Sealed::seal($body, Sealed::PURPOSE_MAIL_LOG_BODY, static::keyring());
     }
 
     /**
@@ -344,12 +345,17 @@ class MailLogMapper extends BaseEntityMapper
      */
     public static function decryptBody(string $encrypted): ?string
     {
-        $key = static::bodyKey();
-        if ($key === null) {
+        if (static::bodyKey() === null) {
             return null;
         }
+        if (Sealed::isSealed($encrypted)) {
+            return Sealed::open($encrypted, Sealed::PURPOSE_MAIL_LOG_BODY, static::keyring());
+        }
+        //Lo de antes de la 9, en AES-CBC con la llave derivada: se lee con cualquier clave del llavero (la de relleno
+        //incluida, tras generar la primera) y rotate-app-key lo pasa a Sealed.
         try {
-            return BaseHashEncryption::decryptBidirectionalHash($encrypted, $key);
+            $site = EncryptedDataRegistry::all()['mail-log-body'] ?? null;
+            return $site !== null ? $site->read($encrypted, static::keyring()) : null;
         } catch (\Throwable $throwable) {
             return null;
         }
@@ -379,6 +385,18 @@ class MailLogMapper extends BaseEntityMapper
     public static function appKeyIsPlaceholder(): bool
     {
         return Config::app_key_is_placeholder(static::appKey());
+    }
+
+    /**
+     * El llavero con la clave de appKey(): el de la aplicación si es la suya, y si una prueba puso otra, uno con esa.
+     *
+     * @return AppKeyring
+     */
+    protected static function keyring(): AppKeyring
+    {
+        $appKey = static::appKey();
+        $keyring = AppKeyring::get();
+        return $appKey === $keyring->current() ? $keyring : new AppKeyring($appKey, [], AppKeyring::SOURCE_DEFAULT);
     }
 
     /**

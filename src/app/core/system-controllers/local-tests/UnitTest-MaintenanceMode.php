@@ -187,7 +187,7 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
         $pestana = basepath('app/classes/PiecesPHP/Settings/Views/panel/pages/app_configurations/inc/configuration-tabs/general.php');
         $vistaVieja = is_file($pestana) ? (string) file_get_contents($pestana) : '';
         $check($vistaVieja !== '' && mb_strpos($vistaVieja, 'maintenance') === false, 'h8 la pestaña de generales ya no tiene los mandos');
-        $colores = basepath('statics/core/js/app_config/colors.js');
+        $colores = basepath('app/classes/PiecesPHP/Settings/Statics/js/colors.js');
         $jsViejo = is_file($colores) ? (string) file_get_contents($colores) : '';
         $check($jsViejo !== '' && mb_strpos($jsViejo, 'maintenance') === false, 'h9 ni su JavaScript');
         //Si ALWAYS_ALLOWED nombrara la pantalla vieja, la vuelta iría a donde ya no están los mandos,

@@ -15,22 +15,17 @@ $allowedManyLangs = count($langs) > 1;
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
+        ?>
 
-        <br>
-
-        <div class="tabs-controls">
+        <div class="tabs-controls content-tabs">
             <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
             <div data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
             <div data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
@@ -38,7 +33,7 @@ $allowedManyLangs = count($langs) > 1;
             <div data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
         </div>
 
-        <form method='POST' action="<?= $action; ?>" class="ui form publications">
+        <form method='POST' action="<?= $action; ?>" class="ui form initial publications" data-content-form>
 
             <div class="container-standard-form">
 
@@ -270,12 +265,19 @@ $allowedManyLangs = count($langs) > 1;
 
             </div>
 
-            <br>
-
-            <div class="field">
-                <button type="submit" class="ui button brand-color" save><?= __($langGroup, 'Guardar'); ?></button>
-                <button type="submit" class="ui button blue" add-translation <?= $allowedManyLangs ? '' : 'style="display:none;"'; ?>><?= __($langGroup, 'Agregar traducción'); ?></button>
-            </div>
+            <?php
+            //La barra fija (§2.3). Los atributos `save` y `add-translation` son los que busca add-form.js.
+            $secondaryActions = [];
+            if ($allowedManyLangs) {
+                $secondaryActions[] = ['text' => __($langGroup, 'Guardar y traducir'), 'type' => 'submit', 'icon' => 'language', 'attributes' => ['add-translation' => '']];
+            }
+            $secondaryActions[] = ['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times'];
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'saveAttributes' => ['save' => ''],
+                'secondaryActions' => $secondaryActions,
+            ]);
+            ?>
 
         </form>
 

@@ -24,20 +24,35 @@ class SessionToken
     /** Clave de configuración con la que se cambia el nombre de la sesión. */
     const TOKEN_NAME_CONFIG = 'session_token_name';
 
-    /** Duración de la sesión por defecto, en segundos: 31 días. */
+    /** La vida por omisión de un token que no pide la suya (el del terminal), en segundos: 31 días. */
     const DURATION = 31 * 24 * 3600;
 
+    /**
+     * RETIRADA en la 9 (P142): la sesión la gobiernan `session_inactivity` y `session_ceiling`. Solo se mira para avisar,
+     * una vez, a quien aún la tenga configurada y crea que manda.
+     */
     const DURATION_CONFIG = 'session_duration';
 
-    /** Cota superior, en segundos: 365 días. Más allá, la caducidad no acota nada. */
+    /** Cota superior de lo configurable, en segundos: 365 días. Más allá, la caducidad no acota nada. */
     const DURATION_MAX = 365 * 24 * 3600;
+
+    /** Segundos sin actividad que cierran una sesión (0 = no caduca por inactividad). Por omisión, 31 días. */
+    const INACTIVITY_CONFIG = 'session_inactivity';
+    const INACTIVITY = 31 * 24 * 3600;
+
+    /** Segundos desde que se abrió que la cierran pase lo que pase (0 = sin tope). Por omisión, 365 días. */
+    const CEILING_CONFIG = 'session_ceiling';
+    const CEILING = 365 * 24 * 3600;
 
     /**
      * @var bool Si ya se anotó un nombre configurado inválido: se dice UNA vez por proceso, no una por lectura.
      */
     private static bool $invalidNameLogged = false;
 
-    private static bool $invalidDurationLogged = false;
+    private static bool $retiredDurationLogged = false;
+
+    /** @var array<string,bool> Las opciones de sesión no válidas ya anotadas: una vez por proceso cada una. */
+    private static array $invalidLifetimeLogged = [];
 
     //El centinela histórico de «sin marca». NO se toca: `core/session-isolated` congela su valor para documentar que
     //la sesión aislada tiene el suyo propio.
@@ -84,30 +99,92 @@ class SessionToken
     }
 
     /**
-     * La duración de la sesión en segundos: la de la configuración si es válida, y si no la de por defecto.
-     *
-     * ÚNICA PUERTA, como `tokenName()`. El literal estaba en `generateToken()` y un clon no podía tocarlo sin editar
-     * el núcleo.
+     * La vida por omisión de un token que no pide la suya (el del terminal, `initSession()`). Ya no se configura: la sesión
+     * de un usuario la gobiernan `inactivity()` y `ceiling()`, y la fila manda (ADR 0026).
      *
      * @return int
      */
     public static function duration(): int
     {
-        $configured = get_config(self::DURATION_CONFIG);
+        return self::DURATION;
+    }
 
-        if (self::durationIsValid($configured)) {
+    /**
+     * Los segundos sin actividad que cierran una sesión; 0, que no caduca por inactividad. Un valor no válido usa el de por
+     * omisión y se anota una vez.
+     *
+     * @return int
+     */
+    public static function inactivity(): int
+    {
+        return self::lifetime(self::INACTIVITY_CONFIG, self::INACTIVITY);
+    }
+
+    /**
+     * Los segundos desde que se abrió que cierran una sesión pase lo que pase; 0, sin tope. Un valor no válido usa el de
+     * por omisión y se anota una vez.
+     *
+     * @return int
+     */
+    public static function ceiling(): int
+    {
+        return self::lifetime(self::CEILING_CONFIG, self::CEILING);
+    }
+
+    /**
+     * Un entero de 0 a `DURATION_MAX` segundos: el 0 es «sin ese límite».
+     *
+     * @param mixed $seconds
+     * @return bool
+     */
+    public static function lifetimeIsValid($seconds): bool
+    {
+        if (is_bool($seconds) || !is_scalar($seconds)) {
+            return false;
+        }
+        if (!is_int($seconds) && (!is_string($seconds) || preg_match('/^\d+$/', $seconds) !== 1)) {
+            return false;
+        }
+        return (int) $seconds >= 0 && (int) $seconds <= self::DURATION_MAX;
+    }
+
+    /**
+     * @param string $config
+     * @param int $default
+     * @return int
+     */
+    private static function lifetime(string $config, int $default): int
+    {
+        self::warnRetiredDuration();
+        $configured = get_config($config);
+        if (self::lifetimeIsValid($configured)) {
             return (int) $configured;
         }
-
-        if ($configured !== false && $configured !== null && !self::$invalidDurationLogged) {
-            self::$invalidDurationLogged = true;
+        if ($configured !== false && $configured !== null && !isset(self::$invalidLifetimeLogged[$config])) {
+            self::$invalidLifetimeLogged[$config] = true;
             log_exception(new \UnexpectedValueException(
-                'La duración de sesión configurada en «' . self::DURATION_CONFIG . '» no es válida y se usa la de por'
-                . ' defecto. Se admite un entero de 1 a ' . self::DURATION_MAX . ' segundos.'
+                'La opción de sesión «' . $config . '» no es válida y se usa la de por omisión. Se admite un entero de 0'
+                . ' (sin ese límite) a ' . self::DURATION_MAX . ' segundos.'
             ));
         }
+        return $default;
+    }
 
-        return self::DURATION;
+    /**
+     * `session_duration` ya no manda: si una instalación la tiene, se dice una vez para que nadie crea que sí.
+     *
+     * @return void
+     */
+    private static function warnRetiredDuration(): void
+    {
+        $configured = get_config(self::DURATION_CONFIG);
+        if ($configured !== false && $configured !== null && !self::$retiredDurationLogged) {
+            self::$retiredDurationLogged = true;
+            log_exception(new \UnexpectedValueException(
+                'La opción «' . self::DURATION_CONFIG . '» ya no se usa (P142): la sesión la gobiernan «' . self::INACTIVITY_CONFIG
+                . '» y «' . self::CEILING_CONFIG . '».'
+            ));
+        }
     }
 
     /**
@@ -231,6 +308,12 @@ class SessionToken
             return false;
 
         } else if ($logged === true) {
+
+            //Firma buena y datos que no se abren (un token de antes del cifrado de la 9, ADR 0061): no es una sesión. Sin
+            //esto, index.php pasaba el null de getData() a quien exige un objeto, y era un 500 en vez de «inicie sesión».
+            if (!(BaseToken::getData($token, $key) instanceof \stdClass)) {
+                return false;
+            }
 
             $dateCreatedToken = BaseToken::getCreated($token, $key);
 

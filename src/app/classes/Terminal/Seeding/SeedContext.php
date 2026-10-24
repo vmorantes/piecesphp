@@ -119,11 +119,20 @@ class SeedContext
         if (!is_dir($directory) && !@mkdir($directory, 0755, true) && !is_dir($directory)) {
             throw new \RuntimeException("PARA: no se pudo crear la carpeta «{$base}/{$folder}»");
         }
+        //La siembra corre con el usuario de la terminal: sin esto, el servidor web no puede escribir en lo sembrado.
+        $level = $root . '/' . $base . '/' . $top;
+        foreach (array_merge([''], $segments) as $segment) {
+            $level .= $segment === '' ? '' : '/' . $segment;
+            //RETORNO-IGNORADO: un chmod que no surte efecto lo caza 1g de unit-tests:core/seed-round-trip.
+            @chmod($level, 0777);
+        }
         $target = $root . '/' . $relative;
         $target = $private ? ProtectedUploads::privatePath($target) : $target;
         if (!@copy($root . '/' . $source, $target)) {
             throw new \RuntimeException("PARA: no se pudo copiar «{$source}» a «{$relative}»");
         }
+        //RETORNO-IGNORADO: un chmod que no surte efecto lo caza 1g de unit-tests:core/seed-round-trip.
+        @chmod($target, 0666);
         return $relative;
     }
 

@@ -9,32 +9,19 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del panel (diseno/01-contenidos.md §2.1): el alta, arriba, como acción principal.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Agregar banner'), 'url' => $addLink, 'icon' => 'plus'] : null,
+        ]);
+        ?>
 
-        <br>
-
-        <div class="main-buttons">
-
-            <?php if ($hasPermissionsAdd) :  ?>
-            <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar banner'); ?></a>
-            <?php endif; ?>
-
-        </div>
-
-        <br>
-
-        <div class="tabs-controls">
+        <div class="tabs-controls content-tabs">
             <div class="active" data-tab="all"><?= __($langGroup, 'Todos'); ?></div>
         </div>
 
@@ -46,7 +33,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <div class="container-standard-table all">
 
-                <table url="<?= $processTableLink; ?>" class="ui basic table all">
+                <table url="<?= $processTableLink; ?>" class="ui basic table content-table all">
 
                     <thead>
 
@@ -57,7 +44,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <th order="false"><?= __($langGroup, 'Imagen'); ?></th>
                             <th order="false"><?= __($langGroup, 'Imagen móviles'); ?></th>
                             <th order="false"><?= __($langGroup, 'Fecha activa'); ?></th>
-                            <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
+                            <th order="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>
 
                     </thead>

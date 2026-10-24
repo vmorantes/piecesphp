@@ -112,17 +112,18 @@ class DataTransferController extends AdminPanelController
 
         $data = [
             'langGroup' => self::LANG_GROUP,
+            'helpController' => $this->helpController,
             'title' => $title,
             'importers' => $importers,
             'exporters' => $exporters,
             'isRoot' => self::isRootUser(),
             'toggleURL' => self::routeName('toggle'),
-            'breadcrumbs' => get_breadcrumbs([
+            'breadcrumbs' => [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
                 $title,
-            ]),
+            ],
         ];
 
         $this->helpController->render('panel/layout/header');
@@ -168,6 +169,7 @@ class DataTransferController extends AdminPanelController
         $extended = $level >= ImportDefinition::INTERFACE_EXTENDED;
         $data = [
             'langGroup' => self::LANG_GROUP,
+            'helpController' => $this->helpController,
             'title' => $title,
             'definition' => $definition,
             'dryRunAllowed' => $extended,
@@ -178,7 +180,7 @@ class DataTransferController extends AdminPanelController
             'maxRows' => $definition->maxRows(),
             'action' => self::routeName("import-{$key}-action"),
             'template' => self::routeName("import-{$key}-template"),
-            'breadcrumbs' => get_breadcrumbs([
+            'breadcrumbs' => [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -186,7 +188,7 @@ class DataTransferController extends AdminPanelController
                     'url' => self::routeName('hub'),
                 ],
                 $title,
-            ]),
+            ],
         ];
 
         $this->helpController->render('panel/layout/header');
@@ -522,6 +524,7 @@ class DataTransferController extends AdminPanelController
         $downloadURL = self::routeName("export-{$key}");
         $data = [
             'langGroup' => self::LANG_GROUP,
+            'helpController' => $this->helpController,
             'title' => $title,
             'definition' => $definition,
             'parameters' => $definition->parameters(),
@@ -534,7 +537,7 @@ class DataTransferController extends AdminPanelController
             'columns' => $extended ? array_map(fn(ExportColumn $c) => ['key' => $c->key(), 'label' => $c->label()], $definition->columns(new ExportContext([], getLoggedFrameworkUser()))) : [],
             'partial' => $extended && $definition->formPartial() !== null ? ProjectFile::resolve((string) $definition->formPartial(), ['php']) : null,
             'reimport' => self::reimportLink($definition),
-            'breadcrumbs' => get_breadcrumbs([
+            'breadcrumbs' => [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -542,7 +545,7 @@ class DataTransferController extends AdminPanelController
                     'url' => self::routeName('hub'),
                 ],
                 $title,
-            ]),
+            ],
         ];
 
         $this->helpController->render('panel/layout/header');
@@ -737,14 +740,11 @@ class DataTransferController extends AdminPanelController
         //Queda en el registro de acciones del panel (EventsLog): quién y cuándo; el mapper pone el usuario de la sesión y la fecha.
         $user = getLoggedFrameworkUser();
         if (LogsRoutes::ENABLE) {
-            LogsMapper::addLog(LogsMapper::MSG_GENERIC, [
-                '%message%' => sprintf(
-                    __(self::LANG_GROUP, '%s %s el %s «%s» de Importar y exportar.'),
-                    $user !== null ? $user->username : '?',
-                    $isEnabled ? __(self::LANG_GROUP, 'encendió') : __(self::LANG_GROUP, 'apagó'),
-                    $kind === self::KIND_IMPORT ? __(self::LANG_GROUP, 'importador') : __(self::LANG_GROUP, 'exportador'),
-                    $key
-                ),
+            LogsMapper::addLog(LogsMapper::MSG_DATA_TRANSFER_TOGGLED, [
+                '%username%' => $user !== null ? $user->username : '?',
+                '%action%' => $isEnabled ? __(self::LANG_GROUP, 'encendió') : __(self::LANG_GROUP, 'apagó'),
+                '%kind%' => $kind === self::KIND_IMPORT ? __(self::LANG_GROUP, 'importador') : __(self::LANG_GROUP, 'exportador'),
+                '%key%' => $key,
             ]);
         }
 

@@ -1950,6 +1950,21 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
         set_config('imported_assets', $imported);
 
+        //Un archivo que sigue pidiendo un plugin importado, de cualquier librería, no se quita: adminStyle y baseStyle
+        //comparten ui-pcs.css, y reimportar con baseStyle dejaba la página sin él (P173).
+        $still_requested = ['css' => [], 'js' => [], 'font' => []];
+        foreach (is_array($imported) ? $imported : [] as $imported_library => $imported_plugins) {
+            $imported_definitions = $assets[$imported_library]['plugins'] ?? [];
+            foreach (is_array($imported_plugins) ? $imported_plugins : [] as $imported_plugin) {
+                $definition = is_string($imported_plugin) ? ($imported_definitions[$imported_plugin] ?? null) : null;
+                foreach (array_keys($still_requested) as $type) {
+                    if (is_array($definition) && isset($definition[$type]) && is_array($definition[$type])) {
+                        $still_requested[$type] = array_merge($still_requested[$type], $definition[$type]);
+                    }
+                }
+            }
+        }
+
         foreach ($plugins_to_delete as $plugin_to_delete) {
 
             $plugin_files = $library['plugins'][$plugin_to_delete];
@@ -1958,15 +1973,21 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
             $plugin_font_files = is_array($plugin_files) && isset($plugin_files['font']) ? $plugin_files['font'] : [];
 
             foreach ($plugin_css_files as $plugin_css_file) {
-                remove_global_asset($plugin_css_file, 'css');
+                if (!in_array($plugin_css_file, $still_requested['css'], true)) {
+                    remove_global_asset($plugin_css_file, 'css');
+                }
             }
 
             foreach ($plugin_js_files as $plugin_js_file) {
-                remove_global_asset($plugin_js_file, 'js');
+                if (!in_array($plugin_js_file, $still_requested['js'], true)) {
+                    remove_global_asset($plugin_js_file, 'js');
+                }
             }
 
             foreach ($plugin_font_files as $plugin_font_file) {
-                remove_global_asset($plugin_font_file, 'font');
+                if (!in_array($plugin_font_file, $still_requested['font'], true)) {
+                    remove_global_asset($plugin_font_file, 'font');
+                }
             }
 
         }
@@ -2155,18 +2176,6 @@ function import_spectrum(array $plugins = [], bool $all = true)
 }
 
 /**
- * Registra DialogPCS como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_dialog_pcs(array $plugins = [], bool $all = true)
-{
-    import_front_library('dialgo_pcs', $plugins, $all);
-}
-
-/**
  * Registra simple_upload_placeholder como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
@@ -2309,8 +2318,8 @@ function register_routes($routes, &$router)
  * @param string|callable $route[controller]
  * @param string|string[] $route[method]
  * @param string|null $route[name]
- * @param string|null $route[route_alias]
  * @param bool $route[require_login]
+ * @param bool $route[renew_expired] Si la ruta renueva un token caducado; por omisión, false
  * @param array $route[roles_allowed]
  * @param array $route[parameters]
  * @param array<string|callable> $route[middlewares]
@@ -2754,6 +2763,22 @@ function log_exception(Throwable $e, bool $plainLog = true): string
 }
 
 /**
+ * Anota un error suave (ADR 0060): algo que falla y no impide seguir, como una integración caída o un dato que no
+ * cuadra. NO aborta nunca, tampoco en local. Lo que vaya en $context lo verá root en Registros › Errores: nada de
+ * contraseñas, tokens ni datos personales.
+ *
+ * @param string $message
+ * @param array<mixed> $context
+ * @return string La referencia de la entrada; '' si no se pudo anotar
+ */
+function log_soft_error(string $message, array $context = []): string
+{
+    $caller = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0] ?? [];
+    $exception = new \ErrorException($message, 0, \E_USER_NOTICE, (string) ($caller['file'] ?? ''), (int) ($caller['line'] ?? 0));
+    return \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::logSoft($exception, 'log_soft_error', $context);
+}
+
+/**
  * A partir de un string de fecha válido para \DateTime::__construct()
  * devuelve el nombre del mes en español
  *
@@ -3129,13 +3154,10 @@ function getLoggedFrameworkUser(bool $reload = false)
  * llega con sesión activa —típicamente rutas con `requireLogin = true`—, donde el null
  * no es un estado posible sino una violación del contrato.
  *
- * NO CAMBIA CUÁNDO FALLA EL CÓDIGO, SOLO POR QUÉ.
- * Hoy, encadenar sobre el resultado nulo ya aborta la petición: leer una propiedad de
- * null emite `E_WARNING`, y el manejador de `bootstrap.php` promueve ese nivel a
- * `ErrorException` **en local y en producción** (está en la lista incondicional, no en
- * la que depende de `$isLocalBootstrap`). Lo que hoy se ve es
- * «Attempt to read property "type" on null» en una línea cualquiera; con esta función
- * se ve que faltaba la sesión, que es la causa real.
+ * Encadenar sobre el resultado nulo emite `E_WARNING`, que es un error SUAVE (ADR 0060):
+ * en local aborta, y fuera de local se anota y la ejecución SIGUE con el nulo. Esta
+ * función, en cambio, lanza siempre: se ve que faltaba la sesión, que es la causa real,
+ * y el código no continúa sin usuario.
  *
  * @param bool $reload Si es true consultará nuevamente la base de datos
  * @return UserDataPackage

@@ -30,6 +30,15 @@ CliActions::make('unit-tests:core/db-restore', function ($args) {
         return ['success' => false, 'message' => 'sin conexión'];
     }
 
+    //─── Dónde busca el volcado: por reflexión, sin restaurar nada ────────────────────────
+    $resolver = new \ReflectionMethod(DbRestoreTask::class, 'resolveDumpPath');
+    $raiz = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+    $enRaiz = $resolver->invoke(null, 'databases/piecesphp_structure.sql');
+    $check($enRaiz === $raiz . '/databases/piecesphp_structure.sql', 'una ruta pensada desde la raíz se encuentra en la raíz', var_export($enRaiz, true));
+    $relativa = $resolver->invoke(null, '../databases/piecesphp_structure.sql');
+    $check(is_string($relativa) && is_file($relativa), 'una ruta relativa a src/ se encuentra', var_export($relativa, true));
+    $check($resolver->invoke(null, 'zz-no-existe.sql') === null, 'una que no está en ninguna da null');
+
     $tmpDatabase = 'pcs_zz_restore_trip';
     $original = (string) $db->getDatabaseName();
     $trace = basepath('../' . DbRestoreTask::TRACE_RELATIVE_PATH);

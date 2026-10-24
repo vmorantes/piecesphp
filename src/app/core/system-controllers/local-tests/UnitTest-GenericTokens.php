@@ -70,7 +70,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $validos = count(array_filter($selectores, fn (string $s): bool => GenericTokenController::isSelector($s)));
         $check(count(array_unique($selectores)) === 1000 && $validos === 1000, 'DISCRIMINANTE: 1000 selectores, 0 repetidos, todos de 32 hexadecimales',
             (1000 - count(array_unique($selectores))) . " repetidos · {$validos} válidos");
-        $check(!GenericTokenController::isSelector(BaseHashEncryption::encrypt('42', GenericTokenController::class)) && !GenericTokenController::isSelector('42')
+        $check(!GenericTokenController::isSelector(BaseHashEncryption::obfuscate('42', GenericTokenController::class)) && !GenericTokenController::isSelector('42')
             && GenericTokenController::tokenBySelector('42') === null, 'un id, cifrado o no, no es un selector ni alcanza ninguna fila');
         echoTerminal(' ');
 

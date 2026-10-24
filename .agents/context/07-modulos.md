@@ -170,7 +170,8 @@ petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la r
 `../docs/pendientes.md`, punto 73.
 | **App** | `App\Locations`, `App\Presentations` | `Locations` = ubicaciones (países/estados/ciudades/puntos) con sus mappers, vistas y lang |
 | **Components** | `Components` | Proveedor de componentes HTML reutilizables (`ComponentProviderRoutes`) |
-| **ContentNavigationHub** | `ContentNavigationHub` | Hub centralizado de contenido navegable (contenidos, perfiles, convocatorias) |
+| **ContentNavigationHub** | `ContentNavigationHub` | Solo el mapa de contenidos (`content-navigation-hub-admin-contents-map`). Desaparece en la 9 con el geovisor (ADR 0059): no le añadas nada |
+| **Directory** | `Directory` | El Directorio: el listado de personas y organizaciones (`directory-admin-list`), sus datos (`all-profiles-admin-*`) y el perfil público de una persona (`profile-admin-*`) |
 | **DataImportExportUtility** | `DataImportExportUtility` | Utilidad genérica de importación/exportación (`ExportHandlers/`) |
 | **Documents** | `Documents` | Gestión de documentos |
 | **EventsLog** | `EventsLog` | Log de acciones del sistema (tabla `actions_log`) |
@@ -179,10 +180,10 @@ petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la r
 | **GeoJSONManager** | `GeoJSONManager` | Gestión de capas GeoJSON (usa `piecesphp/geojson`) |
 | **GoogleReCaptchaV3** | `GoogleReCaptchaV3` | Integración reCAPTCHA v3 |
 | **Importers** | `Importers` | Importadores de datos (`Managers/`, `Controller/`) |
-| **MySpace** | `MySpace` | "Mi espacio": mi perfil, mi organización, recursos |
+| **MySpace** | `MySpace` | «Mi espacio», solo lo del usuario: Mi perfil, seguridad (2FA) y Mis sesiones (P135 a). No es el inicio del panel ni aloja lo de otros |
 | **News** | `News` | Noticias internas + categorías + marcado de leídas |
 | **Newsletter** | `Newsletter` | Suscriptores de newsletter |
-| **Organizations** | `Organizations` | Organizaciones (gate: `ORGANIZATIONS_MODULE`) |
+| **Organizations** | `Organizations` | Organizaciones (gate: `ORGANIZATIONS_MODULE`) y sus perfiles: Mi organización (`my-organization-profile-admin-*`) y el perfil público (`profile-organization-admin-*`). **Trampa:** esas rutas se registran en la zona administrativa con `OrganizationsRoutes::profileRoutes()`, no en el grupo del módulo (cambiaría sus URL), y existen aunque el módulo esté apagado; sus estáticos y su idioma se cargan siempre. **Con privilegios superiores, la organización es SIEMPRE la de la URL** (`organizationForSuperUser()`), en la vista y en el guardado: tomar la del encargado escribía en otra (`#1446`). Mi organización guarda con `OrganizationsController::saveOrganization(…, true)`, nunca con `action()` (receta 4). El contacto del perfil público es el de la ORGANIZACIÓN (`phone`, `informativeEmail`, `websiteLink`, `linkedinLink`), y el perfil se pinta sin encargado |
 | **Persons** | `Persons` | Solo estáticos actualmente (módulo pendiente de renovar) |
 | **PiecesPHP** | `PiecesPHP\*` | ⭐ Módulos del propio framework, ver abajo |
 | **Publications** | `Publications` | Publicaciones + categorías + adjuntos (admin y público) |
@@ -194,7 +195,7 @@ petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la r
 
 | Ruta | Qué es |
 | :-- | :-- |
-| `PiecesPHP/UserSystem/` | Sistema de usuarios: perfiles (`UserProfileMapper`; `SubMappers/` se borró en el bloque AC al quedar vacío), autenticación OTP/TOTP, `UserDataPackage`, rutas y vistas |
+| `PiecesPHP/UserSystem/` | Sistema de usuarios: perfiles (`UserProfileMapper`; `SubMappers/` se borró en el bloque AC al quedar vacío), autenticación OTP/TOTP, `UserDataPackage`, rutas y vistas. **Un usuario «Eliminado» (`STATUS_USER_DELETED`) no se borra nunca: se oculta** (PO, 2026-10-16, P170). Todo lo que LISTA, BUSCA, ELIGE o muestra un PERFIL lo excluye (filtro `status != STATUS_USER_DELETED`, o `UsersModel::existsAndNotDeleted(int $id)` al validar un id); su perfil público da 404 a todos; la exportación de usuarios lo omite. Lo que lo cita por RELACIÓN (autor, registros, historial de ingresos, sesiones, aprobaciones) sigue con su nombre. `UserDataPackage` NO mira el estado. Censo de `#1463`, prueba `core/deleted-user-gone`. Los inactivos van aparte: el listado de usuarios les da su pestaña; Directorio y mapa los excluyen |
 | `PiecesPHP/LocalizationSystem/` | Gestión de idiomas y traducciones desde el panel (`Packages/`, `Util/`) |
 | `PiecesPHP/BuiltIn/Banner/` | Banners de inicio (`HOME_IMAGE_BANNER`) |
 | `PiecesPHP/BuiltIn/Helpers/` | Contenidos genéricos (`GenericContentController`, `GenericContentPseudoMapper`) |
@@ -209,4 +210,4 @@ pública.
 
 `AdminPanelController` es la clase base de casi todos los controladores de módulo y
 aporta: usuario en sesión (`$this->user`), variables globales de vista, breadcrumbs,
-sidebar y las rutas base del panel (`admin`, `admin-error-log`, tickets, usuarios).
+sidebar y las rutas base del panel (`admin`, tickets, usuarios).

@@ -3,83 +3,72 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 /**
  * @var string $langGroup
+ * @var string $processTableLink
+ * @var string $addLink
+ * @var bool $hasPermissionsAdd
+ * @var string $addAction
+ * @var string[] $langs
+ * @var string $defaultLang
  */
-$langGroupDatatables = 'datatables';
+$manyLangs = count($langs) > 1;
+//El idioma por omisión, primero: es el del alta y su nombre es el obligatorio.
+$orderedLangs = array_values(array_unique(array_merge([$defaultLang], $langs)));
 ?>
-
 <section class="module-view-container">
-
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
 
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); «Nueva categoría» abre la ventana (§2.4).
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Nueva categoría'), 'url' => $addLink, 'icon' => 'plus', 'attributes' => ['data-content-modal' => 'publications-category-modal']] : null,
+        ]);
+        ?>
+
+        <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
+            <div class="mirror-scroll-x-content"></div>
         </div>
 
-        <br>
+        <div class="container-standard-table">
 
-        <div class="main-buttons">
+            <table url="<?= $processTableLink; ?>" class="ui basic table content-table">
 
-            <?php if ($hasPermissionsAdd):  ?>
-            <a href="<?= $addLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Agregar categoría'); ?></a>
-            <?php endif; ?>
+                <thead>
 
-        </div>
+                    <tr>
+                        <th><?= __($langGroup, 'Nombre'); ?></th>
+                        <th order="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
+                    </tr>
 
-        <br>
+                </thead>
 
-        <div class="cards-container-standard">
-
-            <div class="table-to-cards">
-
-                <div class="ui form component-controls">
-
-                    <div class="flex-fields">
-
-                        <div class="field">
-
-                            <div class="length-pagination">
-                                <span><?= __($langGroupDatatables, 'Ver') ?></span>
-                                <input type="number" length-pagination placeholder="10">
-                                <span><?= __($langGroupDatatables, 'elementos') ?></span>
-                            </div>
-
-                        </div>
-
-                        <div class="field">
-
-                            <div class="ui icon input">
-                                <input type="search" placeholder="<?= __($langGroupDatatables, 'Buscar') ?>">
-                                <i class="search icon"></i>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <table url="<?= $processTableLink; ?>" style='display:none;'>
-
-                    <thead>
-
-                        <tr>
-                            <th><?= __($langGroup, 'Nombre'); ?></th>
-                        </tr>
-
-                    </thead>
-
-                </table>
-
-            </div>
+            </table>
 
         </div>
+
     </div>
 
 </section>
+
+<?php
+//Los campos que esperan las acciones de alta y de edición: name[<idioma>] (obligatorio el del idioma base), baseLang e id.
+ob_start();
+?>
+<input type="hidden" name="id" value="" data-content-modal-when-value>
+<input type="hidden" name="baseLang" value="<?= escape_html($defaultLang); ?>">
+<?php foreach ($orderedLangs as $lang): ?>
+<div class="field<?= $lang === $defaultLang ? ' required' : ''; ?>">
+    <label><?= __($langGroup, 'Nombre'); ?><?php if ($manyLangs): ?> <small>(<?= escape_html(__('lang', $lang)); ?>)</small><?php endif; ?></label>
+    <input type="text" name="name[<?= escape_html($lang); ?>]" maxlength="300" data-content-modal-requirable<?= $lang === $defaultLang ? ' required' : ''; ?>>
+</div>
+<?php endforeach; ?>
+<?php
+$this->helpController->_render('panel/built-in/content/form-modal.php', [
+    'modalId' => 'publications-category-modal',
+    'title' => __($langGroup, 'Nueva categoría'),
+    'action' => $addAction,
+    'fields' => (string) ob_get_clean(),
+]);
+?>

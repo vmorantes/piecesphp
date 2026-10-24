@@ -5,23 +5,32 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $langGroup
  * @var string $actionURL
  * @var array<string,array{file:string,title:string,help:string,value:string,base:string,url:string}> $files
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 ?>
-<main class="site-files-view">
+<section class="module-view-container site-files-view">
 
-    <section class="main-body-header">
+    <div class="limiter-content">
 
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Archivos para buscadores'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Apariencia'); ?></span>
-        </div>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <div class="body-card">
+        <form class="ui form initial site-files" action="<?= $escape($actionURL); ?>" method="POST" data-content-form>
 
-            <p><?= __($langGroup, 'Estos archivos les dicen a los buscadores y a las herramientas de inteligencia artificial qué pueden leer de tu sitio. El sistema ya trae una configuración fija; aquí puedes añadir lo tuyo.'); ?></p>
+            <div class="container-standard-form">
 
-            <form class="ui form site-files" action="<?= $escape($actionURL); ?>" method="POST">
+                <p><?= __($langGroup, 'Estos archivos les dicen a los buscadores y a las herramientas de inteligencia artificial qué pueden leer de tu sitio. El sistema ya trae una configuración fija; aquí puedes añadir lo tuyo.'); ?></p>
 
                 <?php foreach ($files as $name => $file): ?>
                 <div class="ui segment">
@@ -50,14 +59,18 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                 </div>
                 <?php endforeach; ?>
 
-                <div class="main-buttons">
-                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+            </div>
 
-            </form>
+            <?php
+            //La barra al final del formulario (§2.3).
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
 
-        </div>
+        </form>
 
-    </section>
+    </div>
 
-</main>
+</section>

@@ -33,6 +33,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -70,7 +71,7 @@ class DocumentsController extends AdminPanelController
     /**
      * @var string
      */
-    protected static $pluralTitle = 'Registro de documentos';
+    protected static $pluralTitle = 'Documentos';
 
     /**
      * @var string
@@ -90,6 +91,19 @@ class DocumentsController extends AdminPanelController
     const BASE_CSS_DIR = 'css/documents';
     const UPLOAD_DIR = 'documents';
     const LANG_GROUP = DocumentsLang::LANG_GROUP;
+
+    /**
+     * El icono de Fomantic de cada tipo de archivo, por extensión, para la tarjeta del explorador sin miniatura.
+     * Lo que no está aquí lleva FILE_TYPE_ICON_DEFAULT.
+     */
+    const FILE_TYPE_ICONS = [
+        'file pdf outline' => ['pdf'],
+        'file image outline' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'],
+        'file excel outline' => ['xls', 'xlsx', 'ods', 'csv'],
+        'file word outline' => ['doc', 'docx', 'odt'],
+        'file alternate outline' => ['txt', 'md', 'rtf'],
+    ];
+    const FILE_TYPE_ICON_DEFAULT = 'file outline';
 
     public function __construct()
     {
@@ -125,39 +139,32 @@ class DocumentsController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
-
         $processTableLink = self::routeName('datatables');
-
-        $action = self::routeName('actions-add');
+        $addLink = self::routeName('forms-add');
         $listDocumentsTypesLink = DocumentTypesController::routeName('list');
-        $addDocumentTypeLink = DocumentTypesController::routeName('forms-add');
-        $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), null);
 
-        $title = __(self::LANG_GROUP, 'Gestión de') . ' ' . self::$pluralTitle;
+        $title = __(self::LANG_GROUP, 'Documentos');
+        $description = __(self::LANG_GROUP, 'Los archivos que se comparten en el panel, con su tipo.');
+
+        set_title($title);
 
         $data = [];
         $data['langGroup'] = self::LANG_GROUP;
         $data['processTableLink'] = $processTableLink;
-        $data['backLink'] = $backLink;
-        $data['title'] = self::$pluralTitle;
-        $data['subtitle'] = $title;
+        $data['title'] = $title;
+        $data['description'] = $description;
+        $data['addLink'] = $addLink;
+        $data['hasPermissionsAdd'] = mb_strlen($addLink) > 0;
         $data['listDocumentsTypesLink'] = $listDocumentsTypesLink;
-        $data['addDocumentTypeLink'] = $addDocumentTypeLink;
         $data['hasPermissionsListDocumentsTypesLink'] = mb_strlen($listDocumentsTypesLink) > 0;
-        $data['hasPermissionsAddDocumentTypeLink'] = mb_strlen($addDocumentTypeLink) > 0;
-        $data['formVariables'] = [
-            'action' => $action,
-            'documentTypes' => $documentTypes,
-            'langGroup' => self::LANG_GROUP,
-            'standalone' => false,
-            'submitButtonText' => __(self::LANG_GROUP, 'Guardar'),
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+            $title,
         ];
 
-        import_simple_upload_placeholder();
-        import_cropper();
         set_custom_assets([
-            DocumentsRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
             DocumentsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
             DocumentsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
@@ -181,6 +188,7 @@ class DocumentsController extends AdminPanelController
         $processTableLink = self::routeName('datatables-explorer');
 
         $title = __(self::LANG_GROUP, 'Documentos');
+        $description = __(self::LANG_GROUP, 'Busque y abra los documentos compartidos en el panel.');
 
         set_title($title);
 
@@ -188,6 +196,16 @@ class DocumentsController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['processTableLink'] = $processTableLink;
         $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+            __(self::LANG_GROUP, 'Documentos') => [
+                'url' => self::routeName('list'),
+            ],
+            __(self::LANG_GROUP, 'Explorar'),
+        ];
 
         set_custom_assets([
             DocumentsRoutes::staticRoute(self::BASE_JS_DIR . '/explorer.js'),
@@ -220,15 +238,25 @@ class DocumentsController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
         $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), null);
-        $standalone = true;
+        $title = __(self::LANG_GROUP, 'Nuevo documento');
+
+        set_title($title);
 
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
-        $data['title'] = self::$title;
+        $data['title'] = $title;
         $data['documentTypes'] = $documentTypes;
-        $data['standalone'] = $standalone;
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+            __(self::LANG_GROUP, 'Documentos') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ];
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -274,6 +302,12 @@ class DocumentsController extends AdminPanelController
             $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), $element->documentType instanceof DocumentTypesMapper ? $element->documentType->id : $element->documentType);
             $manyLangs = count($allowedLangs) > 1 && !empty($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
+            //El nombre del documento, recortado como en publicaciones; lo escapan la cabecera y MetaTags, las migas no.
+            $documentName = (string) $element->getLangData($lang, 'documentName');
+            $documentName = mb_strlen($documentName) <= 60 ? $documentName : mb_substr($documentName, 0, 57) . '...';
+            $title = sprintf(__(self::LANG_GROUP, 'Editar: %s'), $documentName);
+
+            set_title($title);
 
             $data = [];
             $data['action'] = $action;
@@ -282,9 +316,18 @@ class DocumentsController extends AdminPanelController
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
-            $data['title'] = self::$title;
+            $data['title'] = $title;
             $data['documentTypes'] = $documentTypes;
             $data['allowedLangs'] = $allowedLangs;
+            $data['breadcrumbs'] = [
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+                ],
+                __(self::LANG_GROUP, 'Documentos') => [
+                    'url' => $backLink,
+                ],
+                $title,
+            ];
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
 
@@ -835,10 +878,10 @@ class DocumentsController extends AdminPanelController
 
         $selectFields = DocumentsMapper::fieldsToSelect();
 
+        //Por POSICIÓN, como las columnas de la vista. La del nombre busca también por número y por tipo, que ya no
+        //tienen columna propia (P123: el número sigue buscándose).
         $columnsOrder = [
-            "{$table}.id",
-            'documentTypeName',
-            'documentName',
+            ['documentName', "{$table}.id", 'documentTypeName'],
         ];
         $customOrder = [
             "{$table}.id" => 'DESC',
@@ -862,35 +905,56 @@ class DocumentsController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
+                $editLink = $hasEdit ? self::routeName('forms-edit', ['id' => $e->id]) : '';
+                $fileLink = $mapper->currentLangData('document');
 
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editButton = "<a href='{$editLink}' class='ui button brand-color icon labeled'><i class='edit outline icon'></i> {$editText}</a>";
-                    $buttons[] = $editButton;
+                $menu = [];
+                if (is_string($fileLink) && $fileLink !== '') {
+                    $menu[] = RowActions::action(__(self::LANG_GROUP, 'Ver el archivo'), $fileLink, 'external alternate', [
+                        'target' => '_blank',
+                        'rel' => 'noopener',
+                    ]);
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button brand-color alt2 icon labeled' delete-document-button><i class='trash icon'></i> {$deleteText}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-document-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), $editLink, 'edit') : null;
 
-                $buttons = implode('', $buttons);
+                $name = (string) $e->documentName;
+                $nameHTML = $hasEdit ? '<a href="' . escape_html($editLink) . '">' . escape_html($name) . '</a>' : escape_html($name);
+
                 $columns = [];
-
-                $columns[] = $e->idPadding;
-                $columns[] = escape_html($e->documentTypeName);
-                $columns[] = escape_html($e->documentName);
-                $columns[] = $buttons;
+                $columns[] = $nameHTML . '<br><span class="ui small grey text">' . escape_html($e->documentTypeName) . '</span>';
+                $columns[] = RowActions::cell($direct, $menu);
                 return $columns;
             },
         ]);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * El icono de Fomantic del archivo, por su extensión (FILE_TYPE_ICONS).
+     *
+     * @param string $path Ruta o URL del archivo.
+     * @return string
+     */
+    public static function fileTypeIcon(string $path): string
+    {
+        $extension = mb_strtolower(pathinfo($path, \PATHINFO_EXTENSION));
+        foreach (self::FILE_TYPE_ICONS as $icon => $extensions) {
+            if (in_array($extension, $extensions, true)) {
+                return $icon;
+            }
+        }
+        return self::FILE_TYPE_ICON_DEFAULT;
     }
 
     /**

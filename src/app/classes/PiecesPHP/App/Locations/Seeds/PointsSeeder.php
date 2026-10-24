@@ -63,7 +63,7 @@ class PointsSeeder extends ModuleSeeder
     {
         return [
             'city' => $context->reference(CityMapper::class, $index),
-            'name' => $this->text('punto', $index),
+            'name' => $this->text('coordenada', $index),
             'address' => self::ADDRESSES[$index % count(self::ADDRESSES)],
             'latitude' => round(4.6097 + $index * 0.0137, 6),
             'longitude' => round(-74.0817 - $index * 0.0109, 6),

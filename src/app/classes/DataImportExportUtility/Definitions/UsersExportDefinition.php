@@ -131,7 +131,11 @@ class UsersExportDefinition extends ExportDefinition
             $model = UsersModel::model();
             $model->resetAll();
             $model->select(['id', 'username', 'email', 'firstname', 'secondname', 'firstLastname', 'secondLastname', 'type', 'organization'])
-                ->where(new WhereSegment([new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $lastID)]))
+                //Un usuario Eliminado deja de existir en la práctica: no se exporta (PO, 2026-10-16), y no se recrea al importar.
+                ->where(new WhereSegment([
+                    new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $lastID, WhereItem::AND_OPERATOR),
+                    WhereItem::isNotEqual('status', UsersModel::STATUS_USER_DELETED),
+                ]))
                 ->orderBy('id ASC')
                 ->execute(false, 1, $this->pageSize);
             $page = (array) $model->result();

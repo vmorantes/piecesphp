@@ -36,6 +36,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @property int|CityMapper|null $city
  * @property double|null $latitude
  * @property double|null $longitude
+ * @property int $publicVisible Si el perfil se lista y se muestra (P136)
  * @property int|UsersModel $belongsTo
  * @property string|\DateTime $createdAt
  * @property string|\DateTime $updatedAt
@@ -113,6 +114,11 @@ class UserProfileMapper extends EntityMapperExtensible
         'longitude' => [
             'type' => 'double',
             'null' => true,
+        ],
+        //Si el perfil se lista en el Directorio y el mapa y su página se ve (P136); lo deciden el dueño y root.
+        'publicVisible' => [
+            'type' => 'int',
+            'default' => 1,
         ],
         'belongsTo' => [
             'type' => 'bigint',
@@ -280,7 +286,7 @@ class UserProfileMapper extends EntityMapperExtensible
 
             $currentUser = UserDataPackage::getConfigCurrentUser(); //Importante para no generar recursividad con UserDataPackage
             $this->createdAt = new \DateTime();
-            $this->createdBy = $currentUser !== null ? $currentUser->id : 1;
+            $this->createdBy = $currentUser !== null ? $currentUser->id : UsersModel::SYSTEM_USER_ID;
             $saveResult = parent::save();
 
             if ($saveResult) {
@@ -311,7 +317,7 @@ class UserProfileMapper extends EntityMapperExtensible
         if (self::existsByUser($belongsTo)) {
             if (!$noDateUpdate) {
                 $currentUser = UserDataPackage::getConfigCurrentUser(); //Importante para no generar recursividad con UserDataPackage
-                $this->modifiedBy = $currentUser !== null ? $currentUser->id : 1;
+                $this->modifiedBy = $currentUser !== null ? $currentUser->id : UsersModel::SYSTEM_USER_ID;
                 $this->updatedAt = new \DateTime();
             }
             return parent::update();
@@ -574,7 +580,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public static function getEncryptIDForSlug(int $id)
     {
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
-        $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
+        $uniqid = strtr(BaseHashEncryption::obfuscate("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
     }
 

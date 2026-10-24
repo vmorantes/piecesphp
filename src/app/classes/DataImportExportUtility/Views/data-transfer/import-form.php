@@ -3,7 +3,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 /**
  * @var string $langGroup
  * @var string $title
- * @var string $breadcrumbs
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
  * @var array<int,array{label:string,required:bool,aliases:string[],help:?string,example:?string}> $columns
  * @var \PiecesPHP\Core\DataTransfer\Import\ImportDefinition $definition
  * @var bool $dryRunAllowed Nivel 2 o más
@@ -13,32 +13,28 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var int $maxRows
  * @var string $action
  * @var string $template
+ * @var \DataImportExportUtility\Controllers\HelperController $helpController Pinta las piezas del panel (la vista se pinta desde el módulo)
  */
 $escape = fn(string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs; ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $escape($title); ?></div>
-            <div class="description">
-                <?= $escape(sprintf(__($langGroup, 'Archivos %s de hasta %d MB y %d filas. Si una fila tiene errores, no se guarda ninguna.'), implode(', ', $extensions), $maxSizeMB, $maxRows)); ?>
-            </div>
-        </div>
+        <?php
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => sprintf(__($langGroup, 'Archivos %s de hasta %d MB y %d filas. Si una fila tiene errores, no se guarda ninguna.'), implode(', ', $extensions), $maxSizeMB, $maxRows),
+            'secondaryActions' => [
+                ['text' => __($langGroup, 'Descargar plantilla'), 'url' => $template, 'icon' => 'download'],
+            ],
+        ]);
+        ?>
 
-        <div class="main-buttons">
-            <a class="ui button brand-color alt" href="<?= $escape($template); ?>"><?= __($langGroup, 'Descargar plantilla'); ?></a>
-        </div>
-
-        <br>
-
-        <table class="ui basic table">
+        <div class="container-standard-table">
+        <table class="ui basic table content-table">
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'Columna'); ?></th>
@@ -60,8 +56,9 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
 
-        <form method="POST" action="<?= $escape($action); ?>" class="ui form data-transfer-import" data-transfer-import>
+        <form method="POST" action="<?= $escape($action); ?>" class="ui form initial data-transfer-import" data-transfer-import data-content-form>
             <div class="container-standard-form">
                 <div class="field required">
                     <label><?= __($langGroup, 'Archivo'); ?></label>
@@ -78,8 +75,13 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
                     </div>
                 </div>
                 <?php endif; ?>
-                <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Importar'); ?></button>
             </div>
+
+            <?php
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Importar'),
+            ]);
+            ?>
         </form>
 
         <br>

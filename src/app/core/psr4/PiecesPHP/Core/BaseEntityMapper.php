@@ -257,14 +257,15 @@ class BaseEntityMapper extends EntityMapper
                 $tableUsers = UsersModel::TABLE;
                 $tableName = constant("{$className}::TABLE");
                 $approvalHandler = SystemApprovalManager::getInstance()->getHandler($tableName);
+                //El CAST no sobra: contra un entero, MariaDB compara como número y el índice `reference` solo sirve para referenceTable.
                 if ($approvalHandler !== null) {
                     $referenceColumn = $approvalHandler::getReferenceColumn();
                     $tableColumn = "{$tableName}.{$referenceColumn}";
-                    $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableName}' AND {$tableApprovals}.referenceValue = {$tableColumn} LIMIT 1) AS systemApprovalStatus";
+                    $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableName}' AND {$tableApprovals}.referenceValue = CAST({$tableColumn} AS CHAR) LIMIT 1) AS systemApprovalStatus";
                 } else {
 
                     if ($tableName == $tableProfiles) {
-                        $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableUsers}' AND {$tableApprovals}.referenceValue = {$tableProfiles}.belongsTo LIMIT 1) AS systemApprovalStatus";
+                        $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableUsers}' AND {$tableApprovals}.referenceValue = CAST({$tableProfiles}.belongsTo AS CHAR) LIMIT 1) AS systemApprovalStatus";
                     } else {
                         $result[] = "'{$approvedValue}' AS systemApprovalStatus"; //Para homologar todas
                     }

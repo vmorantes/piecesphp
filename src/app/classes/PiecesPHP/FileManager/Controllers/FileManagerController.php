@@ -92,6 +92,12 @@ class FileManagerController extends AdminPanelController
         $data['backLink'] = $backLink;
         $data['configurationRoute'] = $configurationRoute;
         $data['title'] = $title;
+        $data['breadcrumbs'] = [
+            __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ];
 
         import_elfinder();
         import_jqueryui();

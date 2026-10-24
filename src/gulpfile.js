@@ -237,9 +237,6 @@ var watchingPiecesPHPSassFiles = {
 	general: [
 		'./statics/core/sass/**/*.scss',
 	],
-	users: [
-		'./statics/login-and-recovery/sass/**/*.scss',
-	],
 }
 
 //Archivos que se compilan
@@ -250,13 +247,9 @@ var compilePiecesPHPSassFiles = {
 	general: [
 		'./statics/core/sass/**/*.scss',
 	],
-	users: [
-		'./statics/login-and-recovery/sass/**/*.scss',
-	],
 }
 
 var destsPiecesPHP = {
-	users: './statics/login-and-recovery/css',
 	ownPlugins: './statics/core/own-plugins/css',
 	general: './statics/core/css',
 }
@@ -272,21 +265,14 @@ function sassCompileGeneral() {
 	return sassBuild(compilePiecesPHPSassFiles.general, destsPiecesPHP.general)
 }
 
-//Compilación usuarios
-function sassCompileUsers() {
-	return sassBuild(compilePiecesPHPSassFiles.users, destsPiecesPHP.users)
-}
-
 //Tareas de compilación
 task("sass-compile-own-plugins", sassCompileOwnPlugins)
 task("sass-compile-general", sassCompileGeneral)
-task("sass-compile-users", sassCompileUsers)
 
 //Tareas de observación
 task("sass-vendor:watch", (done) => {
 	watch(watchingPiecesPHPSassFiles.ownPlugins, series("sass-compile-own-plugins"))
 	watch(watchingPiecesPHPSassFiles.general, series("sass-compile-general"))
-	watch(watchingPiecesPHPSassFiles.users, series("sass-compile-users"))
 	done()
 })
 
@@ -294,7 +280,6 @@ task("sass-vendor:watch", (done) => {
 task("sass-vendor:init", () => Promise.all([
 	sassCompileOwnPlugins(),
 	sassCompileGeneral(),
-	sassCompileUsers(),
 ]))
 
 //SASS others
@@ -350,7 +335,6 @@ task("sass-modules:init", sassCompileModules)
 task("sass-all", () => Promise.all([
 	sassCompileOwnPlugins(),
 	sassCompileGeneral(),
-	sassCompileUsers(),
 	sassCompileGeneric(),
 	sassCompileModules(),
 ]))

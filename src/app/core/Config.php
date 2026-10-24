@@ -6,6 +6,7 @@
 namespace PiecesPHP\Core;
 
 use Collator;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\LangInjector;
 use ReflectionClass;
 
@@ -22,6 +23,11 @@ class Config
     /**
      * Grupo de configuración de conexión por defecto
      */
+    /**
+     * La clave cuando no hay ninguna (ni llavero ni config.php). Cuenta como de relleno.
+     */
+    const DEFAULT_APP_KEY = 'secret';
+
     const DATABASE_CONFIG_DEFAULT_GROUP = '';
 
     /**
@@ -58,6 +64,16 @@ class Config
 
     /** @var string Llave usada para la encriptación en la aplicación */
     protected $appKey = null;
+
+    /**
+     * @var string|null La huella de la clave que generó este arranque (first_boot_keyring()), para avisarlo una vez
+     */
+    private static $generatedKeyFingerprint = null;
+
+    /**
+     * @var bool Si el llavero existe pero este proceso no lo puede leer (permisos, o mal formado)
+     */
+    private static $keyringUnreadable = false;
 
     /** @var array Configuración de las cookies para session.cookie_* de PHP*/
     protected $appCookies = null;
@@ -241,13 +257,21 @@ class Config
     {
 
         $configName = 'app_key';
-        $configValue = get_config($configName);
 
-        if ($configValue !== false && is_string($configValue)) {
-            $this->appKey = $configValue;
-        } else {
-            $this->appKey = 'secret';
+        //El llavero de secure-keys manda (ADR 0061 §5); config.php queda de respaldo, con aviso para moverla.
+        $keyringPath = AppKeyring::defaultPath();
+        $keyring = $keyringPath !== null ? AppKeyring::fromFile($keyringPath) : null;
+        //Existe y no se lee: NO se genera otra encima (first_boot_keyring() mira el archivo) y el aviso lo dice.
+        self::$keyringUnreadable = $keyring === null && $keyringPath !== null && is_file($keyringPath);
+        if ($keyring === null) {
+            $configValue = get_config($configName);
+            $keyring = is_string($configValue) && trim($configValue) !== ''
+                ? new AppKeyring($configValue, [], AppKeyring::SOURCE_CONFIG)
+                : new AppKeyring(self::DEFAULT_APP_KEY, [], AppKeyring::SOURCE_DEFAULT);
         }
+        $keyring = self::first_boot_keyring($keyring, $keyringPath);
+        AppKeyring::set($keyring);
+        $this->appKey = $keyring->current();
         set_config($configName, $this->appKey);
     }
     /**
@@ -1062,20 +1086,25 @@ class Config
      */
     public static function app_key()
     {
+        //El llavero es la verdad (ADR 0061): una prueba que lo cambia cambia también esto.
+        if (AppKeyring::isSet()) {
+            return AppKeyring::get()->current();
+        }
         $instance = self::get_instance();
         return $instance->appKey;
 
     }
 
     /**
-     * Si la llave de la app es la de relleno: vacía o empezada por «TODO» (la de config.php al clonar).
+     * Si la llave de la app es la de relleno: vacía, empezada por «TODO» (la de config.php al clonar) o la que se pone
+     * cuando no hay ninguna (DEFAULT_APP_KEY).
      * @param string|null $appKey Null: la de la app
      * @return bool
      */
     public static function app_key_is_placeholder(?string $appKey = null)
     {
         $appKey = trim($appKey ?? (string) self::app_key());
-        return $appKey === '' || str_starts_with($appKey, 'TODO');
+        return $appKey === '' || str_starts_with($appKey, 'TODO') || $appKey === self::DEFAULT_APP_KEY;
     }
 
     /**
@@ -1087,6 +1116,55 @@ class Config
     public static function app_key_derived(string $purpose, ?string $appKey = null)
     {
         return hash_hmac('sha256', $purpose, $appKey ?? (string) self::app_key());
+    }
+
+    /**
+     * La primera arrancada (ADR 0061 §9, P139; en todas partes, PO A-899): con la clave de relleno y secure-keys
+     * escribible, se genera una aleatoria y se guarda; la de relleno queda como anterior, así lo cifrado con ella se
+     * sigue leyendo. Si no se puede escribir, no cambia nada y avisa warn_placeholder_app_key().
+     *
+     * @param AppKeyring $keyring El que se leyó (de config.php o el de omisión)
+     * @param string|null $keyringPath null: no hay carpeta secure-keys
+     * @return AppKeyring El que queda
+     */
+    public static function first_boot_keyring(AppKeyring $keyring, ?string $keyringPath): AppKeyring
+    {
+        if ($keyringPath === null || is_file($keyringPath) || !self::app_key_is_placeholder($keyring->current()) || !is_writable(dirname($keyringPath))) {
+            return $keyring;
+        }
+        $generated = $keyring->rotatedTo(AppKeyring::generateKey());
+        if ($generated->saveIfAbsent($keyringPath)) {
+            self::$generatedKeyFingerprint = $generated->currentFingerprint();
+            return $generated;
+        }
+        //Otro arranque lo creó a la vez: manda el suyo.
+        return AppKeyring::fromFile($keyringPath) ?? $keyring;
+    }
+
+    /**
+     * Si el llavero existe y este proceso no lo pudo leer: entonces usa la clave de config.php o la de relleno, que no
+     * es la de verdad.
+     *
+     * @return bool
+     */
+    public static function app_keyring_unreadable(): bool
+    {
+        return self::$keyringUnreadable;
+    }
+
+    /**
+     * Si este arranque generó la clave, lo deja dicho una vez en el registro de errores (lo ve root con su aviso). Se
+     * llama cuando los ayudantes del registro ya están cargados.
+     *
+     * @return void
+     */
+    public static function announce_generated_app_key()
+    {
+        if (self::$generatedKeyFingerprint === null) {
+            return;
+        }
+        log_soft_error('Se generó la clave de la aplicación en secure-keys/app-key.json (huella ' . self::$generatedKeyFingerprint . '): la de relleno queda en el llavero como anterior, así lo cifrado con ella se sigue leyendo. Las sesiones de antes dejan de valer.', ['huella' => self::$generatedKeyFingerprint]);
+        self::$generatedKeyFingerprint = null;
     }
 
     /**
@@ -1102,7 +1180,7 @@ class Config
         if (is_file($marker) && (int) filemtime($marker) > time() - 86400) {
             return;
         }
-        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. Genere una con `bin/cli generate-app-key` y póngala en config.php.'), true);
+        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. Genere una con `bin/cli generate-app-key` (la guarda en secure-keys/app-key.json).'), true);
         //RETORNO-IGNORADO: sin la marca el aviso solo se repite; no impide nada.
         @touch($marker);
     }

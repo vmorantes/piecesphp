@@ -22,6 +22,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -86,7 +87,6 @@ class NewsletterController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(NewsletterRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(NewsletterRoutes::staticRoute(self::BASE_CSS_DIR . '/newsletter.css'), 'css');
 
     }
 
@@ -115,7 +115,7 @@ class NewsletterController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -123,7 +123,7 @@ class NewsletterController extends AdminPanelController
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -169,7 +169,7 @@ class NewsletterController extends AdminPanelController
             $data['langGroup'] = self::LANG_GROUP;
             $data['title'] = $title;
             $data['description'] = $description;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -177,7 +177,7 @@ class NewsletterController extends AdminPanelController
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
 
             $this->helpController->render('panel/layout/header');
             self::view('forms/edit', $data, true, false);
@@ -212,12 +212,12 @@ class NewsletterController extends AdminPanelController
         $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         set_custom_assets([
             NewsletterRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -793,24 +793,19 @@ class NewsletterController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
-
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editButton = "<a href='{$editLink}' class='ui button brand-color'>{$editText}</a>";
-                    $buttons[] = $editButton;
-                }
+                $menu = [];
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button brand-color alt2' delete-newsletter-suscriber-button>{$deleteText}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-newsletter-suscriber-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
-
-                $buttons = implode('', $buttons);
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('forms-edit', ['id' => $e->id]), 'edit') : null;
+                $buttons = RowActions::cell($direct, $menu);
                 $columns = [];
 
                 $columns[] = $e->idPadding;
@@ -910,14 +905,17 @@ class NewsletterController extends AdminPanelController
     }
 
     /**
-     * @param RouteGroup $group
-     * @return RouteGroup
+     * @param RouteGroup $groupAdministration Las rutas con sesión: la gestión de suscriptores.
+     * @param RouteGroup|null $groupPublic Las rutas sin sesión: el alta desde el formulario público (P51).
+     * @return RouteGroup[] Con los índices groupAdministration y groupPublic
      */
-    public static function routes(RouteGroup $group)
+    public static function routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null)
     {
+        //Opcional porque `AdminPanelController::routes()` recibe un grupo: sin el público, todo va al único.
+        $groupPublic ??= $groupAdministration;
         $routes = [];
 
-        $groupSegmentURL = $group->getGroupSegment();
+        $groupSegmentURL = $groupAdministration->getGroupSegment();
 
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = ($lastIsBar ? '' : '/') . self::$URLDirectory;
@@ -1027,9 +1025,15 @@ class NewsletterController extends AdminPanelController
 
         ];
 
-        $group->register($routes);
+        //Cada ruta va al grupo que dice su `require_login`: el alta de suscriptor es pública aunque su nombre diga «admin».
+        foreach ($routes as $route) {
+            ($route->requireLogin() === true ? $groupAdministration : $groupPublic)->register([$route]);
+        }
 
-        return $group;
+        return [
+            'groupAdministration' => $groupAdministration,
+            'groupPublic' => $groupPublic,
+        ];
     }
 
     /**

@@ -6,23 +6,14 @@ window.addEventListener('load', function () {
 	let table = $(tableSelector)
 	let tableURLAttr = "url"
 
-	const dataTable = dataTableServerProccesing(table, table.attr(tableURLAttr), 20, {
+	//El alta y la edición van en la ventana de la pieza (admin-area/js/main.js, contentModals()).
+	dataTableServerProccesing(table, table.attr(tableURLAttr), 20, {
 		responsive: false,
+		autoWidth: false,
 		drawCallback: function () {
 			window.dispatchEvent(new Event('canDeleteDocumentType'))
 			configMirrorScrollX()
 		},
-	}).DataTable()
-
-	DocumentTypes.configDocumentTypeForm(function (formProcess) {
-		return new Promise(function (resolve) {
-			formProcess[0].reset()
-			formProcess.find('.ui.dropdown').dropdown('clear')
-			formProcess.find('.ui.dropdown').dropdown('refresh')
-			dataTable.draw()
-			resolve()
-		})
-	}, true, true)
-
+	})
 
 })

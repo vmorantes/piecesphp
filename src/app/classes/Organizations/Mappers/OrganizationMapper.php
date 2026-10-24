@@ -53,6 +53,7 @@ use PiecesPHP\Core\Validation\Validator;
  * @property int|UsersModel $createdBy
  * @property int|UsersModel|null $modifiedBy
  * @property int $status
+ * @property int $publicVisible Si el perfil se lista y se muestra (P136)
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  * @property string|null $phoneCode
@@ -189,6 +190,11 @@ class OrganizationMapper extends EntityMapperExtensible
         'status' => [
             'type' => 'int',
             'default' => self::ACTIVE,
+        ],
+        //Si el perfil se lista en el Directorio y el mapa y su página se ve (P136); lo deciden el dueño y root.
+        'publicVisible' => [
+            'type' => 'int',
+            'default' => 1,
         ],
         'meta' => [
             'type' => 'json',
@@ -369,7 +375,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
-        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, '+57', true), 'phoneCode');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, null, true), 'phoneCode');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'longitude');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'latitude');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY, [], false), 'affiliatedInstitutions');
@@ -519,7 +525,7 @@ class OrganizationMapper extends EntityMapperExtensible
 
         $currentUser = getLoggedFrameworkUser();
         $this->createdAt = new \DateTime();
-        $this->createdBy = $currentUser !== null ? $currentUser->id : 1;
+        $this->createdBy = $currentUser !== null ? $currentUser->id : UsersModel::SYSTEM_USER_ID;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -875,7 +881,7 @@ class OrganizationMapper extends EntityMapperExtensible
     {
         $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
-        $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
+        $slug = $slug !== null ? BaseHashEncryption::deobfuscate(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
         $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
         $slugID = Validator::isInteger($slugID) ? (int) $slugID : null;
@@ -890,7 +896,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function getEncryptIDForSlug(int $id)
     {
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
-        $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
+        $uniqid = strtr(BaseHashEncryption::obfuscate("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
     }
 
@@ -1366,7 +1372,7 @@ class OrganizationMapper extends EntityMapperExtensible
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
         $defaultMetaPropertiesValues = [
-            'phoneCode' => '+57',
+            'phoneCode' => null,
             'longitude' => 0.0,
             'latitude' => 0.0,
             'affiliatedInstitutions' => [],

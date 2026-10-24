@@ -106,7 +106,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 class MiModuloRoutes
@@ -266,6 +266,16 @@ public function action(Request $request, Response $response)
 }
 ```
 
+**Trampa medida dos veces (T120 y `#1447`): `action()` NO se reutiliza desde otra ruta.** Desde `7b96decd` (8.0.0) la
+operación sale del NOMBRE de la ruta (`BaseController::isEditRoute()`, `BaseController.php:349-366`), que lanza si no
+termina en `-actions-add` o `-actions-edit`. Quien llama a `action()` de otro controlador bajo una ruta suya rompe en
+silencio: la API (`APIController`, arreglado con `createOrganization()`) y Mi organización (`saveProfileAction()`, que
+no guardaba para nadie desde la 8.0.0; arreglado en `e90d413b`). **La forma**: el cuerpo en un método con la operación
+explícita —`OrganizationsController::saveOrganization(Request, Response, bool $isEdit)`— y `action()` reducido a
+`saveOrganization(…, self::isEditRoute($request))`; el otro camino autoriza primero y llama con la operación fijada. Y
+la prueba de una pantalla que guarda comprueba un guardado CON ÉXITO (valor cambiado y devuelto), no solo los rechazos:
+la de Mi organización solo probaba 403 y 404, y por eso nada lo vio.
+
 ---
 
 ## Receta 5 — Cronjob, cola, listener o acción CLI
@@ -395,7 +405,9 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   publicación sin ella (`referenceTable` = tabla, `referenceValue` = id como texto). Se declaran con
   `ownedRows()` en su forma con `where` (`referenceTable`). **Sin el `where`, el `IN` borra aprobaciones de otra tabla
   con el mismo id**: lo caza la aprobación señuelo de `seed-round-trip`. En un mismo proceso no existen hasta que se
-  llama a `init()`: la suite lo llama tras escribir.
+  llama a `init()`: la suite lo llama tras escribir. **Se salta** lo que su manejador excluya con
+  `excludesElement(int $id): bool` (de `BaseApprovalHandler`, no de la interfaz; `UsersApprovalHandler` excluye al
+  usuario de sistema con `UsersModel::isSystemUser()`): un manejador que solo implemente la interfaz no lo tiene.
 - **Archivos: NUNCA apuntar a un archivo versionado.** Al sustituir la imagen, cinco controladores hacen `unlink()` del
   anterior sin protección (Publications, BuiltInBanner, Documents, Organizations, GenericContent); NewsCategory se salta
   su `DEFAULT_ICON`. Se copia con `copyToUploads()` (origen en `statics/images/`, carpeta con el prefijo; privado =
@@ -407,7 +419,11 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   archivos se sirven SIN sesión aunque en disco sigan con `.protected` (`ServerStatics` la valida). Los documentos sin sesión dan 403 (medido); con sesión, sin medir.
 - **Una lista exacta de seeders en una suite** («y solo esos») se actualiza en el MISMO commit que añade el seeder.
 - **Medir por HTTP ensucia el punto de partida**: el login deja una fila en `login_attempts` y `gates` da «SUCIO». La
-  ronda que pida mediciones HTTP y «partió LIMPIA» lleva el borrado de esa fila por id en su plan.
+  ronda que pida mediciones HTTP y «partió LIMPIA» lleva el borrado de esa fila por id en su plan. **La pasada de
+  `bin/navegador` ya no deja filas** (HV, 2026-10-22): marca antes y borra al terminar las suyas, por id y solo las
+  `zz-agente-`, con `bin/cli walk-login-attempts mark=yes` y `prune=yes after-id=<n>` (`src/app/core/extensions/
+  walk-login-attempts.php`, solo en local y excluida de la distribución), y lo dice en su última línea. Lo de abajo
+  queda para las mediciones por HTTP que no pasan por el recorrido.
   **Cómo, sin cliente de base de datos** (`#1198`, 2026-10-09): una acción temporal `zz-scratch:` escrita en el
   scratchpad (`CliActions::make(...)->register()`, `(new \PiecesPHP\Core\BaseModel())->getDatabase()` y sentencias
   preparadas), que lee `id, userID, success, date` y si el usuario empieza por `zz-agente-` (sin imprimirlo), con
@@ -418,10 +434,42 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   hooks bloquea un `rm` sobre una ruta en variable, y al bloquear para la llamada entera.
   **Con el perfil persistente de `bin/navegador` y la sesión aún viva no se crea fila**: solo la deja la primera
   entrada, o la de después de caducar. La lectura se hace igual y el reporte dice «0 filas» (`#1204`).
-- **La base NO se queda sembrada** (2026-10-09): lo sembrado lleva `zz-`, `gates` lo cuenta como resto y toda corrida
-  sale «partió SUCIA» (ADR 0047). La ronda que necesite datos para mirar pantallas hace, en este orden: `db-backup`,
-  `seed module=all escribir=yes`, la medición, `seed module=all limpiar=yes`, el borrado de `login_attempts` de arriba y
-  `bin/cli gates only=unit-tests:core/app-version`, que imprime el punto de partida en menos de un minuto.
+- **Las capturas para el PO** (ADR 0058) viven en `~/Documentos/PiecesPHP/`. **Lo que él mira es PLANO: una carpeta por
+  resolución con todas las imágenes**, `todas-1920x1080/` y `todas-390x844/` (el PO, 2026-10-17: «con todo es todo, no
+  jerarquías»; la `panel/` por secciones se borró por su orden, P183). **Es la ÚNICA captura** (P184, GM): `bin/navegador
+  --por-secciones /home/vmorantes/Documentos/PiecesPHP` escribe las dos, con `NNNN-<sección>-<módulo>-<pantalla>.png` de 10
+  en 10 (sin repetir segmentos: `0010-inicio.png`), el mismo número en los dos anchos, las variantes por tipo de usuario
+  (alta y edición del primero de cada tipo con sus pestañas) y un `manifiesto.json` por carpeta con el commit, los
+  archivos sucios (su `git hash-object`) y la «receta» de cada pantalla. **Después captura SOLO lo tocado** (el PO, «¿todo
+  siempre?»): pide `bin/cli gates areas changed-since=<commit del manifiesto> unchanged=<sucios>` (ADR 0062: `AREA_MODULES`
+  de `src/app/classes/Terminal/Tasks/GatesTask.php` es la única lista); si algo tocado no es documentación ni de un módulo,
+  lo rehace TODO y dice qué lo forzó (**los artefactos de instrumentos, `files/dev/` y `PHPStanResult.*` de la raíz, no
+  fuerzan nada desde HA**: no cambian una pantalla, y `gates areas` los devuelve aparte, en `ignored`); si no, solo las pantallas de los módulos tocados, en su sitio y con su número. **Desde HZ cuenta también lo que la pantalla PIDE**: cada fila del manifiesto guarda `modulosObservados`, los módulos de las rutas que la página pidió (documento, XHR y `fetch`) mientras se producía, y una fila se rehace si su módulo o uno de los observados está tocado; un panel o una pantalla sin sesión con un observado tocado rehace su panel o el recorrido sin sesión enteros. Un manifiesto sin ese campo, el de antes de HZ, se comporta como antes hasta la siguiente pasada entera. **Ojo, medido en HZ (`#1737` H2)**: la barra superior pide a `News`, `LocalizationSystem` y `Settings` en TODA pantalla del panel, así que tocar uno de esos tres rehace casi todo (263 de 277, 9 min): es la verdad, porque la barra cambia con ellos; y las filas sin sesión no observan nada, porque las rutas de usuarios son núcleo; lo que
+  desaparece va a `archivo/<fecha>-retiradas/`. Medido en GM (`#1551`): todo, unos 10 min; un módulo, 31,5 s; nada,
+  0,76 s. `--todo` lo fuerza. **Ojo**: tocar el código de `admin` o de `users-list` lo fuerza todo, porque
+  `AdminPanel/` y `UserSystem/` son núcleo y no están en `AREA_MODULES` (no es la ruta la que fuerza, es su código). Las de cada ronda van a `rondas/<fecha-tema>/` y lo viejo a `archivo/`. **El «antes y después» de una ronda** se hace con el mismo instrumento, por lista de direcciones, y desde HZ también con los correos tapados: `bin/navegador --pantallas <ruta>,<ruta> --capturas /home/vmorantes/Documentos/PiecesPHP/rondas/<fecha-tema>/antes`, y lo mismo con `despues` tras el cambio (`--ancho 390` para el móvil). El enmascarado es el mismo de la plana (`bin/tools/navegador/enmascarado.js`). El recorrido sale
+  del DOM (nada tecleado), solo hace GET y **sustituye todo correo por `correo@ejemplo.com`** antes de cada captura, porque
+  el PO las comparte con terceros: en el texto, en el valor y el `placeholder` de los campos y en **cualquier atributo** menos `src` y `srcset`, que
+  recargarían la imagen (`data-tooltip`, `title`, `href` de un `mailto:`…; una imagen «logo@2x.png» casaría como correo), y también **un correo recortado por la vista** («nombre@dom…»,
+  `user-card.php:74` recorta a 30 caracteres). Desde HZ; antes solo miraba el texto entero, `title` y los campos, y la
+  plana enseñaba los correos recortados de las tarjetas de usuarios (`#1737`). **No tapa** un correo recortado ANTES de su
+  `@`, ni uno pintado en una imagen, un `canvas`, un `content` de CSS o un iframe de otro origen. Su «administrador general» entra hoy como root (`abierto.md` G17). La guarda no deja
+  borrar ahí: lo viejo se mueve, y lo que el PO mande borrar se mueve a un temporal propio y se borra allí (regla 40 §3).
+- **La carpeta para el diseñador es una COPIA, no una captura** (P184): `bin/navegador --por-secciones --para-el-disenador
+  <destino> --plana /home/vmorantes/Documentos/PiecesPHP` copia de `todas-1920x1080/` las pantallas de los tres paneles de
+  la barra con sus variantes: «Lateral Administrativo» con una subcarpeta por grupo del panel y, en su raíz, el panel y el
+  índice de Configuración; «Lateral Perfil» y «Lateral Noticias», planas. Sin «Importar usuarios»
+  (`data-transfer-import-users`: el PO, «es un módulo»). Comprobado en GM: 78 de 78 con el mismo sha1 que su origen,
+  0,17 s. Sin `--plana`, la busca en la carpeta que contiene al destino. Si el destino existe, para. **Pedir la URL de
+  datos del listado de usuarios ESCRIBE** si un usuario tiene un rol que no existe (`abierto.md` H20). Un cierre de
+  Chromium a mitad («Target closed») no se recupera: se pierde el resto de ese ancho y hay que repetir (`#1539`).
+- **La base local SE QUEDA SEMBRADA entre rondas** (PO, 2026-10-09 tarde: «siembra en todo, porque así no puedo revisar
+  bien»). Pero lo sembrado lleva `zz-`, `gates` lo cuenta como resto (ADR 0047) y `unit-tests:core/seed-round-trip` exige
+  que no haya nada sembrado antes de empezar (`UnitTest-SeedRoundTrip.php:80-81`, su caso c3). Así que toda ronda, en este
+  orden: **al empezar**, `seed module=all limpiar=yes`; `db-backup`; la siembra y las mediciones que la ronda pida; **antes
+  de verificar**, `seed module=all limpiar=yes` otra vez y el borrado de `login_attempts` de arriba; `bin/verify`; y **al
+  final, después de verificar y antes del commit del estado**, `seed module=all escribir=yes`, que es lo que el PO
+  encuentra. El reporte dice qué quedó sembrado (módulos e ids). Mientras corre una ronda, la base puede estar vacía.
 
 ## Receta 9 — Reglas de autorización propias con `_allowedRoute()`
 
@@ -555,3 +603,33 @@ private static function _allowedRoute(string $name, string $route, array $params
   hace fallar `verify-integrity` y hay que borrarlo. **De ahí salieron 89 copias muertas.**
 - **Variables por si acaso.** Cargar el usuario para asignar `$currentUserType` y no leerlo
   nunca es exactamente el andamio que se acaba de quitar.
+
+## Receta 10 — Pasar un módulo al armazón del panel (rediseño, 2026-10-09)
+
+Para los listados y formularios que aún no lo tienen (`abierto.md` C13). **Las plantillas son commits**: `606eed8c`
+(listado), `094da887` (alta y edición), `1b05b21e` (categorías en ventana), `56d9633d` (acciones de fila), `98f68d3e`
+(un listado con el formulario encima). Las piezas y sus trampas, en `16-frontend-arquitectura.md` §9; para quien
+desarrolla, `source-docs/…/pantallas-de-contenido.md`.
+
+Por módulo, en este orden y sin repetir medidas:
+
+1. **Leer antes** su controlador, sus vistas y su JS: qué marcas busca el JS (`save`, `delete-…-button`, `data-route`,
+   el selector del `form`), qué manda además de los campos, y si un guardado escribe un archivo versionado o sube algo
+   (si es así, no se guarda de verdad: se intercepta el envío).
+2. **Listado**: `page-header.php` (migas, título, una frase verdadera, UNA principal, secundarias básicas); la tabla con
+   `content-table` y las columnas cortas en `collapsing`; el número de registro fuera de la tabla y buscable
+   (`columnsOrder` por posición); `RowActions` (hasta tres a la vista).
+3. **Alta y edición**: la cabecera («Nuevo …», «Editar: <nombre>» escapado en las migas), `ui form initial` con
+   `data-content-form`, la barra al final (Guardar con sus marcas, Cancelar con `times`, Eliminar `danger` y
+   `type="button"`). Lo de uno o dos campos, en la ventana (`form-modal.php`); lo que lleve imagen o color, en su página.
+4. **Sus hojas de estilo a su módulo** (A-806 §2), quitando lo que el armazón vuelve innecesario.
+5. **Pruebas**: un camino por acción (alta, edición, borrado, búsqueda) sobre lo sembrado; los valores tocados, devueltos.
+
+Por RONDA, no por módulo (tres o cuatro módulos en cada una):
+
+- receta 8d al empezar y antes de verificar; **`bin/verify` una vez, sobre lo commiteado**;
+- **los artefactos regenerados en UN commit** (`chore(artefactos): …`: huella, censo de SCSS, censo de borrados,
+  permisos declarados, firmas);
+- **la matriz de permisos, solo si la ronda añade, quita o cambia rutas**;
+- **capturas solo del después**, a 1440 y 390, al cerrar la ronda;
+- la documentación del arquitecto, **después** del reporte, en el primer commit de la ronda siguiente.

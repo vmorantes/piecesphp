@@ -79,8 +79,8 @@ window.addEventListener('load', function () {
 			celda('[data-system-maintenance-stamp]', String(status.staticsStamp))
 		}
 		maintenance.querySelectorAll('[data-system-maintenance-action]').forEach(function (button) {
-			button.addEventListener('click', function () {
-				if (!window.confirm(button.getAttribute('data-confirm') || '')) {
+			button.addEventListener('click', async function () {
+				if (!(await confirmAction({ message: button.getAttribute('data-confirm') || '' }))) {
 					return
 				}
 				button.classList.add('loading', 'disabled')

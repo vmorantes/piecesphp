@@ -3,6 +3,7 @@
 //Quien no puede verlo todo y no tiene organización no ve ninguna publicación en el listado del panel: falla cerrada.
 //Por HTTP. Siembra una organización, tres usuarios y una publicación, todos zz-, y los retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -62,8 +63,8 @@ CliActions::make('unit-tests:core/publications-without-organization', function (
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -106,7 +107,7 @@ CliActions::make('unit-tests:core/publications-without-organization', function (
             $u->modifiedAt = $u->createdAt;
             $u->save();
             $usuarios[$sufijo] = (int) $u->id;
-            return SessionToken::generateToken(['id' => (int) $u->id], null, null, false);
+            return UserSessions::issueToken((int) $u->id);
         };
         $root = $crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL);
         $ahora = date('Y-m-d H:i:s');

@@ -134,9 +134,11 @@ class NewsMapper extends EntityMapperExtensible
         self::INACTIVE => 'Inactiva',
     ];
 
+    //Los de la familia de contenidos (PublicationMapper::VISIBILITIES_COLORS): un `ui label` de Fomantic sin `tag` no
+    //conoce `brand-color` y sale gris.
     const STATUSES_COLORS = [
-        self::ACTIVE => 'brand-color',
-        self::INACTIVE => 'brand-color alt2',
+        self::ACTIVE => 'green',
+        self::INACTIVE => 'red',
         self::PSEUDO_STATUS_DRAFT => 'orange',
     ];
 
@@ -709,7 +711,7 @@ class NewsMapper extends EntityMapperExtensible
     {
         $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
-        $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
+        $slug = $slug !== null ? BaseHashEncryption::deobfuscate(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
         $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
         $slugID = Validator::isInteger($slugID) ? (int) $slugID : null;
@@ -724,7 +726,7 @@ class NewsMapper extends EntityMapperExtensible
     public static function getEncryptIDForSlug(int $id)
     {
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
-        $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
+        $uniqid = strtr(BaseHashEncryption::obfuscate("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
     }
 

@@ -68,11 +68,7 @@ class SiteFilesController extends BaseController
         '/core/',
         '/components-provider/',
         '/organizations/',
-        '/configurations/',
-        '/tickets/',
-        '/timing/',
         '/locations/',
-        '/avatars/',
         '/tokens/',
     ];
 

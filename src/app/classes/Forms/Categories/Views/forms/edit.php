@@ -13,37 +13,20 @@ use Forms\Categories\Mappers\CategoriesMapper;
  * @var string $action
  */
 ?>
-<section class="module-view-container limit-size">
+<section class="module-view-container">
 
-    <div class="header-options">
+    <div class="limiter-content">
 
-        <div class="main-options">
-
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
-
-        </div>
-
-        <div class="columns">
-
-            <div class="column">
-
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Editar'); ?></div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="container-standard-form max-w-800">
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
+        ?>
 
         <?php if($manyLangs): ?>
-        <div class="ui form">
+        <div class="ui form max-w-800">
             <div class="field required">
                 <label><?= __($langGroup, 'Idiomas'); ?></label>
                 <select required class="ui dropdown search langs">
@@ -51,31 +34,34 @@ use Forms\Categories\Mappers\CategoriesMapper;
                 </select>
             </div>
         </div>
+        <br>
         <?php endif; ?>
 
-        <form method='POST' action="<?= $action; ?>" class="ui form" category-form>
+        <form method='POST' action="<?= $action; ?>" class="ui form initial max-w-800" category-form data-content-form>
 
-            <input type="hidden" name="id" value="<?= $element->id; ?>">
-            <input type="hidden" name="lang" value="<?= $lang; ?>">
+            <div class="container-standard-form">
 
-            <div class="two fields">
+                <input type="hidden" name="id" value="<?= $element->id; ?>">
+                <input type="hidden" name="lang" value="<?= $lang; ?>">
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Nombre'); ?></label>
                     <input type="text" name="categoryName" required value="<?= escape_html($element->getLangData($lang, 'categoryName')); ?>">
                 </div>
 
-                <div class="field">
-                    <label>&nbsp;</label>
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                        <?php if($allowDelete): ?>
-                        <button type="submit" class="ui button brand-color alt2" delete-categories-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
             </div>
+
+            <?php
+            //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
+            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+            if ($allowDelete) {
+                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-categories-button' => '', 'data-route' => $deleteRoute]];
+            }
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => $secondaryActions,
+            ]);
+            ?>
 
         </form>
 

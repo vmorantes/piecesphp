@@ -1,10 +1,12 @@
 <?php
 
-//Un trabajo de la cola cuyo proceso murió se reanima o se marca como fallido, y uno RECIENTE no se
-//toca. Crea filas zz- en la cola local y las borra. 292.1.
+//La cola: lo abandonado se reanima o falla (292.1), un trabajo lo toma un solo trabajador, lo fallido lleva su fin y
+//lo viejo se purga (G10). Crea filas zz- en la cola local y las borra; la purga, con un «ahora» de 2001.
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\Terminal\QueueHandlerResponse;
+use PiecesPHP\Terminal\QueueTask;
 use Terminal\Mappers\QueueJobMapper;
 use Terminal\Tasks\ProcessQueueTask;
 
@@ -124,6 +126,59 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
         $check(count($segunda) === 0, 'b1 la segunda pasada no recupera nada: ' . count($segunda));
         $check($estadoDe($ids['reciente']) === QueueJobMapper::STATUS_RUNNING, 'b2 y la reciente sigue intacta');
 
+        //─── c · Un trabajo lo toma un solo trabajador ─────────────────────────────────────────────
+        echoTerminal('');
+        echoTerminal('[c] Tomar es un UPDATE condicional: de dos tomas, gana una');
+        $ids['disputada'] = $crear('disputada', QueueJobMapper::STATUS_PENDING, 0, 3, null);
+        $primera = QueueJobMapper::claim($ids['disputada']);
+        $segunda = QueueJobMapper::claim($ids['disputada']);
+        $check($primera && !$segunda, 'c1 la primera toma gana y la segunda no', var_export([$primera, $segunda], true));
+        $check($estadoDe($ids['disputada']) === QueueJobMapper::STATUS_RUNNING && (int) $campoDe($ids['disputada'], 'attempts') === 1
+            && (string) $campoDe($ids['disputada'], 'startedAt') !== '', 'c2 queda «en curso», con su inicio y UN intento');
+
+        //─── d · Lo fallido lleva su fin ───────────────────────────────────────────────────────────
+        echoTerminal('');
+        echoTerminal('[d] Un trabajo que falla queda con fecha de fin');
+        $lanza = "{$prefijo}-lanza";
+        //Un \Error: QueueTask::execute() atrapa las Exception y las vuelve un fallo; lo que se le escapa llega aquí.
+        QueueTask::addQueueHandler(QueueTask::make($lanza, function (): QueueHandlerResponse {
+            throw new \Error('zz fallo de prueba');
+        }));
+        $agota = "{$prefijo}-agota";
+        QueueTask::addQueueHandler(QueueTask::make($agota, fn(): QueueHandlerResponse => QueueHandlerResponse::fail('zz sin más intentos')));
+        $ids['lanza'] = $crear('lanza', QueueJobMapper::STATUS_PENDING, 0, 3, null);
+        $ids['agota'] = $crear('agota', QueueJobMapper::STATUS_PENDING, 0, 1, null);
+        $ids['sin-manejador'] = $crear('sin-manejador', QueueJobMapper::STATUS_PENDING, 0, 3, null);
+        ProcessQueueTask::processPending();
+        foreach (['lanza' => 'una excepción', 'agota' => 'los intentos agotados', 'sin-manejador' => 'un manejador que no existe'] as $clave => $como) {
+            $check($estadoDe($ids[$clave]) === QueueJobMapper::STATUS_FAILED && (string) $campoDe($ids[$clave], 'finishedAt') !== '',
+                "d1 «failed» por {$como}, con fecha de fin", (string) $estadoDe($ids[$clave]));
+        }
+
+        //─── e · La purga ──────────────────────────────────────────────────────────────────────────
+        echoTerminal('');
+        echoTerminal('[e] Se purga lo terminado de más de ' . QueueJobMapper::PURGE_COMPLETED_DAYS . ' días y lo fallido de más de ' . QueueJobMapper::PURGE_FAILED_DAYS);
+        //Un «ahora» de 2001 y fechas de 2000-2001: la purga no puede alcanzar ninguna fila real.
+        $fechar = function (int $id, string $fin) use ($database, $tabla): void {
+            $statement = $database->prepare("UPDATE `{$tabla}` SET finishedAt = ?, updatedAt = ?, createdAt = ? WHERE id = ?");
+            //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION; lo comprueba la purga que sigue.
+            $statement->execute([$fin, $fin, $fin, $id]);
+        };
+        $ahora = new \DateTime('2001-03-01 00:00:00');
+        $ids['vieja-completada'] = $crear('vieja-completada', QueueJobMapper::STATUS_COMPLETED, 1, 3, null);
+        $fechar($ids['vieja-completada'], '2001-01-01 00:00:00');
+        $ids['reciente-completada'] = $crear('reciente-completada', QueueJobMapper::STATUS_COMPLETED, 1, 3, null);
+        $fechar($ids['reciente-completada'], '2001-02-20 00:00:00');
+        $ids['vieja-fallida'] = $crear('vieja-fallida', QueueJobMapper::STATUS_FAILED, 1, 3, null);
+        $fechar($ids['vieja-fallida'], '2000-11-01 00:00:00');
+        $ids['reciente-fallida'] = $crear('reciente-fallida', QueueJobMapper::STATUS_FAILED, 1, 3, null);
+        $fechar($ids['reciente-fallida'], '2001-01-01 00:00:00');
+        $purgadas = QueueJobMapper::purge($ahora);
+        $check($estadoDe($ids['vieja-completada']) === null && $estadoDe($ids['vieja-fallida']) === null, 'e1 la completada de hace 59 días y la fallida de hace 120 se borran', json_encode($purgadas) ?: '');
+        $check($estadoDe($ids['reciente-completada']) === QueueJobMapper::STATUS_COMPLETED && $estadoDe($ids['reciente-fallida']) === QueueJobMapper::STATUS_FAILED,
+            'e2 la completada de hace 9 días y la fallida de hace 59 se quedan');
+        $check($purgadas === ['completed' => 1, 'failed' => 1], 'e3 y no borra nada más: una y una', json_encode($purgadas) ?: '');
+
     } catch (\Throwable $e) {
         $check(false, 'la prueba corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     }
@@ -143,4 +198,4 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
 
     return $balance();
 
-})->setDescription('Un trabajo de la cola cuyo proceso murió vuelve a «pending» si le quedan intentos o pasa a «failed» si no; uno reciente no se toca, y recuperar no gasta un intento.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('La cola: un trabajo cuyo proceso murió vuelve a «pending» si le quedan intentos o pasa a «failed» si no, uno reciente no se toca y recuperar no gasta un intento; de dos tomas del mismo trabajo gana una; lo fallido (excepción, intentos agotados, sin manejador) lleva su fin; y la purga borra lo terminado de más de 30 días y lo fallido de más de 90, nada más.')->setEffects([CliActions::EFFECT_DATABASE])->register();

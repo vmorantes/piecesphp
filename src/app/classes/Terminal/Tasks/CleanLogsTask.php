@@ -9,6 +9,7 @@ namespace Terminal\Tasks;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
@@ -101,10 +102,14 @@ class CleanLogsTask extends TerminalTaskAbstract
 
             if (file_exists($baseLogsDirectory)) {
 
-                //Log de errores
-                file_put_contents($errorLogFile, '[]');
-                chmod($errorLogFile, 0664);
-                $message[] = "\e[34merror.log.json vaciado.\e[39m";
+                //Log de errores: el formato viejo (ya no se escribe) y el nuevo, con sus trazas y contadores.
+                if (is_file($errorLogFile)) {
+                    file_put_contents($errorLogFile, '[]');
+                    chmod($errorLogFile, 0664);
+                    $message[] = "\e[34merror.log.json vaciado.\e[39m";
+                }
+                $retiradosRegistro = GenericHandler::clearStorage(basepath('app/logs'));
+                $message[] = "\e[34m" . GenericHandler::FILE_ENTRIES . " vaciado ({$retiradosRegistro} trazas y contadores).\e[39m";
 
                 //Log de errores planto
                 file_put_contents($errorLogPlanFile, '');

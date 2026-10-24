@@ -16,7 +16,6 @@ use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
 use PiecesPHP\Core\BaseController;
-use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -497,8 +496,8 @@ class PublicAreaController extends BaseController
             $view_data['user'] = $this->user;
             $this->user->avatar = AvatarModel::getAvatar($this->user->id);
             $this->user->hasAvatar = !is_null($this->user->avatar);
-            $this->user->id = BaseHashEncryption::encrypt(base64_encode($this->user->id), self::class);
-            unset($this->user->password, $this->user->meta, $this->user->failedAttempts, $this->user->sessionsValidFrom);
+            //El id no viaja a la zona pública: ninguna vista lo usa (ADR 0061 §10).
+            unset($this->user->id, $this->user->password, $this->user->meta, $this->user->failedAttempts, $this->user->sessionsValidFrom);
         }
 
         $this->setVariables($view_data);

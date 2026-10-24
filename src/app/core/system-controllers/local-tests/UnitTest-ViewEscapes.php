@@ -2,7 +2,16 @@
 
 //Lo que se pinta sin escapar (pendientes.md 396), por HTTP: las tres salidas públicas, las claves de IA que no viajan al
 //HTML, el contenido de una publicación aislado en su aprobación, los dos textarea y la longitud. Siembra zz- y lo retira.
+//@areas src/app/classes/Documents/
+//@areas src/app/classes/News/
+//@areas src/app/classes/Newsletter/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\BaseModel;
@@ -66,9 +75,9 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     //Un manejador con sus cookies en memoria: el login recibe la URI pedida por un mensaje de sesión.
-    $conCookies = curl_init();
+    $conCookies = \Terminal\TestRun::curlInit();
     $pedir = function (string $path, ?string $jwt, ?array $post = null, bool $cookies = false, bool $xhr = true) use ($base, $cabeceraToken, $conCookies): array {
-        $handle = $cookies ? $conCookies : curl_init();
+        $handle = $cookies ? $conCookies : \Terminal\TestRun::curlInit();
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         if ($xhr) {
             $cabeceras[] = 'X-Requested-With: XMLHttpRequest';
@@ -89,7 +98,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         if ($cookies) {
             $opciones[CURLOPT_COOKIEFILE] = '';
         }
-        curl_setopt_array($handle, $opciones);
+        \Terminal\TestRun::curlSetoptArray($handle, $opciones);
         $body = curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
@@ -101,6 +110,10 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
     $tablaUsuarios = UsersModel::TABLE;
     $tablaOrganizaciones = OrganizationMapper::TABLE;
     $tablaAprobaciones = SystemApprovalsMapper::TABLE;
+    $tablaPaises = (new \PiecesPHP\App\Locations\Mappers\CountryMapper())->getModel()->getTable();
+    $tablaDepartamentos = (new \PiecesPHP\App\Locations\Mappers\StateMapper())->getModel()->getTable();
+    $tablaCiudades = (new \PiecesPHP\App\Locations\Mappers\CityMapper())->getModel()->getTable();
+    $tablaLocalidades = (new \PiecesPHP\App\Locations\Mappers\PointMapper())->getModel()->getTable();
     $usuarios = [];
     $organizaciones = [];
     $publicaciones = [];
@@ -134,7 +147,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $root->save();
         $rootID = (int) $root->id;
         $usuarios[] = $rootID;
-        $jwtRoot = SessionToken::generateToken(['id' => $rootID], null, null, false);
+        $jwtRoot = UserSessions::issueToken($rootID);
 
         //──── [a] Las tres públicas ─────────────────────────────────────────────────────────
         echoTerminal('[a] Las salidas públicas pintan escapada la URL pedida y el correo del suscriptor');
@@ -425,7 +438,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $admin->modifiedAt = $admin->createdAt;
         $admin->save();
         $usuarios[] = (int) $admin->id;
-        $jwtAdmin = SessionToken::generateToken(['id' => (int) $admin->id], null, null, false);
+        $jwtAdmin = UserSessions::issueToken((int) $admin->id);
         $rutaGenerica = $camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('generic-save', [], true));
         foreach (['mail', MailDelivery::CONFIG_NAME, 'osTicketAPI', 'osTicketAPIKey'] as $n => $nombre) {
             $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => $nombre, 'value' => 'zz-no-debe-guardarse']);
@@ -594,7 +607,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $colorAntes = $crudoDe('main_brand_color');
         $ponerCrudo('owner', 'Zz' . $marca);
         $ponerCrudo('main_brand_color', '#123456</style><b>zzColor');
-        $muestra = $pedir($camino(\MySpace\Controllers\MySpaceController::routeName('iframe-sources', ['source' => 'mail-users-template'], true)), $jwtRoot, null, false, false);
+        $muestra = $pedir($camino(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('design-sheet-resources', ['source' => 'mail-users-template'], true)), $jwtRoot, null, false, false);
         $reponerAhora('owner', $ownerAntes);
         $reponerAhora('main_brand_color', $colorAntes);
         $check($muestra['status'] === 200 && !str_contains($muestra['body'], 'Zz' . $marca) && str_contains($muestra['body'], $escapar('Zz' . $marca)), 'l1 la muestra de correo pinta el propietario escapado', "HTTP {$muestra['status']}");
@@ -667,6 +680,44 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
         preg_match('#Longitud</div>\s*<div class="base-text">([^<]*)</div>#', $aprobacion['body'], $longitud);
         $check(trim($longitud[1] ?? '') === '7.75', 'd1 «Longitud» pinta 7.75, la longitud, y no la latitud (1.25)', "HTTP {$aprobacion['status']}, pinta " . var_export($longitud[1] ?? null, true));
+
+        //──── [n] Ubicaciones pinta escapado lo que viene de la base ─────────────────────────
+        echoTerminal('');
+        echoTerminal('[n] Ubicaciones pinta escapados los nombres en los cuatro listados y en el desplegable de regiones');
+        $nombreUbicacion = "{$prefijo}-ubicacion{$marca}";
+        $regionUbicacion = "{$prefijo}-region{$marca}";
+        $database->prepare("INSERT INTO `{$tablaPaises}` (code, name, region, active) VALUES (?, ?, ?, 1)")->execute(['zz' . bin2hex(random_bytes(3)), $nombreUbicacion, $regionUbicacion]);
+        $paisUbicacion = (int) $database->lastInsertId();
+        $database->prepare("INSERT INTO `{$tablaDepartamentos}` (country, code, name, active) VALUES (?, ?, ?, 1)")->execute([$paisUbicacion, $marca, $nombreUbicacion]);
+        $departamentoUbicacion = (int) $database->lastInsertId();
+        $database->prepare("INSERT INTO `{$tablaCiudades}` (state, code, name, active) VALUES (?, ?, ?, 1)")->execute([$departamentoUbicacion, $marca, $nombreUbicacion]);
+        $ciudadUbicacion = (int) $database->lastInsertId();
+        $database->prepare("INSERT INTO `{$tablaLocalidades}` (city, address, name, latitude, longitude, active) VALUES (?, ?, ?, 4.6, -74.1, 1)")->execute([$ciudadUbicacion, $nombreUbicacion, $nombreUbicacion]);
+        //Las columnas que DataTables pide, con la búsqueda por el prefijo: sin ellas el listado da 500.
+        $consultaListado = function (int $columnas) use ($prefijo): string {
+            $parametros = ['draw' => 1, 'start' => 0, 'length' => 50, 'search' => ['value' => $prefijo, 'regex' => 'false'], 'order' => [['column' => 0, 'dir' => 'asc']], 'columns' => []];
+            for ($c = 0; $c < $columnas; $c++) {
+                $parametros['columns'][] = ['data' => $c, 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => ['value' => '', 'regex' => 'false']];
+            }
+            return '?' . http_build_query($parametros);
+        };
+        $listados = [
+            'n1 países' => [\PiecesPHP\App\Locations\Controllers\Country::class, 6],
+            'n2 departamentos' => [\PiecesPHP\App\Locations\Controllers\State::class, 6],
+            'n3 ciudades' => [\PiecesPHP\App\Locations\Controllers\City::class, 7],
+            'n4 localidades' => [\PiecesPHP\App\Locations\Controllers\Point::class, 9],
+        ];
+        foreach ($listados as $caso => [$controlador, $columnas]) {
+            $r = $pedir($camino($controlador::routeName('datatables', [], true)) . $consultaListado($columnas), $jwtRoot);
+            $filas = json_decode($r['body'], true)['data'] ?? [];
+            $celdas = is_array($filas) ? implode("\n", array_map(fn ($fila) => is_array($fila) ? implode("\n", array_map('strval', $fila)) : '', $filas)) : '';
+            $check($r['status'] === 200 && !str_contains($celdas, $marca) && str_contains($celdas, $escapar($nombreUbicacion)), "{$caso}: el listado manda el nombre escapado al DataTable", "HTTP {$r['status']}, " . (is_array($filas) ? count($filas) : 0) . ' filas');
+        }
+        //La clave de la opción se compara con lo guardado para marcarla: escapada una y no lo otro, se pierde la selección.
+        $edicion = $pedir($camino(\PiecesPHP\App\Locations\Controllers\Country::routeName('forms-edit', ['id' => $paisUbicacion], true)), $jwtRoot, null, false, false);
+        $check($edicion['status'] === 200 && !str_contains($edicion['body'], $regionUbicacion) && str_contains($edicion['body'], "<option selected value='" . $escapar($regionUbicacion) . "'>" . $escapar($regionUbicacion) . '</option>'), 'n5 la edición del país pinta su región escapada y SELECCIONADA', "HTTP {$edicion['status']}");
+        $alta = $pedir($camino(\PiecesPHP\App\Locations\Controllers\Country::routeName('forms-add', [], true)), $jwtRoot, null, false, false);
+        $check($alta['status'] === 200 && !str_contains($alta['body'], $regionUbicacion) && str_contains($alta['body'], "value='" . $escapar($regionUbicacion) . "'>"), 'n6 el alta del país pinta la región escapada en el desplegable', "HTTP {$alta['status']}");
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');
@@ -729,6 +780,10 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
                 //RETORNO-IGNORADO: lo comprueba z1 contando lo que queda.
                 $perfiles->delete(['belongsTo' => $id])->execute();
             }
+            //Ubicaciones, de la hija al padre: las claves foráneas no dejan otro orden.
+            foreach ([$tablaLocalidades, $tablaCiudades, $tablaDepartamentos, $tablaPaises] as $tablaUbicacion) {
+                $database->exec("DELETE FROM `{$tablaUbicacion}` WHERE name LIKE " . $database->quote("{$prefijo}%"));
+            }
             $database->exec("DELETE FROM `{$tablaUsuarios}` WHERE username LIKE " . $database->quote("{$prefijo}%"));
         } catch (\Throwable $e) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
@@ -741,6 +796,11 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             + (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email LIKE ' . $database->quote("{$prefijo}%") . ' OR email = ' . $database->quote('<img src=x onerror=zzNl()>@zz.test'))->fetchColumn()
             + (int) $database->query('SELECT COUNT(*) FROM `' . NewsMapper::TABLE . '` WHERE newsTitle LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
             + (int) $database->query('SELECT COUNT(*) FROM `' . DocumentsMapper::TABLE . '` WHERE documentName LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
+        $quedanUbicaciones = 0;
+        foreach ([$tablaLocalidades, $tablaCiudades, $tablaDepartamentos, $tablaPaises] as $tablaUbicacion) {
+            $quedanUbicaciones += (int) $database->query("SELECT COUNT(*) FROM `{$tablaUbicacion}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn();
+        }
+        $check($quedanUbicaciones === 0, 'z4 no queda ningún país, departamento, ciudad ni localidad de la prueba', "quedan {$quedanUbicaciones}");
         $check($quedan === 0, 'z1 no queda ningún usuario, organización, suscriptor, banner ni fila de aprobación de la prueba', "quedan {$quedan}");
         $reponer = true;
         foreach ($clavesOriginales as $nombre => $original) {

@@ -1,3 +1,1315 @@
+# 9.0.0 (23-10-2026)
+
+> **Versión estable.** Reúne las rupturas que el PO decidió el 2026-10-08 —el panel entero bajo `admin/` y una lista de
+> rupturas pequeñas que no merecían esperar—, el rediseño del panel familia a familia y lo que cerró la campaña hasta
+> aquí. La rama `last-stable` apunta siempre a la última estable. **Las rupturas van marcadas con ⚠ en cada sección**:
+> quien actualiza un clon desde la 8 las lee todas antes de empezar. Antes, estas pre-versiones:
+
+| Pre-versión | Fecha | Hasta |
+| :-- | :-- | :-- |
+| `v9.0.0-alpha.5` | 2026-10-22 | El geovisor (una pieza con fuentes registradas, miniaturas, el centro configurable; fuera el mapa viejo y sus dos módulos), las aprobaciones rápidas con miles de registros, los errores de las pruebas marcados y podados, el prefijo telefónico y la nacionalidad desde los países (fuera `PHONE_AREA_CODES` y `NATIONALITIES`), el informe por los países de los datos, Rutas y permisos por módulo, los colores del panel por variable, el paquete de sesión de solo lectura, la cola que no reintenta un fallo sin reintento, la documentación de la API con la sesión de la 9, y la que viaja, solo la del framework |
+| `v9.0.0-alpha.4` | 2026-10-17 | El rediseño del panel, familia a familia: usuarios, organizaciones, banners, suscriptores, Ubicaciones, Aprobaciones y el gestor de archivos; Mi espacio, el Directorio y los perfiles; el inicio con tarjetas; Configuración entera, «Acerca de» y la Salud de la instalación. Además: una sola forma de preguntar (`confirmAction()`), la sesión que caduca por inactividad, la llave del cron solo por cabecera, las migas como arreglo, MapBox sin llaves de fábrica y las pruebas por área tocada |
+| `v9.0.0-alpha.3` | 2026-10-10 | Registros en una pantalla, las sesiones con su fila, los errores graves y suaves, y el cifrado de verdad con la clave de la aplicación en su llavero |
+| `v9.0.0-alpha.2` | 2026-10-09 | Empieza el rediseño del panel con la familia de contenidos: los listados de publicaciones y noticias y el alta y la edición de publicaciones. Además, una denegación de permiso responde 403 también dentro de un `try`, y sale `CURRENCIES` |
+| `v9.0.0-alpha.1` | 2026-10-09 | El panel entero bajo `admin/` y ocho rupturas pequeñas: `bin/cli` sale con error en rojo, 401 sin sesión, 404 a una acción de usuarios que no existe, `database` 5.3, `asSystemMailer()`, fuera `test_mode`, `route_alias` e `interest_research_area` |
+
+## ⚠ CAMBIO INCOMPATIBLE — los textos de Configuración viven en su módulo
+
+El diccionario de las pantallas de Configuración estaba fuera de su módulo, en `src/app/lang/app_config/`, y desde hoy
+vive en `src/app/classes/PiecesPHP/Settings/lang/`, como el de cualquier otro módulo (`es.php`, `en.php` y la carpeta
+`files/`). El grupo de traducción no cambia (`SettingsController::LANG_GROUP`), así que las llamadas a `__()` siguen
+igual.
+
+- **Qué hacer en un clon**: si editaste `src/app/lang/app_config/es.php` o `en.php`, lleva tus cambios a los archivos del
+  mismo nombre en `src/app/classes/PiecesPHP/Settings/lang/`. Si no los tocaste, nada.
+- Por qué: un texto nuevo de Configuración tocaba un archivo que no era de su módulo, y la selección de pruebas y de
+  capturas por área lo trataba como núcleo y lo rehacía todo.
+
+## Cambia — una verificación parcial que solo regenera artefactos ya no corre todas las pruebas
+
+`bin/cli gates changed-since=<commit>` (la verificación parcial de las rondas intermedias, ADR 0062) trataba como núcleo
+cualquier cambio en `files/dev/` o en los `PHPStanResult.*` de la raíz, y corría las 168 suites. Desde ahora, un
+artefacto de instrumento ya no fuerza todas: elige las suites que lo leen (las que nombran ese archivo, y las que nombran
+`files/dev` sin decir cuál), y además corren, como siempre, las que no declaran `@areas` (ADR 0065). Hoy son 154 de
+168, así que el ahorro es pequeño hasta que las suites declaren su área. La verificación entera no cambia.
+
+## Cambia — `piecesphp/database` 5.4.0: el juego de caracteres en la conexión, y un tipo de campo desconocido avisa
+
+- **`piecesphp/database` se instala en la 5.4.0** (el requisito sigue siendo `^5.3`). **Qué hacer**:
+  `composer update piecesphp/database --working-dir=src`.
+- **El juego de caracteres de `database.php` va en la conexión** (el DSN), no en un `SET NAMES` posterior: PDO lo conoce
+  y entrecomilla de acuerdo con él. Las consultas no cambian. Un `charset` que no sea un nombre de juego (letras, cifras y
+  guion bajo) lanza `\InvalidArgumentException` al conectar.
+- **Un tipo desconocido en el `$fields` de un mapper avisa con `E_USER_DEPRECATED`** al validar un valor. En local
+  aborta, como toda obsolescencia, y fuera se anota y sigue (ADR 0060). Los mappers del framework no tienen ninguno: lo
+  vigila la comprobación 10 de `bin/cli verify-integrity`, que exige que todo tipo declarado esté en el vocabulario del
+  paquete. **Un clon con un tipo propio** lo cambia por el conocido más cercano (`mixed` acepta cualquier valor).
+
+## ⚠ CAMBIOS INCOMPATIBLES — sin sesión, `allowedRoute()` y el control de acceso de los módulos ya no conceden lo que pide sesión
+
+Sin usuario conectado, `Controller::routeName()` no mira los permisos y devuelve la dirección de cualquier ruta.
+`allowedRoute()`, que solo preguntaba si `routeName()` había devuelto algo, contestaba «sí» también a las rutas del panel,
+y `DefaultAccessControlModules` (el control de acceso que instalan 24 controladores) dejaba pasar. Lo frenaba antes
+`src/index.php` cuando la ruta declara `require_login`, pero no con `control_access_login` apagado ni en lo que se pinta
+sin sesión. Ahora, **sin usuario**:
+
+- `allowedRoute()` devuelve `false` para una ruta que declara `require_login = true`. Con usuario, nada cambia.
+- `DefaultAccessControlModules` responde **403** a una ruta de su módulo que declara `require_login = true`, antes de
+  preguntar al validador del módulo.
+- **`routeName()` no cambia**: sigue dando la dirección sin sesión, así que los enlaces de los correos de alta y de
+  recuperación, el cron y la zona pública funcionan igual, y nadie tiene que migrar nada.
+- Las rutas sin `require_login` siguen igual, también las que declaran roles: una lista de roles no cierra una ruta
+  (`source-docs/project/docs/piecesphp/new-features/permisos-de-ruta.md`).
+- `getLoggedFrameworkUser()` devuelve `null` también si leer el usuario falla; en ese caso `allowedRoute()` contesta
+  como a un visitante: falla cerrado.
+
+**Qué revisar en un clon**: un sitio que se pinte sin sesión y use `allowedRoute()` para decidir si enseña un enlace a
+una ruta con sesión deja de enseñarlo. Si ese enlace tiene que verse (por ejemplo, para llevar al visitante al acceso),
+usa `routeName()` y comprueba que no sea `''`. En el framework no hay ninguno: con la matriz de permisos medida antes y
+después del cambio, ninguna página sin sesión cambió de respuesta ni de tamaño, y ninguna suite dependía de la concesión
+anterior. Lo vigila `core/anonymous-route-access`.
+
+## Cambia — la siembra deja a cada organización con su encargado
+
+Las organizaciones sembradas no tenían encargado, y sin él «Mi organización» no pinta su formulario («Debe seleccionar
+una persona encargada…»): con la base sembrada no se podía revisar. Ahora, al terminar de sembrar, cada organización
+sembrada queda con un encargado que es un usuario sembrado de ella, preferentemente el administrador de organización. Si
+no hay ninguno que pueda serlo (por ejemplo, con `seed module=Organizations` a solas), lo dice y sigue. Limpiar la siembra
+lo deshace como siempre.
+
+Para quien escribe sembradores: `Terminal\Seeding\ModuleSeeder::afterAll(SeedContext $context): array` es un paso
+opcional que corre cuando todos los sembradores han escrito, dentro de la misma transacción, y devuelve lo que hizo para
+el informe. Por omisión no hace nada.
+
+## Arregla — `bin/cli bundle` ya no deja su copia a la vista de git
+
+`bundle` copia `src/app` (sin `sass`, `app/cache` ni `app/logs`) y `src/statics` (sin `plugins`, `uploads` ni
+`filemanager`) a `src/bundle/`, y ninguna regla de `.gitignore` cubría esa carpeta: tras correrlo, el árbol quedaba con
+miles de archivos sin seguimiento, entre ellos lo que git ignora en `src/app` (`src/app/config/environment.php`, los
+volcados de traducciones dinámicas), a un `git add` de entrar en un commit. Ahora `src/bundle/` está ignorada. La copia
+se hace en `BundleTask::bundleInto()`, y `scan-missing-lang` reúne lo pendiente en
+`ScanMissingLangTask::collectMissing()`: los dos se prueban sobre carpetas de prueba.
+
+## Arregla — un trabajo de la cola que falla sin reintento ya no se reintenta
+
+`QueueHandlerResponse::fail($mensaje, retry: false)` caía en la misma rama que un fallo con reintento: el trabajo
+volvía a «pendiente» hasta agotar sus intentos. Ahora pasa a «fallido» en el primer intento, con su mensaje. El fallo
+con reintento y la espera voluntaria (`wait()`) siguen igual. El trabajo de un elemento de la cola se procesa en un
+método propio, `ProcessQueueTask::processJob()`, que usa `processPending()` y que una prueba puede recorrer con un
+trabajo suyo sin tocar los demás pendientes.
+
+## ⚠ CAMBIO INCOMPATIBLE — el paquete de sesión no se escribe desde fuera
+
+`PiecesPHP\UserSystem\UserDataPackage` (lo que devuelve `getLoggedFrameworkUser()`) tenía `__get()` y no `__set()`:
+escribir un nombre que no declara creaba una propiedad dinámica en silencio (en PHP 8.5, con un aviso de obsolescencia:
+en local abortaba, fuera se anotaba y seguía), y escribir una propiedad suya daba `Error`. **Ahora las dos cosas lanzan
+`\LogicException`**, con el nombre de la propiedad, en todos los entornos. Leer sigue igual. Un clon que guardara datos
+propios en ese objeto los pasa a una variable suya o al mapper del usuario.
+
+## Arregla — `db-restore` encuentra el volcado desde `src/` o desde la raíz
+
+`bin/cli` corre dentro de `src/`, y `db-restore file=` buscaba la ruta relativa solo ahí: `file=databases/x.sql` o
+`file=src/dumps/x.sql`, escritos pensando en la raíz, daban «no existe» sin decir dónde se había buscado. Ahora prueba la ruta tal cual, luego contra `src/` y
+luego contra la raíz del proyecto; si no la encuentra, el error nombra las dos carpetas.
+
+## Cambia — la documentación que viaja es solo la del framework
+
+Las guías de entorno y de herramientas (Entornos: VPS, LAMP, HestiaCP, Tomcat, Docker y Mailpit; Rendimiento: ZRam y
+Apache con PHP-FPM; Herramientas: Mautic con RabbitMQ y GeoServer) salen de `source-docs/project` y pasan a un sitio
+MkDocs propio del repositorio de desarrollo, `source-docs/entornos`, que **no viaja a los clones**. Lo que el framework
+necesitaba de ellas está ahora en su propia documentación, en «Despliegue» (`piecesphp/content/general.md`): qué paquete
+de Ubuntu trae cada extensión de PHP, `mod_php` o PHP-FPM, y cómo probar el correo con Mailpit.
+
+**De paso se corrige** «Correo en desarrollo», que todavía describía el modo de pruebas que dejó de decidir el
+2026-10-03: lo que decide si un correo sale es «Entrega del correo» (`mail_delivery`).
+
+## ⚠ CAMBIOS INCOMPATIBLES — el prefijo telefónico y la nacionalidad salen de los países, y las listas fijas se van
+
+Ubicaciones › Países tiene dos campos nuevos, opcionales: **Prefijo telefónico** (`+` y de una a cuatro cifras, sin cero
+delante: `+57`, `+1`) y **Gentilicio** (lo que se ofrece como nacionalidad: «Colombiana»). Un prefijo con otra forma se
+rechaza al guardar. Son las columnas `phoneCode` y `demonym` de `locations_countries`.
+
+Los desplegables de prefijo (Mi perfil, Mi organización, y el alta y la edición de organizaciones) y el de nacionalidad
+(Mi perfil) ofrecen ahora lo de los **países activos que tienen el dato**: el prefijo con el nombre del país al lado, y
+el gentilicio traducido con el grupo de nombres de Ubicaciones. Se guarda el mismo texto que antes (el prefijo, el
+gentilicio), así que lo guardado sigue valiendo. **Al guardar se valida** —en los formularios y en el alta por la API—
+que el valor sea de un país activo; un valor que ya estaba guardado en ese registro y que ningún país ofrece (como
+«Otras nacionalidad») se enseña tal cual y se puede volver a guardar sin cambiarlo, pero no se puede elegir de nuevo. El
+prefijo de una organización nueva ya no es `+57` por omisión: va vacío.
+
+**Lo que rompe:**
+
+- Salen `PHONE_AREA_CODES` y `NATIONALITIES` (`src/app/config/constants.php`) y las funciones `getPhoneAreas()` y
+  `getNationalities()` (`src/app/config/functions.php`). Un clon que las use pasa a
+  `PiecesPHP\App\Locations\Mappers\CountryMapper::phoneCodeOptions()` y `demonymOptions()`, que devuelven lo mismo
+  para `array_to_html_options()`.
+- Un clon que guardaba prefijos o nacionalidades que no son de ningún país activo deja de poder elegirlos: los da de
+  alta en Ubicaciones › Países, con su dato.
+
+**Un clon que ya esté instalado** aplica `databases/actualizaciones/2026-10-22-prefijo-y-gentilicio-de-los-paises.sql`
+(se puede con la aplicación en marcha, y ANTES de desplegar el código, que lee las columnas): añade las dos columnas y
+rellena Colombia (`+57`, «Colombiana») y Francia (`+33`, «Francesa») si existen con ese nombre y sin el dato. Sin él, los
+desplegables saldrían vacíos. Una instalación nueva ya nace con ellas.
+
+## ⚠ CAMBIOS INCOMPATIBLES — el informe de Informes reparte por los países de los datos, y su JSON cambia
+
+**Si consumes `core/api/reports/get-generic-data/` (la API de reportes), mira esto antes de actualizar.**
+
+El informe contaba fijo Colombia, Francia y «otros» (buscaba los dos países por su nombre). Ahora enseña **los dos
+países con más registros** y «Otros países», que suma el resto y los registros sin país, en el mismo gráfico de tres
+partes. Los totales no cambian. El JSON:
+
+- `researchersData` pasa a **`peopleData`**, y `totalResearchersQty`, `…Colombia`, `…Francia` y `…Others` pasan a
+  **`total`**, **`byCountry`** (lista de `{country, name, qty}` de los dos primeros) y **`others`**. Lo mismo en
+  **`organizationsData`** (`total`, `byCountry`, `others`).
+- `chartData` deja de llevar `colors` (la pantalla colorea con las variables CSS).
+- **Desaparece `publicationsProjectionData`**: nadie la leía y sus dos barras llevaban los mismos valores.
+- `totalApprovedPublicationsQty`, `totalPendingPublicationsQty` y `totalRemainingTokens` no cambian.
+
+La forma nueva, en `source-docs/api/docs/modules/Reportes.md`. Una suite nueva, `core/reports-by-country`, la vigila.
+
+## Cambia — el proveedor de componentes, sin la comprobación que no comprobaba, y el bloque público de destacadas con tope
+
+`components-provider-provide` (`src/app/classes/PiecesPHP/Components/Controllers/ComponentProvider.php`) responde con
+`Content-Type: text/html; charset=utf-8` y deja de comprobar algo que siempre era cierto (si existía la carpeta de
+vistas). Una plantilla de grupo que lanza una excepción sigue respondiendo 500: un 404 lo decide el filtro del grupo,
+antes de ejecutarla. El grupo `publications`, que sirve las destacadas de la portada sin sesión, **atiende
+como mucho diez `slugs[]`** por petición (el cliente pide cinco) y escapa la dirección, el slug y la fecha que pinta. Su
+documentación, nueva: `source-docs/project/docs/piecesphp/new-features/componentes.md`.
+
+## ⚠ CAMBIOS INCOMPATIBLES — cuatro archivos sin uso se van
+
+Ningún código del framework los usaba (medido en HG: nadie los carga, los incluye ni los instancia). **Si tu clon usa
+alguno, cópialo a tu módulo antes de actualizar.**
+
+- `src/statics/core/js/helpers-lib/GenericStepsViewHandler.js`: la clase `GenericStepsViewHandler` sale del paquete
+  común (`configurations.min.js`). Un clon que la instancie verá `GenericStepsViewHandler is not defined` en la consola.
+- `src/app/view/mailing/generic-dynamic-message.php`: una plantilla de correo que nadie pinta.
+- `src/app/classes/PiecesPHP/AdminPanel/Views/panel/pages/dashboard.php` y `src/statics/core/sass/dashboard.scss` (y su
+  compilado `statics/core/css/dashboard.css`): el tablero de antes del inicio con tarjetas.
+
+## Cambia — el aviso de errores nuevos ya no dice cuántos
+
+El aviso del pie que ve root dice «Hay errores nuevos desde tu última visita», sin la cifra, como la tarjeta plegada del
+inicio: las demostraciones a clientes no enseñan números de errores (ADR 0064). La cifra sigue en Registros › Errores.
+
+## Cambia — los colores del SCSS del panel, por variable, y una comprobación que lo vigila
+
+Los 107 colores escritos a mano en las hojas del panel pasan a variables de SCSS con el nombre de su papel: los que se
+repiten, a la **paleta del panel** (`src/statics/core/sass/includes/_variables.scss`, sección «Paleta del panel»), y los
+de una sola hoja, arriba de ella. El CSS compilado es el mismo (`bin/huella-css --comparar`: idéntica). **Para quien
+clona**: `bin/cli verify-integrity` tiene una comprobación nueva, la 54, que **falla** si una hoja versionada del panel
+lleva un color escrito a mano (`#…`, `rgb()`, `rgba()`) fuera de la línea que define su variable. Si tu clon tiene hojas
+propias del panel con colores fijos, pásalos a variables (la forma, en `source-docs/project/docs/piecesphp/content/panel.md`).
+La zona pública (`src/statics/sass/`) no entra.
+
+## Cambia — las tarjetas de Accesos miden lo que su contenido, y la hoja de diseño enseña su ejemplo real
+
+En **Registros › Accesos** (intentos de ingreso, registro de ingreso y usuarios sin ingreso), las tarjetas de cifra y de
+«Exportar datos» ya no pasan el modificador `tall`: en el móvil miden lo que su contenido (de 250 px a 168 y 180); a 1440
+la rejilla sigue igualando la fila. En la **hoja de diseño del panel**, una entrada puede llevar su ejemplo real en el
+panel como tercer elemento (`[texto, dirección]`), y se pinta «Ejemplo en el panel: <enlace>» solo si la dirección no
+está vacía. La «Ventana de formulario» enlaza el listado de categorías genéricas (`Forms/Categories`), documentado en
+`source-docs/project/docs/piecesphp/new-features/categorias-genericas.md`.
+
+## Cambia — Rutas y permisos, por módulo y con buscador
+
+**Configuración › Sistema › Rutas y permisos** deja la tabla única de DataTables (283 filas de 10 en 10) y agrupa las
+rutas por módulo en un acordeón de Fomantic, cerrado al entrar y con «N rutas» en cada título. El módulo sale del
+controlador de la ruta: la parte de su espacio de nombres anterior a `\Controllers\` (o el espacio de nombres de la
+clase, si no la tiene), sin el prefijo `PiecesPHP\`. Un buscador filtra por nombre, ruta, controlador completo y tipo de
+usuario, y abre los grupos que tienen algo. Una ruta que pueden usar todos los tipos de usuario lleva una sola etiqueta,
+«Todos los tipos de usuario»; el controlador se ve como `Clase::método`, con el nombre completo al pasar el ratón. Las
+filas y los permisos no cambian. El JavaScript de la pantalla pasa a `src/app/classes/PiecesPHP/Settings/Statics/js/routes.js`.
+
+## Cambia — Correos enviados con filtros, y lo de fábrica que ya no se pinta
+
+- **Registros › Correos enviados** se filtra por fecha (desde y hasta), resultado (entregado, en el buzón, no llegó),
+  entrega (de prueba o real) y origen.
+- **Guardar los colores de marca** renueva la marca de los estáticos: el color nuevo se ve al recargar, sin «Borrar todo
+  lo temporal».
+- **Las imágenes de socios de fábrica** (`statics/images/partners.png` y `partners-vertical.png`, el recuadro «280x50»)
+  ya no se pintan en el acceso, en la ayuda para ingresar ni en el pie del menú. Se reconocen por su contenido, porque una
+  imagen propia se guarda en el mismo archivo: **un clon** que suba la suya la ve como siempre.
+- **El mapa del sitio** deja fuera la categoría genérica «Sin categoría».
+- **El logo del framework** de «Acerca de» dice «PiecesPHP», junto.
+
+## Cambia — las tarjetas de cifra miden lo que su contenido, y cinco hojas de estilo vacías se van
+
+La pieza de tarjeta de estadística (`panel/built-in/statistics/statistic-card.php`, y `card-action`) ya no tiene un alto
+mínimo de 250 px ni `height: max-content`: mide lo que su contenido y, dentro de una rejilla, la fila la iguala. El mínimo
+sigue con el modificador `tall`. El modificador de título `color-black` se retira (no hacía nada: los títulos ya salían
+en ese color). La rejilla `three-columns-grid` reparte el ancho en tres columnas iguales.
+
+Salen cinco hojas que solo llevaban un `@use` y compilaban vacías, con su carga: `Forms/Categories/…/categories-style.scss`,
+`Forms/DocumentTypes/…/document-types-style.scss`, `Newsletter/…/newsletter.scss`,
+`PiecesPHP/BuiltIn/Banner/…/built-in-banner.scss` y `PiecesPHP/BuiltIn/Helpers/…/helpers-system.scss`. **Un clon** que
+cargara una de ellas desde su propio código deja de hacerlo; no aportaban ninguna regla.
+
+## Cambia — el Informe general, con el armazón del panel
+
+La pantalla «Informe general» (`reports-manage-generic-report-view`) pierde el fondo degradado y el saludo: lleva la
+cabecera del panel (migas, título y una frase), las dos cifras arriba y las dos tortas debajo, y sus colores salen de
+las variables de marca (`--main-brand-color` y `--second-brand-color`): cambiar el color en Apariencia cambia las tortas.
+Sus textos pasan del grupo de idioma de Mi espacio al de su módulo (`ReportsManageLang`): **un clon** que tradujera esos
+textos en el grupo de Mi espacio los mueve al de Informes. El JSON de datos que pinta la pantalla no cambia.
+
+## Cambia — sin llave de MapBox, la ubicación se escribe a mano; y un punto con coordenadas que no lo son, se rechaza
+
+Desde la `9.0.0-alpha.4` un clon sin llave de MapBox no tiene mapas, y el alta de un punto de Ubicaciones no se podía
+completar: la latitud y la longitud las ponía el mapa. Ahora, sin llave, los formularios que piden una ubicación con el
+mapa (un punto de Ubicaciones, los perfiles de persona y de organización) enseñan dos campos numéricos, «Latitud» y
+«Longitud», además del aviso. Y el servidor, al guardar un punto, **rechaza una latitud o una longitud que no sea un
+número o se salga de su rango** (−90 a 90 y −180 a 180) con «Los parámetros recibidos son erróneos.»; antes no las
+comprobaba.
+
+## Cambia — los errores que escriben las pruebas se podan al terminar
+
+Las pruebas siguen pudiendo escribir en el registro de errores, pero cada entrada que escriben lleva su marca
+(`context.test`, el identificador de la corrida) y, al terminar, `bin/cli gates` o la suite lanzada sola las borran:
+Registros › Errores y el aviso «Hay N errores nuevos» dejan de llenarse con lo que dejan las pruebas (medido el
+2026-10-21: 72 entradas podadas por cada `bin/verify` entero, el registro real idéntico antes y después). **Un error real
+nunca se poda**: antes de reescribir, la poda comprueba que cada línea que quita lleva la marca de una corrida que se
+está podando, y si una sola no la lleva, no escribe nada («poda abortada»).
+
+- En la terminal, la marca llega por la variable de entorno `PCSPHP_TEST_RUN`, que `gates` pone a cada suite.
+- Por web, por la cabecera `X-PCSPHP-Test-Run`, que **solo se acepta en una instalación local**: fuera, se ignora, para
+  que nadie pueda hacer pasar un error real por uno de prueba.
+- **Una suite propia de un clon** que pida páginas con curl usa `Terminal\TestRun::curlInit()`,
+  `curlSetopt()` y `curlSetoptArray()` en lugar de las funciones de curl, y sus errores se podan igual. Si no lo hace,
+  sigue funcionando: sus errores se quedan en el registro, como antes.
+- Lo que la poda no toca todavía: `error.plain.log`, `error.unique.message.log` y los registros ya rotados de `olds/`.
+
+Decidido en el ADR 0063 (P191).
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera el mapa viejo y sus dos módulos; el centro del mapa se configura
+
+Salen `ContentNavigationHub` y `GeoJSONManager`, con sus rutas `content-navigation-hub-admin-contents-map`
+(`admin/content-hub/contents-map/`, ahora 404) y `geojson-manager-admin-contents-geojson-features`, sus vistas,
+estáticos, textos y la constante `CONTENT_NAVIGATION_HUB_MODULE`. Los sustituye el geovisor (`geo-admin-viewer`, y sus
+puntos por `geo-admin-points` y `geo-admin-point`); el listado de actores ya vivía en el Directorio
+(`directory-admin-list`). Ninguno tenía tablas. **Un clon** que enlazara o llamara a esas rutas o clases pasa a las del
+geovisor; uno que pintara puntos con las vistas `map-elements` registra una fuente (`GeoSource`).
+
+**El centro por omisión de los mapas** deja de estar escrito en el código: se configura en Configuración › Integraciones
+› Llaves de MapBox, «Centro del mapa por omisión» (longitud, latitud y acercamiento, con su rango validado), y lo leen
+el geovisor, Mi perfil, Mi organización y el valor por omisión de `MapBoxAdapter.js`. Sin configurar, Barranquilla con
+acercamiento 11. El panel lo entrega en `pcsphpGlobals.mapDefaultCenter` (`null` si no hay), por el mismo camino que la
+llave de MapBox. **En Mi perfil y Mi organización**, el mapa sin posición abre con ese acercamiento (antes, 10).
+
+## ⚠ CAMBIO INCOMPATIBLE — una fuente del geovisor dice el archivo de su imagen, y los puntos llevan miniatura
+
+`PiecesPHP\Geo\GeoSource` gana un método: `thumbnailSource(int $id): ?string`, el archivo ORIGINAL de la imagen de un
+punto en disco (nunca una URL), o `null` si no tiene imagen o si la fuente no lo mostraría en `points()`. Con él, la
+ruta nueva `geo-admin-thumbnail` (`admin/geo/thumbnail/{source}/{id}/{size}/`, solo 64 o 128 px) genera la miniatura
+UNA vez, la guarda en `app/cache/geo-thumbnails/` (que no se sirve) y la entrega con el mismo permiso de la fuente que
+los puntos: un logo privado de una organización sale en miniatura solo a quien ve la fuente. Si el original cambia, se
+regenera. `PiecesPHP\Geo\GeoThumbnail::url($clave, $id, $archivo)` da la URL que lleva cada punto, con su sello de
+versión.
+
+**Un clon con una fuente propia** añade el método: `return null;` si no quiere imagen, o la ruta en disco de la imagen
+del punto, comprobando que el punto sea visible para la fuente (las dos que trae el framework lo hacen con la misma
+búsqueda que su detalle).
+
+## Cambia — el geovisor solo lee lo que cae en el mapa, con una consulta por fuente
+
+El encuadre se filtra en `WHERE` (antes, en `HAVING`, tras calcular cada columna de cada fila) y el total y la página
+salen de una sola consulta (`COUNT(*) OVER ()`). Las personas usan el índice nuevo `geo` (`longitude`, `latitude`) de
+`user_system_profile`. Medido el 2026-10-21 con 10.000 puntos y un encuadre de un barrio: las personas leen 1.068 filas
+de 7.850 y pasan de 73 a 10 ms; las organizaciones, de 34 a 8 ms. Los puntos que salen son los mismos.
+`GeoSourceSql::addBbox()` sigue y funciona; la fuente que quiera el filtro en `WHERE` usa `GeoSourceSql::addBboxWhere()`, con la expresión de cada coordenada. **Trampa**: el marcador de un `WhereItem` se fabrica con el texto de la expresión, y una con `$`, `^`, `?` o `+` rompe la consulta (defecto del paquete `piecesphp/database`); la de las organizaciones escribe el `$` con `CHAR(36)`.
+
+**Un clon que ya esté instalado** aplica `databases/actualizaciones/2026-10-21-indice-geo-de-perfiles.sql`; sin él,
+todo funciona y las personas leen la tabla entera.
+
+## Arregla — con miles de registros, las aprobaciones ya no hunden el panel
+
+Cada arranque busca lo que aún no tiene su fila de aprobación, y cada listado de usuarios, perfiles u organizaciones lee
+el estado de aprobación con una subconsulta por fila. Las dos buscaban en `system_approvals_elements` sin índice: con
+10.000 perfiles, cada página del panel tardaba de 12 a 25 s y los puntos del geovisor, hasta 44 s. Ahora
+`referenceTable` y `referenceValue` son `varchar(191)` con el índice `reference` sobre los dos, y las tres consultas
+comparan la referencia como texto para poder usarlo. Medido el 2026-10-21 con 10.000 perfiles: de 12,97 s a 0,12 s el
+inicio del panel, de 25,01 s a 0,16 s el geovisor, de 43,85 s a 0,39 s los puntos de las personas; mismos estados de
+aprobación antes y después.
+
+**Un clon que ya esté instalado** aplica `databases/actualizaciones/2026-10-21-indice-de-aprobaciones.sql` (se puede
+con la aplicación en marcha; el archivo dice qué comprobar antes). Sin aplicarlo, todo funciona igual que antes, y
+igual de lento. Una instalación nueva ya nace con el índice.
+
+## Nuevo — el geovisor: un mapa del panel al que cada módulo le registra sus puntos
+
+**«Mapa de contenidos»** (y «Mapa de actores y contenidos» en el menú de los demás tipos de usuario) abre la pantalla
+nueva, `admin/geo/` (ruta `geo-admin-viewer`, los mismos cinco tipos de usuario que el mapa de antes). Es un mapa a
+pantalla completa con el menú plegado al entrar, que enseña los puntos sin pulsar nada y encuadra los que hay:
+
+- los agrupa en círculos con su cifra cuando hay muchos, y al acercarse los separa; desde cerca, cada uno con su imagen
+  (o sus iniciales) y su nombre;
+- el contador «Viendo X de Y» avisa cuando hay más puntos de los que se ven;
+- los filtros y la leyenda van en dos paneles flotantes; apagar una fuente en la leyenda la quita del mapa;
+- al pulsar un punto sale su tarjeta, con un enlace a su perfil;
+- calles o satélite, sin perder lo que había en el mapa.
+
+Hoy trae dos fuentes: las **personas** (con perfil público visible), con su avatar, y las **organizaciones**, con su
+logo; sin imagen, las iniciales. Lo que ve cada usuario lo decide el permiso de cada fuente. El mapa de antes (`admin/content-hub/contents-map/`) sigue en su dirección hasta que
+salga en la próxima pre-versión.
+
+**Para un módulo propio**: una clase que implementa `PiecesPHP\Geo\GeoSource` (clave, título, la ruta cuyo permiso la
+hace visible, su marcador —`GeoSource::MARKER_DOT` o `GeoSource::MARKER_AVATAR`, el modo de cada fuente—, su color
+como variable CSS, sus filtros, sus puntos —cada `GeoPoint` con su imagen como último argumento, una URL absoluta o
+desde la raíz, o `null`—, el detalle de un punto y `cardView()`, la vista de su tarjeta con marcado fijo y
+`data-geo-field`), registrada con `GeoSourceRegistry::register()` desde su
+`*Routes`. El servidor no pinta HTML: los textos viajan tal cual y la pantalla los escribe como texto. La guía para
+implementadores llega con la versión que retire el mapa de antes.
+
+**Para medirlo**: `bin/cli geo-load-fixture escribir=yes cantidad=<n>` (de 1 a 20.000; por defecto 10.000; solo en una
+instalación local) escribe personas y organizaciones `zz-carga-` repartidas por Barranquilla, y `limpiar=yes` las borra.
+Con 10.000, el panel responde por debajo de medio segundo desde el índice de las aprobaciones (entrada de arriba).
+
+## ⚠ CAMBIO INCOMPATIBLE — MapBox ya no trae llaves de fábrica, y un aviso dice cuándo falta la del entorno
+
+Las dos llaves públicas (`pk.`) de MapBox que el framework traía escritas en `GenericContentPseudoMapper` salen del
+código: cada instalación pone las suyas en **Configuración › Integraciones › Llaves de MapBox** (una para local y otra
+para el dominio), que las guarda en la base. Sin la del entorno en que corre:
+
+- el aviso del sistema `mapbox-key-missing` (root y administrador general, ocultable) lo dice, con un enlace al
+  formulario;
+- en el sitio de cada mapa del panel sale «Falta la llave de MapBox: configúrela en Integraciones › Llaves de MapBox.» en
+  lugar de un error de JavaScript que cortaba el resto del script;
+- no hay mapas, y el alta de un punto de Ubicaciones no se puede completar, porque sus coordenadas las pone el mapa.
+
+**Un clon** que ya guardó sus llaves desde ese formulario no nota nada. Uno que vivía de las del framework las configura
+al actualizar. `SettingsController::mapboxKey()` devuelve una cadena vacía, sin aviso de PHP, si no hay llave.
+
+## Cambia — `bin/cli gates areas` dice qué tocó un cambio
+
+`bin/cli gates areas changed-since=<commit>` no corre ninguna suite: imprime un JSON con los módulos de `AREA_MODULES`
+tocados desde ese commit, el primer archivo de núcleo tocado (el que obligaría a correrlo todo) y la carpeta de módulo de
+cada ruta, sacada de su controlador. `unchanged=<json>` descuenta lo que ya estaba sucio y no ha cambiado. Es el mismo
+criterio que `changed-since` (ADR 0062), y lo usa el recorrido de capturas para rehacer solo lo tocado.
+
+## Cambia — «Acerca de» y Configuración, lo que quedaba
+
+**«Acerca de»** da la versión de CKEditor (27.1.0), separa las librerías de PHP de las de JavaScript, dice «Es un
+conjunto» y lleva sus migas. En **Configuración**, el bloque que sigue a un formulario ya no va pegado a su barra de
+guardar (el mismo 1rem que separa dos contenedores, regla `form + *` de `src/statics/core/sass/admin_app_base.scss`;
+se nota en Correo y en Apariencia › Fondos y Colores), **Correo** tiene una sola acción principal («Guardar»; «Enviar
+correo de prueba» pasa a secundaria) y en **Respaldos** los nombres de tabla solo se parten tras un guion bajo.
+
+## Nuevo — la Salud de la instalación
+
+Una pantalla nueva, la primera de **Configuración › Sistema** y solo para root: versiones del framework y de cada
+dependencia de PHP con su licencia, el entorno de PHP (versión, extensiones exigidas, límites, OPcache, ffmpeg), la base
+de datos (motor, juego de caracteres, tablas y las declaradas que faltan), los respaldos y las tareas programadas, y si
+cada carpeta que debe escribirse se puede escribir. **Cada fila dice de dónde sale y ninguna enseña un valor secreto.**
+Detalle en `source-docs/project/docs/piecesphp/new-features/system-health.md`. La clase `PiecesPHP\Core\InstalledPackages`
+lee las versiones y licencias de lo instalado por Composer y la usan esta pantalla y «Acerca de».
+
+## Cambia — «Acerca de», «Agregar usuario», el índice de Configuración y la lista de carpetas escribibles
+
+**«Acerca de»** lee de lo instalado las versiones y licencias de las dependencias de PHP (antes eran una lista escrita a
+mano que se había quedado en las de hace años), cuenta los años desde 2018 al pintar, escribe «PiecesPHP» junto, enlaza
+a GitHub y dice «Versión instalada». Las librerías de JavaScript siguen escritas a mano, medidas el 2026-10-16. **«Agregar
+usuario»** y el índice de Configuración llevan la cabecera y las tarjetas del panel.
+
+**Las carpetas escribibles** pasan de la lista `WRITABLE_DIRS` repetida en `permissions-and-property.sh` y en
+`src/permissions.sh` a un solo archivo, `src/app/config/writable-dirs.txt`, que leen los dos guiones y la Salud de la
+instalación. **Un clon** que hubiera añadido carpetas a esa lista en sus guiones las pasa al archivo.
+
+## Arregla — reimportar una librería ya no quita un archivo que otro plugin sigue pidiendo, y las páginas de acceso cargan la hoja base
+
+`import_front_library()` (y con ella `import_app_libraries()` y el resto de `import_*`) sustituye la lista de plugins
+de una librería al volver a llamarla: los plugins que salen se quitan con sus archivos. **Antes quitaba también los
+archivos que pedía otro plugin que seguía importado**, de esa librería o de otra; ahora esos se quedan, y solo se quitan
+los exclusivos del plugin que sale. Lo prueba la suite `core/import-front-library`. Por ese defecto las páginas de acceso
+nunca tuvieron la hoja base del panel: ahora la importan con el plugin nuevo `baseStyle` de `app_libraries` (solo
+`ui-pcs.css`, la misma hoja que lleva `adminStyle`), y con ella les llegan las fuentes, que ya no se cargan aparte. Su
+aspecto cambia poco: el fondo pasa a `#fcfcfc` y los botones y el logo se ajustan a la hoja base. En el móvil, «olvidé mi
+usuario», la recuperación y las demás páginas de acceso se pueden desplazar hasta el final. **Un clon** con una página
+suelta que quiera la base del panel sin su armazón: `import_app_libraries(['baseStyle'])`.
+
+## Cambia — los bloques del panel ya no van pegados, y Rutas y permisos cabe en la pantalla
+
+Dos bloques seguidos del panel (`container-standard-form`, `container-standard-table`) llevan un margen entre ellos en
+todas las pantallas, y un título de sección (`form-section-title`) que parte en dos líneas ya no se monta sobre sí mismo.
+**Rutas y permisos** pasa a cuatro columnas que caben a 1440 de ancho: nombre con su definición debajo, ruta,
+controlador (`Clase::método`) y los roles como etiquetas, todo escapado. En Respaldos los nombres de tabla largos parten
+línea en vez de montarse, y el bloque «Probar el correo» de Configuración › Correo va en su tarjeta.
+
+## Cambia — Configuración › Sistema con el armazón del panel, y Respaldos con tarjetas
+
+Las seis pantallas de **Configuración › Sistema** (avisos del sistema, estado y cachés, sitio en mantenimiento, rutas y
+permisos, seguridad y respaldos) llevan la cabecera común —migas «Inicio › Configuración › Sistema › …», título y una
+frase— y, las que guardan, la barra de guardar en su propio segmento, como Apariencia e Integraciones. El contenido de
+cada una va en su tarjeta y cada tabla en el contenedor de los listados; sale el párrafo que repetía la frase de la
+cabecera (en Sitio en mantenimiento, el aviso de que el acceso al panel y el usuario principal siempre entran queda como
+ayuda del interruptor); los títulos de sección dejan el subrayado magenta, y en Estado y cachés queda una sola acción
+principal, «Borrar todo lo temporal», con las demás como botones básicos. **Respaldos** enseña su estado con cuatro
+tarjetas de estadística en lugar de la rejilla de cifras gigantes. Lo que hace cada pantalla no cambia.
+
+En la hoja de diseño, el título de un bloque de formulario es `div.form-section-title` dentro de
+`container-standard-form`, y el ejemplo de la barra de guardar la enseña después de esa tarjeta. **Un clon** que use
+`ui dividing header` como título de sección lo verá con el segundo color de marca.
+
+`SettingsController::sectionHeaderData(string $section, string $title, string $description): array` devuelve la cabecera
+de una pantalla de Configuración (título, frase, migas y enlace al índice) para usarla desde otro controlador. La hoja
+`system-status.css` pasa del módulo `Settings` al de `SystemStatus`: **un clon** que la cargara con
+`SettingsRoutes::staticRoute('css/system-status.css')` usa `SystemStatusRoutes::staticRoute('css/system-status.css')`.
+
+## ⚠ CAMBIO INCOMPATIBLE — la cabecera de las pantallas recibe las migas como arreglo, y las hojas de acceso cambian de sitio
+
+**Las migas.** `panel/built-in/content/page-header.php` recibe `breadcrumbs` como el arreglo que antes se pasaba a
+`get_breadcrumbs()` (`'Texto' => ['url' => …]` o `'Texto'`), no como su HTML. Las pinta con el componente de migas de
+Fomantic, **escapa cada texto y cada URL**, recorta la última con «…» si no cabe (con el texto entero en `title`) y no
+se mete bajo la barra superior. **Un clon** con una vista propia que incluya la pieza: pasa el arreglo y **deja de
+escapar** lo que escapaba antes (si no, se verá `&amp;`). Si le pasa un texto, la pieza no pinta migas y deja un aviso
+`E_USER_DEPRECATED`, que en local detiene la página. `get_breadcrumbs()` no cambia: la siguen usando las vistas que no
+usan la pieza. `UsersController::usersBreadcrumbs()` y el `breadcrumbs` de `SettingsController::sectionHeader()`
+devuelven ahora el arreglo.
+
+**Las hojas de acceso y recuperación** (`login.css`, `problems.css`, `problems-form.css`) pasan de
+`statics/login-and-recovery/css/` al módulo `UserSystem`, y se sirven con
+`UserSystemFeaturesRoutes::staticRoute('css/<hoja>.css')`; desde la entrada de arriba, con la hoja base del panel delante. Sale la
+tarea `sass-compile-users` de `gulp`: las compila `sass-modules`. **Un clon** con una página de acceso propia que
+cargara esas URL las cambia por las nuevas. El aspecto no cambia.
+
+## Arregla — el nombre largo en la barra, y en el móvil el título y la pestaña activa
+
+El nombre del usuario en la barra superior ocupa una línea y se recorta con «…» (el entero, en `title`); antes podía
+ocupar cuatro y tapar las acciones de la cabecera. En el móvil, el título de una pantalla sin migas ya no queda bajo el
+botón del menú, y en unas pestañas de contenido la activa queda a la vista al cargar y al pulsar.
+
+## Cambia — las pruebas pueden correr solo las del área tocada, y dos comprobaciones nuevas
+
+`bin/cli gates changed-since=<commit>` y `bin/verify --changed-since=<commit>` corren, de las suites, solo las sin área,
+las que cambiaron y las del área tocada desde ese commit; si se tocó algo fuera de una carpeta de módulo, todas. Una
+suite declara su área con líneas `//@areas src/app/classes/<Módulo>/` en su cabecera. La verificación parcial lo dice en
+su última línea y no sirve para cerrar un trabajo ni para etiquetar. Cada suite de `gates` dice ahora cuánto tardó. Sin
+el argumento, todo sigue igual. Detalle en «Pruebas Unitarias (CLI)».
+
+`bin/cli verify-integrity` suma dos comprobaciones: la **52** falla si el código llama a un método que decide alta o
+edición por el nombre de la ruta (los `action()` que usan `isEditRoute()`), que fuera de su ruta falla sin avisar; y la
+**53**, si un `//@areas` nombra algo que no existe o que no es un módulo. **Un clon** con un controlador propio que
+llame a `action()` de otro extrae su cuerpo a un método que reciba la operación, como
+`OrganizationsController::saveOrganization(…, bool $isEdit)`.
+
+## Cambia — la siembra llena Registros, y la ayuda del cron solo mira las tareas registradas
+
+`bin/cli seed module=all escribir=yes` siembra ahora las pestañas de **Registros**: intentos de acceso, sesiones
+abiertas, correos enviados, tareas programadas y, en «Tokens y códigos», los dispositivos de doble factor, las
+recuperaciones de contraseña y los códigos de usuario olvidado o bloqueado. Las filas llevan fechas pasadas, fuera de las
+ventanas que cuentan intentos fallidos y fallos de correo, así que no bloquean a nadie ni encienden el aviso de «Entrega
+del correo». No se siembran los errores (salen de un archivo, no de una tabla) ni los tokens genéricos. Detalle en la
+guía «Datos de prueba».
+
+**La ayuda del cron** de Registros › Tareas programadas («Última ejecución anotada», y si sale abierta) solo cuenta las
+ejecuciones de las tareas registradas en `cronjobs.php`. Antes contaba cualquier fila del libro: una tarea retirada o
+renombrada podía hacer decir que el cron corría. **Un clon** que lea esa ayuda en sus propias vistas usa
+`SystemStatusController::registeredRuns()` antes de `cronCheatsheet()`.
+
+## Arregla — el usuario de sistema ya no acumula una aprobación pendiente
+
+En cada arranque, las aprobaciones creaban una pendiente para el usuario interno del sistema, que no se aprueba nunca;
+borrada, volvía. Ahora el manejador de cada tipo de aprobación puede excluir elementos con
+`excludesElement(int $id): bool` (en `BaseApprovalHandler`, que devuelve `false`), y el de usuarios excluye al de sistema.
+**Un clon** con un manejador propio que extienda `BaseApprovalHandler` no tiene que hacer nada; para excluir algo,
+sobrescribe ese método. En una instalación que ya tenga esa aprobación pendiente, la fila sigue: se borra a mano.
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera `DialogPCS.js` e `import_dialog_pcs()`
+
+`src/statics/core/own-plugins/DialogPCS.js`, una ventana arrastrable que no usaba nada del framework ni ningún
+proyecto, sale con su registro de recursos (la clave `dialgo_pcs` de `src/app/config/assets.php`) y la función global
+`import_dialog_pcs()`. **Un clon** que la llamara usa una ventana de Fomantic (`ui modal`) o su propia copia del archivo.
+
+## Cambia — la pieza de estadística es una tarjeta de tablero
+
+Las piezas de `src/app/view/panel/built-in/statistics/` se rehacen por dentro: las tarjetas arrancan alineadas con el
+título de la página, **hasta cuatro por fila, todas del mismo ancho** (una o dos no se estiran: ocupan un cuarto cada
+una) y del mismo alto en cada fila (sin el tope de alto de `tall`); la primera línea de todos los títulos va a la misma
+altura, en el color de título de la pieza, con plegar y la ayuda a la derecha; las cifras son compactas y van
+arriba, con el número en el color de texto fuerte y el icono en el primario; el pie queda siempre dentro de la tarjeta,
+en el color primario; plegada, la tarjeta se reduce a su barra y su pie. Mejoran con ellas el inicio, los informes de
+ingresos, Ubicaciones y el informe genérico. **Un clon** que haya escrito estilos propios sobre esas clases los revisa:
+la hoja ya no rebautiza `.module-view-container` como `module-section`, la sección de tarjetas reparte las columnas
+sola (`auto-fill` con tope de cuatro) salvo con `one-column`, y el modificador de título `color-black` se admite pero ya
+no cambia nada. **Añade** a la tarjeta de acción un texto de pie opcional: `DashboardCardBody::action(string $url,
+string $description, ?string $footerCaption = null)` y el parámetro `caption` de `action-card.php`; sin él, la tarjeta
+queda como antes. El «Informe general» del inicio dice «Ver el informe».
+
+## ⚠ CAMBIO INCOMPATIBLE — un usuario eliminado no se ve, y la exportación de usuarios lo omite
+
+En el framework no se borra ninguna cuenta: «eliminar» pone al usuario en estado «Eliminado» y la fila se queda, por
+lo que la cita. Desde esta versión ese usuario **no se ve**: no sale en el Directorio, el mapa, los listados ni los
+buscadores; no se puede elegir como encargado de una organización (un id de un eliminado se rechaza como uno que no
+existe, y el formulario de organización ya no acepta como encargado un id que no exista); su perfil público responde
+404 a todos, root incluido. Donde aparece por una relación —autor de una publicación, registros, historial de
+ingresos, sesiones, aprobaciones— sigue su nombre.
+
+**La exportación de usuarios deja fuera a los eliminados.** Si se importa en otra instalación, esas cuentas no se
+crean, y lo que las cite allí (por ejemplo, el autor de una publicación) llegará sin ellas. **Un clon** que liste o
+elija usuarios en un módulo propio excluye `UsersModel::STATUS_USER_DELETED`, o valida el id con
+`UsersModel::existsAndNotDeleted(int $id)`. Lo vigila la suite `core/deleted-user-gone`.
+
+## Arregla — «Mi organización» vuelve a guardar, y el perfil público de una organización enseña su propio contacto
+
+**Desde la `v8.0.0`, «Mi organización» no guardaba para nadie**: ni el encargado su propia organización ni root
+ninguna. Su guardado reutilizaba el de la gestión de organizaciones, que desde esa versión decide si es un alta o una
+edición por el nombre de la ruta y se niega si la ruta no lo dice; la de «Mi organización» no lo dice. Ahora el guardado
+de organizaciones está en `OrganizationsController::saveOrganization(Request $request, Response $response, bool $isEdit)`,
+que recibe la operación; `action()` la sigue sacando de su ruta, y «Mi organización» la fija en edición después de
+comprobar quién guarda. **Un clon** que llame a `action()` de otro controlador desde una ruta suya tiene el mismo
+problema: que extraiga el cuerpo a un método así.
+
+Además:
+
+- **Root ve y guarda la organización de la dirección.** Antes, si el encargado era de otra organización, el formulario
+  enseñaba la del encargado y guardar daba 403.
+- **El contacto del perfil público de una organización es el de la organización** (su teléfono, su correo informativo,
+  su web y su LinkedIn), no el de su encargado.
+- **El perfil público de una organización sin encargado se ve**, si está completo y visible; antes respondía 404.
+
+## Cambia — Mi perfil, Seguridad, Mi organización, los perfiles públicos y el Directorio con el armazón del panel
+
+Las seis pantallas llevan la cabecera del panel (migas, título, una frase y sus acciones), las pestañas y la barra de
+guardar aparte. La cuenta y el perfil público se enlazan entre sí con los mismos nombres e iconos en personas y
+organizaciones: **«Cuenta»** (`user circle`) y **«Perfil público»** (`id card outline`); «Ver perfil» lleva `eye`. El
+Directorio pinta «Ver perfil» con las acciones de fila, y se corrige la errata «Ver perflil». Sale
+`MySpace/Statics/sass/my-space.scss`, que solo estilizaba `.my-space-content`, que ya no usa nadie; **un clon** que use
+esa clase en una vista suya pierde sus estilos. Ningún nombre de ruta ni URL cambia.
+
+## Cambia — la siembra llena los perfiles, y las noticias declaran sus lecturas
+
+`bin/cli seed module=all escribir=yes` siembra ahora tres usuarios por tipo, sus perfiles completos (`UserProfilesSeeder`)
+y las organizaciones con su perfil entero y su logo, para poder revisar los perfiles y el Directorio. Antes, limpiar lo
+sembrado fallaba si alguien había abierto una noticia sembrada: su lectura apuntaba a ella y no se declaraba. Detalle en
+la guía «Datos de prueba».
+
+## ⚠ CAMBIO INCOMPATIBLE — Mi espacio solo con lo del usuario, y el Directorio en su módulo
+
+Mi espacio (`MySpace`) se queda con Mi perfil, la seguridad de la cuenta y Mis sesiones. Lo demás se va a su sitio:
+
+| Qué | Antes | Ahora |
+| :-- | :-- | :-- |
+| Mi organización y el perfil público de una organización | `MySpace\Controllers\MyOrganizationProfileController` y `OrganizationProfileController` | `Organizations\Controllers\…`, mismos nombres de ruta y mismas URL |
+| El perfil público de una persona y los datos del listado | `MySpace\Controllers\ProfileController` y `AllProfilesController` | `Directory\Controllers\…`, mismos nombres de ruta y mismas URL |
+| El listado de personas y organizaciones | ruta `content-navigation-hub-admin-profiles-list`, `admin/content-hub/profiles-list/` | **ruta `directory-admin-list`, `admin/directory/`** |
+| Los ejemplos de la hoja de diseño (plantilla de correo, SurveyJS) | ruta `my-space-admin-iframe-sources`, `admin/my-space/iframe-sources/{source}/` | **ruta `admin-design-sheet-resources`, `admin/design-sheet/resources/{source}/`** (solo root) |
+| La página de Mi espacio, el inicio viejo que ya nadie enlazaba | ruta `my-space-admin-my-space`, `admin/my-space/` | **sale** |
+
+En el menú, el grupo «Consultar» desaparece: quedan «Directorio» y «Mapa de contenidos», y para los usuarios externos
+«Usuarios generales» pasa a «Directorio». **Un clon** que use esas clases cambia su `use`; el que enlace o dé permisos
+por esos tres nombres de ruta, los cambia por los nuevos. Los parciales de estilos de los perfiles
+(`_profile-view.scss`, `_profile-form.scss`) pasan a `src/statics/core/sass/includes/`. El mapa de contenidos sigue
+donde estaba hasta que llegue el geovisor.
+
+## ⚠ CAMBIO INCOMPATIBLE — el inicio del panel son tarjetas que registra cada módulo
+
+El inicio ya no es una vista fija: son tarjetas (`PiecesPHP\AdminPanel\DashboardCardRegistry`) que cada módulo
+registra y que cada usuario ve según su permiso: «Mis sesiones», «Tareas pendientes» (las aprobaciones que puede
+resolver), «Usuarios y accesos», «Errores y avisos» (root; nace plegada y, plegada, sin cifras) y el informe general.
+**El informe general deja de ser el inicio entero** de root, del administrador general y del institucional: es una
+tarjeta más. Las noticias muertas del inicio de Mi espacio salen. **Las tarjetas se pintan con las piezas de
+estadística de la hoja de diseño**: lo que enseña una tarjeta es un `DashboardCardBody` (cifras, acción o HTML), no HTML
+libre, y `DashboardCardRegistry::numberContent()` desaparece. **Un clon** que personalizara el inicio quita o
+sustituye tarjetas con `DashboardCardRegistry::remove()` y `replace()`, y añade las suyas con `register()`: ver
+[El panel por dentro](source-docs/project/docs/piecesphp/content/panel.md), «El inicio».
+
+## ⚠ CAMBIO INCOMPATIBLE — el dueño y root deciden si el perfil público se ve
+
+Mi perfil y Mi organización tienen una casilla «Mostrar el perfil en el directorio y en el mapa». Un perfil oculto no
+sale en el listado de perfiles ni en el mapa, y su página responde 404 salvo a su dueño (en una organización, su
+administrador) y a root. Todo sigue visible como hasta ahora (por omisión, visible). **Antes de desplegar, aplica
+`databases/actualizaciones/2026-10-14-perfil-publico-visible.sql`**: añade la columna `publicVisible` a
+`user_system_profile` y a `organizations_elements`.
+
+## Nuevo — `bin/cli session-name`, y con otro nombre de sesión ya se entra
+
+- **Con un nombre de sesión propio (`session_token_name`) no se podía entrar**, desde la 8.0.0: la página de acceso y
+  las de «problemas para entrar» no publicaban el nombre, el navegador guardaba la sesión como `JWTAuth` y el servidor
+  la buscaba con el otro nombre, así que volvía al login una y otra vez. Ahora lo publican, y `bin/cli verify-integrity`
+  (comprobación 51) falla si una vista con su propio `<head>` no lo hace sin estar declarada en
+  `files/dev/head-without-front-configurations.json`.
+- **`bin/cli session-name`** propone un nombre de sesión derivado de la instalación y, con `escribir=yes`, lo fija en
+  `config.php` (la línea comentada de la sección «Seguridad»). Cambiarlo cierra todas las sesiones. Ver
+  [El nombre de la sesión](source-docs/project/docs/piecesphp/content/general.md).
+
+## Seguridad — la suplantación de root y los desplegables de ubicaciones
+
+- **Root ya no suplanta a nadie con una sesión revocada ni estando inactivo.** Antes, la revocación y el estado se
+  miraban del usuario suplantado, no de root. En esta versión la revocación ya se cumplía por la fila de la sesión;
+  **en la 8.x no**: un token de root revocado volvía a valer con el parámetro de suplantación. No habrá `v8.0.9`.
+- **Los desplegables de país, departamento, ciudad y coordenada de los perfiles y las organizaciones**
+  (`statics/core/own-plugins/LocationsAdapter.js`) pintaban los nombres como HTML en siete sitios; ahora, como texto.
+
+## Cambia — la chuleta del cron, los textos de los estáticos y del límite de tokens, y el lateral de la cuenta
+
+- **Registros › Tareas programadas** enseña cómo programar el cron en ESTA instalación: la línea de crontab con la ruta
+  real del `index.php`, la alternativa por HTTP con la llave en la cabecera, si la llave está configurada (nunca cuál)
+  y cuándo corrió por última vez.
+- **Estado y cachés**: el botón y la fila dicen «archivos estáticos», porque renuevan también las imágenes de las
+  páginas; debajo, qué no alcanzan (las que cargan las hojas de estilo, las que pone el JavaScript y las del correo).
+- **El límite de tokens de IA dice que es solo informativo**: sirve para el «tokens restantes» del informe y no detiene
+  el uso. Solo root lo guarda, ahora con su prueba.
+- **El lateral de la cuenta** lleva a la cuenta completa y no acumula clics al abrirlo varias veces.
+- **Ubicaciones: «Coordenadas»** en lugar de «Localidades» (y de «puntos») en toda la interfaz, y con su tarjeta en la
+  portada, donde no salían. Los nombres de código (`Point`, `points`, las rutas y la tabla) no cambian.
+
+## Seguridad — Ubicaciones escapa lo que viene de la base
+
+Los listados de países, departamentos, ciudades y puntos, y los desplegables de sus formularios, pintaban los nombres
+tal como estaban guardados: un nombre con HTML se ejecutaba en el navegador de quien abría el listado. Ahora se escapan
+con `escape_html()`, en las celdas y en las opciones (el texto, el valor y lo que viene seleccionado), y la edición
+conserva su selección aunque el nombre lleve comillas. Lo vigila `core/view-escapes` (§n).
+
+**Si tu clon usa `array_to_html_options()` con datos de la base, escápalos tú antes de pasarlos**: la función no escapa.
+El patrón está en `Locations::escapeOptions()` y en
+[Escapar lo que escribe el usuario](source-docs/project/docs/piecesphp/new-features/escapado-y-subidas.md).
+
+## Nuevo — probar el correo desde Configuración
+
+En **Configuración › Integraciones › Correo**, root tiene dos botones:
+
+- **Probar conexión**: conecta con el servidor SMTP guardado, saluda, cifra si toca, **se autentica** y cuelga **sin
+  enviar nada**. Si falla, enseña el error del servidor tal cual.
+- **Enviar correo de prueba**: manda un correo real, por el mismo camino que el resto, a la dirección que escribas (por
+  omisión, la tuya), y queda en el registro de correos.
+
+Los dos dicen **a qué servidor fueron de verdad**: «Configurado: X · usado: Y». Con el modo de pruebas encendido el
+correo se desvía al servidor de pruebas, y el botón lo dice en vez de dar por probado el servidor configurado. Las rutas
+son `configurations-integrations-mail-probe` y `configurations-integrations-mail-test-send`, POST y solo root. De paso,
+el aviso «Entrega del correo» de esa pantalla y el de Respaldos ya se ven: Fomantic los ocultaba dentro del formulario.
+
+## Cambia — importar y exportar, imagen principal, acerca de, últimos movimientos y la prueba del recortador, con el armazón del panel
+
+- **Importar y exportar**: la portada y los formularios de importar y de exportar llevan la cabecera común, las
+  pestañas, la tabla del panel y la barra aparte; cada acción de fila con su icono, sin repetir. Borrar un filtro
+  guardado pregunta antes. **En inglés**: `DataImportExportUtility` y el grupo nuevo `DataTransfer`
+  (`src/app/lang/DataTransfer/`).
+- **Imagen principal**, **Acerca de**, **Últimos movimientos** y **la prueba del recortador**: dentro del armazón.
+- **La hoja de «Acerca de» pasa a su módulo**: de `src/statics/core/sass/about-framework.scss` a
+  `AdminPanel/Statics/sass/about-framework.scss`. **Un clon que sobrescribiera la hoja global** tiene que pasar sus
+  reglas a la del módulo. El JavaScript de la prueba del recortador pasa a `AdminPanel/Statics/js/test-cropper.js`.
+
+## Cambia — Ubicaciones, Aprobaciones y el gestor de archivos con el armazón del panel; «Eliminar» en rojo
+
+- **Ubicaciones**: las trece pantallas (países, departamentos, ciudades y puntos, listado y formularios, y la portada)
+  salen de una plantilla de listado y otra de formulario del módulo (`App/Locations/Views/locations/_list.php` y
+  `_form.php`), con la cabecera común, «Editar» con su icono en cada fila y la barra de guardar aparte. Las vistas de
+  cada entidad (`country/`, `state/`, `city/`, `point/`) desaparecen: un clon que las sobrescribiera tiene que pasar a la
+  plantilla. La portada usa los nombres de ruta de cada clase, no escritos a mano.
+- **Aprobaciones**: listado y formularios con el armazón; «Revisar» con su icono; Aprobar y Rechazar en la barra.
+- **Gestor de archivos**: dentro del armazón del panel.
+- **Una sola forma de preguntar, también con toasts**: las preguntas que quedaban con un toast de botones (Mis sesiones,
+  aprobar o rechazar, cancelar en Mi perfil y Mi organización, activar el doble factor) usan `confirmAction()`, y la
+  comprobación 50 de `bin/cli verify-integrity` caza ahora también un toast con botones.
+- **«Eliminar» de `RowActions` sale en rojo**, en la fila y en el menú, sea cual sea la clase que se le pase.
+
+## Arregla — la instalación de la 8.0.x no traía la tabla del registro de correos
+
+El `databases/piecesphp_structure.sql` de la `v8.0.0` a la `v8.0.8` no crea `pcsphp_mail_log`, y el código de esas
+versiones la usa: la tabla nació con el generador de su módulo y no se subió al esquema del núcleo hasta esta versión.
+**Un clon instalado desde una 8.0.x** aplica, en este orden, `databases/actualizaciones/2026-10-03-registro-de-correos.sql`
+y `databases/actualizaciones/2026-10-05-cuerpo-del-correo.sql` (vienen en la 8.0.8). Desde la 9.0.0, el esquema la trae.
+Desde esta versión lo impide la suite `core/schema-matches-database`, que corre `bin/cli gates`: compara las tablas,
+columnas, índices y claves de `databases/piecesphp_structure.sql`, y las vistas y funciones por nombre, con la base
+local, y falla nombrando lo que no cuadra.
+
+## Cambia — usuarios, organizaciones, banners y suscriptores con el armazón del panel, y el menú ordenado por lo que se hace
+
+- **Usuarios**: el listado lleva arriba «Agregar usuario» y, en cada tarjeta, «Editar» con su icono en lugar de los
+  tres puntos; los formularios de alta y edición (los dieciocho, uno por tipo y acción) tienen la cabecera común, la
+  pestaña «Cuenta» y la barra de guardar aparte. La hoja de la pantalla de elegir el tipo de usuario pasa de
+  `src/statics/login-and-recovery/` a `UserSystem/Statics/`.
+- **Organizaciones, banners y suscriptores**: listados y formularios con el armazón del panel; las acciones de cada fila
+  con `RowActions`, sin dos acciones distintas con el mismo icono; «Eliminar» sale del formulario a la barra.
+- **Banners y suscriptores, en inglés**: sus `en.php` estaban vacíos.
+- **Las variables de entorno pasan a Configuración** (el límite de tokens de IA y las llaves de MapBox), con los
+  mismos nombres de ruta: no cambia ningún permiso.
+- **El menú lateral, por lo que se hace**: Inicio, Mi espacio, Contenidos, Personas y organizaciones, Comunicación,
+  Datos, Actividad e Idiomas, cada uno en su banda de posición (`MenuGroupCollection::BAND_*`), y ningún icono repetido.
+  **Un clon con entradas propias en el menú** debería pasar sus `position` a la banda que les toque
+  (`MenuGroupCollection::BAND_CONTENTS + 40`, por ejemplo): con un número suelto siguen saliendo, pero en otro sitio.
+- En la barra superior, «Contraseña» deja el icono de «Cuenta» por una llave.
+
+## Cambia — el andamiaje de agentes que viaja: fuera las skills `caveman*`, y SDD deja de ser regla
+
+- Salen las cuatro skills de terceros `caveman`, `caveman-commit`, `caveman-compress` y `cavecrew` (con sus enlaces de
+  `.claude/skills/` y `skills-lock.json`): no las usaba nadie, y `caveman-compress` traía guiones de Python ajenos. La
+  forma de escribir comprimido es la regla propia `.agents/rules/50-prosa-comprimida.md`.
+- El flujo por fases (SDD) deja de cargarse en cada mensaje: pasa de `.agents/rules/20-sdd-workflow.md` a
+  `.agents/docs/sdd.md`, que se lee cuando un cambio lo pide.
+
+## ⚠ CAMBIO INCOMPATIBLE — un usuario de sistema para lo que se hace sin sesión
+
+Hasta ahora, lo que se hacía sin sesión —una tarea programada disparada por HTTP, una petición pública como pedir un
+código o recuperar la contraseña, el relleno inicial de aprobaciones— quedaba guardado como del usuario 1, que es un
+root de verdad. Ahora queda como del **usuario de sistema**: id fijo **-10**
+(`UsersModel::SYSTEM_USER_ID`), tipo **99** (`UsersModel::TYPE_USER_SYSTEM`), sin contraseña válida, inactivo y
+sin rol. No puede iniciar sesión ni recuperar la contraseña, no aparece en ningún listado ni recuento, no se puede
+editar, borrar ni suplantar, y en la jerarquía de Registros tiene el rango de «nadie» (solo root ve lo suyo). Para
+preguntar por él en código: `UsersModel::isSystemUser($id)`. **Lo que se hace desde la terminal (`bin/cli`, también
+`bin/cli run-cronjobs`) sigue siendo del usuario 1**: la terminal entra como root (`src/index.php:320-326`).
+
+**Antes de desplegar, aplica `databases/actualizaciones/2026-10-14-usuario-de-sistema.sql`.** Las columnas que lo
+guardan (`createdBy` y compañía) tienen clave ajena a `pcsphp_users`: sin la fila -10, todo lo que se anote sin sesión
+falla. El mismo archivo pasa al usuario de sistema las filas del registro de acciones que ya se sabían del sistema
+(`meta.actor.kind = 'system'`); las demás tablas no guardan con qué se hizo cada fila y se quedan como estaban. Las
+instalaciones nuevas lo traen en `databases/piecesphp_data.sql`.
+
+## Nuevo — la pestaña «Tokens y códigos» en Registros
+
+Una pestaña nueva de Registros con lo vigente: los códigos de acceso de un solo uso, los de recuperación de contraseña,
+los de «usuario olvidado» y «usuario bloqueado», el doble factor activo de cada usuario y los tokens genéricos. Debajo,
+**la historia**: cada código emitido, usado, rechazado (caducado, o inexistente o ya usado), visto o invalidado queda en
+el registro de acciones, sin el valor del código. La ven root y los administradores, cada uno con su alcance (la misma
+jerarquía que las sesiones); **solo root** puede, desde cada fila y nunca suplantando a otro:
+
+- **Mostrar** un código (el de un solo uso, el de recuperación, el de usuario olvidado o bloqueado), por si alguien lo
+  pide por teléfono. Verlo queda registrado. El secreto del doble factor no se enseña nunca.
+- **Invalidar ahora**: el código deja de valer en ese momento.
+- **Restablecer el doble factor** de otro usuario, que tendrá que volver a activarlo.
+
+## Nuevo — el libro de tareas programadas, y el cerrojo también para las tareas sin franja
+
+Cada ejecución real de una tarea programada (la que corre, no la que no tocaba) queda en una tabla nueva,
+`pcsphp_task_runs`: tarea, franja, quién la disparó (`http` o `cli`), resultado, intento, inicio, fin, duración y
+mensaje. Guarda las últimas 20.000 (`TaskRunMapper::MAX_ROWS`). Se ve en la pestaña nueva **Tareas programadas** de
+Registros (solo root), con el estado de cada tarea y su próxima franja. Si la tabla no existe todavía, las tareas
+siguen corriendo y un aviso del sistema lo dice.
+
+Y **las tareas sin franja también toman su cerrojo** (`when(...)`, como «Respaldar base de datos» o «Procesar la
+cola»): dos disparos a la vez ya no la ejecutan dos veces, y la condición se vuelve a mirar con el cerrojo en la mano.
+
+Para instalaciones que ya existen: `databases/actualizaciones/2026-10-14-libro-de-tareas-y-cola.sql`.
+
+## Cambia — la cola de trabajos: un trabajo lo toma un solo trabajador, y lo terminado se purga
+
+- Un trabajo pendiente se toma con una actualización condicional: si dos trabajadores van a por el mismo, solo uno lo
+  consigue y el otro lo salta. Antes solo lo impedía un turno de archivos, que no vale con dos servidores.
+- Lo fallido lleva también su fecha de fin.
+- La tarea diaria «Purgar registros viejos» borra lo terminado de más de 30 días y lo fallido de más de 90
+  (`QueueJobMapper::PURGE_COMPLETED_DAYS`, `PURGE_FAILED_DAYS`).
+- La tabla `pcsphp_jobs_queue` pasa `name` y `status` a `varchar` y gana dos índices (el mismo archivo de
+  actualizaciones de arriba).
+
+## Cambia — los errores suaves se guardan 30 días y las trazas 90
+
+La tarea diaria «Purgar registros viejos» (03:30) borra los contadores de errores suaves de más de 30 días
+(`GenericHandler::SOFT_RETENTION_DAYS`) y las trazas de más de 90 (`TRACE_RETENTION_DAYS`). Antes solo había
+`bin/cli clean-logs`, que lo vacía todo. Una entrada de error cuya traza ya se purgó se sigue abriendo, sin la traza.
+
+## Arregla — `composer install` ya no falla en un clon de la distribución
+
+Desde la 8.0.1, `composer install` en un clon terminaba con error: el paso que instala el instrumental de desarrollo
+buscaba `bin/tools/composer.json`, que la distribución no lleva. Las dependencias sí se instalaban. Ahora ese paso lo
+dice en una línea y sigue. En un clon de una versión anterior, `composer install --no-dev` da el mismo resultado sin el
+error (no hay dependencias de desarrollo).
+
+## Arregla — «usuario olvidado» y «usuario bloqueado»
+
+La fecha de creación del código quedaba igual a la de caducidad (se movían juntas 24 horas), y el código se guardaba
+en claro en el registro de tickets. Las dos cosas, corregidas; las filas viejas del registro de tickets no se tocan.
+
+## Arregla — la distribución lleva la configuración del editor (`.vscode/`)
+
+`bin/distribution-exclude.txt` dejaba fuera `.vscode/` desde que nació `bin/make-distribution`, sin motivo. Ahora viaja:
+quien clona recibe la configuración de Visual Studio Code con la que se escribe el framework (`settings.json`: formateo
+de PHP con phpfmt en PSR-2, formateo al guardar de JavaScript y HTML, la versión de PHP de intelephense, que pasa a la
+8.5, la del proyecto) y las extensiones recomendadas (`extensions.json`). No cambia nada para quien use otro editor.
+
+## ⚠ CAMBIO INCOMPATIBLE — la sesión caduca por inactividad con un tope, configurables; sale `session_duration`
+
+- **La sesión se cierra tras un tiempo sin actividad** (`session_inactivity`, 31 días por omisión) y, pase lo que pase,
+  al llegar a su tope desde que se abrió (`session_ceiling`, 365 días por omisión). Cada uso corre la caducidad (como
+  mucho, una escritura cada pocos minutos). Las dos opciones, en Configuración › Seguridad.
+- **Con 0, no caduca** (P142 a, para aplicaciones que trabajan sin conexión). Con tope 0, el token se emite para diez
+  años y la sesión sigue mandando en el servidor: cerrada su fila («Mis sesiones», un administrador), el token deja de
+  valer en todos los caminos.
+- **Sale la opción `session_duration`**: la sustituye `session_inactivity`. Si tu instalación la tenía configurada, se
+  anota una vez que ya no se usa.
+
+**Qué hacer:** si configurabas `session_duration`, pon ese valor en `session_inactivity`.
+
+## ⚠ CAMBIO INCOMPATIBLE — una sola forma de preguntar: `confirmAction()`; fuera `confirm`, `alert` e `iziToast.question`
+
+El panel pregunta siempre con `confirmAction()` (`src/statics/core/js/helpers-lib/confirmAction.js`), la confirmación de
+Fomantic que ya usaba `genericFormHandler`. Las nueve preguntas que quedaban con `iziToast.question` o `window.confirm`
+(borrar en Documentos, Formularios, Noticias y Suscriptores; usuarios; Configuración › Scripts; Estado y cachés) y los
+avisos con `alert()` de los adaptadores de mapas y del editor pasan a ella o a `errorMessage()`.
+
+**Qué hacer:** si tu clon llama a `window.confirm`, `alert` o `iziToast.question`, cámbialo por `confirmAction()` (ver
+«Preguntar al usuario» en la documentación). `bin/cli verify-integrity` lo rechaza en `src/app` y `src/statics`.
+
+## Cambia — las piezas de estadística son tarjetas, con los colores por variable
+
+Las piezas de `src/app/view/panel/built-in/statistics/` llevan el marco de Fomantic (`ui segment`): se ven como tarjetas
+también sobre fondo blanco. El número va en el color de marca (antes, un azul escrito a mano) y los colores neutros son
+variables `--statistics-*` con su valor de siempre como reserva. Afecta a los informes de Registros › Accesos, al
+informe genérico y a la hoja de diseño. Sin cambios en cómo se llaman.
+
+## Cambia — Documentos, la barra de guardar y la hoja de diseño
+
+- El explorador de documentos pinta sus tarjetas a la misma altura, la imagen sin pasarse y, si no hay archivo, la
+  acción desactivada «Sin archivo».
+- La barra de guardar va en su propio bloque, hermano del contenido, en el alta y la edición de documentos y en la
+  edición de publicaciones (como ya estaba en las demás).
+- La hoja de diseño trae su JavaScript y su hoja a su módulo (`AdminPanel/Statics`), sin recuadros alrededor de cada
+  ejemplo, con SurveyJS en «Bibliotecas incluidas» y un ejemplo de `confirmAction()`. El correo de muestra se pinta una
+  vez.
+- El registro de acciones toma el color de marca de la instalación (antes, un gris oscuro escrito a mano).
+
+## Arregla — iniciar sesión ya no anota un error grave
+
+Cada inicio de sesión de un usuario sin código de un solo uso anotaba «toExpireOTP: … no tiene registro ONE_USE_CODE» como
+error grave. Es el caso normal: ya no se anota.
+
+## Cambia — la página pedida antes del login viaja en `?next=`
+
+Sin sesión, una página del panel redirige al login con `users/login/?next=<la URL pedida>`, además del aviso de un solo
+uso de siempre. Así una recarga del login ya no la pierde. El login solo acepta en `next` una URL de este mismo sitio
+(mismo esquema, host y puerto que `baseurl()`, y bajo su ruta); cualquier otra se ignora y se entra como antes. Lo
+valida `UsersController::safeNextURL()`.
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera dos nombres viejos de clase: `PiecesPHP\Core\ServerStatics` y `PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware`
+
+Eran alias (`class_alias`) de las clases que viven en `PiecesPHP\Core\Statics` desde la 8. Salen los dos archivos
+`src/app/core/psr4/PiecesPHP/Core/ServerStatics.php` y
+`src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/ProtectFileMiddleware.php`.
+
+**Qué hacer:** en tus módulos, cambia los `use`:
+
+```php
+use PiecesPHP\Core\Statics\ServerStatics;          // antes: use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ProtectFileMiddleware;  // antes: use PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware;
+```
+
+Con el nombre viejo, PHP no encuentra la clase y la página falla: búscalo con
+`git grep -n 'Core\\ServerStatics\|Directories\\ProtectFileMiddleware' -- src/app`.
+
+## Arregla — al volver a iniciar sesión, se vuelve a la página que se pidió
+
+Si la sesión se cerraba en el servidor (otra pestaña, «Mis sesiones», una revocación) y el navegador conservaba el token,
+al volver a entrar se acababa en la raíz del sitio en lugar de en la página que se había pedido. La página de login
+borraba el token viejo y se recargaba, y la página pedida, que llega en un aviso de un solo uso, se perdía en esa
+recarga. Ahora el login borra el token sin recargarse (`PiecesPHPSystemUserHelper.js`, `deleteSession()`).
+
+## ⚠ CAMBIO INCOMPATIBLE — la ruta declara si renueva un token caducado; sale la lista de `index.php`
+
+La lista `$ignoreExpiredForRoutesName` de `src/index.php`, que renovaba el token caducado en las rutas que nombraba, ya
+no existe. Ahora lo declara la propia ruta con `->renewExpired(true)`; por omisión, `false`. La renovación sigue sin
+saltarse la revocación: firma válida, posterior a las marcas y con la sesión abierta en el servidor.
+
+**Qué hacer:** si tu clon añadió rutas a esa lista, quítalas de `index.php` y declara cada una:
+
+```php
+(new Route('webhooks/pagos[/]', MiController::class . ':pagos', 'mi-modulo-webhook-pagos', 'POST', true))
+    ->renewExpired(true);
+```
+
+Detalle en la documentación de rutas, «Rutas que renuevan un token caducado».
+
+## ⚠ CAMBIO INCOMPATIBLE — la llave de las tareas programadas, solo por cabecera
+
+`core/api/cron-jobs/run/` ya no acepta la llave en el parámetro de consulta `?Cron-Job-Key=`: solo en la cabecera
+`Cron-Job-Key`. Un parámetro de consulta queda escrito en los logs de acceso del servidor, y con él la llave.
+
+**Qué hacer:** si tu cron llama con `?Cron-Job-Key=LLAVE`, cámbialo por la cabecera:
+
+```
+* * * * * curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
+```
+
+Con la llave solo en la URL, la ruta responde **403**.
+
+## ⚠ CAMBIO INCOMPATIBLE — todo el panel vive bajo `admin/`
+
+- **Toda la gestión del panel cuelga de `admin/`**, como ya hacían publicaciones, noticias o documentos: la
+  configuración, los usuarios, las ubicaciones, las organizaciones, los tickets, el temporizador y los avatares.
+  **77 direcciones cambian; ningún nombre de ruta cambia**, así que los permisos, los roles y los menús siguen igual, y
+  todo lo que pide su dirección con `routeName()` sigue funcionando sin tocarlo (P51, decidida por el PO el
+  2026-09-18).
+- **Lo público se queda donde estaba**: el acceso y la recuperación de la contraseña (`users/login/`…), los listados
+  públicos de ubicaciones, lo público de las organizaciones, `robots.txt`, el mapa del sitio. **La API (`core/api/`) y
+  la terminal (`terminal/`) tampoco cambian.** **Pero un cliente de la API desde otro origen sí puede usar una ruta que
+  se muda**: el tiempo de uso, `timing-add`, pasa de `/timing/add/` a `/admin/timing/add/` (en la tabla de abajo); y el
+  cierre de sesión en el servidor, nuevo en esta versión, vive en `/admin/users/sessions/logout/`.
+- **Dos rutas salen de `admin/`** porque sirven a la parte pública y responden sin sesión: los mensajes de idioma (a
+  `core/`) y el alta de un suscriptor del boletín (a la zona pública).
+- **Sin redirecciones**: una dirección vieja responde 404. Lo que la tenía escrita se corrigió en su sitio, y **se corrigió
+  sacándola de su nombre**, no escribiendo la nueva a mano: el JavaScript que pedía `configurations/…` lee ahora la
+  dirección que le pone la vista.
+- **`robots.txt`** deja de nombrar `/configurations/`, `/tickets/`, `/timing/` y `/avatars/`: ya están bajo `/admin/`, que
+  sigue cerrado.
+- **Para un clon**:
+  - si en tu JavaScript, tus plantillas o tu documentación escribiste a mano una de las direcciones de abajo, cámbiala
+    por la que da su nombre (`Controller::routeName()` en PHP; en JavaScript, la que la vista le pase desde PHP);
+  - **un módulo tuyo con parte privada y parte pública** recibe ahora dos grupos, como `PublicationsRoutes::routes($grupoAdministracion, $grupoPublico)`;
+  - y si tus marcadores apuntaban a la configuración o a los usuarios, ahora empiezan por `admin/`.
+
+**Las direcciones que cambian** (el patrón, sin el prefijo de idioma):
+
+| Nombre | Antes | Ahora |
+| :-- | :-- | :-- |
+| `push-avatars` | `/avatars/push/` | `/admin/avatars/push/` |
+| `configurations-appearance-backgrounds` | `/configurations/appearance/backgrounds/` | `/admin/configurations/appearance/backgrounds/` |
+| `configurations-appearance-brand-images` | `/configurations/appearance/brand-images/` | `/admin/configurations/appearance/brand-images/` |
+| `configurations-appearance-colors` | `/configurations/appearance/colors/` | `/admin/configurations/appearance/colors/` |
+| `configurations-appearance-seo` | `/configurations/appearance/seo/` | `/admin/configurations/appearance/seo/` |
+| `configurations-appearance-site-files-save` | `/configurations/appearance/site-files/save/` | `/admin/configurations/appearance/site-files/save/` |
+| `configurations-appearance-site-files` | `/configurations/appearance/site-files/` | `/admin/configurations/appearance/site-files/` |
+| `configurations-generic-save` | `/configurations/generic-save/` | `/admin/configurations/generic-save/` |
+| `configurations-integrations-ai` | `/configurations/integrations/ai/` | `/admin/configurations/integrations/ai/` |
+| `configurations-integrations-mail` | `/configurations/integrations/mail/` | `/admin/configurations/integrations/mail/` |
+| `configurations-integrations-mapbox-key` | `/configurations/integrations/mapbox-key/` | `/admin/configurations/integrations/mapbox-key/` |
+| `configurations-integrations-osticket` | `/configurations/integrations/osticket/` | `/admin/configurations/integrations/osticket/` |
+| `configurations-integrations-scripts-save` | `/configurations/integrations/scripts/save/` | `/admin/configurations/integrations/scripts/save/` |
+| `configurations-integrations-scripts` | `/configurations/integrations/scripts/` | `/admin/configurations/integrations/scripts/` |
+| `configurations-system-backups-save` | `/configurations/system/backups/save/` | `/admin/configurations/system/backups/save/` |
+| `configurations-system-backups` | `/configurations/system/backups/` | `/admin/configurations/system/backups/` |
+| `configurations-system-cache-clean` | `/configurations/system/cache-clean/` | `/admin/configurations/system/cache-clean/` |
+| `configurations-system-routes` | `/configurations/system/routes/` | `/admin/configurations/system/routes/` |
+| `configurations-system-security` | `/configurations/system/security/` | `/admin/configurations/system/security/` |
+| `configurations-index` | `/configurations/` | `/admin/configurations/` |
+| `locations-cities-actions-add` | `/locations/cities/action/add/` | `/admin/locations/cities/action/add/` |
+| `locations-cities-actions-edit` | `/locations/cities/action/edit/` | `/admin/locations/cities/action/edit/` |
+| `locations-cities-datatables` | `/locations/cities/datatables/` | `/admin/locations/cities/datatables/` |
+| `locations-cities-forms-add` | `/locations/cities/forms/add/` | `/admin/locations/cities/forms/add/` |
+| `locations-cities-forms-edit` | `/locations/cities/forms/edit/{id}/` | `/admin/locations/cities/forms/edit/{id}/` |
+| `locations-cities-list` | `/locations/cities/list/` | `/admin/locations/cities/list/` |
+| `locations-cities-ajax-search` | `/locations/cities/search/` | `/admin/locations/cities/search/` |
+| `locations-countries-actions-add` | `/locations/countries/action/add/` | `/admin/locations/countries/action/add/` |
+| `locations-countries-actions-edit` | `/locations/countries/action/edit/` | `/admin/locations/countries/action/edit/` |
+| `locations-countries-datatables` | `/locations/countries/datatables/` | `/admin/locations/countries/datatables/` |
+| `locations-countries-forms-add` | `/locations/countries/forms/add/` | `/admin/locations/countries/forms/add/` |
+| `locations-countries-forms-edit` | `/locations/countries/forms/edit/{id}/` | `/admin/locations/countries/forms/edit/{id}/` |
+| `locations-countries-list` | `/locations/countries/list/` | `/admin/locations/countries/list/` |
+| `locations-countries-ajax-search` | `/locations/countries/search/` | `/admin/locations/countries/search/` |
+| `locations-generate-lang-file` | `/locations/generate-lang-file/` | `/admin/locations/generate-lang-file/` |
+| `locations-points-actions-add` | `/locations/points/action/add/` | `/admin/locations/points/action/add/` |
+| `locations-points-actions-edit` | `/locations/points/action/edit/` | `/admin/locations/points/action/edit/` |
+| `locations-points-datatables` | `/locations/points/datatables/` | `/admin/locations/points/datatables/` |
+| `locations-points-forms-add` | `/locations/points/forms/add/` | `/admin/locations/points/forms/add/` |
+| `locations-points-forms-edit` | `/locations/points/forms/edit/{id}/` | `/admin/locations/points/forms/edit/{id}/` |
+| `locations-points-list` | `/locations/points/list/` | `/admin/locations/points/list/` |
+| `locations-points-ajax-search` | `/locations/points/search/` | `/admin/locations/points/search/` |
+| `locations-regions-ajax-search` | `/locations/regions/search/` | `/admin/locations/regions/search/` |
+| `locations-states-actions-add` | `/locations/states/action/add/` | `/admin/locations/states/action/add/` |
+| `locations-states-actions-edit` | `/locations/states/action/edit/` | `/admin/locations/states/action/edit/` |
+| `locations-states-datatables` | `/locations/states/datatables/` | `/admin/locations/states/datatables/` |
+| `locations-states-forms-add` | `/locations/states/forms/add/` | `/admin/locations/states/forms/add/` |
+| `locations-states-forms-edit` | `/locations/states/forms/edit/{id}/` | `/admin/locations/states/forms/edit/{id}/` |
+| `locations-states-list` | `/locations/states/list/` | `/admin/locations/states/list/` |
+| `locations-states-ajax-search` | `/locations/states/search/` | `/admin/locations/states/search/` |
+| `locations` | `/locations/` | `/admin/locations/` |
+| `organizations-admin-actions-add` | `/organizations/admin/action/add/` | `/admin/organizations/action/add/` |
+| `organizations-admin-actions-delete` | `/organizations/admin/action/delete/{id}/` | `/admin/organizations/action/delete/{id}/` |
+| `organizations-admin-actions-edit` | `/organizations/admin/action/edit/` | `/admin/organizations/action/edit/` |
+| `organizations-admin-ajax-all` | `/organizations/admin/all/` | `/admin/organizations/all/` |
+| `organizations-admin-datatables` | `/organizations/admin/datatables/` | `/admin/organizations/datatables/` |
+| `organizations-admin-forms-add` | `/organizations/admin/forms/add/` | `/admin/organizations/forms/add/` |
+| `organizations-admin-forms-edit` | `/organizations/admin/forms/edit/{id}/{lang}/` | `/admin/organizations/forms/edit/{id}/{lang}/` |
+| `organizations-admin-list` | `/organizations/admin/list/` | `/admin/organizations/list/` |
+| `admin-tickets-create` | `/tickets/create/` | `/admin/tickets/create/` |
+| `timing-add` | `/timing/add/` | `/admin/timing/add/` |
+| `users-form-create` | `/users/add/type/{type}/` | `/admin/users/add/type/{type}/` |
+| `users-ajax-all` | `/users/all/` | `/admin/users/all/` |
+| `users-datatables` | `/users/datatables/` | `/admin/users/datatables/` |
+| `users-delete-account-request` | `/users/delete-account/` | `/admin/users/delete-account/` |
+| `users-form-edit` | `/users/edit/{id}/` | `/admin/users/edit/{id}/` |
+| `users-edit-request` | `/users/edit/` | `/admin/users/edit/` |
+| `users-list` | `/users/list/` | `/admin/users/list/` |
+| `users-form-profile` | `/users/profile/` | `/admin/users/profile/` |
+| `users-register-request` | `/users/register/` | `/admin/users/register/` |
+| `users-revoke-sessions-request` | `/users/revoke-sessions/` | `/admin/users/revoke-sessions/` |
+| `users-search-dropdown` | `/users/search-dropdown/` | `/admin/users/search-dropdown/` |
+| `users-selection-create` | `/users/select-type/add/` | `/admin/users/select-type/add/` |
+| `user-system-features-configure-totp` | `/users/user-system-features/configure-totp/` | `/admin/users/user-system-features/configure-totp/` |
+| `user-system-features-get-current-totp-qr-data` | `/users/user-system-features/get-current-totp-qr-data/` | `/admin/users/user-system-features/get-current-totp-qr-data/` |
+| `user-system-features-get-current-totp` | `/users/user-system-features/get-current-totp/` | `/admin/users/user-system-features/get-current-totp/` |
+| `user-system-features-mark-current-totp-qr-as-viewed` | `/users/user-system-features/mark-current-totp-qr-as-viewed/` | `/admin/users/user-system-features/mark-current-totp-qr-as-viewed/` |
+| `localization-system-features-get-lang-messages-by-group` | `/admin/localization-system-features/get-lang-messages-by-group/` | `/core/localization-system-features/get-lang-messages-by-group/` |
+| `newsletter-admin-add` | `/admin/newsletter/add/` | `/newsletter/add/` |
+
+## ⚠ Seguridad y CAMBIO INCOMPATIBLE — lo que se cifra se cifra de verdad, y la clave vive en su llavero
+
+- **Lo que el framework llamaba «cifrar» no cifraba**: `BaseHashEncryption::encrypt()` sumaba la clave letra a letra.
+  Así se guardaban **la configuración del correo (con la contraseña SMTP) y la de Mailjet, con una clave pública**, y
+  los datos de los tokens. **Si tu instalación guarda credenciales de correo, quien haya podido leer tu base o un
+  respaldo pudo leerlas: cámbialas en tu proveedor después de actualizar.**
+- **Ahora se cifra con AES-256-GCM** (`PiecesPHP\Core\Crypto\Sealed`), con una llave por propósito derivada de
+  `app_key`: datos de los tokens, correo, Mailjet, cuerpo de los correos y **el secreto del doble factor (TOTP), que
+  antes estaba en claro**. Lo guardado en el formato viejo se lee siempre: la configuración de correo y de Mailjet se
+  vuelve a guardar cifrada al cargarse; **el secreto TOTP y el cuerpo de los correos, con `bin/cli seal-legacy-data`, que
+  hay que ejecutar una vez después de actualizar** (no cambia la clave ni cierra sesiones). Los tokens de antes no se
+  leen: todos vuelven a iniciar sesión.
+- **La clave sale de `config.php`**: vive en `secure-keys/app-key.json` (el llavero), con la actual y las anteriores.
+  **En el primer arranque con la clave de relleno se genera sola**. Si tu clave está en `config.php`, se sigue leyendo y
+  un aviso pide moverla: `bin/cli store-app-key` (no la cambia).
+- **Cambiar la clave ya no pierde nada**: `bin/cli rotate-app-key` vuelve a cifrar todo lo declarado; `retire-app-key`
+  quita una clave anterior cuando ya nadie la usa. Detalle en `source-docs`, «La clave de la aplicación».
+- **Los archivos protegidos y los tokens genéricos validan con la sesión**, no solo con la firma: una sesión cerrada ya
+  no abre un archivo protegido.
+- **`BaseHashEncryption::encrypt()`/`decrypt()` pasan a llamarse `obfuscate()`/`deobfuscate()`**: solo ofuscan (las
+  direcciones cortas de los contenidos, y la lectura de lo guardado antes de la 9), y `verify-integrity` falla si se usan fuera de su lista o si algo cifra con un
+  propósito no declarado. `UsersController::encodeURL()`/`decodeURL()` salen (nadie las llamaba). El tipo de usuario del
+  alta va firmado, y el id del usuario ya no viaja a las vistas de la zona pública.
+- **Al actualizar, todos vuelven a iniciar sesión**, y un token genérico guardado antes (los de `TokenModel`) deja de
+  abrirse, sin error.
+- **Para un clon**: después de actualizar, ejecuta `bin/cli db-backup` y `bin/cli seal-legacy-data`; comprueba en Avisos del
+  sistema que no salga el de la `app_key` en `config.php` (o ejecuta `store-app-key`), y cambia en tu proveedor las credenciales de correo y de Mailjet que tuvieras guardadas. Si
+  tu código cifraba con `BaseHashEncryption::encrypt()`, decláralo y usa `Sealed`.
+
+## ⚠ CAMBIO INCOMPATIBLE — un aviso de PHP ya no tumba la página en producción (errores graves y suaves)
+
+- **Dos clases de error** (ADR 0060). **Graves** (excepciones no capturadas, `E_ERROR`, `E_PARSE`, `E_RECOVERABLE_ERROR`,
+  `E_USER_ERROR`): rompen en todas partes, como siempre, y enseñan su referencia. **Suaves** (`E_WARNING`, `E_NOTICE`,
+  `E_DEPRECATED` y sus `E_USER_*`): **fuera de local ya no rompen**; se anotan con su referencia y la petición sigue.
+  **En local siguen rompiendo**, para que se arreglen, salvo `E_USER_WARNING` y `E_USER_NOTICE`, que nunca rompieron.
+- **`log_soft_error($message, $context)`**: anota algo suave a propósito (una integración que falla) y devuelve su
+  referencia. No rompe nunca.
+- **El registro de errores cambia de formato**: `logs/error.log.jsonl`, una entrada por línea, que solo crece y se
+  escribe con cerrojo (dos errores a la vez ya no se pisan). Cada traza se guarda una vez, en `logs/error-traces/`, y
+  las entradas la nombran por su huella: medido sobre un registro real, **un 77 % menos de espacio sin perder nada**. Se
+  guardan además las excepciones previas y el contexto mínimo de la petición (método, nombre de ruta, dirección sin la
+  cadena de consulta, usuario). Los suaves repetidos el mismo día suman un contador en vez de otra entrada. El
+  `error.log.json` viejo se sigue leyendo.
+- **Registros › Errores** enseña el nivel, las repeticiones y los marcos del enrutador y de `vendor/` plegados. Y root
+  ve un aviso flotante «Hay N errores nuevos desde tu última visita», que se oculta desde Avisos del sistema.
+- **Lo que ve cada uno en Registros y en el registro de acciones** sigue la jerarquía: root, todo; los demás, lo suyo y
+  lo de rangos menores (`UserHierarchy`). Lo que hizo root suplantando a alguien cuenta como de root.
+- **Para un clon**: si contabas con que un aviso abortara una operación en producción, lanza una excepción. Si leías
+  `error.log.json` con tus herramientas, lee también el `.jsonl`.
+
+## ⚠ CAMBIO INCOMPATIBLE — cada sesión es una fila, y al actualizar todos vuelven a iniciar sesión
+
+- **Cada inicio de sesión crea una fila** en la tabla nueva `pcsphp_user_sessions` (núcleo:
+  `databases/actualizaciones/2026-10-10-sesiones.sql`), y el token lleva el identificador de su sesión. En cada petición
+  se comprueba que esa sesión existe, es del mismo usuario, no está cerrada y no ha caducado. **La base guarda el sha256
+  del identificador, nunca el identificador.**
+- **Un token sin identificador ya no entra: al actualizar, todo el mundo vuelve a iniciar sesión una vez** (decisión del
+  PO, P130 a).
+- **La fila manda sobre la caducidad** (ver arriba, «la sesión caduca por inactividad con un tope»).
+- **Cerrar sesión cierra en el servidor** (ruta `user-sessions-logout`); antes solo se borraba la cookie y el token
+  seguía valiendo hasta caducar.
+- **Nuevo**: «Mis sesiones» en la seguridad de la cuenta (cerrar una o todas las demás); la pestaña **Sesiones
+  abiertas** en Registros; las sesiones en la ficha de cada usuario. Los administradores cierran o extienden las de
+  rangos menores que el suyo (root, las de todos). Cada cierre y extensión queda en el registro de acciones.
+- **Para un clon**: aplica `2026-10-10-sesiones.sql`. Si tu código fabricaba tokens con `SessionToken::generateToken()`
+  para iniciar sesión, usa `UserSessions::issueToken()`: un token sin fila ya no vale. Si validabas con
+  `SessionToken::isActiveSession()`, usa `UserSessions::jwtIsValid()` (firma y fila).
+
+## ⚠ CAMBIO INCOMPATIBLE — los registros, en una sola pantalla
+
+- **Nueva pantalla «Registros»** (`logs-admin-index`, en la barra superior), con una pestaña por registro: **Errores**
+  (solo root), **Correos enviados** (solo root) y **Accesos** (root, administrador general y administrador de
+  organización, este con lo de su organización). Cada usuario ve solo las pestañas a las que tiene permiso. Detalle en
+  `source-docs`, «Registros».
+- **Los errores, por fin una pantalla**: por día, con filtros y su detalle; la referencia `ERR-…` que ve el usuario se
+  busca y abre su entrada, también en los archivos rotados.
+- **Sale la ruta `admin-error-log`** (el JSON crudo del registro de errores), y su línea del catálogo de roles.
+- **Dos direcciones viejas solo redirigen**: `system-status-mail-log` lleva a la pestaña de correos y
+  `login-attempts-reports` (con `?attempts`, `?logged` o `?not-logged`) a la de accesos. Sus rutas de datos y de
+  exportación no cambian.
+- **El menú «Registro»** lleva cuatro accesos directos: Intentos de ingreso, Registro de ingresos, Usuarios sin ingresos
+  y Todos los registros; «Registro de correos» sale de Configuración › Sistema.
+- **Los informes de acceso** se pintan con las piezas de estadísticas y ApexCharts: salen 74 de las 76 reglas de su hoja.
+- **El registro de acciones lo ven también los administradores**: el general, todo; el de organización, solo lo de su
+  organización. Tiene filtros, el detalle de cada acción (ruta nueva `actions-logs-admin-detail`) y ocho tipos propios
+  donde antes se escribía `GENERIC`. Las filas viejas siguen como `GENERIC`.
+- **`actions_log` y `login_attempts` tienen índice por fecha y un tope de 200.000 filas** (las más viejas se borran;
+  nunca por debajo de 1.000): `databases/actualizaciones/2026-10-10-indices-de-los-registros.sql`. Y `pcsphp_mail_log`
+  entra por fin en `databases/piecesphp_structure.sql`.
+- **La leyenda de los gráficos es interactiva** (`linkStatisticsChartLegend()`, `statics/core/js/statistics-chart-legend.js`).
+- **`SystemAlert` acepta un décimo parámetro opcional**, `$fixQuery`: lo que va tras «?» en el enlace «Cómo arreglarlo».
+- **`error.unique.message.log` cambia de formato**: la línea de la fecha lleva la referencia de la primera aparición,
+  `[fecha] [ref ERR-…] [Tipo] …`. La deduplicación no cambia.
+- **La hoja de los informes de acceso** pasa de `statics/core/sass/registers/attempts.scss` a
+  `UserSystem/Statics/sass/attempts.scss`, con las mismas reglas.
+- **Para un clon**:
+  - si un rol tuyo tenía `admin-error-log` en su `allowed_routes`, cámbialo por `logs-admin-index` y
+    `logs-admin-errors`;
+  - si enlazabas `system-status-mail-log` o `login-attempts-reports`, enlaza `logs-admin-index` con `?tab=mails` o
+    `?tab=access&view=attempts|logged|not-logged`;
+  - **un registro tuyo puede tener su pestaña**: `LogTabRegistry::register(new LogTab(…))` en tu `*Routes`;
+  - aplica `2026-10-10-indices-de-los-registros.sql`; si tus tablas de registro deben guardar más de 200.000 filas,
+    llama a `setMaxRows()`.
+
+## Cambia — el listado de publicaciones estrena el armazón nuevo del panel
+
+- **Es la primera pantalla del rediseño** (la propuesta de la familia de contenidos, aprobada por el PO el 2026-10-09).
+  Una cabecera con una sola acción principal («Nueva publicación») y «Categorías» como secundaria; la tabla sin la
+  columna de número; el título, enlazado a su edición y con su categoría debajo; y las acciones de la fila: editar a la
+  vista, y «Ver en el sitio» y «Eliminar» a su lado, los tres con el color de marca (Editar en el principal, los otros dos
+  en el secundario) y del tamaño normal del panel; el menú «⋯» solo aparece en una fila con más de tres acciones. El
+  borrado es el de siempre.
+- **El listado de noticias, igual**: se llama «Noticias internas», como en el menú; «Categorías» pasa a secundaria
+  (antes «Gestionar categorías», como principal) y la tabla pierde la columna de número, que se sigue buscando.
+- **El alta y la edición de publicaciones, igual**: la misma cabecera («Nueva publicación», «Editar: <título>», con «Ver en
+  el sitio» al lado) y **la barra de guardar al pie del formulario**, con «Guardar»,
+  «Cancelar» y, en la edición, «Eliminar» en rojo a la derecha. Un campo obligatorio vacío ya no nace rosa: el rojo sale al
+  intentar guardar. En el móvil, las pestañas del formulario van en una fila que se desliza, y la barra cabe en una fila: «Guardar» con su
+  texto y las demás acciones como iconos. «Eliminar» ya no es un botón de envío: sin JavaScript, pulsarlo habría guardado.
+- **El alta y la edición de noticias, igual que las de publicaciones**: «Nueva noticia» y «Editar: <título>» (antes,
+  «Gestión de noticias» en las dos) y la barra de guardar al pie.
+- **Documentos, igual**: el listado ya no lleva el formulario de alta encima (el primer pliegue no enseñaba ningún
+  documento); «Nuevo documento» lleva a su propia página, con la misma cabecera y la barra de guardar que publicaciones y
+  noticias, y «Tipos de documento» queda como secundaria. El explorador de documentos estrena la cabecera (antes su
+  título no se veía).
+- **Las categorías de publicaciones, en una ventana**: el listado tiene la cabecera nueva, y «Nueva categoría» y «Editar»
+  abren una ventana sobre él; al guardar, la tabla se actualiza sin recargar la página. Las páginas de alta y edición
+  siguen funcionando por su dirección. La tarjeta vieja del listado
+  (`src/app/classes/Publications/Views/categories/util/list-card.php`) se borra: nadie la usaba ya, y su botón de eliminar
+  estaba roto. **Las categorías de noticias**, que llevan color e icono, se quedan en su página, con la cabecera y la barra
+  nuevas. **Las categorías de formularios y los tipos de documento, también en ventana**, con «Traducir» en cada fila
+  para editar el otro idioma en su página.
+- **La hoja de diseño del panel** (menú de la rueda, junto a «Acerca de»; la ven root y el administrador general): una
+  sola página, con índice, que enseña todo lo que usa el panel —colores de marca y de estado, tipografía, botones,
+  etiquetas, campos de formulario, las piezas de las pantallas de contenido, mensajes, avisos y tarjetas—, cada cosa con
+  cuándo se usa y **el código que la pinta, que es el mismo que corre**: cada ejemplo es un archivo
+  (`src/app/classes/PiecesPHP/AdminPanel/Views/panel/pages/design-sheet/examples/`) que la hoja ejecuta y enseña. La
+  pestaña «Pantallas de contenido» de «Ejemplos de elementos» se va a ella.
+- **Los gráficos y estadísticas de los informes, piezas reutilizables** (`src/app/view/panel/built-in/statistics/`: sección,
+  tarjeta de cifra, tarjeta de gráfico, leyenda, círculo de progreso, cifras con icono y tarjeta de acción), cada una con
+  sus variantes como parámetros. El informe genérico (`ReportsManage`) ya pinta con ellas, con el mismo HTML de antes, y
+  la hoja de diseño las enseña. El gráfico lo sigue dibujando el JavaScript de cada pantalla, con ApexCharts.
+- **Gráficos y estadísticas, con su página para desarrolladores** («Gráficos y estadísticas»,
+  `source-docs/project/docs/piecesphp/new-features/estadisticas.md`) y su CSS en una hoja del núcleo
+  (`statics/core/css/graphs-and-statistics.css`), para cargarla desde cualquier pantalla.
+- **Para quien desarrolla un clon, todas las piezas con ejemplos que se pueden copiar**, en la documentación:
+  «Pantallas de contenido» (`source-docs/project/docs/piecesphp/new-features/pantallas-de-contenido.md`).
+- **Para quien desarrolla un clon, una pieza más: la ventana de formulario** (`panel/built-in/content/form-modal.php`),
+  que se abre vacía (alta) o con valores (edición) desde cualquier elemento con `data-content-modal`, y al guardar con
+  éxito se cierra y recarga la tabla de la página.
+- **En el móvil, la paginación de los listados ya no se sale de la pantalla**: envuelve, y sin «Primero» ni «Último».
+- **En el móvil, los listados de contenido son tarjetas**: cada fila se lee entera, con la etiqueta de cada dato, y la
+  tabla ya no se desliza en horizontal. Vale para toda tabla con la clase `content-table`, sin que su módulo haga nada
+  (`contentTablesStackable()`, en `admin-area/js/main.js`).
+- **El explorador de documentos, en tarjetas**: con migas, y en cada tarjeta el icono de su tipo de archivo (PDF,
+  imagen, hoja de cálculo, Word, texto) cuando no hay miniatura, el nombre, el tipo, la descripción y «Abrir». La tabla de
+  iconos vive en un solo sitio: `DocumentsController::FILE_TYPE_ICONS` y `fileTypeIcon()`.
+- **Un título largo cabe en la cabecera**: con una acción o ninguna, la columna del título es más ancha (once de
+  dieciséis), y «Editar: <nombre largo>» ocupa una línea menos (una sola hasta unos 40 caracteres).
+- **En los listados, el título y su categoría ya no se parten** por hacer sitio a los botones de la fila: las columnas
+  cortas (estado, fechas, visitas, destacado) ocupan solo lo que necesitan.
+- **Lo sembrado con `bin/cli seed` se puede editar desde el panel**: sus carpetas de subida quedan escribibles por el
+  servidor web (antes, cambiar la imagen o la traducción de un registro sembrado daba error interno), y las noticias salen
+  con perfiles y fechas, que su formulario exige.
+- **El estado de las noticias, con los colores de la familia**: verde activa, rojo inactiva y naranja borrador.
+- **Las piezas aceptan atributos** (`attributes` en las acciones de la cabecera y de la barra; `saveAttributes`, `icon` y
+  `danger` en la barra), escapados y sin manejadores `on…`, para que el JavaScript de cada módulo encuentre sus marcas.
+- **La cabecera ya no se pega a lo que viene debajo**, y en tableta y móvil sus botones van a la izquierda, como el título.
+- **El selector «Ver [ ] elementos» ya no sale vacío** en ningún listado: el número de filas que pide la pantalla está
+  siempre entre las opciones.
+- **Para quien desarrolla un clon, piezas para sus propias pantallas**, enseñadas en «Ejemplos de elementos», pestaña
+  «Pantallas de contenido»: la cabecera (`panel/built-in/content/page-header.php`), el aviso de «aún no hay…»
+  (`empty-state.php`), la barra de guardar al pie del formulario (`form-action-bar.php`) y `PiecesPHP\Core\Utilities\Helpers\RowActions`
+  para la celda de acciones, que escapa todo lo que pinta. Un formulario con la barra nueva no se pinta en rojo hasta que
+  se intenta guardar. **Lo demás del panel no cambia de aspecto** (medido con `bin/huella-css`: solo dos reglas nuevas).
+
+## ⚠ CAMBIO INCOMPATIBLE — una denegación de permiso responde 403, también dentro de un `try`
+
+- **Antes**, cuando un controlador del framework negaba el acceso con `throw403()` dentro de un bloque que captura
+  `\Exception`, ese `catch` se comía la denegación: el cliente recibía el mensaje de error genérico (con su referencia de
+  registro) y el registro de errores guardaba cada denegación como si fuera un fallo.
+- **Ahora** esos bloques relanzan `HttpForbiddenException` antes de tratar lo demás: **la respuesta es un 403** y el
+  registro de errores ya no se llena de denegaciones. Si un cliente propio buscaba el mensaje genérico para detectar «no
+  tienes permiso», tiene que mirar el 403.
+- **En el código de un clon**, la misma trampa sigue ahí si no la evitas: la forma de evitarla está en la página de
+  permisos de ruta, «Y una trampa de `throw403()`». La vigila una prueba de `gates` (`permissions-coherence`, [9]): todo
+  `try` que envuelve un `throw403()` y captura `\Exception` tiene que relanzar antes la denegación.
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera «Ejemplos de elementos»
+
+- La pantalla (`my-space-admin-example-resources`, `/admin/my-space/example-resources/`) y su entrada de menú se retiran:
+  lo que enseñaba lo enseña ahora la **hoja de diseño** (`admin-design-sheet`), con su código. Se fue con ella una
+  pestaña que mostraba en claro, solo difuminado, el secreto del doble factor del propio usuario.
+- **Se quedan las bibliotecas** que demostraba: SurveyJS y la del diálogo propio, por si un clon las usa.
+
+## ⚠ CAMBIO INCOMPATIBLE — las hojas de estilo y el JavaScript de la configuración, en su módulo
+
+- **Antes** vivían en el núcleo: `src/statics/core/sass/app_config/` (14 hojas y su `includes/_base.scss`) y
+  `src/statics/core/js/app_config/` (11 archivos).
+- **Ahora** viven con su módulo, en `src/app/classes/PiecesPHP/Settings/Statics/{sass,js}/`, y se sirven por la ruta de
+  estáticos del módulo (`SettingsRoutes::staticRoute()`, bajo `/admin/configurations/statics/`). Las reglas son las mismas,
+  una a una: ninguna pantalla cambia de aspecto por esto.
+- **Si tu clon había modificado alguna de esas hojas o scripts**, lleva tus cambios al sitio nuevo. Y si en tu servidor
+  queda `statics/core/css/app_config/`, son compilados viejos: se pueden borrar.
+- **El índice «Configuración»** estrena la cabecera del panel, sin la franja de color.
+- **Las cinco pantallas de Apariencia, igual** (imágenes de marca, fondos, colores, identidad y SEO, archivos para
+  buscadores): cabecera con migas y una frase de qué hace cada una, y cada formulario con su barra de guardar en el color
+  de marca (antes, el azul de Fomantic). Las imágenes y los fondos se siguen guardando desde su recortador. Sale la hoja
+  `seo.scss`, que se había quedado vacía.
+- **Las cuatro de Integraciones, igual** (correo, osTicket, inteligencia artificial y scripts). Salen sus hojas `email.scss`,
+  `os-ticket.scss` y `ai.scss`, que se quedaban vacías. Ningún secreto cambia de trato: el campo vacío sigue significando
+  «no cambiar» y la vista no los enseña.
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera la constante `CURRENCIES`
+
+- La lista de monedas de `src/app/config/constants.php` no la usaba nada del framework. Si un clon la usaba, se la define
+  en su propia configuración.
+
+## ⚠ CAMBIO INCOMPATIBLE — `bin/cli` sale con error cuando una prueba falla o la orden no existe
+
+- **Una suite que termina en rojo hace que `bin/cli <suite>` salga con código 1.** Antes salía con 0, y solo la línea
+  «BALANCE FINAL» decía la verdad: quien encadenaba `bin/cli <suite> && <lo siguiente>` —en un guion, en una
+  integración continua— creía que había pasado.
+- **Una orden que no existe también sale con 1**, después de listar las que hay. Antes, `bin/cli` con una errata salía
+  con 0.
+- **Qué cuenta como rojo**: que la acción devuelva `['success' => false, …]`, como hacen todas las suites del framework.
+  Una acción propia que devuelva otra cosa, o nada, sigue saliendo con 0.
+- **`bin/cli gates` da el mismo veredicto que antes**: ya leía el balance de cada suite, y ahora el código de salida
+  dice lo mismo.
+
+## ⚠ CAMBIO INCOMPATIBLE — una petición de datos sin sesión responde 401, no 403
+
+- **A una ruta que pide sesión, una petición de datos (XHR) sin sesión responde `401 Unauthorized`**, con la cabecera
+  `WWW-Authenticate: Bearer`. Antes respondía `403 Forbidden`, que significa «sé quién eres y no puedes», y aquí nadie
+  se había identificado. El cuerpo no cambia: `{"error": "RESTRICTED_AREA", "message": …}`.
+- **Lo que no cambia**: una petición de página sin sesión sigue redirigiendo al acceso, y un usuario con sesión al que su
+  rol no le deja sigue recibiendo `403`.
+- **Para quien consuma la API o tenga JavaScript propio**: si distinguía «sin sesión» por el `403`, ahora es el `401`.
+
+## ⚠ CAMBIO INCOMPATIBLE — una acción de usuarios que no existe responde 404
+
+- **Pedir una acción de usuarios que no existe responde `404`**, como cualquier ruta que no existe. Antes respondía
+  `200` con el cuerpo vacío, y un cliente lo leía como un éxito sin datos.
+
+## ⚠ CAMBIO INCOMPATIBLE — el framework pide `piecesphp/database` 5.3 o superior
+
+- **`src/composer.json` pide `piecesphp/database: ^5.3`** (antes, `^5.0`). Los totales de los listados del panel usan
+  desde la `v8.0.8` un método que solo existe desde la 5.3 (`getPreparedSQL()`, ADR 0054): con una anterior, fallan. La
+  `v8.0.8` ya instalaba la 5.3 desde su `composer.lock`; solo se rompía quien fijara a mano una versión anterior.
+- **Para un clon**: `composer update piecesphp/database --working-dir=src`.
+
+## ⚠ CAMBIO INCOMPATIBLE — `Mailer::asGoDaddy()` se llama `asSystemMailer()`, que es lo que hace
+
+- **`asGoDaddy()` no salía por GoDaddy**: configura la entrega por el correo de la propia máquina —`mail()` o, con
+  `true`, `sendmail`—, sin autenticación, a `localhost:25`. **Ahora se llama `asSystemMailer(bool $sendmail = false)`**,
+  con el mismo comportamiento, incluido que con el correo retenido no hace nada (ADR 0045).
+- **Sin alias**: el nombre viejo desaparece. **Para un clon**: busca `asGoDaddy(` y cámbialo por `asSystemMailer(`.
+
+## ⚠ CAMBIO INCOMPATIBLE — fuera `test_mode` de la configuración de correo
+
+- **Desde la `v8.0.0` no decidía nada**: quién recibe el correo de verdad lo declara la entrega (`mail_delivery`, ADR
+  0045), y el selector de la pantalla de correo ya editaba esa declaración. `test_mode` seguía guardándose sin que nadie
+  lo leyera.
+- **Salen** `MailConfig::testMode()`, las constantes `TEST_MODE_AUTO`, `TEST_MODE_ON`, `TEST_MODE_OFF` y `TEST_MODES`, y
+  la clave `test_mode` de lo que se guarda. **Se queda `testModeActive()`**, que dice si el correo está retenido.
+- **Una configuración guardada con `test_mode` sigue cargando**: la clave se ignora.
+
+## ⚠ CAMBIO INCOMPATIBLE — el catálogo de rutas ya no lleva `route_alias`
+
+- **Valía siempre el nombre de la propia ruta** desde que los alias se retiraron en la campaña de la 8: un campo que no
+  decía nada. Sale de lo que devuelve `RouteAdapter::toArray()` y, con él, del catálogo de rutas (`get_routes()`).
+- **Para un clon**: si leías `route_alias`, lee `name`.
+
+## ⚠ CAMBIO INCOMPATIBLE — la tabla `interest_research_area` sale de verdad del esquema
+
+- **La `v8.0.0` anunció que desaparecía** con el módulo de áreas de interés de investigación, **pero
+  `databases/piecesphp_structure.sql` la seguía creando**: un clon nuevo nacía con una tabla que ningún código usa.
+  Ahora no la crea.
+- **Para una instalación que ya la tenga**: `databases/actualizaciones/2026-10-09-retira-interest-research-area.sql`, un
+  `DROP TABLE IF EXISTS`. **Antes, un respaldo**: si un módulo propio la usaba, sus filas se pierden.
+
 # 8.0.8 (09-10-2026)
 
 ## ⚠ Seguridad — una tabla puede declarar qué columnas no salen NUNCA, y el framework lo respeta solo
@@ -990,7 +2302,7 @@ Todos son traslados: ninguno se borró sin sustituto. El detalle, archivo por ar
 
 - **`src/adminer/` se retira** (decisión del PO): un cliente de base de datos dentro de la aplicación es superficie de
   ataque, y ya se borraba en cada despliegue. Si lo usabas en local, instálalo aparte
-  (`source-docs/project/docs/environments/content/lamp/content/Adminer.md`).
+  (`source-docs/entornos/docs/environments/content/lamp/content/Adminer.md`).
 
 ## Cambia — SASS compila con la API moderna, sin reescribir lo que no cambió, y las tareas de gulp fallan de verdad
 
@@ -1691,7 +3003,7 @@ contrato fijado por pruebas (`core/session-isolated`, 23 comprobaciones). Lo que
   la configuración SMTP real no se toca: el desvío ocurre solo al enviar.
 - **Mientras el correo está retenido**, root y el administrador general ven el aviso «El correo está retenido…»
   (`mail-test-mode`): informativo en una instalación local, de atención fuera de ella.
-- Guía del servidor de pruebas (Mailpit): `source-docs/project/docs/environments/content/mailpit/index.md`.
+- Guía del servidor de pruebas (Mailpit): `source-docs/entornos/docs/environments/content/mailpit/index.md`.
 
 ## Nuevo — las rutas se comprueban al registrarse
 

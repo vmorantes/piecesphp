@@ -49,7 +49,7 @@ CliActions::make('unit-tests:core/system-controllers-routing', function ($args) 
             'users-list' => fn() => UsersController::routeName('list'),
             'users-recovery-form' => fn() => UsersController::routeName('recovery-form'),
             'login-attempts-reports' => fn() => LoginAttemptsController::routeName('reports'),
-            'admin-error-log' => fn() => AdminPanelController::routeName('error-log'),
+            'admin-about-framework' => fn() => AdminPanelController::routeName('about-framework'),
             'timing-add' => fn() => TimerController::routeName('add'),
         ];
         foreach ($casos as $nombre => $llamada) {

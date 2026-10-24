@@ -8,6 +8,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="cache-stamp" value="<?= get_config('cacheStamp'); ?>">
     <meta name="lang-messages-from-server-url" value="<?= base64_encode(\PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController::routeName('get-lang-messages-by-group')); ?>">
+    <meta name="mapbox-key-url" value="<?= base64_encode(\PiecesPHP\Settings\Controllers\SettingsController::routeName('integrations-mapbox-key')); ?>">
+    <meta name="map-default-center" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(\PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper::mapDefaultCenter()), '{}'); ?>">
+    <meta name="logout-url" value="<?= base64_encode(\PiecesPHP\UserSystem\Controllers\UserSessionsController::routeName('logout')); ?>">
     <meta name="config-admin-url" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('admin_url')), '{}'); ?>">
     <meta name="front-configurations" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]'); ?>">
     <base href="<?= baseurl(); ?>">

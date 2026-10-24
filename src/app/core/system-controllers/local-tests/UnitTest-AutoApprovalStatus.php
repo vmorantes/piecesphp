@@ -3,6 +3,7 @@
 //La autoaprobación solo pasa de pendiente a activo: inactivo, bloqueado, rechazado y borrado se quedan como están, también
 //en una organización aprobada. Y un pendiente de una organización aprobada sigue quedando activo al navegar (por HTTP).
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -104,12 +105,12 @@ CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
         echoTerminal('');
         echoTerminal('[b] Lo que se conserva: un pendiente de una organización aprobada queda activo al navegar');
         $id = $crearUsuario('navega', UsersModel::STATUS_USER_APPROVED_PENDING);
-        $jwt = SessionToken::generateToken(['id' => $id], null, null, false);
+        $jwt = UserSessions::issueToken($id);
         $perfil = UsersController::routeName('form-profile', [], true);
         $perfil = str_contains($perfil, '://') ? (string) parse_url($perfil, \PHP_URL_PATH) : $perfil;
         $perfil = $prefijoBase !== '' && str_starts_with($perfil, $prefijoBase) ? substr($perfil, strlen($prefijoBase)) : $perfil;
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($perfil, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,

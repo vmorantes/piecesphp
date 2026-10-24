@@ -198,8 +198,10 @@ CliActions::make('unit-tests:core/data-transfer-export-parameters', function ($a
         ];
         $html = (function (array $parameters): string {
             $langGroup = \DataImportExportUtility\DataImportExportUtilityLang::LANG_GROUP;
+            //La vista pinta la cabecera y la barra con las piezas del panel, por el ayudante del módulo.
+            $helpController = new \DataImportExportUtility\Controllers\HelperController();
             $title = 'Prueba';
-            $breadcrumbs = '';
+            $breadcrumbs = [];
             $action = 'https://zz.test/export';
             ob_start();
             include basepath('app/classes/DataImportExportUtility/Views/data-transfer/export-form.php');

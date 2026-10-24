@@ -28,6 +28,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -48,6 +49,7 @@ use Spatie\Url\Url as URLManager;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsRoutes;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * PublicationsController.
@@ -169,10 +171,10 @@ class PublicationsController extends AdminPanelController
         $allCategories = array_to_html_options(array_map('escape_html', array_filter(PublicationCategoryMapper::allForSelect(), 'is_scalar')), PublicationCategoryMapper::UNCATEGORIZED_ID);
         $searchUsersURL = $this->urlForSearchUsers;
 
-        $title = __(self::LANG_GROUP, 'Agregar publicación');
+        $title = __(self::LANG_GROUP, 'Nueva publicación');
         $description = '';
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $langsOptions = array_to_html_options(HelperController::getLangsForSelect(), Config::get_default_lang());
 
@@ -185,7 +187,8 @@ class PublicationsController extends AdminPanelController
         $data['allCategories'] = $allCategories;
         $data['dynamicAttachments'] = $dynamicAttachments;
         $data['searchUsersURL'] = $searchUsersURL;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['backLink'] = $backLink;
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -193,7 +196,7 @@ class PublicationsController extends AdminPanelController
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/add', $data);
@@ -235,10 +238,14 @@ class PublicationsController extends AdminPanelController
             $allCategories = array_to_html_options(array_map('escape_html', array_filter(PublicationCategoryMapper::allForSelect(), 'is_scalar')), $element->category instanceof PublicationCategoryMapper ? $element->category->id : $element->category);
             $searchUsersURL = $this->urlForSearchUsers;
 
-            $title = __(self::LANG_GROUP, 'Edición de publicación');
+            //El título de la publicación, recortado como en el listado; lo escapan la cabecera y MetaTags, las migas no.
+            $publicationTitle = (string) $element->title;
+            $publicationTitle = mb_strlen($publicationTitle) <= 60 ? $publicationTitle : mb_substr($publicationTitle, 0, 57) . '...';
+            $title = sprintf(__(self::LANG_GROUP, 'Editar: %s'), $publicationTitle);
             $description = '';
+            $hasPreview = PublicationsPublicController::allowedRoute('single', ['slug' => $element->getSlug()]);
 
-            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+            set_title($title);
 
             $data = [];
             $data['action'] = $action;
@@ -251,7 +258,9 @@ class PublicationsController extends AdminPanelController
             $data['allCategories'] = $allCategories;
             $data['selectedLang'] = $selectedLang;
             $data['searchUsersURL'] = $searchUsersURL;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['backLink'] = $backLink;
+            $data['previewLink'] = $hasPreview ? PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]) : '';
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -259,7 +268,7 @@ class PublicationsController extends AdminPanelController
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
 
             $this->helpController->render('panel/layout/header');
             $this->render('forms/edit', $data, true, false);
@@ -282,7 +291,6 @@ class PublicationsController extends AdminPanelController
     {
 
         $addLink = self::routeName('forms-add');
-        $addCategoryLink = PublicationsCategoryController::routeName('forms-add');
         $listCategoriesLink = PublicationsCategoryController::routeName('list');
         $processTableLink = self::routeName('datatables');
         $processTablePublicatedLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_VISIBLE;
@@ -290,9 +298,9 @@ class PublicationsController extends AdminPanelController
         $processTableScheduledLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_SCHEDULED;
 
         $title = __(self::LANG_GROUP, 'Publicaciones');
-        $description = __(self::LANG_GROUP, 'Listado de publicaciones');
+        $description = __(self::LANG_GROUP, 'Lo que se publica en el sitio, con su categoría y su fecha.');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
@@ -302,18 +310,16 @@ class PublicationsController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = (string) $addLink !== '';
-        $data['addCategoryLink'] = $addCategoryLink;
-        $data['hasPermissionsAddCategory'] = (string) $addCategoryLink !== '';
         $data['listCategoriesLink'] = $listCategoriesLink;
         $data['hasPermissionsListCategories'] = (string) $listCategoriesLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         set_custom_assets([
             PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -866,6 +872,9 @@ class PublicationsController extends AdminPanelController
 
                 $resultOperation->setMessage($e->getMessage());
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+                throw $e;
             } catch (\Exception $e) {
                 $reference = log_exception($e);
 
@@ -887,6 +896,9 @@ class PublicationsController extends AdminPanelController
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (HttpForbiddenException $e) {
+            //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+            throw $e;
         } catch (\Exception $e) {
             $reference = log_exception($e);
 
@@ -1330,14 +1342,14 @@ class PublicationsController extends AdminPanelController
 
         $selectFields = PublicationMapper::fieldsToSelect();
 
+        //Por POSICIÓN, como las columnas de la vista. La del título busca también por número y por categoría, que ya no
+        //tienen columna propia (P123: el número sigue buscándose).
         $columnsOrder = [
-            "{$table}.id",
-            'title',
-            'categoryName',
-            'visits',
+            ['title', "{$table}.id", 'categoryName'],
+            'visibilityText',
             'publicDateFormat',
             'authorUser',
-            'visibilityText',
+            'visits',
             'featuredDisplay',
         ];
 
@@ -1370,49 +1382,40 @@ class PublicationsController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
                 $hasPreview = PublicationsPublicController::allowedRoute('single', ['slug' => $mapper->getSlug()]);
+                $editLink = $hasEdit ? self::routeName('forms-edit', ['id' => $e->id]) : '';
 
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editIcon = "<i class='icon edit'></i>";
-                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
-                    $buttons[] = $editButton;
-                }
+                $menu = [];
                 if ($hasPreview) {
-                    $previewLink = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
-                    $previewText = __(self::LANG_GROUP, 'Ver');
-                    $previewIcon = "<i class='icon external alternate'></i>";
-                    $previewButton = "<a target='_blank' title='{$previewText}' href='{$previewLink}' class='ui button brand-color alt icon'>{$previewIcon}</a>";
-                    $buttons[] = $previewButton;
+                    $menu[] = RowActions::action(__(self::LANG_GROUP, 'Ver en el sitio'), PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]), 'external alternate', [
+                        'target' => '_blank',
+                        'rel' => 'noopener',
+                    ]);
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-publication-button>{$deleteIcon}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-publication-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
-
-                $buttons = implode('', $buttons);
-                $columns = [];
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), $editLink, 'edit') : null;
 
                 $tagColor = PublicationMapper::VISIBILITIES_COLORS[$e->visibility];
-                $tag = "<span class='ui {$tagColor} tag label'>{$e->visibilityText}</span>";
                 $title = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
+                $titleHTML = $hasEdit ? '<a href="' . escape_html($editLink) . '">' . escape_html($title) . '</a>' : escape_html($title);
 
-                $columns[] = $e->idPadding;
-                $columns[] = escape_html($title);
-                $columns[] = escape_html($e->categoryName);
-                $columns[] = $e->visits;
+                $columns = [];
+                $columns[] = $titleHTML . '<br><span class="ui small grey text">' . escape_html($e->categoryName) . '</span>';
+                $columns[] = "<span class='ui {$tagColor} label'>" . escape_html($e->visibilityText) . '</span>';
                 $columns[] = $e->publicDateFormat;
                 $columns[] = escape_html($e->authorUser);
-                $columns[] = $tag;
+                $columns[] = $e->visits;
                 $columns[] = $e->featuredDisplay;
-                $columns[] = $buttons;
+                $columns[] = RowActions::cell($direct, $menu);
                 return $columns;
             },
 

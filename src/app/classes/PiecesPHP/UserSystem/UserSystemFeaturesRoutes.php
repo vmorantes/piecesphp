@@ -10,7 +10,10 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
+use PiecesPHP\UserSystem\Controllers\UserSessionsController;
+use PiecesPHP\UserSystem\Controllers\UserTokensController;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 
@@ -33,17 +36,30 @@ class UserSystemFeaturesRoutes
 
     /**
      * @param RouteGroup $groupAdministration
-     * @return RouteGroup[] Con los índices groupAdministration
+     * @param RouteGroup $groupPublic Recibe también los estáticos del módulo, que se piden sin sesión.
+     * @return RouteGroup[] Con los índices groupAdministration y groupPublic
      */
-    public static function routes(RouteGroup $groupAdministration)
+    public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
         if (self::ENABLE) {
 
-            $groupAdministration = UserSystemFeaturesController::routes($groupAdministration);
+            UserSystemFeaturesController::routes($groupAdministration, $groupPublic);
+            //Las sesiones abiertas (ADR 0026, fases B y C): cerrar sesión, cerrar una, extender y su listado.
+            UserSessionsController::routes($groupAdministration);
+            //Los tokens y códigos vigentes y su historia (Registros); ver su valor, invalidarlos y restablecer el doble factor.
+            UserTokensController::routes($groupAdministration);
 
-            self::staticResolver($groupAdministration);
+            self::staticResolver($groupPublic);
 
             UserSystemFeaturesLang::injectLang();
+
+            //La pestaña «Accesos» de Registros: sus informes y su estática viven en este módulo.
+            LoginAttemptsController::registerLogTab();
+            UserSessionsController::registerLogTab();
+            UserTokensController::registerLogTab();
+            //Sus tarjetas del inicio del panel (DashboardCardRegistry).
+            UserSessionsController::registerDashboardCard();
+            LoginAttemptsController::registerDashboardCard();
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
@@ -55,6 +71,7 @@ class UserSystemFeaturesRoutes
 
         return [
             'groupAdministration' => $groupAdministration,
+            'groupPublic' => $groupPublic,
         ];
     }
 

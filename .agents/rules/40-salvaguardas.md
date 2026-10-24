@@ -74,7 +74,7 @@ autoriza: la regla es esta, la guarda es una red.
   framework, `composer update` de `piecesphp/*` y nada más, con `--working-dir=src`, sin `-w` ni
   `-W`, cuando un lote nombrado por el PO lo pida y después de que el PO haya empujado la versión.
 - Solo se escribe dentro del repositorio, en el scratchpad de la sesión, en `/tmp` y en la
-  memoria nativa de la herramienta. Los cuatro paquetes hermanos
+  memoria nativa de la herramienta; y en `~/Documentos/PiecesPHP/`, solo capturas de pantalla para el PO (ADR 0058). Los cuatro paquetes hermanos
   (`/var/www/html/vicsen/{database,datastructures,geojson,html}`) solo cuando la instrucción
   nombra ese repositorio. El de la guía personal del PO
   (`/var/www/html/vicsen/guia-piecesphp-para-po`), solo el arquitecto y solo para la guía

@@ -13,6 +13,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\AppEnvironment;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Terminal\CliActions;
 use Terminal\Distribution;
 use Terminal\TestLeftovers;
@@ -58,6 +59,12 @@ class GatesTask extends TerminalTaskAbstract
         'unit-tests:core/http-client' => ['bin/tools/sumidero-http/router.php'],
         'unit-tests:core/injected-scripts' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/mail-log-screen' => [self::PERMISSIONS_MATRIX],
+        'unit-tests:core/logs-viewer' => [self::PERMISSIONS_MATRIX],
+        'unit-tests:core/actions-log-organization' => [self::PERMISSIONS_MATRIX],
+        'unit-tests:core/user-sessions' => [self::PERMISSIONS_MATRIX],
+        'unit-tests:core/logs-hierarchy' => [self::PERMISSIONS_MATRIX],
+        'unit-tests:core/soft-errors' => [self::PERMISSIONS_MATRIX],
+        'unit-tests:core/app-key-crypto' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/maintenance-mode' => ['files/dev/route-inventory.json'],
         'unit-tests:core/publications-true-url' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/approval-forms' => [self::PERMISSIONS_MATRIX],
@@ -86,6 +93,37 @@ class GatesTask extends TerminalTaskAbstract
     ];
 
     /** De dónde sacan la base HTTP las suites que piden por la red, y la variable que la sustituye. */
+    /**
+     * Las carpetas de módulo (ADR 0062 §2): un cambio dentro de una solo elige las suites de su área. Lista POSITIVA: lo
+     * que no está aquí es núcleo y fuerza todas, también un módulo nuevo hasta que alguien lo añada.
+     */
+    const AREA_MODULES = [
+        'src/app/classes/API/',
+        'src/app/classes/DataImportExportUtility/',
+        'src/app/classes/Directory/',
+        'src/app/classes/Documents/',
+        'src/app/classes/EventsLog/',
+        'src/app/classes/Forms/',
+        'src/app/classes/MySpace/',
+        'src/app/classes/News/',
+        'src/app/classes/Newsletter/',
+        'src/app/classes/Organizations/',
+        'src/app/classes/Publications/',
+        'src/app/classes/ReportsManage/',
+        'src/app/classes/SystemApprovals/',
+        'src/app/classes/PiecesPHP/BuiltIn/',
+        'src/app/classes/PiecesPHP/FileManager/',
+        'src/app/classes/PiecesPHP/GoogleReCaptchaV3/',
+        'src/app/classes/PiecesPHP/LocalizationSystem/',
+        'src/app/classes/PiecesPHP/Logs/',
+        'src/app/classes/PiecesPHP/Settings/',
+        'src/app/classes/PiecesPHP/SystemStatus/',
+        'src/app/classes/PiecesPHP/Tokens/',
+    ];
+
+    /** La documentación no elige ninguna suite (ADR 0062 §2), y tampoco un `.md` de la raíz. */
+    const AREA_DOCUMENTATION = ['.agents/', '.claude/', 'source-docs/'];
+
     const PERMISSIONS_MATRIX = 'files/dev/permissions-matrix.json';
     const BASE_URL_VARIABLE = 'PCSPHP_WALK_BASE';
 
@@ -103,6 +141,8 @@ class GatesTask extends TerminalTaskAbstract
             "\tParámetros:\r\n",
             "\t  only=<trozo>   corre solo las suites cuyo nombre lo contenga. Por defecto: todas\r\n",
             "\t  with=external  incluye las que declaran salida a la red o envío de correo\r\n",
+            "\t  areas changed-since=<commit>  no corre nada: imprime un JSON con el núcleo tocado, los módulos tocados y el módulo de cada ruta\r\n",
+            "\t    unchanged=<json>  (con areas) {archivo: hash de git hash-object o null}: lo que sigue igual no cuenta como cambio\r\n",
         ]);
         $this->route = "{$startRoute}/gates[/]";
         $this->controller = self::class . '::main';
@@ -117,6 +157,12 @@ class GatesTask extends TerminalTaskAbstract
 
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
+        //`areas` no corre ninguna suite ni escribe: su salida es SOLO el JSON, y por eso va antes que nada.
+        $arguments = \PiecesPHP\TerminalData::instance()->arguments();
+        if (is_array($arguments) && array_key_exists('areas', $arguments)) {
+            exit(self::printAreas());
+        }
+
         $titleTask = 'Corredor de puertas';
         echoTerminal("\e[32m*** {$titleTask} ***\e[39m");
 
@@ -161,6 +207,9 @@ class GatesTask extends TerminalTaskAbstract
         //ERA una lista de un elemento y se quedó corta —dejaba fuera `functions/` y `tests:`—.
         $suitesDirectory = rtrim(str_replace('\\', '/', basepath('')), '/') . '/' . self::SUITES_DIRECTORY . '/';
         $suites = [];
+        $suiteAreas = [];
+        $suiteFiles = [];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('..')), '/');
         foreach (CliActions::listActionNames() as $name) {
             $action = CliActions::get($name);
             if ($action === null || !str_starts_with($action->definedIn(), $suitesDirectory)) {
@@ -170,8 +219,41 @@ class GatesTask extends TerminalTaskAbstract
                 continue;
             }
             $suites[] = $name;
+            $suiteAreas[$name] = self::areasOf($action->definedIn());
+            $suiteFiles[$name] = ltrim(str_replace($repoRoot, '', str_replace('\\', '/', $action->definedIn())), '/');
         }
         sort($suites);
+
+        //─── SELECCIÓN POR ÁREA (ADR 0062): solo con changed-since; sin él, gates es el de siempre ───
+        $changedSince = \PiecesPHP\TerminalData::instance()->getArgument('changed-since', '');
+        $changedSince = is_string($changedSince) ? trim($changedSince) : '';
+        if ($changedSince !== '') {
+            $changed = self::changedFiles($repoRoot, $changedSince);
+            if ($changed === null) {
+                echoTerminal("\e[31mERROR:\e[39m changed-since=" . $changedSince . ' no es un commit de este repositorio: no se elige «todas» ni'
+                    . ' «ninguna» en silencio.');
+                exit(1);
+            }
+            $changedArtifacts = array_values(array_filter($changed['files'], [self::class, 'isInstrumentArtifact']));
+            $reads = self::suiteArtifactReads($suiteFiles, $repoRoot, $changedArtifacts);
+            $selected = self::selectByArea($suiteAreas, $suiteFiles, $changed['files'], $reads);
+            $byReason = ['area' => 0, 'sin-area' => 0, 'su-archivo' => 0, 'nucleo' => 0, 'artefacto' => 0];
+            foreach ($selected as $reason) {
+                $byReason[str_starts_with($reason, 'artefacto ') ? 'artefacto' : $reason]++;
+            }
+            $forcing = self::firstCoreChange($suiteFiles, $changed['files']);
+            echoTerminal('   SELECCIÓN POR ÁREA desde ' . $changed['short'] . ': ' . count($changed['files']) . ' archivo(s) cambiado(s); corren '
+                . count($selected) . ' (área ' . $byReason['area'] . ', sin área ' . $byReason['sin-area'] . ', su archivo '
+                . $byReason['su-archivo'] . ', artefacto ' . $byReason['artefacto'] . ', núcleo ' . $byReason['nucleo'] . '); fuera '
+                . (count($suites) - count($selected))
+                . ($forcing !== null ? '. Las fuerza todas: ' . $forcing . ' no es documentación ni de un módulo de la lista' : '') . '.');
+            foreach ($selected as $suite => $reason) {
+                if (str_starts_with($reason, 'artefacto ')) {
+                    echoTerminal('      ' . $suite . ': ' . $reason);
+                }
+            }
+            $suites = array_values(array_filter($suites, static fn (string $suite): bool => isset($selected[$suite])));
+        }
 
         if (count($suites) === 0) {
             echoTerminal("\e[31mERROR:\e[39m ninguna suite declarada bajo " . self::SUITES_DIRECTORY . ".");
@@ -180,6 +262,10 @@ class GatesTask extends TerminalTaskAbstract
 
         $root = rtrim(str_replace('\\', '/', basepath('..')), '/');
         $failed = [];
+
+        //Cada suite corre en su proceso y hereda la corrida por el entorno: lo que escriban en el registro de errores
+        //lleva su marca y se poda al terminar (ADR 0063).
+        $testRun = GenericHandler::startTestRun();
 
         $skipped = [];
         $notApplicable = [];
@@ -285,26 +371,36 @@ class GatesTask extends TerminalTaskAbstract
             }
 
             $ultimaCorrida = $short;
+            $startedAt = hrtime(true);
             $result = self::runSuite($root, $suite);
+            $seconds = ' (' . number_format((hrtime(true) - $startedAt) / 1e9, 1, ',', '') . ' s)';
 
             if ($result['ran'] === false) {
                 //Omitida y acabada-sin-decir-nada son indistinguibles desde fuera. Ver T74.
                 $failed[] = $suite;
-                echoTerminal("   \e[31m[SIN VEREDICTO]\e[39m {$label} {$result['reason']}");
+                echoTerminal("   \e[31m[SIN VEREDICTO]\e[39m {$label} {$result['reason']}{$seconds}");
                 continue;
             }
 
             if ($result['failures'] > 0 || $result['exit'] !== 0) {
                 $failed[] = $suite;
-                echoTerminal("   \e[31m[FALLÓ]\e[39m        {$label} {$result['balance']}");
+                echoTerminal("   \e[31m[FALLÓ]\e[39m        {$label} {$result['balance']}{$seconds}");
                 continue;
             }
 
-            echoTerminal("   \e[32m[PASÓ]\e[39m         {$label} {$result['balance']}");
+            echoTerminal("   \e[32m[PASÓ]\e[39m         {$label} {$result['balance']}{$seconds}");
         }
 
         //La última suite también se mide: su vuelta no tiene siguiente que lo haga.
         $medirRestos();
+
+        //Se imprime SIEMPRE, también con cero (LEY 18). Una corrida abierta por otro (una gates dentro de otra) no se poda aquí.
+        if ($testRun['created']) {
+            $pruned = GenericHandler::pruneTestRun($testRun['run']);
+            echoTerminal('');
+            echoTerminal('   errores de prueba podados: ' . $pruned['entries'] . ' (trazas ' . $pruned['traces'] . ', contadores de suaves '
+                . $pruned['soft'] . ')' . ($pruned['error'] !== null ? " \e[31m— {$pruned['error']}\e[39m" : ''));
+        }
 
         echoTerminal('');
         echoTerminal('   ' . (count($suites) + count(LoadFailures::all(LoadFailures::TYPE_SUITE))) . ' suite(s), ' . count($failed) . ' sin veredicto o con fallos, '
@@ -341,6 +437,327 @@ class GatesTask extends TerminalTaskAbstract
 
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
+    }
+
+    /**
+     * Qué suites corren por lo que cambió (ADR 0062 §2 y 0065), sin tocar git ni la base. En este orden: si algún cambio
+     * no es documentación, ni cae en una carpeta de AREA_MODULES, ni es el archivo de una suite, ni es un artefacto de
+     * instrumento, todas («nucleo»); si no, las cuyo archivo cambió («su-archivo»), las que no declaran área
+     * («sin-area»), las que tienen un área que casa («area»: una carpeta, terminada en `/`, casa por prefijo; un archivo,
+     * por igualdad) y las que leen un artefacto cambiado («artefacto <archivo>»): lo nombran, nombran files/dev sin
+     * nombre de archivo y el cambio es de files/dev/, o lo declaran en SUITE_DISTRIBUTION_REQUIREMENTS. Lo que lee cada
+     * suite llega calculado (suiteArtifactReads()), para que esto siga sin leer disco.
+     *
+     * @param array<string,string[]> $suiteAreas Suite => sus áreas (vacía: sin @areas)
+     * @param array<string,string> $suiteFiles Suite => su archivo, relativo al repositorio
+     * @param string[] $changedFiles Relativos al repositorio
+     * @param array<string,array{names:string[],devUnnamed:bool}> $suiteArtifactReads Suite => los nombres de artefacto
+     *        que su archivo cita y si cita files/dev sin ninguno; la que falta no lee ninguno
+     * @return array<string,string> Suite => motivo, solo las que corren
+     */
+    public static function selectByArea(array $suiteAreas, array $suiteFiles, array $changedFiles, array $suiteArtifactReads = []): array
+    {
+        $selected = [];
+        if (self::firstCoreChange($suiteFiles, $changedFiles) !== null) {
+            foreach (array_keys($suiteAreas) as $suite) {
+                $selected[$suite] = 'nucleo';
+            }
+            return $selected;
+        }
+        foreach ($suiteAreas as $suite => $areas) {
+            if (in_array($suiteFiles[$suite] ?? null, $changedFiles, true)) {
+                $selected[$suite] = 'su-archivo';
+                continue;
+            }
+            if ($areas === []) {
+                $selected[$suite] = 'sin-area';
+                continue;
+            }
+            foreach ($areas as $area) {
+                foreach ($changedFiles as $file) {
+                    if (str_ends_with($area, '/') ? str_starts_with($file, $area) : $file === $area) {
+                        $selected[$suite] = 'area';
+                        continue 3;
+                    }
+                }
+            }
+            $reads = $suiteArtifactReads[$suite] ?? ['names' => [], 'devUnnamed' => false];
+            foreach ($changedFiles as $file) {
+                if (!self::isInstrumentArtifact($file)) {
+                    continue;
+                }
+                if (in_array(basename($file), $reads['names'], true)
+                    || ($reads['devUnnamed'] && str_starts_with($file, 'files/dev/'))
+                    || in_array($file, self::SUITE_DISTRIBUTION_REQUIREMENTS[$suite] ?? [], true)) {
+                    $selected[$suite] = 'artefacto ' . $file;
+                    continue 2;
+                }
+            }
+        }
+        return $selected;
+    }
+
+    /**
+     * Un artefacto de instrumento (ADR 0065): todo lo de files/dev/ y los PHPStanResult.* de la raíz. Una sola definición
+     * para las suites (selectByArea()) y para las capturas (pageAffectingFiles()).
+     *
+     * @param string $file Relativo al repositorio
+     * @return bool
+     */
+    public static function isInstrumentArtifact(string $file): bool
+    {
+        return str_starts_with($file, 'files/dev/') || (!str_contains($file, '/') && str_starts_with($file, 'PHPStanResult.'));
+    }
+
+    /**
+     * Qué artefactos lee cada suite, leyendo su archivo: los nombres base que cita literalmente (de los artefactos que
+     * existen y de los que cambiaron), y si cita files/dev sin ninguno de los suyos. Un nombre armado en tiempo de
+     * ejecución no se ve (ADR 0065, riesgo aceptado); la verificación entera lo cubre.
+     *
+     * @param array<string,string> $suiteFiles Suite => su archivo, relativo al repositorio
+     * @param string $repoRoot
+     * @param string[] $changedArtifacts Relativos al repositorio
+     * @return array<string,array{names:string[],devUnnamed:bool}>
+     */
+    public static function suiteArtifactReads(array $suiteFiles, string $repoRoot, array $changedArtifacts = []): array
+    {
+        $devNames = [];
+        $rootNames = [];
+        $devFolder = $repoRoot . '/files/dev';
+        if (is_dir($devFolder)) {
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($devFolder, \FilesystemIterator::SKIP_DOTS)) as $entry) {
+                if ($entry instanceof \SplFileInfo && $entry->isFile() && !str_starts_with($entry->getFilename(), '.')) {
+                    $devNames[] = $entry->getFilename();
+                }
+            }
+        }
+        foreach (glob($repoRoot . '/PHPStanResult.*') ?: [] as $path) {
+            $rootNames[] = basename($path);
+        }
+        foreach ($changedArtifacts as $file) {
+            if (str_starts_with($file, 'files/dev/')) {
+                $devNames[] = basename($file);
+            } else {
+                $rootNames[] = basename($file);
+            }
+        }
+        $devNames = array_values(array_unique($devNames));
+        $names = array_values(array_unique([...$devNames, ...$rootNames]));
+        $reads = [];
+        foreach ($suiteFiles as $suite => $file) {
+            $content = (string) @file_get_contents($repoRoot . '/' . $file);
+            $cited = array_values(array_filter($names, static fn (string $name): bool => str_contains($content, $name)));
+            $citesDevName = count(array_intersect($cited, $devNames)) > 0;
+            $reads[$suite] = ['names' => $cited, 'devUnnamed' => str_contains($content, 'files/dev') && !$citesDevName];
+        }
+        return $reads;
+    }
+
+    /**
+     * El primer cambio que fuerza todas las suites: ni documentación, ni de un módulo de la lista, ni el archivo de una
+     * suite, ni un artefacto de instrumento (ADR 0065). Null si no hay ninguno.
+     *
+     * @param array<string,string> $suiteFiles
+     * @param string[] $changedFiles
+     * @return string|null
+     */
+    public static function firstCoreChange(array $suiteFiles, array $changedFiles): ?string
+    {
+        foreach ($changedFiles as $file) {
+            $isDocumentation = (!str_contains($file, '/') && str_ends_with(strtolower($file), '.md'))
+                || count(array_filter(self::AREA_DOCUMENTATION, static fn (string $folder): bool => str_starts_with($file, $folder))) > 0;
+            $inModule = count(array_filter(self::AREA_MODULES, static fn (string $folder): bool => str_starts_with($file, $folder))) > 0;
+            if (!$isDocumentation && !$inModule && !in_array($file, $suiteFiles, true) && !self::isInstrumentArtifact($file)) {
+                return $file;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Aparta los artefactos de instrumentos (isInstrumentArtifact()), que no pueden cambiar una pantalla. Lo usa
+     * `gates areas` (las capturas de bin/navegador): cambian en cada ronda que verifica y forzaban a recapturarlo todo.
+     * La selección de suites no lo usa: allí un artefacto elige las suites que lo leen (selectByArea(), ADR 0065).
+     *
+     * @param string[] $files Relativos al repositorio
+     * @return array{kept:string[],ignored:string[]}
+     */
+    public static function pageAffectingFiles(array $files): array
+    {
+        $kept = [];
+        $ignored = [];
+        foreach ($files as $file) {
+            if (self::isInstrumentArtifact($file)) {
+                $ignored[] = $file;
+            } else {
+                $kept[] = $file;
+            }
+        }
+        return ['kept' => $kept, 'ignored' => $ignored];
+    }
+
+    /**
+     * Qué tocó un cambio: el primer archivo de núcleo (ni documentación, ni de un módulo, ni de una suite) y las carpetas
+     * de AREA_MODULES con algún archivo cambiado.
+     *
+     * @param string[] $changedFiles Relativos al repositorio
+     * @param string[] $suiteFiles Los archivos de las suites, relativos al repositorio
+     * @return array{core:?string,modules:string[]}
+     */
+    public static function areasFor(array $changedFiles, array $suiteFiles = []): array
+    {
+        $modules = array_values(array_filter(self::AREA_MODULES, static function (string $folder) use ($changedFiles): bool {
+            return count(array_filter($changedFiles, static fn (string $file): bool => str_starts_with($file, $folder))) > 0;
+        }));
+        return ['core' => self::firstCoreChange(array_combine($suiteFiles, $suiteFiles) ?: [], $changedFiles), 'modules' => $modules];
+    }
+
+    /**
+     * La carpeta de AREA_MODULES de cada ruta, por el archivo de la clase de su controlador. Null si no tiene controlador
+     * de clase o si su archivo no cae en ninguna.
+     *
+     * @param array<string|int,array<string,mixed>> $routes Las de get_routes()
+     * @param string $repoRoot
+     * @return array<string,?string> Nombre de ruta => carpeta
+     */
+    public static function routeModules(array $routes, string $repoRoot): array
+    {
+        $modules = [];
+        foreach ($routes as $route) {
+            $name = $route['name'] ?? null;
+            if (!is_string($name)) {
+                continue;
+            }
+            $controller = $route['controller'] ?? null;
+            $class = is_string($controller) ? explode(':', $controller)[0] : '';
+            $file = $class !== '' && class_exists($class) ? (new \ReflectionClass($class))->getFileName() : false;
+            $relative = is_string($file) ? ltrim(str_replace($repoRoot, '', str_replace('\\', '/', $file)), '/') : '';
+            $folder = null;
+            foreach (self::AREA_MODULES as $module) {
+                if ($relative !== '' && str_starts_with($relative, $module)) {
+                    $folder = $module;
+                    break;
+                }
+            }
+            $modules[$name] = $folder;
+        }
+        ksort($modules);
+        return $modules;
+    }
+
+    /**
+     * `gates areas changed-since=<commit>`: el JSON para quien recaptura solo lo tocado (bin/navegador).
+     *
+     * @return int El código de salida
+     */
+    protected static function printAreas(): int
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('..')), '/');
+        $since = \PiecesPHP\TerminalData::instance()->getArgument('changed-since', '');
+        $since = is_string($since) ? trim($since) : '';
+        $changed = $since !== '' ? self::changedFiles($repoRoot, $since) : null;
+        if ($changed === null) {
+            //RETORNO-IGNORADO: el error va a la salida de error y el código de salida es el que cuenta.
+            fwrite(STDERR, 'ERROR: gates areas pide changed-since=<commit> de este repositorio' . ($since !== '' ? ', y ' . $since . ' no lo es' : '') . ".\n");
+            return 1;
+        }
+        $suitesDirectory = rtrim(str_replace('\\', '/', basepath('')), '/') . '/' . self::SUITES_DIRECTORY . '/';
+        $suiteFiles = [];
+        foreach (CliActions::listActionNames() as $name) {
+            $action = CliActions::get($name);
+            if ($action !== null && str_starts_with($action->definedIn(), $suitesDirectory)) {
+                $suiteFiles[] = ltrim(str_replace($repoRoot, '', str_replace('\\', '/', $action->definedIn())), '/');
+            }
+        }
+        //Lo que ya estaba sucio al capturar y no ha cambiado desde entonces no es un cambio (bin/navegador lo guarda).
+        $unchangedFile = \PiecesPHP\TerminalData::instance()->getArgument('unchanged', '');
+        if (is_string($unchangedFile) && $unchangedFile !== '') {
+            $unchanged = json_decode((string) @file_get_contents($unchangedFile), true);
+            if (!is_array($unchanged)) {
+                //RETORNO-IGNORADO: el error va a la salida de error y el código de salida es el que cuenta.
+                fwrite(STDERR, 'ERROR: unchanged=' . $unchangedFile . " no es un JSON {archivo: hash}.\n");
+                return 1;
+            }
+            $changed['files'] = array_values(array_filter($changed['files'], static fn (string $file): bool => !array_key_exists($file, $unchanged) || self::blobHash($repoRoot, $file) !== $unchanged[$file]));
+        }
+        $pageFiles = self::pageAffectingFiles($changed['files']);
+        $areas = self::areasFor($pageFiles['kept'], $suiteFiles);
+        $routes = get_routes();
+        echo json_encode([
+            'since' => $changed['short'],
+            'core' => $areas['core'],
+            'modules' => $areas['modules'],
+            'routes' => self::routeModules(is_array($routes) ? $routes : [], $repoRoot),
+            'ignored' => $pageFiles['ignored'],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";
+        return 0;
+    }
+
+    /**
+     * El hash de git (sin escribir nada en el repositorio) del contenido actual de un archivo; null si no existe.
+     *
+     * @param string $repoRoot
+     * @param string $file Relativo al repositorio
+     * @return string|null
+     */
+    public static function blobHash(string $repoRoot, string $file): ?string
+    {
+        if (!is_file($repoRoot . '/' . $file)) {
+            return null;
+        }
+        $output = [];
+        //RETORNO-IGNORADO: lo que cuenta es la primera línea, y se comprueba.
+        exec('git -C ' . escapeshellarg($repoRoot) . ' hash-object -- ' . escapeshellarg($file) . ' 2>/dev/null', $output);
+        return isset($output[0]) ? trim($output[0]) : null;
+    }
+
+    /**
+     * Las áreas que declara una suite: las líneas `//@areas <ruta>` de su cabecera, antes de CliActions::make.
+     *
+     * @param string $file La ruta absoluta del archivo de la suite
+     * @return string[]
+     */
+    public static function areasOf(string $file): array
+    {
+        $source = (string) @file_get_contents($file);
+        $head = strstr($source, 'CliActions::make', true);
+        $head = $head !== false ? $head : $source;
+        //RETORNO-IGNORADO: lo que cuenta son las coincidencias; sin ninguna, la suite no declara área.
+        preg_match_all('/^\s*\/\/@areas\s+(\S+)\s*$/m', $head, $matches);
+        return array_values(array_unique($matches[1]));
+    }
+
+    /**
+     * Lo que cambió desde un commit: lo commiteado después (contra el árbol) y lo nuevo sin seguimiento. Null si el commit
+     * no existe.
+     *
+     * @param string $repoRoot
+     * @param string $commit
+     * @return array{short:string,files:string[]}|null
+     */
+    protected static function changedFiles(string $repoRoot, string $commit): ?array
+    {
+        $git = 'git -C ' . escapeshellarg($repoRoot) . ' ';
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: lo que cuenta es el código de salida y la primera línea, y se comprueban.
+        exec($git . 'rev-parse --verify --quiet ' . escapeshellarg($commit . '^{commit}') . ' 2>/dev/null', $output, $status);
+        if ($status !== 0 || !isset($output[0])) {
+            return null;
+        }
+        $hash = trim($output[0]);
+        $diff = [];
+        //RETORNO-IGNORADO: lo que cuenta es el código de salida y las líneas, y se comprueban.
+        exec($git . 'diff --name-only ' . escapeshellarg($hash) . ' 2>/dev/null', $diff, $status);
+        if ($status !== 0) {
+            return null;
+        }
+        $untracked = [];
+        //RETORNO-IGNORADO: las líneas son lo que cuenta; sin ninguna, no hay archivos nuevos.
+        exec($git . 'ls-files --others --exclude-standard 2>/dev/null', $untracked);
+        $files = array_values(array_unique(array_filter(array_map('trim', array_merge($diff, $untracked)), static fn (string $f): bool => $f !== '')));
+        sort($files);
+        return ['short' => substr($hash, 0, 8), 'files' => $files];
     }
 
     /**

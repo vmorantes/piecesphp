@@ -7,6 +7,7 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 
 <head>
     <meta charset="UTF-8">
+    <meta name="front-configurations" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <base href="<?= baseurl(); ?>">
@@ -89,9 +90,11 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 
                 </div>
 
+                <?php if (!\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partners')): ?>
                 <div class="partners">
                     <img src="<?= get_config('partners'); ?>">
                 </div>
+                <?php endif; ?>
 
             </div>
 

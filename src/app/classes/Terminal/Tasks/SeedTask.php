@@ -120,11 +120,18 @@ class SeedTask extends TerminalTaskAbstract
                 exit(self::printClean($report, $folders ?? []) ? 0 : 1);
             }
             if ($mode === self::MODE_WRITE) {
-                $written = SeedPlanner::write($everything, $count, new SeedContext($tables, true));
+                $afterAll = [];
+                $written = SeedPlanner::write($everything, $count, new SeedContext($tables, true), $afterAll);
                 echoTerminal('== Escrito en la base LOCAL, en una transacción (los textos llevan «' . ModuleSeeder::PREFIX . '»)');
                 foreach ($everything as $seeder) {
                     $ids = $written[$seeder->mapper()] ?? [];
                     echoTerminal(sprintf('  %s: %d fila(s), ids %s', $tables[$seeder->mapper()] ?? $seeder->mapper(), count($ids), implode(', ', $ids) ?: '-'));
+                }
+                if (count($afterAll) > 0) {
+                    echoTerminal('== Al terminar');
+                    foreach ($afterAll as $line) {
+                        echoTerminal("  {$line}");
+                    }
                 }
                 echoTerminal("\e[32m*** Siembra (escribir), tarea finalizada. Se deshace con limpiar=yes ***\e[39m");
                 exit(0);
@@ -159,6 +166,11 @@ class SeedTask extends TerminalTaskAbstract
                 foreach ($list[0] as $column => $value) {
                     echoTerminal(sprintf('      %-18s %s', $column, is_scalar($value) || $value === null ? var_export($value, true) : (json_encode($value) ?: '')));
                 }
+            }
+        }
+        foreach ($ordered as $seeder) {
+            if ((new \ReflectionMethod($seeder, 'afterAll'))->getDeclaringClass()->getName() !== ModuleSeeder::class) {
+                echoTerminal('  al escribir, ' . get_class($seeder) . '::afterAll() correrá cuando todos hayan escrito');
             }
         }
         echoTerminal("\e[32m*** Siembra (simulación), tarea finalizada: no se escribió nada ***\e[39m");

@@ -15,39 +15,35 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del panel (diseno/01-contenidos.md §2.1).
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+        ]);
+        ?>
 
-        <br>
-
-        <div class="tabs-controls">
+        <div class="tabs-controls content-tabs">
             <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
         </div>
 
-        <div class="container-standard-form">
-
-            <?php if($manyLangs): ?>
-            <div class="ui form">
-                <div class="field required">
-                    <label><?= __($langGroup, 'Idiomas'); ?></label>
-                    <select required class="ui dropdown search langs">
-                        <?= $allowedLangs; ?>
-                    </select>
-                </div>
+        <?php if($manyLangs): ?>
+        <div class="ui form">
+            <div class="field required">
+                <label><?= __($langGroup, 'Idiomas'); ?></label>
+                <select required class="ui dropdown search langs">
+                    <?= $allowedLangs; ?>
+                </select>
             </div>
-            <?php endif; ?>
+        </div>
+        <?php endif; ?>
 
-            <form method='POST' action="<?= $action; ?>" class="ui form built-in-banner">
+        <form method='POST' action="<?= $action; ?>" class="ui form initial built-in-banner" data-content-form>
+
+            <div class="container-standard-form">
 
                 <input type="hidden" name="id" value="<?= $element->id; ?>">
                 <input type="hidden" name="lang" value="<?= $lang; ?>">
@@ -139,20 +135,23 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 
                 </div>
 
-                <br><br>
+            </div>
 
-                <div class="field">
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                        <?php if($allowDelete): ?>
-                        <button type="submit" class="ui button brand-color alt2" delete-built-in-banner-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                        <?php endif; ?>
-                    </div>
-                </div>
+            <?php
+            //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => $allowDelete ? [[
+                    'text' => __($langGroup, 'Eliminar'),
+                    'type' => 'button',
+                    'icon' => 'trash alternate',
+                    'danger' => true,
+                    'attributes' => ['delete-built-in-banner-button' => '', 'data-route' => $deleteRoute],
+                ]] : [],
+            ]);
+            ?>
 
-            </form>
-
-        </div>
+        </form>
 
     </div>
 

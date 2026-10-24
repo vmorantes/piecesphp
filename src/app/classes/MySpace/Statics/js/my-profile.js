@@ -110,34 +110,16 @@ window.addEventListener('load', function () {
 
 			event.preventDefault()
 
-			$('body').addClass('wait-to-action')
-			const loaderNameCancel = generateUniqueID('loaderCancel-')
-			let title = _i18n(langGroup, 'Confirmación')
-			let message = _i18n(langGroup, '¿Está seguro de cancelar la operación?')
-			$.toast({
-				title: title,
-				message: message,
-				displayTime: 0,
-				class: 'white',
-				position: 'top center',
-				classActions: 'top attached',
-				actions: [{
-					text: _i18n(langGroup, 'Sí'),
-					class: 'red',
-					click: function () {
-						showGenericLoader(loaderNameCancel)
-						window.location.reload()
-						removeGenericLoader(loaderNameCancel)
-						$('body').removeClass('wait-to-action')
-					}
-				}, {
-					text: _i18n(langGroup, 'No'),
-					class: 'blue',
-					click: function () {
-						$('body').removeClass('wait-to-action')
-						return true
-					}
-				}]
+			confirmAction({
+				message: _i18n(langGroup, '¿Está seguro de cancelar la operación?'),
+				confirmClass: 'red',
+			}).then(function (confirmed) {
+				if (confirmed) {
+					const loaderNameCancel = generateUniqueID('loaderCancel-')
+					showGenericLoader(loaderNameCancel)
+					window.location.reload()
+					removeGenericLoader(loaderNameCancel)
+				}
 			})
 		}
 		cancelButtons.on('click', handleCancel)
@@ -196,7 +178,7 @@ window.addEventListener('load', function () {
 
 		return new Promise(function (resolve) {
 
-			fetch('configurations/integrations/mapbox-key')
+			fetch(pcsphpGlobals.mapboxKeyURL)
 				.then(response => response.text())
 				.then(key => resolve(key))
 
@@ -206,12 +188,13 @@ window.addEventListener('load', function () {
 				.configurateWhitForm(
 					controlsMapBox,
 					{
-						defaultLongitude: -74.8065913846496,
-						defaultLatitude: 11.0021516003209,
+						//El centro por omisión es una opción de Integraciones; si no llega, el de reserva del adaptador.
+						defaultLongitude: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.longitude : null,
+						defaultLatitude: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.latitude : null,
 						ignoreDefaultCss: true,
 					},
 					{
-						zoom: 10,
+						zoom: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.zoom : 10,
 					}
 				)
 		}).finally(function () {

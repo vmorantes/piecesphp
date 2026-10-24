@@ -112,9 +112,6 @@ define('ORGANIZATIONS_MODULE', CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']);
 //Aprobaciones
 define('SYSTEM_APPROVALS_MODULE', true);
 
-//Contenidos de navegación
-define('CONTENT_NAVIGATION_HUB_MODULE', true);
-
 //Contenidos genéricos
 define('HOME_IMAGE_BANNER', true);
 
@@ -140,17 +137,3 @@ define('GLOBAL_LANG_GROUP', 'global');
 //Apagarlo se lleva por delante el enlace de baja de los correos.
 define('PUBLIC_AREA_VIEWS', true);
 define('PUBLIC_AREA_CONTACT_FORMS', true);
-define('PHONE_AREA_CODES', [
-    'Francia' => '+33',
-    'Colombia' => '+57',
-]);
-define('NATIONALITIES', [
-    'Francesa' => 'Francesa',
-    'Colombiana' => 'Colombiana',
-    'Otras nacionalidad' => 'Otra nacionalidad',
-]);
-define('CURRENCIES', [
-    'EUR' => 'Euro (EUR)',
-    'COP' => 'Peso colombiano (COP)',
-    'USD' => 'Dólar estadounidense (USD)',
-]);

@@ -300,7 +300,7 @@ class Mailer extends PHPMailer
      * @param bool $sendmail
      * @return static
      */
-    public function asGoDaddy(bool $sendmail = false)
+    public function asSystemMailer(bool $sendmail = false)
     {
         //Con el correo RETENIDO esta reserva no se aplica: que el sumidero no responda no habilita la
         //entrega por el sistema, y la reserva pasa a ser el buzón en disco (ADR 0045 §1 y §2).

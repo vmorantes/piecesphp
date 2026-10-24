@@ -93,6 +93,9 @@ $config['CronJobKey'] = 'TODO:secret';
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
 $config['app_key'] = 'TODO:secret';
+//El nombre de la sesión (cookie y cabecera) de ESTA instalación: letras, dígitos y _, hasta 64. Cambiarlo cierra todas las
+//sesiones abiertas. Lo propone y lo escribe `bin/cli session-name` (@codigo-comentado: la plantilla, debajo).
+//$config['session_token_name'] = 'JWTAuth';
 $config['check_aud_on_auth'] = true;
 $config['hide_app_key_warning'] = false;
 //Orígenes exactos —esquema, host y puerto, como `https://app.ejemplo.com:8443`— que reciben CORS CON credenciales.

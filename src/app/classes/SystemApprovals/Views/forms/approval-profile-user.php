@@ -37,45 +37,22 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
 
     <div class="limiter-content">
 
-        <div class="section-topbar">
-            <div class="section-title">
-                <div class="title"><?= $title ?></div>
-                <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-                <div class="description"><?= $description; ?></div>
-                <?php endif; ?>
-                <br>
-                <?= $approvalMapper->getTimeTag(); ?>
-            </div>
-            <div class="actions">
-            </div>
-        </div>
+        <?php
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+        ]);
+        ?>
+        <div class="approval-time"><?= $approvalMapper->getTimeTag(); ?></div>
 
-        <br>
-
-        <form method="POST" action="<?= $action; ?>" class="ui form system-approval datasheet">
-
-            <div class="container-standard-form mw-800">
-                <div class="field">
-                    <label><?= __($langGroup, 'Motivo'); ?></label>
-                    <textarea name="reason"></textarea>
-                </div>
-                <div class="field global-clearfix">
-                    <div class="ui right floated buttons">
-                        <button type="submit" class="ui button brand-color" approve-trigger><?= __($langGroup, 'Aprobar'); ?></button>
-                        <button type="submit" class="ui red button" reject-trigger><?= __($langGroup, 'Rechazar'); ?></button>
-                    </div>
-                </div>
-            </div>
-            <br>
+        <form method="POST" action="<?= $action; ?>" class="ui form initial system-approval datasheet" data-content-form>
 
             <input type="hidden" name="id" value="<?= $approvalMapper->id; ?>">
-            <button type="submit" style="display: none;" save></button>
+            <button type="submit" hidden save></button>
 
             <div class="base-title size2"><?= __($langGroup, 'Nombres'); ?></div>
             <div class="base-text mark"><?= $escape($mapper->getNames()); ?></div>
@@ -210,6 +187,25 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
 
             <div class="base-horizontal-space"></div>
 
+
+            <div class="base-horizontal-space"></div>
+
+            <div class="container-standard-form mw-800">
+                <div class="field">
+                    <label><?= __($langGroup, 'Motivo'); ?></label>
+                    <textarea name="reason"></textarea>
+                </div>
+            </div>
+
+            <?php
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Aprobar'),
+                'saveAttributes' => ['approve-trigger' => ''],
+                'secondaryActions' => [
+                    ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
+                ],
+            ]);
+            ?>
 
         </form>
 

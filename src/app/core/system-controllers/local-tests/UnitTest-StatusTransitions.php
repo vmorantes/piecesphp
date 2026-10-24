@@ -2,7 +2,12 @@
 
 //Sesión, desbloqueo, aprobaciones, canManage y su listado solo mueven los estados que les tocan. Por HTTP donde hay ruta; los
 //manejadores de aprobación, en proceso. Siembra zz- y lo retira.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -72,7 +77,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt, ?array $post = null) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
+        $handle = \Terminal\TestRun::curlInit();
         $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
@@ -86,7 +91,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
             $opciones[CURLOPT_POST] = true;
             $opciones[CURLOPT_POSTFIELDS] = http_build_query($post);
         }
-        curl_setopt_array($handle, $opciones);
+        \Terminal\TestRun::curlSetoptArray($handle, $opciones);
         $body = curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
@@ -174,7 +179,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         //──── [a] Una sesión abierta y el estado que cambia ─────────────────────────────────────
         echoTerminal('[a] Una sesión abierta cuando el estado cambia: inactivo y borrado la cortan; el bloqueo protege la contraseña, no echa');
         $sesion = $crearUsuario('sesion', UsersModel::STATUS_USER_ACTIVE, UsersModel::TYPE_USER_COMUNICACIONES, $orgSesion);
-        $jwtSesion = SessionToken::generateToken(['id' => $sesion], null, null, false);
+        $jwtSesion = UserSessions::issueToken($sesion);
         $r = $pedir($perfil, $jwtSesion);
         $check($r['status'] === 200, 'a1 CANARIO: activo, con su token, abre su perfil', "HTTP {$r['status']}");
         $casosSesion = [
@@ -306,7 +311,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         $check(\SystemApprovals\Util\SystemApprovalManager::getInstance()->isApproved(OrganizationMapper::class, $global), "b{$n} banco: la organización global está aprobada");
         $n++;
         $navegar = function (int $id) use ($pedir, $perfil): int {
-            return $pedir($perfil, SessionToken::generateToken(['id' => $id], null, null, false))['status'];
+            return $pedir($perfil, UserSessions::issueToken($id))['status'];
         };
         $id = $crearUsuario('sg-general-rechazado', UsersModel::STATUS_USER_ATTEMPTS_BLOCK, UsersModel::TYPE_USER_GENERAL, $global);
         $ponerFila($id, SystemApprovalsMapper::STATUS_REJECTED);
@@ -492,7 +497,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         echoTerminal('');
         echoTerminal('[e] El institucional no resuelve la fila de un perfil de tipo superior');
         $institucional = $crearUsuario('institucional', UsersModel::STATUS_USER_ACTIVE, UsersModel::TYPE_USER_INSTITUCIONAL, null);
-        $jwtInstitucional = SessionToken::generateToken(['id' => $institucional], null, null, false);
+        $jwtInstitucional = UserSessions::issueToken($institucional);
         $actor = new UserDataPackage($institucional);
         $perfiles = [
             'e-root' => [UsersModel::TYPE_USER_ROOT, false],
@@ -530,7 +535,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         };
         $listadoDe = [
             'institucional' => [$jwtInstitucional, ['e-root' => false, 'e-admin' => false, 'e-general' => true, 'e-tipo-50' => false]],
-            'principal' => [SessionToken::generateToken(['id' => $rootActor], null, null, false), ['e-root' => true, 'e-admin' => true, 'e-general' => true, 'e-tipo-50' => false]],
+            'principal' => [UserSessions::issueToken($rootActor), ['e-root' => true, 'e-admin' => true, 'e-general' => true, 'e-tipo-50' => false]],
         ];
         foreach ($listadoDe as $quien => [$jwt, $esperados]) {
             [$http, $celdas] = $celdasDe($jwt);
@@ -578,7 +583,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         $conJefe->update();
         $id = $crearUsuario('e-del-jefe', UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::TYPE_USER_GENERAL, $orgJefe);
         $filasPerfiles['e-del-jefe'] = [$filaAprobacion($tablaUsuarios, $id, $id, SystemApprovalsMapper::STATUS_PENDING, "{$prefijo}-e-del-jefe"), true];
-        [$http, $celdas] = $celdasDe(SessionToken::generateToken(['id' => $jefe], null, null, false));
+        [$http, $celdas] = $celdasDe(UserSessions::issueToken($jefe));
         $check(!$listadaEn($celdas, 'e-general'), "e{$n} el administrador de organización no ve el perfil de un general de otra organización", "HTTP {$http}");
         $n++;
         $check($listadaEn($celdas, 'e-del-jefe'), "e{$n} CANARIO: sí ve el de un general de la suya", "HTTP {$http}");
@@ -608,7 +613,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         $n = 1;
         foreach ($casosRecorte as $sufijo => [$tipo, $guardado, $esperado]) {
             $id = $crearUsuario($sufijo, UsersModel::STATUS_USER_ACTIVE, $tipo, $tipo === UsersModel::TYPE_USER_ROOT ? null : $orgSesion);
-            $jwt = SessionToken::generateToken(['id' => $id], null, null, false);
+            $jwt = UserSessions::issueToken($id);
             $ponerEstado($id, UsersModel::STATUS_USER_ATTEMPTS_BLOCK, UsersController::MAX_ATTEMPTS, $guardado);
             $r = $pedir($listadoPublicaciones, $jwt);
             $p = $pedir($perfil, $jwt);
@@ -627,7 +632,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         echoTerminal("   correo de g-inst-activo, al que avisaría una aprobación: {$correoInstActivo}");
         $id = $crearUsuario('g-inst-activo', UsersModel::STATUS_USER_ACTIVE, UsersModel::TYPE_USER_INSTITUCIONAL, $orgMiembros, $correoInstActivo);
         $fila = $filaAprobacion($tablaUsuarios, $id, $id, SystemApprovalsMapper::STATUS_PENDING, "{$prefijo}-g-inst-activo");
-        $r = $pedir($accion($fila), SessionToken::generateToken(['id' => $id], null, null, false), ['approvalStatus' => SystemApprovalsMapper::STATUS_APPROVED, 'reason' => '']);
+        $r = $pedir($accion($fila), UserSessions::issueToken($id), ['approvalStatus' => SystemApprovalsMapper::STATUS_APPROVED, 'reason' => '']);
         $filaQueda = (string) $database->query("SELECT status FROM `{$tablaAprobaciones}` WHERE id = {$fila}")->fetchColumn();
         $check($r['status'] === 404 && $filaQueda === SystemApprovalsMapper::STATUS_PENDING, 'g1 un institucional activo no aprueba su propia fila por la acción: 404 y la fila sigue pendiente', "HTTP {$r['status']}, fila {$filaQueda}");
         //El escenario del auditor: rechazado, bloqueado por terceros con su sesión abierta, intenta aprobarse.
@@ -635,7 +640,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         echoTerminal("   correo de g-inst-rechazado, al que avisaría una aprobación: {$correoInstRechazado}");
         $id = $crearUsuario('g-inst-rechazado', UsersModel::STATUS_USER_REJECTED, UsersModel::TYPE_USER_INSTITUCIONAL, null, $correoInstRechazado);
         $fila = $filaAprobacion($tablaUsuarios, $id, $id, SystemApprovalsMapper::STATUS_REJECTED, "{$prefijo}-g-inst-rechazado");
-        $jwt = SessionToken::generateToken(['id' => $id], null, null, false);
+        $jwt = UserSessions::issueToken($id);
         $bloquearPorLogin('g-inst-rechazado');
         $r = $pedir($accion($fila), $jwt, ['approvalStatus' => SystemApprovalsMapper::STATUS_APPROVED, 'reason' => '']);
         $filaQueda = (string) $database->query("SELECT status FROM `{$tablaAprobaciones}` WHERE id = {$fila}")->fetchColumn();
@@ -721,7 +726,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         //──── [j] Los formularios de aprobación escapan lo que escribe un usuario ─────────────
         echoTerminal('');
         echoTerminal('[j] Los formularios de aprobación pintan escapado lo que escribe un usuario; y modifiedAt guarda la hora de 24 h');
-        $jwtRoot = SessionToken::generateToken(['id' => $rootActor], null, null, false);
+        $jwtRoot = UserSessions::issueToken($rootActor);
         $marca = '<b>"zz\'esc</b>';
         $marcaEscapada = htmlspecialchars($marca, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $idEsc = $crearUsuario('j-escape', UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::TYPE_USER_GENERAL, $orgMiembros);

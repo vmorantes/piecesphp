@@ -52,6 +52,14 @@ class DefaultAccessControlModules
 
         if (str_contains($routeName, $basenameRoute) && str_starts_with($routeName, $basenameRoute)) {
 
+            //Sin usuario, lo que pide sesión se niega antes del validador, que con routeName() concedería (D6).
+            if (getLoggedFrameworkUser() === null) {
+                $routeInfo = get_route_info((string) $routeName);
+                if (is_array($routeInfo) && ($routeInfo['require_login'] ?? false) === true) {
+                    return throw403($request);
+                }
+            }
+
             $simpleName = str_replace($basenameRoute, '', $routeName);
             $routeURL = ($this->routeNameValidator)($simpleName, $routeArguments);
             $allowed = mb_strlen($routeURL) > 0;

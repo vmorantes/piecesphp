@@ -2,6 +2,7 @@
 
 //Importación de usuarios sobre DataTransfer: todo o nada en transacción, prioridad de tipos y contraseñas que solo salen una vez.
 //Escribe usuarios zz-prueba-imp-* y sus perfiles, y los borra en el finally: db-backup antes.
+//@areas src/app/classes/DataImportExportUtility/
 
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
@@ -87,7 +88,7 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
         //─── 1/6 + 2/6 · Cabeceras y archivo válido ─────────────────────────────────────────────────────
         echoTerminal('[1-2/6] Cabeceras por etiqueta y alias; archivo válido de tres filas');
         $antesLogs = [];
-        foreach (['error.plain.log', 'error.log.json', 'error.unique.message.log'] as $log) {
+        foreach (['error.plain.log', 'error.log.jsonl', 'error.unique.message.log'] as $log) {
             $ruta = basepath("app/logs/{$log}");
             $antesLogs[$log] = is_file($ruta) ? (int) filesize($ruta) : 0;
         }
@@ -134,7 +135,7 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
                 }
             }
         }
-        $check(count($generadas) === 2 && count($enLogs) === 0, 'p5 ninguna contraseña generada en error.plain.log, error.log.json ni error.unique.message.log', implode(', ', $enLogs));
+        $check(count($generadas) === 2 && count($enLogs) === 0, 'p5 ninguna contraseña generada en error.plain.log, error.log.jsonl ni error.unique.message.log', implode(', ', $enLogs));
         echoTerminal(' ');
 
         //─── 3/6 · Todo o nada ──────────────────────────────────────────────────────────────────────────

@@ -79,17 +79,16 @@ class BaseHashEncryption
     }
 
     /**
-     * Encripta un string y lo devuelve en base64 seguro para url
+     * OFUSCA, NO CIFRA (ADR 0061 §10): suma la clave letra a letra, y con unos pocos valores conocidos la clave se
+     * recupera. Solo para direcciones cortas (los slugs de los mappers). Para un secreto, Crypto\Sealed;
+     * verify-integrity falla si aparece fuera de los sitios declarados.
      *
-     * @param string $string El string
-     * @param string $key La llave
-     * @return string El string base64 seguro para url del string encriptado
-     * @use self::getSecretKey
-     * @use self::urlSafeB64Encode
+     * @param string $string
+     * @param string $key
+     * @return string base64 seguro para url
      */
-    public static function encrypt(string $string, ?string $key = null)
+    public static function obfuscate(string $string, string $key): string
     {
-        $key ??= self::getSecretKey();
         $result = '';
         for ($i = 0; $i < strlen($string); $i++) {
             $char = substr($string, $i, 1);
@@ -102,19 +101,16 @@ class BaseHashEncryption
     }
 
     /**
-     * Desencripta un string
+     * El inverso de obfuscate(). Mismo aviso: no descifra nada secreto.
      *
-     * @param string    $encrypt_string     El base64 seguro para url del string encriptado
-     * @param string    $key    La llave
-     * @return string   El string desencriptado
-     * @use self::getSecretKey
-     * @use self::urlSafeB64Decode
+     * @param string $obfuscated base64 seguro para url
+     * @param string $key
+     * @return string
      */
-    public static function decrypt(string $encrypt_string, ?string $key = null)
+    public static function deobfuscate(string $obfuscated, string $key): string
     {
-        $key ??= self::getSecretKey();
         $result = '';
-        $string = self::urlSafeB64Decode($encrypt_string);
+        $string = self::urlSafeB64Decode($obfuscated);
         for ($i = 0; $i < strlen($string); $i++) {
             $char = substr($string, $i, 1);
             $keychar = substr($key, ($i % strlen($key)) - 1, 1);

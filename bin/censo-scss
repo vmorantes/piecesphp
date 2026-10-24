@@ -37,12 +37,11 @@ os.chdir(ROOT)
 TASKS = [
     ('src/statics/core/own-plugins/sass/', 'src/statics/core/own-plugins/css/'),
     ('src/statics/core/sass/', 'src/statics/core/css/'),
-    ('src/statics/login-and-recovery/sass/', 'src/statics/login-and-recovery/css/'),
     ('src/statics/sass/', 'src/statics/css/'),
     ('src/app/classes/', 'src/app/classes/'),
 ]
 THIRD_PARTY_DIR = 'src/statics/plugins/'
-CANARY_LIVE = 'ui-pcs-global-loader'
+CANARY_LIVE = 'content-page-header'
 CANARY_INVENTED = 'zz-censo-scss-canario-que-no-existe'
 TOKEN_CHARS = r'A-Za-z0-9_-'
 

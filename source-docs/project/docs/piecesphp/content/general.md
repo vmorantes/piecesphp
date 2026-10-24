@@ -120,7 +120,11 @@ aplicación: pídelo o hazlo ajustable.
 ata a su cliente. **No lleva el tipo de usuario**: lo que alguien ES —tipo, estado, organización— se lee en el servidor
 en cada petición. No decidas permisos en tu aplicación con el contenido del token.
 
-**4. Caducidad.** Por defecto, 31 días. Un token caducado deja de valer; el candado por cliente, si está activo, se
+**4. Caducidad.** La manda la fila de la sesión en el servidor, no el token. Por omisión, la sesión se cierra tras
+**31 días sin actividad** (cada uso corre la caducidad) y, pase lo que pase, a los **365 días** de abrirse. Las dos
+cosas se configuran en Configuración › Seguridad, en días (0 a 365); en la configuración son `session_inactivity` y
+`session_ceiling`, en segundos. **Con 0 no caducan**: sirve para aplicaciones que trabajan sin conexión y sincronizan al volver. Toda sesión se puede
+cerrar desde «Mis sesiones» o por un administrador. Un token caducado deja de valer; el candado por cliente, si está activo, se
 calcula con la dirección del visitante y el nombre de la máquina, así que **un cambio de nombre del servidor invalida
 las sesiones**.
 
@@ -140,12 +144,55 @@ servidor.
 
 ### Correo en desarrollo
 
-La instalación local **no manda correo al exterior**: en «Configuración de emails» está el **modo de pruebas**, que de
-fábrica se enciende solo cuando el entorno es `local` y desvía todo al servidor de pruebas (`127.0.0.1:1025`). Puedes
-forzarlo a «Siempre encendido» o a «Apagado», y eso manda sobre el entorno; la configuración SMTP real se queda como
-está. Mientras está activo, root lo ve en «Avisos del sistema».
+**Lo que decide si un correo sale es «Entrega del correo»**: Configuración › Integraciones › Correo, apartado «Entrega
+del correo y sumidero de pruebas» (la opción `mail_delivery`, que resuelve `PiecesPHP\Core\Email\MailDelivery`). Tres
+valores:
 
-Para instalar y usar el servidor de pruebas: [Mailpit](../../environments/content/mailpit/index.md).
+| Valor | Qué hace |
+| :-- | :-- |
+| **Según el entorno** — de fábrica | Retiene si la instalación es `local` y envía si es `production`. **Sin `src/app/config/environment.php`, retiene** |
+| **Retenido** | Ningún correo sale de la máquina, sea cual sea el entorno |
+| **Real** | El correo sale por el SMTP configurado en la misma pantalla |
+
+**Retenido** significa: el correo va al **servidor de pruebas** de la misma pantalla (`127.0.0.1:1025` de fábrica, sin
+autenticación ni cifrado); si no escucha, se guarda como archivo `.eml` en `src/app/logs/mail-outbox/` y el envío no
+cuenta como fallo; y nunca cae al correo del sistema (`mail()` o `sendmail`). Cada correo lleva la cabecera `X-Tags` con
+el nombre de la instalación, para distinguir varios clones en el mismo servidor de pruebas. Root ve en «Avisos del
+sistema» `mail-sin-declarar` (no hay `environment.php`), `mail-retenido-en-produccion` y `mail-real-en-local`.
+
+Para comprobar el correo sin salir del panel, root tiene **Probar conexión** y **Enviar correo de prueba** en
+Configuración › Integraciones › Correo. Desde la terminal, `bin/cli mail-doctor` diagnostica sin conectar (el entorno,
+la entrega declarada y la que se aplica, si el servidor de pruebas responde, el buzón en disco), y
+`bin/cli mail-doctor smtp=yes` comprueba además que el SMTP configurado contesta, sin enviar nada.
+
+**El servidor de pruebas** que usamos es [Mailpit](https://mailpit.axllent.org/): acepta todo por SMTP y lo enseña en una
+web, sin entregarlo. Se instala como dice su documentación, y se arranca así:
+
+```bash
+mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025 --disable-version-check
+```
+
+La web queda en <http://127.0.0.1:8025>. **`--disable-version-check` no es opcional**: las suites de correo del framework
+paran sin él, porque un entorno de pruebas no debe salir a la red. Para comprobar que un correo llega de verdad a un
+buzón externo (entregabilidad, SPF, DKIM) hace falta un envío real, con «Real» y un destinatario de pruebas.
+
+### El nombre de la sesión
+
+La sesión viaja en una cabecera y una cookie que se llaman, por omisión, `JWTAuth`. **Dos instalaciones del framework en
+el mismo dominio se pisan la sesión** si las dos usan ese nombre: entrar en una saca de la otra. Para darle a la tuya
+un nombre propio:
+
+```bash
+bin/cli session-name                 # propone uno derivado de la carpeta (p. ej. Pcs_miproyecto); no escribe
+bin/cli session-name escribir=yes    # lo fija en src/app/config/config.php
+bin/cli session-name nombre=MiAuth escribir=yes
+```
+
+La orden escribe `$config['session_token_name'] = '…';` en lugar de la línea comentada de la sección «Seguridad» de
+`config.php`, que también puedes editar a mano. Solo letras, dígitos y guion bajo, hasta 64 caracteres: **un guion no
+vale**, porque PHP lo convierte al leer la cabecera. **Cambiarlo cierra todas las sesiones abiertas**: todo el mundo
+vuelve a entrar. **Y cambia la cabecera que tiene que mandar cada cliente externo de la API** (una aplicación aparte,
+otro origen): si manda `JWTAuth` y la instalación se llama de otro modo, se queda sin sesión. Avísales antes.
 
 ### Rutas mal escritas
 
@@ -168,7 +215,8 @@ seis caracteres al azar).
   código: «Ocurrió un error interno. Si lo reporta, indique la referencia ERR-…». Ni el mensaje de la excepción, ni el
   archivo, ni la línea, ni la traza. En JSON: `{"success": false, "message": "…", "reference": "ERR-…"}`.
 - **En local** se ve todo, como siempre, y además la referencia.
-- **Para encontrar el error:** busca el código en `src/app/logs/error.log.json` (campo `reference`) o en
+- **Para encontrar el error:** en el panel, **Registros › Errores**, escribe la referencia en el buscador (o abre
+  `?tab=errors&ref=ERR-…`); solo root. O búscalo a mano en `src/app/logs/error.log.jsonl` (y en el `error.log.json` de antes de la 9; campo `reference`) o en
   `src/app/logs/error.plain.log` (`[ref ERR-…]`):
 
   ```bash
@@ -329,8 +377,11 @@ git config core.hooksPath .agents/scripts/git-hooks
     sudo apt install -y php8.5-cli php8.5-{xml,mbstring,gd,curl,zip,mysql,sqlite3}
     ```
 
-    El reparto de cada extensión por paquete y la elección entre `mod_php` y PHP-FPM están en
-    la [guía de PHP](../../environments/content/lamp/content/PHP.md).
+    En Ubuntu, `ctype`, `fileinfo` y `pdo` vienen con `php8.5-common`; `xml`, `dom` y `simplexml`, con
+    `php8.5-xml`; `mysqli` y `pdo_mysql`, con `php8.5-mysql`; `sqlite3` y `pdo_sqlite`, con `php8.5-sqlite3`; y
+    `date`, `json`, `openssl`, `session`, `zlib` y OPcache están compiladas en el propio PHP. Para Apache,
+    `libapache2-mod-php8.5` (`mod_php`) o `php8.5-fpm` con `proxy_fcgi` y `mpm_event`, que rinde más. Compruébalo
+    con `php8.5 -m` y, desde `src/`, con `composer check-platform-reqs`.
 
     **El rango lo declara `require.php` de `src/composer.json` — `">=8.5 <8.6"` — y ésa es la
     única fuente.** `vendor/composer/platform_check.php` comprueba en cada arranque **solo el

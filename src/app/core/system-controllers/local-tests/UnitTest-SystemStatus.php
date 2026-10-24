@@ -51,7 +51,7 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
     $registroReal = SystemAlertRegistry::swapForTesting();
     $base = sys_get_temp_dir() . '/zz-system-status-' . bin2hex(random_bytes(4));
     //La constante la define el arranque; PHPStan no la ve.
-    $log = (string) constant('LOG_ERRORS_PATH') . '/error.log.json';
+    $log = (string) constant('LOG_ERRORS_PATH') . '/' . \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::FILE_ENTRIES;
 
     try {
         //─── a · Registro ───────────────────────────────────────────────────────────────────────────────
@@ -82,6 +82,8 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
         //─── b · app_key ────────────────────────────────────────────────────────────────────────────────
         echoTerminal('[b] Aviso de app_key');
         SystemAlertRegistry::swapForTesting($registroReal);
+        //Un llavero de relleno, en memoria: la instalación tiene su clave de verdad desde el ADR 0061 §9.
+        $llaveroReal = \PiecesPHP\Core\Crypto\AppKeyring::swapForTesting(new \PiecesPHP\Core\Crypto\AppKeyring('TODO:zz-relleno', [], \PiecesPHP\Core\Crypto\AppKeyring::SOURCE_CONFIG));
         $placeholder = \PiecesPHP\Core\Config::app_key_is_placeholder();
         set_config('hide_app_key_warning', false);
         $nagsRoot = $claves(SystemAlertRegistry::nagsFor(UsersModel::TYPE_USER_ROOT));
@@ -90,6 +92,16 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
         $check(!in_array('app-key-placeholder', $claves(SystemAlertRegistry::nagsFor(UsersModel::TYPE_USER_ROOT)), true) && SystemAlertRegistry::isHidden('app-key-placeholder'), 'b2 la marca vieja hide_app_key_warning lo oculta');
         $check(SystemAlertRegistry::show('app-key-placeholder') && get_config('hide_app_key_warning') === false && SettingsModel::getConfigValue('hide_app_key_warning') === false && in_array('app-key-placeholder', $claves(SystemAlertRegistry::nagsFor(UsersModel::TYPE_USER_ROOT)), true), 'b3 «Mostrar» desde el registro desmarca también la marca vieja');
         $check(!in_array('server-delegated-broken-links', $claves(SystemAlertRegistry::nagsFor(UsersModel::TYPE_USER_ROOT)), true) && !SystemAlertRegistry::get('server-delegated-broken-links')?->showAsNag(), 'b4 el de enlaces rotos no va como nag');
+        //La llave de MapBox del entorno: el predicado, sin base; y el aviso, tal como se registra.
+        $falta = fn($llaves, bool $local): bool => SystemStatusRoutes::mapboxKeyMissing($llaves, $local);
+        $check($falta(null, true) && $falta('zz', false), 'b5 sin arreglo → falta');
+        $check($falta(['keyLocal' => '', 'keyDomain' => 'x'], true), 'b6 local, keyLocal vacía → falta');
+        $check($falta(['keyLocal' => '  ', 'keyDomain' => 'x'], true), 'b7 local, keyLocal en blanco → falta');
+        $check(!$falta(['keyLocal' => 'x', 'keyDomain' => ''], true), 'b8 local, keyLocal con valor y keyDomain vacía → no falta');
+        $check($falta(['keyLocal' => 'x', 'keyDomain' => ''], false), 'b9 dominio, keyDomain vacía aunque haya keyLocal → falta');
+        $check(!$falta(['keyLocal' => '', 'keyDomain' => 'x'], false), 'b10 dominio, keyDomain con valor → no falta');
+        $mapbox = SystemAlertRegistry::get('mapbox-key-missing');
+        $check($mapbox !== null && $mapbox->severity() === SystemAlert::SEVERITY_WARNING && $mapbox->audience() === [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL] && $mapbox->isDismissible() && $mapbox->showAsNag() && $mapbox->fixRoute() === 'helpers-system-generic-content-admin-forms-mapbox-keys', 'b11 mapbox-key-missing registrado: warning, root y admin general, ocultable, flotante y con su ruta de arreglo');
         echoTerminal(' ');
 
         //─── c · Enlaces rotos ──────────────────────────────────────────────────────────────────────────
@@ -127,6 +139,7 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
             }
         }
         $check($rutas === [
+            ['system-status-health', 'GET', [UsersModel::TYPE_USER_ROOT]],
             ['system-status-alerts', 'GET', [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]],
             ['system-status-alerts-toggle', 'POST', [UsersModel::TYPE_USER_ROOT]],
             ['system-status-maintenance', 'GET', [UsersModel::TYPE_USER_ROOT]],
@@ -137,12 +150,13 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
             ['system-status-mail-log', 'GET', [UsersModel::TYPE_USER_ROOT]],
             ['system-status-mail-log-datatables', 'GET', [UsersModel::TYPE_USER_ROOT]],
             ['system-status-mail-log-body', 'GET', [UsersModel::TYPE_USER_ROOT]],
+            ['system-status-task-runs-datatables', 'GET', [UsersModel::TYPE_USER_ROOT]],
         ], 'd1 rutas y roles: avisos para root y admin general; el resto solo root', (string) json_encode($rutas));
         $check(Roles::hasPermissions('system-status-maintenance', UsersModel::TYPE_USER_ADMIN_GRAL) === false && Roles::hasPermissions('system-status-maintenance', UsersModel::TYPE_USER_ROOT) === true && Roles::hasPermissions('system-status-alerts', UsersModel::TYPE_USER_ADMIN_GRAL) === true, 'd2 el administrador general no entra en mantenimiento (403 por ruta) y sí en avisos');
         $pintar = function (bool $isRoot, array $rows): string {
             $langGroup = SystemStatusController::LANG_GROUP;
             $title = 'Avisos del sistema';
-            $breadcrumbs = '';
+            $breadcrumbs = [];
             $toggleURL = 'https://zz/toggle';
             ob_start();
             include basepath('app/classes/PiecesPHP/SystemStatus/Views/alerts.php');
@@ -273,6 +287,9 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
             }
         }
         set_config('hide_app_key_warning', $configPrevia);
+        if (isset($llaveroReal) && $llaveroReal !== null) {
+            \PiecesPHP\Core\Crypto\AppKeyring::swapForTesting($llaveroReal);
+        }
         if (is_dir($base)) {
             $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
             foreach ($it as $f) {

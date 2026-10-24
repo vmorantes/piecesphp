@@ -8,11 +8,38 @@ window.addEventListener('load', function () {
 		return
 	}
 
-	dataTableServerProccesing(table, table.attr('url'), 10, {
+	const baseURL = table.attr('url')
+	const form = document.querySelector('[data-mail-log-filters]')
+	$(form).find('select.ui.dropdown').dropdown()
+
+	//Los filtros van en la dirección de los datos: el servidor los aplica con marcadores.
+	const urlWithFilters = function () {
+		const params = new URLSearchParams()
+		for (const [name, value] of new FormData(form).entries()) {
+			if (typeof value === 'string' && value.trim() !== '') {
+				params.set(name, value.trim())
+			}
+		}
+		const query = params.toString()
+		return query === '' ? baseURL : baseURL + (baseURL.includes('?') ? '&' : '?') + query
+	}
+
+	const dataTable = dataTableServerProccesing(table, baseURL, 10, {
 		responsive: false,
 		drawCallback: function () {
 			configMirrorScrollX()
 		},
+	}).DataTable()
+
+	form.addEventListener('submit', function (event) {
+		event.preventDefault()
+		dataTable.ajax.url(urlWithFilters()).load()
+	})
+	form.addEventListener('reset', function () {
+		setTimeout(function () {
+			$(form).find('select.ui.dropdown').dropdown('clear')
+			dataTable.ajax.url(baseURL).load()
+		}, 0)
 	})
 
 	//El visor solo existe si quien mira tiene el permiso del cuerpo.

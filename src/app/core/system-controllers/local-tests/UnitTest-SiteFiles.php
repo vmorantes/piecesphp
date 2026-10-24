@@ -3,6 +3,7 @@
 //robots.txt, humans.txt y llms.txt servidos por ruta (ADR 0032 §3), y su pantalla «Archivos para buscadores», por HTTP.
 //Crea dos usuarios zz-prueba-archivos-* y escribe los tres añadidos; lo devuelve todo como estaba.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -93,8 +94,8 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
             $cabeceras[] = 'X-Requested-With: XMLHttpRequest';
         }
         $recibidas = [];
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -111,8 +112,8 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
             },
         ]);
         if ($metodo === 'POST') {
-            curl_setopt($handle, CURLOPT_POST, true);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POST, true);
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
         }
         $body = curl_exec($handle);
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
@@ -141,7 +142,7 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
         $u->save();
         return (int) $u->id;
     };
-    $token = fn(int $id): string => SessionToken::generateToken(['id' => $id], null, null, false);
+    $token = fn(int $id): string => UserSessions::issueToken($id);
     $opciones = [SiteFilesController::CONFIG_ROBOTS, SiteFilesController::CONFIG_HUMANS, SiteFilesController::CONFIG_LLMS, SiteFilesController::CONFIG_UPDATED];
     $previas = [];
     foreach ($opciones as $opcion) {
@@ -201,9 +202,9 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
         $check($pedir('GET', $rutas['pantalla'], $general, [], true)['status'] === 403, 'c1 el general: 403 en la pantalla');
         $rg = $pedir('POST', $rutas['accion'], $general, $formulario, true);
         $check($rg['status'] === 403 && $guardado() === $antes, 'c2 el general: 403 en la acción, y nada escrito', "HTTP {$rg['status']}");
-        $check($pedir('GET', $rutas['pantalla'], null, [], true)['status'] === 403, 'c3 el visitante: 403 en la pantalla');
+        $check($pedir('GET', $rutas['pantalla'], null, [], true)['status'] === 401, 'c3 el visitante: 401 en la pantalla');
         $rv = $pedir('POST', $rutas['accion'], null, $formulario, true);
-        $check($rv['status'] === 403 && $guardado() === $antes, 'c4 el visitante: 403 en la acción, y nada escrito', "HTTP {$rv['status']}");
+        $check($rv['status'] === 401 && $guardado() === $antes, 'c4 el visitante: 401 en la acción, y nada escrito', "HTTP {$rv['status']}");
         $sinXHR = $pedir('GET', $rutas['pantalla']);
         echoTerminal("      MEDIDA: el visitante sin cabecera XHR en la pantalla recibe HTTP {$sinXHR['status']}");
 

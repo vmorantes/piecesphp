@@ -12,7 +12,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 use SystemApprovals\Controllers\SystemApprovalsController;
 use SystemApprovals\Util\SystemApprovalManager;
@@ -50,6 +50,8 @@ class SystemApprovalsRoutes
             self::staticResolver($groupAdministration);
 
             SystemApprovalsLang::injectLang();
+            //Su tarjeta del inicio del panel, después del idioma: su título se traduce al registrarse.
+            SystemApprovalsController::registerDashboardCard();
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
@@ -90,7 +92,7 @@ class SystemApprovalsRoutes
                 'href' => SystemApprovalsController::routeName('list'),
                 'visible' => SystemApprovalsController::allowedRoute('list'),
                 'asLink' => true,
-                'position' => 50,
+                'position' => MenuGroupCollection::BAND_PEOPLE + 10,
             ]));
 
         }

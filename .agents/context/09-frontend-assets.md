@@ -50,11 +50,20 @@ $assets['nombre_lib']['plugins'] = ['plugin_name' => ['js' => ['...']]];
 `import_jquery`, `import_jqueryui`, `import_semantic`, `import_datatables`,
 `import_nprogress`, `import_swal2`, `import_izitoast`, `import_cropper`,
 `import_jquerymask`, `import_quilljs`, `import_apexcharts`,
-`import_default_rich_editor`, `import_spectrum`, `import_dialog_pcs`,
+`import_default_rich_editor`, `import_spectrum`,
 `import_simple_upload_placeholder`, `import_fancybox3`, `import_elfinder`,
 `import_google_captcha_v3_adapter`, `import_locations`, `import_mapbox`,
 `import_openlayers`, `import_qrcodejs`, `import_indexeDB_adapter`,
 `import_front_library`, `import_app_front_libraries`, `import_app_libraries`.
+
+**Volver a importar una librería sustituye su lista de plugins** (`import_front_library()`, `src/app/core/AppHelpers.php`):
+los plugins que no están en la lista nueva se quitan con sus archivos **exclusivos**; un archivo que pide otro plugin
+todavía importado (de esa librería o de otra, según `imported_assets`) se queda. Hasta GG (2026-10-16) se quitaba
+también, y por eso las páginas de acceso nunca tuvieron `ui-pcs.css`: el constructor del panel
+(`AdminPanelController.php:590-593`) importa `adminStyle` y el acceso, al pedir otra lista, la perdía. La vigila
+`core/import-front-library`. Dos defectos previos del mismo método, sin arreglar (`abierto.md` G7): con `$all = true`
+el `foreach` pisa el parámetro `$name`, y la comprobación de «ya importado» busca el plugin como clave cuando se guarda
+como valor.
 
 Uso típico en un método de controlador:
 
@@ -87,7 +96,7 @@ Contrato vivo aunque hoy no tenga sujeto: una vista de un clon puede usarlos. Me
 
 ## `ServerStatics`
 
-`PiecesPHP\Core\ServerStatics` sirve todos los estáticos a través de la ruta
+`PiecesPHP\Core\Statics\ServerStatics` sirve todos los estáticos a través de la ruta
 `/statics/[{params:.*}]` (nombre de ruta `statics-files`). El directorio base es
 `get_config('statics_path')` → `src/statics`.
 
@@ -189,7 +198,9 @@ Un JS por vista, con el mismo nombre que la acción del controlador. Se cargan c
 - **Los parciales de un módulo van en `Statics/sass/includes/`**, como los del núcleo
   (`src/statics/core/sass/includes/`). **`Statics/sass/imports/` de `MySpace` es una ruta que la campaña movió**: volver a
   crearla pone 160 «restos» en `verify-integrity`.
-- Modelo: `src/app/classes/MySpace/Statics/sass/includes/_profile-view.scss` y `_profile-form.scss`.
+- **Un parcial que usan varios módulos va a `src/statics/core/sass/includes/`**, declarado «global» con su motivo en
+  `files/dev/global-files.json` (comprobación 49). Ejemplo: `_profile-view.scss` y `_profile-form.scss`, de los perfiles
+  de `MySpace`, `Organizations` y `Directory`.
 - **Podar reglas muertas** (bloque DI): la lista de lo que se espera que desaparezca va a `bin/huella-css --comparar
   --esperado <archivo>` con **un selector por línea, partidos** —una regla con varios selectores solo cuenta como
   prevista si están TODOS (`bin/huella-css:283`)—. Y antes de quitar una regla, sus clases se buscan también como

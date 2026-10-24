@@ -11,36 +11,21 @@ use Documents\Mappers\DocumentsMapper;
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
+ * @var string $deleteRoute
+ * @var bool $allowDelete
  */
 ?>
 <section class="module-view-container limit-size">
 
-    <div class="header-options">
+    <?php
+    //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+    $this->helpController->_render('panel/built-in/content/page-header.php', [
+        'breadcrumbs' => $breadcrumbs,
+        'title' => $title,
+    ]);
+    ?>
 
-        <div class="main-options">
-
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
-
-        </div>
-
-        <div class="columns">
-
-            <div class="column">
-
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Editar'); ?></div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="container-standard-form">
+    <form method='POST' action="<?= $action; ?>" class="ui form initial" document-form data-content-form>
         <?php if($manyLangs): ?>
         <div class="ui form">
             <div class="field required">
@@ -51,7 +36,7 @@ use Documents\Mappers\DocumentsMapper;
             </div>
         </div>
         <?php endif; ?>
-        <form method='POST' action="<?= $action; ?>" class="ui form" document-form>
+        <div class="container-standard-form">
 
             <input type="hidden" name="id" value="<?= $element->id; ?>">
             <input type="hidden" name="lang" value="<?= $lang; ?>">
@@ -132,16 +117,20 @@ use Documents\Mappers\DocumentsMapper;
 
             </div>
 
-            <div class="field">
-                <div class="ui buttons">
-                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                    <?php if($allowDelete): ?>
-                    <button type="submit" class="ui button brand-color alt2" delete-document-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                    <?php endif; ?>
-                </div>
-            </div>
+        </div>
 
-        </form>
-    </div>
+            <?php
+            //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
+            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+            if ($allowDelete) {
+                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-document-button' => '', 'data-route' => $deleteRoute]];
+            }
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => $secondaryActions,
+            ]);
+            ?>
+
+    </form>
 
 </section>

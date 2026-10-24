@@ -53,6 +53,10 @@ class RouteAdapter
      */
     protected $requireLogin = false;
     /**
+     * @var bool Si un token caducado se renueva en esta ruta (index.php §4); de fábrica, no
+     */
+    protected $renewExpired = false;
+    /**
      * @var array
      */
     protected $params = [];
@@ -189,6 +193,26 @@ class RouteAdapter
     public function requireLogin(?bool $value = null)
     {
         $property = 'requireLogin';
+
+        if ($value !== null) {
+            $this->$property = $value;
+        } else {
+            return $this->$property;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Si un token caducado se renueva al llegar a esta ruta (webhooks, consultas de terceros). La revocación
+     * se decide antes, en index.php, con la fecha del token viejo.
+     *
+     * @param bool $value
+     * @return static|bool
+     */
+    public function renewExpired(?bool $value = null)
+    {
+        $property = 'renewExpired';
 
         if ($value !== null) {
             $this->$property = $value;
@@ -445,8 +469,8 @@ class RouteAdapter
             'controller' => $this->controller(),
             'method' => $this->method(),
             'name' => $this->name(),
-            'route_alias' => $this->alias(),
             'require_login' => $this->requireLogin(),
+            'renew_expired' => $this->renewExpired(),
             'roles_allowed' => $this->rolesAllowed(),
             'parameters' => $this->getParameters(),
             'middlewares' => $this->middlewares(),
@@ -459,8 +483,8 @@ class RouteAdapter
      *      string|callable        $route[controller]
      *      string|string[]        $route[method]
      *      string|null            $route[name]
-     *      string|null            $route[route_alias]
      *      bool                   $route[require_login]
+     *      bool                   $route[renew_expired] Si un token caducado se renueva en esta ruta (opcional; de fábrica, false)
      *      array                  $route[roles_allowed]
      *      array                  $route[parameters]
      *      array<string|callable> $route[middlewares]
@@ -486,8 +510,8 @@ class RouteAdapter
         $controller = $route['controller'];
         $method = $route['method'];
         $name = $route['name'] ?? null;
-        $alias = $route['route_alias'] ?? null;
         $requireLogin = isset($route['require_login']) ? $route['require_login'] === true : false;
+        $renewExpired = isset($route['renew_expired']) ? $route['renew_expired'] === true : false;
         $rolesAllowed = $route['roles_allowed'] ?? [];
         $rolesAllowed = is_array($rolesAllowed) ? $rolesAllowed : [$rolesAllowed];
         $parameters = $route['parameters'] ?? [];
@@ -504,8 +528,8 @@ class RouteAdapter
         }
 
         $instance->name($name);
-        $instance->alias($alias);
         $instance->requireLogin($requireLogin);
+        $instance->renewExpired($renewExpired);
         $instance->rolesAllowed($rolesAllowed);
         $instance->setParametersValues($parameters);
 

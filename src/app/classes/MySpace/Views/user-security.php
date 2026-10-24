@@ -3,10 +3,14 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use MySpace\Controllers\MySpaceController;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
+use PiecesPHP\UserSystem\Controllers\UserSessionsController;
 
 /**
  * @var string $langGroup
- * @var string $editLink
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var \MySpace\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 $currentUser = getLoggedFrameworkUserOrFail();
 $isEnabled2FA = OTPHandler::isEnabled2FA();
@@ -14,8 +18,8 @@ $wasViewedQRData = OTPHandler::wasViewedCurrentUserQRData();
 $totpData = $currentUser->TOTPData;
 $totpAlias = $totpData !== null && $totpData->twoAuthFactorAlias !== null ? $totpData->twoAuthFactorAlias : get_config('owner');
 $username = $currentUser->username;
-//Durante una suplantación no se ofrece: cerraría las sesiones del suplantado, no las de root.
-$canRevokeMySessions = MySpaceController::allowedRoute('revoke-my-sessions') && !MySpaceController::isImpersonating((int) $currentUser->id);
+//Durante una suplantación no se ofrece: serían las sesiones del suplantado, no las de root.
+$canRevokeMySessions = !MySpaceController::isImpersonating((int) $currentUser->id);
 if($isEnabled2FA && !$wasViewedQRData){
     //Si está activado pero no confirmado, se revierte el proceso porque ya se ha refrescado la página
     OTPHandler::toggleCurrentUser2AF(false, '');
@@ -24,28 +28,27 @@ if($isEnabled2FA && !$wasViewedQRData){
 ?>
 <section class="module-view-container">
 
-    <div class="home-hello-section-title">
-        <div class="title"><?= __($langGroup, 'Seguridad de usuario'); ?></div>
-        <div class="subtitle"><?= escape_html($subtitle); ?></div>
-    </div>
+    <?php
+    $helpController->_render('panel/built-in/content/page-header.php', [
+        'breadcrumbs' => $breadcrumbs,
+        'title' => $title,
+        'description' => $description,
+    ]);
+    ?>
 
-    <div class="tabs-controls">
+    <div class="tabs-controls content-tabs">
         <div class="active" data-tab="A"><?= __($langGroup, 'Autenticación de dos factores (con app TOTP)'); ?></div>
         <?php if($canRevokeMySessions): ?>
-        <div data-tab="B"><?= __($langGroup, 'Sesiones'); ?></div>
+        <div data-tab="B"><?= __($langGroup, 'Mis sesiones'); ?></div>
         <?php endif; ?>
     </div>
 
-    <div class="container-standard-form">
-
-        <div class="ui tab tab-element active" data-tab="A">
-
-            <p class="explanation"><?= __($langGroup, 'Cada vez que desactive o active la autenticación de doble factor deberá volver a escanear el código. Esto funciona con aplicaciones como <strong>Google Authenticator</strong>.'); ?></p>
-
-            <br>
+    <?php //Cada pestaña con su caja; la de configurar, con su barra aparte, como el resto de formularios del panel. ?>
+    <div class="ui tab tab-element active" data-tab="A">
 
             <?php if(!$wasViewedQRData): ?>
-            <div class="ui form mw-400" qr-activation-container style="display: none;">
+            <div class="container-standard-form" qr-activation-container style="display: none;">
+            <div class="ui form mw-400">
 
                 <div class="field">
                     <label><?= __($langGroup, 'QR'); ?></label>
@@ -90,11 +93,18 @@ if($isEnabled2FA && !$wasViewedQRData){
                 </div>
 
             </div>
+            </div>
             <?php endif; ?>
+
+            <form action="<?= UserSystemFeaturesController::routeName('configure-totp'); ?>" class="ui form initial" configure-2af data-content-form>
+
+            <div class="container-standard-form">
+
+            <p class="explanation"><?= __($langGroup, 'Cada vez que desactive o active la autenticación de doble factor deberá volver a escanear el código. Esto funciona con aplicaciones como <strong>Google Authenticator</strong>.'); ?></p>
 
             <br>
 
-            <form action="<?= UserSystemFeaturesController::routeName('configure-totp'); ?>" class="ui form mw-400" configure-2af>
+            <div class="mw-400">
 
                 <?php if(!$isEnabled2FA): ?>
                 <div class="ui header dividing medium"><?= __($langGroup, 'Activar 2FA'); ?></div>
@@ -122,30 +132,33 @@ if($isEnabled2FA && !$wasViewedQRData){
                     <input type="password" name="password" required placeholder="">
                 </div>
 
-                <div class="field">
-                    <button type="submit" class="ui button green small"><?= __($langGroup, 'Configurar'); ?></button>
-                </div>
+            </div>
+
+            </div>
+
+            <?php
+            //Lo mismo activa que desactiva: el formulario lo decide por sus campos.
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Configurar'),
+            ]);
+            ?>
 
             </form>
-
-        </div>
-
-        <?php if($canRevokeMySessions): ?>
-        <div class="ui tab tab-element" data-tab="B">
-
-            <p class="explanation"><?= __($langGroup, 'Cierra la sesión en todos los dispositivos donde haya ingresado, incluido este. Después tendrá que volver a ingresar con su contraseña.'); ?></p>
-
-            <br>
-
-            <form action="<?= MySpaceController::routeName('revoke-my-sessions'); ?>" method="POST" class="ui form mw-400" revoke-my-sessions data-confirmation-title="<?= __($langGroup, 'Cerrar todas las sesiones'); ?>" data-confirmation-message="<?= __($langGroup, 'Se cerrarán todas tus sesiones, incluida ésta.'); ?>">
-                <div class="field">
-                    <button type="submit" class="ui button red small"><?= __($langGroup, 'Cerrar todas mis sesiones'); ?></button>
-                </div>
-            </form>
-
-        </div>
-        <?php endif; ?>
 
     </div>
+
+    <?php if($canRevokeMySessions): ?>
+    <div class="ui tab tab-element" data-tab="B">
+
+        <div class="container-standard-form">
+
+            <p class="explanation"><?= __($langGroup, 'Los dispositivos donde has iniciado sesión. Cierra la que no reconozcas.'); ?></p>
+
+            <?= UserSessionsController::userSessionsHTML((int) $currentUser->id, true); ?>
+
+        </div>
+
+    </div>
+    <?php endif; ?>
 
 </section>

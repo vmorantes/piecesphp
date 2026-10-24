@@ -14,16 +14,15 @@ $lang = [
     "Formularios" => "Forms",
     "Gestión de usuarios" => "User management",
     "Registro" => "Registration",
-    "Gestión" => "Management",
+    "Mi espacio" => "My space",
     "Mi perfil" => "My profile",
-    "Consultar" => "Consult",
     "Volver a mi usuario" => "Return to my user",
     "Mi organización" => "My organization",
-    "Listado de actores" => "List of actors",
     "Conectar como otro usuario" => "Connect as another user",
     "Mapa de actores" => "Actors map",
     "Mapa de contenidos" => "Content map",
     "Mapa de actores y contenidos" => "Actors and content map",
+    "Directorio" => "Directory",
 ];
 
 return $lang;

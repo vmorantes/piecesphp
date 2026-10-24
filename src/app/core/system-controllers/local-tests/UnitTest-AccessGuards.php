@@ -380,7 +380,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(in_array(\PiecesPHP\UserSystem\ORM\UsersModel::TABLE . '.username', $camposUsuarios, true), 'DISCRIMINANTE: usuarios, fieldsToSelect() sigue trayendo las demás columnas');
     echoTerminal(' ');
 
-    //──── 9. /users/all/ no devuelve la contraseña (#057) ─────────────────────────────
+    //──── 9. users-ajax-all no devuelve la contraseña (#057) ─────────────────────────
     echoTerminal('[9/19] UsersController::_all() no devuelve la contraseña');
 
     //Si esto cae, cualquier usuario con sesión vuelve a poder pedir el hash de todos.
@@ -703,7 +703,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 17. register_route: nombres repetidos y roles inexistentes (#091, tanda B) ─────
-    echoTerminal('[17/19] register_route() RECHAZA un nombre repetido y no concede a un rol que no existe');
+    echoTerminal('[17/19] register_route() RECHAZA un nombre repetido y no concede a un rol que no existe; la ruta declara si renueva un token caducado');
 
     //Un router de pega: register_route solo le pide map(), y a lo devuelto setName() y add(). Un RouteCollectorProxy de
     //verdad pediría la app de Slim, así que el objeto viaja como mixed y lo mapeado se anota fuera.
@@ -783,6 +783,14 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $rutasRepuestas = get_config('_routes_');
     $check(is_array($rutasRepuestas) && !array_key_exists('zz-prueba-bp-registro', $rutasRepuestas), 'el inventario de rutas queda como estaba al acabar');
+    //La opción de la ruta (P143): de fábrica no renueva, se declara con ->renewExpired(true) y sobrevive al
+    //arreglo con el que register_route() la guarda, que es lo que lee index.php.
+    $sinOpcion = new \PiecesPHP\Core\Route('zz-prueba-renovar[/]', static fn() => null, 'zz-prueba-renovar');
+    $check(($sinOpcion->toArray()['renew_expired'] ?? null) === false, 'una ruta que no lo declara no renueva un token caducado', var_export($sinOpcion->toArray()['renew_expired'] ?? null, true));
+    $conOpcion = (new \PiecesPHP\Core\Route('zz-prueba-renovar[/]', static fn() => null, 'zz-prueba-renovar'))->renewExpired(true);
+    $arregloConOpcion = $conOpcion->toArray();
+    $check(($arregloConOpcion['renew_expired'] ?? null) === true, 'DISCRIMINANTE: con ->renewExpired(true), toArray() lo dice', var_export($arregloConOpcion['renew_expired'] ?? null, true));
+    $check(\PiecesPHP\Core\Route::instanceFromArray($arregloConOpcion)->renewExpired() === true, 'y instanceFromArray() lo conserva');
     echoTerminal(' ');
 
     //──── 18. processFromQuery NO es una guarda (#091, tanda B) ──────────────────────────
@@ -836,6 +844,47 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $alcanzado = $e->getMessage();
     }
     $check($alcanzado === 'zz-manejador-alcanzado', 'CANARIO: con una ruta de otro módulo llega al manejador', $alcanzado);
+    echoTerminal(' ');
+
+    //──── 19b. La URL a la que volver tras entrar (P145) ─────────────────────────────────
+    echoTerminal('[19b/19] safeNextURL() solo acepta una URL de este sitio: lo demás sería una redirección abierta');
+    $siguiente = new \ReflectionMethod(\PiecesPHP\UserSystem\Controllers\UsersController::class, 'safeNextURL');
+    $base = baseurl();
+    $partesBase = parse_url($base);
+    $esquemaBase = is_array($partesBase) ? (string) ($partesBase['scheme'] ?? 'http') : 'http';
+    $hostBase = is_array($partesBase) ? (string) ($partesBase['host'] ?? 'localhost') : 'localhost';
+    $otroEsquema = $esquemaBase === 'https' ? 'http' : 'https';
+    echoTerminal("      - baseurl() en esta ejecución: {$base}");
+    $acepta = [
+        'una pantalla del panel' => baseurl('admin/logs/'),
+        'con consulta' => baseurl('admin/logs/?tab=access&view=logged'),
+    ];
+    foreach ($acepta as $nombre => $valor) {
+        $check($siguiente->invoke(null, $valor) === $valor, "DISCRIMINANTE: acepta {$nombre}", $valor);
+    }
+    $rechaza = [
+        'otro sitio' => 'https://otro.example/x',
+        'sin esquema' => '//otro.example/x',
+        'barra y barra invertida' => '/\\otro.example',
+        'dos barras invertidas' => '\\\\otro.example',
+        'javascript:' => 'javascript:alert(1)',
+        'data:' => 'data:text/html,x',
+        'el mismo host con otro esquema' => preg_replace('/^[a-z]+:/i', "{$otroEsquema}:", baseurl('admin/')),
+        'el mismo host con otro puerto' => "{$esquemaBase}://{$hostBase}:8443" . (string) (is_array($partesBase) ? ($partesBase['path'] ?? '/') : '/') . 'admin/',
+        'el prefijo sin su barra final' => rtrim($base, '/') . 'malicioso/',
+        'un salto de línea' => baseurl('admin/') . "\n",
+        'un array' => [baseurl('admin/')],
+        'null' => null,
+        'la cadena vacía' => '',
+        'un segmento «..» que sube de la base' => baseurl('../otra'),
+        'un segmento «.»' => baseurl('./x'),
+        'el «..» cifrado (%2e%2e)' => baseurl('%2e%2e/otra'),
+        'el «..» cifrado en mayúsculas (%2E%2E)' => baseurl('%2E%2E/otra'),
+    ];
+    foreach ($rechaza as $nombre => $valor) {
+        $obtenido = $siguiente->invoke(null, $valor);
+        $check($obtenido === null, "RECHAZO: {$nombre}", var_export($obtenido, true));
+    }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

@@ -26,6 +26,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -90,7 +91,6 @@ class DocumentTypesController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(DocumentTypesRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(DocumentTypesRoutes::staticRoute(self::BASE_CSS_DIR . '/document-types-style.css'), 'css');
 
     }
 
@@ -102,34 +102,34 @@ class DocumentTypesController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = DocumentsController::routeName('list');
-
-        $processTableLink = self::routeName('datatables');
-        $action = self::routeName('actions-add');
-
-        $title = __(self::LANG_GROUP, 'Gestión de') . ' ' . self::$pluralTitle;
+        $title = __(self::LANG_GROUP, 'Tipos de documento');
+        set_title($title);
 
         $data = [];
         $data['langGroup'] = self::LANG_GROUP;
-        $data['processTableLink'] = $processTableLink;
-        $data['backLink'] = $backLink;
-        $data['title'] = self::$pluralTitle;
-        $data['subtitle'] = $title;
-        $data['formVariables'] = [
-            'action' => $action,
-            'langGroup' => self::LANG_GROUP,
-            'standalone' => false,
-            'submitButtonText' => __(self::LANG_GROUP, 'Guardar'),
+        $data['processTableLink'] = self::routeName('datatables');
+        $data['title'] = $title;
+        $data['addLink'] = self::routeName('forms-add');
+        $data['addAction'] = self::routeName('actions-add');
+        $data['hasPermissionsAdd'] = self::allowedRoute('actions-add');
+        $data['defaultLang'] = Config::get_default_lang();
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+            __(self::LANG_GROUP, 'Documentos') => [
+                'url' => DocumentsController::routeName('list'),
+            ],
+            __(self::LANG_GROUP, 'Tipos de documento'),
         ];
 
         set_custom_assets([
-            DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
             DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
             DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
-        self::view('list', $data);
+        $this->render('list', $data);
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -146,23 +146,34 @@ class DocumentTypesController extends AdminPanelController
 
         set_custom_assets([
             DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
-            DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
             DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js'),
         ], 'js');
 
-        $action = self::routeName('actions-add');
+        $title = __(self::LANG_GROUP, 'Nuevo tipo');
+        set_title($title);
+
         $backLink = self::routeName('list');
-        $standalone = true;
 
         $data = [];
-        $data['action'] = $action;
+        $data['action'] = self::routeName('actions-add');
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
-        $data['title'] = self::$title;
-        $data['standalone'] = $standalone;
+        $data['title'] = $title;
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+            __(self::LANG_GROUP, 'Documentos') => [
+                'url' => DocumentsController::routeName('list'),
+            ],
+            __(self::LANG_GROUP, 'Tipos de documento') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ];
 
         $this->helpController->render('panel/layout/header');
-        self::view('forms/add', $data);
+        $this->render('forms/add', $data);
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -192,31 +203,47 @@ class DocumentTypesController extends AdminPanelController
 
         if ($element->id !== null && DocumentTypesMapper::existsByID($element->id)) {
 
-            import_simple_upload_placeholder();
             set_custom_assets([
                 DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
                 DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
                 DocumentTypesRoutes::staticRoute(self::BASE_JS_DIR . '/edit-form.js'),
             ], 'js');
 
-            $action = self::routeName('actions-edit');
+            //El nombre, recortado como en publicaciones; lo escapan la cabecera y MetaTags, las migas no.
+            $elementName = (string) $element->getLangData($lang, 'documentTypeName');
+            $elementName = mb_strlen($elementName) <= 60 ? $elementName : mb_substr($elementName, 0, 57) . '...';
+            $title = sprintf(__(self::LANG_GROUP, 'Editar: %s'), $elementName);
+            set_title($title);
+
             $backLink = self::routeName('list');
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
             $data = [];
-            $data['action'] = $action;
+            $data['action'] = self::routeName('actions-edit');
             $data['element'] = $element;
             $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
-            $data['title'] = self::$title;
+            $data['title'] = $title;
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
+            $data['breadcrumbs'] = [
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+                ],
+                __(self::LANG_GROUP, 'Documentos') => [
+                    'url' => DocumentsController::routeName('list'),
+                ],
+                __(self::LANG_GROUP, 'Tipos de documento') => [
+                    'url' => $backLink,
+                ],
+                $title,
+            ];
 
             $this->helpController->render('panel/layout/header');
-            self::view('forms/edit', $data, true, false);
+            $this->render('forms/edit', $data, true, false);
             $this->helpController->render('panel/layout/footer');
 
             return $response;
@@ -664,10 +691,16 @@ class DocumentTypesController extends AdminPanelController
 
         $selectFields = DocumentTypesMapper::fieldsToSelect();
 
+        //Por POSICIÓN, como las columnas de la vista; el nombre busca también por número.
         $columnsOrder = [
-            "{$table}.id",
-            'documentTypeName',
+            ['documentTypeName', "{$table}.id"],
         ];
+
+        //«Traducir» lleva a la página de edición del primer idioma que no es el de omisión, si la instalación tiene otro.
+        $defaultLang = Config::get_default_lang();
+        $otherLangs = array_values(array_filter(Config::get_allowed_langs(), fn ($l) => $l !== $defaultLang));
+        $otherLang = $otherLangs[0] ?? null;
+        $editAction = self::routeName('actions-edit');
         $customOrder = [
             "{$table}.id" => 'DESC',
         ];
@@ -682,7 +715,7 @@ class DocumentTypesController extends AdminPanelController
             'custom_order' => $customOrder,
             'mapper' => new DocumentTypesMapper(),
             'request' => $request,
-            'on_set_data' => function ($e) {
+            'on_set_data' => function ($e) use ($defaultLang, $otherLang, $editAction) {
 
                 $mapper = DocumentTypesMapper::objectToMapper($e);
                 //Null solo si al SELECT le faltara una columna: la fila se salta (un [] metería una fila vacía).
@@ -690,28 +723,38 @@ class DocumentTypesController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
-                $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
-                $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
+                $hasEdit = self::allowedRoute('forms-edit', ['id' => $mapper->id]);
+                $hasDelete = self::allowedRoute('actions-delete', ['id' => $mapper->id]);
+                $name = (string) $mapper->currentLangData('documentTypeName');
 
+                $direct = null;
+                $menu = [];
                 if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editButton = "<a href='{$editLink}' class='ui button brand-color icon'><i class='edit outline icon'></i></a>";
-                    $buttons[] = $editButton;
+                    //Editar abre la ventana del listado en el idioma por omisión; su enlace, la página, queda para quien no la tenga.
+                    $values = ['id' => (string) $mapper->id, 'lang' => $defaultLang, 'documentTypeName' => (string) $mapper->getLangData($defaultLang, 'documentTypeName')];
+                    $direct = RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('forms-edit', ['id' => $mapper->id, 'lang' => $defaultLang]), 'edit', [
+                        'data-content-modal' => 'document-type-modal',
+                        'data-content-modal-values' => json_encode($values, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR),
+                        'data-content-modal-action' => $editAction,
+                        'data-content-modal-title' => sprintf(__(self::LANG_GROUP, 'Editar: %s'), $name),
+                    ]);
+                    if ($otherLang !== null) {
+                        $menu[] = RowActions::action(__(self::LANG_GROUP, 'Traducir'), self::routeName('forms-edit', ['id' => $mapper->id, 'lang' => $otherLang]), 'language');
+                    }
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-document-types-button><i class='trash icon'></i></a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-document-types-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
 
-                $buttons = implode('', $buttons);
-                $columns = [];
-
-                $columns[] = $e->idPadding;
-                $columns[] = escape_html($e->documentTypeName);
-                $columns[] = $buttons;
-                return $columns;
+                return [
+                    escape_html($name),
+                    RowActions::cell($direct, $menu),
+                ];
             },
         ]);
 

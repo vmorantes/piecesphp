@@ -101,9 +101,16 @@ la tarea que se ejecute: `src/index.php:315` construye `new UsersModel(1)` para 
 terminal, el `SELECT` ya incluye la columna nueva y la tabla no la tiene. Medido: `bin/cli version` también reventaba.
 Primero el `ALTER`, después `$fields`, y `bin/cli version` como canario.
 
-**Y `scheme-create` no sirve para el núcleo** (`#509`): solo cubre módulos de `src/app/classes`, y **`Users` no es un
-módulo** —`UsersModel` vive en `src/app/model/`—. Además **emite el SQL, no lo aplica**. Para una tabla del núcleo o
-para modificar una que ya existe: `ALTER TABLE` en `databases/actualizaciones/` con la forma del precedente
+**`scheme-create` VE el núcleo, pero su verdad no es él** (corregido el 2026-10-15, `#1420`; lo de `#509` —«`Users` no
+es un módulo»— caducó cuando los usuarios pasaron a `src/app/classes`). `SchemeSqlTask::discover()` recorre todo
+`EntityMapper` de `src/app/classes` salvo las carpetas de `IGNORED_DIRECTORIES` (`SchemeSqlTask.php:32`), y con
+`module=all` **emite 30 de las 32 tablas del esquema, las del núcleo incluidas** (medido: faltan `pcsphp_tokens` y
+`pcsphp_task_runs`, que no tienen `EntityMapper`). **Emite el SQL, no lo aplica.** Pero la verdad de una tabla del núcleo
+es `databases/piecesphp_structure.sql` —lo que instala un clon y lo que compara `core/schema-matches-database`—, no lo que
+emite el generador; y **un `scheme-drop module=all` emitiría el `DROP` del núcleo entero: nunca se aplica tal cual**.
+**La siembra descubre sus tablas por el mismo camino** (`SeedPlanner::universe()` llama a `discover()`): un mapper hecho
+solo para sembrar entra también en `scheme-create` y `scheme-drop`. Para una tabla del núcleo o para modificar una que ya
+existe: `ALTER TABLE` en `databases/actualizaciones/` con la forma del precedente
 (`2026-09-22-organizaciones-code.sql`), **aplicado** contra la base local, y `databases/piecesphp_structure.sql`
 actualizado en el mismo commit para que un clon nuevo nazca con la columna.
 
@@ -203,7 +210,7 @@ mysql -u <usuario> -p <base> < dumps/<archivo>.sql
 ## Administración
 
 El framework **ya no trae Adminer** (lo retiró el PO el 2026-10-01). Un cliente de base de datos se instala aparte en
-el servidor: `source-docs/project/docs/environments/content/lamp/content/Adminer.md`.
+el servidor: `source-docs/entornos/docs/environments/content/lamp/content/Adminer.md`.
 
 ## Localización en la conexión
 

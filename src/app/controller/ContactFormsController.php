@@ -270,7 +270,7 @@ class ContactFormsController extends PublicAreaController
                         $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
                         $mailer->Body = $bodyMessage;
                         if (!$mailer->checkSettedSMTP() && !is_local()) {
-                            $mailer->asGoDaddy(true);
+                            $mailer->asSystemMailer(true);
                         }
 
                         $success = $mailer->send();

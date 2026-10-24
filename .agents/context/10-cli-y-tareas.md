@@ -121,14 +121,28 @@ Métodos de programación: `onMinute(int)`, `hourly()`, `dailyAt(string)`,
 
 ### La ruta HTTP del cron
 
-- `core/api/cron-jobs/run` exige la cabecera `Cron-Job-Key` (o el parámetro GET del mismo
-  nombre, que queda en los logs de acceso).
+- `core/api/cron-jobs/run` exige la cabecera `Cron-Job-Key`, y SOLO la cabecera desde `8b6993d5` (el parámetro GET
+  quedaba en los logs de acceso).
 - La clave sale de `secure-keys/cronjob` a través de `api-keys.php`.
 - **Falla cerrada:** si `CronJobKey` no está configurada, responde 403 siempre y lo apunta en el
   log.
 - Compara con `hash_equals()` (`APIController::cronJobKeyAccepted()`).
 - **Trampa, cerrada en `#075`:** `getKeyFromSecureKeys()` devuelve `''` si el archivo falta, y
   antes una petición sin cabecera daba `'' === ''` y ejecutaba el cron.
+
+### Cerrojo y libro (FR, `3bd11a18`)
+
+- **Las tareas sin franja (`when(...)`) también toman el cerrojo** y vuelven a evaluar su condición DESPUÉS de tomarlo:
+  quien lo suelta pudo dejarla en falso (un respaldo recién hecho). `flock` excluye también entre dos descriptores del
+  mismo proceso (medido en `core/task-runs` b2), pero no entre máquinas.
+- **El libro**: `PiecesPHP\Terminal\TaskRunMapper`, en el núcleo junto a `CronJobTask` (el núcleo no depende de un
+  módulo), tabla `pcsphp_task_runs`, tope `MAX_ROWS` 20.000 recortado en cada inserción. Solo anota `executed` y
+  `failed`. Quién dispara: `CronJobTask::setTriggeredBy()` (`http` desde `APIController::cronJobs`, `cli` desde
+  `RunCronjobsTask`). Sin la tabla, la tarea corre y salta el aviso `task-runs-missing`.
+- **Trampa abierta**: «Procesar la cola» no tiene franja y corre cada minuto aunque no haya nada: ~1.440 filas al día, y
+  con el tope global expulsa la historia de las diarias en ~14 días (`#1401` H1).
+- **Una prueba que anota en el libro borra lo suyo**: `core/cron-jobs` declara `EFFECT_DATABASE` desde `e26b33bf`, porque
+  `gates` lo cazó como «RESTOS NUEVOS».
 
 ### Pruebas
 
@@ -168,6 +182,12 @@ Ejemplo real en `core/extensions/cronjobs.php`.
 Componentes: `PiecesPHP\Terminal\QueueTask` (despacho y registro),
 `Terminal\Mappers\QueueJobMapper` (persistencia, tabla `pcsphp_jobs_queue`),
 `ProcessQueueTask` (worker).
+
+**Tomar un trabajo es una actualización condicional** (`… WHERE id = ? AND status = 'pending'`, y solo se procesa con
+`rowCount() === 1`, `c4f895e0`): el turno de archivos solo excluye en una máquina. `QueueTask::execute()` atrapa
+`\Exception` y la convierte en fallo, así que al `catch` de `processPending` solo llega un `\Error` (las pruebas usan
+`\Error`). **Abierto** (`#1401` H2): `processPending` reintenta aunque el manejador devuelva `fail(retry: false)`. La
+purga (`QueueJobMapper::purge()`, 30 y 90 días) la llama la tarea diaria «Purgar registros viejos».
 
 **Handler** — en `extensions/queues.php`:
 

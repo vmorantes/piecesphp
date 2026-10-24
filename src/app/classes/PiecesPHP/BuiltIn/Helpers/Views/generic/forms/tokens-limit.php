@@ -16,24 +16,20 @@ $contentName = $element->userSetContentName();
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera de Configuración (diseno/02-configuracion.md §2.1).
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <br>
+        <form method='POST' action="<?= $action; ?>" class="ui form initial generic" data-content-form>
 
-        <div class="container-standard-form mw-800">
-
-            <form method='POST' action="<?= $action; ?>" class="ui form generic">
+            <div class="container-standard-form mw-800">
 
                 <input type="hidden" name="configName" value="<?= $contentName; ?>">
                 <?php foreach($allowedLangs as $lang): ?>
@@ -42,23 +38,28 @@ $contentName = $element->userSetContentName();
                 <?php $langSuffix = $isMultilang ? " ({$lang})" : ''; ?>
                 <?php if($isMultilang || $lang === $defaultLang): ?>
                 <div class="field required">
-                    <label><?= __($langGroup, 'Límite de tokens') . $langSuffix; ?></label>
+                    <label><?= __($langGroup, 'Límite de tokens de IA') . $langSuffix; ?></label>
                     <input type="number" step="1" name="<?= $contentName; ?>[<?= $lang; ?>]" value="<?= $value; ?>" required>
                 </div>
                 <?php endif; ?>
                 <?php endforeach; ?>
 
-                <br><br>
-
-                <div class="field">
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                    </div>
+                <?php //Lo mide el informe genérico; nada lo compara antes de llamar a la IA (APIController::recordTokensUsed() suma después). ?>
+                <div class="ui info visible message">
+                    <?= __($langGroup, 'Solo informativo: es la cuota contratada y sirve para calcular los tokens restantes del informe. No limita el uso de la inteligencia artificial.'); ?>
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+            <?php
+            //La barra al final del formulario (§2.3), como en el resto de Configuración: «Cancelar» vuelve a su índice.
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
+
+        </form>
 
     </div>
 

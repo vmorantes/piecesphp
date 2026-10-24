@@ -65,6 +65,16 @@ final class SystemAlert
     private $fixLabel;
 
     /**
+     * @var array<string,string>
+     */
+    private $fixQuery;
+
+    /**
+     * @var callable():string|null
+     */
+    private $nagVersion;
+
+    /**
      * @param string $key kebab-case
      * @param string $severity info|warning|danger
      * @param callable():string $message El texto ya traducido
@@ -74,9 +84,12 @@ final class SystemAlert
      * @param bool $showAsNag Si sale como aviso flotante en el panel
      * @param string|null $fixRoute Nombre de la ruta donde se arregla
      * @param string|null $fixLabel Texto del enlace a esa ruta
+     * @param array<string,string> $fixQuery Lo que va tras «?» en ese enlace (p. ej. la pestaña de una pantalla)
+     * @param (callable():string)|null $nagVersion Si cambia, el aviso flotante cerrado vuelve a salir (p. ej. la hora
+     * del último error); sin ella, cerrarlo vale 7 días
      * @throws \InvalidArgumentException
      */
-    public function __construct(string $key, string $severity, callable $message, callable $isActive, bool $dismissible, array $audience, bool $showAsNag = false, ?string $fixRoute = null, ?string $fixLabel = null)
+    public function __construct(string $key, string $severity, callable $message, callable $isActive, bool $dismissible, array $audience, bool $showAsNag = false, ?string $fixRoute = null, ?string $fixLabel = null, array $fixQuery = [], ?callable $nagVersion = null)
     {
         if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $key) !== 1) {
             throw new \InvalidArgumentException("La key «{$key}» del aviso no está en kebab-case.");
@@ -97,6 +110,8 @@ final class SystemAlert
         $this->showAsNag = $showAsNag;
         $this->fixRoute = $fixRoute;
         $this->fixLabel = $fixLabel;
+        $this->fixQuery = array_filter($fixQuery, 'is_string');
+        $this->nagVersion = $nagVersion;
     }
 
     /**
@@ -166,10 +181,29 @@ final class SystemAlert
     }
 
     /**
+     * @return array<string,string>
+     */
+    public function fixQuery(): array
+    {
+        return $this->fixQuery;
+    }
+
+    /**
      * @return string|null
      */
     public function fixLabel(): ?string
     {
         return $this->fixLabel;
+    }
+
+    /**
+     * @return string Solo letras, cifras y guiones: va al nombre de una cookie
+     */
+    public function nagVersion(): string
+    {
+        if ($this->nagVersion === null) {
+            return '';
+        }
+        return (string) preg_replace('/[^A-Za-z0-9-]/', '', (string) ($this->nagVersion)());
     }
 }

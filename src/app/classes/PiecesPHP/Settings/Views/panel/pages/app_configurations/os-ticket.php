@@ -1,16 +1,34 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+/**
+ * @var string $langGroup
+ * @var string $actionURL
+ * @var string|null $url
+ * @var string|null $key Solo se mira si hay una: no se pinta.
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ */
 ?>
+<section class="module-view-container os-ticket-view">
 
-<main class="os-ticket-view">
+    <div class="limiter-content">
 
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'OsTicket'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Integraciones'); ?></span>
-        </div>
-        <div class="body-card">
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form os-ticket">
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
+
+        <form action="<?= $actionURL; ?>" method="POST" class="ui form initial os-ticket" data-content-form>
+
+            <div class="container-standard-form">
 
                 <div class="field">
                     <label><?= __($langGroup, 'URL'); ?></label>
@@ -23,12 +41,18 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     <input autocomplete="off" type="text" name="key" value="" placeholder="<?= mb_strlen((string) $key) > 0 ? __($langGroup, 'Hay una clave guardada: déjelo vacío para conservarla') : 'ABCD123456EFGH'; ?>">
                 </div>
 
-                <div class="field right">
-                    <button type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+            </div>
 
-            </form>
-        </div>
-    </section>
+            <?php
+            //La barra al final del formulario (§2.3).
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
 
-</main>
+        </form>
+
+    </div>
+
+</section>

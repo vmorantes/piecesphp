@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eac04f2894e25c079ce7fd3ae7476f38",
+    "content-hash": "d591d3abc761c2d6011321f7a9678398",
     "packages": [
         {
             "name": "aminyazdanpanah/php-ffmpeg-video-streaming",
@@ -2046,16 +2046,16 @@
         },
         {
             "name": "piecesphp/database",
-            "version": "v5.3.0",
+            "version": "v5.4.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/database.git",
-                "reference": "50eca2b7aa4dcb145a7ccbfd6a4811be5e998a3f"
+                "reference": "79e77db0e8647c673a5b42d8616318f34cdb1861"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/database/get/50eca2b7aa4dcb145a7ccbfd6a4811be5e998a3f.zip",
-                "reference": "50eca2b7aa4dcb145a7ccbfd6a4811be5e998a3f",
+                "url": "https://bitbucket.org/piecesphp/database/get/79e77db0e8647c673a5b42d8616318f34cdb1861.zip",
+                "reference": "79e77db0e8647c673a5b42d8616318f34cdb1861",
                 "shasum": ""
             },
             "require": {
@@ -2106,9 +2106,9 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/database/src/50eca2b7aa4dcb145a7ccbfd6a4811be5e998a3f/?at=v5.3.0"
+                "source": "https://bitbucket.org/piecesphp/database/src/79e77db0e8647c673a5b42d8616318f34cdb1861/?at=v5.4.0"
             },
-            "time": "2026-10-08T22:14:39+00:00"
+            "time": "2026-10-23T14:15:40+00:00"
         },
         {
             "name": "piecesphp/datastructures",

@@ -94,8 +94,10 @@ trait ControllerRoutingTrait
     /**
      * Verificar si una ruta es permitida
      *
-     * Descansa por completo en `routeName()`, que devuelve cadena vacía cuando el usuario no
-     * tiene permiso.
+     * Con usuario, descansa en `routeName()`, que devuelve cadena vacía cuando el usuario no
+     * tiene permiso. Sin usuario, `routeName()` no filtra (da la dirección a correos, cron y
+     * zona pública), así que aquí se niega toda ruta que declare `require_login`: si no, el
+     * visitante «podría» todo el panel. Ver D6.
      *
      * **Las controladoras que instalan `DefaultAccessControlModules`** tienen como veredicto de
      * acceso `routeName()` devolviendo cadena no vacía. En esos módulos este método NO decide
@@ -109,6 +111,15 @@ trait ControllerRoutingTrait
     {
         $route = self::routeName($name, $params, true);
         $allow = (string) $route !== '';
+
+        //Sin usuario, routeName() no filtra: lo que pide sesión no se le concede al visitante (D6).
+        if ($allow && getLoggedFrameworkUser() === null) {
+            $trimmedName = trim($name);
+            $fullName = $trimmedName !== '' ? self::$baseRouteName . "-{$trimmedName}" : self::$baseRouteName;
+            $routeInfo = get_route_info($fullName);
+            $allow = !(is_array($routeInfo) && ($routeInfo['require_login'] ?? false) === true);
+        }
+
         return $allow;
     }
 

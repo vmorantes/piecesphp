@@ -51,47 +51,26 @@ window.addEventListener('load', function () {
 	const rejectButton = $('button[reject-trigger]')
 	approveButton.on('click', function (e) {
 		e.preventDefault()
-		handleAction(function () {
+		handleAction('blue', function () {
 			approvalStatus = 'APPROVED'
 			submitButton.click()
 		})
 	})
 	rejectButton.on('click', function (e) {
 		e.preventDefault()
-		handleAction(function () {
+		handleAction('red', function () {
 			approvalStatus = 'REJECTED'
 			submitButton.click()
 		})
 	})
-	const handleAction = function (callback) {
-		$('body').addClass('wait-to-action')
-		const loaderNameCancel = generateUniqueID('loaderCancel-')
-		let title = _i18n(langGroup, 'Confirmación')
-		let message = _i18n(langGroup, '¿Está seguro de realizar la operación?')
-		$.toast({
-			title: title,
-			message: message,
-			displayTime: 0,
-			class: 'white',
-			position: 'top center',
-			classActions: 'top attached',
-			actions: [{
-				text: _i18n(langGroup, 'Sí'),
-				class: 'red',
-				click: function () {
-					showGenericLoader(loaderNameCancel)
-					callback()
-					removeGenericLoader(loaderNameCancel)
-					$('body').removeClass('wait-to-action')
-				}
-			}, {
-				text: _i18n(langGroup, 'No'),
-				class: 'blue',
-				click: function () {
-					$('body').removeClass('wait-to-action')
-					return true
-				}
-			}]
+	const handleAction = function (confirmClass, callback) {
+		confirmAction({ confirmClass: confirmClass }).then(function (confirmed) {
+			if (confirmed) {
+				const loaderNameCancel = generateUniqueID('loaderCancel-')
+				showGenericLoader(loaderNameCancel)
+				callback()
+				removeGenericLoader(loaderNameCancel)
+			}
 		})
 	}
 

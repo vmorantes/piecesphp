@@ -52,8 +52,26 @@ La interfaz fluida permite definir la frecuencia de ejecución fácilmente:
 Para que las tareas se ejecuten, se debe configurar una única entrada en el `crontab` del servidor que llame al comando del framework cada minuto:
 
 ```bash
-* * * * * php8.5 /ruta/al/proyecto/src/index.php cli run-cronjobs run
+* * * * * php8.5 /ruta/de/la/instalacion/index.php cli run-cronjobs run
 ```
+
+La ruta es la del `index.php` de la aplicación: en el repositorio de desarrollo está dentro de `src/`; en un servidor,
+donde se despliega el contenido de `src/`, está en la raíz desplegada.
+Root la ve ya escrita, con la ruta real de su instalación, en **Registros › Tareas programadas** (arriba, plegable;
+abierta si ninguna tarea **registrada** se ejecutó en las últimas 24 horas). Solo cuentan las tareas que están en
+`cronjobs.php`: una fila del libro de una tarea retirada, renombrada o sembrada no dice si el cron corre hoy
+(`SystemStatusController::registeredRuns()`).
+
+**También se puede disparar por HTTP**, con la llave solo en la cabecera (en la URL quedaría en los registros del
+servidor):
+
+```bash
+curl -X GET -H "Cron-Job-Key: <LLAVE>" https://tu-dominio/<ruta-de-la-api>/cron-jobs/run
+```
+
+La llave sale **solo** de `secure-keys/cronjob`: el `$config['CronJobKey']` de `config.php` no cuenta, porque la carga de
+`secure-keys` lo sobrescribe siempre (`AppHelpers.php`, `set_configs_from_secure_keys()`), y sin ese archivo la ruta
+responde 403. La pestaña dice si la llave está configurada, nunca cuál es.
 
 Con esa línea corren **los cronjobs del sistema** (`src/app/core/extensions/cronjobs.php`: el respaldo de la base, los
 slugs, la visibilidad de publicaciones y el drenaje de la cola) **y los tuyos** (`src/app/config/extensions/cronjobs.php`).
@@ -72,6 +90,23 @@ bueno (`php8.5` o su ruta completa).
 Este comando revisará todos los `CronJobTask` registrados y ejecutará solo aquellos que cumplan con su condición horaria en ese momento exacto.
 
 ---
+
+## Cerrojo y libro de ejecuciones
+
+- **Cada tarea toma su cerrojo** (un `flock` sobre un archivo de su directorio de estado), con franja o sin ella: dos
+  disparos a la vez no la ejecutan dos veces; el segundo queda con el estado `locked` (`bin/cli` lo escribe «saltada, en curso»). Una tarea sin franja (`when(...)`)
+  vuelve a mirar su condición con el cerrojo en la mano. El cerrojo vale dentro de una máquina, no entre varias.
+- **Cada ejecución real queda en el libro**, la tabla `pcsphp_task_runs`: tarea, franja, quién la disparó (`http` o
+  `cli`), resultado, intento, inicio, fin, duración y mensaje. Lo que no tocaba o estaba bloqueado no se anota. Se
+  guardan las últimas 20.000 (`TaskRunMapper::MAX_ROWS`). Root lo ve en **Registros › Tareas programadas**.
+- Si la tabla no existe (una instalación sin `databases/actualizaciones/2026-10-14-libro-de-tareas-y-cola.sql`), la
+  tarea corre igual y un aviso del sistema lo dice.
+
+### Tareas del núcleo
+
+| Tarea | Cuándo | Qué hace |
+| :-- | :-- | :-- |
+| «Purgar registros viejos» | cada día a las 03:30 | Borra los contadores de errores suaves de más de 30 días, las trazas de más de 90 y, de la cola, lo terminado de más de 30 días y lo fallido de más de 90 |
 
 ## 🛡️ Gestión de Conexiones de Base de Datos
 

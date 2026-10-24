@@ -93,6 +93,9 @@ CliActions::make('unit-tests:core/route-inventory', function ($args) {
     $check(count($conAlias) === 0, 'd1 NINGUNA entrada de _routes_ tiene clave distinta de su nombre: no quedan alias', (string) json_encode($conAlias));
     $check(!array_key_exists('terminal-h', $nombresDelArtefacto), 'd2 y el que había, «terminal-h», ya no está en el inventario');
     $check(array_key_exists('terminal-help', $nombresDelArtefacto) && $nombresDelArtefacto['terminal-help'] === 1, 'd3 mientras «terminal-help» sigue, una sola vez');
+    //B5 de la 9.0.0: el catálogo ya no lleva `route_alias`, que valía siempre el nombre.
+    $conCampoAlias = array_keys(array_filter((array) get_routes(), fn ($entrada) => is_array($entrada) && array_key_exists('route_alias', $entrada)));
+    $check(count((array) get_routes()) > 0 && $conCampoAlias === [], 'd4 ninguna entrada del catálogo lleva el campo route_alias', count($conCampoAlias) . ' con el campo, p. ej. ' . implode(', ', array_slice($conCampoAlias, 0, 3)));
 
     return $balance();
 

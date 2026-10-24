@@ -555,7 +555,7 @@ class DocumentTypesMapper extends EntityMapperExtensible
     {
         $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
-        $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
+        $slug = $slug !== null ? BaseHashEncryption::deobfuscate(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
         $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
         $slugID = Validator::isInteger($slugID) ? (int) $slugID : null;
@@ -570,7 +570,7 @@ class DocumentTypesMapper extends EntityMapperExtensible
     public static function getEncryptIDForSlug(int $id)
     {
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
-        $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
+        $uniqid = strtr(BaseHashEncryption::obfuscate("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
     }
 

@@ -5,19 +5,34 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;
 /**
  * @var MailConfig $element
+ * @var string $langGroup
+ * @var string $actionURL
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var string $probeURL
+ * @var string $testSendURL
+ * @var string $currentEmail Por omisión, el correo de prueba va al del usuario.
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 ?>
+<section class="module-view-container email-view">
 
+    <div class="limiter-content">
 
-<main class="container-email">
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1).
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Correo'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Integraciones'); ?></span>
-        </div>
-        <div class="body-card">
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form email">
+        <form action="<?= $actionURL; ?>" method="POST" class="ui form initial email" data-content-form>
+
+            <div class="container-standard-form">
 
                 <div class="fields">
 
@@ -80,7 +95,7 @@ use PiecesPHP\Core\Email\MailDelivery;
 
                 <div class="ui divider"></div>
 
-                <div class="title-tag"><?= __($langGroup, 'Entrega del correo y sumidero de pruebas'); ?></div>
+                <div class="form-section-title"><?= __($langGroup, 'Entrega del correo y sumidero de pruebas'); ?></div>
 
                 <div class="fields three" data-mail-test-mode>
 
@@ -109,26 +124,52 @@ use PiecesPHP\Core\Email\MailDelivery;
 
                 </div>
 
-                <div class="ui info message">
+                <?php //Dentro de `ui form`, Fomantic oculta los mensajes que no llevan `visible`. ?>
+                <div class="ui info visible message">
                     <?= __($langGroup, 'Lo que decide si el correo sale es «Entrega del correo». Retenido, ninguno sale al exterior: todos van al servidor de pruebas.'); ?>
                 </div>
 
                 <div class="ui divider"></div>
 
-                <div class="title-tag"><?= __($langGroup, 'Información adicional'); ?></div>
+                <div class="form-section-title"><?= __($langGroup, 'Información adicional'); ?></div>
 
                 <div class="field">
                     <label><?= __($langGroup, 'Nombre del remitente'); ?></label>
                     <input type="text" name="name" value="<?= $element->name(); ?>">
                 </div>
 
-                <div style="width: 100%; text-align: right">
-                    <button style="border-radius: 8px !important;" type="reset" class="ui grey basic button"><?= __($langGroup, 'Cancelar'); ?></button>
-                    <button style="border-radius: 8px !important;" type="submit" class="ui primary button"><?= __($langGroup, 'Guardar'); ?></button>
+            </div>
+
+            <?php
+            //La barra al final del formulario (§2.3).
+            $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+            ]);
+            ?>
+
+        </form>
+
+        <?php //Las pruebas usan lo GUARDADO, no lo que haya en el formulario; y dicen a dónde fueron de verdad (ADR 0046). ?>
+        <div class="container-standard-form" data-mail-tests data-probe-url="<?= escape_html($probeURL); ?>" data-test-send-url="<?= escape_html($testSendURL); ?>">
+            <div class="form-section-title"><?= __($langGroup, 'Probar el correo'); ?></div>
+            <p><?= __($langGroup, 'Las pruebas usan la configuración guardada: guarde antes lo que haya cambiado arriba.'); ?></p>
+            <div class="ui form">
+                <div class="fields">
+                    <div class="eight wide field">
+                        <label for="mail-test-to"><?= __($langGroup, 'Destinatario del correo de prueba'); ?></label>
+                        <input type="email" id="mail-test-to" name="to" value="<?= escape_html($currentEmail); ?>" data-mail-test-to>
+                    </div>
                 </div>
-
-            </form>
+            </div>
+            <button type="button" class="ui basic button" data-mail-probe><i class="plug icon"></i><?= __($langGroup, 'Probar conexión'); ?></button>
+            <button type="button" class="ui basic button" data-mail-test-send><i class="paper plane icon"></i><?= __($langGroup, 'Enviar correo de prueba'); ?></button>
+            <div class="ui message" data-mail-test-result hidden>
+                <div class="header" data-mail-test-message></div>
+                <p data-mail-test-route></p>
+            </div>
         </div>
-    </section>
 
-</main>
+    </div>
+
+</section>

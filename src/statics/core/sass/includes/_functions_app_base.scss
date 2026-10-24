@@ -1,5 +1,8 @@
 @forward 'functions';
 
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$-subtitleGreyColor: #4A494A;
+
 @mixin titleZoneBaseLegacy {
 
     position: relative;
@@ -85,7 +88,7 @@
             }
 
             &.grey {
-                color: #4A494A;
+                color: $-subtitleGreyColor;
             }
 
         }
@@ -100,7 +103,7 @@
         position: relative;
         font-size: 1rem;
         line-height: 1;
-        color: #4A494A;
+        color: $-subtitleGreyColor;
         display: block;
         margin-top: 0.5rem;
         font-size: 1.3rem;

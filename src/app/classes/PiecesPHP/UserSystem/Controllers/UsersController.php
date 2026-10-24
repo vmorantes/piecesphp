@@ -15,8 +15,10 @@ use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\Mappers\LogsMapper;
+use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\Core\BaseHashEncryption;
+use MySpace\Controllers\MyProfileController;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -30,7 +32,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
-use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -47,6 +49,7 @@ use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * UsersController.
@@ -76,14 +79,9 @@ class UsersController extends AdminPanelController
     protected static $baseRouteName = 'users';
 
     /**
-     * @var string
+     * El propósito de la firma del {type} del alta (ADR 0061 §10): una llave propia sacada de app_key.
      */
-    private $password = "NDG3iIk43xMlo5OKpCZ6Buyu0pC99v9qef9du5tncHoCbgZnHY";
-
-    /**
-     * @var string
-     */
-    private $ofuscate = "NDG3iIk43xMlo5OKpCZ6Buyu0pC99v9qef9du5tncHoCbgZnHY";
+    const SIGNUP_TYPE_PURPOSE = 'signup-type';
 
     /**
      * Controlador de Tokens
@@ -202,6 +200,7 @@ class UsersController extends AdminPanelController
     {
         $langGroup = UsersController::LANG_GROUP;
         $title = __($langGroup, 'Usuarios');
+        $addLink = self::routeName('selection-create');
 
         set_title($title);
 
@@ -209,13 +208,21 @@ class UsersController extends AdminPanelController
             UserSystemFeaturesRoutes::staticRoute('css/users-list.css'),
         ], 'css');
         set_custom_assets([
-            UserSystemFeaturesRoutes::staticRoute('js/users-forms.js'),
+            UserSystemFeaturesRoutes::staticRoute('js/users-list.js'),
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
         $this->render('panel/pages/list-usuarios', [
             'langGroup' => $langGroup,
             'title' => $title,
+            'description' => __($langGroup, 'Quién entra al panel, con qué tipo y en qué estado.'),
+            'breadcrumbs' => [
+                __($langGroup, 'Inicio') => [
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+                ],
+                $title,
+            ],
+            'addLink' => $addLink,
             'process_table' => self::routeName('datatables'),
         ]);
         $this->helpController->render('panel/layout/footer');
@@ -243,6 +250,7 @@ class UsersController extends AdminPanelController
             new WhereItem('id', WhereItem::NOT_EQUAL_OPERATOR, $this->user->id, WhereItem::AND_OPERATOR),
             //No mostrar usuarios marcados eliminados
             new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR),
+            UsersModel::excludeSystemUserWhereItem(),
         ];
 
         if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
@@ -301,7 +309,8 @@ class UsersController extends AdminPanelController
 
                 $columns = [];
 
-                if (!Roles::roleExists($element->type)) {
+                //El usuario de sistema no tiene rol a propósito: sin esta guarda, pintar el listado lo borraría.
+                if (!Roles::roleExists($element->type) && !UsersModel::isSystemUser((int) $element->id)) {
                     //Si el rol no existe, se marca para eliminar
                     $userMapper = new UsersModel($element->id);
                     $userMapper->status = UsersModel::STATUS_USER_DELETED;
@@ -391,7 +400,8 @@ class UsersController extends AdminPanelController
                 WhereItem::AND_OPERATOR
             );
         }
-        $criteriosWhere[] = new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED);
+        $criteriosWhere[] = new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR);
+        $criteriosWhere[] = UsersModel::excludeSystemUserWhereItem();
         $model->where(new WhereSegment($criteriosWhere));
 
         if ($search !== null) {
@@ -479,19 +489,63 @@ class UsersController extends AdminPanelController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries();
+        import_app_libraries(['baseStyle']);
 
         set_custom_assets([
-            baseurl('statics/login-and-recovery/css/login.css'),
+            UserSystemFeaturesRoutes::staticRoute('css/login.css'),
         ], 'css');
 
         set_custom_assets([
             UserSystemFeaturesRoutes::staticRoute('js/login.js'),
         ], 'js');
 
+        //La URL de la redirección manda sobre el aviso de un solo uso, que una recarga del login pierde (P145).
+        $next = self::safeNextURL($request->getQueryParam('next'));
+        if ($next !== null) {
+            $variables = $this->getGlobalVariables();
+            $variables['requested_uri'] = $next;
+            $this->setVariables($variables);
+        }
+
         $this->render('usuarios/login');
 
         return $response;
+    }
+
+    /**
+     * La URL a la que volver tras entrar, solo si es absoluta y de este sitio: mismo esquema, host y puerto que baseurl()
+     * y bajo su ruta, sin segmentos «.» ni «..» (ni cifrados, %2e), que la sacarían de esa ruta. Cualquier otra cosa da
+     * null, porque `next` llega de la petición y sin esto sería una redirección abierta.
+     *
+     * @param mixed $value
+     * @return string|null
+     */
+    protected static function safeNextURL(mixed $value): ?string
+    {
+        if (!is_string($value) || $value === '' || preg_match('/[\x00-\x1F\x7F\\\\]/', $value) === 1) {
+            return null;
+        }
+        $url = parse_url($value);
+        $base = parse_url(baseurl());
+        if (!is_array($url) || !is_array($base) || isset($url['user']) || isset($url['pass'])) {
+            return null;
+        }
+        if (!isset($url['scheme'], $url['host'], $base['scheme'], $base['host'])) {
+            return null;
+        }
+        $port = static fn(array $parts): int => (int) ($parts['port'] ?? (mb_strtolower((string) $parts['scheme']) === 'https' ? 443 : 80));
+        $sameOrigin = mb_strtolower($url['scheme']) === mb_strtolower($base['scheme'])
+            && mb_strtolower($url['host']) === mb_strtolower($base['host'])
+            && $port($url) === $port($base);
+        //La ruta base TERMINADA en «/»: sin la barra, «…/src» dejaría pasar «…/srcmalicioso».
+        $basePath = rtrim($base['path'] ?? '', '/') . '/';
+        $path = $url['path'] ?? '';
+        //Un segmento de puntos sube de la ruta base aunque el prefijo case: «<base>/../otra». Cifrado o no, se rechaza.
+        if (stripos($path, '%2e') !== false || count(array_intersect(['.', '..'], explode('/', rawurldecode($path)))) > 0) {
+            return null;
+        }
+        $underBase = str_starts_with($path, $basePath) || $path === rtrim($basePath, '/');
+        return $sameOrigin && $underBase ? $value : null;
     }
 
     /**
@@ -504,16 +558,12 @@ class UsersController extends AdminPanelController
         $types = UsersModel::getTypesUser();
         $currentUser = new UsersModel($this->user->id);
 
-        set_custom_assets([
-            baseurl('statics/login-and-recovery/css/select-type-user.css'),
-        ], 'css');
-
-        set_title(__(self::LANG_GROUP, 'Agregar usuario'));
+        $title = __(self::LANG_GROUP, 'Agregar usuario');
+        set_title($title);
 
         foreach ($types as $key => $display) {
 
-            $type_encrypt = strrev($this->ofuscate) . ":$key:" . $this->ofuscate;
-            $type_encrypt = BaseHashEncryption::encrypt($type_encrypt, $this->password);
+            $type_encrypt = self::signedType((int) $key);
 
             $hasAuthority = $currentUser->hasAuthorityOver($key);
 
@@ -535,6 +585,9 @@ class UsersController extends AdminPanelController
         $this->helpController->render('panel/layout/header');
         $this->render('usuarios/select-type-user', [
             'types' => $types,
+            'breadcrumbs' => $this->usersBreadcrumbs($title),
+            'title' => $title,
+            'description' => __(self::LANG_GROUP, 'Elige qué tipo de usuario vas a crear.'),
         ]);
         $this->helpController->render('panel/layout/footer');
     }
@@ -556,17 +609,12 @@ class UsersController extends AdminPanelController
         ], 'js');
 
         $type = $req->getAttribute('type', null);
-        $type = BaseHashEncryption::decrypt($type, $this->password);
-        $type = str_replace([
-            strrev($this->ofuscate) . ':',
-            ':' . $this->ofuscate,
-        ], '', $type);
+        $type = is_string($type) ? self::typeFromSigned($type) : null;
 
-        //El {type} de la URL viene cifrado: si no descifra a un entero, no es un tipo y la ruta no existe.
-        if (!Validator::isInteger($type)) {
+        //El {type} de la URL va firmado: si la firma no casa, no es un tipo y la ruta no existe.
+        if ($type === null) {
             throw new NotFoundException($req, $res);
         }
-        $type = (int) $type;
 
         $currentUser = new UsersModel($this->user->id);
         $hasAuthority = $currentUser->hasAuthorityOver($type);
@@ -626,6 +674,9 @@ class UsersController extends AdminPanelController
             $data['form'] = $form;
             $data['typeName'] = UsersModel::getTypeUserName($type);
             $data['create'] = true;
+            $data['pageTitle'] = __(self::LANG_GROUP, 'Agregar usuario');
+            $data['pageDescription'] = $data['typeName'];
+            $data['breadcrumbs'] = $this->usersBreadcrumbs($data['pageTitle']);
 
             $this->helpController->render('panel/layout/header');
             $this->render('usuarios/form', $data);
@@ -729,6 +780,9 @@ class UsersController extends AdminPanelController
                 $data['avatar'] = AvatarModel::getAvatar($user->id);
                 $data['hasAvatar'] = !is_null($data['avatar']);
                 $data['create'] = false;
+                $data['pageTitle'] = __(self::LANG_GROUP, 'Editar usuario');
+                $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];
+                $data['breadcrumbs'] = $this->usersBreadcrumbs($data['pageTitle']);
 
                 $this->helpController->render('panel/layout/header');
                 $this->render('usuarios/form', $data);
@@ -745,6 +799,27 @@ class UsersController extends AdminPanelController
         } else {
             throw new NotFoundException($req, $res);
         }
+    }
+
+    /**
+     * Las migas de las pantallas de usuarios: Inicio › Usuarios (si se puede abrir) › la pantalla.
+     *
+     * @param string $current Ya traducido
+     * @return array<string|int,string|array{url:string}> Para page-header.php, que las escapa
+     */
+    protected function usersBreadcrumbs(string $current): array
+    {
+        $items = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+        ];
+        $listLink = self::routeName('list');
+        if ($listLink !== '') {
+            $items[__(self::LANG_GROUP, 'Usuarios')] = ['url' => $listLink];
+        }
+        $items[] = $current;
+        return $items;
     }
 
     /**
@@ -820,6 +895,18 @@ class UsersController extends AdminPanelController
             $data['create'] = false;
             $data['onlyProfile'] = $onlyProfile;
             $data['onlyImage'] = $onlyImage;
+            $data['pageTitle'] = __(self::LANG_GROUP, 'Mi cuenta');
+            $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];
+            $data['breadcrumbs'] = [
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+                ],
+                $data['pageTitle'],
+            ];
+            //La cuenta enlaza con el perfil público, y él con ella (PO, 2026-10-10): solo si el tipo lleva perfil.
+            $data['pageSecondaryActions'] = in_array($type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE) && MyProfileController::allowedRoute('my-profile') ? [
+                ['text' => __(self::LANG_GROUP, 'Perfil público'), 'url' => MyProfileController::routeName('my-profile'), 'icon' => 'id card outline'],
+            ] : [];
 
             $this->helpController->render('panel/layout/header');
             $this->render('usuarios/form', $data);
@@ -928,7 +1015,7 @@ class UsersController extends AdminPanelController
 
             $overwriteSession = $expectedParameters->getValue('overwriteSession');
 
-            if (!SessionToken::isActiveSession($JWT) || $overwriteSession) {
+            if (!UserSessions::jwtIsValid($JWT) || $overwriteSession) {
 
                 //Se selecciona un elemento que concuerde con el usuario
                 //Sin escapeString(): where() con array ya liga el valor, y escapar lo alteraba (ADR 0009).
@@ -944,6 +1031,10 @@ class UsersController extends AdminPanelController
                         '=' => $username,
                     ],
                 ])->row();
+                //El usuario de sistema no entra nunca: se responde como a uno que no existe, antes de mirar contraseña u OTP.
+                if ($user instanceof \stdClass && UsersModel::isSystemUser((int) $user->id)) {
+                    $user = null;
+                }
                 $resultOperation->setValue('user', $username);
 
                 //Verificación de existencia
@@ -971,7 +1062,8 @@ class UsersController extends AdminPanelController
                             }
 
                             $otpIsValid = OTPHandler::checkValidityOTP($password, $username);
-                            if (password_verify($password, $user->password) || $otpIsValid) {
+                            $passwordIsValid = password_verify($password, $user->password);
+                            if ($passwordIsValid || $otpIsValid) {
 
                                 $require2FA = OTPHandler::isEnabled2FA($userMapper->id) && OTPHandler::wasViewedCurrentUserQRData($userMapper->id);
                                 //LÍMITE DEL SEGUNDO FACTOR (otp_security): con el usuario o la IP bloqueados, 429 antes de mirar el código.
@@ -986,14 +1078,15 @@ class UsersController extends AdminPanelController
                                 if (!$require2FA || $twoFactorIsValid) {
 
                                     OTPHandler::toExpireOTP($username);
+                                    if ($otpIsValid && !$passwordIsValid) {
+                                        TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_ONE_USE_CODE, (int) $user->id, (string) $user->username);
+                                    }
 
                                     $resultOperation->setValue('auth', true);
 
-                                    //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES: tipo, estado y organización salen de la fila
-                                    //en cada petición; dentro del token se quedarían viejos y nadie lo sabría.
-                                    $resultOperation->setValue('token', SessionToken::generateToken([
-                                        'id' => $user->id,
-                                    ], null, null, get_config('check_aud_on_auth')));
+                                    //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES (tipo, estado y organización, de la fila en cada
+                                    //petición); lleva además el identificador de su sesión, cuya fila manda (ADR 0026).
+                                    $resultOperation->setValue('token', UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth')));
 
                                     //Valores de usuario devueltos, FILTRADOS POR LISTA BLANCA: se toma lo declarado,
                                     //no se quita lo que sobra. Así una columna nueva no viaja sola al navegador.
@@ -1180,7 +1273,7 @@ class UsersController extends AdminPanelController
 
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
-        $isActiveSession = SessionToken::isActiveSession($JWT, null);
+        $isActiveSession = UserSessions::jwtIsValid($JWT);
         $resultOperation->setValue('isAuth', $isActiveSession);
         //Verificar status de la organización si aplica
         $currentUser = getLoggedFrameworkUser();
@@ -1255,6 +1348,12 @@ class UsersController extends AdminPanelController
             return $fail(403, __(self::LANG_GROUP, 'Solo un superadministrador puede cerrar las sesiones de otro superadministrador.'));
         }
 
+        //La jerarquía de las sesiones ajenas (P133): fuera de root, solo sobre rangos estrictamente menores.
+        $currentOrganization = $currentUser->organization ?? null;
+        if (!UserSessions::canActOn($currentType, is_numeric($currentOrganization) ? (int) $currentOrganization : null, (int) $target->type, $target->organization !== null ? (int) $target->organization : null)) {
+            return $fail(403, __(self::LANG_GROUP, 'No tiene permisos para cerrar las sesiones de otro usuario.'));
+        }
+
         if (!(new UsersModel())->revokeSessions((int) $target->id)) {
             return $fail(500, __(self::LANG_GROUP, 'No se pudieron cerrar las sesiones.'));
         }
@@ -1284,8 +1383,10 @@ class UsersController extends AdminPanelController
             return false;
         }
         $currentType = (int) $currentUser->type;
+        //Con la jerarquía de P133: el administrador general no actúa sobre otro administrador general.
         return in_array($currentType, self::CAN_REVOKE_USER_SESSIONS, true)
-            && ($targetType !== UsersModel::TYPE_USER_ROOT || $currentType === UsersModel::TYPE_USER_ROOT);
+            && ($targetType !== UsersModel::TYPE_USER_ROOT || $currentType === UsersModel::TYPE_USER_ROOT)
+            && ($currentType === UsersModel::TYPE_USER_ROOT || UserSessions::rank($targetType) < UserSessions::rank($currentType));
     }
 
     /**
@@ -1587,6 +1688,9 @@ class UsersController extends AdminPanelController
      */
     private static function canEditOtherUser(UsersModel $actor, UsersModel $target, ?int $organization, ?int $status): bool
     {
+        if (UsersModel::isSystemUser($target->id !== null ? (int) $target->id : null)) {
+            return false;
+        }
         if (!Roles::hasPermissions('users-form-edit', (int) $actor->type, true) || !Roles::roleExists((int) $target->type) || !$actor->hasAuthorityOver((int) $target->type)) {
             return false;
         }
@@ -1832,6 +1936,12 @@ class UsersController extends AdminPanelController
 
             $userMapper = new UsersModel($id);
 
+            //El usuario de sistema no se edita ni cambia de estado: para quien pide, no existe.
+            if (UsersModel::isSystemUser($userMapper->id !== null ? (int) $userMapper->id : null)) {
+                $result->setMessage(__(self::LANG_GROUP, 'El usuario no existe.'));
+                return $response->withStatus(404)->withJson($result);
+            }
+
             if ($userMapper->id !== null) {
                 $actor = new UsersModel(getLoggedFrameworkUserOrFail()->id);
                 if ($userMapper->id == $actor->id) {
@@ -1966,6 +2076,9 @@ class UsersController extends AdminPanelController
             $result->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (HttpForbiddenException $e) {
+            //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+            throw $e;
         } catch (\Exception $e) {
             $reference = log_exception($e);
 
@@ -2089,7 +2202,10 @@ class UsersController extends AdminPanelController
 
         $whereString = null;
         $where = [
-            $type !== null ? "{$table}.type = {$type}" : '',
+            UsersModel::excludeSystemUserSQL("{$table}.id"),
+            //Un usuario Eliminado deja de existir en la práctica: no se lista.
+            " AND {$table}.status != " . UsersModel::STATUS_USER_DELETED,
+            $type !== null ? " AND {$table}.type = {$type}" : '',
         ];
 
         $where = array_filter($where, function ($i) {
@@ -2122,21 +2238,29 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * @param mixed $data
+     * El {type} del alta, firmado: «<tipo>-<hmac>». La firma impide inventarse un tipo en la URL; antes iba ofuscado con
+     * una contraseña escrita en el código.
+     *
+     * @param int $type
      * @return string
      */
-    public function encodeURL($data)
+    public static function signedType(int $type): string
     {
-        return BaseHashEncryption::encrypt(StringManipulate::jsonEncode($data));
+        return $type . '-' . hash_hmac('sha256', (string) $type, Config::app_key_derived(self::SIGNUP_TYPE_PURPOSE));
     }
 
     /**
-     * @param string $url
-     * @return mixed
+     * El tipo de un {type} firmado; null si la firma no casa.
+     *
+     * @param string $signed
+     * @return int|null
      */
-    public function decodeURL(string $url)
+    public static function typeFromSigned(string $signed): ?int
     {
-        return StringManipulate::jsonDecode(BaseHashEncryption::decrypt($url));
+        if (preg_match('/^(-?[0-9]{1,9})-[0-9a-f]{64}$/', $signed, $match) !== 1) {
+            return null;
+        }
+        return hash_equals(self::signedType((int) $match[1]), $signed) ? (int) $match[1] : null;
     }
 
     /**
@@ -2151,12 +2275,21 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * @param RouteGroup $group
-     * @return RouteGroup
+     * @param RouteGroup $groupAdministration Las rutas con sesión: el backoffice (P51).
+     * @param RouteGroup|null $groupPublic Las rutas sin sesión: acceso, recuperación y bloqueo.
+     * @return RouteGroup[] Con los índices groupAdministration y groupPublic
      */
-    public static function routes(RouteGroup $group)
+    public static function routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null)
     {
-        $groupSegmentURL = $group->getGroupSegment();
+        //Opcional porque `AdminPanelController::routes()` recibe un grupo: sin el público, todo va al único.
+        $groupPublic ??= $groupAdministration;
+        //Cada ruta va al grupo que dice su `require_login`: así una ruta nueva no se equivoca de zona.
+        $registrar = function (array $rutas) use ($groupAdministration, $groupPublic): void {
+            foreach ($rutas as $ruta) {
+                ($ruta->requireLogin() === true ? $groupAdministration : $groupPublic)->register([$ruta]);
+            }
+        };
+        $groupSegmentURL = $groupAdministration->getGroupSegment();
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
         $users = self::class;
@@ -2179,7 +2312,7 @@ class UsersController extends AdminPanelController
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
         //Usuarios
-        $group->register([
+        $registrar([
             //Listado de usuarios
             new Route(
                 "{$startRoute}list[/]",
@@ -2255,7 +2388,7 @@ class UsersController extends AdminPanelController
         ]);
 
         //Inicio, cierre, registro y edición
-        $group->register([
+        $registrar([
             new Route(
                 "{$startRoute}login[/]",
                 $users . ':loginForm',
@@ -2264,7 +2397,7 @@ class UsersController extends AdminPanelController
         ]);
 
         //Problemas
-        $group->register([
+        $registrar([
             new Route(
                 "{$startRoute}recovery[/]",
                 $recovery . ':recoveryPasswordForm',
@@ -2300,7 +2433,7 @@ class UsersController extends AdminPanelController
         //──── POST ─────────────────────────────────────────────────────────────────────────
 
         //Inicio, cierre, registro y edición
-        $group->register([
+        $registrar([
             new Route(
                 "{$startRoute}login[/]",
                 $users . ':login',
@@ -2351,7 +2484,7 @@ class UsersController extends AdminPanelController
         ]);
 
         //Problemas
-        $group->register([
+        $registrar([
             new Route(
                 "{$startRoute}recovery[/]",
                 $recovery . ':recoveryPasswordRequest',
@@ -2408,6 +2541,9 @@ class UsersController extends AdminPanelController
             ),
         ]);
 
-        return $group;
+        return [
+            'groupAdministration' => $groupAdministration,
+            'groupPublic' => $groupPublic,
+        ];
     }
 }

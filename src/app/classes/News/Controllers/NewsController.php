@@ -26,6 +26,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -112,10 +113,10 @@ class NewsController extends AdminPanelController
 
         import_default_rich_editor();
 
-        $title = __(self::LANG_GROUP, 'Gestión de noticias');
+        $title = __(self::LANG_GROUP, 'Nueva noticia');
         $description = '';
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $langsOptions = array_to_html_options(HelperController::getLangsForSelect(), Config::get_default_lang());
         $action = self::routeName('actions-add');
@@ -137,15 +138,16 @@ class NewsController extends AdminPanelController
         $data['langsOptions'] = $langsOptions;
         $data['allCategories'] = $allCategories;
         $data['allUsersTypes'] = $allUsersTypes;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['backLink'] = $backLink;
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
-            __(self::LANG_GROUP, 'Noticias') => [
+            __(self::LANG_GROUP, 'Noticias internas') => [
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/add', $data);
@@ -179,10 +181,13 @@ class NewsController extends AdminPanelController
 
             import_default_rich_editor();
 
-            $title = __(self::LANG_GROUP, 'Gestión de noticias');
+            //El título de la noticia, recortado como en publicaciones; lo escapan la cabecera y MetaTags, las migas no.
+            $newsTitle = (string) $element->newsTitle;
+            $newsTitle = mb_strlen($newsTitle) <= 60 ? $newsTitle : mb_substr($newsTitle, 0, 57) . '...';
+            $title = sprintf(__(self::LANG_GROUP, 'Editar: %s'), $newsTitle);
             $description = '';
 
-            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+            set_title($title);
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
@@ -206,15 +211,16 @@ class NewsController extends AdminPanelController
             $data['allCategories'] = $allCategories;
             $data['allUsersTypes'] = $allUsersTypes;
             $data['selectedLang'] = $selectedLang;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['backLink'] = $backLink;
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
-                __(self::LANG_GROUP, 'Noticias') => [
+                __(self::LANG_GROUP, 'Noticias internas') => [
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
 
             $this->helpController->render('panel/layout/header');
             $this->render('forms/edit', $data, true, false);
@@ -242,10 +248,10 @@ class NewsController extends AdminPanelController
         $processTableLink = self::routeName('datatables');
         $processTableLink = self::routeName('datatables');
 
-        $title = __(self::LANG_GROUP, 'Noticias');
-        $description = __(self::LANG_GROUP, 'Listado');
+        $title = __(self::LANG_GROUP, 'Noticias internas');
+        $description = __(self::LANG_GROUP, 'Los avisos que ven los usuarios del panel, por perfil y con sus fechas.');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
@@ -256,12 +262,12 @@ class NewsController extends AdminPanelController
         $data['hasPermissionsListCategories'] = (string) $listCategoriesLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         set_custom_assets([
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -1073,13 +1079,13 @@ class NewsController extends AdminPanelController
         //SIN having_string: no había ningún criterio, y el buscador ya va por marcador solo (T3 de #045).
         $selectFields = NewsMapper::fieldsToSelect();
 
+        //Por POSICIÓN, como las columnas de la vista. La del título busca también por número y por categoría, que ya no
+        //tienen columna propia (P123: el número sigue buscándose).
         $columnsOrder = [
-            "{$table}.id",
-            'newsTitle',
-            'categoryName',
+            ['newsTitle', "{$table}.id", 'categoryName'],
+            'activeText',
             'startDateFormat',
             'endDateFormat',
-            'activeText',
         ];
 
         $customOrder = [
@@ -1109,41 +1115,32 @@ class NewsController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
+                $editLink = $hasEdit ? self::routeName('forms-edit', ['id' => $e->id]) : '';
 
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editIcon = "<i class='icon edit'></i>";
-                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
-                    $buttons[] = $editButton;
-                }
-
+                $menu = [];
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-news-button>{$deleteIcon}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-news-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
-
-                $buttons = implode('', $buttons);
-                $columns = [];
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), $editLink, 'edit') : null;
 
                 $tagColor = $e->draft == 0 ? NewsMapper::STATUSES_COLORS[$e->activeStatus] : NewsMapper::STATUSES_COLORS[NewsMapper::PSEUDO_STATUS_DRAFT];
                 $tagText = $e->draft == 0 ? $e->activeText : __(self::LANG_GROUP, 'Borrador');
-                $tag = "<span class='ui {$tagColor} tag label'>{$tagText}</span>";
                 $newsTitle = mb_strlen($e->newsTitle) <= 54 ? $e->newsTitle : mb_substr($e->newsTitle, 0, 51) . '...';
+                $titleHTML = $hasEdit ? '<a href="' . escape_html($editLink) . '">' . escape_html($newsTitle) . '</a>' : escape_html($newsTitle);
 
-                $columns[] = $e->idPadding;
-                $columns[] = escape_html($newsTitle);
-                $columns[] = escape_html($e->categoryName);
+                $columns = [];
+                $columns[] = $titleHTML . '<br><span class="ui small grey text">' . escape_html($e->categoryName) . '</span>';
+                $columns[] = "<span class='ui {$tagColor} label'>" . escape_html($tagText) . '</span>';
                 $columns[] = $e->startDateFormat;
                 $columns[] = $e->endDateFormat;
-                $columns[] = $tag;
-                $columns[] = $buttons;
+                $columns[] = RowActions::cell($direct, $menu);
                 return $columns;
             },
 

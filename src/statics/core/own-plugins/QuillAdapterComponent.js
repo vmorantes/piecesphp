@@ -191,7 +191,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 				if (typeof errorMessage == 'function') {
 					errorMessage(_i18n(LANG_GROUP, 'Error en QuillAdapterComponent'), _i18n(LANG_GROUP, 'Ha ocurrido un error al instanciar.'))
 				} else {
-					alert(_i18n(LANG_GROUP, 'Ha ocurrido un error al instanciar QuillAdapterComponent.'))
+					console.error(_i18n(LANG_GROUP, 'Ha ocurrido un error al instanciar QuillAdapterComponent.'))
 				}
 			}
 
@@ -319,7 +319,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 				errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error al carga la imagen.'))
 			} else {
 
-				alert(_i18n(LANG_GROUP, 'Ha ocurrido un error al cargar la imagen.'))
+				console.error(_i18n(LANG_GROUP, 'Ha ocurrido un error al cargar la imagen.'))
 
 			}
 
@@ -660,7 +660,11 @@ QuillAdapterComponent.imageUploadModule = function (quill, options = {}) {
 		 * @param {Any} error http error
 		 */
 		uploadImageCallbackKO(error) {
-			alert(error)
+			if (typeof errorMessage === 'function') {
+				errorMessage(_i18n(LANG_GROUP, 'Error'), String(error))
+			} else {
+				console.error(error)
+			}
 		}
 	}
 

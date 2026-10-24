@@ -149,8 +149,8 @@ CliActions::make('unit-tests:core/static-versions', function ($args) {
             $matrix = is_file($matrixPath) ? json_decode((string) file_get_contents($matrixPath), true) : null;
             $base = is_array($matrix) ? (string) ($matrix['medido']['base'] ?? '') : '';
         }
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => rtrim($base, '/') . '/zz-prueba-sv-no-existe/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,

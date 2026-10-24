@@ -6,9 +6,12 @@
 
 namespace ReportsManage\Controllers;
 
+use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\AdminPanel\DashboardCard;
+use PiecesPHP\AdminPanel\DashboardCardBody;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use MySpace\MySpaceLang;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -79,14 +82,20 @@ class ReportsManageController extends AdminPanelController
     public function genericReportView(Request $request, Response $response)
     {
 
-        set_title(__(self::LANG_GROUP, 'Reportes'));
-
-        $currentUser = getLoggedFrameworkUserOrFail();
-        $subtitle = $currentUser->getMapper()->getFullName();
+        $title = __(self::LANG_GROUP, 'Informe general');
+        set_title($title);
 
         $data = [];
-        $data['langGroup'] = MySpaceLang::LANG_GROUP;
-        $data['subtitle'] = $subtitle;
+        $data['langGroup'] = self::LANG_GROUP;
+        $data['title'] = $title;
+        //La misma frase que la tarjeta del inicio (registerDashboardCard()): la pantalla y la tarjeta dicen lo mismo.
+        $data['description'] = __(self::LANG_GROUP, 'Las cifras de la plataforma: publicaciones, organizaciones y usuarios.');
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
+            ],
+            $title,
+        ];
 
         import_apexcharts();
 
@@ -94,15 +103,11 @@ class ReportsManageController extends AdminPanelController
             ReportsManageRoutes::staticRoute(self::BASE_CSS_DIR . '/generic-report.css'),
         ], 'css');
         set_custom_assets([
+            'statics/core/js/statistics-chart-legend.js',
             ReportsManageRoutes::staticRoute(self::BASE_JS_DIR . '/generic-report.js'),
         ], 'js');
 
-        $this->helpController->render('panel/layout/header', [
-            'bodyClasses' => [
-                'gradient-base',
-            ],
-            'containerClasses' => [],
-        ]);
+        $this->helpController->render('panel/layout/header');
         $this->render('generic-report-view', $data);
         $this->helpController->render('panel/layout/footer');
 
@@ -115,6 +120,28 @@ class ReportsManageController extends AdminPanelController
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+    }
+
+    /**
+     * La tarjeta «Informe general» del inicio: antes el informe ERA el inicio de root, del administrador general y del
+     * institucional; ahora es una tarjeta más, que un clon puede quitar, y lleva a su pantalla.
+     *
+     * @return void
+     */
+    public static function registerDashboardCard(): void
+    {
+        DashboardCardRegistry::register(new DashboardCard(
+            'general-report',
+            __(self::LANG_GROUP, 'Informe general'),
+            'chart bar outline',
+            self::$baseRouteName . '-generic-report-view',
+            fn(UserDataPackage $user): DashboardCardBody => DashboardCardBody::action(
+                self::routeName('generic-report-view'),
+                __(self::LANG_GROUP, 'Las cifras de la plataforma: publicaciones, organizaciones y usuarios.'),
+                __(self::LANG_GROUP, 'Ver el informe')
+            ),
+            50
+        ));
     }
 
     /**

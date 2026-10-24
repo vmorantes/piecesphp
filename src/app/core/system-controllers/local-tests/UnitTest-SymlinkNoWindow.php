@@ -2,7 +2,7 @@
 
 //La ventana entre `unlink` y `symlink`: una petición dentro de ella recibía 404. Ver T108.
 
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Terminal\CliActions;
 
 CliActions::make('unit-tests:core/symlink-no-window', function ($args) {

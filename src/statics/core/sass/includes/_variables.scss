@@ -44,6 +44,19 @@ $textHeader2Color: $colorSecond;
 $textHeader3Color: $colorThird;
 $textQuoteColor: $colorThird;
 
+//──── Paleta del panel
+//El valor es el de antes, literal: cambiarlo cambia el panel entero. El tema de la 10 lo pasa a variables CSS aquí, en
+//un solo sitio. Solo los colores que usan dos o más hojas; los de una sola, arriba de su hoja.
+$colorTextStrong: #1B1C1D;
+$colorTextMuted: #707070;
+$colorBorderSoft: rgba(112, 112, 112, 0.15);
+//El mismo papel que $colorBorderSoft con otro valor: unirlas cambia el panel.
+$colorBorderSoftAlt: rgba(112, 112, 112, 0.149);
+$colorShadowSoft: rgba(0, 0, 0, 0.2);
+$colorSuccess: #21BA45;
+$colorError: #DB2828;
+$colorWhite: #FFF;
+
 //──── Sizes ─────────────────────────────────────────────────────────────────────────────
 
 //General

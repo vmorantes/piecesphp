@@ -254,17 +254,6 @@ $assets['spectrum']['css'] = [
 $assets['spectrum']['plugins'] = [];
 
 /**
- * Dialog PCS
- * Es una modal con comportamiento de ventana (arrastrable)
- * @link project://src/statics/core/own-plugins/DialogPCS.js
- */
-$assets['dialgo_pcs']['js'] = [
-    'statics/core/own-plugins/DialogPCS.js',
-];
-$assets['dialgo_pcs']['css'] = [];
-$assets['dialgo_pcs']['plugins'] = [];
-
-/**
  * Simple Upload Placeholder
  * Manejador de comportamiento genérico de un formulario de subida de archivos con vista previa
  * @link project://src/statics/core/own-plugins/SimpleUploadPlaceholder.js
@@ -442,6 +431,7 @@ $assets['jquery']['plugins'] = [];
  * Configuraciones de los plugins anteriores tales como:
  * Traducción de mensajes, configuración de valores por defecto, etc...
  */
+$uiPcsStyle = 'statics/core/css/ui-pcs.css';
 $assets['app_libraries']['css'] = [
     'statics/core/css/helpers.css',
 ];
@@ -451,8 +441,14 @@ $assets['app_libraries']['js'] = [
 $assets['app_libraries']['plugins'] = [
     'adminStyle' => [
         'css' => [
-            'statics/core/css/ui-pcs.css',
+            $uiPcsStyle,
             'statics/core/css/admin_app_base.css',
+        ],
+    ],
+    //La base común: el panel la trae en adminStyle; las páginas sueltas (acceso) la importan sola.
+    'baseStyle' => [
+        'css' => [
+            $uiPcsStyle,
         ],
     ],
     'formJsonSchema' => [

@@ -17,6 +17,17 @@ use PiecesPHP\Core\HTML\HtmlElement;
  */
 class MenuGroupCollection
 {
+    //Las bandas del menú lateral (P134 a): el menú se ordena por lo que se hace. Cada entrada usa su banda más un
+    //desplazamiento propio: con dos posiciones iguales manda el orden en que se registran los módulos, no el menú.
+    const BAND_HOME = 0;
+    const BAND_MY_SPACE = 100;
+    const BAND_CONTENTS = 200;
+    const BAND_PEOPLE = 300;
+    const BAND_COMMUNICATION = 400;
+    const BAND_DATA = 500;
+    const BAND_ACTIVITY = 600;
+    const BAND_LANGUAGES = 900;
+
     /**
      * @var MenuGroup[]
      */

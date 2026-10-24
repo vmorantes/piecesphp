@@ -14,7 +14,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 
 /**
  * FileManagerRoutes.
@@ -86,8 +86,8 @@ class FileManagerRoutes
                         'visible' => FileManagerController::allowedRoute('filemanager'),
                         'href' => FileManagerController::routeName('filemanager'),
                         'asLink' => true,
-                        'position' => 1980,
-                        'icon' => 'folder open',
+                        'position' => MenuGroupCollection::BAND_DATA + 10,
+                        'icon' => 'hdd outline',
                     ]
                 ));
 

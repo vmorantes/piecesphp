@@ -11,6 +11,8 @@ use PiecesPHP\Core\Config;
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
+ * @var string $deleteRoute
+ * @var bool $allowDelete
  */
 $defaultLang = Config::get_default_lang();
 $allowedLangs = Config::get_allowed_langs(false, $defaultLang);
@@ -22,22 +24,17 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
+        ?>
 
-        <br>
-
-        <form method='POST' action="<?= $action; ?>" class="ui form news">
+        <form method='POST' action="<?= $action; ?>" class="ui form initial news" data-content-form>
 
             <div class="container-standard-form">
 
@@ -130,14 +127,18 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
 
             </div>
 
-            <br>
-
-            <div class="field">
-                <button type="submit" class="ui button brand-color" save><?= __($langGroup, 'Guardar'); ?></button>
-                <?php if($allowDelete): ?>
-                <button type="submit" class="ui button brand-color alt2" delete-news-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                <?php endif; ?>
-            </div>
+            <?php
+            //La barra fija (§2.3): edit-form.js busca `[save]`; Eliminar es `button` y delete-config.js lo intercepta en el clic.
+            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+            if ($allowDelete) {
+                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-news-button' => '', 'data-route' => $deleteRoute]];
+            }
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'saveAttributes' => ['save' => ''],
+                'secondaryActions' => $secondaryActions,
+            ]);
+            ?>
 
         </form>
 

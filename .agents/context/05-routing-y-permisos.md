@@ -117,6 +117,22 @@ public static function routes(RouteGroup $group)
 
 Sigue este esquema al crear rutas nuevas.
 
+## Las tres zonas de `routes.php` (P51, `v9.0.0`)
+
+- **SERVICIOS** (terminal, `core/` con la API y los mensajes de idioma, componentes, estáticos, tokens) se registran
+  **primero**; **BACKOFFICE** (`admin/` y sus subgrupos `admin/configurations`, `admin/users/`, `admin/locations`,
+  `admin/organizations`, `admin/tickets`, `admin/timing`, `admin/avatars`), después; **PÚBLICA**, al final.
+- **El orden lo fija la PRIMERA llamada a `register()` de cada grupo** (`RouteGroupAdapter.php:94-133`, `:183-249`), y la
+  zona pública acaba en los comodines `/{name}` y `/{folder}/{name}`: lo que se registre detrás puede quedar tapado
+  (`#1226`). Una dirección vieja de dos segmentos (`users/list/`) cae hoy en el comodín y acaba en 404.
+- **Todo lo que pide sesión y es gestión va bajo `admin/`**; lo público de un módulo, fuera. **Un módulo con las dos
+  partes recibe dos grupos** —`routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null)`— y cada ruta va
+  al suyo según su `require_login`. El segundo es opcional porque esos controladores heredan
+  `AdminPanelController::routes(RouteGroup $group)`.
+- **Ninguna dirección se escribe a mano** (PO, 2026-10-09): PHP la pide con `routeName()`; el JavaScript la lee de lo que
+  la vista le pone desde PHP (los `<meta>` de `panel/layout/header.php`, como `lang-messages-from-server-url` y
+  `mapbox-key-url`, o un `data-url`); los instrumentos y las pruebas, por nombre contra el inventario.
+
 ## Cómo se conceden los permisos de verdad (medido en `#459`-`#461`)
 
 **El catálogo de permisos lo rellenan las PROPIAS RUTAS al arrancar.** `set_route()`
@@ -186,7 +202,8 @@ pasaran por la capa 2—.
 `PiecesPHP\Core\Exceptions\SessionRequiredException` (que extiende `BaseException` y, con ella, `\Exception`).
 
 **Las dos capas fallan CERRADAS desde el 2026-09-23** (`0d23dd59`): la primera (`src/index.php`, bloque de
-`:651`) responde 403 `RESTRICTED_AREA` a toda petición XHR sin sesión, sin excepciones —una cabecera de la petición no
+`:684-692`) responde **401** `RESTRICTED_AREA`, con `WWW-Authenticate: Bearer`, a toda petición XHR sin sesión (403 hasta
+la `v9.0.0`), sin excepciones —una cabecera de la petición no
 autoriza nada—; y la segunda (`:746-752`, el `if` en `:748`) niega en cuanto `require_login` es true y no hay sesión, en vez de abstenerse
 porque `$has_permissions` sea null. **Trampa latente:** `users-form-login` está exenta de la PRIMERA capa por su nombre
 (`:653`), pero **no de la segunda**; hoy no le afecta porque declara `require_login = false` (medido en el inventario).
@@ -195,7 +212,9 @@ Si alguien se la pusiera en true, el formulario de acceso quedaría inaccesible.
 
 **Quién ve qué cuando falta la sesión** (medido el 2026-09-23 con la matriz: 204 rutas sin sesión, 112 redirigen y
 **ninguna da 500**): `src/index.php` §8 (`:643-677`) corta ANTES del controlador. Petición normal → redirección al login
-con la URL pedida guardada para volver; petición de datos → 403 `RESTRICTED_AREA`. `…OrFail()` es la segunda línea:
+con la URL pedida guardada para volver; petición de datos → 401 `RESTRICTED_AREA`. **El 403 del controlador no es
+este**: una ruta sin `require_login` que compruebe la sesión ella misma (las de `core/api/users/` y `core/api/reports/`)
+sigue respondiendo 403. `…OrFail()` es la segunda línea:
 solo salta en una ruta sin `requireLogin` o con `control_access_login` apagado. **No confundir** «la llamada sube al
 manejador» (lo que hace el código si llega) con «el usuario ve un error» (lo que no pasa): esa confusión produjo P65.
 
@@ -230,9 +249,23 @@ trait, `AppHelpers`, `RouteInventoryTask`), que la comprobación solo cuenta.
 eso un enlace a una ruta protegida en una pieza compartida (barra superior, cabecera, menú, tarjetas) **se pinta solo si
 `routeName()` no es `''`**; dentro de una página que ya exige esos mismos roles, directo.
 
-`routeName()` devuelve **cadena vacía si el usuario actual no tiene permiso** —
-por eso `allowedRoute()` es simplemente `strlen(routeName(...)) > 0`, y por eso los
-menús usan `'visible' => Controller::allowedRoute('x')`.
+`routeName()` devuelve **cadena vacía si el usuario actual no tiene permiso**, y por eso los
+menús usan `'visible' => Controller::allowedRoute('x')`. **Sin usuario, `routeName()` NO filtra**
+(`ControllerRoutingTrait.php`, la rama `$current_user === null`): da la dirección, a propósito, para los
+correos, el cron y la zona pública (P197 bis, 2026-10-22; plan en `docs/planes/2026-10-22-d6-routename-sin-usuario.md`).
+
+**`allowedRoute()` ya no es solo `routeName(...) !== ''`** (D6, desde la 9.0.0): sin usuario, y si la ruta declara
+`require_login = true` en `get_route_info()`, da `false`. Y `DefaultAccessControlModules::getResponse()` responde 403 en
+ese mismo caso antes de llamar al validador. Las dos miran **solo `require_login`**, no la deducción de
+`Roles::hasPermissions()` (que trata una lista de roles como si pidiera sesión): las 4 rutas con roles y sin sesión
+(`api-admin-cron-jobs`, `api-admin-reports-actions`, `api-admin-users-actions`, `components-provider-provide`) siguen
+abiertas al anónimo, como el plan dejó a sabiendas. Puerta: `core/anonymous-route-access`.
+
+**Trampas de D6, medidas en `#1726`**: `src/app/config/menu.php` se evalúa en CADA petición, también sin usuario, y sus
+`allowedRoute()` del menú lateral dan ahora `false` (el anónimo no ve ese menú: sin efecto). Al anónimo lo frena antes
+`src/index.php` §8 si la ruta tiene `require_login`: la rama nueva del middleware solo se dispara con
+`control_access_login` apagado o cuando el §8 no corre. **Una prueba que pregunte `allowedRoute()` sin usuario por una ruta
+del panel recibe `false`**: si lo que quiere es la dirección, `routeName()`.
 
 ### Por qué `routeName()` / `allowedRoute()` están en cada controlador
 
@@ -303,6 +336,10 @@ tres métodos no se pueden separar. `routeName()` llama SIEMPRE a `_allowedRoute
 | `allowedRoute` | 37 | **1** | ídem |
 | `_allowedRoute` | 17 | **15** | ídem |
 
+**Hoy son 0, 0 y 11** (medido el 2026-10-22: `git grep -nE 'function (routeName|allowedRoute)\(' -- src/app` sin el
+trait da 0 líneas, y `KNOWN_ROUTE_OVERRIDES` tiene 11 entradas, todas de `_allowedRoute`). La tabla de arriba es la de
+cuando se escribió el registro. Por eso D6 cambia `allowedRoute()` en el trait y alcanza a los 51 archivos que lo usan.
+
 ### EL CRITERIO ES UNO: ¿este método DECIDE algo?
 
 No es el parecido con el cuerpo canónico. Ese fue el criterio de la primera pasada y **dejó
@@ -333,6 +370,10 @@ firma) y `DataImportExportUtility` (toma el usuario de otra fuente).
 registrado**, si **una entrada del registro ha dejado de decidir algo**, o si **una entrada
 apunta a una declaración que ya no existe**. El veredicto lo da el **mismo clasificador con
 el que se construyó el registro**, para que la puerta no pueda separarse del criterio.
+
+**Trampa:** la puerta mira el NOMBRE. Cualquier método llamado `routeName()` —aunque sea el accesor de un objeto que
+no es un controlador— cuenta como sobrescritura del trait y la puerta falla. Por eso `LogTab` (Registros) lo llama
+`permissionRoute()` (`#1306` D3).
 
 ### Los tres patrones de sobreescritura, para copiar
 

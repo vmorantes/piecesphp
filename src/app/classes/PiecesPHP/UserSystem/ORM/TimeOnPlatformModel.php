@@ -4,7 +4,7 @@
  */
 namespace PiecesPHP\UserSystem\ORM;
 
-use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\Core\BaseEntityMapper;
 
 /**
@@ -120,7 +120,6 @@ class TimeOnPlatformModel extends BaseEntityMapper
     public static function getAllHoursOnPlatform()
     {
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $model = (new TimeOnPlatformModel())->getModel();
         $tableUsers = UsersModel::TABLE;
@@ -129,27 +128,19 @@ class TimeOnPlatformModel extends BaseEntityMapper
         $model->select([
             "{$table}.*",
             "(SELECT {$tableUsers}.organization FROM {$tableUsers} WHERE {$tableUsers}.id = {$table}.userID) AS organizationID",
+            "(SELECT {$tableUsers}.type FROM {$tableUsers} WHERE {$tableUsers}.id = {$table}.userID) AS userType",
         ]);
-
-        $having = [];
-
-        if ($currentUser !== null) {
-            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
-            if (!$canModifyOrganizations) {
-                $criteryValue = $currentOrganizationID;
-                $beforeOperator = !empty($having) ? 'AND' : '';
-                $critery = "organizationID = {$criteryValue}";
-                $having[] = "{$beforeOperator} ({$critery})";
-            }
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-            $model->having($havingString);
-        }
 
         $model->execute();
         $rows = $model->result();
+        $rows = is_array($rows) ? $rows : [];
+        //La cifra suma solo a quien quien mira puede ver (P133), como el listado.
+        $rows = array_filter($rows, fn($row) => UserHierarchy::canSee(
+            $currentUser,
+            is_numeric($row->userID ?? null) ? (int) $row->userID : null,
+            is_numeric($row->userType ?? null) ? (int) $row->userType : null,
+            is_numeric($row->organizationID ?? null) ? (int) $row->organizationID : null
+        ));
         $minutes = array_sum(array_column($rows, 'minutes'));
         $hours = $minutes / 60;
         return number_format($hours, 1);

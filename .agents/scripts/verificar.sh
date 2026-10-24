@@ -105,7 +105,58 @@ paso "Higiene de estado/PO.md"
 if [ "$en_clon" = si ]; then
     echo "[NO APLICA EN LA DISTRIBUCIÓN] higiene de estado/PO.md: el estado viaja vacío, sin PO.md (ADR 0049 §3)"
 else
+    python3 -B .agents/scripts/probar_higiene_po.py || fallo "higiene_po.py no caza lo que debe cazar"
     python3 -B .agents/scripts/higiene_po.py || fallo "PO.md guarda algo cerrado o un aviso ya leído"
+fi
+
+paso "Fundamento de las instrucciones (su prueba)"
+if [ "$en_clon" = si ]; then
+    echo "[NO APLICA EN LA DISTRIBUCIÓN] la prueba de fundamento.py solo se corre en el repositorio de desarrollo"
+else
+    python3 -B .agents/scripts/probar_fundamento.py || fallo "fundamento.py no caza lo que debe cazar"
+fi
+
+paso "Destinos de las decisiones del PO (E1)"
+if [ "$en_clon" = si ]; then
+    echo "[NO APLICA EN LA DISTRIBUCIÓN] destinos: abierto.md y decisiones-del-po.md son de la capa C, no viajan"
+else
+    python3 -B .agents/scripts/probar_destinos.py || fallo "destinos.py no caza lo que debe cazar"
+    python3 -B .agents/scripts/destinos.py || fallo "una decisión del PO sin destino válido"
+fi
+
+paso "Cada archivo del andamiaje, en su índice (E11)"
+if [ "$en_clon" = si ]; then
+    echo "[NO APLICA EN LA DISTRIBUCIÓN] índices: las carpetas de la capa C no viajan"
+else
+    # Un hijo DIRECTO versionado de cada carpeta (archivo o carpeta, sin el README) tiene que salir nombrado en su
+    # README.md: en un enlace o entre comillas invertidas, por su nombre, en una ruta o con un patrón que lo case.
+    python3 -B - <<'PY' || fallo "un archivo del andamiaje no sale en su índice"
+import fnmatch, re, subprocess, sys
+
+CARPETAS = ['.agents', '.agents/docs', '.agents/estado', '.agents/context']
+faltan = []
+hijos_total = 0
+for carpeta in CARPETAS:
+    listado = subprocess.run(['git', 'ls-files', '-z', '--', carpeta + '/'], capture_output=True, text=True, check=True).stdout
+    hijos = sorted({ruta[len(carpeta) + 1:].split('/')[0] for ruta in listado.split('\0') if ruta} - {'README.md'})
+    if not hijos:
+        faltan.append(f'{carpeta}/: git no lista nada; la comprobación no miró (canario)')
+        continue
+    texto = open(f'{carpeta}/README.md', encoding='utf-8').read()
+    menciones = re.findall(r'`([^`\n]+)`', texto) + [m.split('#')[0] for m in re.findall(r'\]\(([^)\s]+)\)', texto)]
+    rutas = [m.strip().strip('/').split('/') for m in menciones]
+    literales = {s for r in rutas for s in r if s and not any(c in s for c in '*?[')}
+    # Un patrón vale solo como último segmento y con algo más que comodines: `src/app/config/*` no nombra a nadie.
+    patrones = {r[-1] for r in rutas if r and any(c in r[-1] for c in '*?') and re.sub(r'[*?]', '', r[-1])}
+    for hijo in hijos:
+        hijos_total += 1
+        if hijo not in literales and not any(fnmatch.fnmatchcase(hijo, p) for p in patrones):
+            faltan.append(f'{carpeta}/{hijo}: no sale en {carpeta}/README.md')
+for linea in faltan:
+    print(f'  {linea}')
+print(f'índices ejecutado: {len(CARPETAS)} índices, {hijos_total} hijos directos versionados; {len(faltan)} sin nombrar')
+sys.exit(1 if faltan else 0)
+PY
 fi
 
 paso "Atribución a IA en entregables y commits"

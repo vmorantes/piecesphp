@@ -124,6 +124,17 @@ abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
         }
     }
 
+    /**
+     * Si un elemento se queda fuera de las aprobaciones: init() no le crea fila. Por omisión, ninguno.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function excludesElement(int $id): bool
+    {
+        return false;
+    }
+
     public static function getContactUser(EntityMapper $reference): ?UsersModel
     {
         if (method_exists(static::class, 'getContactUserSpecificMapper')) {

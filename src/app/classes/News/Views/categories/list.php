@@ -8,33 +8,21 @@ use News\Controllers\NewsCategoryController;
  */
 /**
  * @var string $langGroup
- * @var string $editLink
+ * @var string $processTableLink
  */
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
-
-        <br>
-
-        <?php if (mb_strlen($formVariables['action']) > 0) : ?>
-        <?php $this->render('forms/add', $formVariables); ?>
-        <br>
-        <br>
-        <?php endif; ?>
-
-        <br>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1). Categoría compleja (§2.6): alta en su página.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Nueva categoría'), 'url' => $addLink, 'icon' => 'plus'] : null,
+        ]);
+        ?>
 
         <div class="mirror-scroll-x all" mirror-scroll-target=".container-standard-table.all">
             <div class="mirror-scroll-x-content"></div>
@@ -42,16 +30,15 @@ use News\Controllers\NewsCategoryController;
 
         <div class="container-standard-table all">
 
-            <table url="<?= $processTableLink; ?>" class="ui basic table all">
+            <table url="<?= $processTableLink; ?>" class="ui basic table content-table all">
 
                 <thead>
 
                     <tr>
-                        <th><?= __($langGroup, '#'); ?></th>
                         <th><?= __($langGroup, 'Categoría'); ?></th>
-                        <th order="false"><?= __($langGroup, 'Color'); ?></th>
-                        <th order="false"><?= __($langGroup, 'Imagen'); ?></th>
-                        <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
+                        <th order="false" class-name="collapsing"><?= __($langGroup, 'Color'); ?></th>
+                        <th order="false" class-name="collapsing"><?= __($langGroup, 'Imagen'); ?></th>
+                        <th order="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                     </tr>
 
                 </thead>

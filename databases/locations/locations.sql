@@ -6,8 +6,8 @@ SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 TRUNCATE `locations_countries`;
-INSERT INTO `locations_countries` (`id`, `code`, `name`, `active`) VALUES
-(1,	'COL',	'Colombia',	1);
+INSERT INTO `locations_countries` (`id`, `code`, `phoneCode`, `demonym`, `name`, `active`) VALUES
+(1,	'COL',	'+57',	'Colombiana',	'Colombia',	1);
 
 TRUNCATE `locations_states`;
 INSERT INTO `locations_states` (`id`, `code`, `country`, `name`, `active`) VALUES

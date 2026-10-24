@@ -130,18 +130,16 @@ $(document).ready(function (e) {
 				let isEdit = form.find(`[name="edit"]`).val() == '1'
 				let saveRoute = form.attr('action')
 
-				iziToast.question({
-					timeout: false,
-					close: false,
-					overlay: true,
-					displayMode: 'once',
-					id: 'question',
-					zindex: 999,
+				confirmAction({
 					title: _i18n('avatar', 'Confirmación'),
 					message: _i18n('avatar', '¿Seguro de guardar la foto de perfil?'),
-					position: 'center',
-					buttons: [
-						['<button>' + _i18n('avatar', 'Sí') + '</button>', function (instance, toast) {
+					confirmText: _i18n('avatar', 'Sí'),
+					cancelText: _i18n('avatar', 'No'),
+				}).then(function (confirmed) {
+
+							if (!confirmed) {
+								return
+							}
 
 							showGenericLoader('CARGA_FOTO_PERFIL')
 
@@ -187,14 +185,7 @@ $(document).ready(function (e) {
 
 							})
 
-							instance.hide({}, toast)
-
-						}, true],
-						['<button>' + _i18n('avatar', 'No') + '</button>', function (instance, toast) {
-							instance.hide({}, toast)
-						}],
-					],
-				});
+				})
 			})
 
 		}

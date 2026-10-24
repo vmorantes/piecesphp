@@ -195,10 +195,13 @@ function getAllUsers(array $ignoreTypes = [])
 
     $model->select(UsersModel::fieldsToSelect());
 
+    //Un usuario Eliminado deja de existir en la práctica: no se lista ni se elige.
+    $where = 'status != ' . UsersModel::STATUS_USER_DELETED;
     if (!empty($ignoreTypes)) {
         $ignoreTypes = implode(', ', $ignoreTypes);
-        $model->where("type NOT IN ({$ignoreTypes})");
+        $where .= " AND type NOT IN ({$ignoreTypes})";
     }
+    $model->where($where);
 
     $model->execute();
 
@@ -229,52 +232,6 @@ function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = 
         ];
         $options[$e->value] = $e->text;
     }, getAllUsers($ignoreTypes));
-
-    return $options;
-}
-
-/**
- * Devuelve un array listo para ser usado en array_to_html_options con los códigos de área de los países.
- *
- * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
- * @param string|null $emptyOptionText El texto de la opción vacía.
- * @return array
- */
-function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null): array
-{
-    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Código de área');
-    $options = [];
-    if ($withEmptyOption) {
-        $options[''] = $emptyOptionText;
-    }
-    foreach (PHONE_AREA_CODES as $area) {
-        $options[$area] = $area;
-    }
-    return $options;
-}
-
-/**
- * Devuelve un array listo para ser usado en array_to_html_options con las nacionalidades.
- *
- * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
- * @param string|null $emptyOptionText El texto de la opción vacía.
- * @param bool $useMultilang Indica si se deben mostrar las versiones multilenguaje
- * @return array
- */
-function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false): array
-{
-    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
-    $options = [];
-
-    if ($withEmptyOption) {
-        $options[''] = $emptyOptionText;
-    }
-
-    $nationalities = $useMultilang ? NATIONALITIES : NATIONALITIES;
-
-    foreach ($nationalities as $nationality => $display) {
-        $options[$nationality] = __(GLOBAL_LANG_GROUP, $display);
-    }
 
     return $options;
 }

@@ -14,7 +14,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 /**
@@ -86,11 +86,11 @@ class BuiltInBannerRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(BuiltInBannerLang::LANG_GROUP, 'Banners'),
-                'icon' => 'images',
+                'icon' => 'bullhorn',
                 'asLink' => true,
                 'href' => BuiltInBannerController::routeName('list'),
                 'visible' => BuiltInBannerController::allowedRoute('list'),
-                'position' => 110,
+                'position' => MenuGroupCollection::BAND_CONTENTS + 50,
             ]));
 
         }

@@ -39,6 +39,18 @@ class UsersApprovalHandler extends BaseApprovalHandler
     public static array $STATUS_ACTIVATION_POSITIVES_VALUES = UsersModel::STATUSES_VALUES;
 
     /**
+     * El usuario de sistema no es un perfil que aprobar: sin esto, init() le creaba una aprobación pendiente en cada
+     * arranque, y borrada volvía.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function excludesElement(int $id): bool
+    {
+        return UsersModel::isSystemUser($id);
+    }
+
+    /**
      * DOS, no uno: este handler escribe tambien 'Usuario independiente'.
      *
      * @return string[]

@@ -2,7 +2,14 @@
 
 //Las otras puertas a lo ajeno: la API de detalle, la edición y los archivos de publicaciones, el avatar, el importador y
 //el formulario de edición de usuarios. Por HTTP. Siembra organizaciones, usuarios, publicaciones y archivos zz-, y los retira.
+//@areas src/app/classes/API/
+//@areas src/app/classes/DataImportExportUtility/
+//@areas src/app/classes/News/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use API\Controllers\APIController;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
 use News\Mappers\NewsCategoryMapper;
@@ -71,7 +78,7 @@ CliActions::make('unit-tests:core/other-doors', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt, ?array $post = null) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
+        $handle = \Terminal\TestRun::curlInit();
         $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
@@ -87,7 +94,7 @@ CliActions::make('unit-tests:core/other-doors', function ($args) {
             $conArchivo = count(array_filter($post, fn ($v) => $v instanceof \CURLFile)) > 0;
             $opciones[CURLOPT_POSTFIELDS] = $conArchivo ? $post : http_build_query($post);
         }
-        curl_setopt_array($handle, $opciones);
+        \Terminal\TestRun::curlSetoptArray($handle, $opciones);
         $body = curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
@@ -158,7 +165,7 @@ CliActions::make('unit-tests:core/other-doors', function ($args) {
             $u->save();
             $usuarios[$sufijo] = (int) $u->id;
             $claves[$sufijo] = $clave;
-            return SessionToken::generateToken(['id' => (int) $u->id], null, null, false);
+            return UserSessions::issueToken((int) $u->id);
         };
         $global = OrganizationMapper::INITIAL_ID_GLOBAL;
         $adminGeneral = $crearUsuario('admin-general', UsersModel::TYPE_USER_ADMIN_GRAL, $global);

@@ -6,6 +6,12 @@
 
 namespace SystemApprovals\Controllers;
 
+use Slim\Psr7\Headers;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Factory\StreamFactory;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\AdminPanel\DashboardCard;
+use PiecesPHP\AdminPanel\DashboardCardBody;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -26,6 +32,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -144,7 +151,7 @@ class SystemApprovalsController extends AdminPanelController
             $data['approvalMapper'] = $approvalMapper;
             $data['title'] = $title;
             $data['description'] = $description;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -152,7 +159,7 @@ class SystemApprovalsController extends AdminPanelController
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
             $formByType = [
                 UsersModel::TABLE => 'forms/approval-profile-user',
                 OrganizationMapper::TABLE => 'forms/approval-profile-organization',
@@ -197,12 +204,12 @@ class SystemApprovalsController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         set_custom_assets([
             SystemApprovalsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
@@ -366,7 +373,7 @@ class SystemApprovalsController extends AdminPanelController
                                 $data['reason'] = htmlspecialchars(mb_convert_encoding((string) $reason, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                                 $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
                                 if (!$mailer->checkSettedSMTP()) {
-                                    $mailer->asGoDaddy();
+                                    $mailer->asSystemMailer();
                                 }
                                 $mailer->send();
 
@@ -560,17 +567,8 @@ class SystemApprovalsController extends AdminPanelController
 
                 $mapper = SystemApprovalsMapper::objectToMapper($e, true);
 
-                $buttons = [];
                 $hasApprovalForm = self::allowedRoute('forms-approval', ['id' => $e->id]);
-
-                if ($hasApprovalForm) {
-                    $approvalLink = self::routeName('forms-approval', ['id' => $e->id]);
-                    $approvalText = __(self::LANG_GROUP, 'Ir');
-                    $approvalButton = "<a href='{$approvalLink}' class='ui button brand-color icon'>&nbsp;{$approvalText}&nbsp;</a>";
-                    $buttons[] = $approvalButton;
-                }
-
-                $buttons = implode('', $buttons);
+                $buttons = $hasApprovalForm ? RowActions::cell(RowActions::action(__(self::LANG_GROUP, 'Revisar'), self::routeName('forms-approval', ['id' => $e->id]), 'clipboard check')) : '';
                 $columns = [];
 
                 $avatar = AvatarModel::getAvatar($e->referenceCreatedBy);
@@ -727,6 +725,42 @@ class SystemApprovalsController extends AdminPanelController
         }
 
         return $allow;
+    }
+
+    /**
+     * La tarjeta «Tareas pendientes» del inicio: las aprobaciones que ESTE usuario puede resolver. Las cuenta el propio
+     * listado (dataTables()), con una petición interna, para que la autoridad sea exactamente la suya. Sin ninguna, no
+     * se ve.
+     *
+     * @return void
+     */
+    public static function registerDashboardCard(): void
+    {
+        DashboardCardRegistry::register(new DashboardCard(
+            'pending-tasks',
+            __(self::LANG_GROUP, 'Tareas pendientes'),
+            'clipboard check',
+            self::$baseRouteName . '-list',
+            function (UserDataPackage $user): ?DashboardCardBody {
+                $columns = [];
+                for ($c = 0; $c < 5; $c++) {
+                    $columns[] = ['data' => $c, 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => ['value' => '', 'regex' => 'false']];
+                }
+                $request = (new Request('GET', (new UriFactory())->createUri('http://localhost/'), new Headers(), [], [], (new StreamFactory())->createStream('')))
+                    ->withQueryParams(['draw' => 1, 'start' => 0, 'length' => 1, 'columns' => $columns, 'order' => [['column' => 0, 'dir' => 'asc']], 'search' => ['value' => '', 'regex' => 'false']]);
+                $data = (new SystemApprovalsController())->dataTables($request, new Response())->getRawJsonDataInserted();
+                $pending = is_array($data) ? (int) ($data['recordsFiltered'] ?? 0) : 0;
+                return $pending > 0 ? DashboardCardBody::numbers(
+                    [
+                        ['value' => $pending, 'concept' => __(self::LANG_GROUP, 'por revisar'), 'icon' => 'clipboard check'],
+                    ],
+                    __(self::LANG_GROUP, 'Ver las aprobaciones'),
+                    self::routeName('list')
+                ) : null;
+            },
+            20,
+            help: __(self::LANG_GROUP, 'Las aprobaciones que puedes resolver tú.')
+        ));
     }
 
     /**

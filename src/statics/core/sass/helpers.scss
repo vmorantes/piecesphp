@@ -1,6 +1,9 @@
 @use 'sass:color';
 @use 'includes/variables' as *;
 
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$-globalLoaderBackground: rgba(255, 255, 255, 1);
+
 //Colors
 $colorSecond: rgb(40, 100, 133);
 $colorThird: rgb(150, 150, 150);
@@ -17,7 +20,7 @@ $globalClassPcs: 'ui-pcs';
     display: none;
     width: 100%;
     height: 100%;
-    background-color: var(--loader-bg-color, rgba(255, 255, 255, 1));
+    background-color: var(--loader-bg-color, $-globalLoaderBackground);
     img{
         max-width: 100%;
     }

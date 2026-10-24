@@ -8,11 +8,9 @@ namespace MySpace\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use Documents\Mappers\DocumentsMapper;
 use EventsLog\Mappers\LogsMapper;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
-use News\Controllers\NewsController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -20,17 +18,10 @@ use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
-use Publications\Controllers\PublicationsController;
-use Publications\PublicationsRoutes;
-use ReportsManage\Controllers\ReportsManageController;
-use ReportsManage\ReportsManageRoutes;
-use SystemApprovals\SystemApprovalsRoutes;
-use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * MySpaceController.
@@ -71,95 +62,7 @@ class MySpaceController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(MySpaceRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'), 'css');
 
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function mySpaceView(Request $request, Response $response)
-    {
-
-        $currentUser = getLoggedFrameworkUserOrFail();
-        $currentUserID = $currentUser->id;
-        $currentUserType = $currentUser->type;
-        $noBaseView = [
-            UsersModel::TYPE_USER_GENERAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_COMUNICACIONES,
-            UsersModel::TYPE_USER_GOOGLE_PLAY,
-        ];
-
-        if (!in_array($currentUserType, $noBaseView) && ReportsManageRoutes::ENABLE) {
-
-            return (new ReportsManageController())->genericReportView($request, $response);
-
-        } else {
-
-            $normalSpace = false;
-            $isApproved = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $currentUserID);
-
-            if ($isApproved) {
-
-                if ($currentUserType == UsersModel::TYPE_USER_COMUNICACIONES && PublicationsRoutes::ENABLE) {
-                    return (new PublicationsController())->listView($request, $response);
-                } else {
-                    $normalSpace = true;
-                }
-
-            }
-
-            if ($normalSpace) {
-
-                if (in_array($currentUserType, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE) && SystemApprovalsRoutes::ENABLE) {
-
-                    return $response->withRedirect(MyProfileController::routeName('my-profile'));
-
-                } else {
-
-                    set_title(__(self::LANG_GROUP, 'Mi espacio'));
-
-                    set_custom_assets([
-                        NewsController::pathFrontNewsAdapter(),
-                        MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-space.js'),
-                    ], 'js');
-
-                    set_custom_assets([
-                        MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/base.css'),
-                        MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/others.css'),
-                        MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'),
-                        MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
-                    ], 'css');
-
-                    $currentUser = getLoggedFrameworkUserOrFail();
-                    $qtyDocuments = DocumentsMapper::countAll();
-
-                    $data = [];
-                    $data['langGroup'] = self::LANG_GROUP;
-                    $data['subtitle'] = $currentUser->fullName;
-                    $data['qtyDocuments'] = $qtyDocuments;
-                    $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
-
-                    $this->helpController->render('panel/layout/header', [
-                        'bodyClasses' => [
-                            'gradient-base',
-                        ],
-                        'containerClasses' => [],
-                    ]);
-                    $this->render('my-space', $data);
-                    //$this->render('my-space-empty', $data);
-                    $this->helpController->render('panel/layout/footer');
-
-                }
-
-            }
-
-        }
-
-        return $response;
     }
 
     /**
@@ -185,16 +88,21 @@ class MySpaceController extends AdminPanelController
 
         $currentUser = getLoggedFrameworkUserOrFail();
 
+        $title = __(MySpaceLang::LANG_GROUP, 'Seguridad de usuario');
         $data = [];
-        $data['langGroup'] = UserSystemFeaturesLang::LANG_GROUP;
-        $data['subtitle'] = $currentUser->fullName;
-
-        $this->helpController->render('panel/layout/header', [
-            'bodyClasses' => [
-                'gradient-base',
+        $data['langGroup'] = MySpaceLang::LANG_GROUP;
+        $data['title'] = $title;
+        $data['description'] = __(MySpaceLang::LANG_GROUP, 'La verificación en dos pasos de tu cuenta y los dispositivos donde has iniciado sesión.');
+        $data['helpController'] = $this->helpController;
+        $data['breadcrumbs'] = [
+            __(MySpaceLang::LANG_GROUP, 'Inicio') => [
+                'url' => AdminPanelController::routeName(''),
             ],
-            'containerClasses' => [],
-        ]);
+            $title,
+        ];
+
+        //Sin `gradient-base`: el fondo degradado morado no es el del panel, y sobre él las migas no se leían.
+        $this->helpController->render('panel/layout/header');
         $this->render('user-security', $data);
         $this->helpController->render('panel/layout/footer');
         return $response;
@@ -278,74 +186,6 @@ class MySpaceController extends AdminPanelController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function exampleResources(Request $request, Response $response)
-    {
-
-        set_title(__(self::LANG_GROUP, 'Recursos de ejemplo'));
-
-        set_custom_assets([
-            //Base
-            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/example-resources.js'),
-        ], 'js');
-
-        set_custom_assets([
-            //Base
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/example-resources.css'),
-        ], 'css');
-
-        import_dialog_pcs();
-        import_apexcharts();
-        import_qrcodejs();
-
-        $currentUser = getLoggedFrameworkUserOrFail();
-
-        $data = [];
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['subtitle'] = $currentUser->fullName;
-
-        $this->helpController->render('panel/layout/header', [
-            'bodyClasses' => [
-                'gradient-base',
-            ],
-            'containerClasses' => [],
-        ]);
-        $this->render('example-resources', $data);
-        $this->helpController->render('panel/layout/footer');
-        return $response;
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function iframesSources(Request $request, Response $response)
-    {
-        $source = $request->getAttribute('source', null);
-        $source = is_string($source) ? $source : '';
-        $refererURL = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
-        $refererURL = is_string($refererURL) && mb_strlen($refererURL) > 0 ? $refererURL : null;
-
-        if ($source == 'mail-users-template') {
-            $this->render('resources/mail-sample', [
-                'refererURL' => $refererURL,
-            ]);
-        } elseif ($source == 'survey-js-creator') {
-            $this->render('resources/survey-js-creator', []);
-        } elseif ($source == 'survey-js-form') {
-            $this->render('resources/survey-js-form', []);
-        } else {
-            throw new NotFoundException($request, $response);
-        }
-
-        return $response;
-    }
-
-    /**
      * @inheritDoc
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
@@ -372,23 +212,11 @@ class MySpaceController extends AdminPanelController
          * @var array<string>
          */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
-        $onlySupers = [
-            UsersModel::TYPE_USER_ROOT,
-        ];
 
         $routes = [
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route(
-                "{$startRoute}[/]",
-                $classname . ':mySpaceView',
-                self::$baseRouteName . '-my-space',
-                'GET',
-                true,
-                null,
-                $allRoles
-            ),
             new Route(
                 "{$startRoute}/user-security[/]",
                 $classname . ':userSecurity',
@@ -397,24 +225,6 @@ class MySpaceController extends AdminPanelController
                 true,
                 null,
                 $allRoles
-            ),
-            new Route(
-                "{$startRoute}/example-resources[/]",
-                $classname . ':exampleResources',
-                self::$baseRouteName . '-example-resources',
-                'GET',
-                true,
-                null,
-                $onlySupers
-            ),
-            new Route(
-                "{$startRoute}/iframe-sources/{source}[/]",
-                $classname . ':iframesSources',
-                self::$baseRouteName . '-iframe-sources',
-                'GET',
-                true,
-                null,
-                $onlySupers
             ),
 
             //──── POST ──────────────────────────────────────────────────────────────────────────────

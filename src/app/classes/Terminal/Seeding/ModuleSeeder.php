@@ -100,6 +100,17 @@ abstract class ModuleSeeder
     }
 
     /**
+     * Corre cuando todos los sembradores han escrito, dentro de la misma transacción: un fallo la deshace entera.
+     *
+     * @param SeedContext $context
+     * @return string[] Lo que hizo, una línea por cosa, para el informe de la siembra
+     */
+    public function afterAll(SeedContext $context): array
+    {
+        return [];
+    }
+
+    /**
      * Un texto reconocible: `zz-siembra-<que>-<n>`, con `n` desde 1.
      *
      * @param string $what

@@ -3,6 +3,7 @@
 //El formulario de una aprobación no responde 500: si lo aprobado ya no existe, o su tabla no tiene manejador, 404;
 //un usuario sin organización ni perfil guardado se pinta con sus datos vacíos. Por HTTP. Todo zz-, y se retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -62,8 +63,8 @@ CliActions::make('unit-tests:core/approval-forms', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -115,7 +116,7 @@ CliActions::make('unit-tests:core/approval-forms', function ($args) {
     };
 
     try {
-        $root = SessionToken::generateToken(['id' => $crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL)], null, null, false);
+        $root = UserSessions::issueToken($crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL));
         $completo = $crearUsuario('completo', UsersModel::TYPE_USER_GENERAL, OrganizationMapper::INITIAL_ID_GLOBAL);
         $sinOrganizacion = $crearUsuario('sin-org', UsersModel::TYPE_USER_GENERAL, null);
         $noExiste = '2147483000';

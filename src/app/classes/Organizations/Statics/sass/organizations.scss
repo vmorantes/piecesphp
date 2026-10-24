@@ -1,2 +1,7 @@
 @use '../../../../../statics/core/sass/includes/variables_app_base' as *;
 @use '../../../../../statics/core/sass/includes/functions_app_base' as *;
+
+//La etiqueta de un campo cuyo desplegable ya dice qué es: se queda para quien lee la página, no se pinta.
+.ui.form.organizations .field>label.organization-hidden-label {
+    display: none;
+}

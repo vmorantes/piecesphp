@@ -1,0 +1,316 @@
+@use '../../../../../../statics/core/sass/includes/variables_app_base' as *;
+@use '../../../../../../statics/core/sass/includes/functions_app_base' as *;
+
+//Lo que un proyecto cambia sin tocar el JS: los colores salen de los de marca, y geo-viewer.js lee los de las fuentes.
+body.geo-viewer {
+    --geo-persons-color: var(--main-brand-color);
+    --geo-organizations-color: var(--second-brand-color);
+    --geo-text-color: var(--font-color-one);
+    --geo-on-color: var(--font-color-two);
+    --geo-panel-background: var(--font-color-two);
+    --geo-panel-shadow: rgb(from var(--font-color-one) r g b / 0.22);
+    --geo-muted-color: rgb(from var(--font-color-one) r g b / 0.65);
+    --geo-warning-color: var(--second-brand-color);
+    --geo-avatar-size: 36px;
+    --geo-panel-width: 320px;
+    --geo-gap: 12px;
+    //Lo que el armazón del panel pinta encima del contenido: la flecha del menú y los botones de arriba a la derecha.
+    --geo-reserve-left: 30px;
+    --geo-reserve-top: 50px;
+
+    .#{$globalClassPcs}.container-sidebar>.content {
+        padding: 0px;
+        overflow: hidden;
+
+        @media (max-width: $sidebarBreakPoint) {
+            padding: 0px;
+        }
+    }
+}
+
+.geo-viewer-container {
+    position: relative;
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+    color: var(--geo-text-color);
+
+    [hidden] {
+        display: none !important;
+    }
+
+    .geo-map {
+        position: absolute;
+        inset: 0;
+    }
+
+    //En el centro: arriba lo tapan los botones del geovisor y los del panel.
+    .geo-no-key,
+    .geo-empty {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: calc(100% - 2 * var(--geo-gap));
+        margin: 0;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        background: var(--geo-panel-background);
+        box-shadow: 0 2px 10px var(--geo-panel-shadow);
+        text-align: center;
+    }
+
+    .geo-toolbar {
+        position: absolute;
+        top: var(--geo-gap);
+        left: calc(var(--geo-reserve-left) + var(--geo-gap));
+        z-index: 3;
+        display: flex;
+        gap: 6px;
+
+        .ui.icon.button {
+            margin: 0;
+            background: var(--geo-panel-background);
+            color: var(--geo-text-color);
+            box-shadow: 0 1px 6px var(--geo-panel-shadow);
+
+            &.active {
+                background: var(--main-brand-color);
+                color: var(--geo-on-color);
+            }
+        }
+    }
+
+    .geo-panel {
+        position: absolute;
+        top: calc(var(--geo-gap) * 2 + 36px);
+        z-index: 2;
+        width: var(--geo-panel-width);
+        //Nunca hasta el borde de abajo: ahí va el contador.
+        max-height: calc(100% - var(--geo-gap) * 4 - 36px - 44px);
+        overflow-y: auto;
+        padding: 0.75rem 1rem 1rem;
+        border-radius: 8px;
+        background: var(--geo-panel-background);
+        box-shadow: 0 2px 12px var(--geo-panel-shadow);
+
+        &.geo-panel-filters {
+            left: calc(var(--geo-reserve-left) + var(--geo-gap));
+        }
+
+        &.geo-panel-legend {
+            right: var(--geo-gap);
+            top: calc(var(--geo-reserve-top) + var(--geo-gap));
+            max-height: calc(100% - var(--geo-reserve-top) - var(--geo-gap) * 2 - 110px);
+        }
+
+        .geo-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: $fwSemiBold;
+            font-size: pxToRem(16);
+
+            .ui.button {
+                margin: 0;
+                padding: 0.5rem;
+                box-shadow: none !important;
+            }
+        }
+
+        .ui.form .field {
+            margin-bottom: 0.85rem;
+        }
+
+        [data-geo-reset] {
+            width: 100%;
+        }
+    }
+
+    .geo-legend-row {
+        display: grid;
+        grid-template-columns: 24px 1fr auto;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+
+        >label {
+            cursor: pointer;
+        }
+
+        .geo-legend-sample {
+            --geo-marker-color: var(--geo-legend-color);
+            --geo-avatar-size: 20px;
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+    .geo-legend-styles {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--geo-panel-shadow);
+
+        >span {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--geo-muted-color);
+            font-size: pxToRem(13);
+        }
+    }
+
+    .geo-counter {
+        position: absolute;
+        left: calc(var(--geo-reserve-left) + var(--geo-gap));
+        bottom: calc(var(--geo-gap) + 18px);
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        max-width: calc(100% - var(--geo-gap) * 2 - 50px);
+        padding: 0.5rem 0.85rem;
+        border-radius: 8px;
+        background: var(--geo-panel-background);
+        box-shadow: 0 1px 6px var(--geo-panel-shadow);
+        font-size: pxToRem(14);
+
+        [data-geo-counter].loading {
+            color: var(--geo-muted-color);
+        }
+
+        .geo-truncated {
+            color: var(--geo-warning-color);
+            font-size: pxToRem(13);
+            font-weight: $fwMedium;
+        }
+    }
+
+    .geo-marker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .geo-marker-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid var(--geo-on-color);
+        background: var(--geo-marker-color, var(--geo-text-color));
+    }
+
+    .geo-marker-avatar {
+        width: var(--geo-avatar-size);
+        height: var(--geo-avatar-size);
+        border-radius: 50%;
+        border: 3px solid var(--geo-marker-color, var(--geo-text-color));
+        background: var(--geo-panel-background);
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 0 1px 4px var(--geo-panel-shadow);
+        font-size: pxToRem(12);
+        font-weight: $fwBold;
+        color: var(--geo-marker-color, var(--geo-text-color));
+        line-height: 1;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+}
+
+.geo-popup {
+    .mapboxgl-popup-content {
+        padding: 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 12px var(--geo-panel-shadow);
+    }
+}
+
+.geo-card-holder {
+    position: relative;
+    min-width: 220px;
+    padding: 0.85rem 1rem 1rem;
+    color: var(--geo-text-color);
+
+    [hidden] {
+        display: none !important;
+    }
+
+    .geo-card-close {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        margin: 0 !important;
+        padding: 0.4rem !important;
+        box-shadow: none !important;
+    }
+
+    .geo-card-loading {
+        padding: 0.75rem 0;
+        text-align: center;
+    }
+
+    .geo-card-message {
+        padding-right: 1.5rem;
+        color: var(--geo-muted-color);
+    }
+
+    .geo-card-title {
+        padding-right: 1.5rem;
+        margin-bottom: 0.35rem;
+        font-size: pxToRem(16);
+        font-weight: $fwSemiBold;
+        word-break: break-word;
+    }
+
+    .geo-card-line {
+        margin-bottom: 0.25rem;
+        color: var(--geo-muted-color);
+        font-size: pxToRem(13);
+        word-break: break-word;
+    }
+
+    .geo-card-location {
+        &:not(:has(> :not([hidden]))) {
+            display: none;
+        }
+
+        >:not([hidden])~:not([hidden])::before {
+            content: '· ';
+        }
+    }
+
+    .geo-card .ui.button {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+}
+
+//En el móvil el armazón pinta arriba, a todo el ancho, el botón del menú y los del usuario: todo baja por debajo.
+@media (max-width: $sidebarBreakPoint) {
+    body.geo-viewer {
+        --geo-reserve-left: 0px;
+    }
+
+    .geo-viewer-container {
+        .geo-toolbar {
+            top: calc(var(--geo-reserve-top) + var(--geo-gap));
+        }
+
+        .geo-panel {
+            &.geo-panel-filters,
+            &.geo-panel-legend {
+                left: var(--geo-gap);
+                right: var(--geo-gap);
+                top: calc(var(--geo-reserve-top) + var(--geo-gap) * 2 + 36px);
+                width: auto;
+                max-height: calc(100% - var(--geo-reserve-top) - var(--geo-gap) * 4 - 36px - 70px);
+            }
+        }
+    }
+}

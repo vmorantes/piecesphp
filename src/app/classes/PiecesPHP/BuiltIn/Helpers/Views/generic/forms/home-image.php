@@ -16,26 +16,21 @@ $contentName = $element->userSetContentName();
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <br>
+        <form method='POST' action="<?= escape_html($action); ?>" class="ui form initial generic" data-content-form>
 
-        <div class="container-standard-form mw-800">
+            <div class="container-standard-form mw-800">
 
-            <form method='POST' action="<?= $action; ?>" class="ui form generic">
-
-                <input type="hidden" name="configName" value="<?= $contentName; ?>">
+                <input type="hidden" name="configName" value="<?= escape_html($contentName); ?>">
                 <?php foreach($allowedLangs as $lang): ?>
                 <?php $value = $element->getLangData($lang, $contentName, true, ''); ?>
                 <?php $isMultilang = $element->isTranslatable($contentName); ?>
@@ -67,17 +62,15 @@ $contentName = $element->userSetContentName();
                 <?php endif; ?>
                 <?php endforeach; ?>
 
-                <br><br>
+            </div>
 
-                <div class="field">
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                    </div>
-                </div>
+            <?php
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+            ]);
+            ?>
 
-            </form>
-
-        </div>
+        </form>
 
     </div>
 

@@ -6,6 +6,8 @@
 namespace PiecesPHP\Core\ConfigHelpers;
 
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\Crypto\Sealed;
+use PiecesPHP\Settings\ORM\SettingsModel;
 
 /**
  * MailjetConfig
@@ -16,6 +18,11 @@ use PiecesPHP\Core\BaseHashEncryption;
  */
 class MailjetConfig
 {
+    /**
+     * La opción donde se guarda, cifrada con Sealed::PURPOSE_MAILJET_CONFIG (ADR 0061).
+     */
+    const CONFIG_NAME = 'mailjet';
+
 
     /**
      * @var string
@@ -150,14 +157,16 @@ class MailjetConfig
     public function loadConfigutarion()
     {
 
-        $mailConfig = get_config('mailjet');
+        $mailConfig = get_config(self::CONFIG_NAME);
 
         if (is_string($mailConfig)) {
-            $decryptData = self::decrypt($mailConfig);
-            $uncompressData = gzuncompress($decryptData);
+            $stored = $mailConfig;
+            $decryptData = self::decrypt($stored);
+            $uncompressData = $decryptData !== '' ? gzuncompress($decryptData) : false;
             $jsonDecodedData = is_string($uncompressData) ? json_decode($uncompressData, true) : null;
             if (is_array($jsonDecodedData)) {
                 $mailConfig = $jsonDecodedData;
+                self::sealLegacy($stored, $decryptData);
             } else {
                 $mailConfig = [];
             }
@@ -245,16 +254,48 @@ class MailjetConfig
      */
     protected static function encrypt(string $value)
     {
-        return BaseHashEncryption::encrypt($value, self::class);
+        return Sealed::seal($value, Sealed::PURPOSE_MAILJET_CONFIG);
     }
 
     /**
+     * Lo guardado en claro; '' si no se puede leer. Lo de antes de la 9 (ofuscado con la clase como clave, que es
+     * pública) se sigue leyendo, y loadConfigutarion() lo vuelve a guardar cifrado.
+     *
      * @param string $value
      * @return string
      */
     protected static function decrypt(string $value)
     {
-        return BaseHashEncryption::decrypt($value, self::class);
+        if (Sealed::isSealed($value)) {
+            return Sealed::open($value, Sealed::PURPOSE_MAILJET_CONFIG) ?? '';
+        }
+        return BaseHashEncryption::deobfuscate($value, self::class);
+    }
+
+    /**
+     * Lo de antes de la 9 se guarda cifrado una vez (ADR 0061 §11). Solo si lo leído es lo que hay en la base: una
+     * prueba que fija la opción en memoria no escribe en ella.
+     *
+     * @param string $stored
+     * @param string $compressed
+     * @return void
+     */
+    private static function sealLegacy(string $stored, string $compressed): void
+    {
+        if (Sealed::isSealed($stored)) {
+            return;
+        }
+        try {
+            if (SettingsModel::getConfigValue(self::CONFIG_NAME) !== $stored) {
+                return;
+            }
+            $sealed = self::encrypt($compressed);
+            if (SettingsModel::setConfigValue(self::CONFIG_NAME, $sealed)) {
+                set_config(self::CONFIG_NAME, $sealed);
+            }
+        } catch (\Throwable $exception) {
+            log_soft_error('No se pudo volver a guardar cifrada la opción ' . self::CONFIG_NAME, ['error' => get_class($exception)]);
+        }
     }
 
 }

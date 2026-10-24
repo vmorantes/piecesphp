@@ -52,8 +52,9 @@ if($mapper->type == UsersModel::TYPE_USER_GENERAL){
             <?php //Pieza compartida: sin permiso de edición, routeName() da '' y el enlace no se pinta. ?>
             <?php $editURL = \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-edit', ['id' => $mapper->id]); ?>
             <?php if ($editURL !== ''): ?>
-            <a href="<?= $editURL; ?>">
-                <i class="ellipsis vertical icon"></i>
+            <a class="ui mini basic button" href="<?= $editURL; ?>">
+                <i class="edit icon"></i>
+                <?= __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Editar'); ?>
             </a>
             <?php endif; ?>
 

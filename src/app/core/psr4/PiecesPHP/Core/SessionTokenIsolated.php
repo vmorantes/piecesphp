@@ -81,6 +81,11 @@ class SessionTokenIsolated
 
         } else if ($logged === true) {
 
+            //Datos que no se abren: no es una sesión (ADR 0061). Mismo arreglo que en SessionToken, su gemela.
+            if (!(BaseToken::getData($token, $key) instanceof \stdClass)) {
+                return false;
+            }
+
             $dateCreatedToken = BaseToken::getCreated($token, $key);
 
             //`getCreated()` puede devolver un código o null: con el código, `date()` lanzaba; con null tomaba LA HORA

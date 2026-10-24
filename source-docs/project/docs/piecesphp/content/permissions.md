@@ -69,20 +69,8 @@ find . -type f -exec chmod 644 {} \; # 644: Propietario (lectura, escritura), Gr
 # Directorios de aplicación que requieren permisos de escritura
 echo -e "\n[+] Estableciendo permisos para directorios de aplicación que requieren permisos de escritura..."
 
-WRITABLE_DIRS=(
-    "app/logs"
-    "app/cache"
-    "app/lang/missing-lang-messages"
-    "app/lang/dynamic-translations"
-    "tmp"
-    "dumps"
-    "statics/css"
-    "statics/server-delegated"
-    "statics/uploads"
-    "statics/images"
-    "statics/filemanager"
-    "statics/login-and-recovery/images"
-)
+#La lista vive en app/config/writable-dirs.txt (relativa a src/): la leen los dos guiones y la Salud de la instalación.
+mapfile -t WRITABLE_DIRS < <(grep -v -e '^#' -e '^[[:space:]]*$' "app/config/writable-dirs.txt")
 
 for dir in "${WRITABLE_DIRS[@]}"; do
     if [ -d "$dir" ]; then
@@ -93,6 +81,11 @@ for dir in "${WRITABLE_DIRS[@]}"; do
     fi
 done
 ```
+
+**Las carpetas escribibles se declaran en un solo sitio**: `src/app/config/writable-dirs.txt`, una ruta por línea,
+relativa a `src/` (las líneas en blanco y las que empiezan por `#` se ignoran). La leen `permissions-and-property.sh`,
+`src/permissions.sh` y la pantalla **Salud de la instalación**, que dice si cada una se puede escribir. Una carpeta
+nueva que deba escribirse se añade ahí, no en los guiones.
 
 > [!IMPORTANT]
 > Nunca utilices `777` en entornos de producción. El uso de SetGID y una correcta gestión de grupos (`www-data`) es la forma profesional y segura de manejar la escritura.

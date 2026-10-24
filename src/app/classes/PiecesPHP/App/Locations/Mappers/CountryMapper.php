@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\App\Locations\Mappers;
 
+use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -21,6 +22,8 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
  * @copyright   Copyright (c) 2019
  * @property int|null $id
  * @property string|null $code
+ * @property string|null $phoneCode
+ * @property string|null $demonym
  * @property string $name
  * @property string|null $region
  * @property int $active
@@ -44,6 +47,15 @@ class CountryMapper extends BaseEntityMapper
             'primary_key' => true,
         ],
         'code' => [
+            'type' => 'varchar',
+            'null' => true,
+        ],
+        'phoneCode' => [
+            'type' => 'varchar',
+            'length' => 10,
+            'null' => true,
+        ],
+        'demonym' => [
             'type' => 'varchar',
             'null' => true,
         ],
@@ -73,6 +85,150 @@ class CountryMapper extends BaseEntityMapper
     public function __construct(?int $value = null, string $field_compare = 'id')
     {
         parent::__construct($value, $field_compare);
+    }
+
+    /**
+     * La forma de un prefijo telefónico: `+` y de una a cuatro cifras, sin cero delante (`+57`, `+1`).
+     * Es el contrato con el que se valida el prefijo de un país y el que se guarda en perfiles y organizaciones.
+     *
+     * @param string $phoneCode
+     * @return bool
+     */
+    public static function isValidPhoneCode(string $phoneCode): bool
+    {
+        //\z y no $: con $, «+57» seguido de un salto de línea también casaba.
+        return preg_match('/^\+[1-9][0-9]{0,3}\z/', $phoneCode) === 1;
+    }
+
+    /**
+     * Las opciones del desplegable de prefijo, listas para `array_to_html_options()`, que NO escapa: clave y texto ya
+     * pasan por `escape_html()`, y el seleccionado se le pasa escapado también. Son los países ACTIVOS con prefijo.
+     * Clave, el prefijo (lo que se guarda); texto, «<prefijo> · <país>», con los países del mismo prefijo juntos y en
+     * orden alfabético. Ordenadas por el número del prefijo.
+     *
+     * @param string|null $current El valor guardado: si ningún país lo ofrece, se añade al final tal cual, para no perderlo.
+     * @param bool $withEmptyOption Con la opción vacía primero.
+     * @return array<string,string>
+     */
+    public static function phoneCodeOptions(?string $current = null, bool $withEmptyOption = false): array
+    {
+        $options = $withEmptyOption ? ['' => __(GLOBAL_LANG_GROUP, 'Código de área')] : [];
+        return self::escapedOptions($options + self::rawPhoneCodeOptions(), $current);
+    }
+
+    /**
+     * Las opciones del desplegable de nacionalidad, listas para `array_to_html_options()`, que NO escapa: clave y texto
+     * ya pasan por `escape_html()`, y el seleccionado se le pasa escapado también. Son los gentilicios de los países
+     * ACTIVOS. Clave, el gentilicio (lo que se guarda); texto, el gentilicio traducido con el grupo de nombres de
+     * Ubicaciones. Sin repetidos y en orden alfabético del texto.
+     *
+     * @param string|null $current El valor guardado: si ningún país lo ofrece, se añade al final tal cual, para no perderlo.
+     * @param bool $withEmptyOption Con la opción vacía primero.
+     * @return array<string,string>
+     */
+    public static function demonymOptions(?string $current = null, bool $withEmptyOption = false): array
+    {
+        $options = $withEmptyOption ? ['' => __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad')] : [];
+        return self::escapedOptions($options + self::rawDemonymOptions(), $current);
+    }
+
+    /**
+     * Si un prefijo se puede guardar en un registro: vacío, el que ese registro ya tenía, o uno que ofrece un país activo.
+     *
+     * @param string|null $value Lo recibido.
+     * @param string|null $stored Lo que ese registro tiene guardado (null en un alta).
+     * @return bool
+     */
+    public static function acceptsPhoneCode(?string $value, ?string $stored): bool
+    {
+        return self::acceptsOption($value, $stored, array_keys(self::rawPhoneCodeOptions()));
+    }
+
+    /**
+     * Si una nacionalidad se puede guardar en un registro: vacía, la que ese registro ya tenía, o el gentilicio de un país
+     * activo.
+     *
+     * @param string|null $value Lo recibido.
+     * @param string|null $stored Lo que ese registro tiene guardado (null en un alta).
+     * @return bool
+     */
+    public static function acceptsDemonym(?string $value, ?string $stored): bool
+    {
+        return self::acceptsOption($value, $stored, array_keys(self::rawDemonymOptions()));
+    }
+
+    /**
+     * @return array<string,string> Prefijo => texto, en crudo.
+     */
+    private static function rawPhoneCodeOptions(): array
+    {
+        $namesByCode = [];
+        foreach (self::all(false, true) as $country) {
+            $code = is_string($country->phoneCode) ? trim($country->phoneCode) : '';
+            if ($code !== '') {
+                $namesByCode[$code][] = __(LocationsLang::LANG_GROUP_NAMES, (string) $country->name);
+            }
+        }
+        uksort($namesByCode, fn ($a, $b) => (int) substr((string) $a, 1) <=> (int) substr((string) $b, 1));
+
+        $options = [];
+        foreach ($namesByCode as $code => $names) {
+            sort($names, \SORT_STRING | \SORT_FLAG_CASE);
+            $options[(string) $code] = $code . ' · ' . implode(', ', $names);
+        }
+        return $options;
+    }
+
+    /**
+     * @return array<string,string> Gentilicio => texto, en crudo.
+     */
+    private static function rawDemonymOptions(): array
+    {
+        $options = [];
+        foreach (self::all(false, true) as $country) {
+            $demonym = is_string($country->demonym) ? trim($country->demonym) : '';
+            if ($demonym !== '') {
+                $options[$demonym] = __(LocationsLang::LANG_GROUP_NAMES, $demonym);
+            }
+        }
+        asort($options, \SORT_STRING | \SORT_FLAG_CASE);
+        return $options;
+    }
+
+    /**
+     * El valor guardado que ningún país ofrece se añade al final; y todo sale escapado.
+     *
+     * @param array<int|string,string> $options En crudo.
+     * @param string|null $current
+     * @return array<string,string>
+     */
+    private static function escapedOptions(array $options, ?string $current): array
+    {
+        if ($current !== null && $current !== '' && !in_array($current, array_map('strval', array_keys($options)), true)) {
+            $options[$current] = $current;
+        }
+        $escaped = [];
+        foreach ($options as $value => $text) {
+            $escaped[escape_html((string) $value)] = escape_html($text);
+        }
+        return $escaped;
+    }
+
+    /**
+     * Se compara en PHP y no en la consulta: el marcador de un WhereItem sale del texto y el «+» lo revienta (D11).
+     *
+     * @param string|null $value
+     * @param string|null $stored
+     * @param array<int|string> $offered En crudo.
+     * @return bool
+     */
+    private static function acceptsOption(?string $value, ?string $stored, array $offered): bool
+    {
+        $value = $value !== null ? trim($value) : '';
+        if ($value === '' || $value === $stored) {
+            return true;
+        }
+        return in_array($value, array_map('strval', $offered), true);
     }
 
     /**

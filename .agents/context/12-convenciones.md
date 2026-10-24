@@ -161,6 +161,16 @@ estable, que es del PO. `alpha.N` al cerrar cada lote; cada una cambia `APP_VERS
 sección de la MAYOR en el `CHANGELOG`, en el mismo commit. Las entradas del `CHANGELOG` no se reparten por
 pre-versión. `master` solo avanza a un commit etiquetado como pre-versión, y `last-stable`, a uno estable.
 
+**Después de crear la etiqueta, `bin/cli verify-integrity` otra vez** (`#1212`, 2026-10-09). La comprobación 47 genera
+la distribución desde la ÚLTIMA etiqueta: el `bin/verify` de antes de etiquetar mide la anterior y no puede ver lo que
+viajará con la nueva. Con la `v8.0.8` salieron así dos guiones de `bin/` sin clasificar.
+
+**Y lo mismo con un archivo NUEVO o BORRADO** de `src/`, `bin/` o `databases/` (`#1214`): el censo de borrados
+(`files/dev/campaign-removals.json`) solo cuenta lo versionado, así que un `bin/verify` con el archivo sin rastrear no
+lo ve, y al commitearlo `verify-integrity` lo da por rancio. La instrucción que añade o borra uno dicta
+`bin/censo-borrados` (unos 5 minutos) y su artefacto en un commit `chore(censo):` de la misma serie; `bin/guarda-add`
+ya lo avisa.
+
 **La MAJOR de esta campaña será `v8.0.0`. Nunca `v8`** — que es exactamente lo que se hizo con
 `v3` y con `v4`, y es lo que ciega a las herramientas.
 
@@ -244,14 +254,16 @@ Ejemplos vivos, para reconocer el patrón y no confundirlo con un defecto:
 
 | Dónde | Qué materializa |
 | :-- | :-- |
-| `AppConfigController::seo()` | La configuración SEO de cada idioma **activo** al pintar la vista: es el camino de activación de idiomas |
+| `SettingsController::seo()` (`appearance-seo`, con sesión) | La configuración SEO de cada idioma **activo** al pintar la vista: es el camino de activación de idiomas |
 | `OTPSecretsUsersMapper::setOTP()` | La fila del código de un solo uso, si falta |
 | `OTPSecretsUsersMapper::toggle2FA()` | La fila TOTP y su secreto, al activar el segundo factor |
 
-**Y el límite, que es lo que separa esto del defecto D2:** materializar va en los caminos de
-**ESCRITURA**, nunca en los de **LECTURA**, y nunca en una ruta alcanzable sin autenticar. Un
-buscador devuelve `null` cuando no encuentra; quien lee lo aguanta. Ver
-`.agents/context/18-siguientes-ventanas.md`, T3.
+**Y el límite, que es lo que separa esto del defecto D2:** materializar va en una **vista o acción con sesión, e
+idempotente** (la del SEO es un GET y está bien: pinta la pantalla donde se activan los idiomas); **nunca en una lectura
+de datos** —un buscador, un listado, una respuesta de la API— **ni en una ruta alcanzable sin autenticar**. Un buscador
+devuelve `null` cuando no encuentra; quien lee lo aguanta. Lo que no lo cumple es, por ejemplo, la URL de datos
+del listado de usuarios, que escribe al pedirla (`.agents/docs/abierto.md` H20). El origen, T3 del `18` (en git: regla 60, «Citas al
+pasado»).
 ## Cuando una supresión se lleva el último ejemplo, el mecanismo se documenta EN EL MISMO COMMIT
 
 **La documentación por ejemplo es documentación.** Un mecanismo del framework que solo se conoce

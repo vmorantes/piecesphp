@@ -1,133 +1,103 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-$user = getLoggedFrameworkUserOrFail(true)->userMapper;
+/**
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController Pinta las piezas del panel
+ * @var string[] $ownPackages Los piecesphp/* instalados, con versión y licencia
+ * @var string[] $thirdPackages El resto del require de composer.json, igual
+ * @var string[] $jsLibraries Las de statics/plugins/, medidas a mano (no tienen fuente)
+ * @var int $years Desde enero de 2018
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ */
 $langGroup = 'about-framework';
 ?>
-<main class="about-framework">
+<section class="module-view-container about-framework">
 
-    <div class="page-content">
-        <div class="titles">
-            <h2><?= __($langGroup, 'Acerca de'); ?></h2>
-            <span> <?= get_config('title_app'); ?> <?= __($langGroup, 'desarrollada en:'); ?></span>
-        </div>
+    <div class="limiter-content">
 
-        <div class="main-card">
-            <div class="head">
-                <div class="information">
-                    <img src="<?= base_url('statics/images/framework/main_logo.svg') ?>" alt="">
+        <?php
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => __($langGroup, 'Acerca de'),
+            'description' => get_config('title_app') . ' ' . __($langGroup, 'desarrollada en:'),
+        ]);
+        ?>
 
-                    <div class="data-grup">
-                        <div class="data">
-                            <small><?= __($langGroup, 'Última versión'); ?></small>
-                            <span><?= APP_VERSION; ?></span>
+        <div class="container-standard-form">
+            <div class="ui stackable two column middle aligned grid">
+                <div class="column">
+                    <img class="about-framework-logo" src="<?= base_url('statics/images/framework/main_logo.svg') ?>" alt="PiecesPHP">
+                    <div class="ui horizontal relaxed list">
+                        <div class="item">
+                            <div class="content">
+                                <div class="header"><?= __($langGroup, 'Versión instalada'); ?></div>
+                                <?= escape_html(APP_VERSION); ?>
+                            </div>
                         </div>
-                        <div class="data">
-                            <small><?= __($langGroup, 'Fecha'); ?></small>
-                            <span><?= (new \DateTime(APP_VERSION_DATE))->format('m/Y'); ?></span>
+                        <div class="item">
+                            <div class="content">
+                                <div class="header"><?= __($langGroup, 'Fecha'); ?></div>
+                                <?= (new \DateTime(APP_VERSION_DATE))->format('m/Y'); ?>
+                            </div>
                         </div>
                         <?php $commit = \PiecesPHP\Core\AppVersion::commit(); ?>
                         <?php if ($commit !== null): ?>
-                        <div class="data">
-                            <small><?= __($langGroup, 'Commit'); ?></small>
-                            <span title="<?= htmlspecialchars($commit, ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars(mb_substr($commit, 0, 12), ENT_QUOTES, 'UTF-8'); ?></span>
-                            <small><?= \PiecesPHP\Core\AppVersion::commitSource() === \PiecesPHP\Core\AppVersion::SOURCE_STAMP ? __($langGroup, 'según el sello de despliegue') : __($langGroup, 'según git'); ?></small>
+                        <div class="item">
+                            <div class="content">
+                                <div class="header"><?= __($langGroup, 'Commit'); ?></div>
+                                <span title="<?= escape_html($commit); ?>"><?= escape_html(mb_substr($commit, 0, 12)); ?></span>
+                                <div class="description"><?= \PiecesPHP\Core\AppVersion::commitSource() === \PiecesPHP\Core\AppVersion::SOURCE_STAMP ? __($langGroup, 'según el sello de despliegue') : __($langGroup, 'según git'); ?></div>
+                            </div>
                         </div>
                         <?php endif; ?>
                     </div>
-
-                    <div class="git-button">
-                        <a target="_blank" href="https://bitbucket.org/piecesphp/piecesphp/src">BitBucket</a>
-                    </div>
-
+                    <p>
+                        <a class="ui basic button" target="_blank" rel="noopener" href="https://github.com/vmorantes/piecesphp"><i class="github icon"></i>GitHub</a>
+                    </p>
                 </div>
-                <div class="decorated">
-                    <img src="<?= base_url('statics/images/framework/animated_square.gif') ?>" alt="">
+                <div class="computer only right aligned column">
+                    <img class="about-framework-decorated" src="<?= base_url('statics/images/framework/animated_square.gif') ?>" alt="">
                 </div>
             </div>
-
-            <article class="description">
-                <div class="decored-tittle">
-                    <div class="tittle">
-                        <h3><?= __($langGroup, 'Descripción'); ?></h3>
-                    </div>
-                </div>
-                <p>
-                    <?= __($langGroup, 'Es conjunto de componentes personalizables y reusables para el desarrollo web basado en PHP con licencia MIT (de código abierto, sin costos escondidos o adicionales para el cliente final), modular, liviano y flexible que permite “ensamblar” diferentes librerías, funcionalidades y plugins como su nombre “Pieces” lo indica; normalmente a este grupo de componentes se le conoce como Framework.'); ?>
-                </p>
-
-                <p>
-                    <?= __($langGroup, 'Este framework ha venido siendo desarrollado durante 5 años por Tejido Digital y ha permitido la estandarización de procesos dentro de la organización, desarrollo de manera más ágil y rápida, disminuyendo las solicitudes de soporte (garantía) y en caso de presentarse alguna, lograr una solución más rápida.'); ?>
-                </p>
-            </article>
-
-            <article class="own-bookstores">
-                <div class="decored-tittle">
-                    <div class="tittle">
-                        <h3><?= __($langGroup, 'Librerías propias'); ?></h3>
-                        <span><?= __($langGroup, 'con licencia MIT'); ?></span>
-                    </div>
-                </div>
-
-                <div class="libraries">
-                    <ul>
-                        <li>Pieces PHP database Ver 3.0</li>
-                        <li>Pieces PHP datastructures Ver 3.0</li>
-                    </ul>
-                    <ul>
-                        <li>Pieces PHP geojson Ver 2.0</li>
-                        <li>Pieces PHP html Ver 2.0</li>
-                    </ul>
-                </div>
-
-            </article>
-
-            <article class="dependencies">
-                <div class="decored-tittle">
-                    <div class="tittle">
-                        <h3><?= __($langGroup, 'Plugins, scripts y dependencias'); ?></h3>
-                        <span><?= __($langGroup, 'Desarrollados por terceros'); ?></span>
-                    </div>
-                </div>
-                <p>
-                    <?= __($langGroup, 'Estas cuentan con diferentes acuerdos de licencia y están autorizados para uso comercial por parte de terceros, pero los alcances pueden variar dependiendo del proveedor, las cuales son:'); ?>
-                </p>
-                <ul>
-                    <li>Ckeditor Ver. 5.0 Licencia GNU</li>
-                    <li>Cropper Ver. 1.6.1 Licencia MIT</li>
-                    <li>Datatables Ver. 1.13.5 Licencia MIT</li>
-                    <li>elfinder Ver. ^2.1 Licencia BSD</li>
-                    <li>izitoast Ver. 1.4.0 Licencia APACHE</li>
-                    <li>jquery Ver. 3.7.0 Licencia MIT</li>
-                    <li>jquery-ui Ver. 1.12.1 Licencia MIT</li>
-                    <li style="display: none;">Open-layers Ver. 6.14.1 Licencia BSD</li>
-                    <li>Fomantic Ver 2.9.4 Licencia MIT</li>
-                    <li>ApexCharts Ver. 3.50.0 Licencia MIT</li>
-                    <li>QRCodeJS Licencia MIT</li>
-                    <li>MapBox JS Ver. 3.4.0 Licencia Mapbox Web SDK</li>
-                    <li>Spectrum Ver. 1.8 Licencia MIT</li>
-                    <li>slim/slim Ver. ^4.0 Licencia MIT</li>
-                    <li>slim/psr7 Ver. ^1.8 Licencia MIT</li>
-                    <li>phpmailer Ver. ^7.0 Licencia GNU</li>
-                    <li>phpspreadsheet Ver. ^5.5 Licencia MIT</li>
-                    <li>mpdf Ver. ^8.3 Licencia GNU</li>
-                    <li>scssphp Ver. ^2.1 Licencia MIT</li>
-                    <li>spatie/url Ver. ^2.4 Licencia MIT</li>
-                    <li>microsoft/azure-storage-blob Ver. ^1.5 Licencia MIT</li>
-                    <li>pragmarx/google2fa Ver. ^9.0 Licencia MIT</li>
-                    <li>hubspot/api-client Ver. ^14.0 Licencia MIT</li>
-                    <li>openai-php/client Ver. ^0.10 Licencia MIT</li>
-                    <li>aminyazdanpanah/php-ffmpeg-video-streaming Ver. ^1.3 Licencia MIT</li>
-                    <li>guzzlehttp/guzzle Ver. ^7.10 Licencia MIT</li>
-                    <li>react/event-loop Ver. ^1.6 Licencia MIT</li>
-                </ul>
-            </article>
         </div>
 
-        <section class="footer">
-            <img src="<?= base_url('statics/images/framework/developer_by_logo.png'); ?>">
-            <span><?= date('Y') ?></span>
-        </section>
+        <div class="container-standard-form">
+            <div class="form-section-title"><?= __($langGroup, 'Descripción'); ?></div>
+            <p><?= __($langGroup, 'Es un conjunto de componentes personalizables y reusables para el desarrollo web basado en PHP con licencia MIT (de código abierto, sin costos escondidos o adicionales para el cliente final), modular, liviano y flexible que permite “ensamblar” diferentes librerías, funcionalidades y plugins como su nombre “Pieces” lo indica; normalmente a este grupo de componentes se le conoce como Framework.'); ?></p>
+            <p><?= escape_html(sprintf(__($langGroup, 'Este framework ha venido siendo desarrollado desde hace aproximadamente %d años por Tejido Digital y ha permitido la estandarización de procesos dentro de la organización, desarrollo de manera más ágil y rápida, disminuyendo las solicitudes de soporte (garantía) y en caso de presentarse alguna, lograr una solución más rápida.'), $years)); ?></p>
+        </div>
+
+        <div class="container-standard-form">
+            <div class="form-section-title"><?= __($langGroup, 'Librerías propias'); ?></div>
+            <div class="ui bulleted list">
+                <?php foreach ($ownPackages as $package): ?>
+                <div class="item"><?= escape_html($package); ?></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <div class="container-standard-form">
+            <div class="form-section-title"><?= __($langGroup, 'Plugins, scripts y dependencias'); ?></div>
+            <p><span class="ui small grey text"><?= __($langGroup, 'Desarrollados por terceros'); ?></span></p>
+            <p><?= __($langGroup, 'Cada una tiene su propia licencia, que permite usarla en proyectos comerciales con las condiciones que fija esa licencia:'); ?></p>
+            <p><span class="ui small grey text"><?= __($langGroup, 'De PHP, instaladas con Composer'); ?></span></p>
+            <div class="ui list about-framework-dependencies">
+                <?php foreach ($thirdPackages as $package): ?>
+                <div class="item"><?= escape_html($package); ?></div>
+                <?php endforeach; ?>
+            </div>
+            <p><span class="ui small grey text"><?= __($langGroup, 'De JavaScript, en statics/plugins/'); ?></span></p>
+            <div class="ui list about-framework-dependencies">
+                <?php foreach ($jsLibraries as $package): ?>
+                <div class="item"><?= escape_html($package); ?></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <div class="about-framework-footer">
+            <img src="<?= base_url('statics/images/framework/developer_by_logo.png'); ?>" alt="">
+            <div><?= date('Y') ?></div>
+        </div>
 
     </div>
-</main>
+
+</section>

@@ -1,0 +1,57 @@
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$errorPlaceColor: #767676;
+
+//La pestaña «Errores» de Registros: cada entrada, en tres líneas legibles (hora, referencia y tipo; mensaje; lugar).
+.logs-error-title {
+    display: flex !important;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.logs-error-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.logs-error-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+
+    [data-logs-copy] {
+        cursor: copy;
+    }
+}
+
+.logs-error-time {
+    font-variant-numeric: tabular-nums;
+}
+
+.logs-error-message {
+    font-weight: normal;
+    overflow-wrap: anywhere;
+}
+
+.logs-error-place {
+    font-size: 0.85em;
+    color: $errorPlaceColor;
+    overflow-wrap: anywhere;
+}
+
+.logs-pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 480px;
+    overflow: auto;
+}
+
+.logs-trace td {
+    overflow-wrap: anywhere;
+}
+
+.logs-trace-fold td {
+    font-size: 0.85em;
+}

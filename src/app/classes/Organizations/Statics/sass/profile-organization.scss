@@ -1,0 +1,83 @@
+@use '../../../../../statics/core/sass/includes/variables_app_base' as *;
+@use '../../../../../statics/core/sass/includes/functions_app_base' as *;
+@use '../../../../../statics/core/sass/includes/profile-view' as *;
+
+$color99C221: #99C221;
+
+@include profile-view('organization-data', $color99C221) {
+    &.mobile {
+        .person-contact-data {
+            .topbar {
+                display: grid;
+                justify-content: center;
+
+                .avatar {
+                    width: 120px;
+                    height: 120px;
+                }
+            }
+
+            .data {
+                text-align: center;
+            }
+        }
+    }
+
+    .person-contact-data {
+        .topbar {
+
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 10px;
+
+            .avatar {
+                width: 60px;
+                height: 60px;
+
+                img {
+                    border-radius: 100%;
+                }
+            }
+
+            .actions {
+
+                a.button-link,
+                .button-link {
+
+                    display: inline-block;
+                    padding: 8px;
+                    transition: .5s ease opacity;
+                    font-size: pxToRem(14);
+                    font-weight: $fwMedium;
+                    line-height: pxToRem(14);
+
+                    &,
+                    &:hover,
+                    &:visited,
+                    &:active {
+                        color: $color3558A2;
+                    }
+
+                    &:hover {
+                        opacity: .5;
+                    }
+
+                }
+            }
+        }
+
+        .data {
+            margin-bottom: 20px;
+
+            >.name {
+                font-size: pxToRem(18);
+                font-weight: $fwMedium;
+                color: $color3558A2;
+                line-height: pxToRem(28);
+                word-break: break-all;
+            }
+        }
+    }
+}

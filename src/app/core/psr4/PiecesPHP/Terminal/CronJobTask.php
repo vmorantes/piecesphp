@@ -76,6 +76,12 @@ class CronJobTask
     protected ?\Closure $slotResolver = null;
 
     /**
+     * @var array{kind: string, minute?: int, time?: string, day?: int, period: string}|null Lo que definió onMinute, dailyAt
+     * o weeklyOn, para describirlo (Registros › Tareas programadas); `period`, el intervalo ISO entre dos franjas
+     */
+    protected ?array $schedule = null;
+
+    /**
      * @var array<callable> Las condiciones de when() posteriores al método de programación
      */
     protected array $extraConditions = [];
@@ -88,6 +94,11 @@ class CronJobTask
      * @var string|null Si es null, app/cache/cronjobs
      */
     protected ?string $stateDirectory = null;
+
+    /**
+     * @var string Quién la dispara, para el libro: TaskRunMapper::TRIGGER_CLI o TRIGGER_HTTP
+     */
+    protected string $triggeredBy = TaskRunMapper::TRIGGER_CLI;
 
     /**
      * @param string $name
@@ -157,6 +168,7 @@ class CronJobTask
             $slot = $now->setTime((int) $now->format('H'), $minute, 0);
             return $slot > $now ? $slot->sub(new DateInterval('PT1H')) : $slot;
         });
+        $this->schedule = ['kind' => 'hourly', 'minute' => $minute, 'period' => 'PT1H'];
         return $this;
     }
 
@@ -184,6 +196,7 @@ class CronJobTask
             $slot = $now->setTime($hour, $minute, 0);
             return $slot > $now ? $slot->sub(new DateInterval('P1D')) : $slot;
         });
+        $this->schedule = ['kind' => 'daily', 'time' => $time, 'period' => 'P1D'];
         return $this;
     }
 
@@ -209,6 +222,7 @@ class CronJobTask
             $slot = $now->setTime($hour, $minute, 0)->sub(new DateInterval("P{$daysBack}D"));
             return $slot > $now ? $slot->sub(new DateInterval('P7D')) : $slot;
         });
+        $this->schedule = ['kind' => 'weekly', 'day' => $dayOfWeek, 'time' => $time, 'period' => 'P7D'];
         return $this;
     }
 
@@ -265,6 +279,18 @@ class CronJobTask
     // ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     /**
+     * Quién la dispara (el libro de tareas lo anota). Lo que no sea `http` es `cli`.
+     *
+     * @param string $origin TaskRunMapper::TRIGGER_HTTP o TRIGGER_CLI
+     * @return self
+     */
+    public function setTriggeredBy(string $origin): self
+    {
+        $this->triggeredBy = $origin === TaskRunMapper::TRIGGER_HTTP ? TaskRunMapper::TRIGGER_HTTP : TaskRunMapper::TRIGGER_CLI;
+        return $this;
+    }
+
+    /**
      * Verifica si la tarea debe ejecutarse.
      *
      * @return bool
@@ -317,6 +343,31 @@ class CronJobTask
     }
 
     /**
+     * La próxima franja después de $now, o null si la tarea no tiene franja.
+     *
+     * @param DateTime $now
+     * @return DateTime|null
+     */
+    public function nextDueSlot(DateTime $now): ?DateTime
+    {
+        $last = $this->lastDueSlot($now);
+        if ($last === null || $this->schedule === null) {
+            return null;
+        }
+        return $last->add(new DateInterval($this->schedule['period']));
+    }
+
+    /**
+     * Lo que definió onMinute, dailyAt o weeklyOn; null si la tarea no tiene franja.
+     *
+     * @return array{kind: string, minute?: int, time?: string, day?: int, period: string}|null
+     */
+    public function getSchedule(): ?array
+    {
+        return $this->schedule;
+    }
+
+    /**
      * Si toca ejecutarla ahora.
      *
      * @param DateTime $now
@@ -351,15 +402,33 @@ class CronJobTask
     public function run(DateTime $now): array
     {
         if ($this->slotResolver === null) {
-            //Sin franja, como siempre: sin estado, sin bloqueo y sin reintentos.
+            //Sin franja: sin estado ni reintentos, pero con el mismo bloqueo (dos disparos a la vez corrían dos veces).
             if (!$this->shouldExecute()) {
                 return $this->runResult(self::STATUS_NOT_DUE, false, self::describeStatus(self::STATUS_NOT_DUE), 0, null);
             }
-            [$success, $message] = $this->runHandlerSafely();
-            if (!$success) {
-                self::logLine("cron «{$this->name}»: falló: {$message}");
+            [$lock, $handle] = $this->acquireLock();
+            if ($handle === null) {
+                $message = $lock === self::STATUS_LOCKED ? 'En curso: otra ejecución tiene el bloqueo.' : 'Sin directorio de estado escribible: no se ejecuta.';
+                if ($lock === self::STATUS_NO_STATE) {
+                    self::logLine("cron «{$this->name}»: {$message}");
+                }
+                return $this->runResult($lock, false, $message, 0, null);
             }
-            return $this->runResult($success ? self::STATUS_EXECUTED : self::STATUS_FAILED, $success, $message, 1, null);
+            try {
+                //Otra vez con el bloqueo: quien acaba de soltarlo pudo dejar la condición en falso (un respaldo ya hecho).
+                if (!$this->shouldExecute()) {
+                    return $this->runResult(self::STATUS_NOT_DUE, false, self::describeStatus(self::STATUS_NOT_DUE), 0, null);
+                }
+                [$success, $message] = $this->runHandlerRecorded(null, 1);
+                if (!$success) {
+                    self::logLine("cron «{$this->name}»: falló: {$message}");
+                }
+                return $this->runResult($success ? self::STATUS_EXECUTED : self::STATUS_FAILED, $success, $message, 1, null);
+            } finally {
+                if (!$this->releaseLock($handle)) {
+                    self::logLine("cron «{$this->name}»: no se pudo liberar el bloqueo {$this->getLockPath()}.");
+                }
+            }
         }
 
         [$lock, $handle] = $this->acquireLock();
@@ -391,7 +460,7 @@ class CronJobTask
                 return $this->runResult(self::STATUS_NO_STATE, false, 'No se pudo guardar el estado: no se ejecuta.', $attempt - 1, $slotKey);
             }
 
-            [$success, $message] = $this->runHandlerSafely();
+            [$success, $message] = $this->runHandlerRecorded($slotKey, $attempt);
             $state['lastResult'] = $success ? 'success' : 'failed';
             $state['lastError'] = $success ? null : $message;
             if ($success) {
@@ -409,6 +478,23 @@ class CronJobTask
                 self::logLine("cron «{$this->name}»: no se pudo liberar el bloqueo {$this->getLockPath()}.");
             }
         }
+    }
+
+    /**
+     * runHandlerSafely() con su línea en el libro de tareas (TaskRunMapper), que nunca lanza.
+     *
+     * @param string|null $slotKey
+     * @param int $attempt
+     * @return array{0: bool, 1: string}
+     */
+    protected function runHandlerRecorded(?string $slotKey, int $attempt): array
+    {
+        $startedAt = new DateTime();
+        $start = hrtime(true);
+        [$success, $message] = $this->runHandlerSafely();
+        $durationMs = (int) round((hrtime(true) - $start) / 1e6);
+        TaskRunMapper::record($this->name, $slotKey, $this->triggeredBy, $success ? self::STATUS_EXECUTED : self::STATUS_FAILED, $attempt, $startedAt, new DateTime(), $durationMs, $message);
+        return [$success, $message];
     }
 
     /**

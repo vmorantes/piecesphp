@@ -61,6 +61,27 @@ semanas en uso y sin fila. Si añades un artefacto, su fila va en el mismo commi
 | `route-inventory.json` (ignorado) | `RouteInventoryTask` de `bin/cli`, `bin/walk-routes`, `bin/walk-attribute`, `verify-integrity` |
 | `last-restore.json` (ignorado) | `DbRestoreTask` de `bin/cli`, `bin/walk-attribute` |
 | `snapshots/` (contenido ignorado) | La foto de E3, `bin/cli snapshot` (18, T44). Solo se versiona su `.gitignore` |
+| `fatal-candidates.json` | `bin/censo-fatales` (foto fechada: nada la compara) |
+| `permissions-declared.json`, `permissions-matrix.json` | `verify-integrity update-permissions=yes`; `bin/walk-matrix --baseline` y sus suites (la matriz se produce por HTTP: a mano) |
+| `test-data-baseline.json` | `bin/cli gates` (los restos de prueba en la base) |
+| `global-files.json` | La comprobación 49 de `verify-integrity` (lo que vive en lo global, declarado) |
+| `column-renames.json` | `bin/censo-columnas` |
+| `announced-capabilities.json`, `browser-dialogs-allowed.json`, `doc-config-exemptions.json`, `doc-path-exemptions.json`, `exception-message-declared.json`, `get-route-direct-allowed.json`, `head-without-front-configurations.json`, `login-user-data-declared.json`, `upload-dirs.json`, `whole-removals-declared.json` | Declaraciones que leen las puertas de `verify-integrity` y `bin/cli gates` |
+| `api-census.json` | Nadie: la medida única del bloque BG, histórica |
+
+**Tres clases, y `bin/artefactos` las conoce** (medido el 2026-10-21, `#1601`):
+
+- **FOTO**, derivada del código por una herramienta y que nada compara como cota: `route-inventory`,
+  `permissions-declared`, `integrity-signatures`, `css-fingerprint`, `scss-census`, los `PHPStanResult.*` (salvo su
+  línea base), `fatal-candidates` y `campaign-removals`. **`bin/artefactos` las regenera en ese orden, con el censo de
+  borrados el ÚLTIMO** (busca restos en todas las anteriores), y `bin/artefactos --check` corre dentro de
+  `bin/verify`, **con el censo de borrados tras el paso phpstan** (busca restos también en `PHPStanResult.*`): desde GX (2026-10-22) tarda unos 8 s, no 6 min, y la opción `--rapido` que
+  lo saltaba ya no existe. Las fotos de archivos VERSIONADOS (censo de SCSS y de borrados) solo se ponen al día después del commit
+  que añade o borra: por eso `chore(artefactos):` va detrás del commit de código.
+- **TRINQUETE**, una cota que solo baja con reparto: `PHPStanResult.Summary.baseline.txt` y los `*-baseline.json`,
+  `permissions-matrix`, `test-data-baseline` y `narrative-comments` (registro cerrado que solo encoge).
+  `bin/artefactos` dice si se movería; no los escribe.
+- **DECLARACIÓN**, tecleada: el resto. No la regenera nada.
 
 Quedan en la raíz a propósito, y no en `files/dev/`, los `PHPStanResult.*`: son el instrumental
 común de los cinco repositorios (ADR 0006).
@@ -204,7 +225,7 @@ css/ sass/ js/    Estilos y scripts globales (css se genera desde sass)
 features/         Recursos por característica
 fonts/ images/    Tipografías e imágenes
 plugins/          Librerías de terceros
-login-and-recovery/  Recursos de login/recuperación
+login-and-recovery/  Imágenes de login/recuperación (sus hojas, en `src/app/classes/PiecesPHP/UserSystem/Statics/sass/` desde FV1)
 filemanager/      Área de elFinder (escribible)
 uploads/          Subidas de usuarios (escribible)
 server-delegated/ Archivos gestionados por lógica interna (escribible)

@@ -73,6 +73,24 @@ class RecoveryPasswordModel extends BaseEntityMapper
     }
 
     /**
+     * Si ese código existe para ese correo, vigente o no: separa «caducado» de «inexistente o ya usado».
+     *
+     * @param string $email
+     * @param string $code
+     * @return bool
+     */
+    public static function existsCode(string $email, string $code): bool
+    {
+        $instance = new RecoveryPasswordModel();
+        $data = $instance->getModel()->select()->where(new WhereSegment([
+            WhereItem::isEqual('email', $email, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('code', $code),
+        ]))->row();
+
+        return is_object($data);
+    }
+
+    /**
      * Borra todos los códigos de ese correo.
      *
      * @param string $email

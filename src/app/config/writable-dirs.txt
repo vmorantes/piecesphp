@@ -1,0 +1,14 @@
+# Carpetas que el servidor web tiene que poder escribir, relativas a src/. La leen permissions-and-property.sh,
+# src/permissions.sh y la Salud de la instalación: una sola lista.
+app/logs
+app/cache
+app/lang/missing-lang-messages
+app/lang/dynamic-translations
+tmp
+dumps
+statics/css
+statics/server-delegated
+statics/uploads
+statics/images
+statics/filemanager
+statics/login-and-recovery/images

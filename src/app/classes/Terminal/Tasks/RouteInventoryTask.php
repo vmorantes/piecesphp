@@ -22,7 +22,7 @@ use PiecesPHP\TerminalData;
  *
  * Existe para que el recorredor de rutas no trabaje sobre una lista escrita a mano: una
  * lista a mano envejece en silencio y deja de cubrir justo lo que se acaba de añadir. El
- * framework ya sabe cuáles son todas sus rutas —es lo que muestra `/configurations/system/routes/`—
+ * framework ya sabe cuáles son todas sus rutas —es lo que muestra la pantalla `configurations-system-routes`—
  * y esto lo expone sin necesidad de sesión ni de navegador.
  *
  * Es de SOLO LECTURA: no toca base de datos ni escribe nada fuera del archivo de salida.

@@ -91,5 +91,19 @@ $cronjobs[] = CronJobTask::make('Procesar la cola', function () {
     ];
 })->when(fn () => true);
 
+//Lo viejo de los registros (G8, G10): suaves de más de 30 días, trazas de más de 90 y la cola terminada o fallida.
+$cronjobs[] = CronJobTask::make('Purgar registros viejos', function () {
+
+    $errors = \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::pruneStorage();
+    $queue = \Terminal\Mappers\QueueJobMapper::purge();
+
+    return [
+        'success' => true,
+        'message' => "Borrados {$errors['soft']} contador(es) de suaves, {$errors['traces']} traza(s), "
+            . "{$queue['completed']} trabajo(s) terminado(s) y {$queue['failed']} fallido(s) de la cola.",
+        'extra_data' => ['errors' => $errors, 'queue' => $queue],
+    ];
+})->dailyAt("03:30");
+
 //Asignación global
 CronJobTask::addCronJobs($cronjobs);

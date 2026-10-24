@@ -212,8 +212,39 @@ y por directorio**, justo antes de empezar a manejar rutas. El archivo previsto 
 - Logs en `src/app/logs` (`LOG_ERRORS_PATH`), backups en `logs/olds`
   (`LOG_ERRORS_BACKUP_PATH`). Desde 7.0.6 existe además un `error.plain.log` de
   lectura fácil.
-- La vista de log de errores del panel es la ruta `admin-error-log` (solo roles
-  superiores).
+- Los errores se ven en el panel en **Registros › Errores** (`logs-admin-index?tab=errors`, datos en
+  `logs-admin-errors`, solo root): `ErrorLogReader` lee `error.log.jsonl` y el `error.log.json` viejo, con sus rotados
+  de `olds/`; `?ref=ERR-…` abre una entrada. `error.unique.message.log` guarda la referencia de la PRIMERA aparición.
+- **Graves y suaves (ADR 0060, `869bab06`)**: `ErrorSeverity` clasifica y `PhpErrorHandler` decide (en `bootstrap.php`).
+  Fuera de local, un suave se anota y sigue; en local, aborta como siempre (E_USER_WARNING y E_USER_NOTICE nunca
+  abortaron, y siguen sin hacerlo: `#1318` 6.5). `log_soft_error()` no aborta nunca.
+- **El almacén (`da4d38e5`)**: `error.log.jsonl` con `LOCK_EX` (si otro proceso rotó mientras esperaba el cerrojo, se
+  compara el inodo y se reabre); trazas en `error-traces/<huella>.json`, creadas una vez; los suaves, un contador por
+  firma y día en `error-soft/AAAAMMDD/<sha256>`, creado de forma atómica con `link()`: count = tamaño − 20, lastAt = mtime.
+  **Trampa**: dos `log_soft_error()` distintos desde la misma línea el mismo día cuentan como uno (firma tipo+archivo+
+  línea). Contadores y trazas sin retención propia: solo `clean-logs`.
+- **La jerarquía (P133) vive en `PiecesPHP\UserSystem\UserHierarchy`** (rank, canActOn, canSee, rankSQL,
+  visibilityGroup). Una acción del sistema o de un usuario borrado tiene rango de root; un intento sin usuario lo ven
+  los administradores; en la suplantación cuenta `meta.actor.id`.
+
+## Las sesiones con fila (ADR 0026, fases B y C, `bf2c22e5`, 2026-10-10)
+
+- **Tabla `pcsphp_user_sessions`** (núcleo, sin generador); modelo `UserSystem/ORM/UserSessionsModel.php`, servicio
+  `UserSystem/Authentication/UserSessions.php` (todo por SQL preparado). Guarda el **sha256** del identificador.
+- **Emitir**: `UserSessions::issueToken()` (fila + `{id, sid}` en `data`; token con `DURATION_MAX`, la fila con
+  `SessionToken::duration()`). Terminal: `terminalToken()`, sin fila, `{id, terminal: true}`, solo vale si
+  `TerminalData::isTerminal()`.
+- **Validar**: `UserSessions::tokenIsValid()` en `index.php`, tras las marcas de usuario, con el id que traía el token
+  ANTES de la suplantación. `UserSessions::jwtIsValid()` (firma + fila) en el login y en `users-verify-login-request`:
+  con solo la firma, un token viejo sin fila hacía un BUCLE acceso → panel → acceso (`#1316` D2).
+- **El cifrado (ADR 0061, `4aeb0dec`-`51bdc61f`)**: `Core/Crypto/{AppKeyring,Sealed,EncryptedData,EncryptedDataRegistry,
+  KeyRotation}`. El `data` de los tokens va con `Sealed` (propósito `token-data`). **Trampa medida (`#1331`)**: un token
+  firmado con datos que no se abren daba 500; `isActiveSession()` y `SessionTokenIsolated` devuelven false si
+  `getData()` no es objeto. Los archivos protegidos y los tokens genéricos validan con `UserSessions::jwtIsValid()`.
+- **La puerta 48 de `verify-integrity`**: `Sealed` solo con un propósito que sea una CONSTANTE de clase declarada en
+  `EncryptedDataRegistry` (salvo `SEALED_FROM_REGISTRY`), y `obfuscate()` solo en `OBFUSCATION_ALLOWED`, que solo encoge.
+- **Siguen en AES-CBC con la clave cruda** (`#1332` H1, G1): `OrganizationMapper:923/925` y `APIController:1097/1151/1158`.
+- `lastActivityAt` se escribe como mucho cada 300 s (la condición va en el `UPDATE`).
 
 ## Revocar una sesión (ADR 0026, fase A, 2026-09-24)
 
@@ -233,9 +264,10 @@ tiempo**, y la regla es la misma en las dos: **un token vale si nació DESPUÉS 
   global y, si el usuario tiene marca, posterior también a la suya. **Mismo segundo: `false`.** Una marca de usuario
   que no es una fecha niega. La usan los dos sitios de `index.php` que deciden; `isActiveSession()` conserva su propia
   comparación con la marca global, con el mismo operador (`>`).
-- **TRAMPA CUBIERTA · la lista `$ignoreExpiredForRoutesName` de `index.php`** renueva un token caducado en las rutas
-  que nombre (de fábrica, sin ninguna ruta real: solo el marcador de la plantilla). Fabrica un token con fecha de AHORA, así que la revocación se decide ANTES, con el
-  `iat` del token viejo. Quien mueva esa pregunta después de `generateToken()` reabre la puerta trasera: lo caza la
+- **TRAMPA CUBIERTA · la renovación de un token caducado** la declara la ruta con `->renewExpired(true)`
+  (`RouteAdapter`, clave `renew_expired`; P143, 2026-10-14; antes, la lista `$ignoreExpiredForRoutesName` de
+  `index.php`). De fábrica no la declara ninguna. `index.php` la lee con `get_route_info()` y fabrica un token con fecha
+  de AHORA, así que la revocación se decide ANTES, con el `iat` del token viejo. La opción la prueba `core/access-guards` §17. Quien mueva esa pregunta después de `generateToken()` reabre la puerta trasera: lo caza la
   sección X de `core/session-revocation`. La firma del token caducado SÍ se comprueba (`BaseToken::decode()` verifica
   antes de mirar el tiempo; `$ignore_expired` solo salta `exp`).
 - **Alcanza también a la identidad suplantada**: root que suplanta a alguien con la sesión revocada no entra como él,

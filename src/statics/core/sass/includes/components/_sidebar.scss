@@ -51,7 +51,7 @@ $fontModule: $fontSidebars;
         margin: 0px 0px 0px 0px;
         padding: 0px 0px 0px 0px;
         height: 100vh;
-        box-shadow: 0px 3px 6px rgba(112, 112, 112, 0.149);
+        box-shadow: 0px 3px 6px $colorBorderSoftAlt;
         background-color: $sidebarBackgroundColor;
         overflow-y: auto;
         overflow-x: hidden;

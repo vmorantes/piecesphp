@@ -32,6 +32,16 @@ class GenericContentPseudoMapper
     const CONTENT_DYNAMIC_TRANSCALTIONS = 'DYNAMIC_TRANSCALTIONS';
     const CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT = 'DYNAMIC_TRANSLATIONS_UPDATED_AT';
     const CONTENT_MAPBOX_KEYS = 'MAPBOX_KEYS';
+    const CONTENT_MAP_DEFAULT_CENTER = 'MAP_DEFAULT_CENTER';
+
+    /**
+     * Donde se abre un mapa sin otra posición, y su acercamiento: Barranquilla, el de la página vieja del mapa.
+     */
+    const MAP_DEFAULT_CENTER = [
+        'longitude' => -74.8065913846496,
+        'latitude' => 11.0021516003209,
+        'zoom' => 11,
+    ];
     const CONTENT_HOME_IMAGE = 'homeImage';
 
     /**
@@ -48,10 +58,11 @@ class GenericContentPseudoMapper
         self::CONTENT_DYNAMIC_TRANSCALTIONS => [],
         self::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT => null,
         self::CONTENT_MAPBOX_KEYS => [
-            'keyLocal' => 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ',
-            'keyDomain' => 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ',
+            'keyLocal' => '',
+            'keyDomain' => '',
         ],
         self::CONTENT_HOME_IMAGE => null,
+        self::CONTENT_MAP_DEFAULT_CENTER => self::MAP_DEFAULT_CENTER,
     ];
 
     /**
@@ -64,6 +75,7 @@ class GenericContentPseudoMapper
         self::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT => 'datetime',
         self::CONTENT_DYNAMIC_TRANSCALTIONS => 'associativeArray',
         self::CONTENT_MAPBOX_KEYS => 'associativeArray',
+        self::CONTENT_MAP_DEFAULT_CENTER => 'associativeArray',
     ];
 
     /**
@@ -450,6 +462,46 @@ class GenericContentPseudoMapper
             $data['langData'] = new \stdClass;
         }
         return $data;
+    }
+
+    /**
+     * El centro por omisión de los mapas, como números; si lo guardado no vale (o no hay nada), el de MAP_DEFAULT_CENTER.
+     *
+     * @return array{longitude: float, latitude: float, zoom: float}
+     */
+    public static function mapDefaultCenter(): array
+    {
+        $saved = self::getContentData(self::CONTENT_MAP_DEFAULT_CENTER, self::MAP_DEFAULT_CENTER);
+        $center = is_array($saved) && count(self::mapDefaultCenterErrors($saved)) === 0 ? $saved : self::MAP_DEFAULT_CENTER;
+        return [
+            'longitude' => (float) $center['longitude'],
+            'latitude' => (float) $center['latitude'],
+            'zoom' => (float) $center['zoom'],
+        ];
+    }
+
+    /**
+     * Lo que no vale de un centro por omisión, en mensajes para el usuario; vacío si vale entero.
+     *
+     * @param array<mixed> $center Con longitude, latitude y zoom
+     * @return string[]
+     */
+    public static function mapDefaultCenterErrors(array $center): array
+    {
+        $ranges = [
+            'longitude' => [-180, 180, __(self::LANG_GROUP, 'La longitud debe ser un número entre -180 y 180.')],
+            'latitude' => [-90, 90, __(self::LANG_GROUP, 'La latitud debe ser un número entre -90 y 90.')],
+            'zoom' => [0, 22, __(self::LANG_GROUP, 'El acercamiento debe ser un número entre 0 y 22.')],
+        ];
+        $errors = [];
+        foreach ($ranges as $name => [$min, $max, $message]) {
+            $value = $center[$name] ?? null;
+            $number = is_int($value) || is_float($value) || (is_string($value) && is_numeric(trim($value))) ? (float) $value : null;
+            if ($number === null || !is_finite($number) || $number < $min || $number > $max) {
+                $errors[] = $message;
+            }
+        }
+        return $errors;
     }
 
     /**

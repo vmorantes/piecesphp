@@ -1,91 +1,62 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+/**
+ * Usuarios sin ingreso: cifras con las piezas de estadísticas y la tabla. Gráfica y tabla, en access-reports.js.
+ *
+ * @var int $totalUsers
+ * @var int $loggedUsers
+ * @var int $notLoggedUsers
+ * @var string $exportUrl
+ * @var \PiecesPHP\UserSystem\Controllers\HelperController $pieces Pinta las piezas del panel
+ */
 $langGroup = LOGIN_REPORT_LANG_GROUP;
 ?>
-<section class="module-view-container limit-size">
+<div class="login-reports-view">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
+    <?php ob_start(); ?>
+    <div class="three-columns-grid">
+        <?php
+        $pieces->_render('panel/built-in/statistics/chart-card.php', [
+            'title' => __($langGroup, 'Usuarios totales'),
+            'titleModifiers' => ['big'],
+            'chartAttributes' => ['data-access-chart' => ''],
+            'legend' => [
+                ['name' => __($langGroup, 'Sin ingreso'), 'dataType' => 'notLoggedUsers', 'level' => 'primary', 'color' => '#DB2828', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $notLoggedUsers],
+                ['name' => __($langGroup, 'Con ingreso'), 'dataType' => 'loggedUsers', 'level' => 'secondary', 'color' => '#7A7A7A', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $loggedUsers],
+            ],
+        ]);
+        $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+            'number' => ['dataType' => 'notLoggedUsers', 'initial' => (string) $notLoggedUsers],
+            'footer' => ['caption' => __($langGroup, 'Usuarios sin ingreso')],
+        ]);
+        $pieces->_render('panel/built-in/statistics/action-card.php', [
+            'modifiers' => ['horizontal-center'],
+            'url' => $exportUrl,
+            'icon' => 'file export',
+            'title' => __($langGroup, 'Exportar datos'),
+        ]);
+        ?>
     </div>
+    <?php
+    $pieces->_render('panel/built-in/statistics/statistics-section.php', [
+        'modifiers' => ['one-column'],
+        'content' => (string) ob_get_clean(),
+    ]);
+    ?>
 
-    <div class="header-options">
-        <div class="columns two">
-            <div class="column">
-                <div class="section-title">
-                    <div class="title"><?= __($langGroup, $title); ?></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="container-standard-table">
 
-    <div class="not-access-cards">
-        <div class="user-report-card">
-            <div class="info">
-                <div class="titlle-info">
-                    <div class="icon-chart">
-                        <i class="chart bar icon"></i>
-                    </div>
-                    <div class="tittle">
-                        <span><?= __($langGroup, 'Reporte de Usuarios'); ?></span>
-                        <small><?= __($langGroup, 'Sin ingreso'); ?></small>
-                    </div>
-                </div>
-                <div class="chart-info">
-                    <div class="info">
-                        <span class="tag"><?= __($langGroup, 'Total Usuarios'); ?></span>
-                        <span total-users class="value">0</span>
-                    </div>
-                    <div class="info red">
-                        <span class="tag"><?= __($langGroup, 'Sin ingreso'); ?></span>
-                        <span users-not-logged class="value">0</span>
-                    </div>
-                </div>
-            </div>
-            <div class="line-chart">
-                <span class="total"></span>
-                <span bar-chart-no-logged class="no-access"></span>
-            </div>
-        </div>
-        <a class="card export" href="<?= $exportUrl ?>">
-            <span><?= __($langGroup, 'Exportar datos'); ?></span>
-            <i class="file export icon"></i>
-        </a>
-    </div>
-
-    <div class="card-table">
-        <table process="<?= \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax'); ?>" class="ui basic table not-logged no-border" style="max-width:100%;width:100%;">
+        <table data-access-table="<?= escape_html(\PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'not-logged'])); ?>" class="ui basic table content-table">
             <thead>
                 <tr>
-                    <th><?= __($langGroup, 'ID'); ?></th>
+                    <th class="collapsing"><?= __($langGroup, 'ID'); ?></th>
                     <th><?= __($langGroup, 'Usuario'); ?></th>
                     <th><?= __($langGroup, 'Nombre'); ?></th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
-</section>
-
-<script>
-    window.onload = function(e) {
-        $('.tabular.menu .item').tab()
-        let tableNotLogged = $('table.ui.table.not-logged')
-        dataTableServerProccesing(tableNotLogged, tableNotLogged.attr('process'), 25, {
-            drawCallback: function({
-                jqXHR
-            }) {
-                const {
-                    responseJSON: {
-                        recordsFiltered
-                    }
-                } = jqXHR
-                const totalUsers = `<?= $totalUsers ?>`
-                $('[total-users]').text(totalUsers)
-                $('[users-not-logged]').text(recordsFiltered)
-                $('[bar-chart-no-logged]').css('width', (recordsFiltered * 100 / totalUsers) + '%')
-            },
-        })
-
-    }
-</script>
+</div>

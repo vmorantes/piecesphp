@@ -231,7 +231,7 @@ bin/cli run-cronjobs
 ---
 
 ### 8. process-queue
-Procesa las tareas pendientes en la cola de ejecución (tabla `pcsphp_jobs_queue`). Utiliza un sistema de bloqueos (locks) para evitar ejecuciones paralelas excesivas.
+Procesa las tareas pendientes en la cola de ejecución (tabla `pcsphp_jobs_queue`). Utiliza un sistema de bloqueos (locks) para evitar ejecuciones paralelas excesivas, y **cada trabajo lo toma un solo trabajador**: se marca «en ejecución» con una actualización condicional y, si otro trabajador se adelantó, se salta. Lo terminado de más de 30 días y lo fallido de más de 90 lo borra la tarea diaria «Purgar registros viejos».
 
 **Parámetros:**
 

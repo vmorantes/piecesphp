@@ -17,6 +17,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\ResponseRouteFactory;
@@ -28,6 +29,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\TerminalData;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\LoadFailures;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -38,6 +40,7 @@ use Spatie\Url\Url as URLManager;
 use SystemApprovals\SystemApprovalsMiddleware;
 use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Controllers\TerminalController;
+use Terminal\Tasks\GatesTask;
 
 /**
  * --------------------------------------------------------------------------
@@ -233,6 +236,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     if (empty($route)) {
         throw new NotFoundException($request, $emptyResponse);
     }
+    //Para el contexto de un error que salte en esta petición (ADR 0060 §6).
+    \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::setRouteName((string) $route->getName());
 
     if ($flashMessagesExceptionRender !== null) {
         throw $flashMessagesExceptionRender;
@@ -317,49 +322,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     if (!$isActiveSession && get_config('terminalData')->isTerminal()) {
         $rootUser = new UsersModel(1);
         if ($rootUser->id !== null) {
-            //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES: lo que este usuario ES se lee de su fila en cada petición.
-            $JWT = SessionToken::generateToken([
-                'id' => $rootUser->id,
-            ]);
+            //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES: lo que este usuario ES se lee de su fila en cada petición. Sin fila de
+            //sesión y marcado: solo vale en el terminal (UserSessions::tokenIsValid()).
+            $JWT = UserSessions::terminalToken((int) $rootUser->id);
             $_SERVER["HTTP_" . mb_strtoupper(SessionToken::tokenName())] = $JWT;
             // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
             $isActiveSession = SessionToken::isActiveSession($JWT);
         }
     }
 
-    $getQualifiedRouteName = function ($classname, ?string $simpleName = null, bool $withPrefix = true) {
-
-        $name = $simpleName;
-
-        if (!is_null($name) && $withPrefix) {
-            $name = trim($name);
-            $name = $name !== '' ? "-{$name}" : '';
-        }
-
-        if ($withPrefix) {
-            $prefix = uniqid($classname);
-            if (property_exists($classname, 'baseRouteName')) {
-                $reflectionClass = new ReflectionClass($classname);
-                $reflectionProperty = $reflectionClass->getProperty('baseRouteName');
-                $prefix = $reflectionProperty->getValue();
-            }
-        } else {
-            $prefix = '';
-        }
-
-        $name = !is_null($name) ? $prefix . $name : $prefix;
-
-        return $name;
-    };
-
-    //Rutas que se reautentican si está desconectado (para consultas de terceros)
-    // Lista Blanca (Whitelist) de nombres de ruteo interno a las que intencionalmente
-    // se les renovará un token caducado de forma automática. Ej: Webhooks, Endpoints de terceros.
-    $ignoreExpiredForRoutesName = [
-        ($getQualifiedRouteName)('NOMBRE_CALIFICADO_DE_LA_CLASE', 'NOMBRE_SIMPLE_DE_LA_RUTA'),
-        //($getQualifiedRouteName)(\API\Controllers\APIController::class, 'polls-actions'),
-        //($getQualifiedRouteName)(\PiecesPHP\UserSystem\Controllers\TimerController::class, 'timing-add', false),
-    ];
+    //Renueva un token caducado solo si la ruta lo declara con ->renewExpired(true); la revocación se decide abajo,
+    //con el iat del token VIEJO, antes de fabricar el nuevo.
+    $ignoreExpired = (get_route_info((string) $route->getName())['renew_expired'] ?? false) === true;
 
     // --- 4. Manejo de Expiración de Sesión ---
     // Una línea en app/logs/expired-sessions.log, sin el token y solo si la instalación lo
@@ -382,12 +356,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
                 is_object($expiredToken) && isset($expiredToken->iat) ? (int) $expiredToken->iat : null,
                 is_object($expiredToken) && isset($expiredToken->exp) ? (int) $expiredToken->exp : null,
-                in_array($route->getName(), $ignoreExpiredForRoutesName)
+                $ignoreExpired
             );
         }
-
-        // Renueva token si la ruta es una de excepción configurada (Ej. Cron, consultas 3ros, Webhooks)
-        $ignoreExpired = in_array($route->getName(), $ignoreExpiredForRoutesName);
 
         if ($ignoreExpired && is_object($expiredUserData) && isset($expiredUserData->id)) {
             $expiredUser = new UsersModel((int) $expiredUserData->id);
@@ -398,10 +369,13 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             $expiredCreated = is_object($expiredDecoded) && isset($expiredDecoded->iat) && is_int($expiredDecoded->iat) ? $expiredDecoded->iat : null;
             $expiredUserMark = $expiredUser->sessionsValidFrom;
             $expiredUserMark = $expiredUserMark instanceof \DateTimeInterface ? $expiredUserMark->format('Y-m-d H:i:s') : (is_string($expiredUserMark) ? $expiredUserMark : null);
-            if ($expiredUser->id !== null && SessionToken::isCreatedAfterMarks($expiredCreated, $expiredUserMark)) {
+            //Y la sesión: el mismo identificador, y solo si su fila sigue abierta (ADR 0026, fase B).
+            $expiredSessionID = $expiredUserData->sid ?? null;
+            if ($expiredUser->id !== null && SessionToken::isCreatedAfterMarks($expiredCreated, $expiredUserMark) && UserSessions::identifierIsOpen($expiredSessionID, (int) $expiredUser->id)) {
                 $JWT = SessionToken::generateToken([
                     'id' => $expiredUser->id,
-                ]);
+                    'sid' => $expiredSessionID,
+                ], null, UserSessions::tokenLifetime());
                 $_SERVER["HTTP_" . mb_strtoupper(SessionToken::tokenName())] = $JWT;
                 // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
                 $isActiveSession = SessionToken::isActiveSession($JWT);
@@ -422,6 +396,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     if ($isActiveSession) {
 
         $userJWTData = BaseToken::getData($JWT); //Información del usuario
+        //Lo que dice el token ANTES de una suplantación: la fila de la sesión es de este usuario, no del suplantado.
+        $tokenSessionData = $userJWTData instanceof \stdClass ? clone $userJWTData : null;
+        $tokenUserID = $tokenSessionData !== null && isset($tokenSessionData->id) && Validator::isInteger($tokenSessionData->id) ? (int) $tokenSessionData->id : 0;
         // --- Clase Anónima de Validación DTO ---
         // Envuelve la data del token para asegurar que posee las propiedades 'id' y 'type' con valores enteros fiables
         // antes de cruzar los datos contra MySQL.
@@ -528,9 +505,12 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         $user = $validationUserObject->getUserFromDatabase();
         //Si el rol no existe, se invalida la sesión y se marca como eliminado el usuario
         if (!Roles::roleExists($user->type ?? -999) && $user !== null) {
-            $userMapper = new UsersModel($user->id);
-            $userMapper->status = UsersModel::STATUS_USER_DELETED;
-            $userMapper->update();
+            //El usuario de sistema no tiene rol a propósito: se le cierra la puerta, pero no se le borra.
+            if (!UsersModel::isSystemUser((int) $user->id)) {
+                $userMapper = new UsersModel($user->id);
+                $userMapper->status = UsersModel::STATUS_USER_DELETED;
+                $userMapper->update();
+            }
             $isActiveSession = false;
             $user = null;
         }
@@ -547,13 +527,23 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         $impersonationRequested = $anotherUserID !== null;
         $anotherUserID ??= getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
         set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
-        // El privilegio ROOT es el único autorizado a intercambiar su variable en memoria y operar del lado del servidor simulando ser otro usuario de menor rango.
+        //El principal tiene que valer POR SÍ MISMO antes de suplantar: después `$user` es el suplantado y su marca de
+        //revocación y su estado ya no se miran (P160 a). Si no vale, no hay sesión, por el mismo camino que una revocada.
         if ($user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
+            $rootValidFrom = $user->sessionsValidFrom ?? null;
+            $rootTokenCreated = BaseToken::getCreated($JWT);
+            if (in_array($user->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT)
+                || (is_string($rootValidFrom) && trim($rootValidFrom) !== '' && !SessionToken::isCreatedAfterMarks(is_int($rootTokenCreated) ? $rootTokenCreated : null, $rootValidFrom))) {
+                $isActiveSession = false;
+            }
+        }
+        // El privilegio ROOT es el único autorizado a intercambiar su variable en memoria y operar del lado del servidor simulando ser otro usuario de menor rango.
+        if ($isActiveSession && $user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
             set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, $user->id);
             //El nombre del principal se guarda ANTES de que `$user` pase a ser el suplantado.
             $rootUsernameForLog = (string) ($user->username ?? $user->id);
             $anotherUserID = Validator::isInteger($anotherUserID) ? (int) $anotherUserID : null;
-            if ($anotherUserID !== null && $anotherUserID > 0) {
+            if ($anotherUserID !== null && $anotherUserID > 0 && !UsersModel::isSystemUser($anotherUserID)) {
                 setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, $anotherUserID);
                 $userJWTData->id = $anotherUserID;
                 $validationUserObject->setUser($userJWTData);
@@ -592,6 +582,12 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 if (!SessionToken::isCreatedAfterMarks(is_int($tokenCreated) ? $tokenCreated : null, $sessionsValidFrom)) {
                     $isActiveSession = false;
                 }
+            }
+
+            //LA FILA DE LA SESIÓN (ADR 0026, fases B y C): existe, es de este usuario, no está cerrada ni caducada. Por el
+            //MISMO camino que una revocada, sin decir por qué; un token sin identificador no entra (P130 a).
+            if ($isActiveSession && !UserSessions::tokenIsValid($tokenSessionData, $tokenUserID)) {
+                $isActiveSession = false;
             }
 
             //Verificar status de la organización si aplica
@@ -684,7 +680,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                     if ($request->isXhr()) {
 
                         //Sin sesión no hay excepciones: una cabecera de la petición no puede autorizar nada.
-                        $emptyResponse = $emptyResponse->withStatus(403);
+                        $emptyResponse = $emptyResponse->withStatus(401)->withHeader('WWW-Authenticate', 'Bearer');
                         $emptyResponse = ($handleCors)($request, $emptyResponse);
                         return $emptyResponse->withJson([
                             'error' => 'RESTRICTED_AREA',
@@ -694,7 +690,11 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
                         if (!TerminalData::getInstance()->isTerminal()) {
                             set_flash_message('requested_uri', get_current_url());
-                            return $emptyResponse->withRedirect(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'));
+                            //La URL pedida viaja también en la redirección (P145): el aviso es de un solo uso y una recarga lo pierde.
+                            //UsersController::safeNextURL() la valida como del mismo sitio antes de usarla.
+                            $loginURL = \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login');
+                            $loginURL .= (str_contains($loginURL, '?') ? '&' : '?') . 'next=' . rawurlencode(get_current_url());
+                            return $emptyResponse->withRedirect($loginURL);
                         } else {
                             return $emptyResponse->write("Esta ruta necesita autenticación \r\n");
                         }
@@ -954,7 +954,23 @@ if (TerminalData::getInstance()->isTerminal()) {
         $cliActions = CliActions::getActions();
         if ($cliActionExists || count($cliActions) > 0) {
             if ($cliActionExists) {
-                CliActions::run($actionName, TerminalData::instance()->arguments());
+                //Una suite lanzada sola abre su corrida y poda lo que escribió en el registro de errores; dentro de gates,
+                //la corrida es la de gates y la poda le toca a él (ADR 0063).
+                $cliAction = CliActions::get($actionName);
+                $isSuite = $cliAction !== null && str_contains(str_replace('\\', '/', $cliAction->definedIn()), '/' . GatesTask::SUITES_DIRECTORY . '/');
+                $testRun = $isSuite ? GenericHandler::startTestRun() : null;
+                try {
+                    $cliActionResult = CliActions::run($actionName, TerminalData::instance()->arguments());
+                } finally {
+                    if ($testRun !== null && $testRun['created']) {
+                        $pruned = GenericHandler::pruneTestRun($testRun['run']);
+                        echoTerminal('errores de prueba podados: ' . $pruned['entries'] . ($pruned['error'] !== null ? " ({$pruned['error']})" : ''));
+                    }
+                }
+                //Un rojo sale con 1 porque quien encadena `bin/cli <suite> && …` no lee el balance.
+                if (is_array($cliActionResult) && array_key_exists('success', $cliActionResult) && $cliActionResult['success'] === false) {
+                    exit(1);
+                }
             } else {
                 echoTerminal("Acción no reconocida: {$actionName}", true, "\r\n", '33');
                 foreach ($cliActions as $action) {
@@ -962,6 +978,7 @@ if (TerminalData::getInstance()->isTerminal()) {
                     $description = $action->getDescription();
                     echoTerminal(" - {$name}\r\n\t{$description}", true, "\r\n\r\n", '32');
                 }
+                exit(1);
             }
             return;
         } elseif (BaseEventDispatcher::hasDefaultListeners(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME)) {
@@ -970,7 +987,7 @@ if (TerminalData::getInstance()->isTerminal()) {
             return;
         } else {
             echoTerminal("No coincide ninguna ruta y no hay órdenes disponibles", true, "\r\n", '33');
-            exit;
+            exit(1);
         }
     }
 }

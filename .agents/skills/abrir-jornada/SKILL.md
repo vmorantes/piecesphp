@@ -50,7 +50,11 @@ hacen falta más, el estado está mal repartido y eso se corrige, no se compensa
 | 4b | `.agents/docs/decisiones-del-po.md`, las filas de los últimos días | Lo que el PO decidió; el detalle, en el tramo de ese día |
 | 5 | `.agents/docs/roadmap.md` | Qué falta hasta la versión en curso y en qué orden |
 | 6 | Los ADR con fecha de los últimos siete días, de `.agents/docs/adr/` | Lo que se decidió y no se ha implementado entero |
-| 7 | La bandeja del PO: `python3 -B .agents/scripts/vikunja.py revisar` | Lo que contestó, marcó hecho o pidió desde el último cierre |
+| 7 | La bandeja del PO: `python3 -B .agents/scripts/vikunja.py revisar`, **en segundo plano y sin esperarla** | Lo que contestó, marcó hecho o pidió desde el último cierre |
+
+**La fila 7 no bloquea la apertura** (PO, 2026-10-14: «Vikunja es una herramienta más; por eso todo debe vivir aquí»). Se
+lanza en segundo plano y las nueve preguntas se contestan sin esperarla, desde el repositorio; si tarda o falla, se dice y
+se sigue. Si hace falta que el PO conteste algo, **se le avisa en el chat** y él revisa su Vikunja.
 
 La fila 7 está **aquí y no en `AHORA.md`**: `AHORA.md` es podable, así que una obligación escrita solo allí se pierde
 el día que se poda. `cerrar-jornada` §2.0 tiene la simétrica.

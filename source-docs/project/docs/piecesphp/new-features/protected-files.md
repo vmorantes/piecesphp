@@ -26,8 +26,8 @@ ninguno de los dos sitios.
   estática, así que se lo pasa a Apache.
 - Todo esto vive en `PiecesPHP\Core\Statics` (`ServerStatics`, `ProtectFileMiddleware` y
   `ProtectedUploads`). Los nombres viejos, `PiecesPHP\Core\ServerStatics` y
-  `PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware`, siguen funcionando con
-  `class_alias`.
+  `PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware`, ya no existen desde la 9: se usa el de
+  `PiecesPHP\Core\Statics`.
 - El registro de las carpetas se hace en cada arranque: las de los módulos del framework en
   `src/app/core/extensions/protected-files.php` y las tuyas en `src/app/config/extensions/protected-files.php`. Las
   dos las carga también `bin/cli`.

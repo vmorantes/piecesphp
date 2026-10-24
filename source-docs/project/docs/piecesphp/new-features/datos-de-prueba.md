@@ -44,14 +44,19 @@ organizaciones, las regiones necesitan países.
 
 ## Qué siembra hoy el framework
 
-Dieciséis tablas, con estas cantidades por defecto. Son **80 filas**, más lo que la aplicación crea sola por ellas:
-los perfiles de los usuarios y las aprobaciones de organizaciones, usuarios y publicaciones. El limpiado borra las dos
-cosas.
+Veinticuatro tablas, con estas cantidades por defecto. Son **173 filas** (contadas con `bin/cli seed module=all`, que
+simula y no escribe), más lo que la aplicación crea sola por ellas: las aprobaciones de organizaciones, usuarios y
+publicaciones, y las lecturas de las noticias sembradas. El limpiado borra las dos cosas.
+
+Los perfiles se siembran **enteros** para poder revisar cómo se ven: las personas con cargo, teléfono, enlaces,
+ciudad, coordenadas e instituciones, y las organizaciones con sector, tamaño, contacto propio, logo y ubicación. Las
+coordenadas son fijas por fila (alrededor de Bogotá), nunca aleatorias, para que el mapa salga igual cada vez.
 
 | Módulo | Tabla | Filas | Después de |
 | :-- | :-- | --: | :-- |
-| Organizaciones | `organizations_elements` | 3 | — |
-| Usuarios | `pcsphp_users` | 5, uno por tipo salvo el principal | organizaciones |
+| Organizaciones | `organizations_elements` | 3, con el perfil entero y su logo | ciudades |
+| Usuarios | `pcsphp_users` | 15, tres por tipo salvo el principal | organizaciones |
+| | `user_system_profile` | 6, los de los usuarios cuyo tipo lleva perfil, completos | usuarios |
 | Localizaciones | `locations_countries` | 2 | — |
 | | `locations_states` | 3 | países |
 | | `locations_cities` | 4 | regiones |
@@ -66,6 +71,13 @@ cosas.
 | | `forms_document_types` | 3 | — |
 | Documentos | `documents_elements` | 6, con su archivo y su imagen | tipos de documento |
 | Boletín | `newsletter_sucribers` | 8 | — |
+| Registros: accesos | `login_attempts` | 20, de ayer hacia atrás, desde IP de documentación (`203.0.113.x`) | usuarios |
+| Registros: sesiones | `pcsphp_user_sessions` | 12 | usuarios |
+| Registros: correos | `pcsphp_mail_log` | 16, de hace dos días hacia atrás, sin cuerpo, a `@example.invalid` | — |
+| Registros: tareas | `pcsphp_task_runs` | 15, de tareas con prefijo que no están registradas | — |
+| Registros: tokens | `pcsphp_users_otp_secrets` | 6, el secreto cifrado por su mapper | usuarios |
+| | `pcsphp_recovery_password` | 4, de usuarios sembrados | usuarios |
+| | `pcsphp_user_problems` | 4, de usuarios sembrados | usuarios |
 
 **Un listado del panel hecho con DataTables no trae las filas en la página**: las pide aparte. Si buscas lo sembrado en
 el HTML de un listado así no lo vas a encontrar; está en la respuesta de su tabla. Medido en los de noticias,
@@ -183,6 +195,22 @@ public function ownedRows(): array
 > **Sin el `where`, el limpiado borraría aprobaciones de otras tablas que comparten número de id.** La suite
 > `unit-tests:core/seed-round-trip` lo vigila con una aprobación señuelo que tiene que sobrevivir.
 
+**Y no solo al arrancar: también lo que la aplicación crea cuando alguien USA lo sembrado.** Abrir una noticia
+sembrada deja una fila en `news_readed_relationship` que apunta a ella; sin declararla, el limpiado choca con la clave
+foránea y no borra nada. Por eso las noticias declaran sus lecturas:
+
+```php
+public function ownedRows(): array
+{
+    return [NewsReadedMapper::TABLE => 'news'];
+}
+```
+
+**Un perfil sembrado y el que crea el arranque.** El arranque crea un perfil vacío a todo usuario cuyo tipo lo lleva y
+no lo tiene. Los perfiles sembrados llegan antes, porque en la siembra los usuarios se escriben después del arranque; y
+los usuarios declaran sus perfiles en `ownedRows()`, así que el limpiado borra primero los sembrados (por su marca) y
+luego los vacíos que queden.
+
 ### Si tu tabla tiene archivos: `copyToUploads()` y `ownedFolder()`
 
 **Nunca apuntes una fila sembrada a un archivo del repositorio.** Al cambiar la imagen de un registro desde el panel, el
@@ -231,8 +259,14 @@ no siembra. La suite `unit-tests:core/seed-planner` lo vigila.
 
 ## Lo que NO hace, y hay que saberlo
 
-- **No siembra tablas de sistema**: configuración, registros, intentos de acceso, colas, aprobaciones, doble factor.
-  Sembrar la configuración, por ejemplo, contaminaría claves reales.
+- **No siembra configuración, colas ni aprobaciones**: sembrar la configuración, por ejemplo, contaminaría claves
+  reales. Las aprobaciones de lo sembrado las crea la aplicación sola.
+- **Registros se siembra sin que cambie lo que vigila**: los intentos de acceso y los correos llevan fechas fuera de las
+  ventanas que bloquean un acceso o encienden el aviso de «Entrega del correo», y las tareas sembradas no están
+  registradas, así que no cuentan en la ayuda del cron. Si siembras una tabla de registro propia, haz lo mismo: mira qué
+  lee esa tabla para decidir algo y deja tus filas fuera.
+- **Los errores y los tokens genéricos no se siembran**: los errores salen de un archivo, no de una tabla, y
+  `pcsphp_tokens` no tiene un mapper que la siembra pueda usar.
 - **`bin/cli seed` corre con una sesión del usuario con id 1**, y algunos mappers ponen ese usuario de autor al guardar,
   pisando el que dé tu sembrador.
 - **Pero una suite de pruebas NO tiene sesión.** Las suites son acciones de terminal y no pasan por ese inicio de sesión.

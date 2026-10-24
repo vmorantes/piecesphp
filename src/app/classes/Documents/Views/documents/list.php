@@ -8,75 +8,44 @@ use Documents\Controllers\DocumentsController;
  */
 /**
  * @var string $langGroup
- * @var string $editLink
+ * @var string $processTableLink
  */
-$langGroupDatatables = 'datatables';
 ?>
-<section class="module-view-container limit-size">
+<section class="module-view-container">
 
-    <div class="header-options">
+    <div class="limiter-content">
 
-        <div class="main-options">
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1): una acción principal y las demás, básicas.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Nuevo documento'), 'url' => $addLink, 'icon' => 'plus'] : null,
+            'secondaryActions' => $hasPermissionsListDocumentsTypesLink ? [['text' => __($langGroup, 'Tipos de documento'), 'url' => $listDocumentsTypesLink, 'icon' => 'tags']] : [],
+        ]);
+        ?>
 
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
-
+        <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
+            <div class="mirror-scroll-x-content"></div>
         </div>
 
-        <div class="columns">
+        <div class="container-standard-table">
 
-            <div class="column">
+            <table url="<?= $processTableLink; ?>" class="ui basic table content-table">
 
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= $subtitle; ?></div>
-                </div>
+                <thead>
 
-            </div>
+                    <tr>
+                        <th><?= __($langGroup, 'Nombre del documento'); ?></th>
+                        <th order="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
+                    </tr>
+
+                </thead>
+
+            </table>
 
         </div>
-
-    </div>
-
-    <?php if ($hasPermissionsListDocumentsTypesLink) :  ?>
-        <a href="<?= $listDocumentsTypesLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Tipos de documentos'); ?></a>
-    <?php endif; ?>
-
-    <?php if ($hasPermissionsAddDocumentTypeLink) :  ?>
-        <a href="<?= $addDocumentTypeLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar tipo de documento'); ?></a>
-    <?php endif; ?>
-
-    <br>
-    <br>
-
-    <?php if (mb_strlen($formVariables['action']) > 0) : ?>
-        <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
-        <br>
-        <br>
-    <?php endif; ?>
-
-
-    <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
-        <div class="mirror-scroll-x-content"></div>
-    </div>
-
-    <div class="container-standard-table">
-
-        <table url="<?= $processTableLink; ?>" class="ui basic table">
-
-            <thead>
-
-                <tr>
-                    <th><?= __($langGroup, '#'); ?></th>
-                    <th><?= __($langGroup, 'Tipo del documento'); ?></th>
-                    <th><?= __($langGroup, 'Nombre del documento'); ?></th>
-                    <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
-                </tr>
-
-            </thead>
-
-        </table>
 
     </div>
 

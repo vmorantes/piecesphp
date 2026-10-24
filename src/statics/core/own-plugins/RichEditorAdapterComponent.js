@@ -213,7 +213,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 				if (typeof errorMessage == 'function') {
 					errorMessage(_i18n(langGroup, 'Error en RichEditorAdapterComponent'), _i18n(langGroup, 'Ha ocurrido un error al instanciar.'))
 				} else {
-					alert(_i18n(langGroup, 'Ha ocurrido un error al instanciar RichEditorAdapterComponent.'))
+					console.error(_i18n(langGroup, 'Ha ocurrido un error al instanciar RichEditorAdapterComponent.'))
 				}
 			}
 

@@ -5,6 +5,7 @@
 
 namespace PiecesPHP\Tokens\Controllers;
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Tokens\ORM\TokenModel;
@@ -159,7 +160,8 @@ class GenericTokenController extends AdminPanelController
             if ($validate_session) {
 
                 $JWT = SessionToken::getJWTReceived();
-                $isActiveSession = SessionToken::isActiveSession($JWT);
+                //Con la sesión, no solo la firma (ADR 0061 §12).
+                $isActiveSession = UserSessions::jwtIsValid((string) $JWT);
 
                 if ($isActiveSession) {
 
@@ -346,7 +348,7 @@ class GenericTokenController extends AdminPanelController
                     $mailer->Body = $this->globalViews->render('mailing/template_base', $data, false, false);
 
                     if (!$mailer->checkSettedSMTP()) {
-                        $mailer->asGoDaddy();
+                        $mailer->asSystemMailer();
                     }
 
                     $success = $mailer->send();

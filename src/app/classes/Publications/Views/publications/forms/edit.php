@@ -15,6 +15,9 @@ use Publications\Util\FieldTranslationUtility;
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
+ * @var string $previewLink Vacío si no hay permiso para ver la publicación en el sitio.
+ * @var string $deleteRoute
+ * @var bool $allowDelete
  */
 
 $langs = Config::get_allowed_langs();
@@ -65,20 +68,21 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
-
-        <br>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'secondaryActions' => $previewLink !== '' ? [[
+                'text' => __($langGroup, 'Ver en el sitio'),
+                'url' => $previewLink,
+                'icon' => 'external alternate',
+                'attributes' => ['target' => '_blank', 'rel' => 'noopener'],
+            ]] : [],
+        ]);
+        ?>
 
         <div class="ui pointing secondary menu lang-tabs" <?= $allowedManyLangs ? '' : 'style="display:none;"'; ?>>
             <?php foreach($langsTabs as $langCode => $langName): ?>
@@ -95,7 +99,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
         <?php $switchFieldsLang($langCode); ?>
         <div class="ui<?= $activeLang ? ' active' : ''; ?> tab" data-tab="<?= $langCode; ?>" lang-container="<?= $langCode; ?>">
 
-            <div class="tabs-controls">
+            <div class="tabs-controls content-tabs">
                 <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
                 <div data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
                 <div data-tab="details" <?= !$isBaseLang ? 'style="display:none;"' : '' ?>><?= __($langGroup, 'Detalles'); ?></div>
@@ -110,9 +114,9 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                 <?php endif; ?>
             </div>
 
-            <div class="container-standard-form">
+            <form method='POST' action="<?= $action; ?>" class="ui form initial publications" data-content-form>
 
-                <form method='POST' action="<?= $action; ?>" class="ui form publications">
+                <div class="container-standard-form">
 
                     <input type="hidden" name="id" value="<?= $element->id; ?>">
                     <input type="hidden" name="lang" value="<?= $langCode; ?>">
@@ -386,20 +390,23 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
                     </div>
 
-                    <br><br>
+                </div>
 
-                    <div class="field">
-                        <div class="ui buttons">
-                            <button type="submit" class="ui button brand-color" save><?= __($langGroup, 'Guardar'); ?></button>
-                            <?php if($allowDelete): ?>
-                            <button type="submit" class="ui button brand-color alt2" delete-publication-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                    <?php
+                    //La barra fija (§2.3), una por idioma: edit-form.js busca `[lang-container] button[type="submit"][save]`.
+                    //Eliminar es `button`: si delete-config.js no cargara, un submit guardaría el formulario.
+                    $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+                    if ($allowDelete) {
+                        $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-publication-button' => '', 'data-route' => $deleteRoute]];
+                    }
+                    $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                        'saveText' => __($langGroup, 'Guardar'),
+                        'saveAttributes' => ['save' => ''],
+                        'secondaryActions' => $secondaryActions,
+                    ]);
+                    ?>
 
-                </form>
-
-            </div>
+            </form>
 
         </div>
 

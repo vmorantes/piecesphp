@@ -1,2 +1,16 @@
 @use '../../../../../../statics/core/sass/includes/variables_app_base' as *;
 @use '../../../../../../statics/core/sass/includes/functions_app_base' as *;
+
+//Las tarjetas del explorador: la miniatura, la de relleno y el icono, a la misma altura, para que ninguna deje hueco.
+.table-to-cards .ui.cards > .card > .image.document-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+
+    > img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}

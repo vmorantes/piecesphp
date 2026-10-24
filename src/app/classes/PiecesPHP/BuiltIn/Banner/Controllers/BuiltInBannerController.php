@@ -26,6 +26,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -101,7 +102,6 @@ class BuiltInBannerController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(BuiltInBannerRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(BuiltInBannerRoutes::staticRoute(self::BASE_CSS_DIR . '/built-in-banner.css'), 'css');
 
         $aspectRatioDesktopDefault = 16 / 9;
         $aspectRatioMobileDefault = 4 / 3;
@@ -163,7 +163,7 @@ class BuiltInBannerController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -171,7 +171,7 @@ class BuiltInBannerController extends AdminPanelController
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/add', $data);
@@ -234,7 +234,7 @@ class BuiltInBannerController extends AdminPanelController
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -242,7 +242,7 @@ class BuiltInBannerController extends AdminPanelController
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
 
             $this->helpController->render('panel/layout/header');
             $this->render('forms/edit', $data, true, false);
@@ -279,12 +279,12 @@ class BuiltInBannerController extends AdminPanelController
         $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
             $title,
-        ]);
+        ];
 
         set_custom_assets([
             BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -904,26 +904,19 @@ class BuiltInBannerController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
-
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editIcon = "<i class='icon edit'></i>";
-                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
-                    $buttons[] = $editButton;
-                }
+                $menu = [];
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-built-in-banner-button>{$deleteIcon}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-built-in-banner-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
-
-                $buttons = implode('', $buttons);
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('forms-edit', ['id' => $e->id]), 'edit') : null;
+                $buttons = RowActions::cell($direct, $menu);
                 $columns = [];
 
                 $title = is_string($e->title) ? (mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...') : 'N/A';
@@ -938,8 +931,8 @@ class BuiltInBannerController extends AdminPanelController
                 $columns[] = $e->idPadding;
                 $columns[] = escape_html($title);
                 $columns[] = $e->orderPosition;
-                $columns[] = $e->desktopImage !== null ? "<a class='ui button icon blue' href='#' data-image-preview='" . escape_html($e->desktopImage) . "'><i class='icon image'></i></a>" : 'N/A';
-                $columns[] = $e->mobileImage !== null && mb_strlen($e->mobileImage) > 0 ? "<a class='ui button icon blue' href='#' data-image-preview='" . escape_html($e->mobileImage) . "'><i class='icon image'></i></a>" : 'N/A';
+                $columns[] = $e->desktopImage !== null ? "<a class='ui icon basic button' href='#' title='" . escape_html(__(self::LANG_GROUP, 'Ver la imagen de escritorio')) . "' data-image-preview='" . escape_html($e->desktopImage) . "'><i class='desktop icon'></i></a>" : 'N/A';
+                $columns[] = $e->mobileImage !== null && mb_strlen($e->mobileImage) > 0 ? "<a class='ui icon basic button' href='#' title='" . escape_html(__(self::LANG_GROUP, 'Ver la imagen de móviles')) . "' data-image-preview='" . escape_html($e->mobileImage) . "'><i class='mobile alternate icon'></i></a>" : 'N/A';
                 $columns[] = $dates;
                 $columns[] = $buttons;
                 return $columns;

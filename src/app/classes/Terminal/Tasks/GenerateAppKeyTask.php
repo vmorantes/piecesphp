@@ -12,10 +12,11 @@ use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
 /**
- * GenerateAppKeyTask - Imprime una app_key nueva para pegarla en config.php. No escribe nada.
+ * GenerateAppKeyTask - Crea el llavero de secure-keys con una clave nueva (ADR 0061 §5). Nunca la imprime.
  *
  * @package     Terminal\Tasks
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -41,8 +42,9 @@ class GenerateAppKeyTask extends TerminalTaskAbstract
         ];
         //Establecer propiedades
         $this->description = new StringArray([
-            "Imprime una app_key nueva (64 caracteres hexadecimales, 32 bytes aleatorios) para pegarla en config.php.\r\n",
-            "\tNo escribe nada: cambiarla invalida las sesiones y los tokens emitidos con la anterior.\r\n",
+            "Crea secure-keys/app-key.json con una app_key nueva (64 caracteres hexadecimales). Nunca la imprime: solo su huella.\r\n",
+            "\tSolo si aún no hay llavero (con uno: rotate-app-key). La clave de ahora queda como anterior, para leer lo cifrado.\r\n",
+            "\tLas sesiones y los tokens emitidos con la anterior dejan de valer.\r\n",
             "\tParámetros:\r\n",
             "\t  N/A\r\n",
         ]);
@@ -57,15 +59,21 @@ class GenerateAppKeyTask extends TerminalTaskAbstract
         $this->middlewares = [];
     }
 
+    /**
+     * @param RequestRoute|null $requestRoute
+     * @param ResponseRoute|null $responseRoute
+     * @param array<mixed>|null $parameters
+     * @return void
+     * @throws \Throwable Si falla: bin/cli sale con código distinto de 0
+     */
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
         $titleTask = 'Generando app_key';
-        echoTerminal(implode("\r\n", [
-            "\e[32m*** {$titleTask} ***\e[39m",
-            "\e[34mCópiela en config.php como \$config['app_key']. Las sesiones y los tokens emitidos con la anterior dejarán de valer.\e[39m",
-            self::generate(),
-            "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m",
-        ]));
+        echoTerminal("\e[32m*** {$titleTask} ***\e[39m");
+        foreach (AppKeyCommands::generate(AppKeyCommands::installationPath(), AppKeyring::get()) as $line) {
+            echoTerminal("\e[34m{$line}\e[39m");
+        }
+        echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
     }
 
     /**
@@ -73,7 +81,7 @@ class GenerateAppKeyTask extends TerminalTaskAbstract
      */
     public static function generate(): string
     {
-        return bin2hex(random_bytes(32));
+        return AppKeyring::generateKey();
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

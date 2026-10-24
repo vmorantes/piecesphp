@@ -14,6 +14,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -91,16 +92,16 @@ class Country extends AdminPanelController
 
         $action = self::routeName('actions-add');
         $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CountryMapper::STATUS);
-        $status_options = array_to_html_options($status_options, CountryMapper::ACTIVE);
+        $status_options = array_to_html_options(Locations::escapeOptions($status_options), escape_html(CountryMapper::ACTIVE));
         $back_link = self::routeName('list');
-        $regionsOptions = array_to_html_options(CountryMapper::allRegionsForSelect());
+        $regionsOptions = array_to_html_options(Locations::escapeOptions(CountryMapper::allRegionsForSelect()));
 
         $data = [];
         $data['action'] = $action;
         $data['status_options'] = $status_options;
         $data['back_link'] = $back_link;
         $data['title'] = self::$title;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -111,11 +112,16 @@ class Country extends AdminPanelController
                 'url' => $back_link,
             ],
             self::$title,
-        ]);
+        ];
         $data['regionsOptions'] = $regionsOptions;
 
+        $data['title'] = __(LOCATIONS_LANG_GROUP, 'Agregar') . ' ' . mb_strtolower(self::$title);
+        $data['fields'] = $this->formFields(null, $status_options, $regionsOptions);
+        $data['pieces'] = $this->helperController;
+        set_custom_assets([Locations::staticRoute('js/locations-forms.js')], 'js');
+
         $this->helperController->render('panel/layout/header');
-        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+        $this->helperController->localRender(self::$prefixParentEntity . '/_form', $data);
         $this->helperController->render('panel/layout/footer');
     }
 
@@ -136,8 +142,8 @@ class Country extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CountryMapper::STATUS);
-            $status_options = array_to_html_options($status_options, $element->active);
-            $regionsOptions = array_to_html_options(CountryMapper::allRegionsForSelect(), $element->region);
+            $status_options = array_to_html_options(Locations::escapeOptions($status_options), escape_html($element->active));
+            $regionsOptions = array_to_html_options(Locations::escapeOptions(CountryMapper::allRegionsForSelect()), escape_html($element->region));
             $back_link = self::routeName('list');
 
             $data = [];
@@ -146,7 +152,7 @@ class Country extends AdminPanelController
             $data['element'] = $element;
             $data['back_link'] = $back_link;
             $data['title'] = self::$title;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -157,11 +163,16 @@ class Country extends AdminPanelController
                     'url' => $back_link,
                 ],
                 self::$title,
-            ]);
+            ];
             $data['regionsOptions'] = $regionsOptions;
 
+            $data['title'] = __(LOCATIONS_LANG_GROUP, 'Editar') . ' ' . mb_strtolower(self::$title);
+            $data['fields'] = $this->formFields($element, $status_options, $regionsOptions);
+            $data['pieces'] = $this->helperController;
+            set_custom_assets([Locations::staticRoute('js/locations-forms.js')], 'js');
+
             $this->helperController->render('panel/layout/header');
-            $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+            $this->helperController->localRender(self::$prefixParentEntity . '/_form', $data);
             $this->helperController->render('panel/layout/footer');
 
         } else {
@@ -185,7 +196,7 @@ class Country extends AdminPanelController
         $data['add_link'] = $add_link;
         $data['has_add_link_permissions'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -193,10 +204,22 @@ class Country extends AdminPanelController
                 'url' => $back_link,
             ],
             self::$pluralTitle,
-        ]);
+        ];
+
+        $data['addText'] = __(LOCATIONS_LANG_GROUP, 'Agregar') . ' ' . mb_strtolower(self::$title);
+        $data['columns'] = [
+            ['text' => __(LOCATIONS_LANG_GROUP, 'ID')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Código')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Nombre')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Región')],
+            ['text' => __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo')],
+        ];
+
+        $data['pieces'] = $this->helperController;
+        set_custom_assets([Locations::staticRoute('js/locations-list.js')], 'js');
 
         $this->helperController->render('panel/layout/header');
-        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+        $this->helperController->localRender(self::$prefixParentEntity . '/_list', $data);
         $this->helperController->render('panel/layout/footer');
     }
 
@@ -314,23 +337,20 @@ class Country extends AdminPanelController
             'mapper' => new CountryMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
-
-                $editButton = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
                 $editLink = self::routeName('forms-edit', [
                     'id' => $e->id,
                 ]);
 
-                if (mb_strlen($editLink) > 0) {
-                    $editText = __(LOCATIONS_LANG_GROUP, 'Editar');
-                    $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
-                }
+                //Sin permiso de edición, la celda va vacía.
+                $editButton = mb_strlen($editLink) > 0 ? RowActions::cell(RowActions::action(__(LOCATIONS_LANG_GROUP, 'Editar'), $editLink, 'edit')) : '';
 
+                //Lo que viene de la base sale escapado: DataTables pinta cada celda como HTML.
                 return [
                     $e->id,
-                    $e->code ?? '-',
-                    $e->name,
-                    $e->region ?? '-',
-                    __(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active]),
+                    escape_html($e->code ?? '-'),
+                    escape_html($e->name),
+                    escape_html($e->region ?? '-'),
+                    escape_html(__(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active])),
                     $editButton,
                 ];
 
@@ -354,6 +374,8 @@ class Country extends AdminPanelController
 
         $id = $request->getParsedBodyParam('id', -1);
         $code = $request->getParsedBodyParam('code', null);
+        $phoneCode = $request->getParsedBodyParam('phoneCode', null);
+        $demonym = $request->getParsedBodyParam('demonym', null);
         $name = $request->getParsedBodyParam('name', null);
         $region = $request->getParsedBodyParam('region', null);
         $active = $request->getParsedBodyParam('active', null);
@@ -379,6 +401,8 @@ class Country extends AdminPanelController
         $unknow_error_message = __(LOCATIONS_LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $is_duplicate_message_name = __(LOCATIONS_LANG_GROUP, 'Ya existe un país con ese nombre.');
         $is_duplicate_message_code = __(LOCATIONS_LANG_GROUP, 'Ya existe un país con ese código.');
+        $invalid_phone_code_message = __(LOCATIONS_LANG_GROUP, 'El prefijo telefónico debe empezar por + y llevar de una a cuatro cifras, sin cero delante.');
+        $too_long_demonym_message = __(LOCATIONS_LANG_GROUP, 'El gentilicio no puede pasar de 255 caracteres.');
 
         $redirect_url_on_create = self::routeName('list');
 
@@ -388,10 +412,20 @@ class Country extends AdminPanelController
             $code = is_string($code) ? clean_string($code) : '';
             $code = mb_strlen($code) > 0 ? $code : null;
             $region = is_string($region) && mb_strlen(trim($region)) > 0 ? clean_string($region) : null;
+            $phoneCode = is_string($phoneCode) ? trim($phoneCode) : '';
+            $phoneCode = $phoneCode !== '' ? $phoneCode : null;
+            $demonym = is_string($demonym) ? clean_string($demonym) : '';
+            $demonym = mb_strlen($demonym) > 0 ? $demonym : null;
+            $is_invalid_phone_code = $phoneCode !== null && !CountryMapper::isValidPhoneCode($phoneCode);
+            $is_too_long_demonym = $demonym !== null && mb_strlen($demonym) > 255;
             $is_duplicate_name = CountryMapper::isDuplicateName($name, $id);
             $is_duplicate_code = CountryMapper::isDuplicateCode($code, $id);
 
-            if (!$is_duplicate_name && !$is_duplicate_code) {
+            if ($is_invalid_phone_code) {
+                $result->setMessage($invalid_phone_code_message);
+            } elseif ($is_too_long_demonym) {
+                $result->setMessage($too_long_demonym_message);
+            } elseif (!$is_duplicate_name && !$is_duplicate_code) {
 
                 if (!$is_edit) {
 
@@ -400,6 +434,8 @@ class Country extends AdminPanelController
                     try {
 
                         $mapper->code = $code;
+                        $mapper->phoneCode = $phoneCode;
+                        $mapper->demonym = $demonym;
                         $mapper->name = $name;
                         $mapper->region = $region;
                         $mapper->active = $active;
@@ -433,6 +469,8 @@ class Country extends AdminPanelController
                         try {
 
                             $mapper->code = $code;
+                            $mapper->phoneCode = $phoneCode;
+                            $mapper->demonym = $demonym;
                             $mapper->name = $name;
                             $mapper->region = $region;
                             $mapper->active = $active;
@@ -539,6 +577,29 @@ class Country extends AdminPanelController
         return $response->withJson($result);
     }
 
+
+    /**
+     * Los campos del formulario de alta (sin elemento) y de edición, para la plantilla locations/_form.
+     *
+     * @param CountryMapper|null $element
+     * @param string $statusOptions
+     * @param string $extraOptions Las opciones de las regiones
+     * @return array<int,array<string,mixed>>
+     */
+    protected function formFields(?CountryMapper $element, string $statusOptions, string $extraOptions): array
+    {
+        $fields = [];
+        if ($element !== null) {
+            $fields[] = ['kind' => 'hidden', 'name' => 'id', 'value' => $element->id];
+        }
+        $fields[] = ['kind' => 'input', 'name' => 'name', 'label' => __(LOCATIONS_LANG_GROUP, 'Nombre'), 'required' => true, 'maxlength' => 255, 'value' => $element !== null ? $element->name : ''];
+        $fields[] = ['kind' => 'input', 'name' => 'code', 'label' => __(LOCATIONS_LANG_GROUP, 'Código'), 'maxlength' => 255, 'value' => $element !== null ? ($element->code ?? '') : ''];
+        $fields[] = ['kind' => 'input', 'name' => 'phoneCode', 'label' => __(LOCATIONS_LANG_GROUP, 'Prefijo telefónico'), 'note' => __(LOCATIONS_LANG_GROUP, 'Por ejemplo, +57.'), 'maxlength' => 5, 'value' => $element !== null ? ($element->phoneCode ?? '') : ''];
+        $fields[] = ['kind' => 'input', 'name' => 'demonym', 'label' => __(LOCATIONS_LANG_GROUP, 'Gentilicio'), 'note' => __(LOCATIONS_LANG_GROUP, 'Se ofrece como nacionalidad en los perfiles. Por ejemplo, Colombiana.'), 'maxlength' => 255, 'value' => $element !== null ? ($element->demonym ?? '') : ''];
+        $fields[] = ['kind' => 'select', 'name' => 'region', 'label' => __(LOCATIONS_LANG_GROUP, 'Región'), 'help' => __(LOCATIONS_LANG_GROUP, 'Puede escribir la región y presionar ENTER si no la encuentra en el listado.'), 'class' => 'ui dropdown regions search', 'options' => $extraOptions];
+        $fields[] = ['kind' => 'select', 'name' => 'active', 'label' => __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo'), 'required' => true, 'options' => $statusOptions];
+        return $fields;
+    }
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

@@ -3,6 +3,12 @@
 @use 'includes/components/show-data' as *;
 @use 'includes/components/placeholders' as *;
 
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$standardTableBorder: rgba(128, 128, 128, 0.26);
+$formSectionTitleColor: #001130;
+$activeTabBackground: rgba(0, 124, 196, 0.1);
+$waitOverlayBackground: rgba(0, 0, 0, 0.386);
+
 $fontModule: $fontGlobal;
 
 //──── RETROCOMPATIBILIDAD INICIO ────────────────────────────────────────────────────────
@@ -151,29 +157,6 @@ $fontModule: $fontGlobal;
         max-width: 1920px;
     }
 
-    //Título de secciones tipo saludo, orientado a home
-    .home-hello-section-title {
-        font-weight: $fwMedium;
-        padding: 45px 0px;
-        color: #FFF;
-
-        &.center {
-            text-align: center;
-        }
-
-        >.title {
-            font-size: pxToRem(40);
-            line-height: pxToRem(48);
-            font-weight: $fwBold;
-            margin-bottom: 15px;
-        }
-
-        >.subtitle {
-            font-size: pxToRem(24);
-            line-height: pxToRem(32);
-        }
-    }
-
     //Contenedor de elementos en la parte superior
     .header-options {
 
@@ -284,7 +267,7 @@ $fontModule: $fontGlobal;
             font-weight: $fwRegular;
             font-size: pxToRem(16);
             line-height: pxToRem(16+5);
-            color: #1B1C1D;
+            color: $colorTextStrong;
             text-wrap: wrap;
             margin-top: 5px;
         }
@@ -310,8 +293,13 @@ $fontModule: $fontGlobal;
         max-width: 1920px;
         padding: pxToRem(30) pxToRem(30) 3rem pxToRem(30);
         overflow-x: auto;
-        border: 1px solid rgba(128, 128, 128, 0.26);
+        border: 1px solid $standardTableBorder;
         border-radius: 15px;
+
+        //Dos bloques seguidos no van pegados: el mismo 1rem que deja la barra de guardar (`ui segment`).
+        &:not(:last-child) {
+            margin-bottom: 1rem;
+        }
 
         >* {
             max-width: 98%;
@@ -361,16 +349,25 @@ $fontModule: $fontGlobal;
         }
     }
 
+    //Un bloque que sigue a un formulario no va pegado a su barra de guardar: el mismo 1rem que separa dos contenedores.
+    form + * {
+        margin-top: 1rem;
+    }
+
     //Contenedor de formularios
     .container-standard-form {
 
         background-color: white;
         max-width: 1920px;
-        border: 1px rgba(112, 112, 112, 0.149) solid;
+        border: 1px $colorBorderSoftAlt solid;
         border-radius: 15px;
         padding: 2rem 2.5rem;
         container-type: inline-size;
         container-name: container-standard-form;
+
+        &:not(:last-child) {
+            margin-bottom: 1rem;
+        }
 
         &.no-style {
             background-color: none;
@@ -408,9 +405,10 @@ $fontModule: $fontGlobal;
 
         .form-section-title {
             font-weight: $fwMedium;
-            color: #001130;
+            color: $formSectionTitleColor;
             font-size: pxToRem(21);
-            line-height: pxToRem(18);
+            //Relativo: con un alto fijo menor que la letra, un título de dos líneas se pisa.
+            line-height: 1.2;
             padding: pxToRem(15) pxToRem(0);
         }
 
@@ -435,8 +433,8 @@ $fontModule: $fontGlobal;
 
         max-width: 1220px;
         border-radius: 8px;
-        border: 1px solid rgba(112, 112, 112, 0.15);
-        background-color: #FFF;
+        border: 1px solid $colorBorderSoft;
+        background-color: $colorWhite;
         padding: 2rem 2.5rem;
         container-type: inline-size;
         container-name: container-standard;
@@ -461,7 +459,7 @@ $fontModule: $fontGlobal;
         label {
             font-weight: $fwRegular;
             font-size: pxToRem(16);
-            color: #1B1C1D;
+            color: $colorTextStrong;
         }
 
         .ui.dropdown {
@@ -527,7 +525,7 @@ $fontModule: $fontGlobal;
     //Datatables en cards
     .table-to-cards {
         background-color: white;
-        border: 1px solid rgba(112, 112, 112, 0.149);
+        border: 1px solid $colorBorderSoftAlt;
         border-radius: 15px;
         padding: 40px;
         max-width: 100% !important;
@@ -568,8 +566,8 @@ $fontModule: $fontGlobal;
         &.background {
             padding: pxToRem(32);
             border-radius: 15px;
-            border: 1px solid rgba(112, 112, 112, 0.15);
-            background: #FFF;
+            border: 1px solid $colorBorderSoft;
+            background: $colorWhite;
         }
 
         //Botones principales
@@ -616,7 +614,7 @@ $fontModule: $fontGlobal;
             &.active {
                 color: $colorFirst;
                 font-weight: $fwBold;
-                background-color: rgba(0, 124, 196, 0.1);
+                background-color: $activeTabBackground;
             }
         }
 
@@ -762,7 +760,7 @@ body.wait-to-action {
         left: 0px;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.386);
+        background-color: $waitOverlayBackground;
     }
 }
 

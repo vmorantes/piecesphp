@@ -84,7 +84,7 @@ foreach ($otherLangs as $lang) {
                     <div class="ui buttons">
                         <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
                         <?php if($allowDelete): ?>
-                        <button type="submit" class="ui button brand-color alt2" delete-publication-category-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
+                        <button type="button" class="ui button brand-color alt2" delete-publication-category-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
                         <?php endif; ?>
                     </div>
                 </div>

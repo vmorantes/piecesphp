@@ -3,6 +3,7 @@
 //La revocación de sesiones (ADR 0026) medida por HTTP: la comprobación vive en `src/index.php` y solo corre al servir.
 //Crea usuarios y organizaciones zz-prueba-rev-*, un borrador de publicación y mueve la marca global; lo retira todo y lo comprueba.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
@@ -70,7 +71,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
     $nombres = [
         'propia' => 'my-space-admin-revoke-my-sessions',
         'ajena' => 'users-revoke-sessions-request',
-        'protegida' => 'my-space-admin-my-space',
+        'protegida' => 'my-space-admin-user-security',
         'acceso' => 'users-form-login',
         'publica' => 'publications-single',
     ];
@@ -106,8 +107,8 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             $cabeceras[] = 'X-Requested-With: XMLHttpRequest';
         }
         $cookies = [];
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -124,8 +125,8 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             },
         ]);
         if ($metodo === 'POST') {
-            curl_setopt($handle, CURLOPT_POST, true);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POST, true);
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
         }
         $body = curl_exec($handle);
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
@@ -136,7 +137,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
     };
 
     //Un token como los del producto: solo el id (`generateToken()` pone la hora de creación).
-    $token = fn(int $id): string => SessionToken::generateToken(['id' => $id], null, null, false);
+    $token = fn(int $id): string => UserSessions::issueToken($id);
     //DENTRO es que la ruta protegida no lo manda al acceso: un general con el perfil sin completar recibe un 302 a su
     //perfil, y eso también es estar identificado. FUERA es el 302 al acceso.
     $ultimaEntrada = '';
@@ -253,7 +254,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         $check($borraCookie, 'a6 y caduca la cookie de sesión', implode(' | ', $r['cookies']));
         $check($entra($actual) === 'FUERA', 'a7 el MISMO token ya no entra: va al acceso', $ultimaEntrada);
         $check($entra($anterior) === 'FUERA', 'a8 el token anterior tampoco');
-        $check($pedir('GET', (string) $ruta($nombres['protegida']), $actual)['status'] === 403, 'a9 y una petición de datos con él recibe 403');
+        $check($pedir('GET', (string) $ruta($nombres['protegida']), $actual)['status'] === 401, 'a9 y una petición de datos con él recibe 401');
         echoTerminal(' ');
 
         //─── B · Mismo segundo ──────────────────────────────────────────────────────────────────
@@ -551,7 +552,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         //El bloque que renueva un token caducado tiene que preguntarlo ANTES de fabricar el nuevo: el nuevo nace
         //después de cualquier marca, y con él un revocado entraba. Por tokens, para que un comentario no cuente.
         $fuente = (string) file_get_contents(basepath('index.php'));
-        $desde = mb_strpos($fuente, '$ignoreExpired = in_array(');
+        $desde = mb_strpos($fuente, 'if ($ignoreExpired && ');
         $hasta = $desde !== false ? mb_strpos($fuente, '//Verifica la validez del usuario activo', $desde) : false;
         $check($desde !== false && $hasta !== false, 'x2 canario: el bloque que renueva un token caducado se encuentra en src/index.php');
         $llamadas = [];
@@ -567,7 +568,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         //LA PRUEBA DEL ACOPLAMIENTO (300.2): el dato de la revocación tiene que decodificarse FUERA del
         //`if` del registro, que está apagado de serie. Por tokens: un comentario no cuenta.
         $bloqueCaducada = mb_strpos($fuente, 'if (!$isActiveSession) {');
-        $finCaducada = $bloqueCaducada !== false ? mb_strpos($fuente, '$ignoreExpired = in_array(', $bloqueCaducada) : false;
+        $finCaducada = $bloqueCaducada !== false ? mb_strpos($fuente, 'if ($ignoreExpired && ', $bloqueCaducada) : false;
         $check($bloqueCaducada !== false && $finCaducada !== false, 'x3b canario: el bloque de la sesión caducada se encuentra en src/index.php');
         $decodificaFuera = false;
         $decodificaDentro = false;
@@ -609,18 +610,14 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         } finally {
             $marcaEstatica->setValue(null, $marcaEstaticaPrevia);
         }
-        //INFORMATIVO, no es un fallo: un clon puede usar la lista, y con x3 ya no abre nada.
-        $lista = mb_strpos($fuente, '$ignoreExpiredForRoutesName = [');
-        $finLista = $lista !== false ? mb_strpos($fuente, '];', $lista) : false;
-        $rutasEnLista = [];
-        if ($lista !== false && $finLista !== false) {
-            foreach (token_get_all('<?php ' . mb_substr($fuente, $lista, $finLista - $lista)) as $t) {
-                if (is_array($t) && $t[0] === \T_CONSTANT_ENCAPSED_STRING) {
-                    $rutasEnLista[] = mb_substr($t[1], 1, -1);
-                }
+        //INFORMATIVO, no es un fallo: un clon puede declararlo, y con x3 ya no abre nada.
+        $rutasQueRenuevan = [];
+        foreach ((array) get_routes() as $nombreRuta => $infoRuta) {
+            if (is_array($infoRuta) && ($infoRuta['renew_expired'] ?? false) === true) {
+                $rutasQueRenuevan[] = (string) $nombreRuta;
             }
         }
-        echoTerminal('      - la lista ignoreExpired nombra hoy: ' . json_encode($rutasEnLista));
+        echoTerminal('      - rutas que declaran renew_expired hoy: ' . json_encode($rutasQueRenuevan));
         echoTerminal(' ');
 
         //─── G · La marca global desde el terminal ──────────────────────────────────────────────
@@ -649,6 +646,35 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         $check($entra($vivo) === 'FUERA', 'g5 el token de antes ya no entra', $ultimaEntrada);
         $siguienteSegundo(is_string($nueva) ? (int) strtotime($nueva) : time());
         $check($entra($token($ids['admin'])) === 'DENTRO', 'g6 DISCRIMINANTE: uno nacido después, sí');
+        echoTerminal(' ');
+
+        //─── S · La suplantación mira al principal (P160 a) ─────────────────────────────────────
+        echoTerminal('[S] root no suplanta con su marca movida ni estando inactivo; sano, sí');
+        //Solo la columna: revokeSessions() también cierra las filas, y entonces lo echaría la fila y no la marca.
+        $soloColumna = function (int $id, array $valores): void {
+            $m = UsersModel::model();
+            $m->resetAll();
+            $m->update($valores)->where(['id' => $id])->execute();
+        };
+        $suplanta = function (string $jwt, int $objetivo) use ($pedir, $ruta, $nombres, $acceso, &$ultimaEntrada): string {
+            $r = $pedir('GET', (string) $ruta($nombres['protegida']) . '?' . http_build_query([CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME => $objetivo]), $jwt, [], false);
+            $ultimaEntrada = 'HTTP ' . $r['status'] . ($r['location'] !== '' ? " → {$r['location']}" : '');
+            if ($r['status'] === 302 && str_contains($r['location'], $acceso)) {
+                return 'FUERA';
+            }
+            return in_array($r['status'], [200, 302], true) ? 'DENTRO' : "HTTP {$r['status']}";
+        };
+        $ids['rootS'] = $crear('root-s', UsersModel::TYPE_USER_ROOT);
+        $ids['rootI'] = $crear('root-i', UsersModel::TYPE_USER_ROOT);
+        $tokenS = $token($ids['rootS']);
+        $tokenI = $token($ids['rootI']);
+        $check($suplanta($tokenS, $ids['otro']) === 'DENTRO', 's1 CANARIO: root sano suplanta y entra', $ultimaEntrada);
+        $siguienteSegundo((int) BaseToken::getCreated($tokenS));
+        $soloColumna($ids['rootS'], ['sessionsValidFrom' => date('Y-m-d H:i:s')]);
+        $check($suplanta($tokenS, $ids['otro']) === 'FUERA', 's2 con SU marca movida después de su token, root ya no suplanta', $ultimaEntrada);
+        $check($suplanta($tokenI, $ids['otro']) === 'DENTRO', 's3 CANARIO: el otro root, sano, suplanta', $ultimaEntrada);
+        $soloColumna($ids['rootI'], ['status' => UsersModel::STATUS_USER_INACTIVE]);
+        $check($suplanta($tokenI, $ids['otro']) === 'FUERA', 's4 inactivo, root ya no suplanta', $ultimaEntrada);
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
@@ -693,6 +719,15 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
                 new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $ultimoLog),
                 new WhereItem('textMessage', WhereItem::EQUAL_OPERATOR, LogsMapper::MESSAGES[LogsMapper::MSG_REVOKE_ALL_SESSIONS], WhereItem::AND_OPERATOR),
             ]))->execute();
+            //La suplantación de [S] deja su huella antes de que haya usuario actual: su autor no es de la prueba.
+            foreach ([LogsMapper::MSG_IMPERSONATION_START, LogsMapper::MSG_IMPERSONATION_END] as $tipo) {
+                $logs->resetAll();
+                $logs->delete(new WhereSegment([
+                    new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $ultimoLog),
+                    new WhereItem('textMessage', WhereItem::EQUAL_OPERATOR, LogsMapper::MESSAGES[$tipo], WhereItem::AND_OPERATOR),
+                    WhereItem::like('textMessageVariables', "%{$prefijo}%", WhereItem::AND_OPERATOR),
+                ]))->execute();
+            }
             //La organización sin aprobar apunta a su creador, que es un usuario de la prueba: se le quita antes de borrarlo.
             $deLaPrueba = OrganizationMapper::model();
             $deLaPrueba->resetAll();

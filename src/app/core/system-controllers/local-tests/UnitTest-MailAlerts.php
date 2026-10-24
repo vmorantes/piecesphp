@@ -3,10 +3,10 @@
 //Que el correo que no llega se sepa SOLO: el aviso de fallos, el de la tabla que falta, y que la
 //sonda SMTP de mail-doctor no salga a la red por omisión (bloque DL; ADR 0043 §2 y ADR 0046).
 
-use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Mailer;
+use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\SystemStatusLang;
@@ -139,8 +139,8 @@ CliActions::make('unit-tests:core/mail-alerts', function ($args) {
         $flotantes = array_map(fn($a) => $a->key(), SystemAlertRegistry::nagsFor(UsersModel::TYPE_USER_ROOT));
         $check(in_array('mail-con-fallos', $flotantes, true), 'a11 va como aviso FLOTANTE para el principal: salta sin entrar a mirarlo');
         $check(!$aviso->isDismissible(), 'a12 y no se puede ocultar: un fallo de correo que se silencia es otra vez un fallo que nadie ve');
-        $check($aviso->fixRoute() === 'system-status-mail-log', 'a13 y lleva a la pantalla del registro', (string) $aviso->fixRoute());
-        $urlPantalla = get_route('system-status-mail-log', [], true);
+        $check($aviso->fixRoute() === 'logs-admin-index' && $aviso->fixQuery() === ['tab' => SystemStatusController::MAIL_LOG_TAB], 'a13 y lleva a la pestaña de correos de Registros', (string) $aviso->fixRoute() . ' ' . json_encode($aviso->fixQuery()));
+        $urlPantalla = get_route('logs-admin-index', [], true);
         $check(is_string($urlPantalla) && $urlPantalla !== '', 'a14 y esa ruta existe de verdad', is_string($urlPantalla) ? $urlPantalla : 'no existe');
 
         //El umbral es UNO: con un solo fallo ya avisa, y eso es justo lo que a4-a6 han medido.
@@ -267,7 +267,7 @@ CliActions::make('unit-tests:core/mail-alerts', function ($args) {
 
         //Y la tarea entera, con la configuración de correo cambiada SOLO EN MEMORIA: `set_config()`
         //no escribe en la base, así que la del proyecto no se toca. Sin red: host de bucle local.
-        $cifrar = fn(array $datos): string => BaseHashEncryption::encrypt((string) gzcompress((string) json_encode($datos)), MailConfig::class);
+        $cifrar = fn(array $datos): string => \PiecesPHP\Core\Crypto\Sealed::seal((string) gzcompress((string) json_encode($datos)), \PiecesPHP\Core\Crypto\Sealed::PURPOSE_MAIL_CONFIG);
         $sintetica = [
             'host' => '127.0.0.1',
             'port' => $puertoCerrado,

@@ -3,6 +3,7 @@
 //Un banner incompleto —sin langData en su meta— no tumba sus listados: el de DataTables y los JSON del panel y del sitio
 //público. Por HTTP. Siembra dos banners y un principal, todos zz-, y los retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -63,8 +64,8 @@ CliActions::make('unit-tests:core/banners-incomplete', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -101,7 +102,7 @@ CliActions::make('unit-tests:core/banners-incomplete', function ($args) {
         $u->modifiedAt = $u->createdAt;
         $u->save();
         $usuario = (int) $u->id;
-        $root = SessionToken::generateToken(['id' => $usuario], null, null, false);
+        $root = UserSessions::issueToken($usuario);
 
         $sembrar = function (string $sufijo, array $meta) use ($database, $tablaBanners, $prefijo, $usuario, &$banners): void {
             $ahora = date('Y-m-d H:i:s');

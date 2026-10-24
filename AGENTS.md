@@ -61,11 +61,11 @@ producción», sino «no embarques una trampa».
    suelto en la vista.
 7. **Tablas**: se definen en `$fields` del mapper y el SQL sale de
    `bin/cli scheme-create module=<Nombre>` (su inverso, `scheme-drop`). No se escribe
-   `CREATE TABLE` a mano. **Con dos límites medidos**: `scheme-create` solo cubre los módulos de
-   `src/app/classes`, así que **las tablas del núcleo —usuarios, tokens, intentos de acceso— no
-   tienen generador** y su verdad vive en `databases/piecesphp_structure.sql`; y para **modificar**
-   una tabla que ya existe se escribe el `ALTER TABLE` en `databases/actualizaciones/`, con el
-   esquema al día en el mismo commit. Detalle y trampas en `.agents/context/11-base-de-datos.md`,
+   `CREATE TABLE` a mano. **Con dos límites medidos**: `scheme-create` ve todo `EntityMapper` de
+   `src/app/classes`, también el núcleo (usuarios, sesiones, correos…), pero **la verdad de las tablas
+   del núcleo vive en `databases/piecesphp_structure.sql`**, y un `scheme-drop module=all` emitiría su
+   `DROP`: nunca se aplica tal cual. Para **modificar** una tabla que ya existe se escribe el
+   `ALTER TABLE` en `databases/actualizaciones/`, con el esquema al día en el mismo commit. Detalle y trampas en `.agents/context/11-base-de-datos.md`,
    «Crear o modificar tablas».
 8. **No se edita `src/vendor/`** ni los paquetes `piecesphp/*` desde aquí: son repos
    aparte.
@@ -99,6 +99,7 @@ solo-admin y está marcado «por renovar»: no lo uses como referencia de estilo
 
 ```bash
 bin/verify              # la verificación de producto completa, en orden
+bin/verify --changed-since=<commit>  # la parcial: gates solo del área tocada (ADR 0062); nunca para cerrar
 bin/check-routes        # patrones de ruta; funciona aunque la aplicación no arranque
 bin/cli <acción>        # CLI del framework (help lista las acciones)
 bin/phpstan             # análisis estático (nivel 8) -> PHPStanResult.Summary.txt

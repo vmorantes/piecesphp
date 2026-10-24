@@ -72,7 +72,9 @@ function OpenLayersAdapter(parameters) {
 					`El valor de la opción ${option} es erróneo en OpenLayersAdapter`,
 					inputOption,
 				]
-				alert('Error en OpenLayersAdapter')
+				if (typeof errorMessage === 'function') {
+					errorMessage('Error en OpenLayersAdapter', text[0])
+				}
 				console.error(text)
 			}
 
@@ -84,7 +86,9 @@ function OpenLayersAdapter(parameters) {
 				let text = [
 					`La opción ${option} es obligatoria para OpenLayersAdapter`,
 				]
-				alert('Error en OpenLayersAdapter')
+				if (typeof errorMessage === 'function') {
+					errorMessage('Error en OpenLayersAdapter', text[0])
+				}
 				console.error(text)
 			}
 

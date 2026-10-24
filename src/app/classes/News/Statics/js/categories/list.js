@@ -33,17 +33,4 @@ window.addEventListener('load', function () {
 		tableConfig.dataTable = dataTableServerProccesing(tableConfig.table, ajaxURL, length, options).DataTable()
 	}
 
-	NewsCategories.configNewsCategoryForm(function (formProcess) {
-		return new Promise(function (resolve) {
-			formProcess[0].reset()
-			formProcess.find('.ui.dropdown').dropdown('clear')
-			formProcess.find('.ui.dropdown').dropdown('refresh')
-			formProcess.find('[image-element]').get(0).PiecesPHPComponents.SimpleUploadPlaceholder.restoreOverlay()
-			for (const tableConfig of tables) {
-				tableConfig.dataTable.draw()
-			}
-			resolve()
-		})
-	}, true, true)
-
 })

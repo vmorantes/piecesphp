@@ -194,9 +194,19 @@ window.addEventListener('load', function () {
 			if (select.value === '') {
 				return
 			}
-			const body = new FormData()
-			body.set('presetName', select.value)
-			send(presets.getAttribute('data-delete-url'), body)
+			const name = select.value
+			confirmAction({
+				message: _i18n('DataTransfer', '¿Borrar los filtros guardados «%r»?').replace('%r', name),
+				confirmText: _i18n('DataTransfer', 'Borrar'),
+				confirmClass: 'red',
+			}).then(function (confirmed) {
+				if (!confirmed) {
+					return
+				}
+				const body = new FormData()
+				body.set('presetName', name)
+				send(presets.getAttribute('data-delete-url'), body)
+			})
 		})
 	}
 

@@ -4,7 +4,7 @@
  */
 namespace PiecesPHP\UserSystem\ORM;
 
-use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
@@ -15,6 +15,7 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 
 /**
@@ -42,6 +43,26 @@ class LoginAttemptsModel extends BaseEntityMapper
 
     const TABLE = 'login_attempts';
     protected $table = self::TABLE;
+
+    /**
+     * El tope de filas del registro por omisión: al pasarlo se borran las más viejas (trim()). Un clon lo cambia con
+     * setMaxRows(), como el del registro de correos (MailLogMapper).
+     *
+     * @var int
+     */
+    const MAX_ROWS = 200000;
+
+    /**
+     * El suelo del tope: por debajo, el registro dejaría de servir para mirar hacia atrás.
+     *
+     * @var int
+     */
+    const MIN_ROWS = 1000;
+
+    /**
+     * @var int
+     */
+    protected static $maxRows = self::MAX_ROWS;
 
     protected $fields = [
         'id' => [
@@ -105,6 +126,52 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
+     * Por debajo de MIN_ROWS se queda en MIN_ROWS, sin lanzar. Con null vuelve a MAX_ROWS.
+     *
+     * @param int|null $rows
+     * @return void
+     */
+    public static function setMaxRows(?int $rows): void
+    {
+        self::$maxRows = $rows === null ? self::MAX_ROWS : max(self::MIN_ROWS, $rows);
+    }
+
+    /**
+     * @return int
+     */
+    public static function maxRows(): int
+    {
+        return self::$maxRows;
+    }
+
+    /**
+     * Deja las maxRows() más recientes, por id (creciente). Nunca lanza: un registro que no se recorta no tumba la
+     * acción que se está anotando.
+     *
+     * @return int Cuántas filas se retiraron.
+     */
+    public static function trim(): int
+    {
+        try {
+            $database = (new BaseModel())->getDatabase();
+            if ($database === null) {
+                return 0;
+            }
+            $table = self::TABLE;
+            $limit = $database->query("SELECT `id` FROM `{$table}` ORDER BY `id` DESC LIMIT 1 OFFSET " . (self::maxRows() - 1));
+            $cut = $limit !== false ? $limit->fetchColumn() : false;
+            if ($cut === false || $cut === null) {
+                return 0;
+            }
+            $statement = $database->prepare("DELETE FROM `{$table}` WHERE `id` < ?");
+            $statement->execute([(int) $cut]);
+            return $statement->rowCount();
+        } catch (\Throwable $throwable) {
+            return 0;
+        }
+    }
+
+    /**
      * @param int $user_id
      * @param string $username
      * @param bool $success
@@ -128,6 +195,7 @@ class LoginAttemptsModel extends BaseEntityMapper
             }
         }
         $mapper->save();
+        self::trim();
     }
 
     /**
@@ -154,25 +222,17 @@ class LoginAttemptsModel extends BaseEntityMapper
     public static function getAttempts(Request $request)
     {
         $currentUser = getLoggedFrameworkUserOrFail();
-        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
         $havingSegment = null;
-        $and = 'AND';
-        $table = self::TABLE;
 
         $where = [];
 
-        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
-        if (!$canModifyOrganizations) {
-            //Grupo plano a propósito: AND precede a OR, así que equivale a
-            //`(userID IS NULL AND organizationID IS NULL) OR organizationID = X`.
+        //P133: lo propio y lo de rangos menores; un intento con un usuario que no existe lo ven los administradores.
+        $visibility = UserHierarchy::visibilityGroup($currentUser, 'visibleUserID', 'visibleRank', 'organizationID', true);
+        if ($visibility !== null) {
             $havingSegment = new HavingSegment();
-            $havingSegment->addGroup(new HavingItemGroup([
-                new HavingItem("{$table}.userID", HavingItem::IS_NULL_OPERATOR, '', HavingItem::AND_OPERATOR),
-                new HavingItem('organizationID', HavingItem::IS_NULL_OPERATOR, '', HavingItem::OR_OPERATOR),
-                new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, $currentOrganizationID, HavingItem::AND_OPERATOR),
-            ]));
+            $havingSegment->addGroup($visibility);
         }
 
         if (!empty($where)) {
@@ -180,11 +240,16 @@ class LoginAttemptsModel extends BaseEntityMapper
         }
 
         $selectFields = LoginAttemptsModel::fieldsToSelect('%d-%m-%Y %h:%i:%s %p');
+        //La columna de la vía no está en toda instalación (el constructor la detecta): sin ella, la columna va vacía.
+        if (!array_key_exists('extraData', (new LoginAttemptsModel())->getFields())) {
+            $selectFields[] = 'NULL AS extraData';
+        }
 
         $columnsOrder = [
             'usernameAttempt',
             'success',
             'message',
+            'extraData',
             'ip',
             'dateFormat',
         ];
@@ -211,6 +276,7 @@ class LoginAttemptsModel extends BaseEntityMapper
                 //El usuario lo teclea cualquiera sin sesión en el login; el mensaje lo lleva dentro al bloquear.
                 $columns[] = escape_html($e->usernameAttempt);
                 $columns[] = escape_html($e->message);
+                $columns[] = escape_html(self::viaLabel($e->extraData ?? null));
                 $columns[] = escape_html($e->ip);
                 $columns[] = $e->dateFormat;
                 return $columns;
@@ -222,6 +288,36 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
+     * Por qué vía llegó el intento, legible: la deja OTPRateLimiter en extraData; sin ella es el formulario de acceso.
+     *
+     * @param mixed $extraData La columna tal como sale de la consulta (JSON) o ya decodificada
+     * @return string
+     */
+    public static function viaLabel($extraData): string
+    {
+        if (is_string($extraData)) {
+            $extraData = json_decode($extraData, true);
+        } elseif (is_object($extraData)) {
+            $extraData = json_decode((string) json_encode($extraData), true);
+        }
+        $extraData = is_array($extraData) ? $extraData : [];
+        $via = $extraData[OTPRateLimiter::EXTRA_DATA_VIA] ?? null;
+        $labels = [
+            OTPRateLimiter::VIA_GENERATE_OTP => __(LOGIN_REPORT_LANG_GROUP, 'Pedir código de un solo uso'),
+            OTPRateLimiter::VIA_CHECK_TOTP => __(LOGIN_REPORT_LANG_GROUP, 'Comprobar código de un solo uso'),
+            OTPRateLimiter::VIA_TWO_FACTOR_STATUS => __(LOGIN_REPORT_LANG_GROUP, 'Consultar el doble factor'),
+            OTPRateLimiter::VIA_LOGIN_TOTP => __(LOGIN_REPORT_LANG_GROUP, 'Contraseña y doble factor'),
+            OTPRateLimiter::VIA_RECOVERY_CODE => __(LOGIN_REPORT_LANG_GROUP, 'Código de recuperación'),
+        ];
+        //Una vía que no está en la lista se enseña tal cual: es un dato del registro, no se esconde.
+        $label = is_string($via) ? ($labels[$via] ?? $via) : __(LOGIN_REPORT_LANG_GROUP, 'Formulario de acceso');
+        if (($extraData[OTPRateLimiter::EXTRA_DATA_LOCKED] ?? false) === true) {
+            $label .= ' (' . __(LOGIN_REPORT_LANG_GROUP, 'bloqueado') . ')';
+        }
+        return $label;
+    }
+
+    /**
      * @param Request $request
      * @return ResultOperations
      */
@@ -229,28 +325,26 @@ class LoginAttemptsModel extends BaseEntityMapper
     {
 
         $currentUser = getLoggedFrameworkUserOrFail();
-        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
         $havingSegment = null;
-        $and = 'AND';
         $table = self::TABLE;
         $tableUsers = UsersModel::TABLE;
         $tableTimeOnPlatform = TimeOnPlatformModel::TABLE;
         $successLogin = self::SUCCESS_ATTEMPT;
 
-        $where = [];
+        $where = [
+            UsersModel::excludeSystemUserSQL("{$tableUsers}.id"),
+        ];
         $havingSegment = new HavingSegment();
         $havingSegment->addGroup(new HavingItemGroup([
             new HavingItem('wasLogged', HavingItem::EQUAL_OPERATOR, 1, HavingItem::AND_OPERATOR),
         ]));
 
-        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
-        if (!$canModifyOrganizations) {
-            $criteryValue = $currentOrganizationID;
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$tableUsers}.organization = {$criteryValue}";
-            $where[] = "{$beforeOperator} ({$critery})";
+        //P133: lo propio y lo de rangos menores (el administrador de organización, de la suya).
+        $visibility = UserHierarchy::visibilityGroup($currentUser, 'visibleUserID', 'visibleRank', 'visibleOrganization');
+        if ($visibility !== null) {
+            $havingSegment->addGroup($visibility);
         }
 
         if (!empty($where)) {
@@ -258,7 +352,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         }
 
         $formatDate = '%d-%m-%Y %h:%i:%s %p';
-        $selectFields = UsersModel::fieldsToSelect();
+        $selectFields = array_merge(UsersModel::fieldsToSelect(), self::visibilityFieldsForUsers());
         $selectFields[] = "(SELECT COUNT({$table}.userID) > 0 FROM {$table} WHERE {$table}.userID IS NOT NULL AND {$table}.userID = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS wasLogged";
         $selectFields[] = "(SELECT DATE_FORMAT(MAX({$table}.date), '{$formatDate}') FROM {$table} WHERE {$table}.userID IS NOT NULL AND {$table}.userID = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS lastLoginDate";
         $selectFields[] = "(SELECT SUM({$tableTimeOnPlatform}.minutes) FROM {$tableTimeOnPlatform} WHERE {$tableTimeOnPlatform}.userID = {$tableUsers}.id) AS timeOnPlatformMinutes";
@@ -312,34 +406,35 @@ class LoginAttemptsModel extends BaseEntityMapper
     public static function getNotLoggedUsers(Request $request)
     {
         $currentUser = getLoggedFrameworkUserOrFail();
-        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
         $havingSegment = null;
-        $and = 'AND';
         $table = self::TABLE;
         $tableUsers = UsersModel::TABLE;
         $successLogin = self::SUCCESS_ATTEMPT;
 
-        $where = [];
+        //Un usuario Eliminado deja de existir en la práctica: no es una cuenta sin ingreso. Quien sí ingresó sigue en el
+        //historial (getLoggedUsers), que es actividad.
+        $where = [
+            UsersModel::excludeSystemUserSQL("{$tableUsers}.id"),
+            " AND {$tableUsers}.status != " . UsersModel::STATUS_USER_DELETED,
+        ];
         $havingSegment = new HavingSegment();
         $havingSegment->addGroup(new HavingItemGroup([
             new HavingItem('wasLogged', HavingItem::EQUAL_OPERATOR, 0, HavingItem::AND_OPERATOR),
         ]));
 
-        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
-        if (!$canModifyOrganizations) {
-            $criteryValue = $currentOrganizationID;
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$tableUsers}.organization = {$criteryValue}";
-            $where[] = "{$beforeOperator} ({$critery})";
+        //P133: lo propio y lo de rangos menores (el administrador de organización, de la suya).
+        $visibility = UserHierarchy::visibilityGroup($currentUser, 'visibleUserID', 'visibleRank', 'visibleOrganization');
+        if ($visibility !== null) {
+            $havingSegment->addGroup($visibility);
         }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
-        $selectFields = UsersModel::fieldsToSelect();
+        $selectFields = array_merge(UsersModel::fieldsToSelect(), self::visibilityFieldsForUsers());
         $selectFields[] = "(SELECT COUNT({$table}.userID) > 0 FROM {$table} WHERE {$table}.userID IS NOT NULL AND {$table}.userID = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS wasLogged";
 
         $columnsOrder = [
@@ -381,6 +476,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      * Campos extra:
      *  - idPadding
      *  - organizationID
+     *  - visibleUserID, userType, visibleRank (P133)
      *  - dateFormat
      * @return string[]
      */
@@ -396,10 +492,15 @@ class LoginAttemptsModel extends BaseEntityMapper
         $tableUser = UsersModel::TABLE;
 
         $organizationID = "SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.userID";
+        $userType = "SELECT {$tableUser}.type FROM {$tableUser} WHERE {$tableUser}.id = {$table}.userID";
 
         $fields = [
             "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
             "({$organizationID}) AS organizationID",
+            //Para la jerarquía (P133): quién es el usuario del intento y su rango.
+            "{$table}.userID AS visibleUserID",
+            "({$userType}) AS userType",
+            UserHierarchy::rankSQL($userType) . ' AS visibleRank',
             "DATE_FORMAT({$table}.date, '{$formatDate}') AS dateFormat",
         ];
 
@@ -413,6 +514,21 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
+     * Los alias de la jerarquía (P133) en una consulta sobre la tabla de usuarios.
+     *
+     * @return string[]
+     */
+    protected static function visibilityFieldsForUsers(): array
+    {
+        $tableUsers = UsersModel::TABLE;
+        return [
+            "{$tableUsers}.id AS visibleUserID",
+            "{$tableUsers}.organization AS visibleOrganization",
+            UserHierarchy::rankSQL("{$tableUsers}.type") . ' AS visibleRank',
+        ];
+    }
+
+    /**
      * @param bool $asMapper
      *
      * @return static[]|array
@@ -421,34 +537,23 @@ class LoginAttemptsModel extends BaseEntityMapper
     {
 
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $model = self::model();
-        $table = self::TABLE;
         $selectFields = self::fieldsToSelect();
         $model->select($selectFields);
-
-        $having = [];
-
-        if ($currentUser !== null) {
-            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
-            if (!$canModifyOrganizations) {
-                $criteryValue = $currentOrganizationID;
-                $beforeOperator = !empty($having) ? 'AND' : '';
-                $critery = "({$table}.userID IS NULL AND organizationID IS NULL) OR organizationID = {$criteryValue}";
-                $having[] = "{$beforeOperator} ({$critery})";
-            }
-        }
-
-        if (!empty($having)) {
-            $havingString = trim(implode(' ', $having));
-            $model->having($havingString);
-        }
 
         $model->execute();
 
         $result = $model->result();
         $result = is_array($result) ? $result : [];
+        //La misma regla que el listado (P133): contar o exportar no puede enseñar más que mirar.
+        $result = array_values(array_filter($result, fn($row) => UserHierarchy::canSee(
+            $currentUser,
+            is_numeric($row->userID ?? null) ? (int) $row->userID : null,
+            is_numeric($row->userType ?? null) ? (int) $row->userType : null,
+            is_numeric($row->organizationID ?? null) ? (int) $row->organizationID : null,
+            true
+        )));
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

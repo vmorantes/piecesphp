@@ -1,90 +1,67 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+/**
+ * Registro de ingresos: cifras con las piezas de estadísticas y la tabla. Gráfica y tabla, en access-reports.js.
+ *
+ * @var int $totalUsers
+ * @var int $loggedUsers
+ * @var int $notLoggedUsers
+ * @var float|int|string $allTimeOnPlatform
+ * @var string $exportUrl
+ * @var \PiecesPHP\UserSystem\Controllers\HelperController $pieces Pinta las piezas del panel
+ */
 $langGroup = LOGIN_REPORT_LANG_GROUP;
+$percent = $totalUsers > 0 ? intval(($loggedUsers * 100) / $totalUsers) : 0;
 ?>
+<div class="login-reports-view">
 
-<section class="module-view-container limit-size">
-
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
+    <?php ob_start(); ?>
+    <div class="three-columns-grid">
+        <?php
+        $pieces->_render('panel/built-in/statistics/chart-card.php', [
+            'title' => __($langGroup, 'Usuarios totales'),
+            'titleModifiers' => ['big'],
+            'chartAttributes' => ['data-access-chart' => ''],
+            'legend' => [
+                ['name' => __($langGroup, 'Con ingreso'), 'dataType' => 'loggedUsers', 'level' => 'primary', 'color' => '#21BA45', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $loggedUsers],
+                ['name' => __($langGroup, 'Sin ingreso'), 'dataType' => 'notLoggedUsers', 'level' => 'secondary', 'color' => '#7A7A7A', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $notLoggedUsers],
+            ],
+            'footer' => ['caption' => sprintf(__($langGroup, '%d%% de %d usuarios ha entrado'), $percent, $totalUsers)],
+        ]);
+        $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+            'number' => ['dataType' => 'allTimeOnPlatform', 'initial' => (string) $allTimeOnPlatform],
+            'footer' => ['caption' => __($langGroup, 'Horas totales de uso de la plataforma')],
+        ]);
+        $pieces->_render('panel/built-in/statistics/action-card.php', [
+            'modifiers' => ['horizontal-center'],
+            'url' => $exportUrl,
+            'icon' => 'file export',
+            'title' => __($langGroup, 'Exportar datos'),
+        ]);
+        ?>
     </div>
+    <?php
+    $pieces->_render('panel/built-in/statistics/statistics-section.php', [
+        'modifiers' => ['one-column'],
+        'content' => (string) ob_get_clean(),
+    ]);
+    ?>
 
-    <div class="header-options">
-        <div class="columns two">
-            <div class="column">
-                <div class="section-title">
-                    <div class="title"><?= __($langGroup, $title); ?></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="container-standard-table">
 
-    <div class="logged-cards">
-        <div class="card-total-users">
-            <div class="users-data">
-                <h2 total-users>0</h2>
-                <span><?= __($langGroup, 'Usuarios totales'); ?></span>
-            </div>
-
-            <div class="rounded-chart" style="--percentage: 0; --text: <?= 'var(--second-brand-color)'; ?>; --fill: <?= '#70707026' ?>; --fill2: <?= 'var(--second-brand-color)'; ?>;">
-                <div class="content">
-                    <span>0%</span>
-                    <small><?= __($langGroup, 'Ingresado'); ?></small>
-                </div>
-            </div>
-
-        </div>
-        <div class="two-cards">
-            <div class="card time">
-                <span><?= __($langGroup, 'Tiempo de uso de la plataforma'); ?></span>
-                <div class="hour">
-                    <h3><?= $allTimeOnPlatform ?></h3>
-                    <small><?= __($langGroup, 'Horas totales'); ?></small>
-                </div>
-            </div>
-            <a class="card export" href="<?= $exportUrl; ?>">
-                <span><?= __($langGroup, 'Exportar datos'); ?></span>
-                <i class="file export icon"></i>
-            </a>
-        </div>
-    </div>
-
-    <div class="card-table">
-        <table process="<?= \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'logged']); ?>" class="ui basic table logged no-border" style="max-width:100%;width:100%;">
+        <table data-access-table="<?= escape_html(\PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'logged'])); ?>" class="ui basic table content-table">
             <thead>
                 <tr>
-                    <th><?= __($langGroup, 'ID'); ?></th>
+                    <th class="collapsing"><?= __($langGroup, 'ID'); ?></th>
                     <th><?= __($langGroup, 'Usuario'); ?></th>
                     <th><?= __($langGroup, 'Nombre'); ?></th>
-                    <th order="true"><?= __($langGroup, 'Último acceso'); ?></th>
-                    <th order="true"><?= __($langGroup, 'Tiempo en plataforma'); ?></th>
+                    <th><?= __($langGroup, 'Último acceso'); ?></th>
+                    <th><?= __($langGroup, 'Tiempo en plataforma'); ?></th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
-    </div>
-</section>
 
-<script>
-window.onload = function(e) {
-    $('.tabular.menu .item').tab()
-    let tableLogged = $('table.ui.table.logged')
-    dataTableServerProccesing(tableLogged, tableLogged.attr('process'), 25, {
-        drawCallback: function({
-            jqXHR
-        }) {
-            const {
-                responseJSON: {
-                    recordsFiltered,
-                    rawData
-                }
-            } = jqXHR
-            const totalUsers = `<?= $totalUsers ?>`
-            const percent = Math.round((recordsFiltered * 100) / totalUsers)
-            $('.rounded-chart').css('--percentage', percent)
-            $('.rounded-chart > .content > span').text(percent + '%')
-            $('[total-users]').text(recordsFiltered)
-        },
-    })
-}
-</script>
+    </div>
+
+</div>

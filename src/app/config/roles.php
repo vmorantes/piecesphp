@@ -69,8 +69,6 @@ $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
 
 //── Del framework: no lo edites ──
 $permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos, [
-    //Gestión de errores
-    "admin-error-log",
     //── Del clon ──
 ]));
 

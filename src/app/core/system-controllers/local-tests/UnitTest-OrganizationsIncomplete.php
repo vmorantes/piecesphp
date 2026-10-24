@@ -3,6 +3,7 @@
 //Organizaciones con datos a medias no tumban el panel: el menú sin organización, la edición de una que no existe o sin
 //encargado, y el listado sin langData. Por HTTP. Siembra organizaciones y usuarios zz-, y los retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
@@ -61,8 +62,8 @@ CliActions::make('unit-tests:core/organizations-incomplete', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, string $jwt, bool $seguir = false) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -106,7 +107,7 @@ CliActions::make('unit-tests:core/organizations-incomplete', function ($args) {
             $usuarios[$sufijo] = (int) $u->id;
             return (int) $u->id;
         };
-        $root = SessionToken::generateToken(['id' => $crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL)], null, null, false);
+        $root = UserSessions::issueToken($crearUsuario('root', UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL));
 
         $ahora = date('Y-m-d H:i:s');
         $sembrar = function (string $sufijo, array $meta) use ($database, $tablaOrganizaciones, $prefijo, $ahora, &$usuarios, &$organizaciones): int {
@@ -119,8 +120,8 @@ CliActions::make('unit-tests:core/organizations-incomplete', function ($args) {
         $adminOrgID = $crearUsuario('admin-org', UsersModel::TYPE_USER_ADMIN_ORG, $propia);
         $database->prepare("UPDATE `{$tablaOrganizaciones}` SET meta = ? WHERE id = ?")
             ->execute([json_encode(['baseLang' => 'es', 'langData' => new \stdClass, 'administrator' => $adminOrgID]), $propia]);
-        $adminOrg = SessionToken::generateToken(['id' => $adminOrgID], null, null, false);
-        $sinOrganizacion = SessionToken::generateToken(['id' => $crearUsuario('sin-organizacion', UsersModel::TYPE_USER_ADMIN_ORG, null)], null, null, false);
+        $adminOrg = UserSessions::issueToken($adminOrgID);
+        $sinOrganizacion = UserSessions::issueToken($crearUsuario('sin-organizacion', UsersModel::TYPE_USER_ADMIN_ORG, null));
         $incompleta = $sembrar('incompleta', ['baseLang' => 'es']);
         $sinEncargado = $sembrar('sin-encargado', ['baseLang' => 'es', 'langData' => new \stdClass, 'administrator' => null]);
         $inexistente = (int) $database->query("SELECT COALESCE(MAX(id), 0) + 1000 FROM `{$tablaOrganizaciones}`")->fetchColumn();

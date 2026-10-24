@@ -8,30 +8,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
-
-        <br>
-
-        <div class="main-buttons">
-
-            <?php if ($hasPermissionsAdd) :  ?>
-            <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar suscriptor'); ?></a>
-            <?php endif; ?>
-
-        </div>
-
-        <br>
+        <?php
+        //La cabecera del panel (diseno/01-contenidos.md §2.1): el alta, arriba, como acción principal.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Agregar suscriptor'), 'url' => $addLink, 'icon' => 'plus'] : null,
+        ]);
+        ?>
 
         <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
             <div class="mirror-scroll-x-content"></div>
@@ -39,7 +26,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="container-standard-table">
 
-            <table url="<?= $processTableLink; ?>" class="ui basic table">
+            <table url="<?= $processTableLink; ?>" class="ui basic table content-table">
 
                 <thead>
 
@@ -48,7 +35,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         <th><?= __($langGroup, 'Nombre'); ?></th>
                         <th><?= __($langGroup, 'Email'); ?></th>
                         <th><?= __($langGroup, 'Acepta recibir correos'); ?></th>
-                        <th order="false" search="false" class-name="buttons" with-container="true"> <?= __($langGroup, 'Acciones'); ?></th>
+                        <th order="false" search="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                     </tr>
 
                 </thead>

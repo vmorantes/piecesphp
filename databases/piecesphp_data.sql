@@ -33,9 +33,9 @@ INSERT INTO `locations_cities` (`id`, `code`, `state`, `name`, `active`) VALUES
 (1101,	NULL,	34,	'París',	1);
 
 TRUNCATE `locations_countries`;
-INSERT INTO `locations_countries` (`id`, `code`, `name`, `region`, `active`) VALUES
-(1,	'COL',	'Colombia',	NULL,	1),
-(2,	'FR',	'Francia',	NULL,	1);
+INSERT INTO `locations_countries` (`id`, `code`, `phoneCode`, `demonym`, `name`, `region`, `active`) VALUES
+(1,	'COL',	'+57',	'Colombiana',	'Colombia',	NULL,	1),
+(2,	'FR',	'+33',	'Francesa',	'Francia',	NULL,	1);
 
 TRUNCATE `locations_points`;
 
@@ -51,6 +51,7 @@ INSERT INTO `organizations_elements` (`id`, `preferSlug`, `code`, `name`, `nit`,
 TRUNCATE `pcsphp_users`;
 INSERT INTO `pcsphp_users` (`id`, `organization`, `username`, `password`, `firstname`, `secondname`, `firstLastname`, `secondLastname`, `email`, `meta`, `type`, `status`, `failedAttempts`, `createdAt`, `modifiedAt`) VALUES
 (1,	NULL,	'root',	'$2y$10$5KEzolPgoFt/ZwykXvzJ9usmCzFgcY8H5UiyJV5rmHPJkrZoHl20u',	'Root',	'',	'User',	'',	'root@domain.tld',	'{}',	0,	1,	0,	'2018-06-20 14:11:54',	'2025-05-26 15:51:17'),
+(-10,	NULL,	'system',	'!',	'Sistema',	'',	'',	'',	'system@localhost.invalid',	'{"system":true}',	99,	0,	0,	'2026-10-14 00:00:00',	'2026-10-14 00:00:00'),
 (2,	NULL,	'admin-general',	'$2y$10$w0ptfgrcDujRuMO9RE01geDvfGTAQDEUJvX19BJLRuuOEurWRh/Xq',	'Admin',	'',	'General',	'',	'admin-general@localhost',	'{}',	1,	1,	0,	'2019-10-08 11:07:37',	'2025-05-26 15:13:37'),
 (3,	-10,	'org-admin',	'$2y$10$oyzA87BZSMuRDT2su4FGn.w.I0Rgl8Ph.TuDBe0CjS6kMh3ByspDi',	'Administrador',	'',	'Organización',	'',	'org-admin@localhost',	'{}',	12,	1,	0,	'2019-10-08 11:07:45',	'2025-05-26 15:13:49'),
 (4,	-10,	'general',	'$2y$10$teOKUKpo9KuvvM84mwdNsek7s0gbXfRPOftEovQ4oGAIXFRU8Loma',	'Usuario',	'',	'General',	'',	'general@localhost',	'{}',	2,	1,	0,	'2025-04-10 14:48:32',	'2025-05-26 15:14:34'),

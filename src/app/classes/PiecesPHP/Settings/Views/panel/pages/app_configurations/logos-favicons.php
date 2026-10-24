@@ -1,18 +1,31 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+/**
+ * @var string $langGroup
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ */
 ?>
+<section class="module-view-container logos-favicons-view">
 
-<main class="logos-favicons-view">
-    <section class="main-body-header">
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Imágenes de marca'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Apariencia'); ?></span>
-        </div>
-        <div class="body-card max">
+    <div class="limiter-content">
 
-            <span class="card-tag">
-                <?= __($langGroup, 'Propios'); ?>
-            </span>
+        <?php
+        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1). Las imágenes se guardan desde el
+        //recortador de su modal, con sus propios botones: aquí no hay barra de guardar.
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
+
+        <div class="container-standard-form">
+
+            <div class="form-section-title"><?= __($langGroup, 'Propios'); ?></div>
 
             <div class="cards-list">
                 <?php
@@ -105,9 +118,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 ?>
             </div>
 
-            <span class="card-tag">
-                <?= __($langGroup, 'Terceros'); ?>
-            </span>
+            <div class="form-section-title"><?= __($langGroup, 'Terceros'); ?></div>
 
             <div class="cards-list">
 
@@ -161,7 +172,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         </div>
 
-    </section>
+    </div>
 
     <?php 
         //Modals edición de imagenes de marca 
@@ -284,4 +295,4 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         }
     ?>
 
-</main>
+</section>

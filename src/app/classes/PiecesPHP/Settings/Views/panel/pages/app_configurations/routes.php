@@ -2,67 +2,85 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use PiecesPHP\Settings\Controllers\SettingsController;
 $langGroup = SettingsController::LANG_GROUP;
+/**
+ * @var array<string,list<array{name:string,route:string,sample:string,shortController:string,controller:string,requireLogin:bool,roles:list<string>,allRoles:bool}>> $groups
+ * @var string $title
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ */
 ?>
 
-<main class="routes-view">
+<section class="module-view-container routes-view" data-routes-view>
 
-    <section class="main-body-header">
+    <div class="limiter-content">
 
-        <div class="head">
-            <h2 class="tittle"><?= __($langGroup, 'Rutas y permisos'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Sistema'); ?></span>
-        </div>
+        <?php
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
-        <div class="body-card max">
+        <div class="container-standard-table">
 
-        <div>
+            <div class="ui fluid icon input routes-search">
+                <input type="search" data-routes-search placeholder="<?= __($langGroup, 'Buscar por nombre, ruta, controlador o tipo de usuario'); ?>">
+                <i class="search icon"></i>
+            </div>
 
-        <p><?= __($langGroup, 'Descripción_Routes_And_Permissions'); ?></p>
+            <p class="routes-empty" data-routes-empty hidden><?= __($langGroup, 'Ninguna ruta coincide con la búsqueda.'); ?></p>
 
-        <table class="ui celled padded table roles">
-            <thead>
-                <tr>
-                    <th><?= __($langGroup, 'Nombre'); ?></th>
-                    <th><?= __($langGroup, 'Definición'); ?></th>
-                    <th><?= __($langGroup, 'Ruta'); ?></th>
-                    <th><?= __($langGroup, 'Clase'); ?></th>
-                    <th><?= __($langGroup, 'Método'); ?></th>
-                    <th><?= __($langGroup, 'Roles con acceso'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($routes as $name => $information) : ?>
-                <?php if (!is_string($information['controller'])) continue; ?>
-                <tr>
-                    <td><?= $information['name']; ?></td>
-                    <td><?= $information['route']; ?></td>
-                    <td><?= str_replace(baseurl(), '', get_route_sample($information['name'])); ?></td>
-                    <td><?= explode(':', $information['controller'])[0]; ?></td>
-                    <td><?= explode(':', $information['controller'])[1]; ?></td>
-                    <td><?= $information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : __($langGroup, 'No requiere autenticación'); ?>
-                    </td>
-                </tr>
+            <div class="ui styled fluid accordion" data-routes-accordion>
+                <?php foreach ($groups as $module => $routes) : ?>
+                <div class="title" data-routes-group>
+                    <i class="dropdown icon"></i>
+                    <?= escape_html($module); ?>
+                    <span class="ui small grey text"><?= count($routes) === 1 ? __($langGroup, '1 ruta') : sprintf(__($langGroup, '%d rutas'), count($routes)); ?></span>
+                </div>
+                <div class="content">
+                    <div class="routes-table-wrapper">
+                        <table class="ui basic table roles">
+                            <thead>
+                                <tr>
+                                    <th><?= __($langGroup, 'Nombre'); ?></th>
+                                    <th><?= __($langGroup, 'Ruta'); ?></th>
+                                    <th><?= __($langGroup, 'Controlador'); ?></th>
+                                    <th><?= __($langGroup, 'Roles con acceso'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($routes as $route) : ?>
+                                <tr data-search="<?= escape_html(implode(' ', array_merge([$route['name'], $route['route'], $route['sample'], $route['controller']], $route['roles']))); ?>">
+                                    <td>
+                                        <?= escape_html($route['name']); ?>
+                                        <br><span class="ui small grey text"><?= escape_html($route['route']); ?></span>
+                                    </td>
+                                    <td><?= escape_html($route['sample']); ?></td>
+                                    <td class="routes-controller"><span title="<?= escape_html($route['controller']); ?>"><?= escape_html($route['shortController']); ?></span></td>
+                                    <td>
+                                        <?php if (!$route['requireLogin']): ?>
+                                        <?= __($langGroup, 'No requiere autenticación'); ?>
+                                        <?php elseif ($route['allRoles']): ?>
+                                        <span class="ui small label"><?= __($langGroup, 'Todos los tipos de usuario'); ?></span>
+                                        <?php else: ?>
+                                        <?php foreach ($route['roles'] as $role): ?>
+                                        <span class="ui small label"><?= escape_html($role); ?></span>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 <?php endforeach; ?>
-            </tbody>
-        </table>
+            </div>
 
         </div>
 
-        </div>
+    </div>
 
-    </section>
-
-</main>
-
-<script>
-window.addEventListener('load', function(e) {
-    let config = Object.assign(pcsphpGlobals.configDataTables, {
-        drawCallback: function(settings) {
-            console.log('Draw occurred at: ' + new Date().getTime());
-        },
-        pageLength: 10,
-        responsive: false,
-    })
-    let table = $('.ui.table.roles').DataTable(config)
-})
-</script>
+</section>

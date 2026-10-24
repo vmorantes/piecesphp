@@ -4,7 +4,7 @@ use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
-use MySpace\Controllers\MyOrganizationProfileController;
+use Organizations\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\MyProfileController;
 use MySpace\Controllers\MySpaceController;
 use News\NewsLang;
@@ -13,6 +13,9 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Logs\Controllers\LogsController;
+use PiecesPHP\Logs\LogsLang;
+use PiecesPHP\Logs\LogTabRegistry;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use Spatie\Url\Url as URLManager;
@@ -55,6 +58,13 @@ $userOptions = new MenuGroupCollection([
             'icon' => 'desktop',
             'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('about-framework'),
             'visible' => Roles::hasPermissions('admin-about-framework', $currentUserType),
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Hoja de diseño'),
+            'icon' => 'paint brush',
+            'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('design-sheet'),
+            'visible' => Roles::hasPermissions('admin-design-sheet', $currentUserType),
             'asLink' => true,
         ]),
         new MenuGroup([
@@ -107,12 +117,18 @@ $canViewUsersManage = array_reduce([
     return $a || $b;
 }, false);
 
-$canViewRecord = array_reduce([
-    Roles::hasPermissions('admin-error-log', $currentUserType),
-    Roles::hasPermissions('login-attempts-reports', $currentUserType),
-], function ($a, $b) {
-    return $a || $b;
-}, false);
+//Accesos directos a «Registros»: los tres informes de accesos y todos los registros; cada uno, si el usuario ve su
+//pestaña y la pantalla.
+$recordTabs = LogsController::allowedRoute('index') ? LogTabRegistry::visibleFor((int) $currentUserType) : [];
+$accessTab = \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::ACCESS_TAB;
+$recordShortcuts = array_values(array_filter([
+    ['tab' => $accessTab, 'view' => 'attempts', 'name' => __(LogsLang::LANG_GROUP, 'Intentos de ingreso'), 'icon' => 'sign in alternate', 'visible' => array_key_exists($accessTab, $recordTabs)],
+    ['tab' => $accessTab, 'view' => 'logged', 'name' => __(LogsLang::LANG_GROUP, 'Registro de ingresos'), 'icon' => 'chart bar outline', 'visible' => array_key_exists($accessTab, $recordTabs)],
+    ['tab' => $accessTab, 'view' => 'not-logged', 'name' => __(LogsLang::LANG_GROUP, 'Usuarios sin ingresos'), 'icon' => 'user times', 'visible' => array_key_exists($accessTab, $recordTabs)],
+    //Sin ?tab: la primera pestaña visible. Errores y correos se alcanzan desde aquí.
+    ['tab' => null, 'view' => null, 'name' => __(LogsLang::LANG_GROUP, 'Todos los registros'), 'icon' => 'clipboard list', 'visible' => $recordTabs !== []],
+], fn(array $shortcut): bool => $shortcut['visible']));
+$canViewRecord = $recordShortcuts !== [];
 //Los tres grupos de la configuración salen de la misma fuente que el índice (ADR 0028). Solo llevan a pantallas:
 //un menú no ejecuta nada.
 $configurationGroups = [];
@@ -162,39 +178,13 @@ $adminOptionsGroups = $configurationGroups + [
     __(ADMIN_MENU_LANG_GROUP, 'Registro') => [
         'visible' => $canViewRecord,
         'collection' => new MenuGroupCollection([
-            'items' => [
-                new MenuGroup([
-                    'name' => __(SettingsController::LANG_GROUP, 'Log de errores'),
-                    'icon' => 'times',
-                    'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('error-log', [], true),
-                    'attributes' => [
-                        'target' => '_blank',
-                    ],
-                    'visible' => Roles::hasPermissions('admin-error-log', $currentUserType),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Intentos de ingresos'),
-                    'icon' => 'sign in alternate',
-                    'href' => \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports') . '?attempts=yes',
-                    'visible' => Roles::hasPermissions('login-attempts-reports', $currentUserType),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario sin ingresos'),
-                    'icon' => 'user times',
-                    'href' => \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports') . '?not-logged=yes',
-                    'visible' => Roles::hasPermissions('login-attempts-reports', $currentUserType),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Registro de ingresos'),
-                    'icon' => 'chart bar outline',
-                    'href' => \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports') . '?logged=yes',
-                    'visible' => Roles::hasPermissions('login-attempts-reports', $currentUserType),
-                    'asLink' => true,
-                ]),
-            ],
+            'items' => array_map(fn(array $shortcut) => new MenuGroup([
+                'name' => $shortcut['name'],
+                'icon' => $shortcut['icon'],
+                'href' => LogsController::routeName('index') . ($shortcut['tab'] !== null ? '?' . http_build_query(array_filter(['tab' => $shortcut['tab'], 'view' => $shortcut['view']])) : ''),
+                'visible' => true,
+                'asLink' => true,
+            ]), $recordShortcuts),
         ]),
     ],
 ];
@@ -225,12 +215,20 @@ $avatar = $currentUser->avatar;
 $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $currentUserType);
 ?>
 
+<?php if ($systemAlertNags !== []) : ?>
+<div class="system-alert-nags">
 <?php foreach ($systemAlertNags as $systemAlertNag) : ?>
-<div class="ui bottom fixed nag" system-alert-nag data-key="<?= htmlspecialchars($systemAlertNag->key(), ENT_QUOTES, 'UTF-8'); ?>">
+<?php $systemAlertNagFixURL = $systemAlertNag->fixRoute() !== null ? \PiecesPHP\SystemStatus\Controllers\SystemStatusController::fixURL($systemAlertNag) : ''; ?>
+<div class="ui bottom fixed nag" system-alert-nag data-key="<?= htmlspecialchars($systemAlertNag->key(), ENT_QUOTES, 'UTF-8'); ?>" data-version="<?= htmlspecialchars($systemAlertNag->nagVersion(), ENT_QUOTES, 'UTF-8'); ?>">
     <span class="title"><?= htmlspecialchars($systemAlertNag->message(), ENT_QUOTES, 'UTF-8'); ?></span>
+    <?php if ($systemAlertNagFixURL !== ''): ?>
+    <a href="<?= htmlspecialchars($systemAlertNagFixURL, ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($systemAlertNag->fixLabel() ?? __(\PiecesPHP\SystemStatus\Controllers\SystemStatusController::LANG_GROUP, 'Cómo arreglarlo'), ENT_QUOTES, 'UTF-8'); ?></a>
+    <?php endif; ?>
     <i class="close icon"></i>
 </div>
 <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <div class="ui-pcs topbar-switches">
     <div class="ui-pcs topbar-toggle user-options">
@@ -242,7 +240,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
                 <i class="icon user outline"></i>
                 <?php endif; ?>
             </div>
-            <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->firstLastname); ?></span>
+            <span title="<?= escape_html($currentUser->firstname . ' ' . $currentUser->firstLastname); ?>"><?= escape_html($currentUser->firstname . ' ' . $currentUser->firstLastname); ?></span>
         </div>
         <i class="angle down icon"></i>
     </div>
@@ -406,7 +404,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
 </div>
 <?php endif; ?>
 
-<div class="profile-content-system">
+<div class="profile-content-system" data-url="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('edit-request'); ?>">
 
     <div class="close">
         <i close-profile class="times icon"></i>
@@ -426,6 +424,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
             <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname); ?></span>
             <small><?= $currentUser->getTypeText(); ?></small>
             <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar foto'); ?></a>
+            <a href="<?= escape_html(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-profile')); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Ver mi cuenta completa'); ?></a>
         </div>
     </div>
 
@@ -436,7 +435,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
             <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cuenta'); ?></span>
         </div>
         <div class="item" data-tab="password">
-            <i class="user outline icon"></i>
+            <i class="key icon"></i>
             <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña'); ?></span>
         </div>
         <?php if(in_array($currentUserType, $usersCanDeleteAccount)): ?>
@@ -495,7 +494,7 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
                 <input type="hidden" name="id" value="<?= $currentUser->id ?>">
 
                 <h3 class="no-margin"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar de contraseña'); ?></h3>
-                <span>Una contraseña segura debe tener 8 caracteres como mínimo, distingue mayúsculas de minúsculas</span>
+                <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Una contraseña segura debe tener 8 caracteres como mínimo, distingue mayúsculas de minúsculas'); ?></span>
                 <br>
                 <div class="field">
                     <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña actual'); ?></label>

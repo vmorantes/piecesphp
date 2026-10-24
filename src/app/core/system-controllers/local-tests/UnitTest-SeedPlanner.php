@@ -95,13 +95,22 @@ CliActions::make('unit-tests:core/seed-planner', function ($args) {
         'PiecesPHP\App\Locations\Seeds\PointsSeeder',
         'PiecesPHP\App\Locations\Seeds\StatesSeeder',
         'PiecesPHP\BuiltIn\Banner\Seeds\BuiltInBannersSeeder',
+        'PiecesPHP\SystemStatus\Seeds\MailLogSeeder',
+        'PiecesPHP\UserSystem\Seeds\LoginAttemptsSeeder',
+        'PiecesPHP\UserSystem\Seeds\OTPSecretsSeeder',
+        'PiecesPHP\UserSystem\Seeds\RecoveryPasswordSeeder',
+        'PiecesPHP\UserSystem\Seeds\UserProblemsSeeder',
+        'PiecesPHP\UserSystem\Seeds\UserProfilesSeeder',
+        'PiecesPHP\UserSystem\Seeds\UserSessionsSeeder',
         'PiecesPHP\UserSystem\Seeds\UsersSeeder',
         'Publications\Seeds\PublicationAttachmentsSeeder',
         'Publications\Seeds\PublicationCategoriesSeeder',
         'Publications\Seeds\PublicationsSeeder',
+        'Terminal\Seeds\TaskRunsSeeder',
     ];
-    //Los dos de referencia, para las pruebas de orden que no deben depender de cuántos seeders haya.
-    $reference = array_values(array_filter($seeders, static fn (ModuleSeeder $s): bool => in_array($s->mapper(), [OrganizationMapper::class, UsersModel::class], true)));
+    //Los dos de referencia, para las pruebas de orden que no deben depender de cuántos seeders haya, con la cadena de
+    //ubicaciones de la que depende la organización (su ciudad): sin ella, el orden para por una dependencia sin seeder.
+    $reference = array_values(array_filter($seeders, static fn (ModuleSeeder $s): bool => in_array($s->mapper(), [OrganizationMapper::class, UsersModel::class, CountryMapper::class, StateMapper::class, CityMapper::class], true)));
 
     echoTerminal('[canario] El instrumento ve');
     $check($classes === $expected, 'c1 el descubrimiento encuentra los ' . count($expected) . ' seeders esperados, y solo esos', implode(', ', $classes) ?: 'ninguno');
@@ -109,7 +118,7 @@ CliActions::make('unit-tests:core/seed-planner', function ($args) {
     echoTerminal(' ');
 
     echoTerminal('[1] El orden respeta las dependencias');
-    $order = array_map(static fn (ModuleSeeder $s): string => $s->mapper(), SeedPlanner::order(array_reverse($reference)));
+    $order = array_values(array_filter(array_map(static fn (ModuleSeeder $s): string => $s->mapper(), SeedPlanner::order(array_reverse($reference))), static fn (string $mapper): bool => in_array($mapper, [OrganizationMapper::class, UsersModel::class], true)));
     $check($order === [OrganizationMapper::class, UsersModel::class], '1a las organizaciones van antes que los usuarios, aunque se pasen al revés', implode(' -> ', $order));
     $locations = array_values(array_filter($seeders, static fn (ModuleSeeder $s): bool => in_array($s->mapper(), [CountryMapper::class, StateMapper::class, CityMapper::class, PointMapper::class], true)));
     $chain = array_map(static fn (ModuleSeeder $s): string => $s->mapper(), SeedPlanner::order(array_reverse($locations)));

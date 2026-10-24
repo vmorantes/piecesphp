@@ -15,24 +15,21 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
 
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del panel (diseno/01-contenidos.md §2.1).
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+        ]);
+        ?>
 
-        <br>
 
-        <div class="container-standard-form">
+        <form method='POST' action="<?= $action; ?>" class="ui form initial newsletter" data-content-form>
 
-            <form method='POST' action="<?= $action; ?>" class="ui form newsletter">
+            <div class="container-standard-form">
 
                 <input type="hidden" name="id" value="<?= $element->id; ?>">
 
@@ -53,20 +50,23 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
                     </div>
                 </div>
 
-                <br><br>
+            </div>
 
-                <div class="field">
-                    <div class="ui buttons">
-                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                        <?php if($allowDelete): ?>
-                        <button type="submit" class="ui button brand-color alt2" delete-publication-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                        <?php endif; ?>
-                    </div>
-                </div>
+            <?php
+            //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => $allowDelete ? [[
+                    'text' => __($langGroup, 'Eliminar'),
+                    'type' => 'button',
+                    'icon' => 'trash alternate',
+                    'danger' => true,
+                    'attributes' => ['delete-newsletter-suscriber-button' => '', 'data-route' => $deleteRoute],
+                ]] : [],
+            ]);
+            ?>
 
-            </form>
-
-        </div>
+        </form>
 
     </div>
 

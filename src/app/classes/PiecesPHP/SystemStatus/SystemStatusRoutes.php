@@ -7,9 +7,11 @@
 namespace PiecesPHP\SystemStatus;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\AppEnvironment;
@@ -23,6 +25,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
+use PiecesPHP\Terminal\TaskRunMapper;
 
 /**
  * SystemStatusRoutes - Avisos del sistema y mantenimiento: rutas, estáticos y los avisos que trae el núcleo.
@@ -51,6 +54,7 @@ class SystemStatusRoutes
             SystemStatusLang::injectLang();
             self::registerCoreAlerts();
             $groupAdministration = SystemStatusController::routes($groupAdministration);
+            SystemStatusController::registerLogTab();
             self::staticResolver($groupAdministration);
         }
         return $groupAdministration;
@@ -73,7 +77,7 @@ class SystemStatusRoutes
             new SystemAlert(
                 'app-key-placeholder',
                 SystemAlert::SEVERITY_DANGER,
-                fn() => __(AdminPanelController::ADMIN_LANG_GROUP, 'La app_key es la de relleno: las sesiones y los tokens se firman con una clave conocida. Genere una con bin/cli generate-app-key y póngala en config.php.'),
+                fn() => __(AdminPanelController::ADMIN_LANG_GROUP, 'La app_key es la de relleno: las sesiones y los tokens se firman con una clave conocida. Genere una con bin/cli generate-app-key, que la guarda en secure-keys/app-key.json.'),
                 fn() => Config::app_key_is_placeholder(),
                 true,
                 [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL],
@@ -87,6 +91,28 @@ class SystemStatusRoutes
                 set_config('hide_app_key_warning', false);
             }
         );
+
+        //El llavero existe y este proceso no lo lee (permisos): firmaría y cifraría con otra clave que la de verdad.
+        SystemAlertRegistry::register(new SystemAlert(
+            'app-keyring-unreadable',
+            SystemAlert::SEVERITY_DANGER,
+            fn(): string => __(SystemStatusController::LANG_GROUP, 'El llavero secure-keys/app-key.json existe pero el servidor no lo puede leer: se está usando otra clave. Revise sus permisos (lo tienen que poder leer el servidor web y la terminal).'),
+            fn(): bool => Config::app_keyring_unreadable(),
+            false,
+            [UsersModel::TYPE_USER_ROOT],
+            true
+        ));
+
+        //La clave en config.php, que se versiona (ADR 0061 §5): se lee de respaldo, y esto pide moverla al llavero.
+        SystemAlertRegistry::register(new SystemAlert(
+            'app-key-in-config',
+            SystemAlert::SEVERITY_DANGER,
+            fn(): string => __(SystemStatusController::LANG_GROUP, 'La app_key está en config.php, que se versiona: un clon que la suba a su repositorio la publica. Muévala con bin/cli store-app-key (no la cambia) y quítela de config.php.'),
+            fn(): bool => AppKeyring::get()->source() === AppKeyring::SOURCE_CONFIG && !Config::app_key_is_placeholder(),
+            false,
+            [UsersModel::TYPE_USER_ROOT],
+            true
+        ));
 
         //La carpeta de extensiones del clon cambió de nombre: la vieja se sigue cargando, y esto pide moverla.
         SystemAlertRegistry::register(new SystemAlert(
@@ -219,9 +245,13 @@ class SystemStatusRoutes
             false,
             [UsersModel::TYPE_USER_ROOT],
             true,
-            'system-status-mail-log',
-            __(SystemStatusController::LANG_GROUP, 'Registro de correos')
+            'logs-admin-index',
+            __(SystemStatusController::LANG_GROUP, 'Registro de correos'),
+            ['tab' => SystemStatusController::MAIL_LOG_TAB]
         ));
+
+        //Errores nuevos desde la última visita de root a Registros › Errores (ADR 0060 §4).
+        \PiecesPHP\Logs\NewErrorsAlert::register();
 
         //Sin la tabla, `record()` calla: «no hay fallos» y «no hay datos» se leerían igual. El aviso
         //nombra el archivo que falta aplicar porque es lo único que salva a un clon que no lo aplicó.
@@ -248,6 +278,20 @@ class SystemStatusRoutes
                 MailLogMapper::BODY_UPDATE_FILE
             ),
             fn(): bool => MailLogMapper::tableExists() && !MailLogMapper::bodyColumnExists(),
+            false,
+            [UsersModel::TYPE_USER_ROOT],
+            true
+        ));
+
+        //Sin el libro, las tareas corren igual pero nada anota cuándo corrieron ni si fallaron (G10).
+        SystemAlertRegistry::register(new SystemAlert(
+            'task-runs-missing',
+            SystemAlert::SEVERITY_WARNING,
+            fn(): string => sprintf(
+                __(SystemStatusController::LANG_GROUP, 'Falta la tabla del libro de tareas programadas: las tareas se ejecutan, pero no se anota cuándo ni si fallaron. Aplique «%s» en la base de datos de esta instalación.'),
+                TaskRunMapper::UPDATE_FILE
+            ),
+            fn(): bool => !TaskRunMapper::tableExists(),
             false,
             [UsersModel::TYPE_USER_ROOT],
             true
@@ -281,6 +325,35 @@ class SystemStatusRoutes
             [UsersModel::TYPE_USER_ROOT],
             false
         ));
+
+        //El código no trae llaves de MapBox: sin la del entorno en la base, los mapas del panel no cargan.
+        SystemAlertRegistry::register(new SystemAlert(
+            'mapbox-key-missing',
+            SystemAlert::SEVERITY_WARNING,
+            fn() => __(SystemStatusController::LANG_GROUP, 'No hay llave de MapBox para este entorno: los mapas del panel no cargan. Configúrela en Integraciones › Llaves de MapBox.'),
+            fn() => self::mapboxKeyMissing(GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS), is_local()),
+            true,
+            [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL],
+            true,
+            'helpers-system-generic-content-admin-forms-mapbox-keys',
+            __(SystemStatusController::LANG_GROUP, 'Llaves de MapBox')
+        ));
+    }
+
+    /**
+     * Si falta la llave de MapBox del entorno: `keyLocal` en local y `keyDomain` fuera. Puro, para probarlo sin base.
+     *
+     * @param mixed $keys Lo guardado en CONTENT_MAPBOX_KEYS
+     * @param bool $local
+     * @return bool
+     */
+    public static function mapboxKeyMissing(mixed $keys, bool $local): bool
+    {
+        if (!is_array($keys)) {
+            return true;
+        }
+        $key = $keys[$local ? 'keyLocal' : 'keyDomain'] ?? null;
+        return !is_string($key) || trim($key) === '';
     }
 
     /**

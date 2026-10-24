@@ -1,5 +1,12 @@
 @use '../variables' as *;
 @use '../functions' as *;
+
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$-userMetaColor: #000000;
+$-notificationCardBorder: rgba(128, 128, 128, 0.568);
+$-userDataSmallColor: rgba(128, 128, 128, 0.721);
+$-tabOptionBorder: rgba(128, 128, 128, 0.176);
+
 $fontModule: $fontSidebars;
 
 .topbar-content {
@@ -219,7 +226,7 @@ $fontModule: $fontSidebars;
                     .meta {
                         font-size: pxToRem(14);
                         line-height: pxToRem(13);
-                        color: #000000;
+                        color: $-userMetaColor;
                     }
                 }
             }
@@ -308,7 +315,7 @@ $fontModule: $fontSidebars;
                     }
 
                     .text {
-                        color: #1B1C1D;
+                        color: $colorTextStrong;
                     }
                 }
 
@@ -394,7 +401,7 @@ $fontModule: $fontSidebars;
 
                     .text {
                         transition: 0.5s all ease;
-                        color: #1B1C1D;
+                        color: $colorTextStrong;
                     }
                 }
 
@@ -416,7 +423,7 @@ $fontModule: $fontSidebars;
                 height: 190px;
                 min-height: 190px;
                 border-radius: 8px;
-                border: 1px solid rgba(128, 128, 128, 0.568);
+                border: 1px solid $-notificationCardBorder;
                 padding: 20px;
                 cursor: pointer;
 
@@ -524,6 +531,7 @@ $fontModule: $fontSidebars;
                 display: flex;
                 gap: 10px;
                 align-items: center;
+                min-width: 0;
 
                 .image {
                     width: 40px;
@@ -552,11 +560,15 @@ $fontModule: $fontSidebars;
                     }
                 }
 
+                //UNA línea: un nombre largo ocupaba cuatro y tapaba las acciones del page-header. Entero, en `title`.
                 >span {
                     max-width: 100px;
                     max-height: 50px;
                     color: var(--main-brand-color);
                     font-size: 14px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
             }
@@ -700,7 +712,7 @@ $fontModule: $fontSidebars;
 
             >small {
                 font-size: 16px;
-                color: rgba(128, 128, 128, 0.721);
+                color: $-userDataSmallColor;
             }
 
             >a {
@@ -736,7 +748,7 @@ $fontModule: $fontSidebars;
             gap: 12px;
             cursor: pointer;
             border-radius: 8px;
-            border: 1px solid rgba(128, 128, 128, 0.176);
+            border: 1px solid $-tabOptionBorder;
 
             &:hover {
                 color: var(--main-brand-color);
@@ -901,5 +913,20 @@ $fontModule: $fontSidebars;
                 margin: 0 auto;
             }
         }
+    }
+}
+
+//Los avisos flotantes del sistema, apilados: cada uno es un `ui bottom fixed nag` y, sueltos, se tapaban unos a otros.
+.system-alert-nags {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+
+    >.ui.nag {
+        position: relative !important;
     }
 }

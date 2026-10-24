@@ -1,0 +1,33 @@
+//-------- «Acerca de» (AdminPanel/Views/panel/pages/about-framework.php): solo lo que Fomantic no da; el resto son segmentos,
+//cabeceras y listas. Vivía en src/statics/core/sass/ y solo la cargaba esta pantalla.
+.about-framework {
+
+    .about-framework-logo {
+        display: block;
+        max-width: 300px;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-framework-decorated {
+        max-width: 340px;
+    }
+
+    //Veintiséis dependencias: en dos columnas, y en una en el móvil.
+    .about-framework-dependencies {
+        columns: 2;
+
+        @media screen and (max-width: 767px) {
+            columns: 1;
+        }
+    }
+
+    .about-framework-footer {
+        text-align: center;
+        padding: 2rem 0;
+
+        img {
+            max-width: 290px;
+            margin-bottom: 1rem;
+        }
+    }
+}

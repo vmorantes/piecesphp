@@ -2,7 +2,7 @@
 
 Registro detallado de las actualizaciones y mejoras del framework PiecesPHP.
 
-> **La última versión estable es la `8.0.0` (05-10-2026), con cambios incompatibles respecto de la `7.1.0`.** La rama
+> **La última versión estable es la `8.0.8` (09-10-2026); la `8.0.0` (05-10-2026) trajo los cambios incompatibles respecto de la `7.1.0`.** La rama
 > `last-stable` apunta siempre a la última estable. Antes de actualizar desde la `7.x` lee la sección `8.0.0` del
 > `CHANGELOG.md` de la raíz del repositorio, que es la fuente completa: esta página es solo un resumen.
 

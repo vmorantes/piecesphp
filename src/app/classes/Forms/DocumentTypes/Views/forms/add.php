@@ -5,62 +5,42 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $backLink
  * @var string $action
  */
-$standalone = isset($standalone) && is_bool($standalone) ? $standalone : true;
-$submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup, 'Guardar');
 ?>
-<?php if($standalone): ?>
-<section class="module-view-container limit-size">
-    <?php endif; ?>
+<section class="module-view-container">
 
-    <?php if($standalone): ?>
-    <div class="header-options">
+    <div class="limiter-content">
 
-        <div class="main-options">
+        <?php
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
+        ?>
 
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
+        <form method='POST' action="<?= $action; ?>" class="ui form initial max-w-800" document-type-form data-content-form>
 
-        </div>
+            <div class="container-standard-form">
 
-        <div class="columns">
-
-            <div class="column">
-
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Agregar'); ?></div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-    <?php endif; ?>
-
-    <div class="container-standard-form max-w-800 <?= !$standalone ? 'block-centered' : ''; ?>">
-        <form method='POST' action="<?= $action; ?>" class="ui form" document-type-form>
-
-            <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
-
-            <div class="two fields">
+                <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input type="text" name="documentTypeName" required placeholder="<?= __($langGroup, 'Nombre del tipo de documento'); ?>">
-                </div>
-
-                <div class="field">
-                    <label>&nbsp;</label>
-                    <button class="ui button brand-color" type="submit"><?= $submitButtonText; ?></button>
+                    <input type="text" name="documentTypeName" required>
                 </div>
 
             </div>
 
+            <?php
+            //La barra al final del formulario (§2.3).
+            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                'saveText' => __($langGroup, 'Guardar'),
+                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
+            ]);
+            ?>
+
         </form>
+
     </div>
 
-    <?php if($standalone): ?>
 </section>
-<?php endif; ?>

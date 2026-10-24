@@ -1,0 +1,41 @@
+//Fuera de `.module-view-container` la clase `.main-buttons` no tiene ninguna regla: al saltar de línea, los botones
+//quedaban pegados. La separación es solo el `gap`; el margen propio del botón, a cero.
+.system-maintenance-view .main-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    .ui.button {
+        margin: 0;
+    }
+}
+
+//La regla global de `.main-buttons` los empuja a la derecha (`justify-content: end`); aquí van a la izquierda, bajo su
+//título. Con su especificidad (0,3,0) más uno, para no depender del orden de carga de las hojas.
+.module-view-container.system-maintenance-view > .limiter-content .main-buttons {
+    justify-content: flex-start;
+
+    & + .main-buttons {
+        margin-top: 1rem;
+    }
+}
+
+//El aviso bajo el interruptor: en su propia línea, no pegado a la etiqueta.
+.site-maintenance-view .ui.toggle.checkbox + small {
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.system-alerts-view [data-system-alerts-table] .ui.button {
+    white-space: nowrap;
+}
+
+//El sello (un hash sin espacios) y su ayuda no caben a 390: parten línea dentro de la celda.
+.system-maintenance-view .container-standard-table td {
+    overflow-wrap: anywhere;
+}
+
+//Un hash o una lista sin espacios (el commit, las tablas que faltan) parte dentro de su celda en el móvil.
+.system-health-view .container-standard-form td {
+    overflow-wrap: anywhere;
+}

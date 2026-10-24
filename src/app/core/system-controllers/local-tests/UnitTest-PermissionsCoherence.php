@@ -146,7 +146,7 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     echoTerminal('[5] Las rutas de los registros (errores, acciones, correos, intentos) declaran sus roles, no los heredan');
     //Sin roles declarados, lo que niega es la regla por omisión del catálogo (root tiene `all`), no la ruta. Un cambio
     //en esa regla o un require_login quitado abriría la traza completa de los errores (pendientes.md 434.1).
-    $patronRegistros = '/^(admin-error-log|actions-logs-|system-status-mail-log|login-attempts-)/';
+    $patronRegistros = '/^(logs-admin-|actions-logs-|system-status-mail-log|login-attempts-)/';
     $deRegistros = [];
     $sinDeclarar = [];
     foreach ($rutas as $nombre => $info) {
@@ -161,8 +161,8 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     }
     $check(count($deRegistros) >= 10, '5a CANARIO: el patrón ve las rutas de registros', count($deRegistros) . ': ' . implode(', ', array_keys($deRegistros)));
     $check($sinDeclarar === [], '5b ninguna ruta de registros se queda sin login y sin roles declarados', implode(', ', $sinDeclarar) ?: '-');
-    $rolesError = array_values(array_map('intval', (array) ($rutas['admin-error-log']['roles_allowed'] ?? [])));
-    $check(isset($rutas['admin-error-log']) && $rolesError === [UsersModel::TYPE_USER_ROOT], '5c admin-error-log, que entrega la traza entera, declara solo root', '[' . implode(', ', $rolesError) . ']');
+    $rolesError = array_values(array_map('intval', (array) ($rutas['logs-admin-errors']['roles_allowed'] ?? [])));
+    $check(isset($rutas['logs-admin-errors']) && $rolesError === [UsersModel::TYPE_USER_ROOT], '5c logs-admin-errors, que entrega la traza entera, declara solo root', '[' . implode(', ', $rolesError) . ']');
     echoTerminal(' ');
 
     //─── 6 · El acceso EFECTIVO de las pantallas que decidió el PO ───────────────────────────────────
@@ -251,6 +251,134 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     }
     $check(str_contains($cuerpoAccion, 'CONTENT_HOME_IMAGE'), '8a CANARIO: el censo ve el cuerpo de action(), con su rama de la imagen de inicio', mb_strlen($cuerpoAccion) . ' bytes');
     $check($usosConstante >= 1, '8b action() nombra HOME_IMAGE_PERMISSIONS en código, no en un comentario', $usosConstante . ' uso(s)');
+    echoTerminal(' ');
+
+    //─── 9 · Una denegación dentro de un try no se la come su catch genérico (B16) ──────────────────
+    echoTerminal('[9] throw403() dentro de un try con catch de \Exception o \Throwable: antes, un catch que relanza HttpForbiddenException');
+    //throw403() LANZA (containers.php). Cuenta los try que envuelven la llamada y, si va en un closure asignado a una
+    //variable, los try donde se invoca esa variable (GenericContentController::action).
+    $llamadas = 0;
+    $porClosure = 0;
+    $tryRevisados = 0;
+    $sinRelanzar = [];
+    $archivos = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(basepath('app'), \FilesystemIterator::SKIP_DOTS));
+    foreach ($archivos as $archivo) {
+        $ruta = $archivo->getPathname();
+        $fuente = str_ends_with($ruta, '.php') ? (string) file_get_contents($ruta) : '';
+        if (!str_contains($fuente, 'throw403')) {
+            continue;
+        }
+        $t = token_get_all($fuente);
+        $n = count($t);
+        $texto = fn (int $i): string => is_array($t[$i]) ? $t[$i][1] : $t[$i];
+        $siguiente = function (int $i, string $buscado) use ($n, $texto): int {
+            for ($j = $i; $j < $n; $j++) {
+                if ($texto($j) === $buscado) {
+                    return $j;
+                }
+            }
+            return $n;
+        };
+        $cierre = function (int $abre) use ($n, $t, $texto): int {
+            $nivel = 0;
+            for ($j = $abre; $j < $n; $j++) {
+                if ($texto($j) === '{' || (is_array($t[$j]) && in_array($t[$j][0], [T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES], true))) {
+                    $nivel++;
+                } elseif ($texto($j) === '}' && --$nivel === 0) {
+                    return $j;
+                }
+            }
+            return $n;
+        };
+        $saltaBlancos = function (int $j, int $paso) use ($t): int {
+            while (isset($t[$j]) && is_array($t[$j]) && in_array($t[$j][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                $j += $paso;
+            }
+            return $j;
+        };
+        $trys = [];
+        $closures = [];
+        for ($i = 0; $i < $n; $i++) {
+            if (is_array($t[$i]) && $t[$i][0] === T_TRY) {
+                $abre = $siguiente($i, '{');
+                $fin = $cierre($abre);
+                $capturas = [];
+                $j = $saltaBlancos($fin + 1, 1);
+                while (isset($t[$j]) && is_array($t[$j]) && $t[$j][0] === T_CATCH) {
+                    $p = $siguiente($j, '(');
+                    $q = $siguiente($p, ')');
+                    $tipos = '';
+                    for ($k = $p + 1; $k < $q; $k++) {
+                        $tipos .= is_array($t[$k]) && $t[$k][0] === T_VARIABLE ? '' : $texto($k);
+                    }
+                    $capturas[] = trim($tipos);
+                    $j = $saltaBlancos($cierre($siguiente($q, '{')) + 1, 1);
+                }
+                $trys[] = ['abre' => $abre, 'fin' => $fin, 'linea' => $t[$i][2], 'capturas' => $capturas];
+            }
+            if (is_array($t[$i]) && $t[$i][0] === T_FUNCTION) {
+                $antes = $saltaBlancos($i - 1, -1);
+                $antes = is_array($t[$antes] ?? null) && $t[$antes][0] === T_STATIC ? $saltaBlancos($antes - 1, -1) : $antes;
+                $variable = null;
+                if (($t[$antes] ?? null) === '=') {
+                    $nombre = $saltaBlancos($antes - 1, -1);
+                    $variable = is_array($t[$nombre] ?? null) && $t[$nombre][0] === T_VARIABLE ? $t[$nombre][1] : null;
+                }
+                $abre = $siguiente($i, '{');
+                $closures[] = ['abre' => $abre, 'fin' => $cierre($abre), 'variable' => $variable];
+            }
+        }
+        for ($i = 0; $i < $n; $i++) {
+            if (!(is_array($t[$i]) && $t[$i][0] === T_STRING && $t[$i][1] === 'throw403' && $texto($saltaBlancos($i + 1, 1)) === '(')) {
+                continue;
+            }
+            $previo = $saltaBlancos($i - 1, -1);
+            if (is_array($t[$previo]) && $t[$previo][0] === T_FUNCTION) {
+                continue;
+            }
+            $llamadas++;
+            $envuelven = array_filter($trys, fn (array $try): bool => $try['abre'] < $i && $i < $try['fin']);
+            $funcion = null;
+            foreach ($closures as $closure) {
+                if ($closure['abre'] < $i && $i < $closure['fin'] && ($funcion === null || $closure['abre'] > $funcion['abre'])) {
+                    $funcion = $closure;
+                }
+            }
+            if ($funcion !== null && $funcion['variable'] !== null) {
+                foreach ($trys as $indice => $try) {
+                    for ($k = $try['abre']; $k < $try['fin']; $k++) {
+                        if (is_array($t[$k]) && $t[$k][0] === T_VARIABLE && $t[$k][1] === $funcion['variable'] && $texto($saltaBlancos($k + 1, 1)) === '(' && ($k < $funcion['abre'] || $k > $funcion['fin'])) {
+                            $envuelven[$indice] = $try;
+                            $porClosure++;
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach ($envuelven as $try) {
+                $generico = null;
+                foreach ($try['capturas'] as $posicion => $tipos) {
+                    if (preg_match('/(^|\|)\s*\\\\?(Exception|Throwable)\s*($|\|)/', $tipos) === 1) {
+                        $generico = $posicion;
+                        break;
+                    }
+                }
+                if ($generico === null) {
+                    continue;
+                }
+                $tryRevisados++;
+                $relanza = false;
+                foreach (array_slice($try['capturas'], 0, $generico) as $tipos) {
+                    $relanza = $relanza || str_contains($tipos, 'HttpForbiddenException');
+                }
+                if (!$relanza) {
+                    $sinRelanzar[] = str_replace(basepath(), '', $ruta) . ':' . $t[$i][2] . ' (try l.' . $try['linea'] . ')';
+                }
+            }
+        }
+    }
+    $check($llamadas >= 25 && $porClosure >= 1 && $tryRevisados >= 6, '9a CANARIO: el censo ve las llamadas, el closure de GenericContentController y los try con catch genérico', "{$llamadas} llamada(s), {$porClosure} try por closure, {$tryRevisados} try con catch genérico");
+    $check($sinRelanzar === [], '9b ninguno de esos try se come la denegación', implode(', ', array_unique($sinRelanzar)));
     echoTerminal(' ');
 
     $total = $passed + $failed;

@@ -66,7 +66,9 @@ function GeoJSONVectorLayer(parameters) {
 					`El valor de la opción ${option} es erróneo en GeoJSONVectorLayer`,
 					inputOption,
 				]
-				alert('Error en GeoJSONVectorLayer')
+				if (typeof errorMessage === 'function') {
+					errorMessage('Error en GeoJSONVectorLayer', text[0])
+				}
 				console.error(text)
 			}
 
@@ -78,7 +80,9 @@ function GeoJSONVectorLayer(parameters) {
 				let text = [
 					`La opción ${option} es obligatoria para GeoJSONVectorLayer`,
 				]
-				alert('Error en GeoJSONVectorLayer')
+				if (typeof errorMessage === 'function') {
+					errorMessage('Error en GeoJSONVectorLayer', text[0])
+				}
 				console.error(text)
 			}
 

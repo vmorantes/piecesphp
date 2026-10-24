@@ -4,6 +4,9 @@
  */
 namespace PiecesPHP\UserSystem\ORM;
 
+use PiecesPHP\Core\Crypto\AppKeyring;
+use PiecesPHP\Core\Crypto\EncryptedDataRegistry;
+use PiecesPHP\Core\Crypto\Sealed;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Validation\Validator;
@@ -353,7 +356,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         }
         $mapper = new OTPSecretsUsersMapper();
         $mapper->user = $userID;
-        $mapper->secret = TOTPStandard::generateSecret();
+        $mapper->setPlainSecret(TOTPStandard::generateSecret());
         $mapper->intervalTOTP = self::DEFAULT_INTERVAL_TOTP;
         $mapper->oneUseCode = "";
         $mapper->maxDate = null;
@@ -378,7 +381,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         if ($totpElement === null) {
             return false;
         }
-        $totpElement->secret = TOTPStandard::generateSecret();
+        $totpElement->setPlainSecret(TOTPStandard::generateSecret());
         $totpElement->twoAuthFactorAlias = $alias;
         $totpElement->twoAuthFactorQRViewed = 0;
 
@@ -386,6 +389,26 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         $totpElement->twoAuthFactorSecurityCode = $enable ? password_hash($securityCode, \PASSWORD_DEFAULT) : "";
         $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
 
+        return $totpElement->update();
+    }
+
+    /**
+     * Apaga el segundo factor de un usuario por su id, sin pedir su código de seguridad: lo hace root desde Registros ›
+     * Tokens y códigos, para quien perdió su aplicación. El secreto se queda: activar de nuevo genera otro
+     * (toggle2FA()), y vaciarlo aquí dejaría al login comprobando un TOTP sin secreto.
+     *
+     * @param int $userID
+     * @return bool false si no tiene registro TOTP o no se pudo guardar
+     */
+    public static function disable2FA(int $userID): bool
+    {
+        $totpElement = self::getTOTPData($userID);
+        if ($totpElement === null) {
+            return false;
+        }
+        $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
+        $totpElement->twoAuthFactorQRViewed = '0';
+        $totpElement->twoAuthFactorSecurityCode = '';
         return $totpElement->update();
     }
 
@@ -505,7 +528,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
                 $mapper->maxDate = null;
                 $mapper->method = $otpAuthMethod;
                 if ($otpAuthMethod == self::METHOD_TOTP) {
-                    $mapper->secret = TOTPStandard::generateSecret();
+                    $mapper->setPlainSecret(TOTPStandard::generateSecret());
                 }
                 if ($mapper->save()) {
                     $created++;
@@ -522,5 +545,32 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     public static function model()
     {
         return (new OTPSecretsUsersMapper)->getModel();
+    }
+
+    /**
+     * El secreto TOTP en claro, para TOTPStandard. En la base va cifrado con Sealed (ADR 0061 §11); el de antes de la
+     * 9, en claro, se sigue leyendo. '' si no hay o no se puede leer.
+     *
+     * @return string
+     */
+    public function plainSecret(): string
+    {
+        $stored = is_string($this->secret) ? $this->secret : '';
+        if ($stored === '') {
+            return '';
+        }
+        $site = EncryptedDataRegistry::all()['totp-secret'] ?? null;
+        return $site !== null ? ($site->read($stored, AppKeyring::get()) ?? '') : '';
+    }
+
+    /**
+     * Guarda el secreto cifrado (no escribe en la base: eso lo hace save() o update()).
+     *
+     * @param string $plain
+     * @return void
+     */
+    public function setPlainSecret(string $plain): void
+    {
+        $this->secret = $plain === '' ? '' : Sealed::seal($plain, Sealed::PURPOSE_TOTP_SECRET);
     }
 }

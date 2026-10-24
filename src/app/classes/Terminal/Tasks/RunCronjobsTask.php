@@ -13,6 +13,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\Terminal\TaskRunMapper;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
 /**
@@ -78,7 +79,7 @@ class RunCronjobsTask extends TerminalTaskAbstract
                 $now = new \DateTime();
                 foreach ($systemCronjobs as $cronTask) {
                     //run(): franja, ventana, intentos, bloqueo y estado. Una línea por tarea.
-                    $result = $cronTask->run($now);
+                    $result = $cronTask->setTriggeredBy(TaskRunMapper::TRIGGER_CLI)->run($now);
                     $name = $cronTask->getName();
                     $message[] = match ($result['status']) {
                         CronJobTask::STATUS_EXECUTED => "\e[32m-> {$name}: ejecutada · {$result['message']}\e[39m",

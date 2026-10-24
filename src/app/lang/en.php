@@ -314,7 +314,6 @@ $lang = [
         'Buscar'              => 'To look for...',
         'Buscador'            => 'Search',
         'Resultados visibles' => 'Visible results',
-        "Ver"                 => "See",
         "elementos"           => "elements",
     ],
 ];

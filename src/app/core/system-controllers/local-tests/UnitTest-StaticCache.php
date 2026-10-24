@@ -3,6 +3,7 @@
 //La caché de los estáticos por HTTP (ADR 0034): un año con cacheStamp, no-cache sin él, una sola Cache-Control.
 //Crea un principal zz-prueba-cache-* y lo retira.
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -64,8 +65,8 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
 
     $cabeceras = function (string $path, ?string $jwt = null) use ($base): array {
         $lineas = [];
-        $handle = curl_init();
-        curl_setopt_array($handle, [
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_NOBODY => true,
@@ -141,7 +142,7 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
         $esDeEstatico = fn(array $cc): bool => in_array($anual, $cc, true) || $cc === ['no-cache'];
         $portada = $cabeceras('/');
         $check($portada['status'] === 200 && count($portada['cc']) === 1 && !$esDeEstatico($portada['cc']), '3a la portada: su Cache-Control de página', (string) json_encode($portada['cc']));
-        $pantalla = $cabeceras($panel, SessionToken::generateToken(['id' => $id], null, null, false));
+        $pantalla = $cabeceras($panel, UserSessions::issueToken($id));
         $check($pantalla['status'] === 200 && count($pantalla['cc']) === 1 && !$esDeEstatico($pantalla['cc']), '3b una pantalla del panel: la suya, tampoco la de los estáticos', "HTTP {$pantalla['status']} · " . (string) json_encode($pantalla['cc']));
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));

@@ -15,11 +15,12 @@
  */
 
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use ContentNavigationHub\ContentNavigationHubRoutes;
-use ContentNavigationHub\Controllers\ContentNavigationHubController;
-use MySpace\Controllers\MyOrganizationProfileController;
+use Directory\Controllers\DirectoryController;
+use Organizations\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\MyProfileController;
+use MySpace\MySpaceRoutes;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Geo\Controllers\GeoController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -57,13 +58,13 @@ if (!in_array($current_type_user, $externalUsers)) {
                 'asLink' => true,
                 'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 'icon' => 'home',
-                'position' => 0,
+                'position' => MenuGroupCollection::BAND_HOME,
             ]),
             new MenuGroup([
-                'name' => __(ADMIN_MENU_LANG_GROUP, 'Gestión'),
-                'visible' => ContentNavigationHubRoutes::ENABLE,
-                'icon' => 'edit',
-                'position' => 0,
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Mi espacio'),
+                'visible' => MySpaceRoutes::ENABLE,
+                'icon' => 'user circle',
+                'position' => MenuGroupCollection::BAND_MY_SPACE,
                 'items' => [
                     new MenuItem([
                         'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'),
@@ -78,22 +79,20 @@ if (!in_array($current_type_user, $externalUsers)) {
                 ],
             ]),
             new MenuGroup([
-                'name' => __(ADMIN_MENU_LANG_GROUP, 'Consultar'),
-                'visible' => true,
-                'icon' => 'search',
-                'position' => 0,
-                'items' => [
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Listado de actores'),
-                        'href' => ContentNavigationHubController::routeName('profiles-list', [], true),
-                        'visible' => ContentNavigationHubController::allowedRoute('profiles-list'),
-                    ]),
-                    new MenuItem([
-                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de contenidos'),
-                        'href' => ContentNavigationHubController::routeName('contents-map', [], true),
-                        'visible' => ContentNavigationHubController::allowedRoute('contents-map'),
-                    ]),
-                ],
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Directorio'),
+                'icon' => 'address book',
+                'position' => MenuGroupCollection::BAND_PEOPLE + 20,
+                'asLink' => true,
+                'href' => DirectoryController::routeName('list', [], true),
+                'visible' => DirectoryController::allowedRoute('list'),
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de contenidos'),
+                'icon' => 'map outline',
+                'position' => MenuGroupCollection::BAND_PEOPLE + 21,
+                'asLink' => true,
+                'href' => GeoController::routeName('viewer', [], true),
+                'visible' => GeoController::allowedRoute('viewer'),
             ]),
             new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
@@ -101,7 +100,7 @@ if (!in_array($current_type_user, $externalUsers)) {
                 'asLink' => true,
                 'href' => \PiecesPHP\App\Locations\Controllers\Locations::routeName('', [], true),
                 'icon' => 'map marker alternate',
-                'position' => 1800,
+                'position' => MenuGroupCollection::BAND_DATA,
             ]),
         ],
     ]);
@@ -115,23 +114,23 @@ if (!in_array($current_type_user, $externalUsers)) {
                 'asLink' => true,
                 'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 'icon' => 'home',
-                'position' => 0,
+                'position' => MenuGroupCollection::BAND_HOME,
             ]),
             new MenuGroup([
-                'name' => __(ADMIN_MENU_LANG_GROUP, 'Usuarios generales'),
-                'icon' => 'edit',
-                'position' => 0,
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Directorio'),
+                'icon' => 'address book',
+                'position' => MenuGroupCollection::BAND_PEOPLE + 30,
                 'asLink' => true,
-                'href' => ContentNavigationHubController::routeName('profiles-list', [], true),
-                'visible' => ContentNavigationHubController::allowedRoute('profiles-list'),
+                'href' => DirectoryController::routeName('list', [], true),
+                'visible' => DirectoryController::allowedRoute('list'),
             ]),
             new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de actores y contenidos'),
                 'icon' => 'map outline',
-                'position' => 0,
+                'position' => MenuGroupCollection::BAND_PEOPLE + 40,
                 'asLink' => true,
-                'href' => ContentNavigationHubController::routeName('contents-map', [], true),
-                'visible' => ContentNavigationHubController::allowedRoute('contents-map'),
+                'href' => GeoController::routeName('viewer', [], true),
+                'visible' => GeoController::allowedRoute('viewer'),
             ]),
         ],
     ]);
@@ -145,7 +144,7 @@ $hasManyLangs = !empty($alternativesURL);
 if ($hasManyLangs && false) {
     $langsItem = new MenuGroup([
         'name' => __(ADMIN_MENU_LANG_GROUP, 'Idiomas'),
-        'position' => 9999,
+        'position' => MenuGroupCollection::BAND_LANGUAGES,
         'icon' => 'language',
     ]);
 

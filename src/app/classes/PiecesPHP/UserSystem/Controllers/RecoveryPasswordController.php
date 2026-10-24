@@ -12,7 +12,9 @@ use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
+use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 use \stdClass;
@@ -64,10 +66,10 @@ class RecoveryPasswordController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries();
+        import_app_libraries(['baseStyle']);
 
         set_custom_assets([
-            base_url('statics/login-and-recovery/css/problems-form.css'),
+            UserSystemFeaturesRoutes::staticRoute('css/problems-form.css'),
         ], 'css');
 
         set_custom_assets([
@@ -196,8 +198,10 @@ class RecoveryPasswordController extends UsersController
                         $json_response['success'] = true;
                         $json_response['message'] = __(self::LANG_GROUP, 'Contraseña cambiada.');
                         RecoveryPasswordModel::deleteByEmail((string) $user->email);
+                        TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_RECOVERY, (int) $user->id, (string) $user->username);
                     }
                 } else {
+                    $this->logRejected($user, $code);
                     $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
                     $json_response['message'] = $this->getMessage($json_response['error']);
                 }
@@ -267,6 +271,7 @@ class RecoveryPasswordController extends UsersController
             if ($recoveryPassword !== null) {
                 $json_response['success'] = true;
             } else {
+                $this->logRejected($user, $code);
                 $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
                 $json_response['message'] = $this->getMessage($json_response['error']);
             }
@@ -277,6 +282,23 @@ class RecoveryPasswordController extends UsersController
         }
 
         return $response->withJson($json_response);
+    }
+
+    /**
+     * Un código de recuperación que no sirvió, con su motivo. Sin usuario no se anota: el límite de intentos ya deja el
+     * rastro del nombre pedido, y aquí no hay de quién era el código.
+     *
+     * @param stdClass|null $user
+     * @param string $code
+     * @return void
+     */
+    protected function logRejected(?stdClass $user, string $code): void
+    {
+        if ($user === null) {
+            return;
+        }
+        $reason = RecoveryPasswordModel::existsCode((string) $user->email, $code) ? TokenEvents::REASON_EXPIRED : TokenEvents::REASON_NOT_FOUND;
+        TokenEvents::log(LogsMapper::MSG_TOKEN_REJECTED, TokenEvents::KIND_RECOVERY, (int) $user->id, (string) $user->username, ['%reason%' => $reason]);
     }
 
     /**
@@ -296,7 +318,8 @@ class RecoveryPasswordController extends UsersController
                 '=' => $username,
             ],
         ]);
-        return $usuario instanceof stdClass ? $usuario : null;
+        //El usuario de sistema no recupera nada: para quien pide, no existe.
+        return $usuario instanceof stdClass && !UsersModel::isSystemUser((int) $usuario->id) ? $usuario : null;
     }
 
     /**
@@ -319,6 +342,7 @@ class RecoveryPasswordController extends UsersController
         $recoveryPassword->email = $usuario->email;
         $recoveryPassword->code = generate_code(6);
         $recoveryPassword->save();
+        TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, TokenEvents::KIND_RECOVERY, (int) $usuario->id, (string) $usuario->username);
 
         try {
             $sent = $this->mailRecoveryPasswordCode($recoveryPassword->code, $usuario, $onlyCode);
@@ -419,7 +443,7 @@ class RecoveryPasswordController extends UsersController
         $mail->AltBody = strip_tags($message);
 
         if (!$mail->checkSettedSMTP()) {
-            $mail->asGoDaddy();
+            $mail->asSystemMailer();
         }
 
         return $mail->send();

@@ -11,6 +11,7 @@
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\LangInjector;
@@ -32,6 +33,7 @@ $langInjectors = [
     UserDataPackage::LANG_GROUP => new LangInjector(basepath('app/lang/usersModule'), $langsOptions),
     LOCATIONS_LANG_GROUP => new LangInjector(basepath('app/lang/locationBackend'), $langsOptions),
     FileValidator::LANG_GROUP => new LangInjector(basepath('app/lang/FileValidator'), $langsOptions),
+    ImportRunner::LANG_GROUP => new LangInjector(basepath('app/lang/DataTransfer'), $langsOptions),
     LOGIN_REPORT_LANG_GROUP => new LangInjector(basepath('app/lang/loginReport'), $langsOptions),
     'about-framework' => new LangInjector(basepath('app/lang/about-framework'), $langsOptions),
 ];

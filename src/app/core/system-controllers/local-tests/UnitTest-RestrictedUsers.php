@@ -2,7 +2,11 @@
 
 //Un usuario pendiente de aprobación o rechazado entra, pero solo a lo suyo; inactivo, bloqueado y borrado no entran.
 //Por HTTP, en una organización zz- NO aprobada: así la autoaprobación no reescribe su estado. Lo siembra y lo retira.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -62,7 +66,7 @@ CliActions::make('unit-tests:core/restricted-users', function ($args) {
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
     $pedir = function (string $path, ?string $jwt, ?array $post = null) use ($base, $cabeceraToken): array {
-        $handle = curl_init();
+        $handle = \Terminal\TestRun::curlInit();
         $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),
             CURLOPT_RETURNTRANSFER => true,
@@ -76,7 +80,7 @@ CliActions::make('unit-tests:core/restricted-users', function ($args) {
             $opciones[CURLOPT_POST] = true;
             $opciones[CURLOPT_POSTFIELDS] = http_build_query($post);
         }
-        curl_setopt_array($handle, $opciones);
+        \Terminal\TestRun::curlSetoptArray($handle, $opciones);
         $body = curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
@@ -135,7 +139,7 @@ CliActions::make('unit-tests:core/restricted-users', function ($args) {
             $u->save();
             $usuarios[$sufijo] = (int) $u->id;
             $claves[$sufijo] = $clave;
-            return SessionToken::generateToken(['id' => (int) $u->id], null, null, false);
+            return UserSessions::issueToken((int) $u->id);
         };
         $activo = $crearUsuario('activo', UsersModel::STATUS_USER_ACTIVE);
         $pendiente = $crearUsuario('pendiente', UsersModel::STATUS_USER_APPROVED_PENDING);
@@ -201,7 +205,7 @@ CliActions::make('unit-tests:core/restricted-users', function ($args) {
         $root->modifiedAt = $root->createdAt;
         $root->save();
         $usuarios['root-rechazado'] = (int) $root->id;
-        $r = $pedir($listado, SessionToken::generateToken(['id' => (int) $root->id], null, null, false));
+        $r = $pedir($listado, UserSessions::issueToken((int) $root->id));
         $check($r['status'] === 200, 'g1 un principal rechazado abre el listado de publicaciones', "HTTP {$r['status']}");
 
         echoTerminal('');

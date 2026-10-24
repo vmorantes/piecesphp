@@ -9,12 +9,11 @@ namespace PiecesPHP\BuiltIn\Helpers;
 use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
-use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 
 /**
@@ -86,26 +85,11 @@ class HelpersSystemRoutes
                 'asLink' => true,
                 'href' => GenericContentController::routeName('forms-home-image'),
                 'visible' => GenericContentController::allowedRoute('forms-home-image'),
-                'position' => 100,
+                'position' => MenuGroupCollection::BAND_CONTENTS + 40,
             ]));
 
-            $sidebar->addItem(new MenuGroup([
-                'name' => __(HelpersSystemLang::LANG_GROUP, 'Variables de entorno'),
-                'icon' => 'sliders horizontal',
-                'items' => [
-                    new MenuItem([
-                        'text' => __(HelpersSystemLang::LANG_GROUP, 'Tokens AI esperados'),
-                        'href' => GenericContentController::routeName('forms-tokens-limit'),
-                        'visible' => GenericContentController::allowedRoute('forms-tokens-limit'),
-                    ]),
-                    new MenuItem([
-                        'text' => __(HelpersSystemLang::LANG_GROUP, 'Llaves de MapBox'),
-                        'href' => GenericContentController::routeName('forms-mapbox-keys'),
-                        'visible' => GenericContentController::allowedRoute('forms-mapbox-keys'),
-                    ]),
-                ],
-                'position' => 110,
-            ]));
+            //«Variables de entorno» ya no está en el menú lateral: sus dos pantallas viven en Configuración › Integraciones
+            //(SettingsController::panelGroups(), P134 a).
 
         }
 

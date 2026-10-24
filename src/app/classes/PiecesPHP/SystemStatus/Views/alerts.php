@@ -6,32 +6,43 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var array<int,array{key:string,severity:string,message:string,hidden:bool,dismissible:bool,fixURL:string,fixLabel:string}> $rows
  * @var bool $isRoot Ve el interruptor Ocultar/Mostrar en los ocultables
  * @var string $toggleURL
+ * @var string $description
+ * @var array<string|int,string|array{url:string}> $breadcrumbs
+ * @var string $indexLink
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
+//Pintada fuera del controlador (las suites la incluyen con sus propias variables): la cabecera, con lo que haya.
+$helpController = isset($helpController) && $helpController instanceof \PiecesPHP\AdminPanel\Controllers\HelperController ? $helpController : new \PiecesPHP\AdminPanel\Controllers\HelperController();
+$description = isset($description) && is_string($description) ? $description : '';
+$breadcrumbs = isset($breadcrumbs) && is_array($breadcrumbs) ? $breadcrumbs : [];
 $severities = [
     'danger' => ['red', __($langGroup, 'Grave')],
     'warning' => ['orange', __($langGroup, 'Atención')],
     'info' => ['blue', __($langGroup, 'Información')],
 ];
 ?>
-<main class="system-alerts-view" data-system-alerts data-toggle-url="<?= $escape($toggleURL); ?>">
+<section class="module-view-container system-alerts-view" data-system-alerts data-toggle-url="<?= $escape($toggleURL); ?>">
 
-    <section class="main-body-header">
+    <div class="limiter-content">
 
-        <div class="head">
-            <h2 class="tittle"><?= $escape($title); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Sistema'); ?></span>
-        </div>
-
-        <div class="body-card max">
-
-        <div>
-
-        <p><?= __($langGroup, 'Lo que el sistema necesita que alguien revise.'); ?></p>
+        <?php
+        $helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description,
+        ]);
+        ?>
 
         <?php if (count($rows) === 0): ?>
-        <p><?= __($langGroup, 'No hay avisos activos.'); ?></p>
+        <?php
+        $helpController->_render('panel/built-in/content/empty-state.php', [
+            'text' => __($langGroup, 'No hay avisos activos.'),
+            'icon' => 'check circle outline',
+        ]);
+        ?>
         <?php else: ?>
+        <div class="container-standard-table">
         <table class="ui basic table" data-system-alerts-table>
             <thead>
                 <tr>
@@ -53,7 +64,7 @@ $severities = [
                     <td data-system-alert-state><?= $row['hidden'] ? __($langGroup, 'Oculto') : __($langGroup, 'Activo'); ?></td>
                     <td>
                         <?php if ($row['fixURL'] !== ''): ?>
-                        <a class="ui button brand-color alt" href="<?= $escape($row['fixURL']); ?>"><?= $escape($row['fixLabel']); ?></a>
+                        <a class="ui small basic button" href="<?= $escape($row['fixURL']); ?>"><?= $escape($row['fixLabel']); ?></a>
                         <?php endif; ?>
                     </td>
                     <?php if ($isRoot): ?>
@@ -70,12 +81,9 @@ $severities = [
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
         <?php endif; ?>
 
-        </div>
+    </div>
 
-        </div>
-
-    </section>
-
-</main>
+</section>

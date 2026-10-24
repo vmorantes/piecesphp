@@ -11,28 +11,25 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+        //La cabecera del panel (diseno/01-contenidos.md §2.1).
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+            'description' => $description ?? '',
+        ]);
+        ?>
 
-        <br>
-
-        <div class="tabs-controls">
+        <div class="tabs-controls content-tabs">
             <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
         </div>
 
-        <div class="container-standard-form">
 
-            <form method='POST' action="<?= $action; ?>" class="ui form built-in-banner">
+        <form method='POST' action="<?= $action; ?>" class="ui form initial built-in-banner" data-content-form>
+
+            <div class="container-standard-form">
 
                 <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
 
@@ -99,12 +96,12 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
                     <div class="two fields">
 
                         <div class="field" calendar-group-js='periodo' start>
-                            <label><?= __($langGroup, 'Inicio'); ?></label>
+                            <label><?= __($langGroup, 'Iniciar'); ?></label>
                             <input type="text" name="startDate" autocomplete="off">
                         </div>
 
                         <div class="field" calendar-group-js='periodo' end>
-                            <label><?= __($langGroup, 'Final'); ?></label>
+                            <label><?= __($langGroup, 'Finalizar'); ?></label>
                             <input type="text" name="endDate" autocomplete="off">
                         </div>
 
@@ -123,15 +120,11 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 
                 </div>
 
-                <br><br>
+            </div>
 
-                <div class="field">
-                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+            <?php $this->helpController->_render('panel/built-in/content/form-action-bar.php', ['saveText' => __($langGroup, 'Guardar')]); ?>
 
-            </form>
-
-        </div>
+        </form>
 
     </div>
 

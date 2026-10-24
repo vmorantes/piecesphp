@@ -1,0 +1,17 @@
+@use '../../../../../../statics/core/sass/includes/variables' as *;
+
+//Los informes de acceso pintan sus cifras con las piezas de estadísticas (graphs-and-statistics.css); aquí solo queda
+//el color del indicador de cada intento.
+.module-view-container {
+
+    .check.circle.icon {
+        color: $colorSuccess;
+        margin: 0 50%;
+    }
+
+    .times.circle.icon {
+        color: $colorError;
+        margin: 0 50%;
+    }
+
+}

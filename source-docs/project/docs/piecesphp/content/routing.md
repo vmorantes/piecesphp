@@ -52,10 +52,41 @@ El nombre de la ruta **es** el identificador de permiso. Por eso:
   nombre escrito a mano **está prohibido**: `bin/cli verify-integrity` falla si lo encuentra, salvo tres excepciones del
   núcleo listadas en `files/dev/get-route-direct-allowed.json` con su motivo.
   `routeName()` devuelve la cadena vacía si el usuario conectado no tiene permiso. **Sin usuario conectado
-  no filtra**: el acceso de las rutas protegidas lo decide `require_login` y el middleware del módulo, no la URL.
+  no filtra**: devuelve la dirección, para que los correos, el cron y la zona pública puedan enlazar al panel.
 - **Un enlace o un botón de menú se muestra con `Controller::allowedRoute('sufijo', $params)`** o
-  `Roles::hasPermissions(...)`.
+  `Roles::hasPermissions(...)`. **Sin usuario conectado, `allowedRoute()` da `false` para toda ruta con
+  `require_login = true`** (desde la 9.0.0), y el control de acceso del módulo (`DefaultAccessControlModules`) responde
+  403. Si una página sin sesión tiene que enseñar un enlace al panel —por ejemplo, para llevar al acceso—, usa
+  `routeName()` y comprueba que no sea `''`:
+
+```php
+//En una vista que también se pinta sin sesión
+$panelURL = AdminPanelController::routeName('');
+if ($panelURL !== '') {
+    echo '<a href="' . escape_html($panelURL) . '">' . __($langGroup, 'Ir al panel') . '</a>';
+}
+//Para decidir si el usuario PUEDE, en cambio:
+$canEnter = AdminPanelController::allowedRoute(''); //false sin sesión
+```
 - Los dos métodos, con `_allowedRoute()`, vienen de `ControllerRoutingTrait` (`use ControllerRoutingTrait;` en el
   controlador). `_allowedRoute()` es el punto donde el módulo oculta una ruta que los roles sí permiten; vacío por
   defecto.
 - Rutas solo con `PiecesPHP\Core\Route` y `RouteGroup`; nunca `$app->get(...)`.
+
+## Rutas que renuevan un token caducado
+
+Una ruta puede declarar que, si llega con un token de sesión **caducado**, el framework le fabrica uno nuevo en lugar
+de tratar la petición como «sin sesión». Sirve para llamadas que no controla una persona: un webhook o un endpoint al
+que llama un tercero con un token viejo.
+
+```php
+(new Route('webhooks/pagos[/]', MiController::class . ':pagos', 'mi-modulo-webhook-pagos', 'POST', true))
+    ->renewExpired(true);
+```
+
+- **Por omisión es `false`**: ninguna ruta del framework lo declara.
+- **No salta la revocación.** El token renovado se concede solo si la firma del viejo es válida, si el viejo es
+  posterior a la marca global y a la del usuario, y si su sesión sigue abierta en el servidor. Cerrar la sesión desde
+  «Mis sesiones» la corta también aquí.
+- Hasta la 9 esto era una lista de nombres de ruta dentro de `src/index.php`. Ya no existe: la declara la propia ruta.
+

@@ -182,7 +182,8 @@ class TokenModel extends BaseModel
             $jwt = $tokenRecord->token;
             $tokenData = BaseToken::getData($jwt, self::baseJWTKey(), null, true);
             $tokenExpired = BaseToken::isExpire($jwt, self::baseJWTKey(), null);
-            $tokenCode = property_exists($tokenData, 'code') ? $tokenData->code : uniqid();
+            //Datos que no se abren (otra clave, un formato anterior): ningún código casa.
+            $tokenCode = $tokenData instanceof \stdClass && property_exists($tokenData, 'code') ? $tokenData->code : uniqid();
             return $tokenCode == $code && !$tokenExpired;
         }
         return false;

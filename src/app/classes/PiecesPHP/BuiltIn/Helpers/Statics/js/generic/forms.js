@@ -6,24 +6,27 @@ window.addEventListener('load', function () {
 
 	let formSelector = `.ui.form.generic`
 
-	//Formulario
-	let form = genericFormHandler(formSelector, {
-		onSetFormData: function (formData) {
-			return formData
-		},
-		onInvalidEvent: function (event) {
+	//Formulario: uno por cada uno, porque el manejador envía el primero de lo que recibe (la página de MapBox tiene dos).
+	let form = $(formSelector)
+	form.each(function () {
+		genericFormHandler($(this), {
+			onSetFormData: function (formData) {
+				return formData
+			},
+			onInvalidEvent: function (event) {
 
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
+				let element = event.target
+				let validationMessage = element.validationMessage
+				let jElement = $(element)
+				let field = jElement.closest('.field')
+				let nameOnLabel = field.find('label').html()
 
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
+				errorMessage(`${nameOnLabel}: ${validationMessage}`)
 
-			event.preventDefault()
+				event.preventDefault()
 
-		}
+			}
+		})
 	})
 
 	//Otros

@@ -99,6 +99,56 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     const GET_ROUTE_ALLOWED_RELATIVE_PATH = 'files/dev/get-route-direct-allowed.json';
 
     /**
+     * Lo que vive en las carpetas globales, archivo por archivo, con su estado (criterio del PO, 2026-10-14): lo global
+     * solo crece si se declara global con su motivo; lo demás va a su módulo.
+     */
+    const GLOBAL_FILES_RELATIVE_PATH = 'files/dev/global-files.json';
+
+    /**
+     * Las carpetas globales que vigila la comprobación 49, relativas a la raíz del repositorio.
+     */
+    const GLOBAL_FOLDERS = ['src/app/view/', 'src/statics/core/js/', 'src/statics/core/sass/'];
+
+    /**
+     * Las únicas apariciones permitidas de los diálogos del navegador (confirm, alert) y de la pregunta de iziToast, por archivo y con su motivo (comprobación 50).
+     */
+    const BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH = 'files/dev/browser-dialogs-allowed.json';
+
+    /**
+     * Las vistas con su propio <head> que NO emiten <meta name="front-configurations">, con su motivo (comprobación 51).
+     */
+    const HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH = 'files/dev/head-without-front-configurations.json';
+
+    /**
+     * Los únicos archivos que pueden ofuscar (BaseHashEncryption::obfuscate/deobfuscate), con su motivo (ADR 0061 §10).
+     * Ofuscar no protege nada: un secreto va con Crypto\Sealed. La lista solo encoge.
+     */
+    const OBFUSCATION_ALLOWED = [
+        'src/app/classes/Documents/Mappers/DocumentsMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/News/Mappers/NewsCategoryMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/News/Mappers/NewsMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/Organizations/Mappers/OrganizationMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/Publications/Mappers/PublicationCategoryMapper.php' => 'el slug corto de la dirección',
+        'src/app/classes/Publications/Mappers/PublicationMapper.php' => 'el slug corto de la dirección',
+        'src/app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailConfig.php' => 'LEER la configuración de antes de la 9, que se vuelve a guardar cifrada',
+        'src/app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailjetConfig.php' => 'LEER la configuración de antes de la 9, que se vuelve a guardar cifrada',
+        'src/app/core/psr4/PiecesPHP/Core/Crypto/EncryptedDataRegistry.php' => 'LEER lo de antes de la 9 al rotar la clave',
+    ];
+
+    /**
+     * Donde Sealed recibe el propósito de una ENTRADA del registro ($site->purpose()), que ya está declarado por
+     * construcción: no lleva constante, y no puede llevarla.
+     */
+    const SEALED_FROM_REGISTRY = [
+        'src/app/core/psr4/PiecesPHP/Core/Crypto/EncryptedData.php' => 'read(): el propósito de la propia entrada',
+        'src/app/core/psr4/PiecesPHP/Core/Crypto/KeyRotation.php' => 'resealSite(): el propósito de la entrada que se rota',
+    ];
+
+    /**
      * Quién puede abrir cada ruta, congelado. Se versiona: sin esto en el repositorio la
      * comprobación no detecta nada en una máquina limpia.
      */
@@ -125,7 +175,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
     /** Los de bin/ que viajan a la distribución (ADR 0049 §6). Un archivo nuevo de bin/ se clasifica: aquí o en bin/distribution-exclude.txt. */
     const BIN_TRAVELS = [
-        'bin/.gitignore', 'bin/check-routes', 'bin/cli', 'bin/live-cache', 'bin/node/copyDependencies.php', 'bin/node/copyDependencies.sh',
+        'bin/.gitignore', 'bin/censo-scss', 'bin/check-routes', 'bin/cli', 'bin/huella-css', 'bin/live-cache', 'bin/node/copyDependencies.php', 'bin/node/copyDependencies.sh',
         'bin/normaliza-eol', 'bin/package-css', 'bin/pieces-completion.bash', 'bin/pieces-completion.zsh', 'bin/tools/.gitignore',
         'bin/tools/check-routes.php', 'bin/tools/forbidden-routes.php', 'bin/tools/live-cache.php',
     ];
@@ -397,8 +447,29 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 47. La distribución pública lleva lo decidido y nada de la campaña ────────
         $distributionFailures = Distribution::applies('47', ['bin/make-distribution', 'bin/distribution-exclude.txt']) ? self::checkDistribution() : [];
 
+        //──── 48. Lo que se cifra usa un propósito declarado, y ofuscar solo donde se permite ─
+        $sealedFailures = self::checkSealedPurposes();
+
+        //──── 49. Lo global solo crece si se declara global ──────────────────────────────
+        $globalFailures = Distribution::applies('49', [self::GLOBAL_FILES_RELATIVE_PATH]) ? self::checkGlobalFilesDeclared() : [];
+
+        //──── 50. Nadie pregunta ni avisa con el diálogo del navegador ──────────────────
+        $dialogFailures = Distribution::applies('50', [self::BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH]) ? self::checkBrowserDialogs() : [];
+
+        //──── 51. Toda vista con su propio <head> publica el nombre de la sesión ────────
+        $frontConfigFailures = Distribution::applies('51', [self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH]) ? self::checkHeadsEmitFrontConfigurations() : [];
+
+        //──── 52. Nadie llama desde el código a un método que decide la operación por la ruta ─
+        $routeDecidedFailures = self::checkRouteDecidedOperationCalls();
+
+        //──── 53. Toda área que declara una suite existe y es de un módulo de la lista ──
+        $suiteAreaFailures = self::checkSuiteAreas();
+
+        //──── 54. Ningún color suelto en el SCSS del panel ─────────────────────────────
+        $looseColorFailures = self::checkLooseColorsInPanelScss();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
-        $failures = count($docblockFailures) + count($signatureFailures)
+        $failures = count($sealedFailures) + count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
             + count($executableFailures) + count($typeFailures) + count($volatileFailures)
@@ -414,7 +485,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             + count($deducedModelFailures) + count($columnRenameFailures) + count($capabilityFailures)
             + count($remnantFailures) + count($configOwnershipFailures) + count($aliasFailures)
             + count($docPathFailures) + count($docConfigFailures) + count($paddingFailures)
-            + count($distributionFailures);
+            + count($distributionFailures) + count($globalFailures) + count($dialogFailures) + count($frontConfigFailures)
+            + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -454,6 +526,27 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($paddingFailures as $line) {
             echoTerminal("\e[31mNÚMERO DE REGISTRO:\e[39m {$line}");
+        }
+        foreach ($sealedFailures as $line) {
+            echoTerminal("\e[31mCIFRADO:\e[39m {$line}");
+        }
+        foreach ($globalFailures as $line) {
+            echoTerminal("\e[31mLO GLOBAL:\e[39m {$line}");
+        }
+        foreach ($dialogFailures as $line) {
+            echoTerminal("\e[31mDIÁLOGO DEL NAVEGADOR:\e[39m {$line}");
+        }
+        foreach ($frontConfigFailures as $line) {
+            echoTerminal("\e[31mCABECERA:\e[39m {$line}");
+        }
+        foreach ($routeDecidedFailures as $line) {
+            echoTerminal("\e[31mOPERACIÓN POR LA RUTA:\e[39m {$line}");
+        }
+        foreach ($suiteAreaFailures as $line) {
+            echoTerminal("\e[31mÁREA DE SUITE:\e[39m {$line}");
+        }
+        foreach ($looseColorFailures as $line) {
+            echoTerminal("\e[31mCOLOR SUELTO:\e[39m {$line}");
         }
         foreach ($distributionFailures as $line) {
             echoTerminal("\e[31mDISTRIBUCIÓN:\e[39m {$line}");
@@ -1159,7 +1252,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //──── Propiedad del recurso MÁS pertenencia a la organización ──────────────────
         'Publications\\Controllers\\PublicationsController::_allowedRoute' => 'Borrado y edición: creador o autor, o administrador de la MISMA organización que el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
-        'MySpace\\Controllers\\MyOrganizationProfileController::_allowedRoute' => 'Rutas del perfil de organización: solo el administrador de esa organización, o PROFILE_EDITOR_SUPER. Sin organización, deniega.',
+        'Organizations\\Controllers\\MyOrganizationProfileController::_allowedRoute' => 'Rutas del perfil de organización: solo el administrador de esa organización, o PROFILE_EDITOR_SUPER. Sin organización, deniega.',
         'Organizations\\Controllers\\OrganizationsController::_allowedRoute' => 'Borrado y edición: protege la organización inicial (INITIAL_ID_GLOBAL), y permite al editor de su propia organización o a su administrador. Respeta DISABLE_NORMAL_EDIT_FORM.',
 
         //──── Conflicto de interés ─────────────────────────────────────────────────────
@@ -1764,6 +1857,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     }
                 }
                 $lines = preg_split('/\R/', (string) file_get_contents($p)) ?: [];
+                $isSuite = mb_strpos($p, '/app/core/system-controllers/local-tests/') !== false;
                 $n = count($lines);
                 for ($i = 0; $i < $n; $i++) {
                     $l = trim((string) $lines[$i]);
@@ -1799,6 +1893,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                         $t = trim((string) preg_replace('#^\s*(/\*\*?|\*/|\*|//+)\s?#', '', (string) $linea));
                         $t = trim(str_replace('*/', '', $t));
                         if ($t === '' || str_starts_with($t, '<reference') || str_starts_with($t, '@ts-')) {
+                            continue;
+                        }
+                        //@areas solo en local-tests/: allí la 53 valida cada una.
+                        if ($isSuite && str_starts_with($t, '@areas ')) {
                             continue;
                         }
                         $prosa++;
@@ -3477,7 +3575,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
             $nombrados[$texto] = true;
             if ($encabezados['todos'] !== [] && !in_array($texto, $encabezados['todos'], true)) {
-                $failures[] = "{$nombre}: su `changelog` nombra «{$texto}», que no es un encabezado de las secciones {$secciones} del CHANGELOG (¿se renombró?)";
+                $failures[] = "{$nombre}: su `changelog` nombra «{$texto}», que no es un encabezado de ninguna sección del CHANGELOG (¿se renombró?)";
             }
         }
         foreach ($encabezados['nuevo'] as $nuevo) {
@@ -3527,8 +3625,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * Los encabezados `##` de la MAYOR en curso del CHANGELOG —desde el primer `# X.Y.Z` hasta antes del primero de otra
-     * mayor— y, aparte, los `## Nuevo` y las versiones de esas secciones. Sin el `## ` delante.
+     * `todos`: los encabezados `##` de TODAS las secciones `# X.Y.Z` del CHANGELOG, porque abrir una mayor no borra lo anunciado en la anterior.
+     * `nuevo` y `secciones`: solo los de la MAYOR en curso, la del primer `# X.Y.Z`. Sin el `## ` delante.
      *
      * @param string $texto
      * @return array{todos:string[],nuevo:string[],secciones:string[]}
@@ -3539,13 +3637,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $nuevo = [];
         $secciones = [];
         $mayor = null;
+        $enCurso = false;
         foreach (preg_split('/\R/', $texto) ?: [] as $linea) {
             if (preg_match('/^# (\d+)\.(\d+)\.(\d+)/', $linea, $version) === 1) {
                 $mayor ??= $version[1];
-                if ($version[1] !== $mayor) {
-                    break;
+                $enCurso = $version[1] === $mayor;
+                if ($enCurso) {
+                    $secciones[] = $version[1] . '.' . $version[2] . '.' . $version[3];
                 }
-                $secciones[] = $version[1] . '.' . $version[2] . '.' . $version[3];
                 continue;
             }
             if ($mayor === null) {
@@ -3553,7 +3652,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
             if (preg_match('/^## (.+?)\s*$/u', $linea, $m) === 1) {
                 $todos[] = $m[1];
-                if (str_starts_with($m[1], 'Nuevo')) {
+                if ($enCurso && str_starts_with($m[1], 'Nuevo')) {
                     $nuevo[] = $m[1];
                 }
             }
@@ -3565,7 +3664,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Nada del árbol nombra una ruta, una carpeta, una plantilla o una clase que la campaña borró o movió.
      *
      * Nace del 2026-10-01: `gulp init-project` cayó en la máquina del PO porque el gulpfile seguía nombrando una carpeta
-     * movida. `bin/censo-borrados` hace el censo entero, que tarda minutos, y deja en su artefacto qué buscar de cada ruta;
+     * movida. `bin/censo-borrados` hace el censo entero, que tarda unos segundos (GX), y deja en su artefacto qué buscar de cada ruta;
      * esta puerta lo busca otra vez en segundos. La cota solo baja, y lo que nombra una ruta vieja a propósito va declarado
      * en el artefacto con su motivo. No ve lo que el censo no ve: la documentación, ni una clase por su nombre corto.
      *
@@ -3631,7 +3730,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $textos[$relative] = $texto;
         }
 
-        //EL CENSO RANCIO, en segundos: el entero tarda minutos y se corre antes de etiquetar, pero lo que se queda
+        //EL CENSO RANCIO, en segundos: el entero corre en bin/verify tras phpstan, pero lo que se queda
         //atrás cada día —un archivo añadido o quitado— se ve contando su universo contra el de hoy.
         $rancio = self::campaignCensusStaleness($registro, array_keys($textos), $root);
 
@@ -3660,7 +3759,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 . count($textos) . ' archivo(s) en ' . number_format(microtime(true) - $start, 1) . ' s: ' . count($reales) . ' resto(s) real(es), igual que la cota; '
                 . $declarados . ' a propósito, declarados con su motivo. No mira la documentación ni una clase por su nombre corto.');
             echoTerminal("\e[94mINFO:\e[39m censo de borrados: al día con este árbol (" . count($textos) . ' archivo(s), los mismos que conoce su artefacto).'
-                . ' Lo que NO ve: una fila nueva de borrado o movido, que solo da el censo entero —bin/censo-borrados --check, antes de etiquetar—.');
+                . ' Lo que NO ve: una fila nueva de borrado o movido, que da el censo entero: bin/censo-borrados, dentro de bin/artefactos --check en bin/verify.');
         }
         return $failures;
     }
@@ -4274,9 +4373,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * mas: antes estaba repartido entre `test_mode` y `is_local()`, y la ausencia del archivo de
      * entorno acababa enviando de verdad. Cota 0.
      *
-     * Mira el CUERPO de `testModeActive()`, no cada linea del archivo: el getter `testMode()`
-     * devuelve `$this->testMode` de forma legitima y una busqueda por linea lo caza como si fuera
-     * la decision. Medido el 2026-10-03: ese falso positivo salio en la primera version.
+     * Mira el CUERPO de `testModeActive()`, no cada linea del archivo: una busqueda por linea caza
+     * como si fuera la decision cualquier otro uso legitimo del archivo (hasta la 9.0.0, el getter
+     * `testMode()`). Medido el 2026-10-03: ese falso positivo salio en la primera version.
      *
      * @return string[]
      */
@@ -4309,7 +4408,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         echoTerminal("\e[94mINFO:\e[39m entrega del correo: la decide MailDelivery y nadie mas."
-            . ' Se mira el cuerpo de testModeActive(), no el archivo: el getter testMode() devuelve su valor de forma legitima.');
+            . ' Se mira el cuerpo de testModeActive(), no el archivo.');
 
         return [];
     }
@@ -5349,6 +5448,419 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
+     * 50. Nadie pregunta ni avisa con el diálogo del navegador (confirm, alert), con la pregunta de iziToast ni con un
+     * toast de Fomantic con botones (la clave de las acciones dentro de la llamada al toast) en src/app ni src/statics (sin vendor,
+     * plugins de terceros ni .min.js). Este archivo escribe esas formas partidas para no casar consigo mismo. Se pregunta
+     * con confirmAction() y se avisa con successMessage()/errorMessage(). Lo permitido, por archivo y con su número exacto.
+     *
+     * @return string[]
+     */
+    protected static function checkBrowserDialogs(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        $patron = '/(?<![\w.$])(?:window\.)?(?:confirm|alert)\s*\(|iziToast\.question/';
+
+        //Canario: ve las tres formas sembradas y no confunde confirmAction con confirm. Partidas, para no casar aquí.
+        $sembrado = 'window.conf' . "irm('a'); al" . "ert('b'); iziToast" . '.question({}); confirmAction({}); x.alertBox(1);';
+        if (preg_match_all($patron, $sembrado) !== 3) {
+            return ['canario muerto: el patrón no ve las tres formas sembradas, o confunde confirmAction(: la comprobación no miró nada'];
+        }
+        //Y la pregunta con un toast: una con botones (aunque un texto lleve paréntesis o la palabra) y un aviso sin ellos.
+        $toastSembrado = '$.to' . "ast({ message: 'x (y)', act" . "ions: [{ text: 'Sí' }] }); $('body').to" . "ast({ message: 'actions: no' });";
+        if (self::countToastQuestions($toastSembrado) !== 1) {
+            return ['canario muerto: no se distingue un toast con botones de un aviso: la comprobación no miró nada'];
+        }
+        if (!is_dir($root . '/.git')) {
+            echoTerminal("\e[94mINFO:\e[39m diálogos del navegador: sin .git no hay universo que medir; no se comprueba.");
+            return [];
+        }
+
+        $registro = json_decode((string) @file_get_contents($root . '/' . self::BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH), true);
+        $permitidos = is_array($registro) && is_array($registro['permitidos'] ?? null) ? $registro['permitidos'] : null;
+        if ($permitidos === null) {
+            return ['no se pudo leer ' . self::BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+
+        $archivos = 0;
+        $encontrados = [];
+        foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . ' -c core.quotePath=false ls-files -z --cached --others --exclude-standard -- src/app src/statics') as $relativo) {
+            if (preg_match('/\.(js|php|ts)$/', $relativo) !== 1 || str_starts_with($relativo, 'src/vendor/') || str_starts_with($relativo, 'src/statics/plugins/')
+                || str_ends_with($relativo, '.min.js') || str_contains($relativo, '/node_modules/') || !is_file($root . '/' . $relativo)) {
+                continue;
+            }
+            $archivos++;
+            $texto = (string) file_get_contents($root . '/' . $relativo);
+            $veces = (int) preg_match_all($patron, $texto) + self::countToastQuestions($texto);
+            if ($veces > 0) {
+                $encontrados[$relativo] = $veces;
+            }
+        }
+
+        $failures = [];
+        foreach ($encontrados as $relativo => $veces) {
+            $permitidas = is_array($permitidos[$relativo] ?? null) ? (int) ($permitidos[$relativo]['apariciones'] ?? 0) : 0;
+            if ($veces !== $permitidas) {
+                $failures[] = "{$relativo}: {$veces} diálogo(s) del navegador o pregunta(s) de iziToast o con toast (permitidas: {$permitidas}); pregunta con confirmAction() y avisa con successMessage()/errorMessage()";
+            }
+        }
+        foreach ($permitidos as $relativo => $entrada) {
+            if (!array_key_exists((string) $relativo, $encontrados)) {
+                $failures[] = self::BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH . ": `{$relativo}` ya no tiene ninguna; quítala de la lista";
+            }
+        }
+
+        if (count($failures) === 0) {
+            echoTerminal("\e[94mINFO:\e[39m diálogos del navegador: {$archivos} archivo(s) .js/.php/.ts en src/app y src/statics (sin vendor, plugins de terceros ni .min.js); "
+                . array_sum($encontrados) . ' aparición(es) en ' . count($encontrados) . ' archivo(s), todas declaradas.');
+        }
+        return $failures;
+    }
+
+    /**
+     * Cuántas llamadas al toast de Fomantic llevan la clave de las acciones dentro: un toast con botones es una pregunta. Recorre cada llamada
+     * hasta su paréntesis de cierre, saltando lo que va entre comillas, para que un texto no la corte ni la alargue.
+     *
+     * @param string $text
+     * @return int
+     */
+    protected static function countToastQuestions(string $text): int
+    {
+        $questions = 0;
+        $offset = 0;
+        while (preg_match('/\.toast\s*\(/', $text, $match, PREG_OFFSET_CAPTURE, $offset) === 1) {
+            $start = $match[0][1] + strlen($match[0][0]);
+            $depth = 1;
+            $quote = null;
+            $length = strlen($text);
+            $i = $start;
+            while ($i < $length && $depth > 0) {
+                $char = $text[$i];
+                if ($quote !== null) {
+                    if ($char === '\\') {
+                        $i++;
+                    } elseif ($char === $quote) {
+                        $quote = null;
+                    }
+                } elseif ($char === '"' || $char === "'" || $char === '`') {
+                    $quote = $char;
+                } elseif ($char === '(') {
+                    $depth++;
+                } elseif ($char === ')') {
+                    $depth--;
+                }
+                $i++;
+            }
+            $call = (string) preg_replace('/([\'"`])(?:\\\\.|(?!\1).)*\1/s', '""', substr($text, $start, $i - $start));
+            if (preg_match('/\bactions\s*:/', $call) === 1) {
+                $questions++;
+            }
+            $offset = $i;
+        }
+        return $questions;
+    }
+
+    /**
+     * 49. Lo global solo crece si se declara global (criterio del PO, 2026-10-14). Todo archivo de las carpetas globales
+     * está en el artefacto, «pendiente de auditar» o «global» con su motivo; un archivo nuevo sin declarar falla, y una
+     * entrada sin archivo también, para que la lista no mienta. Mira lo versionado y lo nuevo que git no ignora: un
+     * archivo recién creado cuenta aunque aún no se haya añadido al índice.
+     *
+     * @return string[]
+     */
+    protected static function checkGlobalFilesDeclared(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        if (!is_dir($root . '/.git')) {
+            echoTerminal("\e[94mINFO:\e[39m lo global: sin .git no hay universo que medir; no se comprueba.");
+            return [];
+        }
+
+        $registro = json_decode((string) @file_get_contents($root . '/' . self::GLOBAL_FILES_RELATIVE_PATH), true);
+        $declarados = is_array($registro) && is_array($registro['archivos'] ?? null) ? $registro['archivos'] : null;
+        if ($declarados === null) {
+            return ['no se pudo leer ' . self::GLOBAL_FILES_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+
+        $carpetas = implode(' ', array_map('escapeshellarg', self::GLOBAL_FOLDERS));
+        $universo = [];
+        foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . ' -c core.quotePath=false ls-files -z --cached --others --exclude-standard -- ' . $carpetas) as $relativo) {
+            if (is_file($root . '/' . $relativo)) {
+                $universo[$relativo] = true;
+            }
+        }
+        //Canario: cada carpeta aporta algo. Un universo vacío diría «nada nuevo» sin haber mirado.
+        foreach (self::GLOBAL_FOLDERS as $carpeta) {
+            if (count(array_filter(array_keys($universo), fn (string $f): bool => str_starts_with($f, $carpeta))) === 0) {
+                return ["canario muerto: git no lista ningún archivo en {$carpeta}; la comprobación no miró nada"];
+            }
+        }
+
+        $failures = [];
+        $pendientes = 0;
+        $globales = 0;
+        foreach (array_keys($universo) as $relativo) {
+            if (!array_key_exists($relativo, $declarados)) {
+                $failures[] = "{$relativo}: archivo nuevo en lo global: muévelo a su módulo o declaralo global con su motivo en " . self::GLOBAL_FILES_RELATIVE_PATH;
+            }
+        }
+        foreach ($declarados as $relativo => $entrada) {
+            $relativo = (string) $relativo;
+            if (!array_key_exists($relativo, $universo)) {
+                $failures[] = self::GLOBAL_FILES_RELATIVE_PATH . ": `{$relativo}` ya no existe; quítala de la lista";
+                continue;
+            }
+            $estado = is_array($entrada) ? ($entrada['estado'] ?? null) : null;
+            $motivo = is_array($entrada) ? trim((string) ($entrada['motivo'] ?? '')) : '';
+            if ($estado === 'pendiente de auditar') {
+                $pendientes++;
+            } elseif ($estado === 'global' && $motivo !== '') {
+                $globales++;
+            } else {
+                $failures[] = self::GLOBAL_FILES_RELATIVE_PATH . ": `{$relativo}` necesita estado «pendiente de auditar», o «global» con su motivo";
+            }
+        }
+
+        if (count($failures) === 0) {
+            echoTerminal("\e[94mINFO:\e[39m lo global: " . count($universo) . ' archivo(s) en ' . implode(', ', self::GLOBAL_FOLDERS)
+                . " (versionados y nuevos que git no ignora); {$pendientes} pendiente(s) de auditar y {$globales} declarado(s) global(es), todos en la lista.");
+        }
+        return $failures;
+    }
+
+    /**
+     * 51. Toda vista PHP con su propio <head> emite <meta name="front-configurations"> o está declarada, con su motivo, en
+     * HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH. Sin esa meta el JavaScript no recibe el nombre de la sesión y cae a
+     * JWTAuth: con otro nombre configurado, la página de acceso dejaba entrar y el panel devolvía al login (H12).
+     *
+     * @return string[]
+     */
+    protected static function checkHeadsEmitFrontConfigurations(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        if (!is_dir($root . '/.git')) {
+            echoTerminal("\e[94mINFO:\e[39m cabeceras: sin .git no hay universo que medir; no se comprueba.");
+            return [];
+        }
+        $registro = json_decode((string) @file_get_contents($root . '/' . self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH), true);
+        $declaradas = is_array($registro) && is_array($registro['archivos'] ?? null) ? $registro['archivos'] : null;
+        if ($declaradas === null) {
+            return ['no se pudo leer ' . self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+
+        //El universo: las vistas (Views/, view/, system-views/) de src/app que abren su propio <head>.
+        $conCabecera = [];
+        foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . ' -c core.quotePath=false ls-files -z --cached --others --exclude-standard -- src/app') as $relativo) {
+            if (!str_ends_with($relativo, '.php') || preg_match('#/(Views|view|system-views)/#', $relativo) !== 1 || !is_file($root . '/' . $relativo)) {
+                continue;
+            }
+            $contenido = (string) file_get_contents($root . '/' . $relativo);
+            if (preg_match('/<head[\s>]/i', $contenido) === 1) {
+                $conCabecera[$relativo] = str_contains($contenido, 'name="front-configurations"');
+            }
+        }
+        //Canario: la página de acceso es una vista con su propio <head>. Si no aparece, el universo no miró nada.
+        $canario = 'src/app/classes/PiecesPHP/UserSystem/Views/usuarios/login.php';
+        if (!array_key_exists($canario, $conCabecera)) {
+            return ["canario muerto: {$canario} no está entre las vistas con <head>; la comprobación no miró nada"];
+        }
+
+        $failures = [];
+        foreach ($conCabecera as $relativo => $emite) {
+            if (!$emite && !array_key_exists($relativo, $declaradas)) {
+                $failures[] = "{$relativo}: tiene su propio <head> y no emite <meta name=\"front-configurations\">; sin ella el JavaScript no sabe el nombre de la sesión. Añádela (como view/panel/layout/header.php) o declárala con su motivo en " . self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH;
+            }
+        }
+        foreach ($declaradas as $relativo => $motivo) {
+            $relativo = (string) $relativo;
+            if (!array_key_exists($relativo, $conCabecera)) {
+                $failures[] = self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH . ": `{$relativo}` ya no es una vista con <head>; quítala de la lista";
+            } elseif ($conCabecera[$relativo]) {
+                $failures[] = self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH . ": `{$relativo}` ya emite la meta; quítala de la lista";
+            } elseif (!is_string($motivo) || trim($motivo) === '') {
+                $failures[] = self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH . ": `{$relativo}` necesita su motivo";
+            }
+        }
+
+        if (count($failures) === 0) {
+            $emiten = count(array_filter($conCabecera));
+            echoTerminal("\e[94mINFO:\e[39m cabeceras: " . count($conCabecera) . " vista(s) con su propio <head>; {$emiten} emiten el nombre de la sesión y " . (count($conCabecera) - $emiten) . ' están declaradas sin ella, con su motivo.');
+        }
+        return $failures;
+    }
+
+    /**
+     * 48 (ADR 0061 §8 y §10). Toda llamada a Sealed::seal()/open() lleva como propósito una CONSTANTE con nombre cuyo
+     * valor está en EncryptedDataRegistry; un literal o una variable no se aceptan, porque no se pueden auditar. Y
+     * BaseHashEncryption::obfuscate()/deobfuscate() solo en OBFUSCATION_ALLOWED: ofuscar no protege un secreto.
+     *
+     * @return string[]
+     */
+    protected static function checkSealedPurposes(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+
+        //Canario de dos caras: ve el propósito constante, marca el literal, la ofuscación y NO cuenta un comentario.
+        $sembrado = self::cryptoCalls("<?php\nnamespace Zz;\nuse PiecesPHP\\Core\\Crypto\\Sealed;\nSealed::seal(\$a, Sealed::PURPOSE_TOTP_SECRET);\nSealed::open(\$b, 'zz-literal');\n// Sealed::seal(\$c, 'zz-comentario');\n\\PiecesPHP\\Core\\BaseHashEncryption::obfuscate('a', 'b');\n");
+        $canarioVivo = count($sembrado) === 3
+            && $sembrado[0]['kind'] === 'sealed' && $sembrado[0]['purpose'] === \PiecesPHP\Core\Crypto\Sealed::PURPOSE_TOTP_SECRET
+            && $sembrado[1]['kind'] === 'sealed' && $sembrado[1]['purpose'] === null
+            && $sembrado[2]['kind'] === 'obfuscate';
+        if (!$canarioVivo) {
+            return ['canario muerto: el tokenizador no ve las llamadas sembradas de Sealed y de la ofuscación, o cuenta un comentario: la comprobación no miró nada'];
+        }
+
+        $declared = \PiecesPHP\Core\Crypto\EncryptedDataRegistry::purposes();
+        $archivos = [$repoRoot . '/index.php'];
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($repoRoot . '/app', \FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            $path = str_replace('\\', '/', (string) $file->getPathname());
+            if ($file->isFile() && str_ends_with($path, '.php') && mb_strpos($path, '/vendor/') === false && mb_strpos($path, '/logs/') === false
+                && mb_strpos($path, '/system-controllers/local-tests/') === false) {
+                $archivos[] = $path;
+            }
+        }
+
+        $failures = [];
+        $sealedCalls = 0;
+        $obfuscating = [];
+        foreach ($archivos as $archivo) {
+            $contenido = (string) file_get_contents($archivo);
+            if (mb_strpos($contenido, 'Sealed') === false && mb_strpos($contenido, 'obfuscate') === false) {
+                continue;
+            }
+            $relativo = mb_substr($archivo, mb_strlen($root) + 1);
+            foreach (self::cryptoCalls($contenido) as $llamada) {
+                $sitio = "{$relativo}:{$llamada['line']}";
+                if ($llamada['kind'] === 'obfuscate') {
+                    $obfuscating[$relativo] = true;
+                    if (!array_key_exists($relativo, self::OBFUSCATION_ALLOWED)) {
+                        $failures[] = "{$sitio}: ofusca fuera de la lista; un secreto va con Crypto\\Sealed y un propósito declarado";
+                    }
+                    continue;
+                }
+                $sealedCalls++;
+                if ($llamada['purpose'] === null && array_key_exists($relativo, self::SEALED_FROM_REGISTRY)) {
+                    continue;
+                }
+                if ($llamada['purpose'] === null) {
+                    $failures[] = "{$sitio}: Sealed con un propósito que no es una constante con nombre: no se puede auditar";
+                } elseif (!in_array($llamada['purpose'], $declared, true)) {
+                    $failures[] = "{$sitio}: Sealed con el propósito «{$llamada['purpose']}», que no está en EncryptedDataRegistry";
+                }
+            }
+        }
+        foreach (array_keys(self::OBFUSCATION_ALLOWED) as $permitido) {
+            if (!array_key_exists($permitido, $obfuscating)) {
+                $failures[] = "OBFUSCATION_ALLOWED: {$permitido} ya no ofusca; la lista solo encoge";
+            }
+        }
+
+        if (count($failures) === 0) {
+            echoTerminal("\e[94mINFO:\e[39m cifrado: " . count($archivos) . " archivo(s) en el universo (src/app y src/index.php, sin vendor, logs ni local-tests); {$sealedCalls} llamada(s) a Sealed, todas con un propósito declarado (" . count($declared) . '); ' . count($obfuscating) . ' archivo(s) que ofuscan, todos en la lista.');
+        }
+        return $failures;
+    }
+
+    /**
+     * Las llamadas a Sealed::seal()/open() y a la ofuscación de un código PHP. En las de Sealed, el valor del
+     * propósito si el segundo argumento es una constante de clase que se resuelve; null si es otra cosa.
+     *
+     * @param string $code
+     * @return array<int,array{line:int,kind:string,purpose:string|null}>
+     */
+    protected static function cryptoCalls(string $code): array
+    {
+        $tokens = array_values(array_filter(token_get_all($code), fn ($t) => !is_array($t) || !in_array($t[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)));
+        $namespace = '';
+        $uses = [];
+        $class = null;
+        foreach ($tokens as $i => $token) {
+            if (is_array($token) && $token[0] === \T_NAMESPACE && is_array($tokens[$i + 1] ?? null)) {
+                $namespace = ltrim((string) $tokens[$i + 1][1], '\\');
+            }
+            if (is_array($token) && $token[0] === \T_USE && is_array($tokens[$i + 1] ?? null) && in_array($tokens[$i + 1][0], [\T_NAME_QUALIFIED, \T_NAME_FULLY_QUALIFIED, \T_STRING], true)) {
+                $full = ltrim((string) $tokens[$i + 1][1], '\\');
+                $alias = is_array($tokens[$i + 2] ?? null) && $tokens[$i + 2][0] === \T_AS && is_array($tokens[$i + 3] ?? null) ? (string) $tokens[$i + 3][1] : substr((string) strrchr('\\' . $full, '\\'), 1);
+                $uses[$alias] = $full;
+            }
+            if (is_array($token) && $token[0] === \T_CLASS && $class === null && is_array($tokens[$i + 1] ?? null) && $tokens[$i + 1][0] === \T_STRING) {
+                $class = ($namespace !== '' ? $namespace . '\\' : '') . $tokens[$i + 1][1];
+            }
+        }
+        $resolve = function (string $name) use ($namespace, $uses, $class): ?string {
+            if (in_array(strtolower($name), ['self', 'static'], true)) {
+                return $class;
+            }
+            if (str_starts_with($name, '\\')) {
+                return ltrim($name, '\\');
+            }
+            $first = explode('\\', $name)[0];
+            if (array_key_exists($first, $uses)) {
+                return $uses[$first] . substr($name, strlen($first));
+            }
+            return ($namespace !== '' ? $namespace . '\\' : '') . $name;
+        };
+
+        $calls = [];
+        foreach ($tokens as $i => $token) {
+            if (!is_array($token) || !in_array($token[0], [\T_STRING, \T_NAME_QUALIFIED, \T_NAME_FULLY_QUALIFIED], true)) {
+                continue;
+            }
+            $short = substr((string) strrchr('\\' . $token[1], '\\'), 1);
+            $double = $tokens[$i + 1] ?? null;
+            $method = $tokens[$i + 2] ?? null;
+            $paren = $tokens[$i + 3] ?? null;
+            if (!is_array($double) || $double[0] !== \T_DOUBLE_COLON || !is_array($method) || $method[0] !== \T_STRING || $paren !== '(') {
+                continue;
+            }
+            if ($short === 'BaseHashEncryption' && in_array($method[1], ['obfuscate', 'deobfuscate'], true)) {
+                $calls[] = ['line' => (int) $token[2], 'kind' => 'obfuscate', 'purpose' => null];
+                continue;
+            }
+            if ($short !== 'Sealed' || !in_array($method[1], ['seal', 'open'], true)) {
+                continue;
+            }
+            //El segundo argumento: lo que hay entre la primera coma de nivel 0 y la siguiente o el paréntesis que cierra.
+            $depth = 0;
+            $argument = [];
+            $index = 0;
+            for ($j = $i + 4; $j < count($tokens); $j++) {
+                $t = $tokens[$j];
+                if (in_array($t, ['(', '[', '{'], true)) {
+                    $depth++;
+                } elseif (in_array($t, [')', ']', '}'], true)) {
+                    if ($depth === 0) {
+                        break;
+                    }
+                    $depth--;
+                } elseif ($t === ',' && $depth === 0) {
+                    $index++;
+                    if ($index > 1) {
+                        break;
+                    }
+                    continue;
+                }
+                if ($index === 1) {
+                    $argument[] = $t;
+                }
+            }
+            $purpose = null;
+            if (count($argument) === 3 && is_array($argument[0]) && is_array($argument[1]) && $argument[1][0] === \T_DOUBLE_COLON && is_array($argument[2]) && $argument[2][0] === \T_STRING) {
+                $owner = $resolve((string) $argument[0][1]);
+                $constant = $owner !== null ? $owner . '::' . $argument[2][1] : null;
+                $value = $constant !== null && defined($constant) ? constant($constant) : null;
+                $purpose = is_string($value) ? $value : null;
+            }
+            $calls[] = ['line' => (int) $token[2], 'kind' => 'sealed', 'purpose' => $purpose];
+        }
+        return $calls;
+    }
+
+    /**
      * Las llamadas a get_route() de un código PHP: línea y nombre si el primer argumento es literal (null si no).
      *
      * @param string $code
@@ -5399,7 +5911,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         if (!is_array($publicas) || !is_array($sinArchivos)) {
             return ['no se pudo leer ' . self::UPLOAD_DIRS_RELATIVE_PATH . ': la comprobación no miró nada'];
         }
-        $protegidas = array_keys(\PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware::getProtectedDirectories());
+        $protegidas = array_keys(\PiecesPHP\Core\Statics\ProtectFileMiddleware::getProtectedDirectories());
         if (count($protegidas) === 0) {
             //SIN REGISTRACIONES NO HAY CON QUÉ COMPARAR: no es «nada protegido», es no haber mirado. LEY 18.
             return ['ProtectFileMiddleware no tiene ninguna carpeta registrada: protected-files.php no se cargó y la comprobación no miró nada'];
@@ -5561,6 +6073,420 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         return $failures;
     }
+    /**
+     * 54. Ningún color escrito a mano en el SCSS del panel (criterio del PO, «colores solo por variable»; bloque HF): cada
+     * color es una variable de SCSS con nombre de su papel, en la paleta de src/statics/core/sass/includes/_variables.scss
+     * si lo usan dos o más hojas, o arriba de su hoja (.agents/context/16-frontend-arquitectura.md §5).
+     *
+     * Universo: las .scss versionadas de src/, sin vendor, plugins ni la zona pública (src/statics/sass/). En cada línea se
+     * quita lo que va tras «//» y se saltan las que DEFINEN una variable (empiezan por «$» o «--»); cuenta cada «#» con 3 a
+     * 8 cifras hex y cada rgb()/rgba() que no lleve var() dentro. No ve un color con nombre (red, white) ni uno tras un «//»
+     * que no sea comentario, como el de una url(http://…).
+     *
+     * @return string[]
+     */
+    protected static function checkLooseColorsInPanelScss(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        if (!is_dir($root . '/.git')) {
+            echoTerminal("\e[94mINFO:\e[39m colores del SCSS del panel: sin .git no hay universo que medir; no se comprueba.");
+            return [];
+        }
+
+        $sheets = array_values(array_filter(
+            self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z -- 'src/**/*.scss'"),
+            static fn (string $f): bool => !str_contains($f, '/vendor/') && !str_contains($f, '/plugins/') && !str_starts_with($f, 'src/statics/sass/')
+        ));
+        //Canario: sin hojas, «0 colores sueltos» se diría sin haber mirado.
+        if ($sheets === []) {
+            return ['canario muerto: git no lista ninguna .scss del panel; la comprobación no miró nada'];
+        }
+
+        $failures = [];
+        foreach ($sheets as $relative) {
+            $lines = @file($root . '/' . $relative, FILE_IGNORE_NEW_LINES);
+            if ($lines === false) {
+                $failures[] = "{$relative}: no se pudo leer";
+                continue;
+            }
+            foreach ($lines as $index => $line) {
+                $code = explode('//', $line, 2)[0];
+                $trimmed = ltrim($code);
+                if (str_starts_with($trimmed, '$') || str_starts_with($trimmed, '--')) {
+                    continue;
+                }
+                $colors = preg_match_all('/#[0-9a-fA-F]{3,8}\b/', $code, $matches) > 0 ? $matches[0] : [];
+                $offset = 0;
+                while (preg_match('/rgba?\(/', $code, $match, PREG_OFFSET_CAPTURE, $offset) === 1) {
+                    $start = $match[0][1];
+                    $i = $start + strlen($match[0][0]);
+                    $depth = 1;
+                    while ($i < strlen($code) && $depth > 0) {
+                        $depth += $code[$i] === '(' ? 1 : ($code[$i] === ')' ? -1 : 0);
+                        $i++;
+                    }
+                    $call = substr($code, $start, $i - $start);
+                    if (!str_contains($call, 'var(')) {
+                        $colors[] = $call;
+                    }
+                    $offset = $i;
+                }
+                foreach ($colors as $color) {
+                    $failures[] = $relative . ':' . ($index + 1) . " — {$color}: color suelto; ponlo en una variable de SCSS con nombre de su papel"
+                        . ' (en la paleta de src/statics/core/sass/includes/_variables.scss si lo usan dos o más hojas; si no, arriba de su hoja).';
+                }
+            }
+        }
+
+        if ($failures === []) {
+            echoTerminal("\e[94mINFO:\e[39m colores del SCSS del panel: " . count($sheets) . ' hoja(s), 0 colores sueltos. No mira la zona pública'
+                . ' (src/statics/sass/), los plugins, lo que va tras «//» ni las líneas que definen una variable.');
+        }
+        return $failures;
+    }
+
+    /**
+     * 53. Cada `//@areas` de cada suite nombra una ruta que existe y que cae dentro de una carpeta de
+     * GatesTask::AREA_MODULES (ADR 0062): un área muerta no elige nunca su suite, y una del núcleo no hace falta, porque
+     * un cambio en el núcleo ya las corre todas.
+     *
+     * @return string[]
+     */
+    protected static function checkSuiteAreas(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('..')), '/');
+        $failures = [];
+        $suites = glob($repoRoot . '/src/' . GatesTask::SUITES_DIRECTORY . '/*.php') ?: [];
+        $declaring = 0;
+        $areas = 0;
+        foreach ($suites as $file) {
+            $declared = GatesTask::areasOf($file);
+            if ($declared !== []) {
+                $declaring++;
+            }
+            $relative = ltrim(str_replace($repoRoot, '', str_replace('\\', '/', $file)), '/');
+            foreach ($declared as $area) {
+                $areas++;
+                $exists = str_ends_with($area, '/') ? is_dir($repoRoot . '/' . $area) : is_file($repoRoot . '/' . $area);
+                if (!$exists) {
+                    $failures[] = $relative . ' — //@areas ' . $area . ' no existe: esa área no elegiría nunca la suite.';
+                    continue;
+                }
+                $inModule = count(array_filter(GatesTask::AREA_MODULES, static fn (string $folder): bool => str_starts_with($area, $folder))) > 0;
+                if (!$inModule) {
+                    $failures[] = $relative . ' — //@areas ' . $area . ' no cae en ninguna carpeta de GatesTask::AREA_MODULES: un cambio'
+                        . ' ahí ya corre todas las suites, así que esa área no sirve.';
+                }
+            }
+        }
+        echoTerminal("\e[94mINFO:\e[39m áreas de las suites: " . count($suites) . ' suite(s), ' . $declaring . ' con //@areas, '
+            . $areas . ' área(s) declarada(s); las demás corren siempre con changed-since.');
+        return $failures;
+    }
+
+    /**
+     * 52. Nadie llama desde el código a un método que decide la operación por la ruta: uno cuyo cuerpo llama a
+     * isEditRoute() saca alta o edición del NOMBRE de la ruta, y llamado desde otro código, con otra ruta, se equivoca en
+     * silencio. «Mi organización» no guardaba desde la v8.0.0 por eso (#1447: saveProfileAction llamaba a action()).
+     *
+     * Se resuelve el receptor por tokens: `new Clase(…)`, `Clase::`, `$this`/`self`/`static`/`parent` y una variable
+     * asignada con `new Clase` en la misma función. Lo que no se resuelve NO falla, pero se cuenta (LEY 15).
+     *
+     * @return string[]
+     */
+    protected static function checkRouteDecidedOperationCalls(): array
+    {
+        $start = hrtime(true);
+        $base = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $universe = [];
+        foreach (['app/classes', 'app/core'] as $folder) {
+            if (!is_dir($base . '/' . $folder)) {
+                continue;
+            }
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base . '/' . $folder, \RecursiveDirectoryIterator::SKIP_DOTS));
+            foreach ($iterator as $file) {
+                if ($file->isFile() && strtolower($file->getExtension()) === 'php') {
+                    $universe[] = ltrim((string) str_replace($base, '', str_replace('\\', '/', (string) $file->getPathname())), '/');
+                }
+            }
+        }
+        sort($universe);
+
+        //Primera pasada: los métodos guardados, solo en los archivos que nombran isEditRoute.
+        /** @var array<string,string[]> $guarded nombre del método => clases que lo guardan */
+        $guarded = [];
+        $sources = [];
+        foreach ($universe as $relative) {
+            $sources[$relative] = (string) @file_get_contents($base . '/' . $relative);
+            if (mb_strpos($sources[$relative], 'isEditRoute') === false) {
+                continue;
+            }
+            self::walkRouteDecidedTokens($sources[$relative], static function (array $tokens, int $i, ?string $class, ?string $method) use (&$guarded): void {
+                if ($class === null || $method === null || $tokens[$i]->text !== 'isEditRoute' || !self::routeDecidedIsCall($tokens, $i)) {
+                    return;
+                }
+                $previous = self::routeDecidedPrevious($tokens, $i);
+                if ($previous === null || !$previous->is([T_DOUBLE_COLON, T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR])) {
+                    return;
+                }
+                $guarded[$method] = array_values(array_unique(array_merge($guarded[$method] ?? [], [$class])));
+            });
+        }
+
+        //Segunda pasada: las llamadas a esos nombres, con su receptor. Las suites no cuentan: llaman a propósito, con la
+        //ruta que toca, para probar la guarda (operation-from-route), y si se equivocan fallan en voz alta en su balance.
+        $failures = [];
+        $resolved = 0;
+        $unresolved = 0;
+        $suites = 0;
+        foreach ($universe as $relative) {
+            if (str_starts_with($relative, 'app/core/system-controllers/local-tests/')) {
+                $suites++;
+                continue;
+            }
+            $source = $sources[$relative];
+            $mentions = false;
+            foreach (array_keys($guarded) as $name) {
+                if (mb_strpos($source, $name) !== false) {
+                    $mentions = true;
+                    break;
+                }
+            }
+            if (!$mentions) {
+                continue;
+            }
+            self::walkRouteDecidedTokens($source, static function (array $tokens, int $i, ?string $class, ?string $method, array $variables, array $uses, string $namespace) use ($guarded, $relative, &$failures, &$resolved, &$unresolved): void {
+                $name = $tokens[$i]->text;
+                if (!isset($guarded[$name]) || !self::routeDecidedIsCall($tokens, $i)) {
+                    return;
+                }
+                $operator = self::routeDecidedPrevious($tokens, $i);
+                if ($operator === null || !$operator->is([T_DOUBLE_COLON, T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR])) {
+                    return;
+                }
+                $position = array_search($operator, $tokens, true);
+                $receiver = self::routeDecidedReceiver($tokens, is_int($position) ? $position : false, $class, $variables, $uses, $namespace);
+                if ($receiver === null || !class_exists($receiver)) {
+                    $unresolved++;
+                    return;
+                }
+                $resolved++;
+                foreach ($guarded[$name] as $owner) {
+                    if (is_a($receiver, $owner, true)) {
+                        $failures[] = $relative . ':' . $tokens[$i]->line . ' — llama a ' . $owner . '::' . $name . '(), que decide alta o'
+                            . ' edición por el NOMBRE de la ruta (isEditRoute()): desde otro código, con otra ruta, se equivoca en'
+                            . ' silencio. Llama al método que hace el trabajo con la operación explícita (como saveOrganization()).';
+                        return;
+                    }
+                }
+            });
+        }
+
+        $list = [];
+        foreach ($guarded as $name => $owners) {
+            foreach ($owners as $owner) {
+                $list[] = $owner . '::' . $name;
+            }
+        }
+        sort($list);
+        $seconds = number_format((hrtime(true) - $start) / 1e9, 2, ',', '');
+        echoTerminal("\e[94mINFO:\e[39m operación por la ruta: " . count($universe) . ' archivo(s) en src/app/classes y src/app/core;'
+            . ' ' . count($list) . ' método(s) que deciden por isEditRoute(); ' . $resolved . ' llamada(s) a esos nombres resueltas, '
+            . count($failures) . ' prohibida(s); ' . $unresolved . ' sin resolver (no cuentan); ' . $suites . ' archivo(s) de local-tests/'
+            . ' fuera del universo de llamadas (las suites llaman a propósito); ' . $seconds . ' s.');
+        echoTerminal("\e[94mINFO:\e[39m operación por la ruta, los guardados: " . implode(', ', $list) . '.');
+
+        return $failures;
+    }
+
+    /**
+     * Recorre los tokens de un archivo y llama a $visit en cada T_STRING con la clase, el método y las variables
+     * asignadas con `new` de la función en curso.
+     *
+     * @param string $source
+     * @param callable $visit
+     * @return void
+     */
+    protected static function walkRouteDecidedTokens(string $source, callable $visit): void
+    {
+        $tokens = array_values(array_filter(\PhpToken::tokenize($source), static fn (\PhpToken $t): bool => !$t->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])));
+        $total = count($tokens);
+        $namespace = '';
+        $uses = [];
+        //Cada entrada: [tipo, nombre, variables]. Tipo: class, method, function u other.
+        $stack = [];
+        $pending = null;
+        $class = null;
+        $method = null;
+        $variables = [];
+        for ($i = 0; $i < $total; $i++) {
+            $token = $tokens[$i];
+            if ($token->is(T_NAMESPACE) && $stack === []) {
+                $name = $tokens[$i + 1] ?? null;
+                $namespace = $name !== null && $name->is([T_STRING, T_NAME_QUALIFIED]) ? $name->text : '';
+                continue;
+            }
+            if ($token->is(T_USE) && $stack === [] && isset($tokens[$i + 1]) && $tokens[$i + 1]->is([T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                $full = ltrim($tokens[$i + 1]->text, '\\');
+                $alias = (isset($tokens[$i + 2], $tokens[$i + 3]) && $tokens[$i + 2]->is(T_AS)) ? $tokens[$i + 3]->text : substr((string) strrchr('\\' . $full, '\\'), 1);
+                $uses[$alias] = $full;
+                continue;
+            }
+            if ($token->is([T_CLASS, T_TRAIT, T_ENUM, T_INTERFACE])) {
+                $before = $tokens[$i - 1] ?? null;
+                $name = $tokens[$i + 1] ?? null;
+                if (($before === null || !$before->is([T_DOUBLE_COLON, T_NEW])) && $name !== null && $name->is(T_STRING)) {
+                    $pending = ['class', ($namespace !== '' ? $namespace . '\\' : '') . $name->text];
+                }
+                continue;
+            }
+            if ($token->is(T_FUNCTION)) {
+                $name = $tokens[$i + 1] ?? null;
+                if ($name !== null && $name->text === '&') {
+                    $name = $tokens[$i + 2] ?? null;
+                }
+                $top = end($stack);
+                $isMethod = $top !== false && $top[0] === 'class' && $name !== null && $name->is(T_STRING);
+                $pending = [$isMethod ? 'method' : 'function', $isMethod ? $name->text : null];
+                continue;
+            }
+            if ($token->text === ';' && $pending !== null && $pending[0] === 'method') {
+                $pending = null;
+                continue;
+            }
+            if ($token->text === '{' || $token->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES])) {
+                $entry = $pending ?? ['other', null];
+                $entry[2] = $variables;
+                $stack[] = $entry;
+                if ($entry[0] === 'class') {
+                    $class = $entry[1];
+                } elseif ($entry[0] === 'method') {
+                    $method = $entry[1];
+                    $variables = [];
+                } elseif ($entry[0] === 'function') {
+                    $variables = [];
+                }
+                $pending = null;
+                continue;
+            }
+            if ($token->text === '}') {
+                $entry = array_pop($stack);
+                if ($entry !== null) {
+                    if ($entry[0] === 'class') {
+                        $class = null;
+                    } elseif ($entry[0] === 'method') {
+                        $method = null;
+                    }
+                    if ($entry[0] === 'method' || $entry[0] === 'function') {
+                        $variables = $entry[2];
+                    }
+                }
+                continue;
+            }
+            //`$x = new Clase`: la variable queda con su clase en esta función.
+            if ($token->is(T_VARIABLE) && ($tokens[$i + 1]->text ?? '') === '=' && isset($tokens[$i + 2], $tokens[$i + 3]) && $tokens[$i + 2]->is(T_NEW)
+                && $tokens[$i + 3]->is([T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                $variables[$token->text] = self::routeDecidedName($tokens[$i + 3]->text, $uses, $namespace);
+                continue;
+            }
+            if ($token->is(T_STRING)) {
+                $visit($tokens, $i, $class, $method, $variables, $uses, $namespace);
+            }
+        }
+    }
+
+    /**
+     * @param \PhpToken[] $tokens
+     * @param int $i
+     * @return bool Si el nombre va seguido de un paréntesis: una llamada
+     */
+    protected static function routeDecidedIsCall(array $tokens, int $i): bool
+    {
+        return ($tokens[$i + 1]->text ?? '') === '(';
+    }
+
+    /**
+     * @param \PhpToken[] $tokens
+     * @param int $i
+     * @return \PhpToken|null El token anterior (los espacios y comentarios ya no están)
+     */
+    protected static function routeDecidedPrevious(array $tokens, int $i): ?\PhpToken
+    {
+        return $tokens[$i - 1] ?? null;
+    }
+
+    /**
+     * @param string $name
+     * @param array<string,string> $uses
+     * @param string $namespace
+     * @return string La clase con su espacio de nombres
+     */
+    protected static function routeDecidedName(string $name, array $uses, string $namespace): string
+    {
+        if (str_starts_with($name, '\\')) {
+            return ltrim($name, '\\');
+        }
+        $first = explode('\\', $name)[0];
+        if (isset($uses[$first])) {
+            return $uses[$first] . substr($name, strlen($first));
+        }
+        return ($namespace !== '' ? $namespace . '\\' : '') . $name;
+    }
+
+    /**
+     * La clase del receptor de una llamada, o null si no se sabe.
+     *
+     * @param \PhpToken[] $tokens
+     * @param int|false $operator La posición del `->` o el `::`
+     * @param string|null $class La clase en curso
+     * @param array<string,string> $variables
+     * @param array<string,string> $uses
+     * @param string $namespace
+     * @return string|null
+     */
+    protected static function routeDecidedReceiver(array $tokens, int|false $operator, ?string $class, array $variables, array $uses, string $namespace): ?string
+    {
+        if ($operator === false || $operator < 1) {
+            return null;
+        }
+        $before = $tokens[$operator - 1];
+        if ($before->is(T_VARIABLE)) {
+            return $before->text === '$this' ? $class : ($variables[$before->text] ?? null);
+        }
+        if ($before->is(T_STATIC) || in_array(strtolower($before->text), ['self', 'static'], true)) {
+            return $class;
+        }
+        if (strtolower($before->text) === 'parent') {
+            $parent = $class !== null && class_exists($class) ? get_parent_class($class) : false;
+            return $parent !== false ? $parent : null;
+        }
+        if ($before->is([T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED]) && $tokens[$operator]->is(T_DOUBLE_COLON)) {
+            return self::routeDecidedName($before->text, $uses, $namespace);
+        }
+        //`(new Clase(…))->`: se busca el paréntesis que abre y se mira si empieza por `new`.
+        if ($before->text === ')') {
+            $depth = 0;
+            for ($j = $operator - 1; $j >= 0; $j--) {
+                $text = $tokens[$j]->text;
+                if ($text === ')') {
+                    $depth++;
+                } elseif ($text === '(') {
+                    $depth--;
+                    if ($depth === 0) {
+                        $new = $tokens[$j + 1] ?? null;
+                        $name = $tokens[$j + 2] ?? null;
+                        if ($new !== null && $new->is(T_NEW) && $name !== null && $name->is([T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                            return self::routeDecidedName($name->text, $uses, $namespace);
+                        }
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
     {
         $instance = new VerifyIntegrityTask($startRoute, $namePrefix);

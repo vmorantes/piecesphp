@@ -14,9 +14,10 @@ use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\Core\CustomErrorsHandlers\PhpErrorHandler;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\RequestRouteFactory;
-use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\TerminalData;
 
 //Constantes críticas (primer archivo que se carga)
@@ -105,66 +106,13 @@ if ($cliHandler->isCliPlatform) {
     $isLocalBootstrap = $cliHandler->orginalArguments['--local'] ?? false;
 }
 ini_set('display_errors', $isLocalBootstrap);
+//El cuerpo vive en PhpErrorHandler para que las pruebas lo ejerzan fuera de local sin tocar la instalación. Se carga a
+//mano: el manejador se registra antes que los autoloads y un aviso en medio no encontraría la clase.
+require_once __DIR__ . "/psr4/PiecesPHP/Core/CustomErrorsHandlers/ErrorSeverity.php";
+require_once __DIR__ . "/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php";
+require_once __DIR__ . "/psr4/PiecesPHP/Core/CustomErrorsHandlers/PhpErrorHandler.php";
 set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) use ($isLocalBootstrap) {
-    $errorLevelTypeReferencesByType = [
-        E_ERROR => 'Fatal error',
-        E_WARNING => 'Warning',
-        E_PARSE => 'Compile-time',
-        E_NOTICE => 'Notice -possible false positive-',
-        E_DEPRECATED => 'Deprecated',
-        //Sin estos niveles, todo trigger_error() de una librería se descarta en silencio.
-        E_RECOVERABLE_ERROR => 'Recoverable error',
-        E_USER_ERROR => 'Fatal error (trigger_error)',
-        E_USER_WARNING => 'Warning (trigger_error)',
-        E_USER_NOTICE => 'Notice (trigger_error)',
-        E_USER_DEPRECATED => 'Deprecated (trigger_error)',
-    ];
-
-    //Niveles que abortan la ejecución.
-    $stopExcutionErrors = [
-        E_ERROR,
-        E_WARNING,
-        E_PARSE,
-        E_NOTICE,
-        E_RECOVERABLE_ERROR,
-        E_USER_ERROR,
-    ];
-
-    //Las deprecaciones solo abortan en local. Ojo: un cronjob sin --local cae en producción.
-    if ($isLocalBootstrap) {
-        $stopExcutionErrors[] = E_DEPRECATED;
-        $stopExcutionErrors[] = E_USER_DEPRECATED;
-    }
-
-    //Se respeta la supresión con @: el autoload de bin/tools se carga así a propósito.
-    if (!(error_reporting() & $int_error_type)) {
-        return true;
-    }
-
-    $message = $string_error_message;
-    if (isset($errorLevelTypeReferencesByType[$int_error_type])) {
-        $levelTypeError = $errorLevelTypeReferencesByType[$int_error_type];
-        $message = "(Level: {$levelTypeError}) {$message}";
-    }
-
-    if (in_array($int_error_type, $stopExcutionErrors, true)) {
-        throw new \ErrorException($message, 0, $int_error_type, $string_error_file, $int_error_line);
-    }
-
-    //No aborta: se deja constancia. Las deprecaciones van a un archivo propio
-    //para poder vaciarlo como puerta de la migración; el resto, al log de PHP.
-    $logLine = "[" . date('c') . "] {$message} en {$string_error_file}:{$int_error_line}" . PHP_EOL;
-    $deprecationLevels = [E_DEPRECATED, E_USER_DEPRECATED];
-    $writtenToOwnLog = false;
-    if (in_array($int_error_type, $deprecationLevels, true) && defined('LOG_ERRORS_PATH')) {
-        $deprecationsLog = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . DIRECTORY_SEPARATOR . 'deprecations.log';
-        $writtenToOwnLog = @file_put_contents($deprecationsLog, $logLine, FILE_APPEND | LOCK_EX) !== false;
-    }
-    if (!$writtenToOwnLog) {
-        error_log(rtrim($logLine));
-    }
-
-    return true;
+    return PhpErrorHandler::handle($int_error_type, $string_error_message, $string_error_file, $int_error_line, (bool) $isLocalBootstrap);
 });
 /**
  * @param \Exception|\Throwable $exception
@@ -264,11 +212,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v8.0.8');
+    define('APP_VERSION', 'v9.0.0');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-10-09'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-10-23'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];
@@ -326,6 +274,8 @@ BaseHashEncryption::setSecretKey(Config::app_key());
 
 //Con la app_key de relleno se AVISA (log y panel) y se arranca igual: la decisión de cambiarla es del clon.
 Config::warn_placeholder_app_key();
+//Si este arranque generó la clave (ADR 0061 §9), queda dicho.
+Config::announce_generated_app_key();
 
 //Configurar directorio de vistas por defecto
 BaseController::setViewDir(Config::app_path() . "/app/view/");

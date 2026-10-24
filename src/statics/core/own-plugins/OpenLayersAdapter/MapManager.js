@@ -318,7 +318,9 @@ function MapManager(parameters) {
 						`El valor de la opción ${option} es erróneo en MapManager`,
 						inputOption,
 					]
-					alert('Error en MapManager')
+					if (typeof errorMessage === 'function') {
+						errorMessage('Error en MapManager', text[0])
+					}
 					console.error(text)
 				}
 
@@ -330,7 +332,9 @@ function MapManager(parameters) {
 					let text = [
 						`La opción ${option} es obligatoria para MapManager`,
 					]
-					alert('Error en MapManager')
+					if (typeof errorMessage === 'function') {
+						errorMessage('Error en MapManager', text[0])
+					}
 					console.error(text)
 				}
 

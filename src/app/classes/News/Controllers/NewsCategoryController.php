@@ -27,6 +27,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -125,10 +126,9 @@ class NewsCategoryController extends AdminPanelController
 
         import_default_rich_editor();
 
-        $title = __(self::LANG_GROUP, 'Gestión de categoría');
-        $description = '';
+        $title = __(self::LANG_GROUP, 'Nueva categoría');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
@@ -137,16 +137,19 @@ class NewsCategoryController extends AdminPanelController
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
-        $data['description'] = $description;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['backLink'] = $backLink;
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
-            __(self::LANG_GROUP, 'Categorías de noticias') => [
+            __(self::LANG_GROUP, 'Noticias internas') => [
+                'url' => NewsController::routeName('list'),
+            ],
+            __(self::LANG_GROUP, 'Categorías') => [
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/add', $data);
@@ -184,10 +187,12 @@ class NewsCategoryController extends AdminPanelController
 
             import_default_rich_editor();
 
-            $title = __(self::LANG_GROUP, 'Gestión de noticias');
-            $description = '';
+            //El nombre de la categoría, recortado como en publicaciones; lo escapan la cabecera y MetaTags, las migas no.
+            $categoryName = (string) $element->getLangData($selectedLang, 'name', true, '');
+            $categoryName = mb_strlen($categoryName) <= 60 ? $categoryName : mb_substr($categoryName, 0, 57) . '...';
+            $title = sprintf(__(self::LANG_GROUP, 'Editar: %s'), $categoryName);
 
-            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+            set_title($title);
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
@@ -202,19 +207,22 @@ class NewsCategoryController extends AdminPanelController
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['title'] = $title;
-            $data['description'] = $description;
+            $data['backLink'] = $backLink;
             $data['manyLangs'] = $manyLangs;
             $data['allowedLangsOptions'] = $allowedLangsOptions;
             $data['selectedLang'] = $selectedLang;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
-                __(self::LANG_GROUP, 'Categorías de noticias') => [
+                __(self::LANG_GROUP, 'Noticias internas') => [
+                    'url' => NewsController::routeName('list'),
+                ],
+                __(self::LANG_GROUP, 'Categorías') => [
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
 
             $this->helpController->render('panel/layout/header');
             $this->render('forms/edit', $data, true, false);
@@ -236,14 +244,12 @@ class NewsCategoryController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = NewsController::routeName('list');
         $addLink = self::routeName('forms-add');
         $processTableLink = self::routeName('datatables');
 
         $title = __(self::LANG_GROUP, 'Categorías de noticias');
-        $description = __(self::LANG_GROUP, 'Listado');
 
-        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+        set_title($title);
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
@@ -251,25 +257,18 @@ class NewsCategoryController extends AdminPanelController
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
-        $data['description'] = $description;
-        $formVariables = [
-            'langGroup' => self::LANG_GROUP,
-            'action' => self::routeName('actions-add'),
-            'standalone' => false,
-        ];
-        $data['formVariables'] = $formVariables;
-        $data['breadcrumbs'] = get_breadcrumbs([
-            __(self::LANG_GROUP, 'Noticias') => [
-                'url' => $backLink,
+        $data['breadcrumbs'] = [
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
-            $title,
-        ]);
+            __(self::LANG_GROUP, 'Noticias internas') => [
+                'url' => NewsController::routeName('list'),
+            ],
+            __(self::LANG_GROUP, 'Categorías'),
+        ];
 
-        import_simple_upload_placeholder();
-        import_spectrum();
         set_custom_assets([
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
-            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
 
@@ -820,9 +819,9 @@ class NewsCategoryController extends AdminPanelController
         //SIN having_string: no había ningún criterio, y el buscador ya va por marcador solo (T3 de #045).
         $selectFields = NewsCategoryMapper::fieldsToSelect();
 
+        //Por POSICIÓN, como las columnas de la vista; el nombre busca también por número.
         $columnsOrder = [
-            "{$table}.id",
-            'name',
+            ['name', "{$table}.id"],
             'color',
         ];
 
@@ -849,38 +848,30 @@ class NewsCategoryController extends AdminPanelController
                     return null;
                 }
 
-                $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
 
-                if ($hasEdit) {
-                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editText = __(self::LANG_GROUP, 'Editar');
-                    $editIcon = "<i class='icon edit'></i>";
-                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
-                    $buttons[] = $editButton;
-                }
-
+                $direct = $hasEdit ? RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('forms-edit', ['id' => $e->id]), 'edit') : null;
+                $menu = [];
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-news-category-button>{$deleteIcon}</a>";
-                    $buttons[] = $deleteButton;
+                    //Los atributos que espera delete-config.js, que sigue siendo quien borra.
+                    $menu[] = RowActions::delete(__(self::LANG_GROUP, 'Eliminar'), $deleteLink, __(self::LANG_GROUP, '¿Seguro de eliminar el elemento?'), [
+                        'delete-news-category-button' => '',
+                        'data-route' => $deleteLink,
+                    ]);
                 }
 
-                $buttons = implode('', $buttons);
                 $columns = [];
                 //Una fila vieja puede traer algo que no es un color: dentro de un style se pinta el de defecto.
                 $color = Validator::isColor($e->color) ? $e->color : NewsCategoryMapper::DEFAULT_COLOR;
                 $sampleColor = "<span style='display:inline-block; width: 40px; height: 40px; background-color: " . escape_html($color) . ";'></span>";
                 $iconImage = "<div style='text-align:center;'><img style='max-width: 100%; width: 90px' src='" . escape_html($e->iconImage) . "'/></div>";
 
-                $columns[] = $e->idPadding;
                 $columns[] = escape_html($e->name);
                 $columns[] = $sampleColor;
                 $columns[] = $iconImage;
-                $columns[] = $buttons;
+                $columns[] = RowActions::cell($direct, $menu);
                 return $columns;
             },
 

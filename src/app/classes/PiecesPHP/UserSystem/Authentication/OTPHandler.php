@@ -4,6 +4,7 @@
  */
 namespace PiecesPHP\UserSystem\Authentication;
 
+use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
@@ -68,9 +69,8 @@ class OTPHandler
         $userDataPackage = $userData !== null ? new UserDataPackage($userData->id) : null;
         if ($userDataPackage !== null) {
             $otpData = OTPSecretsUsersMapper::getOTPData($userData->id, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE);
-            //Sin registro no hay código que caducar. NO crear uno: esta ruta no autentica.
+            //Sin registro no hay código que caducar: es lo normal para quien nunca pidió uno. NO crear uno: no autentica.
             if ($otpData === null) {
-                log_exception(new \Exception("toExpireOTP: el usuario {$userData->id} no tiene registro ONE_USE_CODE; no hay código que caducar."), false);
                 return;
             }
             $otpData->maxDate = new \DateTime('2000-01-01');
@@ -91,7 +91,7 @@ class OTPHandler
         $userDataPackage = $userData !== null ? new UserDataPackage($userData->id) : null;
         //Sin registro TOTP no hay segundo factor configurado: «no válido» es la respuesta.
         if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
-            $secret = $userDataPackage->TOTPData->secret;
+            $secret = $userDataPackage->TOTPData->plainSecret();
             $totpManager = new TOTPStandard($secret);
             $valid = $totpManager->verifyTOTP($totp, $secret, 1);
             if (!$valid) {
@@ -119,6 +119,8 @@ class OTPHandler
 
             if ($OTPCreated) {
 
+                TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, TokenEvents::KIND_ONE_USE_CODE, (int) $userData->id, (string) $userData->username);
+
                 $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . Config::app_title();
                 $bodyMessage = $controller->render($relativeView, [
                     'text' => __(self::LANG_GROUP, 'Contraseña de un solo uso'),
@@ -135,7 +137,7 @@ class OTPHandler
                 $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
                 $mailer->Body = $bodyMessage;
                 if (!$mailer->checkSettedSMTP() && !is_local()) {
-                    $mailer->asGoDaddy(true);
+                    $mailer->asSystemMailer(true);
                 }
                 $sended = $mailer->send();
 
@@ -160,7 +162,7 @@ class OTPHandler
         $totp = "";
         $userDataPackage = getLoggedFrameworkUser();
         if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
-            $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+            $totpManager = new TOTPStandard($userDataPackage->TOTPData->plainSecret());
             $totp = $totpManager->generateTOTP();
         }
         return $totp;
@@ -174,7 +176,7 @@ class OTPHandler
         $qrData = "";
         $userDataPackage = getLoggedFrameworkUser();
         if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
-            $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+            $totpManager = new TOTPStandard($userDataPackage->TOTPData->plainSecret());
             //twoAuthFactorAlias está vacío hasta que el usuario lo bautice: sin este respaldo, TypeError.
             $issuer = $userDataPackage->TOTPData->twoAuthFactorAlias;
             $issuer = is_string($issuer) && $issuer !== '' ? $issuer : (string) get_config('owner');
@@ -236,7 +238,7 @@ class OTPHandler
             if ($enable) {
                 $userDataPackage = getLoggedFrameworkUser(true);
                 if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
-                    $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+                    $totpManager = new TOTPStandard($userDataPackage->TOTPData->plainSecret());
                 }
             }
         }

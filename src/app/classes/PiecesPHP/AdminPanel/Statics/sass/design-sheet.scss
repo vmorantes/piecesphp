@@ -1,0 +1,48 @@
+@use '../../../../../../statics/core/sass/includes/variables' as *;
+
+//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
+$codeBlockBackground: rgba(0, 0, 0, 0.04);
+
+//-------- La hoja de diseño (AdminPanel/Views/panel/pages/design-sheet/): solo su armazón, el índice y el bloque de código. Los
+//ejemplos no llevan CSS propio: son las piezas y Fomantic.
+.design-sheet-index {
+
+    //En escritorio el índice acompaña al desplazarse; apilado (por debajo de 992 px) va arriba y no tapa nada.
+    .#{$globalClassPcs} &.ui.menu {
+        @media only screen and (min-width: 992px) {
+            position: sticky;
+            top: 1rem;
+        }
+    }
+}
+
+.design-sheet-code {
+
+    .#{$globalClassPcs} & {
+        margin: 0 0 1rem 0;
+        padding: 1rem;
+        max-height: 24rem;
+        overflow: auto;
+        background-color: $codeBlockBackground;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        white-space: pre;
+    }
+}
+
+.design-sheet-live {
+
+    .#{$globalClassPcs} & {
+        margin: 1rem 0;
+    }
+}
+
+//El «Ejemplo en el panel» de una entrada: la regla global de enlaces del panel (ui-pcs.scss) lo pinta del color del texto,
+//y entre párrafos no se distinguía. Lleva el de los enlaces de las migas.
+.design-sheet-example > p > a {
+
+    .#{$globalClassPcs} & {
+        color: var(--second-brand-color);
+    }
+}

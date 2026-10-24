@@ -6,7 +6,17 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
+use PiecesPHP\Core\BaseModel;
+use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\AdminPanel\DashboardCard;
+use PiecesPHP\AdminPanel\DashboardCardBody;
+use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Logs\Controllers\LogsController;
+use PiecesPHP\Logs\LogTab;
+use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -43,6 +53,16 @@ class LoginAttemptsController extends AdminPanelController
      * @var string
      */
     protected static $baseRouteName = 'login-attempts';
+
+    /**
+     * La key de su pestaña en «Registros».
+     */
+    const ACCESS_TAB = 'access';
+
+    /**
+     * Las sub-vistas de la pestaña, en su orden; la primera es la de por omisión.
+     */
+    const ACCESS_VIEWS = ['attempts', 'logged', 'not-logged'];
 
     /** @ignore */
     public function __construct()
@@ -95,74 +115,144 @@ class LoginAttemptsController extends AdminPanelController
                 throw new NotFoundException($request, $response);
             }
 
-        } else {
-
-            $logged = $request->getQueryParam('logged', 'no') === 'yes';
-            $notLogged = $request->getQueryParam('not-logged', 'no') === 'yes';
-            $attempts = $request->getQueryParam('attempts', 'no') === 'yes';
-
-            if ($logged === false && $notLogged === false && $attempts === false) {
-                throw new NotFoundException($request, $response);
-            }
-
-            set_custom_assets([
-                'statics/core/css/registers/attempts.css',
-            ], 'css');
-
-            $breadcrumb = [
-                __(GENERAL_LANG_GROUP, 'Home') => [
-                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-                ],
-            ];
-
-            $attemptsData = LoginAttemptsModel::all();
-            $allUsers = UsersModel::all();
-            $allTimeOnPlatform = TimeOnPlatformModel::getAllHoursOnPlatform();
-
-            $data = [];
-            $title = '';
-            $viewName = '';
-            $report = '';
-
-            if ($logged) {
-                $title = __(LOGIN_REPORT_LANG_GROUP, 'Registro de ingreso');
-                $data = array_merge($data, [
-                    'totalUsers' => count($allUsers),
-                    'allTimeOnPlatform' => $allTimeOnPlatform,
-                ]);
-                $viewName = 'panel/pages/login-reports/logged';
-                $report = 'logged';
-            } elseif ($notLogged) {
-                $title = __(LOGIN_REPORT_LANG_GROUP, 'Usuarios sin Ingreso');
-                $data = array_merge($data, [
-                    'totalUsers' => count($allUsers),
-                ]);
-                $viewName = 'panel/pages/login-reports/not-logged';
-                $report = 'not-logged';
-            } elseif ($attempts) {
-                $title = __(LOGIN_REPORT_LANG_GROUP, 'Intentos de Ingresos');
-                $data = array_merge($data, [
-                    'totalAttempts' => count($attemptsData),
-                    'successAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 1;})),
-                    'errorAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 0;})),
-                ]);
-                $viewName = 'panel/pages/login-reports/attempts';
-                $report = 'attempts';
-            }
-
-            set_title($title);
-
-            $breadcrumb[] = $title;
-            $data['title'] = $title;
-            $data['breadcrumbs'] = get_breadcrumbs($breadcrumb);
-            $data['exportUrl'] = self::exportURLFor($report);
-
-            $this->helpController->render('panel/layout/header');
-            $this->render($viewName, $data);
-            $this->helpController->render('panel/layout/footer');
         }
 
-        return $response;
+        //La pantalla vieja: ahora es la pestaña «Accesos» de «Registros», con la misma sub-vista.
+        $view = null;
+        foreach (self::ACCESS_VIEWS as $candidate) {
+            if ($request->getQueryParam($candidate, 'no') === 'yes') {
+                $view = $candidate;
+                break;
+            }
+        }
+        if ($view === null) {
+            throw new NotFoundException($request, $response);
+        }
+        if (!LogsController::allowedRoute('index')) {
+            return throw403($request);
+        }
+        return $response->withRedirect(LogsController::routeName('index') . '?' . http_build_query(['tab' => self::ACCESS_TAB, 'view' => $view]));
+    }
+
+    /**
+     * La pestaña «Accesos» de «Registros»: intentos, ingresos y usuarios sin ingreso, recortados por la jerarquía de
+     * P133 (UserHierarchy) según quien mira.
+     *
+     * @param Request $request
+     * @param string $tabURL
+     * @return string
+     */
+    public static function accessTab(Request $request, string $tabURL): string
+    {
+        //Las piezas de estadísticas no traen su hoja (16 §9); las gráficas, con ApexCharts.
+        add_global_asset('statics/core/css/graphs-and-statistics.css', 'css');
+        add_global_asset(UserSystemFeaturesRoutes::staticRoute('css/attempts.css'), 'css');
+        import_apexcharts();
+        add_global_asset('statics/core/js/statistics-chart-legend.js', 'js');
+        add_global_asset(UserSystemFeaturesRoutes::staticRoute('js/access-reports.js'), 'js');
+
+        $view = $request->getQueryParam('view', null);
+        $view = is_string($view) && in_array($view, self::ACCESS_VIEWS, true) ? $view : self::ACCESS_VIEWS[0];
+
+        $titles = [
+            'attempts' => [__(LOGIN_REPORT_LANG_GROUP, 'Intentos de Ingresos'), 'sign in alternate'],
+            'logged' => [__(LOGIN_REPORT_LANG_GROUP, 'Registro de ingreso'), 'chart bar outline'],
+            'not-logged' => [__(LOGIN_REPORT_LANG_GROUP, 'Usuarios sin Ingreso'), 'user times'],
+        ];
+
+        //Las cifras salen aquí, con la misma jerarquía que el listado (P133); el JavaScript solo dibuja.
+        $data = [];
+        if ($view === 'attempts') {
+            $attemptsData = LoginAttemptsModel::all();
+            $data = [
+                'totalAttempts' => count($attemptsData),
+                'successAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 1;})),
+                'errorAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 0;})),
+            ];
+        } else {
+            $users = self::visibleUsers();
+            $withLogin = self::usersWithSuccessfulLogin();
+            $loggedUsers = count(array_filter($users, fn($e) => isset($withLogin[(int) $e->id])));
+            $data = [
+                'totalUsers' => count($users),
+                'loggedUsers' => $loggedUsers,
+                'notLoggedUsers' => count($users) - $loggedUsers,
+            ];
+            if ($view === 'logged') {
+                $data['allTimeOnPlatform'] = TimeOnPlatformModel::getAllHoursOnPlatform();
+            }
+        }
+        $data['exportUrl'] = self::exportURLFor($view);
+
+        $renderer = (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/');
+        //Sin carpeta propia: pinta las piezas del panel (view/panel/built-in/statistics/).
+        $data['pieces'] = new HelperController();
+        $views = [];
+        foreach (self::ACCESS_VIEWS as $candidate) {
+            $views[] = [
+                'view' => $candidate,
+                'title' => $titles[$candidate][0],
+                'icon' => $titles[$candidate][1],
+                'url' => $tabURL . '&' . http_build_query(['view' => $candidate]),
+                'active' => $candidate === $view,
+            ];
+        }
+
+        return (string) $renderer->render('panel/pages/login-reports/access-tab', [
+            'langGroup' => LOGIN_REPORT_LANG_GROUP,
+            'views' => $views,
+            'content' => (string) $renderer->render('panel/pages/login-reports/' . $view, $data, false),
+        ], false);
+    }
+
+    /**
+     * La tarjeta «Usuarios y accesos» del inicio, para quien administra usuarios: los activos y los accesos de hoy.
+     *
+     * @return void
+     */
+    public static function registerDashboardCard(): void
+    {
+        DashboardCardRegistry::register(new DashboardCard(
+            'users-access',
+            __(LOGIN_REPORT_LANG_GROUP, 'Usuarios y accesos'),
+            'users',
+            'users-list',
+            function (UserDataPackage $user): ?DashboardCardBody {
+                $database = (new BaseModel())->getDatabase();
+                if ($database === null) {
+                    return null;
+                }
+                $active = $database->prepare('SELECT COUNT(*) FROM `' . UsersModel::TABLE . '` WHERE status = ? AND id != ?');
+                $active->execute([UsersModel::STATUS_USER_ACTIVE, UsersModel::SYSTEM_USER_ID]);
+                $today = $database->prepare('SELECT COUNT(*) FROM `' . LoginAttemptsModel::TABLE . '` WHERE success = 1 AND date >= ?');
+                $today->execute([date('Y-m-d 00:00:00')]);
+                return DashboardCardBody::numbers(
+                    [
+                        ['value' => (int) $active->fetchColumn(), 'concept' => __(LOGIN_REPORT_LANG_GROUP, 'usuarios activos'), 'icon' => 'users'],
+                        ['value' => (int) $today->fetchColumn(), 'concept' => __(LOGIN_REPORT_LANG_GROUP, 'accesos hoy'), 'icon' => 'sign in alternate'],
+                    ],
+                    __(LOGIN_REPORT_LANG_GROUP, 'Ver los accesos'),
+                    LogsController::routeName('index') . '?' . http_build_query(['tab' => self::ACCESS_TAB])
+                );
+            },
+            30,
+            help: __(LOGIN_REPORT_LANG_GROUP, 'Los usuarios activos de la plataforma y los accesos correctos de hoy.')
+        ));
+    }
+
+    /**
+     * @return void
+     */
+    public static function registerLogTab(): void
+    {
+        LogTabRegistry::register(new LogTab(
+            self::ACCESS_TAB,
+            __(LOGIN_REPORT_LANG_GROUP, 'Accesos'),
+            'sign in alternate',
+            self::$baseRouteName . '-reports-ajax',
+            fn(Request $request, string $tabURL): string => self::accessTab($request, $tabURL),
+            30
+        ));
     }
 
     /**
@@ -172,7 +262,7 @@ class LoginAttemptsController extends AdminPanelController
     public function attemptsExport(Request $request, Response $response)
     {
 
-        //all() filtra por organización con la misma regla que el listado: exportar no puede enseñar más que mirar.
+        //all() filtra con la misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar.
         $result = LoginAttemptsModel::all();
 
         $columns = [
@@ -206,9 +296,9 @@ class LoginAttemptsController extends AdminPanelController
     public function notLoggedExport(Request $request, Response $response)
     {
 
-        //UsersModel::all() filtra por organización con la misma regla que el listado: exportar no puede enseñar más que mirar.
+        //La misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar.
         $logged = self::usersWithSuccessfulLogin();
-        $result = array_values(array_filter(UsersModel::all(), fn($e) => !isset($logged[(int) $e->id])));
+        $result = array_values(array_filter(self::visibleUsers(), fn($e) => !isset($logged[(int) $e->id])));
 
         $columns = [
             'ID' => [
@@ -232,9 +322,9 @@ class LoginAttemptsController extends AdminPanelController
     public function loggedExport(Request $request, Response $response)
     {
 
-        //UsersModel::all() filtra por organización con la misma regla que el listado: exportar no puede enseñar más que mirar.
+        //La misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar.
         $logged = self::usersWithSuccessfulLogin();
-        $result = array_values(array_filter(UsersModel::all(), fn($e) => isset($logged[(int) $e->id])));
+        $result = array_values(array_filter(self::visibleUsers(), fn($e) => isset($logged[(int) $e->id])));
 
         $columns = [
             'ID' => [
@@ -261,6 +351,22 @@ class LoginAttemptsController extends AdminPanelController
 
         return self::exportExcelFile($response, $columns, $result, 'Registro de ingreso');
 
+    }
+
+    /**
+     * Los usuarios que quien mira puede ver (P133): lo suyo y lo de rangos menores.
+     *
+     * @return array<int,\stdClass>
+     */
+    private static function visibleUsers(): array
+    {
+        $currentUser = getLoggedFrameworkUser();
+        return array_values(array_filter(UsersModel::all(), fn($user) => UserHierarchy::canSee(
+            $currentUser,
+            (int) $user->id,
+            (int) $user->type,
+            is_numeric($user->organization ?? null) ? (int) $user->organization : null
+        )));
     }
 
     /**
