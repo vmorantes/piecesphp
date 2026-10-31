@@ -11,21 +11,11 @@ window.addEventListener('load', function () {
 			dataTable: null,
 			length: 20,
 			options: {
-				dom: `<'ui stackable grid'<'row'<'eight wide column'l><'right aligned eight wide column'<'custom-search'>>><'row dt-table'<'sixteen wide column'tr>><'row'<'seven wide column'i><'right aligned nine wide column'p>>>`,
 				responsive: false,
 				autoWidth: false,
 				drawCallback: function () {
 				},
 				initComplete: function (a, b, c, d) {
-					const thisDataTable = this.api()
-					const container = $(thisDataTable.table().node()).closest('.container-standard-table')
-					const templates = $(`<div>${container.find('template').get(0).innerHTML}</div>`)
-					const searchFilters = $(templates.find('search-filters').html())
-					const customSearchContainer = container.find('.custom-search')
-					customSearchContainer.append(searchFilters)
-					searchFilters.find('[search-input] input').off('keyup').on('keyup', function (e) {
-						thisDataTable.search($(e.currentTarget).val()).draw()
-					})
 					configMirrorScrollX('namespace.mirror-scroll-x.all', '.mirror-scroll-x.all')
 				},
 			},

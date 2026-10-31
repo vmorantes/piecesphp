@@ -120,3 +120,4 @@ procedencia.
 | [0068](0068-una-sola-pieza-para-las-subidas-de-los-formularios.md) | Una sola pieza en el núcleo para las subidas de los formularios (`FormUploadHandler`), que usan los cuatro módulos (G11, P239 a) | sí | Aceptada |
 | [0069](0069-el-lenguaje-de-marcado-del-panel.md) | El lenguaje de marcado del panel: piezas con API estable, clases del framework como ganchos y, por dentro, Fomantic y el fork; la hoja de diseño como guía (D16) | sí | Aceptada |
 | [0070](0070-el-indice-de-configuracion-se-retira.md) | El índice de Configuración se retira: la lista la da el panel de la barra; las pantallas de Configuración, sin migas; «Cancelar», al inicio (reemplaza el §4 del 0028; H103) | sí | Aceptada |
+| [0071](0071-el-archivo-de-proyecto-de-la-guarda.md) | Lo propio del proyecto sale de la guarda a `.agents/project-architect-coder.json`, validado y con fallo cerrado | sí | Aceptada |

@@ -330,6 +330,7 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
 - **`ui sticky`**: en una pestaña oculta mide cero, y `'destroy'` sin iniciar lo inicia: solo vive en la visible (`seo.js`, JCW).
 - **Cropper repone la URL original al destruirse**: revocarla al `replace()` o al cerrar da `ERR_FILE_NOT_FOUND`; se suelta al abrir otra imagen (`ContentImageEditor.js`, JCW).
 - **Antes de tocar una vista, busca las suites que leen sus ganchos** (`git grep` del selector y del `data-type` en `local-tests/`): `core/logs-trace-purged` y `core/login-attempts-organization` cayeron en JCX por un `$pieces` fuera del controlador y un `data-type` quitado; su lista previa no las tenía.
+- **Una tabla nunca desplaza en vertical** (PO, 2026-10-31): desplaza la vista y la tabla crece; la horizontal, solo si no cabe. Una rejilla `ui grid` dentro de `.container-standard-table` desborda por sus márgenes negativos, enciende `overflow-x: auto` y `configMirrorScrollX()` enseña la barra espejo: no se usa `dom` propio con rejilla (H145).
 - **Una tabla ancha a 390**: `ui basic fitted horizontal scrolling segment` con `ui unstackable table` (Importar, JCY).
 - **`.ui.grid > .tinted.column` pisa `background-size`**: un fondo con imagen pide más especificidad (`import/_access.scss`, JCY).
 - **`ui text` de Fomantic solo existe sobre `span`**: en un `div` no casa ninguna regla.

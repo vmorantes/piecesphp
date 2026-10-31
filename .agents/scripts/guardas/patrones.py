@@ -8,7 +8,12 @@ Aquí NO se persigue el vocabulario: el producto tiene funciones de IA reales
 interfaz sobre inteligencia artificial). Lo prohibido es firmar el trabajo
 como hecho por una IA.
 """
+import os
 import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import proyecto  # noqa: E402
 
 # Quién podría figurar como autor.
 _AUTOR = (
@@ -36,10 +41,14 @@ PATRONES = [re.compile(p, re.IGNORECASE) for p in _PATRONES]
 
 # Rutas entregables, relativas a la raíz. Fuera de ellas (.agents/, .claude/,
 # AGENTS.md, CLAUDE.md) hablar de agentes es el tema, no una firma.
-PREFIJOS_ENTREGABLES = ("src/", "bin/", "databases/", "source-docs/", "files/")
-ARCHIVOS_ENTREGABLES = ("README.md", "CHANGELOG.md", "LICENSE", ".gitignore", ".gitattributes", ".editorconfig")
-# Código de terceros: no lo firma el PO ni se juzga aquí.
-EXCLUIDOS = ("src/vendor/", "src/statics/plugins/", "src/composer.lock", "bin/tools/vendor/")
+# Salen de .agents/project-architect-coder.json; lo excluido es código de terceros.
+_RAIZ = os.path.realpath(
+    os.environ.get("CLAUDE_PROJECT_DIR") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..")
+)
+_ENTREGABLES = (proyecto.cargar(_RAIZ)[0] or {}).get("deliverables", {})
+PREFIJOS_ENTREGABLES = tuple(_ENTREGABLES.get("prefixes", ()))
+ARCHIVOS_ENTREGABLES = tuple(_ENTREGABLES.get("files", ()))
+EXCLUIDOS = tuple(_ENTREGABLES.get("excluded", ()))
 
 
 def es_entregable(ruta_relativa):

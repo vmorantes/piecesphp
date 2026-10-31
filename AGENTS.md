@@ -104,6 +104,7 @@ bin/verify --changed-since=<commit>  # la parcial: gates solo del área tocada (
 bin/check-routes        # patrones de ruta; funciona aunque la aplicación no arranque
 bin/con-marca -- <orden> # una orden que no es suite: lo que escriba en los registros de errores se poda al salir
 bin/docs ver|compilar|preparar  # la documentación con MkDocs: verla, compilarla y preparar lo que se publica
+bin/paquete-revision <etiqueta>  # zip, SQL sin secretos y guía, para un servidor de pruebas; no viaja
 bin/cli <acción>        # CLI del framework (help lista las acciones)
 bin/phpstan             # análisis estático (nivel 8) -> PHPStanResult.Summary.txt
 bin/phpstan-deadcode    # mide las ramas muertas que phpstan.neon silencia

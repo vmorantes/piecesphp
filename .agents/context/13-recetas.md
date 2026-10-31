@@ -662,3 +662,12 @@ Por RONDA, no por módulo (tres o cuatro módulos en cada una):
 - **la matriz de permisos, solo si la ronda añade, quita o cambia rutas**;
 - **capturas solo del después**, a 1440 y 390, al cerrar la ronda;
 - la documentación del arquitecto, **después** del reporte, en el primer commit de la ronda siguiente.
+
+## Receta: el paquete para un servidor de pruebas
+
+`bin/paquete-revision <etiqueta> [<destino>]`, con la base sembrada y el árbol limpio. Por omisión escribe en `~/Documentos/PiecesPHP/revision-<etiqueta>/`: zip servible (con `vendor`, compilados y subidas),
+SQL sin secretos y `DESPLIEGUE.md`, con la contraseña de `zz-agente-revisor`, de modo 600 y fuera del repositorio. Lo sube el PO.
+
+- **El canario manda:** compara el zip y el SQL con los valores reales, sin imprimirlos, y si encuentra uno borra lo generado. Sus filtros, en `#2294`.
+- **Trampas:** cada corrida rota la clave del revisor; deja esa cuenta en la base y `bin/verify` parte SUCIO; no repite destino (`abierto.md` H142).
+

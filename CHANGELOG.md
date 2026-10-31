@@ -1,3 +1,9 @@
+# 10.0.2 (31-10-2026)
+
+- **El Directorio usa la maqueta común de los listados.** Desaparecen las barras de desplazamiento que no hacían falta; el buscador y «Exportar listado actual» son los de los demás listados. Cada fila dice si es una persona o una organización.
+- **Si tu clon personalizaba esa pantalla:** salen `Directory/Statics/sass/list.scss`, la hoja `list.css` y las clases `.user-info` y `.custom-search`, y la última columna se titula «Acciones».
+- **Tras actualizar**, si Mantenimiento o `bin/cli verify-integrity` señalan un enlace roto de `list.css`, bórralo desde Sistema, en la pantalla de Mantenimiento.
+
 # 10.0.1 (30-10-2026)
 
 - **Sale la pantalla suelta del límite de tokens** (`forms-tokens-limit`): la cuota se edita dentro de Inteligencia artificial, y su texto decía otra cosa. Si tu clon la enlazaba, apunta a Configuración › Inteligencia artificial.

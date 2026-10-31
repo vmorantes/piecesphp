@@ -1,0 +1,45 @@
+{
+    "format": 1,
+    "project": "PiecesPHP",
+    "sessions": {
+        "architect": "PiecesPHPUpgrade-Arquitecto-Main",
+        "coder": "PiecesPHPUpgrade-Coder-Main"
+    },
+    "guard": {
+        "sibling_repositories": [
+            {"path": "../database", "can_tag": true, "creatable_branches": ["dev"]},
+            {"path": "../datastructures", "can_tag": true, "creatable_branches": ["dev"]},
+            {"path": "../geojson", "can_tag": true, "creatable_branches": ["dev"]},
+            {"path": "../html", "can_tag": true, "creatable_branches": ["dev"]},
+            {"path": "../guia-piecesphp-para-po", "can_tag": false, "creatable_branches": []}
+        ],
+        "banned_scripts": ["push-all", "permissions-and-property.sh"],
+        "extra_banned_commands": [],
+        "forbidden_reads": ["secure-keys/*"],
+        "allowed_dependencies": [
+            {
+                "manager": "composer",
+                "command": "update",
+                "packages": ["phpstan/phpstan", "phpstan/phpstan-deprecation-rules", "rector/rector"],
+                "directories": ["bin/tools"],
+                "reason": "ADR 0007"
+            },
+            {
+                "manager": "composer",
+                "command": "update",
+                "packages": ["piecesphp/database", "piecesphp/datastructures", "piecesphp/geojson", "piecesphp/html"],
+                "directories": ["src", "../database", "../datastructures", "../geojson", "../html"],
+                "reason": "ADR 0008 y ADR 0017"
+            }
+        ],
+        "writable_paths": [
+            {"path": "~/Documentos/PiecesPHP", "reason": "ADR 0058: lo que se le entrega al PO"},
+            {"path": "~/Documentos/MigracionIfcol", "reason": "PO, 2026-10-30: el plan de ifcol vive fuera del repositorio"}
+        ]
+    },
+    "deliverables": {
+        "prefixes": ["src/", "bin/", "databases/", "source-docs/", "files/"],
+        "files": ["README.md", "CHANGELOG.md", "LICENSE", ".gitignore", ".gitattributes", ".editorconfig"],
+        "excluded": ["src/vendor/", "src/statics/plugins/", "src/composer.lock", "bin/tools/vendor/"]
+    }
+}

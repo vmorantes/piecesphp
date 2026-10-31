@@ -15,6 +15,7 @@
         ".agents/skills/cerrar-jornada/*",
         ".agents/skills/asentar-estado/*",
         ".agents/capas.json",
+        ".agents/project-architect-coder.json",
         ".agents/docs/sdd.md",
         ".agents/docs/adr/README.md",
         ".agents/docs/adr/0001-*",
@@ -23,6 +24,7 @@
         ".agents/docs/adr/0004-*",
         ".agents/docs/adr/0005-*",
         ".agents/docs/adr/0014-*",
+        ".agents/docs/adr/0071-*",
         ".agents/estado/README.md",
         ".claude/*",
         "CLAUDE.md"

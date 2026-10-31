@@ -16,4 +16,7 @@ return [
     "Las personas y las organizaciones con su perfil público visible." => "People and organizations whose public profile is visible.",
     "Personas" => "People",
     "Organizaciones" => "Organizations",
+    "Acciones" => "Actions",
+    "Persona" => "Person",
+    "Organización" => "Organization",
 ];

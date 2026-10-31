@@ -19,6 +19,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import proyecto  # noqa: E402
 from patrones import buscar, es_entregable  # noqa: E402
 
 RAIZ = os.path.realpath(
@@ -26,37 +27,46 @@ RAIZ = os.path.realpath(
 )
 HOME = os.path.expanduser("~")
 
-# Los cuatro paquetes piecesphp/* son repositorios hermanos de este. Se trabaja
-# en ellos solo cuando la instrucción los nombra (40-salvaguardas.md §3); la
-# guarda no puede saberlo y los deja escribir.
-PAQUETES = ("database", "datastructures", "geojson", "html")
-HERMANOS = tuple(os.path.join(os.path.dirname(RAIZ), p) + os.sep for p in PAQUETES)
+# Lo propio del proyecto vive en .agents/project-architect-coder.json (ADR 0071). Si falta o
+# no es válido, la guarda bloquea todo salvo arreglarlo: ver main().
+CONFIG, ERRORES_CONFIG = proyecto.cargar(RAIZ)
+GUARDA = (CONFIG or {}).get("guard", {})
+RUTA_CONFIG = os.path.join(RAIZ, proyecto.RUTA_CONFIG)
 
-# La guía personal del PO vive en su propio repositorio, fuera de este y fuera de
-# los paquetes: no se distribuye con el framework ni se versiona con él. El PO
-# autorizó escribir ahí el 2026-09-15, nombrando el repositorio.
-GUIA_PO = os.path.join(os.path.dirname(RAIZ), "guia-piecesphp-para-po") + os.sep
 
-# Las capturas de pantalla que se le entregan al PO, y nada más (ADR 0058).
-CAPTURAS_PO = os.path.join(HOME, "Documentos", "PiecesPHP") + os.sep
+def _hermano(ruta):
+    return os.path.normpath(os.path.join(RAIZ, ruta)) + os.sep
+
+
+# Con `can_tag`, los paquetes: se etiqueta y se crean las ramas que declaran. Sin él, un repositorio donde
+# solo se escribe (la guía del PO). Se trabaja en ellos cuando la instrucción los nombra; la guarda no puede saberlo.
+_REPOSITORIOS = GUARDA.get("sibling_repositories", [])
+HERMANOS = tuple(_hermano(r["path"]) for r in _REPOSITORIOS if r["can_tag"])
+OTROS_REPOSITORIOS = tuple(_hermano(r["path"]) for r in _REPOSITORIOS if not r["can_tag"])
+RAMAS_CREABLES = {_hermano(r["path"]): tuple(r["creatable_branches"]) for r in _REPOSITORIOS}
+CARPETAS_DEL_PO = tuple(os.path.expanduser(w["path"]) + os.sep for w in GUARDA.get("writable_paths", []))
 
 # Fuera del repositorio solo se escribe en temporales, en la memoria nativa de
-# Claude Code, en los repositorios hermanos, en el de la guía del PO y en sus capturas.
+# Claude Code, en los repositorios hermanos y en lo que declare el archivo de proyecto.
 ESCRIBIBLES_EXTRA = (
     "/tmp/",
     os.path.join(HOME, ".claude", "projects") + os.sep,
-) + HERMANOS + (GUIA_PO, CAPTURAS_PO)
+) + HERMANOS + OTROS_REPOSITORIOS + CARPETAS_DEL_PO
 
 # Dentro de estas zonas se borra; la zona ENTERA, no. Sin esto, `rm -rf /tmp` o
 # `rm -rf <raíz del repositorio>` pasaban, porque la raíz también es escribible
 # (aviso de la plantilla andamiaje-arquitecto-coder, verificado aquí el 2026-09-15).
 RAICES_PROTEGIDAS = tuple(
     os.path.realpath(p) for p in (RAIZ, "/tmp", os.path.join(HOME, ".claude", "projects"), HOME)
-) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS + (GUIA_PO, CAPTURAS_PO))
+) + tuple(os.path.realpath(h.rstrip(os.sep)) for h in HERMANOS + OTROS_REPOSITORIOS + CARPETAS_DEL_PO)
 
 # Las claves del producto no las lee un agente, tampoco desde Bash (40-salvaguardas.md §7):
 # settings.json solo niega la herramienta Read.
-SECRETOS = (os.path.join(RAIZ, "secure-keys"),)
+# Aquí, carpetas enteras (`carpeta/*`): otro comodín no sabría aplicarlo, y una regla que no se aplica no se acepta.
+_LECTURAS = GUARDA.get("forbidden_reads", [])
+if any(not r.endswith("/*") or any(c in r[:-2] for c in "*?[") or r.startswith("~") for r in _LECTURAS):
+    ERRORES_CONFIG = list(ERRORES_CONFIG) + ["forbidden_reads: esta guarda solo admite carpetas enteras, `carpeta/*`"]
+SECRETOS = tuple(os.path.join(RAIZ, r[:-2]) for r in _LECTURAS)
 
 PROHIBIDOS = {
     # Escalada de privilegios.
@@ -70,16 +80,18 @@ PROHIBIDOS = {
     "systemctl", "service", "crontab", "mkfs", "fdisk", "parted", "dd",
     "shutdown", "reboot", "poweroff", "halt", "chown", "useradd", "userdel",
     "usermod", "passwd", "visudo", "iptables", "ufw", "nft",
-}
+} | set(GUARDA.get("extra_banned_commands", [])) - {a["command"] for a in GUARDA.get("allowed_commands", [])}
 ENVOLTORIOS = {"env", "nohup", "time", "command", "exec", "nice", "timeout", "xargs", "watch"}
-# Lo único que un agente puede actualizar con Composer: la instrumentación de análisis que el
-# PO delegó en el arquitecto (ADR 0007).
-HERRAMIENTAS_DE_ANALISIS = {"phpstan/phpstan", "phpstan/phpstan-deprecation-rules", "rector/rector"}
-# Y las dependencias entre paquetes hermanos, solo dentro de uno de ellos (ADR 0008).
-PAQUETES_HERMANOS_COMPOSER = {"piecesphp/" + p for p in PAQUETES}
-# Guiones del repositorio que no ejecuta un agente: uno sube los cinco
-# repositorios, el otro cambia propietarios y permisos del sistema.
-GUIONES_VETADOS = re.compile(r"(^|/)(push-all|permissions-and-property\.sh)$")
+# Lo único que un agente puede actualizar con Composer. Las que nombran `src` son las dependencias entre paquetes
+# hermanos, con sus límites en revisar_bash (ADR 0008 y 0017); las demás, la instrumentación de análisis (ADR 0007).
+_COMPOSER = [d for d in GUARDA.get("allowed_dependencies", []) if d["manager"] == "composer"]
+PAQUETES_HERMANOS_COMPOSER = {p for d in _COMPOSER if "src" in d["directories"] for p in d["packages"]}
+HERRAMIENTAS_DE_ANALISIS = {p for d in _COMPOSER if "src" not in d["directories"] for p in d["packages"]}
+# Guiones del repositorio que no ejecuta un agente.
+GUIONES_VETADOS = re.compile(
+    r"(^|/)(" + "|".join(re.escape(g) for g in GUARDA.get("banned_scripts", [])) + r")$"
+    if GUARDA.get("banned_scripts") else r"(?!)"
+)
 # Las URL de los remotos llevan credenciales (18 T4).
 CONFIG_DE_GIT = re.compile(r"(^|/)\.git/config$")
 RUTAS_DEL_SISTEMA = re.compile(r"(^|[\s>=\"'])(/etc|/usr|/root|/boot|/bin|/sbin|/lib|/var/lib|/opt|/srv)(/|\s|$|[\"'])")
@@ -406,7 +418,8 @@ def revisar_git(args):
         listar = any(a in ("-l", "--list") or a.startswith(con_valor) for a in resto)
         nuevas = [a for a in resto if not a.startswith("-")]
         # Única excepción (PO, 2026-09-14): los cuatro paquetes llevan una rama `dev`.
-        if not listar and nuevas and not (en_paquete and nuevas[0] == "dev"):
+        creables = next((r for p, r in RAMAS_CREABLES.items() if (repo + os.sep).startswith(p)), ())
+        if not listar and nuevas and nuevas[0] not in creables:
             bloquear("crear ramas requiere permiso del PO (40-salvaguardas.md §4).")
     if sub == "switch" and any(
         a in ("-c", "-C", "--create", "--force-create", "--orphan") or a.startswith(("--create=", "--force-create=")) for a in resto
@@ -1003,6 +1016,11 @@ def main():
         return 2
     herramienta = datos.get("tool_name", "")
     entrada = datos.get("tool_input") or {}
+    if ERRORES_CONFIG and not (
+        herramienta in ("Write", "Edit") and os.path.realpath(entrada.get("file_path") or "") == os.path.realpath(RUTA_CONFIG)
+    ):
+        print(f"Bloqueado por la guarda: el archivo de proyecto no vale, arréglalo ({'; '.join(ERRORES_CONFIG)}).", file=sys.stderr)
+        return 2
     try:
         if herramienta == "Bash":
             revisar_bash(entrada.get("command", ""))

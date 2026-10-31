@@ -51,6 +51,20 @@ $-stackedCellLabelColor: rgba(0, 0, 0, 0.6);
             }
         }
     }
+
+    //El avatar junto al nombre: el `ui image header` del tema es en línea y, en una columna estrecha, apila el texto debajo.
+    :is(.#{$globalClassPcs}, .admin-shell) &.ui.table .ui.image.header {
+        display: flex;
+        align-items: center;
+
+        > .image {
+            flex: 0 0 auto;
+        }
+
+        > .content {
+            min-width: 0;
+        }
+    }
 }
 
 //-------- La tarjeta de imagen y su editor (design.md §3.18 y §3.19)

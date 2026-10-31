@@ -74,7 +74,7 @@ autoriza: la regla es esta, la guarda es una red.
   framework, `composer update` de `piecesphp/*` y nada más, con `--working-dir=src`, sin `-w` ni
   `-W`, cuando un lote nombrado por el PO lo pida y después de que el PO haya empujado la versión.
 - Solo se escribe dentro del repositorio, en el scratchpad de la sesión, en `/tmp` y en la
-  memoria nativa de la herramienta; y en `~/Documentos/PiecesPHP/`, solo capturas de pantalla para el PO (ADR 0058). Los cuatro paquetes hermanos
+  memoria nativa de la herramienta; y en lo que declare `guard.writable_paths` de `.agents/project-architect-coder.json`, cada carpeta con su motivo (ADR 0071): hoy, `~/Documentos/PiecesPHP/`, lo que se le entrega al PO (ADR 0058), y `~/Documentos/MigracionIfcol/`. Los cuatro paquetes hermanos
   (`/var/www/html/vicsen/{database,datastructures,geojson,html}`) solo cuando la instrucción
   nombra ese repositorio. El de la guía personal del PO
   (`/var/www/html/vicsen/guia-piecesphp-para-po`), solo el arquitecto y solo para la guía
@@ -131,6 +131,12 @@ cualquier herramienta —y también a una persona— una vez que el PO los activ
 - Nada inventado. Lo que no se verificó se escribe «sin verificar», no se redondea a hecho.
 - Toda cifra que sobrevive a la sesión lleva su método y su unidad (LEY 5).
 - Una afirmación sobre un consumidor no se deduce de su productor (LEY 19): se mide.
+
+## 6bis. Lo público no enseña a atacar
+
+La documentación pública es una guía general para tener presencia web y manuales para desarrolladores, no un mapa para quien quiera atacar (PO, 2026-10-30, P282). En `CHANGELOG.md`,
+`source-docs/`, `README.md` y lo que viaje en la distribución, un arreglo de seguridad se cuenta **en términos generales**: qué mejora y qué debe hacer quien actualiza. **Nunca** la clase, el método, el parámetro ni la forma de
+reproducirlo. El detalle vive en el registro privado (`.agents/`, que no se publica). Vale aunque el fallo esté arreglado: los clones viejos siguen en producción.
 
 ## 7. Secretos
 

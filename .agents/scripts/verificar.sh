@@ -96,6 +96,8 @@ modos=$(git ls-files -s .claude/rules .claude/skills | awk '$1 != "120000" {prin
 echo "enlaces revisados: $enlaces"
 
 paso "Guarda de hooks"
+python3 -B .agents/scripts/guardas/proyecto.py || fallo "el archivo de proyecto no vale"
+python3 -B .agents/scripts/guardas/probar_proyecto.py >/dev/null 2>&1 || fallo "el validador del archivo de proyecto no se comporta como se espera"
 python3 -B .agents/scripts/guardas/probar_guardia.py || fallo "la guarda no se comporta como se espera"
 
 paso "Capas del andamiaje (A, B, C)"

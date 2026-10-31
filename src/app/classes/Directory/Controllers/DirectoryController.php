@@ -44,7 +44,6 @@ class DirectoryController extends AdminPanelController
     protected $helpController = null;
 
     const BASE_JS_DIR = 'js';
-    const BASE_CSS_DIR = 'css';
     const LANG_GROUP = DirectoryLang::LANG_GROUP;
 
     public function __construct()
@@ -86,10 +85,6 @@ class DirectoryController extends AdminPanelController
             ],
             $title,
         ];
-
-        set_custom_assets([
-            DirectoryRoutes::staticRoute(self::BASE_CSS_DIR . '/list.css'),
-        ], 'css');
 
         set_custom_assets([
             DirectoryRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),

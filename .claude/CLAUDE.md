@@ -69,7 +69,9 @@ El `pre-push` **deja subir si no encuentra el verificador** y ofrece `git push -
 ## Guarda de hooks
 
 `.agents/scripts/guardas/guardia.py` corre antes de cada `Bash`, `Write` y `Edit` y bloquea lo
-que viola `40-salvaguardas.md`: remotos, etiquetas, credenciales de los remotos, git
+que viola `40-salvaguardas.md`. Lo propio del proyecto (hermanos, carpetas escribibles, guiones
+vetados, dependencias, entregables) lo lee de `.agents/project-architect-coder.json` (ADR 0071): si
+falta o no vale, bloquea todo salvo arreglarlo. Bloquea: remotos, etiquetas, credenciales de los remotos, git
 destructivo, servidores, bases de datos, `sudo`, dependencias, escrituras fuera del repositorio
 y atribución a IA en entregables. Sus pruebas:
 `python3 -B .agents/scripts/guardas/probar_guardia.py`. Si bloquea algo legítimo, no se

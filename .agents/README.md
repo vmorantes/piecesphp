@@ -60,7 +60,8 @@ los dos. Y lo que ya no sirve se poda (`rules/60-estado.md`).
 Todo archivo versionado de `.agents/`, `.claude/`, `AGENTS.md` y `CLAUDE.md` pertenece a **una** capa, declarada en
 [`capas.json`](./capas.json) (PO, A-015 a A-017):
 
-- **A, la metodología**: reglas, personas, guiones, las skills de trabajo, `.claude/` y los ADR de cómo se trabaja.
+- **A, la metodología**: reglas, personas, guiones, las skills de trabajo, `.claude/`, los ADR de cómo se trabaja y
+  [`project-architect-coder.json`](./project-architect-coder.json), lo propio del proyecto que aplica la guarda (ADR 0071).
 - **B, desarrollar sobre PiecesPHP**: `AGENTS.md`, `context/01`–`16` y `21`, la skill de PHP y los ADR que
   condicionan el código (0006, 0009, 0012, 0018).
 - **C, mantener el framework**: la campaña (estado, tramos, bitácora, mapa, `abierto`, `decisiones-del-po`, `19`–`20`, `historico/`

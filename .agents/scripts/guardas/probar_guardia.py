@@ -9,8 +9,10 @@ bloquea todo también "pasa" la mitad de las pruebas.
 """
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.path.realpath(os.path.join(AQUI, "..", "..", ".."))
@@ -519,6 +521,7 @@ ESCRITURA_BLOQUEA = [
     # Un nombre que empieza como el de la guía no hereda su permiso.
     {"file_path": GUIA + "-x/docs/index.md", "content": "x"},
     {"file_path": CAPTURAS_PO + "-x/LEEME.md", "content": "x"},
+    {"file_path": os.path.expanduser("~/Documentos/otra/plan.md"), "content": "x"},
 ]
 
 ESCRITURA_PERMITE = [
@@ -532,6 +535,7 @@ ESCRITURA_PERMITE = [
     {"file_path": os.path.join(HERMANO, "src/Nuevo.php"), "content": "<?php"},
     {"file_path": os.path.join(GUIA, "docs/index.md"), "content": "# Empieza aquí"},
     {"file_path": os.path.join(CAPTURAS_PO, "LEEME.md"), "content": "# Capturas del panel"},
+    {"file_path": os.path.expanduser("~/Documentos/MigracionIfcol/plan.md"), "content": "x"},
 ]
 
 
@@ -564,9 +568,48 @@ def preparar_archivos_de_opciones():
         os.remove(CNF_AUSENTE)
 
 
+def fallo_cerrado():
+    """El archivo de proyecto, ausente o inválido: todo bloqueado menos arreglarlo. Una pareja por caso."""
+    fallos = []
+    raiz = tempfile.mkdtemp(prefix="zz-guardia-")
+    config = os.path.join(raiz, ".agents", "project-architect-coder.json")
+    os.makedirs(os.path.dirname(config))
+    entorno = dict(os.environ, CLAUDE_PROJECT_DIR=raiz)
+
+    def probar(contenido, herramienta, entrada, esperado, nombre):
+        if os.path.exists(config):
+            os.remove(config)
+        if contenido is not None:
+            with open(config, "w", encoding="utf-8") as f:
+                f.write(contenido)
+        datos = json.dumps({"tool_name": herramienta, "tool_input": entrada})
+        hecho = subprocess.run([sys.executable, "-B", GUARDIA], input=datos, text=True, capture_output=True, env=entorno)
+        if hecho.returncode != esperado:
+            fallos.append(f"archivo de proyecto: {nombre}: esperaba {esperado}, dio {hecho.returncode}")
+
+    with open(os.path.join(RAIZ, ".agents", "project-architect-coder.json"), encoding="utf-8") as f:
+        valido = f.read()
+    otras = {"prose": "{", "clave desconocida": valido.replace('"project":', '"proyect":')}
+    probar(valido, "Bash", {"command": "ls"}, 0, "válido, permite")
+    probar(valido, "Bash", {"command": "sudo ls"}, 2, "válido, sigue bloqueando")
+    probar(None, "Bash", {"command": "ls"}, 2, "ausente, bloquea")
+    probar(None, "Write", {"file_path": config, "content": valido}, 0, "ausente, deja escribirlo")
+    probar(None, "Write", {"file_path": os.path.join(raiz, "otro.md"), "content": "x"}, 2, "ausente, no deja escribir otro")
+    for nombre, contenido in otras.items():
+        probar(contenido, "Bash", {"command": "ls"}, 2, f"{nombre}, bloquea")
+        probar(contenido, "Edit", {"file_path": config, "old_string": "a", "new_string": "b"}, 0, f"{nombre}, deja arreglarlo")
+    comodin = valido.replace('"secure-keys/*"', '"**/.env"')
+    probar(comodin, "Bash", {"command": "ls"}, 2, "lectura prohibida que no se sabe aplicar, bloquea")
+    sin_ruta = valido.replace('"banned_scripts": ["push-all", "permissions-and-property.sh"]', '"banned_scripts": []')
+    probar(sin_ruta, "Bash", {"command": "bin/push-all"}, 0, "sin guiones vetados, permite")
+    probar(valido, "Bash", {"command": "bin/push-all"}, 2, "con guiones vetados, bloquea")
+    shutil.rmtree(raiz)
+    return fallos, 13
+
+
 def main():
     preparar_archivos_de_opciones()
-    fallos = []
+    fallos, cerrado = fallo_cerrado()
     omitidos = 0
     for c in BASH_BLOQUEA:
         if no_aplica_en_clon(c):
@@ -588,7 +631,7 @@ def main():
             omitidos += 1
         elif llamar("Write", e) != 0:
             fallos.append(f"debía permitir escritura: {e['file_path']}")
-    total = len(BASH_BLOQUEA) + len(BASH_PERMITE) + len(ESCRITURA_BLOQUEA) + len(ESCRITURA_PERMITE) - omitidos
+    total = len(BASH_BLOQUEA) + len(BASH_PERMITE) + len(ESCRITURA_BLOQUEA) + len(ESCRITURA_PERMITE) - omitidos + cerrado
     for f in fallos:
         print(f"FALLO {f}")
     print(f"guardia: {total - len(fallos)}/{total} casos correctos"

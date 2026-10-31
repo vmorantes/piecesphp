@@ -52,7 +52,6 @@ class AllProfilesController extends AdminPanelController
     protected $helpController = null;
 
     const BASE_JS_DIR = 'js';
-    const BASE_CSS_DIR = 'css';
     const LANG_GROUP = DirectoryLang::LANG_GROUP;
     const ONLY_TYPES = [
         UsersModel::TYPE_USER_GENERAL,
@@ -190,11 +189,11 @@ class AllProfilesController extends AdminPanelController
                     $avatar = !is_null($avatar) ? $avatar : baseurl('statics/images/default-avatar.png');
                 }
 
-                $orgClass = $isOrg ? 'org' : '';
-                $avatar = "<div class='avatar {$orgClass}'><img src='" . escape_html($avatar) . "' /></div>";
-                $name = "<div class='name'>" . escape_html($e->name) . "</div>";
+                $avatar = escape_html($avatar);
+                $name = escape_html($e->name);
+                $typeLabel = escape_html($isOrg ? __(self::LANG_GROUP, 'Organización') : __(self::LANG_GROUP, 'Persona'));
 
-                $columns[] = "<div class='user-info'>{$avatar} {$name}</div>";
+                $columns[] = "<h4 class='ui image header'><img class='ui avatar image' src='{$avatar}' alt=''><div class='content'>{$name}<div class='sub header'>{$typeLabel}</div></div></h4>";
                 $columns[] = escape_html($e->fullLocation);
                 $columns[] = $buttons;
                 return $columns;

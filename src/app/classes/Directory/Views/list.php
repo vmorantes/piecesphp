@@ -29,27 +29,14 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <div class="ui fluid card container-standard-table all">
 
-                <template>
-                    <search-filters>
-                        <div class="ui form">
-                            <div class="inline field">
-                                <label><?= __($langGroup, 'Filtrar'); ?></label>
-                                <div search-input class="ui icon input">
-                                    <input type="text" placeholder="<?= __($langGroup, 'Buscar'); ?>">
-                                    <i class="search icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </search-filters>
-                </template>
-                <table url="<?= $processTableLink; ?>" class="ui selectable very basic table content-table all">
+                <table url="<?= $processTableLink; ?>" class="ui selectable very basic table content-table all" data-search-placeholder="<?= escape_html(__($langGroup, 'Buscar')); ?>">
 
                     <thead>
 
                         <tr>
                             <th><?= __($langGroup, 'Actor'); ?></th>
                             <th><?= __($langGroup, 'Ubicación'); ?></th>
-                            <th order="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Ver perfil'); ?></th>
+                            <th order="false" class-name="collapsing" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>
 
                     </thead>
