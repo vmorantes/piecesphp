@@ -233,6 +233,8 @@ class OrganizationsController extends AdminPanelController
             //Un encargado que ya no sale entre las opciones (Eliminado) dejaría el campo obligatorio vacío y la organización sin
             //poder guardarse: el campo deja de ser obligatorio y, vacío, el guardado conserva el encargado.
             $administratorMissing = $administratorID !== null && !array_key_exists((string) $administratorID, $optionsUsersAdministratorsBase);
+            //Recién creada no tiene a quién elegir: exigirlo la dejaría sin poder guardarse. La primera opción es «Usuarios», sin valor.
+            $hasAdministratorOptions = count($optionsUsersAdministratorsBase) > 1;
             $optionsUsersAdministrators = array_to_html_options(array_map('escape_html', $optionsUsersAdministratorsBase), $administratorID);
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
@@ -256,6 +258,7 @@ class OrganizationsController extends AdminPanelController
             $data['optionsEsal'] = $optionsEsal;
             $data['optionsUsersAdministrators'] = $optionsUsersAdministrators;
             $data['administratorMissing'] = $administratorMissing;
+            $data['hasAdministratorOptions'] = $hasAdministratorOptions;
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;

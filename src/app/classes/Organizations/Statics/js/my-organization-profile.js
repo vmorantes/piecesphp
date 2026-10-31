@@ -134,7 +134,7 @@ window.addEventListener('load', function () {
 						},
 						confirmation: {
 							title: _i18n(langGroup, 'Confirmación'),
-							message: _i18n(langGroup, '¿Está seguro de cancelar la operación?'),
+							message: $(changeAdminModalSelector).attr('data-confirm-message'),
 							positive: _i18n(langGroup, 'Sí'),
 							negative: _i18n(langGroup, 'No'),
 							selector: `${formModalSelector}`,

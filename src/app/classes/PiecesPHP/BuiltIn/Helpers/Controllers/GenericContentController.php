@@ -155,48 +155,6 @@ class GenericContentController extends AdminPanelController
      * @param Response $response
      * @return Response
      */
-    public function tokensLimitForm(Request $request, Response $response)
-    {
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        $element = new GenericContentPseudoMapper(GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
-
-        set_custom_assets([
-            //Base
-            HelpersSystemRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
-        ], 'js');
-
-        $action = self::routeName('actions-edit');
-
-        $title = __(self::LANG_GROUP, 'Límite de tokens de IA');
-        $description = __(self::LANG_GROUP, 'Cuántos tokens se esperan como máximo en cada respuesta de las funciones de IA.');
-
-        set_title($title);
-
-        $data = [];
-        $data['action'] = $action;
-        $data['element'] = $element;
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['title'] = $title;
-        $data['description'] = $description;
-        //Viven en Configuración › Sistema (P255 a): como el resto de la configuración, sin migas y con «Cancelar» al inicio
-        //(SettingsController::sectionHeaderData(), ADR 0070).
-        $data = SettingsController::sectionHeaderData($title, $description) + $data;
-
-        $this->helpController->render('panel/layout/header');
-        $this->render('forms/tokens-limit', $data, true, false);
-        $this->helpController->render('panel/layout/footer');
-
-        return $response;
-
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
     public function mapboxKeysForm(Request $request, Response $response)
     {
 
@@ -565,7 +523,6 @@ class GenericContentController extends AdminPanelController
 
         //Permisos
         $editionConfigurations = $allRoles;
-        $editionTokensLimit = self::TOKENS_LIMIT_PERMISSION;
         $editionMapboxKeys = self::MAPBOX_KEYS_PERMISSION;
         $editionHomeImage = self::HOME_IMAGE_PERMISSIONS;
 
@@ -573,15 +530,6 @@ class GenericContentController extends AdminPanelController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route( //Formulario de editar
-                "{$startRoute}/forms/tokens-limit[/]",
-                $classname . ':tokensLimitForm',
-                self::$baseRouteName . '-forms-tokens-limit',
-                'GET',
-                true,
-                null,
-                $editionTokensLimit
-            ),
             new Route( //Formulario de editar
                 "{$startRoute}/forms/mapbox-keys[/]",
                 $classname . ':mapboxKeysForm',

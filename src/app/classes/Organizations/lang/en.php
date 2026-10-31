@@ -1,6 +1,8 @@
 <?php
 return [
     'Ver el RUT' => 'View the tax ID',
+    '¿Cambiar a la persona encargada de esta organización?' => 'Change the person in charge of this organization?',
+    'Aún no tiene usuarios: elija el encargado cuando los tenga.' => 'It has no users yet: choose the person in charge when it does.',
     "Gestión de organizaciones" => "Management of organizations",
     "Gestión de la organización" => "Management of the organization",
     "Organización" => "Organization",

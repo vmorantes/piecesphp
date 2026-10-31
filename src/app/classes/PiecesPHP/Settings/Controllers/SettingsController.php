@@ -2245,7 +2245,6 @@ class SettingsController extends AdminPanelController
             ]],
             __($langGroup, 'Sistema') => ['microchip', [
                 $own('integrations-ai', __($langGroup, 'Inteligencia artificial'), 'microchip'),
-                $helpers('forms-tokens-limit', __($langGroup, 'Límite de tokens de IA'), 'tachometer alternate'),
                 $status('alerts', __($statusLangGroup, 'Avisos del sistema'), 'bell outline'),
                 $status('maintenance', __($statusLangGroup, 'Estado y cachés'), 'wrench'),
                 $status('health', __($statusLangGroup, 'Salud de la instalación'), 'heartbeat'),

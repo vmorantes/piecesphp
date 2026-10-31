@@ -8,6 +8,7 @@ use Organizations\Mappers\OrganizationMapper;
  * @var string $backLink
  * @var string $action
  * @var OrganizationMapper $element
+ * @var bool $hasAdministratorOptions Hay a quién elegir como encargado; sin nadie, el campo no es obligatorio.
  * @var bool $administratorMissing El encargado actual no está entre las opciones: el campo no es obligatorio.
  */
 $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
@@ -154,9 +155,13 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                 <?php if($canModify): ?>
                 <?php $this->helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Contacto de la organización'), 'description' => __($langGroup, 'Persona designada como punto de contacto principal.')]); ?>
 
-                <div class="field<?= $administratorMissing ? '' : ' required'; ?>">
+                <?php $administratorRequired = !$administratorMissing && $hasAdministratorOptions; ?>
+                <div class="field<?= $administratorRequired ? ' required' : ''; ?>">
                     <label class="organization-hidden-label"><?= __($langGroup, 'Persona encargada'); ?></label>
-                    <select<?= $administratorMissing ? '' : ' required'; ?> name="administrator" class="ui dropdown search"><?= $optionsUsersAdministrators; ?></select>
+                    <select<?= $administratorRequired ? ' required' : ''; ?> name="administrator" class="ui dropdown search"><?= $optionsUsersAdministrators; ?></select>
+                    <?php if (!$hasAdministratorOptions): ?>
+                    <div class="description"><?= __($langGroup, 'Aún no tiene usuarios: elija el encargado cuando los tenga.'); ?></div>
+                    <?php endif; ?>
                     <?php if ($administratorMissing): ?>
                     <div class="ui small warning message visible"><?= __($langGroup, 'El encargado actual fue eliminado: elija otro cuando pueda.'); ?></div>
                     <?php endif; ?>

@@ -262,7 +262,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
 <?php $helpController->_render('panel/built-in/content/image-editor.php'); ?>
 
-<div class="ui tiny modal" change-organization-admin-modal>
+<div class="ui tiny modal" change-organization-admin-modal data-confirm-message="<?= escape_html(__($langGroup, '¿Cambiar a la persona encargada de esta organización?')); ?>">
     <i class="close icon"></i>
     <div class="header"><?= __($langGroup, 'Cambiar persona encargada'); ?></div>
     <div class="content">

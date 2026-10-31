@@ -480,6 +480,9 @@ también cuando ese cambio es instrumental (`files/dev/`). Una cifra medida ante
 commiteado. Nace de `#052`: en `#050` se retiró una entrada de `sql-concat-declared.json` después
 de correr `gates`, y el commit entró con una prueba rota.
 
+**Un cambio que solo reordena marcado, sin lógica, no repite la ENTERA** (PO, 2026-10-30: «no puede ser que por algo así se deba repetir una verificación entera»):
+basta con las suites que nombren esa vista y `bin/formatear --check` de ese archivo, y el reporte dice sobre qué commit corrió la ENTERA.
+
 ### Commits
 
 - **Autorización (ADR 0005).** `00-core.md` exige el permiso explícito del PO para preparar y

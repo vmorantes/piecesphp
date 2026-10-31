@@ -217,6 +217,30 @@ CliActions::make('unit-tests:core/my-organization-profile', function ($args) {
         $sinEncargado = $crearOrganizacion('sin-encargado', null);
         $publicoSin = $pedir($camino('profile', ['organizationID' => $sinEncargado->id], OrganizationProfileController::class), $root);
         $check($publicoSin['status'] === 200 && str_contains($publicoSin['body'], (string) $sinEncargado->informativeEmail), 'd3 una organización sin encargado, visible y completa, responde 200 con su perfil', "HTTP {$publicoSin['status']}");
+
+        //─── e · Editar una organización recién creada ─────────────────────────────
+        echoTerminal('');
+        echoTerminal('[e] Sin usuarios, el encargado no se exige; con usuarios, sí');
+        $editar = function (OrganizationMapper $organizacion) use ($camino): string {
+            return $camino('forms-edit', ['id' => $organizacion->id, 'lang' => \PiecesPHP\Core\Config::get_default_lang()], \Organizations\Controllers\OrganizationsController::class);
+        };
+        $selectEncargado = function (string $html): string {
+            return preg_match('/<select[^>]*name="administrator"[^>]*>/', $html, $coincidencia) === 1 ? $coincidencia[0] : '';
+        };
+        $vacia = $crearOrganizacion('sin-usuarios', null);
+        $sinUsuarios = $pedir($editar($vacia), $root);
+        $campoVacio = $selectEncargado($sinUsuarios['body']);
+        $check($sinUsuarios['status'] === 200 && $campoVacio !== '' && !str_contains($campoVacio, 'required'), 'e1 sin usuarios, el select de encargado no lleva required', "HTTP {$sinUsuarios['status']}: {$campoVacio}");
+        $guardarVacia = $pedir($camino('actions-edit', [], \Organizations\Controllers\OrganizationsController::class), $root, ['id' => $vacia->id, 'lang' => \PiecesPHP\Core\Config::get_default_lang(), 'name' => "{$prefijo}-org-sin-usuarios", 'administrator' => '']);
+        $respuesta = json_decode($guardarVacia['body'], true);
+        $check(is_array($respuesta) && ($respuesta['success'] ?? false) === true, 'e2 y se guarda con el encargado vacío', "HTTP {$guardarVacia['status']}: " . mb_substr($guardarVacia['body'], 0, 200));
+        $conUsuario = $crearOrganizacion('con-usuario', null);
+        $crearUsuario('encargable', UsersModel::TYPE_USER_ADMIN_ORG, (int) $conUsuario->id);
+        $campoLleno = $selectEncargado($pedir($editar($conUsuario), $root)['body']);
+        $check(str_contains($campoLleno, 'required'), 'e3 RECHAZO: con un usuario que puede serlo, el select sigue siendo obligatorio', $campoLleno);
+        $inventado = $pedir($camino('actions-edit', [], \Organizations\Controllers\OrganizationsController::class), $root, ['id' => $vacia->id, 'lang' => \PiecesPHP\Core\Config::get_default_lang(), 'name' => "{$prefijo}-org-sin-usuarios", 'administrator' => $inexistente]);
+        $rechazo = json_decode($inventado['body'], true);
+        $check(!is_array($rechazo) || ($rechazo['success'] ?? false) !== true, 'e4 RECHAZO: un encargado que no existe no se guarda', mb_substr($inventado['body'], 0, 200));
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');

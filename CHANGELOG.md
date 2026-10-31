@@ -1,3 +1,9 @@
+# 10.0.1 (30-10-2026)
+
+- **Sale la pantalla suelta del límite de tokens** (`forms-tokens-limit`): la cuota se edita dentro de Inteligencia artificial, y su texto decía otra cosa. Si tu clon la enlazaba, apunta a Configuración › Inteligencia artificial.
+- **Una organización recién creada ya se puede editar**: pedía un encargado que aún no podía existir.
+- **El aviso de cambiar de encargado** pregunta por lo que hace.
+
 # 10.0.0 (30-10-2026)
 
 > **La versión del rediseño del panel.** Todo el panel y el acceso van con el tema nuevo y sus piezas. La zona pública sigue con
