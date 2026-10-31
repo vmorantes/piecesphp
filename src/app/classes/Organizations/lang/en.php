@@ -1,5 +1,6 @@
 <?php
 return [
+    'Ver el RUT' => 'View the tax ID',
     "Gestión de organizaciones" => "Management of organizations",
     "Gestión de la organización" => "Management of the organization",
     "Organización" => "Organization",
@@ -50,7 +51,6 @@ return [
     "Cambiar" => "Change",
     "Anexar" => "Attach",
     "Logo" => "Logo",
-    "Tamaño 400x400" => "Size 400x400",
     "Imagen preferiblemente en formato .jpg" => "Image preferably in .jpg format",
     "RUT" => "RUT",
     "Tamaño máximo del archivo 2MB" => "Maximum file size 2MB",
@@ -87,6 +87,7 @@ return [
     "Datos generales" => "General data",
     "Datos profesionales" => "Professional data",
     "El usuario seleccionado como encargado no existe" => "The user selected as in charge does not exist",
+    "El usuario seleccionado como encargado no pertenece a esta organización" => "The user selected as in charge does not belong to this organization",
     "Instituciones a las que pertenece" => "Institutions to which he belongs",
     "Instituciones a las que pertenece actualmente" => "Institutions you currently belong to",
     "Mostrar el perfil de la organización en el directorio y en el mapa" => "Show the organization profile in the directory and on the map",
@@ -102,4 +103,5 @@ return [
     "No hay usuarios asociados a esta organización que puedan ser asignados como encargados, asocia algún usuario a esta organización desde el listado de usuarios en el siguiente botón" => "There are no users in this organization who can be assigned as the person in charge; associate a user with this organization from the user list with the button below",
     "Ver usuarios" => "View users",
     "Encargado de la organización" => "Person in charge of the organization",
+    "El encargado actual fue eliminado: elija otro cuando pueda." => "The current person in charge was deleted: choose another one when you can.",
 ];

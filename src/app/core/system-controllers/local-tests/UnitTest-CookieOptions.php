@@ -2,6 +2,7 @@
 
 //Las cookies del servidor salen con SameSite: la función que calcula las opciones, por casos, y la configuración de
 //cookies.php. Pura: no pide ni escribe nada.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 
@@ -40,7 +41,11 @@ CliActions::make('unit-tests:core/cookie-options', function ($args) {
         $check($opciones['samesite'] === $esperado, "1 {$nombre}", (string) json_encode($opciones));
     }
     $opciones = cookie_options_by_config(array_merge($base, ['lifetime' => 3600, 'secure' => true, 'httponly' => true, 'samesite' => 'Lax']));
-    $check($opciones === ['expires' => 3600, 'path' => '/', 'domain' => 'app.ejemplo.test', 'secure' => true, 'httponly' => true, 'samesite' => 'Lax'], '1 el resto de opciones pasa tal cual', (string) json_encode($opciones));
+    $expires = $opciones['expires'];
+    unset($opciones['expires']);
+    $check($opciones === ['path' => '/', 'domain' => 'app.ejemplo.test', 'secure' => true, 'httponly' => true, 'samesite' => 'Lax'], '1 el resto de opciones pasa tal cual', (string) json_encode($opciones));
+    $check($expires >= time() + 3590 && $expires <= time() + 3610, '1 lifetime 3600 es una duración: expires cae a una hora de ahora, no en 1970', "expires {$expires}, ahora " . time());
+    $check(cookie_options_by_config(array_merge($base, ['lifetime' => 0]))['expires'] === 0, '1 CANARIO: lifetime 0 sigue siendo 0, cookie de sesión del navegador');
     $opciones = cookie_options_by_config(['lifetime' => 'mucho', 'secure' => 'sí', 'httponly' => 1]);
     $check($opciones['expires'] === 0 && $opciones['secure'] === false && $opciones['httponly'] === false && $opciones['path'] === '', '1 un tipo inválido cae a su valor por defecto, sin volverse seguro por accidente', (string) json_encode($opciones));
     echoTerminal(' ');

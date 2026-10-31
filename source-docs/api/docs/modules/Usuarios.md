@@ -71,6 +71,7 @@ xhr.send(data);
 	- username: text (requerido) Nombre de usuario
 	- password: text (requerido) Contraseña
 	- twoFactor: text (opcional) Código del segundo factor (TOTP). Obligatorio solo si el usuario tiene activado el 2FA y ya vio su código QR; si falta o es inválido, el login responde `INVALID_TWO_FACTOR_CODE`. Con el usuario o la IP bloqueados por el límite del segundo factor, la ruta responde **429** con `Retry-After`
+	- Límite por IP: tras 5 fallos de acceso desde una IP en 15 minutos (contraseña equivocada o usuario que no existe), la IP espera 15 minutos y la ruta responde **429** con `Retry-After`, `error: TOO_MANY_ATTEMPTS` y `retryAfter` (segundos), sin mirar usuario ni contraseña (`otp_security`)
 	- overwriteSession: text (opcional) Define si se sobreescribirá la sesión actual para generar un nuevo JWT
 		- Valores:
 			- yes
@@ -83,10 +84,12 @@ xhr.send(data);
 		- token: text El JWT
 		- error: text
 			- NO_ERROR: No hay ningún error
-			- INCORRECT_PASSWORD: Contraseña equivocada
-			- BLOCKED_FOR_ATTEMPTS: Bloquado por intentos fallidos
+			- INCORRECT_PASSWORD: «Usuario o contraseña incorrectos»: el usuario no existe o la contraseña no vale (el acceso no distingue los dos casos)
+			- (Los cuatro de estado —BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE y APPROVED_PENDING— solo llegan con la contraseña o el código de un uso buenos; el fallo que completa el bloqueo bloquea la cuenta y responde INCORRECT_PASSWORD)
+			- BLOCKED_FOR_ATTEMPTS: Bloqueado por intentos fallidos: 4 fallos seguidos que vienen de al menos 3 IP distintas en 24 horas
+			- TOO_MANY_ATTEMPTS: Demasiados intentos desde esta IP o, con 2FA, de este usuario; respuesta 429 con `Retry-After`
 			- INACTIVE_USER: Usuario inactivo/bloqueado
-			- USER_NO_EXISTS: El usuario no existe
+			- USER_NO_EXISTS: Ya no lo devuelve el acceso (desde la versión siguiente a la 9.0.0): un usuario que no existe da INCORRECT_PASSWORD
 			- ACTIVE_SESSION: Ya hay una sesión activa
 			- INVALID_TWO_FACTOR_CODE: El usuario tiene 2FA y el código `twoFactor` falta o no es válido
 			- ORGANIZATION_IS_NOT_ACTIVE: La organización del usuario no está activa

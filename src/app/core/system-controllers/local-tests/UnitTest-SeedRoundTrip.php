@@ -6,9 +6,11 @@
 //La sesión del usuario principal la fija la suite y la restaura al final: varios mappers la exigen al guardar, y una
 //suite no pasa por el inicio de sesión forzado de la terminal.
 
+use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\SystemApprovalManager;
@@ -89,6 +91,10 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
     set_config('current_user', (object) ['id' => $rootId]);
     set_config('pcsphp_current_user_stored', null);
     $decoyId = null;
+    $logIds = ['sembrado' => null, 'ajeno' => null];
+    $timeIds = ['sembrado' => null, 'ajeno' => null];
+    //time_on_platform no tiene columna de texto: sus filas de prueba se reconocen por id, usuario y estos minutos.
+    $timeMarker = 0.0417;
     $count = 2;
     //El meta de las organizaciones que NO son de la siembra: afterAll() no puede tocarlo.
     $foreignMeta = function () use ($database): string {
@@ -211,6 +217,19 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
             $statement->execute([ModuleSeeder::PREFIX . 'senuelo', (string) $orgIds[0], 'zz_siembra_senuelo', date('Y-m-d H:i:s'), $rootId, date('Y-m-d H:i:s'), SystemApprovalsMapper::STATUS_PENDING]);
             $decoyId = (int) $database->lastInsertId();
         }
+        //La actividad de un usuario sembrado (la deja quien lo suplanta) y la de otro usuario, en el registro de acciones
+        //y en el tiempo en la plataforma: el limpiado borra la primera antes que al usuario, y nunca la segunda.
+        $seededUserIds = SeedPlanner::seededIds($ordered)[UsersModel::TABLE] ?? [];
+        if ($database !== null && count($seededUserIds) > 0) {
+            $statement = $database->prepare('INSERT INTO `' . LogsMapper::TABLE . '` (textMessage, textMessageVariables, createdBy, createdAt) VALUES (?, ?, ?, ?)');
+            $timeStatement = $database->prepare('INSERT INTO `' . TimeOnPlatformModel::TABLE . '` (userID, minutes) VALUES (?, ?)');
+            foreach (['sembrado' => (int) $seededUserIds[0], 'ajeno' => $rootId] as $key => $userId) {
+                $statement->execute([ModuleSeeder::PREFIX . 'registro-' . $key, '[]', $userId, date('Y-m-d H:i:s')]);
+                $logIds[$key] = (int) $database->lastInsertId();
+                $timeStatement->execute([$userId, $timeMarker]);
+                $timeIds[$key] = (int) $database->lastInsertId();
+            }
+        }
         echoTerminal(' ');
 
         echoTerminal('[2] El limpiado, de la base y del disco');
@@ -218,8 +237,10 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
         $afterClean = $counts();
         $expected = $start;
         $expected[SystemApprovalsMapper::TABLE] += 1;
+        $expected[LogsMapper::TABLE] += 1;
+        $expected[TimeOnPlatformModel::TABLE] += 1;
         $differ = array_filter(array_keys($start), static fn (string $t): bool => $afterClean[$t] !== $expected[$t]);
-        $check(count($differ) === 0, '2a todas las tablas vuelven a las de partida, aprobaciones incluidas (más el señuelo)', implode(', ', array_map(static fn (string $t): string => "{$t} {$expected[$t]} -> {$afterClean[$t]}", $differ)));
+        $check(count($differ) === 0, '2a todas las tablas vuelven a las de partida, aprobaciones incluidas (más los señuelos)', implode(', ', array_map(static fn (string $t): string => "{$t} {$expected[$t]} -> {$afterClean[$t]}", $differ)));
         $survives = false;
         if ($database !== null && $decoyId !== null) {
             $statement = $database->prepare('SELECT COUNT(*) FROM `' . SystemApprovalsMapper::TABLE . '` WHERE id = ?');
@@ -227,12 +248,22 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
             $survives = (int) $statement->fetchColumn() === 1;
         }
         $check($survives, '2b la aprobación señuelo, de otra tabla con el mismo número, sobrevive al limpiado', "id {$decoyId}");
+        $exists = function (string $table, ?int $id) use ($database): bool {
+            if ($database === null || $id === null) {
+                return false;
+            }
+            $statement = $database->prepare('SELECT COUNT(*) FROM `' . $table . '` WHERE id = ?');
+            $statement->execute([$id]);
+            return (int) $statement->fetchColumn() === 1;
+        };
+        $check($logIds['sembrado'] !== null && !$exists(LogsMapper::TABLE, $logIds['sembrado']) && $exists(LogsMapper::TABLE, $logIds['ajeno']), '2h el limpiado borra el registro de acciones de un usuario sembrado y deja el de otro usuario', (string) json_encode($logIds));
+        $check($timeIds['sembrado'] !== null && !$exists(TimeOnPlatformModel::TABLE, $timeIds['sembrado']) && $exists(TimeOnPlatformModel::TABLE, $timeIds['ajeno']), '2i y lo mismo con el tiempo en la plataforma', (string) json_encode($timeIds));
         $check($seededTotal() === 0, '2c no queda ninguna fila con el prefijo en las tablas sembradas');
         $left = $seededFolders();
         $removed = array_filter($cleanedFolders ?? [], static fn (array $f): bool => $f['status'] === SeedPlanner::FOLDER_REMOVED);
         $check(count($left) === 0 && count($removed) === count($folders), '2d no queda ninguna carpeta zz-siembra-* en las ' . count($bases) . ' bases, y el limpiado dice cada una', count($left) . ' quedan; ' . count($removed) . ' borradas de ' . count($folders));
         $removedRows = array_sum(array_map(static fn (array $table): int => count($table['ids']), $report));
-        $check($removedRows >= $count * count($ordered) + $expectedApprovals,'2e el limpiado enumera lo que borró, aprobaciones incluidas', "{$removedRows} fila(s)");
+        $check($removedRows >= $count * count($ordered) + $expectedApprovals, '2e el limpiado enumera lo que borró, aprobaciones incluidas', "{$removedRows} fila(s)");
         $again = SeedPlanner::clean($ordered);
         $check(array_sum(array_map(static fn (array $t): int => count($t['ids']), $again)) === 0, '2f limpiar sin nada sembrado no borra nada y no falla');
         $check($foreignMeta() === $foreignBefore, '2g el meta de las organizaciones no sembradas sigue igual tras limpiar');
@@ -280,6 +311,22 @@ CliActions::make('unit-tests:core/seed-round-trip', function ($args) {
     echoTerminal(' ');
 
     echoTerminal('[z] Limpieza');
+    //Las filas de actividad de la suite, antes de limpiar: si el limpiado no supiera borrar las del sembrado, pararía
+    //aquí también.
+    if ($database !== null) {
+        $deleteLog = $database->prepare('DELETE FROM `' . LogsMapper::TABLE . '` WHERE id = ? AND textMessage = ?');
+        $deleteTime = $database->prepare('DELETE FROM `' . TimeOnPlatformModel::TABLE . '` WHERE id = ? AND minutes = ?');
+        foreach ($logIds as $key => $id) {
+            if ($id !== null) {
+                $deleteLog->execute([$id, ModuleSeeder::PREFIX . 'registro-' . $key]);
+            }
+        }
+        foreach ($timeIds as $id) {
+            if ($id !== null) {
+                $deleteTime->execute([$id, $timeMarker]);
+            }
+        }
+    }
     $leftRows = $seededTotal();
     if ($leftRows > 0) {
         try {

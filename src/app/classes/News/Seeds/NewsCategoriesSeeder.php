@@ -28,6 +28,11 @@ class NewsCategoriesSeeder extends ModuleSeeder
         return NewsCategoryMapper::class;
     }
 
+    /**
+     * Un color por categoría sembrada, para distinguirlas en el panel.
+     */
+    const COLORS = ['#3558A2', '#2E8B57', '#C0392B', '#D68910', '#7D3C98'];
+
     public function markerColumn(): string
     {
         return 'name';
@@ -48,7 +53,7 @@ class NewsCategoriesSeeder extends ModuleSeeder
         return [
             'name' => $this->text('categoria-noticia', $index),
             'iconImage' => NewsCategoryMapper::DEFAULT_ICON,
-            'color' => NewsCategoryMapper::DEFAULT_COLOR,
+            'color' => self::COLORS[$index % count(self::COLORS)],
         ];
     }
 

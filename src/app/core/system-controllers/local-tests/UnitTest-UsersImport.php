@@ -4,14 +4,14 @@
 //Escribe usuarios zz-prueba-imp-* y sus perfiles, y los borra en el finally: db-backup antes.
 //@areas src/app/classes/DataImportExportUtility/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\DataTransfer\Import\ImportReport;
 use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
 use PiecesPHP\Core\DataTransfer\Source\ArrayRowSource;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 CliActions::make('unit-tests:core/users-import', function ($args) {
@@ -247,7 +247,6 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
         }
         $exento = $usuariosDelPrefijo("{$prefijo}-tr1");
         $check($errorExento === null && count($exento) === 1 && $exento[0]->organization === null, 'b5 un tipo exento se guarda sin organización y sin quejarse', $errorExento !== null ? get_class($errorExento) . ': ' . mb_substr($errorExento->getMessage(), 0, 120) : 'organización ' . var_export(count($exento) === 1 ? $exento[0]->organization : 'sin fila', true));
-
 
         //b6: la exportación nombra la organización por su código, y su archivo se reimporta sin tocarlo. Las etiquetas
         //y los valores son los del archivo —eso lo prueba core/data-transfer-export—, sin depender del formato.

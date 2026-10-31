@@ -14,10 +14,10 @@ $withImage = true;
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'title' => __($langGroup, 'Prueba del recortador'),
-            'description' => __($langGroup, 'Los dos recortadores del panel, en la página y en una ventana.'),
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'title' => __($langGroup, 'Prueba del recortador'),
+                'description' => __($langGroup, 'Los dos recortadores del panel, en la página y en una ventana.'),
+            ]);
         ?>
 
         <form class="ui form" test-cropper>
@@ -29,32 +29,32 @@ $withImage = true;
                 </div>
 
                 <?php cropperAdapterWorkSpace([
-                    'referenceW' => '400',
-                    'referenceH' => '300',
-                    'image' => $withImage ? 'statics/images/logo.png' : '',
+                        'referenceW' => '400',
+                        'referenceH' => '300',
+                        'image' => $withImage ? 'statics/images/logo.png' : '',
                 ]); ?>
 
             </div>
             <br>
             <div class="field">
-                <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Probar'); ?></button>
+                <button type="submit" class="ui primary button"><?= __($langGroup, 'Probar'); ?></button>
             </div>
         </form>
 
         <?php simpleCropperAdapterWorkSpace([
-            'selectorAttr' => 'simple-cropper',
-            'referenceW' => '400',
-            'referenceH' => '300',
-            'image' => $withImage ? 'statics/images/logo.png' : '',
+                'selectorAttr' => 'simple-cropper',
+                'referenceW' => '400',
+                'referenceH' => '300',
+                'image' => $withImage ? 'statics/images/logo.png' : '',
         ]); ?>
 
         <div class="ui modal cropper-test">
             <div class="content">
                 <?php simpleCropperAdapterWorkSpace([
-                    'selectorAttr' => 'simple-cropper-modal',
-                    'referenceW' => '400',
-                    'referenceH' => '300',
-                    'image' => $withImage ? baseurl('img-gen/1920/1080') : '',
+                        'selectorAttr' => 'simple-cropper-modal',
+                        'referenceW' => '400',
+                        'referenceH' => '300',
+                        'image' => $withImage ? baseurl('img-gen/1920/1080') : '',
                 ]); ?>
             </div>
         </div>

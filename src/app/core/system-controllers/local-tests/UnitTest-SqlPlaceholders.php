@@ -1,6 +1,14 @@
 <?php
 
 //El valor de una búsqueda viaja como DATO, no como SQL. Ver T150 y la LEY 24.
+//@areas src/app/classes/Directory/
+//@areas src/app/classes/Documents/
+//@areas src/app/classes/Forms/
+//@areas src/app/classes/News/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -575,7 +583,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 13. La dirección de `custom_order` ────────────────────────────────────────────
-    echoTerminal('[13/20]La dirección de `custom_order` se normaliza a ASC o DESC');
+    echoTerminal('[13/20]La dirección de `custom_order` se normaliza a ASC o DESC, y su desempate no se pierde');
 
     //Sin la normalización, la dirección de `custom_order` entra en el ORDER BY tal cual: es
     //SQL de quien la escriba. `$table = ''` evita depender de `setTablePrefixOnOrder()`.
@@ -586,6 +594,20 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         ['DESC', 'id DESC', '`DESC` se queda como `DESC`'],
     ] as [$direccion, $esperado, $nombre]) {
         $obtenido = $ordenar->invokeArgs(null, [[], null, ['id' => $direccion], '']);
+        $check($obtenido === $esperado, "custom_order: {$nombre}", 'obtenido: ' . var_export($obtenido, true));
+    }
+
+    //El desempate se da por puesto solo si su columna ya ordena, por nombre exacto: como subcadena, `id` se perdía al
+    //ordenar por `userId` y la paginación repetía o saltaba filas (G7-12).
+    $columnas = ['userId', 'paid', 'tbl.id', 'dateFormat'];
+    foreach ([
+        [0, ['id' => 'DESC'], 'userId ASC,id DESC', 'ordenar por `userId` conserva el desempate por `id`'],
+        [1, ['id' => 'DESC'], 'paid ASC,id DESC', 'ordenar por `paid` conserva el desempate por `id`'],
+        [2, ['id' => 'DESC'], 'tbl.id ASC', 'ordenar por `tbl.id` no duplica el desempate por `id`'],
+        [2, ['tbl.id' => 'DESC'], 'tbl.id ASC', 'ordenar por `tbl.id` no duplica el desempate por `tbl.id`'],
+        [3, ['date' => 'DESC'], 'dateFormat ASC,date DESC', 'ordenar por `dateFormat` conserva el desempate por `date`'],
+    ] as [$columna, $desempate, $esperado, $nombre]) {
+        $obtenido = $ordenar->invokeArgs(null, [$columnas, [['column' => $columna, 'dir' => 'asc']], $desempate, '']);
         $check($obtenido === $esperado, "custom_order: {$nombre}", 'obtenido: ' . var_export($obtenido, true));
     }
     echoTerminal(' ');
@@ -805,7 +827,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         implode(', ', $llamadas));
     echoTerminal(' ');
 
-    //──── 16. Las etiquetas del SERVIDOR en literal hexadecimal (ADR 0009, T2 de #040) 
+    //──── 16. Las etiquetas del SERVIDOR en literal hexadecimal (ADR 0009, T2 de #040)
     echoTerminal('[16/20]sqlStringLiteral(): las etiquetas del SERVIDOR entran en el SELECT sin depender de sql_mode');
 
     //Un SELECT sin tabla evalúa la expresión tal como sale de fieldsToSelect(), sin tocar sql_mode.

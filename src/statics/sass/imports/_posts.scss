@@ -1,6 +1,7 @@
 @use 'sass:meta';
 @use 'variables' as *;
 @use 'functions' as *;
+
 #{$parentSelector} .posts-list {
 
     .ui.card {

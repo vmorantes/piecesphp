@@ -95,21 +95,40 @@ class PersonsGeoSource implements GeoSource
      */
     public function filters(): array
     {
-        $model = OrganizationMapper::model();
-        $model->select(OrganizationMapper::fieldsToSelect());
-        $model->having(GeoSourceSql::addIds(new HavingSegment([
-            new HavingItem('id', HavingItem::NOT_EQUAL_OPERATOR, OrganizationMapper::INITIAL_ID_GLOBAL, HavingItem::AND_OPERATOR),
-        ]), 'status', [OrganizationMapper::ACTIVE, OrganizationMapper::PENDING_APPROVAL]));
-        $model->orderBy('name ASC');
-        $model->execute();
-        $options = [];
-        foreach ($model->result() ?? [] as $row) {
-            $options[(int) $row->id] = (string) $row->name;
-        }
         return [
             new GeoFilter(self::FILTER_SEARCH, __(DirectoryLang::LANG_GROUP, 'Buscar'), GeoFilter::TYPE_TEXT),
-            new GeoFilter(self::FILTER_ORGANIZATIONS, __(DirectoryLang::LANG_GROUP, 'Organizaciones'), GeoFilter::TYPE_OPTIONS, $options),
+            new GeoFilter(self::FILTER_ORGANIZATIONS, __(DirectoryLang::LANG_GROUP, 'Organizaciones'), GeoFilter::TYPE_REMOTE_OPTIONS),
         ];
+    }
+
+    /**
+     * Las organizaciones a las que puede pertenecer una persona del mapa: ni la global ni una inactiva o eliminada.
+     *
+     * @param string $key
+     * @param string $search
+     * @param int $limit
+     * @return array<string|int,string>
+     */
+    public function filterOptions(string $key, string $search, int $limit): array
+    {
+        if ($key !== self::FILTER_ORGANIZATIONS) {
+            return [];
+        }
+        $having = GeoSourceSql::addIds(new HavingSegment([
+            new HavingItem('id', HavingItem::NOT_EQUAL_OPERATOR, OrganizationMapper::INITIAL_ID_GLOBAL, HavingItem::AND_OPERATOR),
+        ]), 'status', [OrganizationMapper::ACTIVE, OrganizationMapper::PENDING_APPROVAL]);
+        if ($search !== '') {
+            GeoSourceSql::addSearch($having, ['name'], $search);
+        }
+        $model = OrganizationMapper::model();
+        $model->select(OrganizationMapper::fieldsToSelect());
+        $model->having($having);
+        [, $rows] = GeoSourceSql::countAndFetch($model, 'name ASC', $limit);
+        $options = [];
+        foreach ($rows as $row) {
+            $options[(int) $row['id']] = (string) $row['name'];
+        }
+        return $options;
     }
 
     /**

@@ -300,6 +300,10 @@ Ambos métodos vienen de `ActiveRecordModel`. Hay un caso real en
 - **`recordsTotal` cuenta con los filtros FIJOS** (`where_*`, `having_*`, su `group_string` y el modelo de
   `on_set_model`) y sin la búsqueda; `recordsFiltered`, con todo. Un listado nuevo pone su alcance (organización,
   usuario, estado) en esas opciones, no en `config_result_model`, que ninguno de los dos totales ve.
+- **`on_set_model` y `config_result_model` fallan cerrados** (IP, `e786dd28`): null deja la consulta, un `ActiveRecord`
+  la sustituye, lo demás lanza (`DataTablesHelper::modelFromCallable()`). El modelo de un listado es `ActiveRecordModel`
+  (`EntityMapper::getModel()`), no `BaseModel`: los `@var BaseModel` de `process()` mienten. Comprobar «es un
+  `BaseModel`» rompe el callable normal (`fn ($m) => $m->where(...)`).
 - **Trampa del paquete `database`:** `HavingSegment::toString()` **muta** los grupos (`withAfterOperator(false)` en el
   último). Compilar un clon del segmento antes que el original le quita al original el `AND` con la búsqueda. Por eso
   el total se calcula EL ÚLTIMO en `process()`.

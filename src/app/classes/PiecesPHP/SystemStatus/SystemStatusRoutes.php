@@ -8,24 +8,26 @@ namespace PiecesPHP\SystemStatus;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Crypto\AppKeyring;
-use PiecesPHP\Core\ConfigHelpers\MailConfig;
-use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Backups\BackupRotation;
-use PiecesPHP\Core\Routing\InvalidRoutes;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Crypto\AppKeyring;
+use PiecesPHP\Core\Email\MailDelivery;
+use PiecesPHP\Core\MaintenanceMode;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\InvalidRoutes;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\Terminal\TaskRunMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * SystemStatusRoutes - Avisos del sistema y mantenimiento: rutas, estáticos y los avisos que trae el núcleo.
@@ -44,20 +46,97 @@ class SystemStatusRoutes
     private static $coreAlertsRegistered = false;
 
     /**
+     * @var bool
+     */
+    private static $coreCleanTargetsRegistered = false;
+
+    /**
      * @param RouteGroup $groupAdministration
      * @return RouteGroup
      */
     public static function routes(RouteGroup $groupAdministration)
     {
+        //Las opciones que guarda (ADR 0055); fuera del if, porque las filas se leen aunque el módulo esté apagado.
+        ConfigOptions::declare(MaintenanceMode::ENABLED_CONFIG, MaintenanceMode::class, ConfigOptions::SHAPE_BOOL);
+        ConfigOptions::declare(MaintenanceMode::ALLOWED_ROLES_CONFIG, MaintenanceMode::class, ConfigOptions::SHAPE_JSON);
+        ConfigOptions::declare(MaintenanceMode::RETRY_AFTER_CONFIG, MaintenanceMode::class, ConfigOptions::SHAPE_INTEGER);
+        ConfigOptions::declare(SystemAlertRegistry::HIDDEN_CONFIG, SystemAlertRegistry::class, ConfigOptions::SHAPE_JSON);
         if (self::ENABLE) {
             //Antes de registrar los avisos: sus rótulos se traducen al registrarse.
             SystemStatusLang::injectLang();
             self::registerCoreAlerts();
+            self::registerCoreCleanTargets();
             $groupAdministration = SystemStatusController::routes($groupAdministration);
             SystemStatusController::registerLogTab();
             self::staticResolver($groupAdministration);
         }
         return $groupAdministration;
+    }
+
+    /**
+     * Las limpiezas del núcleo de «Estado y cachés». Un módulo con caché propia registra la suya igual, desde su Routes
+     * (Publications, los listados guardados). `position` ordena los botones y la de `withRow()`, las filas.
+     *
+     * @return void
+     */
+    public static function registerCoreCleanTargets(): void
+    {
+        if (self::$coreCleanTargetsRegistered) {
+            return;
+        }
+        self::$coreCleanTargetsRegistered = true;
+        $lang = SystemStatusController::LANG_GROUP;
+
+        CleanTargetRegistry::register((new CleanTarget(
+            'statics-stamp',
+            fn (): string => __($lang, 'Forzar que todos descarguen de nuevo los archivos estáticos'),
+            fn (): string => __($lang, '¿Seguro? Todos los visitantes volverán a descargar los estilos, los scripts y las imágenes de las páginas.'),
+            [SystemStatusController::class, 'cleanStaticsStamp'],
+            10
+        ))->withRow(
+            40,
+            fn (): string => __($lang, 'Versión de los archivos estáticos'),
+            CleanTarget::UNIT_STAMP,
+            ['staticsStamp'],
+            fn (): array => ['staticsStamp' => (string) static_files_cache_stamp()],
+            fn (): string => __($lang, 'Estilos, scripts e imágenes de las páginas (no las imágenes que cargan las hojas de estilo, las que pone el JavaScript ni las del correo)'),
+            'sync'
+        ));
+
+        CleanTargetRegistry::register((new CleanTarget(
+            'webp-cache',
+            fn (): string => __($lang, 'Borrar imágenes optimizadas'),
+            fn (): string => __($lang, '¿Borrar las imágenes optimizadas? Se vuelven a crear la primera vez que se pida cada una.'),
+            fn (): array => SystemStatusController::cleanCacheDirectory(
+                basepath(ServerStatics::WEBP_CACHE_DIRECTORY),
+                __($lang, 'No se pudieron borrar las imágenes optimizadas: el sistema no tiene permiso sobre su carpeta.'),
+                __($lang, 'Imágenes optimizadas borradas. Se vuelven a crear al pedirse.')
+            ),
+            20
+        ))->withRow(
+            20,
+            fn (): string => __($lang, 'Imágenes optimizadas'),
+            CleanTarget::UNIT_BYTES,
+            ['webpCacheBytes'],
+            fn (): array => ['webpCacheBytes' => ServerDelegatedLinks::directorySize(basepath(ServerStatics::WEBP_CACHE_DIRECTORY))],
+            icon: 'images'
+        ));
+
+        CleanTargetRegistry::register((new CleanTarget(
+            'server-delegated-links',
+            fn (): string => __($lang, 'Borrar todos los accesos directos'),
+            fn (): string => __($lang, '¿Borrar todos los accesos directos, no solo los rotos? Se vuelven a crear al pedirse cada archivo.'),
+            [SystemStatusController::class, 'cleanServerDelegatedLinks'],
+            40
+        ))->withRow(
+            10,
+            fn (): string => __($lang, 'Todos los accesos directos'),
+            CleanTarget::UNIT_NUMBER,
+            //Los rotos tienen su fila fija en la vista (maintenance.php), con su ruta y su respuesta.
+            ['linksTotal'],
+            [SystemStatusController::class, 'linksStatus'],
+            icon: 'linkify'
+        ));
     }
 
     /**
@@ -330,13 +409,13 @@ class SystemStatusRoutes
         SystemAlertRegistry::register(new SystemAlert(
             'mapbox-key-missing',
             SystemAlert::SEVERITY_WARNING,
-            fn() => __(SystemStatusController::LANG_GROUP, 'No hay llave de MapBox para este entorno: los mapas del panel no cargan. Configúrela en Integraciones › Llaves de MapBox.'),
+            fn() => __(SystemStatusController::LANG_GROUP, 'No hay llave de MapBox para este entorno: los mapas del panel no cargan. Configúrela en Configuración › Sistema › Llaves de Mapas.'),
             fn() => self::mapboxKeyMissing(GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS), is_local()),
             true,
             [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL],
             true,
             'helpers-system-generic-content-admin-forms-mapbox-keys',
-            __(SystemStatusController::LANG_GROUP, 'Llaves de MapBox')
+            __(SystemStatusController::LANG_GROUP, 'Llaves de Mapas')
         ));
     }
 

@@ -1,8 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Controller\PublicAreaController;
-use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuItem;
 $menusItems = [
     new MenuGroup([

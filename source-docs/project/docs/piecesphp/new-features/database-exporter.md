@@ -73,6 +73,67 @@ if (file_exists($outputPlugin->getFilename())) {
 
 ---
 
+## 🎚️ Todas las opciones de `export()`
+
+`export()` mezcla lo que le pasas con estos valores por omisión (`Exporter::export()`), así que solo hay que declarar
+lo que se quiera cambiar. Una clave que no esté en la tabla se ignora.
+
+| Opción | Tipo | Por omisión | Efecto |
+| :--- | :--- | :--- | :--- |
+| `tables` | `string[]` | `[]` (todas) | Tablas y vistas a exportar. Vacío: todas las de la base. |
+| `exclude_tables` | `string[]` | `[]` | Se quitan de `tables`. |
+| `table_style` | `TableStyle` o `string` | `'DROP+CREATE'` | `'DROP+CREATE'` antepone `DROP TABLE IF EXISTS`; `'CREATE'` solo crea. |
+| `data_style` | `DataStyle` o `string` | `'INSERT'` | `'INSERT'`, `'REPLACE'` o `'TRUNCATE+INSERT'` (vacía la tabla antes de insertar). |
+| `auto_increment` | `bool` | `true` | Con `false`, `SqlFormat` quita el ` AUTO_INCREMENT=<n>` del `CREATE TABLE` (el contador de la tabla; la columna sigue siendo autoincremental). No afecta a las vistas. |
+| `triggers` | `bool` | `true` | Incluye los disparadores de cada tabla. |
+| `routines` | `bool` | `true` | Incluye funciones y procedimientos, antes de las tablas. |
+| `remove_definer` | `bool` | `true` | Quita `DEFINER=…` de tablas, vistas, rutinas y disparadores (y `SQL SECURITY DEFINER` de las vistas). |
+| `drop_if_exists_on_functions` | `bool` | `false` | Con `true`, `SqlFormat` escribe `DROP FUNCTION IF EXISTS` o `DROP PROCEDURE IF EXISTS` antes de cada rutina. Solo tiene efecto con `routines` en `true`. |
+| `create_if_not_exists` | `bool` | `true` | Con `true`, `SqlFormat` escribe `CREATE TABLE IF NOT EXISTS`. No toca las vistas. |
+| `include_data` | `bool` | `true` | Con `false`, solo la estructura. |
+| `include_views` | `bool` | `true` | Con `false`, las vistas se descartan de la lista. |
+| `single_transaction` | `bool` | `true` | Lee todo dentro de una transacción `REPEATABLE READ` (y `READ ONLY` si el servidor lo admite). |
+| `filename` | `string` | según el plugin de salida | Lo leen los plugins de archivo: `FileOutput` y `GzipFileOutput` usan `export.sql` si falta; `ZipFileOutput` y `Bz2FileOutput`, `database.sql`. |
+| `where` | `array<string,string>` | `[]` | Condición por tabla (ver más abajo). |
+| `transformations` | `array<string,array<string,callable>>` | `[]` | Closure por tabla y columna (ver más abajo). |
+| `hex_blob` | `bool` | `true` | Cómo salen los datos binarios; ver abajo. |
+
+**Las tres que más se echan en falta al restaurar sobre una base que ya tiene cosas:**
+
+- **`drop_if_exists_on_functions`.** Por omisión el volcado hace `CREATE FUNCTION`/`CREATE PROCEDURE` a secas: si la
+  rutina ya existe en la base destino, el servidor rechaza la sentencia. Con `true` cada rutina va precedida de su
+  `DROP … IF EXISTS`. Con `routines => false` no hay rutinas y la opción no hace nada.
+- **`create_if_not_exists`.** Vale `true` aunque no lo escribas. Con `table_style => 'DROP+CREATE'` el volcado trae
+  `DROP TABLE IF EXISTS` y luego `CREATE TABLE IF NOT EXISTS`; con `table_style => 'CREATE'` y la tabla ya presente, el
+  `CREATE` no hace nada y los `INSERT` se aplican sobre lo que había. Ponlo en `false` si prefieres que un `CREATE TABLE`
+  sobre una tabla existente falle en voz alta.
+- **`auto_increment`.** Con `false` el volcado no arrastra el valor actual del contador, útil para un respaldo que
+  viaja a otra base y no debe heredar la numeración.
+
+**`hex_blob` actúa distinto según el formato:**
+
+| Formato | Con `hex_blob => true` (por omisión) |
+| :--- | :--- |
+| `SqlFormat` | Las columnas de tipo `binary`, `varbinary` o `blob` (y derivados) salen como literal `0x<hex>`. |
+| `XmlFormat` | Igual: se decide por el tipo de la columna. |
+| `JsonFormat`, `CsvFormat`, `PhpFormat` | Todo valor de texto que **no sea UTF-8 válido** sale como `"0x<hex>"`. |
+
+Con `false` esa conversión no se hace. En `SqlFormat` los binarios pasan entonces por `quote()` de PDO como cualquier
+texto; en `JsonFormat`, `CsvFormat` y `PhpFormat` el valor se escribe tal cual, aunque no sea UTF-8 válido.
+
+```php
+// Un respaldo de estructura y datos pensado para restaurar encima de una base que ya existe
+$exporter->export([
+    'filename' => basepath('dumps/restaurable.sql'),
+    'drop_if_exists_on_functions' => true, // DROP … IF EXISTS antes de cada función y procedimiento
+    'create_if_not_exists' => true,        // CREATE TABLE IF NOT EXISTS
+    'auto_increment' => false,             // sin el contador de cada tabla
+    'hex_blob' => true,                    // binarios como 0x…
+]);
+```
+
+---
+
 ## 🔒 Filtros Avanzados (Transformaciones y Exclusiones)
 
 Una de las principales ventajas funcionales de la librería nativa es la capacidad de modificar los datos **durante la lectura**, antes de que se escriban en el dump (muy útil para pseudo-anonimizar u ocultar secretos empresariales al mandar respaldos de producción a desarrollo).
@@ -99,7 +160,7 @@ $exporter->export([
 ### Mutaciones en tiempo real (`transformations`)
 Puedes enviar un closure para transformar el valor de una columna antes de serializarlo. Se indexa por tabla y luego por columna, y el closure recibe el valor y el nombre de la columna. Úsalo, por ejemplo, para ocultar datos sensibles al llevar un respaldo de producción a desarrollo.
 
-Para anonimizar, **sustituye** el valor por uno fijo o derivado sin retorno posible. `BaseHashEncryption::encrypt()` no sirve para esto: es **reversible** (existe `BaseHashEncryption::decrypt()`, y con la misma llave se recupera el original).
+Para anonimizar, **sustituye** el valor por uno fijo o derivado sin retorno posible. `BaseHashEncryption::encryptBidirectionalHash()` no sirve para esto: es **reversible** (con la misma llave, `BaseHashEncryption::decryptBidirectionalHash()` recupera el original), y `BaseHashEncryption::obfuscate()` tampoco.
 
 ```php
 use PiecesPHP\UserSystem\ORM\UsersModel;

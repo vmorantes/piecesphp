@@ -2,9 +2,10 @@
 
 //P37: las dos altas por API que SALEN BIEN. Un alta exitosa ENVÍA CORREO dentro del flujo (`APIController`,
 //§«Envío de correo»), así que esta mitad declara `email` y sale de `gates`. 309.
+//@areas src/app/classes/API/
+//@areas src/app/classes/Organizations/
 
 use API\Controllers\APIController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -14,6 +15,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -81,7 +83,13 @@ CliActions::make('unit-tests:core/api-register-mail', function ($args) {
             'phoneCode' => '+57',
             'phoneNumber' => '3000000000',
         ], $extra);
-        $respuesta = (new APIController())->usersActions($peticion($cuerpo), new ResponseRoute());
+        $controlador = new class extends APIController {
+            protected static function publicSignupEnabled(): bool
+            {
+                return true;
+            }
+        };
+        $respuesta = $controlador->usersActions($peticion($cuerpo), new ResponseRoute());
         $texto = (string) $respuesta->getBody();
         return [json_decode($texto, true), $texto];
     };

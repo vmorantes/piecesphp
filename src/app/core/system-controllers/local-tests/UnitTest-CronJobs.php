@@ -1,6 +1,7 @@
 <?php
 
 //El cron: franjas, reintentos, ventana, bloqueo y estado, y la clave de la ruta HTTP. Solo tareas SINTÉTICAS.
+//@areas src/app/classes/API/
 
 use API\Controllers\APIController;
 use PiecesPHP\Terminal\CliActions;
@@ -165,7 +166,44 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($clave->invoke(null, null, '') === false, 'clave no configurada (null) → 403');
     $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', 'clave-de-prueba-de-esta-suite') === true, 'DISCRIMINANTE: la cabecera correcta pasa');
     $check($clave->invoke(null, 'clave-de-prueba-de-esta-suite', 'otra') === false, 'otra cabecera → 403');
-    $check($clave->getNumberOfParameters() === 2, 'la llave solo por cabecera: el método no recibe el parámetro de consulta');
+    //POR TOKENS sobre cronJobs(), que es quien elige de dónde sale la llave: cronJobKeyAccepted() no recibe la petición
+    //y contar sus parámetros no veía que el llamador le pasara la consulta.
+    $reflejoCron = new \ReflectionMethod(APIController::class, 'cronJobs');
+    $lineasCron = file((string) $reflejoCron->getFileName());
+    $cuerpoCron = implode('', array_slice(is_array($lineasCron) ? $lineasCron : [], $reflejoCron->getStartLine() - 1, $reflejoCron->getEndLine() - $reflejoCron->getStartLine() + 1));
+    $tokensCron = array_values(array_filter(token_get_all('<?php ' . $cuerpoCron), fn($t) => !is_array($t) || !in_array($t[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT, \T_OPEN_TAG], true)));
+    $textoCron = fn($t) => is_array($t) ? $t[1] : $t;
+    $leeConsulta = [];
+    $segundoArgumento = null;
+    foreach ($tokensCron as $i => $t) {
+        $previo = $tokensCron[$i - 1] ?? null;
+        if (!is_array($t) || $t[0] !== \T_STRING || !is_array($previo) || !in_array($previo[0], [\T_OBJECT_OPERATOR, \T_NULLSAFE_OBJECT_OPERATOR, \T_DOUBLE_COLON], true)) {
+            continue;
+        }
+        if (in_array($t[1], ['getQueryParam', 'getQueryParams', 'getParam'], true)) {
+            $leeConsulta[] = $t[1] . ' en :' . ($reflejoCron->getStartLine() - 1 + $t[2]);
+        }
+        if ($t[1] === 'cronJobKeyAccepted' && $segundoArgumento === null) {
+            //Lo que va entre la coma de primer nivel y el paréntesis que cierra esta llamada.
+            $nivel = 0;
+            $comas = 0;
+            $segundoArgumento = '';
+            for ($k = $i + 1; $k < count($tokensCron); $k++) {
+                $s = $textoCron($tokensCron[$k]);
+                $nivel += (int) in_array($s, ['(', '[', '{'], true) - (int) in_array($s, [')', ']', '}'], true);
+                if ($nivel === 0) {
+                    break;
+                }
+                if ($nivel === 1 && $s === ',') {
+                    $comas++;
+                } elseif ($comas === 1 && !($nivel === 1 && $s === '(')) {
+                    $segundoArgumento .= $s;
+                }
+            }
+        }
+    }
+    $check($leeConsulta === [], 'cronJobs() no lee la consulta: ni getQueryParam, ni getQueryParams, ni getParam', implode(', ', $leeConsulta));
+    $check($segundoArgumento === "\$request->getHeaderLine('Cron-Job-Key')", 'cronJobs() pasa a cronJobKeyAccepted como llave la cabecera Cron-Job-Key y nada más', (string) $segundoArgumento);
     echoTerminal(' ');
 
     //──── 6b. La identidad: estado y candado propios aunque los nombres se parezcan (P94) ───────

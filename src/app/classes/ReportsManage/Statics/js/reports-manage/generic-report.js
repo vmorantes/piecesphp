@@ -14,9 +14,9 @@ window.addEventListener('load', function () {
 
 		showGenericLoader('getDataConfig')
 
-		//Los colores de las series salen de las variables del tema y no del JSON (lo lee la API): ApexCharts pinta en SVG y no
-		//entiende var(), así que se resuelven aquí, y el mismo color va a la leyenda de cada torta.
-		const seriesColors = resolveColors(['var(--main-brand-color)', 'var(--second-brand-color)', 'var(--statistics-disabled-color, gray)'])
+		//Las series son la paleta de datos del tema (--data-*), no el JSON: ApexCharts no entiende var() ni light-dark(), así
+		//que una sonda los resuelve aquí, y el mismo color va a la leyenda de cada torta.
+		const seriesColors = resolveColors(['var(--data-1)', 'var(--data-2)', 'var(--statistics-disabled-color, gray)'])
 
 		const elementsToFill = [
 			{
@@ -74,8 +74,9 @@ window.addEventListener('load', function () {
 			}
 		})
 
-		//Datos entrantes
-		fetch(new URL('core/api/reports/get-generic-data', pcsphpGlobals.baseURL)).then((response) => response.json()).then(function (response) {
+		//Datos entrantes: la URL la da la vista (data-generic-data-url, con routeName()), no se arma aquí.
+		const dataURL = document.querySelector('[data-generic-data-url]').dataset.genericDataUrl
+		fetch(dataURL).then((response) => response.json()).then(function (response) {
 			for (const elementToFill of elementsToFill) {
 				const value = elementToFill.getValueFromSource(response)
 				elementToFill.fill(value)
@@ -158,7 +159,7 @@ window.addEventListener('load', function () {
 				},
 				style: {
 					fontSize: style.fontSize,
-					fontFamily: style.fontFamily,
+					fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-body').trim(),
 					fontWeight: style.fontWeight,
 					colors: hasData ? style.colors : [emptyColor]
 				},

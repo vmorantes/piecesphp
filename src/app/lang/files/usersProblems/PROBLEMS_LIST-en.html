@@ -1,69 +1,59 @@
-<section class="problems-container" style="background-image: url(${backgroundURL});">
-    <a href="${loginLink}" class="back-action">
-        <i class="arrow left icon"></i>
-        Back
+<div class="ui vertical very relaxed flex">
+    <div>
+        <a href="${loginLink}"><small class="ui muted text"><i class="arrow left icon" aria-hidden="true"></i><b>Back to log in</b></small></a>
+    </div>
+    <h1 class="ui large header">Help to log in
+        <div class="sub header">Choose the option that best describes your situation.</div>
+    </h1>
+</div>
+<div class="ui hidden divider"></div>
+<nav class="ui one tight link cards" aria-label="Help to log in">
+    <a class="card" href="#" recovery-user-name>
+        <div class="content">
+            <div class="ui nowrap very relaxed flex">
+                <i class="primary bordered id card icon" aria-hidden="true"></i>
+                <div class="fluid ui small header">Recover user<div class="sub header">We will send your username to your registered email.</div></div>
+                <i class="grey chevron right icon" aria-hidden="true"></i>
+            </div>
+        </div>
     </a>
-    <main class="body">
-        <div class="header">
-            <h2>
-                HELP TO ENTER
-            </h2>
+    <a class="card" href="#" recovery-user-pass>
+        <div class="content">
+            <div class="ui nowrap very relaxed flex">
+                <i class="primary bordered user lock icon" aria-hidden="true"></i>
+                <div class="fluid ui small header">Reset password<div class="sub header">Create a new password with a secure link.</div></div>
+                <i class="grey chevron right icon" aria-hidden="true"></i>
+            </div>
         </div>
-        <section class="options">
-            <div recovery-user-name class="item">
-                <div class="image-container">
-                    <img src="statics/login-and-recovery/images/problems/icons/remove-user.svg">
-                </div>
-                <span>
-                    Recover user
-                </span>
+    </a>
+    <a class="card" href="#" user-blocked>
+        <div class="content">
+            <div class="ui nowrap very relaxed flex">
+                <i class="primary bordered ban icon" aria-hidden="true"></i>
+                <div class="fluid ui small header">Blocked user<div class="sub header">Unblock your account with a code.</div></div>
+                <i class="grey chevron right icon" aria-hidden="true"></i>
             </div>
-            <div recovery-user-pass class="item">
-                <div class="image-container">
-                    <img src="statics/login-and-recovery/images/problems/icons/user-unlock.svg">
-                </div>
-                <span>
-                    Restore password
-                </span>
-            </div>
-            <div user-blocked class="item">
-                <div class="image-container">
-                    <img src="statics/login-and-recovery/images/problems/icons/delete-user.svg">
-                </div>
-                <span>
-                    User blocked
-                </span>
-            </div>
-            <div class="item" id="modalNoUserButton">
-                <div class="image-container">
-                    <img src="statics/login-and-recovery/images/problems/icons/user-slash.svg"">
-                </div>
-                <span>
-                    I don't have a user
-                </span>
-            </div>
-            <div other-problem-item class=" item">
-                    <div class="image-container">
-                        <img src="statics/login-and-recovery/images/problems/icons/user-gear.svg">
-                    </div>
-                    <span>
-                        Another problem
-                    </span>
-                </div>
-                <a href="${loginLink}" class="item">
-                    <div class="image-container">
-                        <img src="statics/login-and-recovery/images/problems/icons/address-card.svg">
-                    </div>
-                    <span>
-                        Log in
-                    </span>
-                </a>
-        </section>
-        <div class="footer">
-            ${partnersImage}
         </div>
-    </main>
-</section>
+    </a>
+    <a class="card" href="#" id="modalNoUserButton">
+        <div class="content">
+            <div class="ui nowrap very relaxed flex">
+                <i class="primary bordered user times icon" aria-hidden="true"></i>
+                <div class="fluid ui small header">I do not have a user<div class="sub header">How to request an account on the platform.</div></div>
+                <i class="grey chevron right icon" aria-hidden="true"></i>
+            </div>
+        </div>
+    </a>
+    <a class="card" href="#" other-problem-item>
+        <div class="content">
+            <div class="ui nowrap very relaxed flex">
+                <i class="primary bordered life ring icon" aria-hidden="true"></i>
+                <div class="fluid ui small header">Other problem<div class="sub header">Write to us and we will help you.</div></div>
+                <i class="grey chevron right icon" aria-hidden="true"></i>
+            </div>
+        </div>
+    </a>
+</nav>
 
 <div class="modal-no-user" id="modalNoUser">
     <div class="container-modals" id="backgrodund-modal">
@@ -109,7 +99,7 @@
                     STEP <span steps>1</span>
                 </h2>
 
-                <form steps-form class="ui form">
+                <form steps-form class="ui form initial">
 
                     <section class="steps">
 
@@ -198,7 +188,7 @@
                     STEP <span steps>1</span>
                 </h2>
 
-                <form class="ui form">
+                <form class="ui form initial">
 
                     <section class="steps">
 
@@ -279,7 +269,7 @@
                     STEP <span steps>1</span>
                 </h2>
 
-                <form class="ui form">
+                <form class="ui form initial">
 
                     <section class="steps">
 
@@ -356,7 +346,7 @@
         <div class="body-modal">
             <div class="content">
 
-                <form class="ui form">
+                <form class="ui form initial">
 
                     <section class="steps">
 

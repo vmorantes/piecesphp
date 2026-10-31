@@ -37,9 +37,9 @@ class PiecesPHPGenericHandlerSession {
 			JWT = ''
 		}
 		const attributes = `;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
-		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/${attributes}`;
-		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=${location.hostname}${attributes}`;
-		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=.${location.hostname}${attributes}`;
+		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/${attributes}`
+		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=${location.hostname}${attributes}`
+		document.cookie = `${this.tokenName}=${encodeURI(JWT)};path=/;domain=.${location.hostname}${attributes}`
 		localStorage.setItem(this.tokenName, encodeURI(JWT))
 	}
 
@@ -53,7 +53,8 @@ class PiecesPHPGenericHandlerSession {
 
 	deleteSession() {
 
-		let now = new Date().getTime()
+		//Una fecha pasada en formato de fecha: un número de milisegundos no lo es, y la cookie se quedaba.
+		const expired = new Date(0).toUTCString()
 		let JWT = this.getJWT()
 		let JWTFromCookie = this.getCookie(this.tokenName)
 		JWTFromCookie = typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : ''
@@ -62,9 +63,9 @@ class PiecesPHPGenericHandlerSession {
 
 		if (JWT.length > 0) {
 			const attributes = `;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
-			document.cookie = `${this.tokenName}=;expires=${now};path=/${attributes}`;
-			document.cookie = `${this.tokenName}=;expires=${now};path=/;domain=${location.hostname}${attributes}`;
-			document.cookie = `${this.tokenName}=;expires=${now};path=/;domain=.${location.hostname}${attributes}`;
+			document.cookie = `${this.tokenName}=;expires=${expired};path=/${attributes}`
+			document.cookie = `${this.tokenName}=;expires=${expired};path=/;domain=${location.hostname}${attributes}`
+			document.cookie = `${this.tokenName}=;expires=${expired};path=/;domain=.${location.hostname}${attributes}`
 			localStorage.removeItem(this.tokenName)
 			window.location.reload()
 		}

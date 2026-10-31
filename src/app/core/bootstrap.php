@@ -166,8 +166,8 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
 
     //Manejos de excepciones
     if (
-        $exception instanceof \ErrorException  ||
-        $exception instanceof \Exception  ||
+        $exception instanceof \ErrorException ||
+        $exception instanceof \Exception ||
         $exception instanceof \ClosedGeneratorException
     ) {
         ($stopAndShowError)($exception, $request);
@@ -212,11 +212,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v9.0.0');
+    define('APP_VERSION', 'v10.0.0');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-10-23'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-10-30'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];

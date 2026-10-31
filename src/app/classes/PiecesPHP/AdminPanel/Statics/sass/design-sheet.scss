@@ -5,20 +5,38 @@ $codeBlockBackground: rgba(0, 0, 0, 0.04);
 
 //-------- La hoja de diseño (AdminPanel/Views/panel/pages/design-sheet/): solo su armazón, el índice y el bloque de código. Los
 //ejemplos no llevan CSS propio: son las piezas y Fomantic.
-.design-sheet-index {
+.design-sheet-index-accordion {
 
-    //En escritorio el índice acompaña al desplazarse; apilado (por debajo de 992 px) va arriba y no tapa nada.
-    .#{$globalClassPcs} &.ui.menu {
+    //Plegado solo en el móvil: desde 768 px el título se oculta y el índice va abierto, como sin acordeón.
+    :is(.#{$globalClassPcs}, .admin-shell) &.ui.accordion {
+        @media only screen and (min-width: 768px) {
+            > .title {
+                display: none;
+            }
+
+            > .content,
+            > .content:not(.active) {
+                display: block;
+                padding: 0;
+            }
+        }
+
+        //En escritorio el índice acompaña al desplazarse; apilado (por debajo de 992 px) va arriba y no tapa nada. Con
+        //los ejemplos de cada sección no cabe en la pantalla: se desplaza dentro. Va en el acordeón y no en el menú: el
+        //sticky se queda en la caja de su padre, y el padre del menú es el contenido del acordeón, de su misma altura. Bajo
+        //la barra del shell, que también es sticky y mide 64 px desde 768.
         @media only screen and (min-width: 992px) {
             position: sticky;
-            top: 1rem;
+            top: calc(64px + 1rem);
+            max-height: calc(100vh - 64px - 2rem);
+            overflow-y: auto;
         }
     }
 }
 
 .design-sheet-code {
 
-    .#{$globalClassPcs} & {
+    :is(.#{$globalClassPcs}, .admin-shell) & {
         margin: 0 0 1rem 0;
         padding: 1rem;
         max-height: 24rem;
@@ -33,7 +51,7 @@ $codeBlockBackground: rgba(0, 0, 0, 0.04);
 
 .design-sheet-live {
 
-    .#{$globalClassPcs} & {
+    :is(.#{$globalClassPcs}, .admin-shell) & {
         margin: 1rem 0;
     }
 }
@@ -42,7 +60,7 @@ $codeBlockBackground: rgba(0, 0, 0, 0.04);
 //y entre párrafos no se distinguía. Lleva el de los enlaces de las migas.
 .design-sheet-example > p > a {
 
-    .#{$globalClassPcs} & {
-        color: var(--second-brand-color);
+    :is(.#{$globalClassPcs}, .admin-shell) & {
+        color: var(--accent-2);
     }
 }

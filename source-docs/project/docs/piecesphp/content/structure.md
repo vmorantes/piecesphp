@@ -119,8 +119,8 @@ return [
 ```php
 <?php
 $config['roles']['types'][] = [
-    'code' => 1,
-    'name' => 'ADMIN',
+    'code' => 20, //Un código libre: del 0 al 4 y el 12 ya son los tipos del framework (RoleDuplicateException)
+    'name' => 'EDITOR',
     'allowed_routes' => ['users-list', 'logs-admin-index']
 ];
 ```
@@ -206,9 +206,9 @@ BaseEventDispatcher::listen('NombreEvento', function($data) {
 
     El framework tiene su propia carpeta, `src/app/core/extensions/`, que se carga **antes** y que
     **no se edita**: `add-dynamic-translations.php`, `api-keys.php`, `cli-actions.php`,
-    `cronjobs.php`, `mailing.php`, `patches_composer_dependencies.php`, `protected-files.php`,
+    `cronjobs.php`, `mailing.php`, `protected-files.php`,
     `queues.php` y `set-additional-configurations.php`. El orden de carga está en
-    `src/app/config/final-configurations.php:45`.
+    `src/app/config/final-configurations.php:47`.
 
 !!! note "Hay un `mailing.php`, pero es del framework y hace otra cosa"
 
@@ -220,8 +220,6 @@ BaseEventDispatcher::listen('NombreEvento', function($data) {
 - **`cli-actions.php`**: Acciones de terminal propias del proyecto (`CliActions::make()`; ver [Terminal](./terminal.md)).
 
 - **`protected-files.php`**: Declaración de las carpetas de subida protegidas (ver [Archivos protegidos](../new-features/protected-files.md)).
-
-- **`patches_composer_dependencies.php`**: Parches sobre dependencias de Composer que se aplican al cargar.
 
 - **`queues.php`**: Registro de manejadores (handlers) para el procesamiento asíncrono.
 

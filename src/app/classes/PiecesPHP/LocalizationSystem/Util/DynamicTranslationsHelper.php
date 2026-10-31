@@ -132,18 +132,44 @@ class DynamicTranslationsHelper
     }
 
     /**
-     * Guarda el archivo de traducciones dinámicas actual
+     * Guarda el archivo de traducciones dinámicas actual. false si no se pudo: quien vacía la base tiene que mirarlo.
      *
      * @param JSONTranslationsPackage $currentJSONData
-     * @return void
+     * @return bool
      */
-    public static function saveCurrentDynamicTranslationsJSON(JSONTranslationsPackage $currentJSONData): void
+    public static function saveCurrentDynamicTranslationsJSON(JSONTranslationsPackage $currentJSONData): bool
     {
         $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
         $baseFolderName = $DYNAMIC_TRANSLATIONS_CONFIG['folderName'];
         $langDynamicTranslationsDirectory = new DirectoryObject(basepath("app/lang/{$baseFolderName}/"));
         $currentJSONFile = append_to_path_system($langDynamicTranslationsDirectory->getPath(), 'current-translations.json');
-        file_put_contents($currentJSONFile, json_encode($currentJSONData, \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
+        return self::writeJSONFile($currentJSONFile, $currentJSONData);
+    }
+
+    /**
+     * Escribe el JSON entero o nada: un temporal en la misma carpeta y rename(). false si no se pudo codificar o escribir;
+     * sin avisos, que aquí abortarían la petición.
+     *
+     * @param string $file
+     * @param mixed $data
+     * @return bool
+     */
+    public static function writeJSONFile(string $file, $data): bool
+    {
+        $json = json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        $directory = dirname($file);
+        if ($json === false || !is_dir($directory) || !is_writable($directory)) {
+            return false;
+        }
+        $temporary = $file . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        if (file_put_contents($temporary, $json) !== strlen($json) || !rename($temporary, $file)) {
+            if (is_file($temporary)) {
+                //RETORNO-IGNORADO: el temporal que no llegó a su sitio se retira si se puede; el fallo ya se devuelve.
+                unlink($temporary);
+            }
+            return false;
+        }
+        return true;
     }
 
 }

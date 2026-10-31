@@ -2,6 +2,17 @@
 @use '../../../../../statics/core/sass/includes/functions_app_base' as *;
 
 //La etiqueta de un campo cuyo desplegable ya dice qué es: se queda para quien lee la página, no se pinta.
-.ui.form.organizations .field>label.organization-hidden-label {
+.ui.form.organizations .field > label.organization-hidden-label {
     display: none;
+}
+
+//El logo y el RUT, a la misma altura: el marco lo pone cada uno, aquí solo se estiran.
+.organization-attachments > .field {
+    display: flex;
+    flex-direction: column;
+
+    > .ui.cards,
+    > .simple-upload-placeholder {
+        flex: 1;
+    }
 }

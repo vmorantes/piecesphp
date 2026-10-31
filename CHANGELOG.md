@@ -1,3 +1,1711 @@
+# 10.0.0 (30-10-2026)
+
+> **La versión del rediseño del panel.** Todo el panel y el acceso van con el tema nuevo y sus piezas. La zona pública sigue con
+> su Fomantic de siempre. Lee las secciones ⚠ si tu clon cambió vistas o CSS del panel. Las gráficas siguen con ApexCharts:
+> Apache ECharts llega en una `10.x`.
+
+## ⚠ Rompe — Seguridad y Personas, Datos, Inicio y Actividad con el diseño
+
+- **El alta pública por la API, apagada de fábrica**: `API_PUBLIC_SIGNUP` en `constants.php`, `false`. Con ella apagada, la ruta responde 404 y no crea nada. Si tu clon la usa, ponla en `true`.
+- **Sale `FileValidator::$ignoreMimeType`**, el interruptor estático que saltaba la comprobación del tipo en todo el proceso. Si tu clon lo usaba, declara el tipo en el campo.
+- **La barra del panel trae un buscador con Ctrl K** (el menú, Configuración y la cuenta, filtrados por permisos) y **un centro de ayuda**: «Preguntas frecuentes», un enlace en `$config['help_faq_url']` (vacío, no sale), y «Contactar a soporte», que sale si osTicket está configurado y el rol tiene permiso.
+- **Los listados con `dataTableServerProccesing` llevan «Exportar listado actual»**: un CSV de la página visible, con la extensión Buttons. Los listados en tarjetas, no.
+- **El campo de archivo (`simpleUploadPlaceholderWorkSpace`) ya no lleva la vista previa borrosa**: conserva su API. La imagen de Documentos y el icono de las categorías de Noticias usan la tarjeta de imagen; Organizaciones, también para su logo.
+- **La cuota de tokens se edita dentro de Inteligencia artificial.** Su ruta sigue.
+- **Fuera `news.scss`** y la carga de Poppins en `ui-pcs.scss`. El panel usa la fuente del tema.
+- **Corregido: en el mapa, las capas de clústeres y puntos fallaban** porque Mapbox no admite `oklch()`: el color pasa a sRGB antes de llegar a la capa.
+
+## ⚠ Rompe — Cuenta, Contenidos, el pie del panel y tres librerías fuera
+
+Conservan sus rutas, sus campos y su lógica. Si tu clon sobrescribe estas vistas o usa lo que sale, revisa esto.
+
+- **Salen Spectrum y NProgress**, con `import_spectrum()`, `import_nprogress()` y sus carpetas de `statics/plugins/`. `input[color-picker-js]`
+  sigue funcionando: ahora lo atiende el `ui colorpicker` del tema, igual en cualquier navegador. NProgress no tenía ninguna llamada.
+- **Salen `dataTables.semanticui.min.css` y `responsive.semanticui.min.css`**: el panel no las cargaba. Si tu clon las pedía fuera del panel, tráelas de nuevo.
+- **La hoja de diseño, solo para root**: `admin-design-sheet` y `admin-design-sheet-resources` ya no conceden al administrador general.
+- **Publicaciones, Banners e Imagen principal usan la tarjeta de imagen** (`panel/built-in/content/image-field.php`) en lugar de `.attach-placeholder`
+  y `SimpleCropperAdapter`. Los campos se llaman igual. `SimpleCropperAdapter` sigue disponible.
+- **La foto de perfil del menú usa el editor nuevo**: fuera el `profile-image-modal` de `topbar.php`. `new ContentImageEditor('scope')` permite un segundo editor en la página.
+- **El pie del menú lleva solo el texto de terceros, la bandera y el crédito**: la versión pasa bajo el nombre de la plataforma, y el nombre repetido y los derechos salen.
+- **Las banderas de terceros se pintan siempre**, también las de fábrica, que ahora son PNG con transparencia; `developer` y `developer_logo` de `config.php` traen marcadores: cámbialos.
+- **`partnersText` trae «Con el apoyo de» si la opción no existe.** Guardada vacía, no se pinta.
+- **El logo y las banderas se pueden invertir en modo oscuro**, con una casilla en Imágenes de marca. Pide un PNG con fondo transparente: un fondo opaco sale como un rectángulo blanco.
+- **`.ui.form:invalid` del tema pasa a `:user-invalid`**: ningún formulario sale rosa al cargar.
+
+## ⚠ Rompe — Usuarios, el acceso y las páginas de error, con el diseño
+
+Conservan sus rutas, sus campos y su lógica: el inicio de sesión, el código de un uso, la recuperación y el bloqueo funcionan
+igual. Lo que cambia es el marcado y sus hojas: si tu clon sobrescribe o estiliza estas vistas, revísalas.
+
+- **Los 18 formularios de usuario son una sola pieza**, `usuarios/form-by-type/user-form.php`. Cada `form-by-type/<modo>/<tipo>/form.php`
+  solo dice su modo y su tipo. Conservan sus `name` y sus clases. Si tu clon editó uno, lleva el cambio a su archivo o sustitúyelo
+  por el suyo completo. Los campos ya no llevan `placeholder`: cada uno tiene su `label`.
+- **Las seis vistas del acceso usan un marco**, `usuarios/inc/access-frame.php`, con marca y formulario, que se apilan en el móvil.
+- **403, 404 y 503 son una sola página**, `view/pages/error-page.php`, sin JavaScript y con la hoja del tema, también en la zona
+  pública. **Sale `src/statics/sass/errors.scss`**, y con ella `statics/css/errors.css`: si tu clon la cargaba, la pierde.
+- **Sale `UserSystem/Statics/sass/users-list.scss`**, con su `set_custom_assets`. `login.scss`, `problems.scss` y `problems-form.scss`
+  adelgazan, y sus reglas comunes pasan a `import/_access.scss`.
+- **La foto de perfil usa la tarjeta de imagen**; `CropperAdapterComponent` sigue disponible para tu clon.
+- **El listado de Usuarios ya no lleva migas**, y la miga activa va en el color del texto: sale de `.breadcrumb` su `var(--accent-2)`.
+- **El aviso de error en cada acceso** por pedir la llave de mapas sin sesión ya no sale.
+
+## ⚠ Rompe — Registros y Sistema, con el diseño
+
+Correos enviados, Sesiones, Tokens, Salud, Errores, Tareas, Accesos y Respaldos adoptan el diseño. Conservan sus rutas y sus
+acciones.
+
+- **Registros ya no lleva migas.** Sigue siendo una pantalla con pestañas.
+- **Tareas programadas abre siempre en «Estado actual»**, y si no hay ejecuciones avisa arriba de que mire la pestaña Instrucciones.
+- **Las etiquetas de estado de estas pantallas son `StatusLabel`**, también las que pintaban los controladores.
+- **Sale `UserSystem/Statics/sass/attempts.scss`**, con su `set_custom_assets`.
+- **Piezas nuevas**: `panel/built-in/content/filter-actions.php`, Filtrar y Limpiar en cualquier formulario de filtros, y
+  `figure` en `panel/built-in/statistics/statistic-card.php`, la tarjeta de cifra del tema; las dos, con su ejemplo en la hoja de
+  diseño.
+- **Pulsar la imagen de una tarjeta abre el editor con la imagen actual**, para recortarla sin volver a subirla.
+- **Dos pantallas cambian de nombre**: «Fondos» es «Fondos del inicio de sesión», y «Llaves de MapBox», «Llaves de Mapas».
+
+## ⚠ Rompe — Imágenes de marca, Fondos e Identidad y SEO, con el diseño
+
+Las tres pantallas adoptan el diseño. Conservan sus rutas, sus opciones y los campos que envían.
+
+- **Una sola forma de cargar una imagen**: «Cambiar imagen», elegir archivo, recortar en un editor a pantalla completa y
+  «Aplicar». El recuadro es fijo: se mueve, se acerca, se gira o se voltea la imagen. Banners, Imagen principal,
+  Organizaciones y Publicaciones siguen con su recortador.
+- **Logo, favicons, logo de correo y banderas se guardan con fondo transparente.** Antes, Logo y banderas salían sobre blanco.
+- **Los fondos del acceso se recortan a 1000 × 1080** (antes, 650 × 730). Lo ya subido no cambia.
+- **Se acepta cualquier imagen que el navegador lea**, también SVG e ICO; lo que se guarda sigue siendo PNG, o JPG en los
+  fondos y en la imagen para compartir.
+- **Una tarjeta de fondo vacía ahora guarda de verdad.** Cada tarjeta enseña su archivo `bg<n>`, no el de su posición en la
+  lista, y la opción `backgrounds` recibe el que falte.
+- **Identidad y SEO** se reparte en tres bloques con una vista previa al compartir. Sigue siendo un solo formulario por
+  idioma, y la imagen para compartir sigue siendo por idioma.
+- **Piezas nuevas**: `image-card.php` e `image-editor.php`, con `ContentImageEditor` (viene con `import_cropper()`); su
+  ejemplo, en la hoja de diseño.
+- **`toggle-field.php` pierde `inline`**: el tema ya no hereda el asterisco del campo a la casilla. Quita ese parámetro.
+- **Salen `Settings/Statics/sass/logos-favicons.scss` y `backgrounds.scss`**, con sus `set_custom_assets`.
+
+## Corregido — la lista de quién traduce con IA
+
+Configuración › Inteligencia artificial › «Quién puede traducir con IA» no restringía a nadie desde la `v9.2.0`: las rutas
+se registran antes de aplicar las opciones de la base, y la lista siempre daba los seis tipos. Ahora se comprueba al atender
+la petición, con `APIController::currentUserCanTranslate()`, y quien no esté en la lista ni ve el botón ni puede traducir.
+Si guardaste una lista, empieza a aplicarse al actualizar.
+
+## ⚠ Rompe — las piezas del diseño: preguntar, errores, tablas, etiquetas y avisos
+
+Las piezas comunes del panel adoptan lo que pide el diseño. Lo que tu clon pinte con ellas cambia sin tocar nada; lo que
+cambia de contrato se dice abajo.
+
+- **`confirmAction()` pregunta con un `ui mini modal`**, no con un aviso emergente. Su firma, sus textos y su promesa son los
+  mismos. El foco empieza en cancelar, y Esc o un clic fuera cuentan como «no». `confirmClass: 'blue'` pinta `primary`, y
+  `'red'`, `negative`. `message` sigue siendo HTML: quien pase datos del usuario, los escapa. Ya no pone `wait-to-action` en
+  el `body`.
+- **Una tabla es una tabla.** `table.content-table` ya no se convierte en tarjetas en el móvil: se desplaza en horizontal y
+  conserva el orden. Para las tarjetas, añade la clase `content-table-cards`.
+- **Las etiquetas de estado**, con la pieza `PiecesPHP\Core\Utilities\Helpers\StatusLabel`: `StatusLabel::html()` con
+  `POSITIVE`, `NEGATIVE`, `WARNING` o `INFO`, y `StatusLabel::neutral()`. **Cambian dos constantes**: en
+  `PublicationMapper::VISIBILITIES_COLORS` y `NewsMapper::STATUSES_COLORS`, borrador pasa de `orange` a `yellow`, y
+  programada, de `blue` a `teal`. Si tu clon pintaba `ui <color> label` con ellas, sigue valiendo, pero el texto sale negro
+  sobre color: usa la pieza.
+- **Los avisos** de `successMessage()`, `warningMessage()`, `infoMessage()` y `errorMessage()` salen arriba a la derecha.
+  Para otra posición, `options.position`.
+- **Los errores de un formulario**: `genericFormHandler` pinta el mensaje del navegador bajo cada campo y un resumen arriba
+  con «Revisa los campos marcados», también en un adjunto (`.attach-placeholder`). Los formularios del panel dejan de avisar
+  con un mensaje emergente: salen 28 `onInvalidEvent` propios. El tuyo sigue sustituyendo todo eso; si solo llamaba a
+  `errorMessage()`, quítalo.
+- **La tabla de un listado llega al borde de su tarjeta**: el contenedor es `ui fluid card container-standard-table` si la
+  tabla pasa por DataTables, y la columna de `RowActions` va a la derecha. Un listado de tu clon con `ui segment` sigue
+  funcionando, con la tabla metida en el relleno; cámbialo.
+- **Los tooltips dentro de una tabla de DataTables** van con el módulo popup, para que el desplazamiento no los recorte: el
+  panel quita `data-tooltip`, `data-position` y `data-inverted` de esas celdas al dibujar. Un JavaScript de tu clon que los
+  leyera después del dibujado ya no los encuentra.
+- **Nuevo en `RowActions`**: `primary()`, `inactive()` (no aplica a esta fila: se ve, enseña «No aplica» y no hace nada) y
+  `text()` (un botón de texto).
+- **`form-modal.php`** lleva una X y su contenido se desplaza. **Un desplegable dentro de esa ventana sale recortado**; se
+  llega a sus opciones desplazando.
+- **`empty-state.php`** admite `description`, y `icon` dentro de `action`.
+- **Pieza nueva `panel/built-in/content/password-field.php`**: la contraseña con ojo, con su ejemplo en la hoja de diseño.
+  El parámetro del nombre del campo es `inputName`.
+- **Siete pantallas con el diseño**: Archivos para buscadores, Inteligencia artificial, Llaves de mapas, Scripts, Correo,
+  Seguridad y Sitio en mantenimiento. Conservan rutas, opciones y `name`. Salen `Settings/Statics/sass/site-files.scss` y
+  `scripts.scss`, con sus `set_custom_assets`, y Scripts guarda con `genericFormHandler`.
+- **Las etiquetas de los formularios del panel** las pone el tema: sale de `admin_app_base.scss` la regla que las fijaba en
+  16 px. Si tu clon contaba con ese tamaño, se ven más pequeñas.
+- **Piezas nuevas**: `section-header.php` y `toggle-field.php`, con su ejemplo en la hoja de diseño; `password-field.php` admite
+  `fieldExtra`; un `input[data-live-reading="days|seconds"]` escribe su lectura en `[data-live-reading-for]`.
+- **Las tablas** dicen «_MENU_ registros por página». Una tabla con `data-search-placeholder` pone ese texto en su buscador.
+- Las pestañas `.ui.menu` con `.item[data-tab]` llevan sus roles ARIA y se manejan con el teclado, sin tocar las vistas.
+
+## ⚠ Rompe — la pantalla Colores, con el prototipo; siete opciones fuera
+
+Configuración › Apariencia › Colores es ahora **un solo formulario** con un solo «Guardar»: el color de acento, con su
+contraste y sus tonos; la paleta de datos para gráficas, con armonías; la barra del navegador en el móvil; los colores de
+realce; la tipografía y la forma; y una muestra en vivo. Todo se ve en el panel mientras lo cambias, y «Cancelar» lo
+devuelve a lo guardado.
+
+- **Antes de desplegar, aplica `databases/actualizaciones/2026-10-30-opciones-de-color-retiradas.sql`.** Salen las opciones
+  `font_color_one`, `font_color_two`, `menu_color_background`, `menu_color_mark`, `menu_color_font`, `bg_tools_buttons` y
+  `font_family_global`. Si sus filas siguen en la base, cada una deja **un error grave en el registro**, una vez, por
+  opción sin declarar (`ConfigOptions::warnUndeclared()`). Sus valores no se migran: el tema no los lee.
+- **Sale la ruta `configurations-generic-save`** con `SettingsController::actionGeneric()`,
+  `GENERIC_SAVE_ALLOWED`, `ROOT_ONLY_CONFIG_KEYS` y `isRootOnlyConfigName()`. La sustituye
+  `configurations-appearance-colors-save` (POST `admin/configurations/appearance/colors/save/`), con el mismo permiso:
+  valida **todos** los campos antes de escribir y escribe en una transacción, así que un campo inválido no cambia nada. Si
+  tu clon llamaba a la ruta vieja, llama a la nueva con todo el formulario. Solo admite las opciones de color de
+  `SettingsController::COLOR_OPTIONS` y las tres de tipografía y forma.
+- **Opciones nuevas**: `third_brand_color` (`--accent-3`), `data_color_2` a `data_color_5` (`--data-2` a `--data-5`; vacías,
+  se usan las del tema, y la 5 cambia sola en oscuro), `theme_font` (`inter`, `poppins` o `public-sans`), `theme_font_size`
+  (14, 15 o 16) y `theme_radius` (0, 4, 6, 8 o 12). `SettingsController::themeTokens()` decide qué se publica: lo que vale
+  de fábrica no se publica, y un valor guardado fuera de la lista tampoco.
+- **De fábrica, los colores del tema**: `main_brand_color` y `meta_theme_color` `#356DCA`, `second_brand_color` `#7A5AF8`,
+  `third_brand_color` `#C11574`. Si tu clon no guardó sus colores, cambian al desplegar. Lo guardado en la base se respeta.
+- **La barra del navegador** se elige entre «Usar acento» y «Neutro oscuro» (`#1F2430`). Si tenías otro color, se queda hasta
+  que guardes el formulario; al guardar pasa a una de las dos.
+- **Las gráficas** toman la fuente del panel (`--font-body`), no de `font_family_global`.
+- **`ui-pcs.scss` ya no fija `font-size` en `html` y `body`**: lo pone el tema con `--font-size-base`. Una hoja de tu clon
+  que contara con ese tamaño sigue valiendo 14 px de fábrica.
+- **Pieza nueva `panel/built-in/content/color-field.php`**: el campo de color con su hexadecimal, con su ejemplo en la hoja
+  de diseño. La sincroniza `contentColorFields()`, de `admin-area/js/main.js`.
+- Salen `Statics/sass/configurations.scss` y la vista `app_configurations/configurations.php`: si tu clon las extendía,
+  general.php se pinta directo.
+
+## ⚠ Seguridad — el gestor de archivos: lo activo ya no se activa, y la ruta del editor se cierra
+
+La ruta del gestor que usa el editor la abren todos los tipos de usuario, y aceptaba cualquier tipo: un `.svg` o `.html` subido
+por ahí se servía activo desde el mismo dominio. Es la misma clase de fallo que se cerró en las subidas.
+
+- **`statics/filemanager/` lleva el `.htaccess` de las subidas**: los SVG, HTML y XML salen con `sandbox`, y los que no son SVG,
+  además, como descarga. Se escribe solo al arrancar. Pide Apache con `mod_headers`; con nginx, añade esas cabeceras.
+- **La ruta del editor admite una lista cerrada de tipos**, según el contenido: imágenes, PDF, Office, OpenDocument, texto, CSV,
+  vídeo y audio. **Si tu clon sube otro tipo por el editor, añádelo a `FileManagerController::EDITOR_UPLOAD_ALLOWED`.**
+- **En esa ruta se apagan** `chmod`, `extract`, `archive`, `mkfile`, `put` y `edit`, y la subida por URL. El gestor del usuario
+  principal no cambia.
+- Guía nueva: «Gestor de archivos», en Desarrolladores.
+
+## Cambia — los campos de formulario, a la altura del tema; el cliente de elFinder, a 2.1.70
+
+- **Los campos de formulario del panel y del acceso** miden lo que dice el tema (40 px de fábrica) y escalan con el tamaño base:
+  sale el `min-height: 52px` de `admin_app_base.scss`, y el acceso ya no fija `html` a 16 px. Si una vista de tu clon contaba con esos 52 px, ajústala con el marcado.
+- **El cliente de elFinder pasa de 2.1.57 a 2.1.70**, la versión del conector (`src/statics/plugins/elfinder/`). Trae lo que
+  el `Changelog` de elFinder marca de seguridad en el navegador, como «postMessage origin bypass and playsound DOM XSS».
+  La integración con el editor no cambia.
+
+## ⚠ Rompe — el panel de Configuración, con su patrón
+
+El panel que abre el engranaje de la barra lleva un buscador («Buscar ajuste…») que filtra los enlaces, abre sus grupos y
+recuenta; cada grupo muestra su icono y su contador. Nace con todos los grupos cerrados y no marca la pantalla actual.
+
+- **Solo enseña lo que el rol puede abrir**: antes pintaba todos los enlaces de un grupo visible. Un grupo con enlaces que
+  tu clon no declare como visibles dejará de mostrarlos.
+- `SettingsController::panelGroups()` lleva una clave `icon` en cada grupo.
+- Los ítems del panel van sin icono, como el patrón. Si un clon usa `panelGroups()`, su clave `icon` por ítem sigue ahí.
+
+## ⚠ Rompe — el panel publica los colores como tokens del tema; fuera nuestras 20 variables CSS
+
+La hoja de variables globales (`admin-global-variables-css`, que monta `src/app/config/containers.php`) publica ahora
+**los tokens del contrato del tema** en lugar de nuestras variables: `--accent`, desde el color de marca
+(`main_brand_color`), `--accent-2`, desde el segundo (`second_brand_color`), y los que se configuran en la pantalla Colores
+(la sección siguiente). El tema saca del acento todos sus tonos.
+
+- **Salen las 20 variables propias**: `--main-brand-color` (y `-opacity`, `-0-5`, `-0-8`), `--second-brand-color`,
+  `--font-color-one`, `--font-color-two`, `--menu-color-*`, `--bg-tools-buttons`, `--body-gradient`, `--meta-theme-color`,
+  `--loader-*`, `--font-family-global` y `--font-family-sidebars`. Las hojas del panel y del acceso leen los tokens del
+  tema: el color de marca es `var(--accent)`, el segundo `var(--accent-2)`, el texto `var(--theme-text)`, el texto sobre
+  el color de marca `var(--accent-contrast)` y las superficies `var(--theme-surface)`. Las variables de SCSS de siempre
+  (`$colorFirst`, `$colorSecond`…) siguen y apuntan a esos tokens.
+- **Si una hoja de tu clon usa `var(--main-brand-color)`** o cualquiera de las de arriba, cámbiala por el token del tema.
+- **La zona pública y las páginas de error** no cargan el tema: llevan sus colores y su fuente fijos en su propia hoja
+  (`src/statics/sass/imports/_variables.scss`, `errors.scss`), los de fábrica. Cambiar el color de marca en el panel ya no
+  las cambia.
+- **El correo** sigue leyendo el color de marca de la opción, por PHP. Y la barra del navegador en el móvil
+  (`meta_theme_color`), también por PHP.
+- Salen de `config.php`: `bg_tools_buttons`, `body_gradient` y `font_family_sidebars`, que nadie leía.
+- **Las gráficas de Informes** toman sus series de los colores de datos del tema (`--data-1`, el de marca; `--data-2`…).
+
+## ⚠ Rompe — el perfil se crea al crear el usuario, no en cada petición
+
+Hasta ahora, cada petición al framework (al registrar las rutas de Mi espacio) buscaba los usuarios generales y
+administradores de organización sin perfil y se lo creaba. Era una consulta en cada petición; y cuando dos peticiones
+llegaban a la vez, la creación chocaba y dejaba dos errores graves en el registro (`PDOException` HY093).
+
+- **El perfil se crea donde se crea el usuario o cambia su tipo**, con `UserProfileMapper::ensureFor($userID)`: el alta del
+  panel, el alta pública por la API, la importación y `UsersModel::changeType()`. Es idempotente y bloquea la fila del
+  usuario mientras crea, así que dos llamadas a la vez dejan un solo perfil (por diseño; probado con dos llamadas seguidas
+  y dentro de una transacción abierta). Solo crea perfil a los tipos que lo llevan (`UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE`):
+  los demás ya no reciben un perfil vacío al darse de alta.
+- **Si tu clon crea usuarios por su cuenta** (una tarea, un importador, un alta propia), llama a `ensureFor()` después de
+  guardarlo; ya no lo rellena el arranque.
+- **Al actualizar una instalación**, rellena una vez los perfiles que falten: `bin/cli profiles-create-missing` enumera
+  los usuarios sin perfil, y con `confirm=yes` los crea.
+- `ProfileTasksUtilities::generateMissingProfiles()` devuelve ahora lo que encontró y creó (`missing`, `created`,
+  `failed`) en vez de nada.
+
+## ⚠ Rompe — las pestañas del panel, con el tema
+
+Las pestañas de las pantallas del panel (los estados de un listado, las secciones de un formulario, los idiomas…) son el
+`ui secondary pointing menu` del tema, con un `item` por pestaña. En el móvil, la fila se desliza por dentro.
+
+- **El marcado**: el contenedor pasa de `tabs-controls content-tabs` a `ui secondary pointing menu tabs-controls
+  content-tabs`, y cada pestaña lleva `item` (y `active` la activa). `tabs-controls` se queda **solo como gancho** para
+  el JavaScript (`$('.tabs-controls [data-tab]').tab()`): ya no pinta nada.
+- **Los botones junto a las pestañas** (`.actions-buttons`, como «Traducir» en la edición de una publicación) van en un
+  `right menu actions-buttons`.
+- **Salen las reglas de `.tabs-controls`** de `admin_app_base.scss` (18 px, ancho mínimo de 166 px, el color de marca, la
+  negrita de la activa) y su ajuste del móvil en `_content-screens.scss`. Si tu clon pinta pestañas propias con
+  `tabs-controls`, añade `ui secondary pointing menu` al contenedor e `item` a cada pestaña.
+- La hoja de diseño › «Pestañas» enseña la pieza nueva.
+
+## ⚠ Rompe — los botones y los títulos de sección del panel, con el tema
+
+El panel deja de repintar los botones de Fomantic: los pinta el tema, con su tamaño (40 px de alto, texto de 14 px) y su
+radio. Lo que se quita:
+
+- **`brand-color` sale.** Cambia la clase en tus vistas:
+
+  | Antes | Ahora |
+  | :-- | :-- |
+  | `ui button brand-color`, `custom-main-color` | `ui primary button` (una como máximo por grupo) |
+  | `ui button brand-color alt` | `ui button` (secundario) |
+  | `ui button brand-color alt2` | `ui basic button` |
+
+  El botón primario lleva el color de marca de la instalación (`--main-brand-color`, que el tema lee como `--accent`).
+  **El segundo y el tercer color de marca dejan de pintar botones**: la guía del tema los reserva para realces, con sus
+  propias variables (`--accent-2`, `--accent-3`). Las nuestras siguen existiendo para las piezas propias que las usen.
+- **Fuera las reglas globales de tamaño**: `.ui.button` de `ui-pcs.scss` (14 px, radio 8, sin margen) y
+  `.module-view-container .ui.button` y `.ui.buttons` de `admin_app_base.scss` (18 px, radio 10, grupos con hueco).
+  Un grupo de botones que tenga que ir separado, con `ui spaced buttons` de Fomantic (como la cabecera de las pantallas,
+  `page-header.php`); sin variación, el grupo va unido.
+- **`ui dividing header`** queda con el aspecto del tema: salen su color y su borde de marca, y las variaciones `alt`,
+  `alt2`, `white` y `no-border`. Sale también `.ui.tag.brand-color`, que nada usaba.
+- **La fuente propia que quedaba en el panel** (`$fontGlobal`, `$fontModule`, `$pFontFamily`, `$listFontFamily` en las
+  hojas del panel; la Public Sans de la franja de suplantación y del cambio de foto de perfil) sale: todo el panel va con
+  la del tema. Las variables `$fontGlobalText`, `$pFontFamily` y `$listFontFamily` de `_variables.scss` salen; si tu clon
+  las usaba en una hoja propia, escribe la fuente o, mejor, no la escribas.
+- La hoja de diseño enseña los botones con las clases del tema.
+
+## Cambia — el panel y el acceso, con la fuente del tema
+
+El panel y el acceso usan la fuente del tema (Inter). Nuestro CSS imponía encima la de `font_family_global`
+(`config.php`, la Poppins) con `_reset-font-family-fomantic.scss` y varias reglas propias (`html, body` de `ui-pcs.scss`,
+`.module-view-container` y sus botones, el acceso y la recuperación): salen de las hojas que solo sirven con el tema. La
+zona pública y las páginas de error (403, 404, 503) siguen con `font_family_global`. Si tu clon cambió esa opción para el
+panel, hoy no tiene efecto ahí (se decide si se conecta a la fuente del tema: P264).
+
+## ⚠ Rompe — fuera el índice de Configuración; sus pantallas, sin migas
+
+- **Sale la ruta `configurations-index`** (`admin/configurations/`), con `SettingsController::indexView()` y su vista
+  `app_configurations/index.php` (ADR 0070). La lista de grupos y pantallas la da el panel de Configuración de la barra
+  superior, desde cualquier pantalla. Quien pida `admin/configurations/` recibe el 404 del panel; los estáticos del módulo
+  (`admin/configurations/statics/…`) siguen igual. Si tu clon enlazaba el índice, enlaza la pantalla concreta.
+- **Las pantallas de Configuración no llevan migas**: son vistas principales, y se llega a ellas por el panel de
+  Configuración. `SettingsController::sectionHeaderData()` pierde el primer parámetro (`$section`, que solo servía a la
+  miga): ahora es `sectionHeaderData($title, $description)` y devuelve `breadcrumbs` vacío. Si tu clon la llamaba con tres
+  argumentos, quita el primero.
+- **«Cancelar» vuelve al inicio del panel** (`$indexLink`).
+- **El panel de la barra se titula «Configuración del sistema»**, como en el diseño (antes, «Administrativo»).
+
+## Cambia — los íconos SVG del tema, en el panel y en el acceso
+
+- El panel y el acceso cargan, tras el tema, su hoja de íconos SVG
+  (`statics/plugins/fomantic-piecesphp/themes/piecesphp/assets/svg-icons/svg-icons.css`). Font Awesome sigue siendo el de
+  siempre; los SVG del tema se piden con su nombre y `svg`: `<i class="inicio svg icon">`, o en un `MenuGroup`,
+  `'icon' => 'inicio svg'`. El botón de contraer el menú lateral lleva el del tema (`panel svg icon`).
+- **Los SVG propios de un clon**, en `src/statics/svg-icons/`: el `.svg` y su regla en `svg-icons.css` de esa carpeta, con
+  el patrón que trae comentado. El panel la carga detrás de la del tema, y `bin/traer-tema` no la toca. **No los pongas en
+  el `Statics/` de un módulo**: esa hoja se sirve desde `statics/server-delegated/`, y su `url("x.svg")` relativa da 404.
+- El ejemplo, en la hoja de diseño › «Íconos SVG».
+- El selector de modo del menú de usuario, sin el hueco de debajo.
+
+## ⚠ Rompe — Configuración y el menú de usuario, con el orden del prototipo
+
+El panel de Configuración de la barra superior y el menú de usuario siguen el orden del diseño del panel, **sin quitar
+ninguna opción**. Lo que el diseño no nombra va al final del grupo más afín.
+
+- **Configuración, en cinco grupos** (`SettingsController::panelGroups()`, la única fuente del panel):
+  - **Gestión de usuarios**: Agregar, Gestionar e Importar usuarios, y Sesiones abiertas.
+  - **Registros y Logs**: Errores, Intentos de ingreso, Registro de ingresos, Usuarios sin ingresos, Correos enviados,
+    Tokens y códigos, Tareas programadas y Todos los registros. Cada uno abre su pestaña de Registros (`?tab=`), con el
+    título, el icono y el permiso de `LogTabRegistry`.
+  - **Apariencia**: Imágenes de marca, Fondos y Colores.
+  - **SEO y Scripts**: Identidad y SEO, Archivos para buscadores y Scripts.
+  - **Sistema**: Inteligencia artificial, Límite de tokens de IA, Avisos, Estado y cachés, Salud, Sitio en mantenimiento,
+    Correo, Llaves de MapBox, Rutas y permisos, Seguridad, Respaldos, OsTicket y la Hoja de diseño.
+- **El grupo «Integraciones» desaparece.** Sus pantallas pasan a Sistema (Correo, OsTicket, Inteligencia artificial, las
+  llaves de MapBox, el límite de tokens) o a SEO y Scripts (Scripts), y sus migas y los textos que decían
+  «Integraciones › …» cambian con ellas: el aviso del sistema de la llave de MapBox, el del geovisor, el correo de
+  prueba y la tarea del correo de demostración (`MailDemoTask`). Las claves de traducción en inglés se renombraron con
+  ellas. Si tu clon citaba «Integraciones › …» en un texto propio, cámbialo.
+- **El menú de usuario**: Editar cuenta, Cambiar contraseña y Opciones de seguridad, y detrás Mi perfil y Mi organización
+  si el usuario los tiene; después, Idiomas, Conectar como otro usuario y Volver a mi usuario; después, el modo de color;
+  y al final, Acerca de y Cerrar sesión. La Hoja de diseño sale del menú de usuario y pasa a Configuración › Sistema.
+  Sale el encabezado «Plataforma».
+
+## Cambia — el modo oscuro del panel, por usuario
+
+- **Claro, Oscuro o el del Sistema**, con tres botones en el menú de usuario. Se guarda por usuario, en su meta
+  `theme_mode` (`light`, `dark` o `auto`), con la ruta `admin-theme-mode` (POST, parámetro `mode`; cualquier otro valor
+  responde 400 y no cambia nada).
+- **Se aplica antes de pintar**: `panel/layout/header.php` pone `data-theme` en `<html>` desde la meta, así que la página
+  llega ya en el modo elegido y no parpadea: `data-theme` es siempre `light`, `dark` o `auto`. **Sin elegir nada, el
+  panel sigue el modo del sistema** (`auto`); el claro elegido se guarda y se respeta.
+- **Lo que nuestro CSS dejaba mal en oscuro, corregido con los tokens de LECTURA del tema** (`--theme-surface`,
+  `--theme-text`, `--theme-text-muted`, `--theme-fill`): la caja de los formularios (`.container-standard-form`), sus
+  etiquetas y los títulos de sección (los pinta el tema), las tarjetas de estadística (sus `--statistics-*` siguen siendo
+  el gancho), la pestaña activa, las cajas blancas fijas que quedaban (`.table-to-cards`, las tarjetas de Colores, el
+  filtro del Directorio, los adjuntos y cuatro más) y el fondo del donut del Informe general. **El editor (CKEditor) sigue
+  el modo**: la hoja de su adaptador (`rich-editor-adapter.scss`) asigna sus variables (`--ck-color-*`) a las del tema.
+  Si tu clon tiene hojas propias en el panel, pinta fondos y textos con esas variables, no con blanco o negro fijos.
+  **Provisional:** en oscuro aún se ven claros el gestor de archivos (elFinder), el mapa de MapBox, las imágenes de
+  relleno y el logo de fábrica (`statics/images/logo.png`).
+- **El selector son tres botones (`ui fluid three mini buttons`), no la pieza segmentada de la guía del tema**: dentro de
+  un `ui dropdown`, Fomantic trata cualquier `.menu` anidada como un submenú, la oculta y la coloca fuera del desplegable.
+
+## Cambia — el texto sobre el patrocinador, en el pie del menú
+
+El pie del menú lateral sigue el del diseño: un texto opcional, la imagen del patrocinador y el crédito del desarrollador.
+Debajo, en pequeño, van el dueño, los derechos, el año y la versión. El texto es una opción nueva, `partnersText`
+(`SettingsController::PARTNERS_TEXT_CONFIG`, hasta 120 caracteres, texto plano): se edita en Configuración › Apariencia ›
+Imágenes de marca, junto a la imagen del patrocinador. Vacía, no se pinta. Sale escapada.
+
+## Cambia — las tablas del panel, con el marcado del tema
+
+- **Los listados**: las 30 tablas de 23 vistas pasan a `ui selectable very basic table content-table`, dentro de un
+  `ui segment container-standard-table`, como en el diseño. `.container-standard-table` ya solo pone el desplazamiento
+  horizontal y el apilado de las celdas en el móvil: sin borde, radio ni relleno propios. Sale la variable
+  `$standardTableBorder`. Si tu clon copió el marcado viejo de un listado (`ui basic table content-table`), cámbialo.
+- **Rutas y permisos**: `ui selectable very basic padded fixed table`, con el ancho de cada columna.
+
+## ⚠ Rompe — el armazón del panel con el `ui shell` del tema
+
+El menú lateral, la barra superior y el contenedor del panel pasan al componente `ui shell` del tema nuevo. El menú es el
+mismo (`get_sidebar_menu()`, los mismos `MenuGroup` de cada módulo) y la barra superior tiene los mismos botones; cambia
+el marcado que los envuelve y **cómo se desplaza la página**.
+
+- **La estructura** (`src/app/view/panel/layout/header.php`, `menu.php`, `footer.php`):
+  `div.ui.shell.admin-shell` > `nav.navigation` (marca, botón de contraer, `ui vertical accordion menu`, pie) +
+  `div.main` > `header.bar` + `main.content`. Salen `div.ui-pcs.container-sidebar`, `aside[main-aside].ui-pcs.sidebar`,
+  `div.content` y `.sidebar-toggle`. **Lo que cada vista pinta va dentro de `main.content`**, como antes dentro de
+  `div.content`, y `$containerClasses` se le sigue sumando.
+- **Ahora se desplaza la página**, no una caja interior. Si tu clon desplaza a mano
+  `.ui-pcs.container-sidebar > .content` (por ejemplo, para llevar al usuario a un error del formulario), desplaza
+  `html, body`. Lo que se coloque con `position: sticky` arriba tiene que dejar sitio a la barra (64 px; 56 en el móvil).
+- **Por ancho de ventana**: desde 1200 px, el menú abierto (se puede contraer a una franja de iconos y se recuerda al
+  recargar); de 768 a 1199 px, la franja de iconos, que se abre por encima del contenido; por debajo de 768 px, un cajón
+  que se abre con el botón de la barra.
+- **El contenido tiene un ancho máximo de 1440 px**, con el relleno del tema.
+- **La marca** lleva el logotipo y el nombre de la instalación (`title_app`); la versión pasa al pie del menú, con el
+  dueño, los derechos y el año. Las imágenes de patrocinadores siguen la misma regla (no se pintan mientras sean las de
+  fábrica): la horizontal con el menú abierto y la vertical en la franja.
+- **`pcsAdminSideBarIsOpen()` y `pcsAdminSideBarToggle()` siguen existiendo** y obran sobre el `ui shell`. El resto del JS
+  del menú lateral viejo (`pcsAdminSideBar` y su estado en `localStorage`) sale.
+- **`admin-shell` es una clase del framework que no se pinta a sí misma: es el ámbito de las reglas del contenido.** Las
+  que hacen funcionar el contenido (las tablas que se apilan en el móvil con el título de cada dato, las pestañas que se
+  deslizan, la paginación del móvil) se apoyan en ella. El shell **no lleva `ui-pcs`**, así que las reglas de `ui-pcs.css`
+  sobre títulos, párrafos y enlaces ya no alcanzan el contenido del panel: los pinta el tema. Si tu clon se apoyaba en
+  `.ui-pcs h1` (o `p`, `a`) dentro del panel, usa la clase de tu vista.
+- **La barra superior es la del tema, con las mismas opciones**: el menú de usuario es un `ui dropdown` (avatar, nombre
+  y tipo; las mismas opciones en el mismo orden), las noticias se abren en un `ui popup`, y Configuración y el perfil en
+  línea (editar cuenta, contraseña, foto, eliminar cuenta) en paneles `ui right flyout`. «Volver a mi usuario» sigue en la
+  barra al suplantar. Salen `.topbar-content`, `.topbar-options`, `.topbar-switches` y `.topbar-toggle`, y la caja de
+  `.profile-content-system` (su contenido se queda).
+- **Se reparte en tres parciales**: `topbar-data.php` (los datos), `topbar-bar.php` (los botones, dentro de
+  `header.bar`) y `topbar.php` (lo que flota: el popup, los flyouts, las ventanas y la franja de suplantación, fuera del
+  shell). Si tu clon pintaba `panel/layout/topbar` en una página propia, pinta también `topbar-bar`.
+- **El shell va dentro de un `div.pusher`** (lo pide el `ui flyout` de Fomantic; sin él lo crea al vuelo y avisa en la
+  consola). Lo que se ancla arriba descuenta la barra sola: `html` lleva `scroll-padding-top` (64 px; 56 en el móvil; más
+  la franja al suplantar), así que un enlace `#ancla` o un `scrollIntoView()` dejan el destino a la vista. Los avisos fijos
+  de abajo publican su alto en `--pcs-bottom-nags` y la navegación lo descuenta.
+- **Un acordeón de una vista se inicia sobre su propio formulario**, nunca con `$('.ui.accordion').accordion()`: eso
+  reinicia también el de la navegación (en la franja de iconos, abría el grupo además del flotante). Los seis del framework
+  que lo hacían, corregidos.
+- **El crédito del desarrollador** («Desarrollado por …», en el pie del menú) sale de `config.php`: `developer`,
+  `developer_logo` y `developer_url`, vacías de fábrica (vacío = no se pinta). Se editan en el código a propósito: el
+  crédito es de quien hace el proyecto, y el administrador del cliente no lo cambia desde el panel. Con el menú contraído
+  solo se ve el logo. `developer` valía `'Lorem ipsum'` y nadie lo leía.
+- Salen las hojas `_sidebar.scss` y `_container-aside.scss` y sus variables (`$sidebarBreakPoint`, los colores del menú
+  lateral, `$containerAsideContentPadding*`).
+
+## ⚠ Rompe — las piezas comunes del panel, con el marcado de Fomantic
+
+Las cuatro piezas con las que se componen las pantallas del panel (`src/app/view/panel/built-in/content/`) pintan ahora
+el marcado de Fomantic del tema nuevo. Se llaman igual y aceptan los mismos parámetros; lo que cambia es el HTML que
+devuelven:
+
+- **La cabecera** (`page-header.php`): las migas son un `<nav class="ui breadcrumb">` con su `aria-label`, el título un
+  `<h1 class="ui header">` con la frase en su `.sub.header`, y las acciones van en `ui stackable buttons`, **con la
+  principal la última** (a la derecha). La cabecera deja de pintar las clases `content-page-header`,
+  `content-breadcrumb` y `section-title`, y sale el CSS de las dos primeras (`section-title` lo siguen usando otras vistas).
+- **La barra de guardar** (`form-action-bar.php`): un `<div class="actions">` en lugar de un `ui segment`; primero las
+  acciones peligrosas (`ui basic negative button`), luego las secundarias (`ui basic button`) y **«Guardar» la última**
+  (`ui primary button`). El texto de cada botón ya no se oculta en el móvil, y desaparece `form-action-text`. Con el tema
+  nuevo, la barra queda alineada a la derecha y separada de los campos por una línea, sin caja.
+- **El botón principal es `ui primary button`** en las cuatro piezas, no `ui button brand-color`. Lleva el color de marca
+  de tu instalación a través del tema nuevo (abajo).
+
+**Si tu clon** tiene CSS que apunta a esas clases, o JavaScript que busca los botones de la cabecera por
+`.content-page-header`, deja de casar: búscalos en el marcado nuevo (por ejemplo, `.ui.stackable.buttons > a.ui.button`).
+
+## ⚠ Rompe — el panel y el acceso cargan el tema nuevo de Fomantic
+
+El panel y las pantallas de acceso dejan de cargar el Fomantic de siempre (`statics/plugins/semantic/`) y cargan el tema
+nuevo del panel, un Fomantic propio en `statics/plugins/fomantic-piecesphp/` (con su licencia y un `ORIGEN.json` que dice
+de qué versión del tema sale). **La zona pública no cambia**: sigue con el Fomantic de siempre.
+
+- **El color de marca** de tu instalación entra al tema como `--accent` (lo hace `ui-pcs.css`, desde
+  `--main-brand-color`): los botones principales, los interruptores activos y los acentos salen de él.
+- **Se nota a la vista** aunque una pantalla no se haya rediseñado todavía: títulos y campos con las medidas del tema,
+  tablas con su piel, botones con icono sin la franja oscura. El menú lateral y la barra superior aún no cambian.
+- El tema se renueva desde su repositorio con `bin/traer-tema`, una herramienta del mantenimiento del framework que no
+  viaja a los clones.
+- **Si tu clon** cargaba `statics/plugins/semantic/` a mano en una pantalla del panel, ahora tendrá los dos: cárgalo con
+  `import_front_library('fomantic-piecesphp', [])`, como el panel.
+- Las clases `content-page-header`, `content-breadcrumb` y `form-action-bar` vuelven a las piezas comunes, sin estilo: son
+  clases del framework sobre las que puedes apoyarte.
+
+## Cambia — Configuración › Sistema, con el marcado de Fomantic
+
+Las siete pantallas de Configuración › Sistema (Salud de la instalación, Avisos del sistema, Estado y cachés, Sitio en
+mantenimiento, Rutas y permisos, Seguridad y Respaldos) pasan al marcado de Fomantic, como el resto del panel irá
+haciendo: cada bloque en su segmento, los estados como etiquetas de color, las ayudas debajo de cada campo y **sin migas**
+(son pantallas a las que se llega desde el panel de Configuración). Hacen lo mismo que antes. Seguridad explica ahora qué
+hace cada interruptor.
+
+- `SystemStatusController::systemHeader()` ya no devuelve las migas.
+- Sale la hoja `security.css` de Configuración (estaba vacía en la práctica).
+- La raíz de cada pantalla conserva `module-view-container` y su clase propia (`security-view`, `backups-view`…): son
+  las clases del framework sobre las que un clon puede apoyarse.
+
+## ⚠ Rompe — Avisos, Estado y cachés y Rutas y permisos, con las funciones del prototipo
+
+Tres pantallas de Configuración › Sistema cambian de forma, no solo de marcado:
+
+- **Avisos del sistema**: ocultar o mostrar un aviso es un botón de icono (un ojo tachado para «Ocultar», un ojo para
+  «Mostrar») en la columna «Acciones», en lugar de un interruptor. Lo pinta `RowActions`, la pieza de las acciones de fila;
+  sus ganchos son `data-system-alert-toggle`, `data-key` y `data-hidden="yes|no"`. Lo sigue viendo solo root, y solo en
+  los avisos que se pueden ocultar.
+- **Estado y cachés**: una lista con una fila por caché (su icono, su nombre, qué vacía, cuánto ocupa y su botón
+  «Vaciar», o «Renovar» en la versión de los archivos estáticos), en lugar de una tabla de tamaños y una fila de botones
+  aparte. Los accesos rotos tienen fila propia, con su valor como «N de M». «Borrar todo lo temporal» va al pie, en un
+  recuadro. Las peticiones de cada botón no cambian.
+- **Rutas y permisos**: una sola tabla de DataTables con buscador, orden y paginación, en lugar del acordeón por módulo.
+  El módulo es una columna oculta por la que también se busca.
+
+Para quien registra una limpieza (`CleanTargetRegistry`):
+
+- `CleanTarget::withRow()` acepta un último parámetro, `string $icon = 'archive'`: el icono de Fomantic de su fila. Un
+  nombre con otros caracteres que letras minúsculas, números, guiones y espacios se rechaza con
+  `InvalidArgumentException`. Su lectura, `rowIcon()`.
+- **`UNIT_NUMBER` con dos claves cambia de significado**: antes se pintaba «N · rotos: M»; ahora, «N de M» (la segunda
+  clave es el total). Si tu clon registra una fila así, revisa el texto que espera.
+- La fila de los accesos directos del núcleo pinta solo `linksTotal`; `linksStatus()` sigue dando `linksBroken` y
+  `brokenShown`.
+
+**Y una pieza común más, la zona de una acción principal**: `src/app/view/panel/built-in/content/main-action.php` pinta el recuadro de una acción de peso al pie de una pantalla: el
+título y lo que hace a la izquierda, y su botón a la derecha (en el móvil, apilado y con el botón a todo el ancho). Recibe
+`title`, `description`, `buttonText`, `attributes` (los del botón, con el filtro de `RowActions::attributes()`),
+`variant` (`'primary'` o `'negative'`, la de una acción destructiva) e `icon`, opcional. Su clase del framework es
+`content-main-action`. La usa Estado y cachés, y la enseña la hoja de diseño con sus dos variantes.
+
+## ⚠ Rompe — vuelven dos utilidades, revisadas: los pasos y el correo por secciones
+
+En la `9.0.0` (desde la `9.0.0-alpha.5`) salieron por error dos utilidades que el framework ofrece a quien lo clona: si
+clonaste la 9, ya no las tienes. Vuelven, mejoradas:
+
+- **`GenericStepsViewHandler`** (JavaScript global, en `statics/core/js/helpers-lib/`): muestra un paso de varios y los
+  cambia con botones `data-to-step="next|previous|<valor>"`. Ahora avanza y retrocede por el ORDEN de los pasos que recibe
+  (antes solo funcionaba si cada paso llevaba el atributo `registration-form-step`), ignora un segundo cambio mientras el
+  primero espera la promesa de `setOnChange()`, y acepta un cuarto parámetro, `options.indicators`: un `ui steps` de
+  Fomantic cuyos `.step[data-step]` reciben `active` y `completed` solos. Métodos nuevos: `stepIndex()` y
+  `syncIndicators()`. La hoja de diseño la enseña en «Pasos». Ojo: el valor del paso es el número del constructor al
+  empezar y el texto del atributo `step` después; compara con `==`, no con `===`.
+- **`mailing/generic-dynamic-message`** (la vista de un correo con un título y secciones «etiqueta: valor»): **ahora
+  escapa el título, las etiquetas y los valores**, y conserva los saltos de línea del valor. Si tu clon le pasaba HTML en
+  los valores, ahora sale como texto. Sin título no pinta el encabezado, y un `message` que no es un arreglo no pinta nada.
+
+## ⚠ Rompe — DataTables 3
+
+El panel pasa de DataTables 2.3.7 a la **3.1.4**, con su integración de Fomantic (`datatables.net-se` 3.1.4) y Responsive
+4.1.1, todo MIT y copiado de su CDN con la versión exacta (`src/statics/plugins/datatables/`). La comunicación con el
+servidor (`DataTablesHelper`), los textos y las clases `dt-*` no cambian: un listado del framework funciona igual.
+
+- **`import_datatables()` ya no carga RowReorder ni ColReorder**: ningún listado del framework los usaba y DataTables 3
+  los cambia de versión. Si tu clon los pide por nombre, el plugin no se carga y queda constancia en el registro de errores
+  (`InvalidArgumentException` que lo nombra), sin romper la página. Para usarlos, cópialos de la CDN (RowReorder 2.1.1,
+  ColReorder 3.1.2) y decláralos en `src/app/config/assets.php`.
+- **En los callbacks de DataTables, `this` ya no es jQuery**: es un objeto propio de DataTables. `this.api()` sigue
+  funcionando; `this.DataTable()` y `this.find()` sobre la tabla, no. Si tu clon los usa, cámbialos a `this.api()` y a
+  `$(this.api().table().node())`.
+- **Las propiedades internas de la configuración** (`settings.aoColumns`, `bVisible`, `nTable`…) pasan a otro nombre en la
+  3: usa la API pública (`api.columns().every(…)`, `api.table().node()`). El framework ya lo hace en `helpers.js` y en el
+  panel.
+- **El estilo de las tablas del panel lo pone el tema**: el panel ya no carga `dataTables.semanticui.min.css` ni
+  `responsive.semanticui.min.css` (el tema trae su componente `datatables`); se siguen cargando los dos `.js` de la
+  integración, que adaptan el marcado a Fomantic. Las hojas siguen en la carpeta para quien use DataTables fuera del panel.
+  En el tema, cifras y fechas van alineadas a la izquierda; para una columna a la derecha, `className: 'dt-right'`.
+- **Responsive ya no se carga ni se enciende por defecto**: `import_datatables()` no trae ningún plugin y
+  `pcsphpGlobals.configDataTables.responsive` es `false`. Un listado que lo quiera lo pide con
+  `import_datatables(['responsive'])` y `responsive: true` en sus opciones. En pantallas pequeñas, la tabla se desplaza
+  dentro de su caja.
+- **La paginación de todas las tablas es `simple_numbers`** (Anterior · 1-5 · … · N · Siguiente, sin «Primero» ni
+  «Último»), y el buscador lleva la etiqueta «Buscar:», como el diseño nuevo. Un listado puede cambiarlo en sus opciones.
+
+## Corrige — seguridad: el tamaño de página de los listados ya no llega crudo al SQL
+
+`DataTablesHelper::processFromQuery()` interpolaba en su `LIMIT` el `length` de la petición sin convertirlo a número.
+En local un valor como `10 x` daba un error; **fuera de local, donde un aviso de PHP no detiene la petición, la cadena
+llegaba entera al SQL**: un usuario con sesión que pudiera abrir un listado servido así (el Directorio y los tokens de
+usuarios) podía colar SQL en el `LIMIT`. `DataTablesHelper::process()` no llegaba al SQL, pero respondía con un error 500
+con el mismo valor, también fuera de local.
+
+- Los dos métodos convierten `start` y `length` a entero al leerlos. `start` negativo pasa a 0.
+- **`length` menor que 1 (`0`, `-1`) da 10 filas**; antes daba 1. El panel nunca lo envía (sus menús de «Ver N» son
+  10, 25, 50, 100 y el tamaño de la instalación). Si tu clon pedía `length=-1` esperando «todas», nunca las tuvo: recibía
+  una sola fila.
+- **Si tienes un clon en producción con la 9.x**, aplica el mismo cambio en los dos bloques de lectura de
+  `src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php`:
+
+  ```php
+  $start = max(0, (int) $request->getQueryParam('start', 0));
+  $length = (int) $request->getQueryParam('length', 10);
+  $length = $length > 0 ? $length : 10;
+  ```
+
+## Corrige — `bin/cli seed … limpiar=yes` ya no se para si un usuario sembrado usó el panel
+
+Si alguien entraba al panel como un usuario de la siembra (por ejemplo, suplantándolo para revisar), lo que ese usuario
+hacía quedaba en el registro de acciones y en el tiempo en la plataforma, y el limpiado de la siembra se deshacía entero
+con un error de clave ajena (1451). Ahora el limpiado borra, en la misma transacción y antes que al usuario, su
+**actividad**: registro de acciones, tiempo en la plataforma, intentos de acceso, noticias leídas y códigos OTP. Lo que
+un usuario sembrado **creó o editó** (publicaciones, documentos, organizaciones…) no se borra: si existe, el limpiado para
+y nombra la tabla.
+
+## Cambia — la hoja de diseño: su menú nombra todos los ejemplos y se pliega en el móvil
+
+El menú de la hoja de diseño del panel nombra, bajo cada sección, sus ejemplos (31; antes solo nombraba las secciones, y
+un ejemplo como «Pasos» no se encontraba). En el móvil (por debajo
+de 768 px) queda plegado en un acordeón, «Índice de la hoja», en lugar de ocupar más de 1.300 px antes del primer
+ejemplo; en escritorio sigue abierto y acompaña al desplazarse.
+
+## Cambia — avisos emergentes con su icono y acciones de fila con su espacio
+
+- **Estado y cachés** pinta su lista con el marcado del tema (`ui divided list` y el mosaico `primary tinted bordered`);
+  sus ganchos `data-system-maintenance-*` no cambian.
+- **La suite que cierra todas las sesiones de verdad** (`core/session-revocation-global`) declara el efecto nuevo
+  `sessions` y `bin/cli gates` no la corre por defecto (`gates with=external`): cerraba también la sesión de quien estaba
+  trabajando en el panel.
+- `successMessage()`, `infoMessage()`, `warningMessage()` y `errorMessage()` piden el icono de su tipo (`showIcon`) si quien
+  llama no lo da: el tema nuevo pinta los avisos en claro y distingue el tipo por el icono.
+- `RowActions` separa sus botones con un espacio en el marcado (el tema no da margen a los botones) y sale la regla
+  `.row-actions` que lo suplía.
+
+# 9.3.1 (28-10-2026)
+
+> **Parche de seguridad de las subidas, tras la `v9.3.0`**, y lo último antes de empezar el rediseño del panel (que irá
+> en la `10.0.0`). No rompe nada: actualiza sin tocar tu código salvo que tu clon guarde avatares que no sean JPEG, PNG
+> o WebP.
+
+## ⚠ Seguridad — la foto de perfil solo acepta JPEG, PNG o WebP, mirando el contenido
+
+Hasta ahora la foto de perfil aceptaba un archivo de **cualquier** contenido y lo guardaba como `avatar.jpg`, fuera lo
+que fuera. Medido en local antes del arreglo: un HTML subido como foto se guardaba y se servía tal cual, aunque como
+`image/jpeg` y con `X-Content-Type-Options: nosniff`, así que el navegador no lo ejecutaba; el riesgo era guardar y
+servir contenido que no es una imagen. Ahora se mira el contenido del archivo, no su nombre: solo se aceptan imágenes
+JPEG, PNG o WebP, y lo demás se rechaza con «Tipo de archivo inválido.» sin tocar la foto que ya hubiera.
+
+- La comprobación vive en `AvatarModel::isAcceptedImage()`, y `AvatarModel::save()` la aplica también: un clon que guarde
+  avatares por su cuenta con `save()` queda cubierto.
+- **Si tu clon usaba avatares GIF** (o cualquier otro formato), los que ya existen se siguen viendo; para cambiarlos hay
+  que subir uno de los tres formatos.
+
+## ⚠ Seguridad — `UploadedFileAdapter` saca la extensión del contenido
+
+`UploadedFileAdapter::moveTo()` y `::copyTo()` tomaban la extensión del NOMBRE del archivo subido cuando quien llama no
+la fijaba: un HTML llamado `foto.png` se guardaba como `.png`. Desde ahora, igual que `FileUpload::moveTo()` desde la
+`v9.3.0`, la extensión sale del contenido (`ProtectedUploads::safeExtension()`). Si quien llama fija la extensión, se
+respeta. En el framework la usan la imagen de la página de inicio (Configuración › Imagen principal: un SVG llamado
+`.png` se guarda ahora como `.svg`) y la ruta de pruebas de la cola; si tu clon llama a `moveTo()` o `copyTo()` sin
+extensión, el nombre guardado puede cambiar de extensión.
+
+## Arregla — un adjunto rechazado ya no deja creada la publicación
+
+Al crear una publicación con un adjunto de un tipo no permitido, la respuesta era un error pero la publicación quedaba
+creada (sin el adjunto). Ahora los adjuntos se comprueban y se suben ANTES que las imágenes y antes de guardar la
+publicación: si uno se rechaza, no se crea la publicación.
+
+- **Lo que sigue pasando, y se arreglará aparte:** al EDITAR una publicación, un adjunto rechazado deja guardados los
+  adjuntos válidos que iban antes en la misma petición (medido). Y en un alta con varios adjuntos, si uno válido va antes
+  de uno rechazado, el válido queda en disco sin publicación (deducido del código, sin medir).
+
+# 9.3.0 (28-10-2026)
+
+> **Versión estable, tras la `v9.2.0`.** Sobre todo, **seguridad de las subidas**: el RUT y el logo de una organización
+> solo aceptan imagen o PDF; un archivo nuevo ya no puede borrar uno ajeno a su módulo; un SVG, HTML o XML subido ya no
+> ejecuta nada al abrirlo; y la extensión de un archivo sale de su contenido. Las subidas de los formularios pasan por
+> una sola pieza, `FormUploadHandler`, y **el código queda con un formato fijo** que viaja con el framework y que el
+> editor también aplica. Es menor y no parche porque rompe algo: lee las secciones ⚠, y «`bin/formatear`» antes de
+> fusionar si tu clon modificó archivos del framework.
+
+## ⚠ Rompe — seguridad: el RUT y el logo de una organización solo aceptan imagen o PDF
+
+Hasta ahora el RUT y el logo de una organización aceptaban un archivo de **cualquier** tipo. Un usuario con permiso para
+editar una organización (también el administrador de su propia organización, desde «Mi organización») podía subir un
+`.svg` con un `<script>` dentro, o un `.html`, como RUT o como logo. El framework lo servía tal cual, con su tipo
+(`image/svg+xml`, `text/html`) y sin forzar la descarga, desde el mismo dominio que el panel: quien lo abría ejecutaba
+ese código con su propia sesión, y si era root, la sesión de root quedaba en manos de quien lo subió. Medido en local
+por HTTP antes del arreglo: los dos archivos se guardaban y se servían con esas cabeceras.
+
+- **El RUT acepta** `.jpg`, `.jpeg`, `.png`, `.webp` y `.pdf`; **el logo**, `.jpg`, `.jpeg`, `.png` y `.webp`. Sin SVG
+  ni GIF. Los tipos viven en `OrganizationsController::RUT_ALLOWED_TYPES` y `LOGO_ALLOWED_TYPES`; los formularios de
+  alta, edición y «Mi organización» ofrecen solo esos tipos en el selector de archivos.
+- **Si tu clon guarda logos SVG o GIF**, se siguen viendo y la organización se puede volver a guardar sin tocarlos;
+  para cambiarlos hay que subir uno de los tipos de arriba.
+- **Un tipo rechazado se explica** (aquí y, desde esta misma versión, en Documentos, Publicaciones y Banners): el
+  formulario responde «Tipo de archivo inválido.», no «Ocurrió un error interno»
+  con una referencia, y ya no deja un error grave en el registro por cada intento.
+- **Lo que queda por cerrar, fuera de este cambio:** cómo se sirven TODAS las subidas (un SVG subido en otro módulo
+  como imagen se sigue sirviendo igual). Es una pieza común a todo el framework y se decide aparte.
+
+## Cambia — `bin/formatear` fija el formato de PHP, JS y SCSS, y viaja con el framework
+
+`bin/formatear` formateaba solo PHP y no salía de este repositorio. Ahora formatea también JS, SCSS y CSS, cada uno con
+un formateador **congelado dentro del repositorio**, con las mismas opciones que el editor (VS Code) del framework, y
+**viaja a los clones**: el formato no cambia porque se actualice un editor.
+
+- **PHP**: phpfmt 1.2.71 (`bin/tools/phpfmt/`), ahora con las siete `phpfmt.passes` que declara
+  `.vscode/settings.json` (antes usaba las dieciséis por omisión de la extensión, que no eran las del proyecto).
+- **JS**: el TypeScript del proyecto, fijado a **5.9.3 exacto** en `package.json`, con las opciones de formato de VS Code,
+  sin punto y coma y con tabulador. **SCSS y CSS**: js-beautify 1.10.1 (`bin/tools/js-beautify/`, MIT).
+- **`.vscode/settings.json`** declara lo mismo para el editor (y `js/ts.tsdk.path` al TypeScript del proyecto: acepta
+  «Use Workspace Version» la primera vez).
+- `bin/formatear --check --todo` dice cuánto cambiaría; `--universo` lista lo que formatea. Guía: «`bin/formatear`» en
+  las guías de entorno.
+- **El formato ya está aplicado a todo el código del framework** (522 archivos), en un commit que cambia espacios y
+  saltos de línea y, además, lo que las passes declaradas hacen a propósito: quita los `use` que no se usan y ordena los
+  demás, pone llaves a un control de una línea, comas finales, `true`/`false`/`null` en minúsculas, quita el `?>` final
+  de un archivo solo PHP y, en JS, los `;`. `.git-blame-ignore-revs` lo saca de `git blame` (actívalo una vez en tu
+  clon con `git config blame.ignoreRevsFile .git-blame-ignore-revs`).
+- **El formato no cambia lo que se escribió a propósito**: no junta ni parte líneas (salvo llaves añadidas a un control
+  de una línea, el cuerpo de un método de una línea, dos sentencias en una misma línea y los `use`, que se ordenan y
+  pierden los que no se usan), deja cada llave en su línea, conserva la alineación hecha a mano (los `=>` de los
+  archivos de idioma) y el espacio que había entre dos piezas. Normaliza: `?Tipo`, `): tipo`, `string|array`, la
+  sangría de una continuación (un nivel por dentro de su sentencia), una sola separación entre piezas de una línea y
+  nada tras `(` ni antes de `)`, `,` o `;`.
+- **Tres comprobaciones dentro de `bin/formatear`**, y un archivo que no las pasa no se escribe: el código de cada PHP
+  es el mismo antes y después, salvo espacios, saltos y esos cambios a propósito; formatear dos veces da lo
+  mismo que una; y ninguna línea se junta ni se parte fuera de esos casos.
+- **El editor formatea igual**: en PHP, `.vscode/settings.json` apunta `phpfmt.php_bin` a
+  `bin/tools/formato/php-editor`, que pasa el archivo por `bin/formatear`; sirve en Linux y macOS con git y un shell
+  POSIX. En otro sistema, y para el SCSS (la extensión `code-beautifier` no se puede enganchar), la tarea «Formatear
+  este archivo» de `.vscode/tasks.json`.
+- **Al traer esta versión a un clon que modificó archivos del framework**, la fusión choca en casi todos los archivos que
+  tocó, porque cambian sus espacios. Copia primero a tu clon `bin/formatear`, `bin/tools/` y
+  `.vscode/settings.json` de esta versión, formatéalo (`bin/formatear --todo`, en un commit propio) y fusiona después: los choques se quedan en lo que cambiaste de verdad.
+  Sin probar en un clon real.
+
+## Corrige — seguridad: la extensión de un archivo subido sale de su contenido, no de su nombre
+
+La extensión con la que se guardaba un archivo subido era la de su nombre. En un campo que acepta cualquier tipo (el
+archivo de un documento, por ejemplo), un HTML subido con el nombre `algo.txt` se guardaba como `.txt` y se servía como
+`text/html` **sin** la protección de la entrada anterior: se ejecutaba al abrirlo. Medido por HTTP en local.
+
+- **`ProtectedUploads::safeExtension($archivo, $extensiónDelNombre)`** mira el contenido real del archivo: si es de
+  un tipo conocido (JPEG, PNG, WEBP, GIF, PDF, SVG, HTML o XML) y la extensión del nombre no es de ese tipo, usa la de
+  su tipo (`ProtectedUploads::CONTENT_EXTENSIONS`). Si el tipo es desconocido (un `.docx`, un binario), se queda la del
+  nombre. `jpg` y `jpeg`, `htm` y `html`, se respetan. La extensión se guarda siempre en minúsculas (`foto.JPG` se guarda `.jpg`).
+- **Se aplica sola** al guardar con `ProtectedUploads::moveUploadedToPrivate()` y con `FileUpload::moveTo()` cuando no
+  se le pasa la extensión. Si tu código le pasa una extensión fija a `moveTo()`, se respeta como antes.
+- **Lo que puede notarse:** un archivo subido con un nombre que no casa con su contenido se guarda con otra extensión
+  (un PNG llamado `foto.html` se guarda `foto.png`). La ruta guardada en la base es la que devuelve la subida, así que
+  sale coherente sola.
+
+## Corrige — seguridad: un SVG, HTML o XML subido ya no ejecuta nada al abrirlo
+
+Todo archivo subido se servía con su tipo real y sin forzar la descarga. Un `.svg` con un `<script>`, o un `.html`,
+abierto directamente, ejecutaba ese código en el dominio del panel con la sesión de quien lo abría. Medido por HTTP en
+local, por las dos vías (lo público y lo privado).
+
+- **Los archivos de subidas con extensión `svg`, `svgz`, `html`, `htm`, `xhtml`, `xml`, `xsl` o `xslt`** se sirven
+  ahora con `Content-Security-Policy: sandbox`, y los que no son imagen, además, con
+  `Content-Disposition: attachment`. Un SVG se sigue viendo como imagen. Las extensiones viven en
+  `ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS` y `ACTIVE_CONTENT_INLINE_EXTENSIONS`.
+- **Lo privado** (lo sirve PHP) lleva las cabeceras siempre. **Lo público** (lo sirve el servidor web) las lleva por
+  el `.htaccess` de `statics/uploads/`, que el framework reescribe solo en el siguiente arranque.
+- **⚠ Si tienes nginx delante de Apache** (HestiaCP, Plesk…), nginx no lee `.htaccess`: **quita esas extensiones de
+  la lista de las que nginx sirve por su cuenta**, o pon en nginx las cabeceras para las subidas. Ejemplos de las dos
+  formas, con la lista de HestiaCP, en la guía de archivos protegidos, «Lo que puede ejecutar código».
+- Los estáticos propios del framework (sus iconos SVG, por ejemplo) no cambian.
+
+## Corrige — seguridad: subir un archivo nuevo ya no puede borrar uno que no es de ese módulo
+
+Al sustituir un archivo subido (el logo o el RUT de una organización, el documento o su imagen, las imágenes de un banner
+o de una publicación), el framework borraba el anterior leyendo su ruta de la base, **sin comprobar que estuviera dentro
+de la carpeta de subidas de su módulo**. Una organización con el logo por defecto que guarda la carga de datos del
+geovisor (`bin/cli geo-load-fixture`, `statics/images/default-avatar-org.jpg`) bastaba: el administrador de esa
+organización cambiaba su logo y el framework borraba **esa imagen del propio framework**, la que ven todas las demás
+organizaciones sin logo. Medido en local. Además, el archivo nuevo caía en una carpeta sacada de la ruta del anterior
+(`uploads/organizations/statics/images/`), no en la de su organización.
+
+- **El anterior solo se borra si está dentro de la carpeta de subidas de su módulo**; si no, se deja donde está y el
+  guardado sigue. Vale para Organizaciones, Documentos, Banners y Publicaciones.
+- **El archivo nuevo va siempre a la carpeta de su registro** (`folder`), también al sustituir uno.
+- **Si un módulo de tu clon copió alguno de estos `handlerUpload`**, tiene el mismo defecto: pásalo a
+  `FormUploadHandler` (la sección siguiente), que lleva la comprobación dentro (`deletePrevious()`, en
+  `src/app/core/psr4/PiecesPHP/Core/Forms/FormUploadHandler.php`).
+
+## Cambia — las subidas de los formularios pasan por una sola pieza: `FormUploadHandler`
+
+Organizaciones, Documentos, Banners y Publicaciones tenían cada uno su copia del código que recibe el archivo de un
+campo de formulario, lo valida, lo guarda en la carpeta de su registro y borra el anterior; el contenido genérico tenía
+una quinta, sin uso. Los arreglos de seguridad de esta versión hubo que hacerlos cuatro veces. Ahora las cuatro usan
+`PiecesPHP\Core\Forms\FormUploadHandler` (ADR 0068), y un arreglo de las subidas se hace una vez.
+
+**Para quien usa el panel no cambia nada.** Antes de tocarlas, una prueba por HTTP (`core/form-uploads`) fijó cómo
+respondían las cuatro —alta con archivo, edición con y sin él, campo vacío, tipo rechazado, el idioma de Publicaciones y
+lo servido con y sin sesión— y sigue igual después.
+
+- **El `handlerUpload` de un módulo queda en pocas líneas** y conserva su firma; dice solo su política, el modo y los
+  tipos por omisión:
+
+  ```php
+  protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
+  {
+      try {
+          return FormUploadHandler::forModule(self::UPLOAD_DIR, FormUploadHandler::MODE_PRIVATE)
+              ->upload($nameOnFiles, $folder, $currentRoute, $allowedTypes ?? [FileValidator::TYPE_ALL_IMAGES], $setNameByInput, $name);
+      } catch (FormUploadRejectedException $e) {
+          //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
+          throw new SafeException($e->getMessage());
+      }
+  }
+  ```
+
+- **Tres modos**: `MODE_PRIVATE`, un archivo que nace privado (Organizaciones, Documentos); `MODE_PUBLIC`, un archivo
+  público (Banners); `MODE_PRIVATE_MULTIPLE`, un archivo por campo, privado, leído con `UploadedFileAdapter` (admite el
+  campo anidado `campo[0]`) y el único que usa el sufijo `$suffixName` (Publicaciones). El nombre del modo es histórico:
+  dos o más archivos en un mismo campo se rechazan (abajo).
+- **Un tipo no permitido lanza `FormUploadRejectedException`**; el módulo la convierte en su `SafeException`, y el
+  mensaje llega a quien sube sin registrarse como error.
+- **`forModule(<carpeta del módulo>, <modo>)`** calcula las rutas dentro de `upload_dir` igual que lo hacían los
+  controladores; para otra carpeta, el constructor recibe la ruta en disco, su URL y el modo.
+- **Si un módulo de tu clon copió un `handlerUpload`, sigue funcionando**; cámbialo por la pieza para recibir los
+  arreglos futuros. El `handlerUpload` sin uso de `GenericContentController` se ha borrado.
+
+Y tres defectos que la prueba de antes destapó, arreglados ya en la pieza:
+
+- **Publicaciones: un campo de archivo sin elegir ya no hace fallar el guardado.** Llegaba como una parte vacía
+  (`filename=""`), lo que manda un `<form>` normal; ahora es «sin archivo», como en los otros tres módulos. Con el panel
+  no pasaba (medido: su JS no manda esa parte), pero sí con un formulario propio de un clon o una petición a mano.
+- **Publicaciones: dos archivos en un mismo campo se rechazan** con «Solo se admite un archivo por campo.», sin escribir
+  nada. Antes la fila apuntaba al último y el primero quedaba en disco sin dueño. Ningún formulario del framework permite
+  elegir dos.
+- **Banners: si el archivo no se puede mover, es un error interno** (se registra) y no se guarda la dirección de la
+  carpeta como si fuera la imagen.
+
+## Nuevo — las direcciones dentro de las hojas llevan la huella de su archivo: `static-url()`
+
+En el SCSS propio, una dirección a un archivo (una imagen de fondo, una hoja importada) se escribe ahora con
+`static-url('ruta')` en vez de una ruta suelta: al compilar sale con la huella del contenido de ese archivo, así que si
+el archivo cambia, el navegador lo vuelve a pedir, y mientras no cambie lo guarda un año. Si el archivo no existe, la
+hoja no compila (ADR 0067; ver «Cómo compila SASS» en la guía de gulp).
+
+- **Si tu clon tiene SCSS propio con `url('../images/…')` o `@import url('…')` a un archivo local**, sigue funcionando
+  (el navegador lo revalida en cada visita), pero `bin/cli verify-integrity` lo señala: cámbialo por
+  `url(static-url('…'))` (o `@import url(static-url('…'))`). Lo externo y `data:` se quedan con `url()`.
+- **Una función de Sass anunciada como nueva se prueba con su declaración**: la comprobación 39 de
+  `verify-integrity` acepta en `files/dev/announced-capabilities.json` la vía `sass_functions`, que exige el nombre
+  declarado en `functions` de `src/gulpfile.js`. La comprobación 55 es la que señala las direcciones sin huella.
+
+## Cambia — la compilación sin `gulp-sourcemaps` ni `gulp-typescript`
+
+`gulp-sourcemaps` (sin mantenimiento; traía 6 de los 9 avisos de `npm audit`, todos de herramientas de desarrollo) y
+`gulp-typescript` (en versión alfa, para un solo archivo) salen de `package.json`, y con ellos 100 paquetes que solo
+pedían ellos. Los mapas los inicia y los escribe el propio `gulpfile.js` (`initSourceMaps()` y `writeSourceMaps()`), como
+hacía `gulp-sourcemaps`, sin leer los mapas que ya traigan las fuentes; TypeScript se compila con el paquete
+`typescript`, que ya estaba. Lo compilado sale idéntico, byte a byte, y con los mismos mapas (medido sobre los 90
+archivos que genera `gulp init-project`).
+
+- **Si tu clon amplió `src/gulpfile.js` con `sourcemaps.init()`/`sourcemaps.write()` o con `gulp-typescript`**, esas
+  líneas dejan de encontrar su paquete: usa las funciones del `gulpfile.js` del framework (`sourcesOf()`, `initSourceMaps()`
+  y `writeSourceMaps()`), o reinstala el paquete en tu clon.
+
+## Nuevo — un módulo registra lo que se puede limpiar en «Estado y cachés»
+
+Los botones de limpieza de **Sistema → Estado y cachés** y su tabla de tamaños salen ahora de un registro
+(`PiecesPHP\SystemStatus\CleanTargetRegistry`): un módulo con caché propia declara la suya, con su botón y su fila, sin
+tocar Sistema (ver «Registrar una limpieza» en la guía de avisos del sistema y mantenimiento). La pantalla y las
+respuestas de los cuatro botones de siempre no cambian.
+
+- **`SystemStatusController::CLEAN_TARGETS` desaparece**: si tu clon la leía, usa `CleanTargetRegistry::all()`. La caché
+  de Publications la registra Publications.
+
+## Corrige — las pestañas de «Importar y exportar» ya no mandan a la portada al recargar
+
+Al pulsar «Importar» o «Exportar», la dirección del navegador pasaba a la de la portada (`…/#exportar`), porque la
+pestaña escribía una dirección relativa y el panel declara su `<base href>`: recargar llevaba a la portada. Ahora la
+dirección se arma sobre la de la página (`…/admin/data-transfer/#exportar`) y recargar vuelve a la misma pestaña. Si tu
+clon escribe la dirección desde JavaScript con `history.replaceState()` o `pushState()`, ármala con
+`new URL(window.location.href)`, como hacen las demás pantallas del framework.
+
+## Corrige — el cargador de páginas ya no se queda con un logo viejo
+
+El logo y la animación del cargador (`statics/images/loader-logo.png` y `loader-animation.gif`) se pedían con la marca
+global de caché, que les daba un año: si un clon cambiaba su logo sin limpiar la caché, el navegador seguía enseñando el
+viejo. Ahora se piden sin marca y el navegador comprueba en cada visita si cambiaron.
+
+# 9.2.0 (27-10-2026)
+
+> **Versión estable, tras la `v9.1.0`.** La base ya solo aplica las opciones que alguien declaró (el catálogo del ADR
+> 0055, segunda versión: **declara las tuyas**); salen las librerías y dependencias que nada usaba (Quill, tidy-html5,
+> Fancybox, Jodit, SurveyJS, HubSpot, jQuery Mask, OpenLayers, iziToast, `scssphp`, `php-ffmpeg-video-streaming` y el
+> SDK abandonado de Azure Storage) y once funciones globales sin uso; Azure Blob pasa a la API REST con Guzzle; y las
+> páginas vuelven a pedir que no se guarden. Es menor y no parche porque quita API pública: lee las secciones ⚠.
+
+## ⚠ Rompe — la base solo aplica las opciones que alguien declaró
+
+Segunda versión del catálogo de opciones (ADR 0055). Hasta ahora, al arrancar, toda fila de la tabla de opciones
+pasaba a la configuración (`set_config`) **antes** de registrar las rutas, la hubiera declarado alguien o no: una fila
+con el nombre de un valor de `config.php` (`app_lang`, `upload_dir`, una llave de API…) lo pisaba en silencio. Ahora
+las opciones se cargan **después** de registrar las rutas, que es cuando los módulos declaran las suyas, y solo se
+aplican las declaradas (`ConfigOptions::applyDeclared()`). Lo no declarado sigue avisándose una vez por nombre, como
+desde la `9.1.0`, y ya no llega a `get_config()`.
+
+- **Si tu clon guarda opciones propias en la base**, decláralas en el `routes()` de su módulo con
+  `ConfigOptions::declare('<nombre>', '<Módulo>')`. Sin la declaración, dejan de aplicarse. El aviso de la `9.1.0` en el
+  registro de errores («no está declarada en el catálogo») te dice cuáles son; `bin/cli config-options` lista las
+  declaradas.
+- **Lo que se lee mientras se registran las rutas** recibe el valor de `config.php`, no el de la base. Medido en el
+  framework: ninguna opción de la base se lee por `get_config()` en ese tramo. Las lecturas directas de la tabla
+  (`new SettingsModel('<nombre>')`, `SettingsModel::getConfigValue()`) no cambian: leen la fila cuando se piden.
+
+## ⚠ Rompe — Azure Blob sin el SDK abandonado de Microsoft
+
+`microsoft/azure-storage-blob` y `microsoft/azure-storage-common` estaban abandonados (la última versión del primero, la
+1.5.4, es del 2022-09-02) y salen de `src/composer.json`; Guzzle, que pedían ellos, se queda, porque el framework ya lo
+pedía directamente. `API\Adapters\BlobStorageAzureAdapter` hace lo mismo que antes —leer un archivo de un contenedor,
+con su carpeta opcional— hablando con la API REST de Azure Blob por Guzzle, con la misma firma de clave compartida
+(versión de la API `2017-11-09`, la que usaba el SDK) y la misma configuración
+(`$config['Azure']['BASE_STORAGE_ACCOUNT_NAME']` y `['BASE_STORAGE_ACCOUNT_KEY']`).
+
+- **Se usa igual**: `new BlobStorageAzureAdapter($cuenta, $llave)`, `->read($contenedor, $archivo, $carpeta)` (devuelve
+  el archivo o `null` si no existe), `BlobStorageAzureAdapter::init()` y `getConnectionString()`. El constructor acepta
+  un tercer argumento opcional, el `GuzzleHttp\Client` con el que se pide, para probarlo sin red.
+- **Más rápido**: antes `read()` listaba el contenedor página a página hasta dar con el nombre y luego lo pedía; ahora
+  lo pide directamente.
+- **Lo que cambia, en `API\Adapters\Packages\BlobStorageFileAzurePackage`**: `properties()` devuelve las cabeceras de la
+  respuesta (`array<string,string>`, con los nombres en minúsculas), no un `BlobProperties` del SDK; `lastModified()` sigue devolviendo un
+  `\DateTime`, y `content()` y `contentType()`, una cadena. `blob()`, que se llamaba a sí mismo sin fin y nunca pudo
+  usarse, sale; el nombre del archivo lo da `name()`.
+- **Un error de Azure** (permisos, contenedor que no existe) lanza una `\RuntimeException` con el código HTTP y, si
+  viene, el código de error de Azure (`403 (AuthorizationFailure)`), nunca con la llave; y también una respuesta sin
+  fecha de modificación (`Last-Modified`), así que `lastModified()` siempre tiene un `\DateTime` que dar.
+- **Un nombre con `/` delante** (`/archivo.txt`) ahora se encuentra: se le quitan las barras de los extremos, con carpeta
+  o sin ella. Antes, sin carpeta, no se encontraba.
+- **Sin verificar contra una cuenta real**: la firma se probó contra la que calculaba el SDK antes de quitarlo
+  (`unit-tests:core/blob-storage-azure`), y las peticiones, con respuestas simuladas.
+
+## ⚠ Rompe — fuera iziToast
+
+Por orden del PO, medido antes: se cargaba en ocho páginas y no se usaba. Los cuatro avisos de `helpers.js`
+(`successMessage`, `infoMessage`, `warningMessage`, `errorMessage`) ya pintaban el toast de Fomantic, e iziToast solo era
+el respaldo para una página sin Fomantic, y ninguna página carga iziToast sin Fomantic.
+
+- Salen `src/statics/plugins/izitoast/`, la clave `izitoast` de `assets.php`, el atajo `import_izitoast()`, sus ocho
+  cargas y su crédito en «Acerca de».
+- **Los cuatro avisos sin Fomantic** muestran la confirmación de un solo botón (`confirmAction()`), como ya hacían
+  cuando no había ninguno de los dos. El cuarto argumento, `options`, son las opciones del toast de Fomantic.
+- **Si tu clon llama a `iziToast` directamente o a `import_izitoast()`**, trae la librería en el propio clon: su
+  carpeta en `statics/plugins/` y su clave en tu `assets.php` (`import_front_library('izitoast')` para cargarla).
+  `iziToast.question` sigue vetado (`bin/cli verify-integrity`, «una sola forma de preguntar»).
+
+## ⚠ Rompe — fuera jQuery Mask, OpenLayers, `scssphp` y `php-ffmpeg-video-streaming`
+
+Por orden del PO, medido antes: nada del framework los usaba.
+
+| Sale | Con ella | Qué usar |
+| :-- | :-- | :-- |
+| jQuery Mask (`src/statics/plugins/jquery-mask/`) | la clave `jquerymask` de `assets.php` y el atajo `import_jquerymask()` | ningún campo del framework usa máscaras; para validar la forma, `pattern` e `inputmode` de HTML |
+| OpenLayers y ol-ext (`src/statics/plugins/open-layers/`) | la clave `openlayers` de `assets.php`, el atajo `import_openlayers()` y nuestro adaptador `src/statics/core/own-plugins/OpenLayersAdapter/` (capas GeoJSON y WMS) | los mapas del framework usan Mapbox (`import_mapbox()`); el adaptador sigue en la historia de git |
+| el alias `mapbox` de `package.json` | — | `mapbox-v3.19.0`, que es el que se copia a `statics/plugins/mapbox/` |
+| `scssphp/scssphp` (Composer) | `scssphp/source-span`, `league/uri` y `league/uri-interfaces`, que solo pedía él | las hojas se compilan con `sass` desde gulp |
+| `aminyazdanpanah/php-ffmpeg-video-streaming` (Composer) | la función global `ffmpeg()` de su `src/helpers.php`, que nadie llamaba; y, con `scssphp`, `symfony/filesystem` y los dos polyfills que solo pedía este (`symfony/polyfill-ctype` y `symfony/polyfill-mbstring`: el framework ya exige `ext-ctype` y `ext-mbstring`) | **`php-ffmpeg/php-ffmpeg`** (la misma v1.4.0 que traía), que es lo único que usaba el framework (la conversión de audio de `FfmpegAudioAdapter`) y ahora se pide directamente |
+
+jQuery Mask y OpenLayers salen también de la lista de créditos de «Acerca de». En `src/composer.json` el `require`
+queda en orden alfabético (lo ordena Composer: `sort-packages`). **Si tu clon usa alguna**, tráela en el propio clon
+(`composer require` para los paquetes de Composer).
+
+## ⚠ Rompe — fuera seis librerías que nada usaba: Quill, tidy-html5, Fancybox, Jodit, SurveyJS y el cliente de HubSpot
+
+Por orden del PO, medido antes: ninguna la usaba el framework, sus vistas ni su JavaScript.
+
+| Sale | Con ella |
+| :-- | :-- |
+| Quill (`src/statics/plugins/quilljs/`) | su adaptador `src/statics/core/own-plugins/QuillAdapterComponent.js`, la clave `quilljs` de `assets.php` y el atajo `import_quilljs()` |
+| tidy-html5 (`src/statics/plugins/tidy-html5/`) | solo lo cargaba el adaptador de Quill |
+| Fancybox (`src/statics/plugins/fancybox/`) | la clave `fancybox3` de `assets.php` y el atajo `import_fancybox3()` |
+| Jodit (`src/statics/plugins/jodit/`) | nada más |
+| SurveyJS (`src/statics/plugins/surveyjs/`) | sus dos muestras en la hoja de diseño (el creador y el formulario, con su fuente `survey-js-creator` y `survey-js-form` de la ruta `admin-design-sheet-resources`) y `$config['SurveyJSKey']`, que nadie leía |
+| `hubspot/api-client` (Composer) | `API\Adapters\HubSpotAPIAdapter`, que nadie llamaba |
+
+Las seis salen también de la lista de créditos de «Acerca de». **Si tu clon usa alguna**, tráela en el propio clon:
+su carpeta en `statics/plugins/`, su clave en tu `assets.php` (y `import_front_library('<clave>')` para cargarla) o
+`composer require hubspot/api-client`. Lo aprendido al integrar SurveyJS queda en las guías de entorno, que no viajan
+con el framework (`source-docs/entornos`, «Herramientas › SurveyJS»).
+
+## ⚠ Rompe — fuera once funciones globales y una constante que nada usaba
+
+Ninguna la llamaba el framework, ni sus vistas, ni sus paquetes (medido por nombre en `src/`, `bin/`, `files/` y
+`src/vendor/`). Solo salen las rotas, las que repiten en una línea lo que PHP o el framework ya hacen, y las que
+contradicen sus reglas; lo que aporta algo propio a un clon se queda.
+
+| Sale | Por qué | Qué usar |
+| :-- | :-- | :-- |
+| `remove_char()` | Rota: en PHP 8 lanza `Error` («Cannot assign an empty string to a string offset») | `substr_replace($cadena, '', $pos, 1)` |
+| `remove_last_char_on()` | Rota con caracteres de varios bytes: `remove_last_char_on('/', 'año/')` devolvía `'año/'` | `str_ends_with($cadena, $c) ? mb_substr($cadena, 0, -1) : $cadena` |
+| `replace_last_char()` | Rota igual: `replace_last_char('año', 's')` devolvía `'años'` | `mb_substr($cadena, 0, -1) . $reemplazo` |
+| `imageDimensions()` | Con un archivo que no es imagen lanzaba `TypeError`, y cargaba la imagen entera en GD | `getimagesize($ruta)` |
+| `last_char_pos()` | `strlen($cadena) - 1` | eso |
+| `replace_first_char()` | `$reemplazo . mb_substr($cadena, 1)` | eso |
+| `compare_array_length()` | `count($a) === count($b)` | eso |
+| `remove_emptys()` | Pese al nombre, solo quitaba las cadenas vacías | `array_filter($arreglo, fn($v) => $v !== '')` |
+| `lang2()` | `lang()` con los parámetros en otro orden | `lang($grupo, $mensaje, $idioma)` |
+| `register_routes()` | Un bucle sobre `register_route()`; las rutas se declaran con `Route` y `RouteGroup` | `(new RouteGroup($prefijo))->register([...])` |
+| `get_route_by_controller()` | Ignoraba su `$method_request`; las URL salen del nombre de la ruta | `Controller::routeName()` |
+| `ADMIN_PATH_VIEWS` | Parecía configurar la carpeta de vistas del panel y nadie la leía: cambiarla no hacía nada | nada: la carpeta es `src/app/view/panel/` |
+
+**Si tu clon usa alguna**, cópiala en sus propias funciones o cámbiala por lo de la columna de la derecha.
+
+## Corrige — `bin/verify` y los censos de SCSS, en un clon recién creado
+
+- `bin/censo-scss` y `bin/huella-css` crean su carpeta de salida (`files/dev/`), que no viaja con el framework: en un
+  clon caían con un error al terminar el cálculo.
+- `bin/artefactos` da por **generada**, y no por rancia, una foto que git ignora y que todavía no existe
+  (`files/dev/route-inventory.json`): en un clon nuevo, `bin/verify` caía en su paso de artefactos.
+
+## Corrige — `bin/cli clean-cache` desde la terminal
+
+Los enlaces de `statics/server-delegated/` que la terminal no puede borrar (son del usuario del servidor web) se avisan
+como error leve (`log_soft_error()`) y ya no como error grave (`log_exception()`); la respuesta los sigue contando.
+
+## Cambia — el framework dice con qué Node compila
+
+`package.json` declara `"engines": {"node": ">=22"}` y la raíz lleva un `.nvmrc` con `22`, la versión con la que se
+compila y se prueba hoy (medido: Node 22.22.2). Con otra versión, `npm` avisa y no falla; `nvm use` en la raíz elige la
+buena.
+
+## Corrige — las páginas vuelven a pedir que no se guarden
+
+Desde la `9.1.0`, leer un mensaje flash ya no abre la sesión de PHP, y con ella se fue la cabecera que PHP añadía a toda
+página (`Cache-Control: no-store, no-cache, must-revalidate`): ninguna página la llevaba, tampoco las del panel, con datos
+privados (tras cerrar la sesión, «atrás» podía enseñarlas). Ahora el framework vuelve a poner las tres de entonces
+(`Cache-Control: no-store, no-cache, must-revalidate`, `Pragma: no-cache` y `Expires: Thu, 19 Nov 1981 08:52:00 GMT`)
+en toda respuesta que no traiga ya su propio `Cache-Control`; los estáticos, las descargas, el mapa del sitio y lo que
+fija su caché a propósito conservan la suya, sin heredar `Pragma` ni ese `Expires`. Lo vigila
+`core/static-cache`, que desde ahora corre en `bin/cli gates`.
+
+## Corrige — `bin/cli clean-logs` dice si un registro no se pudo vaciar
+
+Antes anunciaba «vaciado» aunque la escritura fallara, y un cambio de permisos sobre un archivo de otro usuario del
+sistema avisaba (y en local, un aviso aborta). Ahora dice «<archivo> NO se pudo vaciar» y el cambio de permisos no avisa.
+
+## Corrige — la siembra
+
+- Los documentos sembrados van sin miniatura, como un alta sin imagen, y el explorador pinta el icono de su tipo (antes
+  todos llevaban la imagen genérica).
+- La simulación de `bin/cli seed` rotula con su tabla (`pcsphp_task_runs`) el mapper que `scheme-create` no ve, y no con
+  su clase.
+
+## Corrige — instrumentos que viajan con el framework
+
+- `bin/huella-css`, ante una hoja que desaparece, enseña las reglas que se van antes de parar.
+- Una suite corrida sola dice también cuántas líneas de `error.plain.log` y bloques de `error.unique.message.log` podó,
+  con el mismo texto que `bin/cli gates`.
+
+# 9.1.0 (26-10-2026)
+
+> **Versión estable, la primera tras la `v9.0.0`.** `database` 5.5.3 (guardar escribe solo lo que cambió), el catálogo de
+> las opciones de la base en modo aviso (la versión siguiente dejará de aplicar lo no declarado: declara las tuyas),
+> el explorador del editor enriquecido otra vez en marcha, `html` y `geojson` 4.0, la suplantación de root acotada y
+> navegar sin aprobar usuarios. **Las rupturas van marcadas con ⚠ en cada sección**: quien actualiza un clon desde la
+> `9.0.0` las lee todas antes de empezar.
+
+## ⚠ Rompe — navegar ya no aprueba a un usuario: se aprueba al crearlo en una organización aprobada
+
+Hasta ahora, un usuario pendiente de una organización ya aprobada quedaba activo, y su fila de aprobación aprobada, la
+primera vez que el framework comprobaba su aprobación: en cada petición de ese usuario o en el arranque, al dar de alta
+su fila en Aprobaciones. Comprobar escribía.
+
+Ahora `UsersApprovalHandler::isAutoApproval()` solo lee. En el alta de usuarios
+(`UsersController::createUserFromRequest()`, por la que pasan el panel y el alta pública de la API) la aprobación por la
+organización la hace `UsersApprovalHandler::approveIfOrganizationApproved()`. La aprobación de una organización sigue
+aprobando, como antes, a sus usuarios activos y pendientes, con su propia lógica
+(`OrganizationApprovalHandler::onApprovedSpecificMapper()`), que aplica la misma regla.
+
+- **Un clon que crea usuarios con su propio código** y quiere que un pendiente de una organización aprobada quede activo
+  llama a `UsersApprovalHandler::approveIfOrganizationApproved($usuario)` después de guardarlo, con
+  `SystemApprovalsRoutes::ENABLE` encendido. Si no lo llama, el usuario se queda pendiente y su aprobación aparece en
+  Aprobaciones para que una persona decida; antes se activaba solo en la primera petición de quien fuera.
+- **Al actualizar**: los pendientes que ya existan en organizaciones aprobadas siguen pendientes, con el acceso
+  recortado, hasta que alguien los apruebe en Aprobaciones; antes se activaban en su primera petición. Un usuario
+  activo cuya fila siga pendiente conserva su acceso, y su fila queda a la vista hasta que una persona la resuelva.
+- **Lo que no cambia**: root, los tipos que se autoaprueban y los activos no quedan recortados; uno rechazado por una
+  persona no lo aprueba su organización.
+- Pruebas: `unit-tests:core/auto-approval-status` (14 casos: la petición que ya no aprueba, el alta que sí y el rechazado por una persona, que la organización no aprueba) y el
+  caso b26 de `unit-tests:core/status-transitions`.
+
+## Corrige — root puede terminar la suplantación de un usuario pendiente o rechazado
+
+Al suplantar a un usuario recortado (pendiente o rechazado), el recorte le quitaba también «Volver a mi cuenta»
+(`user-impersonation-end`) y root se quedaba dentro hasta que la suplantación caducaba, a los 60 minutos.
+`UsersModel::keepsWhenRestricted()` la conserva ahora. Como esa lista la usa también
+`SystemApprovalsMiddleware::keepsWhenNotApproved()`, un usuario no aprobado conserva esa ruta, que sin suplantación
+responde 400. Prueba: el caso d3 de `unit-tests:core/impersonation` (declara red: `gates` la corre con
+`with=external`).
+
+## Corrige — las pruebas ya no dejan rastro en `error.plain.log` ni en `error.unique.message.log`
+
+Desde la `9.0.0` lo que escribe una prueba en `error.log.jsonl` lleva la marca de su corrida y se poda al terminar (ADR
+0063). Los dos registros de texto se quedaban fuera y acumulaban para siempre lo de las pruebas. Ahora:
+
+- la línea de `error.plain.log` lleva `[test <corrida>]` tras `[ref ERR-…]`, y el bloque de `error.unique.message.log`
+  la lleva al final de su primera línea, dentro de la firma (así un error real con la misma firma que uno de prueba se
+  registra igual);
+- la poda los limpia por bloques, con el mismo cerrojo, la misma comprobación final (si un solo bloque que se iba a
+  quitar no lleva la marca, ese archivo no se toca) y la misma reescritura atómica;
+- las dos escrituras van con cerrojo, y la del único comprueba la firma bajo él;
+- `gates` dice cuántas líneas y bloques podó de cada uno.
+
+Lo rotado en `olds/` sigue sin podarse. Prueba: `unit-tests:core/test-errors-prune` (20 casos, con un error real en
+medio que queda byte a byte).
+
+## Cambia — el framework pasa a `piecesphp/database` 5.5.3: guardar escribe solo lo que cambió
+
+`src/composer.json` pide ahora `piecesphp/database` `^5.5.3`; actualiza un clon con
+`composer update piecesphp/database`. `EntityMapper::update()` escribe solo las columnas que cambiaron respecto a la
+fila tal como se leyó, y un guardado sin cambios no lanza ninguna consulta ni dispara el evento «actualizado» (el
+contador de filas cambiadas queda en `0`, como antes). Detalle en el `CHANGELOG` del paquete.
+
+- **Lo que NO arregla, medido**: los formularios del panel envían todos sus campos. Si dos personas abren la misma
+  edición y cada una cambia un campo distinto, el segundo guardado sigue devolviendo el campo del primero a su valor
+  anterior, porque llega en el envío con el valor que tenía al abrir el formulario y, frente a la fila recién leída, es
+  un cambio. Medido con dos sesiones sobre una coordenada de Ubicaciones: el nombre que cambió la primera se perdió y
+  quedó la dirección de la segunda. Lo que sí deja de pisarse es lo que escribe código que asigna solo lo que cambia.
+- **La comparación es por la forma de texto** (`(string) $guardado === (string) $nuevo`; `NULL` solo es igual a `NULL`):
+  el texto `'2492'` de un envío frente al entero `2492` de la base no cuenta como cambio, y por eso un formulario guardado
+  tal cual no escribe nada; `'0e1'` frente a `'0e2'`, o `'1e3'` frente a `'1000'`, sí cuentan.
+- **Un campo `json` anulable que se guarda vacío queda en `NULL`** (5.5.3), no con el texto `'null'`; una fila vieja con
+  ese texto se iguala en su siguiente guardado, que entonces cuenta como cambio (dispara el evento «actualizado») una
+  sola vez. En una instalación local medida, solo lo tenía `organizations_elements.actionLines` (5 filas). Para
+  igualarlas de una vez: `UPDATE organizations_elements SET actionLines = NULL WHERE actionLines = 'null';`
+- **Y de paso, en el paquete** (5.5.1 a 5.5.3): una condición con `$`, `?`, `=`, `-` y otros caracteres en la
+  expresión ya no rompe la consulta; `having()` y `join()` aceptan un criterio sin `and_or`; `getCompiledSQL(true)` sin
+  conexión lanza una excepción que lo explica; la consulta compilada no altera los textos con dos espacios. El
+  geovisor ya no rodea lo de los caracteres con `CHAR(36)`: su respuesta sale idéntica byte a byte.
+
+## Nuevo — el catálogo de las opciones que la base puede dar (ADR 0055), primera versión: avisa
+
+Hasta ahora, cualquier fila de la tabla de opciones se aplicaba al arrancar con `set_config()`, también una con el
+nombre de un ajuste fijo de `config.php`: el nombre de la fila decidía qué ajuste se cambiaba. Ahora cada módulo
+**declara** las opciones que guarda con `ConfigOptions::declare()`, y el framework declara las suyas (69 en una
+instalación con español e inglés). Una fila que nadie declaró **se avisa una vez** en el registro de errores, por su
+nombre y sin su valor, y **en esta versión se sigue aplicando**. `bin/cli config-options` lista el catálogo y las filas
+que no lo cumplen.
+
+- **Qué tiene que hacer un clon con opciones propias**: declararlas en el `routes()` de su módulo (receta en
+  `configuration.md`, «Las opciones que la base puede dar se declaran»). La versión siguiente dejará de aplicar lo no
+  declarado.
+- **Revisa tu tabla**: `bin/cli config-options` dice qué filas no reconoce; si no son tuyas, bórralas.
+- Lo vigilan `core/config-options` y `core/config-options-warning`.
+
+## ⚠ Rompe — el listado de organizaciones del panel ya no publica el esquema de la tabla
+
+`GET admin/organizations/all/` (la ruta `organizations-admin-ajax-all`) mandaba en cada `parsedElements[]` el mapper
+entero, y con él el esquema de la tabla: `table`, `primaryKey`, `foreingsKeys` y la definición de todas sus columnas
+(`fields`). Ahora manda los mismos datos sin esas cuatro claves; el resto de la respuesta no cambia. Ninguna pantalla
+del framework pide esa ruta; si un clon lee esas claves de ahí, deja de tenerlas. Lo vigila
+`core/organizations-incomplete` (f2).
+
+## Corrige — el botón de insertar archivo del editor enriquecido vuelve a abrir el explorador
+
+Desde la `6.3.0`, el botón «Insertar imagen o archivo» de todos los editores enriquecidos del panel abría una ventana
+con un 404 en lugar del explorador de archivos, y pegar una imagen en el editor iba a la misma dirección rota. El
+adaptador armaba la dirección a mano con `admin_url`, que vale `''`, y el explorador vive bajo `admin/`. Ahora la da el
+servidor: el módulo FileManager publica al frente `richEditorFileManagerURLs` con `routeName()`, y el adaptador la lee.
+Si un clon pasaba sus propias direcciones al adaptador (`fileManagerConfigURL`, `fileManagerUIURL`), siguen mandando. Lo
+vigila `core/rich-editor-file-manager-urls`.
+
+## Quita — el cliente comercial de CKFinder
+
+Se retira `src/statics/plugins/ckeditor/ckfinder/ckfinder.js`, el cliente de CKFinder, que es un producto comercial con
+licencia propia y viajaba en cada clon. El editor no lo usaba: su orden de insertar archivos la sustituye el adaptador
+por el explorador de elFinder. Medido en el navegador: con y sin él, el editor y el explorador se comportan igual.
+Fuera también su entrada `ckfinder` de los plugins de `ckeditor` en `app/config/assets.php`.
+
+## Corrige — el correo de prueba de Configuración valida la dirección por su forma
+
+La pantalla que envía un correo de prueba validaba el destinatario con `Validator::isEmail()`, que no mira la forma:
+solo pregunta por DNS si el dominio tiene servidor de correo. Aceptaba una dirección mal formada con un dominio bueno
+(`x y@mailinator.com`) y rechazaba una buena si el DNS fallaba en ese momento. Ahora la valida con `filter_var`, como
+el resto del framework. `Validator::isEmail()` no cambia. Lo vigila `core/mail-settings-tests` (b6).
+
+## Corrige — cuatro instrumentos de `bin/`
+
+- **`bin/navegador`** respeta el `--perfil` de la línea de órdenes (antes ponía el suyo delante y el dado se ignoraba en
+  silencio; la variable `PCSPHP_NAVEGADOR_PERFIL` sigue igual), y `bin/navegador --help` imprime la ayuda en vez de
+  lanzar el recorrido.
+- **`bin/guarda-add`** cuenta un archivo renombrado como un borrado y un añadido para su aviso de la foto de borrados;
+  antes un renombrado no avisaba.
+- **`bin/censo-borrados`** ya no da por decidido el borrado de un archivo porque el registro nombre la ruta exacta de
+  OTRO archivo de su carpeta. Sigue avalando por la carpeta cuando se nombra la carpeta misma (límite conocido).
+- **`bin/censo-sql-concatenado --trinquete`** para también cuando una entrada declarada tiene MENOS concatenaciones que
+  su cota, y dice a cuánto bajarla: la lista solo puede encoger.
+
+## Corrige — cerrar la sesión borra la cookie del token
+
+`PiecesPHPSystemUserHelper.deleteSession()` caducaba la cookie del token con un número de milisegundos, que no es una
+fecha: el navegador la conservaba después de cerrar la sesión. Ahora la caduca con una fecha pasada, como ya hace
+`PiecesPHPGenericHandlerSession`, corregido antes en esta misma versión. Medido en Chromium: la cookie estaba antes y ya no está después. Lo
+vigila `core/session-contract` (l4).
+
+## ⚠ Rompe — el framework pasa a `piecesphp/html` 4.0 y `piecesphp/geojson` 4.0
+
+`src/composer.json` pide ahora `piecesphp/html` `^4.0` y `piecesphp/geojson` `^4.0`; actualiza un clon con
+`composer update piecesphp/html piecesphp/geojson`. Lo que cambia para quien los use directamente:
+
+- **`piecesphp/html` escapa por defecto** el texto y los atributos (antes no escapaba nada). El HTML de confianza va
+  con `setRawContent()` o como hijos; si escapabas antes, quita tu escape o saldrá doble. Un nombre de etiqueta o de
+  atributo raro lanza. Detalle en su `CHANGELOG`. En el framework solo lo usaba el menú (`MenuGroup`), que ya
+  construye su icono y su nombre como hijos; las capturas del menú lateral salen idénticas. **Fuera
+  `menu_sidebar_items()`** (`src/app/config/functions.php`), que no llamaba nadie.
+- **`piecesphp/geojson` sale en `[longitud, latitud]` por defecto** (RFC 7946); `ORDER_LAT_LNG` queda en desuso. El
+  geovisor genera ya su GeoJSON con la librería: la respuesta de sus puntos es idéntica byte a byte a la de antes.
+
+Lo vigilan `core/menu-group-html` y `core/geo-sources`.
+
+## ⚠ Cambia — un error dentro de una vista llega a quien la pidió, y se registra una vez
+
+`BaseController::render()` y `_render()`, ante una excepción de la plantilla, la registraban, pintaban la página 500
+y morían: quien pedía la vista (por ejemplo, un correo que se arma con una plantilla) no podía capturar el fallo, y
+cada error de vista quedaba **dos veces** en Registros › Errores, con dos referencias gemelas. Ahora relanzan la
+excepción sin registrarla. Por HTTP no cambia nada visible: la recoge el manejador global, que pinta la misma página
+500, ahora con **una sola** referencia. **Si tu clon envuelve `render()` en un `try` y quiere el error en el registro,
+regístralo él** con `log_exception()`. Lo vigila `core/mail-templates-escape` [5/5].
+
+## Corrige — la página 500 declara su favicon
+
+La página de error 500 no declaraba icono y el navegador pedía `/favicon.ico` a la raíz del dominio (404). Ahora usa el
+favicon del sitio, como la 403 y la 404.
+
+## Corrige — pedir en silencio una ruta sin sus parámetros ya no tumba la página
+
+`allowedRoute()`, `routeName(…, true)` y `get_route(…, true)` sobre una ruta que lleva parámetros, llamados sin ellos,
+lanzaban («Missing data for URL segment») aunque pedían silencio: la página daba 500 en vez de no enseñar el enlace
+(pasó el 2026-10-22). Ahora, en silencio, responden como con una ruta que no existe (`false`, `''`, `null`); sin
+silencio, siguen lanzando. Lo vigila `core/anonymous-route-access` [4/4].
+
+## Corrige — el desempate de las tablas del panel no se pierde
+
+`DataTablesHelper::generateOrderBy()` daba por puesto el orden de desempate (`custom_order`) si su columna aparecía
+como subcadena de la que ordenaba el usuario, y lo quitaba: al paginar se podían repetir o saltar filas. Ahora compara
+el nombre exacto de la columna. De los 20 usos del framework cambian dos: ordenar por fecha en Registros › Accesos
+(`dateFormat` gana su desempate por `date`) y en Aprobaciones (`referenceDateFormat`, por `referenceDate`). Lo vigila
+`core/sql-placeholders` §13.
+
+## Cambia — un enlace dentro de un texto del panel se distingue
+
+Un enlace en medio de un texto del contenido del panel (párrafos, listas, citas) tenía el color del texto, y los
+visitados se veían negros. Ahora lleva el color de marca (`--main-brand-color`) y subrayado, y no hay color propio de
+visitado. No cambian los enlaces con clase (botones, etiquetas, migas), los de las tablas, el menú lateral ni la barra
+superior. Hoy solo la hoja de diseño tiene enlaces así; las capturas del inicio, un listado y Configuración salen
+idénticas.
+
+## ⚠ Rompe — una ruta sin nombre ya no arranca
+
+`RouteAdapter` inventaba un nombre con `uniqid()` a la ruta que no traía ninguno: cambiaba en cada arranque, así que no
+se le podía dar permiso ni enlazarla. Ahora el framework se niega a arrancar con una ruta sin nombre (o con nombre
+vacío) y dice cuál. En el framework no hay ninguna (0 de 378, medido). **Si tu clon declara una ruta sin nombre, dale
+uno**: el nombre es su permiso. Lo vigila `core/route-validation`.
+
+## ⚠ Seguridad — la llave del cron ya no se finge en `config.php`
+
+`config.php` traía `$config['CronJobKey'] = 'TODO:secret'`. Esa línea no contaba si existía `secure-keys/cronjob`,
+pero **sin ese archivo era la llave en uso**: la ruta del cron aceptaba la cabecera con `TODO:secret`, una llave
+publicada con el framework. Ahora la línea no existe y, sin `secure-keys/cronjob`, la ruta rechaza toda llave. **Si tu
+clon lanzaba el cron con `TODO:secret`, crea `secure-keys/cronjob` con una llave propia**. Lo vigila `core/task-runs`.
+
+## Corrige — el tamaño máximo de subida por defecto
+
+Sin un máximo propio, una subida tomaba el menor de `post_max_size` y `upload_max_filesize` comparándolos como texto y
+quitando la «M»: con «1G» el máximo era 1 MB, con «512K» 512 MB, y con «0» (sin límite) se rechazaba todo. Ahora se
+convierten a bytes (`FileValidator::iniSizeToBytes()`, K, M y G), se comparan como números y «0» es sin límite
+(`FileValidator::defaultMaxBytes()`). Un máximo explícito no cambia. Lo vigila `core/file-validator-max-size`.
+
+## Corrige — las traducciones dinámicas pendientes no se pierden
+
+Al volcarlas de la base al archivo, el framework escribía el JSON sin comprobarlo y vaciaba la base después: si la
+escritura fallaba, se perdían. Ahora `DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON()` devuelve si
+escribió (a un temporal y con `rename()`), y la base solo se vacía si lo hizo; si no, queda en el registro. Lo vigila
+`core/dynamic-translations-sync`.
+
+## Corrige — defectos del núcleo, de bajo riesgo
+
+- **`import_front_library()` con `$all`** pisaba su parámetro con el nombre del último plugin y limpiaba la lista de
+  otra librería («Undefined array key»). Reimportar un plugin sigue volviendo a pasar sus archivos (un archivo quitado
+  a mano vuelve), como antes. Lo vigila `core/import-front-library`.
+- **El límite de tokens de la IA** se declaraba dos veces; un valor mal formado daba 500 y ahora 400, como todo error de
+  validación de esa acción (antes, 200 con `success: false`).
+- **«Identidad y SEO» guarda solo lo que cambia**, e intenta cada opción aunque otra falle.
+- **Los colores de la acción genérica** solo pasan a mayúsculas si son `#hex`: un `rgba()` se guarda como se escribió.
+- **Los formularios enseñan el motivo del servidor** en una respuesta 4xx (antes, «error al conectar con el servidor»):
+  `genericFormHandler`, con el texto de reserva traducido.
+- **La hora de cada operación** de las respuestas (`Operation`) sale en 24 h (`Y-m-d H:i:s`); antes, en 12 h y sin AM/PM.
+- **La marca de caché de una URL con una entidad numérica** (`&#039;`) ya no parte la URL por el `#` de la entidad. Lo
+  vigila `core/static-versions-entities`.
+- **El gestor de archivos** ya no declara `'permissions' => 0755` en sus raíces ni cambia los permisos de las que ya
+  existen (una raíz que falta se sigue creando con 0755): en un servidor donde funcionara le quitaba al grupo la
+  escritura que pone `permissions.sh`. `structureOptions()` es pública:
+  si tu clon le pasaba `'permissions'`, ya no se aplica.
+- **Sustituir una imagen** (fondos, logos, contenidos genéricos, banners, categorías de noticias, organizaciones,
+  documentos y publicaciones) ya no da error si la anterior no existe o no se puede borrar: se registra y la respuesta
+  no cambia. Lo vigila `core/previous-file-missing`.
+- **Un recurso de la hoja de diseño** (el formulario de SurveyJS) declara su favicon; **la siembra** da a las categorías
+  de noticias colores distintos; **el código de un solo uso** ya no enciende la depuración del correo.
+
+## Corrige — con el idioma fuera de la URL el framework arranca
+
+Con `lang_by_url` en `false` el arranque caía («Using null as an array offset»), y con `lang_by_browser` también en
+`false` las rutas salían con doble barra (`//admin/`). Ahora, sin idioma en la URL, el prefijo es vacío y el idioma
+sale del navegador, la cookie o el de por omisión. Con `lang_by_url` en `true` (lo de fábrica) nada cambia: el
+inventario de rutas sale igual. Lo vigila `core/lang-by-url-off`.
+
+## Cambia — el aviso de una organización aprobada va a su encargado
+
+Iba a quien la creó. Ahora va a su encargado y, si no tiene o está eliminado, a quien la creó (P216). Lo vigila
+`core/approval-forms` [e].
+
+## ⚠ Rompe — una fuente del geovisor implementa `filterOptions()`; el filtro de organizaciones busca bajo demanda
+
+La interfaz `PiecesPHP\Geo\GeoSource` pide un método nuevo, `filterOptions(string $key, string $search, int $limit):
+array`: las opciones de uno de sus filtros remotos que casan con la búsqueda (valor → texto, sin escapar), o un arreglo
+vacío si el filtro no es suyo o no es remoto. **Si tu clon tiene su propia `GeoSource`, añádele el método**; sin
+filtros remotos basta `public function filterOptions(string $key, string $search, int $limit): array { return []; }`.
+El tipo nuevo de filtro es `GeoFilter::TYPE_REMOTE_OPTIONS` (sin opciones en línea). El filtro «Organizaciones» del
+geovisor ya no carga todas las organizaciones en la página: el desplegable busca al escribir, por la ruta nueva
+`geo-admin-filter-options` (`{geo}/filters/{key}/options/`, con el permiso del geovisor, hasta 20 resultados). Y
+`filters()` de las dos fuentes ya no consulta la base. Lo vigila `core/geo-sources` (c14-c17, h8-h11).
+
+## Cambia — leer un mensaje flash no abre una sesión
+
+Toda petición, también la portada pública, abría la sesión de PHP (`PHPSESSID`) porque mirar si había mensajes flash
+la arrancaba: todo visitante, robots incluidos, recibía una cookie y dejaba un archivo de sesión en el servidor, y PHP
+añadía `Cache-Control: no-store` a toda página. Ahora `FlashMessages` y `SessionDataHandler`, al LEER, no arrancan una
+sesión si no está abierta y la petición no trae su cookie: responden «no hay». **Escribir un mensaje la sigue
+abriendo**, como antes. Medido en la portada local: sin `Set-Cookie` y sin `Cache-Control`. Lo vigila
+`core/session-on-demand`; el camino de escribir en una petición y leer en la siguiente (la suplantación), `core/impersonation`.
+
+## Corrige — la errata `DYNAMIC_TRANSCALTIONS`, con su migración
+
+La fila de configuración donde esperan las traducciones dinámicas pendientes se llamaba
+`…|DYNAMIC_TRANSCALTIONS`. Pasa a `…|DYNAMIC_TRANSLATIONS` (la constante es ahora
+`GenericContentPseudoMapper::CONTENT_DYNAMIC_TRANSLATIONS`, y `dataConfigName` de `src/app/config/lang.php`). **En una
+instalación que ya existe, aplica `databases/actualizaciones/2026-10-26-errata-traducciones-dinamicas.sql` ANTES de
+desplegar el código**: renombra la fila y la clave de su JSON; si el código nuevo ya creó la fila nueva vacía, la borra
+primero. Si se despliega sin aplicarlo no se pierde nada: mientras la fila nueva no exista, se leen los datos de la
+vieja, sin escribir en ella (`GenericContentPseudoMapper::LEGACY_CONTENT_DYNAMIC_TRANSLATIONS`), y el primer guardado
+ya va a la nueva. Lo vigila `core/dynamic-translations-sync`.
+
+## Corrige — se puede guardar una organización cuyo encargado fue eliminado
+
+El desplegable del encargado solo ofrece usuarios que no estén eliminados, así que, si el encargado actual lo estaba,
+el campo quedaba vacío y obligatorio: no se podía guardar nada de la organización hasta elegir otro, y nunca si no había
+otro candidato. Ahora, en ese caso, el campo deja de ser obligatorio y avisa «El encargado actual fue eliminado: elija
+otro cuando pueda.»; guardar sin elegir conserva el encargado. Lo vigila `core/organizations-incomplete` [d].
+
+## Corrige — aprobaciones: un usuario eliminado no cuenta como pendiente, y no se avisa al usuario de sistema
+
+Las aprobaciones pendientes de usuarios Eliminados se listaban y se contaban en el inicio (las de organizaciones ya
+no). Y el aviso por correo de una aprobación ya no se intenta enviar al usuario de sistema ni a una dirección
+`.invalid`: se omite sin error. Lo vigila `core/approval-forms` [d].
+
+## Corrige — caché y estáticos
+
+- **La página 404 ya no pide `statics/css/404.css`**, que no tenía fuente ni viajaba con el framework: en un clon daba
+  404. Ya llevaba `errors.css`, como la 403 y la 503; se ve igual (capturas idénticas).
+- **El CSS de variables del panel se versiona por su contenido.** Su URL lleva como `cacheStamp` la huella de lo que
+  sirve (`CSSVariables::fingerprint()`, `versionedURL()`, `globalVersionedURL()`), y solo con esa huella se guarda un
+  año (`immutable`); sin marca, o con otra (la marca global que llevan los `globals-vars.css` de los módulos), se sirve
+  `no-cache` y se revalida con su ETag. Cambiar un color cambia la URL. `CSSVariables::toResponse()` acepta
+  `?string $cacheControl` (nulo: esa regla). Lo vigila `core/css-variables-version`.
+- **`clean-cache` borra los enlaces delegados con `ServerDelegatedLinks::deleteAll()`** y dice cuántos no pudo. Desde la
+  terminal sigue sin poder borrar los que crea el servidor web (carpetas de `www-data`): para esos, «Borrar accesos rotos»
+  en el panel.
+- **`clean-cache` barre las miniaturas del geovisor de puntos que ya no existen** (`GeoThumbnail::sweep()`); una borrada
+  de más se regenera al pedirse.
+- **Los mapas de fuentes (`.css.map`) apuntan a su `.scss`**, relativos a la carpeta del propio `.map` (`gulpfile.js`).
+  Medido: de 0 a 42 de 59 que resuelven; los que no, son hojas sin fuente o que no compila gulp. Los `.css` salen
+  idénticos.
+
+## Corrige — Informes
+
+La URL de los datos del informe genérico la da el servidor (atributo de la vista) en vez de armarse en el JavaScript, y
+salen cuatro traducciones inglesas que nadie pedía.
+
+## Cambia — la vista de osTicket recibe solo si hay clave, no la clave
+
+La pantalla Configuración › Integraciones › OsTicket ya no pintaba la clave guardada (el campo va vacío y, vacío, la
+conserva), pero el controlador seguía pasándosela a la vista, que solo miraba su longitud. Ahora la vista recibe
+`$hasKey` (`bool`) en lugar de `$key`, y la dirección guardada se pinta escapada. **Si tu clon sobrescribe la vista
+`panel/pages/app_configurations/os-ticket.php`**, cambia `mb_strlen((string) $key) > 0` por `$hasKey`. Lo vigila
+`core/view-escapes` [f].
+
+## Corrige — `preferSlug` no esconde el id
+
+El comentario de la propiedad `preferSlug` decía que era «un token usado para acceso individual sin exponer el ID» en
+ocho mappers: `UserProfileMapper`, `NewsMapper`, `NewsCategoryMapper`, `OrganizationMapper`, `DocumentTypesMapper`,
+`CategoriesMapper` (formularios), `PublicationCategoryMapper` y `PublicationMapper`. No es así: en los ocho es el id con
+un sufijo aleatorio, **ofuscado** con `BaseHashEncryption::obfuscate()` usando como clave el nombre de la tabla, y se
+puede deshacer (todos menos `UserProfileMapper` lo hacen ellos mismos con `deobfuscate()` para buscar por slug). Sirve para que la
+dirección no sea un número correlativo, no para ocultar nada. Solo cambia el comentario.
+
+## Quita — tres restos que no hacían nada
+
+- **`src/app/core/extensions/patches_composer_dependencies.php`**: definía `ffmpeg()` solo si no existía, para
+  `aminyazdanpanah/php-ffmpeg-video-streaming`. La versión instalada (v1.3.1) la declara con los mismos tipos en su
+  `src/helpers.php`, que Composer carga antes que las extensiones, así que el parche no entraba nunca. Nadie en el
+  framework llama a `ffmpeg()`. Si tu clon usa esa librería, no cambia nada: la función sigue saliendo de ella.
+- **`src/app/classes/PiecesPHP/Settings/Statics/sass/includes/_base.scss`**: una hoja parcial que ninguna otra
+  importaba; no aparecía en ningún CSS compilado.
+- **La línea `src/statics/login-and-recovery/css/*` de `.gitignore`**: esa carpeta no existe desde que las hojas del
+  acceso pasaron al módulo `UserSystem`. Las imágenes de `statics/login-and-recovery/images/` siguen donde estaban.
+
+## Cambia — el resumen de Registros › Accesos cuenta sin cargar todos los intentos
+
+La vista «Intentos» de la pestaña Accesos enseña tres cifras (total, exitosos y erróneos), y para calcularlas cargaba
+en memoria TODAS las filas de `login_attempts` y las filtraba una a una con la regla de quién ve qué (P133). Ahora la
+base cuenta por usuario y resultado (`LoginAttemptsModel::countsBySuccess()`), y la misma regla se aplica a cada grupo:
+las cifras son idénticas, porque la regla solo mira el usuario, su tipo y su organización. Medido con 652 intentos: de
+unos 2,8 ms a 1,1 ms y de 3,8 MiB a 0,23 MiB de memoria; lo que se ahorra crece con los intentos, porque los grupos
+crecen con los usuarios. La exportación sigue con las filas, que son su contenido. `LoginAttemptsModel::all()` acepta
+además quién mira (`$actor`, opcional). Lo vigila `core/login-attempts-counts`.
+
+## Seguridad — los estáticos rechazan `..` antes de delegar en el servidor web
+
+`ServerStatics` sirve las hojas de estilo, los scripts y las imágenes de todos los módulos. Lo que delega en el servidor
+web (las extensiones de `DELEGATE_TO_WEB_SERVER`) lo enlazaba en `statics/server-delegated/` y redirigía **sin pasar por
+la comprobación de la ruta**, que solo corría en el camino que sirve PHP. Ahora una ruta con `..` o con un byte nulo da
+404 al principio de `serve()`, y `getSymbolicLink()` devuelve `null`, antes de tocar el disco: son dos búsquedas de
+texto, así que el camino rápido no se frena, y una ruta mala se descarta antes de buscar el archivo. No se conocía un
+fallo explotable por HTTP (doce intentos de salir de la carpeta dieron 404 el 2026-10-14): es defensa, porque sin ella
+un `serve()` con `..` enlazaba un archivo de `basepath()` fuera de la carpeta servida. La lista de caracteres permitidos
+sigue solo en el camino de PHP: un archivo delegado con espacio o `@` en el nombre se sirve como antes. La regla es
+`ServerStatics::pathHasTraversal()`; la vigila `core/server-statics` (§6).
+
+## Seguridad — `array_to_html_options()` escapa el valor y el texto de cada opción
+
+Las opciones de casi todos los desplegables del panel salen de `array_to_html_options()` (53 llamadas en el framework),
+que pegaba el valor y el texto tal cual: un texto con `<` o con comillas que llegara de un usuario rompía la página o
+metía código. Ahora escapa los dos (`htmlspecialchars` con `ENT_QUOTES`) **sin volver a escapar lo que ya llega
+escapado** (`double_encode` en `false`): las llamadas que escapaban antes —`array_map('escape_html', …)`,
+`Locations::escapeOptions()`, `CountryMapper::phoneCodeOptions()` y `demonymOptions()`— salen igual que antes, y una
+entidad puesta a propósito (`&nbsp;`) se conserva; por lo mismo, lo que un usuario escriba con forma de entidad
+(`&amp;`, `&eacute;`) se pinta como su carácter. El valor seleccionado se sigue comparando con la clave tal como
+llega. Medido antes del cambio: ninguna de las 53 llamadas pinta una etiqueta a propósito. Lo vigila
+`core/html-options-escape`.
+
+**Para quien actualiza**: lo que tu clon ya escapaba antes de llamar no cambia, y puede dejar de hacerlo. Si pasaba una
+etiqueta HTML a propósito en el texto de una opción, ahora sale escrita como texto.
+
+## Arregla — el listado de usuarios de un administrador de organización sin organización
+
+`UsersModel::all()` filtra por la organización de quien pide si no es root ni administrador general, y metía el valor en
+el SQL sin comprobarlo: con la organización vacía, la consulta quedaba rota y la pestaña Accesos de Registros daba un
+error 500. Ahora ese caso devuelve una lista vacía (no ver a nadie, nunca a todos), y la organización entra como entero.
+Hoy la aplicación no deja crear ese usuario (el alta, la edición y la importación exigen organización), así que el caso
+solo llega por datos escritos a mano. Lo vigila `core/users-all-organization`.
+
+## Arregla — guardar «Identidad y SEO» ya no recomprime la imagen para redes sociales
+
+Cada guardado de Configuración › Identidad y SEO, aunque solo cambiara un texto, volvía a subir la imagen Open Graph de su
+idioma, y el servidor la recomprimía al 70 % sobre `statics/images/open_graph[_<idioma>].jpg`, que es un archivo
+versionado: la imagen perdía calidad con cada guardado y el clon quedaba con cambios que nadie había hecho. La causa: el
+recortador descarga la imagen actual al abrir la pantalla y `getFile()` la devuelve aunque no se recorte. Ahora la imagen
+solo se envía si se recortó una nueva (`SimpleCropperAdapter::wasChange()`). Lo mismo en Imágenes de marca y en Fondos,
+donde la pantalla ya solo enviaba tras un recorte, pero el envío sin recorte también reescribía el archivo.
+
+## Arregla — la opción `default` de los campos de 13 mappers se llamaba `dafault`
+
+Trece mappers del framework (Publicaciones y sus categorías y adjuntos, Noticias y sus categorías, Documentos, Formularios,
+Organizaciones, Banners, perfiles, Aprobaciones y el registro de acciones) declaraban un campo con `'dafault' => null`. El
+ORM ignoraba la clave y usaba su propio valor por omisión, que también es `null`, así que **no cambia nada**: el SQL de
+`bin/cli scheme-create module=all` sale idéntico antes y después. Importa a quien clonó un módulo desde `Publications`:
+la errata viajó con la copia. Desde ahora `core/mapper-field-options` falla si un campo de cualquier mapper lleva una
+opción que el ORM no conoce.
+
+## Seguridad — la suplantación de root se empieza y se termina desde el panel, caduca y no alcanza a otro root
+
+- **«Conectar como otro usuario» ya no se activa con un enlace.** Antes bastaba con que root abriera una dirección con
+  `?asUser=<id>` —también un enlace que le mandaran— para empezar a actuar como ese usuario. Ahora solo se empieza desde
+  el modal del panel, que llama a una ruta POST (`user-impersonation-start`, solo root), y se termina con otra
+  (`user-impersonation-end`), las dos en `PiecesPHP\UserSystem\Controllers\ImpersonationController`.
+- **El estado va en una cookie firmada que solo escribe el servidor** (`asUserID`, `HttpOnly`): el usuario suplantado,
+  la hora de inicio y una firma atada a la sesión de root. Una cookie de otra sesión, en claro o con la firma mala no
+  vale. La regla, sin HTTP, en `PiecesPHP\UserSystem\Authentication\Impersonation`.
+- **Nadie actúa como un root**, ni como el usuario de sistema, ni como un usuario inactivo o de una organización que no
+  está activa ni pendiente: el modal enseña el motivo. Antes, suplantar a un usuario inactivo dejaba a root fuera, en el
+  acceso, con la suplantación todavía puesta.
+- **Un id que no existe ya no corta la página** con un texto suelto: root sigue siendo root, con un aviso.
+- **Caduca a los 60 minutos** (`Impersonation::MINUTES`), y lo deja en el registro de acciones
+  (`MSG_IMPERSONATION_EXPIRED`).
+- **Una franja fija en todo el panel**: «Conectado como <nombre> · Volver a mi cuenta». Cuando la suplantación termina
+  sola, la franja lo dice una vez.
+- **Cerrar las sesiones del usuario suplantado ya no deja a root sin la suya**: mientras root actúa como otro, cuenta la
+  marca de revocación de root, no la del suplantado.
+- **Arregla además** que suplantar desde el botón no dejaba rastro: los avisos «empieza / deja de actuar como otro
+  usuario» solo se escribían por el enlace, y el botón no lo usaba. Ahora los escriben las dos rutas.
+- ⚠ **Para quien actualiza**: `?asUser=` ya no hace nada; la constante `CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME` se
+  queda, sin efecto, hasta la 10. Una suplantación en curso al actualizar termina sola (su cookie es del formato viejo).
+  El código propio que escribiera la cookie `asUserID` desde JavaScript deja de funcionar: se usan las dos rutas.
+
+## Arregla — Mi perfil pide la contraseña para cambiar el usuario o el correo, y los borradores solo los ve quien edita
+
+- **Mi perfil**: cambiar el nombre de usuario o el correo exige ahora la contraseña actual, como ya la exigía cambiar la
+  contraseña. Antes, quien encontrara una sesión abierta podía cambiar el correo y quedarse con la cuenta pidiendo una
+  contraseña nueva. Sin la contraseña, o con una equivocada, responde «La contraseña es errónea.» y no guarda nada.
+  Cambiar solo el nombre no la pide, y un administrador que edita a otro usuario tampoco. Bajo el campo, una línea lo
+  explica. Lo decidió el PO (P206 a).
+- **Los borradores de publicaciones** (previsualizarlos y listarlos) los ven solo quienes pueden editar publicaciones:
+  root, el administrador general, comunicaciones e institucional. El usuario general y el administrador de organización
+  ya no (`PublicationMapper::CAN_VIEW_DRAFT`; P207 a). Ningún aprobador pierde la previsualización.
+
+Lo vigila `core/profile-identity-password`.
+
+## Arregla — las búsquedas de Ubicaciones leen `%` y `_` como texto
+
+Las búsquedas de países, departamentos, ciudades y puntos tomaban un `%` o un `_` de quien busca como comodín y devolvían
+de más (no era una inyección: el valor ya iba por marcador). Ahora los escapan con `|` y `ESCAPE '|'`, como la de regiones
+desde la corrección anterior; una búsqueda sin esos caracteres da lo mismo que antes. Lo vigila
+`core/locations-search-wildcards`.
+
+## Arregla — un error cuya traza se purgó lo dice, y los censos de CSS paran si falta una hoja
+
+- **Registros › Errores**: la traza de un error se borra a los 90 días, y hasta ahora su bloque desaparecía sin más, igual
+  que en un error que nunca tuvo traza. Ahora el error (y cada excepción previa) dice «La traza de este error ya se
+  purgó.». El lector lo expone en la clave `tracePurged` (`ErrorLogReader`). Lo vigila `core/logs-trace-purged`.
+- **`bin/censo-scss` y `bin/huella-css`**: si un archivo versionado que leen no está en el árbol, paran antes de compilar
+  con un mensaje que lo nombra y dice qué hacer, y salen con código 2. Antes, el primero caía con una traza de Python y el
+  segundo podía medir un CSS viejo sin avisar.
+
+## Arregla — una tarea ruidosa ya no expulsa del libro de tareas la historia de las demás
+
+«Procesar la cola» corre cada minuto y deja una línea por pasada en el libro de tareas (unas 1.440 al día). Con el tope
+global de 20.000 líneas, en unas dos semanas expulsaba toda la historia de las tareas diarias. Ahora, además del tope
+global, cada tarea guarda como mucho sus **1.000 ejecuciones más recientes** (`TaskRunMapper::MAX_ROWS_PER_TASK`; la cola
+guarda unas 16 horas, una diaria casi tres años). El recorte cuesta entre 0,5 y 2,4 ms por anotación con el libro lleno
+(medido con 20.000 líneas). Lo vigila `core/task-runs`.
+
+## Arregla — Registros › Tareas programadas traduce las ejecuciones saltadas
+
+Las ejecuciones que se saltan porque otra está en curso (`locked`) o porque ya se hizo en su franja (`already-done`) salían
+en el libro de tareas con su valor crudo, en inglés también en español. Ahora llevan su etiqueta y su color: «Saltada: otra
+en curso» (amarillo) y «Saltada: ya hecha en su franja» (gris), con su inglés, y el filtro «Resultado» ofrece los cuatro.
+Un resultado que no se conozca sigue saliendo tal cual. Las etiquetas salen de
+`SystemStatusController::taskRunStatusLabels()`. En la misma pantalla, en inglés: los nombres de las tareas del framework
+se traducen al pintarse (`taskDisplayName()`; el nombre que guarda el libro no cambia, y el de una tarea de un clon sale tal
+cual hasta que añada su entrada en el diccionario de `SystemStatus`), el ejemplo del cron dice `<KEY>` y `--local` ya no se
+parte en dos líneas; y la pestaña «Accesos» de Registros sale traducida (su título se traducía antes de cargar su
+diccionario). La ayuda de `bin/cli scan-missing-lang` ya no da cifras de idiomas que
+se quedaban viejas: dice de dónde salen. Lo vigilan `core/task-runs` y `core/publications-list-lang`.
+
+## Cambia — `bin/cli gates` dice qué casos de una prueba cayeron
+
+Cuando una prueba cae dentro de `bin/cli gates`, debajo de su línea `[FALLÓ]` salen ahora los casos que cayeron, con su
+detalle (hasta diez; si hay más, «… y N más»), o «sin caso marcado: código de salida N» si la prueba cayó sin marcar
+ninguno. Antes solo salía el balance, y una prueba que falla a veces no se podía atribuir. Lo vigila
+`core/gates-failed-cases`. La línea de una prueba que cae lleva su balance entero (`BALANCE FINAL: 1/3 PASADAS, 2 FALLIDAS`);
+antes se cortaba en «PASADAS». Además, `core/queue-abandoned` deja de procesar y de recuperar los trabajos ajenos de la
+base: `ProcessQueueTask::reclaimAbandoned()` acepta una lista de ids (`null`, todos, como antes; una lista vacía, ninguno).
+
+## Arregla — las categorías de formularios y los tipos de documento borrados ya no estorban, y el icono de una categoría de noticias se va con ella
+
+Borrar una categoría de formularios o un tipo de documento los deja inactivos en la base (el borrado es lógico), y hasta
+ahora seguían pesando:
+
+- **Su nombre ya no impide crear otro igual**: `existsByName()` de `CategoriesMapper` y `DocumentTypesMapper` solo cuenta
+  los activos.
+- **Ya no salen en las listas**: `CategoriesMapper::allForSelect()` y las rutas que devuelven todas las categorías y todos
+  los tipos (`…/admin/categories/all/` y `…/admin/document-types/all/`) solo dan los activos. `all()` y `allBy()` siguen
+  siendo la lectura cruda, con los borrados.
+- **Borrar una categoría de noticias borra su icono** del disco, y su carpeta si queda vacía. Nunca el icono por omisión,
+  uno que use otra categoría o un archivo fuera de la carpeta de iconos del módulo; si el borrado del archivo falla, se
+  anota y la categoría se borra igual.
+
+Lo vigila `core/forms-categories-status`.
+
+## Arregla — los 22 puntos del núcleo que podían dar un error 500
+
+Con IK quedaron cerrados los 20 de fuera del núcleo; estos son los 22 que quedaban dentro (`files/dev/fatal-candidates.json`
+queda vacío). Con datos válidos, todo responde igual que antes.
+
+- **Los listados del panel** (`DataTablesHelper::process()`): los dos ajustes que un módulo puede pasarle a la consulta,
+  `on_set_model` y `config_result_model`, **fallan cerrados**. Si no devuelven nada, la consulta se queda como estaba;
+  si devuelven un modelo (`ActiveRecord`, la clase de lo que dan los `getModel()`), se usa; cualquier otra cosa lanza
+  `\UnexpectedValueException` con el nombre del ajuste, en vez de un 500 o, peor, seguir sin la restricción que el ajuste
+  quería poner. **Cambia para un clon que los use**: un modelo distinto del recibido, que antes se ignoraba si no era una
+  subclase de `BaseModel`, ahora se usa. Ningún listado del framework los usa.
+- **El exportador de la base** (`Exporter`, los respaldos): sin plugin de formato o de salida lanza `\RuntimeException` con
+  su mensaje; `db-backup` y la pantalla de respaldos ya la recogen, la anotan y responden «Ha ocurrido un error».
+- **El volcado de una rutina** (`SqlFormat`) deja la definición intacta si no puede separar sus parámetros, en vez de
+  escribirla sin ellos.
+- **`Utilities`**: borrar un directorio que no se puede listar no borra su contenido; comprimir sin archivo zip anota el error y
+  vuelve sin escribir. **`Roles::hasPermissions()`** con una petición sin ruta responde «sin permiso», como con una ruta
+  que no existe. **El arranque** compara al encargado de la organización por su id, venga como número o como usuario.
+
+PHPStan baja de 395 a 372 errores (23 por arreglo, 0 por supresión). Lo vigila `core/fatal-candidates-core`.
+
+## Cambia — quién puede traducir con IA se elige en Configuración › IA
+
+Cada traducción con IA gasta créditos de pago del proveedor (OpenAI, Mistral o Groq) si la instalación tiene su clave.
+Hasta ahora la podía disparar cualquier usuario con sesión, sin forma de cambiarlo salvo tocando el código.
+
+- **Configuración › IA tiene un campo nuevo, «Quién puede traducir con IA»**, junto a «Activar traducción con IA»: los
+  tipos de usuario que pueden usar las rutas de traducción (`api-admin-translations-actions` y
+  `api-admin-translations-actions-full`). **Por omisión, los seis tipos**, como antes. **Root siempre puede**, esté o no
+  en la lista: nadie se queda sin poder volver a cambiarla. Sin ninguno elegido, solo root. El cambio cuenta desde la
+  petición siguiente. Los demás reciben 403.
+- **En código**: la opción `translationAIUserTypes` (`APIController::TRANSLATION_AI_USER_TYPES_CONFIG`), y la regla en
+  `APIController::translationUserTypes()`: sin opción o si no es una lista, los seis; lo que no es un tipo conocido se
+  descarta. Al guardar, `SettingsController::translationUserTypesIsValid()` rechaza un tipo desconocido.
+- **El botón «Traducir»** de la edición de una publicación en otro idioma solo aparece a quien tiene la ruta, y su
+  dirección la da el servidor (`APIController::routeName()`); antes iba escrita a mano en el JS.
+- **Las pantallas de «Olvidé mi usuario», «Mi usuario está bloqueado» y la recuperación de contraseña** pierden su cabecera
+  de «Correo no registrado», que ya no se enseñaba nunca (en las dos primeras, desde el cambio anterior; en la
+  recuperación, desde antes).
+
+La traducción automática de los textos marcados con `lang-group` (`configurations.js`) usa la misma ruta: para un usuario
+sin permiso el texto se queda sin traducir, sin aviso; hoy ninguna vista del framework la usa. Lo vigila
+`core/translation-permissions`.
+
+## Arregla — el acceso y la recuperación ya no dicen qué usuarios existen
+
+El acceso respondía «El usuario "x" no existe» o «Contraseña incorrecta» según el caso, y antes de mirar la contraseña ya
+decía si la cuenta estaba bloqueada, pendiente de aprobación, inactiva o con la organización inactiva. Con eso, cualquiera
+podía averiguar qué usuarios existen y en qué estado están.
+
+- **Un único mensaje**: con un usuario que no existe o una contraseña equivocada, el acceso responde lo mismo, «Usuario o
+  contraseña incorrectos.», con el error `INCORRECT_PASSWORD` en los dos casos. Un usuario que no existe tarda lo mismo
+  en responder (se compara contra una contraseña de relleno; medido: 204 ms frente a 208 ms de mediana).
+- **El estado de la cuenta solo se enseña con la contraseña buena** (o con el código de un uso): bloqueada, pendiente,
+  inactiva o con la organización inactiva. Con la mala, el mismo «Usuario o contraseña incorrectos.», y el intento no
+  suma al contador de una cuenta que no podría entrar.
+- **Salvo si la cuenta está bajo ataque**: cuando los fallos de contraseña de una cuenta que no puede entrar llegan al
+  mismo umbral con el que se bloquea una activa (4 fallos en las últimas 24 horas, desde al menos 3 IP distintas), deja
+  de decir su estado: responde «Usuario o contraseña incorrectos.» también con la contraseña buena, y ese intento se
+  registra como un fallo más, marcado en el registro de accesos. Sin esto, la cuenta bloqueada seguía mirando la
+  contraseña y, al cambiar el mensaje con la buena, decía a quien probaba desde muchas IP cuándo había acertado: el
+  bloqueo dejaba de frenar justo al activarse. **Consecuencia que hay que saber**: el umbral es el mismo que bloquea una
+  cuenta activa, así que una cuenta recién bloqueada por intentos no dice «bloqueada» durante las 24 horas siguientes
+  (mientras sus fallos sigan en la ventana); su dueño la desbloquea en ese rato con el desbloqueo por código al correo de
+  «¿Problemas para ingresar?». Desde 2 IP o menos una cuenta no se bloquea ni se
+  considera atacada (el freno por IP sigue).
+- **«Olvidé mi usuario» y «Mi usuario está bloqueado»** responden a un correo que no existe igual que a uno que sí: «Se ha
+  enviado un mensaje al correo proporcionado.», sin enviar nada. Un código de recuperación cuyo usuario ya no existe da
+  «código caducado o inexistente».
+- La recuperación de contraseña y el código de un uso ya respondían igual exista o no el usuario; no cambian.
+
+**Para quien consume la API**: el acceso ya no devuelve `USER_NO_EXISTS`, y `BLOCKED_FOR_ATTEMPTS`, `APPROVED_PENDING`,
+`INACTIVE_USER` y `ORGANIZATION_IS_NOT_ACTIVE` solo llegan con la contraseña buena. Tampoco el fallo que completa el
+bloqueo lo dice: la cuenta se bloquea y la respuesta es `INCORRECT_PASSWORD`; su dueño lo sabe al entrar con la
+contraseña buena. Quien ya trataba `INCORRECT_PASSWORD`
+no tiene que cambiar nada. Lo vigila `core/login-uniform-errors`.
+
+## Arregla — cuatro contraseñas malas ya no bloquean una cuenta: el acceso frena por IP
+
+Hasta ahora, cualquiera que supiera un nombre de usuario o un correo podía dejar fuera a esa persona —también a root—
+mandando cuatro contraseñas malas: la cuenta quedaba bloqueada hasta que su dueño la desbloqueara con el código por correo.
+
+- **Desde una misma IP**, tras 5 fallos de acceso en 15 minutos (contraseña equivocada o usuario que no existe), esa IP
+  espera 15 minutos. Mientras espera, el acceso responde **429** con la cabecera `Retry-After` y el error
+  `TOO_MANY_ATTEMPTS`, sin mirar el usuario ni la contraseña. La cuenta no se toca.
+- **La cuenta solo se bloquea** si llega a 4 fallos seguidos, como antes, **y** los fallos de contraseña de esa cuenta
+  en las últimas 24 horas vienen de **al menos 3 IP distintas**. El desbloqueo por correo no cambia.
+- **El límite del segundo factor** respondía con un JSON que la pantalla de acceso no entendía y enseñaba «Ha ocurrido un
+  error inesperado»; ahora responde como el resto del acceso y la pantalla dice «Demasiados intentos».
+- El informe de intentos de acceso sigue llamando «Formulario de acceso» a estos intentos.
+
+Se configura con tres claves nuevas de `otp_security` en `config.php` (`loginMaxFailuresPerIP`, `loginAccountDistinctIPs`
+y `loginAccountWindowMinutes`); un clon que no las tenga usa los valores de arriba. **Si la instalación está detrás de un
+proxy inverso** que no pasa la IP del cliente, `REMOTE_ADDR` es la del proxy y todos los usuarios comparten esa IP: cinco
+fallos de cualquiera frenan a todos durante 15 minutos. El framework todavía no lee `X-Forwarded-For`. Quien consume la
+API de acceso tiene que tratar el 429. Lo vigila `core/login-ip-throttle`.
+
+## Arregla — veinte puntos que podían dar un error 500, fuera del núcleo
+
+PHPStan señalaba 42 sitios donde un valor podía llegar vacío y el código lo usaría igual (`files/dev/fatal-candidates.json`).
+Los 20 de fuera del núcleo quedan cerrados, con este criterio: lo que no existe responde «no existe», un dato opcional
+ausente se trata como vacío, y un error de verdad se anota y se responde de forma controlada.
+
+- **Los adaptadores de OpenAI y Mistral** sin su cliente HTTP lanzan un error con mensaje («El cliente del proveedor de
+  IA no está disponible»), que las rutas de traducción ya recogen y anotan, en vez de un 500; el de Groq lee la
+  respuesta de un error una sola vez.
+- **Las tareas de terminal** `fix-webm-duration` y `scan-missing-lang`, y el guion `files/CliScripts/CorregirTiempoDuraciónWebm.php`,
+  tratan como vacía una búsqueda de archivos que falla; **la cola** cae en su propio manejo de errores si le falta la
+  conexión.
+- **`files/CliScripts/GeneradorIntegralTipoUsuario.php` y `bin/phpstan-process-result.php`** paran con su mensaje si se
+  incluyen sin argumentos.
+
+PHPStan baja de 415 a 395 errores. Quedan 22 en el núcleo, pendientes de una decisión. Lo vigila
+`core/fatal-candidates-modules`.
+## Arregla — editar un usuario que no existe responde 404, no 500
+
+`admin/users/edit/<id>` con un id que no existe comprobaba la autoridad sobre el tipo del usuario antes de mirar si
+existía, y con el tipo vacío lanzaba un `TypeError`: el panel respondía 500. Ahora responde 404, como las demás
+ediciones (`UsersController::formEditByType()`). Medido de paso: ninguna otra edición del panel da 500 con un id que no
+existe (las de publicaciones y organizaciones responden 403). Lo vigila `core/users-edit-not-found`.
+## Cambia — toda prueba declara su área, y la verificación parcial corre solo lo que toca
+
+Cada suite de `src/app/core/system-controllers/local-tests/` declara ahora, en su cabecera, a qué parte del código
+pertenece (`//@areas <carpeta de módulo>`), y las que solo prueban el núcleo lo dicen con **`//@areas nucleo`** (ADR
+0066). Una verificación parcial (`bin/verify --changed-since=<commit>`) que toca un solo módulo deja de correrlas todas:
+medido el 2026-10-23, un cambio solo en `NewsController.php` pasa de 157 suites a 14, uno en `SettingsController.php` de
+157 a 21, y uno solo en la línea base de PHPStan, de 155 a 7. Cinco suites que recorren todos los módulos siguen sin área
+y corren siempre. Un cambio de núcleo las corre todas, como antes, y la verificación entera no cambia. **Si añades una
+suite**, declara su área (o `//@areas nucleo`): `verify-integrity` comprueba que el área declarada exista; una suite
+sin área no falla, pero corre siempre.
+## Arregla — borrar una cookie la borra, y una cookie con duración no nace caducada
+
+- **`CookiesHandler.deleteCookie()`** (JavaScript) no borraba: pasaba una caducidad negativa que `setCookie()` ignora.
+  Ahora escribe la cookie con fecha de 1970, en las mismas tres formas de dominio, con el mismo `path` y `SameSite`.
+- **`deleteSession()` de `PiecesPHPGenericHandlerSession`** escribía la caducidad en milisegundos, que no es una fecha:
+  la cookie podía quedarse. Ahora usa una fecha pasada.
+- **«Cerrar todas mis sesiones», en «Mi espacio», borra la cookie de sesión con las mismas opciones con que se escribió** (`Secure` en https,
+  `SameSite=Lax`, las tres formas de dominio).
+- **`lifetime` de `config/cookies.php` es una duración en segundos** también para las cookies de `setCookieByConfig()`:
+  con un valor mayor que 0, la cookie dura eso desde ahora. Antes nacía caducada (se tomaba como fecha de 1970). Con 0,
+  el de fábrica, sigue siendo una cookie de sesión del navegador.
+
+Lo vigila `core/cookie-options`.
+## Arregla — tres fallos de seguridad: los códigos sin límite, el encargado de otra organización y la búsqueda de regiones
+
+- **Los códigos de «olvidé mi usuario», «cuenta bloqueada» y recuperación de contraseña tienen un límite por usuario**:
+  uno por minuto y cinco por hora, contados por correo en su propia tabla (`pcsphp_user_problems`,
+  `pcsphp_recovery_password`). Antes, cualquiera, sin sesión, podía pedirlos sin fin e inundar el buzón de otro. Pasado el
+  límite, la respuesta es la misma que cuando se envía, pero no se crea ni se envía nada. Las constantes son
+  `CODE_MIN_SECONDS_BETWEEN` y `CODE_MAX_PER_HOUR`, en `UserProblemsController` y `RecoveryPasswordController`.
+- **El encargado de una organización tiene que ser de esa organización**: «Mi organización» ya no acepta como encargado a
+  un usuario de otra, aunque el formulario lo mande (`MyOrganizationProfileController`).
+- **La búsqueda de regiones de Ubicaciones va parametrizada**: el texto buscado se interpolaba en la consulta, y una
+  comilla bastaba para inyectar SQL (la alcanzaban root y el administrador general). Ahora va por marcador, con `%` y `_`
+  escapados. Una búsqueda normal devuelve lo mismo.
+
+Lo vigila `core/security-live-fixes`.
+## Cambia — el formato de los archivos de configuración, en la documentación
+
+Los archivos de `src/app/config/` explicaban su formato en comentarios largos, y varios decían cosas que ya no eran
+ciertas (por ejemplo, que las rutas usan Slim 3; el framework va sobre Slim 4). Ese formato está ahora en
+`source-docs/project/docs/piecesphp/content/configuration.md`, sacado del código: qué configura cada archivo, sus claves,
+sus valores por omisión, un ejemplo y sus trampas. Los comentarios de los archivos se quedan en una o dos líneas que
+apuntan ahí. **Si tu clon editó esas cabeceras**, al actualizar puedes encontrar un conflicto solo en comentarios:
+quédate con la versión nueva. `database-exporter.md` lista además las cuatro opciones del exportador que faltaban
+(`auto_increment`, `drop_if_exists_on_functions`, `create_if_not_exists` y `hex_blob`).
 # 9.0.0 (23-10-2026)
 
 > **Versión estable.** Reúne las rupturas que el PO decidió el 2026-10-08 —el panel entero bajo `admin/` y una lista de
@@ -611,7 +2319,7 @@ tarjeta más. Las noticias muertas del inicio de Mi espacio salen. **Las tarjeta
 estadística de la hoja de diseño**: lo que enseña una tarjeta es un `DashboardCardBody` (cifras, acción o HTML), no HTML
 libre, y `DashboardCardRegistry::numberContent()` desaparece. **Un clon** que personalizara el inicio quita o
 sustituye tarjetas con `DashboardCardRegistry::remove()` y `replace()`, y añade las suyas con `register()`: ver
-[El panel por dentro](source-docs/project/docs/piecesphp/content/panel.md), «El inicio».
+«El panel por dentro» (`source-docs/project/docs/piecesphp/content/panel.md`), «El inicio».
 
 ## ⚠ CAMBIO INCOMPATIBLE — el dueño y root deciden si el perfil público se ve
 
@@ -630,7 +2338,7 @@ administrador) y a root. Todo sigue visible como hasta ahora (por omisión, visi
   `files/dev/head-without-front-configurations.json`.
 - **`bin/cli session-name`** propone un nombre de sesión derivado de la instalación y, con `escribir=yes`, lo fija en
   `config.php` (la línea comentada de la sección «Seguridad»). Cambiarlo cierra todas las sesiones. Ver
-  [El nombre de la sesión](source-docs/project/docs/piecesphp/content/general.md).
+  «El nombre de la sesión» (`source-docs/project/docs/piecesphp/content/general.md`).
 
 ## Seguridad — la suplantación de root y los desplegables de ubicaciones
 
@@ -662,7 +2370,7 @@ conserva su selección aunque el nombre lleve comillas. Lo vigila `core/view-esc
 
 **Si tu clon usa `array_to_html_options()` con datos de la base, escápalos tú antes de pasarlos**: la función no escapa.
 El patrón está en `Locations::escapeOptions()` y en
-[Escapar lo que escribe el usuario](source-docs/project/docs/piecesphp/new-features/escapado-y-subidas.md).
+«Escapar lo que escribe el usuario» (`source-docs/project/docs/piecesphp/new-features/escapado-y-subidas.md`).
 
 ## Nuevo — probar el correo desde Configuración
 
@@ -1685,7 +3393,7 @@ aplicación no arranca.
 
 - La pantalla de colores **ya no acepta dejar vacíos** el color principal ni el fondo del menú: en blanco dejaban
   botones y pies de correo ilegibles.
-- Se retira `SystemApprovals/Views/mailing/template_base.php`, una copia huérfana de la plantilla de correo que nadie
+- Se retira `app/classes/SystemApprovals/Views/mailing/template_base.php`, una copia huérfana de la plantilla de correo que nadie
   usaba y que se habría quedado atrás sin que nadie lo notara. La plantilla base de correo vive en el núcleo
   (`app/view/mailing/`); el cuerpo de cada correo sigue donde estaba, en su módulo.
 
@@ -6846,7 +8554,7 @@ bin/cli run-cronjobs mautic run
 bin/cli tests:mautic-batch-send
 ```
 - **Pruebas unitarias añadidas**:
-    - [Ver](./files/dev/tests.md)
+    - `files/dev/tests.md` (ya no existe)
 - **Eliminaciones**:
     - Se elimina la función `objectToArray`.
 

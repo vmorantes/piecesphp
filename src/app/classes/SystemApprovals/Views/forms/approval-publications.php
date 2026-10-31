@@ -1,10 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use Publications\Util\AttachmentPackage;
 use PiecesPHP\Core\Config;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use Publications\Util\AttachmentPackage;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 /**
  * @var SystemApprovalsMapper $approvalMapper
@@ -22,11 +22,11 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
     <div class="limiter-content">
 
         <?php
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
         <div class="approval-time"><?= $approvalMapper->getTimeTag(); ?></div>
 
@@ -84,7 +84,7 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
                 <div class="form-attachments-regular">
                     <div data-trigger-open-link="<?= $escape($mapper->currentLangData('mainImage')); ?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
+                        <div class="ui top right attached basic green label">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
@@ -102,7 +102,7 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
 
                     <div data-trigger-open-link="<?= $escape($mapper->currentLangData('thumbImage')); ?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
+                        <div class="ui top right attached basic green label">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
@@ -136,7 +136,7 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
                     <?php $existingFileAttr = "{$existingFileAttr}='" . $escape($fileLocation) . "'"; ?>
                     <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                     <div <?= $existingFileAttr; ?> class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>" data-mapper-id="<?= $attachmentMapper !== null ? $attachmentMapper->id : ''; ?>">
-                        <div class="ui top right attached label green">
+                        <div class="ui top right attached basic green label">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
@@ -167,13 +167,13 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
             </div>
 
             <?php
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Aprobar'),
-                'saveAttributes' => ['approve-trigger' => ''],
-                'secondaryActions' => [
-                    ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
-                ],
-            ]);
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Aprobar'),
+                    'saveAttributes' => ['approve-trigger' => ''],
+                    'secondaryActions' => [
+                        ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
+                    ],
+                ]);
             ?>
 
         </form>

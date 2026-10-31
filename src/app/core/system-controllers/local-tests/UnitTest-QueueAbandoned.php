@@ -2,6 +2,7 @@
 
 //La cola: lo abandonado se reanima o falla (292.1), un trabajo lo toma un solo trabajador, lo fallido lleva su fin y
 //lo viejo se purga (G10). Crea filas zz- en la cola local y las borra; la purga, con un «ahora» de 2001.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
@@ -17,6 +18,7 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
 
     $passed = 0;
     $failed = 0;
+    $skipped = 0;
     $check = function (bool $condition, string $name, string $detail = '') use (&$passed, &$failed): bool {
         if ($condition) {
             $passed++;
@@ -27,12 +29,13 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
         }
         return $condition;
     };
-    $balance = function () use (&$passed, &$failed): array {
+    $balance = function () use (&$passed, &$failed, &$skipped): array {
         $total = $passed + $failed;
+        $omitidas = ", {$skipped} OMITIDAS";
         echoTerminal(' ');
         echoTerminal($failed === 0
-            ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"
-            : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
+            ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS{$omitidas} \e[39m"
+            : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS{$omitidas} \e[39m");
         return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
     };
 
@@ -90,11 +93,14 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
         $ids['pendiente'] = $crear('pendiente', QueueJobMapper::STATUS_PENDING, 0, 3, null);
         $ids['completada'] = $crear('completada', QueueJobMapper::STATUS_COMPLETED, 1, 3, $viejo);
         $check(count(array_filter($ids)) === 5, 'c1 las cinco filas de prueba están creadas: ' . implode(', ', $ids));
+        //Un trabajo «en curso» y viejo que la prueba NO pasa en su lista: es lo ajeno que no se puede tocar.
+        $ajenoEnCurso = $crear('ajeno-en-curso', QueueJobMapper::STATUS_RUNNING, 1, 3, $viejo);
+        $suyos = array_values($ids);
 
         //─── La pasada de recuperación ──────────────────────────────────────────────────────────
         echoTerminal('');
         echoTerminal('[a] La recuperación, con el umbral de ' . ProcessQueueTask::ABANDONED_AFTER_MINUTES . ' minutos');
-        $lineas = ProcessQueueTask::reclaimAbandoned();
+        $lineas = ProcessQueueTask::reclaimAbandoned($suyos);
         $check(count($lineas) === 2, 'a1 dice haber tocado DOS trabajos, no más: ' . count($lineas), implode(' | ', array_map('strip_tags', $lineas)));
 
         //a) con intentos → pending
@@ -122,9 +128,26 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
         //─── b · Idempotente: una segunda pasada no toca nada ───────────────────────────────────
         echoTerminal('');
         echoTerminal('[b] Una segunda pasada no vuelve a tocar nada');
-        $segunda = ProcessQueueTask::reclaimAbandoned();
+        $segunda = ProcessQueueTask::reclaimAbandoned($suyos);
         $check(count($segunda) === 0, 'b1 la segunda pasada no recupera nada: ' . count($segunda));
         $check($estadoDe($ids['reciente']) === QueueJobMapper::STATUS_RUNNING, 'b2 y la reciente sigue intacta');
+        $check($estadoDe($ajenoEnCurso) === QueueJobMapper::STATUS_RUNNING && (int) $campoDe($ajenoEnCurso, 'attempts') === 1,
+            'b3 DISCRIMINANTE: el «en curso» viejo que no está en la lista sigue en curso', (string) $estadoDe($ajenoEnCurso));
+        $check(ProcessQueueTask::reclaimAbandoned([]) === [] && $estadoDe($ajenoEnCurso) === QueueJobMapper::STATUS_RUNNING, 'b4 una lista vacía no recupera ninguno (no «todos»)');
+
+        //b5: con null, lo de siempre (todos los abandonados de la base). Solo si no hay abandonados que no sean de la prueba:
+        //si los hubiera, los reanimaría.
+        $abandonadosAjenos = $database->prepare("SELECT COUNT(*) FROM `{$tabla}` WHERE status = ? AND startedAt IS NOT NULL AND startedAt < ? AND name NOT LIKE ?");
+        $abandonadosAjenos->execute([QueueJobMapper::STATUS_RUNNING, date('Y-m-d H:i:s', time() - ProcessQueueTask::ABANDONED_AFTER_MINUTES * 60), "{$prefijo}%"]);
+        $hayAjenos = (int) $abandonadosAjenos->fetchColumn();
+        if ($hayAjenos === 0) {
+            $conNull = ProcessQueueTask::reclaimAbandoned();
+            $check(count($conNull) === 1 && $estadoDe($ajenoEnCurso) === QueueJobMapper::STATUS_PENDING,
+                'b5 CANARIO: con null recupera todos los abandonados de la base, que aquí son solo el de la prueba', implode(' | ', array_map('strip_tags', $conNull)));
+        } else {
+            $skipped++;
+            echoTerminal("   \e[33m[OMITIDA]\e[39m b5 con null: hay {$hayAjenos} trabajo(s) abandonado(s) que no son de la prueba y los reanimaría");
+        }
 
         //─── c · Un trabajo lo toma un solo trabajador ─────────────────────────────────────────────
         echoTerminal('');
@@ -149,11 +172,22 @@ CliActions::make('unit-tests:core/queue-abandoned', function ($args) {
         $ids['lanza'] = $crear('lanza', QueueJobMapper::STATUS_PENDING, 0, 3, null);
         $ids['agota'] = $crear('agota', QueueJobMapper::STATUS_PENDING, 0, 1, null);
         $ids['sin-manejador'] = $crear('sin-manejador', QueueJobMapper::STATUS_PENDING, 0, 3, null);
-        ProcessQueueTask::processPending();
+        //Un pendiente que la prueba NO procesa: processPending() se lo llevaba junto con todos los de la base local.
+        $ids['ajeno'] = $crear('ajeno', QueueJobMapper::STATUS_PENDING, 0, 3, null);
+        //Solo los suyos: tomados con claim() y procesados uno a uno, como hace processPending() con cada uno.
+        $manejadores = QueueTask::getQueueHandlers();
+        foreach (['lanza', 'agota', 'sin-manejador'] as $clave) {
+            if ($check(QueueJobMapper::claim($ids[$clave]), "d0 la prueba toma su trabajo «{$clave}»")) {
+                //RETORNO-IGNORADO: las líneas son de la consola; lo que se mide es el estado de la fila.
+                ProcessQueueTask::processJob(new QueueJobMapper($ids[$clave]), $manejadores);
+            }
+        }
         foreach (['lanza' => 'una excepción', 'agota' => 'los intentos agotados', 'sin-manejador' => 'un manejador que no existe'] as $clave => $como) {
             $check($estadoDe($ids[$clave]) === QueueJobMapper::STATUS_FAILED && (string) $campoDe($ids[$clave], 'finishedAt') !== '',
                 "d1 «failed» por {$como}, con fecha de fin", (string) $estadoDe($ids[$clave]));
         }
+        $check($estadoDe($ids['ajeno']) === QueueJobMapper::STATUS_PENDING && (int) $campoDe($ids['ajeno'], 'attempts') === 0,
+            'd2 DISCRIMINANTE: un pendiente que no es de la prueba sigue pendiente y sin intentos', (string) $estadoDe($ids['ajeno']));
 
         //─── e · La purga ──────────────────────────────────────────────────────────────────────────
         echoTerminal('');

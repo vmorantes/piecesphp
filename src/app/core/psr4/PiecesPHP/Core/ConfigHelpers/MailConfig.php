@@ -7,8 +7,8 @@ namespace PiecesPHP\Core\ConfigHelpers;
 
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Crypto\Sealed;
-use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Core\Email\MailDelivery;
+use PiecesPHP\Settings\ORM\SettingsModel;
 
 /**
  * MailConfig
@@ -23,7 +23,6 @@ class MailConfig
      * La opción donde se guarda, cifrada con Sealed::PURPOSE_MAIL_CONFIG (ADR 0061).
      */
     const CONFIG_NAME = 'mail';
-
 
     /**
      * @var int

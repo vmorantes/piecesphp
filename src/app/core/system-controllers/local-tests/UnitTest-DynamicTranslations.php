@@ -1,5 +1,7 @@
 <?php
 
+//@areas src/app/classes/PiecesPHP/LocalizationSystem/
+
 use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 use PiecesPHP\Terminal\CliActions;
 

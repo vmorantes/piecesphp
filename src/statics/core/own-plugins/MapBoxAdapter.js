@@ -49,7 +49,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 * @property {Number} [zoom=7] 
 	 * @property {boolean} [doubleClickZoom=false] 
 	 */
-	let ignore;
+	let ignore
 
 	/**
 	 * @property {string} key
@@ -288,12 +288,12 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				//se crea. La promesa queda pendiente, como cuando no hay contenedor. `visible`: dentro de un `ui form`, Fomantic
 				//oculta el mensaje que no lo lleva.
 				if (!hasKey) {
-					container.empty().append($('<div class="ui warning visible message"></div>').text(_i18n(langGroup, 'Falta la llave de MapBox: configúrela en Integraciones › Llaves de MapBox.')))
+					container.empty().append($('<div class="ui warning visible message"></div>').text(_i18n(langGroup, 'Falta la llave de MapBox: configúrela en Configuración › Sistema › Llaves de MapBox.')))
 					return
 				}
 				mapboxgl.accessToken = instanceKey
 
-				//Sin posición propia, el centro por omisión de Integraciones; si tampoco llega, el de reserva.
+				//Sin posición propia, el centro por omisión de Configuración › Sistema; si tampoco llega, el de reserva.
 				const configuredCenter = typeof pcsphpGlobals == 'object' && pcsphpGlobals.mapDefaultCenter ? pcsphpGlobals.mapDefaultCenter : null
 				let longitude = defaultLongitude === null ? (configuredCenter !== null ? configuredCenter.longitude : -74.8199524) : defaultLongitude
 				let latitude = defaultLatitude === null ? (configuredCenter !== null ? configuredCenter.latitude : 4.6854957) : defaultLatitude
@@ -327,9 +327,9 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 					autocomplete: true,
 					localGeocoder: (query) => {
 						// match anything which looks like a decimal degrees coordinate pair
-						var matches = query.match(/^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i);
+						var matches = query.match(/^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i)
 						if (!matches) {
-							return null;
+							return null
 						}
 
 						function coordinateFeature(lng, lat) {
@@ -343,30 +343,30 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 								place_type: ['coordinate'], // eslint-disable-line camelcase
 								properties: {},
 								type: 'Feature'
-							};
+							}
 						}
 
-						var coord1 = Number(matches[1]);
-						var coord2 = Number(matches[2]);
-						var geocodes = [];
+						var coord1 = Number(matches[1])
+						var coord2 = Number(matches[2])
+						var geocodes = []
 
 						if (coord1 < -90 || coord1 > 90) {
 							// must be lng, lat
-							geocodes.push(coordinateFeature(coord1, coord2));
+							geocodes.push(coordinateFeature(coord1, coord2))
 						}
 
 						if (coord2 < -90 || coord2 > 90) {
 							// must be lat, lng
-							geocodes.push(coordinateFeature(coord2, coord1));
+							geocodes.push(coordinateFeature(coord2, coord1))
 						}
 
 						if (geocodes.length === 0) {
 							// else could be either lng, lat or lat, lng
-							geocodes.push(coordinateFeature(coord1, coord2));
-							geocodes.push(coordinateFeature(coord2, coord1));
+							geocodes.push(coordinateFeature(coord1, coord2))
+							geocodes.push(coordinateFeature(coord2, coord1))
 						}
 
-						return geocodes;
+						return geocodes
 					},
 					zoom: mapboxOptions.zoom,
 					placeholder: "Ej.: El Prado, Barranquilla, Colombia"
@@ -959,7 +959,7 @@ MapBoxAdapter.registerDynamicMessages = function (name) {
 		'Información': 'Information',
 		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'The location "%r" was not found on the map, an approximate position will be used.',
 		'La ubicación "%r" no se encontró en el mapa.': 'The location "%r" was not found on the map.',
-		'Falta la llave de MapBox: configúrela en Integraciones › Llaves de MapBox.': 'The MapBox key is missing: set it in Integrations › MapBox keys.',
+		'Falta la llave de MapBox: configúrela en Configuración › Sistema › Llaves de MapBox.': 'The MapBox key is missing: set it in Settings › System › MapBox keys.',
 		'Latitud': 'Latitude',
 		'Longitud': 'Longitude',
 	}

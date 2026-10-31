@@ -32,7 +32,7 @@ class HelperController extends BaseController
     {
         set_config('lock_assets', true);
         parent::__construct(false);
-        $this->user = $user instanceof \stdClass  ? $user : null;
+        $this->user = $user instanceof \stdClass ? $user : null;
         $this->setVariables($globalVariables);
         set_config('lock_assets', false);
     }

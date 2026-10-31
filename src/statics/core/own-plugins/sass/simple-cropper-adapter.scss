@@ -4,7 +4,6 @@
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
 $-controlsDividerColor: #e1e1e1;
 
-$fontModule: $fontGlobal;
 
 .simple-cropper {
 
@@ -15,9 +14,9 @@ $fontModule: $fontGlobal;
         margin: 0 auto;
     }
 
-    >.container {
+    > .container {
 
-        >input[type="file"] {
+        > input[type="file"] {
             display: none;
         }
 
@@ -41,14 +40,14 @@ $fontModule: $fontGlobal;
             }
 
             &.edition {
-                >.rotate-buttons {
+                > .rotate-buttons {
                     display: grid;
                     grid-template-columns: 24px 24px;
                     grid-column-gap: 10px;
                     justify-content: center;
                     align-items: center;
 
-                    >span {
+                    > span {
                         cursor: pointer;
 
                         i.icon {
@@ -59,7 +58,7 @@ $fontModule: $fontGlobal;
                     }
                 }
 
-                >.resize-slider {
+                > .resize-slider {
                     display: flex;
                     align-items: center;
                     column-gap: 15px;
@@ -86,17 +85,16 @@ $fontModule: $fontGlobal;
                 border-top: 1px solid $-controlsDividerColor;
                 padding-top: 30px;
 
-                >a {
+                > a {
                     display: grid;
                     grid-template-columns: auto auto;
                     justify-content: center;
                     align-items: center;
-                    font-family: $fontModule;
                     font-size: pxToRem(16);
                     font-weight: $fwMedium;
-                    text-decoration: 1px solid var(--main-brand-color);
+                    text-decoration: 1px solid var(--accent);
                     border: none;
-                    color: var(--main-brand-color);
+                    color: var(--accent);
 
                     i.icon {
                         font-size: 24px;
@@ -112,21 +110,21 @@ $fontModule: $fontGlobal;
 /* Cropper */
 
 .cropper-modal {
-    background-color: white;
+    background-color: var(--theme-surface);
 }
 
 .cropper-point {
-    background-color: var(--main-brand-color);
+    background-color: var(--accent);
     height: 8px;
     opacity: .85;
     width: 8px;
 }
 
 .cropper-dashed {
-    border: 0 dashed var(--main-brand-color);
+    border: 0 dashed var(--accent);
 }
 
 .cropper-view-box {
     outline: 1.5px solid;
-    outline-color: var(--main-brand-color);
+    outline-color: var(--accent);
 }

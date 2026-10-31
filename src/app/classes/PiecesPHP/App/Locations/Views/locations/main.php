@@ -24,28 +24,28 @@ $elements = [
     <div class="limiter-content">
 
         <?php
-        $pieces->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
-
-        ob_start();
-        foreach ($elements as [$controller, $icon, $cardTitle, $cardDescription]) {
-            $url = $controller::routeName('list');
-            $url = $url !== '' ? $url : $controller::routeName('forms-add');
-            if ($url === '') {
-                continue;
-            }
-            $pieces->_render('panel/built-in/statistics/action-card.php', [
-                'url' => $url,
-                'icon' => $icon,
-                'title' => $cardTitle,
-                'description' => $cardDescription,
+            $pieces->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
             ]);
-        }
-        $pieces->_render('panel/built-in/statistics/statistics-section.php', [
-            'content' => (string) ob_get_clean(),
-        ]);
+
+            ob_start();
+            foreach ($elements as [$controller, $icon, $cardTitle, $cardDescription]) {
+                $url = $controller::routeName('list');
+                $url = $url !== '' ? $url : $controller::routeName('forms-add');
+                if ($url === '') {
+                    continue;
+                }
+                $pieces->_render('panel/built-in/statistics/action-card.php', [
+                    'url' => $url,
+                    'icon' => $icon,
+                    'title' => $cardTitle,
+                    'description' => $cardDescription,
+                ]);
+            }
+            $pieces->_render('panel/built-in/statistics/statistics-section.php', [
+                'content' => (string) ob_get_clean(),
+            ]);
         ?>
 
     </div>

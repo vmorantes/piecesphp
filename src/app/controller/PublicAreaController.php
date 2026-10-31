@@ -6,29 +6,29 @@
 
 namespace App\Controller;
 
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\Components\Controllers\ComponentProvider;
-use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Controllers\NewsletterController;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
+use PiecesPHP\Components\Controllers\ComponentProvider;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\PublicationsRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 
 /**
  * PublicAreaController.
@@ -78,7 +78,6 @@ class PublicAreaController extends BaseController
         $this->init();
 
         import_jquery();
-        import_izitoast();
         import_semantic();
         import_app_libraries();
         import_app_front_libraries();

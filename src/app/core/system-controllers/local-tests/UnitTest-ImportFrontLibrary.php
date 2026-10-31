@@ -2,6 +2,7 @@
 
 //import_front_library() quita al reimportar los archivos de los plugins que salen: si quita uno que otro plugin importado
 //sigue pidiendo, la página pierde esa hoja (P173: las páginas de acceso perdían ui-pcs.css).
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 
@@ -45,6 +46,11 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
     $defaults['zz-gates-other'] = ['plugins' => [
         'base' => ['css' => [$shared]],
     ]];
+    //Un plugin que se llama como otra librería: con $all, el bucle pisaba $name y el borrado miraba la lista de ESA otra.
+    $defaults['zz-gates-all'] = ['plugins' => [
+        'wide' => ['css' => [$exclusive]],
+        'zz-gates-other' => ['css' => [$exclusive]],
+    ]];
     $reset = function () use ($defaults, $savedGlobals, $savedImported): void {
         set_config('default_assets', $defaults);
         $globals = is_array($savedGlobals) ? $savedGlobals : [];
@@ -53,7 +59,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         }
         set_config('global_assets', $globals);
         $imported = is_array($savedImported) ? $savedImported : [];
-        unset($imported['zz-gates-panel'], $imported['zz-gates-other']);
+        unset($imported['zz-gates-panel'], $imported['zz-gates-other'], $imported['zz-gates-all']);
         set_config('imported_assets', $imported);
     };
     $has = fn(string $file): bool => has_global_asset($file, 'css') !== false;
@@ -61,7 +67,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
 
     try {
 
-        echoTerminal('[1/3] Del panel a la base');
+        echoTerminal('[1/6] Del panel a la base');
         $reset();
         import_front_library('zz-gates-panel', ['wide']);
         import_front_library('zz-gates-panel', ['base']);
@@ -69,7 +75,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         $check(!$has($exclusive), 'a2 admin_app_base.css NO: era exclusivo del que sale');
         echoTerminal(' ');
 
-        echoTerminal('[2/3] De la base al panel, y la misma lista dos veces');
+        echoTerminal('[2/6] De la base al panel, y la misma lista dos veces');
         $reset();
         import_front_library('zz-gates-panel', ['base']);
         import_front_library('zz-gates-panel', ['wide']);
@@ -80,13 +86,42 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         $check($count($shared) === 1 && $count($exclusive) === 1, 'c1 importar dos veces la misma lista no duplica ningún archivo', "{$count($shared)} y {$count($exclusive)}");
         echoTerminal(' ');
 
-        echoTerminal('[3/3] Otra librería que pide el mismo archivo');
+        echoTerminal('[3/6] Otra librería que pide el mismo archivo');
         $reset();
         import_front_library('zz-gates-other', ['base']);
         import_front_library('zz-gates-panel', ['wide']);
         import_front_library('zz-gates-panel', []);
         $check($has($shared), 'd1 ui-pcs.css sigue: lo pide un plugin de OTRA librería');
         $check(!$has($exclusive), 'd2 y el exclusivo se quita');
+        echoTerminal(' ');
+
+        echoTerminal('[4/6] Quitar a mano un archivo de un plugin y reimportar');
+        $reset();
+        import_front_library('zz-gates-panel', ['wide']);
+        remove_global_asset($exclusive, 'css');
+        $quitado = !$has($exclusive);
+        import_front_library('zz-gates-panel', ['wide']);
+        $check($quitado && $has($exclusive), 'e1 el archivo vuelve: reimportar pasa otra vez los del plugin por add_global_assets()');
+        echoTerminal(' ');
+
+        echoTerminal('[5/6] Con $all, un plugin que se llama como otra librería');
+        $reset();
+        import_front_library('zz-gates-other', ['base']);
+        import_front_library('zz-gates-all', [], true);
+        $check(in_array('base', get_config('imported_assets')['zz-gates-other'] ?? [], true) && $has($shared), 'f1 la otra librería conserva su plugin y su archivo: el borrado mira la lista de la que se importa');
+        echoTerminal(' ');
+
+        echoTerminal('[6/6] import_datatables() con un plugin que no existe');
+        set_config('default_assets', $savedDefaults);
+        $entriesFile = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/' . \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::FILE_ENTRIES;
+        $before = is_file($entriesFile) ? (int) filesize($entriesFile) : 0;
+        import_datatables(['zz-plugin-inexistente']);
+        $after = is_file($entriesFile) ? (string) file_get_contents($entriesFile, false, null, $before) : '';
+        $check(str_contains($after, 'InvalidArgumentException') && str_contains($after, 'zz-plugin-inexistente'), 'g1 deja constancia en el registro de errores (InvalidArgumentException con el nombre), sin romper', mb_substr($after, 0, 200));
+        $before = is_file($entriesFile) ? (int) filesize($entriesFile) : 0;
+        import_datatables(['responsive']);
+        $after = is_file($entriesFile) ? (string) file_get_contents($entriesFile, false, null, $before) : '';
+        $check(!str_contains($after, 'import_datatables()'), 'g2 con un plugin que existe, nada');
         echoTerminal(' ');
 
     } catch (\Throwable $e) {

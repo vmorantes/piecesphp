@@ -34,7 +34,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	 * @property {String} [negative] Texto negativo
 	 * @property {{Function(buttonConfirmation: $):Boolean}} [condition]
 	 */
-	let ignore;
+	let ignore
 
 	if (!(selectorForm instanceof $)) {
 		selectorForm = typeof selectorForm == 'string' && selectorForm.trim().length > 0 ? selectorForm.trim() : `form[pcs-generic-handler-js]`
@@ -101,6 +101,21 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		let nameOnLabel = field.find('label').html()
 		let parentForm = jElement.closest('form')
 
+		if (field.length == 0) {
+			field = jElement.closest('.attach-placeholder')
+			nameOnLabel = field.find('>label >.text >.header >.title').text()
+		}
+		//Un campo sin label: el primero que tenga texto. El prompt también es un .ui.label: no cuenta en la segunda pasada.
+		if (typeof nameOnLabel != 'string' || nameOnLabel.trim().length == 0) {
+			nameOnLabel = [
+				field.find('.ui.label:not([data-field-error])').first().text(),
+				jElement.attr('placeholder'),
+				field.attr('placeholder'),
+				element.name,
+			].find((name) => typeof name == 'string' && name.trim().length > 0) || ''
+		}
+		nameOnLabel = nameOnLabel.replace('*', '').trim()
+
 		//Si es un dropdown con simulador se ignora
 		if (typeof jElement.attr('data-simulator') == 'string' && jElement.attr('data-simulator').length > 1) {
 			event.preventDefault()
@@ -111,6 +126,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		field.find('input,select,textarea').map((i, e) => e.blur())
 		let removeErrorClass = function () {
 			field.removeClass('error')
+			field.children('[data-field-error]').remove()
 			form.find(`li[data-name="${dataID}"]`).remove()
 			const messageContainer = form.find(`[${errorMessageContainerAttr}]`)
 			if (messageContainer.find('.list li').length < 1) {
@@ -126,6 +142,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		const errorMessageContainerAttr = 'error-form-container'
 
 		configErrorMessageContainer(parentForm)
+		configFieldPrompt()
 
 		event.preventDefault()
 
@@ -140,17 +157,30 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 			return dataID
 		}
 
+		//El mensaje del navegador bajo el campo (design.md §3.8). Uno por campo: si ya está, solo cambia su texto.
+		function configFieldPrompt() {
+			let prompt = field.children('[data-field-error]')
+			if (prompt.length < 1) {
+				prompt = $('<div class="ui basic red pointing prompt label"></div>').attr('data-field-error', dataID)
+				field.append(prompt)
+			}
+			prompt.text(validationMessage)
+		}
+
 		function configErrorMessageContainer(form) {
 
 			let messageContainer = form.find(`[${errorMessageContainerAttr}]`)
 
 			if (messageContainer.length < 1) {
-				let html = `<div class="ui error message" ${errorMessageContainerAttr}>`
-				html += `<i class="close icon"></i><br>`
+				let html = `<div class="ui error message" role="alert" ${errorMessageContainerAttr}>`
+				html += `<i class="close icon"></i>`
+				html += `<div class="header"></div>`
 				html += `<div class="content"><ul class="list"></ul></div>`
 				html += `</div>`
 				form.prepend(html)
 				messageContainer = form.find(`[${errorMessageContainerAttr}]`)
+				//Sin _i18n (una página sin configurations.js), el texto en español.
+				messageContainer.find('.header').text(typeof _i18n == 'function' ? _i18n('formErrors', 'Revisa los campos marcados') : 'Revisa los campos marcados')
 				messageContainer.find('.close').off('click')
 				messageContainer.find('.close').on('click', function () {
 					$(this).closest('.message').transition('fade')
@@ -160,8 +190,8 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 			let toTop = () => {
 				if (!onInvalidEventOnToTopAnimation) {
 					onInvalidEventOnToTopAnimation = true
-					$('body,html,.ui-pcs.container-sidebar>.content').animate({
-						scrollTop: form.offset().top
+					$('html,body').animate({
+						scrollTop: form.offset().top - pcsStickyTopOffset()
 					}, {
 						easing: 'linear',
 						complete: function () {
@@ -368,7 +398,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 						xhr.upload.addEventListener("progress", function (e) {
 
 							if (e.lengthComputable) {
-								let percentComplete = ((e.loaded / e.total) * 100);
+								let percentComplete = ((e.loaded / e.total) * 100)
 								loaderElement.updatePercent(percentComplete >= 100 ? 99 : percentComplete)
 							}
 
@@ -573,7 +603,10 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 			form.find('button').attr('disabled', false)
 
 			if (toast) {
-				errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
+				//Un 4xx o 5xx con su JSON trae su propio mensaje, como la rama de success:false; sin él, el de conexión.
+				const body = error !== null && typeof error == 'object' && error.responseJSON !== null && typeof error.responseJSON == 'object' ? error.responseJSON : {}
+				const hasMessage = typeof body.message == 'string' && body.message.length > 0
+				errorMessage(hasMessage && typeof body.name == 'string' && body.name.length > 0 ? body.name : _i18n('titles', 'error'), hasMessage ? body.message : _i18n('errors', 'server_connection_error'))
 			}
 
 			onError(formProcess, formData, error)

@@ -310,11 +310,14 @@ final class ErrorLogReader
      */
     private function withTraces(array $entry): array
     {
+        //tracePurged: tenía traza (su huella) y ya no está (la retención la borró). Sin huella no hubo traza que purgar.
         if ($entry['traceFingerprint'] !== '') {
             $entry['trace'] = $this->trace($entry['traceFingerprint']);
+            $entry['tracePurged'] = $entry['trace'] === [];
         }
         foreach ($entry['previous'] as $index => $previous) {
             $entry['previous'][$index]['trace'] = $this->trace($previous['traceFingerprint']);
+            $entry['previous'][$index]['tracePurged'] = $previous['traceFingerprint'] !== '' && $entry['previous'][$index]['trace'] === [];
         }
         return $entry;
     }
@@ -399,6 +402,7 @@ final class ErrorLogReader
                     'line' => $text($item, 'line'),
                     'traceFingerprint' => $text($item, 'traceFingerprint'),
                     'trace' => [],
+                    'tracePurged' => false,
                 ];
             }
         }
@@ -417,6 +421,7 @@ final class ErrorLogReader
             //El formato anterior trae la traza dentro; el actual, su huella (withTraces() la resuelve).
             'trace' => isset($entry['trace']) && is_array($entry['trace']) ? $entry['trace'] : [],
             'traceFingerprint' => $text($entry, 'traceFingerprint'),
+            'tracePurged' => false,
             'previous' => $previous,
             'context' => [
                 'method' => $text($context, 'method'),

@@ -6,10 +6,9 @@
 
 namespace Directory\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Directory\DirectoryLang;
 use Directory\DirectoryRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -19,6 +18,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**

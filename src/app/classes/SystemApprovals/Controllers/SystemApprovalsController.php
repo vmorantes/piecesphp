@@ -6,25 +6,20 @@
 
 namespace SystemApprovals\Controllers;
 
-use Slim\Psr7\Headers;
-use Slim\Psr7\Factory\UriFactory;
-use Slim\Psr7\Factory\StreamFactory;
-use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\DashboardCard;
 use PiecesPHP\AdminPanel\DashboardCardBody;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -41,15 +36,19 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Mappers\PublicationMapper;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 use SystemApprovals\Exceptions\DuplicateException;
 use SystemApprovals\Exceptions\SafeException;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsLang;
 use SystemApprovals\SystemApprovalsRoutes;
 use SystemApprovals\Util\SystemApprovalManager;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * SystemApprovalsController.
@@ -344,7 +343,7 @@ class SystemApprovalsController extends AdminPanelController
                         $noticeReference = null;
                         //Envío de correo - INICIO
                         //Solo si el estado cambia: un POST repetido no repite el correo.
-                        if ($contactUser !== null && $previousStatus != $approvalStatus) {
+                        if ($contactUser !== null && $previousStatus != $approvalStatus && self::noticeCanReach($contactUser)) {
                             try {
                                 $message = '';
                                 $contentName = __(self::LANG_GROUP, $mapper->referenceAlias);
@@ -406,7 +405,7 @@ class SystemApprovalsController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -426,7 +425,7 @@ class SystemApprovalsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -665,6 +664,19 @@ class SystemApprovalsController extends AdminPanelController
                 && (string) $record->referenceOrganizationAdministrator === (string) $user->id;
         }
         return true;
+    }
+
+    /**
+     * Si el aviso de una aprobación puede llegarle: ni el usuario de sistema ni una dirección `.invalid` (RFC 2606, que
+     * nunca entrega) reciben correo; se omite sin error, y la aprobación sigue guardada.
+     *
+     * @param UsersModel $user
+     * @return bool
+     */
+    public static function noticeCanReach(UsersModel $user): bool
+    {
+        return !UsersModel::isSystemUser($user->id !== null ? (int) $user->id : null)
+            && !str_ends_with(mb_strtolower(trim((string) $user->email)), '.invalid');
     }
 
     /**

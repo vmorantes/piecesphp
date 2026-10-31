@@ -2,8 +2,8 @@
 
 //Niveles de interfaz de la exportación: rutas por nivel, vista previa que no escribe ni lo lee todo, y elección de columnas.
 //Escribe dos .php temporales en src/tmp (ignorado por git) y los borra en el finally; solo lee la base.
+//@areas src/app/classes/DataImportExportUtility/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use DataImportExportUtility\Definitions\UsersExportDefinition;
@@ -18,6 +18,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -66,12 +67,30 @@ CliActions::make('unit-tests:core/data-transfer-export-interface', function ($ar
             public static $view = null;
             /** @var bool */
             public static $withTotal = false;
-            public function key(): string { return self::$key; }
-            public function title(): string { return 'Niveles'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function interfaceLevel(): int { return self::$level; }
-            public function formPartial(): ?string { return self::$partial; }
-            public function customView(): ?string { return self::$view; }
+            public function key(): string
+            {
+                return self::$key;
+            }
+            public function title(): string
+            {
+                return 'Niveles';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function interfaceLevel(): int
+            {
+                return self::$level;
+            }
+            public function formPartial(): ?string
+            {
+                return self::$partial;
+            }
+            public function customView(): ?string
+            {
+                return self::$view;
+            }
             public function parameters(): array
             {
                 return [ExportParameter::integer('min', 'Mínimo', 0)];
@@ -244,12 +263,30 @@ CliActions::make('unit-tests:core/data-transfer-export-interface', function ($ar
         $check($r->getStatusCode() === 400 && str_contains((string) $r->getBody(), 'Este exportador no permite elegir columnas.'), 'c8 nivel 1 con columns → 400');
         $check($descargar('format=csv&columns=')->getStatusCode() === 200, 'c9 columns vacío → todas, también en nivel 1');
         $reservada = new class extends ExportDefinition {
-            public function key(): string { return 'zz-reservada'; }
-            public function title(): string { return 'R'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function parameters(): array { return [ExportParameter::text('columns', 'Columnas')]; }
-            public function columns(ExportContext $context): array { return []; }
-            public function rows(ExportContext $context): iterable { return []; }
+            public function key(): string
+            {
+                return 'zz-reservada';
+            }
+            public function title(): string
+            {
+                return 'R';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function parameters(): array
+            {
+                return [ExportParameter::text('columns', 'Columnas')];
+            }
+            public function columns(ExportContext $context): array
+            {
+                return [];
+            }
+            public function rows(ExportContext $context): iterable
+            {
+                return [];
+            }
         };
         $check($lanza(fn() => $reservada->buildContext([], null)), 'c10 un parámetro con key «columns» → excepción');
         echoTerminal(' ');

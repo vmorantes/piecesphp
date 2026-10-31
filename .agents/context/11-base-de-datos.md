@@ -197,8 +197,10 @@ mysql -u <usuario> -p <base> < dumps/<archivo>.sql
 > **Los datos NO están perdidos.** El cifrado es reversible con la clave literal que usaba:
 >
 > ```php
-> $hashReal = PiecesPHP\Core\BaseHashEncryption::decrypt($valorDelVolcado, 'ENCRYPTION_KEY');
+> $hashReal = PiecesPHP\Core\BaseHashEncryption::deobfuscate($valorDelVolcado, 'ENCRYPTION_KEY');
 > ```
+>
+> (Hasta la 9.0.0-alpha.2 se llamaba `decrypt()`; el ADR 0061 lo renombró en `23be2504`, primera etiqueta `v9.0.0-alpha.3`, porque solo ofusca.)
 >
 > Restaura la copia y luego recorre `pcsphp_users` aplicando eso a cada `password`, o
 > transforma el `.sql` antes de cargarlo. Comprobado: devuelve el hash `$2y$…` exacto.

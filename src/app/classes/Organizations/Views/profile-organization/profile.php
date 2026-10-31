@@ -1,10 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use PiecesPHP\App\Locations\LocationsLang;
-use Organizations\Controllers\MyOrganizationProfileController;
 use Directory\Controllers\ProfileController;
+use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 
@@ -33,7 +33,7 @@ $contactInformation = [
     [
         'text' => $phone,
         'icon' => '<i class="phone alternate icon"></i>',
-        'parse' => function(string $value, string $icon) {
+        'parse' => function (string $value, string $icon) {
             $originalValue = escape_html($value);
             $value = escape_html(str_replace([' ', '(', ')'], '', $value));
             $icon = "<div class='icon'>{$icon}</div>";
@@ -44,7 +44,7 @@ $contactInformation = [
     [
         'text' => $organizationMapper->informativeEmail,
         'icon' => '<i class="envelope outline icon"></i>',
-        'parse' => function(string $value, string $icon) {
+        'parse' => function (string $value, string $icon) {
             $value = escape_html($value);
             $icon = "<div class='icon'>{$icon}</div>";
             $text = "<div class='text'>{$value}</div>";
@@ -54,7 +54,7 @@ $contactInformation = [
     [
         'text' => $organizationMapper->websiteLink,
         'icon' => '<i class="globe icon"></i>',
-        'parse' => function(string $value, string $icon) {
+        'parse' => function (string $value, string $icon) {
             //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
             $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
             $value = escape_html($value);
@@ -66,7 +66,7 @@ $contactInformation = [
     [
         'text' => $organizationMapper->linkedinLink,
         'icon' => '<i class="linkedin in icon"></i>',
-        'parse' => function(string $value, string $icon) {
+        'parse' => function (string $value, string $icon) {
             //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
             $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
             $value = escape_html($value);
@@ -84,12 +84,12 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-            'secondaryActions' => $secondaryActions,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
         <div class="profile-content">

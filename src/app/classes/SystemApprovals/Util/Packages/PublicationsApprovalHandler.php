@@ -38,7 +38,7 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
      * @param int|PublicationMapper $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
-    public static function getContentTypeSpecificMapper(int | PublicationMapper $reference): string
+    public static function getContentTypeSpecificMapper(int|PublicationMapper $reference): string
     {
         $text = static::$BASE_TEXT;
         return $text;
@@ -50,7 +50,7 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
      * @param int|PublicationMapper $reference Referencia al mapper o su ID.
      * @return bool True si el mapper debe ser aprobado automáticamente, false en caso contrario.
      */
-    public static function isAutoApprovalSpecificMapper(int | PublicationMapper $reference): bool
+    public static function isAutoApprovalSpecificMapper(int|PublicationMapper $reference): bool
     {
         $approved = false;
         $mapper = $reference instanceof PublicationMapper ? $reference : new PublicationMapper($reference);

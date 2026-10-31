@@ -479,7 +479,7 @@ class DirectoryObject implements \JsonSerializable
      * @param callable|null $compareFunction Función de comparación opcional. Por defecto usa orden natural por nombre.
      * @return void
      */
-    public function orderDirectories( ? callable $compareFunction = null)
+    public function orderDirectories(?callable $compareFunction = null)
     {
 
         if ($compareFunction === null) {
@@ -512,7 +512,7 @@ class DirectoryObject implements \JsonSerializable
      * @param callable|null $compareFunction Función de comparación opcional. Por defecto usa orden natural por nombre.
      * @return void
      */
-    public function orderFiles( ? callable $compareFunction = null)
+    public function orderFiles(?callable $compareFunction = null)
     {
 
         if ($compareFunction === null) {
@@ -547,7 +547,7 @@ class DirectoryObject implements \JsonSerializable
      * @param string|null $directoryBasename Ruta relativa dentro del ZIP.
      * @return void
      */
-    protected function fillZip(\ZipArchive  &$zip, array &$logger, ?string $directoryBasename = null)
+    protected function fillZip(\ZipArchive &$zip, array &$logger, ?string $directoryBasename = null)
     {
         foreach ($this->files as $file) {
             $basename = $file->getBasename();
@@ -574,7 +574,7 @@ class DirectoryObject implements \JsonSerializable
      *
      * @return array
      */
-    public function jsonSerialize() : array
+    public function jsonSerialize(): array
     {
         return [
             'basename' => $this->getBasename(),

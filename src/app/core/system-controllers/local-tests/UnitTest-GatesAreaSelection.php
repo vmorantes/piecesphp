@@ -2,6 +2,7 @@
 
 //La selección por área de gates (ADR 0062): qué suites corren según lo que cambió. Sobre GatesTask::selectByArea(), que
 //es pura: ni git ni la base.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use Terminal\Tasks\GatesTask;
@@ -126,6 +127,34 @@ CliActions::make('unit-tests:core/gates-area-selection', function ($args) {
     $s5 = $selectS(['files/dev/permissions-matrix.json', 'src/app/core/AppHelpers.php']);
     $check(count($s5) === count($areasS) && array_unique(array_values($s5)) === ['nucleo'], 's5 CANARIO: un artefacto MÁS un cambio de núcleo, todas', $describe($s5));
 
+    echoTerminal(' ');
+    echoTerminal('[n] Una suite de núcleo se declara con «@areas nucleo» (ADR 0066)');
+
+    $areasN = [
+        'zz-nucleo' => [GatesTask::AREA_CORE],
+        'zz-nucleo-news' => [GatesTask::AREA_CORE, 'src/app/classes/News/'],
+        'zz-nucleo-lee' => [GatesTask::AREA_CORE],
+        'zz-sin-area' => [],
+    ];
+    $filesN = [
+        'zz-nucleo' => $dir . 'UnitTest-ZzNucleo.php',
+        'zz-nucleo-news' => $dir . 'UnitTest-ZzNucleoNews.php',
+        'zz-nucleo-lee' => $dir . 'UnitTest-ZzNucleoLee.php',
+        'zz-sin-area' => $dir . 'UnitTest-ZzSinArea.php',
+    ];
+    $readsN = ['zz-nucleo-lee' => ['names' => ['permissions-matrix.json'], 'devUnnamed' => false]];
+    $selectN = fn(array $changed): array => GatesTask::selectByArea($areasN, $filesN, $changed, $readsN);
+
+    $n1 = $selectN(['src/app/classes/Newsletter/Controllers/NewsletterController.php']);
+    $check(!isset($n1['zz-nucleo']), 'n1 una suite «nucleo» no corre con un cambio solo de módulo', $describe($n1));
+    $n2 = $selectN(['src/app/core/AppHelpers.php']);
+    $check(($n2['zz-nucleo'] ?? null) === 'nucleo', 'n2 corre con un cambio de núcleo', $describe($n2));
+    $n3 = $selectN(['src/app/classes/News/Controllers/NewsController.php']);
+    $check(($n3['zz-nucleo-news'] ?? null) === 'area' && !isset($n1['zz-nucleo-news']), 'n3 «nucleo» más News/ corre con un cambio en News/ y no con uno en Newsletter/', $describe($n3) . ' · ' . $describe($n1));
+    $n4 = $selectN(['files/dev/permissions-matrix.json']);
+    $check(($n4['zz-nucleo-lee'] ?? null) === 'artefacto files/dev/permissions-matrix.json' && !isset($n4['zz-nucleo']), 'n4 «nucleo» con un artefacto que lee corre, y la que no lo lee no', $describe($n4));
+    $check(($n1['zz-sin-area'] ?? null) === 'sin-area', 'n5 CANARIO: una sin @areas sigue corriendo siempre', $describe($n1));
+
     $routes = get_routes();
     $repoRoot = rtrim(str_replace('\\', '/', basepath('..')), '/');
     $modules = GatesTask::routeModules(is_array($routes) ? $routes : [], $repoRoot);
@@ -135,4 +164,4 @@ CliActions::make('unit-tests:core/gates-area-selection', function ($args) {
 
     return $balance();
 
-})->setDescription('La selección por área de gates (ADR 0062 y 0065), sobre GatesTask::selectByArea(): News/ no elige Newsletter/, lo sin @areas corre siempre, el núcleo y lo que no está en la lista de módulos las corre todas, la documentación no elige ninguna, el archivo de una suite la elige a ella, un área archivo casa por igualdad y un artefacto de instrumento elige solo las suites que lo leen. Sin base ni git.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('La selección por área de gates (ADR 0062 y 0065), sobre GatesTask::selectByArea(): News/ no elige Newsletter/, lo sin @areas corre siempre, el núcleo y lo que no está en la lista de módulos las corre todas, la documentación no elige ninguna, el archivo de una suite la elige a ella, un área archivo casa por igualdad, un artefacto de instrumento elige solo las suites que lo leen y una suite «@areas nucleo» no corre con un cambio solo de módulos. Sin base ni git.')->setEffects([CliActions::EFFECT_NONE])->register();

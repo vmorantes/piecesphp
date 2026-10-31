@@ -41,14 +41,25 @@ TASKS = [
     ('src/app/classes/', 'src/app/classes/'),
 ]
 THIRD_PARTY_DIR = 'src/statics/plugins/'
-CANARY_LIVE = 'content-page-header'
+CANARY_LIVE = 'content-table'
 CANARY_INVENTED = 'zz-censo-scss-canario-que-no-existe'
 TOKEN_CHARS = r'A-Za-z0-9_-'
 
 
 def git_files(*patterns):
-    out = subprocess.run(['git', '--no-optional-locks', 'ls-files', '--', *patterns], capture_output=True, text=True, check=True).stdout
+    #Con lo nuevo sin preparar: gulp lo compila, así que el censo lo tiene que ver (`--exclude-standard` deja fuera lo ignorado).
+    out = subprocess.run(['git', '--no-optional-locks', 'ls-files', '--cached', '--others', '--exclude-standard', '--', *patterns], capture_output=True, text=True, check=True).stdout
     return [line for line in out.splitlines() if line]
+
+
+def absent_on_disk(paths):
+    """Las versionadas que el censo va a leer y no están en el árbol. Un censo que se salta lo que no ve miente (LEY 16)."""
+    return sorted(p for p in paths if not os.path.isfile(p))
+
+
+def absent_message(absent):
+    return ('PARA: ' + str(len(absent)) + ' archivo(s) versionado(s) que este censo lee no está(n) en el árbol: restáuralo(s) '
+            '(git restore -- <ruta>) o prepara su borrado (git rm -- <ruta>):\n  ' + '\n  '.join(absent))
 
 
 def task_of(scss):
@@ -254,6 +265,11 @@ def main():
     if '--help' in sys.argv or '-h' in sys.argv:
         print(open(__file__, encoding='utf-8').read().split('\nimport ', 1)[0].split('\n', 1)[1].replace('# ', '').replace('#', ''))
         return 0
+    #Antes de compilar: una parcial que falte haría caer gulp con un mensaje que no la nombra.
+    absent = absent_on_disk(git_files('*.scss') + usage_files() + [p for p in git_files(THIRD_PARTY_DIR) if p.endswith('.css')])
+    if absent:
+        print(absent_message(absent))
+        return 2
     if '--sin-compilar' not in sys.argv:
         compiled = subprocess.run(['gulp', 'sass-all'], cwd='src', capture_output=True, text=True)
         if compiled.returncode != 0:
@@ -282,9 +298,8 @@ def main():
     for scss, css in sheets:
         text = open(css, encoding='utf-8').read()
         smap = json.load(open(css + '.map', encoding='utf-8'))
-        #gulp escribe las fuentes del mapa relativas a file.base, que es la carpeta fija del glob de su tarea.
-        base = task_of(scss)[0]
-        resolved = [os.path.normpath(os.path.join(base, source)) for source in smap['sources']]
+        #gulp escribe las fuentes del mapa relativas a la carpeta del propio .map (gulpfile.js, sassCompileAdapter).
+        resolved = [os.path.normpath(os.path.join(os.path.dirname(css), source)) for source in smap['sources']]
         unresolved = [r for r in resolved if not os.path.isfile(r)]
         if unresolved:
             print(f'PARA: el mapa de {css} nombra fuentes que no existen: {unresolved}')
@@ -514,6 +529,7 @@ def main():
                        for (src, line, selector), lines in sorted(unique_dead.items(), key=lambda kv: (-len(kv[1]), kv[0]))],
         'per_scss': per_scss,
     }
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w', encoding='utf-8', newline='\n') as handle:
         json.dump(result, handle, ensure_ascii=False, indent=4)
         handle.write('\n')

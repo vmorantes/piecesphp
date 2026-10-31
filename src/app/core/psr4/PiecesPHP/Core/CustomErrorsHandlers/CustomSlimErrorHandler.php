@@ -79,6 +79,7 @@ class CustomSlimErrorHandler
             $safe = fn(string $text): string => htmlspecialchars($text, \ENT_QUOTES, 'UTF-8');
             $html = "
                 <html>
+                    <head>{$this->faviconTag()}</head>
                     <style>
                         *{
                             box-sizing:border-box;
@@ -138,9 +139,10 @@ class CustomSlimErrorHandler
             $message = $exception->getMessage();
             $html = function_exists('var_dump_pretty') ? var_dump_pretty([
                 $jsonData['detail'],
-            ], '', true) : '<pre>' . json_encode($jsonData['detail'], \JSON_UNESCAPED_SLASHES  | \JSON_UNESCAPED_UNICODE  | \JSON_PRETTY_PRINT) . '</pre>';
+            ], '', true) : '<pre>' . json_encode($jsonData['detail'], \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT) . '</pre>';
             $html = "
                 <html>
+                    <head>{$this->faviconTag()}</head>
                     <style>
                         *{
                             box-sizing:border-box;
@@ -169,6 +171,22 @@ class CustomSlimErrorHandler
             return $response->withStatus(500)->write($html);
 
         }
+    }
+
+    /**
+     * El favicon, como en las páginas 403 y 404: sin él, el navegador pide /favicon.ico a la raíz del dominio.
+     *
+     * @return string
+     */
+    private function faviconTag(): string
+    {
+        $favicon = function_exists('get_config') ? get_config('favicon') : null;
+        if (!is_string($favicon) || $favicon === '' || !function_exists('add_cache_stamp_to_url') || !function_exists('baseurl')) {
+            return '';
+        }
+        //Esta página no lleva <base>: la ruta del favicon es relativa y se resolvería contra la URL que falló.
+        $href = htmlspecialchars(baseurl(add_cache_stamp_to_url($favicon)), \ENT_QUOTES, 'UTF-8');
+        return "<link rel='shortcut icon' href='{$href}' type='image/x-icon'>";
     }
 
     /**

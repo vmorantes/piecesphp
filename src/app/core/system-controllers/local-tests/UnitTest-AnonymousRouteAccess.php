@@ -2,6 +2,7 @@
 
 //Sin usuario, routeName() da la dirección de todo (correos, cron, zona pública): allowedRoute() y el control de acceso
 //de los módulos tienen que negar al visitante lo que declara require_login, o «podría» todo el panel. Ver D6.
+//@areas src/app/classes/API/
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
@@ -10,7 +11,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/anonymous-route-access';
-$cliTaskDescription = 'Sin usuario, allowedRoute() y DefaultAccessControlModules niegan lo que pide sesión; routeName() sigue dando la dirección, y lo libre sigue abierto.';
+$cliTaskDescription = 'Sin usuario, allowedRoute() y DefaultAccessControlModules niegan lo que pide sesión; routeName() sigue dando la dirección, y lo libre sigue abierto. Una ruta pedida en silencio sin sus parámetros no lanza.';
 
 CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
@@ -86,7 +87,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     try {
 
         //──── 1. allowedRoute() sin usuario ─────────────────────────────────────────────────
-        echoTerminal('[1/3] allowedRoute() sin usuario: niega lo que pide sesión y concede lo libre');
+        echoTerminal('[1/4] allowedRoute() sin usuario: niega lo que pide sesión y concede lo libre');
         $sinUsuario();
 
         if ($check($requiereSesion('admin') === true, 'p1 PRE: la ruta «admin» declara require_login')) {
@@ -106,7 +107,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 2. allowedRoute() con usuario ─────────────────────────────────────────────────
-        echoTerminal('[2/3] allowedRoute() con usuario: root sin regresión; un usuario que no carga cuenta como visitante');
+        echoTerminal('[2/4] allowedRoute() con usuario: root sin regresión; un usuario que no carga cuenta como visitante');
         $conUsuario(1);
         $root = getLoggedFrameworkUser();
         if ($check($root !== null && (int) $root->type === UsersModel::TYPE_USER_ROOT, 'p4 PRE: con el id 1, getLoggedFrameworkUser() es root')) {
@@ -124,7 +125,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 3. DefaultAccessControlModules ────────────────────────────────────────────────
-        echoTerminal('[3/3] DefaultAccessControlModules: sin usuario niega lo que pide sesión antes del validador');
+        echoTerminal('[3/4] DefaultAccessControlModules: sin usuario niega lo que pide sesión antes del validador');
         $sinUsuario();
         $obtenido = $pasar('admin');
         $check($obtenido === \Slim\Exception\HttpForbiddenException::class, 'm1 sin usuario, la ruta «admin» lanza HttpForbiddenException y el manejador NO se alcanza', $obtenido);
@@ -137,6 +138,35 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $conUsuario(1);
         $obtenido = $pasar('admin');
         $check($obtenido === 'zz-manejador-alcanzado', 'm3 con root, la ruta «admin» llega al manejador', $obtenido);
+        echoTerminal(' ');
+
+        //──── 4. Una ruta con parámetros, sin ellos ─────────────────────────────────────────
+        //Slim lanza si faltan segmentos; pedida en silencio, es el mismo «no hay» que una ruta inexistente (G7-2).
+        echoTerminal('[4/4] Una ruta con parámetros, pedida sin ellos: en silencio no lanza; sin silencio, sí');
+        $infoCron = get_route_info('api-admin-cron-jobs');
+        $sinValorPorDefecto = is_array($infoCron) && array_key_exists('actionType', $infoCron['parameters'] ?? []) && $infoCron['parameters']['actionType'] === null;
+        if ($check($sinValorPorDefecto, 'p6 PRE: «api-admin-cron-jobs» tiene el parámetro actionType sin valor por defecto')) {
+            $intentar = function (callable $llamada): string {
+                try {
+                    return 'no lanzó: ' . var_export($llamada(), true);
+                } catch (\Throwable $e) {
+                    return get_class($e) . ': ' . $e->getMessage();
+                }
+            };
+            foreach (['con root' => fn () => $conUsuario(1), 'sin usuario' => $sinUsuario] as $quien => $poner) {
+                $poner();
+                $obtenido = $intentar(fn () => \API\Controllers\APIController::allowedRoute('cron-jobs'));
+                $check($obtenido === 'no lanzó: false', "s1 {$quien}, APIController::allowedRoute('cron-jobs') sin actionType es false y no lanza", $obtenido);
+                $obtenido = $intentar(fn () => \API\Controllers\APIController::routeName('cron-jobs', [], true));
+                $check($obtenido === "no lanzó: ''", "s2 {$quien}, routeName('cron-jobs', [], true) sin actionType es '' y no lanza", $obtenido);
+            }
+            $obtenido = $intentar(fn () => get_route('api-admin-cron-jobs', [], true));
+            $check($obtenido === 'no lanzó: NULL', "s3 get_route('api-admin-cron-jobs', [], true) es null", $obtenido);
+            $obtenido = $intentar(fn () => get_route('api-admin-cron-jobs'));
+            $check(str_starts_with($obtenido, \InvalidArgumentException::class . ':'), 's4 sin silencio, get_route(\'api-admin-cron-jobs\') sigue lanzando InvalidArgumentException', $obtenido);
+            $obtenido = $intentar(fn () => \API\Controllers\APIController::allowedRoute('cron-jobs', ['actionType' => 'run']));
+            $check($obtenido === 'no lanzó: true', 's5 con el parámetro, allowedRoute(\'cron-jobs\') sigue siendo true', $obtenido);
+        }
         echoTerminal(' ');
 
     } finally {

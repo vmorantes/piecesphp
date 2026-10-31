@@ -2,32 +2,40 @@
 
 //Lote 7c B2a: los envíos que necesitan base, de punta a punta contra Mailpit en 127.0.0.1 (ADR 0015 y 0010).
 //La configuración de correo se desvía solo en memoria; el token y el usuario zz se borran en los finally.
+//@areas src/app/classes/API/
+//@areas src/app/classes/Newsletter/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/GoogleReCaptchaV3/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
+//@areas src/app/classes/PiecesPHP/Tokens/
+//@areas src/app/classes/SystemApprovals/
 
-use App\Controller\ContactFormsController;
-use PiecesPHP\Tokens\Controllers\GenericTokenController;
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use API\Controllers\APIController;
-use PiecesPHP\Core\BaseModel;
-use PiecesPHP\Core\Config;
-use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use App\Controller\ContactFormsController;
+use Newsletter\Mappers\NewsletterSuscriberMapper;
+use Newsletter\NewsletterRoutes;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\Tokens\Controllers\GenericTokenController;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
-use Newsletter\Mappers\NewsletterSuscriberMapper;
-use Newsletter\NewsletterRoutes;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
-use SystemApprovals\Controllers\SystemApprovalsController;
-use SystemApprovals\Mappers\SystemApprovalsMapper;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
+use SystemApprovals\Controllers\SystemApprovalsController;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
 
@@ -226,7 +234,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
         try {
             $statement = $database->prepare(
                 'INSERT INTO ' . UsersModel::TABLE . ' (username, password, firstname, firstLastname, email, type, status)'
-                . ' VALUES (?, ?, ?, ?, ?, ?, 1)'
+                    . ' VALUES (?, ?, ?, ?, ?, ?, 1)'
             );
             $statement->execute([
                 $username,
@@ -404,7 +412,7 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
             $emailAprob = $usernameAprob . '@localhost.test';
             $alta = $database->prepare(
                 'INSERT INTO ' . UsersModel::TABLE . ' (username, password, firstname, firstLastname, email, type, status)'
-                . ' VALUES (?, ?, ?, ?, ?, ?, ?)'
+                    . ' VALUES (?, ?, ?, ?, ?, ?, ?)'
             );
             $alta->execute([
                 $usernameAprob,
@@ -530,7 +538,13 @@ CliActions::make('unit-tests:core/mail-senders-db', function ($args) {
                 'organizationID' => BaseHashEncryption::encryptBidirectionalHash((string) ($organizacionAPI !== null ? $organizacionAPI->id : '')),
                 'userType' => BaseHashEncryption::encryptBidirectionalHash((string) UsersModel::TYPE_USER_GENERAL),
             ]);
-            $respuesta = (new APIController())->usersActions($request, new ResponseRoute());
+            $controlador = new class extends APIController {
+                protected static function publicSignupEnabled(): bool
+                {
+                    return true;
+                }
+            };
+            $respuesta = $controlador->usersActions($request, new ResponseRoute());
             $cuerpo = json_decode((string) $respuesta->getBody(), true);
             $cuerpo = is_array($cuerpo) ? $cuerpo : [];
             echoTerminal('   forma de la respuesta: ' . $json($cuerpo));

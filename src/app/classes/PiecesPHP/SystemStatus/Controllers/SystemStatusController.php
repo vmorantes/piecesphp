@@ -6,37 +6,38 @@
 
 namespace PiecesPHP\SystemStatus\Controllers;
 
-use PiecesPHP\SystemStatus\SystemHealth;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Settings\Controllers\SettingsController;
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Email\MailDelivery;
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
+use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 use PiecesPHP\Core\MaintenanceMode;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
-use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
-use PiecesPHP\Core\Statics\ServerStatics;
-use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\SystemStatus\ServerDelegatedLinks;
-use PiecesPHP\SystemStatus\SystemAlert;
-use PiecesPHP\SystemStatus\SystemAlertRegistry;
-use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
-use PiecesPHP\Core\Email\MailDelivery;
-use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Logs\Controllers\LogsController;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\Settings\ORM\SettingsModel;
+use PiecesPHP\SystemStatus\CleanTargetRegistry;
+use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
+use PiecesPHP\SystemStatus\ServerDelegatedLinks;
+use PiecesPHP\SystemStatus\SystemAlert;
+use PiecesPHP\SystemStatus\SystemAlertRegistry;
+use PiecesPHP\SystemStatus\SystemHealth;
+use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * SystemStatusController - Las páginas «Avisos del sistema» y «Estado y cachés».
@@ -87,21 +88,6 @@ class SystemStatusController extends AdminPanelController
      */
     const BROKEN_LINKS_SHOWN = 50;
 
-    /**
-     * Los destinos que la pantalla de mantenimiento sabe borrar por separado.
-     *
-     * Los cuatro son solo root y de coste comparable, así que van por UNA acción con destino
-     * validado, no por cuatro rutas.
-     *
-     * @var string[]
-     */
-    const CLEAN_TARGETS = [
-        'statics-stamp',
-        'webp-cache',
-        'publications-cache',
-        'server-delegated-links',
-    ];
-
     public function __construct()
     {
         parent::__construct();
@@ -145,16 +131,19 @@ class SystemStatusController extends AdminPanelController
 
     /**
      * La cabecera de una pantalla del grupo Sistema de Configuración: la misma que las de SettingsController
-     * (SettingsController::sectionHeaderData()), con el HelperController que pinta las piezas.
+     * (SettingsController::sectionHeaderData()), sin migas (son vistas principales) y con el HelperController que pinta
+     * las piezas.
      *
      * @param string $title Ya traducido
      * @param string $description Ya traducida
      * @param HelperController $helpController
-     * @return array{title:string,description:string,breadcrumbs:array<string|int,string|array{url:string}>,indexLink:string,helpController:HelperController}
+     * @return array{title:string,description:string,indexLink:string,helpController:HelperController}
      */
     protected static function systemHeader(string $title, string $description, HelperController $helpController): array
     {
-        return SettingsController::sectionHeaderData(__(SettingsController::LANG_GROUP, 'Sistema'), $title, $description) + [
+        $header = SettingsController::sectionHeaderData($title, $description);
+        unset($header['breadcrumbs']);
+        return $header + [
             'helpController' => $helpController,
         ];
     }
@@ -237,7 +226,12 @@ class SystemStatusController extends AdminPanelController
         set_title($title);
 
         $this->helpController->render('panel/layout/header');
-        $this->render('maintenance', array_merge(self::maintenanceStatus(), [
+        $usuario = getLoggedFrameworkUser();
+        $status = self::maintenanceStatus();
+        $this->render('maintenance', array_merge($status, [
+            'maintenanceStatus' => $status,
+            'cleanTargets' => array_filter(CleanTargetRegistry::all(), fn ($target): bool => $usuario !== null && in_array((int) $usuario->type, $target->allowedTypes(), true)),
+            'cleanRows' => CleanTargetRegistry::withRows(),
             'langGroup' => self::LANG_GROUP,
             'title' => $title,
             'brokenLinksURL' => self::routeName('maintenance-broken-links'),
@@ -278,20 +272,130 @@ class SystemStatusController extends AdminPanelController
     }
 
     /**
-     * Lo que enseña la página de mantenimiento.
+     * Lo que enseña la página de mantenimiento: las claves de estado de cada limpieza registrada con fila, en el orden de
+     * las filas (hoy linksTotal, linksBroken, brokenShown, webpCacheBytes, publicationsCacheBytes y staticsStamp).
      *
-     * @return array{linksTotal:int,linksBroken:int,brokenShown:string[],webpCacheBytes:int,publicationsCacheBytes:int,staticsStamp:string}
+     * @return array<string,mixed>
      */
     public static function maintenanceStatus(): array
+    {
+        $status = [];
+        foreach (CleanTargetRegistry::withRows() as $target) {
+            $status = array_merge($status, $target->status());
+        }
+        return $status;
+    }
+
+    /**
+     * Lo que da la fila de los accesos directos: el total, los rotos y los primeros rotos para la lista.
+     *
+     * @return array{linksTotal:int,linksBroken:int,brokenShown:string[]}
+     */
+    public static function linksStatus(): array
     {
         $links = ServerDelegatedLinks::scan();
         return [
             'linksTotal' => $links['total'],
             'linksBroken' => count($links['broken']),
             'brokenShown' => array_slice($links['broken'], 0, self::BROKEN_LINKS_SHOWN),
-            'webpCacheBytes' => ServerDelegatedLinks::directorySize(basepath(ServerStatics::WEBP_CACHE_DIRECTORY)),
-            'publicationsCacheBytes' => ServerDelegatedLinks::directorySize(basepath('app/cache/Publications')),
-            'staticsStamp' => (string) static_files_cache_stamp(),
+        ];
+    }
+
+    /**
+     * Renueva la marca de versión de los estáticos (la limpieza statics-stamp).
+     *
+     * @return array<string,mixed>
+     */
+    public static function cleanStaticsStamp(): array
+    {
+        $before = (string) static_files_cache_stamp();
+        static_files_cache_stamp(true);
+        $after = (string) static_files_cache_stamp();
+        return [
+            'before' => $before,
+            'after' => $after,
+            //El coste va en el acuse: quien lo pulsa tiene que verlo, no deducirlo.
+            'message' => __(self::LANG_GROUP, 'Hecho. Todos los visitantes volverán a descargar los estilos, los scripts y las imágenes de las páginas.'),
+            'freed' => 0,
+            'log' => [LogsMapper::MSG_MAINTENANCE_CACHE_CLEANED, ['%freed%' => '0']],
+        ];
+    }
+
+    /**
+     * Borra todos los accesos directos de server-delegated (la limpieza server-delegated-links).
+     *
+     * @return array<string,mixed>
+     */
+    public static function cleanServerDelegatedLinks(): array
+    {
+        //En bytes no se mide: un enlace no ocupa, así que dar bytes aquí sería una cifra que no
+        //puede cambiar. La unidad de este destino es el NÚMERO de enlaces.
+        $before = ServerDelegatedLinks::scan()['total'];
+        $result = ServerDelegatedLinks::deleteAll();
+        $after = ServerDelegatedLinks::scan()['total'];
+        //Lo que no se pudo borrar se dice: un recuento que lo calla miente.
+        $message = $result['failed'] > 0
+            ? sprintf(
+            __(self::LANG_GROUP, 'Borrados %d accesos directos y %d carpetas vacías; %d no se pudieron borrar por falta de permiso. Se vuelven a crear al pedirse cada archivo.'),
+            count($result['deleted']),
+            count($result['emptiedDirectories']),
+            $result['failed']
+        )
+            : sprintf(
+            __(self::LANG_GROUP, 'Borrados %d accesos directos y %d carpetas vacías. Se vuelven a crear al pedirse cada archivo.'),
+            count($result['deleted']),
+            count($result['emptiedDirectories'])
+        );
+        return [
+            'before' => $before,
+            'after' => $after,
+            'message' => $message,
+            'freed' => 0,
+            'extra' => $result,
+            'log' => [LogsMapper::MSG_MAINTENANCE_LINKS_CLEANED, [
+                '%deleted%' => (string) count($result['deleted']),
+                '%failed%' => (string) (int) $result['failed'],
+            ]],
+        ];
+    }
+
+    /**
+     * Vacía una carpeta de caché, menos su .htaccess y su .gitignore, y dice cuántos bytes liberó. La usan las limpiezas
+     * que son carpetas: la del núcleo (imágenes optimizadas) y la de un módulo (los listados de Publications).
+     *
+     * @param string $directory Ruta absoluta
+     * @param string $notWritable El error si el sistema no puede escribir en ella, ya traducido
+     * @param string $done El acuse, ya traducido
+     * @return array<string,mixed>
+     */
+    public static function cleanCacheDirectory(string $directory, string $notWritable, string $done): array
+    {
+        //Sin permiso de escritura (la creó otro usuario con 0755) NO se intenta: delete() haría un
+        //unlink que falla con un aviso, y aquí un aviso aborta la operación entera.
+        if (is_dir($directory) && !is_writable($directory)) {
+            //La ruta del servidor es para quien depura: va al log, no a la pantalla.
+            log_exception(new \RuntimeException("Mantenimiento: sin permiso de escritura sobre {$directory}; la creó otro usuario del sistema."));
+            return ['error' => $notWritable, 'httpStatus' => 409];
+        }
+
+        $before = ServerDelegatedLinks::directorySize($directory);
+        if (is_dir($directory)) {
+            $carpeta = new DirectoryObject($directory);
+            $carpeta->process(new FilesIgnore([
+                '.htaccess',
+                '.gitignore',
+            ]));
+            $carpeta->delete();
+        }
+        $after = ServerDelegatedLinks::directorySize($directory);
+        //`freed` es de BYTES: solo tiene sentido en los destinos que son carpetas.
+        $freed = max(0, $before - $after);
+        return [
+            'before' => $before,
+            'after' => $after,
+            'message' => $done,
+            'freed' => $freed,
+            'log' => [LogsMapper::MSG_MAINTENANCE_CACHE_CLEANED, ['%freed%' => (string) $freed]],
         ];
     }
 
@@ -361,14 +465,14 @@ class SystemStatusController extends AdminPanelController
     }
 
     /**
-     * Comparación ESTRICTA y sensible a mayúsculas: un destino que no esté en la lista no se toca.
+     * Comparación ESTRICTA y sensible a mayúsculas: un destino que no esté registrado no se toca (CleanTargetRegistry).
      *
      * @param mixed $target
      * @return bool
      */
     public static function isCleanTarget(mixed $target): bool
     {
-        return is_string($target) && in_array($target, self::CLEAN_TARGETS, true);
+        return CleanTargetRegistry::get($target) !== null;
     }
 
     /**
@@ -383,110 +487,40 @@ class SystemStatusController extends AdminPanelController
         $body = (array) $request->getParsedBody();
         $target = $body['target'] ?? null;
 
-        if (!self::isCleanTarget($target)) {
+        $cleanTarget = CleanTargetRegistry::get($target);
+        if ($cleanTarget === null) {
             //La lista de opciones válidas es para quien depura: va al log, no a la pantalla.
-            log_exception(new \InvalidArgumentException('Mantenimiento: target no válido; tiene que ser uno de ' . implode(', ', self::CLEAN_TARGETS) . '.'));
+            log_exception(new \InvalidArgumentException('Mantenimiento: target no válido; tiene que ser uno de ' . implode(', ', array_keys(CleanTargetRegistry::all())) . '.'));
             return $response->withJson(['error' => __(self::LANG_GROUP, 'Petición no válida: esa opción no existe.')], 400);
         }
-
-        $target = (string) $target;
-        $before = 0;
-        $after = 0;
-        $message = '';
-        $extra = [];
-
-        if ($target === 'statics-stamp') {
-
-            $before = (string) static_files_cache_stamp();
-            static_files_cache_stamp(true);
-            $after = (string) static_files_cache_stamp();
-            //El coste va en el acuse: quien lo pulsa tiene que verlo, no deducirlo.
-            $message = __(self::LANG_GROUP, 'Hecho. Todos los visitantes volverán a descargar los estilos, los scripts y las imágenes de las páginas.');
-
-        } elseif ($target === 'server-delegated-links') {
-
-            //En bytes no se mide: un enlace no ocupa, así que dar bytes aquí sería una cifra que no
-            //puede cambiar. La unidad de este destino es el NÚMERO de enlaces.
-            $before = ServerDelegatedLinks::scan()['total'];
-            $result = ServerDelegatedLinks::deleteAll();
-            $after = ServerDelegatedLinks::scan()['total'];
-            $extra = $result;
-            //Lo que no se pudo borrar se dice: un recuento que lo calla miente.
-            $message = $result['failed'] > 0
-                ? sprintf(
-                    __(self::LANG_GROUP, 'Borrados %d accesos directos y %d carpetas vacías; %d no se pudieron borrar por falta de permiso. Se vuelven a crear al pedirse cada archivo.'),
-                    count($result['deleted']),
-                    count($result['emptiedDirectories']),
-                    $result['failed']
-                )
-                : sprintf(
-                    __(self::LANG_GROUP, 'Borrados %d accesos directos y %d carpetas vacías. Se vuelven a crear al pedirse cada archivo.'),
-                    count($result['deleted']),
-                    count($result['emptiedDirectories'])
-                );
-
-        } else {
-
-            $directory = $target === 'webp-cache'
-                ? basepath(ServerStatics::WEBP_CACHE_DIRECTORY)
-                : basepath('app/cache/Publications');
-
-            //Sin permiso de escritura (la creó otro usuario con 0755) NO se intenta: delete() haría un
-            //unlink que falla con un aviso, y aquí un aviso aborta la operación entera.
-            if (is_dir($directory) && !is_writable($directory)) {
-                //La ruta del servidor es para quien depura: va al log, no a la pantalla.
-                log_exception(new \RuntimeException("Mantenimiento: sin permiso de escritura sobre {$directory}; la creó otro usuario del sistema."));
-                return $response->withJson(['error' => $target === 'webp-cache'
-                    ? __(self::LANG_GROUP, 'No se pudieron borrar las imágenes optimizadas: el sistema no tiene permiso sobre su carpeta.')
-                    : __(self::LANG_GROUP, 'No se pudieron borrar los listados guardados: el sistema no tiene permiso sobre su carpeta.'),
-                ], 409);
-            }
-
-            $before = ServerDelegatedLinks::directorySize($directory);
-            if (is_dir($directory)) {
-                $carpeta = new DirectoryObject($directory);
-                $carpeta->process(new FilesIgnore([
-                    '.htaccess',
-                    '.gitignore',
-                ]));
-                $carpeta->delete();
-            }
-            $after = ServerDelegatedLinks::directorySize($directory);
-            $message = $target === 'webp-cache'
-                ? __(self::LANG_GROUP, 'Imágenes optimizadas borradas. Se vuelven a crear al pedirse.')
-                : __(self::LANG_GROUP, 'Listados guardados borrados. Se vuelven a crear al pedirse.');
-
+        //La ruta ya exige sesión de root; esto respeta, además, a quién deja pulsar cada destino (sin usuario, una suite).
+        $usuario = getLoggedFrameworkUser();
+        if ($usuario !== null && !in_array((int) $usuario->type, $cleanTarget->allowedTypes(), true)) {
+            return throw403($request);
         }
 
-        //`freed` es de BYTES: solo tiene sentido en los dos destinos que son carpetas.
-        $freed = in_array($target, ['webp-cache', 'publications-cache'], true) && is_int($before) && is_int($after)
-            ? max(0, $before - $after)
-            : 0;
-
-        if ($target === 'server-delegated-links') {
-            self::logAction(LogsMapper::MSG_MAINTENANCE_LINKS_CLEANED, [
-                '%username%' => self::currentUsername(),
-                '%target%' => $target,
-                '%deleted%' => (string) count((array) ($extra['deleted'] ?? [])),
-                '%failed%' => (string) (int) ($extra['failed'] ?? 0),
-            ]);
-        } else {
-            self::logAction(LogsMapper::MSG_MAINTENANCE_CACHE_CLEANED, [
-                '%username%' => self::currentUsername(),
-                '%target%' => $target,
-                '%freed%' => (string) $freed,
-            ]);
+        $target = $cleanTarget->key();
+        $result = $cleanTarget->clean();
+        if (isset($result['error'])) {
+            return $response->withJson(['error' => (string) $result['error']], (int) ($result['httpStatus'] ?? 409));
         }
+        $extra = is_array($result['extra'] ?? null) ? $result['extra'] : [];
+
+        [$logMessage, $logParams] = is_array($result['log'] ?? null) ? $result['log'] : [LogsMapper::MSG_MAINTENANCE_CACHE_CLEANED, ['%freed%' => (string) (int) ($result['freed'] ?? 0)]];
+        self::logAction($logMessage, array_merge([
+            '%username%' => self::currentUsername(),
+            '%target%' => $target,
+        ], $logParams));
 
         //`status` recalculado, y es obligatorio: sin él la tabla sigue diciendo la cifra vieja al lado
         //de un mensaje que dice que se borró.
         return $response->withJson(array_merge($extra, [
             'success' => true,
             'target' => $target,
-            'message' => $message,
-            'before' => $before,
-            'after' => $after,
-            'freed' => $freed,
+            'message' => (string) ($result['message'] ?? ''),
+            'before' => $result['before'] ?? 0,
+            'after' => $result['after'] ?? 0,
+            'freed' => (int) ($result['freed'] ?? 0),
             'status' => self::maintenanceStatus(),
         ]));
     }
@@ -635,6 +669,7 @@ class SystemStatusController extends AdminPanelController
         add_global_asset(SystemStatusRoutes::staticRoute('js/mail-log.js'), 'js');
 
         return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('mail-log', [
+            'pieces' => new HelperController(),
             'langGroup' => self::LANG_GROUP,
             'results' => [
                 MailLogMapper::RESULT_DELIVERED => __(self::LANG_GROUP, 'Entregado'),
@@ -707,6 +742,7 @@ class SystemStatusController extends AdminPanelController
             $next = $task->nextDueSlot($now);
             $tasks[] = [
                 'name' => $name,
+                'label' => self::taskDisplayName($name),
                 'schedule' => self::describeSchedule($task->getSchedule()),
                 'lastResult' => $lastResult,
                 'lastAt' => is_string($lastAt) && strtotime($lastAt) !== false ? date('d-m-Y H:i', (int) strtotime($lastAt)) : '',
@@ -715,6 +751,7 @@ class SystemStatusController extends AdminPanelController
             ];
         }
         return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('task-runs', [
+            'pieces' => new HelperController(),
             'langGroup' => self::LANG_GROUP,
             'processTableLink' => self::routeName('task-runs-datatables'),
             'tableExists' => TaskRunMapper::tableExists(),
@@ -788,13 +825,9 @@ class SystemStatusController extends AdminPanelController
             $where[] = new WhereItem("{$table}.taskName", WhereItem::EQUAL_OPERATOR, mb_substr(trim($task), 0, 191), WhereItem::AND_OPERATOR);
         }
         $status = $request->getQueryParam('status', '');
-        if (is_string($status) && in_array($status, [CronJobTask::STATUS_EXECUTED, CronJobTask::STATUS_FAILED], true)) {
+        if (is_string($status) && array_key_exists($status, self::taskRunStatusLabels())) {
             $where[] = new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, $status, WhereItem::AND_OPERATOR);
         }
-        $labels = [
-            CronJobTask::STATUS_EXECUTED => ['green', __(self::LANG_GROUP, 'Ejecutada')],
-            CronJobTask::STATUS_FAILED => ['red', __(self::LANG_GROUP, 'Fallida')],
-        ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
         DataTablesHelper::setTablePrefixOnSearch(false);
@@ -816,17 +849,17 @@ class SystemStatusController extends AdminPanelController
             'custom_order' => ['id' => 'DESC'],
             'mapper' => new TaskRunMapper(),
             'request' => $request,
-            'on_set_data' => function ($e) use ($labels): array {
+            'on_set_data' => function ($e): array {
                 $status = is_string($e->status ?? null) ? $e->status : '';
-                [$color, $label] = $labels[$status] ?? ['grey', $status];
+                [$color, $label] = self::taskRunStatusLabel($status);
                 $message = is_string($e->message ?? null) ? $e->message : '';
                 $slot = is_string($e->slot ?? null) && strtotime($e->slot) !== false ? date('d-m-Y H:i', (int) strtotime($e->slot)) : '';
                 return [
                     escape_html(is_string($e->startedAt ?? null) && strtotime($e->startedAt) !== false ? date('d-m-Y H:i:s', (int) strtotime($e->startedAt)) : ''),
-                    escape_html((string) ($e->taskName ?? '')) . ($slot !== '' ? '<small class="task-runs-slot">' . escape_html(sprintf(__(self::LANG_GROUP, 'franja %s'), $slot)) . '</small>' : ''),
+                    '<div class="ui vertical fitted flex"><span>' . escape_html(self::taskDisplayName((string) ($e->taskName ?? ''))) . '</span>' . ($slot !== '' ? '<small class="task-runs-slot ui muted text">' . escape_html(sprintf(__(self::LANG_GROUP, 'franja %s'), $slot)) . '</small>' : '') . '</div>',
                     escape_html((string) ($e->triggeredBy ?? '')),
-                    '<span class="ui ' . escape_html($color) . ' label">' . escape_html($label) . '</span>'
-                        . ($message !== '' ? '<small class="task-runs-message">' . escape_html($message) . '</small>' : ''),
+                    '<div class="ui vertical left aligned tight flex">' . StatusLabel::html($label, $color)
+                        . ($message !== '' ? '<small class="task-runs-message ui muted text">' . escape_html($message) . '</small>' : '') . '</div>',
                     escape_html((string) ($e->attempt ?? '')),
                     escape_html(isset($e->durationMs) && is_numeric($e->durationMs) ? $e->durationMs . ' ms' : ''),
                 ];
@@ -834,6 +867,46 @@ class SystemStatusController extends AdminPanelController
         ]);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * Los resultados que el libro de ejecuciones anota, con su color y su etiqueta.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function taskRunStatusLabels(): array
+    {
+        return [
+            CronJobTask::STATUS_EXECUTED => ['green', __(self::LANG_GROUP, 'Ejecutada')],
+            CronJobTask::STATUS_FAILED => ['red', __(self::LANG_GROUP, 'Fallida')],
+            CronJobTask::STATUS_LOCKED => ['yellow', __(self::LANG_GROUP, 'Saltada: otra en curso')],
+            CronJobTask::STATUS_ALREADY_DONE => ['grey', __(self::LANG_GROUP, 'Saltada: ya hecha en su franja')],
+        ];
+    }
+
+    /**
+     * Cómo se PINTA el nombre de una tarea: el nombre es su identificador en el libro y no cambia; si el diccionario del
+     * grupo lo trae, sale traducido, y si no (una tarea de un clon), tal cual. Sin pasar por __() lo que no está: en local
+     * cada clave que falta se anota como traducción pendiente.
+     *
+     * @param string $name
+     * @return string
+     */
+    public static function taskDisplayName(string $name): string
+    {
+        $messages = __(self::LANG_GROUP);
+        return is_array($messages) && is_string($messages[$name] ?? null) ? $messages[$name] : $name;
+    }
+
+    /**
+     * El color y la etiqueta de un resultado. Uno desconocido sale tal cual, en gris: es un dato del registro.
+     *
+     * @param string $status
+     * @return array{0: string, 1: string}
+     */
+    public static function taskRunStatusLabel(string $status): array
+    {
+        return self::taskRunStatusLabels()[$status] ?? ['grey', $status];
     }
 
     /**
@@ -871,7 +944,7 @@ class SystemStatusController extends AdminPanelController
         $tabla = MailLogMapper::TABLE;
         $etiquetas = [
             MailLogMapper::RESULT_DELIVERED => ['green', __(self::LANG_GROUP, 'Entregado')],
-            MailLogMapper::RESULT_OUTBOX => ['orange', __(self::LANG_GROUP, 'En el buzón')],
+            MailLogMapper::RESULT_OUTBOX => [StatusLabel::WARNING, __(self::LANG_GROUP, 'En el buzón')],
             MailLogMapper::RESULT_FAILED => ['red', __(self::LANG_GROUP, 'No llegó')],
         ];
         $escapar = fn($valor): string => htmlspecialchars(is_scalar($valor) ? (string) $valor : '', ENT_QUOTES, 'UTF-8');
@@ -947,13 +1020,13 @@ class SystemStatusController extends AdminPanelController
                 $columnas[] = $escapar($e->origin ?? '');
                 $columnas[] = $escapar($e->delivery ?? '');
                 //El resultado con su motivo pegado: un «No llegó» sin motivo no dice qué arreglar.
-                $columnas[] = '<span class="ui ' . $escapar($color) . ' label">' . $escapar($rotulo) . '</span>'
-                    . ($motivo !== '' ? '<small class="mail-log-reason">' . $escapar($motivo) . '</small>' : '');
+                $columnas[] = '<div class="ui vertical left aligned tight flex">' . StatusLabel::html($rotulo, $color)
+                    . ($motivo !== '' ? '<small class="mail-log-reason ui muted text">' . $escapar($motivo) . '</small>' : '') . '</div>';
                 if ($verCuerpo) {
                     $id = isset($e->id) ? (int) $e->id : 0;
                     $columnas[] = $id > 0 && !empty($e->hasBody)
-                        ? '<button type="button" class="ui mini button" data-mail-log-body-url="'
-                            . $escapar(self::routeName('mail-log-body', ['id' => $id])) . '">' . $escapar($rotuloVer) . '</button>'
+                        ? '<button type="button" class="ui basic button" data-mail-log-body-url="'
+                        . $escapar(self::routeName('mail-log-body', ['id' => $id])) . '">' . $escapar($rotuloVer) . '</button>'
                         : '';
                 }
                 return $columnas;

@@ -1,6 +1,7 @@
 <?php
 
 //El contrato del que dependen nueve accesos a `$_FILES` sin isset() delante. Ver T135.
+//@areas nucleo
 
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Terminal\CliActions;

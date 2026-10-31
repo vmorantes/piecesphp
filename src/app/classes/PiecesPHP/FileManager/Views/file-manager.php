@@ -14,10 +14,10 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="limiter-content">
 
         <?php
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
         <div class="filemanager-container">

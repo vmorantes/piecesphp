@@ -1,15 +1,18 @@
 <?php
 
-//El formulario de una aprobación no responde 500: si lo aprobado ya no existe, o su tabla no tiene manejador, 404;
-//un usuario sin organización ni perfil guardado se pinta con sus datos vacíos. Por HTTP. Todo zz-, y se retira.
+//El formulario de una aprobación: 404 si lo aprobado no existe o no tiene manejador, y se pinta sin perfil; la de un
+//Eliminado no se lista y el aviso no va al usuario de sistema ni a .invalid. Por HTTP. Todo zz-, y se retira.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Publications\Mappers\PublicationMapper;
@@ -151,6 +154,54 @@ CliActions::make('unit-tests:core/approval-forms', function ($args) {
         $vista = $pedir($formulario($sembrar($tablaOrganizaciones, (string) $organizacion)), $root);
         $check($vista['status'] === 200 && str_contains($vista['body'], 'Sin encargado'), 'c1 se pinta, y dice que no tiene encargado', "HTTP {$vista['status']}");
         $check($fila() === $antes, 'c2 la fila de la organización es la misma antes y después del GET: mirar no escribe');
+
+        //─── d · Un usuario Eliminado, y a quién no se avisa ───────────────────────────────────────
+        echoTerminal('');
+        echoTerminal('[d] La aprobación de un usuario Eliminado no se lista; el aviso no va al usuario de sistema ni a .invalid');
+        $activo = $crearUsuario('activo', UsersModel::TYPE_USER_GENERAL, OrganizationMapper::INITIAL_ID_GLOBAL);
+        $eliminado = $crearUsuario('eliminado', UsersModel::TYPE_USER_GENERAL, OrganizationMapper::INITIAL_ID_GLOBAL);
+        $database->prepare('UPDATE `' . UsersModel::TABLE . '` SET status = ? WHERE id = ?')->execute([UsersModel::STATUS_USER_DELETED, $eliminado]);
+        $deActivo = $sembrar(UsersModel::TABLE, (string) $activo);
+        $deEliminado = $sembrar(UsersModel::TABLE, (string) $eliminado);
+        $columnas = [];
+        for ($c = 0; $c < 5; $c++) {
+            $columnas[] = ['data' => $c, 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => ['value' => '', 'regex' => 'false']];
+        }
+        $listado = SystemApprovalsController::routeName('datatables', [], true);
+        $listado = str_contains($listado, '://') ? (string) parse_url($listado, \PHP_URL_PATH) : $listado;
+        $listado = $prefijoBase !== '' && str_starts_with($listado, $prefijoBase) ? substr($listado, strlen($prefijoBase)) : $listado;
+        $datos = $pedir($listado . '?' . http_build_query(['draw' => 1, 'start' => 0, 'length' => 100000, 'columns' => $columnas, 'order' => [['column' => 0, 'dir' => 'asc']], 'search' => ['value' => '', 'regex' => 'false']]), $root);
+        //El enlace al formulario de cada fila, tal como viaja en el JSON (con las barras escapadas).
+        $enListado = fn (int $id): bool => str_contains($datos['body'], trim(json_encode($formulario($id), \JSON_THROW_ON_ERROR), '"'));
+        $check($datos['status'] === 200 && $enListado($deActivo), 'd1 CANARIO: la de un usuario activo está en el listado (y en la cifra de la tarjeta, que sale de él)', "HTTP {$datos['status']}");
+        $check(!$enListado($deEliminado), 'd2 la de un usuario Eliminado no está');
+        $deSistema = new UsersModel(UsersModel::SYSTEM_USER_ID);
+        $invalido = new UsersModel($activo);
+        $invalido->email = "{$prefijo}-activo@example.invalid";
+        $normal = new UsersModel($activo);
+        $check($deSistema->id !== null && !SystemApprovalsController::noticeCanReach($deSistema), 'd3 al usuario de sistema no se le intenta el aviso');
+        $check(!SystemApprovalsController::noticeCanReach($invalido), 'd4 ni a una dirección .invalid');
+        $check(SystemApprovalsController::noticeCanReach($normal), 'd5 CANARIO: a una dirección normal, sí');
+
+        //─── e · A quién va el aviso de una organización (P216) ───────────────────────────────────
+        echoTerminal('');
+        echoTerminal('[e] El aviso de una organización va a su encargado; sin él, o Eliminado, a quien la creó');
+        $encargado = $crearUsuario('encargado', UsersModel::TYPE_USER_ADMIN_ORG, OrganizationMapper::INITIAL_ID_GLOBAL);
+        $conEncargado = function (?int $administrador) use ($database, $prefijo, &$usuarios): int {
+            $ahora = date('Y-m-d H:i:s');
+            $database->prepare('INSERT INTO `' . OrganizationMapper::TABLE . '` (code, name, nit, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+                ->execute(['zz' . bin2hex(random_bytes(4)), "{$prefijo}-org-aviso", 'zz-' . bin2hex(random_bytes(4)), "{$prefijo}-org-aviso", $ahora, $usuarios['root'], 1, json_encode(['baseLang' => 'es', 'langData' => new \stdClass, 'administrator' => $administrador])]);
+            return (int) $database->lastInsertId();
+        };
+        $contacto = fn (int $id): ?int => ($u = \SystemApprovals\Util\Packages\OrganizationApprovalHandler::getContactUser(new OrganizationMapper($id))) !== null ? (int) $u->id : null;
+        $orgsAviso = [$conEncargado($encargado), $conEncargado(null)];
+        $check($contacto($orgsAviso[0]) === $encargado, 'e1 con encargado, a él', var_export($contacto($orgsAviso[0]), true));
+        $check($contacto($orgsAviso[1]) === $usuarios['root'], 'e2 sin encargado, a quien la creó', var_export($contacto($orgsAviso[1]), true));
+        $database->prepare('UPDATE `' . UsersModel::TABLE . '` SET status = ? WHERE id = ?')->execute([UsersModel::STATUS_USER_DELETED, $encargado]);
+        $check($contacto($orgsAviso[0]) === $usuarios['root'], 'e3 con el encargado Eliminado, a quien la creó', var_export($contacto($orgsAviso[0]), true));
+        foreach ($orgsAviso as $idAviso) {
+            $database->exec('DELETE FROM `' . OrganizationMapper::TABLE . "` WHERE id = {$idAviso}");
+        }
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');

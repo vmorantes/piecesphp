@@ -6,7 +6,6 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -16,6 +15,7 @@ use PiecesPHP\SystemStatus\SystemAlert;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * SystemAlertsTask - Los avisos del sistema activos, los mismos de «Avisos del sistema» del panel. Solo lee.

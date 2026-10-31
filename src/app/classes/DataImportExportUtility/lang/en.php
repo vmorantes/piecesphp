@@ -97,6 +97,10 @@ $lang = [
     'exportador' => 'exporter',
     'importador' => 'importer',
     'todos' => 'all',
+    'Descarga la plantilla' => 'Download the template',
+    'Llénala sin cambiar sus columnas' => 'Fill it in without changing its columns',
+    'Sube la plantilla diligenciada' => 'Upload the completed template',
+    'Las columnas de la plantilla' => 'The template columns',
 ];
 
 return $lang;

@@ -1,6 +1,5 @@
 @use 'includes/functions' as *;
 @use 'includes/variables' as *;
-@use 'includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
 @use 'includes/components' as *;
 
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
@@ -10,22 +9,17 @@ $footerBorderColor: rgba(0, 0, 0, 0.14);
 $imageActionHoverBackground: #7070700d;
 $imageActionHoverColor: #5b5b5b;
 
-@import url('../../fonts/public-sans/public-sans.css');
-@import url('../../fonts/poppins/poppins.css');
+@import url(static-url('../../fonts/public-sans/public-sans.css'));
 
 * {
     box-sizing: border-box;
 }
 
 //Generals
+//Sin font-size: lo pone el tema con --font-size-base, y aquí fijo anularía el tamaño base de la pantalla Colores.
 html,
 body {
-    font-size: $htmlFontSize;
-    font-family: $fontGlobal;
     font-weight: 400;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
     background-color: $bodyBackground;
 }
 
@@ -60,10 +54,6 @@ a {
         color: $colorThird;
         transition: 0.5s all ease;
 
-        &:visited {
-            color: black;
-        }
-
         &:hover,
         &:active,
         &:focus {
@@ -78,7 +68,6 @@ h1 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(48);
         line-height: pxToRem(48+5);
@@ -92,7 +81,6 @@ h2 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontGlobal;
         font-weight: $fwSemiBold;
         font-size: pxToRem(36);
         line-height: pxToRem(36+5);
@@ -105,7 +93,6 @@ h3 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(32);
         line-height: pxToRem(32+5);
@@ -118,7 +105,6 @@ h4 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(27);
         line-height: pxToRem(27+5);
@@ -131,7 +117,6 @@ h5 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontGlobal;
         font-weight: $fwMedium;
         font-size: pxToRem(22);
         line-height: pxToRem(22+5);
@@ -144,7 +129,6 @@ h6 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(18);
         line-height: pxToRem(18+5);
@@ -158,7 +142,6 @@ p {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $pFontFamily;
         text-align: left;
         font-size: $pFontSize;
         line-height: $pLineHeight;
@@ -174,7 +157,6 @@ ol {
 
     .#{$globalClassPcs} &.pcs-list,
     &.list.#{$globalClassPcs} {
-        font-family: $listFontFamily;
         text-align: left;
         font-size: $listFontSize;
         line-height: $listLineHeight;
@@ -213,7 +195,6 @@ ol {
                 padding: $listItemPadding;
 
                 &::before {
-                    font-family: $fontGlobal;
                     counter-increment: list;
                     display: block;
                     position: absolute;
@@ -332,7 +313,7 @@ footer.#{$globalClassPcs} {
 
 .text-center {
 
-    .#{$globalClassPcs} &,
+    :is(.#{$globalClassPcs}, .admin-shell) &,
     &.#{$globalClassPcs} {
         text-align: center;
     }
@@ -346,66 +327,6 @@ a.ui.button {
 
 .ui {
 
-    &.button {
-
-        font-size: 14px;
-        font-weight: $fwRegular;
-        border-radius: 8px;
-        margin: 0px;
-
-
-        &.brand-color,
-        &.custom-main-color {
-
-            background-color: var(--main-brand-color);
-            color: var(--font-color-two);
-
-            &:hover,
-            &:active,
-            &:focus {
-                opacity: 0.8;
-            }
-
-            &.alt {
-
-                background-color: var(--second-brand-color);
-
-            }
-
-            &.alt2 {
-
-                background-color: var(--font-color-one);
-
-            }
-
-        }
-
-    }
-
-    &.dividing.header {
-        color: var(--second-brand-color);
-        border-color: var(--second-brand-color);
-
-        &.no-border {
-            border: none;
-        }
-
-        &.alt {
-            color: var(--main-brand-color);
-            border-color: var(--main-brand-color);
-        }
-
-        &.alt2 {
-            color: var(--font-color-one);
-            border-color: var(--font-color-one);
-        }
-
-        &.white {
-            color: white;
-            border-color: white;
-        }
-    }
-
     &.tabular.menu {
         .item:not(.active) {
             cursor: pointer;
@@ -418,47 +339,23 @@ a.ui.button {
         }
     }
 
-    &.tag {
-
-        &.brand-color {
-
-            background-color: var(--main-brand-color);
-            color: var(--font-color-two);
-
-            &.alt {
-
-                background-color: var(--second-brand-color);
-
-            }
-
-            &.alt2 {
-
-                background-color: var(--font-color-one);
-
-            }
-
-        }
-
-    }
-
 }
 
 //──── Vistas de configuración ───────────────────────────────────────────────────────────
 .main-body-header {
     width: 100%;
     height: 300px;
-    background-color: var(--main-brand-color-opacity);
+    background-color: var(--accent-50);
     padding-top: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: $fontGlobal;
 
     @media screen and (max-width:1050px) {
         padding-top: 70px;
     }
 
-    >.head {
+    > .head {
         text-align: center;
 
         .tittle {
@@ -475,10 +372,10 @@ a.ui.button {
         }
     }
 
-    >.body-card {
+    > .body-card {
         width: 800px;
         height: auto;
-        background-color: white;
+        background-color: var(--theme-surface);
         border-radius: 10px;
         padding: 20px;
         display: flex;
@@ -532,10 +429,10 @@ a.ui.button {
 
     }
 
-    >.divider {
+    > .divider {
         height: 100px;
         width: 100%;
-        background-color: var(--main-brand-color);
+        background-color: var(--accent);
     }
 
     /* Estilos para las inputs cards images */
@@ -559,18 +456,18 @@ a.ui.button {
         width: 100%;
     }
 
-    >.image-action {
+    > .image-action {
         width: 150px;
         height: 100px;
         position: relative;
 
         &.fit-image {
-            >img {
+            > img {
                 object-fit: contain;
             }
         }
 
-        >img {
+        > img {
             width: 150px;
             height: 150px;
             max-width: 150px;
@@ -581,17 +478,17 @@ a.ui.button {
             object-fit: contain;
         }
 
-        >.hover-content {
+        > .hover-content {
             transition: .5s;
             display: none;
         }
 
         &:hover {
-            >img {
+            > img {
                 filter: blur(3px);
             }
 
-            >.hover-content {
+            > .hover-content {
                 background-color: $imageActionHoverBackground;
                 border-radius: 15px;
                 width: 150px;
@@ -604,7 +501,7 @@ a.ui.button {
                 cursor: pointer;
                 animation: inSide .5s ease-in-out;
 
-                >i {
+                > i {
                     margin: 0;
                     padding: 0;
                     font-size: 45px;
@@ -612,8 +509,7 @@ a.ui.button {
                     margin: 0 auto;
                 }
 
-                >span {
-                    font-family: $fontGlobal;
+                > span {
                     font-weight: $fwMedium;
                     color: $imageActionHoverColor;
                     font-size: 12px;
@@ -633,13 +529,13 @@ a.ui.button {
         }
     }
 
-    >.info {
+    > .info {
         display: flex;
         flex-direction: column;
         justify-content: center;
 
-        >span {
-            color: var(--main-brand-color);
+        > span {
+            color: var(--accent);
             font-size: 20px;
             font-weight: $fwMedium;
 
@@ -648,12 +544,12 @@ a.ui.button {
             }
         }
 
-        >small {
-            color: var(--font-color-one);
+        > small {
+            color: var(--theme-text);
             font-size: 12px;
         }
 
-        >p {
+        > p {
             font-size: 14px;
             margin: 0;
             padding: 0;
@@ -673,13 +569,13 @@ a.ui.button {
     flex-direction: column;
     align-items: center;
 
-    >span {
-        color: var(--main-brand-color);
+    > span {
+        color: var(--accent);
         font-size: 27px;
         font-weight: $fwSemiBold;
     }
 
-    >p {
+    > p {
         text-align: center;
         max-width: 400px;
         font-size: 15px;
@@ -694,7 +590,6 @@ a.ui.button {
     gap: 10px;
 
     .section-title {
-        font-family: $fontGlobal;
 
         .title {
             font-weight: $fwBold;

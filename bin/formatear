@@ -1,0 +1,265 @@
+#!/usr/bin/env python3
+# Formato de PHP, JS, SCSS y CSS con los formateadores del editor del PO, CONGELADOS en el repositorio (P233, P235, P236):
+# la referencia es el repositorio, no el editor, y .vscode/settings.json hace que el editor use lo mismo.
+#
+#   bin/formatear --check <archivo>…          dice cuáles cambiarían y sale con 1 si alguno; no toca nada
+#   bin/formatear --check --desde=<commit>    lo mismo con los del universo cambiados desde ese commit
+#   bin/formatear --check --todo              lo mismo con todo el universo
+#   bin/formatear <archivo>… | --desde=… | --todo   formatea en su sitio
+#   bin/formatear --universo [--guardar]      lista el universo; con --guardar escribe files/dev/format-universe.json
+#   bin/formatear --suelto <archivo>          formatea un archivo aunque esté fuera del universo (el temporal del editor:
+#                                             bin/tools/formato/php-editor, P242)
+#
+# Cada lenguaje, con su formateador (P235):
+#   .php         bin/tools/phpfmt/fmt.stub.php (phpfmt 1.2.71, BSD-3), con los argumentos que arma la extensión
+#                kokororin.vscode-phpfmt 1.2.71 desde .vscode/settings.json. PCSPHP_PHPFMT_PHP elige el php; por omisión
+#                `php`, el que usa la extensión. Después, bin/tools/formato/php.php arregla sobre tokens lo que phpfmt deja
+#                mal y compara los tokens de antes y de después: si cambia algo más que espacios, el archivo es ERROR y
+#                no se escribe. Ese paso lo corre el PHP del proyecto (PCSPHP_PHP_BIN, php8.5, php8.4 o php).
+#   .js          bin/tools/formato/js.js: el formato de VS Code con el TypeScript del proyecto (package.json).
+#   .scss .css   bin/tools/formato/css.js: el CSS de js-beautify 1.10.1 (bin/tools/js-beautify/, MIT).
+# Y después, como al guardar en el editor: un salto de línea final si falta (.editorconfig, files.insertFinalNewline),
+# salvo en los archivos de bin/ ([bin/*] insert_final_newline = false).
+import json, os, shutil, subprocess, sys, tempfile
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UNIVERSO_JSON = 'files/dev/format-universe.json'
+
+#Los argumentos de la extensión: su configuración por omisión, con lo que declara .vscode/settings.json encima
+#(phpfmt.psr2, phpfmt.indent_with_space y phpfmt.passes, que SUSTITUYE a la lista por omisión). Sin AutoSemicolon, que
+#dejaba «};;» tras una clase anónima dentro de un cierre.
+PHP_PASES = ['AlignPHPCode', 'MergeNamespaceWithOpenTag', 'RemoveSemicolonAfterCurly', 'RestoreComments', 'ShortArray', 'ExtraCommaInArray']
+PHP_ARGUMENTOS = ['--psr2', '--indent_with_space=4', '--passes=' + ','.join(PHP_PASES)]
+
+#──── El universo: lo versionado con estas extensiones, menos lo de terceros, lo compilado y lo dudoso ──────────
+EXTENSIONES = ('.php', '.js', '.scss', '.css')
+FUERA_CARPETAS = ('src/vendor/', 'src/statics/plugins/', 'node_modules/', 'bin/tools/')
+FUERA_SUFIJOS = ('.min.js', '.min.css')
+#Lo que escribe src/gulpfile.js: (carpeta de la fuente, extensión de la fuente, carpeta de la salida, extensión de la salida).
+COMPILADOS = [
+    ('src/statics/core/ts/', '.ts', 'src/statics/core/js/', '.js'),
+    ('src/statics/core/own-plugins/sass/', '.scss', 'src/statics/core/own-plugins/css/', '.css'),
+    ('src/statics/core/sass/', '.scss', 'src/statics/core/css/', '.css'),
+    ('src/statics/sass/', '.scss', 'src/statics/css/', '.css'),
+]
+DUDOSOS = {
+    'src/statics/core/own-plugins/FormJsonSchema.js': 'salida de tsc (ES5, «/** @class */ (function»), compilada fuera de este gulp',
+    'src/statics/fonts/poppins/poppins.css': '@font-face generado por un servicio de fuentes',
+    'src/statics/fonts/public-sans/public-sans.css': '@font-face generado por un servicio de fuentes',
+    'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Collection.php': 'código de Slim 3 adaptado, con su licencia',
+    'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/NotFoundException.php': 'código de Slim 3 adaptado, con su licencia',
+    'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Http/Environment.php': 'código de Slim 3 adaptado, con su licencia',
+    'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Http/StatusCode.php': 'código de Slim 3 adaptado, con su licencia',
+    'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Interfaces/CollectionInterface.php': 'código de Slim 3 adaptado, con su licencia',
+    'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Interfaces/Http/EnvironmentInterface.php': 'código de Slim 3 adaptado, con su licencia',
+}
+
+
+def compilado(ruta):
+    for fuente, extension_fuente, salida, extension_salida in COMPILADOS:
+        if ruta.startswith(salida) and ruta.endswith(extension_salida):
+            if os.path.isfile(os.path.join(RAIZ, fuente + ruta[len(salida):-len(extension_salida)] + extension_fuente)):
+                return True
+    #Los módulos: app/classes/**/sass/** → app/classes/**/css/**.
+    if ruta.startswith('src/app/classes/') and ruta.endswith('.css') and '/css/' in ruta:
+        return os.path.isfile(os.path.join(RAIZ, ruta.replace('/css/', '/sass/')[:-len('.css')] + '.scss'))
+    return False
+
+
+def clasificar(con_nuevos=False):
+    #Con los nuevos sin versionar (y no ignorados) para formatearlos antes de su commit; la foto, solo lo versionado.
+    salida = subprocess.run(['git', '-C', RAIZ, 'ls-files', '-z'] + (['--cached', '--others', '--exclude-standard'] if con_nuevos else []) + ['--'] + ['*' + e for e in EXTENSIONES], capture_output=True, check=True).stdout
+    universo, compilados = [], []
+    for ruta in sorted(r.decode('utf-8') for r in salida.split(b'\0') if r):
+        if ruta.startswith(FUERA_CARPETAS) or ruta.endswith(FUERA_SUFIJOS) or ruta in DUDOSOS:
+            continue
+        if compilado(ruta):
+            compilados.append(ruta)
+            continue
+        universo.append(ruta)
+    return universo, compilados
+
+
+def guardar_universo(universo, compilados):
+    datos = {
+        'why': 'Lo que formatea bin/formatear (P233, P235, P236): lo versionado .php, .js, .scss y .css, menos lo de terceros, lo compilado y lo dudoso. Las reglas viven en bin/formatear; esto es su foto (bin/artefactos).',
+        'fuera_por_carpeta_o_sufijo': list(FUERA_CARPETAS) + ['*' + s for s in FUERA_SUFIJOS],
+        'compilados': compilados,
+        'dudosos': DUDOSOS,
+        'por_lenguaje': {e: sum(1 for r in universo if r.endswith(e)) for e in EXTENSIONES},
+        'archivos': universo,
+    }
+    with open(os.path.join(RAIZ, UNIVERSO_JSON), 'w', encoding='utf-8') as archivo:
+        archivo.write(json.dumps(datos, ensure_ascii=False, indent=4) + '\n')
+
+
+#──── Formatear ────────────────────────────────────────────────────────────────────────────────────────────
+def php_del_proyecto():
+    #El mismo orden que bin/cli: el paso de tokens tiene que leer el PHP del proyecto (8.5).
+    if os.environ.get('PCSPHP_PHP_BIN'):
+        return os.environ['PCSPHP_PHP_BIN']
+    return next((p for p in ('php8.5', 'php8.4') if shutil.which(p)), 'php')
+
+
+def formatear_copias(copias, origenes=None):
+    """{ruta del repositorio: copia temporal} → {ruta: el error}; deja el resultado en la copia. `origenes` dice contra
+    qué compara la puerta de tokens (por omisión, el archivo del repositorio)."""
+    errores = {}
+    por_lenguaje = {'.php': [], '.js': [], '.css': []}
+    for ruta, copia in copias.items():
+        por_lenguaje['.css' if ruta.endswith(('.scss', '.css')) else os.path.splitext(ruta)[1]].append((ruta, copia))
+    php = os.environ.get('PCSPHP_PHPFMT_PHP', 'php')
+    sin_alinear = {}
+    for ruta, copia in por_lenguaje['.php']:
+        #Como la extensión: con la carpeta del archivo como directorio de trabajo, y se lee lo que deja en el temporal.
+        with open(copia, 'rb') as archivo:
+            con_html = b'?>' in archivo.read()
+        if con_html:
+            #La cabecera de una vista sale de una pasada sin AlignPHPCode (bin/tools/formato/php.php, B4).
+            sin_alinear[ruta] = copia + '.sin-alinear.php'
+            shutil.copyfile(copia, sin_alinear[ruta])
+            argumentos = [a for a in PHP_ARGUMENTOS if not a.startswith('--passes=')] + ['--passes=' + ','.join(p for p in PHP_PASES if p != 'AlignPHPCode')]
+            subprocess.run([php, os.path.join(RAIZ, 'bin/tools/phpfmt/fmt.stub.php')] + argumentos + [sin_alinear[ruta]], cwd=os.path.dirname(os.path.join(RAIZ, ruta)), capture_output=True)
+        resultado = subprocess.run([php, os.path.join(RAIZ, 'bin/tools/phpfmt/fmt.stub.php')] + PHP_ARGUMENTOS + [copia], cwd=os.path.dirname(os.path.join(RAIZ, ruta)), capture_output=True)
+        if resultado.returncode != 0:
+            errores[ruta] = 'phpfmt salió con %d' % resultado.returncode
+    lote = [(ruta, copia) for ruta, copia in por_lenguaje['.php'] if ruta not in errores]
+    if lote:
+        pares = []
+        for ruta, copia in lote:
+            pares += [(origenes or {}).get(ruta, os.path.join(RAIZ, ruta)), copia, sin_alinear.get(ruta, '-')]
+        resultado = subprocess.run([php_del_proyecto(), os.path.join(RAIZ, 'bin/tools/formato/php.php')] + pares, capture_output=True, text=True)
+        vistos = {}
+        for linea in resultado.stdout.splitlines():
+            try:
+                dato = json.loads(linea)
+            except ValueError:
+                continue
+            vistos[dato.get('formateado')] = dato.get('error')
+        for ruta, copia in lote:
+            if copia not in vistos:
+                errores[ruta] = 'el paso de tokens no lo devolvió (%s)' % (resultado.stderr.strip()[-200:] or 'salió con %d' % resultado.returncode)
+            elif vistos[copia] is not None:
+                errores[ruta] = vistos[copia]
+    for extension, guion in (('.js', 'js.js'), ('.css', 'css.js')):
+        lote = por_lenguaje[extension]
+        if lote:
+            resultado = subprocess.run(['node', os.path.join(RAIZ, 'bin/tools/formato', guion)] + [c for _, c in lote], capture_output=True, text=True)
+            if resultado.returncode != 0:
+                for ruta, _ in lote:
+                    errores.setdefault(ruta, resultado.stderr.strip()[-300:] or 'node salió con %d' % resultado.returncode)
+    for ruta, copia in copias.items():
+        if ruta in errores or os.path.dirname(ruta) == 'bin':
+            continue
+        with open(copia, 'rb') as archivo:
+            contenido = archivo.read()
+        if contenido and not contenido.endswith(b'\n'):
+            with open(copia, 'ab') as archivo:
+                archivo.write(b'\n')
+    return errores
+
+
+def ayuda():
+    with open(__file__, encoding='utf-8') as archivo:
+        lineas = []
+        for linea in archivo.read().splitlines()[1:]:
+            if not linea.startswith('#'):
+                break
+            lineas.append(linea)
+    print('\n'.join(l[2:] if l.startswith('# ') else l.lstrip('#') for l in lineas))
+
+
+def main(argumentos):
+    if not argumentos:
+        ayuda()
+        return 2
+    if argumentos[0] in ('--help', '-h'):
+        ayuda()
+        return 0
+    comprueba = '--check' in argumentos
+    todo = '--todo' in argumentos
+    desde = next((a.split('=', 1)[1] for a in argumentos if a.startswith('--desde=')), '')
+    pedidos = [a for a in argumentos if not a.startswith('--')]
+    suelto = '--suelto' in argumentos
+    desconocidas = [a for a in argumentos if a.startswith('--') and a not in ('--check', '--todo', '--universo', '--guardar', '--suelto') and not a.startswith('--desde=')]
+    if desconocidas:
+        print('bin/formatear: opción desconocida «%s» (bin/formatear --help)' % desconocidas[0], file=sys.stderr)
+        return 2
+    universo, compilados = clasificar(con_nuevos='--universo' not in argumentos)
+    if '--universo' in argumentos:
+        if '--guardar' in argumentos:
+            guardar_universo(universo, compilados)
+            print('formatear --universo: %d archivo(s) (%s); escrito %s' % (len(universo), ', '.join('%s %d' % (e, sum(1 for r in universo if r.endswith(e))) for e in EXTENSIONES), UNIVERSO_JSON))
+        else:
+            print('\n'.join(universo))
+        return 0
+    del_universo = set(universo)
+    rutas = []
+    if todo:
+        rutas = list(universo)
+    if desde:
+        if subprocess.run(['git', '-C', RAIZ, 'rev-parse', '--verify', '--quiet', desde + '^{commit}'], capture_output=True).returncode != 0:
+            print('bin/formatear: «%s» no es un commit de este repositorio' % desde, file=sys.stderr)
+            return 2
+        cambiados = subprocess.run(['git', '-C', RAIZ, '-c', 'core.quotePath=false', 'diff', '--name-only', '--diff-filter=ACMR', desde], capture_output=True, text=True, check=True).stdout.split('\n')
+        nuevos = subprocess.run(['git', '-C', RAIZ, '-c', 'core.quotePath=false', 'ls-files', '--others', '--exclude-standard'], capture_output=True, text=True, check=True).stdout.split('\n')
+        rutas += [r for r in cambiados + nuevos if r in del_universo]
+    fuera = []
+    for pedido in pedidos:
+        ruta = os.path.relpath(os.path.abspath(pedido), RAIZ)
+        (rutas if ruta in del_universo or (suelto and ruta.endswith(EXTENSIONES)) else fuera).append(ruta)
+    for ruta in fuera:
+        print('  FUERA      %s (no es del universo: bin/formatear --universo)' % ruta)
+    rutas = sorted(set(rutas))
+    if not rutas:
+        print('formatear: ningún archivo del universo que mirar')
+        return 1 if fuera else 0
+    temporal = tempfile.mkdtemp(prefix='pcsphp-formatear-')
+    try:
+        copias = {}
+        for numero, ruta in enumerate(rutas):
+            copias[ruta] = os.path.join(temporal, '%d-%s' % (numero, os.path.basename(ruta)))
+            shutil.copyfile(os.path.join(RAIZ, ruta), copias[ruta])
+        errores = formatear_copias(copias)
+        #Idempotente o nada: lo formateado, formateado otra vez, tiene que dar lo mismo (phpfmt añadía un espacio por pasada).
+        segundas = {}
+        for ruta in rutas:
+            if ruta not in errores:
+                segundas[ruta] = copias[ruta] + '.segunda' + os.path.splitext(ruta)[1]
+                shutil.copyfile(copias[ruta], segundas[ruta])
+        errores_segunda = formatear_copias(segundas, origenes={r: copias[r] for r in segundas})
+        for ruta, segunda in segundas.items():
+            if ruta in errores_segunda:
+                errores[ruta] = 'la segunda pasada: ' + errores_segunda[ruta]
+                continue
+            with open(copias[ruta], 'rb') as primera, open(segunda, 'rb') as otra:
+                if primera.read() != otra.read():
+                    errores[ruta] = 'no es idempotente: formatear dos veces no da lo mismo que una'
+        cambian = []
+        for ruta in rutas:
+            if ruta in errores:
+                print('  ERROR      %s (%s)' % (ruta, errores[ruta]))
+                continue
+            with open(os.path.join(RAIZ, ruta), 'rb') as original, open(copias[ruta], 'rb') as formateado:
+                antes, despues = original.read(), formateado.read()
+            if antes == despues:
+                continue
+            cambian.append(ruta)
+            if comprueba:
+                print('  CAMBIARÍA  %s' % ruta)
+            else:
+                with open(os.path.join(RAIZ, ruta), 'wb') as destino:
+                    destino.write(despues)
+                print('  FORMATEADO %s' % ruta)
+    finally:
+        shutil.rmtree(temporal, ignore_errors=True)
+    resumen = ', '.join('%s %d/%d' % (e, sum(1 for r in cambian if r.endswith(e)), sum(1 for r in rutas if r.endswith(e))) for e in EXTENSIONES)
+    print('formatear%s: %d archivo(s); %d %s, %d sin cambios, %d con error, %d fuera del universo (por lenguaje, cambia/mirados: %s)' % (
+        ' --check' if comprueba else '', len(rutas), len(cambian), 'cambiaría(n)' if comprueba else 'formateado(s)', len(rutas) - len(cambian) - len(errores), len(errores), len(fuera), resumen))
+    if errores or fuera:
+        return 1
+    return 1 if (comprueba and cambian) else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

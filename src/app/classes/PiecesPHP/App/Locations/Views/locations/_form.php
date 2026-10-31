@@ -25,10 +25,10 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="limiter-content">
 
         <?php
-        $pieces->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            $pieces->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
         <form pcs-generic-handler-js method="POST" action="<?= escape_html($action); ?>" class="ui form initial locations" data-content-form>
@@ -37,9 +37,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                 <?php foreach ($fields as $field): ?>
                 <?php
-                $kind = $field['kind'] ?? 'input';
-                $required = ($field['required'] ?? false) === true;
-                $label = isset($field['label']) && is_string($field['label']) ? $field['label'] : '';
+                    $kind = $field['kind'] ?? 'input';
+                    $required = ($field['required'] ?? false) === true;
+                    $label = isset($field['label']) && is_string($field['label']) ? $field['label'] : '';
                 ?>
 
                 <?php if ($kind === 'hidden'): ?>
@@ -82,12 +82,12 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             </div>
 
             <?php
-            $pieces->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __(LOCATIONS_LANG_GROUP, 'Guardar'),
-                'secondaryActions' => [
-                    ['text' => __(LOCATIONS_LANG_GROUP, 'Cancelar'), 'url' => $back_link, 'icon' => 'times'],
-                ],
-            ]);
+                $pieces->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __(LOCATIONS_LANG_GROUP, 'Guardar'),
+                    'secondaryActions' => [
+                        ['text' => __(LOCATIONS_LANG_GROUP, 'Cancelar'), 'url' => $back_link, 'icon' => 'times'],
+                    ],
+                ]);
             ?>
 
         </form>

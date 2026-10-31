@@ -2,6 +2,7 @@
 
 //bundle y scan-missing-lang por su efecto (D15, 11): no tienen inverso, así que se prueba la ida sobre carpetas de prueba
 //en el temporal del sistema. La única escritura en src/ es la de lang(), y su carpeta se borra al terminar.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use Terminal\Tasks\BundleTask;

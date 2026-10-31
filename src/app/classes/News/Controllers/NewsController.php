@@ -6,8 +6,6 @@
 
 namespace News\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\Exceptions\DuplicateException;
 use News\Exceptions\SafeException;
 use News\Mappers\NewsCategoryMapper;
@@ -15,10 +13,11 @@ use News\Mappers\NewsMapper;
 use News\Mappers\NewsReadedMapper;
 use News\NewsLang;
 use News\NewsRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -27,6 +26,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -35,7 +35,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * NewsController.
@@ -90,7 +90,6 @@ class NewsController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(NewsRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(NewsRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'), 'css');
 
         NewsCategoryMapper::uncategorizedCategory();
         NewsCategoryMapper::newOpportunitiesCategory();
@@ -296,7 +295,7 @@ class NewsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -634,7 +633,7 @@ class NewsController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -654,7 +653,7 @@ class NewsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -684,7 +683,7 @@ class NewsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -838,7 +837,7 @@ class NewsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'newsID',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -1137,7 +1136,7 @@ class NewsController extends AdminPanelController
 
                 $columns = [];
                 $columns[] = $titleHTML . '<br><span class="ui small grey text">' . escape_html($e->categoryName) . '</span>';
-                $columns[] = "<span class='ui {$tagColor} label'>" . escape_html($tagText) . '</span>';
+                $columns[] = StatusLabel::html($tagText, $tagColor);
                 $columns[] = $e->startDateFormat;
                 $columns[] = $e->endDateFormat;
                 $columns[] = RowActions::cell($direct, $menu);

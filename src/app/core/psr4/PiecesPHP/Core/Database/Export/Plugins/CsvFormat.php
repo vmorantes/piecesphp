@@ -1,16 +1,12 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
-use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
-use PiecesPHP\Core\Database\Database;
 use PDO;
+use PiecesPHP\Core\Database\Database;
+use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 
 /**
- * Class CsvFormat
- * 
- * Plugin de formato para exportar datos en formato CSV (Valores separados por comas).
- * Soporta transformaciones de datos, filtros WHERE y detección de binarios.
+ * Formato CSV: admite transformaciones, filtros WHERE y detecta los binarios.
  */
 class CsvFormat implements FormatPluginInterface
 {
@@ -67,13 +63,13 @@ class CsvFormat implements FormatPluginInterface
         $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
         $sql = "SELECT * FROM `" . str_replace("`", "``", $table) . "`" . $where;
         $stmt = $db->query($sql);
-        
+
         $outputBuffer = "";
         $transforms = $options['transformations'][$table] ?? [];
         $useHexBlob = $options['hex_blob'] ?? true;
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            
+
             // Aplicar Transformaciones (GDPR / Masking)
             foreach ($transforms as $col => $callback) {
                 if (array_key_exists($col, $row)) {
@@ -149,7 +145,7 @@ class CsvFormat implements FormatPluginInterface
 
     /**
      * Convierte un array en una línea CSV válida.
-     * 
+     *
      * @param array $fields
      * @return string
      */

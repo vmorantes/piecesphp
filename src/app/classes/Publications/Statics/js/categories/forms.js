@@ -22,19 +22,6 @@ window.addEventListener('load', function () {
 				return processedFormData
 			}
 		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		}
 	})
 
 	form.find('input, select, textarea').attr('autocomplete', 'off')
@@ -71,8 +58,6 @@ window.addEventListener('load', function () {
 		if (isDetailMode) {
 
 			const fields = Array.from(form.find('.field'))
-			const fieldsButtons = form.find('.field .ui.buttons')
-			const submitButtons = fieldsButtons.find("button[type='submit']")
 
 			for (const field of fields) {
 				const $field = $(field)
@@ -81,9 +66,7 @@ window.addEventListener('load', function () {
 				$field.find('label,input,select:not([simulator]),textarea').filter(':visible').attr('style', 'opacity: 1;')
 			}
 
-			if (submitButtons.length > 0) {
-				fieldsButtons.remove()
-			}
+			form.find('> .actions').remove()
 
 		}
 

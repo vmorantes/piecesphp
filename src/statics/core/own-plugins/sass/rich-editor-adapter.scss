@@ -1,3 +1,28 @@
+//CKEditor 5 se pinta con sus variables (--ck-*, en :root); en cada .ck toman los colores de LECTURA del tema, que cambian
+//solos con el modo de color: así el área y la barra siguen al panel en claro y en oscuro.
+.ck {
+    --ck-color-base-background: var(--theme-surface);
+    --ck-color-base-foreground: var(--theme-fill);
+    --ck-color-base-border: var(--theme-border);
+    --ck-color-base-text: var(--theme-text);
+    --ck-color-text: var(--theme-text);
+    --ck-color-toolbar-background: var(--theme-surface-strong);
+    --ck-color-toolbar-border: var(--theme-border);
+    --ck-color-panel-background: var(--theme-surface-strong);
+    --ck-color-panel-border: var(--theme-border);
+    --ck-color-dropdown-panel-background: var(--theme-surface-strong);
+    --ck-color-dropdown-panel-border: var(--theme-border);
+    --ck-color-list-background: var(--theme-surface-strong);
+    --ck-color-list-button-hover-background: var(--theme-fill);
+    --ck-color-input-background: var(--theme-surface);
+    --ck-color-input-border: var(--theme-border);
+    --ck-color-labeled-field-label-background: var(--theme-surface);
+    --ck-color-button-default-background: transparent;
+    --ck-color-button-default-hover-background: var(--theme-fill);
+    --ck-color-button-on-background: var(--theme-fill);
+    --ck-color-button-on-hover-background: var(--theme-fill);
+}
+
 .ck-editor__editable {
     min-height: 500px;
     max-height: 500px;
@@ -20,7 +45,7 @@
             &.image-style-align-left {
                 float: left;
 
-                &+* {
+                & + * {
 
                     &::before,
                     &::after {
@@ -39,7 +64,7 @@
             &.image-style-align-right {
                 float: right;
 
-                &+* {
+                & + * {
 
                     &::before,
                     &::after {

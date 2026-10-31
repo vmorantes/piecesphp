@@ -2,14 +2,17 @@
 
 //Los scripts inyectados por HTTP: guardados por la acción real, salen en su zona y su punto, y solo el principal los escribe.
 //Crea dos usuarios zz-prueba-scripts-*, escribe `injected_scripts` y corre la migración; lo devuelve todo como estaba.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -59,7 +62,8 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
     $nombres = [
         'vista' => 'configurations-integrations-scripts',
         'accion' => 'configurations-integrations-scripts-save',
-        'panel' => 'configurations-index',
+        //El inicio: una pantalla del panel que existe para todos (el índice de Configuración se retiró, ADR 0070).
+        'panel' => 'admin',
         'acceso' => 'users-form-login',
     ];
 
@@ -259,11 +263,11 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
         $usuarios->select()->where(new WhereSegment([WhereItem::like('username', "{$prefijo}%")]))->execute();
         $check(
             count((array) $usuarios->result()) === 0 && SettingsModel::optionExists(ExtraScripts::CONFIG_NAME) === $existia
-            && json_encode($guardado()) === json_encode($previo) && SettingsModel::optionExists(SettingsMigrateExtraScriptsTask::OLD_OPTION) === $viejaExistia,
+                && json_encode($guardado()) === json_encode($previo) && SettingsModel::optionExists(SettingsMigrateExtraScriptsTask::OLD_OPTION) === $viejaExistia,
             'z1 limpieza: 0 usuarios de la prueba, y injected_scripts y extra_scripts como estaban'
         );
     }
 
     return $balance();
 
-})->setDescription('Los scripts inyectados por HTTP: zona y punto en el panel, la portada y el acceso; solo el principal; 400 sin escribir; la migración dos veces.')->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Los scripts inyectados por HTTP: zona y punto en el panel, la portada y el acceso; solo el principal; 400 sin escribir; la migración dos veces.')->setEffects([CliActions::EFFECT_DATABASE])->register();

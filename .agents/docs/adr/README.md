@@ -115,3 +115,8 @@ procedencia.
 | [0063](0063-los-errores-de-las-pruebas-se-podan.md) | Los errores que escriben las pruebas se marcan y se podan al terminar; un error real nunca se poda (P191) | sí | Aceptada |
 | [0064](0064-el-aviso-de-errores-nuevos-no-ensena-la-cifra.md) | El aviso de errores nuevos del pie no enseña la cifra (P195 a) | no | Aceptada |
 | [0065](0065-los-artefactos-eligen-las-suites-que-los-leen.md) | Un artefacto de instrumento elige solo las suites que lo leen; reemplaza esa parte del ADR 0062 §2 (E13 (5)) | sí | Aceptada |
+| [0066](0066-una-suite-de-nucleo-se-declara.md) | Toda suite declara su área, y una de núcleo lo dice con `@areas nucleo` (H22) | sí | Aceptada |
+| [0067](0067-las-urls-de-dentro-de-las-hojas-llevan-la-huella-de-su-archivo.md) | Las URL de dentro de las hojas llevan la huella de su archivo (`static-url()`), y el cargador no lleva la marca global (G9) | sí | Aceptada |
+| [0068](0068-una-sola-pieza-para-las-subidas-de-los-formularios.md) | Una sola pieza en el núcleo para las subidas de los formularios (`FormUploadHandler`), que usan los cuatro módulos (G11, P239 a) | sí | Aceptada |
+| [0069](0069-el-lenguaje-de-marcado-del-panel.md) | El lenguaje de marcado del panel: piezas con API estable, clases del framework como ganchos y, por dentro, Fomantic y el fork; la hoja de diseño como guía (D16) | sí | Aceptada |
+| [0070](0070-el-indice-de-configuracion-se-retira.md) | El índice de Configuración se retira: la lista la da el panel de la barra; las pantallas de Configuración, sin migas; «Cancelar», al inicio (reemplaza el §4 del 0028; H103) | sí | Aceptada |

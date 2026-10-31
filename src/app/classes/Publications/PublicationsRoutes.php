@@ -13,9 +13,13 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Sitemap\Sitemap;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\SystemStatus\CleanTarget;
+use PiecesPHP\SystemStatus\CleanTargetRegistry;
+use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
+use PiecesPHP\SystemStatus\ServerDelegatedLinks;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
@@ -50,6 +54,7 @@ class PublicationsRoutes
             $groupAdministration = PublicationsCategoryController::routes($groupAdministration);
             $groupPublic = PublicationsPublicController::routes($groupPublic);
             Sitemap::registerProvider('publications', [PublicationsPublicController::class, 'sitemapItems']);
+            self::registerCleanTarget();
 
             self::staticResolver($groupAdministration);
 
@@ -65,6 +70,36 @@ class PublicationsRoutes
             'groupAdministration' => $groupAdministration,
             'groupPublic' => $groupPublic,
         ];
+    }
+
+    /**
+     * Los listados guardados (la caché de Publications) en «Estado y cachés»: su botón y su fila. Los textos van en el
+     * grupo de idioma de SystemStatus, donde ya estaban traducidos.
+     *
+     * @return void
+     */
+    public static function registerCleanTarget(): void
+    {
+        $lang = SystemStatusController::LANG_GROUP;
+        $directory = basepath('app/cache/Publications');
+        CleanTargetRegistry::register((new CleanTarget(
+            'publications-cache',
+            fn (): string => __($lang, 'Borrar listados guardados'),
+            fn (): string => __($lang, '¿Borrar los listados guardados? Se vuelven a crear al pedirse.'),
+            fn (): array => SystemStatusController::cleanCacheDirectory(
+                $directory,
+                __($lang, 'No se pudieron borrar los listados guardados: el sistema no tiene permiso sobre su carpeta.'),
+                __($lang, 'Listados guardados borrados. Se vuelven a crear al pedirse.')
+            ),
+            30
+        ))->withRow(
+            30,
+            fn (): string => __($lang, 'Listados de publicaciones guardados'),
+            CleanTarget::UNIT_BYTES,
+            ['publicationsCacheBytes'],
+            fn (): array => ['publicationsCacheBytes' => ServerDelegatedLinks::directorySize($directory)],
+            icon: 'list'
+        ));
     }
 
     /**

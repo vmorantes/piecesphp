@@ -6,15 +6,15 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
+use EventsLog\Mappers\LogsMapper;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Mailer;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\Core\ConfigHelpers\MailConfig;
-use PiecesPHP\Core\Mailer;
-use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
-use PiecesPHP\UserSystem\Authentication\TokenEvents;
+use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 use \stdClass;
@@ -31,6 +31,10 @@ use \stdClass;
 class RecoveryPasswordController extends UsersController
 {
     const LANG_GROUP = 'revoveryPasswordModule';
+
+    //Frenan que se inunde el buzón de alguien y la tabla: un código por usuario cada minuto y no más de cinco por hora.
+    const CODE_MIN_SECONDS_BETWEEN = 60;
+    const CODE_MAX_PER_HOUR = 5;
 
     /**
      * @var UsersModel
@@ -62,9 +66,7 @@ class RecoveryPasswordController extends UsersController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
-        /* izitoast */
-        import_izitoast();
+        import_front_library('fomantic-piecesphp', []);
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -335,6 +337,10 @@ class RecoveryPasswordController extends UsersController
         if ($usuario === null) {
             return null;
         }
+        //Con el límite alcanzado no se crea ni se envía nada; quien llama responde como si se hubiera enviado.
+        if (self::codeLimitReached((string) $usuario->email)) {
+            return $usuario;
+        }
 
         $recoveryPassword = new RecoveryPasswordModel();
         $recoveryPassword->created = new \DateTime();
@@ -447,5 +453,18 @@ class RecoveryPasswordController extends UsersController
         }
 
         return $mail->send();
+    }
+
+    /**
+     * Si ese correo ya pidió un código hace menos de CODE_MIN_SECONDS_BETWEEN o CODE_MAX_PER_HOUR en la última hora.
+     *
+     * @param string $email
+     * @return bool
+     */
+    private static function codeLimitReached(string $email): bool
+    {
+        $now = new \DateTime();
+        return RecoveryPasswordModel::countSince($email, (clone $now)->modify('-' . self::CODE_MIN_SECONDS_BETWEEN . ' seconds')) > 0
+            || RecoveryPasswordModel::countSince($email, (clone $now)->modify('-1 hour')) >= self::CODE_MAX_PER_HOUR;
     }
 }

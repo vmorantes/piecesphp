@@ -1,10 +1,12 @@
 <?php
 
 //El modo mantenimiento. Solo usa `set_config()`, que es memoria del proceso: no escribe en la base ni lo deja encendido.
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\MaintenanceMode;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
 
@@ -194,26 +196,26 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
         //y la prueba de que los nombres existen no lo vería: los viejos siguen existiendo.
         $check(in_array('system-status-site-maintenance', MaintenanceMode::ALWAYS_ALLOWED, true), 'h10 ALWAYS_ALLOWED nombra la pantalla nueva');
         $check(in_array('system-status-site-maintenance-save', MaintenanceMode::ALWAYS_ALLOWED, true), 'h11 y su guardado');
-        $check(!in_array('configurations-appearance-colors', MaintenanceMode::ALWAYS_ALLOWED, true) && !in_array('configurations-index', MaintenanceMode::ALWAYS_ALLOWED, true), 'h12 y ya no nombra la pantalla vieja (hoy, la de colores), ni el índice');
-        $check(!in_array('configurations-generic-save', MaintenanceMode::ALWAYS_ALLOWED, true), 'h13 ni la acción genérica');
-        $check(is_array(get_route_info('configurations-appearance-colors')) && is_array(get_route_info('configurations-generic-save')), 'h14 canario: esas dos rutas existen con ese nombre (si se renombran, h12 y h13 no mirarían nada)');
+        $check(!in_array('configurations-appearance-colors', MaintenanceMode::ALWAYS_ALLOWED, true), 'h12 y ya no nombra la pantalla vieja (hoy, la de colores)');
+        $check(!in_array('configurations-appearance-colors-save', MaintenanceMode::ALWAYS_ALLOWED, true), 'h13 ni su guardado');
+        $check(is_array(get_route_info('configurations-appearance-colors')) && is_array(get_route_info('configurations-appearance-colors-save')), 'h14 canario: esas dos rutas existen con ese nombre (si se renombran, h12 y h13 no mirarían nada)');
 
-        //─── i · La acción genérica de configuraciones no puede apagar el sitio (P74) ────────────────────
+        //─── i · La acción de colores no puede apagar el sitio (P74) ────────────────────
         echoTerminal(' ');
-        echoTerminal('[i] Las tres claves del modo están reservadas al principal en la acción genérica');
-        $reservadas = \PiecesPHP\Settings\Controllers\SettingsController::ROOT_ONLY_CONFIG_KEYS;
+        echoTerminal('[i] Las tres claves del modo no están entre lo que escribe la acción de colores');
+        $controladorAjustes = \PiecesPHP\Settings\Controllers\SettingsController::class;
         foreach ([MaintenanceMode::ENABLED_CONFIG, MaintenanceMode::ALLOWED_ROLES_CONFIG, MaintenanceMode::RETRY_AFTER_CONFIG] as $clave) {
-            $check(in_array($clave, $reservadas, true), "i1 «{$clave}» está reservada");
+            $check(!in_array($clave, $controladorAjustes::COLOR_OPTIONS, true) && !in_array($clave, ['theme_font', 'theme_font_size', 'theme_radius'], true), "i1 «{$clave}» no es una opción de la pantalla Colores");
         }
         $fuenteAccion = (string) @file_get_contents(basepath('app/classes/PiecesPHP/Settings/Controllers/SettingsController.php'));
-        $posGuarda = mb_strpos($fuenteAccion, 'isRootOnlyConfigName($name, $targetName) && !$isRoot');
-        $posEscritura = mb_strpos($fuenteAccion, '$success = $option->update();');
-        $check($posGuarda !== false, 'i2 la comprobación sigue en la acción genérica');
-        //DISCRIMINANTE: una comprobación DESPUÉS de escribir deja pasar la escritura y devuelve 403
-        //igual. El orden es la guarda, no su presencia.
-        $check($posGuarda !== false && $posEscritura !== false && $posGuarda < $posEscritura,
-            'i3 y va ANTES de la escritura');
-        $check(mb_strpos($fuenteAccion, 'withJson($result, 403)') !== false, 'i4 el rechazo es un 403');
+        $posAccion = mb_strpos($fuenteAccion, 'function saveColorsAction');
+        $posValidacion = $posAccion !== false ? mb_strpos($fuenteAccion, '$expectedParameters->validate();', $posAccion) : false;
+        $posEscritura = $posAccion !== false ? mb_strpos($fuenteAccion, 'SettingsModel::setConfigValue($name, $value)', $posAccion) : false;
+        $check($posValidacion !== false, 'i2 la acción valida');
+        //DISCRIMINANTE: validar DESPUÉS de escribir deja pasar la escritura y responde error igual. El orden es la guarda.
+        $check($posValidacion !== false && $posEscritura !== false && $posValidacion < $posEscritura,
+            'i3 y antes de escribir');
+        $check(\PiecesPHP\Core\Roles::hasPermissions('configurations-appearance-colors-save', UsersModel::TYPE_USER_ROOT) && !\PiecesPHP\Core\Roles::hasPermissions('configurations-appearance-colors-save', UsersModel::TYPE_USER_GENERAL), 'i4 la abre el principal, no un usuario general');
 
     } finally {
         //El modo NUNCA se queda encendido por una suite, ni aunque algo lance.

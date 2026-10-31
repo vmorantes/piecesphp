@@ -1,23 +1,23 @@
 <?php
 
-    $defaultControls = [
-        'rotate' => true, 
-        'flip' => true, 
-        'adjust' => true, 
-    ];
+$defaultControls = [
+    'rotate' => true,
+    'flip' => true,
+    'adjust' => true,
+];
 
-    $controls = isset($controls) && is_array($controls) ? $controls : [];
+$controls = isset($controls) && is_array($controls) ? $controls : [];
 
-    $settedControls = [];
+$settedControls = [];
 
-    $control = 'rotate';
-    $settedControls[$control] = isset($controls[$control]) && is_bool($controls[$control]) ? $controls[$control] : $defaultControls[$control];
+$control = 'rotate';
+$settedControls[$control] = isset($controls[$control]) && is_bool($controls[$control]) ? $controls[$control] : $defaultControls[$control];
 
-    $control = 'flip';
-    $settedControls[$control] = isset($controls[$control]) && is_bool($controls[$control]) ? $controls[$control] : $defaultControls[$control];
+$control = 'flip';
+$settedControls[$control] = isset($controls[$control]) && is_bool($controls[$control]) ? $controls[$control] : $defaultControls[$control];
 
-    $control = 'adjust';
-    $settedControls[$control] = isset($controls[$control]) && is_bool($controls[$control]) ? $controls[$control] : $defaultControls[$control];
+$control = 'adjust';
+$settedControls[$control] = isset($controls[$control]) && is_bool($controls[$control]) ? $controls[$control] : $defaultControls[$control];
 
 ?>
 <div class="options">

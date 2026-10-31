@@ -56,7 +56,7 @@ class BaseMongoModel
         $operator_compare = '>';
         if (
             !extension_loaded('mongodb')
-            ||
+                ||
             !version_compare(
                 phpversion('mongodb'),
                 $version_compare,

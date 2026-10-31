@@ -10,11 +10,13 @@ use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\App\Locations\Mappers\CityMapper;
 use PiecesPHP\App\Locations\Mappers\StateMapper;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
@@ -25,8 +27,6 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\ControllerRoutingTrait;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * City.
@@ -521,7 +521,7 @@ class City extends AdminPanelController
             ),
             new Parameter(
                 'country',
-                -10,
+                    -10,
                 function ($value) {
                     return true;
                 },
@@ -532,7 +532,7 @@ class City extends AdminPanelController
             ),
             new Parameter(
                 'state',
-                -10,
+                    -10,
                 function ($value) {
                     return true;
                 },
@@ -585,9 +585,10 @@ class City extends AdminPanelController
             new HavingItem(
                 "UPPER({$table}.name)",
                 HavingItem::LIKE_OPERATOR,
-                $query . '%',
+                //%, _ y | escapados con | y ESCAPE '|' (como Region): lo que se busca se lee como texto, no como comodín.
+                str_replace(['|', '%', '_'], ['||', '|%', '|_'], $query) . '%',
                 '',
-                'UPPER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+                'UPPER(' . HavingItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ") ESCAPE '|'"
             ),
         ];
 
@@ -783,7 +784,6 @@ class City extends AdminPanelController
 
         return $pagination;
     }
-
 
     /**
      * Los campos del formulario de alta (sin elemento) y de edición, para la plantilla locations/_form.

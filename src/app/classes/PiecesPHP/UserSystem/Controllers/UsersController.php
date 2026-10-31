@@ -6,33 +6,25 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Tokens\Controllers\TokenController;
-use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
-use PiecesPHP\UserSystem\Controllers\UserProblemsController;
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\UserSystem\Authentication\TokenEvents;
-use Organizations\Mappers\OrganizationMapper;
 use MySpace\Controllers\MyProfileController;
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
-use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Pagination\PageQuery;
+use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -42,14 +34,24 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Tokens\Controllers\TokenController;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
-use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\Authentication\TokenEvents;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
+use PiecesPHP\UserSystem\Controllers\UserProblemsController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
+use Slim\Exception\HttpForbiddenException;
+use SystemApprovals\SystemApprovalsRoutes;
+use SystemApprovals\Util\Packages\UsersApprovalHandler;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
-use Slim\Exception\HttpForbiddenException;
 
 /**
  * UsersController.
@@ -153,6 +155,9 @@ class UsersController extends AdminPanelController
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
 
+    //Hash fijo de una cadena al azar: un usuario que no existe paga el mismo password_verify() y no se delata por el tiempo.
+    const TIMING_DUMMY_HASH = '$2y$12$HJuocNDtMI94kysJwvwQre5TTws1QSuAPPBvF/holWMQ374a/8ahW';
+
     /**
      * Quién puede cerrar las sesiones de otro usuario. La ruta lo declara y el controlador lo vuelve a comprobar.
      */
@@ -205,9 +210,6 @@ class UsersController extends AdminPanelController
         set_title($title);
 
         set_custom_assets([
-            UserSystemFeaturesRoutes::staticRoute('css/users-list.css'),
-        ], 'css');
-        set_custom_assets([
             UserSystemFeaturesRoutes::staticRoute('js/users-list.js'),
         ], 'js');
 
@@ -216,12 +218,6 @@ class UsersController extends AdminPanelController
             'langGroup' => $langGroup,
             'title' => $title,
             'description' => __($langGroup, 'Quién entra al panel, con qué tipo y en qué estado.'),
-            'breadcrumbs' => [
-                __($langGroup, 'Inicio') => [
-                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-                ],
-                $title,
-            ],
             'addLink' => $addLink,
             'process_table' => self::routeName('datatables'),
         ]);
@@ -483,11 +479,7 @@ class UsersController extends AdminPanelController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
-        /* NProgress */
-        import_nprogress();
-        /* izitoast */
-        import_izitoast();
+        import_front_library('fomantic-piecesphp', []);
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -561,6 +553,15 @@ class UsersController extends AdminPanelController
         $title = __(self::LANG_GROUP, 'Agregar usuario');
         set_title($title);
 
+        $typeDescriptions = [
+            UsersModel::TYPE_USER_ROOT => __(self::LANG_GROUP, 'Acceso total y configuración del sistema'),
+            UsersModel::TYPE_USER_ADMIN_GRAL => __(self::LANG_GROUP, 'Gestiona contenidos y usuarios'),
+            UsersModel::TYPE_USER_ADMIN_ORG => __(self::LANG_GROUP, 'Gestiona usuarios de su organización'),
+            UsersModel::TYPE_USER_GENERAL => __(self::LANG_GROUP, 'Consulta contenidos y diligencia formularios'),
+            UsersModel::TYPE_USER_INSTITUCIONAL => __(self::LANG_GROUP, 'Publica contenidos en nombre de la institución'),
+            UsersModel::TYPE_USER_COMUNICACIONES => __(self::LANG_GROUP, 'Crea noticias, publicaciones y banners'),
+        ];
+
         foreach ($types as $key => $display) {
 
             $type_encrypt = self::signedType((int) $key);
@@ -572,6 +573,7 @@ class UsersController extends AdminPanelController
                 $types[$key] = [
                     'link' => self::routeName('form-create', ['type' => $type_encrypt]),
                     'text' => $display,
+                    'description' => $typeDescriptions[$key] ?? strReplaceTemplate(__(self::LANG_GROUP, 'Agregar nuevo usuario ${type}'), ['${type}' => $display]),
                 ];
 
             } else {
@@ -712,12 +714,12 @@ class UsersController extends AdminPanelController
         $user = new UsersModel($id);
 
         $currentUser = new UsersModel($this->user->id);
-        $hasAuthority = $currentUser->hasAuthorityOver($user->type);
 
+        //La autoridad se mira con el usuario ya encontrado: con un id que no existe, type es null y reventaba (500).
         if (!is_null($user->id) && Roles::roleExists($user->type)) {
 
             //Su POST no deja tocar a un usuario de otra organización: el GET tampoco lo enseña.
-            if (!$hasAuthority || !self::canManageUser($currentUser, $user)) {
+            if (!$currentUser->hasAuthorityOver($user->type) || !self::canManageUser($currentUser, $user)) {
                 return throw403($req, [
                     'url' => self::routeName('list'),
                 ]);
@@ -1022,6 +1024,12 @@ class UsersController extends AdminPanelController
                 $username = $usernameParameter->getValue();
                 $password = $passwordParameter->getValue();
 
+                //FRENO POR IP (otp_security): con la IP frenada, 429 antes de buscar el usuario o mirar la contraseña.
+                $secondsToUnlockIP = OTPRateLimiter::loginSecondsToUnlock(OTPRateLimiter::clientIP());
+                if ($secondsToUnlockIP > 0) {
+                    return OTPRateLimiter::lockedLoginResponse($response, OTPRateLimiter::VIA_LOGIN_PASSWORD, (string) $username, $secondsToUnlockIP);
+                }
+
                 $user = $this->model->select()->where([
                     'username' => [
                         '=' => $username,
@@ -1045,13 +1053,48 @@ class UsersController extends AdminPanelController
                     $requireAprobation = UsersModel::REQUIRE_APPROBATION_FOR_LOGIN;
                     $statusOk = $requireAprobation ? in_array($user->status, UsersModel::STATUSES_OK_FOR_LOGIN_ON_REQUIRE_APPROBATION) : in_array($user->status, UsersModel::STATUSES_OK_FOR_LOGIN_ON_NO_REQUIRE_APPROBATION);
 
-                    //Verificar status
-                    if ($statusOk) {
+                    //Organización, si aplica
+                    $organizationID = $user->organization;
+                    $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+                    $organizationOk = $organizationMapper == null || in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN);
 
-                        //Verificar status de la organización si aplica
-                        $organizationID = $user->organization;
-                        $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-                        if ($organizationMapper == null || in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN)) {
+                    //LA CONTRASEÑA ANTES QUE EL ESTADO: sin ella buena, ningún mensaje dice si la cuenta existe ni cómo está (P201).
+                    $otpIsValid = OTPHandler::checkValidityOTP($password, $username);
+                    $passwordIsValid = password_verify($password, $user->password);
+                    //En toda cuenta que no puede entrar, con la contraseña buena o la mala: las dos pagan la misma consulta.
+                    $underAttack = (!$statusOk || !$organizationOk) && OTPRateLimiter::loginAccountUnderAttack($user->username, self::MAX_ATTEMPTS);
+                    //La contraseña mala, y bajo ataque la cuenta que no puede entrar (P223 a, marcada): la MISMA respuesta y el mismo registro.
+                    $failAsWrongPassword = function (array $mark = []) use ($resultOperation, $user, $extraDataLog): void {
+                        $resultOperation->setValue('error', self::INCORRECT_PASSWORD);
+                        $resultOperation->setValue('message', $this->getMessage(self::INCORRECT_PASSWORD));
+                        LoginAttemptsModel::addLogin(
+                            (int) $user->id,
+                            $user->username,
+                            false,
+                            $resultOperation->getValue('message'),
+                            $extraDataLog + [OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_PASSWORD] + $mark
+                        );
+                    };
+
+                    if (!$passwordIsValid && !$otpIsValid) {
+
+                        $failAsWrongPassword();
+
+                        //Solo cuenta intentos la cuenta que podría entrar: la que está bloqueada, pendiente o inactiva se registra y no suma.
+                        if ($statusOk && $organizationOk) {
+
+                            $attempts = $user->failedAttempts >= self::MAX_ATTEMPTS ? (int) $user->failedAttempts : $this->mapper->updateAttempts($user->id);
+
+                            //LA CUENTA SOLO SE BLOQUEA SI LOS FALLOS VIENEN DE VARIAS IP: desde una sola, la frena el límite por IP,
+                            //y así quien sepa un usuario no puede dejarlo fuera. Responde como cualquier contraseña mala (P201).
+                            if ($attempts >= self::MAX_ATTEMPTS && OTPRateLimiter::loginShouldBlockAccount($user->username)) {
+                                $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
+                            }
+                        }
+
+                    } elseif ($statusOk) {
+
+                        if ($organizationOk) {
 
                             if ($isExternalLogin) {
                                 if (!in_array($user->type, UsersModel::TYPES_WITH_EXTERNAL_LOGIN)) {
@@ -1061,111 +1104,78 @@ class UsersController extends AdminPanelController
                                 }
                             }
 
-                            $otpIsValid = OTPHandler::checkValidityOTP($password, $username);
-                            $passwordIsValid = password_verify($password, $user->password);
-                            if ($passwordIsValid || $otpIsValid) {
+                            $require2FA = OTPHandler::isEnabled2FA($userMapper->id) && OTPHandler::wasViewedCurrentUserQRData($userMapper->id);
+                            //LÍMITE DEL SEGUNDO FACTOR (otp_security): con el usuario o la IP bloqueados, 429 antes de mirar el código.
+                            $secondsToUnlock = $require2FA ? OTPRateLimiter::secondsToUnlock($user->username, OTPRateLimiter::clientIP()) : 0;
+                            if ($secondsToUnlock > 0) {
+                                return OTPRateLimiter::lockedLoginResponse($response, OTPRateLimiter::VIA_LOGIN_TOTP, $user->username, $secondsToUnlock);
+                            }
+                            $twoFactorCodeValue = $twoFactorCode->getValue();
+                            $twoFactorCodeValue = is_string($twoFactorCodeValue) ? $twoFactorCodeValue : '';
+                            $twoFactorIsValid = OTPHandler::checkValidityTOTP($twoFactorCodeValue, $username);
 
-                                $require2FA = OTPHandler::isEnabled2FA($userMapper->id) && OTPHandler::wasViewedCurrentUserQRData($userMapper->id);
-                                //LÍMITE DEL SEGUNDO FACTOR (otp_security): con el usuario o la IP bloqueados, 429 antes de mirar el código.
-                                $secondsToUnlock = $require2FA ? OTPRateLimiter::secondsToUnlock($user->username, OTPRateLimiter::clientIP()) : 0;
-                                if ($secondsToUnlock > 0) {
-                                    return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_LOGIN_TOTP, $user->username, $secondsToUnlock);
+                            if (!$require2FA || $twoFactorIsValid) {
+
+                                OTPHandler::toExpireOTP($username);
+                                if ($otpIsValid && !$passwordIsValid) {
+                                    TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_ONE_USE_CODE, (int) $user->id, (string) $user->username);
                                 }
-                                $twoFactorCodeValue = $twoFactorCode->getValue();
-                                $twoFactorCodeValue = is_string($twoFactorCodeValue) ? $twoFactorCodeValue : '';
-                                $twoFactorIsValid = OTPHandler::checkValidityTOTP($twoFactorCodeValue, $username);
 
-                                if (!$require2FA || $twoFactorIsValid) {
+                                $resultOperation->setValue('auth', true);
 
-                                    OTPHandler::toExpireOTP($username);
-                                    if ($otpIsValid && !$passwordIsValid) {
-                                        TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_ONE_USE_CODE, (int) $user->id, (string) $user->username);
+                                //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES (tipo, estado y organización, de la fila en cada
+                                //petición); lleva además el identificador de su sesión, cuya fila manda (ADR 0026).
+                                $resultOperation->setValue('token', UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth')));
+
+                                //Valores de usuario devueltos, FILTRADOS POR LISTA BLANCA: se toma lo declarado,
+                                //no se quita lo que sobra. Así una columna nueva no viaja sola al navegador.
+                                $userReadable = $userMapper->humanReadable();
+                                $userLoginData = [];
+                                foreach (self::LOGIN_USER_DATA_FIELDS as $campo) {
+                                    if (array_key_exists($campo, $userReadable)) {
+                                        $userLoginData[$campo] = $userReadable[$campo];
                                     }
-
-                                    $resultOperation->setValue('auth', true);
-
-                                    //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES (tipo, estado y organización, de la fila en cada
-                                    //petición); lleva además el identificador de su sesión, cuya fila manda (ADR 0026).
-                                    $resultOperation->setValue('token', UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth')));
-
-                                    //Valores de usuario devueltos, FILTRADOS POR LISTA BLANCA: se toma lo declarado,
-                                    //no se quita lo que sobra. Así una columna nueva no viaja sola al navegador.
-                                    $userReadable = $userMapper->humanReadable();
-                                    $userLoginData = [];
-                                    foreach (self::LOGIN_USER_DATA_FIELDS as $campo) {
-                                        if (array_key_exists($campo, $userReadable)) {
-                                            $userLoginData[$campo] = $userReadable[$campo];
-                                        }
-                                    }
-                                    $userLoginData['misc'] = [
-                                        'avatar' => AvatarModel::getAvatar($userMapper->id),
-                                    ];
-
-                                    foreach ($userReadable as $k => $i) {
-                                        if (str_contains($k, 'META:')) {
-                                            $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
-                                        }
-                                    }
-
-                                    $resultOperation->setValue('userData', $userLoginData);
-
-                                    $this->mapper->resetAttempts($user->id);
-
-                                    LoginAttemptsModel::addLogin(
-                                        (int) $user->id,
-                                        $user->username,
-                                        true,
-                                        '',
-                                        $extraDataLog
-                                    );
-
-                                } else {
-
-                                    $resultOperation->setValue('error', self::INVALID_TWO_FACTOR_CODE);
-                                    $resultOperation->setValue('message', $this->getMessage(self::INVALID_TWO_FACTOR_CODE));
-                                    //El fallo del segundo factor no suma failedAttempts: lo cuenta el límite de OTPRateLimiter, por su vía.
-                                    LoginAttemptsModel::addLogin(
-                                        (int) $user->id,
-                                        $user->username,
-                                        false,
-                                        $resultOperation->getValue('message'),
-                                        $extraDataLog + [OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_TOTP]
-                                    );
-
                                 }
+                                $userLoginData['misc'] = [
+                                    'avatar' => AvatarModel::getAvatar($userMapper->id),
+                                ];
+
+                                foreach ($userReadable as $k => $i) {
+                                    if (str_contains($k, 'META:')) {
+                                        $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
+                                    }
+                                }
+
+                                $resultOperation->setValue('userData', $userLoginData);
+
+                                $this->mapper->resetAttempts($user->id);
+
+                                LoginAttemptsModel::addLogin(
+                                    (int) $user->id,
+                                    $user->username,
+                                    true,
+                                    '',
+                                    $extraDataLog
+                                );
 
                             } else {
 
-                                $resultOperation->setValue('error', self::INCORRECT_PASSWORD);
-                                $resultOperation->setValue('message', $this->getMessage(self::INCORRECT_PASSWORD));
+                                $resultOperation->setValue('error', self::INVALID_TWO_FACTOR_CODE);
+                                $resultOperation->setValue('message', $this->getMessage(self::INVALID_TWO_FACTOR_CODE));
+                                //El fallo del segundo factor no suma failedAttempts: lo cuenta el límite de OTPRateLimiter, por su vía.
                                 LoginAttemptsModel::addLogin(
                                     (int) $user->id,
                                     $user->username,
                                     false,
                                     $resultOperation->getValue('message'),
-                                    $extraDataLog
+                                    $extraDataLog + [OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_TOTP]
                                 );
 
-                                if ($user->failedAttempts >= self::MAX_ATTEMPTS) {
-
-                                    $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
-                                    $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
-                                    $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
-
-                                } else {
-
-                                    $attempts = $this->mapper->updateAttempts($user->id);
-
-                                    if ($attempts >= self::MAX_ATTEMPTS) {
-
-                                        $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
-                                        $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
-                                        $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
-
-                                    }
-                                }
-
                             }
+
+                        } elseif ($underAttack) {
+
+                            $failAsWrongPassword(['statusWithheld' => true]);
 
                         } else {
 
@@ -1184,6 +1194,10 @@ class UsersController extends AdminPanelController
                             );
 
                         }
+
+                    } elseif ($underAttack) {
+
+                        $failAsWrongPassword(['statusWithheld' => true]);
 
                     } else {
 
@@ -1219,14 +1233,17 @@ class UsersController extends AdminPanelController
 
                 } else {
 
-                    $resultOperation->setValue('error', self::USER_NO_EXISTS);
-                    $resultOperation->setValue('message', vsprintf($this->getMessage(self::USER_NO_EXISTS), [$username]));
+                    //Quien no existe responde como una contraseña mala y paga el mismo password_verify() (P201, G2).
+                    //RETORNO-IGNORADO: solo iguala el tiempo; el hash es de relleno y no casa con nada.
+                    password_verify((string) $password, self::TIMING_DUMMY_HASH);
+                    $resultOperation->setValue('error', self::INCORRECT_PASSWORD);
+                    $resultOperation->setValue('message', $this->getMessage(self::INCORRECT_PASSWORD));
                     LoginAttemptsModel::addLogin(
                         null,
                         $username,
                         false,
                         $resultOperation->getValue('message'),
-                        $extraDataLog
+                        $extraDataLog + [OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_PASSWORD]
                     );
 
                 }
@@ -1607,9 +1624,16 @@ class UsersController extends AdminPanelController
 
                 if ($success) {
 
-                    //El perfil se crea aquí, no al leerlo: la creación vive en los caminos de escritura.
+                    //El perfil se crea aquí, no al leerlo ni en cada petición: la creación vive en los caminos de escritura.
                     if ($userMapper->id !== null) {
-                        UserProfileMapper::createProfile((int) $userMapper->id);
+                        //RETORNO-IGNORADO: el alta ya se guardó; un tipo sin perfil da true y uno que falle lo rellena profiles-create-missing.
+                        UserProfileMapper::ensureFor((int) $userMapper->id);
+                    }
+
+                    //Un pendiente de una organización aprobada se aprueba aquí, al crearlo; navegar ya no lo hace (P220 b).
+                    if (SystemApprovalsRoutes::ENABLE) {
+                        //RETORNO-IGNORADO: la respuesta del alta es la misma, quede aprobado o pendiente.
+                        UsersApprovalHandler::approveIfOrganizationApproved($userMapper);
                     }
 
                     $result->setValue('reload', true);
@@ -1658,7 +1682,7 @@ class UsersController extends AdminPanelController
             $result
                 ->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException | ParsedValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException|ParsedValueException $e) {
 
             $result->setMessage($e->getMessage());
             log_exception($e);
@@ -1976,8 +2000,10 @@ class UsersController extends AdminPanelController
 
             if ($userMapper->id !== null) {
 
-                if ($isProfile && $change_password) {
-                    $password_ok = password_verify($currentPassword, $userMapper->password);
+                //En el perfil, cambiar la contraseña, el usuario o el correo pide la actual (P206); se compara como los duplicados.
+                $identity_changed = $username !== $userMapper->username || $email !== $userMapper->email;
+                if ($isProfile && ($change_password || $identity_changed)) {
+                    $password_ok = is_string($currentPassword) && password_verify($currentPassword, $userMapper->password);
                 }
 
                 if (!$username_duplicate && !$email_duplicate && $password_match && $password_ok) {
@@ -2071,7 +2097,7 @@ class UsersController extends AdminPanelController
             $result
                 ->setMessage(CustomSlimErrorHandler::genericMessage($reference));
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException | ParsedValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException|ParsedValueException $e) {
 
             $result->setMessage($e->getMessage());
             log_exception($e);

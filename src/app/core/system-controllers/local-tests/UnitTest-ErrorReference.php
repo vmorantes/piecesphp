@@ -2,6 +2,7 @@
 
 //P56: cada error registrado lleva un código de referencia, y fuera de local la respuesta no enseña nada de la excepción.
 //Escribe entradas de prueba en logs/error.log.jsonl y error.plain.log (el log es de la máquina): se quedan y se enumeran.
+//@areas src/app/classes/PiecesPHP/Tokens/
 
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;

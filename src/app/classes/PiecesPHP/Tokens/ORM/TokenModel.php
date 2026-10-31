@@ -4,10 +4,10 @@
  */
 namespace PiecesPHP\Tokens\ORM;
 
-use PiecesPHP\Tokens\Controllers\TokenController;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Tokens\Controllers\TokenController;
 
 /**
  * TokenModel.

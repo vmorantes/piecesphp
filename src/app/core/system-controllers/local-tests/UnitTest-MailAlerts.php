@@ -2,6 +2,8 @@
 
 //Que el correo que no llega se sepa SOLO: el aviso de fallos, el de la tabla que falta, y que la
 //sonda SMTP de mail-doctor no salga a la red por omisión (bloque DL; ADR 0043 §2 y ADR 0046).
+//@areas src/app/classes/PiecesPHP/Logs/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;

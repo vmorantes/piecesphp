@@ -89,7 +89,7 @@ class BaseController
         }
 
         if (static::$view_folder == '/../view/') {
-            static::$view_folder = __DIR__ . \DIRECTORY_SEPARATOR  . '..' . \DIRECTORY_SEPARATOR  . "view" . \DIRECTORY_SEPARATOR;
+            static::$view_folder = __DIR__ . \DIRECTORY_SEPARATOR . '..' . \DIRECTORY_SEPARATOR . "view" . \DIRECTORY_SEPARATOR;
         }
     }
 
@@ -101,6 +101,7 @@ class BaseController
      * devuelve como string
      * @param bool $format En true formatea la salida con self::FORMATTER_CLASS si está disponible
      * @return void|string
+     * @throws Throwable Lo que lance la vista, sin registrar
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
@@ -117,9 +118,8 @@ class BaseController
             ob_end_clean();
         } catch (Throwable $e) {
             ob_end_clean();
-            log_exception($e);
-            global_custom_exception_handler($e, static::class);
-            die;
+            //Sin registrar aquí: quien la capture la registra, y si nadie lo hace, el manejador global la registra una vez.
+            throw $e;
         }
 
         if (!is_string($output)) {
@@ -149,6 +149,7 @@ class BaseController
      * devuelve como string
      * @param bool $format En true formatea la salida con self::FORMATTER_CLASS si está disponible
      * @return void|string
+     * @throws Throwable Lo que lance la vista, sin registrar
      */
     public function _render($name = "index.php", $data = [], bool $mode = true, bool $format = true)
     {
@@ -165,9 +166,8 @@ class BaseController
             ob_end_clean();
         } catch (Throwable $e) {
             ob_end_clean();
-            log_exception($e);
-            global_custom_exception_handler($e, static::class);
-            die;
+            //Sin registrar aquí: quien la capture la registra, y si nadie lo hace, el manejador global la registra una vez.
+            throw $e;
         }
 
         if (!is_string($output)) {
@@ -211,7 +211,16 @@ class BaseController
             if ($version === 'none') {
                 return $written;
             }
-            $hashAt = strpos($written, '#');
+            //El # de una entidad numérica (&#039;) no es un fragmento: se busca en la URL ya decodificada.
+            $hashAt = false;
+            if (str_contains($url, '#') && preg_match_all('/&#x?[0-9a-f]+;|#/i', $written, $found, \PREG_OFFSET_CAPTURE) > 0) {
+                foreach ($found[0] as [$match, $offset]) {
+                    if ($match === '#') {
+                        $hashAt = $offset;
+                        break;
+                    }
+                }
+            }
             $beforeHash = $hashAt === false ? $written : substr($written, 0, $hashAt);
             $hash = $hashAt === false ? '' : substr($written, $hashAt);
             $separator = !str_contains($beforeHash, '?') ? '?' : (str_contains($beforeHash, '&amp;') ? '&amp;' : '&');
@@ -361,7 +370,7 @@ class BaseController
         //registro, y elegir una rama por defecto sería reponer el defecto que esto arregla.
         throw new \UnexpectedValueException(
             'La ruta «' . $name . '» llega a una acción de alta/edición y no declara cuál es: '
-            . 'su nombre tiene que terminar en ' . implode(' o ', array_keys(self::OPERATION_ROUTE_SUFFIXES)) . '.'
+                . 'su nombre tiene que terminar en ' . implode(' o ', array_keys(self::OPERATION_ROUTE_SUFFIXES)) . '.'
         );
     }
 
@@ -403,7 +412,7 @@ class BaseController
         //SE REGISTRA: un desajuste no lo produce el formulario, así que interesa que deje rastro.
         log_exception(new \UnexpectedValueException(
             'Desajuste de operación en «' . $name . '»: la ruta declara '
-            . ($isEditRoute ? 'EDICIÓN' : 'ALTA') . ' y el cuerpo trae id=' . $id . '.'
+                . ($isEditRoute ? 'EDICIÓN' : 'ALTA') . ' y el cuerpo trae id=' . $id . '.'
         ));
 
         return $response->withJson($result, 400);

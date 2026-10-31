@@ -144,7 +144,7 @@ class Operation implements \JsonSerializable
             'success' => $this->success,
             'required' => $this->required,
             'message' => $this->message,
-            'time' => $this->time->format('Y-m-d h:i:s'),
+            'time' => $this->time->format('Y-m-d H:i:s'),
         ];
     }
 }

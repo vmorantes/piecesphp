@@ -17,11 +17,17 @@ final class GeoFilter
 {
     const TYPE_TEXT = 'text';
     const TYPE_OPTIONS = 'options';
+    /**
+     * Opciones que se buscan al escribir, sin ninguna en la página: las da GeoSource::filterOptions() por la ruta
+     * geo-admin-filter-options. Para listas que pueden ser largas.
+     */
+    const TYPE_REMOTE_OPTIONS = 'remoteOptions';
     const TYPE_DATE_RANGE = 'dateRange';
 
     const TYPES = [
         self::TYPE_TEXT,
         self::TYPE_OPTIONS,
+        self::TYPE_REMOTE_OPTIONS,
         self::TYPE_DATE_RANGE,
     ];
 

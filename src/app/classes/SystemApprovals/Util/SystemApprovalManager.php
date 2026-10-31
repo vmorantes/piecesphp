@@ -6,11 +6,11 @@
 
 namespace SystemApprovals\Util;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsLang;
 
@@ -31,11 +31,7 @@ class SystemApprovalManager
     protected array $langAlternatives = [];
 
     /**
-     * Constructor privado para evitar la creación de instancias directas.
-     *
-     * Este constructor se encarga de cargar las configuraciones del sistema de aprobaciones
-     * desde el archivo de configuraciones. Estas configuraciones son fundamentales para
-     * la gestión de aprobaciones en el sistema.
+     * Privado: no se instancia desde fuera. Carga la configuración del sistema de aprobaciones.
      */
     private function __construct()
     {
@@ -321,11 +317,8 @@ class SystemApprovalManager
     }
 
     /**
-     * Inicializa el proceso de aprobaciones del sistema.
-     *
-     * Este método inicia el proceso de aprobaciones del sistema, verificando las configuraciones
-     * y ejecutando las consultas necesarias para insertar nuevos registros de aprobaciones
-     * pendientes o aprobadas automáticamente según sea necesario.
+     * Inicia las aprobaciones: comprueba la configuración e inserta los registros pendientes o aprobados
+     * automáticamente.
      */
     public static function init()
     {

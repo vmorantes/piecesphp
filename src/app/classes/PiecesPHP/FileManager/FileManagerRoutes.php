@@ -6,8 +6,6 @@
 
 namespace PiecesPHP\FileManager;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\FileManager\Controllers\FileManagerController;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
@@ -15,6 +13,8 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\FileManager\Controllers\FileManagerController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * FileManagerRoutes.
@@ -49,6 +49,11 @@ class FileManagerRoutes
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
+                //El editor enriquecido no arma estas URL: viven bajo admin/ y admin_url no lo dice. Vacías, sin permiso.
+                add_to_front_configurations('richEditorFileManagerURLs', [
+                    'configuration' => FileManagerController::routeName('filemanager-configuration-rich-editor'),
+                    'explorer' => FileManagerController::routeName('filemanager-rich-editor'),
+                ]);
             });
 
         }

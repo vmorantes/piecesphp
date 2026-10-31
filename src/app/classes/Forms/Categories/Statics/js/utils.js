@@ -18,19 +18,6 @@ Categories.configCategoryForm = function (onSuccess = null, ignoreRedirection = 
 		onSetFormData: function (formData) {
 			return formData
 		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		},
 		ignoreRedirection: ignoreRedirection,
 		ignoreReload: ignoreReload,
 	})

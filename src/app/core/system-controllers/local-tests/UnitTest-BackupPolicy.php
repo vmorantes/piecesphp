@@ -2,6 +2,7 @@
 
 //La política de respaldos: normalización, intervalo, conservación, ajenos y el fallo que NO rota.
 //Corre sobre carpetas temporales propias; de `src/dumps/` solo borra el archivo que ella escribe.
+//@areas nucleo
 
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Backups\BackupRotation;

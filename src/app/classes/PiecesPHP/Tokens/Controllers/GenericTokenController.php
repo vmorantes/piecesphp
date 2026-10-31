@@ -5,13 +5,12 @@
 
 namespace PiecesPHP\Tokens\Controllers;
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
-use PiecesPHP\Core\BaseController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Tokens\ORM\TokenModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -20,16 +19,16 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Tokens\ORM\TokenModel;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\Exceptions\SafeException;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
-use PiecesPHP\UserSystem\Exceptions\SafeException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 
 /**
  * GenericTokenController.
@@ -126,7 +125,7 @@ class GenericTokenController extends AdminPanelController
 
         $tokenData = BaseToken::getData($token, self::jwtKey(), null, true);
         $tokenExpired = BaseToken::isExpire($token, self::jwtKey(), null);
-        $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass  ? (array) $tokenData : [];
+        $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
 
         $tokenController = new TokenController();
 
@@ -326,7 +325,7 @@ class GenericTokenController extends AdminPanelController
                 if ($tokenElement !== null) {
 
                     $tokenData = BaseToken::getData($tokenElement->token, self::jwtKey(), null, true);
-                    $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass  ? (array) $tokenData : [];
+                    $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
 
                     //ACCIONES AL ENVIAR
 
@@ -387,7 +386,7 @@ class GenericTokenController extends AdminPanelController
 
                 $result->setMessage($e->getMessage());
 
-            } catch (MissingRequiredParameterException | InvalidParameterValueException | ParsedValueException $e) {
+            } catch (MissingRequiredParameterException|InvalidParameterValueException|ParsedValueException $e) {
 
                 $result->setMessage($e->getMessage());
                 log_exception($e);

@@ -2,6 +2,7 @@
 
 //El paquete de sesión no admite escrituras desde fuera (D15, 6): un nombre nuevo o uno declarado lanzan LogicException
 //y leer sigue igual. No escribe en la base.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\UserDataPackage;

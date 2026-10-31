@@ -42,6 +42,19 @@ class OpenAIHandlerAdapter
     }
 
     /**
+     * El constructor siempre crea el cliente; si falta, se lanza una excepción que el llamador captura y registra.
+     *
+     * @return OpenAIClient
+     */
+    protected function client(): OpenAIClient
+    {
+        if ($this->openAIClient === null) {
+            throw new \RuntimeException(__(APILang::LANG_GROUP, 'El cliente del proveedor de IA no está disponible.'));
+        }
+        return $this->openAIClient;
+    }
+
+    /**
      * Traducción rápida desde un contexto estático.
      *
      * @param array|array<string,string> $input
@@ -50,7 +63,7 @@ class OpenAIHandlerAdapter
      * @param ?callable $parseJSON
      * @return array|null Array asociativo o null si no se pudo extrar un JSON de la respuesta
      */
-    public function translate(array $input, string $from = 'es', string $to = 'en',  ?callable $parseJSON = null)
+    public function translate(array $input, string $from = 'es', string $to = 'en', ?callable $parseJSON = null)
     {
         $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to));
         $parseJSON ??= fn($e) => @json_decode($e, true);
@@ -64,11 +77,11 @@ class OpenAIHandlerAdapter
      * @param array $moreOptions
      * @return string
      */
-    public function askToChat(string $prompt, array $moreOptions = []) : string
+    public function askToChat(string $prompt, array $moreOptions = []): string
     {
 
         $this->lastUsage = [];
-        $client = $this->openAIClient;
+        $client = $this->client();
 
         //Configuración de mensajes de chat
         $chatUser = [
@@ -108,7 +121,7 @@ class OpenAIHandlerAdapter
     {
 
         $this->lastUsage = [];
-        $client = $this->openAIClient;
+        $client = $this->client();
 
         //Verificar si hay adjuntos
         $attachments = null;

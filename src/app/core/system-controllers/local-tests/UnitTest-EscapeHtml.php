@@ -1,6 +1,7 @@
 <?php
 
 //escape_html() es la función de escape de las vistas: si cambia lo que devuelve, cambian todas a la vez.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 
@@ -40,7 +41,10 @@ CliActions::make('unit-tests:core/escape-html', function ($args) {
     $check(escape_html(42) === '42' && escape_html(-1.5) === '-1.5', 'e7: enteros y decimales salen como texto');
     $check(escape_html(true) === '1' && escape_html(false) === '', 'e8: los booleanos siguen la conversión de PHP');
     $stringable = new class {
-        public function __toString(): string { return '<i>zz</i>'; }
+        public function __toString(): string
+        {
+            return '<i>zz</i>';
+        }
     };
     $check(escape_html($stringable) === '&lt;i&gt;zz&lt;/i&gt;', 'e9: un Stringable se convierte y se escapa');
     $check(escape_html('&amp;') === '&amp;amp;', 'e10: escapa dos veces si se le pasa algo ya escapado (no adivina)');

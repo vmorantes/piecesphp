@@ -43,9 +43,9 @@ $markerDotColor: #800E11;
         box-shadow: none;
         background-color: transparent;
 
-        >button {
+        > button {
 
-            background-color: var(--main-brand-color);
+            background-color: var(--accent);
             color: white;
             outline: none;
             border: none;
@@ -59,7 +59,7 @@ $markerDotColor: #800E11;
             &:hover,
             &:active {
                 background-color: whitesmoke;
-                color: var(--main-brand-color);
+                color: var(--accent);
             }
 
             //Varios botones
@@ -69,11 +69,11 @@ $markerDotColor: #800E11;
             &.mapboxgl-ctrl-geolocate,
             &.mapboxgl-ctrl-fullscreen,
             &.mapboxgl-ctrl-shrink {
-                >span {
+                > span {
                     background: none;
                 }
 
-                >i.icon {
+                > i.icon {
                     margin: 0;
                     padding: 0;
                     font-size: 18px;

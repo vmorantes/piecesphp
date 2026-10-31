@@ -2,10 +2,11 @@
 
 //Escribe en la base local y en disco: crea filas zz en login_attempts, una marca zz en pcsphp_app_config y un
 //directorio temporal, y lo borra todo en el finally. Ver la ruptura 30 del CHANGELOG.
+//@areas nucleo
 
-use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use Terminal\Tasks\RepairEscapedTextTask;
 
 CliActions::make('unit-tests:core/escaped-text-repair', function ($args) {

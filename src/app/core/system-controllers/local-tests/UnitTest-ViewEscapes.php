@@ -11,18 +11,18 @@
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
+use Documents\Mappers\DocumentsMapper;
+use Newsletter\Mappers\NewsletterSuscriberMapper;
+use News\Mappers\NewsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;
-use Newsletter\Mappers\NewsletterSuscriberMapper;
-use News\Mappers\NewsMapper;
-use Documents\Mappers\DocumentsMapper;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -342,9 +342,9 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         //La columna CRUDA, por SQL: el mapper decodifica el JSON, y reponer lo decodificado cambiaría el formato guardado.
         $tablaOpciones = (new SettingsModel())->getModel()->getTable();
         $clavesSoloRoot = [\PiecesPHP\Core\Utilities\Helpers\ExtraScripts::CONFIG_NAME, \PiecesPHP\Core\SessionToken::MINIMUM_DATE_CONFIG, \PiecesPHP\Core\Backups\BackupPolicy::CONFIG_NAME, \DataImportExportUtility\Controllers\DataTransferController::DISABLED_CONFIG, \PiecesPHP\SystemStatus\SystemAlertRegistry::HIDDEN_CONFIG];
-        $coloresMarca = \PiecesPHP\Settings\Controllers\SettingsController::GENERIC_SAVE_ALLOWED;
+        $coloresMarca = \PiecesPHP\Settings\Controllers\SettingsController::COLOR_OPTIONS;
         $fueraDeLista = ['roles', \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::CONFIG_NAME, \Terminal\Tasks\SettingsMigrateExtraScriptsTask::OLD_OPTION, 'GoogleReCaptchaV3Controller', \Terminal\Tasks\RepairEscapedTextTask::MARKER, 'zz_inventado_' . bin2hex(random_bytes(3))];
-        foreach (array_unique(array_merge(['mail', MailDelivery::CONFIG_NAME, 'osTicketAPI', 'osTicketAPIKey', 'owner'], $clavesSoloRoot, $coloresMarca, $fueraDeLista)) as $nombre) {
+        foreach (array_unique(array_merge(['mail', MailDelivery::CONFIG_NAME, 'osTicketAPI', 'osTicketAPIKey', 'owner'], $clavesSoloRoot, $coloresMarca, ['theme_font', 'theme_font_size', 'theme_radius'], $fueraDeLista)) as $nombre) {
             $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE name = ?");
             $consulta->execute([$nombre]);
             $crudo = $consulta->fetchColumn();
@@ -398,6 +398,10 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $check(SettingsModel::getConfigValue('osTicketAPIKey') === $claveOs, 'f6 guardar osTicket con la clave vacía la conserva', "HTTP {$guardar['status']}");
         $guardar = $pedir($rutaOs, $jwtRoot, ['url' => $urlOs, 'key' => "{$falsa}-osticket-nueva"]);
         $check(SettingsModel::getConfigValue('osTicketAPIKey') === "{$falsa}-osticket-nueva", 'f7 CANARIO: guardar otra clave de osTicket la cambia', "HTTP {$guardar['status']}");
+        $urlMala = 'https://zz-osticket.example/"><script>zzOs()</script>';
+        $guardar = $pedir($rutaOs, $jwtRoot, ['url' => $urlMala, 'key' => '']);
+        $pagina = $pedir($rutaOs, $jwtRoot, null, false, false);
+        $check($pagina['status'] === 200 && !str_contains($pagina['body'], '"><script>zzOs()') && str_contains($pagina['body'], escape_html($urlMala)), 'f8 la URL de osTicket guardada sale escapada en su pantalla', "HTTP {$guardar['status']} / {$pagina['status']}");
 
         //──── [g] El boletín, por marcador; el nombre; y las credenciales, solo del principal ──
         echoTerminal('');
@@ -420,8 +424,8 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $database->prepare('UPDATE `newsletter_sucribers` SET name = ? WHERE id = ?')->execute(["{$prefijo}-suscriptor{$marca}", $suscriptor]);
         $edicion = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('forms-edit', ['id' => $suscriptor], true)), $jwtRoot, null, false, false);
         $check($edicion['status'] === 200 && str_contains($edicion['body'], $escapar("{$prefijo}-suscriptor{$marca}")) && !str_contains($edicion['body'], "-suscriptor{$marca}"), 'g4 la edición del suscriptor pinta su nombre escapado', "HTTP {$edicion['status']}");
-        //Las credenciales no se escriben por la acción genérica salvo el principal: cambiar el destino y dejar el secreto
-        //vacío lo enviaría a otro servidor.
+        //La acción de colores solo escribe sus opciones: un nombre y un valor de más, o una clave con el nombre de otra
+        //opción, no llegan a ninguna fila. Cambiar el destino del correo y dejar el secreto vacío lo enviaría a otro servidor.
         $admin = new UsersModel();
         $admin->username = "{$prefijo}-admin";
         $admin->email = "{$prefijo}-admin@example.com";
@@ -439,14 +443,25 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $admin->save();
         $usuarios[] = (int) $admin->id;
         $jwtAdmin = UserSessions::issueToken((int) $admin->id);
-        $rutaGenerica = $camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('generic-save', [], true));
+        $rutaColores = $camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('appearance-colors-save', [], true));
+        $crudoDe = function (string $nombre) use ($database, $tablaOpciones): ?string {
+            $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
+            $consulta->execute([$nombre]);
+            $valor = $consulta->fetchColumn();
+            return $valor === false ? null : (string) $valor;
+        };
+        //Un cuerpo válido, para que lo que se mide sea lo de más: las filas se reponen en crudo al final (z3).
+        $cuerpoColores = ['main_brand_color' => '#356DCA', 'second_brand_color' => '#7A5AF8', 'third_brand_color' => '#C11574', 'browser_bar' => 'accent', 'theme_font' => 'inter', 'theme_font_size' => '14', 'theme_radius' => '8'];
+        $intrusa = fn (string $nombre): array => $cuerpoColores + ['name' => $nombre, 'value' => 'zz-no-debe-guardarse', $nombre => 'zz-no-debe-guardarse'];
         foreach (['mail', MailDelivery::CONFIG_NAME, 'osTicketAPI', 'osTicketAPIKey'] as $n => $nombre) {
-            $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => $nombre, 'value' => 'zz-no-debe-guardarse']);
-            $check($r['status'] === 403, 'g' . (5 + $n) . " un administrador general no escribe «{$nombre}» por la acción genérica", "HTTP {$r['status']}");
+            $antes = $crudoDe($nombre);
+            $r = $pedir($rutaColores, $jwtAdmin, $intrusa($nombre));
+            $check($crudoDe($nombre) === $antes, 'g' . (5 + $n) . " un administrador general no escribe «{$nombre}» por la acción de colores", "HTTP {$r['status']}");
         }
-        //Desde 406 la acción genérica solo guarda colores de marca, también para el principal: el canario es un color.
-        $r = $pedir($rutaGenerica, $jwtRoot, ['name' => 'osTicketAPI', 'value' => 'zz-no-debe-guardarse']);
-        $check($r['status'] === 403, 'g9 y el principal tampoco: osTicket tiene su pantalla', "HTTP {$r['status']}");
+        //Tampoco el principal: osTicket tiene su pantalla.
+        $antes = $crudoDe('osTicketAPI');
+        $r = $pedir($rutaColores, $jwtRoot, $intrusa('osTicketAPI'));
+        $check($crudoDe('osTicketAPI') === $antes, 'g9 y el principal tampoco: osTicket tiene su pantalla', "HTTP {$r['status']}");
 
         //──── [h] La pantalla del correo, solo del principal; y la lista contra la fila que se escribe ──
         echoTerminal('');
@@ -457,87 +472,61 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $check($r['status'] === 403, 'h2 ni la guarda (POST)', "HTTP {$r['status']}");
         $r = $pedir($rutaCorreo, $jwtRoot, null, false, false);
         $check($r['status'] === 200, 'h3 CANARIO: el principal sí la abre', "HTTP {$r['status']}");
-        //Con utf8mb4_bin (PAD SPACE), «mail » encuentra la fila «mail»: la lista tiene que mirar esa fila, no el texto.
+        //Con utf8mb4_bin (PAD SPACE), «mail » encontraría la fila «mail»: la acción no escribe por nombre, y aquí se comprueba.
         //Lo de antes, leído ahora: f4 ya cambió la contraseña (se repone al final).
-        $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = 'mail'");
-        $consulta->execute();
-        $mailAntes = $consulta->fetchColumn();
-        $mailAntes = $mailAntes === false ? null : (string) $mailAntes;
-        $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => 'mail ', 'value' => 'zz-no-debe-guardarse']);
-        $consulta->execute();
-        $mailDespues = $consulta->fetchColumn();
-        //Desde 405 lo frena antes la validación del nombre (un espacio no es de clave); antes, la lista contra la fila.
+        $mailAntes = $crudoDe('mail');
+        $r = $pedir($rutaColores, $jwtAdmin, ['name' => 'mail ', 'value' => 'zz-no-debe-guardarse']);
         $datos = json_decode($r['body'], true);
-        $check(($r['status'] === 403 || ($datos['success'] ?? null) === false) && ($mailDespues === false ? null : (string) $mailDespues) === $mailAntes, 'h4 «mail » con espacio final, que la base iguala a «mail», se rechaza y no la toca', "HTTP {$r['status']}");
-        //En mayúsculas la colación no la iguala: no llega a la fila «mail» (se mide), y la fila suelta que cree se retira.
-        $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => 'MAIL', 'value' => 'zz-no-debe-guardarse']);
-        $consulta->execute();
-        $mailDespues = $consulta->fetchColumn();
-        $check(($mailDespues === false ? null : (string) $mailDespues) === $mailAntes, 'h5 «MAIL» en mayúsculas no llega a la fila «mail» (la colación distingue mayúsculas)', "HTTP {$r['status']}");
+        $check(($datos['success'] ?? null) !== true && $crudoDe('mail') === $mailAntes, 'h4 «mail » con espacio final, que la base iguala a «mail», se rechaza y no la toca', "HTTP {$r['status']}");
+        //En mayúsculas tampoco llega a la fila «mail», y no crea una suelta.
+        $r = $pedir($rutaColores, $jwtAdmin, $intrusa('MAIL'));
+        $check($crudoDe('mail') === $mailAntes && $crudoDe('MAIL') === null, 'h5 «MAIL» en mayúsculas no llega a la fila «mail» ni crea otra', "HTTP {$r['status']}");
         $database->exec("DELETE FROM `{$tablaOpciones}` WHERE BINARY name = 'MAIL'");
 
         //──── [i] Las claves con pantalla o tarea solo del principal, y los nombres que no son de clave ──
         echoTerminal('');
-        echoTerminal('[i] Las claves solo del principal no se escriben por la acción genérica, y un nombre que no es de clave no crea fila');
-        $crudoDe = function (string $nombre) use ($database, $tablaOpciones): ?string {
-            $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
-            $consulta->execute([$nombre]);
-            $valor = $consulta->fetchColumn();
-            return $valor === false ? null : (string) $valor;
-        };
+        echoTerminal('[i] La acción de colores no escribe las claves del principal, y un nombre de más no crea fila');
         $n = 1;
         foreach ($clavesSoloRoot as $nombre) {
             $antes = $crudoDe($nombre);
-            $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => $nombre, 'value' => 'zz-no-debe-guardarse']);
-            $check($r['status'] === 403 && $crudoDe($nombre) === $antes, "i{$n} un administrador general no escribe «{$nombre}» (403, la fila no cambia)", "HTTP {$r['status']}");
+            $r = $pedir($rutaColores, $jwtAdmin, $intrusa($nombre));
+            $check($crudoDe($nombre) === $antes, "i{$n} un administrador general no escribe «{$nombre}» (la fila no cambia)", "HTTP {$r['status']}");
             $n++;
         }
-        //Desde 406 tampoco el principal: esas claves tienen su pantalla (los colores, en [k], son el canario).
+        //Tampoco el principal: esas claves tienen su pantalla (los colores, en [k], son el canario).
         $sistemaOcultos = \PiecesPHP\SystemStatus\SystemAlertRegistry::HIDDEN_CONFIG;
         $antes = $crudoDe($sistemaOcultos);
-        $r = $pedir($rutaGenerica, $jwtRoot, ['name' => $sistemaOcultos, 'value' => 'zz-no-debe-guardarse']);
-        $check($r['status'] === 403 && $crudoDe($sistemaOcultos) === $antes, "i{$n} y el principal tampoco escribe «{$sistemaOcultos}» por aquí", "HTTP {$r['status']}");
+        $r = $pedir($rutaColores, $jwtRoot, $intrusa($sistemaOcultos));
+        $check($crudoDe($sistemaOcultos) === $antes, "i{$n} y el principal tampoco escribe «{$sistemaOcultos}» por aquí", "HTTP {$r['status']}");
         $n++;
-        $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => 'MAIL', 'value' => 'zz-no-debe-guardarse']);
-        $check($r['status'] === 403, "i{$n} «MAIL» en mayúsculas da 403: la lista no distingue mayúsculas", "HTTP {$r['status']}");
-        $n++;
-        $r = $pedir($rutaGenerica, $jwtRoot, ['name' => 'zz_clave_prueba ', 'value' => 'zz']);
+        $r = $pedir($rutaColores, $jwtRoot, $intrusa('zz_clave_prueba '));
         $filas = (int) $database->query("SELECT COUNT(*) FROM `{$tablaOpciones}` WHERE name LIKE 'zz_clave_prueba%'")->fetchColumn();
-        $datos = json_decode($r['body'], true);
-        $check($filas === 0 && ($datos['success'] ?? null) !== true, "i{$n} un nombre con espacio final se rechaza y no crea fila", "HTTP {$r['status']}, filas {$filas}");
+        $check($filas === 0, "i{$n} un nombre con espacio final no crea fila", "HTTP {$r['status']}, filas {$filas}");
         $n++;
-        $r = $pedir($rutaGenerica, $jwtRoot, ['name' => 'zz_clave_prueba', 'value' => 'zz']);
+        $r = $pedir($rutaColores, $jwtRoot, $intrusa('zz_clave_prueba'));
         $filas = (int) $database->query("SELECT COUNT(*) FROM `{$tablaOpciones}` WHERE BINARY name = 'zz_clave_prueba'")->fetchColumn();
-        $check($r['status'] === 403 && $filas === 0, "i{$n} un nombre de clave inventado se rechaza (403) y no crea fila", "HTTP {$r['status']}, filas {$filas}");
+        $check($filas === 0, "i{$n} un nombre de clave inventado no crea fila", "HTTP {$r['status']}, filas {$filas}");
         $database->exec("DELETE FROM `{$tablaOpciones}` WHERE name LIKE 'zz_clave_prueba%'");
         $n++;
-        //La SEGUNDA capa, llamada directamente: por HTTP la lista de permitidos da el 403 antes y la taparía.
-        $controladorAjustes = \PiecesPHP\Settings\Controllers\SettingsController::class;
-        $todasReservadas = true;
-        foreach ($controladorAjustes::ROOT_ONLY_CONFIG_KEYS as $reservada) {
-            $todasReservadas = $todasReservadas && $controladorAjustes::isRootOnlyConfigName($reservada, 'zz_otra') && $controladorAjustes::isRootOnlyConfigName('zz_otra', $reservada) && $controladorAjustes::isRootOnlyConfigName(mb_strtoupper($reservada), mb_strtoupper($reservada));
-        }
-        $check(count($controladorAjustes::ROOT_ONLY_CONFIG_KEYS) > 0 && $todasReservadas, "i{$n} la segunda capa reserva cada clave por el nombre pedido, por el de la fila y en mayúsculas", count($controladorAjustes::ROOT_ONLY_CONFIG_KEYS) . ' claves');
-        $n++;
-        $libres = array_filter($coloresMarca, fn (string $color): bool => $controladorAjustes::isRootOnlyConfigName($color, $color));
-        $check($libres === [], "i{$n} CANARIO: y no reserva ningún color de marca", implode(', ', $libres));
+        //Sin la lista de reservadas, la frontera es esta: ninguna clave del principal entra en lo que declara la pantalla.
+        $reservadasEnColores = array_intersect(array_merge(['mail', MailDelivery::CONFIG_NAME, 'osTicketAPI', 'osTicketAPIKey', \PiecesPHP\Core\MaintenanceMode::ENABLED_CONFIG, \PiecesPHP\Core\MaintenanceMode::ALLOWED_ROLES_CONFIG, \PiecesPHP\Core\MaintenanceMode::RETRY_AFTER_CONFIG], $clavesSoloRoot), $coloresMarca);
+        $check($reservadasEnColores === [] && count($coloresMarca) > 0, "i{$n} ninguna clave del principal está en COLOR_OPTIONS", implode(', ', $reservadasEnColores));
         $n++;
         $avisoCorreo = \PiecesPHP\SystemStatus\SystemAlertRegistry::all()['mail-test-mode'] ?? null;
         $check($avisoCorreo !== null && $avisoCorreo->audience() === [UsersModel::TYPE_USER_ROOT], "i{$n} el aviso del correo retenido es solo para el principal", $avisoCorreo !== null ? (string) json_encode($avisoCorreo->audience()) : 'sin aviso');
 
-        //──── [k] La acción genérica: solo colores de marca ─────────────────────────────────
+        //──── [k] La acción de colores: solo colores válidos ─────────────────────────────────
         echoTerminal('');
-        echoTerminal('[k] La acción genérica solo guarda los colores de marca; cualquier otro nombre se rechaza, también al principal');
-        $n = 1;
-        foreach ($coloresMarca as $color) {
-            //CANARIO: con su mismo valor (y la fila se repone en crudo al final).
-            //Como la pestaña: el color en claro (el de la configuración en uso) y parse «uppercase».
-            $enUso = get_config($color);
-            $r = $pedir($rutaGenerica, $jwtRoot, ['name' => $color, 'value' => is_string($enUso) && $enUso !== '' ? $enUso : '#000000', 'parse' => 'uppercase']);
-            $datos = json_decode($r['body'], true);
-            $check($r['status'] === 200 && ($datos['success'] ?? null) === true, "k{$n} CANARIO: el color «{$color}» se guarda", "HTTP {$r['status']}");
-            $n++;
-        }
+        echoTerminal('[k] La acción de colores solo guarda sus opciones, y solo con valores válidos');
+        //CANARIO: un #hex se guarda, y en mayúsculas. La fila se repone en crudo al final (z3).
+        $r = $pedir($rutaColores, $jwtRoot, ['second_brand_color' => '#abcdef'] + $cuerpoColores);
+        $datos = json_decode($r['body'], true);
+        $check($r['status'] === 200 && ($datos['success'] ?? null) === true, 'k1 CANARIO: el cuerpo válido se guarda', "HTTP {$r['status']}");
+        $marcaHex = SettingsModel::getConfigValue('second_brand_color');
+        $check($marcaHex === '#ABCDEF', 'k-hex CANARIO: un #hex, en mayúsculas', var_export($marcaHex, true));
+        //Parámetros de la acción genérica que ya no existen: se ignoran, ni fusionan ni reinterpretan el valor.
+        $r = $pedir($rutaColores, $jwtRoot, ['second_brand_color' => '#FFFFFF', 'merge' => 'true', 'parse' => 'json_decode'] + $cuerpoColores);
+        $check(SettingsModel::getConfigValue('second_brand_color') === '#FFFFFF', 'k-parse merge y parse no cambian lo que se guarda', "HTTP {$r['status']}");
         //Si una guarda faltara, la fila se repone AL MOMENTO: una fila «roles» apagaría el control por roles del sitio.
         $reponerAhora = function (string $nombre, ?string $crudo) use ($database, $tablaOpciones): void {
             if ($crudo === null) {
@@ -546,52 +535,55 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
                 $database->prepare("UPDATE `{$tablaOpciones}` SET value = ? WHERE BINARY name = ?")->execute([$crudo, $nombre]);
             }
         };
+        $n = 2;
         foreach ($fueraDeLista as $nombre) {
             $antes = $crudoDe($nombre);
-            $r = $pedir($rutaGenerica, $jwtRoot, ['name' => $nombre, 'value' => 'zz-no-debe-guardarse']);
+            $r = $pedir($rutaColores, $jwtRoot, $intrusa($nombre));
             $despues = $crudoDe($nombre);
             $reponerAhora($nombre, $antes);
-            $check($r['status'] === 403 && $despues === $antes, "k{$n} «{$nombre}» se rechaza (403) y su fila no cambia", "HTTP {$r['status']}");
+            $check($despues === $antes, "k{$n} «{$nombre}» no se escribe: su fila no cambia", "HTTP {$r['status']}");
             $n++;
         }
-        //A1: el valor tiene que ser un color, como lo manda la pestaña. Nada de esto escribe.
+        //A1: el valor tiene que ser un color. Nada de esto escribe.
         $malos = [
-            'una lista' => ['name' => 'second_brand_color', 'value' => ['zz'], 'parse' => 'uppercase'],
-            'un cierre de estilo' => ['name' => 'second_brand_color', 'value' => '#FFF</style><b>zz', 'parse' => 'uppercase'],
-            'merge' => ['name' => 'second_brand_color', 'value' => '#FFFFFF', 'parse' => 'uppercase', 'merge' => 'true'],
-            'otro parse' => ['name' => 'second_brand_color', 'value' => '#FFFFFF', 'parse' => 'json_decode'],
-            'sin parse' => ['name' => 'second_brand_color', 'value' => '#FFFFFF'],
-            '#FFF donde va #RRGGBB' => ['name' => 'main_brand_color', 'value' => '#FFF', 'parse' => 'uppercase'],
-            'rgba con texto' => ['name' => 'menu_color_mark', 'value' => 'rgba(1, 2, 3, 0.5) zz', 'parse' => 'uppercase'],
-            'vacío donde va #RRGGBB (main_brand_color)' => ['name' => 'main_brand_color', 'value' => '', 'parse' => 'uppercase'],
-            'vacío donde va #RRGGBB (menu_color_background)' => ['name' => 'menu_color_background', 'value' => '', 'parse' => 'uppercase'],
+            'una lista' => ['second_brand_color', ['zz']],
+            'un cierre de estilo' => ['second_brand_color', '#FFF</style><b>zz'],
+            '#FFF donde va #RRGGBB' => ['main_brand_color', '#FFF'],
+            'un rgba()' => ['second_brand_color', 'rgba(1, 2, 3, 0.5)'],
+            'rgba con texto' => ['second_brand_color', 'rgba(1, 2, 3, 0.5) zz'],
+            'vacío donde va #RRGGBB (main_brand_color)' => ['main_brand_color', ''],
+            'vacío donde va #RRGGBB (second_brand_color)' => ['second_brand_color', ''],
         ];
-        foreach ($malos as $como => $cuerpo) {
-            $antes = $crudoDe($cuerpo['name']);
-            $r = $pedir($rutaGenerica, $jwtRoot, $cuerpo);
-            $despues = $crudoDe($cuerpo['name']);
-            $reponerAhora($cuerpo['name'], $antes);
+        foreach ($malos as $como => [$nombre, $valor]) {
+            $antes = $crudoDe($nombre);
+            $r = $pedir($rutaColores, $jwtRoot, [$nombre => $valor] + $cuerpoColores);
+            $despues = $crudoDe($nombre);
+            $reponerAhora($nombre, $antes);
             $datos = json_decode($r['body'], true);
             $check(($datos['success'] ?? null) !== true && $despues === $antes, "k{$n} un color con {$como} se rechaza y la fila no cambia", "HTTP {$r['status']}");
             $n++;
         }
-        $check(\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('menu_color_mark', 'rgba(255, 255, 255, 0.2)') && \PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('main_brand_color', '#6435C9') && \PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('font_color_one', ''), "k{$n} CANARIO: los valores de hoy (rgba(...) y #RRGGBB) y el vacío casan");
+        $check(\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('main_brand_color', '#6435C9') && \PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('data_color_2', ''), "k{$n} CANARIO: un #RRGGBB y el vacío de una serie casan");
         $n++;
         //Sin pasar por HTTP: la lista de arriba tiene que fallar por la gramática, no por otra guarda.
-        $check(!\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('main_brand_color', '') && !\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('menu_color_background', ''), "k{$n} el vacío no casa en los dos colores con alfa concatenado");
+        $check(!\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('main_brand_color', '') && !\PiecesPHP\Settings\Controllers\SettingsController::isBrandColorValue('second_brand_color', 'rgba(255, 255, 255, 0.2)'), "k{$n} el vacío no casa en un acento, y un rgba() en ninguno");
         $n++;
         $rolesAntes = $crudoDe('roles');
-        $r = $pedir($rutaGenerica, $jwtAdmin, ['name' => 'roles', 'value' => 'zz-no-debe-guardarse']);
+        $r = $pedir($rutaColores, $jwtAdmin, $intrusa('roles'));
         $despues = $crudoDe('roles');
         $reponerAhora('roles', $rolesAntes);
-        $check($r['status'] === 403 && $despues === $rolesAntes, "k{$n} y el administrador general tampoco escribe «roles»: la fila no cambia", "HTTP {$r['status']}");
+        $check($despues === $rolesAntes, "k{$n} y el administrador general tampoco escribe «roles»: la fila no cambia", "HTTP {$r['status']}");
         $n++;
-        //Lo que envía la pestaña «Colores» está en la lista: un campo nuevo sin su entrada daría 403 con todo en verde.
-        $pestana = (string) file_get_contents(basepath('app/classes/PiecesPHP/Settings/Views/panel/pages/app_configurations/inc/configuration-tabs/general.php'));
+        //Lo que envía el formulario es lo que la acción lee: un campo nuevo sin su parámetro se perdería con todo en verde.
+        $pantalla = $pedir($camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('appearance-colors', [], true)), $jwtRoot, null, false, false);
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
-        preg_match_all('#name="name" value="([^"]+)"#', $pestana, $enviados);
-        $fuera = array_diff($enviados[1], $coloresMarca);
-        $check(count($enviados[1]) > 0 && $fuera === [], "k{$n} los " . count($enviados[1]) . ' nombres que envía la pestaña «Colores» están en GENERIC_SAVE_ALLOWED', implode(', ', $fuera));
+        preg_match('#<form colors-form.*?</form>#s', $pantalla['body'], $formularioColores);
+        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
+        preg_match_all('#<(?:input|select)\s[^>]*\bname="([^"]+)"#', $formularioColores[0] ?? '', $enviados);
+        $nombresEnviados = array_values(array_unique($enviados[1]));
+        $esperados = array_merge(array_diff($coloresMarca, ['meta_theme_color']), ['browser_bar', 'theme_font', 'theme_font_size', 'theme_radius', 'harmony']);
+        $fuera = array_merge(array_diff($nombresEnviados, $esperados), array_diff($esperados, $nombresEnviados));
+        $check(count($nombresEnviados) > 0 && $fuera === [], "k{$n} los " . count($nombresEnviados) . ' nombres que envía el formulario son los que lee la acción', implode(', ', $fuera));
 
         //──── [l] Las plantillas de correo escapan la marca ───────────────────────────────────
         echoTerminal('');
@@ -665,6 +657,23 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $check(($datos['success'] ?? null) === true, "m2 CANARIO: con el idioma de la instalación ({$idiomaBase}) guarda (y se repone)", "HTTP {$r['status']}, " . mb_substr((string) ($datos['message'] ?? ''), 0, 80));
         $quedaIgual = $database->query("SELECT name, value FROM `{$tablaOpciones}`")->fetchAll(\PDO::FETCH_KEY_PAIR) == $fotoOpciones;
         $check($quedaIgual, 'm3 y la tabla de opciones queda como estaba');
+        //Solo se escribe lo que cambia (G7-5): un valor igual, guardado en crudo con otra escritura JSON, no se reescribe.
+        $opcionTitulo = \PiecesPHP\Settings\Controllers\SettingsController::SEO_OPTION_TITLE_APP;
+        $crudoTitulo = function () use ($database, $tablaOpciones, $opcionTitulo): ?string {
+            $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
+            $consulta->execute([$opcionTitulo]);
+            $valor = $consulta->fetchColumn();
+            return $valor === false ? null : (string) $valor;
+        };
+        $database->prepare("DELETE FROM `{$tablaOpciones}` WHERE BINARY name = ?")->execute([$opcionTitulo]);
+        $database->prepare("INSERT INTO `{$tablaOpciones}` (name, value) VALUES (?, ?)")->execute([$opcionTitulo, '"\\u005aZ-titulo-igual"']);
+        $mismos = ['lang' => $idiomaBase, 'titleApp' => 'ZZ-titulo-igual', 'owner' => $valorSeo('owner', 'PiecesPHP'), 'description' => $valorSeo('description', 'PiecesPHP'), 'keywords' => ['PiecesPHP']];
+        $r = $pedir($rutaSeo, $jwtRoot, $mismos);
+        $check(($crudoTitulo() ?? '') === '"\\u005aZ-titulo-igual"', 'm4 guardar un título igual no reescribe su fila', "HTTP {$r['status']}, en la base " . var_export($crudoTitulo(), true));
+        $r = $pedir($rutaSeo, $jwtRoot, ['titleApp' => 'ZZ-titulo-otro'] + $mismos);
+        $check(str_contains((string) $crudoTitulo(), 'ZZ-titulo-otro'), 'm5 CANARIO: uno distinto, sí', "HTTP {$r['status']}, en la base " . var_export($crudoTitulo(), true));
+        $reponerTabla();
+        $check($database->query("SELECT name, value FROM `{$tablaOpciones}`")->fetchAll(\PDO::FETCH_KEY_PAIR) == $fotoOpciones, 'm6 y la tabla vuelve a quedar como estaba');
 
         //──── [d] La longitud ──────────────────────────────────────────────────────────────
         echoTerminal('');
@@ -789,13 +798,13 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
         $quedan = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE name LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . BuiltInBannerMapper::TABLE . '` WHERE title LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaAprobaciones}` WHERE referenceAlias LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email LIKE ' . $database->quote("{$prefijo}%") . ' OR email = ' . $database->quote('<img src=x onerror=zzNl()>@zz.test'))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . NewsMapper::TABLE . '` WHERE newsTitle LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . DocumentsMapper::TABLE . '` WHERE documentName LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE name LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `' . BuiltInBannerMapper::TABLE . '` WHERE title LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaAprobaciones}` WHERE referenceAlias LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email LIKE ' . $database->quote("{$prefijo}%") . ' OR email = ' . $database->quote('<img src=x onerror=zzNl()>@zz.test'))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `' . NewsMapper::TABLE . '` WHERE newsTitle LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `' . DocumentsMapper::TABLE . '` WHERE documentName LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
         $quedanUbicaciones = 0;
         foreach ([$tablaLocalidades, $tablaCiudades, $tablaDepartamentos, $tablaPaises] as $tablaUbicacion) {
             $quedanUbicaciones += (int) $database->query("SELECT COUNT(*) FROM `{$tablaUbicacion}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn();

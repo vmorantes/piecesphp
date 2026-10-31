@@ -332,7 +332,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		step: 0.1,
 		value: 0,
 		onChange: function (value) {
-			const containerData = cropper.getContainerData();
+			const containerData = cropper.getContainerData()
 			cropper.zoomTo(value, {
 				x: containerData.width / 2,
 				y: containerData.height / 2,

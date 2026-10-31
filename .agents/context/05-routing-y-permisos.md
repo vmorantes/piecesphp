@@ -232,7 +232,7 @@ Controller::routeName('list');                          // URL de <base>-list
 Controller::routeName('forms-edit', ['id' => 4]);       // con parámetros
 Controller::routeName('list', [], true);                // silentOnNotExists
 Controller::allowedRoute('list');                       // bool: ¿el usuario puede?
-get_route_info($nombre); get_routes(); get_route_by_controller(...);
+get_route_info($nombre); get_routes();
 ```
 
 **`get_route('nombre-literal')` está vetado** (P36 fase 2, 2026-09-18). La comprobación `GET_ROUTE` de
@@ -434,11 +434,26 @@ Y el helper global `getLoggedFrameworkUser()` devuelve el usuario en sesión
 - `BaseToken` firma con `Config::app_key()`.
 - 2FA/OTP: `PiecesPHP\UserSystem\Authentication\{OTPHandler, TOTPStandard}` +
   tabla `pcsphp_users_otp_secrets` (`pragmarx/google2fa`).
-- **Conectarse como otro usuario**: parámetro GET `asUser` / cookie `asUserID`
-  (constantes `CONNECT_AS_ANOTHER_USER_*`), con `RootOriginalID` y
-  `RootIsLoggedAsUser` en configuración.
+- **Conectarse como otro usuario** (JA, P204 a): solo por las rutas POST `user-impersonation-start` (roles: root) y
+  `user-impersonation-end` (todos los roles: suplantando, el rol de la petición es el del SUPLANTADO, así que empezar
+  otra estando ya suplantando da 403 por la ruta, no el 400 del método). El estado, en la cookie `asUserID` firmada y
+  atada al `sid` de root (`Impersonation::read()`); `src/index.php:521-573` solo la lee, y si no verifica, caducó o el
+  objetivo dejó de ser elegible (`Impersonation::refusalReason()`, que se relee en CADA petición), la borra y root sigue
+  como root. `?asUser=` ya no hace nada. `RootOriginalID` y `RootIsLoggedAsUser` en configuración, como antes. La revocación
+  por usuario (`sessionsValidFrom`) se salta mientras root suplanta (JB, `4184b273`): el token es de root y su marca ya
+  se miró antes (P160 a); cerrar las sesiones del suplantado no echa a root ni corta la suplantación.
 - Intentos de login: `LoginAttemptsModel` / tabla `login_attempts`, reporte en el
   panel (`LoginAttemptsController`).
+- **El freno del acceso** (IL, `9e19aa52`): `OTPRateLimiter::loginSecondsToUnlock()` frena una IP con 5 fallos
+  de la vía `login-password` (fuera de `OTPRateLimiter::VIAS`: no cuenta para los topes del OTP), y la cuenta solo pasa a
+  `STATUS_USER_ATTEMPTS_BLOCK` con `failedAttempts >= MAX_ATTEMPTS` **y** `loginShouldBlockAccount()` (3 IP en 24 h). El
+  desbloqueo por correo (`UserProblemsController.php:400`) sigue exigiendo el contador al tope: no lo quites.
+  La IP es solo `REMOTE_ADDR` (`clientIP()`): detrás de un proxy, todos comparten una.
+- **La contraseña antes que el estado** (IM, `4212f66d`, P201): `login()` comprueba contraseña u OTP ANTES de mirar el
+  estado y la organización; sin ellos buenos responde siempre `INCORRECT_PASSWORD` con el mismo mensaje (también el fallo que completa el
+  bloqueo de IL: bloquea y calla, IO `1bb15803`), y un usuario
+  inexistente paga `password_verify()` contra `UsersController::TIMING_DUMMY_HASH`. Un mensaje nuevo que dependa del
+  usuario, antes de la contraseña, reabre la enumeración: lo vigila `core/login-uniform-errors`.
 
 ## Middleware de módulo
 
@@ -451,6 +466,13 @@ permisos generales más los que `SystemApprovalsMiddleware::keepsWhenNotApproved
 `users-edit-request`, el prefijo `user-system-features-` y los prefijos de perfil propio del mismo método. **No se usa
 `users-` como prefijo**: daría a un administrador no aprobado la gestión de usuarios. Una ruta nueva que un usuario no
 aprobado deba poder usar se añade ahí, con su prueba.
+
+**El middleware solo LEE** (P220 b, `7df3dcb3`): llama a `UsersApprovalHandler::isAutoApproval()`, que ya no escribe.
+Un pendiente de una organización aprobada lo aprueban dos caminos que aplican la misma regla: el alta, con
+`UsersApprovalHandler::approveIfOrganizationApproved()` (desde `UsersController::createUserFromRequest()`), y la
+aprobación de su organización, con su propio bucle (`OrganizationApprovalHandler::onApprovedSpecificMapper()`, que además
+trata al bloqueado con `effectiveStatus()`). **Quien cambie la regla cambia los dos** (unificarlos: H58). **No vuelvas a meter una escritura en un camino que corre en
+cada petición**: lo vigilan `core/auto-approval-status` (b1) y `core/status-transitions` (b26).
 
 Otros middlewares notables: `SystemApprovals\SystemApprovalsMiddleware`,
 `ProtectFileMiddleware` (protección de archivos estáticos, validado por

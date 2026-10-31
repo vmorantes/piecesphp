@@ -6,15 +6,14 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
-use PiecesPHP\TerminalData;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * SealLegacyDataTask - Cifra con su propósito lo que quedó en un formato de antes de la 9, sin cambiar la clave (ADR 0061 §11).

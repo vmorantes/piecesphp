@@ -91,6 +91,24 @@ class RecoveryPasswordModel extends BaseEntityMapper
     }
 
     /**
+     * Cuántos códigos se crearon para ese correo desde esa fecha.
+     *
+     * @param string $email
+     * @param \DateTime $since
+     * @return int
+     */
+    public static function countSince(string $email, \DateTime $since): int
+    {
+        $instance = new RecoveryPasswordModel();
+        $data = $instance->getModel()->select(['COUNT(id) AS total'])->where(new WhereSegment([
+            WhereItem::isEqual('email', $email, WhereItem::AND_OPERATOR),
+            WhereItem::isGreaterThanOrEqualTo('created', $since->format('Y-m-d H:i:s')),
+        ]))->row();
+
+        return is_object($data) ? (int) (((array) $data)['total'] ?? 0) : 0;
+    }
+
+    /**
      * Borra todos los códigos de ese correo.
      *
      * @param string $email

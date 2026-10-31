@@ -25,3 +25,10 @@ ProtectFileMiddleware::protectWithSession(append_to_path_system($uploadsDir, New
 if (!ProtectedUploads::writeDenyHtaccess($uploadsDir)) {
     log_exception(new \RuntimeException("statics: no se pudo escribir el .htaccess que niega el sufijo en {$uploadsDir}."));
 }
+
+//El gestor de archivos sirve lo subido por su URL: un clon queda protegido sin que nadie lo abra. La carpeta nace con el
+//gestor, y mientras no exista no hay nada que proteger (FileManagerController::structureOptions()).
+$fileManagerDir = basepath('statics/filemanager');
+if (is_dir($fileManagerDir) && !ProtectedUploads::writeDenyHtaccess($fileManagerDir)) {
+    log_exception(new \RuntimeException("statics: no se pudo escribir el .htaccess del gestor de archivos en {$fileManagerDir}."));
+}

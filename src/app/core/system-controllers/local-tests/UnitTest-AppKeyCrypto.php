@@ -2,6 +2,9 @@
 
 //ADR 0061: el cifrado autenticado, el llavero, la rotación, la puerta y la primera arrancada. Nunca la clave real: un
 //llavero en un temporal. Crea una tabla zz_rotacion_*, una opción zz-rotacion-* y un usuario zz-agente-cifrado-*; borra todo.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/SystemApprovals/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;

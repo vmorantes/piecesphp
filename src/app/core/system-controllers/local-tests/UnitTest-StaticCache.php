@@ -2,12 +2,16 @@
 
 //La caché de los estáticos por HTTP (ADR 0034): un año con cacheStamp, no-cache sin él, una sola Cache-Control.
 //Crea un principal zz-prueba-cache-* y lo retira.
+//@areas nucleo
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -45,10 +49,27 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
         $base = is_array($matrix) ? (string) ($matrix['medido']['base'] ?? '') : '';
     }
     $base = rtrim($base, '/');
-    //Un enlace de server-delegated que ya existe, y la ruta PHP del mismo archivo.
+    //El enlace de server-delegated lo crea el servidor web al servir la hoja por su ruta PHP: se pide antes, porque tras
+    //«Borrar todos los accesos directos» no queda ninguno hasta que alguien la pide (H72). El canario c3 sigue mirando.
+    if ($base !== '') {
+        $fabrica = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($fabrica, [
+            CURLOPT_URL => $base . '/admin/publications/statics/css/publications.css',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_NOBODY => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_TIMEOUT => 30,
+        ]);
+        //RETORNO-IGNORADO: lo que importa es el enlace que deja en disco, y lo comprueba c3.
+        curl_exec($fabrica);
+    }
+    //Un enlace de server-delegated, y la ruta PHP del mismo archivo.
     $enlaces = glob(basepath('statics/server-delegated/app/classes/Publications/Statics/css/*.css')) ?: [];
     $enlace = isset($enlaces[0]) && is_link($enlaces[0]) ? ltrim(mb_substr($enlaces[0], mb_strlen(basepath(''))), '/') : '';
-    $panel = get_route('configurations-index', [], true);
+    //El inicio: una pantalla del panel que existe para todos (el índice de Configuración se retiró, ADR 0070).
+    $panel = get_route('admin', [], true);
     $panel = is_string($panel) && str_contains($panel, '://') ? (string) parse_url($panel, \PHP_URL_PATH) : (string) $panel;
 
     $fallosAntesDelCanario = $failed;
@@ -88,7 +109,7 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         $todas = fn(string $nombre): array => array_values(array_map(fn(array $l) => $l[1], array_filter($lineas, fn(array $l) => $l[0] === $nombre)));
-        return ['status' => $status, 'cc' => $todas('cache-control'), 'location' => $todas('location')[0] ?? ''];
+        return ['status' => $status, 'cc' => $todas('cache-control'), 'pragma' => $todas('pragma'), 'expires' => $todas('expires'), 'location' => $todas('location')[0] ?? ''];
     };
     $anual = 'public, max-age=31536000, immutable';
     $casos = [
@@ -144,6 +165,11 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
         $check($portada['status'] === 200 && count($portada['cc']) === 1 && !$esDeEstatico($portada['cc']), '3a la portada: su Cache-Control de página', (string) json_encode($portada['cc']));
         $pantalla = $cabeceras($panel, UserSessions::issueToken($id));
         $check($pantalla['status'] === 200 && count($pantalla['cc']) === 1 && !$esDeEstatico($pantalla['cc']), '3b una pantalla del panel: la suya, tampoco la de los estáticos', "HTTP {$pantalla['status']} · " . (string) json_encode($pantalla['cc']));
+        //La respuesta que fija su Cache-Control (aquí, la ruta PHP de un estático versionado) lo conserva, uno solo, y no
+        //hereda el Pragma ni el Expires de 1981 que el framework pone por omisión a una página (su propio Expires sí vale).
+        $propia = $cabeceras('admin/publications/statics/css/publications.css.map?cacheStamp=zzprueba');
+        $check($propia['status'] === 200 && $propia['cc'] === [$anual] && $propia['pragma'] === [] && !in_array('Thu, 19 Nov 1981 08:52:00 GMT', $propia['expires'], true),
+            '3c la que trae su Cache-Control lo conserva, uno solo, sin el Pragma ni el Expires por omisión', "HTTP {$propia['status']} · " . (string) json_encode($propia));
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
@@ -165,4 +191,4 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
 
     return $balance();
 
-})->setDescription('La caché de los estáticos por HTTP: un año con cacheStamp, no-cache sin él, una sola Cache-Control, y las páginas intactas.')->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_DATABASE])->register();
+})->setDescription('La caché de los estáticos por HTTP: un año con cacheStamp, no-cache sin él, una sola Cache-Control, y las páginas intactas.')->setEffects([CliActions::EFFECT_DATABASE])->register();

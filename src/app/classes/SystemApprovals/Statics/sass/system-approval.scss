@@ -42,7 +42,7 @@ $avatarBorderHighlight: #FFE552;
     .base-text {
 
         &,
-        >* {
+        > * {
             font-size: pxToRem(16);
             font-weight: $fwRegular;
             line-height: pxToRem(24);
@@ -52,7 +52,7 @@ $avatarBorderHighlight: #FFE552;
         &.mark {
 
             &,
-            >* {
+            > * {
                 font-size: pxToRem(18);
                 font-weight: $fwMedium;
                 line-height: pxToRem(28);
@@ -62,7 +62,7 @@ $avatarBorderHighlight: #FFE552;
         &.mark2 {
 
             &,
-            >* {
+            > * {
                 font-size: pxToRem(20);
                 font-weight: $fwMedium;
                 line-height: pxToRem(28);
@@ -103,7 +103,7 @@ $avatarBorderHighlight: #FFE552;
         background-color: $timeTagGreenBackground;
         color: $colorSuccess;
 
-        >.icon {
+        > .icon {
             background-color: $colorSuccess;
             color: white;
         }
@@ -113,7 +113,7 @@ $avatarBorderHighlight: #FFE552;
         background-color: $timeTagOrangeBackground;
         color: $timeTagOrangeColor;
 
-        >.icon {
+        > .icon {
             background-color: $timeTagOrangeColor;
             color: white;
         }
@@ -123,18 +123,18 @@ $avatarBorderHighlight: #FFE552;
         background-color: $timeTagRedBackground;
         color: $colorError;
 
-        >.icon {
+        > .icon {
             background-color: $colorError;
             color: white;
         }
     }
 
-    >.text {
+    > .text {
         font-size: 14px;
         line-height: 24px;
     }
 
-    >.icon {
+    > .icon {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
@@ -176,7 +176,7 @@ $avatarBorderHighlight: #FFE552;
         align-items: center;
         gap: 10px;
 
-        >.avatar {
+        > .avatar {
             width: 45px;
             height: 45px;
 
@@ -186,7 +186,7 @@ $avatarBorderHighlight: #FFE552;
             }
         }
 
-        >.name {}
+        > .name {}
     }
 }
 

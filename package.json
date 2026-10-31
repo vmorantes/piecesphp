@@ -4,6 +4,9 @@
     "repository": {},
     "description": "Librerías JS del framework php PiecesPHP",
     "version": "0.0.1",
+    "engines": {
+        "node": ">=22"
+    },
     "scripts": {
         "deps": "./bin/node/copyDependencies.sh"
     },
@@ -12,16 +15,13 @@
         "gulp": "^5.0.0",
         "gulp-concat": "^2.6.1",
         "gulp-rename": "^2.0.0",
-        "gulp-sourcemaps": "^3.0.0",
-        "gulp-typescript": "6.0.0-alpha.1",
         "gulp-uglify": "^3.0.2",
         "puppeteer-core": "^25.12.0",
         "sass": "^1.77.4",
-        "typescript": "^5.4.5"
+        "typescript": "5.9.3"
     },
     "dependencies": {
         "cropperjs": "^1.6.2",
-        "mapbox": "npm:mapbox-gl@^3.19.0",
         "mapbox-geocoder-v2.3.0": "npm:@mapbox/mapbox-gl-geocoder@2.3.0",
         "mapbox-v3.19.0": "npm:mapbox-gl@3.19.0"
     }

@@ -27,16 +27,16 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => __($langGroup, 'Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.'),
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => __($langGroup, 'Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.'),
+            ]);
         ?>
 
-        <div class="tabs-controls content-tabs">
-            <div class="active" data-tab="importar"><?= __($langGroup, 'Importar'); ?></div>
-            <div data-tab="exportar"><?= __($langGroup, 'Exportar'); ?></div>
+        <div class="ui secondary pointing menu tabs-controls content-tabs">
+            <div class="active item" data-tab="importar"><?= __($langGroup, 'Importar'); ?></div>
+            <div class="item" data-tab="exportar"><?= __($langGroup, 'Exportar'); ?></div>
         </div>
 
         <div class="ui tab tab-element active" data-tab="importar">
@@ -44,7 +44,7 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
             <?php if (count($importers) === 0): ?>
             <p><?= __($langGroup, 'No hay importadores disponibles para tu usuario.'); ?></p>
             <?php else: ?>
-            <table class="ui basic table content-table" data-transfer-table="import">
+            <table class="ui selectable very basic table content-table" data-transfer-table="import">
                 <thead>
                     <tr>
                         <th><?= __($langGroup, 'Entidad'); ?></th>
@@ -62,12 +62,12 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
                     <tr data-transfer-row="import-<?= $escape($importer['key']); ?>">
                         <td class="<?= $off; ?>"><?= $escape($importer['title']); ?></td>
                         <td class="<?= $off; ?>"><?= $escape($importer['description']); ?></td>
-                        <td class="<?= $off; ?>">
+                        <td class="collapsing <?= $off; ?>">
                             <?php
-                            $templates = [RowActions::action(__($langGroup, 'Plantilla XLSX'), $importer['templateXlsx'], 'file excel outline')];
-                            if ($importer['templateCsv'] !== null) {
-                                $templates[] = RowActions::action(__($langGroup, 'Plantilla CSV'), $importer['templateCsv'], 'file alternate outline');
-                            }
+                                $templates = [RowActions::action(__($langGroup, 'Plantilla XLSX'), $importer['templateXlsx'], 'file excel outline')];
+                                if ($importer['templateCsv'] !== null) {
+                                    $templates[] = RowActions::action(__($langGroup, 'Plantilla CSV'), $importer['templateCsv'], 'file alternate outline');
+                                }
                             ?>
                             <?= RowActions::cell(RowActions::action(__($langGroup, 'Importar'), $importer['link'], 'file import'), $templates); ?>
                         </td>
@@ -86,7 +86,7 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
             <?php if (count($exporters) === 0): ?>
             <p><?= __($langGroup, 'No hay exportadores disponibles para tu usuario.'); ?></p>
             <?php else: ?>
-            <table class="ui basic table content-table" data-transfer-table="export">
+            <table class="ui selectable very basic table content-table" data-transfer-table="export">
                 <thead>
                     <tr>
                         <th><?= __($langGroup, 'Entidad'); ?></th>
@@ -103,15 +103,15 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
                     <tr data-transfer-row="export-<?= $escape($exporter['key']); ?>">
                         <td class="<?= $off; ?>"><?= $escape($exporter['title']); ?></td>
                         <td class="<?= $off; ?>"><?= $escape($exporter['description']); ?></td>
-                        <td class="<?= $off; ?>">
+                        <td class="collapsing <?= $off; ?>">
                             <?php
-                            $downloads = [];
-                            if ($exporter['downloadXlsx'] !== null) {
-                                $downloads[] = RowActions::action(__($langGroup, 'Descargar XLSX'), $exporter['downloadXlsx'], 'file excel');
-                            }
-                            if ($exporter['downloadCsv'] !== null) {
-                                $downloads[] = RowActions::action(__($langGroup, 'Descargar CSV'), $exporter['downloadCsv'], 'file csv');
-                            }
+                                $downloads = [];
+                                if ($exporter['downloadXlsx'] !== null) {
+                                    $downloads[] = RowActions::action(__($langGroup, 'Descargar XLSX'), $exporter['downloadXlsx'], 'file excel');
+                                }
+                                if ($exporter['downloadCsv'] !== null) {
+                                    $downloads[] = RowActions::action(__($langGroup, 'Descargar CSV'), $exporter['downloadCsv'], 'file csv');
+                                }
                             ?>
                             <?= RowActions::cell(RowActions::action(__($langGroup, 'Exportar'), $exporter['link'], 'file export'), $downloads); ?>
                         </td>

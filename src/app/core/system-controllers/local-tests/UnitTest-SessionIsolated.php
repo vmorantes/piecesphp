@@ -2,6 +2,7 @@
 
 //P46: el contrato de las sesiones AISLADAS —SessionTokenIsolated y su pareja del navegador,
 //PiecesPHPGenericHandlerSession—, que es el mecanismo para sesiones distintas de la de usuarios. Solo lee.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;

@@ -2,8 +2,8 @@
 
 //Importador: XLSX por defecto (P47), plantilla con ayuda, niveles de interfaz y simulacro que nunca guarda.
 //Lanza bin/cli data-transfer-import en simulacro; si por un fallo creara usuarios zz-prueba-simulacro-*, los borra. Temporales propios.
+//@areas src/app/classes/DataImportExportUtility/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
@@ -20,6 +20,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
@@ -63,13 +64,34 @@ CliActions::make('unit-tests:core/data-transfer-import-interface', function ($ar
             public static $view = null;
             /** @var int */
             public static $persistCalls = 0;
-            public function key(): string { return self::$key; }
-            public function title(): string { return 'Importa'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function interfaceLevel(): int { return self::$level; }
-            public function customView(): ?string { return self::$view; }
-            public function acceptedExtensions(): array { return self::$extensions ?? parent::acceptedExtensions(); }
-            public function mayProduceArtifacts(): bool { return true; }
+            public function key(): string
+            {
+                return self::$key;
+            }
+            public function title(): string
+            {
+                return 'Importa';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function interfaceLevel(): int
+            {
+                return self::$level;
+            }
+            public function customView(): ?string
+            {
+                return self::$view;
+            }
+            public function acceptedExtensions(): array
+            {
+                return self::$extensions ?? parent::acceptedExtensions();
+            }
+            public function mayProduceArtifacts(): bool
+            {
+                return true;
+            }
             public function columns(): array
             {
                 return [

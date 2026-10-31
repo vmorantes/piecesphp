@@ -1,24 +1,31 @@
 <?php
 
-//La autoaprobación solo pasa de pendiente a activo: inactivo, bloqueado, rechazado y borrado se quedan como están, también
-//en una organización aprobada. Y un pendiente de una organización aprobada sigue quedando activo al navegar (por HTTP).
+//La aprobación por la organización solo pasa de pendiente a activo: inactivo, bloqueado, rechazado y borrado se quedan
+//como están. Se aplica al crear al usuario, no al navegar (P220 b): una petición con su sesión lo deja pendiente.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\Packages\UsersApprovalHandler;
 
 CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
 
-    echoTerminal("\e[33m[TEST:AutoApprovalStatus] La autoaprobación solo pasa de pendiente a activo\e[39m");
+    echoTerminal("\e[33m[TEST:AutoApprovalStatus] La organización aprobada aprueba al crear, no al navegar\e[39m");
     echoTerminal('');
 
     $passed = 0;
@@ -85,7 +92,7 @@ CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
         };
         $estadoDe = fn (int $id): int => (int) $database->query("SELECT status FROM `{$tablaUsuarios}` WHERE id = {$id}")->fetchColumn();
 
-        echoTerminal('[a] La autoaprobación, sobre cada estado, en una organización aprobada');
+        echoTerminal('[a] La aprobación por la organización, sobre cada estado, en una organización aprobada');
         $casos = [
             'pendiente' => [UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::STATUS_USER_ACTIVE],
             'inactivo' => [UsersModel::STATUS_USER_INACTIVE, UsersModel::STATUS_USER_INACTIVE],
@@ -96,14 +103,28 @@ CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
         $n = 1;
         foreach ($casos as $sufijo => [$antes, $despues]) {
             $id = $crearUsuario($sufijo, $antes);
-            UsersApprovalHandler::isAutoApproval(new UsersModel($id));
+            //RETORNO-IGNORADO: lo que se mide es el estado en la base.
+            UsersApprovalHandler::approveIfOrganizationApproved(new UsersModel($id));
             $queda = $estadoDe($id);
             $check($queda === $despues, "a{$n} {$sufijo} ({$antes}) queda en {$despues}", "queda en {$queda}");
             $n++;
         }
+        //Una persona lo rechazó: su organización aprobada no lo aprueba, ni el estado ni la fila.
+        $tablaAprobaciones = SystemApprovalsMapper::TABLE;
+        $filaDe = fn (int $id): mixed => $database->query("SELECT status FROM `{$tablaAprobaciones}` WHERE referenceTable = " . $database->quote($tablaUsuarios) . ' AND referenceValue = ' . $database->quote((string) $id))->fetchColumn();
+        $id = $crearUsuario('fila-rechazada', UsersModel::STATUS_USER_APPROVED_PENDING);
+        $ahora = date('Y-m-d H:i:s');
+        $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
+            ->execute(["{$prefijo}-fila-rechazada", (string) $id, $tablaUsuarios, $ahora, $ahora, $id, SystemApprovalsMapper::STATUS_REJECTED]);
+        $aprobado = UsersApprovalHandler::approveIfOrganizationApproved(new UsersModel($id));
+        $check(!$aprobado && $estadoDe($id) === UsersModel::STATUS_USER_APPROVED_PENDING && $filaDe($id) === SystemApprovalsMapper::STATUS_REJECTED, "a{$n} pendiente con su fila rechazada por una persona: no se aprueba, sigue pendiente y la fila sigue rechazada", 'devuelve ' . var_export($aprobado, true) . ', queda en ' . $estadoDe($id) . ', fila ' . var_export($filaDe($id), true));
+        $n++;
+        $id = $crearUsuario('lee', UsersModel::STATUS_USER_APPROVED_PENDING);
+        $autoaprobado = UsersApprovalHandler::isAutoApproval(new UsersModel($id));
+        $check(!$autoaprobado && $estadoDe($id) === UsersModel::STATUS_USER_APPROVED_PENDING, "a{$n} isAutoApproval() sobre un pendiente devuelve false y no lo activa: lee, no escribe", 'devuelve ' . var_export($autoaprobado, true) . ', queda en ' . $estadoDe($id));
 
         echoTerminal('');
-        echoTerminal('[b] Lo que se conserva: un pendiente de una organización aprobada queda activo al navegar');
+        echoTerminal('[b] Navegar solo lee: un pendiente de una organización aprobada sigue pendiente tras una petición');
         $id = $crearUsuario('navega', UsersModel::STATUS_USER_APPROVED_PENDING);
         $jwt = UserSessions::issueToken($id);
         $perfil = UsersController::routeName('form-profile', [], true);
@@ -122,7 +143,35 @@ CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
         //RETORNO-IGNORADO: lo que se mide es el estado en la base, no la respuesta.
         curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
-        $check($estadoDe($id) === UsersModel::STATUS_USER_ACTIVE, 'b1 CANARIO: tras una petición con su sesión queda activo', 'queda en ' . $estadoDe($id));
+        $check($estadoDe($id) === UsersModel::STATUS_USER_APPROVED_PENDING, 'b1 CANARIO: tras una petición con su sesión SIGUE pendiente', 'queda en ' . $estadoDe($id));
+        //La petición arranca init(), que inserta la fila del usuario nuevo.
+        $fila = $database->query("SELECT status FROM `{$tablaAprobaciones}` WHERE referenceTable = " . $database->quote($tablaUsuarios) . ' AND referenceValue = ' . $database->quote((string) $id))->fetchColumn();
+        $check($fila === SystemApprovalsMapper::STATUS_PENDING, 'b2 su fila de aprobación nace pendiente', 'fila ' . var_export($fila, true));
+
+        echoTerminal('');
+        echoTerminal('[c] El alta de un pendiente en una organización aprobada lo deja activo, sin ninguna petición más');
+        $nombre = "{$prefijo}-alta";
+        $peticion = (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-prueba'), new Headers(), [], [], (new StreamFactory())->createStream('')))->withParsedBody([
+            'username' => $nombre,
+            'email' => "{$nombre}@example.com",
+            'password' => 'zz-Clave-1',
+            'password2' => 'zz-Clave-1',
+            'firstname' => 'Zz',
+            'secondname' => '',
+            'first_lastname' => 'Autoaprobacion',
+            'second_lastname' => '',
+            'type' => (string) UsersModel::TYPE_USER_GENERAL,
+            'status' => (string) UsersModel::STATUS_USER_APPROVED_PENDING,
+            'organization' => (string) $global,
+        ]);
+        $respuesta = (new UsersController())->createUserFromRequest($peticion, new ResponseRoute());
+        $cuerpo = json_decode((string) $respuesta->getBody(), true);
+        $id = (int) $database->query("SELECT id FROM `{$tablaUsuarios}` WHERE username = " . $database->quote($nombre))->fetchColumn();
+        if ($id > 0) {
+            $usuarios['alta'] = $id;
+        }
+        $check($id > 0 && ($cuerpo['success'] ?? null) === true, 'c1 el alta responde success y el usuario existe', mb_substr((string) $respuesta->getBody(), 0, 160));
+        $check($id > 0 && $estadoDe($id) === UsersModel::STATUS_USER_ACTIVE, 'c2 al terminar el alta queda activo', 'queda en ' . ($id > 0 ? $estadoDe($id) : 'nada'));
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');
@@ -153,4 +202,4 @@ CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
 
     return $balance();
 
-})->setDescription('La autoaprobación de usuarios solo pasa de pendiente a activo: inactivo, bloqueado, rechazado y borrado se quedan como están, también en una organización aprobada. Y un pendiente de una organización aprobada sigue quedando activo al navegar (por HTTP).')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('La aprobación de un usuario por su organización aprobada solo pasa de pendiente a activo: inactivo, bloqueado, rechazado y borrado se quedan como están. Se aplica al crearlo, no al navegar (P220 b): una petición con su sesión lo deja pendiente y su fila nace pendiente.')->setEffects([CliActions::EFFECT_DATABASE])->register();

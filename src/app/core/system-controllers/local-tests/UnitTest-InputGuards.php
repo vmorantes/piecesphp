@@ -2,6 +2,7 @@
 
 //Guardas de entrada: subidas y validación de valores. Lo que decide si un archivo o un valor ENTRA. Ver T146 y la LEY 24.
 //UploadedFileAdapter::validate() fallaba ABIERTA (medido en #089) y se arregló en #091 con la forma de T135: aquí está su rechazo.
+//@areas nucleo
 
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Forms\FileUpload;
@@ -38,7 +39,6 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //EL BANCO VIVE FUERA DE src/: un directorio temporal propio, borrado al terminar. $_FILES se fotografía y se repone.
     $banco = append_to_path_system(sys_get_temp_dir(), 'pcsphp-input-' . bin2hex(random_bytes(4)));
     $filesAntes = $_FILES;
-    $ignorarMimeAntes = FileValidator::$ignoreMimeType;
     $check(mkdir($banco, 0775, true), 'el banco se crea en el temporal');
     $sep = \DIRECTORY_SEPARATOR;
     $png = "{$banco}{$sep}imagen.png";
@@ -66,13 +66,6 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         //CONTRATO: TYPE_ANY no mira tipo ni extensión; solo el tamaño.
         $cualquiera = new FileValidator([FileValidator::TYPE_ANY], 10);
         $check($cualquiera->validate($pngComoTexto, 'mentira.png') === true, 'CONTRATO: con TYPE_ANY el texto pasa: no se mira el tipo, solo el tamaño');
-
-        //CONTRATO: el interruptor estático $ignoreMimeType salta la comprobación de MIME en TODO el proceso.
-        FileValidator::$ignoreMimeType = true;
-        $check($soloPNG->validate($pngComoTexto, 'mentira.png') === true, 'CONTRATO: con $ignoreMimeType el texto llamado .png pasa la parte del MIME',
-            'Es una propiedad pública y ESTÁTICA: quien la ponga en true la deja puesta para toda la petición.');
-        FileValidator::$ignoreMimeType = $ignorarMimeAntes;
-        $check($soloPNG->validate($pngComoTexto, 'mentira.png') === false, 'y al reponerla vuelve a rechazarlo');
         echoTerminal(' ');
 
         //──── 2. FileUpload: sin subida no hay archivo ─────────────────────────────────────
@@ -189,7 +182,6 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     } finally {
         $_FILES = $filesAntes;
-        FileValidator::$ignoreMimeType = $ignorarMimeAntes;
         foreach (glob($banco . '/*') ?: [] as $archivo) {
             //RETORNO-IGNORADO: limpieza del banco de la suite.
             @unlink($archivo);

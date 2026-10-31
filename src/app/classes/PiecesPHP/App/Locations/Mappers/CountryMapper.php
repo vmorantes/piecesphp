@@ -101,10 +101,10 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * Las opciones del desplegable de prefijo, listas para `array_to_html_options()`, que NO escapa: clave y texto ya
-     * pasan por `escape_html()`, y el seleccionado se le pasa escapado también. Son los países ACTIVOS con prefijo.
-     * Clave, el prefijo (lo que se guarda); texto, «<prefijo> · <país>», con los países del mismo prefijo juntos y en
-     * orden alfabético. Ordenadas por el número del prefijo.
+     * Las opciones del desplegable de prefijo, listas para `array_to_html_options()` (que también escapa, sin doblar lo
+     * ya escapado: P211): clave y texto ya pasan por `escape_html()`, y el seleccionado se le pasa escapado también.
+     * Son los países ACTIVOS con prefijo. Clave, el prefijo (lo que se guarda); texto, «<prefijo> · <país>», con los
+     * países del mismo prefijo juntos y en orden alfabético. Ordenadas por el número del prefijo.
      *
      * @param string|null $current El valor guardado: si ningún país lo ofrece, se añade al final tal cual, para no perderlo.
      * @param bool $withEmptyOption Con la opción vacía primero.
@@ -117,10 +117,10 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * Las opciones del desplegable de nacionalidad, listas para `array_to_html_options()`, que NO escapa: clave y texto
-     * ya pasan por `escape_html()`, y el seleccionado se le pasa escapado también. Son los gentilicios de los países
-     * ACTIVOS. Clave, el gentilicio (lo que se guarda); texto, el gentilicio traducido con el grupo de nombres de
-     * Ubicaciones. Sin repetidos y en orden alfabético del texto.
+     * Las opciones del desplegable de nacionalidad, listas para `array_to_html_options()` (que también escapa, sin
+     * doblar lo ya escapado: P211): clave y texto ya pasan por `escape_html()`, y el seleccionado se le pasa escapado
+     * también. Son los gentilicios de los países ACTIVOS. Clave, el gentilicio (lo que se guarda); texto, el gentilicio
+     * traducido con el grupo de nombres de Ubicaciones. Sin repetidos y en orden alfabético del texto.
      *
      * @param string|null $current El valor guardado: si ningún país lo ofrece, se añade al final tal cual, para no perderlo.
      * @param bool $withEmptyOption Con la opción vacía primero.

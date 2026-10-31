@@ -6,15 +6,15 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\Settings\Controllers\SettingsController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * CleanCacheTask.
@@ -82,7 +82,15 @@ class CleanCacheTask extends TerminalTaskAbstract
             if ($responseJSON['values']['serverDelegatedSymLinksRemoved'] ?? false) {
                 $message[] = "\e[34mCaché de enlaces simbólicos eliminada\e[39m";
             }
+            $failedLinks = (int) ($responseJSON['values']['serverDelegatedSymLinksFailed'] ?? 0);
+            if ($failedLinks > 0) {
+                $message[] = "\e[33m{$failedLinks} enlace(s) de statics/server-delegated sin permiso para borrarse: siguen ahí\e[39m";
+            }
 
+            $sweptThumbnails = (int) ($responseJSON['values']['geoThumbnailsSwept'] ?? 0);
+            if ($sweptThumbnails > 0) {
+                $message[] = "\e[34m{$sweptThumbnails} miniatura(s) del geovisor de puntos que ya no se ven, borradas\e[39m";
+            }
             if ($responseJSON['values']['webpCachePurged'] ?? false) {
                 $message[] = "\e[34mCaché de conversiones a WebP purgada\e[39m";
             }

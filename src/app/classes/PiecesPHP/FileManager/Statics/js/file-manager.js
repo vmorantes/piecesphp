@@ -1,10 +1,10 @@
 /// <reference path="../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
-	
+
 	let fileManagerSelector = '.filemanager-component'
 	let fileManagerComponent = $(fileManagerSelector)
-	const replaceLangs = function(lang){
+	const replaceLangs = function (lang) {
 		//elFinder no usa el mismo código que la aplicación: esta lista traduce del uno al otro.
 		const replaceList = {
 			'pt': 'pt_BR',

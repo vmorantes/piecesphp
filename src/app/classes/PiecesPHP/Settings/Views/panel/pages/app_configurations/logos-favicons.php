@@ -7,292 +7,144 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $description
  * @var array<string|int,string|array{url:string}> $breadcrumbs
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
+ * @var string $actionURL
+ * @var string $logo
+ * @var string $backFavicon
+ * @var string $publicFavicon
+ * @var string $mailingLogo
+ * @var string $partners
+ * @var string $partnersVertical
+ * @var string $partnersText
+ * @var array<string,bool> $invertOnDark La casilla de cada imagen que el modo oscuro puede volver blanca.
+ * @var int $partnersTextMaxLength
  */
+//Se guardan como PNG, venga lo que venga: el texto de ayuda no promete SVG ni ICO como salida.
+$transparentHint = __($langGroup, 'Preferiblemente con fondo transparente · Se guarda como PNG');
+$imageCard = function (array $card) use ($helpController, $actionURL, $transparentHint): void {
+    $helpController->_render('panel/built-in/content/image-card.php', $card + [
+        'hint' => $transparentHint,
+        'accept' => 'image/*,.ico',
+        'action' => $actionURL,
+        'format' => 'image/png',
+        'fillColor' => 'transparent',
+    ]);
+};
 ?>
-<section class="module-view-container logos-favicons-view">
+<section class="module-view-container logos-favicons-view" data-action="<?= escape_html($actionURL); ?>">
 
-    <div class="limiter-content">
-
-        <?php
-        //La cabecera del diseño de contenidos (diseno/02-configuracion.md §2.1). Las imágenes se guardan desde el
-        //recortador de su modal, con sus propios botones: aquí no hay barra de guardar.
+    <?php
+        //Cada imagen se guarda al aplicar el editor: la barra de guardar solo la lleva el texto del patrocinador.
         $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
             'title' => $title,
             'description' => $description,
         ]);
+    ?>
+
+    <section class="ui segment" aria-labelledby="logos-own-title">
+        <?php
+            $helpController->_render('panel/built-in/content/section-header.php', [
+                'id' => 'logos-own-title',
+                'title' => __($langGroup, 'Propios'),
+                'description' => __($langGroup, 'Imágenes de la plataforma del cliente.'),
+            ]);
         ?>
+        <div class="ui two stackable horizontal cards">
+            <?php
+                ($imageCard)([
+                    'id' => 'image-logo',
+                    'title' => __($langGroup, 'Logo'),
+                    'description' => __($langGroup, 'Se usa en el inicio de sesión, el menú lateral y cualquier elemento que identifique la plataforma.'),
+                    'image' => $logo,
+                    'field' => 'logo',
+                    'invertOnDark' => $invertOnDark['logo'],
+                    'invertOnDarkSaved' => get_config(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['logo']) !== false,
+                    'width' => 400,
+                    'height' => 400,
+                ]);
+                ($imageCard)([
+                    'id' => 'image-favicon-back',
+                    'title' => __($langGroup, 'Favicon zona administrativa'),
+                    'description' => __($langGroup, 'Ícono de la pestaña del navegador en el área administrativa.'),
+                    'image' => $backFavicon,
+                    'field' => 'favicon-back',
+                    'width' => 400,
+                    'height' => 400,
+                ]);
+                ($imageCard)([
+                    'id' => 'image-favicon',
+                    'title' => __($langGroup, 'Favicon zona pública / sitio web'),
+                    'description' => __($langGroup, 'Ícono de la pestaña en el sitio público. Vista previa sobre fondo oscuro para comprobar el contraste.'),
+                    'image' => $publicFavicon,
+                    'field' => 'favicon',
+                    'width' => 400,
+                    'height' => 400,
+                    'dark' => true,
+                ]);
+                ($imageCard)([
+                    'id' => 'image-mailing-logo',
+                    'title' => __($langGroup, 'Correos electrónicos'),
+                    'description' => __($langGroup, 'Encabezado de los correos que envía la plataforma.'),
+                    'image' => $mailingLogo,
+                    'field' => 'mailingLogo',
+                    'width' => 500,
+                    'height' => 172,
+                ]);
+            ?>
+        </div>
+    </section>
 
-        <div class="container-standard-form">
-
-            <div class="form-section-title"><?= __($langGroup, 'Propios'); ?></div>
-
-            <div class="cards-list">
-                <?php
-                    imageUploaderForCropperAdminViews([
-                        //Imagen de vista previa, string
-                        'image' => $logo,
-                        //Texto en alt de la etiqueta img, string
-                        'imageAlt' => null,
-                        // Por defecto tiene la clase image-action pueden añadirse más, string
-                        'classes' => null, 
-                        //Atributos que se añaden al contenedor .image-action, string
-                        'imageActionAttrs' => "card-logo",
-                        //Texto que refiere al cambio de imagen, string
-                        'changeImageText' => null,
-                        //Título de la ficha, string
-                        'title' => __($langGroup, "Logo"),
-                        //Texto descriptivo de la ficha, string
-                        'description' => null,
-                        //Ancho de referencia, int
-                        'width' => 400,
-                        //Alto de referencia, int
-                        'height' => 400,
-                    ]);
-                ?>
-                <?php
-                    imageUploaderForCropperAdminViews([
-                        //Imagen de vista previa, string
-                        'image' => $backFavicon,
-                        //Texto en alt de la etiqueta img, string
-                        'imageAlt' => null,
-                        // Por defecto tiene la clase image-action pueden añadirse más, string
-                        'classes' => null, 
-                        //Atributos que se añaden al contenedor .image-action, string
-                        'imageActionAttrs' => "admin-fav-card",
-                        //Texto que refiere al cambio de imagen, string
-                        'changeImageText' => null,
-                        //Título de la ficha, string
-                        'title' => __($langGroup, "Favicon en zona administrativa"),
-                        //Texto descriptivo de la ficha, string
-                        'description' => null,
-                        //Ancho de referencia, int
-                        'width' => 400,
-                        //Alto de referencia, int
-                        'height' => 400,
-                    ]);
-                ?>
-                <?php
-                    imageUploaderForCropperAdminViews([
-                        //Imagen de vista previa, string
-                        'image' => $publicFavicon,
-                        //Texto en alt de la etiqueta img, string
-                        'imageAlt' => null,
-                        // Por defecto tiene la clase image-action pueden añadirse más, string
-                        'classes' => null, 
-                        //Atributos que se añaden al contenedor .image-action, string
-                        'imageActionAttrs' => "fav-card",
-                        //Texto que refiere al cambio de imagen, string
-                        'changeImageText' => null,
-                        //Título de la ficha, string
-                        'title' => __($langGroup, "Favicon en zona pública"),
-                        //Texto descriptivo de la ficha, string
-                        'description' => null,
-                        //Ancho de referencia, int
-                        'width' => 400,
-                        //Alto de referencia, int
-                        'height' => 400,
-                    ]);
-                ?>
-                <?php
-                    imageUploaderForCropperAdminViews([
-                        //Imagen de vista previa, string
-                        'image' => $mailingLogo,
-                        //Texto en alt de la etiqueta img, string
-                        'imageAlt' => null,
-                        // Por defecto tiene la clase image-action pueden añadirse más, string
-                        'classes' => null, 
-                        //Atributos que se añaden al contenedor .image-action, string
-                        'imageActionAttrs' => "mailing-logo-card",
-                        //Texto que refiere al cambio de imagen, string
-                        'changeImageText' => null,
-                        //Título de la ficha, string
-                        'title' => __($langGroup, "Correos electrónicos"),
-                        //Texto descriptivo de la ficha, string
-                        'description' => null,
-                        //Ancho de referencia, int
-                        'width' => 500,
-                        //Alto de referencia, int
-                        'height' => 172,
-                    ]);
-                ?>
-            </div>
-
-            <div class="form-section-title"><?= __($langGroup, 'Terceros'); ?></div>
-
-            <div class="cards-list">
-
-                <?php
-                    imageUploaderForCropperAdminViews([
-                        //Imagen de vista previa, string
-                        'image' => $partners,
-                        //Texto en alt de la etiqueta img, string
-                        'imageAlt' => null,
-                        // Por defecto tiene la clase image-action pueden añadirse más, string
-                        'classes' => 'fit-image', 
-                        //Atributos que se añaden al contenedor .image-action, string
-                        'imageActionAttrs' => "partners-card",
-                        //Texto que refiere al cambio de imagen, string
-                        'changeImageText' => null,
-                        //Título de la ficha, string
-                        'title' => __($langGroup, "Bandera horizontal"),
-                        //Texto descriptivo de la ficha, string
-                        'description' => null,
-                        //Ancho de referencia, int
-                        'width' => 280,
-                        //Alto de referencia, int
-                        'height' => 50,
-                    ]);
-                ?>
-
-                <?php
-                    imageUploaderForCropperAdminViews([
-                        //Imagen de vista previa, string
-                        'image' => $partnersVertical,
-                        //Texto en alt de la etiqueta img, string
-                        'imageAlt' => null,
-                        // Por defecto tiene la clase image-action pueden añadirse más, string
-                        'classes' => 'fit-image', 
-                        //Atributos que se añaden al contenedor .image-action, string
-                        'imageActionAttrs' => "partners-vertical-card",
-                        //Texto que refiere al cambio de imagen, string
-                        'changeImageText' => null,
-                        //Título de la ficha, string
-                        'title' => __($langGroup, "Bandera vertical"),
-                        //Texto descriptivo de la ficha, string
-                        'description' => null,
-                        //Ancho de referencia, int
-                        'width' => 50,
-                        //Alto de referencia, int
-                        'height' => 280,
-                    ]);
-                ?>
-
-            </div>
-
+    <section class="ui segment" aria-labelledby="logos-third-title">
+        <?php
+            $helpController->_render('panel/built-in/content/section-header.php', [
+                'id' => 'logos-third-title',
+                'title' => __($langGroup, 'Terceros'),
+                'description' => __($langGroup, 'Patrocinadores y aliados que aparecen en el menú lateral y en el inicio de sesión.'),
+            ]);
+        ?>
+        <div class="ui two stackable horizontal cards">
+            <?php
+                ($imageCard)([
+                    'id' => 'image-partners',
+                    'title' => __($langGroup, 'Bandera horizontal'),
+                    'description' => __($langGroup, 'Patrocinadores en el menú lateral expandido y en el inicio de sesión.'),
+                    'image' => $partners,
+                    'field' => 'partners',
+                    'invertOnDark' => $invertOnDark['partners'],
+                    'invertOnDarkSaved' => get_config(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['partners']) !== false,
+                    'width' => 280,
+                    'height' => 50,
+                ]);
+                ($imageCard)([
+                    'id' => 'image-partners-vertical',
+                    'title' => __($langGroup, 'Bandera vertical'),
+                    'description' => __($langGroup, 'Patrocinadores en el menú lateral contraído.'),
+                    'image' => $partnersVertical,
+                    'field' => 'partnersVertical',
+                    'invertOnDark' => $invertOnDark['partnersVertical'],
+                    'invertOnDarkSaved' => get_config(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['partnersVertical']) !== false,
+                    'width' => 50,
+                    'height' => 280,
+                ]);
+            ?>
         </div>
 
-    </div>
+        <div class="ui hidden divider"></div>
 
-    <?php 
-        //Modals edición de imagenes de marca 
-        $modalsData = [
-            [
-                //Formulario y cropper
-                'actionURL' => $actionURL,
-                'classForm' => 'logo',
-                'selectorAttr' => 'logo-cropper',
-                'referenceW' => '400',
-                'referenceH' => '400',
-                'image' => $logo,
-                //Modal
-                'modalContainerAttrs' => 'logo-modal',
-                'modalContainerClasses' => 'ui tiny modal',
-                'titleModal' => null,
-                'descriptionModal' => null,
-            ],
-            [
-                //Formulario y cropper
-                'actionURL' => $actionURL,
-                'classForm' => 'back-favicon',
-                'selectorAttr' => 'admin-fav-cropper',
-                'referenceW' => '400',
-                'referenceH' => '400',
-                'image' => $backFavicon,
-                //Modal
-                'modalContainerAttrs' => 'admin-favicon-modal',
-                'modalContainerClasses' => 'ui tiny modal',
-                'titleModal' => null,
-                'descriptionModal' => null,
-            ],
-            [
-                //Formulario y cropper
-                'actionURL' => $actionURL,
-                'classForm' => 'public-favicon',
-                'selectorAttr' => 'fav-cropper',
-                'referenceW' => '400',
-                'referenceH' => '400',
-                'image' => $publicFavicon,
-                //Modal
-                'modalContainerAttrs' => 'favicon-modal',
-                'modalContainerClasses' => 'ui tiny modal',
-                'titleModal' => null,
-                'descriptionModal' => null,
-            ],
-            [
-                //Formulario y cropper
-                'actionURL' => $actionURL,
-                'classForm' => 'mailing-logo',
-                'selectorAttr' => 'mailing-logo-cropper',
-                'referenceW' => '500',
-                'referenceH' => '172',
-                'image' => $mailingLogo,
-                //Modal
-                'modalContainerAttrs' => 'mailing-logo-modal',
-                'modalContainerClasses' => 'ui tiny modal',
-                'titleModal' => null,
-                'descriptionModal' => null,
-            ],
-            [
-                //Formulario y cropper
-                'actionURL' => $actionURL,
-                'classForm' => 'partners',
-                'selectorAttr' => 'partners-cropper',
-                'referenceW' => '250',
-                'referenceH' => '80',
-                'image' => $partners,
-                //Modal
-                'modalContainerAttrs' => 'partners-modal',
-                'modalContainerClasses' => 'ui tiny modal',
-                'titleModal' => null,
-                'descriptionModal' => null,
-            ],
-            [
-                //Formulario y cropper
-                'actionURL' => $actionURL,
-                'classForm' => 'partners-vertical',
-                'selectorAttr' => 'partners-vertical-cropper',
-                'referenceW' => '50',
-                'referenceH' => '280',
-                'image' => $partnersVertical,
-                //Modal
-                'modalContainerAttrs' => 'partners-vertical-modal',
-                'modalContainerClasses' => 'ui tiny modal',
-                'titleModal' => null,
-                'descriptionModal' => null,
-            ],
-        ];
-        foreach ($modalsData as $modalData) {
-            $modalData = (object) $modalData;
-            $contentModal = "<form action='{$modalData->actionURL}' method='POST' class='ui form {$modalData->classForm}'>";
-            $contentModal .= simpleCropperAdapterWorkSpace([
-                'type' => 'image/*',
-                'required' => false,
-                'selectorAttr' => $modalData->selectorAttr,
-                'referenceW' => $modalData->referenceW,
-                'referenceH' => $modalData->referenceH,
-                'image' => $modalData->image,
-            ], false);
-            $contentModal .= "</form>";
-            modalImageUploaderForCropperAdminViews([
-                //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-                'content' => $contentModal,
-                //Atributos que se asignarán al modal (el contenedor principal), string
-                'modalContainerAttrs' => $modalData->modalContainerAttrs,
-                //Clases que se asignarán al modal (el contenedor principal), string
-                'modalContainerClasses' => $modalData->modalContainerClasses,
-                //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-                'modalContentElementAttrs' => null,
-                //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-                'informationContentMainClass' => null,
-                //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-                'informationContentClasses' => null,
-                //Título del modal, string
-                'titleModal' => $modalData->titleModal,
-                //Descripción del modal, string
-                'descriptionModal' => $modalData->descriptionModal,
-            ]);
-        }
-    ?>
+        <?php //El texto sobre el patrocinador (P258): opcional; vacío, el pie del menú no lo pinta. ?>
+        <form action="<?= $actionURL; ?>" method="POST" class="ui form initial" partners-text-form data-content-form>
+            <div class="field">
+                <label for="partners-text"><?= __($langGroup, 'Texto sobre el patrocinador'); ?></label>
+                <input type="text" id="partners-text" name="partnersText" maxlength="<?= (int) $partnersTextMaxLength; ?>" value="<?= escape_html($partnersText); ?>">
+                <div class="description"><?= __($langGroup, 'Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Vacío, no se pinta.'); ?></div>
+            </div>
+            <?php
+                $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                ]);
+            ?>
+        </form>
+    </section>
+
+    <?php $helpController->_render('panel/built-in/content/image-editor.php'); ?>
 
 </section>

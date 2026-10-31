@@ -2,6 +2,7 @@
 
 //Queda registro de cada correo y de si llegó: tres resultados, el cuerpo CIFRADO y con tope.
 //ADR 0043 §5; nace de que el buzón hizo que una entrega mal declarada guarde en silencio (322.11).
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\BaseHashEncryption;

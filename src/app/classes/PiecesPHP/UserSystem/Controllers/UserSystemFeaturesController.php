@@ -6,10 +6,8 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\Controllers\UsersController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\MySpaceLang;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -21,8 +19,10 @@ use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * UserSystemFeaturesController.

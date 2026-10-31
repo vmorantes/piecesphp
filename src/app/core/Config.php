@@ -888,11 +888,7 @@ class Config
             $appLangByBrowser = $preferedLang;
         }
 
-        /**
-         * Por cookie, se define según el valor de la cookie
-         * El valor de usado es la configuración 'cookie_lang_definer', para establecer el cambio de lenguaje por primera vez
-         * se usa el parámetro de URL 'i18n'
-         */
+        //Por la cookie que nombra 'cookie_lang_definer'; la primera vez se pone con el parámetro de URL 'i18n'.
         if ($lang_by_cookie === true) {
 
             $cookieName = get_config('cookie_lang_definer');
@@ -944,7 +940,8 @@ class Config
         if (!$isLangByURL) {
 
             //De cualquier forma, se establece el prefijo de lenguaje según la selección por URL para evitar conflictos si está activo el soporte de URL
-            $prefixLang = $appLangByURL == self::$defaultAppLang ? '' : '/' . $appLangByURL;
+            //Sin idioma en la URL ($appLangByURL nulo), sin prefijo: '/' . null daba '//admin' y un idioma nulo.
+            $prefixLang = $appLangByURL === null || $appLangByURL == self::$defaultAppLang ? '' : '/' . $appLangByURL;
 
             //Caso: Está activo el soporte por URL pero se seleccionó mediante navegador
             if ($isLangByBrowser) {

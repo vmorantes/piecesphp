@@ -2,6 +2,7 @@
 
 //El prefijo y el gentilicio de cada país (P196 b): la forma del prefijo, las dos columnas, las opciones (solo activos,
 //escapadas) y qué se acepta al guardar. Crea países zz- y los retira.
+//@areas nucleo
 
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\BaseModel;
@@ -95,7 +96,7 @@ CliActions::make('unit-tests:core/country-phone-code', function ($args) {
         $check(array_key_first($conActual) === '' && array_key_last($conActual) === 'zz-no-existe', '4g lo mismo en nacionalidad');
         $malicioso = "<b>'x";
         $conActual = CountryMapper::phoneCodeOptions($malicioso);
-        $check(array_key_last($conActual) === escape_html($malicioso) && $conActual[escape_html($malicioso)] === escape_html($malicioso) && !array_key_exists($malicioso, $conActual), '4h el valor guardado sale escapado en clave y texto (array_to_html_options() no escapa)', var_export(array_slice($conActual, -1, 1, true), true));
+        $check(array_key_last($conActual) === escape_html($malicioso) && $conActual[escape_html($malicioso)] === escape_html($malicioso) && !array_key_exists($malicioso, $conActual), '4h el valor guardado sale escapado en clave y texto (la selección se compara contra la clave escapada)', var_export(array_slice($conActual, -1, 1, true), true));
 
         $casos = [
             ['acceptsPhoneCode', '', null, true, 'vacío'],

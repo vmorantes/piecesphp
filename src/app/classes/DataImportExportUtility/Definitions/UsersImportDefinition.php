@@ -6,7 +6,6 @@
 
 namespace DataImportExportUtility\Definitions;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\DataImportExportUtilityLang;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
@@ -15,6 +14,7 @@ use PiecesPHP\Core\DataTransfer\Import\ImportArtifacts;
 use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportPersistException;
 use PiecesPHP\Core\DataTransfer\Import\ParsedRow;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
@@ -141,8 +141,8 @@ class UsersImportDefinition extends ImportDefinition
             $type = $this->resolveType($row->get('type')) ?? UsersModel::TYPE_USER_GENERAL;
             if (
                 !in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)
-                && $row->get('organization') === null
-                && $importerOrganization === null
+                    && $row->get('organization') === null
+                    && $importerOrganization === null
             ) {
                 $errors[$position][] = sprintf(__(self::LANG_GROUP, 'Organización: la fila %d no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.'), $position);
             }
@@ -231,7 +231,7 @@ class UsersImportDefinition extends ImportDefinition
                     throw new \RuntimeException('No se guardó el usuario de la fila ' . $row->position() . '.');
                 }
                 $userID = (int) $user->getLastInsertID();
-                if ($userID <= 0 || UserProfileMapper::createProfile($userID) === null) {
+                if ($userID <= 0 || !UserProfileMapper::ensureFor($userID)) {
                     throw new \RuntimeException('No se creó el perfil del usuario de la fila ' . $row->position() . '.');
                 }
 

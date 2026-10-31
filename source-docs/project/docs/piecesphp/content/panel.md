@@ -41,7 +41,7 @@ usa cada una, con un ejemplo que se puede copiar, en «Pantallas de contenido»;
 | :-- | :-- |
 | Una tabla paginada por el servidor | `table[url].ui.basic.table` + `dataTableServerProccesing()` (`statics/core/js/helpers.js`) |
 | Enviar un formulario | `form.ui.form` + `genericFormHandler()` |
-| Botón primario / secundario | `ui button brand-color` / `ui button brand-color alt` |
+| Botón primario / secundario | `ui primary button` / `ui basic button`. `ui button brand-color` es la forma anterior: las pantallas la van dejando, familia a familia, en el rediseño de la 10 (el `ui primary` lleva el color de marca de la instalación a través del tema del panel, que lo lee como `--accent`) |
 | Pestañas | `.tabs-controls` + `ui tab` con `[data-tab]` |
 | Un desplegable | `ui dropdown` (con `search` si filtra) |
 | Una fecha | el atributo `calendar-js` en el campo |
@@ -52,8 +52,9 @@ usa cada una, con un ejemplo que se puede copiar, en «Pantallas de contenido»;
 
 ## Estética
 
-- **Los colores y fuentes de marca son variables CSS** que se generan desde la configuración
-  (`main-brand-color`, `second-brand-color`, `font-color-one`…). Úsalas; no pongas colores fijos.
+- **Los colores son los tokens del tema**: el de marca es `--accent` (y `--accent-2`), y para fondos y textos que sigan
+  el modo claro u oscuro, los de lectura (`--theme-surface`, `--theme-text`…; contrato en el README del tema). Úsalos;
+  no pongas colores fijos.
 - **En el SCSS del panel no se escribe un color a mano** (`#707070`, `rgba(0, 0, 0, 0.2)`): va en una variable de SCSS
   con el nombre de su papel. Si ya existe en la paleta del panel (`src/statics/core/sass/includes/_variables.scss`,
   sección «Paleta del panel»: `$colorTextStrong`, `$colorTextMuted`, `$colorBorderSoft`, `$colorShadowSoft`,
@@ -157,4 +158,8 @@ No las reimplementes en tu módulo: ya están en la barra superior.
 
 - **Lateral de usuario**: perfil, idioma, salir.
 - **Cambio de idioma**: guarda la elección en una cookie y recarga.
-- **Conectarse como otro usuario** (solo root): para ver el panel con los permisos de otro; se sale desde la misma barra.
+- **Conectarse como otro usuario** (solo root): para ver el panel con los permisos de otro. Se empieza solo desde este
+  modal (un enlace no la activa), no alcanza a otro root, al usuario de sistema ni a un usuario inactivo o de una
+  organización inactiva, y caduca a los 60 minutos. Mientras dura, una franja arriba dice «Conectado como <nombre>» y
+  lleva «Volver a mi cuenta». En código: `PiecesPHP\UserSystem\Authentication\Impersonation` (la regla) y las rutas
+  `user-impersonation-start` y `user-impersonation-end`.

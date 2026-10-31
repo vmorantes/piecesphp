@@ -10,57 +10,17 @@ NewsCategories.configNewsCategoryForm = function (onSuccess = null, ignoreRedire
 	let isEdit = false
 	let formSelector = `.ui.form.news-categories`
 
-	const images = {}
-
-	let indexAttachment = 1
-	for (const imageElement of Array.from(document.querySelectorAll('[image-element]'))) {
-		imageElement.setAttribute(`image-${indexAttachment}`, '')
-		images[indexAttachment] = new SimpleUploadPlaceholder({
-			containerSelector: `[image-element][image-${indexAttachment}]`,
-			onReady: function () {
-			},
-			onChangeFile: (files, component, instance, event) => {
-				const fileInput = files[0]
-				if (isEdit) {
-					const previewContainer = $(`[image-element][image-${indexAttachment}] [preview]`)
-					if (fileInput.type.indexOf('image/') !== -1) {
-						const reader = new FileReader()
-						reader.readAsDataURL(fileInput)
-						reader.onload = function (e) {
-							previewContainer.html(`<img src="${e.target.result}"/>`)
-						}
-					} else {
-						previewContainer.html('')
-					}
-				}
-			},
-		})
-		indexAttachment++
-	}
+	//La tarjeta de imagen: lo aplicado en el editor se envía al guardar.
+	let iconImage = null
+	new ContentImageEditor().onApply('category-icon', (file) => iconImage = file)
 
 	let form = genericFormHandler(formSelector, {
 		onSuccess: typeof onSuccess == 'function' ? onSuccess : () => { },
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-
-			let title = field.find('label').length > 0 ? field.find('label').html() : null
-
-			if (title === null) {
-				let placeholder1 = jElement.attr('placeholder')
-				placeholder1 = typeof placeholder1 == 'string' && placeholder1.length > 0 ? placeholder1 : ''
-				let placeholder2 = field.attr('placeholder')
-				placeholder2 = typeof placeholder2 == 'string' && placeholder2.length > 0 ? placeholder2 : ''
-				title = placeholder1.length > 0 ? placeholder1 : placeholder2
+		onSetFormData: function (formData) {
+			if (iconImage !== null) {
+				formData.set('iconImage', iconImage)
 			}
-
-			errorMessage(`${title.replace('*', '').trim()}: ${validationMessage}`)
-
-			event.preventDefault()
-
+			return formData
 		},
 		ignoreRedirection: ignoreRedirection,
 		ignoreReload: ignoreReload,

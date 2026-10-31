@@ -1,6 +1,10 @@
 <?php
 
 //El servidor exige los archivos que el formulario promete obligatorios. Ver el bloque BV.
+//@areas src/app/classes/Documents/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/Publications/
 
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
@@ -143,12 +147,13 @@ CliActions::make('unit-tests:core/required-uploads', function ($args) {
         "encontradas: {$totalGuardas}");
     echoTerminal(' ');
 
-    //──── 3. Las cinco copias del subidor siguen siendo cinco ───────────────────────────────────
-    echoTerminal('[3/7] las cinco copias de handlerUpload() y su reparto de parámetros');
-    //No es trivia: la comprobación vive en la LLAMADA precisamente porque hay cinco copias distintas
-    //y una de ellas declara un séptimo parámetro. Si alguien toca una firma, esto tiene que avisar.
+    //──── 3. Los cuatro subidores delegan en la pieza ───────────────────────────────────────────
+    echoTerminal('[3/7] los cuatro handlerUpload() delegan en FormUploadHandler, y su reparto de parámetros');
+    //No es trivia: la comprobación vive en la LLAMADA, y una de las firmas declara un séptimo parámetro. Si alguien
+    //toca una firma o vuelve a copiar el subidor en un módulo (ADR 0068), esto tiene que avisar.
     $declaraciones = 0;
     $conSeptimo = [];
+    $sinPieza = [];
     foreach ($todos as $ruta) {
         $codigo = (string) @file_get_contents(basepath($ruta));
         $declaraciones += preg_match_all('/function\s+handlerUpload\s*\(([^)]*)\)/', $codigo, $coincidencias);
@@ -157,19 +162,26 @@ CliActions::make('unit-tests:core/required-uploads', function ($args) {
                 $conSeptimo[] = basename($ruta);
             }
         }
+        $inicio = strpos($codigo, 'function handlerUpload(');
+        $fin = $inicio === false ? false : strpos($codigo, "\n    }\n", $inicio);
+        $cuerpo = $inicio === false || $fin === false ? '' : substr($codigo, $inicio, $fin - $inicio);
+        if (!str_contains($cuerpo, 'FormUploadHandler::forModule(')) {
+            $sinPieza[] = basename($ruta);
+        }
     }
     $codigoAyudante = (string) @file_get_contents(basepath('app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php'));
-    $declaraciones += preg_match_all('/function\s+handlerUpload\s*\(/', $codigoAyudante);
-    $check($declaraciones === 5, 'siguen siendo cinco declaraciones', "encontradas: {$declaraciones}");
+    $enAyudante = preg_match_all('/function\s+handlerUpload\s*\(/', $codigoAyudante);
+    $check($declaraciones === 4 && $enAyudante === 0, 'son cuatro declaraciones, y ninguna en GenericContent', "encontradas: {$declaraciones} · en GenericContent: {$enAyudante}");
     $check($conSeptimo === ['PublicationsController.php'],
         'y solo la de Publications declara un séptimo parámetro',
         'con séptimo: ' . implode(', ', $conSeptimo));
+    $check($sinPieza === [], 'y las cuatro delegan en FormUploadHandler::forModule()', 'sin la pieza: ' . implode(', ', $sinPieza));
     echoTerminal(' ');
 
     //──── 4. El alta real de organizaciones: rechaza y NO crea ──────────────────────────────────
     echoTerminal('[4/7] createOrganization() con el RUT exigido y sin archivo: rechaza y no crea');
     $filesPrevios = $_FILES;
-    $_FILES = [];       //Es el estado en el que el formulario no adjuntó nada.
+    $_FILES = []; //Es el estado en el que el formulario no adjuntó nada.
     $pdo = OrganizationMapper::model()::getDb(Config::app_db('default')['db']);
     $cuenta = function () use ($pdo): int {
         $consulta = $pdo->query('SELECT COUNT(*) AS total FROM ' . OrganizationMapper::TABLE);

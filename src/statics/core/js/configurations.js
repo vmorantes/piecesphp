@@ -87,7 +87,7 @@ pcsphpGlobals.mapboxKeyURL = (function () {
 	const url = typeof value == 'string' ? atob(value).trim() : ''
 	return url.length > 0 ? url : null
 })()
-//El centro por omisión de los mapas (Configuración › Integraciones › Llaves de MapBox), por el mismo camino: el layout.
+//El centro por omisión de los mapas (Configuración › Sistema › Llaves de MapBox), por el mismo camino: el layout.
 //`null` si no llega, y cada mapa usa entonces el suyo de reserva.
 pcsphpGlobals.mapDefaultCenter = (function () {
 	const meta = document.querySelector('html head meta[name="map-default-center"]')
@@ -212,13 +212,12 @@ pcsphpGlobals.configCalendar = {
 pcsphpGlobals.configDataTables = {
 	"searching": true,
 	"pageLength": 10,
-	"responsive": true,
+	//Como el prototipo: Anterior · 1–5 · … · N · Siguiente, sin Primero ni Último.
+	"pagingType": "simple_numbers",
+	//Responsive solo se carga si un listado lo pide (import_datatables(['responsive'])): apagado por omisión.
+	"responsive": false,
 	"language": _i18n('datatables', 'lang'),
 	"order": [],
-	"initComplete": function (settings, json) {
-		let searchContainer = $('.dataTables_filter').parent()
-		searchContainer.addClass('ui form')
-	},
 }
 
 /**
@@ -271,7 +270,7 @@ if (typeof $ !== 'undefined') {
 		configMessagesSemantic()
 		configDataTables()
 		configColorPickers()
-		pcsAdminSideBar('.ui-pcs.sidebar')
+		pcsAdminShell('.ui.shell.admin-shell')
 		pcsAdminTopbars()
 		pcsContentTabsActiveInView()
 		genericFormHandler()
@@ -497,6 +496,10 @@ function configMessagesSemantic() {
 				$.fn.form.settings.text = messages[lang].semantic_form.text
 
 			}
+
+			if ($.fn.dropdown !== undefined && messages[lang].semantic_dropdown !== undefined) {
+				Object.assign($.fn.dropdown.settings.message, messages[lang].semantic_dropdown)
+			}
 			if (
 				$.fn.search !== undefined &&
 				$.fn.search.settings !== undefined &&
@@ -562,438 +565,276 @@ function configRichEditor() {
 }
 
 /**
- * configColorPickers
+ * Los textos del selector de color del tema, si el idioma los tiene: el tema los trae en inglés.
+ * @returns {void}
+ */
+function pcsColorPickerTexts() {
+	const messages = pcsphpGlobals.messages[pcsphpGlobals.lang]
+	if (messages !== undefined && messages.colorpicker !== undefined) {
+		Object.assign($.fn.colorpicker.settings.text, messages.colorpicker)
+	}
+}
+
+/**
+ * Los campos `input[color-picker-js]`: formato en `data-color-picker-format` y transparencia con
+ * `data-color-picker-alpha="yes"`. El selector es del tema del panel: la zona pública no lo trae.
  * @returns {void}
  */
 function configColorPickers() {
 
-	let selector = 'input[color-picker-js]'
-	let colorPickers = $(selector)
+	if ($.fn.colorpicker === undefined) {
+		return
+	}
 
-	try {
+	pcsColorPickerTexts()
 
-		const defaultConfigPicker = {
-			color: null,
-			preferredFormat: 'hex',
-			showInput: true,
-			showInitial: true,
-			showAlpha: false,
-			clickoutFiresChange: false,
+	$('input[color-picker-js]').each(function () {
+		const picker = $(this)
+		const format = picker.data('color-picker-format')
+		picker.colorpicker({
+			format: ['hex', 'rgb', 'hsl', 'oklch'].includes(format) ? format : 'hex',
+			alpha: picker.data('color-picker-alpha') === 'yes',
 			allowEmpty: true,
-			flat: false,
-			disabled: false,
-			showButtons: true,
-			chooseText: 'Aceptar',
-			cancelText: 'Cancelar',
-			showPalette: false,
-			showSelectionPalette: false,
-			togglePaletteOnly: true,
-			togglePaletteMoreText: '+',
-			togglePaletteLessText: '−',
-			palette: [
-				"red",
-				"green",
-				"blue",
-				"purple",
-				"yellow",
-				"brown",
-				"white",
-				"gray",
-				"black",
-				"pink",
-				"coral",
-			],
-		}
-		const validFormats = [
-			'hex',
-			'hex3',
-			'hsl',
-			'rgb',
-			'name',
-		]
-		const pickersSize = colorPickers.length
-
-		for (let i = 0; i < pickersSize; i++) {
-			const picker = $(colorPickers.get(i))
-			const configPicker = Object.assign({}, defaultConfigPicker)
-
-			const withAlpha = picker.data('color-picker-alpha') === 'yes'
-			const format = picker.data('color-picker-format')
-
-			if (typeof format !== 'undefined' && validFormats.indexOf(format) !== -1) {
-				configPicker.preferredFormat = format
-			}
-			configPicker.showAlpha = withAlpha
-
-			picker.spectrum(configPicker)
-		}
-
-	} catch (error) {
-		if (colorPickers.spectrum !== undefined) {
-			console.error(error)
-		}
-	}
-}
-
-/**
- * Configura la barra lateral de PiecesPHP
- *
- * @param {HTMLElement|JQuery|string} selector Selector o elemento de la barra
- * @returns {void}
- */
-function pcsAdminSideBar(selector) {
-
-	let menu = $(selector)
-	menu = menu.find(".content")
-
-	if (menu.length > 0) {
-
-		let groups = menu.find('.group')
-
-		if (groups.length > 0) {
-
-			let titlesGroups = groups.find('.title-group').not('[href]')
-
-			if (titlesGroups.length > 0) {
-
-				titlesGroups.click(function (e) {
-
-					e.preventDefault()
-
-					let ancester = $(this).parent()
-					let items = ancester.find('> .items')
-
-					if (!ancester.offsetParent().hasClass('contrack')) {
-						if (items.length > 0) {
-							if (ancester.hasClass('active')) {
-								ancester.removeClass('active')
-								items.hide(500)
-							} else {
-								ancester.addClass('active')
-								items.show(500)
-							}
-						}
-					} else {
-						const elementPress = $(e.target)
-						if (
-							elementPress.hasClass('tool-item') &&
-							elementPress[0].nodeName === 'A'
-						) {
-							window.location.href = elementPress.attr('href')
-						}
-					}
-
-					let ancesterOthers = titlesGroups.parent().not(ancester).not($(this).parents('.group'))
-					let itemsOthers = ancesterOthers.find('.items')
-					ancesterOthers.removeClass('active')
-					itemsOthers.hide(500)
-				})
-
-			}
-
-		}
-
-		let toggle = $('.ui-pcs.sidebar-toggle')
-
-		if (toggle.length > 0) {
-
-			toggle.on('click', function (e) {
-
-				if (menu.is(':visible')) {
-
-					menu.fadeOut(500, function () {
-						menu.attr('style', '')
-						$(menu).removeClass('overlay')
-					})
-
-					$(this).removeClass('active')
-
-				} else {
-
-					menu.attr('style', '')
-					$(menu).addClass('overlay')
-					$(this).addClass('active')
-				}
-			})
-		}
-	}
-
-	const barController = $('[bar-controller]')
-	const currentStateIsClosed = getLocalStorageData('pcsSidebarMenuStatus') == 'close'
-	barController.on('click', function (evt) {
-		evt.stopPropagation()
-		evt.preventDefault()
-		pcsAdminSideBarToggle()
-	})
-
-	if (currentStateIsClosed && pcsAdminSideBarIsOpen()) {
-		pcsAdminSideBarToggle()
-	}
-
-	//Controlador de los tooltips
-	const menuItems = menu.find('.title-group')
-	menuItems.each((index, item) => {
-		$(item).on('mouseover', (e) => {
-			e = $(e.target)
-
-			const currentMenuItem = searchTitleGroup(e)
-
-			let tooltip = currentMenuItem.find('.tool-tip')
-
-			const rect = currentMenuItem[0].getBoundingClientRect()
-
-			tooltip[0].style.top = rect.top + 'px'
 		})
 	})
+}
 
-	const searchTitleGroup = (e) => {
-		if (e.hasClass('title-group')) {
-			return e
-		} else {
-			return searchTitleGroup(e.parent())
-		}
+/**
+ * Configura el armazón del panel (`ui shell` del tema): navegación, riel, cajón y su estado recordado.
+ *
+ * @param {HTMLElement|JQuery|string} selector Selector o elemento del shell
+ * @returns {void}
+ */
+function pcsAdminShell(selector) {
+	const shell = $(selector)
+	if (shell.length === 0) {
+		return
+	}
+	shell.shell({
+		rememberState: true,
+		text: shell.data('shellText') || {},
+	})
+	//Los avisos fijos de abajo (topbar.php) tapaban el pie de la navegación: su alto, en la variable que descuenta
+	//_topbar.scss. Cambia al cerrar uno.
+	const nags = document.querySelector('.system-alert-nags')
+	if (nags !== null && typeof ResizeObserver === 'function') {
+		const update = () => document.body.style.setProperty('--pcs-bottom-nags', nags.offsetHeight + 'px')
+		new ResizeObserver(update).observe(nags)
+		update()
 	}
 }
 
 /**
- * Verifica si la barra lateral izquierda del área administrativa está abierta
+ * Verifica si la navegación del panel está abierta: expandida en escritorio y tableta, o el cajón abierto en el móvil.
  *
  * @returns {boolean}
  */
 function pcsAdminSideBarIsOpen() {
-	return !$('[main-aside]').hasClass('contrack')
+	const shell = $('.ui.shell.admin-shell')
+	if (shell.length === 0) {
+		return false
+	}
+	if (shell.shell('is drawer')) {
+		return shell.hasClass('open')
+	}
+	return !shell.shell('is collapsed')
 }
 
 /**
- * Cambia el estado de la barra lateral izquierda del área administrativa
- * @param {boolean} [noUpdateStatus] No actualiza el estado de la barra lateral en el localStorage
+ * Cambia el estado de la navegación del panel: la contrae o la expande; en el móvil, abre o cierra el cajón.
+ *
+ * @param {boolean} [noUpdateStatus] No recuerda el estado nuevo (en escritorio el shell lo guarda en el localStorage)
  * @returns {void}
  */
 function pcsAdminSideBarToggle(noUpdateStatus = false) {
-
-	let menu = $('.ui-pcs.sidebar')
-	menu = menu.find(".content")
-
-	rotateLogo()
-
-	const mainAside = $('[main-aside]')
-	if (mainAside.hasClass('contrack')) {
-		mainAside.removeClass('contrack')
-		showOnexpand()
-		$('.ui-pcs.container-sidebar').removeClass('no-expanded')
-	} else {
-		hideOnTrack()
-		$('.ui-pcs.container-sidebar').addClass('no-expanded')
-		mainAside.addClass('contrack')
+	const shell = $('.ui.shell.admin-shell')
+	if (shell.length === 0) {
+		return
 	}
-
-	const activeGroups = menu.find('.group.active, .group .active')
-	activeGroups.removeClass('active')
-	activeGroups.find('>.items').hide(500)
-
-	if (!noUpdateStatus) {
-		if (pcsAdminSideBarIsOpen()) {
-			setLocalStorageData('pcsSidebarMenuStatus', 'open')
-		} else {
-			setLocalStorageData('pcsSidebarMenuStatus', 'close')
-		}
+	if (shell.shell('is drawer')) {
+		shell.shell(shell.hasClass('open') ? 'hide drawer' : 'show drawer')
+		return
 	}
-
-	function hideOnTrack() {
-		const toHide = $('[only-expanded]')
-		toHide.addClass('inSide')
-		toHide.on('animationend', () => {
-			toHide.addClass('remove')
-			toHide.removeClass('inSide')
-		})
+	if (noUpdateStatus) {
+		shell.shell('setting', 'rememberState', false)
 	}
-	function showOnexpand() {
-		const toHide = $('[only-expanded]')
-		toHide.removeClass('remove')
-		toHide.addClass('outSide')
-		toHide.on('animationend', () => {
-			toHide.removeClass('outSide')
-			toHide.removeClass('remove')
-		})
-	}
-	function rotateLogo() {
-		const containerImage = $('[menu-footer-images]')
-		if (containerImage.hasClass('close')) {
-			containerImage.removeClass('close')
-		} else {
-			containerImage.addClass('close')
-		}
+	shell.shell(shell.shell('is collapsed') ? 'expand' : 'collapse')
+	if (noUpdateStatus) {
+		shell.shell('setting', 'rememberState', true)
 	}
 }
 
 /**
- * Configura los menús de configuraciones
+ * El panel de Configuración (topbar.php): el flyout, sus grupos plegables y el filtro, del patrón `panel-configuracion`
+ * del tema. El foco va solo al buscador al terminar de abrir (autofocus del flyout).
+ *
+ * @param {$} toggle El botón de la barra que lo abre
+ * @param {$} flyout
+ * @returns {void}
+ */
+function pcsAdminOptionsFlyout(toggle, flyout) {
+
+	const groups = flyout.find('[admin-options-groups]')
+	const search = flyout.find('[admin-options-search]')
+	const empty = flyout.find('[admin-options-empty]')
+	const titles = groups.children('.title')
+
+	flyout.flyout({
+		closeIcon: true,
+		onVisible: function () {
+			toggle.attr('aria-expanded', 'true')
+		},
+		onHidden: function () {
+			toggle.attr('aria-expanded', 'false').trigger('focus')
+		},
+	})
+
+	const syncExpanded = function () {
+		titles.each(function () {
+			$(this).attr('aria-expanded', String($(this).hasClass('active')))
+		})
+	}
+	groups.accordion({ exclusive: false, onChange: syncExpanded })
+	groups.on('keydown', '> .title', function (event) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault()
+			$(this).trigger('click')
+		}
+	})
+
+	const normalize = (text) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+	//Qué grupos estaban abiertos antes de filtrar: al vaciar el filtro se vuelve a ese estado.
+	let openBefore = null
+	const filter = function () {
+		const query = normalize(search.val().trim())
+		if (query !== '' && openBefore === null) {
+			openBefore = titles.map(function () {
+				return $(this).hasClass('active')
+			}).get()
+		}
+		let anyVisible = false
+		titles.each(function (index) {
+			const title = $(this)
+			const content = title.next('.content')
+			const inTitle = query !== '' && normalize(title.find('.texto').text()).includes(query)
+			let visibleLinks = 0
+			content.find('.item').each(function () {
+				const matches = query === '' || inTitle || normalize($(this).text()).includes(query)
+				$(this).prop('hidden', !matches)
+				visibleLinks += matches ? 1 : 0
+			})
+			title.add(content).prop('hidden', visibleLinks === 0)
+			title.find('.label').text(visibleLinks)
+			const open = query !== '' ? visibleLinks > 0 : (openBefore !== null && openBefore[index] === true)
+			title.add(content).toggleClass('active', open)
+			anyVisible = anyVisible || visibleLinks > 0
+		})
+		if (query === '') {
+			openBefore = null
+		}
+		syncExpanded()
+		empty.prop('hidden', anyVisible).text(anyVisible ? '' : formatStr(_i18n('adminOptions', 'Sin resultados para “%r”'), [search.val().trim()]))
+	}
+	search.on('input', filter).on('keydown', function (event) {
+		if (event.key === 'Escape' && this.value !== '') {
+			event.stopPropagation()
+			this.value = ''
+			filter()
+		}
+	})
+
+	toggle.on('click', function (e) {
+		e.preventDefault()
+		flyout.flyout('show')
+	})
+
+}
+
+/**
+ * Configura la barra superior del panel (topbar-bar.php) y lo que abre (topbar.php): el menú de usuario (`ui dropdown`),
+ * las noticias (`ui popup`), Configuración y el perfil en línea (`ui flyout`).
  *
  * @returns {void}
  */
 function pcsAdminTopbars() {
 
-	const userOptionsMenu = $('.ui-pcs.topbar-options.user-options')
-	const adminOptionsMenu = $('.ui-pcs.topbar-options.admin-options')
-	const notificationsOptionsMenu = $('.ui-pcs.topbar-options.notifications-options')
+	const userDropdown = $('[user-options-dropdown]')
+	const newsToggle = $('[news-toggle]')
+	const newsPopup = $('[news-popup]')
+	const adminToggle = $('[admin-options-toggle]')
+	const adminFlyout = $('[admin-options-flyout]')
+	const profileFlyout = $('[profile-flyout]')
 	const profileContainer = $('.profile-content-system')
+	const exitAsLoggedOtherProfileButton = $('[exit-as-logged-options]')
 
-	const userOptionsMenuCloseButton = userOptionsMenu.find('.close')
-	const adminOptionsMenuCloseButton = adminOptionsMenu.find('.close')
-	const notificationsOptionsMenuCloseButton = notificationsOptionsMenu.find('.close')
-
-	const userOptionsToggles = $('.ui-pcs.topbar-toggle.user-options')
-	const adminOptionsToggles = $('.ui-pcs.topbar-toggle.admin-options')
-	const notificationsOptionsToggles = $('.ui-pcs.topbar-toggle.notifications-options')
-	const exitAsLoggedOtherProfileButton = $('.ui-pcs.topbar-toggle.exit-as-logged-options, [exit-as-logged-options]')
-
-	const hasUserOptions = userOptionsMenu.length > 0 && userOptionsToggles.length > 0
-	const hasAdminOptions = adminOptionsMenu.length > 0 && adminOptionsToggles.length > 0
-	const hasNotificationsOptions = notificationsOptionsMenu.length > 0 && notificationsOptionsToggles.length > 0
-	const hasExitAsLoggedOtherProfileOption = exitAsLoggedOtherProfileButton.length > 0 && exitAsLoggedOtherProfileButton.length > 0
-
-	const hasProfile = profileContainer.length > 0
-
-	if (hasUserOptions) {
-		userOptionsToggles.on('click', function (e) {
-			e.preventDefault()
-			if (!isOpen(userOptionsMenu)) {
-				open(userOptionsMenu)
-			} else {
-				close(userOptionsMenu)
-			}
-		})
-
-		userOptionsMenuCloseButton.on('click', function (e) {
-			e.preventDefault()
-			close(userOptionsMenu)
-		})
+	if (userDropdown.length > 0) {
+		userDropdown.dropdown({ action: 'hide' })
 	}
 
-	if (hasNotificationsOptions) {
-		notificationsOptionsToggles.on('click', function (e) {
-			e.preventDefault()
-			if (!isOpen(notificationsOptionsMenu)) {
-				open(notificationsOptionsMenu)
-			} else {
-				close(notificationsOptionsMenu)
-			}
-		})
-
-		notificationsOptionsMenuCloseButton.on('click', function (e) {
-			e.preventDefault()
-			close(notificationsOptionsMenu)
-		})
+	if (newsToggle.length > 0 && newsPopup.length > 0) {
+		newsToggle.popup({ popup: newsPopup, on: 'click', position: 'bottom right', lastResort: 'bottom right', movePopup: false })
 	}
 
-	if (hasAdminOptions) {
-		adminOptionsToggles.on('click', function (e) {
-			e.preventDefault()
-			if (!isOpen(adminOptionsMenu)) {
-				open(adminOptionsMenu)
-			} else {
-				close(adminOptionsMenu)
-			}
-		})
-
-		adminOptionsMenuCloseButton.on('click', function (e) {
-			e.preventDefault()
-			close(adminOptionsMenu)
-		})
+	if (adminToggle.length > 0 && adminFlyout.length > 0) {
+		pcsAdminOptionsFlyout(adminToggle, adminFlyout)
 	}
 
-	if (hasExitAsLoggedOtherProfileOption) {
+	if (profileFlyout.length > 0) {
+		profileFlyout.flyout({ closeIcon: true })
+	}
+
+	if (exitAsLoggedOtherProfileButton.length > 0) {
+		//La cookie de la suplantación es HttpOnly: la borra el servidor (P204 a).
 		exitAsLoggedOtherProfileButton.on('click', function (e) {
 			e.preventDefault()
-			const cookieName = 'asUserID'
-			const paramName = 'asUser'
-			CookiesHandler.deleteCookie(cookieName)
-			const currentURL = new URL(location.href)
-			currentURL.searchParams.delete(paramName)
-			location.assign(currentURL)
-			if (location.href == currentURL.href) {
+			postRequest($(e.currentTarget).data('url')).always(function () {
 				location.reload()
-			}
+			})
 		})
 	}
 
-	userOptionsMenu.find('[edit-account]').on('click', () => {
-		close(userOptionsMenu)
-		profileContainer.addClass('activated')
-		tabsController('account')
+	//El modo de color (topbar-bar.php): se guarda en la meta del usuario y se aplica al momento (light, dark o auto).
+	const themeSelector = $('[theme-mode-selector]')
+	themeSelector.find('[data-theme-mode]').on('click', function (e) {
+		e.preventDefault()
+		e.stopPropagation()
+		const option = $(this)
+		const mode = option.data('themeMode')
+		postRequest(themeSelector.data('url'), { mode: mode }).done(function (response) {
+			if (response.success) {
+				document.documentElement.setAttribute('data-theme', mode)
+				themeSelector.find('[data-theme-mode]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
+				option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+			}
+		})
+	})
+
+	const openProfile = (tab) => {
+		userDropdown.dropdown('hide')
+		profileFlyout.flyout('show')
+		tabsController(tab)
+	}
+
+	userDropdown.find('[edit-account]').on('click', (e) => {
+		e.preventDefault()
+		openProfile('account')
 	})
 	$('[external-trigger-edit-account]').on('click', (e) => {
 		e.preventDefault()
 		e.stopPropagation()
-		userOptionsMenu.find('[edit-account]').click()
+		openProfile('account')
 	})
-	userOptionsMenu.find('[change-password]').on('click', () => {
-		close(userOptionsMenu)
-		profileContainer.addClass('activated')
-		tabsController('password')
+	userDropdown.find('[change-password]').on('click', (e) => {
+		e.preventDefault()
+		openProfile('password')
 	})
 	profileContainer.find('[close-profile]').on('click', closeProfile)
 
-	if (
-		hasUserOptions || hasAdminOptions || hasNotificationsOptions || hasProfile
-	) {
-		window.addEventListener('click', function (e) {
-
-			if (hasUserOptions) {
-				const isUserToggle = userOptionsToggles[0] == e.target || userOptionsToggles[0].contains(e.target)
-				if (!userOptionsMenu[0].contains(e.target) && !isUserToggle) {
-					close(userOptionsMenu)
-				}
-			}
-
-			if (hasAdminOptions) {
-				const isAdminToggle = adminOptionsToggles[0] == e.target || adminOptionsToggles[0].contains(e.target)
-				if (!adminOptionsMenu[0].contains(e.target) && !isAdminToggle) {
-					close(adminOptionsMenu)
-				}
-			}
-
-			if (hasNotificationsOptions) {
-				const isNotificationsToggle = notificationsOptionsToggles[0] == e.target || notificationsOptionsToggles[0].contains(e.target)
-				if (!notificationsOptionsMenu[0].contains(e.target) && !isNotificationsToggle
-				) {
-					close(notificationsOptionsMenu)
-				}
-			}
-
-			if (hasProfile) {
-				if (!profileContainer[0].contains(e.target) && !userOptionsMenu[0].contains(e.target) && profileContainer.hasClass('activated')) {
-					closeProfile()
-				}
-			}
-		})
-	}
-
-	function open(menu) {
-		menu.parent().removeClass('close')
-		menu.addClass('active')
-	}
-
-	function close(menu) {
-		menu.parent().addClass('close')
-		if (isOpen(menu)) {
-			menu.removeClass('active')
-			if (!menu.hasClass('deactive')) {
-				menu.addClass('deactive')
-			}
-		}
-	}
-
-	function isOpen(menu) {
-		return menu.hasClass('active')
-	}
-
 	function closeProfile() {
-		profileContainer.removeClass('activated')
-		profileContainer.addClass('desactivated')
-		profileContainer.one('animationend', () => {
-			profileContainer.removeClass('desactivated')
-		})
+		if (profileFlyout.length > 0) {
+			profileFlyout.flyout('hide')
+		}
 	}
 
 	const tabsController = (strDefauld = '') => {
@@ -1014,9 +855,9 @@ function pcsAdminTopbars() {
 				const $view = $(view)
 
 				if ($(tabs[index]).data('tab') === tab) {
-					$(tabs[index]).addClass('current')
+					$(tabs[index]).addClass('active')
 				} else {
-					$(tabs[index]).removeClass('current')
+					$(tabs[index]).removeClass('active')
 				}
 
 				if ($view.data('view') === tab) {
@@ -1120,7 +961,7 @@ function pcsAdminTopbars() {
 								}
 							})
 						}
-						closeProfile()
+						newsToggle.popup('hide')
 					})
 					return parsed
 				},
@@ -1133,56 +974,41 @@ function pcsAdminTopbars() {
 		}
 	}
 
+	//La foto de perfil abre el editor con la imagen actual (P276 a); sin foto, el selector de archivo.
 	const imageModalProfile = () => {
-		const actionModal = $("[action-image-profile]")
-		const modal = $("[profile-image-modal]")
+		const photo = document.querySelector('[data-profile-photo]')
+		if (photo === null || typeof ContentImageEditor == 'undefined') {
+			return
+		}
 
-		actionModal.on('click', () => {
-			closeProfile()
+		new ContentImageEditor('profile').onApply('profile-image-card', (file) => {
+			const LOADER_NAME = 'updatePhotoLoader'
+			const formData = new FormData()
 
-			const instantiateCropper = (selector, ow = 400, ar = 400 / 400) => {
-				return new SimpleCropperAdapter(selector, {
-					aspectRatio: ar,
-					format: 'image/jpeg',
-					quality: 0.8,
-					fillColor: 'white',
-					outputWidth: ow,
+			formData.set('user_id', photo.dataset.userId)
+			formData.set('image', file)
+
+			showGenericLoader(LOADER_NAME)
+
+			postRequest(photo.dataset.url, formData)
+				.done((resp => {
+					if (resp.success) {
+						successMessage(resp.message)
+						setTimeout(() => location.reload(), 2000)
+					} else {
+						errorMessage(resp.message)
+					}
+				}))
+				.always(() => {
+					removeGenericLoader(LOADER_NAME)
 				})
-			}
+		})
 
-			const cropper = instantiateCropper(`[simple-cropper-profile]`)
-
-			cropper.onCropped(() => {
-				const LOADER_NAME = 'updatePhotoLoader'
-				const formData = new FormData()
-				const userId = modal.find('.content').attr('user-id')
-				const url = modal.find('.content').attr('action-url')
-
-				formData.set('user_id', userId)
-				formData.set('image', cropper.getFile())
-
-				showGenericLoader(LOADER_NAME)
-
-				postRequest(url, formData)
-					.done((resp => {
-						if (resp.success) {
-							successMessage(resp.message)
-							setTimeout(() => location.reload(), 2000)
-						} else {
-							errorMessage(resp.message)
-						}
-					}))
-					.always(() => {
-						removeGenericLoader(LOADER_NAME)
-					})
-
-			})
-
-			cropper.onCancel(() => {
-				modal.modal('hide')
-			})
-
-			modal.modal('show')
+		$("[action-image-profile]").on('click', () => {
+			closeProfile()
+			const current = photo.querySelector('[data-image-card-edit]')
+			const trigger = current !== null ? current : photo.querySelector('[data-input]')
+			trigger.click()
 		})
 	}
 
@@ -1590,18 +1416,25 @@ function handleConnectAsAnotherUser() {
 		const modal = $(modalSelector).modal()
 		const dropdown = configFomanticDropdown(`${modalSelector} .ui.dropdown`)
 		const changeButton = modal.find('button[type="submit"]')
-		const asUserCookieName = modal.data('as-user-cookie')
+		const startURL = modal.data('url')
+		const refusal = modal.find('[connect-as-another-user-refusal]')
 		trigger.off('click')
 		trigger.on('click', function (e) {
 			e.preventDefault()
 			modal.modal({
 				onVisible: function () {
+					refusal.addClass('hidden').text('')
 					changeButton.off('click')
 					changeButton.on('click', function (e) {
 						e.preventDefault()
 						const userID = dropdown[0].getValue()
-						CookiesHandler.setCookie(asUserCookieName, userID)
-						location.reload()
+						//La cookie la escribe el servidor, firmada; un rechazo trae su motivo y se enseña aquí.
+						postRequest(startURL, { userID: userID }).done(function (response) {
+							location.assign(response.values.redirect)
+						}).fail(function (jqXHR) {
+							const response = typeof jqXHR.responseJSON == 'object' && jqXHR.responseJSON !== null ? jqXHR.responseJSON : {}
+							refusal.text(response.message || _i18n('errors', 'unexpected_error_try_later')).removeClass('hidden')
+						})
 					})
 				},
 			}).modal('show')

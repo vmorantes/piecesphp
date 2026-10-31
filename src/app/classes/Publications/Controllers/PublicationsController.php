@@ -6,20 +6,20 @@
 
 namespace Publications\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;
 use PiecesPHP\Core\Cache\CacheControllersManager;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileValidator;
-use PiecesPHP\Core\Forms\UploadedFileAdapter;
-use PiecesPHP\Core\Pagination\PageQuery;
-use PiecesPHP\Core\Pagination\PaginationResult;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
-use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\FormUploadHandler;
+use PiecesPHP\Core\Forms\FormUploadRejectedException;
+use PiecesPHP\Core\Pagination\PageQuery;
+use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -29,6 +29,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -37,6 +38,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Exceptions\DuplicateException;
 use Publications\Exceptions\SafeException;
 use Publications\Mappers\AttachmentPublicationMapper;
@@ -45,11 +47,10 @@ use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
 use Publications\Util\AttachmentPackage;
+use Slim\Exception\HttpForbiddenException;
 use Spatie\Url\Url as URLManager;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsRoutes;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
-use Slim\Exception\HttpForbiddenException;
 
 /**
  * PublicationsController.
@@ -348,7 +349,7 @@ class PublicationsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -633,6 +634,22 @@ class PublicationsController extends AdminPanelController
                         $mapper->status = PublicationMapper::DRAFT;
                     }
 
+                    //Los adjuntos van ANTES que las imágenes y que guardar: un adjunto rechazado para el alta sin haber movido nada (H5).
+                    $attachmentLocations = [];
+                    foreach ($attachmentsUploaded as $attachmentIndex => $attachmentUploaded) {
+                        if ($attachmentUploaded['file'] !== null) {
+                            $attachmentName = (new AttachmentPackage(null, -1, $attachmentUploaded['name'], false, $lang))->getDisplayName();
+                            $attachmentLocations[$attachmentIndex] = self::handlerUpload($attachmentUploaded['nameOnFiles'], $mapper->folder . '/' . 'attachments', null, [
+                                FileValidator::TYPE_ALL_IMAGES,
+                                FileValidator::TYPE_PDF,
+                                FileValidator::TYPE_DOC,
+                                FileValidator::TYPE_DOCX,
+                                FileValidator::TYPE_XLS,
+                                FileValidator::TYPE_XLSX,
+                            ], false, friendly_url($attachmentName));
+                        }
+                    }
+
                     $mainImage = self::handlerUpload('mainImage', $mapper->folder);
                     $thumbImage = self::handlerUpload('thumbImage', $mapper->folder);
                     $ogImage = self::handlerUpload('ogImage', $mapper->folder);
@@ -661,9 +678,9 @@ class PublicationsController extends AdminPanelController
 
                     if ($saved) {
 
-                        foreach ($attachmentsUploaded as $attachmentUploaded) {
+                        foreach ($attachmentsUploaded as $attachmentIndex => $attachmentUploaded) {
 
-                            if ($attachmentUploaded['file'] !== null) {
+                            if (array_key_exists($attachmentIndex, $attachmentLocations)) {
                                 $attachmentConfig = new AttachmentPackage($mapper->id, -1, $attachmentUploaded['name'], false, $lang);
                                 $attachMapper = $attachmentConfig->getMapper();
                                 $attachMapper ??= new AttachmentPublicationMapper();
@@ -672,14 +689,7 @@ class PublicationsController extends AdminPanelController
                                 $attachMapper->attachmentName = $attachmentConfig->getDisplayName();
                                 $attachMapper->folder = $mapper->folder . '/' . 'attachments';
 
-                                $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], $attachMapper->folder, null, [
-                                    FileValidator::TYPE_ALL_IMAGES,
-                                    FileValidator::TYPE_PDF,
-                                    FileValidator::TYPE_DOC,
-                                    FileValidator::TYPE_DOCX,
-                                    FileValidator::TYPE_XLS,
-                                    FileValidator::TYPE_XLSX,
-                                ], false, friendly_url($attachMapper->attachmentName));
+                                $attachFile = $attachmentLocations[$attachmentIndex];
 
                                 if (mb_strlen($attachFile) > 0) {
                                     $attachMapper->fileLocation = $attachFile;
@@ -868,7 +878,7 @@ class PublicationsController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -891,7 +901,7 @@ class PublicationsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -924,7 +934,7 @@ class PublicationsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -1292,7 +1302,7 @@ class PublicationsController extends AdminPanelController
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;
-        $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper)? $currentOrganizationMapper->administrator : null;
+        $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper) ? $currentOrganizationMapper->administrator : null;
         //Lista blanca sobre `VISIBILITIES`, que enumera las cuatro declaradas. Ver T155 y T163.
         $visibility = $request->getQueryParam('visibility', null);
         $visibility = Validator::isInteger($visibility)
@@ -1410,7 +1420,7 @@ class PublicationsController extends AdminPanelController
 
                 $columns = [];
                 $columns[] = $titleHTML . '<br><span class="ui small grey text">' . escape_html($e->categoryName) . '</span>';
-                $columns[] = "<span class='ui {$tagColor} label'>" . escape_html($e->visibilityText) . '</span>';
+                $columns[] = StatusLabel::html($e->visibilityText, $tagColor);
                 $columns[] = $e->publicDateFormat;
                 $columns[] = escape_html($e->authorUser);
                 $columns[] = $e->visits;
@@ -1496,7 +1506,7 @@ class PublicationsController extends AdminPanelController
                 $publication,
                 getLoggedFrameworkUser(),
                 $publication->status == PublicationMapper::ACTIVE && $publication->isActiveByDates()
-            //Quien puede editarla (el autor de otra organización, por ejemplo) ve sus archivos en el formulario.
+                //Quien puede editarla (el autor de otra organización, por ejemplo) ve sus archivos en el formulario.
             ) || self::allowedRoute('forms-edit', ['id' => $publication->id]);
         }
         return self::publicFileIsServable($filePath, $publicationsDir, $findByFolder);
@@ -1954,91 +1964,13 @@ class PublicationsController extends AdminPanelController
      */
     protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null, string $suffixName = '')
     {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
+        try {
+            return FormUploadHandler::forModule(self::UPLOAD_DIR, FormUploadHandler::MODE_PRIVATE_MULTIPLE)
+                ->upload($nameOnFiles, $folder, $currentRoute, $allowedTypes ?? [FileValidator::TYPE_ALL_IMAGES], $setNameByInput, $name, $suffixName);
+        } catch (FormUploadRejectedException $e) {
+            //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
+            throw new SafeException($e->getMessage());
         }
-        $valid = false;
-        $relativeURL = '';
-
-        $name ??= 'file_' . uniqid();
-        $oldFile = null;
-
-        $filesAssociativePathsToUpload = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles);
-        foreach ($filesAssociativePathsToUpload as $fileAssociativePathToUpload) {
-
-            $handler = new UploadedFileAdapter($fileAssociativePathToUpload, $allowedTypes);
-
-            if ($handler->hasInput()) {
-
-                try {
-
-                    $valid = $handler->validate();
-
-                    $instance = new PublicationsController;
-                    $uploadDirPath = $instance->uploadDir;
-                    $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                    if ($setNameByInput && $valid) {
-
-                        $name = $_FILES[$nameOnFiles]['name'];
-                        $lastPointIndex = mb_strrpos($name, '.');
-
-                        if ($lastPointIndex !== false) {
-                            $name = mb_substr($name, 0, $lastPointIndex);
-                        }
-
-                        $name = safe_upload_name($name);
-
-                    }
-
-                    if (!is_null($currentRoute)) {
-                        //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
-                        [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
-
-                        if (mb_strlen(trim($folder)) < 1) {
-                            //Si folder está vacío
-                            $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                            $folder = str_replace(basename($currentRoute), '', $folder);
-                            $folder = trim($folder, '/');
-                        }
-
-                    }
-
-                    $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                    $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-                    if (mb_strlen($suffixName) > 0) {
-                        $name .= "_{$suffixName}";
-                    }
-
-                    if ($valid) {
-
-                        //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
-                        //lleva el sufijo. Tras guardar, syncUploadsVisibility() la libera si la publicación se ve sin sesión.
-                        $information = $handler->getFileInformation();
-                        $uploadPath = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate($information['tmp_name'], $uploadDirPath, $name, pathinfo($information['name'], \PATHINFO_EXTENSION));
-                        if (mb_strlen($uploadPath) > 0) {
-                            $nameCurrent = basename($uploadPath);
-                            $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-                            //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
-                            if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($uploadPath)) {
-                                unlink($oldFile);
-                            }
-                        }
-
-                    } else {
-                        throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                    }
-
-                } catch (\Exception $e) {
-                    throw new \Exception($e->getMessage());
-                }
-
-            }
-        }
-
-        return $relativeURL;
     }
 
     /**

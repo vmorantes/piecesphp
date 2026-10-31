@@ -1,12 +1,13 @@
 <?php
 
 //Única suite que escribe: crea un usuario real y lo borra siempre en el finally. Ver T35.
+//@areas nucleo
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 $cliTaskName = 'unit-tests';
@@ -38,7 +39,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         //──── Alta directa en la tabla, como haría una importación ──────────────────────
         $statement = $database->prepare(
             'INSERT INTO ' . UsersModel::TABLE . ' (username, password, firstname, firstLastname, email, type, status)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, 1)'
+                . ' VALUES (?, ?, ?, ?, ?, ?, 1)'
         );
         $statement->execute([
             $username,
@@ -216,6 +217,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             //El perfil primero: tiene una clave ajena contra el usuario.
             $database->prepare('DELETE FROM user_system_profile WHERE belongsTo = ?')->execute([$userID]);
             $database->prepare('DELETE FROM ' . OTPSecretsUsersMapper::TABLE . ' WHERE user = ?')->execute([$userID]);
+            $database->prepare("DELETE FROM `system_approvals_elements` WHERE referenceTable = ? AND referenceValue = ?")->execute([UsersModel::TABLE, (string) $userID]);
             $database->prepare('DELETE FROM ' . UsersModel::TABLE . ' WHERE id = ?')->execute([$userID]);
             echoTerminal(' ');
             echoTerminal("   usuario de prueba borrado: id={$userID}");

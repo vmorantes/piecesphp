@@ -98,6 +98,38 @@ final class GeoThumbnail
     }
 
     /**
+     * Borra las miniaturas de los puntos que su fuente ya no daría (thumbnailSource() null: borrado, oculto, sin imagen),
+     * de las fuentes registradas. Lo llama clean-cache; una miniatura borrada de más se regenera al pedirse.
+     *
+     * @return array{deleted:string[],failed:int}
+     */
+    public static function sweep(): array
+    {
+        $deleted = [];
+        $failed = 0;
+        foreach (GeoSourceRegistry::all() as $source) {
+            if (preg_match('/^[A-Za-z0-9_-]+$/', $source->key()) !== 1) {
+                continue;
+            }
+            $directory = basepath(self::DIRECTORY . '/' . $source->key());
+            $files = is_dir($directory) ? glob("{$directory}/*.png") : [];
+            foreach ($files !== false ? $files : [] as $file) {
+                //{id}-{ancho}-{huella}.png, o {id}-{ancho}.png, el nombre de antes de la huella.
+                if (preg_match('/^(\d+)-\d+(-[0-9a-f]+)?\.png$/', basename($file), $matches) !== 1 || $source->thumbnailSource((int) $matches[1]) !== null) {
+                    continue;
+                }
+                if (is_writable($directory) && unlink($file)) {
+                    $deleted[] = $source->key() . '/' . basename($file);
+                } else {
+                    $failed++;
+                }
+            }
+        }
+        sort($deleted);
+        return ['deleted' => $deleted, 'failed' => $failed];
+    }
+
+    /**
      * Con un temporal y rename(): quien lee ve la miniatura entera o ninguna. PNG, para no perder la transparencia de
      * un logo.
      *

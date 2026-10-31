@@ -1,6 +1,7 @@
 <?php
 
 //Los filtros de exportación: cada tipo valida o falla con su mensaje, nunca con un valor silencioso.
+//@areas src/app/classes/DataImportExportUtility/
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use PiecesPHP\Core\DataTransfer\Export\DateRange;
@@ -46,9 +47,18 @@ CliActions::make('unit-tests:core/data-transfer-export-parameters', function ($a
     if (!class_exists('ZzExportParametersDefinition', false)) {
         class ZzExportParametersDefinition extends ExportDefinition
         {
-            public function key(): string { return 'zz-parametros'; }
-            public function title(): string { return 'Prueba'; }
-            public function allowedUserTypes(): array { return [0]; }
+            public function key(): string
+            {
+                return 'zz-parametros';
+            }
+            public function title(): string
+            {
+                return 'Prueba';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
             public function parameters(): array
             {
                 return [
@@ -57,8 +67,14 @@ CliActions::make('unit-tests:core/data-transfer-export-parameters', function ($a
                     ExportParameter::dateRange('created', 'Creado'),
                 ];
             }
-            public function columns(ExportContext $context): array { return [new ExportColumn('a', 'A')]; }
-            public function rows(ExportContext $context): iterable { return [['a' => 'x']]; }
+            public function columns(ExportContext $context): array
+            {
+                return [new ExportColumn('a', 'A')];
+            }
+            public function rows(ExportContext $context): iterable
+            {
+                return [['a' => 'x']];
+            }
         }
     }
 
@@ -137,12 +153,30 @@ CliActions::make('unit-tests:core/data-transfer-export-parameters', function ($a
                  * @param ExportParameter[] $declared
                  */
                 public function __construct(private array $declared) {}
-                public function key(): string { return 'zz-mala'; }
-                public function title(): string { return 'Mala'; }
-                public function allowedUserTypes(): array { return [0]; }
-                public function parameters(): array { return $this->declared; }
-                public function columns(ExportContext $context): array { return []; }
-                public function rows(ExportContext $context): iterable { return []; }
+                public function key(): string
+                {
+                    return 'zz-mala';
+                }
+                public function title(): string
+                {
+                    return 'Mala';
+                }
+                public function allowedUserTypes(): array
+                {
+                    return [0];
+                }
+                public function parameters(): array
+                {
+                    return $this->declared;
+                }
+                public function columns(ExportContext $context): array
+                {
+                    return [];
+                }
+                public function rows(ExportContext $context): iterable
+                {
+                    return [];
+                }
             };
             try {
                 $mala->buildContext([], null);

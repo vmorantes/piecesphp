@@ -2,6 +2,7 @@
 
 //Sesiones caducadas: apagado por omisión, una línea sin el token y con tope. ADR 0039.
 //Corre sobre una carpeta temporal propia: `app/logs/` no se toca.
+//@areas nucleo
 
 use PiecesPHP\Core\Logs\ExpiredSessionsLog;
 use PiecesPHP\Terminal\CliActions;

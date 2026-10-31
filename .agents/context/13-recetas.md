@@ -334,6 +334,23 @@ Y el módulo guarda sus subidas privadas con `ProtectedUploads::privatePath()`, 
 según la visibilidad de su registro (`ProtectedUploads::setFolderVisibility()`, como
 Publications).
 
+**El archivo de un campo de formulario entra por `FormUploadHandler` (ADR 0068), nunca por una copia
+propia del `handlerUpload` viejo**: `FormUploadHandler::forModule(self::UPLOAD_DIR, MODE_PRIVATE |
+MODE_PUBLIC | MODE_PRIVATE_MULTIPLE)->upload(...)` dentro de un `try` que convierte
+`FormUploadRejectedException` en la `SafeException` del módulo. Ejemplo copiable en
+`source-docs/project/docs/piecesphp/content/modules.md` §8. Trampas medidas en la caracterización (`#2084`):
+- `upload()` devuelve `''` sin archivo; el que llama conserva la ruta anterior.
+- `MODE_PRIVATE_MULTIPLE` es UN archivo por campo pese al nombre: dos o más se rechazan (DEF-2,
+  `2cc1c937`), y un campo vacío (`filename=""`) es «sin archivo» (DEF-3, `1482f107`). En el modo
+  público, un movimiento fallido lanza (DEF-1, `cae7c5ce`); en `MODE_PRIVATE` también desde
+  `4520ac75` (`moveToPrivateOrFail()`); en `MODE_PRIVATE_MULTIPLE` aún conserva la ruta anterior en
+  silencio (`#2091` 7.3, abierto en G11).
+- En el alta de Publications, un adjunto rechazado llega DESPUÉS de `$mapper->save()`: la publicación
+  queda creada y la respuesta es un error (`#2089` H5, abierto en G11).
+- `core/form-uploads` fija el comportamiento por HTTP de los cuatro módulos; `required-uploads` y
+  `user-data-escapes` miran el TEXTO de la pieza (el saneo del nombre en `nameFromInput()` antes de
+  mover): un cambio de forma ahí las hace caer.
+
 ## Receta 8b — Un importador o exportador de datos
 
 Motor en `PiecesPHP\Core\DataTransfer` y panel en `DataImportExportUtility` (ADR 0022). Una definición
@@ -418,6 +435,14 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
 - **Una publicación sembrada por el usuario principal se autoaprueba**, y siendo activa y en fechas es visible: sus
   archivos se sirven SIN sesión aunque en disco sigan con `.protected` (`ServerStatics` la valida). Los documentos sin sesión dan 403 (medido); con sesión, sin medir.
 - **Una lista exacta de seeders en una suite** («y solo esos») se actualiza en el MISMO commit que añade el seeder.
+- **Cinco accesos fallidos desde la misma IP frenan TODOS los accesos de esa IP 15 minutos** (IL): en `gates` las suites
+  HTTP salen de la misma IP local, y el PO prueba desde ella. Una suite que falle logins **borra sus filas de
+  `login_attempts`** (por su prefijo) o los hace en proceso con su propia `REMOTE_ADDR` de documentación
+  (`198.51.100.x`, como `core/login-ip-throttle`); no se sube el tope ni se apaga el freno en pruebas.
+- **Apache corre con `PrivateTmp`**: una sonda o una instrumentación temporal de PHP SERVIDO que escriba en `/tmp` lo
+  deja en el `/tmp` privado del servicio, invisible desde la terminal; desde la terminal no llega nada y parece que no
+  hubo lecturas (`#1992`). Se escribe en `src/app/cache/` (ignorado por git y con escritura del grupo), y se recoge al
+  terminar.
 - **Medir por HTTP ensucia el punto de partida**: el login deja una fila en `login_attempts` y `gates` da «SUCIO». La
   ronda que pida mediciones HTTP y «partió LIMPIA» lleva el borrado de esa fila por id en su plan. **La pasada de
   `bin/navegador` ya no deja filas** (HV, 2026-10-22): marca antes y borra al terminar las suyas, por id y solo las
@@ -432,8 +457,11 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   `src/app/core/system-controllers/local-tests/` (todo `.php` de ahí se incluye al arrancar `bin/cli`), y copia,
   ejecución, `rm` y `git status` van en **una sola llamada de shell**. **La ruta del `rm` va literal**: la guarda de
   hooks bloquea un `rm` sobre una ruta en variable, y al bloquear para la llamada entera.
-  **Con el perfil persistente de `bin/navegador` y la sesión aún viva no se crea fila**: solo la deja la primera
-  entrada, o la de después de caducar. La lectura se hace igual y el reporte dice «0 filas» (`#1204`).
+  **`bin/navegador` entra SIEMPRE por el formulario** (desde JAS): antes de entrar borra las cookies y el
+  `localStorage` del origen, porque la sesión del panel vive en el `localStorage` (`JWTAuth`, `JWTAuthUserData`) y la
+  página de acceso la repone en la cookie: borrar solo cookies no cierra nada (`#1988`). Cada recorrido deja así sus
+  filas de acceso (dos por entrada, medido en JAS), y el propio recorrido las borra al terminar. Un instrumento que diga «sin sesión» y solo borre cookies
+  miente.
 - **Las capturas para el PO** (ADR 0058) viven en `~/Documentos/PiecesPHP/`. **Lo que él mira es PLANO: una carpeta por
   resolución con todas las imágenes**, `todas-1920x1080/` y `todas-390x844/` (el PO, 2026-10-17: «con todo es todo, no
   jerarquías»; la `panel/` por secciones se borró por su orden, P183). **Es la ÚNICA captura** (P184, GM): `bin/navegador
@@ -467,9 +495,10 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   bien»). Pero lo sembrado lleva `zz-`, `gates` lo cuenta como resto (ADR 0047) y `unit-tests:core/seed-round-trip` exige
   que no haya nada sembrado antes de empezar (`UnitTest-SeedRoundTrip.php:80-81`, su caso c3). Así que toda ronda, en este
   orden: **al empezar**, `seed module=all limpiar=yes`; `db-backup`; la siembra y las mediciones que la ronda pida; **antes
-  de verificar**, `seed module=all limpiar=yes` otra vez y el borrado de `login_attempts` de arriba; `bin/verify`; y **al
-  final, después de verificar y antes del commit del estado**, `seed module=all escribir=yes`, que es lo que el PO
-  encuentra. El reporte dice qué quedó sembrado (módulos e ids). Mientras corre una ronda, la base puede estar vacía.
+  de verificar**, `seed module=all limpiar=yes` otra vez, **`geo-load-fixture limpiar=yes`** (la carga del geovisor no
+  la quita `seed`, y sin esto `gates` sale SUCIO en `core/geo-viewer` e0, `#1849`) y el borrado de `login_attempts` de
+  arriba; `bin/verify`; y **al final, después de verificar y antes del commit del estado**, `seed module=all
+  escribir=yes` y `geo-load-fixture cantidad=50 escribir=yes`, que es lo que el PO encuentra. El reporte dice qué quedó sembrado (módulos e ids). Mientras corre una ronda, la base puede estar vacía.
 
 ## Receta 9 — Reglas de autorización propias con `_allowedRoute()`
 

@@ -10,9 +10,8 @@
  */
 
 /**
- * Constantes globales
- * En este este archivo se puede añadir cualquier constante adicional.
- * Puede hacerse uso de todas las funciones del sistema.
+ * Constantes globales: aquí ya existen las funciones del framework, pero lo que se define no existe en config.php ni en
+ * lang.php. Formato: source-docs/project/docs/piecesphp/content/configuration.md, «constants.php».
  */
 
 //── Del framework: no lo edites ──
@@ -23,12 +22,10 @@ define('LOG_ERRORS_BACKUP_PATH', app_basepath('logs/olds'));
 //Configuraciones
 define('APP_CONFIGURATION_MODULE', true);
 define('CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME', 'asUserID');
+//Ya no activa nada (P204); se quita en la 10.
 define('CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME', 'asUser');
 define('ROOT_ORIGINAL_ID_CONFIG_NAME', 'RootOriginalID');
 define('ROOT_ID_AS_CONNECT_CONFIG_NAME', 'RootIsLoggedAsUser');
-
-//Zona administrativa
-define('ADMIN_PATH_VIEWS', 'panel');
 
 //── Del clon ──
 //Importación y exportación sobre DataTransfer (lote 8, ADR 0022)
@@ -52,7 +49,6 @@ define('PUBLICATIONS_MODULE', true);
 
 //Noticias
 define('NEWS_MODULE', true);
-
 
 //Módulo de documentos
 define('DOCUMENTS_MODULE_ENABLE', true);
@@ -104,6 +100,8 @@ define('AI_MODELS', [
 define('API_MODULE', true);
 define('API_CRONJOBS', true);
 define('API_USERS', true);
+//El alta de usuarios sin sesión por la API. Apagada, la ruta responde como una que no existe.
+define('API_PUBLIC_SIGNUP', false);
 define('API_REPORTS', true);
 
 //Organizaciones

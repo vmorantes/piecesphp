@@ -2,6 +2,10 @@
 
 //Un usuario Eliminado deja de existir en la práctica (PO, 2026-10-16): no se lista, no se busca, no se elige y su perfil
 //no existe; en el historial de ingresos sigue. Por HTTP y en proceso; siembra zz- y lo retira entero.
+//@areas src/app/classes/DataImportExportUtility/
+//@areas src/app/classes/Directory/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
 use DataImportExportUtility\Definitions\UsersExportDefinition;
 use DataImportExportUtility\Examples\ExampleUsersReportExportDefinition;
@@ -252,8 +256,8 @@ CliActions::make('unit-tests:core/deleted-user-gone', function ($args) {
             $database->prepare('DELETE FROM `' . OrganizationMapper::TABLE . '` WHERE id = ?')->execute([$organizacionID]);
         }
         $quedan = (int) $database->query('SELECT COUNT(*) FROM `' . UsersModel::TABLE . '` WHERE username LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . OrganizationMapper::TABLE . '` WHERE name LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
+         + (int) $database->query('SELECT COUNT(*) FROM `' . OrganizationMapper::TABLE . '` WHERE name LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
         $check($quedan === 0, 'z1 no queda ningún usuario, organización, perfil, ingreso ni aprobación de la prueba', "quedan {$quedan}");
     }
 

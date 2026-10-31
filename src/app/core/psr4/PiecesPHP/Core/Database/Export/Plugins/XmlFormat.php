@@ -1,16 +1,12 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
-use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
-use PiecesPHP\Core\Database\Database;
 use PDO;
+use PiecesPHP\Core\Database\Database;
+use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 
 /**
- * Class XmlFormat
- * 
- * Plugin de formato para exportar datos en formato XML.
- * Estructura: <database><table name=""><row><column name="">...
+ * Formato XML: <database><table name=""><row><column name="">...
  */
 class XmlFormat implements FormatPluginInterface
 {
@@ -118,7 +114,7 @@ class XmlFormat implements FormatPluginInterface
         $columnTypes = $this->getColumnTypes($db, $table);
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            
+
             // Aplicar Transformaciones (GDPR / Masking)
             foreach ($transforms as $col => $callback) {
                 if (array_key_exists($col, $row)) {

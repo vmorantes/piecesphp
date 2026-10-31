@@ -5,82 +5,47 @@
  * Qué conviene editar aquí: el registro de las rutas de tus módulos, en la sección del clon, antes de la zona pública: el orden importa, de más específico a menos.
  */
 /**
- * Rutas
- *
- * En este archivo se definen las rutas de la aplicación.
- *
- * El sistema de rutas usa Slim 3.*
- *
- * Nótese que la forma de agregar las rutas no es la convencional en slim, sino que se usan
- * las clases PiecesPHP\Core\Route y PiecesPHP\Core\RouteGroup. Esto es así para que a PiecesPHP se le
- * facilite un manejo automático más sencillo de sus funciones de permisos basados en roles y de usuarios.
- *
- * Ejemplo:
- *
- * Grupo:
- *
- * string $name
- * $grupo = new PiecesPHP\Core\RouteGroup($name)
- *
- * Ruta:
- *
- * string $route La ruta.
- *
- * string $controller El nombre de la clase seguido de dos puntos y el nombre de método. Ej: '\App\MiClase:index'
- *
- * [string $name = uniqid()] Nombre con el que se registrá la ruta
- * [string $method = 'GET'] Método aceptado por la ruta (método HTTP ej.: GET|POST|PUT...)
- *
- * [bool $require_login = false] Si la ruta necesita de estar logueado o no. Esto si se está usando el sistema de usuarios de PiecesPHP
- *
- * [int[]|string[] $roles_allowed Roles = []] Roles que pueden acceder a la vista si es necesario estar logueado.
- * Forma alternativa al archivo roles.php de permitir el acceso a una vista.
- *
- * new PiecesPHP\Core\Route($route, $controller, $name, $method, $requireLogin, $alias, $rolesAllowed, $defaultParamsValues)
- *
- * Agregar ruta
- *
- * $grupo->register([$ruta, ...])
- *
+ * Grupos de rutas y registro de los módulos, siempre con Route y RouteGroup: el nombre de la ruta es su permiso.
+ * Formato y orden: source-docs/project/docs/piecesphp/content/configuration.md, «routes.php».
  */
 
 use API\APIRoutes;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Settings\SettingsRoutes;
-use PiecesPHP\UserSystem\Controllers\AvatarController;
-use PiecesPHP\Tokens\Controllers\GenericTokenController;
-use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use App\Controller\PublicAreaController;
-use PiecesPHP\UserSystem\Controllers\TimerController;
-use PiecesPHP\App\Locations\Controllers\Locations;
-use PiecesPHP\Components\ComponentProviderRoutes;
-use Directory\DirectoryRoutes;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
+use Directory\DirectoryRoutes;
 use Documents\DocumentsRoutes;
 use EventsLog\LogsRoutes;
-use PiecesPHP\FileManager\FileManagerRoutes;
 use Forms\FormsRoutes;
-use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
 use Organizations\OrganizationsRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\App\Locations\Controllers\Locations;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemRoutes;
+use PiecesPHP\Components\ComponentProviderRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Test;
-use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
-use PiecesPHP\SystemStatus\SystemStatusRoutes;
-//Alias: `LogsRoutes` es el del registro de acciones (EventsLog).
-use PiecesPHP\Logs\LogsRoutes as LogsViewerRoutes;
+use PiecesPHP\FileManager\FileManagerRoutes;
 use PiecesPHP\Geo\GeoRoutes;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
+use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
+use PiecesPHP\Logs\LogsRoutes as LogsViewerRoutes;
+use PiecesPHP\Settings\Controllers\SiteFilesController;
+use PiecesPHP\Settings\SettingsRoutes;
+use PiecesPHP\SystemStatus\SystemStatusRoutes;
+use PiecesPHP\Tokens\Controllers\GenericTokenController;
+//Alias: `LogsRoutes` es el del registro de acciones (EventsLog).
+use PiecesPHP\UserSystem\Controllers\AvatarController;
+use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
+use PiecesPHP\UserSystem\Controllers\TimerController;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use Publications\PublicationsRoutes;
 use ReportsManage\ReportsManageRoutes;
 use SystemApprovals\SystemApprovalsRoutes;
-use PiecesPHP\Settings\Controllers\SiteFilesController;
 use Terminal\Controllers\TerminalController;
 
 //── Del framework: no lo edites ──
@@ -211,7 +176,6 @@ NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 //Noticias internas
 NewsRoutes::routes($zona_administrativa);
 
-
 //Formularios
 FormsRoutes::routes($zona_administrativa);
 
@@ -231,7 +195,6 @@ SystemApprovalsRoutes::routes($zona_administrativa);
 
 //Directorio: el listado de personas y organizaciones, y sus perfiles
 DirectoryRoutes::routes($zona_administrativa);
-
 
 //Reportes
 ReportsManageRoutes::routes($zona_administrativa);

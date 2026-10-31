@@ -2,6 +2,7 @@
 
 //La versión de los estáticos (ADR 0034): cada archivo lleva la suya, y render() marca por atributo, no por texto.
 //Crea vistas y archivos zz-prueba-* temporales y los retira; devuelve la marca global y las fechas como estaban.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Terminal\CliActions;
@@ -81,7 +82,7 @@ CliActions::make('unit-tests:core/static-versions', function ($args) {
         echoTerminal('[2] static_file_version(): cada archivo la suya, y la marca global como sal');
         $check(
             mkdir($carpeta, 0775, true) && file_put_contents($carpeta . 'zz-a.css', '/* a */') !== false && file_put_contents($carpeta . 'zz-b.css', '/* b */') !== false
-            && touch($carpeta . 'zz-a.css', 1700000000) && touch($carpeta . 'zz-b.css', 1700000000),
+                && touch($carpeta . 'zz-a.css', 1700000000) && touch($carpeta . 'zz-b.css', 1700000000),
             'banco: dos archivos de prueba bajo statics/, con la misma fecha'
         );
         clearstatcache();
@@ -187,4 +188,4 @@ CliActions::make('unit-tests:core/static-versions', function ($args) {
 
     return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('La versión de los estáticos: por archivo, con la marca global de sal; render() marca por atributo.')->setEffects([CliActions::EFFECT_FILES, CliActions::EFFECT_NETWORK])->register();
+})->setDescription('La versión de los estáticos: por archivo, con la marca global de sal; render() marca por atributo.')->setEffects([CliActions::EFFECT_FILES])->register();

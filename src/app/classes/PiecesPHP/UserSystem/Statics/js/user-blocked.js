@@ -28,7 +28,6 @@ $(document).ready(function (e) {
 
 	let headerMain = $('.container .topbar.one')
 	let headerCode = $('.container .topbar.two')
-	let headerWrongMail = $('.container .topbar.three')
 	let headerWrongCode = $('.container .topbar.four')
 	let headerFinish = $('.container .topbar.five')
 
@@ -75,20 +74,7 @@ $(document).ready(function (e) {
 
 			} else {
 
-				if (res.error == 'USER_NO_EXISTS') {
-
-					headerMain.hide(delayHide)
-					recoveryContainer.hide(delayHide)
-
-					headerWrongMail.show(delayShow)
-					errorContainer.show(delayShow)
-
-					messageBox.html(_i18n('userProblems', 'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.'))
-					recoveryForm[0].reset()
-
-				} else {
-					messageBox.html(res.message)
-				}
+				messageBox.html(res.message)
 
 			}
 
@@ -190,7 +176,6 @@ $(document).ready(function (e) {
 		recoveryContainer.show(delayShow)
 		headerCode.hide(delayHide)
 		codeContainer.hide(delayHide)
-		headerWrongMail.hide(delayHide)
 		headerWrongCode.hide(delayHide)
 		errorContainer.hide(delayHide)
 		finishContainer.hide(delayHide)

@@ -1,12 +1,11 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\App\Locations\Mappers\CityMapper;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\Core\Config;
 use PiecesPHP\UserSystem\UserDataPackage;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 /**
@@ -26,11 +25,11 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
 $organizationText = $organizationMapper !== null ? $organizationMapper->currentLangData('name') : __($langGroup, 'N/A');
 $userTypeText = UsersModel::getTypeUserName($userPackage->type);
 $isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
-if($isBaseOrganization && ORGANIZATIONS_MODULE){
+if ($isBaseOrganization && ORGANIZATIONS_MODULE) {
     $organizationText = __($langGroup, 'N/A');
 }
-if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
-    if($isBaseOrganization && ORGANIZATIONS_MODULE){
+if ($userPackage->type == UsersModel::TYPE_USER_GENERAL) {
+    if ($isBaseOrganization && ORGANIZATIONS_MODULE) {
         $userTypeText = __($langGroup, 'Usuario independiente');
     }
 }
@@ -41,11 +40,11 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
     <div class="limiter-content">
 
         <?php
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
         <div class="approval-time"><?= $approvalMapper->getTimeTag(); ?></div>
 
@@ -167,7 +166,7 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
                 <div class="form-attachments-regular">
                     <div data-trigger-open-link="<?= $escape($userPackage->getAvatarURL()); ?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
+                        <div class="ui top right attached basic green label">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?= $uniqueIdentifier; ?>">
@@ -198,13 +197,13 @@ if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
             </div>
 
             <?php
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Aprobar'),
-                'saveAttributes' => ['approve-trigger' => ''],
-                'secondaryActions' => [
-                    ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
-                ],
-            ]);
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Aprobar'),
+                    'saveAttributes' => ['approve-trigger' => ''],
+                    'secondaryActions' => [
+                        ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
+                    ],
+                ]);
             ?>
 
         </form>

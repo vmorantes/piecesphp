@@ -1,17 +1,12 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
+use Exception;
 use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
 use ZipArchive;
-use Exception;
 
 /**
- * Class ZipFileOutput
- * 
- * Plugin de salida para archivos comprimidos con ZIP.
- * Debido a la naturaleza de ZipArchive, se utiliza un archivo temporal para recolectar el contenido
- * y se comprime en el paso final.
+ * Salida ZIP: ZipArchive necesita un archivo, así que el contenido se junta en uno temporal y se comprime al final.
  */
 class ZipFileOutput implements OutputPluginInterface
 {
@@ -66,21 +61,23 @@ class ZipFileOutput implements OutputPluginInterface
      */
     public function finalize(): bool
     {
-        if (!$this->tempFp) return false;
+        if (!$this->tempFp) {
+            return false;
+        }
 
         fclose($this->tempFp);
         $this->tempFp = null;
 
         $zip = new ZipArchive();
-        if ($zip->open($this->zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        if ($zip->open($this->zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             $zip->addFile($this->tempFile, basename($this->internalFilename));
             $zip->close();
-            
+
             // Limpiar archivo temporal
             if (file_exists($this->tempFile)) {
                 unlink($this->tempFile);
             }
-            
+
             return true;
         }
 
@@ -93,7 +90,7 @@ class ZipFileOutput implements OutputPluginInterface
 
     /**
      * Devuelve el nombre del archivo ZIP generado.
-     * 
+     *
      * @return string
      */
     public function getFilename(): string

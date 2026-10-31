@@ -1,6 +1,7 @@
 <?php
 
 //Fija el contrato de sesión: qué devuelve cada buscador cuando no hay usuario. Ver T33.
+//@areas nucleo
 
 use PiecesPHP\Core\Exceptions\SessionRequiredException;
 use PiecesPHP\Core\SessionToken;

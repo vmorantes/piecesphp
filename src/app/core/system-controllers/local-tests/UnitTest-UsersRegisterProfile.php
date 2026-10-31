@@ -2,13 +2,15 @@
 
 //El alta de usuarios crea el perfil: UsersModel::save() tiene que dejar el id insertado en el mapper.
 //Todo dentro de una transacción de la conexión compartida que se revierte: la base queda como estaba.
+//@areas nucleo
+//@areas src/app/classes/Organizations/
 
-use PiecesPHP\UserSystem\Controllers\UsersController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;

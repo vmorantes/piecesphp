@@ -96,6 +96,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | `mail-doctor` | `horas=<n>`, `smtp=yes` | Dice si el correo puede salir de la instalación y por dónde. **No envía nada.** Sin `smtp=yes` no toca la red; con él abre una conexión al SMTP configurado y la corta sin enviar |
 | `mail-demo` | — | Manda un correo de cada plantilla del catálogo a la bandeja de pruebas. Solo en una instalación `local` y solo si la entrega efectiva es «Retenido»; si no, se niega |
 | `organizations-assign-codes` | — | Pone el código público a las organizaciones que no lo tienen. Idempotente |
+| `profiles-create-missing` | `confirm=yes` | Enumera los usuarios cuyo tipo lleva perfil y no lo tienen; con `confirm=yes`, se lo crea a cada uno. Para correrla una vez al actualizar desde una versión que los creaba en cada petición |
 | `system-alerts` | — | Enumera los avisos del sistema activos, con su gravedad y si están ocultos. Solo lectura |
 | `version` | — | Imprime la versión de la instalación, su fecha y el commit del que salió, con su fuente |
 | `version-stamp` | `commit=<40 hex>` | Escribe el sello de despliegue con el commit, para instalaciones sin `.git`. Sale con 1 si el hash no es válido o no hay ninguno |
@@ -128,8 +129,8 @@ bin/cli db-backup gz=yes
 > **AVISO — copias anteriores a esta versión NO restauran.** La columna `password` se
 > cifraba al exportar y nada la descifraba al restaurar, así que la base restaurada dejaba a
 > todos los usuarios sin poder entrar. **Se recupera** aplicando
-> `BaseHashEncryption::decrypt($valor, 'ENCRYPTION_KEY')` a cada `password` — comprobado,
-> devuelve el hash exacto. Detalle y procedimiento en `.agents/context/11-base-de-datos.md`.
+> `BaseHashEncryption::deobfuscate($valor, 'ENCRYPTION_KEY')` a cada `password` (hasta la 9.0.0-alpha.2 se
+> llamaba `decrypt()`) — comprobado, devuelve el hash exacto. Detalle y procedimiento en `.agents/context/11-base-de-datos.md`.
 
 ---
 

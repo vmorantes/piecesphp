@@ -6,16 +6,16 @@
 
 namespace PiecesPHP\UserSystem\Profile;
 
-use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\App\Locations\Mappers\CityMapper;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -25,7 +25,8 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2025
  * @property int|null $id
- * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string|null $preferSlug El id con un sufijo aleatorio, ofuscado (no cifrado) para que la dirección
+ *     no sea un número correlativo: se puede deshacer y no oculta el id.
  * @property string|null $jobPosition
  * @property string|null $phoneCode
  * @property string|null $phoneNumber
@@ -51,7 +52,6 @@ class UserProfileMapper extends EntityMapperExtensible
 {
 
     use PreferSlugMinter;
-
 
     /** @var string|null Campo que da nombre: sin él no se acuña slug. */
     const SLUG_NAME_FIELD = 'belongsTo';
@@ -156,7 +156,7 @@ class UserProfileMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -496,7 +496,6 @@ class UserProfileMapper extends EntityMapperExtensible
         $countryName = "(SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country)";
         $cityName = "(SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city)";
 
-
         //Usuario
         $tableUser = UsersModel::TABLE;
         $firstnameSegment = "TRIM({$tableUser}.firstname)";
@@ -660,12 +659,56 @@ class UserProfileMapper extends EntityMapperExtensible
     }
 
     /**
-     * Mitad de ESCRITURA de {@see self::getProfile()}: devuelve el perfil, y lo crea si no
-     * existe.
+     * Garantiza el perfil de un usuario cuyo tipo debe tenerlo (UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE): lo crea si
+     * falta. Es el camino de creación del alta, la importación, la API y el primer guardado del perfil propio; nunca se
+     * llama en cada petición (P266).
      *
-     * SOLO desde caminos donde crear un perfil es legítimo —el alta de un usuario, o el
-     * primer guardado del perfil propio—, nunca desde un constructor y nunca desde una ruta
-     * alcanzable sin autenticar.
+     * Idempotente y a prueba de dos llamadas a la vez para el mismo usuario: belongsTo no tiene clave única, así que
+     * bloquea la fila del usuario (SELECT … FOR UPDATE) antes de mirar si el perfil existe, en la transacción en curso
+     * (la de una importación) o en una propia. La segunda llamada espera a la primera y encuentra el perfil.
+     *
+     * @param int $userID
+     * @return bool true si al salir el usuario tiene su perfil, o si su tipo no lleva; false si el usuario no existe o el
+     *              perfil no se pudo crear
+     */
+    public static function ensureFor(int $userID): bool
+    {
+        $pdo = UsersModel::model()::getDb(Config::app_db('default')['db']);
+        if ($pdo === null) {
+            return false;
+        }
+
+        $ownTransaction = !$pdo->inTransaction();
+        try {
+            if ($ownTransaction) {
+                $pdo->beginTransaction();
+            }
+            $statement = $pdo->prepare('SELECT type FROM `' . UsersModel::TABLE . '` WHERE id = ? FOR UPDATE');
+            $statement->execute([$userID]);
+            $type = $statement->fetchColumn();
+            if ($type === false) {
+                $ensured = false;
+            } elseif (!in_array((int) $type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE, true)) {
+                $ensured = true;
+            } else {
+                $ensured = self::createProfile($userID) !== null;
+            }
+            if ($ownTransaction) {
+                $pdo->commit();
+            }
+            return $ensured;
+        } catch (\Throwable $e) {
+            if ($ownTransaction && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Mitad de ESCRITURA de {@see self::getProfile()}: devuelve el perfil, y lo crea si no
+     * existe, sea cual sea el tipo y sin bloqueo. Los caminos de escritura usan
+     * {@see self::ensureFor()}, que llama a esta.
      *
      * Es idempotente: llamarlo dos veces no crea dos filas.
      *
@@ -881,7 +924,7 @@ class UserProfileMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
                         if (!property_exists($value, $defaultMetaProperty)) {

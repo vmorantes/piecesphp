@@ -2,8 +2,9 @@
 
 //Exportadores con ruta propia: el de usuarios lleva las columnas del importador y su archivo se puede volver a importar.
 //Escribe usuarios zz-prueba-exp-* (y 501 en una transacción revertida) y los borra en el finally: db-backup antes.
+//@areas src/app/classes/DataImportExportUtility/
+//@areas src/app/classes/Organizations/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use DataImportExportUtility\Definitions\UsersExportDefinition;
@@ -21,6 +22,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
@@ -46,11 +48,26 @@ CliActions::make('unit-tests:core/data-transfer-export', function ($args) {
     if (!class_exists('ZzDataTransferExportDefinition', false)) {
         class ZzDataTransferExportDefinition extends ExportDefinition
         {
-            public function key(): string { return 'zz-export'; }
-            public function title(): string { return 'Prueba'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function columns(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): array { return [new ExportColumn('code', 'Código')]; }
-            public function rows(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): iterable { return [['code' => 'A1']]; }
+            public function key(): string
+            {
+                return 'zz-export';
+            }
+            public function title(): string
+            {
+                return 'Prueba';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function columns(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): array
+            {
+                return [new ExportColumn('code', 'Código')];
+            }
+            public function rows(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): iterable
+            {
+                return [['code' => 'A1']];
+            }
         }
     }
 

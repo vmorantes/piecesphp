@@ -16,20 +16,20 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+            ]);
         ?>
 
         <div class="mirror-scroll-x all" mirror-scroll-target=".container-standard-table.all">
                 <div class="mirror-scroll-x-content"></div>
             </div>
 
-            <div class="container-standard-table all">
+            <div class="ui fluid card container-standard-table all">
 
-                <template style="display: none;">
+                <template>
                     <search-filters>
                         <div class="ui form">
                             <div class="inline field">
@@ -42,7 +42,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         </div>
                     </search-filters>
                 </template>
-                <table url="<?= $processTableLink; ?>" class="ui basic table content-table all">
+                <table url="<?= $processTableLink; ?>" class="ui selectable very basic table content-table all">
 
                     <thead>
 

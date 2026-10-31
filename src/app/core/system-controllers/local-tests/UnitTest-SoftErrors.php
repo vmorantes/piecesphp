@@ -2,6 +2,10 @@
 
 //ADR 0060: graves y suaves, el registro que solo crece y el aviso de errores nuevos. a1, a3 y [e] escriben en el registro
 //de la instalación (se quedan y se enumeran); lo demás, en un temporal. Crea dos usuarios zz-agente-errores-* y los borra.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Logs/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
+//@areas src/app/classes/SystemApprovals/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
@@ -90,6 +94,7 @@ CliActions::make('unit-tests:core/soft-errors', function ($args) {
         echoTerminal('[a] Graves y suaves');
         $siguio = false;
         $lineaAviso = 0;
+        $cuentaAntes = 0;
         //Se agrupa por firma (tipo, archivo, línea y, si corre dentro de una corrida de pruebas, su marca: ADR 0063 §4) en
         //el día: en la segunda corrida del día no hay entrada nueva, sube la cuenta. Por eso se mide el contador.
         $corrida = GenericHandler::testRun();
@@ -107,7 +112,8 @@ CliActions::make('unit-tests:core/soft-errors', function ($args) {
             restore_error_handler();
         }
         $claveAviso = $firmaAviso($lineaAviso);
-        $real = array_values(array_filter($lineas($logDir) ?? [], fn(array $entry) => ($entry['softKey'] ?? null) === $claveAviso));
+        //Con los rotados: si otro proceso rota el registro entre la escritura y esta lectura, la entrada está en olds/ (#1425).
+        $real = array_values(array_filter($lineas($logDir, true) ?? [], fn(array $entry) => ($entry['softKey'] ?? null) === $claveAviso));
         $aviso = $real[0] ?? [];
         $cuentaDespues = GenericHandler::softCounter($logDir, $claveAviso)['count'] ?? 0;
         if (isset($aviso['reference'])) {
@@ -142,7 +148,7 @@ CliActions::make('unit-tests:core/soft-errors', function ($args) {
             restore_error_handler();
         }
         $escritas[] = $referenciaDeclarada;
-        $declarado = array_values(array_filter($lineas($logDir) ?? [], fn(array $entry) => ($entry['reference'] ?? null) === $referenciaDeclarada));
+        $declarado = array_values(array_filter($lineas($logDir, true) ?? [], fn(array $entry) => ($entry['reference'] ?? null) === $referenciaDeclarada));
         $check(
             !$abortoSuaveDeclarado && preg_match($referencePattern, $referenciaDeclarada) === 1 && ($declarado[0]['level'] ?? null) === 'soft' && ($declarado[0]['extraData']['zz'] ?? null) === 'contexto',
             'a3 log_soft_error() no aborta en local: devuelve la referencia y su entrada es soft, con el contexto',

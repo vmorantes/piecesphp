@@ -139,6 +139,21 @@ Se cierra el de `.agents/estado/tramos/` con la duración, las rondas, los halla
 cómo se resolvió. Es lo que `abrir-jornada` lee en tercer lugar para saber **por qué** se cortó donde
 se cortó.
 
+### 2.4bis. La guía personal del PO, al día
+
+`/var/www/html/vicsen/guia-piecesphp-para-po` (ADR 0016): la escribe **y la commitea** el arquitecto. En cada cierre:
+
+1. **El historial del día** en `docs/historial.md`, con su tabla «Qué se hizo | A qué afecta | Dónde», sacado del
+   `CHANGELOG` y del tramo, nombrando las cosas por su nombre en pantalla.
+2. **Las páginas que el día dejó falsas**: por cada entrada nueva del `CHANGELOG`, buscar su tema en `docs/` (`grep`)
+   y corregir lo que ya no sea verdad.
+3. Un commit `docs:` en ese repositorio, y su hash en `AHORA.md` §1.
+
+La comprobación: la fecha de la entrada más nueva del historial es la de hoy, si hoy cambió algo para él. Nace del
+2026-10-23: el PO preguntó si la guía seguía al día y no lo estaba. Su historial se había parado el 6 de octubre, y dos
+páginas decían algo falso desde la ronda de esa tarde. Este paso no existía, y la regla 30 («la documentación es parte
+de hecho») no bastó sin él.
+
 ### 2.5. Y la memoria nativa, al final
 
 Se guarda el cierre, y **solo lo que ya vive en el registro, con su puntero** (`AGENTS.md` regla 9).
@@ -188,6 +203,7 @@ que se hicieron a mano**:
 | **Los contadores** | El `A-NNN` de `AHORA.md` contra el último del buzón de `PO.md`; el `#NNN` contra el último mensaje de la cadena | No cuadran |
 | **La bandeja del PO, revisada** | Que este cierre corrió `vikunja.py revisar` (§2.0) | No se corrió |
 | **Ningún reporte sin anotar** | Que cada reporte recibido tiene su línea en el archivo del tramo, y que ninguna ronda enviada sigue en vuelo (§2.0, §2.1bis) | Falta una |
+| **La guía, al día** | Que la entrada más nueva de `historial.md` de la guía no es anterior a la última entrada del `CHANGELOG` (§2.4bis) | Es anterior |
 | **Los puntos `S` cuadran** | Que las etiquetas `S` que nombra `AHORA.md` existen en `PO.md`, y al revés | Sobra o falta una |
 
 Son del arquitecto —`.agents/` es suyo— y las implementa el coder en una ronda, con su prueba de

@@ -2,6 +2,7 @@
 
 //El commit de la instalación: sello de despliegue antes que git, solo HEAD, refs y packed-refs, y todo hash validado.
 //Monta repositorios .git FALSOS en un temporal propio (el .git real no se toca) y los borra en el finally.
+//@areas nucleo
 
 use PiecesPHP\Core\AppVersion;
 use PiecesPHP\Terminal\CliActions;

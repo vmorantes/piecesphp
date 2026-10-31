@@ -6,14 +6,13 @@
 
 namespace MySpace\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\App\Locations\Mappers\CountryMapper;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use MySpace\Controllers\Util\ProfileTasksUtilities;
 use MySpace\Exceptions\SafeException;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -28,8 +27,8 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * MyProfileController.
@@ -353,7 +352,7 @@ class MyProfileController extends AdminPanelController
 
                 //Guardar el perfil propio ES el camino legítimo de creación: si aún no
                 //existe la fila, se materializa aquí y no en un constructor.
-                $mapper = UserProfileMapper::createProfile($id);
+                $mapper = UserProfileMapper::ensureFor($id) ? UserProfileMapper::getProfile($id) : null;
                 //Null solo si el usuario no existe o la fila no se creó; aquí hay sesión, así que es un fallo de verdad.
                 if ($mapper === null) {
                     throw new \Exception('No se pudo leer ni crear el perfil del usuario ' . $id);
@@ -411,7 +410,7 @@ class MyProfileController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -426,7 +425,6 @@ class MyProfileController extends AdminPanelController
         return $response->withJson($resultOperation);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -435,16 +433,14 @@ class MyProfileController extends AdminPanelController
         return parent::render(trim($name, '/'), $data, $mode, $format);
     }
 
-
     /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
     public static function routes(RouteGroup $group)
     {
-        //Tareas globales del módulo
-        ProfileTasksUtilities::generateSQL(false);
-        ProfileTasksUtilities::generateMissingProfiles(true);
+        //Los perfiles que falten ya no se crean aquí, en cada petición (P266): el alta los crea, y bin/cli profiles-create-missing
+        //rellena una vez los de una instalación anterior.
 
         //Rutas
         $routes = [];

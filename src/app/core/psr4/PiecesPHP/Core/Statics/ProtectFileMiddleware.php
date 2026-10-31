@@ -7,7 +7,6 @@
 namespace PiecesPHP\Core\Statics;
 
 use PiecesPHP\Core\Routing\RequestRoute as Request;
-use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\SessionToken;
 
 /**

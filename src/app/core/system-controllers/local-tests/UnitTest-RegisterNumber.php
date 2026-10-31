@@ -2,6 +2,8 @@
 
 //El número de registro de los listados (P95): con ceros a la izquierda, sin recortar nunca, y ordenado por el id
 //real. Se prueba la EXPRESIÓN contra la base, sin filas: una fila con un id alto subiría el AUTO_INCREMENT para siempre.
+//@areas src/app/classes/News/
+//@areas src/app/classes/SystemApprovals/
 
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;

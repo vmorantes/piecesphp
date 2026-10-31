@@ -11,7 +11,6 @@ src/statics/css/*
 src/statics/admin-area/css/*
 src/statics/core/css/*
 src/statics/core/own-plugins/css/*
-src/statics/login-and-recovery/css/*
 **/node_modules/*
 **/composer.lock
 # Excepciones: src/ es la APLICACIÓN, no una librería, y bin/tools/ fija las
@@ -38,6 +37,7 @@ IGNORE.md
 IGNORE/
 docs/*
 docs-entornos/
+docs-publicar/
 bin/phpstan.deadcode.generated.neon
 files/dev/route-inventory.json
 PHPStanResult.8.4.json

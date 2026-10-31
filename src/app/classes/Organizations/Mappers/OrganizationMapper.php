@@ -6,21 +6,21 @@
 
 namespace Organizations\Mappers;
 
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
-use PiecesPHP\Core\Database\PreferSlugMinter;
-use PiecesPHP\App\Locations\Mappers\CityMapper;
-use PiecesPHP\App\Locations\Mappers\CountryMapper;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\OrganizationsLang;
+use PiecesPHP\App\Locations\Mappers\CityMapper;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * OrganizationMapper.
@@ -29,7 +29,8 @@ use PiecesPHP\Core\Validation\Validator;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2024
  * @property int|null $id
- * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string|null $preferSlug El id con un sufijo aleatorio, ofuscado (no cifrado) para que la dirección
+ *     no sea un número correlativo: se puede deshacer y no oculta el id.
  * @property string|null $code Código público, único e inmutable. Nulo solo en las filas anteriores a su migración
  * @property string $name
  * @property string $nit
@@ -66,7 +67,6 @@ class OrganizationMapper extends EntityMapperExtensible
 {
 
     use PreferSlugMinter;
-
 
     /** @var string|null Campo que da nombre: sin él no se acuña slug. */
     const SLUG_NAME_FIELD = 'name';
@@ -199,7 +199,7 @@ class OrganizationMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -287,6 +287,7 @@ class OrganizationMapper extends EntityMapperExtensible
     */
     const CAN_VIEW_BASE_LIST = [
         UsersModel::TYPE_USER_ROOT,
+        //@codigo-comentado · Hoy solo root ve el listado estándar; descomentar un tipo se lo concede.
         //UsersModel::TYPE_USER_ADMIN_GRAL,
         //UsersModel::TYPE_USER_ADMIN_ORG,
         //UsersModel::TYPE_USER_GENERAL,
@@ -301,10 +302,9 @@ class OrganizationMapper extends EntityMapperExtensible
         Tiene poder de modificación sobre organizaciones a la que pertenezca
     */
     const EDITORS = [];
-    /* 
-        Puede ser asignado como el administrador de una organización y
-        tiene poder de modificación en el formulario de perfil de esta
-        Nota: Idealmente cualquiera que pueda tener organización debería estar
+    /*
+        Puede ser el administrador asignado de una organización y editar su perfil.
+        Idealmente, todo tipo que pueda tener organización debería estar aquí.
     */
     const PROFILE_EDITOR = [
         UsersModel::TYPE_USER_ADMIN_ORG,
@@ -312,7 +312,7 @@ class OrganizationMapper extends EntityMapperExtensible
         UsersModel::TYPE_USER_INSTITUCIONAL,
         UsersModel::TYPE_USER_COMUNICACIONES,
     ];
-    /* 
+    /*
         Pueden editar perfiles de organización en general, sin necesidad de poder ser asignado
         Nota: Deberían solo ser usuarios con muchos privilegios
     */
@@ -320,7 +320,7 @@ class OrganizationMapper extends EntityMapperExtensible
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
-    /* 
+    /*
         Permisos adicionales cuando un usuario es el encargado/administrador
     */
     const PERMISSIONS_ON_ADMINISTRATOR = [
@@ -401,7 +401,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param string|null $onDefault
      * @return string
      */
-    public function getLogoURL(string | null $onDefault = 'statics/images/default-avatar-org.jpg')
+    public function getLogoURL(string|null $onDefault = 'statics/images/default-avatar-org.jpg')
     {
         $logo = $this->currentLangData('logo');
         $hasLogo = is_string($logo) && mb_strlen($logo) > 0;
@@ -493,7 +493,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -556,7 +556,7 @@ class OrganizationMapper extends EntityMapperExtensible
         if ($this->codeOnLoad !== null && $this->code !== $this->codeOnLoad) {
             log_exception(new \RuntimeException(
                 'Se intentó cambiar el código de la organización ' . $this->id . ' de «' . $this->codeOnLoad
-                . '» a «' . (is_scalar($this->code) ? (string) $this->code : gettype($this->code)) . '». El código es inmutable: se repone.'
+                    . '» a «' . (is_scalar($this->code) ? (string) $this->code : gettype($this->code)) . '». El código es inmutable: se repone.'
             ));
             $this->code = $this->codeOnLoad;
         }
@@ -715,7 +715,6 @@ class OrganizationMapper extends EntityMapperExtensible
 
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
-
 
         //Ubicaciones
         $countryName = "SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country";
@@ -1387,7 +1386,7 @@ class OrganizationMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
                         if (!property_exists($value, $defaultMetaProperty)) {

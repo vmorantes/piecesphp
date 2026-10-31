@@ -1,13 +1,9 @@
 <?php
 
 return [
-    'Colombia' => 'Colombia',
-    'Aprobadas' => 'Approved',
-    'Francia' => 'France',
     'usuarios generales' => 'General users',
     'Otros países' => 'Other countries',
     'organización(es)' => 'organization(s)',
-    'Creadas' => 'Created',
     'Reportes' => 'Reports',
     'Informe general' => 'General report',
     'Las cifras de la plataforma: publicaciones, organizaciones y usuarios.' => 'The figures of the platform: publications, organizations and users.',

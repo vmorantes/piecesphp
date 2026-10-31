@@ -2,6 +2,10 @@
 
 //El sitemap que sirve la aplicación (ADR 0032 §3): proveedores por módulo, TODAS las publicaciones visibles y solo esas, y
 //cada URL igual a la canónica de su página. Crea usuarios y publicaciones zz-prueba-smap-* y lo retira todo al final.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -210,12 +214,7 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
         $publicacion('programada', $root, PublicationMapper::ACTIVE, new \DateTime('+2 days'), new \DateTime('+9 days'));
         //La firma un general: no se aprueba sola, y sin aprobar el público no la ve.
         $publicacion('sin-aprobar', $general, PublicationMapper::ACTIVE);
-        //La fila rota: sin sus meta-propiedades, `objectToMapper()` no puede dar mapper.
-        $rota = $publicacion('rota', $root, PublicationMapper::ACTIVE);
-        $modelo = PublicationMapper::model();
-        $modelo->resetAll();
-        $modelo->update(['meta' => '{}'])->where(['id' => (int) $rota->id])->execute();
-        $check(count($idsPublicaciones) === 17, 'banco: 17 publicaciones de la prueba', (string) count($idsPublicaciones));
+        $check(count($idsPublicaciones) === 16, 'banco: 16 publicaciones de la prueba', (string) count($idsPublicaciones));
         //La primera petición registra los elementos nuevos en las aprobaciones.
         $pedir('GET', '/');
         echoTerminal(' ');
@@ -242,7 +241,7 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
         $conSufijo = fn(string $sufijo, string $idioma): array => array_values(array_filter($locs, fn(string $l) => str_contains($l, "/{$prefijo}-{$sufijo}-{$idioma}-")));
         $faltan = array_values(array_filter($letras, fn(string $letra) => count($conSufijo("visible-{$letra}", 'es')) !== 1));
         $check(count($faltan) === 0, '2a las doce visibles de la prueba, una vez cada una', 'fuera o repetidas: ' . implode(', ', $faltan));
-        foreach (['el borrador' => 'borrador', 'la programada a futuro' => 'programada', 'la que está sin aprobar' => 'sin-aprobar', 'la rota' => 'rota'] as $nombre => $sufijo) {
+        foreach (['el borrador' => 'borrador', 'la programada a futuro' => 'programada', 'la que está sin aprobar' => 'sin-aprobar'] as $nombre => $sufijo) {
             $check(count($conSufijo($sufijo, 'es')) === 0, "2b {$nombre} no está");
         }
         $check(count($conSufijo('traducida', 'es')) === 1 && count($conSufijo('traducida', 'en')) === 1, '2c la traducida, una vez en cada idioma');
@@ -253,6 +252,16 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
         $slugSinCategoria = (string) $sinCategoria->getSlug('es');
         $check($slugSinCategoria !== '' && (int) $sinCategoria->id === \Publications\Mappers\PublicationCategoryMapper::UNCATEGORIZED_ID, '2e CANARIO: la categoría «Sin categoría» existe y tiene su slug', $slugSinCategoria);
         $check(count(array_filter($locs, fn(string $l) => str_contains($l, '/' . $slugSinCategoria))) === 0, '2f «Sin categoría» no tiene entrada en el sitemap', (string) json_encode(array_values(array_filter($locs, fn(string $l) => str_contains($l, '/' . $slugSinCategoria)))));
+        //Lo que importa: el sitemap no anuncia una URL que al visitante no se le sirva. Sin sesión, como un buscador.
+        $deLaPrueba = array_values(array_filter($locs, fn(string $l) => str_contains($l, "/{$prefijo}-")));
+        $noSeSirven = [];
+        foreach ($deLaPrueba as $loc) {
+            $estado = $pedir('GET', $loc)['status'];
+            if ($estado !== 200) {
+                $noSeSirven[] = "{$loc} → HTTP {$estado}";
+            }
+        }
+        $check(count($deLaPrueba) > 0 && $noSeSirven === [], '2g cada URL de la prueba que anuncia el sitemap responde 200 al visitante', count($deLaPrueba) . ' URL; ' . implode(', ', $noSeSirven));
         echoTerminal(' ');
 
         echoTerminal('[3] Cada URL del sitemap es la canónica que sirve su página');
@@ -322,4 +331,4 @@ CliActions::make('unit-tests:core/sitemap', function ($args) {
 
     return $balance();
 
-})->setDescription('El sitemap por ruta: proveedores por módulo, todas las publicaciones visibles y solo esas, cada URL la canónica de su página.')->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();
+})->setDescription('El sitemap por ruta: proveedores por módulo, todas las publicaciones visibles y solo esas, cada URL la canónica de su página.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

@@ -4,53 +4,8 @@
 @use 'includes/components/placeholders' as *;
 
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
-$standardTableBorder: rgba(128, 128, 128, 0.26);
-$formSectionTitleColor: #001130;
-$activeTabBackground: rgba(0, 124, 196, 0.1);
 $waitOverlayBackground: rgba(0, 0, 0, 0.386);
 
-$fontModule: $fontGlobal;
-
-//──── RETROCOMPATIBILIDAD INICIO ────────────────────────────────────────────────────────
-.ui-pcs.container-sidebar>.content {
-
-    .title-form {
-        @include titleZoneBaseLegacy();
-    }
-
-    .clearfix {
-
-        &::before,
-        &::after {
-            display: block;
-            content: ' ';
-            clear: both;
-        }
-    }
-
-    .ui {
-
-        &.button {
-
-            &.custom-color {
-
-                background-color: var(--main-brand-color);
-                color: var(--font-color-two);
-
-                &:hover,
-                &:active,
-                &:focus {
-                    opacity: 0.8;
-                }
-
-            }
-
-        }
-
-    }
-}
-
-//──── RETROCOMPATIBILIDAD FIN ───────────────────────────────────────────────────────────
 
 //──── Utilidades ────────────────────────────────────────────────────────────────────────
 
@@ -120,37 +75,13 @@ $fontModule: $fontGlobal;
 //──── Diseño estándar de módulos ────────────────────────────────────────────────────────
 .module-view-container {
 
-    font-family: $fontModule;
     container-type: inline-size;
     container-name: module-view-container;
 
-    .ui {
-        &.button {
-            font-family: $fontModule;
-            font-weight: $fwRegular;
-            font-size: pxToRem(18);
-            line-height: pxToRem(18);
-            border-radius: pxToRem(10);
-
-            &.var-custom {
-                background-color: var(--inline-custom-bg-button);
-                color: var(--inline-custom-color-button);
-            }
-        }
-
-        &.buttons {
-            display: flex;
-            flex-wrap: wrap;
-            column-gap: 5px;
-            row-gap: 5px;
-            max-width: 100%;
-
-            >.ui.button {
-                width: 100%;
-                max-width: max-content;
-                border-radius: pxToRem(10);
-            }
-        }
+    //El tamaño, el radio y el margen de los botones, los del tema (JCK). Solo queda el botón con colores en línea.
+    .ui.button.var-custom {
+        background-color: var(--inline-custom-bg-button);
+        color: var(--inline-custom-color-button);
     }
 
     &.limit-size {
@@ -170,9 +101,9 @@ $fontModule: $fontGlobal;
             grid-template-columns: 100%;
         }
 
-        >.main-options {}
+        > .main-options {}
 
-        >.columns {
+        > .columns {
             display: grid;
             grid-template-columns: 100%;
             column-gap: 1rem;
@@ -182,7 +113,7 @@ $fontModule: $fontGlobal;
                 grid-template-columns: auto auto;
             }
 
-            >.column {
+            > .column {
                 &.bottom {
                     align-self: flex-end;
                 }
@@ -201,25 +132,19 @@ $fontModule: $fontGlobal;
 
     // Siemple Breadcrumb
     .breadcrumb {
-        color: var(--second-brand-color);
         display: flex;
         gap: 10px;
         align-items: center;
-        font-family: $fontModule;
         margin-bottom: 20px;
         flex-wrap: wrap;
 
-        >i {
+        > i {
             margin: 0;
             padding: 0;
         }
 
-        >a {
-            color: var(--second-brand-color);
-        }
-
-        @media screen and (max-width:800px) {
-            padding-top: 70px;
+        > a {
+            color: var(--accent-2);
         }
     }
 
@@ -242,18 +167,17 @@ $fontModule: $fontGlobal;
 
         width: max-content;
         max-width: 100%;
-        font-family: $fontModule;
 
-        >* {
+        > * {
             width: max-content;
             max-width: 100%;
         }
 
-        >.title {
+        > .title {
             font-weight: $fwBold;
             font-size: pxToRem(35);
             line-height: pxToRem(35+5);
-            color: var(--main-brand-color);
+            color: var(--accent);
             max-width: 100%;
             text-wrap: wrap;
 
@@ -263,7 +187,7 @@ $fontModule: $fontGlobal;
             }
         }
 
-        >.description {
+        > .description {
             font-weight: $fwRegular;
             font-size: pxToRem(16);
             line-height: pxToRem(16+5);
@@ -272,48 +196,32 @@ $fontModule: $fontGlobal;
             margin-top: 5px;
         }
 
-        >.subtitle {
+        > .subtitle {
             font-weight: $fwSemiBold;
             font-size: pxToRem(18);
             line-height: pxToRem(18+5);
-            color: var(--second-brand-color);
+            color: var(--accent-2);
         }
 
-        >.meta {
+        > .meta {
             font-size: pxToRem(14);
             line-height: pxToRem(14+5);
-            color: var(--font-color-one);
+            color: var(--theme-text);
         }
 
     }
 
     //Contenedor de tablas  
+    //La caja de un listado es un `ui fluid card` del tema (marcado de cada vista; un `ui segment` si la tabla no pasa por
+    //DataTables, porque su primera celda iría pegada al borde): aquí solo lo que no es su aspecto, el
+    //desplazamiento horizontal de una tabla ancha y la maqueta de la columna de acciones.
     .container-standard-table {
         position: relative;
-        max-width: 1920px;
-        padding: pxToRem(30) pxToRem(30) 3rem pxToRem(30);
         overflow-x: auto;
-        border: 1px solid $standardTableBorder;
-        border-radius: 15px;
-
-        //Dos bloques seguidos no van pegados: el mismo 1rem que deja la barra de guardar (`ui segment`).
-        &:not(:last-child) {
-            margin-bottom: 1rem;
-        }
-
-        >* {
-            max-width: 98%;
-        }
 
         table.ui.table {
 
-            &.basic {
-                border: none;
-            }
-
             td {
-                .cell-container {}
-
                 &.buttons {
                     .cell-container {
                         display: flex;
@@ -334,13 +242,8 @@ $fontModule: $fontGlobal;
             }
 
             th {
-                font-weight: $fwMedium;
-                font-size: pxToRem(18);
-
                 &.buttons {
                     text-align: center;
-                    padding-left: pxToRem(75);
-                    padding-right: pxToRem(75);
                     width: max-content;
                     max-width: 100%;
                 }
@@ -357,7 +260,7 @@ $fontModule: $fontGlobal;
     //Contenedor de formularios
     .container-standard-form {
 
-        background-color: white;
+        background-color: var(--theme-surface);
         max-width: 1920px;
         border: 1px $colorBorderSoftAlt solid;
         border-radius: 15px;
@@ -380,7 +283,7 @@ $fontModule: $fontGlobal;
             padding-bottom: 3rem;
             overflow-y: auto;
 
-            >.item {
+            > .item {
                 cursor: pointer;
             }
         }
@@ -393,19 +296,8 @@ $fontModule: $fontGlobal;
             border: none;
         }
 
-        &.brand-color {
-            color: white;
-
-            background-color: var(--main-brand-color);
-
-            &.alt {
-                background-color: var(--second-brand-color);
-            }
-        }
-
         .form-section-title {
             font-weight: $fwMedium;
-            color: $formSectionTitleColor;
             font-size: pxToRem(21);
             //Relativo: con un alto fijo menor que la letra, un título de dos líneas se pisa.
             line-height: 1.2;
@@ -434,7 +326,7 @@ $fontModule: $fontGlobal;
         max-width: 1220px;
         border-radius: 8px;
         border: 1px solid $colorBorderSoft;
-        background-color: $colorWhite;
+        background-color: var(--theme-surface);
         padding: 2rem 2.5rem;
         container-type: inline-size;
         container-name: container-standard;
@@ -452,25 +344,14 @@ $fontModule: $fontGlobal;
     //Sobreescritura de formulario fomantic
     form.ui.form {
 
-        input:not([type="file"]) {
-            min-height: 52px;
-        }
-
-        label {
-            font-weight: $fwRegular;
-            font-size: pxToRem(16);
-            color: $colorTextStrong;
-        }
-
         .ui.dropdown {
-            min-height: 52px;
 
             i.dropdown.icon {
                 top: 50%;
                 transform: translateY(-25%);
             }
 
-            >.text {
+            > .text {
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
@@ -482,7 +363,7 @@ $fontModule: $fontGlobal;
                 flex-wrap: wrap;
                 align-items: center;
 
-                >.text {
+                > .text {
                     top: 40%;
                     left: 0px;
                 }
@@ -513,7 +394,7 @@ $fontModule: $fontGlobal;
         max-width: 1920px;
         padding: 0px 0px 3rem 0px;
 
-        >* {
+        > * {
             max-width: 98%;
         }
 
@@ -524,7 +405,7 @@ $fontModule: $fontGlobal;
 
     //Datatables en cards
     .table-to-cards {
-        background-color: white;
+        background-color: var(--theme-surface);
         border: 1px solid $colorBorderSoftAlt;
         border-radius: 15px;
         padding: 40px;
@@ -558,7 +439,7 @@ $fontModule: $fontGlobal;
     }
 
     //Limitador de contenido genérico
-    >.limiter-content {
+    > .limiter-content {
         position: relative;
         max-width: 1920px;
         margin: 0 auto;
@@ -567,7 +448,7 @@ $fontModule: $fontGlobal;
             padding: pxToRem(32);
             border-radius: 15px;
             border: 1px solid $colorBorderSoft;
-            background: $colorWhite;
+            background: var(--theme-surface);
         }
 
         //Botones principales
@@ -590,49 +471,8 @@ $fontModule: $fontGlobal;
     }
 
     //Tabs
-    .tabs-controls {
-
-        display: flex;
-        flex-wrap: wrap;
-        flex: 0 0 auto;
-        margin-bottom: pxToRem(30);
-
-        >* {
-            display: block;
-            color: $colorFirst;
-            font-weight: $fwMedium;
-            font-size: pxToRem(18);
-            line-height: pxToRem(18+5);
-            background-color: transparent;
-            border-radius: 6px;
-            transition: 0.5s ease all;
-            min-width: 166px;
-            padding: pxToRem(12) pxToRem(30);
-            text-align: center;
-            cursor: pointer;
-
-            &.active {
-                color: $colorFirst;
-                font-weight: $fwBold;
-                background-color: $activeTabBackground;
-            }
-        }
-
-        >.actions-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: end;
-            align-items: center;
-            align-content: center;
-            margin: 0px;
-            padding: 0px;
-            flex-grow: 1;
-
-            &.start-align {
-                justify-content: start;
-            }
-        }
-    }
+    //.tabs-controls y .actions-buttons son ganchos del JS sin estilo (ADR 0069 §3): las pestañas las pinta el tema
+    //(ui secondary pointing menu), también el desplazamiento horizontal en el móvil.
 
     //Placeholders para cargar archivos
     .form-attachments-regular {
@@ -645,7 +485,7 @@ $fontModule: $fontGlobal;
         width: 1440px;
         max-width: 100%;
 
-        >.attach-placeholder {
+        > .attach-placeholder {
             margin-bottom: 0px;
         }
     }
@@ -701,7 +541,7 @@ $fontModule: $fontGlobal;
 
             column-gap: 1rem;
 
-            >.columns {
+            > .columns {
                 &.two {
                     grid-template-columns: auto;
                 }
@@ -732,18 +572,55 @@ $fontModule: $fontGlobal;
         overflow: visible !important;
     }
 
-    .#{$globalClassPcs}.container-sidebar {
-        grid-template-columns: 100%;
-        overflow: visible !important;
-    }
-
-    .#{$globalClassPcs}.topbar-toggle {
+    //Los botones de la barra no se imprimen (antes, .topbar-toggle).
+    .admin-shell > .main > .bar > .right {
         display: none;
     }
+}
 
-    .#{$globalClassPcs}.sidebar-toggle {
-        display: none;
+//──── Armazón del panel (el ui shell del tema; header.php y menu.php) ─────────────────────
+//El logotipo de la instalación es una imagen cualquiera: cabe en la caja de la marca sin deformarse.
+.admin-shell .logo > img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+//Las imágenes de patrocinadores, al ancho del pie de la navegación.
+.admin-shell > .navigation > .footer img.partners {
+    max-width: 100%;
+    height: auto;
+}
+
+//La casilla «Invertir colores en modo oscuro» (P277 c): el logo y las banderas, en blanco. Va por `data-theme` y no por
+//light-dark() porque `filter` no lo admite. El acceso y los errores no llevan `data-theme`: salen en claro, a propósito.
+$-invertOnDark: brightness(0) invert(1);
+
+[data-theme="dark"] .invert-on-dark {
+    filter: $-invertOnDark;
+}
+
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] .invert-on-dark {
+        filter: $-invertOnDark;
     }
+}
+
+//El logo va en la línea del texto: un nombre largo parte centrado y el logo sigue junto a él (en un flex, el texto ocuparía
+//todo el ancho y lo alejaría).
+.developer-credit {
+    text-align: center;
+}
+
+//El logotipo del desarrollador (config.php, developer_logo), a la altura de una línea del pie.
+.admin-shell > .navigation > .footer img.developer-logo {
+    flex: none;
+    width: auto;
+    max-width: 100%;
+    height: 1rem;
+    margin-inline-end: 0.5rem;
+    vertical-align: middle;
 }
 
 //──── General ───────────────────────────────────────────────────────────────────────────
@@ -762,10 +639,6 @@ body.wait-to-action {
         height: 100%;
         background-color: $waitOverlayBackground;
     }
-}
-
-body.gradient-base {
-    background: var(--body-gradient);
 }
 
 //Fomantic

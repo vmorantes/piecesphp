@@ -6,8 +6,6 @@
 
 namespace PiecesPHP\BuiltIn\Banner\Controllers;
 
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
@@ -19,6 +17,8 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * BuiltInBannerPublicController.
@@ -165,7 +165,6 @@ class BuiltInBannerPublicController extends BaseController
         $this->setVariables($view_data);
 
     }
-
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

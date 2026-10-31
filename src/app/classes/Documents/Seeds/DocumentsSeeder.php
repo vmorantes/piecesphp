@@ -88,7 +88,8 @@ class DocumentsSeeder extends ModuleSeeder
             'documentName' => $this->text('documento', $index),
             'description' => self::DESCRIPTIONS[$index % count(self::DESCRIPTIONS)],
             'document' => $context->copyToUploads('statics/images/document-placeholder.png', self::UPLOADS, $folder, 'documento.png', true),
-            'documentImage' => $context->copyToUploads('statics/images/generic-image-placeholder.png', self::UPLOADS, $folder, 'imagen.png', true),
+            //Como un alta sin miniatura: vacía, y el explorador pinta el icono del tipo del archivo (item-explorer.php).
+            'documentImage' => '',
             'folder' => $folder,
             'createdBy' => $this->author,
         ];

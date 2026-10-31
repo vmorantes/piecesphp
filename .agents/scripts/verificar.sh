@@ -124,6 +124,14 @@ else
     python3 -B .agents/scripts/destinos.py || fallo "una decisión del PO sin destino válido"
 fi
 
+paso "Contadores y tope de AHORA.md (E5)"
+if [ "$en_clon" = si ]; then
+    echo "[NO APLICA EN LA DISTRIBUCIÓN] cadena: el estado es de la capa C y no viaja"
+else
+    python3 -B .agents/scripts/probar_cadena.py || fallo "cadena.py no caza lo que debe cazar"
+    python3 -B .agents/scripts/cadena.py || fallo "los contadores o el tope de AHORA.md no cuadran"
+fi
+
 paso "Cada archivo del andamiaje, en su índice (E11)"
 if [ "$en_clon" = si ]; then
     echo "[NO APLICA EN LA DISTRIBUCIÓN] índices: las carpetas de la capa C no viajan"

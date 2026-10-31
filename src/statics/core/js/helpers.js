@@ -3,13 +3,12 @@
 ///<reference path="./helpers-lib/GenericLoaderElement.js" />
 ///<reference path="./helpers-lib/UtilPieces.js" />
 /**
- * @description Mensaje modal con tipo success (toast fomantic|alert|izitoast)
+ * @description Mensaje modal con tipo success (el toast de Fomantic; sin él, confirmAction)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
- * @see https://marcelodolza.github.io/iziToast
  */
 function successMessage(title, message, onClose = null, options) {
 
@@ -37,36 +36,17 @@ function successMessage(title, message, onClose = null, options) {
 		}
 
 		if (typeof options.position !== 'string') {
-			options.position = 'top center'
+			options.position = 'top right'
+		}
+		//El tema pinta el aviso claro y distingue su tipo por el icono: sin él, los cuatro salen iguales.
+		if (typeof options.showIcon === 'undefined') {
+			options.showIcon = true
 		}
 
 		$('body').toast(options)
 
-	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
-
-		const iziToastDefaultOptions = {
-			title: title,
-			message: message,
-			onClosing: function () {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-
-		}
-
-		for (const property in iziToastDefaultOptions) {
-			const defaultValue = iziToastDefaultOptions[property]
-			options[property] = defaultValue
-		}
-
-		if (typeof options.position !== 'string') {
-			options.position = 'topCenter'
-		}
-
-		iziToast[typeMessage](options)
 	} else {
-		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		//Sin Fomantic: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
 		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
 			if (typeof onClose == 'function') {
 				onClose()
@@ -77,13 +57,12 @@ function successMessage(title, message, onClose = null, options) {
 }
 
 /**
- * @description Mensaje modal con tipo warning (toast fomantic|alert|izitoast)
+ * @description Mensaje modal con tipo warning (el toast de Fomantic; sin él, confirmAction)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
- * @see https://marcelodolza.github.io/iziToast
  */
 function warningMessage(title, message, onClose = null, options) {
 
@@ -111,36 +90,17 @@ function warningMessage(title, message, onClose = null, options) {
 		}
 
 		if (typeof options.position !== 'string') {
-			options.position = 'top center'
+			options.position = 'top right'
+		}
+		//El tema pinta el aviso claro y distingue su tipo por el icono: sin él, los cuatro salen iguales.
+		if (typeof options.showIcon === 'undefined') {
+			options.showIcon = true
 		}
 
 		$('body').toast(options)
 
-	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
-
-		const iziToastDefaultOptions = {
-			title: title,
-			message: message,
-			onClosing: function () {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-
-		}
-
-		for (const property in iziToastDefaultOptions) {
-			const defaultValue = iziToastDefaultOptions[property]
-			options[property] = defaultValue
-		}
-
-		if (typeof options.position !== 'string') {
-			options.position = 'topCenter'
-		}
-
-		iziToast[typeMessage](options)
 	} else {
-		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		//Sin Fomantic: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
 		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
 			if (typeof onClose == 'function') {
 				onClose()
@@ -151,13 +111,12 @@ function warningMessage(title, message, onClose = null, options) {
 }
 
 /**
- * @description Mensaje modal con tipo info (toast fomantic|alert|izitoast)
+ * @description Mensaje modal con tipo info (el toast de Fomantic; sin él, confirmAction)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
- * @see https://marcelodolza.github.io/iziToast
  */
 function infoMessage(title, message, onClose = null, options) {
 
@@ -185,36 +144,17 @@ function infoMessage(title, message, onClose = null, options) {
 		}
 
 		if (typeof options.position !== 'string') {
-			options.position = 'top center'
+			options.position = 'top right'
+		}
+		//El tema pinta el aviso claro y distingue su tipo por el icono: sin él, los cuatro salen iguales.
+		if (typeof options.showIcon === 'undefined') {
+			options.showIcon = true
 		}
 
 		$('body').toast(options)
 
-	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
-
-		const iziToastDefaultOptions = {
-			title: title,
-			message: message,
-			onClosing: function () {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-
-		}
-
-		for (const property in iziToastDefaultOptions) {
-			const defaultValue = iziToastDefaultOptions[property]
-			options[property] = defaultValue
-		}
-
-		if (typeof options.position !== 'string') {
-			options.position = 'topCenter'
-		}
-
-		iziToast[typeMessage](options)
 	} else {
-		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		//Sin Fomantic: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
 		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
 			if (typeof onClose == 'function') {
 				onClose()
@@ -225,13 +165,12 @@ function infoMessage(title, message, onClose = null, options) {
 }
 
 /**
- * @description Mensaje modal con tipo error (toast fomantic|alert|izitoast)
+ * @description Mensaje modal con tipo error (el toast de Fomantic; sin él, confirmAction)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
- * @see https://marcelodolza.github.io/iziToast
  */
 function errorMessage(title, message, onClose = null, options) {
 
@@ -259,36 +198,17 @@ function errorMessage(title, message, onClose = null, options) {
 		}
 
 		if (typeof options.position !== 'string') {
-			options.position = 'top center'
+			options.position = 'top right'
+		}
+		//El tema pinta el aviso claro y distingue su tipo por el icono: sin él, los cuatro salen iguales.
+		if (typeof options.showIcon === 'undefined') {
+			options.showIcon = true
 		}
 
 		$('body').toast(options)
 
-	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
-
-		const iziToastDefaultOptions = {
-			title: title,
-			message: message,
-			onClosing: function () {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-
-		}
-
-		for (const property in iziToastDefaultOptions) {
-			const defaultValue = iziToastDefaultOptions[property]
-			options[property] = defaultValue
-		}
-
-		if (typeof options.position !== 'string') {
-			options.position = 'topCenter'
-		}
-
-		iziToast[typeMessage](options)
 	} else {
-		//Ni Fomantic ni iziToast: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
+		//Sin Fomantic: la confirmación de un solo botón; sin ella, la consola. Nunca window.alert.
 		confirmAction({ title: title, message: message, confirmText: typeof _i18n == 'function' ? _i18n('confirmAction', 'Aceptar') : 'Aceptar', cancelText: null }).then(() => {
 			if (typeof onClose == 'function') {
 				onClose()
@@ -860,6 +780,23 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 			configDataTable[option] = options[option]
 		}
 
+		//Una copia: `language` viene de pcsphpGlobals y lo comparten todas las tablas de la página.
+		const searchPlaceholder = (table instanceof $ ? table : $(table)).attr('data-search-placeholder')
+		if (typeof searchPlaceholder == 'string' && searchPlaceholder.length > 0) {
+			configDataTable.language = Object.assign({}, configDataTable.language, { searchPlaceholder: searchPlaceholder })
+		}
+
+		//«Exportar listado actual»: el CSV de la página que se ve, sin la columna de acciones (`order="false"`).
+		if (options.exportButton !== false && typeof configDataTable.layout == 'undefined' && typeof configDataTable.dom == 'undefined') {
+			configDataTable.layout = { topEnd: ['buttons', 'search'] }
+			configDataTable.buttons = [{
+				extend: 'csvHtml5',
+				text: _i18n('datatables', 'exportListing'),
+				className: 'basic',
+				exportOptions: { columns: (index, data, node) => node.getAttribute('order') !== 'false' },
+			}]
+		}
+
 		if (typeof options.ajax !== 'undefined') {
 
 			configDataTable.ajax = options.ajax
@@ -950,19 +887,20 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 
 				let columns = []
 
-				for (let i in settings.aoColumns) {
+				//Con la API pública: las propiedades internas de settings cambian de nombre entre versiones de DataTables.
+				thisDataTable.columns().every(function (i) {
 
-					let columnSettings = settings.aoColumns[i]
+					let columnInit = this.init()
 					columns.push({
 						index: i,
-						name: columnSettings.name,
-						visible: columnSettings.bVisible,
-						orderable: columnSettings.orderable,
-						searchable: columnSettings.searchable,
-						htmlElement: columnSettings.nTh,
+						name: columnInit.name,
+						visible: this.visible(),
+						orderable: columnInit.orderable,
+						searchable: columnInit.searchable,
+						htmlElement: this.header(),
 					})
 
-				}
+				})
 
 				//Creación del contenedor de fichas y otras manipulaciones de html
 				let wrapper = container.find('.component-wrapper')
@@ -1070,6 +1008,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 			},
 		}
 
+		options.exportButton = false
 		options.dom = optionsDataTables.dom
 		options.initComplete = optionsDataTables.initComplete
 		options.preDrawCallback = optionsDataTables.preDrawCallback
@@ -1716,13 +1655,25 @@ function simplify(numerator, denominator) {
 }
 
 /**
+ * Lo que tapa por arriba la barra sticky del panel (header.bar del shell): al desplazar a un destino se le resta. Se lee
+ * del DOM, no se escribe, porque mide 64 px y 56 en el móvil, y baja con la franja de suplantación. Sin shell, 0.
+ *
+ * @returns {number}
+ */
+function pcsStickyTopOffset() {
+	//El borde de abajo y no la altura: con la franja de suplantación la barra se pega 36 px más abajo.
+	const bar = document.querySelector('.ui.shell > .main > .bar')
+	return bar !== null ? Math.max(0, bar.getBoundingClientRect().bottom) : 0
+}
+
+/**
  * @param {$} element
  * @returns {Boolean}
  */
 function visibleInViewPort(element) {
 	const elementTop = element.offset().top
 	const elementBottom = elementTop + element.outerHeight()
-	const viewportTop = $(window).scrollTop()
+	const viewportTop = $(window).scrollTop() + pcsStickyTopOffset()
 	const viewportBottom = viewportTop + $(window).height()
 	return elementBottom > viewportTop && elementTop < viewportBottom
 }

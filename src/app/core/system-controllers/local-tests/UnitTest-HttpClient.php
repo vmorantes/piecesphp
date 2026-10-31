@@ -2,6 +2,7 @@
 
 //El cliente HTTP contra el sumidero LOCAL del ADR 0041, no contra internet. Lo que no necesita
 //salir —cómo se construye la petición— vive en `core/http-client-request-build`. T130, 311.
+//@areas nucleo
 
 use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\Terminal\CliActions;

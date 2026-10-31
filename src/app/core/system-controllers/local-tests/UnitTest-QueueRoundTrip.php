@@ -2,6 +2,7 @@
 
 //La cola de ida y vuelta (D15, 11): lo encola dispatch(), lo toma claim() y lo procesa processJob(), con trabajos suyos
 //y sin tocar los demás pendientes. Y un fallo sin reintento no se reintenta (G10, 2). Crea filas zz- y las borra.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;

@@ -2,11 +2,17 @@
 
 //Registros › Tokens y códigos: permisos, jerarquía, acciones solo de root y sin suplantar, historia. Crea y borra
 //cinco usuarios zz-agente-fr-tokens-*; envía UN correo a zz-prueba-fr-tokens-*@mailinator.com (ADR 0011).
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
+//@areas src/app/classes/SystemApprovals/
 
 use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
@@ -20,8 +26,6 @@ use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/tokens-tab', function ($args) {
@@ -220,8 +224,9 @@ CliActions::make('unit-tests:core/tokens-tab', function ($args) {
         $check($deGralMostrar['status'] === 403 && !str_contains($deGralMostrar['body'], $codigo), 'c1 el administrador general no puede Mostrar: 403', (string) $deGralMostrar['status']);
         $check($pedir($ruta('user-tokens-invalidate', ['kind' => TokenEvents::KIND_ONE_USE_CODE, 'id' => $idOTP]), $jwtGral, [])['status'] === 403, 'c2 ni Invalidar: 403');
         $check($pedir($ruta('user-tokens-reset-two-factor', ['id' => $idTOTP]), $jwtGral, [])['status'] === 403, 'c3 ni Restablecer: 403');
-        $suplantando = $pedir($mostrar, $jwtRoot, [], [CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME => $root2]);
-        $check($suplantando['status'] === 403 && !str_contains($suplantando['body'], $codigo), 'c4 root actuando como otro root: 403 y sin el valor', (string) $suplantando['status']);
+        //Actuar como otro root ya no es posible (P204 a): lo que se mide es que empezarlo se rechaza sin soltar el valor.
+        $suplantando = $pedir($ruta('user-impersonation-start'), $jwtRoot, ['userID' => $root2]);
+        $check($suplantando['status'] === 400 && !str_contains($suplantando['body'], $codigo), 'c4 empezar a actuar como otro root: 400 y sin el valor', (string) $suplantando['status']);
         $check(OTPHandler::checkValidityOTP($codigo, "{$prefijo}-general-a") && OTPSecretsUsersMapper::isEnabled2FA($genB), 'c5 y nada cambió: el código vale y el doble factor sigue');
 
         //─── d · Mostrar, Invalidar, Restablecer ──────────────────────────────────────────────────

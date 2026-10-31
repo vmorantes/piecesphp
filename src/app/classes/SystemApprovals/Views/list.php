@@ -14,11 +14,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="limiter-content">
 
         <?php
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
 
         <form class="ui form segment filters" data-approvals-filters>
@@ -38,7 +38,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </select>
                 </div>
             </div>
-            <button type="submit" class="ui button brand-color"><i class="filter icon"></i><?= __($langGroup, 'Filtrar'); ?></button>
+            <button type="submit" class="ui primary button"><i class="filter icon"></i><?= __($langGroup, 'Filtrar'); ?></button>
             <button type="reset" class="ui basic button"><?= __($langGroup, 'Limpiar'); ?></button>
         </form>
 
@@ -46,9 +46,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             <div class="mirror-scroll-x-content"></div>
         </div>
 
-        <div class="container-standard-table all">
+        <div class="ui fluid card container-standard-table all">
 
-            <table url="<?= $processTableLink; ?>" class="ui basic table content-table all">
+            <table url="<?= $processTableLink; ?>" class="ui selectable very basic table content-table all">
 
                 <thead>
 

@@ -30,59 +30,45 @@ $assets['semantic']['plugins'] = [
 ];
 
 /**
- * DataTables v2.3.7
- * https://datatables.net/
- * Con algunos plugins:
- * RowReorder v1.5.1
- * ColReorder v2.1.2
- * Responsive v3.0.8
+ * El tema del panel (P245 b; ADR 0069): un fork de Fomantic UI 2.9.4 con el tema piecesphp, copiado por bin/traer-tema
+ * (su ORIGEN.json dice de dónde salió). Lo cargan el panel y el acceso; la zona pública sigue con 'semantic'.
  */
-$assets['datatables']['css'] = [
-    'statics/plugins/datatables/dataTables.semanticui.min.css',
+$assets['fomantic-piecesphp']['css'] = [
+    'statics/plugins/fomantic-piecesphp/semantic.min.css',
+    //Los íconos SVG del tema (`<i class="panel svg icon">`), después de semantic.min.css como pide su README. Sus url()
+    //son relativas a la hoja.
+    'statics/plugins/fomantic-piecesphp/themes/piecesphp/assets/svg-icons/svg-icons.css',
+    //Los íconos SVG propios del proyecto, tras los del tema: statics/svg-icons/ (la hoja de diseño, «Íconos SVG»).
+    'statics/svg-icons/svg-icons.css',
 ];
+$assets['fomantic-piecesphp']['js'] = [
+    'statics/plugins/fomantic-piecesphp/semantic.min.js',
+];
+$assets['fomantic-piecesphp']['plugins'] = [
+];
+
+/**
+ * DataTables v3.1.4 (https://datatables.net/), con su integración de Fomantic (datatables.net-se 3.1.4) y Responsive v4.1.1
+ * con la suya. Licencia MIT. Copiados de https://cdn.datatables.net/ con la versión exacta en la dirección.
+ */
+//Sin hojas: las tablas las dibuja el tema (su componente «datatables», en semantic.min.css).
+$assets['datatables']['css'] = [];
 $assets['datatables']['js'] = [
-    'statics/plugins/datatables/jquery.dataTables.min.js',
+    'statics/plugins/datatables/dataTables.min.js',
     'statics/plugins/datatables/dataTables.semanticui.min.js',
+    //Buttons 4.0.0: «Exportar listado actual» (solo CSV, sin JSZip).
+    'statics/plugins/datatables/dataTables.buttons.min.js',
+    'statics/plugins/datatables/buttons.semanticui.min.js',
 ];
 $assets['datatables']['plugins'] = [
-    'rowReorder' => [
-        'css' => [
-            'statics/plugins/datatables/rowReorder.semanticui.min.css',
-        ],
-        'js' => [
-            'statics/plugins/datatables/dataTables.rowReorder.min.js',
-        ],
-    ],
-    'colReorder' => [
-        'css' => [
-            'statics/plugins/datatables/colReorder.semanticui.min.css',
-        ],
-        'js' => [
-            'statics/plugins/datatables/dataTables.colReorder.min.js',
-        ],
-    ],
+    //Solo si un listado lo pide: import_datatables(['responsive']).
     'responsive' => [
-        'css' => [
-            'statics/plugins/datatables/responsive.semanticui.min.css',
-        ],
         'js' => [
             'statics/plugins/datatables/dataTables.responsive.min.js',
             'statics/plugins/datatables/responsive.semanticui.min.js',
         ],
     ],
 ];
-
-/**
- * NProgress
- * https://github.com/rstacruz/nprogress
- */
-$assets['nprogress']['css'] = [
-    'statics/plugins/nprogress/nprogress.css',
-];
-$assets['nprogress']['js'] = [
-    'statics/plugins/nprogress/nprogress.js',
-];
-$assets['nprogress']['plugins'] = [];
 
 /**
  * CropperJS v1.6.1
@@ -116,6 +102,11 @@ $assets['cropper']['plugins'] = [
             'statics/core/own-plugins/SimpleCropperAdapter.js',
         ],
     ],
+    'contentImageEditor' => [
+        'js' => [
+            'statics/core/own-plugins/ContentImageEditor.js',
+        ],
+    ],
 ];
 
 /**
@@ -139,50 +130,7 @@ $assets['sweetalert2']['js'] = [
 $assets['sweetalert2']['plugins'] = [];
 
 /**
- * JQueryMask
- * https://igorescobar.github.io/jQuery-Mask-Plugin/docs.html
- */
-$assets['jquerymask']['js'] = [
-    'statics/plugins/jquery-mask/jquery.mask.min.js',
-];
-$assets['jquerymask']['plugins'] = [];
-
-/**
- * QuillJS
- * https://quilljs.com/
- */
-$assets['quilljs']['js'] = [
-    'statics/plugins/quilljs/quill.min.js',
-];
-$assets['quilljs']['css'] = [
-    'statics/plugins/quilljs/quill.snow.css',
-];
-/**
- * @link project://src/statics/core/own-plugins/QuillAdapterComponent.js
- */
-$assets['quilljs']['plugins'] = [
-    'imageResize' => [
-        'js' => [
-            'statics/plugins/quilljs/plugins/image-resize.min.js',
-        ],
-    ],
-    'videoResize' => [
-        'js' => [
-            'statics/plugins/quilljs/plugins/video-resize.min.js',
-        ],
-    ],
-    'adapter' => [
-        'js' => [
-            'statics/plugins/tidy-html5/tidy.js',
-            'statics/core/own-plugins/QuillAdapterComponent.js',
-        ],
-    ],
-];
-
-/**
- * CKEditor5
- * 27.1.0
- * https://ckeditor.com/ckeditor-5/
+ * CKEditor5 27.1.0 (https://ckeditor.com/ckeditor-5/).
  */
 //No hay 'es' porque este CKEditor trae el español DENTRO de `ckeditor.js` —el bundle abre con
 //`t["es"]` y su diccionario—. Estos son los idiomas ADICIONALES. Ver T147.
@@ -204,12 +152,6 @@ $assets['ckeditor']['asModules'] = [];
  * @link project://src/statics/core/own-plugins/sass/rich-editor-adapter.scss
  */
 $assets['ckeditor']['plugins'] = [
-    'ckfinder' => [
-        'css' => [],
-        'js' => [
-            'statics/plugins/ckeditor/ckfinder/ckfinder.js',
-        ],
-    ],
     'adapter' => [
         'css' => [
             'statics/core/own-plugins/css/rich-editor-adapter.css',
@@ -229,33 +171,8 @@ $assets['defaultRichEditor']['css'] = $assets[$defaultRichEditorName]['css'];
 $assets['defaultRichEditor']['asModules'] = array_key_exists('asModules', $assets[$defaultRichEditorName]) ? $assets[$defaultRichEditorName]['asModules'] : [];
 $assets['defaultRichEditor']['plugins'] = $assets[$defaultRichEditorName]['plugins'];
 
+//Simple Upload Placeholder: el comportamiento de un formulario de subida de archivos con vista previa.
 /**
- * iziToast v1.4
- * http://izitoast.marcelodolce.com
- */
-$assets['izitoast']['js'] = [
-    'statics/plugins/izitoast/iziToast.min.js',
-];
-$assets['izitoast']['css'] = [
-    'statics/plugins/izitoast/iziToast.min.css',
-];
-$assets['izitoast']['plugins'] = [];
-
-/**
- * Spectrum Colorpicker v1.8.0
- * https://github.com/bgrins/spectrum
- */
-$assets['spectrum']['js'] = [
-    'statics/plugins/spectrum/spectrum.js',
-];
-$assets['spectrum']['css'] = [
-    'statics/plugins/spectrum/spectrum.css',
-];
-$assets['spectrum']['plugins'] = [];
-
-/**
- * Simple Upload Placeholder
- * Manejador de comportamiento genérico de un formulario de subida de archivos con vista previa
  * @link project://src/statics/core/own-plugins/SimpleUploadPlaceholder.js
  * @link project://src/statics/core/own-plugins/sass/simple-upload-placeholder.scss
  */
@@ -268,20 +185,7 @@ $assets['simple_upload_placeholder']['css'] = [
 $assets['simple_upload_placeholder']['plugins'] = [];
 
 /**
- * fancyBox v3.5.7
- * https://fancyapps.com/fancybox/3/
- */
-$assets['fancybox3']['js'] = [
-    'statics/plugins/fancybox/jquery.fancybox.min.js',
-];
-$assets['fancybox3']['css'] = [
-    'statics/plugins/fancybox/jquery.fancybox.min.css',
-];
-$assets['fancybox3']['plugins'] = [];
-
-/**
- * ElFinder
- * https://github.com/Studio-42/elFinder
+ * ElFinder (https://github.com/Studio-42/elFinder).
  * @link project://src/statics/plugins/elfinder/js/elfinder.full.js
  */
 $assets['elfinder']['js'] = [
@@ -296,9 +200,7 @@ $assets['elfinder']['css'] = [
 $assets['elfinder']['plugins'] = [];
 
 /**
- * JQuery UI
- * Sin accordion
- * https://github.com/Studio-42/elFinder
+ * jQuery UI, una compilación sin el widget accordion.
  */
 $assets['jqueryui']['js'] = [
     'statics/plugins/jquery-ui/jquery-ui.min.js',
@@ -309,8 +211,7 @@ $assets['jqueryui']['css'] = [
 $assets['jqueryui']['plugins'] = [];
 
 /**
- * GoogleCaptchaV3Adapter
- * https://developers.google.com/recaptcha/docs/v3
+ * GoogleCaptchaV3Adapter (https://developers.google.com/recaptcha/docs/v3).
  * @link project://src/statics/core/own-plugins/GoogleCaptchaV3Adapter.js
  */
 $assets['google_captcha_v3_adapter']['css'] = [
@@ -348,34 +249,6 @@ $assets['mapbox']['plugins'] = [
 ];
 
 /**
- * OpenLayers
- * https://openlayers.org/
- */
-$assets['openlayers']['css'] = [
-    'statics/plugins/open-layers/6.14.1/ol.css',
-    'statics/plugins/open-layers/ol-ext/3.2.26/ol-ext.min.css',
-];
-$assets['openlayers']['js'] = [
-    'statics/plugins/open-layers/6.14.1/ol.js',
-    'statics/plugins/open-layers/ol-ext/3.2.26/ol-ext.min.js',
-];
-/**
- * @link project://src/statics/core/own-plugins/MapBoxAdapter.js
- */
-$assets['openlayers']['plugins'] = [
-    'openLayersAdapter' => [
-        'css' => [],
-        'js' => [
-            'statics/core/own-plugins/OpenLayersAdapter/olImports.js',
-            'statics/core/own-plugins/OpenLayersAdapter/GeoJSONVectorLayer.js',
-            'statics/core/own-plugins/OpenLayersAdapter/WMSTileLayer.js',
-            'statics/core/own-plugins/OpenLayersAdapter/MapManager.js',
-            'statics/core/own-plugins/OpenLayersAdapter/OpenLayersAdapter.js',
-        ],
-    ],
-];
-
-/**
  * QRCodeJS
  * https://github.com/davidshimjs/qrcodejs
  */
@@ -397,8 +270,7 @@ $assets['indexeDB_adapter']['js'] = [
 $assets['indexeDB_adapter']['plugins'] = [];
 
 /**
- * LocationsAdapter
- * Adaptador para el módulo integrado de ubicación
+ * LocationsAdapter: el adaptador del módulo integrado de ubicaciones.
  * @link project://src/statics/core/own-plugins/LocationsAdapter.js
  */
 $assets['locations']['css'] = [];
@@ -426,10 +298,8 @@ $assets['jquery']['js'] = [
 $assets['jquery']['plugins'] = [];
 
 /**
- * Utilidades de la aplicación como:
- * Manejo de string, de fechas, etc...
- * Configuraciones de los plugins anteriores tales como:
- * Traducción de mensajes, configuración de valores por defecto, etc...
+ * Utilidades de la aplicación (cadenas, fechas…) y la configuración de los plugins anteriores (traducciones, valores por
+ * defecto). Formato del catálogo: source-docs/project/docs/piecesphp/content/configuration.md, «assets.php».
  */
 $uiPcsStyle = 'statics/core/css/ui-pcs.css';
 $assets['app_libraries']['css'] = [

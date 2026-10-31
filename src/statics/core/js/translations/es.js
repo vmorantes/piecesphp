@@ -25,6 +25,7 @@ var PCSPHP_TRANSLATIONS_ES = {
 		pass_not_match: 'Error: las contraseñas deben coincidir.',
 		unexpected_error: 'Ha ocurrido un error inesperado.',
 		unexpected_error_try_later: 'Ha ocurrido un error inesperado, intente más tarde.',
+		server_connection_error: 'Ha ocurrido un error al conectar con el servidor, intente más tarde.',
 		name_is_required: 'El nombre es requerido.',
 		name_should_be_string: 'El nombre debe ser un string.',
 		lastname_is_required: 'El apellido es requerido.',
@@ -79,6 +80,9 @@ var PCSPHP_TRANSLATIONS_ES = {
 			maxCount: '{name} Debe tener {ruleValue} o menos elecciones'
 		}
 	},
+	semantic_dropdown: {
+		noResults: 'Sin resultados.',
+	},
 	semantic_search: {
 		error: {
 			logging: "Error en el registro de depuración, saliendo.",
@@ -95,6 +99,7 @@ var PCSPHP_TRANSLATIONS_ES = {
 		},
 	},
 	datatables: {
+		exportListing: 'Exportar listado actual',
 		lang: {
 			"decimal": "",
 			"emptyTable": "No hay información disponible",
@@ -103,16 +108,16 @@ var PCSPHP_TRANSLATIONS_ES = {
 			"infoFiltered": "(filtrado desde _MAX_ elementos)",
 			"infoPostFix": "",
 			"thousands": ".",
-			"lengthMenu": "Ver _MENU_ elementos",
+			"lengthMenu": "_MENU_ registros por página",
 			"loadingRecords": "Cargando...",
 			"processing": "Procesando...",
-			"search": "",
+			"search": "Buscar:",
 			"searchPlaceholder": "Buscar...",
 			"zeroRecords": "No se encontraron coincidencias",
 			"paginate": {
 				"first": "Primero",
 				"last": "Último",
-				"next": "Próximo",
+				"next": "Siguiente",
 				"previous": "Anterior"
 			},
 			"aria": {
@@ -136,6 +141,32 @@ var PCSPHP_TRANSLATIONS_ES = {
 		'Ha ocurrido un error desconocido.': 'Ha ocurrido un error desconocido.',
 		'¡Listo!': '¡Listo!',
 	},
+	colorpicker: {
+		panel: 'Selector de color',
+		trigger: 'Elegir color',
+		area: 'Saturación y brillo',
+		areaRole: 'deslizador en dos dimensiones',
+		areaValue: 'saturación {saturation}%, brillo {brightness}%, {value}',
+		hue: 'Tono',
+		hueValue: '{hue} grados, {value}',
+		alpha: 'Opacidad',
+		input: 'Valor del color',
+		initial: 'Color anterior: {value}. Púlsalo para recuperarlo',
+		current: 'Color nuevo: {value}',
+		format: 'Formato del color',
+		channels: 'Canales del color',
+		red: 'Rojo',
+		green: 'Verde',
+		blue: 'Azul',
+		palette: 'Paleta',
+		swatch: 'Usar {value}',
+		recents: 'Recientes',
+		clear: 'Sin color',
+		more: 'Más colores',
+		less: 'Menos colores',
+		accept: 'Aceptar',
+		cancel: 'Cancelar',
+	},
 	confirmAction: {
 		'Confirmación': 'Confirmación',
 		'¿Está seguro de realizar esta acción?': '¿Está seguro de realizar esta acción?',
@@ -150,15 +181,14 @@ var PCSPHP_TRANSLATIONS_ES = {
 		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Por favor, verifique los datos de ingreso y vuelva a intentar.',
 		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.',
 		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.',
-		'CONTRASEÑA_INVÁLIDA': '<span class="text">Contraseña</span> <span class="mark">inválida</span>',
+		'USUARIO_O_CONTRASEÑA_INCORRECTOS': '<span class="text">Usuario o contraseña</span> <span class="mark">incorrectos</span>',
 		'USUARIO_BLOQUEADO': '<span class="text">Usuario</span> <span class="mark">bloqueado</span>',
-		'USUARIO_INEXISTENTE': '<span class="text">El usuario</span> <span class="mark">%r</span> <span class="text">no existe</span>',
 		'ERROR_AL_INGRESAR': 'Error al ingresar',
+		'Demasiados intentos': 'Demasiados intentos',
 	},
 	userProblems: {
 		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
 		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
-		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.': 'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.',
 		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.': 'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.',
 		'Ingrese con su usuario y la nueva contraseña': 'Ingrese con su usuario y la nueva contraseña',
 		'Las contraseñas no coinciden': 'Las contraseñas no coinciden',
@@ -173,5 +203,28 @@ var PCSPHP_TRANSLATIONS_ES = {
 	},
 	public: {
 		'Ver más': 'Ver más',
-	}
+	},
+	adminOptions: {
+		'Sin resultados para “%r”': 'Sin resultados para “%r”',
+	},
+	formErrors: {
+		'Revisa los campos marcados': 'Revisa los campos marcados',
+	},
+	liveReadings: {
+		'año': 'año',
+		'años': 'años',
+		'mes': 'mes',
+		'meses': 'meses',
+		'semana': 'semana',
+		'semanas': 'semanas',
+		'día': 'día',
+		'días': 'días',
+		'hora': 'hora',
+		'horas': 'horas',
+		'minuto': 'minuto',
+		'minutos': 'minutos',
+		'segundo': 'segundo',
+		'segundos': 'segundos',
+		'y': 'y',
+	},
 }

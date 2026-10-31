@@ -2,6 +2,7 @@
 
 //P63: el código público de una organización. `ORG` + 7 dígitos al azar, único, inmutable, y reservado para la global.
 //Todo dentro de una transacción de la conexión compartida que se revierte: la base queda como estaba.
+//@areas src/app/classes/Organizations/
 
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;

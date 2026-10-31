@@ -1491,7 +1491,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		deactivateElement(mainButtons)
 
 		$([document.documentElement, document.body]).animate({
-			scrollTop: previewContainer.offset().top
+			scrollTop: previewContainer.offset().top - (typeof pcsStickyTopOffset === 'function' ? pcsStickyTopOffset() : 0)
 		}, 500)
 	}
 

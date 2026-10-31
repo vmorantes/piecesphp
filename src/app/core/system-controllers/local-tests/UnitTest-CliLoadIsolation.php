@@ -2,6 +2,7 @@
 
 //Una suite o una tarea rota no tumba bin/cli: LoadFailures la salta, la anota y las puertas la cuentan como fallo.
 //Los archivos rotos viven en un temporal propio, nunca en local-tests/ ni en Tasks/.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\LoadFailures;

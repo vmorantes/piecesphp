@@ -7,7 +7,6 @@
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -15,6 +14,8 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
@@ -246,7 +247,19 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         }
 
         //b5-b7: bloqueados de verdad, por el login, desde activo, pendiente y rechazado (los tres que entran).
-        $bloquearPorLogin = function (string $sufijo) use ($pedir, $login, $prefijo): void {
+        //Sin fallos desde loginAccountDistinctIPs IP no hay bloqueo, y sin borrar los propios el freno por IP corta al siguiente.
+        $bloquearPorLogin = function (string $sufijo) use ($pedir, $login, $prefijo, $database): void {
+            $database->exec('DELETE FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ' . $database->quote("{$prefijo}%"));
+            $direccionPrevia = $_SERVER['REMOTE_ADDR'] ?? null;
+            for ($i = 1; $i < OTPRateLimiter::config()['loginAccountDistinctIPs']; $i++) {
+                $_SERVER['REMOTE_ADDR'] = "198.51.100.{$i}";
+                LoginAttemptsModel::addLogin(null, "{$prefijo}-{$sufijo}", false, 'zz-sembrado', [OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_PASSWORD]);
+            }
+            if ($direccionPrevia === null) {
+                unset($_SERVER['REMOTE_ADDR']);
+            } else {
+                $_SERVER['REMOTE_ADDR'] = $direccionPrevia;
+            }
             for ($i = 0; $i < UsersController::MAX_ATTEMPTS; $i++) {
                 //RETORNO-IGNORADO: lo que se mide es el estado en la base.
                 $pedir($login, null, ['username' => "{$prefijo}-{$sufijo}", 'password' => 'zz-incorrecta']);
@@ -360,7 +373,8 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         $id = $crearUsuario('ar-pendiente-canario', UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::TYPE_USER_GENERAL, $global);
         $ponerFila($id, SystemApprovalsMapper::STATUS_PENDING);
         $http = $navegar($id);
-        $check($estadoDe($id) === UsersModel::STATUS_USER_ACTIVE && $estadoAprobacion($id) === SystemApprovalsMapper::STATUS_APPROVED, "b{$n} CANARIO: con la fila pendiente, navegar sí lo aprueba", 'estado ' . $estadoDe($id) . ', fila ' . var_export($estadoAprobacion($id), true));
+        //Navegar solo lee (P220 b): la organización aprobada aprueba al crear, no en la petición.
+        $check($estadoDe($id) === UsersModel::STATUS_USER_APPROVED_PENDING && $estadoAprobacion($id) === SystemApprovalsMapper::STATUS_PENDING, "b{$n} CANARIO: con la fila pendiente, navegar (HTTP {$http}) no lo aprueba: sigue pendiente, con la fila pendiente", 'estado ' . $estadoDe($id) . ', fila ' . var_export($estadoAprobacion($id), true));
         $n++;
 
         //Pedir el código: a quien no está bloqueado no se le crea ni se le envía, y la respuesta es la misma.
@@ -375,9 +389,14 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         $n++;
         $check(is_array($datos) && ($datos['send_mail'] ?? null) === true && ($datos['error'] ?? null) === UserProblemsController::NO_ERROR, "b{$n} y la respuesta es la de un envío: no dice si está bloqueado", mb_substr($r['body'], 0, 200));
         $n++;
+        $delActivo = $datos;
         $r = $pedir($pedirCodigo, null, ['username' => "{$prefijo}-no-existe", 'type' => UserProblemsController::TYPE_USER_BLOCKED]);
         $datos = json_decode($r['body'], true);
-        $check(is_array($datos) && ($datos['error'] ?? null) === 'USER_NO_EXISTS', "b{$n} CANARIO: la ruta responde y valida (un usuario que no existe)", mb_substr($r['body'], 0, 200));
+        $check(is_array($datos) && $datos === $delActivo, "b{$n} un usuario que no existe recibe la misma respuesta (P201)", mb_substr($r['body'], 0, 200));
+        $n++;
+        $r = $pedir($pedirCodigo, null, ['username' => "{$prefijo}-pc-activo", 'type' => 'zz-tipo-que-no-existe']);
+        $datos = json_decode($r['body'], true);
+        $check(is_array($datos) && ($datos['error'] ?? null) === UserProblemsController::UNEXPECTED_ACTION, "b{$n} CANARIO: la ruta responde y valida (un tipo que no existe)", mb_substr($r['body'], 0, 200));
 
         //──── [c] Aprobar y rechazar una organización ────────────────────────────────────────
         echoTerminal('');
@@ -438,7 +457,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         foreach ($tras as $accion => $esperados) {
             $sembrar();
             $accion === 'aprobar'
-                ? OrganizationApprovalHandler::onApproved(new OrganizationMapper($orgAprobar))
+             ? OrganizationApprovalHandler::onApproved(new OrganizationMapper($orgAprobar))
                 : OrganizationApprovalHandler::onRejected(new OrganizationMapper($orgAprobar));
             $medido = [];
             foreach ($miembros as $sufijo => $id) {
@@ -811,11 +830,11 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
         $quedan = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaProblemas}` WHERE email LIKE " . $database->quote("{$prefijo}%") . ' OR email LIKE ' . $database->quote('zz-prueba-estados-%@mailinator.com'))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaSolicitudes}` WHERE email LIKE " . $database->quote("{$prefijo}%") . ' OR email LIKE ' . $database->quote('zz-prueba-estados-%@mailinator.com'))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaCorreo}` WHERE recipients LIKE " . $database->quote($buzonesPrueba))->fetchColumn();
+         + (int) $database->query('SELECT COUNT(*) FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaProblemas}` WHERE email LIKE " . $database->quote("{$prefijo}%") . ' OR email LIKE ' . $database->quote('zz-prueba-estados-%@mailinator.com'))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaSolicitudes}` WHERE email LIKE " . $database->quote("{$prefijo}%") . ' OR email LIKE ' . $database->quote('zz-prueba-estados-%@mailinator.com'))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaCorreo}` WHERE recipients LIKE " . $database->quote($buzonesPrueba))->fetchColumn();
         $check($quedan === 0, 'z1 no queda ningún usuario, organización, intento de acceso código, solicitud ni registro de correo de la prueba', "quedan {$quedan}");
     }
 

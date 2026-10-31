@@ -29,12 +29,12 @@ $secondaryActions = ($currentUserIsAdmin || (int) $currentUser->type === UsersMo
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-            'secondaryActions' => $secondaryActions,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
         <div class="profile-content">

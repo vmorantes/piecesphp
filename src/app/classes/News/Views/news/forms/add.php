@@ -20,11 +20,11 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial news" data-content-form>
@@ -119,12 +119,12 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
             </div>
 
             <?php
-            //La barra fija (§2.3). El atributo `save` es el que busca add-form.js.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'saveAttributes' => ['save' => ''],
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
-            ]);
+                //La barra fija (§2.3). El atributo `save` es el que busca add-form.js.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'saveAttributes' => ['save' => ''],
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
+                ]);
             ?>
 
         </form>

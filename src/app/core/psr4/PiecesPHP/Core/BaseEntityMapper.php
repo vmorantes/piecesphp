@@ -5,9 +5,9 @@
  */
 namespace PiecesPHP\Core;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use ReflectionMethod;
 use SystemApprovals\Mappers\SystemApprovalsMapper;

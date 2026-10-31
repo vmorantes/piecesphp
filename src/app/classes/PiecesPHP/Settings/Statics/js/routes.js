@@ -1,49 +1,26 @@
-/// <reference path="../../js/helpers.js" />
+/// <reference path="../../../../../../statics/core/js/configurations.js" />
 window.addEventListener('load', () => {
 
-	const view = document.querySelector('[data-routes-view]')
-	if (view === null) {
+	const table = document.querySelector('[data-routes-table]')
+	if (table === null) {
 		return
 	}
-	const search = view.querySelector('[data-routes-search]')
-	const empty = view.querySelector('[data-routes-empty]')
-	const accordion = view.querySelector('[data-routes-accordion]')
-	const groups = Array.from(accordion.querySelectorAll('[data-routes-group]')).map((title) => {
-		const content = title.nextElementSibling
-		return {
-			title,
-			content,
-			rows: Array.from(content.querySelectorAll('tr[data-search]')).map((row) => ({
-				row,
-				text: (row.getAttribute('data-search') || '').toLowerCase(),
-			})),
-		}
-	})
-
-	$(accordion).accordion({ exclusive: false })
-
-	const filter = () => {
-		const query = search.value.trim().toLowerCase()
-		let matches = 0
-		for (const group of groups) {
-			let groupMatches = 0
-			for (const entry of group.rows) {
-				const visible = query === '' || entry.text.includes(query)
-				entry.row.style.display = visible ? '' : 'none'
-				if (visible) {
-					groupMatches++
-				}
-			}
-			matches += groupMatches
-			//Sin texto, todo cerrado como al entrar; con texto, abierto lo que tiene alguna fila.
-			const open = query !== '' && groupMatches > 0
-			group.title.style.display = groupMatches > 0 ? '' : 'none'
-			group.title.classList.toggle('active', open)
-			group.content.classList.toggle('active', open)
-		}
-		empty.hidden = matches > 0
-	}
-
-	search.addEventListener('input', filter)
+	//La quinta columna (Módulo) no se ve, pero se busca en ella: buscar un módulo filtra sus rutas.
+	$(table).DataTable(Object.assign({}, pcsphpGlobals.configDataTables, {
+		pageLength: 10,
+		responsive: false,
+		autoWidth: false,
+		order: [[4, 'asc'], [0, 'asc']],
+		columns: [
+			{ width: '24%' },
+			{ width: '22%' },
+			{ width: '26%' },
+			{ width: '28%' },
+			{ visible: false },
+		],
+		language: Object.assign({}, pcsphpGlobals.configDataTables.language, {
+			searchPlaceholder: table.getAttribute('data-search-placeholder') || '',
+		}),
+	}))
 
 })

@@ -1,6 +1,6 @@
 /// <reference path="../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
 var Documents = {}
 
@@ -14,14 +14,9 @@ Documents.configDocumentForm = function (onSuccess = null, ignoreRedirection = f
 
 	configFomanticDropdown('.ui.dropdown') //Debe inciarse antes de genericFormHandler para la validación
 
-	const documentImage = new CropperAdapterComponent({
-		containerSelector: '[document-image-main]',
-		minWidth: 300,
-		outputWidth: 300,
-		cropperOptions: {
-			aspectRatio: 1 / 1,
-		},
-	})
+	//La tarjeta de imagen: lo aplicado en el editor se envía al guardar.
+	let documentImage = null
+	new ContentImageEditor().onApply('document-image', (file) => documentImage = file)
 
 	const documentContainer = $(`[document]`)
 	const document = new SimpleUploadPlaceholder({
@@ -49,26 +44,11 @@ Documents.configDocumentForm = function (onSuccess = null, ignoreRedirection = f
 		onSuccess: typeof onSuccess == 'function' ? onSuccess : () => { },
 		onSetFormData: function (formData) {
 
-			if (isEdit) {
-				formData.set('documentImage', documentImage.getFile(null, null, null, null, true))
-			} else {
-				formData.set('documentImage', documentImage.getFile())
+			if (documentImage !== null) {
+				formData.set('documentImage', documentImage)
 			}
 
 			return formData
-		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
 		},
 		ignoreRedirection: ignoreRedirection,
 		ignoreReload: ignoreReload,

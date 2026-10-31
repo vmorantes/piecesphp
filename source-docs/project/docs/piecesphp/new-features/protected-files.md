@@ -124,9 +124,79 @@ bin/cli statics-protect-migrate --revert   # vuelta atrás
 
 ## Servidores
 
-- **Apache**, con o sin nginx delante (HestiaCP): no hace falta nada más.
+- **Apache solo:** no hace falta nada más.
+- **nginx delante de Apache** (HestiaCP, Plesk y otros paneles): ver «Lo que puede ejecutar código», abajo.
 - **nginx sin Apache:** añade una regla que niegue `\.protected$` y que pase a PHP lo que no
-  existe.
+  existe, y la de «Lo que puede ejecutar código».
+
+### Lo que puede ejecutar código: SVG, HTML y XML subidos
+
+Un `.svg` puede llevar un `<script>`, y un `.html` o un `.xml` también. Si alguien sube uno y otra persona lo abre
+directamente, ese código se ejecuta en el dominio del panel, con la sesión de quien lo abre. Por eso el framework sirve
+los archivos de **subidas** con estas extensiones (`ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS`: `svg`, `svgz`,
+`html`, `htm`, `xhtml`, `xml`, `xsl`, `xslt`) con `Content-Security-Policy: sandbox`, que le prohíbe al navegador
+ejecutar nada, y los que no son imagen además con `Content-Disposition: attachment` (se descargan). Un SVG se sigue
+viendo como imagen. Lo hace por las dos vías:
+
+- **Lo privado** lo sirve PHP (`ServerStatics`), y lleva las cabeceras con cualquier servidor. Por PHP salen dos
+  políticas CSP, la `sandbox` y la general del sitio: el navegador aplica las dos.
+- **Lo público** lo sirve el servidor web directamente, y las cabeceras las pone el `.htaccess` de
+  `statics/uploads/`, que escribe el subsistema en cada arranque. **nginx no lee `.htaccess`**: si nginx sirve esas
+  extensiones por su cuenta, lo público sale **sin** las cabeceras.
+
+**Qué hacer con nginx delante de Apache.** La mayoría de los paneles tienen una lista de extensiones que nginx sirve él
+mismo sin pasar por Apache. **Quita de esa lista** `svg`, `svgz`, `html`, `htm`, `xhtml`, `xml`, `xsl` y `xslt`; lo
+demás (imágenes, `css`, `js`, fuentes, comprimidos) puede quedarse. Así esos archivos los sirve Apache, con el
+`.htaccess`. El coste: cada SVG del sitio, también los del propio framework, pasa por Apache (un estático por Apache
+tarda del orden de medio milisegundo; medido en local, SIN VERIFICAR en cada servidor).
+
+- **HestiaCP:** en la edición del dominio web, el campo «Proxy Extensions» (dónde está en el menú cambia con la
+  versión del panel). La lista que trae, por ejemplo:
+
+  ```text
+  jpg, jpeg, gif, png, ico, svg, css, zip, tgz, gz, rar, bz2, doc, xls, exe, pdf, ppt, txt, odt, ods, odp, odf, tar,
+  wav, bmp, rtf, js, mp3, avi, mpeg, flv, html, htm
+  ```
+
+  queda así:
+
+  ```text
+  jpg, jpeg, gif, png, ico, css, zip, tgz, gz, rar, bz2, doc, xls, exe, pdf, ppt, txt, odt, ods, odp, odf, tar,
+  wav, bmp, rtf, js, mp3, avi, mpeg, flv
+  ```
+
+- **Otros paneles y nginx a mano:** busca el `location` de estáticos (suele ser
+  `location ~* \.(jpg|jpeg|gif|png|svg|css|js|…)$`) y quita de él esas extensiones.
+
+**La alternativa de coste cero**, para quien quiera que nginx lo siga sirviendo todo: dejar la lista como está y poner
+en nginx las mismas cabeceras, solo para las subidas (ajusta la ruta a la de tu instalación):
+
+```nginx
+location ~* /statics/uploads/.*\.(svg|svgz)$ {
+    add_header Content-Security-Policy "sandbox" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    try_files $uri @fallback;
+}
+location ~* /statics/uploads/.*\.(html|htm|xhtml|xml|xsl|xslt)$ {
+    add_header Content-Security-Policy "sandbox" always;
+    add_header Content-Disposition "attachment" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    try_files $uri @fallback;
+}
+```
+
+- **El `try_files $uri @fallback` es imprescindible.** Un archivo privado se pide por su nombre público
+  (`…/foo.svg`), pero en disco es `foo.svg.protected`: nginx no lo encuentra, y sin `try_files` respondería 404 en vez
+  de pasárselo a Apache y a PHP, que comprueban el acceso y lo sirven ya con las cabeceras. Todo SVG, HTML o XML
+  privado dejaría de verse. `@fallback` es el nombre que usa HestiaCP para su `location` que pasa a Apache; con nginx a
+  mano, pon el tuyo (el que pase a Apache o a PHP). SIN VERIFICAR el nombre en cada versión de HestiaCP.
+- **Va antes del `location` de estáticos**, porque nginx usa el primer `location` de expresión regular que casa.
+- **Un `add_header` dentro de un `location` anula los `add_header` del nivel `server`** para ese `location`: si tu
+  servidor pone ahí otras cabeceras de seguridad, repítelas en estos dos bloques.
+- Va en la configuración propia del dominio (en HestiaCP, una plantilla o un archivo `nginx.conf_*` del dominio: SIN
+  VERIFICAR la ruta exacta en cada versión del panel).
+- **Sin probar en un nginx real**: en esta máquina no hay nginx. Si eliges esta forma, pide un archivo SVG público y
+  uno privado y mira las cabeceras antes de darla por buena.
 
 Los archivos subidos desde el editor enriquecido (FileManager/elFinder) no se pueden renombrar ni
 borrar desde el panel si llevan el sufijo.

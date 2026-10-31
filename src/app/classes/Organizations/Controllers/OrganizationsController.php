@@ -6,22 +6,22 @@
 
 namespace Organizations\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\Exceptions\SafeException;
-use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
-use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use Organizations\OrganizationsLang;
 use Organizations\OrganizationsRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\FormUploadHandler;
+use PiecesPHP\Core\Forms\FormUploadRejectedException;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -38,7 +38,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * OrganizationsController.
@@ -83,6 +83,20 @@ class OrganizationsController extends AdminPanelController
     const BASE_JS_DIR = 'js/organizations';
     const BASE_CSS_DIR = 'css';
     const UPLOAD_DIR = 'organizations';
+    //Sin SVG ni HTML: se sirven con su tipo y sin descarga forzada, y quien los abre ejecuta su script con su sesión.
+    const RUT_ALLOWED_TYPES = [
+        FileValidator::TYPE_JPG,
+        FileValidator::TYPE_JPEG,
+        FileValidator::TYPE_PNG,
+        FileValidator::TYPE_WEBP,
+        FileValidator::TYPE_PDF,
+    ];
+    const LOGO_ALLOWED_TYPES = [
+        FileValidator::TYPE_JPG,
+        FileValidator::TYPE_JPEG,
+        FileValidator::TYPE_PNG,
+        FileValidator::TYPE_WEBP,
+    ];
     const LANG_GROUP = OrganizationsLang::LANG_GROUP;
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
@@ -122,6 +136,7 @@ class OrganizationsController extends AdminPanelController
         remove_imported_asset('locations');
         import_locations([], false, true);
         import_cropper();
+        import_simple_upload_placeholder();
         set_custom_assets([
             OrganizationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
         ], 'js');
@@ -192,6 +207,7 @@ class OrganizationsController extends AdminPanelController
             remove_imported_asset('locations');
             import_locations([], false, true);
             import_cropper();
+            import_simple_upload_placeholder();
             set_custom_assets([
                 OrganizationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
                 OrganizationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
@@ -212,7 +228,12 @@ class OrganizationsController extends AdminPanelController
             }
             $optionsActionLines = array_to_html_options($actionLinesOptions, $escapedActionLines, true);
             $optionsEsal = array_to_html_options(OrganizationMapper::esalOptionsForSelect(), $element->esal);
-            $optionsUsersAdministrators = array_to_html_options(array_map('escape_html', UsersModel::allOrganizationUsersCanBeAdminForSelect($element->id)), $element->administrator instanceof UsersModel ? $element->administrator->id : $element->administrator);
+            $administratorID = $element->administrator instanceof UsersModel ? $element->administrator->id : $element->administrator;
+            $optionsUsersAdministratorsBase = UsersModel::allOrganizationUsersCanBeAdminForSelect($element->id);
+            //Un encargado que ya no sale entre las opciones (Eliminado) dejaría el campo obligatorio vacío y la organización sin
+            //poder guardarse: el campo deja de ser obligatorio y, vacío, el guardado conserva el encargado.
+            $administratorMissing = $administratorID !== null && !array_key_exists((string) $administratorID, $optionsUsersAdministratorsBase);
+            $optionsUsersAdministrators = array_to_html_options(array_map('escape_html', $optionsUsersAdministratorsBase), $administratorID);
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
@@ -234,6 +255,7 @@ class OrganizationsController extends AdminPanelController
             $data['optionsActionLines'] = $optionsActionLines;
             $data['optionsEsal'] = $optionsEsal;
             $data['optionsUsersAdministrators'] = $optionsUsersAdministrators;
+            $data['administratorMissing'] = $administratorMissing;
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
@@ -335,7 +357,7 @@ class OrganizationsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -870,15 +892,15 @@ class OrganizationsController extends AdminPanelController
                         }
 
                         if ($rutSetted !== null) {
-                            $rut = self::handlerUpload('rut', '', $rutSetted);
+                            $rut = self::handlerUpload('rut', $mapper->folder, $rutSetted, self::RUT_ALLOWED_TYPES);
                         } else {
-                            $rut = self::handlerUpload('rut', $mapper->folder, null);
+                            $rut = self::handlerUpload('rut', $mapper->folder, null, self::RUT_ALLOWED_TYPES);
                         }
 
                         if ($logoSetted !== null) {
-                            $logo = self::handlerUpload('logo', '', $logoSetted);
+                            $logo = self::handlerUpload('logo', $mapper->folder, $logoSetted, self::LOGO_ALLOWED_TYPES);
                         } else {
-                            $logo = self::handlerUpload('logo', $mapper->folder, null);
+                            $logo = self::handlerUpload('logo', $mapper->folder, null, self::LOGO_ALLOWED_TYPES);
                         }
 
                         if (mb_strlen($rut) > 0) {
@@ -912,7 +934,7 @@ class OrganizationsController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -932,7 +954,7 @@ class OrganizationsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -1012,8 +1034,8 @@ class OrganizationsController extends AdminPanelController
 
         //Por la API no hay $_FILES y nunca los habrá: ahí la cadena vacía es correcta. Por eso el RUT
         //solo se exige cuando el llamador pasa `requiredRutLabel`, y solo lo pasa el formulario del panel.
-        $rut = self::handlerUpload('rut', $mapper->folder);
-        $logo = self::handlerUpload('logo', $mapper->folder);
+        $rut = self::handlerUpload('rut', $mapper->folder, null, self::RUT_ALLOWED_TYPES);
+        $logo = self::handlerUpload('logo', $mapper->folder, null, self::LOGO_ALLOWED_TYPES);
 
         $requiredRutLabel = $values['requiredRutLabel'] ?? null;
         if (is_string($requiredRutLabel) && mb_strlen(trim($rut)) < 1) {
@@ -1041,7 +1063,7 @@ class OrganizationsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -1295,8 +1317,6 @@ class OrganizationsController extends AdminPanelController
             $whereString = trim(implode(' ', $where));
         }
 
-
-
         $selectFields = OrganizationMapper::fieldsToSelect();
 
         $columnsOrder = [
@@ -1465,7 +1485,8 @@ class OrganizationsController extends AdminPanelController
 
         $parser = function ($element) {
             $element = OrganizationMapper::objectToMapper($element);
-            return $element;
+            //Va a una respuesta JSON: el mapper entero publicaría el esquema de la tabla (jsonSerialize() del paquete).
+            return $element !== null ? array_diff_key($element->jsonSerialize(), array_flip(['table', 'primaryKey', 'foreingsKeys', 'fields'])) : null;
         };
         $each = !$jsonExtractExists ? function ($element) {
             $mapper = OrganizationMapper::objectToMapper($element);
@@ -1627,87 +1648,13 @@ class OrganizationsController extends AdminPanelController
      */
     protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
     {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ANY,
-            ];
+        try {
+            return FormUploadHandler::forModule(self::UPLOAD_DIR, FormUploadHandler::MODE_PRIVATE)
+                ->upload($nameOnFiles, $folder, $currentRoute, $allowedTypes ?? [FileValidator::TYPE_ANY], $setNameByInput, $name);
+        } catch (FormUploadRejectedException $e) {
+            //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
+            throw new SafeException($e->getMessage());
         }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name ??= 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new OrganizationsController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                    $name = safe_upload_name($name);
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
-                    [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-
-                if ($valid) {
-
-                    //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
-                    //lleva el sufijo. Si no se puede mover, no hay ruta y la subida falla.
-                    $information = $handler->getFileInformation();
-                    $url = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], $uploadDirPath, $name, pathinfo((string) $information['name'], \PATHINFO_EXTENSION));
-
-                    if ($url !== '') {
-
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
-                        if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($url)) {
-                            unlink($oldFile);
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
     }
 
     /**

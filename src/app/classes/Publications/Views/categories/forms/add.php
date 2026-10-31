@@ -1,6 +1,5 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\Core\Config;
 /**
  * @var string $langGroup
  * @var string $backLink
@@ -11,26 +10,22 @@ $allowedManyLangs = count($langs) > 1;
 ?>
 <section class="module-view-container">
 
-    <div class="breadcrumb">
-        <?= $breadcrumbs ?>
-    </div>
-
     <div class="limiter-content">
 
-        <div class="section-title">
-            <div class="title"><?= $title ?></div>
-            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
-            <div class="description"><?= $description; ?></div>
-            <?php endif; ?>
-        </div>
+        <?php
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1).
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
+        ?>
 
-        <br>
+        <form method='POST' action="<?= $action; ?>" class="ui form initial publications-categories" data-content-form>
 
-        <div class="container-standard-form">
+            <div class="container-standard-form">
 
-            <form method='POST' action="<?= $action; ?>" class="ui form publications-categories">
-
-                <div class="field required" style="<?= $allowedManyLangs ? '' : 'display:none;'; ?>">
+                <div class="field required"<?= $allowedManyLangs ? '' : ' hidden'; ?>>
                     <label><?= __('lang', 'Idioma principal'); ?></label>
                     <select class="ui dropdown search" name="baseLang" required>
                         <?= $langsOptions; ?>
@@ -44,13 +39,17 @@ $allowedManyLangs = count($langs) > 1;
                     <input required type="text" name="name" maxlength="300" placeholder=" ">
                 </div>
 
-                <div class="field">
-                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+            </div>
 
-            </form>
+            <?php
+                //La barra al final del formulario (§2.3).
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
+                ]);
+            ?>
 
-        </div>
+        </form>
 
     </div>
 

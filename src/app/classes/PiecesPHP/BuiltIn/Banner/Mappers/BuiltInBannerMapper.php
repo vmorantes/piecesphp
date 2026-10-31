@@ -6,7 +6,6 @@
 
 namespace PiecesPHP\BuiltIn\Banner\Mappers;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
@@ -14,6 +13,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * BuiltInBannerMapper.
@@ -113,7 +113,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -267,7 +267,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
     public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -279,7 +279,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
     public function startDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->startDate instanceof \DateTime  ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
+        $formated = $this->startDate instanceof \DateTime ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -291,7 +291,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
     public function endDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->endDate instanceof \DateTime  ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
+        $formated = $this->endDate instanceof \DateTime ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -824,7 +824,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
                     //Sin langData el banner no tiene traducciones: un objeto vacío, no un mapper null que tumbaba sus
                     //listados con un 500, también el público.
                     if ($value instanceof \stdClass && !property_exists($value, 'langData')) {

@@ -71,23 +71,6 @@ window.addEventListener('load', function () {
 			onSetFormData: function (formData) {
 				return formData
 			},
-			onInvalidEvent: function (event) {
-
-				let element = event.target
-				let validationMessage = element.validationMessage
-				let jElement = $(element)
-				let field = jElement.closest('.field')
-				let nameOnLabel = field.find('label').text().trim()
-				if (field.length == 0) {
-					field = jElement.closest('.attach-placeholder')
-					nameOnLabel = field.find('>label >.text >.header >.title').text()
-				}
-
-				errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-				event.preventDefault()
-
-			}
 		})
 
 		//Botones de guardado
@@ -188,7 +171,7 @@ window.addEventListener('load', function () {
 				.configurateWhitForm(
 					controlsMapBox,
 					{
-						//El centro por omisión es una opción de Integraciones; si no llega, el de reserva del adaptador.
+						//El centro por omisión es una opción de Configuración › Sistema; si no llega, el de reserva del adaptador.
 						defaultLongitude: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.longitude : null,
 						defaultLatitude: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.latitude : null,
 						ignoreDefaultCss: true,

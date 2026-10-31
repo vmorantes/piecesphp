@@ -22,45 +22,45 @@ use PiecesPHP\Core\BaseEntityMapper;
  */
 class TicketsLogModel extends BaseEntityMapper
 {
-	protected $fields = [
-		'id' => [
-			'type' => 'int',
-			'primary_key' => true,
-		],
-		'name' => [
-			'type' => 'varchar',
-			'null' => true,
-		],
-		'email' => [
-			'type' => 'varchar',
-			'null' => true,
-		],
-		'message' => [
-			'type' => 'varchar',
-			'null' => true,
-		],
-		'type' => [
-			'type' => 'varchar',
-			'null' => true,
-		],
-		'information' => [
-			'type' => 'json',
-			'null' => true,
-		],
-		'created' => [
-			'type' => 'datetime',
-		],
-	];
-	protected $table = 'pcsphp_tickets_log';
+    protected $fields = [
+        'id' => [
+            'type' => 'int',
+            'primary_key' => true,
+        ],
+        'name' => [
+            'type' => 'varchar',
+            'null' => true,
+        ],
+        'email' => [
+            'type' => 'varchar',
+            'null' => true,
+        ],
+        'message' => [
+            'type' => 'varchar',
+            'null' => true,
+        ],
+        'type' => [
+            'type' => 'varchar',
+            'null' => true,
+        ],
+        'information' => [
+            'type' => 'json',
+            'null' => true,
+        ],
+        'created' => [
+            'type' => 'datetime',
+        ],
+    ];
+    protected $table = 'pcsphp_tickets_log';
 
-	/**
-	 * __construct
-	 *
-	 * @param integer $id
-	 * @return static
-	 */
-	public function __construct(?int $id = null)
-	{
-		parent::__construct($id);
-	}
+    /**
+     * __construct
+     *
+     * @param integer $id
+     * @return static
+     */
+    public function __construct(?int $id = null)
+    {
+        parent::__construct($id);
+    }
 }

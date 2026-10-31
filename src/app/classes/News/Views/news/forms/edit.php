@@ -27,11 +27,11 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial news" data-content-form>
@@ -128,16 +128,16 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
             </div>
 
             <?php
-            //La barra fija (§2.3): edit-form.js busca `[save]`; Eliminar es `button` y delete-config.js lo intercepta en el clic.
-            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
-            if ($allowDelete) {
-                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-news-button' => '', 'data-route' => $deleteRoute]];
-            }
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'saveAttributes' => ['save' => ''],
-                'secondaryActions' => $secondaryActions,
-            ]);
+                //La barra fija (§2.3): edit-form.js busca `[save]`; Eliminar es `button` y delete-config.js lo intercepta en el clic.
+                $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+                if ($allowDelete) {
+                    $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-news-button' => '', 'data-route' => $deleteRoute]];
+                }
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'saveAttributes' => ['save' => ''],
+                    'secondaryActions' => $secondaryActions,
+                ]);
             ?>
 
         </form>

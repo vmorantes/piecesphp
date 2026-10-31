@@ -12,11 +12,11 @@ $items = isset($items) && is_array($items) ? $items : [];
 <div class="chart-data">
     <?php foreach ($items as $item): ?>
     <?php
-    $level = in_array($item['level'] ?? 'primary', ['primary', 'secondary'], true) ? $item['level'] ?? 'primary' : 'primary';
-    $color = isset($item['color']) && is_string($item['color']) && preg_match('/^(#[0-9a-fA-F]{3,8}|var\(--[a-z0-9-]+\))$/', $item['color']) === 1 ? $item['color'] : null;
-    $valueModifiers = array_values(array_intersect(['neutral', 'right', 'text-black'], $item['valueModifiers'] ?? []));
-    $stack = ($item['stack'] ?? false) === true;
-    $initial = isset($item['initial']) && is_string($item['initial']) ? $item['initial'] : '0';
+        $level = in_array($item['level'] ?? 'primary', ['primary', 'secondary'], true) ? $item['level'] ?? 'primary' : 'primary';
+        $color = isset($item['color']) && is_string($item['color']) && preg_match('/^(#[0-9a-fA-F]{3,8}|var\(--[a-z0-9-]+\))$/', $item['color']) === 1 ? $item['color'] : null;
+        $valueModifiers = array_values(array_intersect(['neutral', 'right', 'text-black'], $item['valueModifiers'] ?? []));
+        $stack = ($item['stack'] ?? false) === true;
+        $initial = isset($item['initial']) && is_string($item['initial']) ? $item['initial'] : '0';
     ?>
     <div class="item<?= $stack ? ' stack' : ''; ?> <?= $level; ?>"<?= $color !== null ? ' style="--custom-color: ' . escape_html($color) . ';"' : ''; ?>>
         <?php if ($stack): ?>

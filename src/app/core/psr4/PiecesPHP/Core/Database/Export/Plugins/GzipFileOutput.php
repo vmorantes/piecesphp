@@ -1,12 +1,11 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
 use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
 
 /**
  * Class GzipFileOutput
- * 
+ *
  * Plugin para exportar a un archivo comprimido GZIP.
  */
 class GzipFileOutput implements OutputPluginInterface

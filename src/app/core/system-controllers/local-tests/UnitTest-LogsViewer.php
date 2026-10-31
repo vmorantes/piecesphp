@@ -2,8 +2,11 @@
 
 //La vista «Registros»: pestañas por permiso, 403, la referencia de un error y el escapado.
 //Crea dos usuarios zz-agente-logs-* y un rotado olds/error.log.zz-logs-viewer-*.json, y los borra.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Logs/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
@@ -14,6 +17,7 @@ use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use PiecesPHP\UserSystem\Controllers\UserSessionsController;
 use PiecesPHP\UserSystem\Controllers\UserTokensController;

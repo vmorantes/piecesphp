@@ -2,6 +2,7 @@
 
 //El {group} de provide() acaba en un require. Se llama al controlador directamente, sin Apache ni Slim delante: lo que
 //se mide es la defensa del código, no la del servidor (pendientes.md 446).
+//@areas src/app/classes/Publications/
 
 use PiecesPHP\Components\Controllers\ComponentProvider;
 use PiecesPHP\Core\BaseModel;
@@ -36,7 +37,7 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
     //Devuelve 'NOT_FOUND', o el cuerpo si provide() respondió. Cualquier otra excepción sale con su clase.
     $pedir = function (string $group, ?ComponentProvider $proveedor = null, ?string &$tipo = null): string {
         $peticion = (new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/components-provider/provide/zz/'), new Headers(), [], [], (new StreamFactory())->createStream('')))
-            //Sin Slim delante no hay RouteContext: con 'route' presente, NotFoundException no lo pide.
+        //Sin Slim delante no hay RouteContext: con 'route' presente, NotFoundException no lo pide.
             ->withAttribute('route', null)
             ->withAttribute('group', $group);
         try {

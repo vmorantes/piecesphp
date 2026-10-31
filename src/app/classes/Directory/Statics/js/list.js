@@ -17,8 +17,8 @@ window.addEventListener('load', function () {
 				drawCallback: function () {
 				},
 				initComplete: function (a, b, c, d) {
-					const thisDataTable = this.DataTable()
-					const container = this.closest('.container-standard-table')
+					const thisDataTable = this.api()
+					const container = $(thisDataTable.table().node()).closest('.container-standard-table')
 					const templates = $(`<div>${container.find('template').get(0).innerHTML}</div>`)
 					const searchFilters = $(templates.find('search-filters').html())
 					const customSearchContainer = container.find('.custom-search')

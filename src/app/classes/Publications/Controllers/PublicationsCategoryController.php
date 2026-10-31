@@ -7,11 +7,10 @@
 namespace Publications\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -27,13 +26,13 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Exceptions\DuplicateException;
 use Publications\Exceptions\SafeException;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * PublicationsCategoryController.
@@ -118,10 +117,11 @@ class PublicationsCategoryController extends AdminPanelController
 
         $data = [];
         $data['action'] = $action;
+        $data['backLink'] = $backLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['langsOptions'] = $langsOptions;
-        $data['breadcrumbs'] = get_breadcrumbs([
+        $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
             ],
@@ -129,7 +129,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'url' => $backLink,
             ],
             $title,
-        ]);
+        ];
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/add', $data);
@@ -174,11 +174,12 @@ class PublicationsCategoryController extends AdminPanelController
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
+            $data['backLink'] = $backLink;
             $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['title'] = $title;
-            $data['breadcrumbs'] = get_breadcrumbs([
+            $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
                 ],
@@ -186,7 +187,7 @@ class PublicationsCategoryController extends AdminPanelController
                     'url' => $backLink,
                 ],
                 $title,
-            ]);
+            ];
             $data['detailMode'] = $detailMode;
 
             $this->helpController->render('panel/layout/header');
@@ -264,7 +265,7 @@ class PublicationsCategoryController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -438,7 +439,7 @@ class PublicationsCategoryController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -458,7 +459,7 @@ class PublicationsCategoryController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -488,7 +489,7 @@ class PublicationsCategoryController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     if ($value == PublicationCategoryMapper::UNCATEGORIZED_ID || $value == (string) PublicationCategoryMapper::UNCATEGORIZED_ID) {
                         $value = PublicationCategoryMapper::UNCATEGORIZED_ID;

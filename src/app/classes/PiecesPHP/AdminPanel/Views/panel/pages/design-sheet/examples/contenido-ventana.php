@@ -4,7 +4,7 @@ use PiecesPHP\Core\Utilities\Helpers\RowActions;
 //Lo que la abre: vacía (alta) o con valores por `name` (edición), con su acción y su título.
 $values = json_encode(['id' => '1', 'name' => __($langGroup, 'Informes')], \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 ?>
-<button class="ui button brand-color" type="button" data-content-modal="design-sheet-category-modal"><i class="plus icon"></i><?= __($langGroup, 'Nueva categoría'); ?></button>
+<button class="ui primary button" type="button" data-content-modal="design-sheet-category-modal"><i class="plus icon"></i><?= __($langGroup, 'Nueva categoría'); ?></button>
 <?= RowActions::cell(RowActions::action(__($langGroup, 'Editar'), '#', 'edit', [
     'data-content-modal' => 'design-sheet-category-modal',
     'data-content-modal-values' => $values,

@@ -14,6 +14,9 @@ window.addEventListener('load', function () {
 		}
 	}, true)
 
+	//El índice, plegado al entrar; solo se ve plegable a menos de 768 px (design-sheet.scss).
+	$('.design-sheet-index-accordion').accordion()
+
 	//Los enlaces de muestra (`#`) no mueven la página.
 	document.addEventListener('click', function (event) {
 		const link = event.target.closest('[design-sheet-examples] a[href="#"]')

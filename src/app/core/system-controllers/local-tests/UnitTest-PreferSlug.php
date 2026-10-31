@@ -1,6 +1,7 @@
 <?php
 
 //El acuñado del slug: atómico, y la tarea que lo hace de golpe. Ver T64.
+//@areas src/app/classes/News/
 
 use News\Mappers\NewsCategoryMapper;
 use PiecesPHP\Core\BaseModel;

@@ -6,12 +6,12 @@
 
 namespace SystemApprovals\Mappers;
 
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\SystemApprovalsLang;
 use SystemApprovals\Util\SystemApprovalManager;
 
@@ -92,7 +92,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -605,7 +605,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

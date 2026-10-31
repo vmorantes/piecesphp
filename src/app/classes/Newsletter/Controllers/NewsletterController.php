@@ -6,12 +6,12 @@
 
 namespace Newsletter\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
 use Newsletter\NewsletterLang;
 use Newsletter\NewsletterRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -30,8 +30,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * NewsletterController.
@@ -246,7 +246,7 @@ class NewsletterController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -564,7 +564,7 @@ class NewsletterController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },

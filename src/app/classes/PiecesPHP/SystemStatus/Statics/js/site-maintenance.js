@@ -53,8 +53,25 @@ window.addEventListener('load', () => {
 		})
 	}
 
+	//El estado y su efecto se leen junto al interruptor, según lo que se va a guardar.
+	const efecto = formulario.querySelector('[data-site-maintenance-effect]')
+	const pintarEstado = function () {
+		const enciende = interruptor.checked === true
+		efecto.textContent = efecto.getAttribute(enciende ? 'data-text-on' : 'data-text-off')
+		formulario.querySelector('[data-site-maintenance-state="on"]').hidden = !enciende
+		formulario.querySelector('[data-site-maintenance-state="off"]').hidden = enciende
+	}
+
 	selectorRoles.addEventListener('change', enlazar)
 	interruptor.addEventListener('change', enlazar)
+	interruptor.addEventListener('change', pintarEstado)
+	//`reset` avisa antes de devolver los valores: se pinta y se reenlaza en el turno siguiente.
+	formulario.addEventListener('reset', function () {
+		setTimeout(function () {
+			pintarEstado()
+			enlazar()
+		})
+	})
 
 	if (typeof $ === 'function' && typeof $(selectorRoles).dropdown === 'function') {
 		$(selectorRoles).dropdown({
@@ -63,4 +80,5 @@ window.addEventListener('load', () => {
 	}
 
 	enlazar()
+	pintarEstado()
 })

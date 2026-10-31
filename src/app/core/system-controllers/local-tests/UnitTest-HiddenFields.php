@@ -2,6 +2,8 @@
 
 //Los campos de HIDDEN_FIELDS no salen por ninguna vía. Todo en memoria, con mappers sin guardar, salvo [5]: as_mapper
 //solo existe leyendo filas, así que LEE la tabla de usuarios local, no escribe y no imprime ningún valor leído.
+//@areas nucleo
+//@areas src/app/classes/Organizations/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Routing\RequestRoute;

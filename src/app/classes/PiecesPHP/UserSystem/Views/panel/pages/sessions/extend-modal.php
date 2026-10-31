@@ -21,6 +21,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     </div>
     <div class="actions">
         <button type="button" class="ui basic button" data-session-extend-cancel><?= __($langGroup, 'Cancelar'); ?></button>
-        <button type="button" class="ui button brand-color" data-session-extend-confirm><?= __($langGroup, 'Extender'); ?></button>
+        <button type="button" class="ui primary button" data-session-extend-confirm><?= __($langGroup, 'Extender'); ?></button>
     </div>
 </div>

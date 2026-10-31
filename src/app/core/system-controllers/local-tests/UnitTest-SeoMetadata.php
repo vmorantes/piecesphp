@@ -2,8 +2,12 @@
 
 //Los metadatos de la cabecera y el JSON-LD por HTTP, leídos con un analizador de HTML (ADR 0036 y 0037).
 //Crea un principal y dos publicaciones zz-prueba-seo-*, y escribe los campos para compartir; lo devuelve todo como estaba.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/PiecesPHP/Tokens/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -11,6 +15,7 @@ use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Publications\Mappers\PublicationMapper;
@@ -78,7 +83,8 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
     $check($base !== '', 'c1 hay una base con la que pedir');
     //Se resuelven UNA vez: una ruta vacía pediría la portada, y un 200 de la portada no prueba nada (pendientes 272.1).
     $rutas = [
-        'panel' => $ruta('configurations-index'),
+        //El inicio: una pantalla del panel que existe para todos (el índice de Configuración se retiró, ADR 0070).
+        'panel' => $ruta('admin'),
         'seo' => $ruta('configurations-appearance-seo'),
         'acceso' => $ruta('users-form-login'),
         'token' => $ruta('generic-token-view', ['handler' => 'commentary', 'token' => 'zz-selector']),
@@ -410,4 +416,4 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
 
     return $balance();
 
-})->setDescription('Los metadatos y el JSON-LD por HTTP: canónica con ?i18n=, hreflang, og:locale, tarjetas, robots, Article y los campos para compartir.')->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Los metadatos y el JSON-LD por HTTP: canónica con ?i18n=, hreflang, og:locale, tarjetas, robots, Article y los campos para compartir.')->setEffects([CliActions::EFFECT_DATABASE])->register();

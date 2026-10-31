@@ -114,12 +114,15 @@
         ".agents/docs/adr/0063-*",
         ".agents/docs/adr/0064-*",
         ".agents/docs/adr/0065-*",
+        ".agents/docs/adr/0066-*",
+        ".agents/docs/adr/0067-*",
+        ".agents/docs/adr/0068-*",
+        ".agents/docs/adr/0069-*",
+        ".agents/docs/adr/0070-*",
         ".agents/docs/auditorias/*",
         ".agents/estado/AHORA.md",
         ".agents/estado/PO.md",
-        ".agents/estado/tramos/*",
-        ".agents/estado/informe-*",
-        ".agents/estado/propuesta-*"
+        ".agents/estado/tramos/*"
       ]
     }
   }

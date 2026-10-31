@@ -1,8 +1,8 @@
 <?php
 /**
  * La barra de acciones de un formulario (diseño de contenidos, §2.3): al final del formulario, sin fijar, con «Guardar»
- * como principal y las demás como básicas. Va DENTRO del `form`. Su única regla propia, la de una fila en el móvil, está
- * en `_content-screens.scss`. No se apaga.
+ * como principal y LA ÚLTIMA, las peligrosas primero y las demás como básicas. Va DENTRO del `form`, como `.actions`
+ * (la barra de botones del tema), con la clase del framework `form-action-bar`, sin estilo (ADR 0069). No se apaga.
  * El `form` que la lleva nace con `class="ui form initial" data-content-form`: el rojo de lo obligatorio sale solo al
  * intentar guardar (`admin-area/js/main.js`, contentFormsInitial()).
  *
@@ -11,9 +11,8 @@
  *      módulo).
  * @var array<array{text:string,url?:string,type?:string,icon?:string,attributes?:array<string,string>,danger?:bool}> $secondaryActions
  *      Con `url`, un enlace; si no, un botón del `type` que se diga (`button`, `submit` o `reset`; por omisión, `button`).
- *      `danger`, en rojo y a la derecha (eliminar). Los `attributes`, con el filtro de RowActions::attributes(). Con
- *      `icon`, por debajo de 768 px la secundaria se queda solo con su icono: el texto se oculta (sigue en el botón y en
- *      su title y aria-label) para que la barra quepa en una fila.
+ *      `danger`, `ui basic negative` y la primera (eliminar). Los `attributes`, con el filtro de RowActions::attributes().
+ *      Cada secundaria lleva su texto también en `title` y `aria-label`.
  */
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
@@ -25,18 +24,21 @@ $attributesOf = fn (array $action): string => isset($action['attributes']) && is
     ? RowActions::attributes(array_filter($action['attributes'], 'is_string'))
     : '';
 $iconOf = fn (array $action): string => isset($action['icon']) && is_string($action['icon']) && $action['icon'] !== ''
-    ? '<i class="' . escape_html(trim((string) preg_replace('/[^a-z0-9 -]/', '', mb_strtolower($action['icon'])))) . ' icon"></i>'
+    ? '<i class="' . escape_html(trim((string) preg_replace('/[^a-z0-9 -]/', '', mb_strtolower($action['icon'])))) . ' icon" aria-hidden="true"></i>'
     : '';
 $labelOf = fn (array $action): string => ' title="' . escape_html($action['text']) . '" aria-label="' . escape_html($action['text']) . '"';
-$classOf = fn (array $action): string => ($action['danger'] ?? false) === true ? 'ui right floated basic red button' : 'ui basic button';
+$isDanger = fn (array $action): bool => ($action['danger'] ?? false) === true;
+$classOf = fn (array $action): string => $isDanger($action) ? 'ui basic negative button' : 'ui basic button';
+//Las peligrosas primero; el orden entre las de cada clase, el de quien llama.
+$secondaryActions = array_merge(array_values(array_filter($secondaryActions, $isDanger)), array_values(array_filter($secondaryActions, fn (array $action): bool => !$isDanger($action))));
 ?>
-<div class="ui segment form-action-bar">
-    <button class="ui button brand-color" type="submit"<?= $saveAttributes; ?>><?= escape_html($saveText); ?></button>
+<div class="actions form-action-bar">
     <?php foreach ($secondaryActions as $action): ?>
     <?php if (isset($action['url']) && is_string($action['url'])): ?>
-    <a class="<?= $classOf($action); ?>" href="<?= escape_html($action['url']); ?>"<?= $labelOf($action); ?><?= $attributesOf($action); ?>><?= $iconOf($action); ?><span class="form-action-text"><?= escape_html($action['text']); ?></span></a>
+    <a class="<?= $classOf($action); ?>" href="<?= escape_html($action['url']); ?>"<?= $labelOf($action); ?><?= $attributesOf($action); ?>><?= $iconOf($action); ?><?= escape_html($action['text']); ?></a>
     <?php else: ?>
-    <button class="<?= $classOf($action); ?>" type="<?= in_array($action['type'] ?? 'button', ['button', 'submit', 'reset'], true) ? $action['type'] ?? 'button' : 'button'; ?>"<?= $labelOf($action); ?><?= $attributesOf($action); ?>><?= $iconOf($action); ?><span class="form-action-text"><?= escape_html($action['text']); ?></span></button>
+    <button class="<?= $classOf($action); ?>" type="<?= in_array($action['type'] ?? 'button', ['button', 'submit', 'reset'], true) ? $action['type'] ?? 'button' : 'button'; ?>"<?= $labelOf($action); ?><?= $attributesOf($action); ?>><?= $iconOf($action); ?><?= escape_html($action['text']); ?></button>
     <?php endif; ?>
     <?php endforeach; ?>
+    <button class="ui primary button" type="submit"<?= $saveAttributes; ?>><?= escape_html($saveText); ?></button>
 </div>

@@ -61,46 +61,22 @@ window.addEventListener('load', function () {
 		profileForm()
 	})
 
-	let attachmentLogo = null
-	let cropperLogo = null
+	//La tarjeta de imagen: lo aplicado en el editor se envía al guardar.
+	let logo = null
+	new ContentImageEditor().onApply('organization-logo', (file) => logo = file)
 	function profileForm(onlyForm = false) {
 
 		/* Selectores y elementos de interfaz */
 		const formSelector = `.ui.form.my-organization-profile`
-		attachmentLogo = attachmentLogo == null ? new AttachmentPlaceholder($('.attach-placeholder.logo')) : attachmentLogo
-		cropperLogo = cropperLogo == null ? new SimpleCropperAdapter(`[logo-cropper]`, {
-			aspectRatio: 1 / 1,
-			format: 'image/jpeg',
-			quality: 0.8,
-			fillColor: 'white',
-			outputWidth: 400,
-		}) : attachmentLogo
 
 		//Formulario
 		let form = genericFormHandler(formSelector, {
 			onSetFormData: function (formData) {
-				if (cropperLogo.wasChange()) {
-					formData.set('logo', cropperLogo.getFile(null, null, null, null, true))
+				if (logo !== null) {
+					formData.set('logo', logo)
 				}
 				return formData
 			},
-			onInvalidEvent: function (event) {
-
-				let element = event.target
-				let validationMessage = element.validationMessage
-				let jElement = $(element)
-				let field = jElement.closest('.field')
-				let nameOnLabel = field.find('label').text().trim()
-				if (field.length == 0) {
-					field = jElement.closest('.attach-placeholder')
-					nameOnLabel = field.find('>label >.text >.header >.title').text()
-				}
-
-				errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-				event.preventDefault()
-
-			}
 		})
 
 		if (onlyForm) {
@@ -156,19 +132,6 @@ window.addEventListener('load', function () {
 						onSetFormData: function (formData) {
 							return formData
 						},
-						onInvalidEvent: function (event) {
-
-							let element = event.target
-							let validationMessage = element.validationMessage
-							let jElement = $(element)
-							let field = jElement.closest('.field')
-							let nameOnLabel = field.find('label').text().trim()
-
-							errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-							event.preventDefault()
-
-						},
 						confirmation: {
 							title: _i18n(langGroup, 'Confirmación'),
 							message: _i18n(langGroup, '¿Está seguro de cancelar la operación?'),
@@ -179,32 +142,6 @@ window.addEventListener('load', function () {
 					})
 				}
 			}).modal('show')
-		})
-
-		//Adjuntos
-		attachmentLogo.scopeAction(function (instance, elements) {
-
-			const modal = $(`[modal="logo-cropper"]`)
-			let cropperLogoFirstDraw = true
-
-			cropperLogo.onCancel(() => modal.modal('hide'))
-			cropperLogo.onCropped((blobImage, settedImage) => {
-				instance.setFile(blobImage)
-				modal.modal('hide')
-			})
-
-			instance.onClick(function (instance, elements, event) {
-				event.preventDefault()
-				modal.modal({
-					onVisible: function () {
-						if (cropperLogoFirstDraw) {
-							cropperLogo.refresh()
-							cropperLogoFirstDraw = false
-						}
-					},
-				}).modal('show')
-			})
-
 		})
 
 	}
@@ -270,7 +207,7 @@ window.addEventListener('load', function () {
 				.configurateWhitForm(
 					controlsMapBox,
 					{
-						//El centro por omisión es una opción de Integraciones; si no llega, el de reserva del adaptador.
+						//El centro por omisión es una opción de Configuración › Sistema; si no llega, el de reserva del adaptador.
 						defaultLongitude: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.longitude : null,
 						defaultLatitude: pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.latitude : null,
 						ignoreDefaultCss: true,

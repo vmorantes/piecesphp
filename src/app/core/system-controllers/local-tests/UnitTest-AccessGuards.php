@@ -1,12 +1,15 @@
 <?php
 
 //Guardas de acceso: si se rompen EN SILENCIO nadie lo nota. Ver T147 y la LEY 24.
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Roles;
-use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Terminal\CliActions;
 
 $cliTaskName = 'unit-tests';
@@ -174,15 +177,15 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $sinExp !== true && is_object($sinExp),
         'un JWT SIN `exp` hace que check() devuelva el OBJETO del payload, no true',
         'Sale de `isExpire()`, que sin `exp` devuelve el payload; `check()` lo reenvía tal cual. '
-        . 'Es TRUTHY y NO es true: con `!== true` cierra, con `if (!$x)` abriría.'
+            . 'Es TRUTHY y NO es true: con `!== true` cierra, con `if (!$x)` abriría.'
     );
     $check(
         (bool) BaseToken::INVALID_TOKEN_SUPPLIED === true
-        && (bool) BaseToken::EXPIRED_TOKEN === true
-        && (bool) BaseToken::INVALID_USER_LOGGIN === true,
+            && (bool) BaseToken::EXPIRED_TOKEN === true
+            && (bool) BaseToken::INVALID_USER_LOGGIN === true,
         'los TRES códigos de error de check() son TRUTHY',
         'Por eso `SessionToken::isActiveSession()` compara con `!== true`: una REDUNDANCIA ÚTIL, no la última línea. '
-        . 'Medido: cambiarla a `if (!$logged)` NO abre nada, porque el `else` final del método devuelve false igual.'
+            . 'Medido: cambiarla a `if (!$logged)` NO abre nada, porque el `else` final del método devuelve false igual.'
     );
     echoTerminal(' ');
 
@@ -299,7 +302,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             in_array(null, $porNada, true),
             'CONTRATO ACTUAL: un `$type` no contemplado mete NULOS en la lista, y no avisa',
             'La cadena `if ($type == "name") … elseif ($type == "code")` NO tiene `else`, así que el '
-            . '`array_map` devuelve null por cada rol declarado. Obtenido: ' . json_encode($porNada)
+                . '`array_map` devuelve null por cada rol declarado. Obtenido: ' . json_encode($porNada)
         );
         $check(
             $porNada !== $porCodigo,
@@ -338,7 +341,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $sinValidador->validate('cualquier-cosa') === true,
         'CONTRATO ACTUAL: un Parameter SIN validador acepta cualquier valor',
         'El acumulador nace en `true` y solo baja si hay un `validate` invocable. '
-        . 'Quien declare un parámetro sin validador NO está validando nada.'
+            . 'Quien declare un parámetro sin validador NO está validando nada.'
     );
     echoTerminal(' ');
 
@@ -663,12 +666,14 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $callable = new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', 'strlen', 'zz-prueba-bp-ra2');
     $check(is_callable($callable->controller()), 'DISCRIMINANTE: un callable también vale');
 
-    //CONTRATO: `$name == null` es TRUE para la cadena vacía en PHP 8, así que un nombre vacío se vuelve un uniqid().
-    $sinNombre = new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', 'Clase:metodo', '');
-    $nombreGenerado = $sinNombre->name();
-    $check(is_string($nombreGenerado) && $nombreGenerado !== '' && preg_match('/^[0-9a-f]{13}$/', $nombreGenerado) === 1,
-        'CONTRATO: un nombre VACÍO se sustituye en silencio por un uniqid()',
-        'El nombre de la ruta ES el identificador de permiso: con un uniqid, ningún rol lo tiene concedido. Cierra, pero sin avisar.');
+    //CONTRATO (G7-13): el nombre de una ruta ES su permiso; uno vacío lanza en vez de sustituirse por un uniqid() en silencio.
+    $lanzoSinNombre = false;
+    try {
+        new \PiecesPHP\Core\Routing\RouteAdapter('/zz-prueba-bp[/]', 'Clase:metodo', '');
+    } catch (\InvalidArgumentException $e) {
+        $lanzoSinNombre = str_contains($e->getMessage(), '/zz-prueba-bp');
+    }
+    $check($lanzoSinNombre, 'CONTRATO: un nombre VACÍO lanza y nombra la ruta, no se inventa uno');
     echoTerminal(' ');
 
     //──── 16. MenuGroup::isCurrent (#091, tanda B) ──────────────────────────────────────
@@ -885,6 +890,28 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $obtenido = $siguiente->invoke(null, $valor);
         $check($obtenido === null, "RECHAZO: {$nombre}", var_export($obtenido, true));
     }
+    echoTerminal(' ');
+
+    //──── 19c. La misma vuelta con la instalación en una subcarpeta (G18-7) ──────────────
+    echoTerminal('[19c/19] safeNextURL() con la instalación en una subcarpeta: en la terminal la base es «/» y el prefijo no se prueba');
+    //appURL es protegida y Config no tiene escritor: se fuerza por reflexión y se restaura SIEMPRE.
+    $configuracion = (new \ReflectionMethod(\PiecesPHP\Core\Config::class, 'get_instance'))->invoke(null);
+    $appURL = new \ReflectionProperty(\PiecesPHP\Core\Config::class, 'appURL');
+    $appURLAntes = $appURL->getValue($configuracion);
+    try {
+        $appURL->setValue($configuracion, 'https://zz-prueba.test/sub/src/');
+        echoTerminal('      - baseurl() forzada: ' . baseurl());
+        foreach (['una pantalla bajo la subcarpeta' => 'https://zz-prueba.test/sub/src/admin/', 'la base sin su barra final' => 'https://zz-prueba.test/sub/src'] as $nombre => $valor) {
+            $check($siguiente->invoke(null, $valor) === $valor, "DISCRIMINANTE: acepta {$nombre}", $valor);
+        }
+        foreach (['el prefijo sin su barra final' => 'https://zz-prueba.test/sub/srcmalicioso/', 'otra carpeta del mismo sitio' => 'https://zz-prueba.test/sub/otra/'] as $nombre => $valor) {
+            $obtenido = $siguiente->invoke(null, $valor);
+            $check($obtenido === null, "RECHAZO: {$nombre}", var_export($obtenido, true));
+        }
+    } finally {
+        $appURL->setValue($configuracion, $appURLAntes);
+    }
+    $check(baseurl() === $base, 'appURL restaurada: baseurl() vuelve a ser la de esta ejecución', baseurl());
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────

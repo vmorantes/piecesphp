@@ -341,35 +341,51 @@ class FreezeRequest
 
     /** @return string */
     public function getMethod(): string
-    {return $this->method;}
+    {
+        return $this->method;
+    }
 
     /** @return array */
     public function getPost(): array
-    {return $this->post;}
+    {
+        return $this->post;
+    }
 
     /** @return array */
     public function getGet(): array
-    {return $this->get; }
+    {
+        return $this->get;
+    }
 
     /** @return array */
     public function getHeaders(): array
-    {return $this->headers;}
+    {
+        return $this->headers;
+    }
 
     /** @return array */
     public function getFiles(): array
-    {return $this->files;}
+    {
+        return $this->files;
+    }
 
     /** @return array */
     public function getCookies(): array
-    {return $this->cookies;}
+    {
+        return $this->cookies;
+    }
 
     /** @return array */
     public function getSession(): array
-    {return $this->session;}
+    {
+        return $this->session;
+    }
 
     /** @return array */
     public function getCustomData(): array
-    {return $this->customData;}
+    {
+        return $this->customData;
+    }
 
     /**
      * Busca una cabecera específica de forma insensible a mayúsculas/minúsculas.

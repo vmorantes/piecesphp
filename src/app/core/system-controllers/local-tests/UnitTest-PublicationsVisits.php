@@ -1,6 +1,7 @@
 <?php
 
 //Sin base: los mappers son anónimos y la aprobación la fija la prueba. Solo cuenta visita lo que ve el público.
+//@areas src/app/classes/Publications/
 
 use PiecesPHP\Terminal\CliActions;
 use Publications\Controllers\PublicationsPublicController;

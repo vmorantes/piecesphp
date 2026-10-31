@@ -2,6 +2,7 @@
 
 //bin/cli session-name (P158): propone sin escribir, escribe solo con escribir=yes y en el lugar de la línea de la plantilla,
 //rechaza un nombre inválido y, sin la plantilla, no edita a ciegas. Escribe solo sobre COPIAS en un temporal.
+//@areas nucleo
 
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;

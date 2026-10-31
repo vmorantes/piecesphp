@@ -6,10 +6,6 @@
 
 namespace Documents\Mappers;
 
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
-use PiecesPHP\Core\Database\PreferSlugMinter;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Documents\DocumentsLang;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -17,7 +13,11 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * DocumentsMapper.
@@ -45,7 +45,6 @@ class DocumentsMapper extends EntityMapperExtensible
 {
 
     use PreferSlugMinter;
-
 
     /** @var string|null Campo que da nombre: sin él no se acuña slug. */
     const SLUG_NAME_FIELD = 'documentName';
@@ -114,7 +113,7 @@ class DocumentsMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -235,7 +234,7 @@ class DocumentsMapper extends EntityMapperExtensible
     public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -798,7 +797,7 @@ class DocumentsMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
                         if (!property_exists($value, $defaultMetaProperty)) {

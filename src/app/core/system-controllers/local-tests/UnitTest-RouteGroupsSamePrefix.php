@@ -2,6 +2,7 @@
 
 //Dos grupos de rutas con el MISMO prefijo: los dos se registran y ninguna ruta se pierde (P88).
 //Antes se guardaban por prefijo y el segundo grupo desaparecía sin error. No toca la aplicación servida.
+//@areas nucleo
 
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;

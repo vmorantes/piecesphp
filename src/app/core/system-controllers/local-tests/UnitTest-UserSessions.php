@@ -10,18 +10,18 @@ use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\BaseToken;
-use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
-use SystemApprovals\Mappers\SystemApprovalsMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/user-sessions', function ($args) {
 
@@ -401,7 +401,7 @@ CliActions::make('unit-tests:core/user-sessions', function ($args) {
             return (int) $consulta->fetchColumn();
         };
         $quedan = $cuenta("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE ?", ["{$prefijo}%"])
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE ?", ["{$prefijo}%"]);
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE ?", ["{$prefijo}%"]);
         if ($usuarios !== []) {
             $marcas = implode(',', array_fill(0, count($usuarios), '?'));
             $quedan += $cuenta("SELECT COUNT(*) FROM `{$tablaSesiones}` WHERE userID IN ({$marcas})", array_values($usuarios));

@@ -8,5 +8,5 @@
         <label><?= __($langGroup, 'Resumen'); ?></label>
         <textarea name="summary" rows="3"></textarea>
     </div>
-    <button class="ui button brand-color" type="submit"><?= __($langGroup, 'Guardar'); ?></button>
+    <button class="ui primary button" type="submit"><?= __($langGroup, 'Guardar'); ?></button>
 </form>

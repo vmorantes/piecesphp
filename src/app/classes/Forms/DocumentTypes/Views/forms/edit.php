@@ -18,11 +18,11 @@ use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
         <?php if($manyLangs): ?>
@@ -34,7 +34,6 @@ use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
                 </select>
             </div>
         </div>
-        <br>
         <?php endif; ?>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial max-w-800" document-type-form data-content-form>
@@ -52,15 +51,15 @@ use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
             </div>
 
             <?php
-            //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
-            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
-            if ($allowDelete) {
-                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-document-types-button' => '', 'data-route' => $deleteRoute]];
-            }
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => $secondaryActions,
-            ]);
+                //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
+                $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+                if ($allowDelete) {
+                    $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-document-types-button' => '', 'data-route' => $deleteRoute]];
+                }
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => $secondaryActions,
+                ]);
             ?>
 
         </form>

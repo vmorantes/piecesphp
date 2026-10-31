@@ -15,13 +15,13 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {String} [fileManagerBaseURLStatics]
 	 * @property {Function} [onChange]
 	 */
-	adapterOptions;
+	adapterOptions
 
 	//──── Variables ─────────────────────────────────────────────────────────────────────────
 	/**
 	 * @property {RichEditorAdapterComponent}
 	 */
-	let instance = this;
+	let instance = this
 
 	/**
 	 * @property {HTMLElement}
@@ -144,7 +144,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	let toolbarOptions = {}
 
 	/**
-	 * @property {Quill}
+	 * @property {Object}
 	 */
 	let editorInstance = null
 
@@ -183,6 +183,10 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			configs(adapterOptions)
 
 			toolbarOptions = toolbar !== null && typeof toolbar == 'object' && Array.isArray(toolbar.items) ? toolbar : toolbarDefault
+			//Sin URL del explorador (sin permiso o sin el módulo) el botón no se ofrece: abriría un modal vacío.
+			if (fileManagerUIURL.length === 0) {
+				toolbarOptions = Object.assign({}, toolbarOptions, { items: toolbarOptions.items.filter((item) => item !== 'CKFinder') })
+			}
 			component = $(containerSelector)
 			textareaTarget = $(textareaTargetSelector)
 
@@ -308,10 +312,10 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 
 			})
 			.catch(error => {
-				console.error('Oops, something went wrong!');
-				console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:');
-				console.warn('Build id: jphltcuj0rzv-bt20ajtolrmd');
-				console.error(error);
+				console.error('Oops, something went wrong!')
+				console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:')
+				console.warn('Build id: jphltcuj0rzv-bt20ajtolrmd')
+				console.error(error)
 			})
 
 	}
@@ -334,18 +338,19 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			textareaTargetSelector = adapterOptions.textareaTargetSelector
 		}
 
+		//Las URL del explorador las da el servidor (FileManagerRoutes): armarlas aquí perdía el prefijo admin/.
+		const fromServer = (pcsphpGlobals.frontConfigurationsFromBackend || {}).richEditorFileManagerURLs || {}
+
 		if (typeof adapterOptions.fileManagerConfigURL == 'string' && adapterOptions.fileManagerConfigURL.length > 0) {
 			fileManagerConfigURL = adapterOptions.fileManagerConfigURL
 		} else {
-			const relativeAdminPath = pcsphpGlobals.adminURLConfig.url.length > 0 ? `${pcsphpGlobals.adminURLConfig.url}/` : ''
-			fileManagerConfigURL = `${relativeAdminPath}filemanager/rich-editor/configuration/`
+			fileManagerConfigURL = typeof fromServer.configuration == 'string' ? fromServer.configuration : ''
 		}
 
 		if (typeof adapterOptions.fileManagerUIURL == 'string' && adapterOptions.fileManagerUIURL.length > 0) {
 			fileManagerUIURL = adapterOptions.fileManagerUIURL
 		} else {
-			const relativeAdminPath = pcsphpGlobals.adminURLConfig.url.length > 0 ? `${pcsphpGlobals.adminURLConfig.url}/` : ''
-			fileManagerUIURL = `${relativeAdminPath}filemanager/rich-editor/`
+			fileManagerUIURL = typeof fromServer.explorer == 'string' ? fromServer.explorer : ''
 		}
 
 		if (typeof adapterOptions.fileManagerBaseURLStatics == 'string' && adapterOptions.fileManagerBaseURLStatics.length > 0) {

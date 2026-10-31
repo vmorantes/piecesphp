@@ -25,8 +25,8 @@ $alternativesURL = Config::get_config('alternatives_url');
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon')); ?>" type="image/x-icon">
     <?php load_font() ?>
     <?php load_css([
-        'base_url' => "", 
-        'custom_url' => "",
+            'base_url' => "",
+            'custom_url' => "",
     ]) ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'head'); ?>
 </head>

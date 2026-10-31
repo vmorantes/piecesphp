@@ -4,7 +4,6 @@
  */
 namespace PiecesPHP\UserSystem\ORM;
 
-use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
@@ -16,6 +15,7 @@ use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\UserHierarchy;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 
 /**
@@ -172,17 +172,17 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      * @param string $username
      * @param bool $success
      * @param string $message
      * @param array $extraData
      * @return void
      */
-    public static function addLogin(?int $user_id = null, string $username = '', bool $success = false, string $message = '', array $extraData = []): void
+    public static function addLogin(?int $userId = null, string $username = '', bool $success = false, string $message = '', array $extraData = []): void
     {
         $mapper = new LoginAttemptsModel();
-        $mapper->userID = $user_id;
+        $mapper->userID = $userId;
         $mapper->usernameAttempt = $username;
         $mapper->success = $success ? self::SUCCESS_ATTEMPT : self::FAIL_ATTEMPT;
         $mapper->message = $message;
@@ -199,14 +199,14 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      * @return null|\DateTime
      */
-    public static function lastLogin(int $user_id)
+    public static function lastLogin(int $userId)
     {
         $model = (new LoginAttemptsModel())->getModel();
         $model->select()->where([
-            'userID' => $user_id,
+            'userID' => $userId,
             'success' => self::SUCCESS_ATTEMPT,
         ]);
         $model->orderBy('date DESC');
@@ -272,7 +272,9 @@ class LoginAttemptsModel extends BaseEntityMapper
             'request' => $request,
             'on_set_data' => function ($e) use ($success) {
                 $columns = [];
-                $columns[] = $e->success == $success ? '<i class="check circle icon" style="visibility: visible;"></i>' : '<i class="times circle icon"></i>';
+                $columns[] = $e->success == $success
+                    ? \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html(__(LOGIN_REPORT_LANG_GROUP, 'Exitoso'), \PiecesPHP\Core\Utilities\Helpers\StatusLabel::POSITIVE)
+                    : \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html(__(LOGIN_REPORT_LANG_GROUP, 'Fallido'), \PiecesPHP\Core\Utilities\Helpers\StatusLabel::NEGATIVE);
                 //El usuario lo teclea cualquiera sin sesión en el login; el mensaje lo lleva dentro al bloquear.
                 $columns[] = escape_html($e->usernameAttempt);
                 $columns[] = escape_html($e->message);
@@ -308,6 +310,7 @@ class LoginAttemptsModel extends BaseEntityMapper
             OTPRateLimiter::VIA_TWO_FACTOR_STATUS => __(LOGIN_REPORT_LANG_GROUP, 'Consultar el doble factor'),
             OTPRateLimiter::VIA_LOGIN_TOTP => __(LOGIN_REPORT_LANG_GROUP, 'Contraseña y doble factor'),
             OTPRateLimiter::VIA_RECOVERY_CODE => __(LOGIN_REPORT_LANG_GROUP, 'Código de recuperación'),
+            OTPRateLimiter::VIA_LOGIN_PASSWORD => __(LOGIN_REPORT_LANG_GROUP, 'Formulario de acceso'),
         ];
         //Una vía que no está en la lista se enseña tal cual: es un dato del registro, no se esconde.
         $label = is_string($via) ? ($labels[$via] ?? $via) : __(LOGIN_REPORT_LANG_GROUP, 'Formulario de acceso');
@@ -489,10 +492,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         $model = $mapper->getModel();
         $table = $model->getTable();
 
-        $tableUser = UsersModel::TABLE;
-
-        $organizationID = "SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.userID";
-        $userType = "SELECT {$tableUser}.type FROM {$tableUser} WHERE {$tableUser}.id = {$table}.userID";
+        [$organizationID, $userType] = self::userSubqueries();
 
         $fields = [
             "LPAD({$table}.id, GREATEST(5, CHAR_LENGTH({$table}.id)), '0') AS idPadding",
@@ -514,6 +514,21 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
+     * La organización y el tipo del usuario de cada intento, como subconsultas: las comparten el listado y el conteo.
+     *
+     * @return array{0:string,1:string} [organización, tipo]
+     */
+    protected static function userSubqueries(): array
+    {
+        $table = (new LoginAttemptsModel)->getModel()->getTable();
+        $tableUser = UsersModel::TABLE;
+        return [
+            "SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.userID",
+            "SELECT {$tableUser}.type FROM {$tableUser} WHERE {$tableUser}.id = {$table}.userID",
+        ];
+    }
+
+    /**
      * Los alias de la jerarquía (P133) en una consulta sobre la tabla de usuarios.
      *
      * @return string[]
@@ -530,13 +545,14 @@ class LoginAttemptsModel extends BaseEntityMapper
 
     /**
      * @param bool $asMapper
+     * @param object|null $actor Quién mira, para la jerarquía (P133); null, el usuario de la sesión
      *
      * @return static[]|array
      */
-    public static function all(bool $asMapper = false)
+    public static function all(bool $asMapper = false, ?object $actor = null)
     {
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = $actor ?? getLoggedFrameworkUser();
 
         $model = self::model();
         $selectFields = self::fieldsToSelect();
@@ -562,6 +578,57 @@ class LoginAttemptsModel extends BaseEntityMapper
         }
 
         return $result;
+    }
+
+    /**
+     * Las tres cifras del resumen de Accesos sin cargar los intentos: cuenta en SQL por usuario y resultado, y aplica a
+     * cada grupo la misma regla que all() (P133). La regla solo mira usuario, tipo y organización, así que el resultado
+     * es el mismo que contar sobre all().
+     *
+     * @param object|null $actor Quién mira; null, el usuario de la sesión
+     * @return array{total:int,success:int,error:int}
+     */
+    public static function countsBySuccess(?object $actor = null): array
+    {
+        $actor ??= getLoggedFrameworkUser();
+
+        $model = self::model();
+        $table = $model->getTable();
+        [$organizationID, $userType] = self::userSubqueries();
+        $model->select([
+            "{$table}.userID",
+            "({$organizationID}) AS organizationID",
+            "({$userType}) AS userType",
+            "{$table}.success",
+            'COUNT(*) AS amount',
+        ]);
+        $model->groupBy(["{$table}.userID", "{$table}.success", 'organizationID', 'userType']);
+        $model->execute();
+
+        $groups = $model->result();
+        $counts = ['total' => 0, 'success' => 0, 'error' => 0];
+        foreach (is_array($groups) ? $groups : [] as $group) {
+            $visible = UserHierarchy::canSee(
+                $actor,
+                is_numeric($group->userID ?? null) ? (int) $group->userID : null,
+                is_numeric($group->userType ?? null) ? (int) $group->userType : null,
+                is_numeric($group->organizationID ?? null) ? (int) $group->organizationID : null,
+                true
+            );
+            if (!$visible) {
+                continue;
+            }
+            $amount = is_numeric($group->amount ?? null) ? (int) $group->amount : 0;
+            $counts['total'] += $amount;
+            //Como contaba la vista: 1 es exitoso y 0 erróneo.
+            if ($group->success == 1) {
+                $counts['success'] += $amount;
+            } elseif ($group->success == 0) {
+                $counts['error'] += $amount;
+            }
+        }
+
+        return $counts;
     }
 
     /**

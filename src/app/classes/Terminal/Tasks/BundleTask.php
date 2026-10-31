@@ -6,7 +6,6 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
@@ -21,6 +20,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * BundleTask.

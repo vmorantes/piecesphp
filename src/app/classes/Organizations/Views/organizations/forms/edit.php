@@ -8,6 +8,7 @@ use Organizations\Mappers\OrganizationMapper;
  * @var string $backLink
  * @var string $action
  * @var OrganizationMapper $element
+ * @var bool $administratorMissing El encargado actual no está entre las opciones: el campo no es obligatorio.
  */
 $canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
 //La cuenta enlaza con el perfil público de esa organización, y él con ella (PO, 2026-10-10).
@@ -21,13 +22,13 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
     <div class="limiter-content">
 
         <?php
-        //La cabecera del panel (diseno/01-contenidos.md §2.1).
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-            'secondaryActions' => $secondaryActions,
-        ]);
+            //La cabecera del panel (diseno/01-contenidos.md §2.1).
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
         <?php if($manyLangs && false): //De momento, sin multi-idioma ?>
@@ -48,9 +49,7 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                 <input type="hidden" name="id" value="<?= $element->id; ?>">
                 <input type="hidden" name="lang" value="<?= $lang; ?>">
 
-                <div class="section-fields-divider">
-                    <div class="title h6"><?= __($langGroup, 'Datos de la empresa'); ?></div>
-                </div>
+                <?php $this->helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Datos de la empresa')]); ?>
 
                 <div class="two fields">
 
@@ -60,12 +59,10 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                             <label><?= __($langGroup, 'Nombre de la organización'); ?></label>
                             <input required type="text" name="name" maxlength="300" placeholder="" value="<?= escape_html($element->getLangData($lang, 'name', false, '')); ?>">
                         </div>
-                        <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'Sector de actividad'); ?></label>
                             <input required type="text" name="activitySector" value="<?= escape_html($element->getLangData($lang, 'activitySector', false, '')); ?>">
                         </div>
-                        <br>
                         <div class="two fields">
 
                             <div class="field">
@@ -79,7 +76,6 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                             </div>
 
                         </div>
-                        <br>
                         <div class="two fields">
 
                             <div class="field required">
@@ -96,7 +92,6 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                             <input type="hidden" name="longitude" value="<?= $element->longitude; ?>">
 
                         </div>
-                        <br>
                         <div class="two fields">
 
                             <div class="field">
@@ -117,7 +112,6 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                             </div>
 
                         </div>
-                        <br>
                         <div class="two fields">
                             <div class="field">
                                 <label><?= __($langGroup, 'Enlace LinkedIn'); ?></label>
@@ -136,22 +130,18 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                             <label><?= __($langGroup, 'Código'); ?></label>
                             <input type="text" readonly disabled value="<?= htmlspecialchars((string) $element->code, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>">
                         </div>
-                        <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'NIT'); ?></label>
                             <input required type="text" name="nit" placeholder="" value="<?= escape_html($element->getLangData($lang, 'nit', false, '')); ?>">
                         </div>
-                        <br>
                         <div class="field">
                             <label><?= __($langGroup, 'ESAL autorizado por DIAN'); ?></label>
                             <select name="esal" class="ui dropdown search"><?= $optionsEsal; ?></select>
                         </div>
-                        <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'Dirección'); ?></label>
                             <input required type="text" name="address" placeholder="" value="<?= escape_html($element->getLangData($lang, 'address', false, '')); ?>">
                         </div>
-                        <br>
                         <div class="field required">
                             <label><?= __($langGroup, 'Correo de facturación'); ?></label>
                             <input required type="email" name="billingEmail" placeholder="" value="<?= escape_html($element->getLangData($lang, 'billingEmail', false, '')); ?>">
@@ -162,72 +152,53 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
                 </div>
 
                 <?php if($canModify): ?>
-                <br>
-                <div class="section-fields-divider">
-                    <div class="title h6"><?= __($langGroup, 'Contacto de la organización'); ?></div>
-                    <div class="description"><?= __($langGroup, 'Persona designada como punto de contacto principal.'); ?></div>
-                </div>
+                <?php $this->helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Contacto de la organización'), 'description' => __($langGroup, 'Persona designada como punto de contacto principal.')]); ?>
 
-                <div class="field required">
+                <div class="field<?= $administratorMissing ? '' : ' required'; ?>">
                     <label class="organization-hidden-label"><?= __($langGroup, 'Persona encargada'); ?></label>
-                    <select required name="administrator" class="ui dropdown search"><?= $optionsUsersAdministrators; ?></select>
+                    <select<?= $administratorMissing ? '' : ' required'; ?> name="administrator" class="ui dropdown search"><?= $optionsUsersAdministrators; ?></select>
+                    <?php if ($administratorMissing): ?>
+                    <div class="ui small warning message visible"><?= __($langGroup, 'El encargado actual fue eliminado: elija otro cuando pueda.'); ?></div>
+                    <?php endif; ?>
                 </div>
                 <?php endif;?>
 
-                <div class="section-fields-divider">
-                    <div class="title h6"><?= __($langGroup, 'Adjuntos'); ?></div>
-                </div>
+                <?php $this->helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Adjuntos')]); ?>
 
-                <div class="form-attachments-regular">
-                    <div class="attach-placeholder logo">
-                        <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
-                            <i class="paperclip icon"></i>
-                        </div>
-                        <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-image="<?= escape_html($element->getLangData($lang, 'logo', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                <i class="icon upload"></i>
-                                <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                            </div>
-                            <div class="text">
-                                <div class="filename"></div>
-                                <div class="header">
-                                    <div class="title"><?= __($langGroup, 'Logo'); ?></div>
-                                    <div class="meta"><?= __($langGroup, 'Tamaño 400x400'); ?></div>
-                                </div>
-                                <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                            </div>
-                        </label>
-                        <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                    </div>
-                    <div class="attach-placeholder rut required">
-                        <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
-                            <i class="paperclip icon"></i>
-                        </div>
-                        <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-file="<?= escape_html($element->getLangData($lang, 'rut', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                <i class="icon upload"></i>
-                                <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                            </div>
-                            <div class="text">
-                                <div class="filename"></div>
-                                <div class="header">
-                                    <div class="title"><?= __($langGroup, 'RUT'); ?></div>
-                                </div>
-                                <div class="description"><?= __($langGroup, 'Tamaño máximo del archivo 2MB'); ?></div>
-                            </div>
-                        </label>
-                        <input <?= $element->getLangData($lang, 'rut', false, '') !== '' ? '' : 'required'; ?> type="file" accept="image/*,.pdf" id="<?= $uniqueIdentifier; ?>">
+                <div class="two fields organization-attachments">
+                    <?php
+                        $this->helpController->_render('panel/built-in/content/image-field.php', [
+                            'card' => [
+                                'id' => 'organization-logo',
+                                'title' => __($langGroup, 'Logo'),
+                                'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                'accept' => 'image/jpeg,image/png,image/webp',
+                                'image' => (string) $element->getLangData($lang, 'logo', false, ''),
+                                'field' => 'logo',
+                                'width' => 400,
+                                'height' => 400,
+                            ],
+                        ]);
+                    ?>
+                    <div class="field<?= $element->getLangData($lang, 'rut', false, '') === '' ? ' required' : ''; ?>" organization-rut>
+                        <label hidden><?= __($langGroup, 'RUT'); ?></label>
+                        <?php simpleUploadPlaceholderWorkSpace([
+                                'title' => __($langGroup, 'RUT'),
+                                'description' => __($langGroup, 'Tamaño máximo del archivo 2MB'),
+                                'inputNameAttr' => 'rut',
+                                'buttonText' => __($langGroup, 'Anexar'),
+                                'required' => $element->getLangData($lang, 'rut', false, '') === '',
+                                'multiple' => false,
+                                'icon' => 'file alternate outline',
+                                'accept' => '.jpg,.jpeg,.png,.webp,.pdf',
+                                'currentFileURL' => (string) $element->getLangData($lang, 'rut', false, ''),
+                                'currentFileText' => __($langGroup, 'Ver el RUT'),
+                        ]); ?>
                     </div>
                 </div>
 
                 <?php if($canModify): ?>
-                <br>
-
-                <div class="section-fields-divider">
-                    <div class="title h6"><?= __($langGroup, 'Estado de organización'); ?></div>
-                </div>
+                <?php $this->helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Estado de organización')]); ?>
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Estado'); ?></label>
@@ -238,17 +209,17 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
             </div>
 
             <?php
-            //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => $allowDelete ? [[
-                    'text' => __($langGroup, 'Eliminar'),
-                    'type' => 'button',
-                    'icon' => 'trash alternate',
-                    'danger' => true,
-                    'attributes' => ['delete-organization-button' => '', 'data-route' => $deleteRoute],
-                ]] : [],
-            ]);
+                //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => $allowDelete ? [[
+                        'text' => __($langGroup, 'Eliminar'),
+                        'type' => 'button',
+                        'icon' => 'trash alternate',
+                        'danger' => true,
+                        'attributes' => ['delete-organization-button' => '', 'data-route' => $deleteRoute],
+                    ]] : [],
+                ]);
             ?>
 
         </form>
@@ -256,33 +227,4 @@ if (MyOrganizationProfileController::allowedRoute('my-organization-profile', ['o
     </div>
 
 </section>
-<?php
-    //Modal para logo
-    $idLogoElements = 'logo-cropper';
-    modalImageUploaderForCropperAdminViews([
-        //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-        'content' => simpleCropperAdapterWorkSpace([
-            'type' => 'image/*',
-            'required' => false,
-            'selectorAttr' => $idLogoElements,
-            'referenceW' => '400',
-            'referenceH' => '400',
-            'image' => $element->getLangData($lang, 'logo'),
-            'imageName' => $element->getLangData($lang, 'logo', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-        ], false),
-        //Atributos que se asignarán al modal (el contenedor principal), string
-        'modalContainerAttrs' => "modal='{$idLogoElements}'",
-        //Clases que se asignarán al modal (el contenedor principal), string
-        'modalContainerClasses' => "ui tiny modal",
-        //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-        'modalContentElementAttrs' => null,
-        //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-        'informationContentMainClass' => null,
-        //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-        'informationContentClasses' => null,
-        //Título del modal, string
-        'titleModal' => null,
-        //Descripción del modal, string
-        'descriptionModal' => null,
-    ]);
-?>
+<?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>

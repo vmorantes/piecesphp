@@ -62,6 +62,17 @@ interface GeoSource
     public function filters(): array;
 
     /**
+     * Las opciones de uno de sus filtros GeoFilter::TYPE_REMOTE_OPTIONS que casan con la búsqueda, hasta el límite: valor →
+     * texto, sin escapar. Un filtro que no es suyo, o que no es de ese tipo, da un arreglo vacío.
+     *
+     * @param string $key
+     * @param string $search Vacía: las primeras, por orden
+     * @param int $limit
+     * @return array<string|int,string>
+     */
+    public function filterOptions(string $key, string $search, int $limit): array;
+
+    /**
      * Los puntos del encuadre con los filtros, hasta la cota de la consulta.
      *
      * @param GeoQuery $query

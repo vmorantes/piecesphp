@@ -29,7 +29,7 @@ $affiliatedInstitutionsOptions = [
 ];
 //Valor y texto los escribe el usuario; la selección se compara contra el valor ya escapado.
 $affiliatedInstitutions = array_map('escape_html', $affiliatedInstitutions);
-foreach($affiliatedInstitutions as $affiliatedInstitution){
+foreach ($affiliatedInstitutions as $affiliatedInstitution) {
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
 $langGroupDatatables = 'datatables';
@@ -43,24 +43,22 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-            'secondaryActions' => $secondaryActions,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
-        <div class="tabs-controls content-tabs">
-            <div class="active" data-tab="personalData"><?= __($langGroup, 'Datos personales'); ?></div>
-            <div data-tab="professionalData"><?= __($langGroup, 'Datos profesionales'); ?></div>
+        <div class="ui secondary pointing menu tabs-controls content-tabs">
+            <div class="active item" data-tab="personalData"><?= __($langGroup, 'Datos personales'); ?></div>
+            <div class="item" data-tab="professionalData"><?= __($langGroup, 'Datos profesionales'); ?></div>
         </div>
 
-        <form method='POST' action="<?= $action; ?>" class="ui form initial my-profile" data-content-form>
+        <form method='POST' action="<?= $action; ?>" class="ui form initial segment my-profile" data-content-form>
 
             <div class="ui tab active personal-data-form" data-tab="personalData">
-
-                <div class="container-standard-form">
 
                     <div class="identity-profile-card">
                         <div class="avatar">
@@ -74,9 +72,7 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
 
                     <div class="inputs-personal-data">
 
-                        <div class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Información complementaria'); ?></div>
-                        </div>
+                        <?php $helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Información complementaria')]); ?>
 
                         <div class="two fields">
                             <div class="field required">
@@ -113,19 +109,12 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
                                 <input type="url" name="websiteLink" value="<?= escape_html($currentUser->profile->currentLangData('websiteLink')); ?>">
                             </div>
                         </div>
-                        <div class="horizontal-space"></div>
+                        <div class="ui section divider"></div>
 
                         <div class="ui stackable two column grid">
                             <div class="row">
                                 <div class="column">
-                                    <div class="section-fields-divider">
-                                        <div class="title s20">
-                                            <?= __($langGroup, 'Ubicación'); ?>
-                                        </div>
-                                        <div class="description fs16 black">
-                                            <?= __($langGroup, 'Se requiere la ubicación para la búsqueda en la vista cartográfica'); ?>
-                                        </div>
-                                    </div>
+                                    <?php $helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Ubicación'), 'description' => __($langGroup, 'Se requiere la ubicación para la búsqueda en la vista cartográfica')]); ?>
                                     <div class="field required">
                                         <label><?= __(LOCATIONS_LANG_GROUP, 'País'); ?></label>
                                         <select required name="country" locations-component-auto-filled-country="<?= $currentUser->profile->currentLangData('country') !== null ? $currentUser->profile->currentLangData('country')->id : null; ?>" class="ui dropdown" with-dropdown></select>
@@ -139,11 +128,7 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
                                     <input longitude-mapbox-handler name='longitude' type='hidden' required value="<?= $currentUser->profile->currentLangData('longitude'); ?>">
                                 </div>
                                 <div class="column">
-                                    <div class="section-fields-divider">
-                                        <div class="title s20">
-                                            <?= __($langGroup, 'Ubique el marcador en la ubicación'); ?>
-                                        </div>
-                                    </div>
+                                    <?php $helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Ubique el marcador en la ubicación')]); ?>
                                     <div class="field">
                                         <div id="map"></div>
                                     </div>
@@ -153,18 +138,12 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
 
                     </div>
 
-                </div>
-
             </div>
 
             <div class="ui tab" data-tab="professionalData">
 
-                <div class="container-standard-form">
                     <div class="field">
-                        <label class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Instituciones a las que pertenece actualmente'); ?></div>
-                        </label>
-
+                        <label><?= __($langGroup, 'Instituciones a las que pertenece actualmente'); ?></label>
                         <select name="affiliatedInstitutions[]" multiple class="ui dropdown multiple auto additions search"><?= array_to_html_options($affiliatedInstitutionsOptions, $affiliatedInstitutions, true); ?></select>
                     </div>
                     <div class="field">
@@ -175,17 +154,16 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
                             <label for="my-profile-public-visible"><?= __($langGroup, 'Mostrar mi perfil en el directorio y en el mapa'); ?></label>
                         </div>
                     </div>
-                </div>
 
             </div>
 
             <?php
-            //Una barra para las dos pestañas: guarda el formulario entero. Su JS busca [save] y [cancel].
-            $helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'saveAttributes' => ['save' => ''],
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'type' => 'submit', 'icon' => 'times', 'attributes' => ['cancel' => '']]],
-            ]);
+                //Una barra para las dos pestañas: guarda el formulario entero. Su JS busca [save] y [cancel].
+                $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'saveAttributes' => ['save' => ''],
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'type' => 'submit', 'icon' => 'times', 'attributes' => ['cancel' => '']]],
+                ]);
             ?>
 
         </form>

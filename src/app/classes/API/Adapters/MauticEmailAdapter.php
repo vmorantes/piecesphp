@@ -47,7 +47,7 @@ class MauticEmailAdapter
             $errorFileData = file_get_contents($this->errorsFile);
             if ($errorFileData !== false) {
                 $decoded = json_decode($errorFileData, true);
-                if (json_last_error() === \JSON_ERROR_NONE  && is_array($decoded)) {
+                if (json_last_error() === \JSON_ERROR_NONE && is_array($decoded)) {
                     $this->errorsHistory = $decoded;
                 } else {
                     $this->errorsHistory = [];
@@ -238,7 +238,7 @@ class MauticEmailAdapter
             $tokenFileData = file_get_contents($this->tokenFile);
             if ($tokenFileData !== false) {
                 $tokenData = json_decode($tokenFileData, true);
-                if (json_last_error() === \JSON_ERROR_NONE  && is_array($tokenData) && isset($tokenData['access_token']) && isset($tokenData['expires_at'])) {
+                if (json_last_error() === \JSON_ERROR_NONE && is_array($tokenData) && isset($tokenData['access_token']) && isset($tokenData['expires_at'])) {
                     if ($tokenData['expires_at'] > time() + 60) {
                         //Margen de 1 minuto
                         $this->authToken = $tokenData['access_token'];

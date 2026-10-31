@@ -27,7 +27,7 @@ figure {
                 width: 100%;
             }
 
-            >figcaption {
+            > figcaption {
                 display: block;
             }
         }
@@ -35,7 +35,7 @@ figure {
         &.image-style-align-left {
             float: left;
 
-            &+* {
+            & + * {
 
                 &::before,
                 &::after {
@@ -54,7 +54,7 @@ figure {
         &.image-style-align-right {
             float: right;
 
-            &+* {
+            & + * {
 
                 &::before,
                 &::after {

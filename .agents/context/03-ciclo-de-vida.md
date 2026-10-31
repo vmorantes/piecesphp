@@ -42,9 +42,10 @@ En orden:
    las dos, manda la cabecera). `UserDataPackage` es una foto de la petición guardada en `Config`, que es `static`: muere
    con ella. **Dos mundos en el CLI:** las acciones de `CliActions` (las suites) retornan antes de `$app->run()`
    (`index.php:933-940`) y corren SIN sesión —ese es su contrato—; las TAREAS del sistema de rutas pasan por el
-   middleware y reciben la sesión automática de root (`index.php:317`). **Punto único de fallo:** `TerminalData` declara
-   `REMOTE_ADDR=127.0.0.1`; sin ella `BaseToken::aud()` revienta y caen todas las tareas. Suites que lo fijan:
-   `core/session-terminal-root` (11) y `core/session-contract` (26), las dos provocadas.
+   middleware y reciben la sesión automática de root (`index.php:317`). `TerminalData` declara
+   `REMOTE_ADDR=127.0.0.1`. Sin ella, `BaseToken::aud()` ya no revienta: usa `'0.0.0.0'` (`BaseToken.php:337`, desde
+   `38066e43`), que da el mismo valor al emitir y al validar. `core/session-contract` (e1) emite un token con
+   `REMOTE_ADDR` puesta y con otra dirección.
    **El nombre de la sesión (tramo 1 de 11a, `c8030790`).** `SessionToken::tokenName()` es la única puerta; la
    constante `TOKEN_NAME` pasa a ser el valor por defecto y `TOKEN_NAME_CONFIG` (`session_token_name`) la clave. Pasan
    por ella `getJWTReceived()` (cabecera y cookie), `index.php:321` y `:444`, y **las dos listas de cabeceras permitidas
@@ -103,12 +104,17 @@ En orden:
    **sobrescribe la configuración desde la base de datos** con
    `AppConfigModel::getConfigurations()`. → *Las configuraciones de BD ganan sobre
    `config.php`.*
+   **Desde D8 (ADR 0055, primera versión)** se siguen aplicando TODAS, pero antes de `$app->run()` las que ningún
+   módulo declaró con `ConfigOptions::declare()` se avisan una vez por nombre (`app/cache/config-options-warned.json`,
+   que guarda la corrida de prueba que avisó para que una prueba no consuma el aviso real; `clean-cache` lo borra).
+   Las acciones de `CliActions` vuelven antes de `run()` y no avisan. La carga sigue ANTES de que los módulos
+   declaren (`index.php` lee la tabla antes de `routes.php`): la versión que bloquee tendrá que moverla.
 6. `Router::createRouter($di)` y `setBasePath()` calculado desde `appbase()`.
 7. `$app->addBodyParsingMiddleware()` — soporte automático de JSON y XML en el body.
 8. **Middleware global principal (pre-routing)** — el bloque más grande del archivo
    (~líneas 203-791). Hace, entre otras cosas: CORS, sesiones y expiración por
    inactividad, validación de `SessionToken`/JWT, "conectarse como otro usuario"
-   (`asUser` / cookie `asUserID`), resolución de idioma (i18n) y jerarquía de roles.
+   (cookie firmada `asUserID`; la escriben las rutas de `ImpersonationController`, ver `05`), resolución de idioma (i18n) y jerarquía de roles.
 9. `set_config('upload_dir' | 'upload_dir_url' | 'slim_app')`.
 10. **`config/routes.php`** — registro de todas las rutas.
 11. **`config/final-configurations.php`** — carga `core/extensions/*` (del framework), después `config/extensions/*` (del clon) y, si aún existe, la carpeta vieja `final-configurations-includes/` con un aviso del sistema.
@@ -209,9 +215,20 @@ y por directorio**, justo antes de empezar a manejar rutas. El archivo previsto 
 - `CustomSlimErrorHandler` (en `Core/CustomErrorsHandlers/`) genera la respuesta de
   error, en JSON si el request lo pide.
 - `log_exception($e)` es el helper para registrar excepciones.
+- **La caché de una respuesta** (JAM, `533fab57`): el middleware MÁS EXTERNO de `src/index.php` (el del idioma
+  esperado y CORS, el último `$app->add()`) pone con `header()`, ANTES del controlador, las tres cabeceras de «no guardar»
+  que antes ponía la sesión; si la respuesta trae su propio `Cache-Control`, Slim lo reemplaza al emitir y el middleware
+  retira `Pragma` y `Expires`. **Si se reordenan los `add()`, ese tiene que seguir siendo el último.** Y una página
+  pintada con `render()` en modo eco sale antes de que Slim emita: **sus cabeceras PSR (`withHeader()`) se pierden**
+  (`ResponseEmitter` no emite con `headers_sent()`); para fijar una cabecera en una página, `header()` o
+  `render(..., false)`. Lo vigila `core/static-cache`.
 - Logs en `src/app/logs` (`LOG_ERRORS_PATH`), backups en `logs/olds`
   (`LOG_ERRORS_BACKUP_PATH`). Desde 7.0.6 existe además un `error.plain.log` de
   lectura fácil.
+- **Lo que escribe una prueba lleva su marca en los TRES registros y se poda** (ADR 0063; los dos planos desde JAF,
+  `fcc4973d`): `[test <corrida>]` tras `[ref …]` en `error.plain.log`, y al final de la cabecera, dentro de la firma, en
+  `error.unique.message.log`. Si cambias el formato de una de esas líneas, cambia también `blockMark()`: si no, la poda
+  no reconoce la marca y deja de podar (falla cerrada). `olds/` no se poda.
 - Los errores se ven en el panel en **Registros › Errores** (`logs-admin-index?tab=errors`, datos en
   `logs-admin-errors`, solo root): `ErrorLogReader` lee `error.log.jsonl` y el `error.log.json` viejo, con sus rotados
   de `olds/`; `?ref=ERR-…` abre una entrada. `error.unique.message.log` guarda la referencia de la PRIMERA aparición.

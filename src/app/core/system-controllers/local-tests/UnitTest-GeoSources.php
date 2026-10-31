@@ -2,6 +2,9 @@
 
 //El geovisor (C11): registro, consulta, puntos [lng,lat] sin (0,0) ni ocultos, cota, encuadre, permisos, búsqueda e imagen.
 //En proceso y por HTTP; siembra zz- en un rincón del mapa y lo retira entero.
+//@areas src/app/classes/Directory/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
 use Directory\Geo\PersonsGeoSource;
 use Organizations\Geo\OrganizationsGeoSource;
@@ -20,8 +23,8 @@ use PiecesPHP\Geo\GeoSource;
 use PiecesPHP\Geo\GeoSourceRegistry;
 use PiecesPHP\Geo\GeoThumbnail;
 use PiecesPHP\Terminal\CliActions;
-use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -88,6 +91,10 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
         public function filters(): array
         {
             return [new GeoFilter('zz', 'zz', GeoFilter::TYPE_TEXT)];
+        }
+        public function filterOptions(string $key, string $search, int $limit): array
+        {
+            return [];
         }
         public function points(GeoQuery $query): GeoPointsResult
         {
@@ -325,6 +332,23 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
         $check($personas->pointDetail($p3) === null && $personas->pointDetail($p2) === null && $empresas->pointDetail($o2) === null, 'c12 el detalle de una oculta o en el (0,0) no existe');
         $detalle = $personas->pointDetail($p1);
         $check(is_array($detalle) && str_contains((string) $detalle['name'], $nombre) && is_string($detalle['url']) && $detalle['url'] !== '', 'c13 CANARIO: el detalle de una visible trae su nombre y su URL');
+        //El filtro de organizaciones, bajo demanda (G6): filters() ya no consulta, y las opciones se buscan con su límite.
+        $deOrganizaciones = array_filter(array_merge($personas->filters(), $empresas->filters()), fn(GeoFilter $f): bool => $f->key() === 'organizations');
+        $remotos = array_filter($deOrganizaciones, fn(GeoFilter $f): bool => $f->type() === GeoFilter::TYPE_REMOTE_OPTIONS && $f->options() === []);
+        $check(count($deOrganizaciones) === 2 && count($remotos) === 2, 'c14 el filtro de organizaciones de las dos fuentes no trae opciones: se buscan al escribir');
+        //Las sentencias de la sesión de la base, antes y después: la propia lectura del contador cuenta una.
+        $sentencias = fn(): int => (int) $database->query("SHOW SESSION STATUS LIKE 'Questions'")->fetch(\PDO::FETCH_NUM)[1];
+        $antes = $sentencias();
+        $personas->filters();
+        $empresas->filters();
+        $sinConsulta = $sentencias() - $antes;
+        $antes = $sentencias();
+        $empresas->filterOptions('organizations', $nombre, 20);
+        $conConsulta = $sentencias() - $antes;
+        $check($sinConsulta === 1 && $conConsulta > 1, 'c15 filters() no lanza ninguna consulta; filterOptions() sí (CANARIO del contador)', "filters: {$sinConsulta}, filterOptions: {$conConsulta}");
+        $deEmpresas = $empresas->filterOptions('organizations', $nombre, 20);
+        $check(array_key_exists($o1, $deEmpresas) && !array_key_exists($o2, $deEmpresas), 'c16 las opciones de organizaciones: las que se verían en el mapa, por nombre (no la oculta)', (string) json_encode(array_keys($deEmpresas)));
+        $check($empresas->filterOptions('zz-no-es-suyo', '', 20) === [] && $personas->filterOptions('search', '', 20) === [] && count($empresas->filterOptions('organizations', '', 1)) === 1, 'c17 un filtro ajeno o de texto da vacío, y el límite se respeta');
         echoTerminal(' ');
 
         //──── [i] La imagen de cada punto (P189): la original, o null para que el cliente pinte las iniciales ──
@@ -385,6 +409,24 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
             $miniaturas[$f['properties']['id']] = array_key_exists('thumbnail', $f['properties']) ? $f['properties']['thumbnail'] : 'zz-sin-clave';
         }
         $check($esSegura($miniaturas[$p1] ?? null) && array_key_exists($p6, $miniaturas) && $miniaturas[$p6] === null, 'h7 la imagen viaja en el JSON: la URL del avatar, y null sin él', (string) json_encode($miniaturas));
+        $opciones = $camino(GeoController::routeName('filter-options', ['key' => 'organizations'], true));
+        $r = $pedir($opciones . '?' . http_build_query(['search' => $nombre]), $jwt);
+        $json = json_decode($r['body'], true);
+        $porValor = is_array($json) ? array_column($json['results'] ?? [], 'name', 'value') : [];
+        $check($r['status'] === 200 && ($json['success'] ?? null) === true && ($porValor[(string) $o1] ?? null) === escape_html("{$nombre} {$prefijo}-org-visible"), 'h8 las opciones de organizaciones, buscadas por HTTP: 200 y {value, name}', "HTTP {$r['status']}, " . mb_substr($r['body'], 0, 200));
+        $todas = GeoController::remoteFilterSource('organizations', GeoSourceRegistry::visibleFor(UsersModel::TYPE_USER_ROOT));
+        $esperadas = $todas !== null ? min(GeoController::FILTER_OPTIONS_LIMIT, count($todas->filterOptions('organizations', '', 100000))) : -1;
+        $r = $pedir($opciones, $jwt);
+        $json = json_decode($r['body'], true);
+        $devueltas = is_array($json) ? count($json['results'] ?? []) : -1;
+        $check($r['status'] === 200 && $devueltas === $esperadas, 'h9 sin búsqueda, como mucho ' . GeoController::FILTER_OPTIONS_LIMIT, "devueltas {$devueltas}, esperadas {$esperadas}");
+        $r = $pedir($camino(GeoController::routeName('filter-options', ['key' => 'search'], true)), $jwt);
+        $otro = $pedir($camino(GeoController::routeName('filter-options', ['key' => 'zz-no-existe'], true)), $jwt);
+        $check($r['status'] === 404 && $otro['status'] === 404, 'h10 un filtro de texto o que no existe: 404', "HTTP {$r['status']} y {$otro['status']}");
+        $jwtComunicaciones = UserSessions::issueToken($crearUsuario('comunicaciones', UsersModel::TYPE_USER_COMUNICACIONES));
+        $r = $pedir($opciones . '?search=zz', $jwtComunicaciones);
+        $pantalla = $pedir($camino(GeoController::routeName('viewer', [], true)), $jwtComunicaciones);
+        $check($r['status'] === 403 && $pantalla['status'] === 403, 'h11 quien no ve la pantalla del geovisor tampoco pide sus opciones: 403', "opciones HTTP {$r['status']}, pantalla HTTP {$pantalla['status']}");
         echoTerminal(' ');
 
         //──── [t] Las miniaturas: tamaños, permiso, caché en disco y regeneración ──────────────────
@@ -431,6 +473,15 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
         $r = $pedir($miniatura('organizations', $o5, 64), $jwt);
         $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't7b y la de un logo privado, también', "HTTP {$r['status']}");
         $check($pedir($miniatura('persons', $p1, 64), '')['status'] === $pedir($puntos, '')['status'], 't8 sin sesión, lo mismo que points');
+        //El barrido de clean-cache (G9): la miniatura de un punto que ya no existe se va; la de uno visible se queda. Barre
+        //las fuentes REALES: lo que quite de la instalación es caché de puntos que no se ven, y se regenera al pedirse.
+        $huerfana = basepath(GeoThumbnail::DIRECTORY . '/persons/2147483000-64-0123456789ab.png');
+        $generadas[] = $huerfana;
+        $check($unaEnDisco($patronP1) !== null && copy((string) $unaEnDisco($patronP1), $huerfana), 't9a banco: una miniatura de un punto que no existe, copiada de la de uno visible');
+        $barrido = GeoThumbnail::sweep();
+        clearstatcache();
+        $check(!is_file($huerfana) && in_array('persons/2147483000-64-0123456789ab.png', $barrido['deleted'], true), 't9 el barrido borra la del punto que no existe, y lo dice', (string) json_encode($barrido['deleted']));
+        $check($unaEnDisco($patronP1) !== null && glob(basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o1}-64-*.png")) !== [], 't10 CANARIO: las de los puntos visibles siguen');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

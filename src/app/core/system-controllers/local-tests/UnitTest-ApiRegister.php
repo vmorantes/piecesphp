@@ -2,9 +2,10 @@
 
 //P37/P39: las altas por API que FALLAN. Un alta que falla NO envía correo: por eso esta mitad se queda en `gates`
 //y las dos que salen bien viven en `core/api-register-mail`, con `email` declarado. 309.
+//@areas src/app/classes/API/
+//@areas src/app/classes/Organizations/
 
 use API\Controllers\APIController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -14,6 +15,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -56,7 +58,13 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
             'phoneCode' => '+57',
             'phoneNumber' => '3000000000',
         ], $extra);
-        $respuesta = (new APIController())->usersActions($peticion($cuerpo), new ResponseRoute());
+        $controlador = new class extends APIController {
+            protected static function publicSignupEnabled(): bool
+            {
+                return true;
+            }
+        };
+        $respuesta = $controlador->usersActions($peticion($cuerpo), new ResponseRoute());
         $texto = (string) $respuesta->getBody();
         return [json_decode($texto, true), $texto];
     };
@@ -140,6 +148,20 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
         $cuantosMenosDiez = count((array) $conMenosDiez->result());
         $check($cuantosMenosDiez === 0, 'a4 ningún usuario de esta prueba quedó en la organización global', "con -10: {$cuantosMenosDiez}");
 
+        echoTerminal('[apagada] API_PUBLIC_SIGNUP de fábrica: la ruta no existe y no se crea nada');
+        $check(API_PUBLIC_SIGNUP === false, 'a0 de fábrica viene apagada');
+        $rechazada = false;
+        try {
+            (new APIController())->usersActions($peticion([
+                'email' => "{$marca}-apagada@example.com", 'password' => 'zz-Clave-Api-1', 'passwordConfirm' => 'zz-Clave-Api-1',
+                'firstName' => 'Zz', 'firstLastName' => 'Prueba', 'phoneCode' => '+57', 'phoneNumber' => '3000000000',
+            ]), new ResponseRoute());
+        } catch (\Throwable $e) {
+            //Fuera del enrutador, NotFoundException lanza al pedir el contexto de la ruta: lo que importa es que no sigue.
+            $rechazada = true;
+        }
+        $check($rechazada, 'a1 apagada, responde como una ruta que no existe');
+        $check($usuario('apagada') === null, 'a2 y no crea el usuario');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());
     } finally {

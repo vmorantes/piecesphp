@@ -9,28 +9,13 @@
  */
 
 //── Del clon ──
-/**
- * Si la configuracion 'lang_by_url' se establece en true, la aplicación tomará
- * el primer segmento de la URL que concuerte con 'allowed_langs' para establecer el idioma.
- * Ej.: De la URL http://www.example.com/en tomaría el valor 'en' y si no concuerda con ningún
- * idioma permitido o no hay segmento alguno el valor por defecto será 'es'.
- * NOTA: Tiene prioridad sobre lang_by_browser si el idioma en URL es explícito.
- */
+//El primer segmento de la URL, si es un idioma permitido (/en). Prioridades: source-docs/project/docs/piecesphp/content/configuration.md, «lang.php».
 set_config('lang_by_url', true);
 
-/**
- * Si la configuracion 'lang_by_browser' se establece en true, la aplicación definirá
- * 'default_lang' a partir de getPreferredLanguageByHeader.
- * NOTA: Tiene prioridad sobre lang_by_url en el estado base, pero no con idioma en URL explícito.
- */
+//El idioma preferido del navegador (Accept-Language); cede ante un idioma explícito en la URL.
 set_config('lang_by_browser', true);
 
-/**
- * Si la configuracion 'lang_by_cookie' se establece en true, la aplicación definirá
- * 'app_lang' (lenguaje actual, no por defecto) a partir de del valor de la cookie llamada como se define en 'cookie_lang_definer'
- * y del parámetro url i18n.
- * NOTA: Tiene prioridad sobre lang_by_url y lang_by_browser
- */
+//La cookie 'cookie_lang_definer', que se pone con ?i18n=: gana a la URL y al navegador.
 set_config('lang_by_cookie', true);
 //Se define a partir del parámetro de URL i18n
 set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
@@ -40,11 +25,7 @@ set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
  * puede quedarse vivo sin molestar. Cómo se añade un idioma: `.agents/context/08-i18n.md`.
  */
 
-/**
- * Array con el identificador de los idiomas permitidos, este debe coincidir
- * con el nombre de su archivo correspondiente en app/lang/ sin la extensión '.php'
- * ya que es implícita.
- */
+//Cada código necesita su src/app/lang/<código>.php: sin él, el idioma se ignora en silencio.
 set_config('allowed_langs', [
     'es',
     'en',
@@ -78,6 +59,7 @@ set_config('no_scan_lang_groups', [
     'locationBackend-names',
 ]);
 set_config('additional_langs_to_scan', [
+    //@codigo-comentado · Descomentar revisa ese idioma aunque no esté en allowed_langs.
     //'es',
     //'en',
     //'fr',
@@ -163,9 +145,9 @@ set_config('format_date_lang_sql', [
     'pt' => '%d/%m/%Y',
 ]);
 
+//Las banderas de Fomantic por idioma.
 /**
  * @function get_fomantic_flag_by_lang
- * Banderas de fomantic según idioma
  * @see https://fomantic-ui.com/elements/flag.html
  */
 set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size = '', ?float $currentOpacity = null) {
@@ -202,8 +184,8 @@ set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size
 set_config('DYNAMIC_TRANSLATIONS', [
     'folderName' => 'dynamic-translations',
     'filePrefix' => 'dynamic-translations-',
-    //GenericContentPseudoMapper::CONTENT_DYNAMIC_TRANSCALTIONS,
-    'dataConfigName' => 'DYNAMIC_TRANSCALTIONS',
+    //GenericContentPseudoMapper::CONTENT_DYNAMIC_TRANSLATIONS,
+    'dataConfigName' => 'DYNAMIC_TRANSLATIONS',
     //GenericContentPseudoMapper::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT,
     'lastDateConfigName' => 'DYNAMIC_TRANSLATIONS_UPDATED_AT',
 ]);

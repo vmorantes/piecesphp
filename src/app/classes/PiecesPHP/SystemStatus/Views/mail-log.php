@@ -1,5 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
+
 /**
  * La pestaña «Correos enviados» de «Registros»: sin cabecera propia, la pone la pantalla.
  *
@@ -12,6 +14,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var bool $canSeeBody Sin el permiso del cuerpo, su columna no existe para quien mira (ADR 0048 §5)
  * @var array<string,string> $results Resultado => su rótulo
  * @var string[] $deliveries Las entregas con que se anota un correo
+ * @var \PiecesPHP\AdminPanel\Controllers\HelperController $pieces Pinta las piezas del panel
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 ?>
@@ -23,18 +26,18 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
 
     <div class="ui red message">
         <p><?= sprintf(
-            __($langGroup, 'Falta la tabla del registro, así que no se está anotando ningún envío: ni los que fallan. Aplique «%s» en la base de datos de esta instalación.'),
-            $escape($updateFile)
-        ); ?></p>
+    __($langGroup, 'Falta la tabla del registro, así que no se está anotando ningún envío: ni los que fallan. Aplique «%s» en la base de datos de esta instalación.'),
+    $escape($updateFile)
+); ?></p>
     </div>
 
     <?php else: ?>
 
-    <p>
-        <?= sprintf(__($langGroup, 'En las últimas %d horas:'), $windowHours); ?>
-        <span class="ui green label"><?= sprintf(__($langGroup, '%d entregados'), $counts['delivered']); ?></span>
-        <span class="ui orange label"><?= sprintf(__($langGroup, '%d en el buzón'), $counts['outbox']); ?></span>
-        <span class="ui <?= $counts['failed'] > 0 ? 'red' : 'grey'; ?> label"><?= sprintf(__($langGroup, '%d no llegaron'), $counts['failed']); ?></span>
+    <p class="ui flex">
+        <span><?= sprintf(__($langGroup, 'En las últimas %d horas:'), $windowHours); ?></span>
+        <?= StatusLabel::html(sprintf(__($langGroup, '%d entregados'), $counts['delivered']), StatusLabel::POSITIVE); ?>
+        <?= StatusLabel::html(sprintf(__($langGroup, '%d en el buzón'), $counts['outbox']), StatusLabel::WARNING); ?>
+        <?= $counts['failed'] > 0 ? StatusLabel::html(sprintf(__($langGroup, '%d no llegaron'), $counts['failed']), StatusLabel::NEGATIVE) : StatusLabel::neutral(sprintf(__($langGroup, '%d no llegaron'), $counts['failed'])); ?>
     </p>
 
     <?php //Los filtros van en la dirección de los datos (mail-log.js), como en el registro de actividad. ?>
@@ -79,17 +82,16 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                 </div>
             </div>
         </div>
-        <button type="submit" class="ui button brand-color"><i class="filter icon"></i><?= __($langGroup, 'Filtrar'); ?></button>
-        <button type="reset" class="ui basic button"><?= __($langGroup, 'Limpiar'); ?></button>
+        <?php $pieces->_render('panel/built-in/content/filter-actions.php'); ?>
     </form>
 
     <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
         <div class="mirror-scroll-x-content"></div>
     </div>
 
-    <div class="container-standard-table">
+    <div class="ui fluid card container-standard-table">
 
-        <table url="<?= $escape($processTableLink); ?>" class="ui basic table" data-mail-log-table>
+        <table url="<?= $escape($processTableLink); ?>" class="ui selectable very basic table content-table" data-search-placeholder="<?= $escape(__($langGroup, 'Destinatario, asunto u origen')); ?>" data-mail-log-table>
 
             <thead>
 
@@ -101,7 +103,7 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                     <th><?= __($langGroup, 'Entrega'); ?></th>
                     <th><?= __($langGroup, 'Resultado'); ?></th>
                     <?php if ($canSeeBody): ?>
-                    <th><?= __($langGroup, 'Cuerpo'); ?></th>
+                    <th class-name="collapsing right aligned" order="false"><?= __($langGroup, 'Cuerpo'); ?></th>
                     <?php endif; ?>
                 </tr>
 

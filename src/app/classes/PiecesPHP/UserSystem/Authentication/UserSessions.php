@@ -6,13 +6,13 @@
 
 namespace PiecesPHP\UserSystem\Authentication;
 
-use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
 use PiecesPHP\UserSystem\ORM\UserSessionsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 
 /**

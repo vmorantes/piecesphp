@@ -43,6 +43,7 @@ return [
     "Cierre de todas las sesiones" => "All sessions closed",
     "Empieza a actuar como otro usuario" => "Starts acting as another user",
     "Deja de actuar como otro usuario" => "Stops acting as another user",
+    "Caduca la actuación como otro usuario" => "Acting as another user expires",
     "Aviso del sistema mostrado u oculto" => "System alert shown or hidden",
     "Enlaces rotos borrados" => "Broken links deleted",
     "Accesos directos borrados desde mantenimiento" => "Shortcuts deleted from maintenance",

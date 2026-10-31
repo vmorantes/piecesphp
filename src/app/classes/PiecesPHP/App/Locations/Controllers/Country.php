@@ -9,9 +9,11 @@ namespace PiecesPHP\App\Locations\Controllers;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
@@ -22,8 +24,6 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\ControllerRoutingTrait;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * Country.
@@ -551,9 +551,10 @@ class Country extends AdminPanelController
         $whereSegment = new WhereSegment([
             WhereItem::like(
                 "UPPER({$table}.name)",
-                $query . '%',
+                //%, _ y | escapados con | y ESCAPE '|' (como Region): lo que se busca se lee como texto, no como comodín.
+                str_replace(['|', '%', '_'], ['||', '|%', '|_'], $query) . '%',
                 '',
-                'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ')'
+                'UPPER(' . WhereItem::REPLACEMENT_VALUE_ON_RIGHT_WRAP_FUNCTION . ") ESCAPE '|'"
             ),
         ]);
 
@@ -576,7 +577,6 @@ class Country extends AdminPanelController
 
         return $response->withJson($result);
     }
-
 
     /**
      * Los campos del formulario de alta (sin elemento) y de edición, para la plantilla locations/_form.

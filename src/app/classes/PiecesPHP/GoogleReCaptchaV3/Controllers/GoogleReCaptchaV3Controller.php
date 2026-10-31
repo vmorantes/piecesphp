@@ -7,8 +7,6 @@
 namespace PiecesPHP\GoogleReCaptchaV3\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Lang;
 use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -21,6 +19,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Lang;
+use PiecesPHP\Settings\ORM\SettingsModel;
 
 /**
  * GoogleReCaptchaV3Controller.

@@ -74,12 +74,12 @@ $workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
     </div>
 
     <?php $this->_render('panel/built-in/utilities/cropper/controls.php', [
-        'notes' => isset($notes) && is_array($notes) ? $notes : null,
-        'controls' => isset($controls) && is_array($controls) ? $controls : null,
-    ]);?>
+            'notes' => isset($notes) && is_array($notes) ? $notes : null,
+            'controls' => isset($controls) && is_array($controls) ? $controls : null,
+    ]); ?>
     <?php $this->_render('panel/built-in/utilities/cropper/main-buttons.php', [
-        'cancelButtonText' => isset($cancelButtonText) && is_string($cancelButtonText) ? $cancelButtonText : __(CROPPER_ADAPTER_LANG_GROUP, 'Cancelar'),
-        'saveButtonText' => isset($saveButtonText) && is_string($saveButtonText) ? $saveButtonText : __(CROPPER_ADAPTER_LANG_GROUP, 'Guardar imagen'),
-    ]);?>
+            'cancelButtonText' => isset($cancelButtonText) && is_string($cancelButtonText) ? $cancelButtonText : __(CROPPER_ADAPTER_LANG_GROUP, 'Cancelar'),
+            'saveButtonText' => isset($saveButtonText) && is_string($saveButtonText) ? $saveButtonText : __(CROPPER_ADAPTER_LANG_GROUP, 'Guardar imagen'),
+    ]); ?>
 
 </div>

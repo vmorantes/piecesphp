@@ -34,6 +34,9 @@ DIAS_DE_GRACIA = 2
 RE_SECCION = re.compile(r"^##\s+\d+\.\s*(.+?)\s*$")
 RE_MARCADA = re.compile(r"^\s*[-*]\s*\[[Xx]\]")
 RE_PREGUNTA = re.compile(r"\bP\d+\b")
+#Solo la línea que ABRE una pregunta («- **P12 · …», «### P12 · …», «- P12 …»): una que solo CITA otra pregunta en su
+#texto («como dejó aplicada la P201») no la cierra (G17, pieza 19).
+RE_CABEZA = re.compile(r"^\s*(?:[-*]|#{2,4})\s*(?:\*\*)?P\d+\b")
 RE_CIERRE = re.compile(r"\b(contestad[ao]s?|cerrad[ao]s?|resuelt[ao]s?|respondid[ao]s?|aplicad[ao]s?)\b", re.I)
 RE_FECHA = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 
@@ -93,7 +96,7 @@ def main() -> int:
                           "(PO, 2026-09-26). «%s»" % (ruta, numero, linea.strip()[:96]))
 
     for numero, linea in mapa[preguntas]:
-        if RE_PREGUNTA.search(linea) and RE_CIERRE.search(linea):
+        if RE_CABEZA.match(linea) and RE_CIERRE.search(linea):
             fallos.append("%s:%d una pregunta cerrada sigue en la sección de abiertas; su decisión va "
                           "a ../docs/decisiones-del-po.md. «%s»" % (ruta, numero, linea.strip()[:96]))
 

@@ -6,28 +6,28 @@
 
 namespace PiecesPHP\AdminPanel\Controllers;
 
-use PiecesPHP\Core\InstalledPackages;
-use PiecesPHP\UserSystem\Controllers\UsersController;
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\TicketsLogModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use MySpace\Controllers\MyProfileController;
-use PiecesPHP\AdminPanel\DashboardCardRegistry;
-use Publications\PublicationsRoutes;
-use SystemApprovals\SystemApprovalsRoutes;
-use SystemApprovals\Util\SystemApprovalManager;
 use News\Controllers\NewsController;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\InstalledPackages;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\TicketsLogModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Controllers\PublicationsController;
+use Publications\PublicationsRoutes;
+use SystemApprovals\SystemApprovalsRoutes;
+use SystemApprovals\Util\SystemApprovalManager;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -77,6 +77,15 @@ class AdminPanelController extends BaseController
     protected $modelUsers;
 
     const ADMIN_LANG_GROUP = 'adminZone';
+
+    /**
+     * El modo de color del panel de cada usuario, en su meta: claro, oscuro o el del sistema. Es el `data-theme` de
+     * `<html>` que lee el tema (light, dark o auto). Sin elegir, el del sistema; el claro elegido se guarda como light.
+     */
+    const THEME_MODE_META = 'theme_mode';
+    const THEME_MODE_LIGHT = 'light';
+    const THEME_MODE_AUTO = 'auto';
+    const THEME_MODES = [self::THEME_MODE_LIGHT, 'dark', self::THEME_MODE_AUTO];
 
     /**
      * @return static
@@ -160,30 +169,49 @@ class AdminPanelController extends BaseController
         return $res->withJson(['success' => $saved], $saved ? 200 : 400);
     }
 
+    /**
+     * Guarda el modo de color del panel del usuario actual (THEME_MODES): 400 con cualquier otro valor.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function themeMode(Request $req, Response $res)
+    {
+        $mode = $req->getParsedBodyParam('mode', '');
+        $user = getLoggedFrameworkUserOrFail();
+        $allowed = is_string($mode) && in_array($mode, self::THEME_MODES, true);
+        $saved = $allowed && UsersModel::setMetaValue((int) $user->id, self::THEME_MODE_META, $mode);
+        return $res->withJson(['success' => $saved, 'mode' => $saved ? $mode : null], $saved ? 200 : 400);
+    }
+
+    /**
+     * El modo de color guardado de un usuario; sin guardar o con un valor que ya no vale, el de por defecto.
+     *
+     * @param int $userID
+     * @return string Uno de THEME_MODES
+     */
+    public static function themeModeOf(int $userID): string
+    {
+        $mode = UsersModel::metaValue($userID, self::THEME_MODE_META);
+        return is_string($mode) && in_array($mode, self::THEME_MODES, true) ? $mode : self::THEME_MODE_AUTO;
+    }
+
     //Medidas en la cabecera de cada archivo de statics/plugins/: al actualizar una librería, se actualiza aquí.
     const ABOUT_JS_LIBRARIES = [
         'ApexCharts Ver. 3.50.0 Licencia MIT',
         'CKEditor Ver. 27.1.0',
         'Cropper Ver. 1.6.2 Licencia MIT',
-        'DataTables Ver. 2.3.7',
-        'elFinder Ver. 2.1.57 Licencia BSD-3-Clause',
-        'fancyBox Ver. 3.5.7 Licencia GPL-3.0',
+        'DataTables Ver. 3.1.4 Licencia MIT',
+        'DataTables Buttons Ver. 4.0.0 Licencia MIT',
+        'elFinder Ver. 2.1.70 Licencia BSD-3-Clause',
         'Fomantic UI Ver. 2.9.4 Licencia MIT',
-        'iziToast Ver. 1.4.0',
-        'Jodit Ver. 3.1.95 Licencia GPL-2.0-or-later',
         'jQuery Ver. 3.7.0',
-        'jQuery Mask Ver. 1.14.15',
         'jQuery UI Ver. 1.12.1',
         'Mapbox GL JS Ver. 3.19.0 Licencia Mapbox Terms of Service',
         'Mapbox GL Geocoder Ver. 2.3.0',
-        'NProgress Licencia MIT',
-        'OpenLayers Ver. 6.14.1',
         'QRCode',
-        'Quill Ver. 1.3.6',
-        'Spectrum Ver. 1.8.0 Licencia MIT',
-        'SurveyJS Ver. 1.12.18 Licencia MIT',
         'SweetAlert2',
-        'tidy-html5',
     ];
 
     /**
@@ -254,6 +282,8 @@ class AdminPanelController extends BaseController
             self::staticRoute('js/design-sheet/sheet.js'),
             self::staticRoute('js/design-sheet/formularios-desplegable.js'),
             self::staticRoute('js/design-sheet/formularios-casillas.js'),
+            self::staticRoute('js/design-sheet/formularios-pasos.js'),
+            self::staticRoute('js/design-sheet/formularios-imagen.js'),
             self::staticRoute('js/design-sheet/contenido-tabla.js'),
             self::staticRoute('js/design-sheet/contenido-acciones-fila.js'),
             self::staticRoute('js/design-sheet/contenido-pestanas.js'),
@@ -264,6 +294,8 @@ class AdminPanelController extends BaseController
         ], 'js');
         //Los gráficos los dibuja ApexCharts.
         import_apexcharts();
+        //El editor de la tarjeta de imagen recorta con Cropper.
+        import_cropper();
 
         $title = __(self::ADMIN_LANG_GROUP, 'Hoja de diseño');
         set_title($title);
@@ -301,7 +333,7 @@ class AdminPanelController extends BaseController
     }
 
     /**
-     * Las páginas que la hoja de diseño enseña en un marco: la plantilla de correo y SurveyJS (creador y formulario).
+     * Las páginas que la hoja de diseño enseña en un marco: la plantilla de correo y el correo por secciones.
      *
      * @param Request $req
      * @param Response $res
@@ -325,10 +357,18 @@ class AdminPanelController extends BaseController
                 include $file;
             }, $sampleContext, null);
             $renderSample(__DIR__ . '/../Views/panel/pages/design-sheet/resources/mail-sample.php', $refererURL);
-        } elseif ($source == 'survey-js-creator') {
-            $this->moduleViews->render('panel/pages/design-sheet/resources/survey-js-creator', []);
-        } elseif ($source == 'survey-js-form') {
-            $this->moduleViews->render('panel/pages/design-sheet/resources/survey-js-form', []);
+        } elseif ($source == 'mail-generic-dynamic-message') {
+            //El ejemplo de la hoja se incluye a sí mismo aquí, con $inResource: el correo, en su propia petición.
+            $sampleContext = new class (new HelperController($this->user, $this->getGlobalVariables())) {
+                public function __construct(public HelperController $helpController)
+                {
+                }
+            };
+            $renderExample = \Closure::bind(function (string $file, string $langGroup): void {
+                $inResource = true;
+                include $file;
+            }, $sampleContext, null);
+            $renderExample(__DIR__ . '/../Views/panel/pages/design-sheet/examples/correo-mensaje.php', self::ADMIN_LANG_GROUP);
         } else {
             throw new \PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException($req, $res);
         }
@@ -473,6 +513,15 @@ class AdminPanelController extends BaseController
                 $allRoles
             ),
             new Route(
+                "{$startRoute}theme-mode[/]",
+                self::class . ':themeMode',
+                'admin-theme-mode',
+                'POST',
+                true,
+                null,
+                $allRoles
+            ),
+            new Route(
                 "{$startRoute}about[/]",
                 self::class . ':aboutFramework',
                 'admin-about-framework',
@@ -490,7 +539,6 @@ class AdminPanelController extends BaseController
                 null,
                 [
                     UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN_GRAL,
                 ]
             ),
             new Route(
@@ -502,7 +550,6 @@ class AdminPanelController extends BaseController
                 null,
                 [
                     UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN_GRAL,
                 ]
             ),
             new Route(
@@ -625,13 +672,9 @@ class AdminPanelController extends BaseController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
+        import_front_library('fomantic-piecesphp', []);
         /* DataTables */
         import_datatables();
-        /* NProgress */
-        import_nprogress();
-        /* izitoast */
-        import_izitoast();
         /* Cropper */
         import_cropper();
         /* Módulo de noticias */

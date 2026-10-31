@@ -8,8 +8,8 @@ namespace Terminal\Tasks;
 
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\SchemeCreator;
-use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
 /**
  * SchemeSqlTask.

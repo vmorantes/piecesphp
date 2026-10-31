@@ -13,6 +13,9 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\GeoJson\Feature;
+use PiecesPHP\GeoJson\GeoJson;
+use PiecesPHP\GeoJson\Geometry\Point;
 use PiecesPHP\Geo\GeoFilter;
 use PiecesPHP\Geo\GeoLang;
 use PiecesPHP\Geo\GeoQuery;
@@ -44,6 +47,11 @@ class GeoController extends AdminPanelController
      */
     const SOURCE_PLACEHOLDER = 'zz-source';
     const ID_PLACEHOLDER = 'zz-id';
+
+    /**
+     * Cuántas opciones devuelve, como mucho, la búsqueda de un filtro de opciones remotas.
+     */
+    const FILTER_OPTIONS_LIMIT = 20;
 
     /**
      * @var string
@@ -105,7 +113,7 @@ class GeoController extends AdminPanelController
         try {
             $query = GeoQuery::fromRequest($request);
             $summary = [];
-            $features = [];
+            $collection = new GeoJson();
             foreach ($sources as $key => $source) {
                 $result = $source->points($query);
                 $summary[$key] = [
@@ -114,30 +122,20 @@ class GeoController extends AdminPanelController
                     'truncated' => $result->truncated(),
                 ];
                 foreach ($result->points() as $point) {
-                    $features[] = [
-                        'type' => 'Feature',
-                        'geometry' => [
-                            'type' => 'Point',
-                            'coordinates' => [$point->lng, $point->lat],
-                        ],
-                        'properties' => [
-                            'source' => $key,
-                            'id' => $point->id,
-                            'title' => $point->title,
-                            'thumbnail' => $point->thumbnail,
-                        ],
-                    ];
+                    //Sin modo: la librería saca [lng, lat], el orden de GeoJSON (RFC 7946).
+                    $collection->addFeature(new Feature([$point->lng, $point->lat], Point::TYPE, [
+                        'source' => $key,
+                        'id' => $point->id,
+                        'title' => $point->title,
+                        'thumbnail' => $point->thumbnail,
+                    ]));
                 }
             }
         } catch (GeoQueryException $e) {
             return self::badRequest($response, $e->getMessage());
         }
 
-        return $response->withJson([
-            'sources' => (object) $summary,
-            'type' => 'FeatureCollection',
-            'features' => $features,
-        ]);
+        return $response->withJson(['sources' => (object) $summary] + $collection->jsonSerialize());
     }
 
     /**
@@ -165,6 +163,57 @@ class GeoController extends AdminPanelController
             'id' => (int) $id,
             'detail' => $detail,
         ]);
+    }
+
+    /**
+     * Las opciones de un filtro GeoFilter::TYPE_REMOTE_OPTIONS que casan con `search`, de la primera fuente visible para el
+     * rol que lo declara (la misma que lo pinta, GeoController::filtersOf()). 404 si ninguna visible lo declara así. El
+     * texto va escapado: Fomantic lo pinta como HTML.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function filterOptions(Request $request, Response $response, array $args)
+    {
+        $key = is_string($args['key'] ?? null) ? $args['key'] : '';
+        $search = $request->getQueryParam('search', '');
+        $search = is_string($search) ? trim($search) : '';
+        $source = self::remoteFilterSource($key, GeoSourceRegistry::visibleFor((int) $this->user->type));
+        if ($source === null) {
+            return self::notFound($response, __(self::LANG_GROUP, 'No existe ese filtro.'));
+        }
+        $results = [];
+        foreach ($source->filterOptions($key, $search, self::FILTER_OPTIONS_LIMIT) as $value => $name) {
+            $results[] = [
+                'value' => (string) $value,
+                'name' => escape_html($name),
+            ];
+        }
+        return $response->withJson([
+            'success' => true,
+            'results' => $results,
+        ]);
+    }
+
+    /**
+     * La primera de las fuentes que declara el filtro como de opciones remotas, o null.
+     *
+     * @param string $key
+     * @param array<string,GeoSource> $sources
+     * @return GeoSource|null
+     */
+    public static function remoteFilterSource(string $key, array $sources): ?GeoSource
+    {
+        foreach ($sources as $source) {
+            foreach ($source->filters() as $filter) {
+                if ($filter->key() === $key) {
+                    return $filter->type() === GeoFilter::TYPE_REMOTE_OPTIONS ? $source : null;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -361,6 +410,7 @@ class GeoController extends AdminPanelController
             new Route("{$startRoute}/points[/]", self::class . ':points', self::$baseRouteName . '-points', 'GET', true, null, $roles),
             new Route("{$startRoute}/points/{source}/{id}[/]", self::class . ':point', self::$baseRouteName . '-point', 'GET', true, null, $roles),
             new Route("{$startRoute}/thumbnail/{source}/{id}/{size}[/]", self::class . ':thumbnail', self::$baseRouteName . '-thumbnail', 'GET', true, null, $roles),
+            new Route("{$startRoute}/filters/{key}/options[/]", self::class . ':filterOptions', self::$baseRouteName . '-filter-options', 'GET', true, null, $roles),
         ]);
 
         $group->addMiddleware(function (Request $request, $handler) {

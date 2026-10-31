@@ -13,7 +13,6 @@ $lang = [
     'Idiomas' => 'Languages',
     "Formularios" => "Forms",
     "Gestión de usuarios" => "User management",
-    "Registro" => "Registration",
     "Mi espacio" => "My space",
     "Mi perfil" => "My profile",
     "Volver a mi usuario" => "Return to my user",

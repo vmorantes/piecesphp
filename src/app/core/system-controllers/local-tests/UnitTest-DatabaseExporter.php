@@ -6,6 +6,7 @@
  * @license https://opensource.org/licenses/MIT MIT License
  * @link    https://github.com/vicsen/piecesphp
  */
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\Export\Enums\DataStyle;

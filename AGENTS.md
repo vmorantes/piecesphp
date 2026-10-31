@@ -89,8 +89,9 @@ solo-admin y está marcado «por renovar»: no lo uses como referencia de estilo
 - **Las dos verificaciones son dos, y NO se llaman entre sí**: quien corre solo una se deja fuera lo que vigila la
   otra. `bin/verify` no incluye `verificar.sh`, y `verificar.sh` no mira `src/`.
 - Verificación del andamiaje: `bash .agents/scripts/verificar.sh`. Del producto: la que dicte
-  la instrucción; por defecto **`bin/verify`**, que encadena `bin/check-routes`, `bin/phpstan`,
-  `bin/cli verify-integrity` y `bin/cli gates` y para en el primero que falla.
+  la instrucción; por defecto **`bin/verify`**, que encadena `bin/check-routes`, `bin/formatear --check` (lo tocado
+  desde el commit en la parcial, todo en la entera), `bin/phpstan`, `bin/cli verify-integrity` y `bin/cli gates` y para
+  en el primero que falla.
 - **El hook `commit-msg` rechaza la atribución a IA en los commits de cualquier herramienta.
   Actívalo en cada clon y en cada máquina:** `git config core.hooksPath .agents/scripts/git-hooks`.
   `verificar.sh` falla si falta (A-011).
@@ -101,10 +102,13 @@ solo-admin y está marcado «por renovar»: no lo uses como referencia de estilo
 bin/verify              # la verificación de producto completa, en orden
 bin/verify --changed-since=<commit>  # la parcial: gates solo del área tocada (ADR 0062); nunca para cerrar
 bin/check-routes        # patrones de ruta; funciona aunque la aplicación no arranque
+bin/con-marca -- <orden> # una orden que no es suite: lo que escriba en los registros de errores se poda al salir
+bin/docs ver|compilar|preparar  # la documentación con MkDocs: verla, compilarla y preparar lo que se publica
 bin/cli <acción>        # CLI del framework (help lista las acciones)
 bin/phpstan             # análisis estático (nivel 8) -> PHPStanResult.Summary.txt
 bin/phpstan-deadcode    # mide las ramas muertas que phpstan.neon silencia
 bin/rector              # refactor automatizado, configurado en bin/tools/refactorization
+bin/comparativa         # la referencia del tema junto a nuestra pantalla (H109)
 cd src && gulp init-project   # compilar SASS y TypeScript (el JS de configuración: gulp js-vendor)
 bash .agents/scripts/verificar.sh   # andamiaje de agentes: guarda, generados, enlaces, hook
 ```

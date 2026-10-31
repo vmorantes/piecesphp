@@ -3,16 +3,16 @@
 
     <div class="header">
 
-        <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui button back-color icon">
+        <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui basic labeled icon button back-color">
             <i class="arrow left icon"></i>
-            <span class="ml-8">Atrás</span>
+            Atrás
         </a>
 
         <div class="back">
 
-            <a href="<?=\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login')?>" class="ui button custom-color icon">
+            <a href="<?=\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login')?>" class="ui primary labeled icon button custom-color">
                 <i class="icon user"></i>
-                <span><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Iniciar sesión'); ?></span>
+                <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Iniciar sesión'); ?>
             </a>
 
         </div>

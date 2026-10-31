@@ -2,12 +2,13 @@
 
 //`mail-demo` manda correo, así que esta suite NO lo manda: prueba sus dos guardas con el entorno en archivos
 //temporales y la entrega desviada en memoria, y que lo que prepara no lleva la marca de las pruebas.
+//@areas nucleo
 
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Terminal\CliActions;
-use Terminal\TestLeftovers;
 use Terminal\Tasks\MailDemoTask;
+use Terminal\TestLeftovers;
 
 CliActions::make('unit-tests:core/mail-demo', function ($args) {
 

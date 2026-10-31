@@ -7,17 +7,17 @@
 namespace PiecesPHP\UserSystem\Controllers;
 
 use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\UserSystem\Authentication\TokenEvents;
-use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
-use PiecesPHP\UserSystem\ORM\TicketsLogModel;
-use PiecesPHP\UserSystem\ORM\UserProblemsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use SystemApprovals\Mappers\SystemApprovalsMapper;
-use SystemApprovals\SystemApprovalsRoutes;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\UserSystem\Authentication\TokenEvents;
+use PiecesPHP\UserSystem\ORM\TicketsLogModel;
+use PiecesPHP\UserSystem\ORM\UserProblemsModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -35,6 +35,10 @@ class UserProblemsController extends UsersController
     const TYPE_USER_FORGET = 'TYPE_USER_FORGET';
     const TYPE_USER_BLOCKED = 'TYPE_USER_BLOCKED';
     const LANG_GROUP = 'usersProblems';
+
+    //Frenan que se inunde el buzón de alguien y la tabla: un código por usuario cada minuto y no más de cinco por hora.
+    const CODE_MIN_SECONDS_BETWEEN = 60;
+    const CODE_MAX_PER_HOUR = 5;
 
     /**
      * @var UsersModel
@@ -91,7 +95,7 @@ class UserProblemsController extends UsersController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
+        import_front_library('fomantic-piecesphp', []);
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -123,9 +127,7 @@ class UserProblemsController extends UsersController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
-        /* izitoast */
-        import_izitoast();
+        import_front_library('fomantic-piecesphp', []);
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -157,9 +159,7 @@ class UserProblemsController extends UsersController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
-        /* izitoast */
-        import_izitoast();
+        import_front_library('fomantic-piecesphp', []);
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -191,9 +191,7 @@ class UserProblemsController extends UsersController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_semantic();
-        /* izitoast */
-        import_izitoast();
+        import_front_library('fomantic-piecesphp', []);
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -272,6 +270,13 @@ class UserProblemsController extends UsersController
                     return $response->withJson($json_response);
                 }
 
+                //Con el límite alcanzado no se crea ni se envía nada, y la respuesta es la de un envío.
+                if ($usuario !== null && self::codeLimitReached((string) $usuario->email)) {
+                    $json_response['send_mail'] = true;
+                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
+                    return $response->withJson($json_response);
+                }
+
                 //Verificación de existencia
                 if ($usuario !== null) {
 
@@ -306,8 +311,9 @@ class UserProblemsController extends UsersController
                     $logRequest->save();
                 } else {
 
-                    $json_response['error'] = self::USER_NO_EXISTS;
-                    $json_response['message'] = vsprintf($this->getMessage($json_response['error']), [$username]);
+                    //Quien no existe recibe la respuesta de un envío, sin crear ni enviar nada: no se delata (P201).
+                    $json_response['send_mail'] = true;
+                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
                 }
             } else {
                 $json_response['error'] = self::UNEXPECTED_ACTION;
@@ -422,7 +428,8 @@ class UserProblemsController extends UsersController
                         $json_response['message'] = $this->getMessage($json_response['error']);
                     }
                 } else {
-                    $json_response['error'] = self::USER_NO_EXISTS;
+                    //El usuario del código ya no existe: se responde como a un código que no vale, sin delatarlo.
+                    $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
                     $json_response['message'] = $this->getMessage($json_response['error']);
                 }
             } else {
@@ -723,5 +730,18 @@ class UserProblemsController extends UsersController
             'success' => $success,
             'instance' => $osTicket ?? null,
         ];
+    }
+
+    /**
+     * Si ese correo ya pidió un código hace menos de CODE_MIN_SECONDS_BETWEEN o CODE_MAX_PER_HOUR en la última hora.
+     *
+     * @param string $email
+     * @return bool
+     */
+    private static function codeLimitReached(string $email): bool
+    {
+        $now = new \DateTime();
+        return UserProblemsModel::countSince($email, (clone $now)->modify('-' . self::CODE_MIN_SECONDS_BETWEEN . ' seconds')) > 0
+            || UserProblemsModel::countSince($email, (clone $now)->modify('-1 hour')) >= self::CODE_MAX_PER_HOUR;
     }
 }

@@ -6,24 +6,25 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use PiecesPHP\Core\BaseModel;
-use PiecesPHP\UserSystem\UserDataPackage;
-use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\DashboardCard;
 use PiecesPHP\AdminPanel\DashboardCardBody;
-use PiecesPHP\UserSystem\UserHierarchy;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Logs\Controllers\LogsController;
-use PiecesPHP\Logs\LogTab;
-use PiecesPHP\Logs\LogTabRegistry;
-use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
-use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
-use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Logs\Controllers\LogsController;
+use PiecesPHP\Logs\LogTab;
+use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
+use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserHierarchy;
+use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -146,7 +147,6 @@ class LoginAttemptsController extends AdminPanelController
     {
         //Las piezas de estadísticas no traen su hoja (16 §9); las gráficas, con ApexCharts.
         add_global_asset('statics/core/css/graphs-and-statistics.css', 'css');
-        add_global_asset(UserSystemFeaturesRoutes::staticRoute('css/attempts.css'), 'css');
         import_apexcharts();
         add_global_asset('statics/core/js/statistics-chart-legend.js', 'js');
         add_global_asset(UserSystemFeaturesRoutes::staticRoute('js/access-reports.js'), 'js');
@@ -163,11 +163,11 @@ class LoginAttemptsController extends AdminPanelController
         //Las cifras salen aquí, con la misma jerarquía que el listado (P133); el JavaScript solo dibuja.
         $data = [];
         if ($view === 'attempts') {
-            $attemptsData = LoginAttemptsModel::all();
+            $counts = LoginAttemptsModel::countsBySuccess();
             $data = [
-                'totalAttempts' => count($attemptsData),
-                'successAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 1;})),
-                'errorAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 0;})),
+                'totalAttempts' => $counts['total'],
+                'successAttempts' => $counts['success'],
+                'errorAttempts' => $counts['error'],
             ];
         } else {
             $users = self::visibleUsers();
@@ -245,9 +245,10 @@ class LoginAttemptsController extends AdminPanelController
      */
     public static function registerLogTab(): void
     {
+        //El título se traduce AL REGISTRARSE: con un grupo ya inyectado (loginReport llega después, en final-configurations).
         LogTabRegistry::register(new LogTab(
             self::ACCESS_TAB,
-            __(LOGIN_REPORT_LANG_GROUP, 'Accesos'),
+            __(UserSystemFeaturesLang::LANG_GROUP, 'Accesos'),
             'sign in alternate',
             self::$baseRouteName . '-reports-ajax',
             fn(Request $request, string $tabURL): string => self::accessTab($request, $tabURL),

@@ -2,8 +2,10 @@
 
 //robots.txt, humans.txt y llms.txt servidos por ruta (ADR 0032 §3), y su pantalla «Archivos para buscadores», por HTTP.
 //Crea dos usuarios zz-prueba-archivos-* y escribe los tres añadidos; lo devuelve todo como estaba.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
@@ -11,6 +13,7 @@ use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Settings\Controllers\SiteFilesController;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -251,4 +254,4 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
 
     return $balance();
 
-})->setDescription('robots.txt, humans.txt y llms.txt por ruta: tipos, caché, base y añadidos; la pantalla solo para los roles de SEO; una línea inválida no escribe.')->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_DATABASE])->register();
+})->setDescription('robots.txt, humans.txt y llms.txt por ruta: tipos, caché, base y añadidos; la pantalla solo para los roles de SEO; una línea inválida no escribe.')->setEffects([CliActions::EFFECT_DATABASE])->register();

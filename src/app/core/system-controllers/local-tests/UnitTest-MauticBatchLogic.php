@@ -2,6 +2,7 @@
 
 //La mitad de `tests:mautic-batch-send` que NO sale a la red: el mismo recorrido contra un
 //transporte falso, sin claves y sin correo. Ver T125.
+//@areas src/app/classes/API/
 
 use API\Adapters\MauticEmailAdapter;
 use PiecesPHP\Core\BaseController;

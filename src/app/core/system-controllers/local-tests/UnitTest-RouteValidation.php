@@ -2,13 +2,14 @@
 
 //P57: cada ruta se comprueba al registrarse. En local, un patrón que FastRoute no analiza revienta ahí, con su nombre y
 //su archivo; fuera de local se apunta, se descarta y el panel avisa. No registra nada en el enrutador de la aplicación.
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\InvalidRoutes;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 CliActions::make('unit-tests:core/route-validation', function ($args) {
 
@@ -86,6 +87,19 @@ CliActions::make('unit-tests:core/route-validation', function ($args) {
         $check($aviso !== null && $aviso->severity() === \PiecesPHP\SystemStatus\SystemAlert::SEVERITY_DANGER && $aviso->audience() === [UsersModel::TYPE_USER_ROOT] && $aviso->showAsNag() && !$aviso->isDismissible(), 'c3 peligro, solo root, flotante y no descartable');
         InvalidRoutes::clear();
         $check($aviso !== null && !SystemAlertRegistry::isActive($aviso), 'c4 clear() apaga el aviso');
+        echoTerminal(' ');
+
+        echoTerminal('[d] Una ruta sin nombre no se inventa uno (G7-13)');
+        $lanzaSinNombre = function (?string $nombre): string {
+            try {
+                new Route('/zz-sin-nombre', fn() => null, $nombre);
+            } catch (\InvalidArgumentException $e) {
+                return $e->getMessage();
+            }
+            return '';
+        };
+        $check(str_contains($lanzaSinNombre(null), '/zz-sin-nombre') && $lanzaSinNombre('') !== '', 'd1 sin nombre (null o vacío), lanza y nombra la ruta', $lanzaSinNombre(null));
+        $check($lanzaSinNombre('zz-con-nombre') === '' && (new Route('/zz-sin-nombre', fn() => null, 'zz-con-nombre'))->name() === 'zz-con-nombre', 'd2 CANARIO: con nombre, se construye con ese');
         echoTerminal(' ');
 
     } catch (\Throwable $e) {

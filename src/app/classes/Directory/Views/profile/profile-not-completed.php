@@ -1,7 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use PiecesPHP\App\Locations\LocationsLang;
 use MySpace\Controllers\MyProfileController;
 use PiecesPHP\UserSystem\UserDataPackage;
 
@@ -27,12 +26,12 @@ $secondaryActions = $currentUserIsSameProfile && MyProfileController::allowedRou
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-            'secondaryActions' => $secondaryActions,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
         <div class="profile-content">

@@ -91,7 +91,7 @@ class SessionToken
             self::$invalidNameLogged = true;
             log_exception(new \UnexpectedValueException(
                 'El nombre de sesión configurado en «' . self::TOKEN_NAME_CONFIG . '» no es válido y se usa el de por'
-                . ' defecto. Solo se admiten letras, dígitos y el guion bajo, hasta 64 caracteres.'
+                    . ' defecto. Solo se admiten letras, dígitos y el guion bajo, hasta 64 caracteres.'
             ));
         }
 
@@ -164,7 +164,7 @@ class SessionToken
             self::$invalidLifetimeLogged[$config] = true;
             log_exception(new \UnexpectedValueException(
                 'La opción de sesión «' . $config . '» no es válida y se usa la de por omisión. Se admite un entero de 0'
-                . ' (sin ese límite) a ' . self::DURATION_MAX . ' segundos.'
+                    . ' (sin ese límite) a ' . self::DURATION_MAX . ' segundos.'
             ));
         }
         return $default;
@@ -182,7 +182,7 @@ class SessionToken
             self::$retiredDurationLogged = true;
             log_exception(new \UnexpectedValueException(
                 'La opción «' . self::DURATION_CONFIG . '» ya no se usa (P142): la sesión la gobiernan «' . self::INACTIVITY_CONFIG
-                . '» y «' . self::CEILING_CONFIG . '».'
+                    . '» y «' . self::CEILING_CONFIG . '».'
             ));
         }
     }
@@ -382,7 +382,7 @@ class SessionToken
             self::$invalidMinimumDateLogged = true;
             log_exception(new \UnexpectedValueException(
                 'La marca global de sesión configurada en «' . self::MINIMUM_DATE_CONFIG . '» no es una fecha válida y'
-                . ' se usa la de por defecto. Se admite una fecha como «2026-03-02 00:00:00».'
+                    . ' se usa la de por defecto. Se admite una fecha como «2026-03-02 00:00:00».'
             ));
         }
 

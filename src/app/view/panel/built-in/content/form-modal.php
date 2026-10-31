@@ -4,6 +4,9 @@
  * que tiene uno o dos campos (las categorías), en un `ui modal` de Fomantic sobre el listado. Apagable: un módulo con
  * categorías complejas usa su página.
  *
+ * El guardar NO lleva `approve`, como el de los escaparates: es `type="submit"`, y con `approve` Fomantic cerraría la ventana
+ * antes de que genericFormHandler guardara. `small`, porque es para uno o dos campos.
+ *
  * La abre un disparador `[data-content-modal="<modalId>"]` (admin-area/js/main.js, contentModals()); con
  * `data-content-modal-values` (JSON por `name`) rellena el formulario (edición) y sin él lo abre vacío (alta). Con
  * `data-content-modal-action` y `data-content-modal-title`, cambia la acción y el título. Un campo con
@@ -31,16 +34,17 @@ $formAttributes = isset($formAttributes) && is_array($formAttributes) ? RowActio
 $formId = $modalId . '-form';
 ?>
 <?php if ($modalId !== ''): ?>
-<div class="ui small modal content-form-modal" id="<?= $modalId; ?>">
-    <div class="header" data-content-modal-header><?= escape_html($title); ?></div>
-    <div class="content">
+<div class="ui small modal content-form-modal" id="<?= $modalId; ?>" aria-labelledby="<?= $modalId; ?>-title">
+    <i class="close icon" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Cerrar')); ?>"></i>
+    <div class="header" id="<?= $modalId; ?>-title" data-content-modal-header><?= escape_html($title); ?></div>
+    <div class="scrolling content">
         <form method="POST" action="<?= escape_html($action); ?>" class="ui form initial" id="<?= $formId; ?>" data-content-form data-content-modal-form<?= $formAttributes; ?>>
             <?= $fields; ?>
         </form>
     </div>
     <div class="actions">
         <button class="ui basic button" type="button" data-content-modal-cancel><?= escape_html($cancelText); ?></button>
-        <button class="ui button brand-color" type="submit" form="<?= $formId; ?>"><?= escape_html($saveText); ?></button>
+        <button class="ui primary button" type="submit" form="<?= $formId; ?>"><?= escape_html($saveText); ?></button>
     </div>
 </div>
 <?php endif; ?>

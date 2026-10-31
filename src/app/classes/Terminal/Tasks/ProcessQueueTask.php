@@ -6,7 +6,6 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -16,6 +15,7 @@ use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\QueueHandlerResponse;
 use PiecesPHP\Terminal\QueueTask;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Terminal\Mappers\QueueJobMapper;
 
 /**
@@ -107,11 +107,24 @@ class ProcessQueueTask extends TerminalTaskAbstract
      * La edad sale de `startedAt`, que es lo que escribe el procesador al marcar el trabajo en
      * curso. Con intentos restantes vuelven a `pending`; sin ellos, a `failed`.
      *
+     * @param int[]|null $onlyIDs Null: todos los abandonados. Una lista: solo esos ids; vacía, ninguno (no «todos»).
      * @return string[] Una línea por trabajo recuperado, para el mensaje de la pasada.
+     * @throws \InvalidArgumentException Si un id de la lista no es un entero
      */
-    public static function reclaimAbandoned(): array
+    public static function reclaimAbandoned(?array $onlyIDs = null): array
     {
         $messages = [];
+
+        if ($onlyIDs !== null) {
+            foreach ($onlyIDs as $onlyID) {
+                if (!is_int($onlyID)) {
+                    throw new \InvalidArgumentException('reclaimAbandoned(): los ids tienen que ser enteros.');
+                }
+            }
+            if ($onlyIDs === []) {
+                return $messages;
+            }
+        }
 
         try {
             $model = QueueJobMapper::model();
@@ -120,14 +133,16 @@ class ProcessQueueTask extends TerminalTaskAbstract
                 return $messages;
             }
 
+            //Los ids van por marcador: la lista solo decide cuántos «?» hay.
+            $onlyIDsSQL = $onlyIDs !== null ? ' AND id IN (' . implode(', ', array_fill(0, count($onlyIDs), '?')) . ')' : '';
             $sql = "SELECT id FROM " . QueueJobMapper::TABLE . "
                     WHERE status = ?
                     AND startedAt IS NOT NULL
-                    AND startedAt < ?
+                    AND startedAt < ?{$onlyIDsSQL}
                     ORDER BY startedAt ASC";
             $limit = date('Y-m-d H:i:s', time() - (self::ABANDONED_AFTER_MINUTES * 60));
             $statement = $database->prepare($sql);
-            $statement->execute([QueueJobMapper::STATUS_RUNNING, $limit]);
+            $statement->execute(array_merge([QueueJobMapper::STATUS_RUNNING, $limit], $onlyIDs ?? []));
 
             foreach ($statement->fetchAll(\PDO::FETCH_OBJ) as $row) {
                 $task = new QueueJobMapper($row->id);
@@ -245,7 +260,12 @@ class ProcessQueueTask extends TerminalTaskAbstract
                     ORDER BY createdAt ASC
                     LIMIT " . $limit;
 
-            $pendingTasks = $model->getDatabase()->prepare($sql);
+            //El modelo siempre trae su conexión; si faltara, el catch de abajo lo registra en vez de un fatal.
+            $database = $model->getDatabase();
+            if ($database === null) {
+                throw new \RuntimeException('No hay conexión a la base de datos para leer la cola.');
+            }
+            $pendingTasks = $database->prepare($sql);
             $pendingTasks->execute([QueueJobMapper::STATUS_PENDING, $now]);
             $pendingTasks = $pendingTasks->fetchAll(\PDO::FETCH_OBJ);
 

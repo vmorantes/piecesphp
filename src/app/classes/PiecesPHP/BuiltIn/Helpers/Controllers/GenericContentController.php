@@ -6,15 +6,13 @@
 
 namespace PiecesPHP\BuiltIn\Helpers\Controllers;
 
-use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Helpers\Exceptions\SafeException;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemLang;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemRoutes;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Roles;
@@ -31,7 +29,8 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Exception\HttpForbiddenException;
 
 /**
@@ -181,18 +180,9 @@ class GenericContentController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        //Viven en Configuración › Integraciones (P134 a): sus migas y su «Cancelar», los de esa sección.
-        $data['indexLink'] = SettingsController::routeName('index');
-        $data['breadcrumbs'] = [
-            __(self::LANG_GROUP, 'Inicio') => [
-                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-            ],
-            __(self::LANG_GROUP, 'Configuración') => [
-                'url' => $data['indexLink'],
-            ],
-            __(self::LANG_GROUP, 'Integraciones'),
-            $title,
-        ];
+        //Viven en Configuración › Sistema (P255 a): como el resto de la configuración, sin migas y con «Cancelar» al inicio
+        //(SettingsController::sectionHeaderData(), ADR 0070).
+        $data = SettingsController::sectionHeaderData($title, $description) + $data;
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/tokens-limit', $data, true, false);
@@ -221,8 +211,8 @@ class GenericContentController extends AdminPanelController
 
         $action = self::routeName('actions-edit');
 
-        $title = __(self::LANG_GROUP, 'Llaves de MapBox');
-        $description = __(self::LANG_GROUP, 'Las llaves con las que se pintan los mapas.');
+        $title = __(self::LANG_GROUP, 'Llaves de Mapas');
+        $description = __(self::LANG_GROUP, 'Llaves de acceso del servicio de mapas de la plataforma.');
 
         set_title($title);
 
@@ -232,18 +222,9 @@ class GenericContentController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        //Viven en Configuración › Integraciones (P134 a): sus migas y su «Cancelar», los de esa sección.
-        $data['indexLink'] = SettingsController::routeName('index');
-        $data['breadcrumbs'] = [
-            __(self::LANG_GROUP, 'Inicio') => [
-                'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-            ],
-            __(self::LANG_GROUP, 'Configuración') => [
-                'url' => $data['indexLink'],
-            ],
-            __(self::LANG_GROUP, 'Integraciones'),
-            $title,
-        ];
+        //Viven en Configuración › Sistema (P255 a): como el resto de la configuración, sin migas y con «Cancelar» al inicio
+        //(SettingsController::sectionHeaderData(), ADR 0070).
+        $data = SettingsController::sectionHeaderData($title, $description) + $data;
 
         $this->helpController->render('panel/layout/header');
         $this->render('forms/mapbox-key', $data, true, false);
@@ -279,25 +260,13 @@ class GenericContentController extends AdminPanelController
                 }
             ),
             new Parameter(
-                "tokensLimit",
-                null,
-                function ($value) {
-                    return Validator::isInteger($value);
-                },
-                true,
-                function ($value) {
-                    return intval($value);
-                }
-            ),
-            new Parameter(
                 GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT,
                 [],
+                //Idioma → entero, siempre un arreglo: un entero suelto llegaba a array_keys() y daba 500.
                 function ($value) {
-                    $valid = is_null($value) || Validator::isInteger($value);
-                    $valid = $valid || Validator::isArray($value, function ($key, $value) {
+                    return is_null($value) || Validator::isArray($value, function ($key, $value) {
                         return Config::is_allowed_lang($key) && Validator::isInteger($value);
                     });
-                    return $valid;
                 },
                 true,
                 function ($value) {
@@ -308,9 +277,6 @@ class GenericContentController extends AdminPanelController
                             $parsed[$key] = intval($value);
                         }
                     });
-                    if (empty($parsed)) {
-                        return Validator::isInteger($value) ? (int) $value : 0;
-                    }
                     return $parsed;
                 }
             ),
@@ -520,10 +486,11 @@ class GenericContentController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
+            $response = $response->withStatus(400);
 
         } catch (HttpForbiddenException $e) {
             //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
@@ -574,113 +541,6 @@ class GenericContentController extends AdminPanelController
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * @param string $nameOnFiles
-     * @param string $folder
-     * @param string $currentRoute
-     * @param array $allowedTypes
-     * @param bool $setNameByInput
-     * @param string $name
-     * @return string
-     * @throws \Exception
-     */
-    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
-    {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
-        }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name ??= 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new GenericContentController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                    $name = safe_upload_name($name);
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-
-                if ($valid) {
-
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-                    if (!empty($locations)) {
-
-                        $url = $locations[0];
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
     }
 
     /**

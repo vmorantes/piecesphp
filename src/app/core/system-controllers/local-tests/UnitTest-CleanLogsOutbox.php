@@ -2,6 +2,7 @@
 
 //`clean-logs` vacía también el buzón en disco del correo retenido: cada .eml lleva el cuerpo en claro.
 //Se prueba sobre un directorio temporal: el buzón real y los logs reales no se tocan.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use Terminal\Tasks\CleanLogsTask;

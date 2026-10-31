@@ -11,22 +11,22 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="limiter-content">
 
         <?php
-        //La cabecera del panel (diseno/01-contenidos.md §2.1): el alta, arriba, como acción principal.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Agregar suscriptor'), 'url' => $addLink, 'icon' => 'plus'] : null,
-        ]);
+            //La cabecera del panel (diseno/01-contenidos.md §2.1): el alta, arriba, como acción principal.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+                'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Agregar suscriptor'), 'url' => $addLink, 'icon' => 'plus'] : null,
+            ]);
         ?>
 
         <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
             <div class="mirror-scroll-x-content"></div>
         </div>
 
-        <div class="container-standard-table">
+        <div class="ui fluid card container-standard-table">
 
-            <table url="<?= $processTableLink; ?>" class="ui basic table content-table">
+            <table url="<?= $processTableLink; ?>" class="ui selectable very basic table content-table">
 
                 <thead>
 

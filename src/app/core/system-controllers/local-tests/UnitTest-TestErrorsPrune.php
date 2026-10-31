@@ -1,6 +1,7 @@
 <?php
 
 //ADR 0063: lo que escribe una prueba lleva su marca y se poda; un error real nunca. Todo en un temporal propio.
+//@areas nucleo
 
 use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Terminal\CliActions;
@@ -119,6 +120,58 @@ CliActions::make('unit-tests:core/test-errors-prune', function ($args) {
         $check(\Terminal\TestRun::withHeader(['A: b']) === ['A: b', GenericHandler::TEST_RUN_HEADER . ': ' . $mia], 'c6 las peticiones de las suites llevan la cabecera de la corrida en curso');
         $conCorrida(null);
         $check(\Terminal\TestRun::withHeader(['A: b']) === ['A: b'], 'c7 y sin corrida, ninguna');
+
+        //─── d · Los dos registros planos ───────────────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[d] error.plain.log y error.unique.message.log: lo marcado se poda; lo real, nunca');
+        $plano = $directorio . '/' . GenericHandler::FILE_PLAIN;
+        $unico = $directorio . '/' . GenericHandler::FILE_UNIQUE;
+        //Lo que ya había, real (el suave real de [a]): tiene que quedar igual.
+        $planoPrevio = (string) @file_get_contents($plano);
+        $conCorrida($mia);
+        //Con un salto en el mensaje: la poda quita el bloque entero, no solo su cabecera.
+        $planoMarcado = new GenericHandler(new \RuntimeException("zz plano de la prueba\nsu segunda línea"), $directorio);
+        $planoMarcado->logging(true);
+        $conCorrida(null);
+        $planoReal = new GenericHandler(new \RuntimeException('zz plano REAL'), $directorio);
+        $planoReal->logging(true);
+        $conCorrida($mia);
+        (new GenericHandler(new \RuntimeException('zz plano de la prueba, después'), $directorio))->logging(true);
+        //La misma firma, primero marcada y después real: nacen en la misma línea.
+        foreach ([$mia, null] as $corrida) {
+            $conCorrida($corrida);
+            (new GenericHandler(new \RuntimeException('zz único'), $directorio))->loggingUniqueMessage();
+        }
+        $conCorrida(null);
+        $planoAntes = (string) @file_get_contents($plano);
+        $unicoAntes = (string) @file_get_contents($unico);
+        $lineaPlanaReal = '';
+        foreach (explode("\n", $planoAntes) as $linea) {
+            if (str_contains($linea, '[ref ' . $planoReal->reference() . ']')) {
+                $lineaPlanaReal = $linea . "\n";
+            }
+        }
+        $bloqueUnicoReal = implode("\n", array_slice(explode("\n", $unicoAntes), 5));
+        $check(
+            str_contains($planoAntes, '[ref ' . $planoMarcado->reference() . '] [test ' . $mia . '] ') && !str_contains($lineaPlanaReal, '[test '),
+            'd1 la línea plana de la prueba lleva [test <corrida>] tras [ref X]; la real, no'
+        );
+        $cabecerasUnico = preg_match_all('/^\[[0-9]{4}-/m', $unicoAntes);
+        $check(
+            $cabecerasUnico === 2 && str_contains($unicoAntes, "zz único in ") && str_contains(explode("\n", $unicoAntes)[0], " [test {$mia}]") && !str_contains($bloqueUnicoReal, '[test '),
+            'd2 un error REAL con la misma firma que uno de prueba sí se escribe en el único: la marca va dentro de la firma',
+            "cabeceras {$cabecerasUnico}"
+        );
+        $podaPlana = GenericHandler::pruneTestRun($mia, $directorio);
+        $check(
+            $podaPlana['plain'] === 2 && $podaPlana['unique'] === 1 && $podaPlana['error'] === null,
+            'd3 poda las 2 líneas planas y el bloque único de la corrida',
+            json_encode($podaPlana) ?: ''
+        );
+        $check(
+            $lineaPlanaReal !== '' && (string) @file_get_contents($plano) === $planoPrevio . $lineaPlanaReal && (string) @file_get_contents($unico) === $bloqueUnicoReal,
+            'd4 lo REAL queda byte a byte, y del mensaje con salto no queda nada'
+        );
     } catch (\Throwable $e) {
         $check(false, 'la prueba corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

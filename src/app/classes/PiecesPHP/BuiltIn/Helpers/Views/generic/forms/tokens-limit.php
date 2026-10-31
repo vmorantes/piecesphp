@@ -1,7 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\Core\Config;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
+use PiecesPHP\Core\Config;
 /**
  * @var GenericContentPseudoMapper $element
  */
@@ -19,12 +19,12 @@ $contentName = $element->userSetContentName();
     <div class="limiter-content">
 
         <?php
-        //La cabecera de Configuración (diseno/02-configuracion.md §2.1).
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-        ]);
+            //La cabecera de Configuración (diseno/02-configuracion.md §2.1).
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+            ]);
         ?>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial generic" data-content-form>
@@ -52,11 +52,11 @@ $contentName = $element->userSetContentName();
             </div>
 
             <?php
-            //La barra al final del formulario (§2.3), como en el resto de Configuración: «Cancelar» vuelve a su índice.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
-            ]);
+                //La barra al final del formulario (§2.3), como en el resto de Configuración: «Cancelar» vuelve a su índice.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+                ]);
             ?>
 
         </form>

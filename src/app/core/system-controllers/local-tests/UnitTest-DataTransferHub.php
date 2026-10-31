@@ -2,9 +2,10 @@
 
 //Portada de Importar y exportar e interruptor por definición: lo apagado no entra por ninguna puerta, ni para root.
 //Escribe de verdad la opción data_transfer_disabled y entradas del registro de acciones, y lo repone todo en el finally: db-backup antes.
+//@areas src/app/classes/DataImportExportUtility/
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/PiecesPHP/Settings/
 
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersExportDefinition;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
@@ -21,7 +22,9 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -109,19 +112,37 @@ CliActions::make('unit-tests:core/data-transfer-hub', function ($args) {
         $como($root);
         $html = $pintar();
         $check(str_contains($html, 'Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.') && !str_contains($html, 'Elige qué quieres importar.'), 'a1 subtítulo exacto');
-        $check(str_contains($html, 'class="tabs-controls content-tabs"') && str_contains($html, 'data-tab="importar"') && str_contains($html, 'data-tab="exportar"') && substr_count($html, 'class="ui tab tab-element') === 2, 'a2 pestañas Importar y Exportar con la pieza del panel');
+        $check(str_contains($html, 'class="ui secondary pointing menu tabs-controls content-tabs"') && str_contains($html, 'data-tab="importar"') && str_contains($html, 'data-tab="exportar"') && substr_count($html, 'class="ui tab tab-element') === 2, 'a2 pestañas Importar y Exportar con la pieza del panel (las del tema, con tabs-controls de gancho)');
         $check(str_contains($html, 'Descarga la plantilla, llénala y súbela. Puedes validarla antes de guardar.') && str_contains($html, 'Elige los filtros y el formato, y descarga el archivo.'), 'a3 la línea de cada pestaña');
         $check(str_contains($html, 'data-transfer-row="import-users"') && str_contains($html, 'data-transfer-row="export-users"') && str_contains($html, htmlspecialchars((new UsersImportDefinition())->description(), ENT_QUOTES)), 'a4 una fila por entidad, con su descripción');
         $filaUsers = DataTransferController::importerHubRow('users', new UsersImportDefinition(), true);
         $filaEjemplo = DataTransferController::importerHubRow('example-user-names', new ExampleUserNamesImportDefinition(), true);
         $check($filaUsers['templateCsv'] !== null && str_ends_with($filaUsers['templateCsv'], 'format=csv') && str_ends_with($filaUsers['templateXlsx'], 'format=xlsx') && $filaEjemplo['templateCsv'] === null, 'a5 plantilla CSV solo si el importador la acepta', (string) json_encode([$filaUsers['templateCsv'], $filaEjemplo['templateCsv']]));
         $obligatorio = new class extends ExportDefinition {
-            public function key(): string { return 'zz-obligatorio'; }
-            public function title(): string { return 'Obligatorio'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function parameters(): array { return [ExportParameter::integer('year', 'Año')->required()]; }
-            public function columns(ExportContext $context): array { return [new ExportColumn('a', 'A')]; }
-            public function rows(ExportContext $context): iterable { return []; }
+            public function key(): string
+            {
+                return 'zz-obligatorio';
+            }
+            public function title(): string
+            {
+                return 'Obligatorio';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function parameters(): array
+            {
+                return [ExportParameter::integer('year', 'Año')->required()];
+            }
+            public function columns(ExportContext $context): array
+            {
+                return [new ExportColumn('a', 'A')];
+            }
+            public function rows(ExportContext $context): iterable
+            {
+                return [];
+            }
         };
         $sinObligatorios = DataTransferController::exporterHubRow('example-users-report', new ExampleUsersReportExportDefinition(), true);
         $conObligatorio = DataTransferController::exporterHubRow('zz-obligatorio', $obligatorio, true);

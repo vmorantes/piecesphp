@@ -6,10 +6,10 @@
 
 namespace Publications\Mappers;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 
@@ -91,7 +91,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -174,7 +174,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -532,7 +532,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

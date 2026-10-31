@@ -20,15 +20,12 @@ function changeImageLogin() {
 
 	let urlImage = backgrounds[randomImageLoginIndex]
 
-	let bgHandler = function (e) {
-
-		bgElement.css({
+	//Sin fondos queda el degradado del tema.
+	if (typeof urlImage == 'string' && urlImage !== '') {
+		bgElement.addClass('with-image').css({
 			'background-image': `url(${urlImage})`,
 		})
-
 	}
-
-	bgHandler()
 
 	function randomNumber(max = 5) {
 		let number = Math.random() * max
@@ -44,6 +41,8 @@ function changeImageLogin() {
  * Configura el formulario de logueo
  */
 function configLoginForm() {
+
+	configPasswordEye()
 
 	pcsphp.authenticator.verify(() => window.location.reload())
 
@@ -217,7 +216,7 @@ function configLoginForm() {
 
 		if ('INCORRECT_PASSWORD' == error) {
 
-			titleError.html(_i18n('loginForm', 'CONTRASEÑA_INVÁLIDA'))
+			titleError.html(_i18n('loginForm', 'USUARIO_O_CONTRASEÑA_INCORRECTOS'))
 			messageError.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
 
 		} else if ('BLOCKED_FOR_ATTEMPTS' == error) {
@@ -227,18 +226,10 @@ function configLoginForm() {
 			onErrorTryAgainButton.hide()
 			messageBottom.hide()
 
-		} else if ('USER_NO_EXISTS' == error) {
+		} else if ('TOO_MANY_ATTEMPTS' == error) {
 
-			titleError.html(
-				formatStr(
-					_i18n('loginForm', 'USUARIO_INEXISTENTE'),
-					[
-						data.user,
-					]
-				)
-			)
-			messageError.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
-
+			titleError.html(_i18n('loginForm', 'Demasiados intentos'))
+			messageError.html(data.message)
 
 		} else if ('MISSING_OR_UNEXPECTED_PARAMS' == error) {
 
@@ -258,4 +249,30 @@ function configLoginForm() {
 		}
 
 	}
+}
+
+/**
+ * El ojo de la contraseña: un botón de verdad, con el teclado y su estado.
+ */
+function configPasswordEye() {
+
+	const eye = $('[data-login-eye]')
+	const input = $(`#${eye.attr('aria-controls')}`)
+
+	const toggle = function () {
+		const show = input.attr('type') === 'password'
+		input.attr('type', show ? 'text' : 'password')
+		eye.toggleClass('slash', show)
+		eye.attr('aria-pressed', show ? 'true' : 'false')
+		eye.attr('aria-label', eye.attr(show ? 'data-hide-text' : 'data-show-text'))
+	}
+
+	eye.on('click', toggle)
+	eye.on('keydown', function (event) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault()
+			toggle()
+		}
+	})
+
 }

@@ -1,6 +1,7 @@
 <?php
 
 //La ventana entre `unlink` y `symlink`: una petición dentro de ella recibía 404. Ver T108.
+//@areas nucleo
 
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Terminal\CliActions;

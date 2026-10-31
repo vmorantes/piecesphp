@@ -2,6 +2,9 @@
 
 //El centro por omisión de los mapas: fuera de rango no se guarda, dentro lo recibe el geovisor, y sin el permiso de las
 //llaves de MapBox no se guarda. Por HTTP; repone lo que había.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/PiecesPHP/Settings/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;

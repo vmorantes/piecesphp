@@ -2,6 +2,7 @@
 
 //El gestor de archivos es elFinder: escribe la subida sin pasar por safe_upload_name(), y su puerta es la opción
 //acceptedName de cada volumen. Se mide el patrón y que esté cableado, sin red y sin subir nada (pendientes.md 464).
+//@areas src/app/classes/PiecesPHP/FileManager/
 
 use PiecesPHP\FileManager\Controllers\FileManagerController;
 use PiecesPHP\Terminal\CliActions;

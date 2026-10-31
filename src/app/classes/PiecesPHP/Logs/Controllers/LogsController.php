@@ -6,24 +6,24 @@
 
 namespace PiecesPHP\Logs\Controllers;
 
-use PiecesPHP\SystemStatus\SystemAlertRegistry;
-use PiecesPHP\AdminPanel\DashboardCardRegistry;
-use PiecesPHP\AdminPanel\DashboardCard;
-use PiecesPHP\AdminPanel\DashboardCardBody;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\AdminPanel\DashboardCard;
+use PiecesPHP\AdminPanel\DashboardCardBody;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Logs\ErrorLogReader;
-use PiecesPHP\Logs\NewErrorsAlert;
 use PiecesPHP\Logs\LogsLang;
 use PiecesPHP\Logs\LogsRoutes;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\Logs\NewErrorsAlert;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 
@@ -113,12 +113,7 @@ class LogsController extends AdminPanelController
             'langGroup' => self::LANG_GROUP,
             'title' => $title,
             'description' => __(self::LANG_GROUP, 'Lo que el sistema anota, en las pestañas que su rol puede ver.'),
-            'breadcrumbs' => [
-                __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => AdminPanelController::routeName(''),
-                ],
-                $title,
-            ],
+            'breadcrumbs' => [],
             'helpController' => $this->helpController,
             'scope' => self::scopeNotice($user),
             'tabs' => $tabs,
@@ -180,6 +175,7 @@ class LogsController extends AdminPanelController
         $data = [
             'langGroup' => self::LANG_GROUP,
             'tabKey' => self::ERRORS_TAB,
+            'pieces' => new HelperController(),
             'tabURL' => $tabURL,
             'filters' => $filters,
             'reference' => $reference,

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'Centro del mapa por defecto' => 'Default map center',
+    'La plataforma viene integrada por defecto con Mapbox. Estas llaves permiten mostrar los mapas: la local se usa mientras se desarrolla y la de producción en el sitio publicado.' => 'The platform comes integrated with Mapbox by default. These keys let the maps show: the local one is used during development and the production one on the published site.',
     'Datos guardados.' => 'Data saved.',
     'Ha ocurrido un error desconocido.' => 'An unknown error occurred.',
     'Inicio' => 'Home',
@@ -11,10 +13,9 @@ return [
     'Límite de tokens de IA' => 'AI tokens limit',
     'Cuántos tokens se esperan como máximo en cada respuesta de las funciones de IA.' => 'How many tokens are expected at most in each answer of the AI features.',
     'Configuración' => 'Settings',
-    'Integraciones' => 'Integrations',
-    'Llaves de MapBox' => 'MapBox keys',
-    'Las llaves con las que se pintan los mapas.' => 'The keys used to draw the maps.',
-    'Centro del mapa por omisión' => 'Default map center',
+    'Sistema' => 'System',
+    'Llaves de Mapas' => 'Maps keys',
+    'Llaves de acceso del servicio de mapas de la plataforma.' => 'Access keys of the platform map service.',
     'Donde se abren los mapas cuando no tienen otra posición: el geovisor y los mapas de los perfiles.' => 'Where maps open when they have no other position: the map viewer and the profile maps.',
     'Longitud' => 'Longitude',
     'Latitud' => 'Latitude',
@@ -25,7 +26,6 @@ return [
     'Cancelar' => 'Cancel',
     'Cambiar' => 'Change',
     'Anexar' => 'Attach',
-    'Tamaño 1200x900' => 'Size 1200x900',
     'Imagen preferiblemente en formato .jpg' => 'Image, preferably in .jpg format',
     'Llave local' => 'Local key',
     'Llave producción' => 'Production key',

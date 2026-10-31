@@ -1,7 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\Core\Config;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
+use PiecesPHP\Core\Config;
 /**
  * @var GenericContentPseudoMapper $element
  */
@@ -18,82 +18,82 @@ $center = GenericContentPseudoMapper::mapDefaultCenter();
 ?>
 <section class="module-view-container">
 
-    <div class="limiter-content">
-
-        <?php
+    <?php
         //La cabecera de Configuración (diseno/02-configuracion.md §2.1).
         $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
             'title' => $title,
             'description' => $description,
         ]);
-        ?>
+    ?>
 
+    <div class="ui segment">
+
+        <?php //Dos formularios: cada uno guarda su opción (configName), y el manejador envía el primero de lo que recibe. ?>
         <form method='POST' action="<?= $action; ?>" class="ui form initial generic" data-content-form>
 
-            <div class="container-standard-form mw-800">
+            <p><?= __($langGroup, 'La plataforma viene integrada por defecto con Mapbox. Estas llaves permiten mostrar los mapas: la local se usa mientras se desarrolla y la de producción en el sitio publicado.'); ?></p>
 
-                <input type="hidden" name="configName" value="<?= $contentName; ?>">
-                <?php foreach($allowedLangs as $lang): ?>
-                <?php $value = $element->getLangData($lang, $contentName, true, ''); ?>
-                <?php $isMultilang = $element->isTranslatable($contentName); ?>
-                <?php $langSuffix = $isMultilang ? " ({$lang})" : ''; ?>
-                <?php if($isMultilang || $lang === $defaultLang): ?>
-                <div class="two field">
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Llave local') . $langSuffix; ?></label>
-                        <input type="text" name="<?= $contentName; ?>[<?= $lang; ?>][keyLocal]" value="<?= $value['keyLocal']; ?>" required>
-                    </div>
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Llave producción') . $langSuffix; ?></label>
-                        <input type="text" name="<?= $contentName; ?>[<?= $lang; ?>][keyDomain]" value="<?= $value['keyDomain']; ?>" required>
-                    </div>
+            <input type="hidden" name="configName" value="<?= escape_html($contentName); ?>">
+            <?php foreach($allowedLangs as $lang): ?>
+            <?php $value = $element->getLangData($lang, $contentName, true, ''); ?>
+            <?php $isMultilang = $element->isTranslatable($contentName); ?>
+            <?php $langSuffix = $isMultilang ? " ({$lang})" : ''; ?>
+            <?php if($isMultilang || $lang === $defaultLang): ?>
+            <div class="two fields">
+                <div class="required field">
+                    <label for="mapbox-key-local-<?= escape_html($lang); ?>"><?= __($langGroup, 'Llave local') . $langSuffix; ?></label>
+                    <input type="text" id="mapbox-key-local-<?= escape_html($lang); ?>" name="<?= escape_html($contentName); ?>[<?= escape_html($lang); ?>][keyLocal]" value="<?= escape_html((string) $value['keyLocal']); ?>" spellcheck="false" autocomplete="off" required>
                 </div>
-                <?php endif; ?>
-                <?php endforeach; ?>
-
+                <div class="required field">
+                    <label for="mapbox-key-domain-<?= escape_html($lang); ?>"><?= __($langGroup, 'Llave producción') . $langSuffix; ?></label>
+                    <input type="text" id="mapbox-key-domain-<?= escape_html($lang); ?>" name="<?= escape_html($contentName); ?>[<?= escape_html($lang); ?>][keyDomain]" value="<?= escape_html((string) $value['keyDomain']); ?>" spellcheck="false" autocomplete="off" required>
+                </div>
             </div>
+            <?php endif; ?>
+            <?php endforeach; ?>
 
             <?php
-            //La barra al final del formulario (§2.3), como en el resto de Configuración: «Cancelar» vuelve a su índice.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
-            ]);
+                //La barra al final del formulario (§2.3), como en el resto de Configuración: «Cancelar» vuelve a su índice.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+                ]);
             ?>
 
         </form>
 
+        <div class="ui section divider"></div>
+
         <form method='POST' action="<?= $action; ?>" class="ui form initial generic" data-content-form>
 
-            <div class="container-standard-form mw-800">
+            <?php
+                $this->helpController->_render('panel/built-in/content/section-header.php', [
+                    'title' => __($langGroup, 'Centro del mapa por defecto'),
+                    'description' => __($langGroup, 'Donde se abren los mapas cuando no tienen otra posición: el geovisor y los mapas de los perfiles.'),
+                ]);
+            ?>
 
-                <h3 class="ui header"><?= __($langGroup, 'Centro del mapa por omisión'); ?></h3>
-                <p><?= __($langGroup, 'Donde se abren los mapas cuando no tienen otra posición: el geovisor y los mapas de los perfiles.'); ?></p>
-
-                <input type="hidden" name="configName" value="<?= $centerName; ?>">
-                <div class="three fields">
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Longitud'); ?></label>
-                        <input type="number" step="any" min="-180" max="180" name="<?= $centerName; ?>[longitude]" value="<?= escape_html((string) $center['longitude']); ?>" required>
-                    </div>
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Latitud'); ?></label>
-                        <input type="number" step="any" min="-90" max="90" name="<?= $centerName; ?>[latitude]" value="<?= escape_html((string) $center['latitude']); ?>" required>
-                    </div>
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Acercamiento'); ?></label>
-                        <input type="number" step="any" min="0" max="22" name="<?= $centerName; ?>[zoom]" value="<?= escape_html((string) $center['zoom']); ?>" required>
-                    </div>
+            <input type="hidden" name="configName" value="<?= escape_html($centerName); ?>">
+            <div class="three fields">
+                <div class="required field">
+                    <label for="mapbox-center-longitude"><?= __($langGroup, 'Longitud'); ?></label>
+                    <input type="number" id="mapbox-center-longitude" step="any" min="-180" max="180" name="<?= escape_html($centerName); ?>[longitude]" value="<?= escape_html((string) $center['longitude']); ?>" required>
                 </div>
-
+                <div class="required field">
+                    <label for="mapbox-center-latitude"><?= __($langGroup, 'Latitud'); ?></label>
+                    <input type="number" id="mapbox-center-latitude" step="any" min="-90" max="90" name="<?= escape_html($centerName); ?>[latitude]" value="<?= escape_html((string) $center['latitude']); ?>" required>
+                </div>
+                <div class="required field">
+                    <label for="mapbox-center-zoom"><?= __($langGroup, 'Acercamiento'); ?></label>
+                    <input type="number" id="mapbox-center-zoom" step="any" min="0" max="22" name="<?= escape_html($centerName); ?>[zoom]" value="<?= escape_html((string) $center['zoom']); ?>" required>
+                </div>
             </div>
 
             <?php
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
-            ]);
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
+                ]);
             ?>
 
         </form>

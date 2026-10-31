@@ -65,7 +65,7 @@ Y **tres mediciones, no tres recuerdos** —el árbol, el historial y la bandeja
 git -C . --no-optional-locks status --short
 git -C . --no-optional-locks log --oneline -12
 git -C . --no-optional-locks branch --show-current
-git -C . --no-optional-locks tag --list 'v8*' --sort=-creatordate | head -5
+git -C . --no-optional-locks tag --list 'v*' --sort=-creatordate | head -5
 ```
 
 El árbol y el historial se **miden** al abrir. Un `AHORA.md` escrito anoche puede describir un
@@ -113,10 +113,13 @@ Se contestan **en voz alta, en el chat, numeradas**, antes de hacer nada más. C
 bash .agents/scripts/verificar.sh
 ```
 
-Y a mano, lo que el verificador todavía no vigila (y hasta que lo vigile, se mira aquí):
+`verificar.sh` vigila ya **el tope de `AHORA.md` y sus dos contadores contra el tramo** (`cadena.py`, E5, 2026-10-27).
+**El tramo nuevo abre con la fila heredada del último mensaje** (`| \`#N\` | **heredado** del tramo anterior… |`): sin
+ninguna fila, `cadena.py` cae (pasó al abrir el 2026-10-28).
+Lo que no puede ver, se mira a mano:
 
-- **`AHORA.md` dentro de su tope** de líneas. El tope y la poda están en `cerrar-jornada`.
-- **Los dos contadores** del `AHORA.md` cuadran con el último mensaje real de cada cadena.
+- **Los dos contadores** del `AHORA.md` cuadran con el último mensaje REAL de cada cadena: la máquina solo compara el
+  disco consigo mismo; el último mensaje de la otra sesión se contrasta con ella y con `git log`.
 - **Los enlaces de reglas y skills son enlaces**, no copias:
   `git ls-files -s .claude/rules .claude/skills` — **todas las líneas empiezan por `120000`**. Un
   `100644` significa que el puente se materializó como copia y las reglas divergirán en silencio.

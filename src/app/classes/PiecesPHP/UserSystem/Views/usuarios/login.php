@@ -1,5 +1,5 @@
 <?php
-defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); 
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 ?>
 <!DOCTYPE html>
@@ -20,92 +20,79 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 
 <body>
 
-    <section class="login-container">
+    <?php
+        $accessBackgrounds = get_config('backgrounds');
+        $accessBackgrounds = is_array($accessBackgrounds) ? $accessBackgrounds : [];
+        ob_start();
+    ?>
 
-        <article class="form-container">
+    <div class="login-form">
 
-            <div class="overlay" bg-js="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('backgrounds')) ?? '[]'); ?>">
-                <div class="welcome-msg">
-                    <?= __(USER_LOGIN_LANG_GROUP, 'WELCOME_MSG'); ?>
+        <h1 class="ui large header" defauld-show>
+            <?= __(USER_LOGIN_LANG_GROUP, 'Iniciar sesión'); ?>
+            <div class="sub header"><?= __(USER_LOGIN_LANG_GROUP, 'Ingresa con tu cuenta para continuar.'); ?></div>
+        </h1>
+
+        <form defauld-show login-form-js last-uri='<?= htmlspecialchars((string) $requested_uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>' class="ui form initial">
+
+            <div class="field">
+                <label for="login-username"><?= __(USER_LOGIN_LANG_GROUP, 'Usuario'); ?></label>
+                <div class="ui left icon input">
+                    <input type="text" id="login-username" required name='username' autocomplete="username" placeholder="<?= __(USER_LOGIN_LANG_GROUP, 'correo@dominio.com'); ?>">
+                    <i class="user icon" aria-hidden="true"></i>
                 </div>
             </div>
 
-            <div class="login-form">
-
-                <div defauld-show class="logo-header">
-                    <img src="<?= get_config('logo'); ?>">
+            <div class="field">
+                <label for="login-password"><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña'); ?></label>
+                <div class="ui left icon input">
+                    <input type="password" id="login-password" required name='password' autocomplete="current-password" placeholder="••••••••">
+                    <i class="lock icon" aria-hidden="true"></i>
+                    <i class="link eye icon" role="button" tabindex="0" aria-pressed="false" aria-controls="login-password" aria-label="<?= escape_html(__(USER_LOGIN_LANG_GROUP, 'Mostrar contraseña')); ?>" data-show-text="<?= escape_html(__(USER_LOGIN_LANG_GROUP, 'Mostrar contraseña')); ?>" data-hide-text="<?= escape_html(__(USER_LOGIN_LANG_GROUP, 'Ocultar contraseña')); ?>" data-login-eye></i>
                 </div>
-
-                <form defauld-show login-form-js last-uri='<?= htmlspecialchars((string) $requested_uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>' class="ui form">
-
-                    <div class="field">
-                        <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Usuario'); ?></label>
-                        <input type="text" required name='username' placeholder="<?= __(USER_LOGIN_LANG_GROUP, 'correo@dominio.com'); ?>">
-                    </div>
-
-                    <div class="field">
-                        <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña'); ?></label>
-                        <input type="password" required name='password' placeholder="**********">
-                    </div>
-
-                    <div class="field" twofa-field>
-                        <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Código de temporal de aplicación'); ?></label>
-                        <input type="text" name='twoFactor' placeholder="000000">
-                    </div>
-
-                    <div class="remember-me">
-                        <input type="checkbox">
-                        <span><?= __(USER_LOGIN_LANG_GROUP, 'Recordarme'); ?></span>
-                    </div>
-
-                    <div class="field text-center">
-                        <button type="submit" class="ui button"><?= __(USER_LOGIN_LANG_GROUP, 'Ingresar'); ?></button>
-                    </div>
-
-                    <div class="field text-center">
-                        <button otp-trigger data-url="<?= UserSystemFeaturesController::routeName('generate-otp'); ?>" class="ui button blue"><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña de un uso'); ?></button>
-                    </div>
-                </form>
-
-                <div show-error class="error-container">
-                    <h2><?= __(USER_LOGIN_LANG_GROUP, 'Error al ingresar'); ?></h2>
-                    <span title></span>
-                    <p message></p>
-                    <p bottom-message></p>
-                    <button try-again><?= __(USER_LOGIN_LANG_GROUP, 'Intentar nuevamente'); ?></button>
-                </div>
-
-                <div class="problems-button">
-
-                    <p>
-                        <?= strReplaceTemplate(__(USER_LOGIN_LANG_GROUP, 'NEED_HELP_TO_LOGIN'), [
-                            '${ot}' => "<a href='" . \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list') . "'>",
-                            '${ct}' => "</a>",
-                        ]); ?>
-                    </p>
-
-                    <div show-error class="logo">
-                        <img src="<?= get_config('logo'); ?>">
-                    </div>
-
-                </div>
-
-                <?php if (!\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partners')): ?>
-                <div class="partners">
-                    <img src="<?= get_config('partners'); ?>">
-                </div>
-                <?php endif; ?>
-
             </div>
 
-        </article>
+            <div class="field" twofa-field>
+                <label for="login-two-factor"><?= __(USER_LOGIN_LANG_GROUP, 'Código de temporal de aplicación'); ?></label>
+                <input type="text" id="login-two-factor" name='twoFactor' autocomplete="one-time-code" placeholder="000000">
+            </div>
 
-        <div class="platform-name">
-            <span><?= mb_strtoupper(get_config('title_app'), 'UTF-8'); ?></span>
-            <p><?= __(USER_LOGIN_LANG_GROUP, 'Todos los derechos reservados'); ?> <?= date('Y'); ?></p>
+            <div class="field">
+                <div class="ui checkbox remember-me">
+                    <input type="checkbox" id="login-remember">
+                    <label for="login-remember"><?= __(USER_LOGIN_LANG_GROUP, 'Recordarme'); ?></label>
+                </div>
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui fluid primary button"><?= __(USER_LOGIN_LANG_GROUP, 'Ingresar'); ?></button>
+            </div>
+
+            <div class="field">
+                <button otp-trigger data-url="<?= UserSystemFeaturesController::routeName('generate-otp'); ?>" class="ui fluid basic button"><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña de un uso'); ?></button>
+            </div>
+        </form>
+
+        <div show-error class="ui negative message" role="alert">
+            <div class="header"><?= __(USER_LOGIN_LANG_GROUP, 'Error al ingresar'); ?></div>
+            <p><strong title></strong></p>
+            <p message></p>
+            <p bottom-message></p>
+            <button try-again class="ui basic button" type="button"><?= __(USER_LOGIN_LANG_GROUP, 'Intentar nuevamente'); ?></button>
         </div>
 
-    </section>
+        <div class="ui hidden divider"></div>
+
+        <div class="ui center aligned container problems-button">
+            <small><?= strReplaceTemplate(__(USER_LOGIN_LANG_GROUP, 'NEED_HELP_TO_LOGIN'), [
+    '${ot}' => "<a href='" . \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list') . "'>",
+    '${ct}' => "</a>",
+]); ?></small>
+        </div>
+
+    </div>
+
+    <?php $accessContent = (string) ob_get_clean(); require __DIR__ . '/inc/access-frame.php'; ?>
 
     <?php load_js(['base_url' => "", 'custom_url' => ""]) ?>
 

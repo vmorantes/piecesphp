@@ -371,6 +371,9 @@ class ServerStatics
     {
         //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
+        if (self::pathHasTraversal($resource)) {
+            return $response->withStatus(404)->write('<h1>404 El recurso no existe.</h1>');
+        }
         //Verificar si se puede delegar al servidor web
         if (self::shouldDelegateToWebServer($resource)) {
             return self::delegateToWebServer($request, $response, $resource, $path);
@@ -390,6 +393,9 @@ class ServerStatics
     {
         //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
+        if (self::pathHasTraversal($resource)) {
+            return null;
+        }
         $filePath = self::buildFilePath($resource, $path);
         if (file_exists($filePath)) {
             if (self::shouldDelegateToWebServer($resource)) {
@@ -400,6 +406,18 @@ class ServerStatics
             }
         }
         return null;
+    }
+
+    /**
+     * Si el recurso pide salir de su carpeta («..») o lleva un byte nulo.
+     * Va antes de delegar: la delegación no pasa por isValidResourcePath() y enlazaría cualquier archivo de basepath().
+     *
+     * @param string $resource Recurso a verificar
+     * @return bool True si debe rechazarse
+     */
+    public static function pathHasTraversal(string $resource): bool
+    {
+        return str_contains($resource, '..') || str_contains($resource, "\0");
     }
 
     /**
@@ -566,6 +584,7 @@ class ServerStatics
 
         //Configurar headers básicos
         $headers = self::buildBasicHeaders($mimeType, $extension);
+        $headers = array_merge($headers, self::activeContentHeaders($filePath, $extension));
 
         //Añadir header especias si es protegido
         if ($access === true) {
@@ -656,6 +675,31 @@ class ServerStatics
 
         $headers['Content-Type'] = [$mimeType];
 
+        return $headers;
+    }
+
+    /**
+     * Lo que el navegador ejecuta al abrirlo (SVG, HTML, XML), si está bajo la carpeta de subidas: CSP sandbox y, salvo
+     * las imágenes, descarga. Los estáticos propios del framework no cambian.
+     *
+     * @param string $filePath Ruta en disco del archivo servido
+     * @param string $extension Extensión del nombre público
+     * @return array<string, string[]>
+     */
+    private static function activeContentHeaders(string $filePath, string $extension): array
+    {
+        if (!in_array($extension, ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS, true)) {
+            return [];
+        }
+        $uploads = realpath((string) get_config('upload_dir'));
+        $file = realpath($filePath);
+        if ($uploads === false || $file === false || !str_starts_with($file, $uploads . \DIRECTORY_SEPARATOR)) {
+            return [];
+        }
+        $headers = ['Content-Security-Policy' => ['sandbox']];
+        if (!in_array($extension, ProtectedUploads::ACTIVE_CONTENT_INLINE_EXTENSIONS, true)) {
+            $headers['Content-Disposition'] = ['attachment'];
+        }
         return $headers;
     }
 

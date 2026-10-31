@@ -8,8 +8,8 @@
 /**
  * final-configurations.php
  */
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use App\Controller\PublicAreaController;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
 use PiecesPHP\Core\Forms\FileValidator;

@@ -1,0 +1,28 @@
+/*
+ * Íconos SVG del tema PiecesPHP · hoja sin compilar, para ampliar a mano.
+ *
+ * Se carga DESPUÉS de semantic.css. Cada regla da nombre a un SVG monocolor; el ícono usa la
+ * variación `svg icon` del framework: hereda el color del texto y acepta todas las variaciones
+ * de un ícono (large, circular, bordered, colores, disabled…).
+ *
+ *   <i class="usuarios svg icon" aria-hidden="true"></i>
+ *
+ * Añadir uno: copia el .svg a esta carpeta y una línea abajo. Instrucciones en README.md.
+ * Las rutas son relativas a esta hoja. La máscara va directa en ::before y no con --icon: una
+ * url() relativa dentro de una propiedad personalizada se resolvería respecto a semantic.css.
+ */
+
+/* Gráfico fijo del shell: pestaña para contraer el menú lateral (panel.svg del diseño) */
+i.panel.svg.icon.icon::before { -webkit-mask-image: url("panel.svg"); mask-image: url("panel.svg"); }
+
+/* Ejemplos del menú lateral (Font Awesome 5.15.4 Free, CC BY 4.0). Cada proyecto los cambia. */
+i.inicio.svg.icon.icon::before { -webkit-mask-image: url("inicio.svg"); mask-image: url("inicio.svg"); }
+i.usuarios.svg.icon.icon::before { -webkit-mask-image: url("usuarios.svg"); mask-image: url("usuarios.svg"); }
+i.contenidos.svg.icon.icon::before { -webkit-mask-image: url("contenidos.svg"); mask-image: url("contenidos.svg"); }
+i.reportes.svg.icon.icon::before { -webkit-mask-image: url("reportes.svg"); mask-image: url("reportes.svg"); }
+i.documentos.svg.icon.icon::before { -webkit-mask-image: url("documentos.svg"); mask-image: url("documentos.svg"); }
+i.calendario.svg.icon.icon::before { -webkit-mask-image: url("calendario.svg"); mask-image: url("calendario.svg"); }
+
+/* Íconos propios del proyecto: añádelos aquí, uno por línea.
+i.mi-modulo.svg.icon.icon::before { -webkit-mask-image: url("mi-modulo.svg"); mask-image: url("mi-modulo.svg"); }
+*/

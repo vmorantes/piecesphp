@@ -243,7 +243,7 @@ ciego.**
 | :-- | :-- |
 | ~~`Importers` — duplicado de `DataImportExportUtility`~~ (se conserva y se consolida: ver §1) | **`src/app/view/webflow/`** (28 KB) — esqueleto de layout del kit de Webflow |
 | 24 `HelperController.php` triviales — copia y pega | **`src/statics/wf/`** (20 KB) — css, js, fuentes e imágenes del kit |
-| `scssphp/scssphp` — dependencia sin uso real | **`files/Webflow/`** (32 KB) — export base, «Pedazos» reutilizables y su `Intrucciones.md` |
+| ~~`scssphp/scssphp`~~ — fuera en la 9.2.0 (P227) | **`files/Webflow/`** (32 KB) — export base, «Pedazos» reutilizables y su `Intrucciones.md` |
 | `PDFManager` + `mpdf/mpdf` | **`Components/Views/sample/components.php`** (16 líneas) — **no es *lorem ipsum* de relleno: es la referencia del formato `<components>`/`<component>`** que `ComponentProvider` consume |
 | El módulo `Components` en sí — decisión aparte | `source-docs/api/` (antes `files/API/`) — documentación mkdocs y una colección de Postman |
 | | `files/CliScripts/` — dos guiones sueltos que se lanzan a mano |
@@ -272,7 +272,7 @@ propio archivo de instrucciones, es HTML o assets en vez de PHP con lógica, o s
 | ~~**`Importers`**~~ | 1.129 | **No se borra**: se consolida con `DataImportExportUtility` (ver §1) |
 | **24 `HelperController.php` triviales** | ~1.000 | Copia y pega; reemplazables por una clase base |
 | **`Components`** | 489 | Stub con un solo consumidor (`PublicAreaController`). O se completa o se borra. **`Views/sample/` NO cuenta**: ver la tabla de abajo |
-| **`scssphp/scssphp`** | — | **Dependencia directa que nadie usa.** Ver abajo |
+| ~~**`scssphp/scssphp`**~~ | — | **Fuera en la 9.2.0** (P227). Ver abajo |
 | **`PDFManager` + `mpdf/mpdf`** | 67 | **Mismo patrón que `scssphp`.** Ver abajo |
 
 **Subtotal inmediato: ~2.600 LOC sin tocar nada funcional.**
@@ -308,9 +308,9 @@ una funcionalidad a medias sino una DUPLICACIÓN —la compilación de estático
 gulp, `sassCompileModules()` en `src/gulpfile.js`, y los 33 `.scss` de los módulos los compila
 el build—. Lo dijo el PROPIETARIO, y por eso la salida no era «implementar el TODO».
 
-**Lo que QUEDA, y es decisión del PROPIETARIO**: `scssphp/scssphp` sigue en
-`src/composer.json` y ahora no tiene ni un consumidor posible — **2,3 MB en `src/vendor/`**
-y su `symfony/filesystem` transitivo, para una línea de créditos. Ver T112.
+**Fuera en la 9.2.0** (P227, el PO, 2026-10-27): `scssphp/scssphp` salió de `src/composer.json`, con
+`php-ffmpeg-video-streaming`. Las órdenes de Composer las corrió el PO, porque la guarda bloquea `composer require`
+(`abierto.md` H69).
 
 > Este hallazgo corrigió una afirmación falsa en
 > [09-frontend-assets.md](./09-frontend-assets.md), que describía la compilación en

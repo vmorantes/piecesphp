@@ -2,6 +2,7 @@
 
 //El orden de las claves: la real de las claves seguras, luego la de prueba de config.php, luego nada (falla cerrada).
 //Ninguna comprobación sale a la red: solo se mira qué clave elige secretKey().
+//@areas src/app/classes/PiecesPHP/GoogleReCaptchaV3/
 
 use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
 use PiecesPHP\Terminal\CliActions;

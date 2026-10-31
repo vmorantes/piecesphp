@@ -2,6 +2,8 @@
 
 //La pantalla del geovisor (C11, ronda 2): su ruta, lo que pinta la vista con las fuentes visibles, la tarjeta exigida
 //al registrar y la carga de puntos de ida y vuelta. En proceso; la carga escribe zz-carga- y lo retira.
+//@areas src/app/classes/Directory/
+//@areas src/app/classes/Organizations/
 
 use Directory\Geo\PersonsGeoSource;
 use Organizations\Geo\OrganizationsGeoSource;
@@ -72,6 +74,10 @@ CliActions::make('unit-tests:core/geo-viewer', function ($args) {
             public function filters(): array
             {
                 return $this->filtros;
+            }
+            public function filterOptions(string $key, string $search, int $limit): array
+            {
+                return [];
             }
             public function points(GeoQuery $query): GeoPointsResult
             {

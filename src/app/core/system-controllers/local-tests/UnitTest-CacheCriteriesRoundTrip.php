@@ -2,6 +2,7 @@
 
 //El viaje de ida y vuelta de la caché de controladores: lo que sale tiene que ser del mismo
 //tipo que lo que entró. La ida NO la escribe la prueba: la produce el objeto. Ver T123.
+//@areas nucleo
 
 use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;

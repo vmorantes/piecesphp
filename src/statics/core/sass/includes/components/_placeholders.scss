@@ -17,7 +17,7 @@ $-attachDescriptionColor: #626363;
     &.tall {
         height: auto;
 
-        >label {
+        > label {
             height: 100%;
         }
     }
@@ -27,15 +27,15 @@ $-attachDescriptionColor: #626363;
         max-width: max-content;
     }
 
-    >.ui.label {
+    > .ui.label:not(.prompt) {
 
         display: none;
-        background-color: var(--main-brand-color) !important;
+        background-color: var(--accent) !important;
         color: white;
         border-radius: 0px;
         border-top-right-radius: 6px;
 
-        >i.icon {
+        > i.icon {
             font-size: pxToRem(18);
             margin: 0px;
             padding: 0px;
@@ -43,23 +43,23 @@ $-attachDescriptionColor: #626363;
     }
 
     &.attached {
-        >.ui.label {
+        > .ui.label {
             display: inline-block;
         }
 
-        >label {
-            >.text {
+        > label {
+            > .text {
                 padding-top: 25px;
             }
         }
     }
 
-    .ui.top.attached.label+:not(.attached),
-    .ui.top.attached.label~.ui.bottom.attached.label+:not(.attached) {
+    .ui.top.attached.label + :not(.attached),
+    .ui.top.attached.label ~ .ui.bottom.attached.label + :not(.attached) {
         margin-top: 0px !important;
     }
 
-    >label {
+    > label {
 
         display: grid;
         grid-template-columns: 140px minmax(0, 1fr);
@@ -67,12 +67,12 @@ $-attachDescriptionColor: #626363;
         align-items: center;
         cursor: pointer;
         padding: 0px;
-        background-color: white;
+        background-color: var(--theme-surface);
         box-shadow: 0px 3px 6px $-attachLabelShadow;
         border-radius: 6px;
         min-height: 130px;
 
-        >.image {
+        > .image {
             background-color: $-attachImageBackground;
             color: $colorTextMuted;
             height: 100%;
@@ -82,14 +82,14 @@ $-attachDescriptionColor: #626363;
             padding: 15px;
 
             &.mark {
-                background-color: var(--main-brand-color);
+                background-color: var(--accent);
                 color: white;
             }
 
             &.fullsize {
                 padding: 0px;
 
-                >img {
+                > img {
                     height: 100%;
                     width: 100%;
                     max-height: initial;
@@ -98,18 +98,18 @@ $-attachDescriptionColor: #626363;
                 }
             }
 
-            >i.icon {
+            > i.icon {
                 margin: 0;
                 padding: 0;
                 font-size: pxToRem(40);
                 line-height: pxToRem(40);
             }
 
-            >img {
+            > img {
                 max-height: 74px;
             }
 
-            >.caption {
+            > .caption {
                 margin-top: 5px;
                 font-weight: $fwRegular;
                 font-size: pxToRem(16);
@@ -117,19 +117,18 @@ $-attachDescriptionColor: #626363;
             }
         }
 
-        >.text {
-            font-family: $fontGlobal;
+        > .text {
             padding: 10px 10px 10px 15px;
             position: relative;
 
-            >.filename {
+            > .filename {
                 position: absolute;
                 top: 4px;
                 left: 10px;
                 font-weight: $fwLight;
                 font-size: pxToRem(14);
                 line-height: pxToRem(14+3);
-                color: var(--main-brand-color);
+                color: var(--accent);
                 width: 165px;
                 max-width: 100%;
                 height: max-content;
@@ -138,23 +137,23 @@ $-attachDescriptionColor: #626363;
                 overflow: hidden;
 
                 a[see-file] {
-                    color: var(--main-brand-color);
+                    color: var(--accent);
                 }
             }
 
-            >.header {
-                >.title {
+            > .header {
+                > .title {
                     position: relative;
                     font-weight: $fwMedium;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+3);
-                    color: var(--main-brand-color);
+                    color: var(--accent);
                     padding-bottom: 5px;
                     width: max-content;
                     max-width: 100%;
                 }
 
-                >.meta {
+                > .meta {
                     font-weight: $fwRegular;
                     font-size: pxToRem(12);
                     line-height: pxToRem(12+3);
@@ -162,7 +161,7 @@ $-attachDescriptionColor: #626363;
                 }
             }
 
-            >.description {
+            > .description {
                 font-weight: $fwRegular;
                 font-size: pxToRem(14);
                 line-height: pxToRem(14+3);
@@ -170,7 +169,7 @@ $-attachDescriptionColor: #626363;
                 padding-top: 8px;
             }
 
-            >.name {
+            > .name {
                 margin-top: 5px;
 
                 label {
@@ -186,7 +185,7 @@ $-attachDescriptionColor: #626363;
         }
     }
 
-    >input {
+    > input {
         position: absolute;
         height: 0px !important;
         width: 0px !important;
@@ -199,11 +198,11 @@ $-attachDescriptionColor: #626363;
     &.required {
 
 
-        >label {
+        > label {
 
-            >.text {
-                >.header {
-                    >.title {
+            > .text {
+                > .header {
+                    > .title {
                         padding-top: 5px;
                         padding-right: 10px;
 
@@ -229,7 +228,7 @@ $-attachDescriptionColor: #626363;
     }
 
     @media screen and (max-width: 380px) {
-        >label {
+        > label {
             grid-template-columns: minmax(0, 1fr);
         }
     }

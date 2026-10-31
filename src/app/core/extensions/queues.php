@@ -26,18 +26,13 @@ $queueHandlers[] = QueueTask::make(TestQueueRequest::QUEUE_NAME, function ($data
     $controller = new TestQueueRequest();
     $response = $controller->process($request, $response, $freezeRequest->getCustomData());
     $responseJSON = $response->getRawJsonDataInserted();
-    /*
-        Puede devolver:
-        - QueueHandlerResponse::success()
-        - QueueHandlerResponse::fail()
-        - QueueHandlerResponse::wait()
-    */
+    //Devuelve QueueHandlerResponse::success(), ::fail() o ::wait().
     $queueResult = $responseJSON['success'] ?? false
-    ? QueueHandlerResponse::success($responseJSON['message'] ?? 'Tarea completada')
-    : (
+        ? QueueHandlerResponse::success($responseJSON['message'] ?? 'Tarea completada')
+        : (
         $responseJSON['retry'] ?? false
-        ? QueueHandlerResponse::wait($responseJSON['message'] ?? 'Tarea pospuesta')
-        : QueueHandlerResponse::fail($responseJSON['message'] ?? 'Tarea fallida')
+            ? QueueHandlerResponse::wait($responseJSON['message'] ?? 'Tarea pospuesta')
+            : QueueHandlerResponse::fail($responseJSON['message'] ?? 'Tarea fallida')
     );
     if ($responseJSON['success'] ?? false) {
         $freezeRequest->cleanupFiles();

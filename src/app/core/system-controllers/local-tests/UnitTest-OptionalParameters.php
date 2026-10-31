@@ -2,6 +2,7 @@
 
 //Un parámetro OPCIONAL con un valor presente e inválido da error en vez de guardarse como vacío.
 //Vacío o ausente sigue cayendo al valor por omisión sin ruido. P87, 275.1.
+//@areas nucleo
 
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;

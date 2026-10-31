@@ -1,13 +1,18 @@
 <?php
 
-//Lo que sirve PHP: rangos, caché privada para lo validado, Vary y ETag. Solo funciones puras, sin HTTP.
+//Lo que sirve PHP: rangos, caché privada para lo validado, Vary, ETag y el rechazo de «..». Sin escribir en disco; su única
+//petición HTTP pide una hoja para que el servidor cree el acceso directo que mira el canario (H72).
+//@areas nucleo
 
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\RequestRouteFactory;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Terminal\CliActions;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/server-statics';
-$cliTaskDescription = 'ServerStatics: rangos, Cache-Control privado en lo validado, Vary y ETag por fecha, tamaño y tipo';
+$cliTaskDescription = 'ServerStatics: rangos, Cache-Control privado en lo validado, Vary, ETag por fecha, tamaño y tipo, y «..» rechazado antes de delegar';
 
 CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
@@ -33,7 +38,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $texto = static fn ($valor): string => var_export($valor, true);
 
     //──── 1. Rangos ────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/5] resolveRange(): un tramo → [inicio, fin]; inválido o fuera → false (416); varios o ninguno → null (200)');
+    echoTerminal('[1/6] resolveRange(): un tramo → [inicio, fin]; inválido o fuera → false (416); varios o ninguno → null (200)');
 
     $casos = [
         ['', 1000, null, 'sin cabecera → archivo entero'],
@@ -59,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Cache-Control ─────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/5] cacheControlValue(): con versión, un año; sin ella, no-cache; lo validado, nunca public (ADR 0034)');
+    echoTerminal('[2/6] cacheControlValue(): con versión, un año; sin ella, no-cache; lo validado, nunca public (ADR 0034)');
 
     $casos = [
         [false, false, false, 'no-cache', 'público sin versión → no-cache'],
@@ -86,7 +91,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Vary ──────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/5] varyValues(): de qué depende la respuesta');
+    echoTerminal('[3/6] varyValues(): de qué depende la respuesta');
 
     $check(ServerStatics::varyValues(true, false, false) === ['Cookie', 'Authorization'], 'validado → Vary: Cookie, Authorization');
     $check(ServerStatics::varyValues(true, true, true) === ['Cookie', 'Authorization', 'Accept', 'Accept-Encoding'], 'validado, convertido y comprimido → los cuatro');
@@ -96,7 +101,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. ETag ──────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[4/5] eTagFor(): fecha, tamaño y tipo de salida');
+    echoTerminal('[4/6] eTagFor(): fecha, tamaño y tipo de salida');
 
     $check(ServerStatics::eTagFor(1757966939, 193) === ServerStatics::eTagFor(1757966939, 193), 'DISCRIMINANTE: lo mismo da el mismo ETag');
     $check(ServerStatics::eTagFor(1757966939, 193) !== ServerStatics::eTagFor(1757966939, 6291456), 'misma fecha y distinto tamaño → distinto ETag (antes coincidían)');
@@ -105,7 +110,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Compresión ────────────────────────────────────────────────────────────────────────
-    echoTerminal('[5/5] allowCompression(): solo el texto');
+    echoTerminal('[5/6] allowCompression(): solo el texto');
 
     //Si esto cae, un PDF o un vídeo vuelven a leerse enteros para comprimirlos y pierden el streaming y el Range.
     $comprime = new \ReflectionMethod(ServerStatics::class, 'allowCompression');
@@ -114,6 +119,56 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     }
     foreach (['css', 'js', 'json', 'csv', 'svg', 'txt', 'map', 'html'] as $extensionTexto) {
         $check($comprime->invoke(null, $extensionTexto) === true, ($extensionTexto === 'css' ? 'DISCRIMINANTE: ' : '') . "{$extensionTexto} → se comprime");
+    }
+    echoTerminal(' ');
+
+    //──── 6. Salir de la carpeta ───────────────────────────────────────────────────────────────
+    echoTerminal('[6/6] pathHasTraversal(): «..» o el byte nulo se rechazan ANTES de delegar (P210)');
+
+    foreach (['../x.css', 'a/../b.png', 'a/..', "x\0.css", '....//x.js'] as $conSalida) {
+        $check(ServerStatics::pathHasTraversal($conSalida) === true, $texto($conSalida) . ' → se rechaza');
+    }
+    foreach (['core/css/ui-pcs.css', 'images/favicon.png', 'uploads/a b.jpg'] as $sinSalida) {
+        $check(ServerStatics::pathHasTraversal($sinSalida) === false, $texto($sinSalida) . ' → se acepta');
+    }
+
+    //Existe dentro de basepath() pero fuera de statics/, y su extensión se delega: sin la guarda, 302 hacia un enlace nuevo.
+    $fuera = '../app/classes/Publications/Statics/css/publications.css';
+    $peticion = (new RequestRouteFactory())->createServerRequest('GET', baseurl('statics/' . $fuera));
+    if ($check($peticion instanceof RequestRoute, 'la petición es una RequestRoute')) {
+        /** @var RequestRoute $peticion */
+        $respuesta = (new ServerStatics())->serve($peticion, new ResponseRoute(), ['params' => $fuera], basepath('statics'));
+        $check($respuesta->getStatusCode() === 404 && $respuesta->getHeaderLine('Location') === '', 'DISCRIMINANTE: serve() con «..» → 404 y sin Location', $respuesta->getStatusCode() . ' · Location ' . $texto($respuesta->getHeaderLine('Location')));
+    }
+    $check(ServerStatics::getSymbolicLink(['params' => $fuera], basepath('statics')) === null, 'getSymbolicLink() con «..» → null');
+
+    //Control del camino bueno: el enlace lo crea el servidor web al servir la hoja por su ruta PHP, así que se pide antes
+    //(tras «Borrar todos los accesos directos» no queda ninguno hasta que alguien la pide; H72). Aquí solo se lee.
+    $base = (string) (getenv('PCSPHP_WALK_BASE') ?: '');
+    if ($base === '') {
+        $matrixPath = dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/files/dev/permissions-matrix.json';
+        $matrix = is_file($matrixPath) ? json_decode((string) file_get_contents($matrixPath), true) : null;
+        $base = is_array($matrix) ? (string) ($matrix['medido']['base'] ?? '') : '';
+    }
+    if ($base !== '') {
+        $fabrica = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($fabrica, [
+            CURLOPT_URL => rtrim($base, '/') . '/admin/publications/statics/css/publications.css',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_NOBODY => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_TIMEOUT => 30,
+        ]);
+        //RETORNO-IGNORADO: lo que importa es el enlace que deja en disco, y lo comprueba el canario.
+        curl_exec($fabrica);
+    }
+    //basepath() pasa por realpath(): sobre el enlace entero devolvería su destino.
+    $enlace = basepath('statics/server-delegated') . '/app/classes/Publications/Statics/css/publications.css';
+    if ($check(is_link($enlace), 'CANARIO: existe el enlace delegado de publications.css', $enlace)) {
+        $url = ServerStatics::getSymbolicLink(['params' => 'css/publications.css'], basepath('app/classes/Publications/Statics'));
+        $check(is_string($url) && str_contains($url, 'server-delegated'), 'getSymbolicLink() sin «..» → la URL delegada', $texto($url));
     }
     echoTerminal(' ');
 
@@ -132,4 +187,4 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             : "{$failed} comprobaciones fallaron.",
     ];
 
-})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription($cliTaskDescription)->setEffects([CliActions::EFFECT_FILES])->register();

@@ -5,16 +5,17 @@
  * Qué conviene editar aquí: nada: son los intermediarios que corren en cada petición.
  */
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
-use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\SessionDataHandler;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\TerminalData;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
@@ -27,55 +28,20 @@ $container_configurations = [
          */
         $container = get_router()->getDI();
 
-        //Variables CSS globales
-        $metaThemeColor = get_config('meta_theme_color');
-        $mainBrandColor = get_config('main_brand_color');
-        $secondBrandColor = get_config('second_brand_color');
-        $bgToolsButtons = get_config('bg_tools_buttons');
-        $fontColorOne = get_config('font_color_one');
-        $fontColorTwo = get_config('font_color_two');
-        $menuColorBackground = get_config('menu_color_background');
-        $menuColorMark = get_config('menu_color_mark');
-        $menuColorFont = get_config('menu_color_font');
-        $bodyGradient = get_config('body_gradient');
-        $loaderBgColor = "rgba(255, 255, 255, 1)";
-        $loaderBorderColor = "rgb(150, 150, 150)";
-        $loaderBorderMarkColor = $mainBrandColor;
-        $loaderLogoBorderRadius = "0%";
-
+        //Variables CSS globales: los tokens del contrato del tema que escribe la instalación (H106). Las hojas propias leen
+        //esos tokens y los de lectura (--theme-*); la zona pública y las páginas de error no leen nada de aquí.
         $cssGlobalVariables = CSSVariables::instance('global');
-        $cssGlobalVariables->setVariable('meta-theme-color', $metaThemeColor);
-        $cssGlobalVariables->setVariable('main-brand-color', $mainBrandColor);
-        $cssGlobalVariables->setVariable('main-brand-color-opacity', $mainBrandColor . opacityToHex(0.075));
-        $cssGlobalVariables->setVariable('bg-tools-buttons', $bgToolsButtons);
-        $cssGlobalVariables->setVariable('second-brand-color', $secondBrandColor);
-        $cssGlobalVariables->setVariable('font-color-one', $fontColorOne);
-        $cssGlobalVariables->setVariable('font-color-two', $fontColorTwo);
-        $cssGlobalVariables->setVariable('menu-color-background', $menuColorBackground);
-        $cssGlobalVariables->setVariable('menu-color-background-opacity', $menuColorBackground . opacityToHex(0.741));
-        $cssGlobalVariables->setVariable('menu-color-mark', $menuColorMark);
-        $cssGlobalVariables->setVariable('menu-color-font', $menuColorFont);
-        $cssGlobalVariables->setVariable('body-gradient', $bodyGradient);
-        $cssGlobalVariables->setVariable('main-brand-color-0-5', $mainBrandColor . opacityToHex(0.502));
-        $cssGlobalVariables->setVariable('main-brand-color-0-8', $mainBrandColor . opacityToHex(0.8));
-
-        //--Loader
-        $cssGlobalVariables->setVariable('loader-bg-color', $loaderBgColor);
-        $cssGlobalVariables->setVariable('loader-border-color', $loaderBorderColor);
-        $cssGlobalVariables->setVariable('loader-border-mark-color', $loaderBorderMarkColor);
-        $cssGlobalVariables->setVariable('loader-logo-border-radius', $loaderLogoBorderRadius);
-
-        $fontFamilyGlobal = get_config('font_family_global');
-        if (is_string($fontFamilyGlobal) && mb_strlen($fontFamilyGlobal) > 0) {
-            $cssGlobalVariables->setVariable('font-family-global', $fontFamilyGlobal);
-        }
-        $fontFamilySidebars = get_config('font_family_sidebars');
-        if (is_string($fontFamilySidebars) && mb_strlen($fontFamilySidebars) > 0) {
-            $cssGlobalVariables->setVariable('font-family-sidebars', $fontFamilySidebars);
+        foreach (SettingsController::themeTokens() as $themeToken => $themeTokenValue) {
+            $cssGlobalVariables->setVariable($themeToken, $themeTokenValue);
         }
 
         //CSS de variables globales del área administrativa
-        add_global_required_asset(get_route('admin-global-variables-css'), 'css');
+        //Con la huella de su contenido como versión: cambia al cambiar un color, y con ella se guarda un año.
+        add_global_required_asset(CSSVariables::globalVersionedURL(), 'css');
+        $themeFontStylesheet = SettingsController::themeFontStylesheet();
+        if ($themeFontStylesheet !== null) {
+            add_global_required_asset(base_url($themeFontStylesheet), 'css');
+        }
 
         //Antes de ejecutar el método de la ruta
         InvocationStrategy::appendBeforeCallMethod(function () {
@@ -95,8 +61,8 @@ $container_configurations = [
         $loggedUser = getLoggedFrameworkUser();
         if (
             $loggedUser !== null
-            && $loggedUser->organization === null
-            && !in_array($loggedUser->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)
+                && $loggedUser->organization === null
+                && !in_array($loggedUser->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)
         ) {
             //Un usuario dentro sin la organización que su tipo exige es un DEFECTO DE DATOS: se anota una vez por
             //sesión —si la hay— y se deja como está. Nunca se arregla solo.
@@ -109,7 +75,7 @@ $container_configurations = [
             if ($primeraVez) {
                 log_exception(new \RuntimeException(
                     'El usuario ' . $loggedUser->id . ', de tipo ' . $loggedUser->type . ', está dentro sin organización'
-                    . ' y su tipo la requiere. No se le asigna ninguna: es un defecto de datos (P61).'
+                        . ' y su tipo la requiere. No se le asigna ninguna: es un defecto de datos (P61).'
                 ));
             }
         }

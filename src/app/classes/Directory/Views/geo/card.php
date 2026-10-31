@@ -13,5 +13,5 @@ use Directory\DirectoryLang;
         <span data-geo-field="city"></span>
         <span data-geo-field="country"></span>
     </div>
-    <a class="ui button brand-color alt" data-geo-href="url"><?= __(DirectoryLang::LANG_GROUP, 'Ver perfil'); ?></a>
+    <a class="ui button" data-geo-href="url"><?= __(DirectoryLang::LANG_GROUP, 'Ver perfil'); ?></a>
 </div>

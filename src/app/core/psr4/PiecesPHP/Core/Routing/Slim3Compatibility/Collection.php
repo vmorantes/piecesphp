@@ -12,11 +12,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Interfaces\CollectionInterface;
 use Traversable;
 
 /**
- * Collection
- *
- * This class provides a common interface used by many other
- * classes in a Slim application that manage "collections"
- * of data that must be inspected and/or manipulated
+ * Interfaz común de las clases de Slim que guardan colecciones de datos que se inspeccionan o se manipulan.
  */
 class Collection implements CollectionInterface
 {

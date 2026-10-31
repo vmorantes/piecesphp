@@ -47,6 +47,12 @@ class TaskRunMapper extends BaseEntityMapper
     const MAX_ROWS = 20000;
 
     /**
+     * El tope por tarea: una que corre cada minuto (la cola) no expulsa la historia de las diarias. 1000 son ~16 h de la
+     * cola y casi tres años de una diaria.
+     */
+    const MAX_ROWS_PER_TASK = 1000;
+
+    /**
      * El largo de `message` en la tabla.
      */
     const MESSAGE_LENGTH = 500;
@@ -110,6 +116,11 @@ class TaskRunMapper extends BaseEntityMapper
      * @var int
      */
     protected static $maxRows = self::MAX_ROWS;
+
+    /**
+     * @var int
+     */
+    protected static $maxRowsPerTask = self::MAX_ROWS_PER_TASK;
 
     /**
      * @var string|null
@@ -180,6 +191,8 @@ class TaskRunMapper extends BaseEntityMapper
                 $message !== null ? mb_substr($message, 0, self::MESSAGE_LENGTH) : null,
                 is_string($host) ? mb_substr($host, 0, 64) : null,
             ]);
+            //Primero el tope de su tarea, después el global.
+            self::trimTask($taskName);
             self::trim();
             return $saved;
         } catch (\Throwable $throwable) {
@@ -247,6 +260,37 @@ class TaskRunMapper extends BaseEntityMapper
     }
 
     /**
+     * Deja las `maxRowsPerTask()` más recientes de UNA tarea, por id (creciente); las demás tareas no se tocan. Nunca lanza.
+     *
+     * @param string $taskName
+     * @return int Cuántas líneas se retiraron
+     */
+    public static function trimTask(string $taskName): int
+    {
+        try {
+            $database = self::model()->getDatabase();
+            if ($database === null) {
+                return 0;
+            }
+            $table = self::tableName();
+            $taskName = mb_substr($taskName, 0, 191);
+            $limit = $database->prepare("SELECT `id` FROM `{$table}` WHERE `taskName` = ? ORDER BY `id` DESC LIMIT 1 OFFSET " . (self::maxRowsPerTask() - 1));
+            //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o hace su trabajo o lanza. Lo que cuenta es el fetchColumn().
+            $limit->execute([$taskName]);
+            $cut = $limit->fetchColumn();
+            if ($cut === false || $cut === null) {
+                return 0;
+            }
+            $statement = $database->prepare("DELETE FROM `{$table}` WHERE `taskName` = ? AND `id` < ?");
+            //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o hace su trabajo o lanza. Lo retirado lo dice rowCount().
+            $statement->execute([$taskName, (int) $cut]);
+            return $statement->rowCount();
+        } catch (\Throwable $throwable) {
+            return 0;
+        }
+    }
+
+    /**
      * Si la tabla existe, en la base ACTUAL (`information_schema`: `SHOW TABLES LIKE` toma el `_` por comodín). Falla
      * cerrado.
      *
@@ -289,6 +333,25 @@ class TaskRunMapper extends BaseEntityMapper
     public static function maxRows(): int
     {
         return self::$maxRows;
+    }
+
+    /**
+     * SOLO PARA PRUEBAS: otro tope por tarea. Con null, el de la constante.
+     *
+     * @param int|null $rows
+     * @return void
+     */
+    public static function setMaxRowsPerTask(?int $rows): void
+    {
+        self::$maxRowsPerTask = $rows === null ? self::MAX_ROWS_PER_TASK : max(1, $rows);
+    }
+
+    /**
+     * @return int
+     */
+    public static function maxRowsPerTask(): int
+    {
+        return self::$maxRowsPerTask;
     }
 
     /**

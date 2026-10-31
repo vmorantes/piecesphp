@@ -6,8 +6,8 @@
 
 namespace SystemApprovals\Util;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 /**
@@ -39,7 +39,7 @@ interface ApprovalElementHandlerInterface
      * @param int|EntityMapper $reference
      * @return string
      */
-    public static function getContentType(int | EntityMapper $reference): string;
+    public static function getContentType(int|EntityMapper $reference): string;
 
     /**
      * TODOS los textos que este handler puede llegar a escribir en `referenceAlias`.
@@ -86,7 +86,7 @@ interface ApprovalElementHandlerInterface
      * @param int|EntityMapper $reference
      * @return bool
      */
-    public static function isAutoApproval(int | EntityMapper $reference): bool;
+    public static function isAutoApproval(int|EntityMapper $reference): bool;
 
     /**
      * Método que se ejecuta cuando se aprueba una referencia.

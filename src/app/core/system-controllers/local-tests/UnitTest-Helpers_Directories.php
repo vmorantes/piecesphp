@@ -1,5 +1,7 @@
 <?php
 
+//@areas nucleo
+
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FileObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;

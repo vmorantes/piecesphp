@@ -16,23 +16,25 @@
 
 <body>
 
+    <?php ob_start(); ?>
+
     <section class="container">
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
-            'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Solicitud de soporte'),
-            'classesCSS' => "one",
-            'active' => false,
-        ]); ?>
+    'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
+    'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Solicitud de soporte'),
+    'classesCSS' => "one",
+    'active' => false,
+]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
-            'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Su solicitud de soporte <br> ha sido creada'),
-            'classesCSS' => "two",
-            'active' => true,
-        ]); ?>
+    'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
+    'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-other.svg'),
+    'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Su solicitud de soporte <br> ha sido creada'),
+    'classesCSS' => "two",
+    'active' => true,
+]); ?>
 
         <div class="form-container" data-system-mail="<?= \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'); ?>">
 
@@ -40,7 +42,7 @@
 
             <div claim>
 
-                <form class="ui form" style="max-width: 450px; margin:0 auto;">
+                <form class="ui form initial" style="max-width: 450px; margin:0 auto;">
                     <div class="field required">
                         <input required type="text" name="name" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Nombres'); ?>">
                     </div>
@@ -61,10 +63,10 @@
                     <div class="horizontal-section-buttons">
                         <div class="field buttons">
                             <div class="field">
-                                <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui button back-color">
+                                <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui basic button back-color">
                                     <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás')?>
                                 </a>
-                                <button type="submit" class="ui button custom-color">
+                                <button type="submit" class="ui primary button custom-color">
                                     <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Enviar')?>
                                 </button>
                             </div>
@@ -77,9 +79,9 @@
 
             <div finish>
 
-                <form class="ui form">
+                <form class="ui form initial">
                     <div class="field">
-                        <a href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'); ?>" class="ui button custom-color">
+                        <a href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'); ?>" class="ui primary button custom-color">
                             <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingresar')?>
                         </a>
                     </div>
@@ -89,12 +91,9 @@
 
         </div>
 
-        <div class="line-footer"></div>
-        <div class="img-logo-footer">
-            <img src="<?=get_config('logo');?>" alt="">
-        </div>
-
     </section>
+
+    <?php $accessContent = (string) ob_get_clean(); require dirname(__DIR__) . '/inc/access-frame.php'; ?>
 
     <?php load_js(['base_url' => "", 'custom_url' => ""])?>
 </body>

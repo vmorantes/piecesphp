@@ -3,8 +3,8 @@
 //El sembrador descubre los seeders, los ordena y sin pedirlo solo simula. Todo en memoria: el autor de
 //las organizaciones, que en la tarea se lee de la base, aquí lo pone un contexto de prueba.
 
-use News\Mappers\NewsMapper;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
+use News\Mappers\NewsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\App\Locations\Mappers\CityMapper;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
@@ -186,7 +186,7 @@ CliActions::make('unit-tests:core/seed-planner', function ($args) {
         && file_put_contents($uploads . '/victima/b.png', 'b') !== false
         && file_put_contents($root . '/fuera/c.png', 'c') !== false
         && symlink($root . '/fuera', $uploads . '/zz-siembra-con-enlace/salida')
-        //Apunta DENTRO de la base, a la carpeta ajena: solo la guarda de enlaces lo para.
+    //Apunta DENTRO de la base, a la carpeta ajena: solo la guarda de enlaces lo para.
         && symlink($uploads . '/victima', $uploads . '/zz-siembra-enlace');
     $check($mounted, '5· el temporal de la prueba se monta', $root);
     $refused = [

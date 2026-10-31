@@ -1,16 +1,18 @@
 <?php
 
 //Los dos caminos de LECTURA que abortaban y que impidieron cerrar E2-a. Ver T97.
+//@areas nucleo
+//@areas src/app/classes/News/
 
+use News\Mappers\NewsCategoryMapper;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Terminal\CliActions;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
-use News\Mappers\NewsCategoryMapper;
-use PiecesPHP\Core\BaseModel;
-use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
-use PiecesPHP\Terminal\CliActions;
 
 CliActions::make('unit-tests:core/read-paths-survive', function ($args) {
 

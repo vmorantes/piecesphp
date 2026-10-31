@@ -1,36 +1,40 @@
 @use '../../../../../../statics/core/sass/includes/variables_app_base' as *;
 @use '../../../../../../statics/core/sass/includes/functions_app_base' as *;
 
-//Lo que un proyecto cambia sin tocar el JS: los colores salen de los de marca, y geo-viewer.js lee los de las fuentes.
+//Lo que un proyecto cambia sin tocar el JS: los colores salen de los tokens del tema, y geo-viewer.js lee los de las fuentes.
 body.geo-viewer {
-    --geo-persons-color: var(--main-brand-color);
-    --geo-organizations-color: var(--second-brand-color);
-    --geo-text-color: var(--font-color-one);
-    --geo-on-color: var(--font-color-two);
-    --geo-panel-background: var(--font-color-two);
-    --geo-panel-shadow: rgb(from var(--font-color-one) r g b / 0.22);
-    --geo-muted-color: rgb(from var(--font-color-one) r g b / 0.65);
-    --geo-warning-color: var(--second-brand-color);
+    --geo-persons-color: var(--accent);
+    --geo-organizations-color: var(--accent-2);
+    --geo-text-color: var(--theme-text);
+    --geo-on-color: var(--accent-contrast);
+    --geo-panel-background: var(--theme-surface);
+    --geo-panel-shadow: rgb(from var(--theme-text) r g b / 0.22);
+    --geo-muted-color: rgb(from var(--theme-text) r g b / 0.65);
+    --geo-warning-color: var(--accent-2);
     --geo-avatar-size: 36px;
     --geo-panel-width: 320px;
     --geo-gap: 12px;
-    //Lo que el armazón del panel pinta encima del contenido: la flecha del menú y los botones de arriba a la derecha.
-    --geo-reserve-left: 30px;
-    --geo-reserve-top: 50px;
+    //Lo que el armazón del panel pinta encima del mapa: nada desde el shell (la barra va encima, no sobre el contenido).
+    --geo-reserve-left: 0px;
+    --geo-reserve-top: 0px;
 
-    .#{$globalClassPcs}.container-sidebar>.content {
-        padding: 0px;
+    //El geovisor NO desplaza la página: ocupa el alto visible de main.content, la ventana menos la barra del shell (64 px;
+    //56 en el móvil), sin relleno ni ancho máximo.
+    .admin-shell > .main > main.content {
+        max-width: none;
+        height: calc(var(--shell-height, 100dvh) - 64px);
+        padding: 0;
         overflow: hidden;
 
-        @media (max-width: $sidebarBreakPoint) {
-            padding: 0px;
+        @media only screen and (max-width: 767.98px) {
+            height: calc(var(--shell-height, 100dvh) - 56px);
         }
     }
 }
 
 .geo-viewer-container {
     position: relative;
-    height: 100dvh;
+    height: 100%;
     width: 100%;
     overflow: hidden;
     color: var(--geo-text-color);
@@ -75,7 +79,7 @@ body.geo-viewer {
             box-shadow: 0 1px 6px var(--geo-panel-shadow);
 
             &.active {
-                background: var(--main-brand-color);
+                background: var(--accent);
                 color: var(--geo-on-color);
             }
         }
@@ -135,7 +139,7 @@ body.geo-viewer {
         gap: 8px;
         padding: 6px 0;
 
-        >label {
+        > label {
             cursor: pointer;
         }
 
@@ -152,7 +156,7 @@ body.geo-viewer {
         padding-top: 0.75rem;
         border-top: 1px solid var(--geo-panel-shadow);
 
-        >span {
+        > span {
             display: block;
             margin-bottom: 0.5rem;
             color: var(--geo-muted-color);
@@ -280,7 +284,7 @@ body.geo-viewer {
             display: none;
         }
 
-        >:not([hidden])~:not([hidden])::before {
+        > :not([hidden]) ~ :not([hidden])::before {
             content: '· ';
         }
     }
@@ -291,18 +295,15 @@ body.geo-viewer {
     }
 }
 
-//En el móvil el armazón pinta arriba, a todo el ancho, el botón del menú y los del usuario: todo baja por debajo.
-@media (max-width: $sidebarBreakPoint) {
-    body.geo-viewer {
-        --geo-reserve-left: 0px;
-    }
-
+//En el móvil (el cajón del shell) los paneles van a todo el ancho, uno debajo de otro.
+@media only screen and (max-width: 767.98px) {
     .geo-viewer-container {
         .geo-toolbar {
             top: calc(var(--geo-reserve-top) + var(--geo-gap));
         }
 
         .geo-panel {
+
             &.geo-panel-filters,
             &.geo-panel-legend {
                 left: var(--geo-gap);

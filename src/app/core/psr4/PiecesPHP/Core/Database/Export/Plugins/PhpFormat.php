@@ -1,16 +1,12 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
-use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
-use PiecesPHP\Core\Database\Database;
 use PDO;
+use PiecesPHP\Core\Database\Database;
+use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 
 /**
- * Class PhpFormat
- * 
- * Plugin de formato para exportar datos en formato de array nativo de PHP.
- * Ideal para archivos de configuración o seeders.
+ * Formato de array nativo de PHP, para archivos de configuración o seeders.
  */
 class PhpFormat implements FormatPluginInterface
 {
@@ -58,7 +54,7 @@ class PhpFormat implements FormatPluginInterface
         $useHexBlob = $options['hex_blob'] ?? true;
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            
+
             // Aplicar Transformaciones (GDPR / Masking)
             foreach ($transforms as $col => $callback) {
                 if (array_key_exists($col, $row)) {

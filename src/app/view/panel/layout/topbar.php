@@ -1,219 +1,28 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\Settings\Controllers\SettingsController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use DataImportExportUtility\Controllers\DataTransferController;
-use Organizations\Controllers\MyOrganizationProfileController;
-use MySpace\Controllers\MyProfileController;
-use MySpace\Controllers\MySpaceController;
 use News\NewsLang;
-use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\Core\Config;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Menu\MenuGroup;
-use PiecesPHP\Core\Menu\MenuGroupCollection;
-use PiecesPHP\Core\Roles;
-use PiecesPHP\Logs\Controllers\LogsController;
-use PiecesPHP\Logs\LogsLang;
-use PiecesPHP\Logs\LogTabRegistry;
-use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\Controllers\ImpersonationController;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
-use Spatie\Url\Url as URLManager;
-use SystemApprovals\SystemApprovalsRoutes;
 
-$currentUser = getLoggedFrameworkUserOrFail();
-$currentUserID = $currentUser->id;
-$currentUserType = $currentUser->type;
-$isRoot = $currentUserType == UsersModel::TYPE_USER_ROOT;
-$usersCanDeleteAccount = [
-    UsersModel::TYPE_USER_ADMIN_ORG,
-    UsersModel::TYPE_USER_GENERAL,
-];
-$asUserLoggedID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
-$rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-$isLoggedOtherUser = $asUserLoggedID !== $rootOriginalID;
-$currentLang = Config::get_lang();
-$allowedLangs = Config::get_allowed_langs();
-$manyLangs = count($allowedLangs) > 1;
-$alternativesURL = Config::get_config('alternatives_url');
-$searchUsersURL = URLManager::fromString(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('search-dropdown'));
-$searchUsersURL = $searchUsersURL->withQueryParameter('search', '{query}');
-$searchUsersURL = $searchUsersURL->withQueryParameter('typeResult', 'RESULT_FULLNAME_USERNAME');
-$searchUsersURL = urldecode($searchUsersURL->__toString());
-
-$userOptions = new MenuGroupCollection([
-    'items' => [
-        new MenuGroup([
-            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Idiomas'),
-            'icon' => 'globe',
-            'href' => baseurl() . '?changeLang',
-            'visible' => $manyLangs,
-            'asLink' => true,
-            'attributes' => [
-                'change-system-lang-trigger' => '',
-            ],
-        ]),
-        new MenuGroup([
-            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'),
-            'icon' => 'desktop',
-            'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('about-framework'),
-            'visible' => Roles::hasPermissions('admin-about-framework', $currentUserType),
-            'asLink' => true,
-        ]),
-        new MenuGroup([
-            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Hoja de diseño'),
-            'icon' => 'paint brush',
-            'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('design-sheet'),
-            'visible' => Roles::hasPermissions('admin-design-sheet', $currentUserType),
-            'asLink' => true,
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Soporte técnico'),
-            'icon' => 'question',
-            'href' => '#',
-            'attributes' => [
-                'support-button-js' => '',
-            ],
-            'visible' => Roles::hasPermissions('admin-tickets-create', $currentUserType) && false,
-            'asLink' => true,
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Conectar como otro usuario'),
-            'icon' => 'users',
-            'href' => '#',
-            'attributes' => [
-                'connect-as-another-user-trigger' => '',
-            ],
-            'visible' => $isRoot,
-            'asLink' => true,
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Volver a mi usuario'),
-            'icon' => 'exchange alternate',
-            'href' => '#',
-            'attributes' => [
-                'exit-as-logged-options' => '',
-            ],
-            'visible' => $isLoggedOtherUser,
-            'asLink' => true,
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Cerrar sesión'),
-            'icon' => 'power off',
-            'href' => '#',
-            'attributes' => [
-                'pcsphp-users-logout' => '',
-            ],
-            'asLink' => true,
-        ]),
-    ],
-]);
-
-$canViewUsersManage = array_reduce([
-    Roles::hasPermissions('users-selection-create', $currentUserType),
-    Roles::hasPermissions('users-list', $currentUserType),
-    DataTransferController::allowedRoute('import-users'),
-], function ($a, $b) {
-    return $a || $b;
-}, false);
-
-//Accesos directos a «Registros»: los tres informes de accesos y todos los registros; cada uno, si el usuario ve su
-//pestaña y la pantalla.
-$recordTabs = LogsController::allowedRoute('index') ? LogTabRegistry::visibleFor((int) $currentUserType) : [];
-$accessTab = \PiecesPHP\UserSystem\Controllers\LoginAttemptsController::ACCESS_TAB;
-$recordShortcuts = array_values(array_filter([
-    ['tab' => $accessTab, 'view' => 'attempts', 'name' => __(LogsLang::LANG_GROUP, 'Intentos de ingreso'), 'icon' => 'sign in alternate', 'visible' => array_key_exists($accessTab, $recordTabs)],
-    ['tab' => $accessTab, 'view' => 'logged', 'name' => __(LogsLang::LANG_GROUP, 'Registro de ingresos'), 'icon' => 'chart bar outline', 'visible' => array_key_exists($accessTab, $recordTabs)],
-    ['tab' => $accessTab, 'view' => 'not-logged', 'name' => __(LogsLang::LANG_GROUP, 'Usuarios sin ingresos'), 'icon' => 'user times', 'visible' => array_key_exists($accessTab, $recordTabs)],
-    //Sin ?tab: la primera pestaña visible. Errores y correos se alcanzan desde aquí.
-    ['tab' => null, 'view' => null, 'name' => __(LogsLang::LANG_GROUP, 'Todos los registros'), 'icon' => 'clipboard list', 'visible' => $recordTabs !== []],
-], fn(array $shortcut): bool => $shortcut['visible']));
-$canViewRecord = $recordShortcuts !== [];
-//Los tres grupos de la configuración salen de la misma fuente que el índice (ADR 0028). Solo llevan a pantallas:
-//un menú no ejecuta nada.
-$configurationGroups = [];
-foreach (SettingsController::panelGroups() as $configurationGroup) {
-    $configurationGroups[$configurationGroup['name']] = [
-        'visible' => $configurationGroup['visible'],
-        'collection' => new MenuGroupCollection([
-            'items' => array_map(fn(array $item) => new MenuGroup([
-                'name' => $item['name'],
-                'icon' => $item['icon'],
-                'href' => $item['href'],
-                'visible' => $item['visible'],
-                'asLink' => true,
-            ]), $configurationGroup['items']),
-        ]),
-    ];
-}
-$adminOptionsGroups = $configurationGroups + [
-    __(ADMIN_MENU_LANG_GROUP, 'Gestión de usuarios') => [
-        'visible' => $canViewUsersManage,
-        'collection' => new MenuGroupCollection([
-            'items' => [
-                new MenuGroup([
-                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Agregar usuario'),
-                    'icon' => 'user plus',
-                    'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('selection-create'),
-                    'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Gestionar usuarios'),
-                    'icon' => 'users cog',
-                    'href' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'),
-                    'visible' => Roles::hasPermissions('users-list', $currentUserType),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Importar usuarios'),
-                    'icon' => 'upload',
-                    'href' => DataTransferController::routeName('import-users', [], true),
-                    'visible' => DataTransferController::allowedRoute('import-users'),
-                    'asLink' => true,
-                ]),
-            ],
-        ]),
-    ],
-    __(ADMIN_MENU_LANG_GROUP, 'Registro') => [
-        'visible' => $canViewRecord,
-        'collection' => new MenuGroupCollection([
-            'items' => array_map(fn(array $shortcut) => new MenuGroup([
-                'name' => $shortcut['name'],
-                'icon' => $shortcut['icon'],
-                'href' => LogsController::routeName('index') . ($shortcut['tab'] !== null ? '?' . http_build_query(array_filter(['tab' => $shortcut['tab'], 'view' => $shortcut['view']])) : ''),
-                'visible' => true,
-                'asLink' => true,
-            ]), $recordShortcuts),
-        ]),
-    ],
-];
-
-$withAdminOptions = false;
-$withNews = NEWS_MODULE;
-
-foreach ($adminOptionsGroups as $title => $config) {
-    if ($config['visible']) {
-        $withAdminOptions = true;
-        break;
-    }
-}
-
-/**
- * @var UserDataPackage
- */
-$currentUser = getLoggedFrameworkUserOrFail();
-/**
- * @var bool
- */
-$hasAvatar = $currentUser->hasAvatar;
-/**
- * @var string
- */
-$avatar = $currentUser->avatar;
-//Los avisos flotantes salen del registro de avisos del sistema (PiecesPHP\SystemStatus).
-$systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $currentUserType);
+//Lo flotante de la barra superior (paneles, ventanas, avisos): fuera de header.bar, cuyo backdrop-filter haría de
+//bloque contenedor de sus hijos fixed. La barra visible está en topbar-bar.php.
+require __DIR__ . '/topbar-data.php';
+//Por qué terminó una suplantación que root no terminó: se enseña una vez.
+$impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pullNotice();
 ?>
+
+<?php if ($isLoggedOtherUser) : ?>
+<div class="impersonation-band" impersonation-band>
+    <span class="text"><?= sprintf(__(UserSystemFeaturesLang::LANG_GROUP, 'Conectado como %s'), escape_html($currentUser->fullName)); ?></span>
+    <a href="#" exit-as-logged-options data-url="<?= escape_html($impersonationEndURL); ?>"><?= __(UserSystemFeaturesLang::LANG_GROUP, 'Volver a mi cuenta'); ?></a>
+</div>
+<?php elseif ($impersonationNotice !== null) : ?>
+<div class="impersonation-band notice" impersonation-band>
+    <span class="text"><?= escape_html(sprintf(__(UserSystemFeaturesLang::LANG_GROUP, 'La suplantación terminó: %s'), $impersonationNotice)); ?></span>
+</div>
+<?php endif; ?>
 
 <?php if ($systemAlertNags !== []) : ?>
 <div class="system-alert-nags">
@@ -230,292 +39,164 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
 </div>
 <?php endif; ?>
 
-<div class="ui-pcs topbar-switches">
-    <div class="ui-pcs topbar-toggle user-options">
-        <div class="current-user-info">
-            <div class="image">
-                <?php if ($hasAvatar) : ?>
-                <img src="<?= $avatar; ?>">
-                <?php else : ?>
-                <i class="icon user outline"></i>
-                <?php endif; ?>
-            </div>
-            <span title="<?= escape_html($currentUser->firstname . ' ' . $currentUser->firstLastname); ?>"><?= escape_html($currentUser->firstname . ' ' . $currentUser->firstLastname); ?></span>
-        </div>
-        <i class="angle down icon"></i>
-    </div>
-
-    <?php if ($withNews) : ?>
-    <div class="ui-pcs topbar-toggle notifications-options">
-        <div class="icon">
-            <i class="bell outline icon"></i>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($withAdminOptions) : ?>
-    <div class="ui-pcs topbar-toggle admin-options">
-        <div class="icon">
-            <i class="cog icon"></i>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($isLoggedOtherUser) : ?>
-    <div class="ui-pcs topbar-toggle exit-as-logged-options">
-        <div class="icon">
-            <i class="exchange alternate icon"></i>
-        </div>
-    </div>
-    <?php endif; ?>
-</div>
-
-<div class="topbar-content close">
-
-    <div class="close-user">
-        <div class="icon-decorated">
-            <div class="bg-white">
-                <i class="user outline icon"></i>
-            </div>
-            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Perfil'); ?></span>
-        </div>
-        <i class="times icon close"></i>
-    </div>
-
-    <div class="ui-pcs topbar-options user-options">
-
-        <div class="user-info">
-
-            <div class="avatar">
-                <?php if ($hasAvatar) : ?>
-                <img src="<?= $avatar; ?>">
-                <?php else : ?>
-                <div class="icon">
-                    <i class="icon user outline"></i>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <div class="names">
-                <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname); ?></span>
-                <span><?= escape_html($currentUser->firstLastname . ' ' . $currentUser->secondLastname); ?></span>
-            </div>
-
-            <div class="text">
-                <div class="meta">
-                    <?= $currentUser->getTypeText(); ?>
-                </div>
-                <div class="meta">
-                    <?= escape_html($currentUser->email); ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="change-account">
-            <span edit-account><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></span>
-            <span change-password><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></span>
-            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Opciones de seguridad'); ?></a>
-            <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
-            <a href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
-            <?php endif; ?>
-            <?php if(MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>
-            <a href="<?= MyOrganizationProfileController::routeName('my-organization-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi organización'); ?></a>
-            <?php endif; ?>
-        </div>
-
-        <div class="items">
-            <div class="section-title"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Plataforma'); ?></div>
-            <?php foreach ($userOptions->getItems() as $userOption) : ?>
-            <?php if ($userOption->asLink()) : ?>
-            <a class="item<?= $userOption->isCurrent() ? " current" : ''; ?>" href="<?= $userOption->getHref(); ?>" <?= $userOption->getAttributes(true); ?>>
-                <div class="figure"><i class="icon <?= $userOption->getIcon(false); ?>"></i></div>
-                <div class="text"><?= $userOption->getName(); ?></div>
-            </a>
-            <?php endif; ?>
-            <?php endforeach; ?>
-        </div>
-
-        <div class="footer-logo">
-            <img src="<?= get_config('logo'); ?>" alt="Logo">
-        </div>
-
-    </div>
-</div>
-
 <?php if ($withNews) : ?>
-<div class="topbar-content close" data-url="<?= \News\Controllers\NewsController::routeName('ajax-all'); ?>">
-
-    <div class="close-user">
-        <div class="icon-decorated">
-            <div class="bg-white">
-                <i class="bell outline icon"></i>
-            </div>
-            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias'); ?></span>
-        </div>
-        <i class="times icon close"></i>
-    </div>
-
-    <div news-toolbar-container class="ui-pcs topbar-options notifications-options">
+<?php //Las noticias: un popup del tema, que abre el botón de la barra (topbar-bar.php). NewsAdapter pinta en el contenedor. ?>
+<div class="ui wide fitted popup" news-popup role="dialog" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias')); ?>">
+    <div class="ui basic segment"><strong><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias'); ?></strong></div>
+    <div class="ui fitted divider"></div>
+    <div class="news-popup-list" data-url="<?= \News\Controllers\NewsController::routeName('ajax-all'); ?>">
+        <div news-toolbar-container class="news-popup-items"></div>
     </div>
 </div>
 <?php endif; ?>
 
 <?php if ($withAdminOptions) : ?>
-<div class="topbar-content close">
-
-    <div class="close-user">
-        <div class="icon-decorated">
-            <div class="bg-white">
-                <i class="cog icon"></i>
-            </div>
-            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Administrativo'); ?></span>
+<?php //Configuración: el patrón del tema (panel-configuracion): buscador y grupos plegables, todos cerrados; no marca la vista actual. ?>
+<div class="ui right flyout" id="admin-options-flyout" admin-options-flyout role="dialog" aria-modal="true" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Configuración del sistema')); ?>">
+    <i class="close icon" aria-hidden="true"></i>
+    <div class="ui header"><i class="cogs bordered icon" aria-hidden="true"></i><div class="content"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Configuración del sistema'); ?></div></div>
+    <div class="content">
+        <div class="ui fluid left icon input">
+            <input type="search" admin-options-search placeholder="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Buscar ajuste…')); ?>" autocomplete="off" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Buscar ajuste')); ?>" aria-controls="admin-options-groups">
+            <i class="search icon" aria-hidden="true"></i>
         </div>
-        <i class="times icon close"></i>
     </div>
-
-    <div class="ui-pcs topbar-options admin-options">
-
-        <div class="items">
+    <div class="scrolling content">
+        <div class="ui fluid accordion" id="admin-options-groups" admin-options-groups>
+            <?php $adminOptionsGroupIndex = 0; ?>
             <?php foreach ($adminOptionsGroups as $title => $config) : ?>
-
-            <?php /** @var bool */ $visible = $config['visible']; ?>
-            <?php /** @var MenuGroup[] */ $collection = $config['collection']->getItems(); ?>
-            <?php if ($visible) : ?>
-
-            <div class="section-title"><?= $title; ?></div>
-
-            <?php foreach ($collection as $adminOption) : ?>
-
-            <?php if($adminOption->asLink()): ?>
-            <a class="item<?= $adminOption->isCurrent() ? " current" : ''; ?>" href="<?= $adminOption->getHref() === '#' ? 'javascript:void(0);' : $adminOption->getHref(); ?>" <?= $adminOption->getAttributes(true); ?>>
-                <div class="figure"><i class="icon <?= $adminOption->getIcon(false); ?>"></i></div>
-                <div class="text"><?= $adminOption->getName(); ?></div>
-            </a>
-            <?php endif;?>
-
-            <?php endforeach; ?>
-
-            <?php endif;?>
-
+            <?php if ($config['visible']) : ?>
+            <?php /** @var MenuGroup[] */ $adminOptionsLinks = array_filter($config['collection']->getItems(), fn(MenuGroup $adminOption): bool => $adminOption->asLink() && $adminOption->isVisible()); ?>
+            <?php $adminOptionsGroupIndex++; ?>
+            <div class="title" role="button" tabindex="0" aria-expanded="false" aria-controls="admin-options-group-<?= $adminOptionsGroupIndex; ?>"><i class="<?= escape_html($config['icon']); ?> bordered icon" aria-hidden="true"></i><span class="texto"><?= $title; ?></span> <span class="ui circular label"><?= count($adminOptionsLinks); ?></span><i class="dropdown icon" aria-hidden="true"></i></div>
+            <div class="content" id="admin-options-group-<?= $adminOptionsGroupIndex; ?>">
+                <div class="ui link list">
+                    <?php foreach ($adminOptionsLinks as $adminOption) : ?>
+                    <a class="item" href="<?= $adminOption->getHref() === '#' ? 'javascript:void(0);' : $adminOption->getHref(); ?>" <?= $adminOption->getAttributes(true); ?>><?= $adminOption->getName(); ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
             <?php endforeach; ?>
         </div>
-
+        <p class="ui muted text" admin-options-empty role="status" hidden></p>
     </div>
 </div>
 <?php endif; ?>
 
-<div class="profile-content-system" data-url="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('edit-request'); ?>">
+<?php //El perfil en línea: un flyout del tema; lo abren «Editar Cuenta» y «Cambiar contraseña» del menú de usuario. ?>
+<div class="ui wide right flyout" profile-flyout role="dialog" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Perfil')); ?>">
+    <i class="close icon" aria-hidden="true"></i>
+    <div class="ui header"><i class="user outline bordered icon" aria-hidden="true"></i><div class="content"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Perfil'); ?></div></div>
+    <div class="scrolling content">
+        <div class="profile-content-system" data-url="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('edit-request'); ?>">
 
-    <div class="close">
-        <i close-profile class="times icon"></i>
-    </div>
+            <div class="user-data">
 
-    <div class="user-data">
+                <div class="image">
+                    <?php if ($hasAvatar) : ?>
+                    <img class="ui tiny circular image" src="<?= $avatar; ?>" alt="Avatar">
+                    <?php else : ?>
+                    <i class="user icon"></i>
+                    <?php endif; ?>
+                </div>
 
-        <div class="image">
-            <?php if ($hasAvatar) : ?>
-            <img src="<?= $avatar; ?>" alt="Avatar">
-            <?php else : ?>
-            <i class="user icon"></i>
-            <?php endif; ?>
-        </div>
+                <div class="info">
+                    <strong class="ui large text"><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname); ?></strong>
+                    <small class="ui muted text"><?= $currentUser->getTypeText(); ?></small>
+                    <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar foto'); ?></a>
+                    <a href="<?= escape_html(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-profile')); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Ver mi cuenta completa'); ?></a>
+                </div>
+            </div>
 
-        <div class="info">
-            <span><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname); ?></span>
-            <small><?= $currentUser->getTypeText(); ?></small>
-            <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar foto'); ?></a>
-            <a href="<?= escape_html(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-profile')); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Ver mi cuenta completa'); ?></a>
-        </div>
-    </div>
+            <div class="ui secondary pointing menu tab-options">
 
-    <div class="tab-options">
+                <div class="item" data-tab="account">
+                    <i class="user outline icon"></i>
+                    <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cuenta'); ?></span>
+                </div>
+                <div class="item" data-tab="password">
+                    <i class="key icon"></i>
+                    <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña'); ?></span>
+                </div>
+                <?php if(in_array($currentUserType, $usersCanDeleteAccount)): ?>
+                <div class="item" delete-account-trigger>
+                    <i class="user times icon"></i>
+                    <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Eliminar cuenta'); ?></span>
+                </div>
+                <?php endif;?>
+            </div>
 
-        <div class="item" data-tab="account">
-            <i class="user outline icon"></i>
-            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cuenta'); ?></span>
-        </div>
-        <div class="item" data-tab="password">
-            <i class="key icon"></i>
-            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña'); ?></span>
-        </div>
-        <?php if(in_array($currentUserType, $usersCanDeleteAccount)): ?>
-        <div class="item" delete-account-trigger>
-            <i class="user times icon"></i>
-            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Eliminar cuenta'); ?></span>
-        </div>
-        <?php endif;?>
-    </div>
+            <div class="body-content">
 
-    <div class="body-content">
-
-        <div class="content-view account" data-view="account">
-            <form profile-information-form class="ui form" action="">
-                <input type="hidden" name="id" value="<?= $currentUser->id ?>">
-                <h3><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Información de perfil'); ?></h3>
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nombres'); ?></label>
-                    <div class="two fields">
+                <div class="content-view account" data-view="account">
+                    <form profile-information-form class="ui form" action="">
+                        <input type="hidden" name="id" value="<?= $currentUser->id ?>">
+                        <h3 class="ui header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Información de perfil'); ?></h3>
                         <div class="field">
-                            <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer nombre'); ?>" required value="<?= escape_html($currentUser->firstname); ?>">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nombres'); ?></label>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer nombre'); ?>" required value="<?= escape_html($currentUser->firstname); ?>">
+                                </div>
+                                <div class="field">
+                                    <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo nombre'); ?>" value="<?= escape_html($currentUser->secondname); ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Apellidos'); ?></label>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= escape_html($currentUser->firstLastname); ?>">
+                                </div>
+                                <div class="field">
+                                    <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= escape_html($currentUser->secondLastname); ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario'); ?></label>
+                            <input required type="text" name="username" placeholder="" value="<?= escape_html($currentUser->username); ?>">
                         </div>
                         <div class="field">
-                            <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo nombre'); ?>" value="<?= escape_html($currentUser->secondname); ?>">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Correo'); ?></label>
+                            <input required type="email" name="email" placeholder="" value="<?= escape_html($currentUser->email); ?>">
                         </div>
-                    </div>
+                        <div class="actions">
+                            <button class="ui primary button" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
+                        </div>
+                    </form>
                 </div>
+                <div class="content-view password" data-view="password">
+                    <form user-password-form class="ui form" action="">
+                        <input type="hidden" name="id" value="<?= $currentUser->id ?>">
 
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Apellidos'); ?></label>
-                    <div class="two fields">
+                        <h3 class="ui header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar de contraseña'); ?><div class="sub header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Una contraseña segura debe tener 8 caracteres como mínimo, distingue mayúsculas de minúsculas'); ?></div></h3>
                         <div class="field">
-                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= escape_html($currentUser->firstLastname); ?>">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña actual'); ?></label>
+                            <input type="password" name="current-password" placeholder="">
                         </div>
                         <div class="field">
-                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= escape_html($currentUser->secondLastname); ?>">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nueva contraseña'); ?></label>
+                            <input type="password" name="password" placeholder="">
                         </div>
-                    </div>
+                        <div class="field">
+                            <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Confirmar contraseña'); ?></label>
+                            <input type="password" name="password2" placeholder="">
+                        </div>
+                        <div class="actions">
+                            <button close-profile class="ui basic button" type="reset"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
+                            <button class="ui primary button" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
+                        </div>
+                    </form>
                 </div>
+            </div>
 
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario'); ?></label>
-                    <input required type="text" name="username" placeholder="" value="<?= escape_html($currentUser->username); ?>">
-                </div>
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Correo'); ?></label>
-                    <input required type="email" name="email" placeholder="" value="<?= escape_html($currentUser->email); ?>">
-                </div>
-                <div class="align-right">
-                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
-                </div>
-            </form>
-        </div>
-        <div class="content-view password" data-view="password">
-            <form user-password-form class="ui form" action="">
-                <input type="hidden" name="id" value="<?= $currentUser->id ?>">
-
-                <h3 class="no-margin"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar de contraseña'); ?></h3>
-                <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Una contraseña segura debe tener 8 caracteres como mínimo, distingue mayúsculas de minúsculas'); ?></span>
-                <br>
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña actual'); ?></label>
-                    <input type="password" name="current-password" placeholder="">
-                </div>
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nueva contraseña'); ?></label>
-                    <input type="password" name="password" placeholder="">
-                </div>
-                <div class="field">
-                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Confirmar contraseña'); ?></label>
-                    <input type="password" name="password2" placeholder="">
-                </div>
-                <div class="align-right">
-                    <button close-profile class="ui secondary basic button" type="reset"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
-                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
-                </div>
-            </form>
         </div>
     </div>
-
 </div>
 
 <?php if($withNews): ?>
@@ -529,79 +210,79 @@ $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $c
 </div>
 <?php endif; ?>
 
+<?php if ($withHelpCenter) : ?>
+<div class="ui popup" help-center-menu>
+    <div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Centro de ayuda'); ?></div>
+    <div class="ui selection list" role="menu" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Ayuda')); ?>">
+        <?php if ($helpFaqURL !== '') : ?>
+        <a class="item" href="<?= escape_html($helpFaqURL); ?>" target="_blank" rel="noopener" role="menuitem"><div class="ui top aligned nowrap relaxed flex"><i class="primary book bordered icon" aria-hidden="true"></i><div class="content"><div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Preguntas frecuentes'); ?></div><div class="description"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Respuestas rápidas a las dudas más comunes.'); ?></div></div></div></a>
+        <?php endif; ?>
+        <?php if ($canContactSupport) : ?>
+        <a class="item" href="#" role="menuitem" support-button-js><div class="ui top aligned nowrap relaxed flex"><i class="primary headset bordered icon" aria-hidden="true"></i><div class="content"><div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contactar a soporte'); ?></div><div class="description"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Escríbenos y te ayudamos con tu caso.'); ?></div></div></div></a>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
+
 <?php if($manyLangs): ?>
-<div class="ui modal" change-system-lang-modal data-lang-cookie="<?= get_config('cookie_lang_definer'); ?>">
+<div class="ui tiny modal" change-system-lang-modal data-lang-cookie="<?= get_config('cookie_lang_definer'); ?>">
+    <i class="close icon" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Cerrar')); ?>"></i>
+    <div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar idioma'); ?></div>
     <div class="content">
-        <form class="ui form">
-            <div class="section-fields-divider">
-                <div class="title s24"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar idioma'); ?></div>
-            </div>
+        <form class="ui form" id="change-system-lang-form">
             <div class="field">
-                <select name="lang" class="ui dropdown search auto">
+                <select name="lang" class="ui dropdown search auto" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar idioma')); ?>">
                     <?php foreach($alternativesURL as $lang => $url): ?>
                     <option <?= $lang == $currentLang ? 'selected' : ''; ?> value="<?= $lang; ?>"><?= __('lang', $lang); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="field">
-                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
-            </div>
         </form>
+    </div>
+    <div class="actions">
+        <button type="button" class="ui basic cancel button"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
+        <button type="submit" form="change-system-lang-form" class="ui primary button"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
     </div>
 </div>
 <?php endif; ?>
 
 <?php if($isRoot): ?>
-<div class="ui modal" connect-as-another-user-modal data-as-user-cookie="<?= CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME; ?>">
+<div class="ui tiny modal" connect-as-another-user-modal data-url="<?= escape_html($impersonationStartURL); ?>">
+    <i class="close icon" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Cerrar')); ?>"></i>
+    <div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambio de usuario'); ?></div>
     <div class="content">
-        <form class="ui form">
-            <div class="section-fields-divider">
-                <div class="title s24"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambio de usuario'); ?></div>
-            </div>
+        <form class="ui form" id="connect-as-another-user-form">
             <div class="field">
-                <select class="ui dropdown search" name="userID" data-search-url="<?= $searchUsersURL; ?>" required>
+                <select class="ui dropdown search" name="userID" data-search-url="<?= $searchUsersURL; ?>" required aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Cambio de usuario')); ?>">
                     <option value=""><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Seleccionar usuario'); ?></option>
                 </select>
             </div>
-            <div class="field">
-                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
-            </div>
+            <div class="ui negative message transition hidden" connect-as-another-user-refusal></div>
         </form>
+    </div>
+    <div class="actions">
+        <button type="button" class="ui basic cancel button"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
+        <button type="submit" form="connect-as-another-user-form" class="ui primary button"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
     </div>
 </div>
 <?php endif; ?>
 
-<?php
-    //Modal edición de imagen de usuario
-    modalImageUploaderForCropperAdminViews([
-        //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-        'content' => simpleCropperAdapterWorkSpace([
-            'type' => 'image/*',
-            'required' => false,
-            'selectorAttr' => 'simple-cropper-profile',
-            'referenceW' => '400',
-            'referenceH' => '400',
-            'image' => $avatar,
-        ], false),
-        //Atributos que se asignarán al modal (el contenedor principal), string
-        'modalContainerAttrs' => "profile-image-modal",
-        //Clases que se asignarán al modal (el contenedor principal), string
-        'modalContainerClasses' => "ui tiny modal",
-        //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-        'modalContentElementAttrs' => implode(' ', [
-            'action-url="' . get_route('push-avatars') . '"',
-            'user-id="' . getLoggedFrameworkUserOrFail()->id . '"',
-        ]),
-        //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-        'informationContentMainClass' => 'info-content',
-        //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-        'informationContentClasses' => null,
-        //Título del modal, string
-        'titleModal' => null,
-        //Descripción del modal, string
-        'descriptionModal' => null,
-    ]);
-?>
+<?php //La foto de perfil: una tarjeta oculta y su editor, con su propio alcance porque la página puede traer los suyos. ?>
+<div hidden data-profile-photo data-url="<?= escape_html(get_route('push-avatars')); ?>" data-user-id="<?= (int) $currentUserID; ?>">
+    <?php
+        $this->_render('panel/built-in/content/image-card.php', [
+            'id' => 'profile-image-card',
+            'scope' => 'profile',
+            'title' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Imagen de perfil'),
+            'accept' => 'image/jpeg,image/png,image/webp',
+            'image' => $hasAvatar ? (string) $avatar : '',
+            'field' => 'image',
+            'width' => 400,
+            'height' => 400,
+        ]);
+    ?>
+</div>
+<?php $this->_render('panel/built-in/content/image-editor.php', ['scope' => 'profile']); ?>
 
 <div class="ui toast delete-account-handler">
     <div class="content">

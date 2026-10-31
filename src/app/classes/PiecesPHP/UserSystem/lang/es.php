@@ -7,5 +7,5 @@ return [
     "Ha ocurrido un error, el correo no pudo ser enviado. Aún puede ingresar con su contraseña de siempre." => "Ha ocurrido un error, el correo no pudo ser enviado. Aún puede ingresar con su contraseña de siempre.",
     "Ha ocurrido un error, la contraseña no pudo ser creada. Aún puede ingresar con su contraseña de siempre." => "Ha ocurrido un error, la contraseña no pudo ser creada. Aún puede ingresar con su contraseña de siempre.",
     "Contraseña de un uso" => "Contraseña de un uso",
-    "El usuario no existe" => "El usuario no existe"
+    "El usuario no existe" => "El usuario no existe",
 ];

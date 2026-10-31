@@ -6,10 +6,10 @@
 
 namespace PiecesPHP\App\Locations\Mappers;
 
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 
 /**
  * CityMapper.

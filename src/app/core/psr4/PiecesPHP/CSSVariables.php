@@ -109,17 +109,54 @@ class CSSVariables
     }
 
     /**
+     * La huella del contenido, que es la versión de su URL (ADR 0034): cambia cuando cambia una variable.
+     *
+     * @return string
+     */
+    public function fingerprint(): string
+    {
+        return substr(sha1($this->__toString()), 0, 16);
+    }
+
+    /**
+     * La URL con `cacheStamp=<huella>`: con ella, y solo con ella, toResponse() la deja guardar un año.
+     *
+     * @param string $url
+     * @return string
+     */
+    public function versionedURL(string $url): string
+    {
+        return $url . (str_contains($url, '?') ? '&' : '?') . 'cacheStamp=' . $this->fingerprint();
+    }
+
+    /**
+     * La URL versionada del CSS de variables del panel (admin-global-variables-css): la que piden containers.php y las
+     * páginas 403, 404 y 503.
+     *
+     * @return string
+     */
+    public static function globalVersionedURL(): string
+    {
+        $url = get_route('admin-global-variables-css');
+        return is_string($url) ? self::instance('global')->versionedURL($url) : '';
+    }
+
+    /**
      * @param Request $request
      * @param Response $response
      * @param bool $overwriteCache
-     * @param string $cacheControl Max-age de 2 meses por defecto y must-revalidate
+     * @param string|null $cacheControl Sin él, un año e inmutable si la petición trae su huella como `cacheStamp`, y
+     * `no-cache` (revalidar con el ETag) sin marca o con otra, como la global que llevan los de los módulos
      * @return Response
      */
-    public function toResponse(Request $request, Response $response, bool $overwriteCache = false, string $cacheControl = 'max-age=5256000, must-revalidate')
+    public function toResponse(Request $request, Response $response, bool $overwriteCache = false, ?string $cacheControl = null)
     {
 
         $css = $this->__toString();
         $contentETag = $css;
+        if ($cacheControl === null) {
+            $cacheControl = $request->getQueryParam('cacheStamp', null) === $this->fingerprint() ? 'public, max-age=31536000, immutable' : 'no-cache';
+        }
 
         if ($overwriteCache) {
             $contentETag .= uniqid();

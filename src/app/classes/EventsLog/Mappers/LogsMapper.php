@@ -6,12 +6,12 @@
 
 namespace EventsLog\Mappers;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\LogsLang;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * LogsMapper.
@@ -73,7 +73,7 @@ class LogsMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -113,6 +113,7 @@ class LogsMapper extends EntityMapperExtensible
     const MSG_REVOKE_ALL_SESSIONS = 'REVOKE_ALL_SESSIONS';
     const MSG_IMPERSONATION_START = 'IMPERSONATION_START';
     const MSG_IMPERSONATION_END = 'IMPERSONATION_END';
+    const MSG_IMPERSONATION_EXPIRED = 'IMPERSONATION_EXPIRED';
     const MSG_SYSTEM_ALERT_TOGGLED = 'SYSTEM_ALERT_TOGGLED';
     const MSG_BROKEN_LINKS_DELETED = 'BROKEN_LINKS_DELETED';
     const MSG_MAINTENANCE_LINKS_CLEANED = 'MAINTENANCE_LINKS_CLEANED';
@@ -143,6 +144,7 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_REVOKE_ALL_SESSIONS => 'Se cerraron las sesiones de todos los usuarios desde el terminal (%users% usuarios)',
         self::MSG_IMPERSONATION_START => 'El usuario %username% empezó a actuar como %target%',
         self::MSG_IMPERSONATION_END => 'El usuario %username% dejó de actuar como otro usuario',
+        self::MSG_IMPERSONATION_EXPIRED => 'La suplantación de %username% como %target% caducó',
         self::MSG_SYSTEM_ALERT_TOGGLED => '%username% %action% el aviso del sistema «%alert%».',
         self::MSG_BROKEN_LINKS_DELETED => '%username% borró %deleted% enlace(s) roto(s) de server-delegated y %directories% carpeta(s) vacía(s); %failed% no se pudieron borrar por falta de permiso. Enlaces: %links%',
         self::MSG_MAINTENANCE_LINKS_CLEANED => '%username% borró «%target%» desde mantenimiento: %deleted% enlace(s) borrado(s); %failed% no se pudieron borrar por falta de permiso.',
@@ -161,8 +163,6 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_TOKEN_INVALIDATED => '%username% invalidó un código (%kind%) de %target%.',
         self::MSG_TWO_FACTOR_RESET => '%username% restableció el doble factor de %target%.',
     ];
-
-
 
     const MODULE_NAMES_EQUIVALENCES_BY_SOURCE = [
         UsersModel::TABLE => 'Usuarios',
@@ -270,6 +270,7 @@ class LogsMapper extends EntityMapperExtensible
             self::MSG_REVOKE_ALL_SESSIONS => __(self::LANG_GROUP, 'Cierre de todas las sesiones'),
             self::MSG_IMPERSONATION_START => __(self::LANG_GROUP, 'Empieza a actuar como otro usuario'),
             self::MSG_IMPERSONATION_END => __(self::LANG_GROUP, 'Deja de actuar como otro usuario'),
+            self::MSG_IMPERSONATION_EXPIRED => __(self::LANG_GROUP, 'Caduca la actuación como otro usuario'),
             self::MSG_SYSTEM_ALERT_TOGGLED => __(self::LANG_GROUP, 'Aviso del sistema mostrado u oculto'),
             self::MSG_BROKEN_LINKS_DELETED => __(self::LANG_GROUP, 'Enlaces rotos borrados'),
             self::MSG_MAINTENANCE_LINKS_CLEANED => __(self::LANG_GROUP, 'Accesos directos borrados desde mantenimiento'),
@@ -336,7 +337,7 @@ class LogsMapper extends EntityMapperExtensible
     {
 
         $formatDefault = __(self::LANG_GROUP, "F d {1} Y");
-        $createdAt = $this->createdAt instanceof \DateTime  ? $this->createdAt : null;
+        $createdAt = $this->createdAt instanceof \DateTime ? $this->createdAt : null;
         if ($format !== null) {
             $formated = localeDateFormat($format, $createdAt);
         } else {
@@ -515,7 +516,7 @@ class LogsMapper extends EntityMapperExtensible
 
         $createdAtFormatReplacements = json_encode([
             '{1}' => __(self::LANG_GROUP, 'de'),
-        ], \JSON_UNESCAPED_SLASHES  | \JSON_UNESCAPED_UNICODE);
+        ], \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
         $moduleNameBySourceJSON = json_encode((object) self::moduleNamesEquivalencesBySource(), \JSON_UNESCAPED_UNICODE);
 
         $fields = [
@@ -709,7 +710,7 @@ class LogsMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

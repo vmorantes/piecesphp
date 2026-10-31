@@ -1,12 +1,11 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
 use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
 
 /**
  * Class MemoryOutput
- * 
+ *
  * Plugin para exportar a un string en memoria.
  */
 class MemoryOutput implements OutputPluginInterface

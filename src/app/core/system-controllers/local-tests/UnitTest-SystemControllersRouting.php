@@ -2,8 +2,11 @@
 
 //Los cinco controladores del sistema con ControllerRoutingTrait: cada uno resuelve con su prefijo, la herencia no se lo cambia,
 //y un usuario no aprobado conserva la edición de su perfil y los ajustes de su cuenta, pero no la gestión de usuarios.
+//@areas src/app/classes/PiecesPHP/Tokens/
+//@areas src/app/classes/SystemApprovals/
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Tokens\Controllers\GenericTokenController;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
@@ -11,7 +14,6 @@ use PiecesPHP\UserSystem\Controllers\TimerController;
 use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\Terminal\CliActions;
 use SystemApprovals\SystemApprovalsMiddleware;
 
 CliActions::make('unit-tests:core/system-controllers-routing', function ($args) {

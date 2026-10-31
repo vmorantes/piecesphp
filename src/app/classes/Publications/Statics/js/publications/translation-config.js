@@ -11,7 +11,7 @@ window.addEventListener('publicationsTranslationsReadyToConfig', function () {
 	const baseLang = atob(getVariableFromHTML('baseLang'))
 	const baseLangContainerElements = $(`.module-view-container [lang-container="${baseLang}"]`)
 	const containerElements = Array.from($('.module-view-container [lang-container]').not(`[lang-container="${baseLang}"]`))
-	const translationURL = new URL('core/api/translations', pcsphpGlobals.baseURL)
+	const translationURL = new URL(atob(getVariableFromHTML('translationURL')), pcsphpGlobals.baseURL)
 	const textsToTranslate = {}
 	const asHTMLProperties = []
 	const globalLangGroup = 'global'

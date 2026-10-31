@@ -1,0 +1,6 @@
+/*
+ * Los íconos SVG propios del proyecto, fuera de la copia del tema que reescribe bin/traer-tema. Cada .svg va al lado de
+ * esta hoja, con una línea por ícono y el patrón del tema (su url() es relativa a esta hoja):
+ *
+ * i.<nombre>.svg.icon.icon::before { -webkit-mask-image: url("<nombre>.svg"); mask-image: url("<nombre>.svg"); }
+ */

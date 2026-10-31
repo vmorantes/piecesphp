@@ -2,6 +2,7 @@
 
 //Prueba la INTEGRACIÓN con Mautic, no la ENTREGA: Mautic encola el envío y lo entrega su consumidor
 //(`messenger:consume email`), que aquí no corre, así que el correo no llega al sumidero. 313.
+//@areas src/app/classes/API/
 
 use API\Adapters\MauticEmailAdapter;
 use PiecesPHP\Core\BaseController;

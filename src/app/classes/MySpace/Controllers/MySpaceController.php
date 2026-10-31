@@ -6,21 +6,21 @@
 
 namespace MySpace\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\Mappers\LogsMapper;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 
 /**
@@ -171,7 +171,8 @@ class MySpaceController extends AdminPanelController
     }
 
     /**
-     * Caduca la cookie de sesión en las dos formas en que la pone el cliente: la del host y la del dominio.
+     * Caduca la cookie de sesión en las tres formas y con las opciones con que la pone el cliente (setJWT() de
+     * PiecesPHPGenericHandlerSession.js): sin dominio, el host y .host, path /, SameSite Lax y Secure en https.
      *
      * @return void
      */
@@ -179,9 +180,11 @@ class MySpaceController extends AdminPanelController
     {
         $name = SessionToken::tokenName();
         $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? explode(':', $_SERVER['HTTP_HOST'])[0] : '';
-        setcookie($name, '', ['expires' => 1, 'path' => '/']);
+        $options = ['expires' => 1, 'path' => '/', 'secure' => get_config('domain_protocol') === 'https://', 'httponly' => false, 'samesite' => 'Lax'];
+        setcookie($name, '', $options);
         if ($host !== '') {
-            setcookie($name, '', ['expires' => 1, 'path' => '/', 'domain' => $host]);
+            setcookie($name, '', $options + ['domain' => $host]);
+            setcookie($name, '', $options + ['domain' => '.' . $host]);
         }
     }
 

@@ -355,10 +355,9 @@ porque el momento en que se entiende es justo ese.
 
 ## Git
 
-- Trabajo diario en `dev`; ramas temáticas (`limpieza-modulos`, `redesign`,
-  `updagre-to-php84`, `modificacion-docs`) se sincronizan con
-  `git checkout <rama> && git merge dev`.
-- `master` y `last-stable` se actualizan desde `dev` para publicar.
+- Todo el trabajo va en `dev`, también el rediseño (P241 a, 2026-10-28); las ramas temáticas de antes ya no
+  existen. Una rama nueva la crea solo el PO.
+- `master` y `last-stable` solo avanzan, desde `dev`, con `git update-ref` (ADR 0019).
 - Tres remotos: `origin`, `origin2`, `origin3`. Se hace push de `--all` y `--tags`.
 - Mensajes de commit en español, con prefijos tipo `feat:` / `fix:` cuando aplica
   (el historial es mixto; hay commits con mensaje `-`).

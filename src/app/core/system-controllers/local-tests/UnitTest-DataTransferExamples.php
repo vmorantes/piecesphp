@@ -2,8 +2,8 @@
 
 //Los ejemplos que la guía incrusta funcionan de verdad, y sus marcadores de fragmento existen: si falta uno, la guía no compila.
 //Escribe usuarios zz-ejemplo-* de verdad y los borra en el finally: db-backup antes.
+//@areas src/app/classes/DataImportExportUtility/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use DataImportExportUtility\Examples\ExampleUserNamesImportDefinition;
@@ -20,6 +20,7 @@ use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
 use PiecesPHP\Core\DataTransfer\Source\ArrayRowSource;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 CliActions::make('unit-tests:core/data-transfer-examples', function ($args) {

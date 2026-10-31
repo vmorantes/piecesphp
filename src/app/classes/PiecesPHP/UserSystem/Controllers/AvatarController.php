@@ -6,10 +6,11 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
+use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\Core\BaseController;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -46,7 +47,7 @@ class AvatarController extends BaseController
     public function register(Request $request, Response $response)
     {
 
-        $user_id = $request->getParsedBodyParam('user_id', null);
+        $userId = $request->getParsedBodyParam('user_id', null);
 
         $files_uploaded = $request->getUploadedFiles();
         $image = $files_uploaded['image'] ?? null;
@@ -59,21 +60,26 @@ class AvatarController extends BaseController
 
         //El avatar de otro, solo quien puede gestionarlo (su formulario de edición); el propio, siempre. Antes que la
         //imagen: sin permiso no importa qué se mande.
-        if (!is_null($user_id)) {
+        if (!is_null($userId)) {
             $actor = new UsersModel(getLoggedFrameworkUserOrFail()->id);
-            if (!Validator::isInteger($user_id) || !UsersController::canManageUser($actor, new UsersModel((int) $user_id))) {
+            if (!Validator::isInteger($userId) || !UsersController::canManageUser($actor, new UsersModel((int) $userId))) {
                 return throw403($request);
             }
         }
 
-        if (!is_null($user_id) && !is_null($image)) {
+        if (!is_null($userId) && !is_null($image)) {
 
-            $uploaded = AvatarModel::save((int) $user_id, $image);
+            if (!AvatarModel::isAcceptedImage($image)) {
+                $json_response['message'] = __(FileValidator::LANG_GROUP, 'Tipo de archivo inválido.');
+                return $response->withJson($json_response);
+            }
+
+            $uploaded = AvatarModel::save((int) $userId, $image);
 
             if ($uploaded) {
                 $json_response['success'] = $uploaded;
                 $json_response['message'] = __(self::LANG_GROUP, 'Imagen de perfil modificada');
-            }else{                
+            } else {
                 $json_response['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
             }
 

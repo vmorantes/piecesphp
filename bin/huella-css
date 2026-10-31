@@ -229,6 +229,11 @@ def main():
             return 2
         expected = {collapse(line) for line in open(args[position + 1], encoding='utf-8') if line.strip()}
 
+    #Antes de compilar: con una .scss versionada que no está, se mediría su CSS viejo sin avisar.
+    absent = censo.absent_on_disk(censo.git_files('*.scss'))
+    if absent:
+        print(censo.absent_message(absent))
+        return 2
     if '--sin-compilar' not in args:
         compiled = subprocess.run(['gulp', 'sass-all'], cwd='src', capture_output=True, text=True)
         if compiled.returncode != 0:
@@ -261,6 +266,7 @@ def main():
             'sheets': {s: sheets[s] for s in sorted(sheets)},
         }
         text = json.dumps(result, ensure_ascii=False, indent=1)
+        os.makedirs(os.path.dirname(OUT), exist_ok=True)
         with open(OUT, 'w', encoding='utf-8', newline='\n') as handle:
             handle.write(text + '\n')
         print(f'\nhuella-css guardada: {len(sheets)} hoja(s), {total_rules} regla(s), hash {result["hash"][:16]}; escrito {OUT}')
@@ -273,7 +279,16 @@ def main():
     if saved.get('sheets_count') != len(sheets) or set(saved.get('sheets', {})) != set(sheets):
         gone = sorted(set(saved.get('sheets', {})) - set(sheets))
         born = sorted(set(sheets) - set(saved.get('sheets', {})))
-        print(f'PARA: la huella guardada tiene {saved.get("sheets_count")} hoja(s) y hoy hay {len(sheets)}.'
+        #Antes de parar se enseña lo que se va con cada hoja (y lo que trae cada nueva), como cualquier otra diferencia.
+        for name in gone:
+            print(f'\n== {name} (la hoja ya no está)')
+            for rule in saved['sheets'][name]:
+                print(f'  DESAPARECE: {describe(rule)}')
+        for name in born:
+            print(f'\n== {name} (hoja nueva)')
+            for rule in sheets[name]:
+                print(f'  NUEVA: {describe(rule)}')
+        print(f'\nPARA: la huella guardada tiene {saved.get("sheets_count")} hoja(s) y hoy hay {len(sheets)}.'
               + (f' Faltan: {", ".join(gone)}.' if gone else '') + (f' Nuevas: {", ".join(born)}.' if born else ''))
         return 2
 

@@ -95,8 +95,7 @@ $iconByExtension = function (?string $extension, ?string $mimeType = null) {
                 </div>
             </div>
         </div>
-        <?php endif; ?>  
-        
+        <?php endif; ?>
         <div class="wrapper" publications-regular-section-detail>
             <section class="ui cards posts-list centered" data-url="<?= $ajaxURL; ?>" publications-regular-block></section>
         </div>

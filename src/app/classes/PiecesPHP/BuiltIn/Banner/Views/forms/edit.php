@@ -18,16 +18,16 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
     <div class="limiter-content">
 
         <?php
-        //La cabecera del panel (diseno/01-contenidos.md §2.1).
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            //La cabecera del panel (diseno/01-contenidos.md §2.1).
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
 
-        <div class="tabs-controls content-tabs">
-            <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
+        <div class="ui secondary pointing menu tabs-controls content-tabs">
+            <div class="active item" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
         </div>
 
         <?php if($manyLangs): ?>
@@ -50,53 +50,32 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 
                 <div class="ui tab active" data-tab="basic">
 
-                    <div class="form-attachments-regular">
-                        <div class="attach-placeholder desktop-image">
-                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                            <div class="ui top right attached label green">
-                                <i class="paperclip icon"></i>
-                            </div>
-                            <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="<?= escape_html($element->getLangData($lang, 'desktopImage', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                    <i class="icon upload"></i>
-                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                                </div>
-                                <div class="text">
-                                    <div class="filename"></div>
-                                    <div class="header">
-                                        <div class="title"><?= __($langGroup, 'Imagen'); ?></div>
-                                        <div class="meta"><?= $BuiltInBannerConfiguration['desktop']['sizeRecommendedText']; ?></div>
-                                    </div>
-                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                                </div>
-                            </label>
-                            <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                        </div>
-
-                        <div class="attach-placeholder mobile-image">
-                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                            <div class="ui top right attached label green">
-                                <i class="paperclip icon"></i>
-                            </div>
-                            <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="<?= escape_html($element->getLangData($lang, 'mobileImage', false, '')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                    <i class="icon upload"></i>
-                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                                </div>
-                                <div class="text">
-                                    <div class="filename"></div>
-                                    <div class="header">
-                                        <div class="title"><?= __($langGroup, 'Imagen teléfonos'); ?></div>
-                                        <div class="meta"><?= $BuiltInBannerConfiguration['mobile']['sizeRecommendedText']; ?></div>
-                                    </div>
-                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                                </div>
-                            </label>
-                            <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                        </div>
+                    <div class="two fields">
+                        <?php
+                            $this->helpController->_render('panel/built-in/content/image-field.php', [
+                                'card' => [
+                                    'id' => 'desktop-image',
+                                    'title' => __($langGroup, 'Imagen'),
+                                    'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                    'image' => (string) $element->getLangData($lang, 'desktopImage', false, ''),
+                                    'field' => 'desktopImage',
+                                    'width' => (int) $BuiltInBannerConfiguration['desktop']['referenceW'],
+                                    'height' => (int) $BuiltInBannerConfiguration['desktop']['referenceH'],
+                                ],
+                            ]);
+                            $this->helpController->_render('panel/built-in/content/image-field.php', [
+                                'card' => [
+                                    'id' => 'mobile-image',
+                                    'title' => __($langGroup, 'Imagen teléfonos'),
+                                    'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                    'image' => (string) $element->getLangData($lang, 'mobileImage', false, ''),
+                                    'field' => 'mobileImage',
+                                    'width' => (int) $BuiltInBannerConfiguration['mobile']['referenceW'],
+                                    'height' => (int) $BuiltInBannerConfiguration['mobile']['referenceH'],
+                                ],
+                            ]);
+                        ?>
                     </div>
-
-                    <br><br>
 
                     <div class="field">
                         <label><?= __($langGroup, 'Posición'); ?></label>
@@ -138,17 +117,17 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
             </div>
 
             <?php
-            //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => $allowDelete ? [[
-                    'text' => __($langGroup, 'Eliminar'),
-                    'type' => 'button',
-                    'icon' => 'trash alternate',
-                    'danger' => true,
-                    'attributes' => ['delete-built-in-banner-button' => '', 'data-route' => $deleteRoute],
-                ]] : [],
-            ]);
+                //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => $allowDelete ? [[
+                        'text' => __($langGroup, 'Eliminar'),
+                        'type' => 'button',
+                        'icon' => 'trash alternate',
+                        'danger' => true,
+                        'attributes' => ['delete-built-in-banner-button' => '', 'data-route' => $deleteRoute],
+                    ]] : [],
+                ]);
             ?>
 
         </form>
@@ -157,55 +136,4 @@ $BuiltInBannerConfiguration = get_config('BuiltInBannerConfiguration');
 
 </section>
 
-<?php
-
-    $croppers = [
-        [
-            'id' => 'desktop-image',
-            'cropperOptions' => [
-                'type' => 'image/*',
-                'required' => false,
-                'referenceW' => $BuiltInBannerConfiguration['desktop']['referenceW'],
-                'referenceH' => $BuiltInBannerConfiguration['desktop']['referenceH'],
-                'image' => $element->getLangData($lang, 'desktopImage'),
-                'imageName' => $element->getLangData($lang, 'desktopImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-            ],
-        ],
-        [
-            'id' => 'mobile-image',
-            'cropperOptions' => [
-                'type' => 'image/*',
-                'required' => false,
-                'referenceW' => $BuiltInBannerConfiguration['mobile']['referenceW'],
-                'referenceH' => $BuiltInBannerConfiguration['mobile']['referenceH'],
-                'image' => $element->getLangData($lang, 'ASFSAFSA'),
-                'imageName' => $element->getLangData($lang, 'ASFSAFSA', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-            ],
-        ],
-    ];
-
-    foreach ($croppers as $cropperData) {
-        $id = $cropperData['id'];
-        $cropperOptions = $cropperData['cropperOptions'];
-        $cropperOptions['selectorAttr'] = $id;
-        modalImageUploaderForCropperAdminViews([
-            //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-            'content' => simpleCropperAdapterWorkSpace($cropperOptions, false),
-            //Atributos que se asignarán al modal (el contenedor principal), string
-            'modalContainerAttrs' => "modal='{$id}'",
-            //Clases que se asignarán al modal (el contenedor principal), string
-            'modalContainerClasses' => "ui tiny modal",
-            //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-            'modalContentElementAttrs' => null,
-            //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-            'informationContentMainClass' => null,
-            //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-            'informationContentClasses' => null,
-            //Título del modal, string
-            'titleModal' => null,
-            //Descripción del modal, string
-            'descriptionModal' => null,
-        ]);
-    }
-
-?>
+<?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>

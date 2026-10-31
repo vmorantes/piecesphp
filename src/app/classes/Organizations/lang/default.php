@@ -49,7 +49,6 @@ return [
     "Cambiar" => "Cambiar",
     "Anexar" => "Anexar",
     "Logo" => "Logo",
-    "Tamaño 400x400" => "Tamaño 400x400",
     "Imagen preferiblemente en formato .jpg" => "Imagen preferiblemente en formato .jpg",
     "RUT" => "RUT",
     "Tamaño máximo del archivo 2MB" => "Tamaño máximo del archivo 2MB",

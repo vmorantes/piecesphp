@@ -11,9 +11,9 @@ $items = isset($items) && is_array($items) ? $items : [];
 <div class="numbers-cards">
     <?php foreach ($items as $item): ?>
     <?php
-    $color = in_array($item['color'] ?? '', ['green', 'orange'], true) ? ' ' . $item['color'] : '';
-    $icon = trim((string) preg_replace('/[^a-z0-9 -]/', '', mb_strtolower((string) ($item['icon'] ?? 'chart bar outline'))));
-    $initial = isset($item['initial']) && is_string($item['initial']) ? $item['initial'] : '0';
+        $color = in_array($item['color'] ?? '', ['green', 'orange'], true) ? ' ' . $item['color'] : '';
+        $icon = trim((string) preg_replace('/[^a-z0-9 -]/', '', mb_strtolower((string) ($item['icon'] ?? 'chart bar outline'))));
+        $initial = isset($item['initial']) && is_string($item['initial']) ? $item['initial'] : '0';
     ?>
     <div class="number-card<?= $color; ?>">
         <div class="icon">

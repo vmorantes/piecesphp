@@ -2,6 +2,8 @@
 
 //El punto de partida de la verificación: el barrido, la línea base y la atribución (ADR 0047).
 //Nace de un bin/verify que falló por un resto de la noche anterior y de un siguiente que pasó.
+//@areas nucleo
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;

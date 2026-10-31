@@ -6,8 +6,8 @@
 
 namespace PiecesPHP\Tokens\Controllers;
 
-use PiecesPHP\Tokens\ORM\TokenModel;
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Tokens\ORM\TokenModel;
 
 /**
  * TokenController.

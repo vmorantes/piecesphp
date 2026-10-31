@@ -6,7 +6,6 @@ $-avatarShadow: rgba(27, 28, 29, 0.15);
 
 //El cuerpo común de las vistas de perfil: $section es la clase de la sección y $accent su color de borde.
 //@content va dentro de .section.contact-data, tras &.mobile: ahí añade la de organización lo suyo.
-$fontModule: $fontGlobal;
 $color3558A2: #3558A2;
 $color21AB88: #21AB88;
 $colorFFE552: #FFE552;
@@ -19,6 +18,7 @@ $color181818: #181818;
 $avatarOffsetPx: 56;
 $avatarOffsetPx2: 30;
 $avatarOffsetPx3: 40;
+
 @mixin profile-view($section, $accent) {
 
     .module-view-container.profile-detail {
@@ -50,20 +50,20 @@ $avatarOffsetPx3: 40;
             padding: 0px 32px;
             grid-template-areas: "a b c";
 
-            >* {
+            > * {
                 position: relative;
                 top: pxToRem($avatarOffsetPx * -1);
             }
 
             //Los datos no suben con el avatar: un nombre largo cruzaba la banda de color. El margen de abajo ocupa lo que
             //subía, así que uno corto queda donde estaba, y uno largo hace crecer la tarjeta hacia abajo.
-            >.data {
+            > .data {
                 top: 0;
                 margin-top: pxToRem(16);
                 margin-bottom: pxToRem($avatarOffsetPx);
             }
 
-            >.avatar {
+            > .avatar {
                 //Arriba siempre: con un nombre largo la fila crece y, abajo, el avatar dejaba de montar la banda.
                 align-self: start;
                 display: grid;
@@ -81,7 +81,7 @@ $avatarOffsetPx3: 40;
                 }
             }
 
-            >.data {
+            > .data {
 
                 grid-area: b;
 
@@ -101,7 +101,7 @@ $avatarOffsetPx3: 40;
                 }
             }
 
-            >.actions {
+            > .actions {
                 grid-area: c;
             }
         }
@@ -213,7 +213,7 @@ $avatarOffsetPx3: 40;
                 margin-bottom: pxToRem(32);
             }
 
-            >.title {
+            > .title {
                 font-size: pxToRem(18);
                 font-weight: $fwMedium;
                 color: $color1B1C1D;
@@ -229,7 +229,7 @@ $avatarOffsetPx3: 40;
                 }
             }
 
-            >.subtitle {
+            > .subtitle {
                 font-size: pxToRem(14);
                 color: $color707070;
                 line-height: pxToRem(24);
@@ -313,12 +313,12 @@ $avatarOffsetPx3: 40;
             }
 
             .profile-content .section.#{$section} {
-                >* {
+                > * {
                     position: relative;
                     top: pxToRem($avatarOffsetPx2 * -1);
                 }
 
-                >.data {
+                > .data {
                     margin-bottom: pxToRem($avatarOffsetPx2);
                 }
             }
@@ -333,12 +333,12 @@ $avatarOffsetPx3: 40;
                     "a  a"
                     "b  c";
 
-                >.avatar {
+                > .avatar {
                     margin: 0 auto;
                 }
 
                 //Apilados, los datos van bajo el avatar: vuelven a subir con él.
-                >.data {
+                > .data {
                     top: pxToRem($avatarOffsetPx2 * -1);
                     margin-top: 0;
                     margin-bottom: 0;
@@ -364,12 +364,12 @@ $avatarOffsetPx3: 40;
                     "b"
                     "c";
 
-                >* {
+                > * {
                     position: relative;
                     top: pxToRem($avatarOffsetPx3 * -1);
                 }
 
-                >.data {
+                > .data {
                     top: pxToRem($avatarOffsetPx3 * -1);
                 }
             }

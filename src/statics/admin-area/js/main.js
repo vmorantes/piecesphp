@@ -2,14 +2,147 @@
 /// <reference path="../../core/js/configurations.js" />
 //Fuera del `load`: los list.js de los módulos inician DataTables en su propio `load`, que va después.
 contentTablesStackable()
+dataTablesTooltips()
 
 window.addEventListener('load', function (e) {
 	timeOnPlatform()
 	adminZoneSupportForm()
+	panelSearch()
+	panelHelpCenter()
 	adminAppKeyNag()
 	contentFormsInitial()
 	contentModals()
+	contentColorFields()
+	contentPasswordFields()
+	contentTabsAria()
+	contentLiveReadings()
 })
+
+/**
+ * @description El campo de color (color-field.php): el selector del tema, sin botones, para que el cambio se vea en vivo.
+ * @returns {void}
+ */
+function contentColorFields() {
+	pcsColorPickerTexts()
+	//Los de configColorPickers() ya están iniciados, con su formato y su transparencia.
+	$('.ui.colorpicker.input > input:not([color-picker-js])').colorpicker({ buttons: false })
+}
+
+/**
+ * @description El campo de contraseña (password-field.php): el ojo alterna el tipo del input, su icono y su texto. Delegado
+ * en el documento: vale también para un campo pintado después de cargar la página.
+ * @returns {void}
+ */
+function contentPasswordFields() {
+	$(document).on('click', '[data-password-toggle]', function () {
+		const button = $(this)
+		const input = button.siblings('input')
+		const show = input.attr('type') === 'password'
+		input.attr('type', show ? 'text' : 'password')
+		button.find('.icon').toggleClass('slash', show)
+		button.attr('aria-pressed', show ? 'true' : 'false')
+		button.attr('aria-label', button.attr(show ? 'data-hide-text' : 'data-show-text'))
+	})
+}
+
+/**
+ * @description La lectura en vivo de una cifra: `input[data-live-reading="days|seconds"]` escribe su equivalente legible en
+ * `[data-live-reading-for="<id del input>"]`; con 0, el texto de su `data-live-reading-zero`.
+ * @returns {void}
+ */
+function contentLiveReadings() {
+	const unit = (count, one, many) => `${count} ${_i18n('liveReadings', count === 1 ? one : many)}`
+	const readings = {
+		days: (days) => {
+			if (days % 365 === 0) {
+				return unit(days / 365, 'año', 'años')
+			}
+			if (days >= 28 && days <= 31) {
+				return unit(1, 'mes', 'meses')
+			}
+			if (days % 30 === 0) {
+				return unit(days / 30, 'mes', 'meses')
+			}
+			return days % 7 === 0 ? unit(days / 7, 'semana', 'semanas') : unit(days, 'día', 'días')
+		},
+		seconds: (seconds) => {
+			const hours = Math.floor(seconds / 3600)
+			const minutes = Math.floor((seconds % 3600) / 60)
+			const parts = []
+			if (hours > 0) {
+				parts.push(unit(hours, 'hora', 'horas'))
+			}
+			if (minutes > 0) {
+				parts.push(unit(minutes, 'minuto', 'minutos'))
+			}
+			return parts.length > 0 ? parts.join(` ${_i18n('liveReadings', 'y')} `) : unit(seconds, 'segundo', 'segundos')
+		},
+	}
+	const paint = (input) => {
+		const target = document.querySelector(`[data-live-reading-for="${input.id}"]`)
+		const reading = readings[input.getAttribute('data-live-reading')]
+		const value = parseInt(input.value, 10)
+		if (target !== null && typeof reading == 'function') {
+			target.textContent = value > 0 ? reading(value) : (input.getAttribute('data-live-reading-zero') || '')
+		}
+	}
+	document.querySelectorAll('input[data-live-reading]').forEach(paint)
+	$(document).on('input', 'input[data-live-reading]', function () {
+		paint(this)
+	})
+}
+
+/**
+ * @description El patrón ARIA de las pestañas (design.md §3.13) sobre las `.ui.menu` con `.item[data-tab]`, sin tocar a
+ * quien las inicia con .tab(): roles y relaciones entre ítem y panel, `aria-selected` y `tabindex` al cambiar la clase
+ * `active`, y el teclado. Lo que no lleva `data-tab` dentro del menú no se toca.
+ * @returns {void}
+ */
+function contentTabsAria() {
+	let tabIndex = 0
+	$('.ui.menu').each(function () {
+		const items = $(this).children('.item[data-tab]')
+		if (items.length === 0) {
+			return
+		}
+		this.setAttribute('role', 'tablist')
+		items.each(function () {
+			tabIndex++
+			this.id = this.id || `content-tab-${tabIndex}`
+			this.setAttribute('role', 'tab')
+			//Se busca en todo el documento: los paneles no siempre son hermanos del menú.
+			const panel = document.querySelector(`.ui.tab[data-tab="${CSS.escape(this.getAttribute('data-tab'))}"]`)
+			if (panel !== null) {
+				panel.id = panel.id || `content-tabpanel-${tabIndex}`
+				panel.setAttribute('role', 'tabpanel')
+				panel.setAttribute('aria-labelledby', this.id)
+				this.setAttribute('aria-controls', panel.id)
+			}
+		})
+		const sync = () => items.each(function () {
+			const active = this.classList.contains('active')
+			this.setAttribute('aria-selected', active ? 'true' : 'false')
+			this.tabIndex = active ? 0 : -1
+		})
+		sync()
+		new MutationObserver(sync).observe(this, { subtree: true, attributes: true, attributeFilter: ['class'] })
+		$(this).on('keydown', '> .item[data-tab]', function (event) {
+			//Solo las que se ven: una pestaña puede estar oculta por configuración («Anexos», en publicaciones).
+			const visible = items.filter(':visible')
+			const index = visible.index(this)
+			const targets = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: visible.length - 1 }
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault()
+				this.click()
+			} else if (typeof targets[event.key] == 'number') {
+				event.preventDefault()
+				const target = visible.get((targets[event.key] + visible.length) % visible.length)
+				target.focus()
+				target.click()
+			}
+		})
+	})
+}
 
 /**
  * @description Los formularios hechos con las piezas de contenido (`data-content-form`) nacen con la clase `initial` de
@@ -27,21 +160,30 @@ function contentFormsInitial() {
 }
 
 /**
- * @description Los listados de contenido (`table.content-table`), como tarjetas en el móvil (diseño de contenidos, §2.2).
- * La integración de DataTables con Semantic marca TODA tabla `unstackable` (dataTables.semanticui.min.js): aquí se le
- * quita solo a las de contenido, al iniciarse, y cada dibujado pone en cada celda el `data-label` de su cabecera, que el
- * CSS del móvil enseña delante del valor (_content-screens.scss). Las demás tablas no se tocan.
+ * @description Los listados de contenido (`table.content-table`). Una tabla es una tabla: la integración de DataTables con
+ * Semantic marca TODA tabla `unstackable` (dataTables.semanticui.min.js), y en el móvil se desplaza. Con la clase
+ * `content-table-cards`, opcional, cada fila es una tarjeta: aquí se le quita `unstackable`, al iniciarse, y cada dibujado
+ * pone en cada celda el `data-label` de su cabecera, que el CSS del móvil enseña delante del valor (_content-screens.scss).
+ * La columna de `RowActions`, cabecera y celdas, va a la derecha. Las demás tablas no se tocan.
  * @returns {void}
  */
 function contentTablesStackable() {
 	$(document).on('init.dt draw.dt', function (event, settings) {
-		const table = $(settings.nTable)
+		const table = $(new DataTable.Api(settings).table().node())
 		if (!table.is('table.content-table')) {
 			return
 		}
-		table.removeClass('unstackable')
 		//La paginación del contenedor de DataTables, para que envuelva en el móvil (_content-screens.scss).
 		table.closest('.dt-container').addClass('content-table-container')
+		const actions = table.find('> tbody > tr > td:last-child:has(.row-actions)')
+		if (actions.length > 0) {
+			actions.addClass('right aligned')
+			table.find('> thead > tr > th:last-child').addClass('right aligned')
+		}
+		if (!table.hasClass('content-table-cards')) {
+			return
+		}
+		table.removeClass('unstackable')
 		const labels = table.find('> thead > tr > th').map((index, th) => $(th).text().trim()).get()
 		table.find('> tbody > tr').each(function () {
 			$(this).children('td').each(function (index) {
@@ -49,6 +191,24 @@ function contentTablesStackable() {
 					this.setAttribute('data-label', labels[index])
 				}
 			})
+		})
+	})
+}
+
+/**
+ * @description Los tooltips dentro de una tabla de DataTables, con el módulo popup (design.md §3.10): el de CSS es un
+ * `::after` y el desplazamiento horizontal de la tabla lo recorta; el popup se pinta en `body`. Se quitan los atributos del
+ * de CSS para que no salgan dos. El `aria-label` se queda.
+ * @returns {void}
+ */
+function dataTablesTooltips() {
+	$(document).on('draw.dt', function (event, settings) {
+		$(new DataTable.Api(settings).table().container()).find('[data-tooltip]').each(function () {
+			const element = $(this)
+			const content = element.attr('data-tooltip')
+			const position = element.attr('data-position') || 'top center'
+			element.removeAttr('data-tooltip data-position data-inverted')
+			element.popup({ content: content, variation: 'inverted tiny', position: position })
 		})
 	})
 }
@@ -255,6 +415,42 @@ function timeOnPlatform(registerUsedTimeSecondsBase = 5, registerUsedTimeSendSec
 	// Configura el temporizador de envíos principal al servidor
 	registerUsedTimeConfiguration.intervalSendID = setInterval(registerUsedTimeConfiguration.sendTimeHandler, registerUsedTimeSendSecondsBase * 1000)
 
+}
+
+/**
+ * @description El buscador de la barra (topbar-search.php): busca en local, en lo que el servidor ya filtró por permisos. El
+ * atajo Ctrl K es del shell del tema.
+ * @returns {void}
+ */
+function panelSearch() {
+	const search = $('[panel-search]')
+	if (search.length < 1) {
+		return
+	}
+	search.search({
+		type: 'category',
+		source: JSON.parse(search.attr('data-source')),
+		searchFields: ['title', 'category'],
+		fullTextSearch: 'exact',
+		ignoreDiacritics: true,
+		minCharacters: 1,
+		maxResults: 12,
+		selectFirstResult: true,
+		error: {
+			noResultsHeader: search.attr('data-no-results-header'),
+			noResults: search.attr('data-no-results'),
+		},
+	})
+}
+
+/**
+ * @description El botón de ayuda de la barra: un popup con el centro de ayuda (topbar.php).
+ * @returns {void}
+ */
+function panelHelpCenter() {
+	const toggle = $('[help-center-toggle]')
+	toggle.popup({ popup: '[help-center-menu]', on: 'click', position: 'bottom right', lastResort: 'bottom right', movePopup: false })
+	$('[help-center-menu] [support-button-js]').on('click', () => toggle.popup('hide'))
 }
 
 function adminZoneSupportForm() {

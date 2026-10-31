@@ -1,6 +1,6 @@
 /// <reference path="../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/AttachmentPlaceholder.js" />
 showGenericLoader('_CARGA_INICIAL_')
@@ -14,37 +14,13 @@ window.addEventListener('load', function () {
 
 	/* Selectores y elementos de interfaz */
 	const formSelector = `.ui.form.publications`
-	const idMainImage = 'main-image'
-	const idThumbImage = 'thumb-image'
-	const idOpenGraphImage = 'og-image'
 
-	//Placeholders
-	let attachmentMainImage = new AttachmentPlaceholder($(`.attach-placeholder.${idMainImage}`))
-	let attachmentThumbImage = new AttachmentPlaceholder($(`.attach-placeholder.${idThumbImage}`))
-	let attachmentOpenGraphImage = new AttachmentPlaceholder($(`.attach-placeholder.${idOpenGraphImage}`))
-
-	//Croppers
-	let cropperMainImage = new SimpleCropperAdapter(`[${idMainImage}]`, {
-		aspectRatio: 4 / 3,
-		format: 'image/jpeg',
-		quality: 0.8,
-		fillColor: 'white',
-		outputWidth: 800,
-	})
-	let cropperThumbImage = new SimpleCropperAdapter(`[${idThumbImage}]`, {
-		aspectRatio: 4 / 3,
-		format: 'image/jpeg',
-		quality: 0.8,
-		fillColor: 'white',
-		outputWidth: 400,
-	})
-	let cropperOpenGraphImage = new SimpleCropperAdapter(`[${idOpenGraphImage}]`, {
-		aspectRatio: 2 / 1,
-		format: 'image/jpeg',
-		quality: 0.8,
-		fillColor: 'white',
-		outputWidth: 1200,
-	})
+	//Tarjetas de imagen: lo aplicado en el editor se envía al guardar, con el nombre de su campo.
+	const editedImages = {}
+	const imageEditor = new ContentImageEditor()
+	imageEditor.onApply('main-image', (file) => editedImages.mainImage = file)
+	imageEditor.onApply('thumb-image', (file) => editedImages.thumbImage = file)
+	imageEditor.onApply('og-image', (file) => editedImages.ogImage = file)
 
 	//Editores de texto
 	let richEditorAdapter = new RichEditorAdapterComponent({
@@ -66,12 +42,10 @@ window.addEventListener('load', function () {
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 
-			formData.set('mainImage', cropperMainImage.getFile())
-			formData.set('thumbImage', cropperThumbImage.getFile())
-			formData.set('toTranslation', toFormEditForTranstation ? 'yes' : 'no')
-			if (cropperOpenGraphImage.wasChange()) {
-				formData.set('ogImage', cropperOpenGraphImage.getFile())
+			for (const field in editedImages) {
+				formData.set(field, editedImages[field])
 			}
+			formData.set('toTranslation', toFormEditForTranstation ? 'yes' : 'no')
 
 			let attachCounter = 0
 			for (const attachment of attachments) {
@@ -85,23 +59,6 @@ window.addEventListener('load', function () {
 			}
 			return formData
 		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-			if (field.length == 0) {
-				field = jElement.closest('.attach-placeholder')
-				nameOnLabel = field.find('>label >.text >.header >.title').text()
-			}
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		}
 	})
 
 	//Botones de guardado
@@ -115,11 +72,6 @@ window.addEventListener('load', function () {
 		regularSaveButton.click()
 	})
 
-	//Comportamiento de placeholders
-	attachmentMainImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperMainImage, idMainImage) })
-	attachmentThumbImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperThumbImage, idThumbImage) })
-	attachmentOpenGraphImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperOpenGraphImage, idOpenGraphImage) })
-
 	//Tabs
 	const tabs = $('.tabs-controls [data-tab]').tab({
 		onVisible: function (tabName) {
@@ -129,37 +81,8 @@ window.addEventListener('load', function () {
 	//Otros
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
-	$('.ui.accordion').accordion()
-
-	/** 
-	 * @param {AttachmentPlaceholder} instance
-	 * @param {AttachmentPlaceholderElements} elements
-	 * @param {SimpleCropperAdapter} cropper
-	 * @param {String} selector
-	*/
-	function genericAttachmentWithModalCropperBehavior(instance, elements, cropper, selector) {
-
-		const modal = $(`[modal="${selector}"]`)
-		let firstDraw = true
-		cropper.onCancel(() => modal.modal('hide'))
-		cropper.onCropped((blobImage, settedImage) => {
-			instance.setFile(blobImage)
-			modal.modal('hide')
-		})
-
-		instance.onClick(function (instance, elements, event) {
-			event.preventDefault()
-			modal.modal({
-				onVisible: function () {
-					if (firstDraw) {
-						cropper.refresh()
-						firstDraw = false
-					}
-				},
-			}).modal('show')
-		})
-
-	}
+	//Solo los del formulario: uno global reiniciaba el de la navegación del shell sin su selector.ignore del riel.
+	form.find('.ui.accordion').accordion()
 
 	/**
 	 * Configura el comportamiento de los adjuntos

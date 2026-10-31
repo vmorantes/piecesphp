@@ -2,6 +2,7 @@
 
 //La Salud de la instalación enseña hechos con su origen y nunca un secreto: si una fila pierde el origen o el HTML
 //deja ver una llave o una contraseña, la pantalla miente o filtra (P179).
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Roles;

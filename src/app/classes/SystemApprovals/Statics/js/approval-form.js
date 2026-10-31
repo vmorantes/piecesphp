@@ -26,23 +26,6 @@ window.addEventListener('load', function () {
 			formData.set('approvalStatus', approvalStatus)
 			return formData
 		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-			if (field.length == 0) {
-				field = jElement.closest('.attach-placeholder')
-				nameOnLabel = field.find('>label >.text >.header >.title').text()
-			}
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		}
 	})
 
 	//Botones

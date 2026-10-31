@@ -5,6 +5,8 @@
  */
 namespace PiecesPHP\Core\Forms;
 
+use PiecesPHP\Core\Statics\ProtectedUploads;
+
 /**
  * UploadedFileAdapter.
  *
@@ -310,10 +312,11 @@ class UploadedFileAdapter
         if ($move) {
             $newName = $name;
             $newExtension = $extension;
-            if (is_null($extension)) {
-                $newExtension = pathinfo($file['name'], \PATHINFO_EXTENSION);
-            }
             $tmp = $file['tmp_name'];
+            //Si el llamador no la fija, sale del contenido: la que fija (Settings) se respeta.
+            if (is_null($extension)) {
+                $newExtension = ProtectedUploads::safeExtension((string) $tmp, pathinfo($file['name'], \PATHINFO_EXTENSION));
+            }
             $output = self::moveFileTo($directory, $tmp, $newName, $newExtension, $overwrite);
         }
 
@@ -354,10 +357,11 @@ class UploadedFileAdapter
         if ($move) {
             $newName = $name;
             $newExtension = $extension;
-            if (is_null($extension)) {
-                $newExtension = pathinfo($file['name'], \PATHINFO_EXTENSION);
-            }
             $tmp = $file['tmp_name'];
+            //Si el llamador no la fija, sale del contenido: la que fija (Settings) se respeta.
+            if (is_null($extension)) {
+                $newExtension = ProtectedUploads::safeExtension((string) $tmp, pathinfo($file['name'], \PATHINFO_EXTENSION));
+            }
             $output = self::copyFileTo($directory, $tmp, $newName, $newExtension, $overwrite, $removeOriginal);
         }
 

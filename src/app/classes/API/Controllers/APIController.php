@@ -11,19 +11,14 @@ use API\Adapters\MistralHandlerAdapter;
 use API\Adapters\OpenAIHandlerAdapter;
 use API\APILang;
 use API\APIRoutes;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\Controllers\AvatarController;
-use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
-use PiecesPHP\UserSystem\Controllers\UserProblemsController;
-use PiecesPHP\UserSystem\Controllers\UsersController;
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\Mappers\LogsMapper;
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
 use News\Mappers\NewsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseModel;
@@ -38,20 +33,23 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
+use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
-use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
-use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Controllers\AvatarController;
+use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
-use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -89,6 +87,11 @@ class APIController extends AdminPanelController
     protected $helpController = null;
 
     const LANG_GROUP = APILang::LANG_GROUP;
+
+    /**
+     * La opción con los tipos de usuario que pueden traducir con IA (P208 b): se cambia en Configuración › IA.
+     */
+    const TRANSLATION_AI_USER_TYPES_CONFIG = 'translationAIUserTypes';
 
     public function __construct()
     {
@@ -490,6 +493,10 @@ class APIController extends AdminPanelController
      */
     public function translations(Request $request, Response $response)
     {
+        if (!self::currentUserCanTranslate()) {
+            return throw403($request);
+        }
+
         $actionType = $request->getAttribute('actionType', 'translate');
 
         //Acciones permitidas
@@ -534,7 +541,7 @@ class APIController extends AdminPanelController
                                 $jsonParsed = null;
                                 $parseJSON = function (string $jsonStr) {
                                     $decoded = json_decode($jsonStr, true);
-                                    $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
+                                    $decoded = json_last_error() === \JSON_ERROR_NONE ? $decoded : null;
                                     return $decoded;
                                 };
                                 if (is_string($value)) {
@@ -1070,6 +1077,16 @@ class APIController extends AdminPanelController
     }
 
     /**
+     * Si el alta sin sesión está encendida en este clon (API_PUBLIC_SIGNUP). Las suites la encienden en una subclase.
+     *
+     * @return bool
+     */
+    protected static function publicSignupEnabled(): bool
+    {
+        return APIRoutes::ENABLE_PUBLIC_SIGNUP;
+    }
+
+    /**
      * @param Request $request
      * @param Response $response
      * @return Response
@@ -1082,7 +1099,7 @@ class APIController extends AdminPanelController
 
         if ($actionType == 'register') {
 
-            if ($method !== 'POST') {
+            if ($method !== 'POST' || !static::publicSignupEnabled()) {
                 throw new NotFoundException($request, $response);
             }
 
@@ -1227,14 +1244,7 @@ class APIController extends AdminPanelController
             $request = $request->withParsedBody($parsedBody);
             //Acciones de REGISTRO EXTERNO PERSONALIZADO - FIN
 
-            //username - ESPERADOS
-            //email - ESPERADOS
-            //password - ESPERADOS
-            //password2 - ESPERADOS
-            //firstname - ESPERADOS
-            //first_lastname - ESPERADOS
-            //type
-            //status
+            //Espera username, email, password, password2, firstname y first_lastname; type y status, opcionales.
             $parsedBody = $request->getParsedBody();
             $inputUserType = $request->getParsedBodyParam('type', null);
             //El tipo puede venir como entero: lo pone el bloque de arriba cuando esta persona crea su organización.
@@ -1274,12 +1284,12 @@ class APIController extends AdminPanelController
             }
             $userCreated = false;
             if ($creationSuccess) {
-                $userByUsername = UsersModel::getBy($username, 'username', [], new UserDataPackage(1), true);
+                $userByUsername = UsersModel::getBy($username, 'username', [], null, true);
                 if ($userByUsername !== null) {
                     $userCreated = true;
-                    //Viene de registrar al usuario justo arriba: crear su perfil aquí es
+                    //Viene de registrar al usuario justo arriba: garantizar su perfil aquí es
                     //legítimo, y es idempotente si el alta ya lo creó.
-                    $profileUser = UserProfileMapper::createProfile((int) $userByUsername->id);
+                    $profileUser = UserProfileMapper::ensureFor((int) $userByUsername->id) ? UserProfileMapper::getProfile((int) $userByUsername->id) : null;
                     if ($profileUser !== null) {
                         $profileUser->phoneCode = $phoneCode;
                         $profileUser->phoneNumber = $phoneNumber;
@@ -1347,15 +1357,8 @@ class APIController extends AdminPanelController
             //Verificar que la sesión está activa
             if ($currentUser !== null) {
 
-                //id - OBLIGATORIO
-                //username
-                //email
-                //is_profile
-                //current-password
-                //password
-                //password2
-                //firstname
-                //first_lastname
+                //id, obligatorio; opcionales: username, email, is_profile, current-password, password, password2,
+                //firstname y first_lastname.
                 $parsedBody = $request->getParsedBody();
                 $userID = (int) $request->getParsedBodyParam('id', null);
 
@@ -1634,11 +1637,8 @@ class APIController extends AdminPanelController
 
         $request = $request->withHeader('Accept', 'application/json');
 
-        /**
-         * Ejemplo para programar cron job (la clave, solo en la cabecera: el parámetro GET quedaría en los logs de acceso):
-         * Contenido: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
-         * Tiempo: * * * * * (cada minuto: la franja, los reintentos y la ventana los pone cada tarea)
-         */
+        //Cron cada minuto: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run (la franja la pone
+        //cada tarea). La clave, solo en la cabecera: como parámetro GET quedaría en los registros de acceso.
         $actionType = $request->getAttribute('actionType');
         $method = mb_strtoupper($request->getMethod());
 
@@ -1742,6 +1742,43 @@ class APIController extends AdminPanelController
     }
 
     /**
+     * Quién puede traducir con IA. Sin opción, o si no es una lista, los seis tipos (P202). Lo que no es un tipo conocido
+     * se descarta, y root siempre puede: nadie se queda sin poder volver a configurarlo.
+     *
+     * @param mixed $option El valor de TRANSLATION_AI_USER_TYPES_CONFIG
+     * @return int[]
+     */
+    public static function translationUserTypes($option): array
+    {
+        $known = array_keys(UsersModel::TYPES_USERS);
+        if (!is_array($option)) {
+            return $known;
+        }
+        $types = [UsersModel::TYPE_USER_ROOT];
+        foreach ($option as $type) {
+            if (Validator::isInteger($type) && in_array((int) $type, $known, true)) {
+                $types[] = (int) $type;
+            }
+        }
+        return array_values(array_unique($types));
+    }
+
+    /**
+     * Si el usuario conectado está en la lista de quién traduce con IA (Configuración › IA). Cada traducción gasta créditos
+     * de pago del proveedor. Se pregunta al atender, con las opciones de la base ya aplicadas (P208 b).
+     *
+     * @return bool
+     */
+    public static function currentUserCanTranslate(): bool
+    {
+        $user = getLoggedFrameworkUser();
+        if ($user === null) {
+            return false;
+        }
+        return in_array((int) $user->type, self::translationUserTypes(get_config(self::TRANSLATION_AI_USER_TYPES_CONFIG)), true);
+    }
+
+    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -1767,6 +1804,8 @@ class APIController extends AdminPanelController
 
         $news = $allRoles;
 
+        //Los seis tipos: aquí las opciones de la base aún no están aplicadas (index.php registra antes). La lista de quién
+        //traduce con IA se comprueba al atender, en translations().
         $translations = $allRoles;
 
         $usersActions = $allRoles;
@@ -1805,6 +1844,7 @@ class APIController extends AdminPanelController
                 null,
                 $news,
             ),
+            //@codigo-comentado · Ruta de muestra para acciones sobre una API externa.
             //new Route( //Acciones sobre API externa (muestra)
             //    "{$startRoute}/external/{context}/{actionType}[/]",
             //    $classname . ':externalActions',

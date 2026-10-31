@@ -2,12 +2,14 @@
 
 //Lote 7c: los envíos de correo del framework, de punta a punta contra Mailpit en 127.0.0.1 (ADR 0015).
 //La configuración de correo se desvía SOLO en memoria (set_config): nada guardado cambia y nada sale de la máquina.
+//@areas nucleo
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
-use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
-use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
+use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 
 CliActions::make('unit-tests:core/mail-senders', function ($args) {
 

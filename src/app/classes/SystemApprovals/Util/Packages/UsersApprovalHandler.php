@@ -6,9 +6,8 @@
 
 namespace SystemApprovals\Util\Packages;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\SystemApprovalManager;
 
@@ -36,7 +35,17 @@ class UsersApprovalHandler extends BaseApprovalHandler
      */
     const TEXT_INDEPENDENT_USER = 'Usuario independiente';
     public static string $STATUS_ACTIVATION_COLUMN = 'status';
-    public static array $STATUS_ACTIVATION_POSITIVES_VALUES = UsersModel::STATUSES_VALUES;
+    /**
+     * Todos menos el Eliminado: un usuario Eliminado deja de existir en la práctica, y su aprobación pendiente no se cuenta
+     * ni se lista (como en organizaciones).
+     */
+    public static array $STATUS_ACTIVATION_POSITIVES_VALUES = [
+        UsersModel::STATUS_USER_INACTIVE,
+        UsersModel::STATUS_USER_ACTIVE,
+        UsersModel::STATUS_USER_ATTEMPTS_BLOCK,
+        UsersModel::STATUS_USER_APPROVED_PENDING,
+        UsersModel::STATUS_USER_REJECTED,
+    ];
 
     /**
      * El usuario de sistema no es un perfil que aprobar: sin esto, init() le creaba una aprobación pendiente en cada
@@ -66,13 +75,13 @@ class UsersApprovalHandler extends BaseApprovalHandler
      * @param int|UsersModel $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
-    public static function getContentTypeSpecificMapper(int | UsersModel $reference): string
+    public static function getContentTypeSpecificMapper(int|UsersModel $reference): string
     {
         $text = self::$BASE_TEXT;
         $mapper = $reference instanceof UsersModel ? $reference : new UsersModel($reference);
         $id = $mapper->id;
         if ($id !== null && $mapper == null) {
-            $mapper = UsersModel::getBy($id, 'id', [], new UserDataPackage(1), true);
+            $mapper = UsersModel::getBy($id, 'id', [], null, true);
         }
         if ($mapper === null) {
             return $text;
@@ -91,27 +100,37 @@ class UsersApprovalHandler extends BaseApprovalHandler
     /**
      * Verifica si el mapper específico debe ser aprobado automáticamente.
      *
+     * Solo lee: la llama el middleware en cada petición. Lo que la organización aprobada decide sobre un pendiente lo
+     * aplica approveIfOrganizationApproved(), al crear (P220 b).
+     *
      * @param int|UsersModel $reference Referencia al mapper o su ID.
      * @return bool True si el mapper debe ser aprobado automáticamente, false en caso contrario.
      */
-    public static function isAutoApprovalSpecificMapper(int | UsersModel $reference): bool
+    public static function isAutoApprovalSpecificMapper(int|UsersModel $reference): bool
     {
-        $approved = false;
         $userMapper = $reference instanceof UsersModel ? $reference : new UsersModel($reference);
-        $organization = $userMapper->organization;
-        $organization = $organization !== null ? new OrganizationMapper($organization) : new OrganizationMapper();
-        $isBaseOrg = $organization->id !== null && $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL;
         $autoApprovalUserTypes = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_INSTITUCIONAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
         ];
-        if (in_array($userMapper->type, $autoApprovalUserTypes) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE || in_array($userMapper->type, UsersModel::ARE_AUTO_APPROVAL)) {
-            $approved = true;
-        }
-        //Si la organización está aprobada. Solo para quien está activo o PENDIENTE: inactivo, bloqueado, rechazado y borrado
-        //no se tocan, ni su estado ni su fila de aprobación (pendientes.md 387.1). Antes reactivaba a cualquiera.
+        return in_array($userMapper->type, $autoApprovalUserTypes) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE || in_array($userMapper->type, UsersModel::ARE_AUTO_APPROVAL);
+    }
+
+    /**
+     * Aprueba al usuario si su organización está aprobada; se llama al crearlo (P220 b), nunca al navegar. La aprobación
+     * de la organización aplica la misma regla en OrganizationApprovalHandler::onApprovedSpecificMapper().
+     *
+     * @param UsersModel $userMapper
+     * @return bool
+     */
+    public static function approveIfOrganizationApproved(UsersModel $userMapper): bool
+    {
+        $organization = $userMapper->organization;
+        $organization = $organization !== null ? new OrganizationMapper($organization) : new OrganizationMapper();
+        //Solo para quien está activo o PENDIENTE: inactivo, bloqueado, rechazado y borrado no se tocan, ni su estado ni su
+        //fila de aprobación (pendientes.md 387.1).
         $statusesToApprove = [UsersModel::STATUS_USER_ACTIVE, UsersModel::STATUS_USER_APPROVED_PENDING];
         $approvalMapper = null;
         $organizationApproved = in_array((int) $userMapper->status, $statusesToApprove, true) && SystemApprovalManager::getInstance()->isApproved(OrganizationMapper::class, $organization->id);
@@ -129,18 +148,18 @@ class UsersApprovalHandler extends BaseApprovalHandler
         }
         //Un perfil que una persona rechazó no lo aprueba la organización aprobada: ni la fila ni el estado.
         $rejectedByPerson = $approvalMapper !== null && (string) $approvalMapper->status === SystemApprovalsMapper::STATUS_REJECTED;
-        if ($organizationApproved && !$rejectedByPerson) {
-            $approved = true;
-            if ($approvalMapper !== null) {
-                $approvalMapper->status = SystemApprovalsMapper::STATUS_APPROVED;
-                $approvalMapper->update();
-            }
-            if ((int) $userMapper->status === UsersModel::STATUS_USER_APPROVED_PENDING) {
-                $userMapper->status = UsersModel::STATUS_USER_ACTIVE;
-                $userMapper->update();
-            }
+        if (!$organizationApproved || $rejectedByPerson) {
+            return false;
         }
-        return $approved;
+        if ($approvalMapper !== null) {
+            $approvalMapper->status = SystemApprovalsMapper::STATUS_APPROVED;
+            $approvalMapper->update();
+        }
+        if ((int) $userMapper->status === UsersModel::STATUS_USER_APPROVED_PENDING) {
+            $userMapper->status = UsersModel::STATUS_USER_ACTIVE;
+            $userMapper->update();
+        }
+        return true;
     }
 
     /**

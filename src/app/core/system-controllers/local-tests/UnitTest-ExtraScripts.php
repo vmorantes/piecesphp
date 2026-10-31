@@ -2,6 +2,7 @@
 
 //ExtraScripts por casos: qué entradas salen en cada zona y punto, y que un JSON roto no tumba la página.
 //Pura: cambia la opción solo en memoria y la devuelve como estaba.
+//@areas nucleo
 
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
 use PiecesPHP\Terminal\CliActions;

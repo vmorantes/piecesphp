@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# El «php» que ejecuta la extensión phpfmt del editor (phpfmt.php_bin en .vscode/settings.json, P242): así el editor da
+# lo mismo que bin/formatear. La extensión llama con un shell desde la carpeta del archivo:
+#   php-editor -v | php-editor -l "<temporal>"              se delegan en el php del proyecto
+#   php-editor "<phar>" --list-simple | --help-pass <pass>  consultas al phar de la extensión, también delegadas
+#   php-editor "<phar>" <argumentos> "<temporal>"           formatea el temporal con bin/formatear --suelto; el phar y
+#                                                           los argumentos de la extensión se ignoran
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+if [ -n "$PCSPHP_PHP_BIN" ]; then
+    PHP_BIN="$PCSPHP_PHP_BIN"
+elif command -v php8.5 >/dev/null 2>&1; then
+    PHP_BIN="php8.5"
+elif command -v php8.4 >/dev/null 2>&1; then
+    PHP_BIN="php8.4"
+else
+    PHP_BIN="php"
+fi
+case "$1" in
+    -v|-l) exec "$PHP_BIN" "$@" ;;
+esac
+for argumento in "$@"; do
+    case "$argumento" in
+        --list-simple|--help-pass|--list) exec "$PHP_BIN" "$@" ;;
+    esac
+done
+exec "$RAIZ/bin/formatear" --suelto "${@: -1}"

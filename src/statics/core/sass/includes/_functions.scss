@@ -1,5 +1,6 @@
 @use 'sass:string';
 @use 'font-size-base' as *;
+
 @function pxToRem($px) {
     @return string.unquote((calc(1 / $fontSizeHTML) * $px) + 'rem');
 }

@@ -6,14 +6,14 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use MySpace\Controllers\MySpaceController;
-use PiecesPHP\AdminPanel\DashboardCardRegistry;
-use PiecesPHP\AdminPanel\DashboardCard;
-use PiecesPHP\AdminPanel\DashboardCardBody;
-use PiecesPHP\UserSystem\UserHierarchy;
 use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;
+use MySpace\Controllers\MySpaceController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\AdminPanel\DashboardCard;
+use PiecesPHP\AdminPanel\DashboardCardBody;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -25,9 +25,9 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
@@ -35,6 +35,7 @@ use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UserSessionsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 
@@ -228,6 +229,7 @@ class UserSessionsController extends AdminPanelController
             "{$table}.ip",
             "{$table}.userAgent",
             $userColumn('username') . ' AS username',
+            $userColumn('email') . ' AS email',
             $userColumn('type') . ' AS userType',
             $userColumn('organization') . ' AS userOrganization',
             UserHierarchy::rankSQL($userColumn('type')) . ' AS targetRank',
@@ -278,12 +280,12 @@ class UserSessionsController extends AdminPanelController
                 $own = (int) $row['userID'] === (int) $actor->id;
                 $marks = '';
                 if ((string) $row['sessionHash'] === $currentHash) {
-                    $marks = ' <span class="ui mini green label">' . escape_html(__(self::LANG_GROUP, 'Esta sesión')) . '</span>';
+                    $marks = ' ' . StatusLabel::html(__(self::LANG_GROUP, 'Esta sesión'), StatusLabel::POSITIVE);
                 } elseif ($own) {
-                    $marks = ' <span class="ui mini basic label">' . escape_html(__(self::LANG_GROUP, 'Tuya')) . '</span>';
+                    $marks = ' ' . StatusLabel::neutral(__(self::LANG_GROUP, 'Tuya'));
                 }
                 return [
-                    escape_html((string) ($row['username'] ?? '')) . $marks,
+                    '<div class="ui tight flex">' . escape_html((string) ($row['username'] ?? '')) . $marks . '</div><small class="ui muted text">' . escape_html((string) ($row['email'] ?? '')) . '</small>',
                     escape_html(UserSessions::describeUserAgent(isset($row['userAgent']) ? (string) $row['userAgent'] : null)),
                     escape_html((string) ($row['ip'] ?? '')),
                     escape_html(self::date((string) $row['createdAt'])),
@@ -310,6 +312,7 @@ class UserSessionsController extends AdminPanelController
         return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('panel/pages/sessions/tab', [
             'langGroup' => self::LANG_GROUP,
             'processTableLink' => self::routeName('datatables'),
+            'pieces' => new HelperController(),
         ], false);
     }
 

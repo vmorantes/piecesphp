@@ -1,12 +1,11 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
 use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
 
 /**
  * Class FileOutput
- * 
+ *
  * Plugin para exportar a un archivo de texto plano.
  */
 class FileOutput implements OutputPluginInterface

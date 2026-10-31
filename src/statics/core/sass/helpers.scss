@@ -1,12 +1,10 @@
-@use 'sass:color';
 @use 'includes/variables' as *;
 
-//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
-$-globalLoaderBackground: rgba(255, 255, 255, 1);
-
-//Colors
-$colorSecond: rgb(40, 100, 133);
-$colorThird: rgb(150, 150, 150);
+//Colores de esta hoja: el valor es el de antes, literal. Son la reserva del cargador donde no hay tema (la zona pública
+//carga esta hoja y no el tema); en el panel mandan los tokens.
+$-loaderBackground: rgba(255, 255, 255, 1);
+$-loaderBorder: rgb(150, 150, 150);
+$-loaderMark: #6435C9;
 
 //Misc
 $globalClassPcs: 'ui-pcs';
@@ -20,8 +18,9 @@ $globalClassPcs: 'ui-pcs';
     display: none;
     width: 100%;
     height: 100%;
-    background-color: var(--loader-bg-color, $-globalLoaderBackground);
-    img{
+    background-color: var(--theme-surface, $-loaderBackground);
+
+    img {
         max-width: 100%;
     }
 
@@ -54,7 +53,7 @@ $globalClassPcs: 'ui-pcs';
 
             &,
             img {
-                border-radius: var(--loader-logo-border-radius, 0%);
+                border-radius: 0%;
             }
         }
 
@@ -73,8 +72,8 @@ $globalClassPcs: 'ui-pcs';
 
         .#{$globalClassPcs}-loader-fallback {
             position: relative;
-            border: 16px solid var(--loader-border-color, color.adjust($colorThird, $alpha: -0.5));
-            border-top: 16px solid var(--loader-border-mark-color, var(--main-brand-color, $colorSecond));
+            border: 16px solid var(--theme-border, $-loaderBorder);
+            border-top: 16px solid var(--accent, $-loaderMark);
             border-radius: 50%;
             width: 120px;
             height: 120px;

@@ -2,6 +2,7 @@
 
 //El esquema declarado (databases/piecesphp_structure.sql, _views.sql y _functions.sql) contra la base local, en los dos
 //sentidos. SOLO LEE: information_schema y SHOW CREATE TABLE; el archivo y la base pasan por el MISMO analizador.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;

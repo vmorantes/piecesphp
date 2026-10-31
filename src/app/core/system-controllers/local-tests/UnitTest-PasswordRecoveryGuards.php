@@ -1,18 +1,20 @@
 <?php
 
-//Escribe en la base local: crea dos usuarios zz y en el finally borra sus filas de pcsphp_recovery_password,
-//login_attempts (por usernameAttempt), sus eventos del registro de acciones y los dos usuarios. Ver ADR 0018.
+//Escribe en la base local dos usuarios zz_recovery_ con sus códigos; al empezar y en el finally borra lo de todas las
+//pasadas, también una caída, con el perfil antes que el usuario (lo crea el arranque de otro proceso). Ver ADR 0018.
+//@areas nucleo
+//@areas src/app/classes/EventsLog/
 
 use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
-use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
-use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
+use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
+use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -98,10 +100,44 @@ CliActions::make('unit-tests:core/password-recovery-guards', function ($args) {
 
     $hubo429 = false;
 
+    //Por el patrón de TODAS las pasadas (zz_recovery_), no solo esta, y en el orden de las claves foráneas. Devuelve lo
+    //borrado por tabla.
+    $patron = '^zz_recovery_';
+    $limpiar = function () use ($database, $patron): array {
+        $borradas = [];
+        $ejecutar = function (string $tabla, string $sql, array $valores) use ($database, &$borradas): void {
+            $statement = $database->prepare($sql);
+            $statement->execute($valores);
+            $borradas[$tabla] = ($borradas[$tabla] ?? 0) + $statement->rowCount();
+        };
+        $statement = $database->prepare('SELECT id, email FROM ' . UsersModel::TABLE . ' WHERE username REGEXP ?');
+        $statement->execute([$patron]);
+        $usuarios = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $ejecutar(LoginAttemptsModel::TABLE, 'DELETE FROM ' . LoginAttemptsModel::TABLE . ' WHERE usernameAttempt REGEXP ?', [$patron]);
+        $ejecutar('pcsphp_recovery_password', 'DELETE FROM pcsphp_recovery_password WHERE email REGEXP ?', [$patron]);
+        foreach ($usuarios as $usuario) {
+            $id = (int) $usuario['id'];
+            $ejecutar(LogsMapper::TABLE, 'DELETE FROM ' . LogsMapper::TABLE . ' WHERE (referenceSource = ? AND referenceValue = ?) OR createdBy = ?', [UsersModel::TABLE, (string) $id, $id]);
+            foreach ([LoginAttemptsModel::TABLE => 'userID', 'time_on_platform' => 'userID', 'pcsphp_users_otp_secrets' => 'user', 'user_system_profile' => 'belongsTo'] as $tabla => $columna) {
+                $ejecutar($tabla, "DELETE FROM `{$tabla}` WHERE `{$columna}` = ?", [$id]);
+            }
+            $ejecutar(UsersModel::TABLE, 'DELETE FROM ' . UsersModel::TABLE . ' WHERE id = ?', [$id]);
+        }
+        return array_filter($borradas);
+    };
+    $restosPrevios = $limpiar();
+    if ($restosPrevios !== []) {
+        echoTerminal('[0] Restos de una pasada anterior, borrados al empezar:');
+        foreach ($restosPrevios as $tabla => $filas) {
+            echoTerminal("   · {$tabla}: {$filas}");
+        }
+        echoTerminal(' ');
+    }
+
     try {
         $statement = $database->prepare(
             'INSERT INTO ' . UsersModel::TABLE . ' (username, password, firstname, firstLastname, email, type, status)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, 1)'
+                . ' VALUES (?, ?, ?, ?, ?, ?, 1)'
         );
         $statement->execute([
             $username,
@@ -245,20 +281,8 @@ CliActions::make('unit-tests:core/password-recovery-guards', function ($args) {
         $check($hashActual() === $hashAntes, 'g16. el hash de la contraseña no cambió');
 
     } finally {
-        $database->prepare('DELETE FROM ' . LoginAttemptsModel::TABLE . ' WHERE usernameAttempt IN (?, ?)')->execute([$email, $emailB]);
-        $database->prepare('DELETE FROM pcsphp_recovery_password WHERE email = ?')->execute([$email]);
-        //Los eventos de Registros › Tokens y códigos que dejan los códigos usados y rechazados de la prueba.
-        foreach ([$userID, $userIDB] as $id) {
-            if ($id !== null) {
-                $database->prepare('DELETE FROM ' . LogsMapper::TABLE . ' WHERE referenceSource = ? AND referenceValue = ?')->execute([UsersModel::TABLE, (string) $id]);
-            }
-        }
-        if ($userID !== null) {
-            $database->prepare('DELETE FROM ' . UsersModel::TABLE . ' WHERE id = ?')->execute([$userID]);
-        }
-        if ($userIDB !== null) {
-            $database->prepare('DELETE FROM ' . UsersModel::TABLE . ' WHERE id = ?')->execute([$userIDB]);
-        }
+        //RETORNO-IGNORADO: lo enseñan los restos de abajo.
+        $limpiar();
     }
 
     $contar = function (string $sql, array $valores) use ($database): int {

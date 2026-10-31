@@ -2,6 +2,7 @@
 
 //Una categoría de publicaciones incompleta —sin langData en su meta— no tumba la portada: el menú público la salta.
 //Por HTTP y sin sesión, como un visitante. Siembra dos categorías zz- y las retira.
+//@areas src/app/classes/Publications/
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;

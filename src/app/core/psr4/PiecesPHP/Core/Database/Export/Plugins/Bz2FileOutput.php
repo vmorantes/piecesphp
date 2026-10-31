@@ -1,13 +1,12 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
-use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
 use Exception;
+use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
 
 /**
  * Class Bz2FileOutput
- * 
+ *
  * Plugin de salida para archivos comprimidos con Bzip2.
  */
 class Bz2FileOutput implements OutputPluginInterface
@@ -23,7 +22,7 @@ class Bz2FileOutput implements OutputPluginInterface
     public function init(array $options): bool
     {
         $this->filename = !empty($options['filename']) ? $options['filename'] : 'database.sql';
-        
+
         if (strtolower(substr($this->filename, -4)) !== '.bz2') {
             $this->filename .= '.bz2';
         }
@@ -33,7 +32,7 @@ class Bz2FileOutput implements OutputPluginInterface
         }
 
         $this->fp = bzopen($this->filename, 'w');
-        
+
         if (!$this->fp) {
             throw new Exception("No se pudo abrir el archivo para escritura: {$this->filename}");
         }
@@ -66,7 +65,7 @@ class Bz2FileOutput implements OutputPluginInterface
 
     /**
      * Devuelve el nombre del archivo generado.
-     * 
+     *
      * @return string
      */
     public function getFilename(): string

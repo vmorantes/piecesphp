@@ -2,6 +2,7 @@
 
 //Sin sesión, una ruta con `require_login` NIEGA por CUALQUIER vía. Sale a la red porque las dos
 //capas viven en `src/index.php` y solo corren al servir. Ver `.agents/docs/pendientes.md` 115.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 
@@ -131,4 +132,4 @@ CliActions::make('unit-tests:core/access-without-session', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Sin sesión, una ruta con require_login niega por HTTP: 401 a una petición de datos y redirección a una normal.')->setEffects([CliActions::EFFECT_NETWORK])->register();
+})->setDescription('Sin sesión, una ruta con require_login niega por HTTP: 401 a una petición de datos y redirección a una normal.')->setEffects([CliActions::EFFECT_NONE])->register();

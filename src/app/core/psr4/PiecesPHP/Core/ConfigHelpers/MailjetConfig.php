@@ -23,7 +23,6 @@ class MailjetConfig
      */
     const CONFIG_NAME = 'mailjet';
 
-
     /**
      * @var string
      */

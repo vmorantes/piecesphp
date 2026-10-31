@@ -2,6 +2,9 @@
 
 //P136: un perfil oculto por su dueño no sale en el Directorio ni en el mapa, y su página da 404 a los demás; el dueño y
 //root la siguen viendo. Por HTTP (Directorio y página) y en proceso (mapa). Siembra zz- y lo retira entero.
+//@areas src/app/classes/Directory/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
 use Directory\Controllers\AllProfilesController;
 use Directory\Controllers\ProfileController;

@@ -354,14 +354,9 @@ class FileValidator
     protected $message = '';
 
     /**
-     * @var int Tamaño máximo de archivo permitido en MB.
+     * @var int|float|null Tamaño máximo de archivo permitido en MB (de 1000 × 1000 bytes); null, sin límite.
      */
     protected $maxFileSizeMB = 0;
-
-    /**
-     * @var bool Permite ignorar la validación por MIME Type.
-     */
-    public static $ignoreMimeType = false;
 
     /**
      * Grupo de lenguaje para mensajes de error.
@@ -392,20 +387,49 @@ class FileValidator
         );
         $this->acceptedTypes = $accepted_types;
 
-        //Determinar el tamaño máximo permitido
+        //Determinar el tamaño máximo permitido: sin uno explícito, el menor de los dos de PHP, en bytes.
         if (is_null($max_size_mb)) {
             $post_max = ini_get('post_max_size');
             $upload_max = ini_get('upload_max_filesize');
-            $max_upload = min(
-                is_string($post_max) ? $post_max : '0',
-                is_string($upload_max) ? $upload_max : '0'
-            );
-            $max_upload = str_replace('M', '', $max_upload);
-            $this->maxFileSizeMB = (int) $max_upload;
+            $max_bytes = self::defaultMaxBytes(is_string($post_max) ? $post_max : '0', is_string($upload_max) ? $upload_max : '0');
+            $this->maxFileSizeMB = $max_bytes === null ? null : $max_bytes / 1000 / 1000;
         } else {
             $this->maxFileSizeMB = $max_size_mb;
         }
 
+    }
+
+    /**
+     * Un tamaño de php.ini («8M», «512K», «1G», «0») en bytes; null si es 0, que en PHP es sin límite.
+     *
+     * @param string $value
+     * @return int|null
+     */
+    public static function iniSizeToBytes(string $value): ?int
+    {
+        $value = trim($value);
+        $number = (int) $value;
+        $unit = strtoupper(substr($value, -1));
+        $bytes = match ($unit) {
+            'K' => $number * 1024,
+            'M' => $number * 1024 * 1024,
+            'G' => $number * 1024 * 1024 * 1024,
+            default => $number,
+        };
+        return $bytes > 0 ? $bytes : null;
+    }
+
+    /**
+     * El menor de post_max_size y upload_max_filesize en bytes, sin contar el que no tiene límite; null si ninguno lo tiene.
+     *
+     * @param string $postMax
+     * @param string $uploadMax
+     * @return int|null
+     */
+    public static function defaultMaxBytes(string $postMax, string $uploadMax): ?int
+    {
+        $limits = array_filter([self::iniSizeToBytes($postMax), self::iniSizeToBytes($uploadMax)], fn (?int $bytes): bool => $bytes !== null);
+        return count($limits) > 0 ? min($limits) : null;
     }
 
     /**
@@ -454,14 +478,14 @@ class FileValidator
 
         //Si no se ingresó TYPE_ANY se validan los tipos
         if (!in_array(self::TYPE_ANY, $this->getAcceptedTypes())) {
-            $valid_mime_type = in_array($mime_type, $mimes) || self::$ignoreMimeType === true;
+            $valid_mime_type = in_array($mime_type, $mimes);
             $valid_extension = in_array($extension, $extensions);
         } else {
             $valid_mime_type = true;
             $valid_extension = true;
         }
 
-        $valid_size = $filesize <= $this->maxFileSizeMB;
+        $valid_size = $this->maxFileSizeMB === null || $filesize <= $this->maxFileSizeMB;
         $valid = $valid_mime_type && $valid_extension && $valid_size;
 
         //Mensajes de error si la validación falla
@@ -473,7 +497,7 @@ class FileValidator
 
             if (!$valid_size) {
                 $this->message .= strReplaceTemplate(__(self::LANG_GROUP, "El tamaño máximo permitido %1MB."), [
-                    '%1' => $this->maxFileSizeMB,
+                    '%1' => round((float) $this->maxFileSizeMB, 2),
                 ]) . "\r\n";
             }
 

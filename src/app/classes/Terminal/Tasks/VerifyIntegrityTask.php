@@ -6,16 +6,17 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Terminal\LoadFailures;
-use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\Terminal\LoadFailures;
+use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Terminal\Distribution;
 
 /**
@@ -114,6 +115,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      */
     const BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH = 'files/dev/browser-dialogs-allowed.json';
 
+    /** Las celdas de la matriz de permisos que no dicen lo declarado, con su motivo (comprobación 56). */
+    const PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH = 'files/dev/permissions-matrix-exceptions.json';
+    /** Las citas `Clase::método(` de la documentación que no son del framework a propósito, con su motivo (comprobación 58). */
+    const DOC_METHOD_EXCEPTIONS_RELATIVE_PATH = 'files/dev/doc-method-citations-exceptions.json';
+
     /**
      * Las vistas con su propio <head> que NO emiten <meta name="front-configurations">, con su motivo (comprobación 51).
      */
@@ -178,6 +184,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         'bin/.gitignore', 'bin/censo-scss', 'bin/check-routes', 'bin/cli', 'bin/huella-css', 'bin/live-cache', 'bin/node/copyDependencies.php', 'bin/node/copyDependencies.sh',
         'bin/normaliza-eol', 'bin/package-css', 'bin/pieces-completion.bash', 'bin/pieces-completion.zsh', 'bin/tools/.gitignore',
         'bin/tools/check-routes.php', 'bin/tools/forbidden-routes.php', 'bin/tools/live-cache.php',
+        //El formato fijado viaja para que obligue a los clones (P236).
+        'bin/formatear', 'bin/tools/formato/css.js', 'bin/tools/formato/js.js', 'bin/tools/formato/php-editor', 'bin/tools/formato/php.php', 'bin/tools/js-beautify/LICENSE', 'bin/tools/js-beautify/beautify-css.js',
+        'bin/tools/phpfmt/LICENSE', 'bin/tools/phpfmt/fmt.stub.php',
     ];
 
     /** La carpeta de las claves viaja solo con su protección, y nada más: algo de más puede ser una clave versionada (ADR 0050). */
@@ -219,6 +228,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         40 => [self::CAMPAIGN_REMOVALS_RELATIVE_PATH, 'bin/censo-borrados'],
         44 => ['bin/censo-rutas-doc', 'files/dev/doc-path-exemptions.json'],
         45 => ['bin/censo-claves-config', 'files/dev/doc-config-exemptions.json'],
+        58 => ['source-docs', self::DOC_METHOD_EXCEPTIONS_RELATIVE_PATH],
+        59 => ['bin/censo-estilos-en-linea'],
     ];
 
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
@@ -468,25 +479,43 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 54. Ningún color suelto en el SCSS del panel ─────────────────────────────
         $looseColorFailures = self::checkLooseColorsInPanelScss();
 
+        //──── 55. Toda dirección a un archivo local del SCSS lleva static-url() ─────────
+        $unstampedFailures = self::checkScssStaticUrls();
+
+        //──── 57. Toda acción de bin/cli que cita la documentación existe ───────────────
+        $docCliFailures = Distribution::applies('57', ['source-docs']) ? self::checkDocumentedCliActions() : [];
+
+        //──── 58. Toda cita `Clase::método(` de la documentación nombra un método que existe ──
+        $docMethodFailures = Distribution::applies('58', self::DISTRIBUTION_REQUIREMENTS[58]) ? self::checkDocumentedMethods() : [];
+
+        //──── 59. Ninguna vista gana style= (fase (1) del rediseño, D16) ─────────────────
+        $inlineStyleFailures = Distribution::applies('59', self::DISTRIBUTION_REQUIREMENTS[59]) ? self::checkInlineStyles() : [];
+
+        //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
+        $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
+            ? self::checkPermissionsMatrixAgainstDeclared() : [];
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($sealedFailures) + count($docblockFailures) + count($signatureFailures)
-            + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
-            + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
-            + count($executableFailures) + count($typeFailures) + count($volatileFailures)
-            + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
-            + count($orderFailures) + count($orphanFailures) + count($mailDecisionFailures)
-            + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
-            + count($symlinkFailures) + count($langFailures) + count($tagFailures)
-            + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures)
-            + count($baselineFailures) + count($identifierFailures) + count($interpolationFailures)
-            + count($uploadFailures) + count($getRouteFailures) + count($bootLoadFailures) + count($exceptionMessageFailures)
-            + count($sessionNameFailures) + count($loginUserDataFailures)
-            + count($declaredPermissionFailures) + count($templateFailures)
-            + count($deducedModelFailures) + count($columnRenameFailures) + count($capabilityFailures)
-            + count($remnantFailures) + count($configOwnershipFailures) + count($aliasFailures)
-            + count($docPathFailures) + count($docConfigFailures) + count($paddingFailures)
-            + count($distributionFailures) + count($globalFailures) + count($dialogFailures) + count($frontConfigFailures)
-            + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures);
+         + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
+         + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
+         + count($executableFailures) + count($typeFailures) + count($volatileFailures)
+         + count($forbiddenFailures) + count($universeFailures) + count($seedingFailures)
+         + count($orderFailures) + count($orphanFailures) + count($mailDecisionFailures)
+         + count($versiones['fallos']) + count($twinFailures) + count($returnFailures)
+         + count($symlinkFailures) + count($langFailures) + count($tagFailures)
+         + count($routeDeclFailures) + count($sqlFailures) + count($readingFailures)
+         + count($baselineFailures) + count($identifierFailures) + count($interpolationFailures)
+         + count($uploadFailures) + count($getRouteFailures) + count($bootLoadFailures) + count($exceptionMessageFailures)
+         + count($sessionNameFailures) + count($loginUserDataFailures)
+         + count($declaredPermissionFailures) + count($templateFailures)
+         + count($deducedModelFailures) + count($columnRenameFailures) + count($capabilityFailures)
+         + count($remnantFailures) + count($configOwnershipFailures) + count($aliasFailures)
+         + count($docPathFailures) + count($docConfigFailures) + count($paddingFailures)
+         + count($distributionFailures) + count($globalFailures) + count($dialogFailures) + count($frontConfigFailures)
+         + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
+         + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
+         + count($inlineStyleFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -547,6 +576,21 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($looseColorFailures as $line) {
             echoTerminal("\e[31mCOLOR SUELTO:\e[39m {$line}");
+        }
+        foreach ($inlineStyleFailures as $line) {
+            echoTerminal("\e[31mSTYLE EN VISTA:\e[39m {$line}");
+        }
+        foreach ($unstampedFailures as $line) {
+            echoTerminal("\e[31mSCSS SIN HUELLA:\e[39m {$line}");
+        }
+        foreach ($matrixFailures as $line) {
+            echoTerminal("\e[31mMATRIZ DE PERMISOS:\e[39m {$line}");
+        }
+        foreach ($docCliFailures as $line) {
+            echoTerminal("\e[31mDOCUMENTACIÓN:\e[39m {$line}");
+        }
+        foreach ($docMethodFailures as $line) {
+            echoTerminal("\e[31mDOCUMENTACIÓN:\e[39m {$line}");
         }
         foreach ($distributionFailures as $line) {
             echoTerminal("\e[31mDISTRIBUCIÓN:\e[39m {$line}");
@@ -1817,7 +1861,6 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /** Apertura de clase, trait, interfaz o enum. */
     const CLASS_PATTERN = '/^\s*(?:(?:final|abstract|readonly)\s+)*(?:class|trait|interface|enum)\s/';
 
-
     /**
      * Un comentario que frena algo cabe en una línea (LEY 7).
      *
@@ -1831,7 +1874,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     {
         //`@codigo-comentado` exime al bloque: una línea de código comentada NO es relato, y
         //contarla como tal prohibía «comentar en vez de borrar». Se declara, no se adivina.
-        $anotaciones = ['@param', '@return', '@var', '@package', '@author', '@throws', '@codigo-comentado'];
+        //`@typedef` y `@property` son tipos de JSDoc, como `@param`: un bloque de tipos no es relato.
+        $anotaciones = ['@param', '@return', '@var', '@package', '@author', '@throws', '@codigo-comentado', '@typedef', '@property'];
         $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
         $roots = [$repoRoot . '/app', dirname($repoRoot) . '/bin'];
         $excluir = ['/vendor/', '/node_modules/', '/bin/tools/', '.min.', '/statics/core/', '/statics/plugins/'];
@@ -2439,9 +2483,6 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         return $failures;
     }
 
-
-
-
     /**
      * Ningún docblock queda separado de lo que documenta.
      *
@@ -2527,7 +2568,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 if (!str_ends_with($path, '.php')) {
                     continue;
                 }
-                if (preg_match('#/(vendor|node_modules|phpstan-src|test-data)/#', $path) === 1) {
+                //bin/tools/phpfmt/: phpfmt, de terceros (lo usa bin/formatear, P90); su orden no es nuestra convención.
+                if (preg_match('#/(vendor|node_modules|phpstan-src|test-data)/#', $path) === 1 || str_contains($path, '/bin/tools/phpfmt/')) {
                     continue;
                 }
                 $scanned++;
@@ -2914,6 +2956,50 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
+     * 59. Ninguna vista gana `style="`: la cuenta de cada archivo solo baja (fase (1) del rediseño, D16).
+     *
+     * Delega en `bin/censo-estilos-en-linea --trinquete`, que es donde viven el universo y el método.
+     *
+     * @return string[]
+     */
+    protected static function checkInlineStyles(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $script = $root . '/bin/censo-estilos-en-linea';
+
+        if (!is_file($script)) {
+            //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
+            return ['no existe ' . $script . ': el trinquete de style= en las vistas NO se ha comprobado'];
+        }
+
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
+        exec('cd ' . escapeshellarg($root) . ' && ' . escapeshellarg($script) . ' --trinquete 2>&1', $output, $status);
+
+        $line = '';
+        $extra = [];
+        foreach ($output as $candidate) {
+            if (mb_strpos($candidate, 'TRINQUETE') === 0) {
+                $line = $candidate;
+            } elseif ($line !== '' && mb_strpos($candidate, '    ') === 0) {
+                $extra[] = trim($candidate);
+            }
+        }
+
+        if ($status !== 0) {
+            return array_merge([$line !== '' ? $line : 'el censo de style= salió con código ' . $status], $extra);
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'style= en las vistas comprobado.')
+            . ' Universo: las vistas PHP versionadas de src/app bajo view/ o views/.');
+        foreach ($extra as $bajada) {
+            echoTerminal("      {$bajada}");
+        }
+        return [];
+    }
+
+    /**
      * Ninguna función «para leer» acaba ejecutándose sin estar declarada.
      *
      * `getCompiledSQL()` sin argumento produce SQL NO EJECUTABLE —quita los dos puntos del
@@ -3222,7 +3308,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /**
      * Quién puede abrir cada ruta no ha cambiado sin declararse.
      *
-     * La matriz de `bin/walk-matrix` solo recorre GET: 204 de 322 rutas. Un permiso de crear,
+     * La matriz de `bin/walk-matrix` solo recorre GET. Un permiso de crear,
      * editar o borrar se podía revertir y la puerta seguía en verde, con el usuario general
      * borrando un registro real (medido en la ronda #545). Esta puerta no pide ninguna URL, porque
      * pedir un POST EJECUTA la acción: comprobar quién puede borrar pidiendo el borrado es borrar.
@@ -3299,8 +3385,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Toda plantilla nombrada en un `render()` o en un `_render()` con cadena literal existe.
      *
      * Los dos componen la ruta en tiempo de ejecución y la cargan con `require`
-     * (BaseController.php:137 y :238). Una cadena mal escrita NO falla al analizar ni al arrancar:
-     * lanza dentro de un `try`, acaba en `global_custom_exception_handler()` y muere. Se descubre
+     * (BaseController). Una cadena mal escrita NO falla al analizar ni al arrancar:
+     * lanza; si nadie la captura, acaba en el manejador global (500). Se descubre
      * cuando un usuario visita esa ruta, y se lleva la página entera.
      *
      * Son DOS cargadores y no componen igual: `_render()` no añade extensión, porque el nombre ya
@@ -3508,9 +3594,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Las acciones de terminal se miran como rutas: `TerminalController` registra cada tarea con el prefijo
      * `terminal-`, y `bin/cli` arranca como terminal. Fuera del terminal la puerta no ve las acciones, y lo dice.
      *
-     * **Seis vías de prueba**: ruta, acción, clave de configuración (`config`, del universo de
+     * **Siete vías de prueba**: ruta, acción, clave de configuración (`config`, del universo de
      * `bin/censo-claves-config --universo`, que es el mismo cálculo de la 45), aviso registrado (`alert`), guion de
-     * `bin/` versionado y ejecutable (`scripts`) o función global (`functions`, ADR 0056). La de funciones prueba
+     * `bin/` versionado y ejecutable (`scripts`), función global (`functions`, ADR 0056) o función de Sass
+     * (`sass_functions`, ADR 0067: una clave de `functions: {` del adaptador de `src/gulpfile.js`, por texto). La de funciones prueba
      * EXISTENCIA (`function_exists` tras el arranque), no comportamiento: eso lo prueba la suite de la función. Y desde el 2026-10-05 **cada `## Nuevo` de las secciones de la MAYOR en
      * curso del CHANGELOG lo nombra alguna capacidad** en su `changelog`: se anunciaba `mail-demo` y nadie lo había
      * declarado. Solo obliga a los `## Nuevo`. Es la mayor y no la última sección: una 8.0.1 no deja sin anunciar lo de la 8.0.0.
@@ -3535,18 +3622,21 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //Canario de dos caras por cada vía: lo que existe pasa y lo inventado falla, con el mismo validador.
         $sembrado = [
-            'zz-canario-existe' => ['routes' => ['users-form-login'], 'actions' => [], 'config' => ['upload_dir'], 'alert' => ['invalid-route-pattern'], 'scripts' => ['bin/cli'], 'functions' => ['basepath'], 'announced' => []],
+            'zz-canario-existe' => ['routes' => ['users-form-login'], 'actions' => [], 'config' => ['upload_dir'], 'alert' => ['invalid-route-pattern'], 'scripts' => ['bin/cli'], 'functions' => ['basepath'], 'sass_functions' => ['zz-canario-sass'], 'announced' => []],
             'zz-canario-falta' => ['routes' => ['zz-ruta-que-no-existe'], 'actions' => [], 'announced' => []],
             'zz-canario-clave' => ['config' => ['zz_clave_inventada'], 'announced' => []],
             'zz-canario-aviso' => ['alert' => ['zz-aviso-inventado'], 'announced' => []],
             'zz-canario-guion' => ['scripts' => ['bin/zz-guion-inventado'], 'announced' => []],
             'zz-canario-funcion' => ['functions' => ['zz_funcion_inventada'], 'announced' => []],
+            'zz-canario-sass' => ['sass_functions' => ['zz-funcion-sass-inventada'], 'announced' => []],
         ];
-        $canario = self::validateAnnouncedCapabilities($sembrado, $rutas, $root, $claves);
-        if (count($canario) !== 5 || !str_contains($canario[0], 'zz-ruta-que-no-existe')
+        //La de Sass, contra un gulpfile sembrado: el canario no depende de lo que declare el real.
+        $canario = self::validateAnnouncedCapabilities($sembrado, $rutas, $root, $claves, "functions: { 'zz-canario-sass(\$x)': f }");
+        if (count($canario) !== 6 || !str_contains($canario[0], 'zz-ruta-que-no-existe')
             || !str_contains($canario[1], 'zz_clave_inventada') || !str_contains($canario[2], 'zz-aviso-inventado')
-            || !str_contains($canario[3], 'zz-guion-inventado') || !str_contains($canario[4], 'zz_funcion_inventada')) {
-            return ['canario muerto: el validador no distingue lo que existe de lo inventado (ruta, clave, aviso, guion o función); la comprobación no miró nada'];
+            || !str_contains($canario[3], 'zz-guion-inventado') || !str_contains($canario[4], 'zz_funcion_inventada')
+            || !str_contains($canario[5], 'zz-funcion-sass-inventada')) {
+            return ['canario muerto: el validador no distingue lo que existe de lo inventado (ruta, clave, aviso, guion, función o función de Sass); la comprobación no miró nada'];
         }
         if (!$esTerminal) {
             return ['fuera del terminal las acciones de terminal no están registradas: esta comprobación solo vale desde bin/cli'];
@@ -3580,19 +3670,19 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($encabezados['nuevo'] as $nuevo) {
             if (!isset($nombrados[$nuevo])) {
-                $failures[] = "el CHANGELOG anuncia «## {$nuevo}» y ninguna capacidad de " . self::ANNOUNCED_CAPABILITIES_RELATIVE_PATH . ' lo nombra en su `changelog`: declárala con su ruta, acción, clave, aviso, guion o función';
+                $failures[] = "el CHANGELOG anuncia «## {$nuevo}» y ninguna capacidad de " . self::ANNOUNCED_CAPABILITIES_RELATIVE_PATH . ' lo nombra en su `changelog`: declárala con su ruta, acción, clave, aviso, guion, función o función de Sass';
             }
         }
 
         if (count($failures) === 0) {
-            $n = ['routes' => 0, 'actions' => 0, 'config' => 0, 'alert' => 0, 'scripts' => 0, 'functions' => 0];
+            $n = ['routes' => 0, 'actions' => 0, 'config' => 0, 'alert' => 0, 'scripts' => 0, 'functions' => 0, 'sass_functions' => 0];
             foreach ($capacidades as $capacidad) {
                 foreach (array_keys($n) as $via) {
                     $n[$via] += count((array) ($capacidad[$via] ?? []));
                 }
             }
             echoTerminal("\e[94mINFO:\e[39m capacidades anunciadas: " . count($capacidades) . " en " . self::ANNOUNCED_CAPABILITIES_RELATIVE_PATH
-                . "; {$n['routes']} ruta(s), {$n['actions']} acción(es) de terminal, {$n['config']} clave(s) de configuración, {$n['alert']} aviso(s), {$n['scripts']} guion(es) y {$n['functions']} función(es),"
+                . "; {$n['routes']} ruta(s), {$n['actions']} acción(es) de terminal, {$n['config']} clave(s) de configuración, {$n['alert']} aviso(s), {$n['scripts']} guion(es), {$n['functions']} función(es) y {$n['sass_functions']} función(es) de Sass,"
                 . ' todos existen, y sus anuncios también. ' . count($encabezados['nuevo']) . " «## Nuevo» de las secciones {$secciones} del CHANGELOG, todos con capacidad."
                 . ' Solo obliga a los «## Nuevo»: lo anunciado dentro de otros encabezados no está obligado.');
         }
@@ -3779,7 +3869,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         if ($conocidos === null) {
             return [self::CAMPAIGN_REMOVALS_RELATIVE_PATH . ' no dice cuántos archivos censó (`archivos_en_el_censo`): regenéralo con bin/censo-borrados'];
         }
-        if ($conocidos === count($universo)) {
+        $huella = is_string($registro['huella_del_universo'] ?? null) ? $registro['huella_del_universo'] : null;
+        if ($huella === null) {
+            return [self::CAMPAIGN_REMOVALS_RELATIVE_PATH . ' no dice la huella de su universo (`huella_del_universo`): regenéralo con bin/censo-borrados'];
+        }
+        //La cuenta sola no basta: añadir un archivo y quitar otro la deja igual. La huella es de la lista ordenada.
+        $ordenado = $universo;
+        sort($ordenado, \SORT_STRING);
+        if ($conocidos === count($universo) && hash_equals($huella, sha1(implode("\n", $ordenado)))) {
             return [];
         }
         $cambiados = [];
@@ -3798,6 +3895,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
         return ['el censo de borrados está RANCIO: su artefacto conoce ' . $conocidos . ' archivo(s) y hoy hay ' . count($universo)
+            . ($conocidos === count($universo) ? ', los mismos en número pero no los mismos archivos' : '')
             . ($cambiados !== [] ? ' (' . implode(', ', $cambiados) . ')' : '') . '. Regenéralo con bin/censo-borrados y commitéalo.'];
     }
 
@@ -3867,8 +3965,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Cuatro partes. Tres miran el PLAN: que `bin/distribution-exclude.txt` no nombre nada del universo de
      * `.agents/capas.json` (dos autoridades sobre una ruta es la trampa del §2), que `capas.py` pase y que cada ruta de
      * los dos mapas de «no aplica» exista aquí (la 4, que corre antes de la 3 porque la 3 puede salir pronto). **La 3
-     * mira el RESULTADO, y es la que vale**: genera la distribución de la última etiqueta en un temporal propio, la
-     * recorre y lo borra al terminar, también si falla.
+     * mira el RESULTADO, y es la que vale**: genera la distribución de HEAD (`bin/make-distribution --desde-arbol`), lo
+     * que se va a etiquetar y no la última etiqueta, en un temporal propio; la recorre, valida su src/composer.json contra
+     * su composer.lock (`composer validate`, sin red) y lo borra al terminar, también si falla.
      *
      * @return string[]
      */
@@ -3927,9 +4026,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         //──── 3. La distribución generada cumple lo decidido ───────────────────────────
-        $tag = self::latestVersionTag($root);
-        if ($tag === null) {
-            $failures[] = 'ninguna etiqueta con forma de versión alcanzable desde HEAD: la distribución NO se generó.';
+        //HEAD, no la última etiqueta: la lista de exclusión se lee del árbol, y comparar una etiqueta vieja mezclaba dos versiones.
+        $commit = trim((string) shell_exec('git -C ' . escapeshellarg($root) . ' rev-parse HEAD 2>/dev/null'));
+        if (preg_match('/^[0-9a-f]{40}$/', $commit) !== 1) {
+            $failures[] = 'no se pudo leer el commit de HEAD: la distribución NO se generó.';
             return $failures;
         }
         $dest = rtrim(sys_get_temp_dir(), '/') . '/piecesphp-integridad-47-' . getmypid();
@@ -3939,12 +4039,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $generation = [];
             $generationStatus = 0;
             //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
-            exec(escapeshellarg($root . '/bin/make-distribution') . ' ' . escapeshellarg($tag) . ' ' . escapeshellarg($dest) . ' 2>&1', $generation, $generationStatus);
+            exec(escapeshellarg($root . '/bin/make-distribution') . ' --desde-arbol ' . escapeshellarg($dest) . ' 2>&1', $generation, $generationStatus);
             $byAuthority = array_values(array_filter($generation, fn (string $l): bool => str_starts_with($l, 'Borrados por autoridad:')));
             if ($generationStatus !== 0) {
-                $failures[] = "bin/make-distribution {$tag} falló (salida {$generationStatus}): " . (string) end($generation);
+                $failures[] = 'bin/make-distribution --desde-arbol falló (salida ' . $generationStatus . '): ' . (string) end($generation);
             } else {
-                $failures = array_merge($failures, self::distributionProblems($root, $tag, $dest, $manifest, $byAuthority[0] ?? 'sin línea de borrados', $started));
+                $failures = array_merge($failures, self::distributionProblems($root, $commit, $dest, $manifest, $byAuthority[0] ?? 'sin línea de borrados', $started));
+                $failures = array_merge($failures, self::distributionComposerProblems($dest));
             }
         } finally {
             self::removeTree($dest);
@@ -3964,23 +4065,24 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Lo que la distribución generada en `$dest` lleva y no debería, o le falta.
      *
      * @param string $root
-     * @param string $tag
+     * @param string $commit El commit de HEAD del que se generó.
      * @param string $dest
      * @param array<mixed> $currentManifest
      * @param string $byAuthority La línea de `make-distribution` con lo borrado por cada autoridad.
      * @param float $started
      * @return string[]
      */
-    protected static function distributionProblems(string $root, string $tag, string $dest, array $currentManifest, string $byAuthority, float $started): array
+    protected static function distributionProblems(string $root, string $commit, string $dest, array $currentManifest, string $byAuthority, float $started): array
     {
         $failures = [];
+        $tag = 'HEAD (' . substr($commit, 0, 8) . ')';
         //Con -z: sin él git entrecomilla las rutas con tildes, y nueve archivos de la capa C no se veían.
         $listed = self::nulSeparated('git -C ' . escapeshellarg($dest) . ' ls-files -z');
         $files = array_flip($listed);
-        $tagFiles = self::nulSeparated('git -C ' . escapeshellarg($root) . ' ls-tree -r -z --name-only ' . escapeshellarg('refs/tags/' . $tag));
+        $tagFiles = self::nulSeparated('git -C ' . escapeshellarg($root) . ' ls-tree -r -z --name-only ' . escapeshellarg($commit));
         $tagManifestRaw = [];
         //RETORNO-IGNORADO: `exec()` devuelve la última línea; aquí se lee la salida entera, y sin ella el json_decode falla.
-        exec('git -C ' . escapeshellarg($root) . ' show ' . escapeshellarg('refs/tags/' . $tag . ':.agents/capas.json') . ' 2>/dev/null', $tagManifestRaw);
+        exec('git -C ' . escapeshellarg($root) . ' show ' . escapeshellarg($commit . ':.agents/capas.json') . ' 2>/dev/null', $tagManifestRaw);
         $manifest = json_decode(implode("\n", $tagManifestRaw), true);
         if (count($listed) === 0 || count($tagFiles) === 0 || !is_array($manifest) || !is_array($manifest['capas'] ?? null)) {
             return ["la distribución de {$tag} no se pudo recorrer: la comprobación no miró nada."];
@@ -4008,7 +4110,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         $travelledC = array_keys(array_intersect_key($layers['C'], $files));
         if (count($layers['C']) === 0) {
-            $failures[] = "la etiqueta {$tag} no tiene ningún archivo de la capa C: el canario no puede decir si se borra.";
+            $failures[] = "{$tag} no tiene ningún archivo de la capa C: el canario no puede decir si se borra.";
         }
         foreach (array_slice($travelledC, 0, 8) as $file) {
             $failures[] = "viaja un archivo de la capa C, que se queda (ADR 0049 §3): {$file}";
@@ -4060,7 +4162,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         //El README del público (pendientes.md 375): idéntico al README.distribucion.md de la etiqueta, y ni él ni la lista
         //de commits de git blame viajan. Una etiqueta anterior que no lo trae deja el README.md del desarrollo, y se dice.
-        $readmePublico = shell_exec('git -C ' . escapeshellarg($root) . ' show ' . escapeshellarg('refs/tags/' . $tag . ':README.distribucion.md') . ' 2>/dev/null');
+        $readmePublico = shell_exec('git -C ' . escapeshellarg($root) . ' show ' . escapeshellarg($commit . ':README.distribucion.md') . ' 2>/dev/null');
         if (is_string($readmePublico) && $readmePublico !== '') {
             $readme = 'README.md es el del público';
             if ((string) @file_get_contents($dest . '/README.md') !== $readmePublico) {
@@ -4076,8 +4178,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         $mark = (string) @file_get_contents($dest . '/' . Distribution::MARK_FILE);
-        if (!isset($files[Distribution::MARK_FILE]) || mb_strpos($mark, 'etiqueta: ' . $tag . "\n") !== 0) {
-            $failures[] = 'la distribución no lleva su marca ' . Distribution::MARK_FILE . " con «etiqueta: {$tag}»: un clon no sabría que lo es.";
+        //Desde HEAD, make-distribution marca «sin etiqueta» y el commit; la etiqueta la pone el PO al publicar.
+        if (!isset($files[Distribution::MARK_FILE]) || mb_strpos($mark, "etiqueta: sin etiqueta\ncommit: {$commit}\n") !== 0) {
+            $failures[] = 'la distribución no lleva su marca ' . Distribution::MARK_FILE . " con «etiqueta: sin etiqueta» y el commit {$commit}: un clon no sabría que lo es.";
         }
 
         if (count($failures) === 0) {
@@ -4102,26 +4205,31 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * La etiqueta con forma de versión más alta alcanzable desde HEAD, pre-versiones incluidas.
+     * Si el src/composer.json de la distribución casa con su composer.lock: `composer validate --no-check-publish`, sin red,
+     * con el php del proyecto. Sale con 0 si es válido (los avisos, como la licencia que falta, no cuentan) y con otro código
+     * si hay errores o el lock no está al día, que es lo que se le diría a quien clona. Sin composer, lo dice y no falla.
      *
-     * @param string $root
-     * @return string|null
+     * @param string $dest
+     * @return string[]
      */
-    protected static function latestVersionTag(string $root): ?string
+    protected static function distributionComposerProblems(string $dest): array
     {
-        $tags = [];
-        //RETORNO-IGNORADO: `exec()` devuelve la última línea; aquí se lee la lista entera, y vacía da null.
-        exec('git -C ' . escapeshellarg($root) . ' tag --merged HEAD -l ' . escapeshellarg('v*') . ' 2>/dev/null', $tags);
-        $latest = null;
-        foreach ($tags as $tag) {
-            if (preg_match('/^v\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$/', $tag) !== 1) {
-                continue;
-            }
-            if ($latest === null || version_compare(ltrim($tag, 'v'), ltrim($latest, 'v'), '>')) {
-                $latest = $tag;
-            }
+        $composer = trim((string) shell_exec('command -v composer 2>/dev/null'));
+        $php = trim((string) shell_exec('command -v php8.5 2>/dev/null')) ?: PHP_BINARY;
+        if ($composer === '') {
+            echoTerminal("\e[33mAVISO:\e[39m distribución: no hay composer en el PATH; su src/composer.json NO se validó.");
+            return [];
         }
-        return $latest;
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea; aquí deciden el código de salida y la salida entera.
+        exec(escapeshellarg($php) . ' ' . escapeshellarg($composer) . ' validate --no-check-publish --no-interaction ' . escapeshellarg($dest . '/src/composer.json') . ' 2>&1', $output, $status);
+        if ($status !== 0) {
+            $lines = array_values(array_filter(array_map('trim', $output), fn (string $l): bool => str_starts_with($l, '- ')));
+            return ['el src/composer.json de la distribución no pasa composer validate (salida ' . $status . '): ' . implode(' | ', array_slice($lines, 0, 3))];
+        }
+        echoTerminal("\e[94mINFO:\e[39m distribución: su src/composer.json pasa composer validate contra su composer.lock (sin red).");
+        return [];
     }
 
     /**
@@ -4617,6 +4725,25 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
+     * Por qué una función de Sass no sirve de prueba de una capacidad, o null si sirve: tiene que ser una clave de
+     * `functions: {` en el adaptador de src/gulpfile.js (ADR 0067), con su firma (`'static-url($path)'`). Por texto.
+     *
+     * @param string|null $gulpfile El texto de src/gulpfile.js, o null si no se pudo leer.
+     * @param string $function El nombre, sin firma, como `static-url`.
+     * @return string|null
+     */
+    protected static function sassFunctionCapabilityProblem(?string $gulpfile, string $function): ?string
+    {
+        if ($gulpfile === null) {
+            return 'no se puede comprobar: falta src/gulpfile.js';
+        }
+        if (preg_match('/functions:\s*\{[^}]*[\'"]' . preg_quote($function, '/') . '\(/', $gulpfile) !== 1) {
+            return 'NO está declarada en `functions: {` de src/gulpfile.js';
+        }
+        return null;
+    }
+
+    /**
      * Lo que falta de cada capacidad: rutas sin registrar, acciones sin su ruta `terminal-`, funciones sin declarar y
      * anuncios sin archivo.
      *
@@ -4624,10 +4751,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @param array<int|string> $rutas Los nombres de `get_routes()`.
      * @param string $root La raíz del repositorio, para los anuncios.
      * @param string[] $claves Las claves de configuración que el código lee.
+     * @param string|null $gulpfile El texto donde se buscan las funciones de Sass; sin él, src/gulpfile.js.
      * @return string[]
      */
-    protected static function validateAnnouncedCapabilities(array $capacidades, array $rutas, string $root, array $claves = []): array
+    protected static function validateAnnouncedCapabilities(array $capacidades, array $rutas, string $root, array $claves = [], ?string $gulpfile = null): array
     {
+        if ($gulpfile === null) {
+            $leido = @file_get_contents($root . '/src/gulpfile.js');
+            $gulpfile = $leido === false ? null : $leido;
+        }
         $existentes = array_flip(array_map('strval', $rutas));
         $clavesLeidas = array_flip($claves);
         $failures = [];
@@ -4639,8 +4771,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $porAviso = (array) ($capacidad['alert'] ?? []);
             $guiones = (array) ($capacidad['scripts'] ?? []);
             $funciones = (array) ($capacidad['functions'] ?? []);
-            if (count($servidas) + count($acciones) + count($porClave) + count($porAviso) + count($guiones) + count($funciones) === 0) {
-                $failures[] = "{$nombre}: no nombra ninguna ruta, acción, clave, aviso, guion ni función; una capacidad sin quien la sirva no se anuncia";
+            $funcionesSass = (array) ($capacidad['sass_functions'] ?? []);
+            if (count($servidas) + count($acciones) + count($porClave) + count($porAviso) + count($guiones) + count($funciones) + count($funcionesSass) === 0) {
+                $failures[] = "{$nombre}: no nombra ninguna ruta, acción, clave, aviso, guion, función ni función de Sass; una capacidad sin quien la sirva no se anuncia";
+            }
+            foreach ($funcionesSass as $funcionSass) {
+                $problema = self::sassFunctionCapabilityProblem($gulpfile, (string) $funcionSass);
+                if ($problema !== null) {
+                    $failures[] = "{$nombre}: la función de Sass `{$funcionSass}` {$problema}";
+                }
             }
             foreach ($funciones as $funcion) {
                 if (!function_exists((string) $funcion)) {
@@ -4669,8 +4808,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 }
             }
             foreach ($acciones as $accion) {
-                if (!isset($existentes['terminal-' . $accion])) {
-                    $failures[] = "{$nombre}: la acción de terminal `{$accion}` NO EXISTE (no hay ruta terminal-{$accion})";
+                //Una acción es lo que se teclea en bin/cli: una tarea con ruta o una de CliActions, que no tiene ruta.
+                if (!isset($existentes['terminal-' . $accion]) && !CliActions::exists((string) $accion)) {
+                    $failures[] = "{$nombre}: la acción de terminal `{$accion}` NO EXISTE (ni ruta terminal-{$accion} ni acción de CliActions)";
                 }
             }
             foreach ((array) ($capacidad['announced'] ?? []) as $anuncio) {
@@ -6147,9 +6287,465 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
+     * 55. Toda dirección a un archivo local dentro de un .scss propio se escribe con static-url(), que al compilar le pone
+     * la huella de su contenido (ADR 0067; la función la declara sassCompileAdapter() de src/gulpfile.js). Sin ella el
+     * archivo va sin sello y el navegador lo revalida en cada visita.
+     *
+     * Universo: las .scss versionadas de src/, sin vendor ni node_modules. Cae todo url( cuya dirección no empiece por
+     * static-url(, http:, https:, // ni data:, y todo @import de una hoja .css local entre comillas; un @import de un módulo
+     * de Sass (sin url( ni .css) no es una dirección. No mira las líneas que empiezan por «//», «/*» o «*».
+     *
+     * @return string[]
+     */
+    protected static function checkScssStaticUrls(): array
+    {
+        //Canario: cae el url() suelto y el @import url() local; no caen static-url(), data:, lo externo ni un módulo de Sass.
+        $sembrado = "a { background: url('../a.png'); }\n@import url('../f.css');\nb { background: url(static-url('../a.png')); }\n"
+            . "c { background: url(\"data:image/png;base64,xx\"); }\nd { background: url(https://x); }\n@import 'parcial';\n";
+        if (array_keys(self::scssUnstampedAddresses($sembrado)) !== [1, 2]) {
+            return ['canario muerto: el patrón no separa una dirección suelta de static-url(), data:, lo externo o un módulo de Sass: la comprobación no miró nada'];
+        }
+
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        if (!is_dir($root . '/.git')) {
+            echoTerminal("\e[94mINFO:\e[39m direcciones del SCSS: sin .git no hay universo que medir; no se comprueba.");
+            return [];
+        }
+
+        $sheets = array_values(array_filter(
+            self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z -- 'src/**/*.scss'"),
+            static fn (string $f): bool => !str_starts_with($f, 'src/vendor/') && !str_contains($f, '/node_modules/')
+        ));
+        if ($sheets === []) {
+            return ['canario muerto: git no lista ninguna .scss de src/; la comprobación no miró nada'];
+        }
+
+        $failures = [];
+        $addresses = 0;
+        foreach ($sheets as $relative) {
+            $text = @file_get_contents($root . '/' . $relative);
+            if ($text === false) {
+                $failures[] = "{$relative}: no se pudo leer";
+                continue;
+            }
+            $addresses += preg_match_all('/(?<![\w-])url\(|@import\b/', $text);
+            foreach (self::scssUnstampedAddresses($text) as $line => $address) {
+                $failures[] = "{$relative}:{$line} — {$address}: dirección a un archivo local sin huella; escríbela con url(static-url('…')) (ADR 0067)";
+            }
+        }
+
+        if ($failures === []) {
+            echoTerminal("\e[94mINFO:\e[39m direcciones del SCSS: " . count($sheets) . " hoja(s), {$addresses} url( o @import, ninguna a un archivo local sin static-url().");
+        }
+        return $failures;
+    }
+
+    /**
+     * 56. Cada celda de la matriz de permisos medida por HTTP (files/dev/permissions-matrix.json, `bin/walk-matrix`) dice lo
+     * que declara su ruta (files/dev/permissions-declared.json): sin `require_login`, CONCEDE a todos; con él, sin sesión
+     * NIEGA, el tipo que tiene la ruta en sus roles CONCEDE y el que no, NIEGA (src/index.php §8 y Roles::hasPermissions()).
+     * Sin red: lee los dos artefactos. G17-17.
+     *
+     * Fuera por regla, porque el instrumento no puede medirlas: los estáticos de módulo pedidos sin archivo (la URL acaba en
+     * `/statics/` o `/statics-resolver/`: 404 o 403 de «no hay archivo»), y las `terminal-*`, que fuera de la terminal no se
+     * sirven. Lo que discrepa por un motivo del producto va en files/dev/permissions-matrix-exceptions.json con su motivo.
+     * Falla si una celda discrepa sin excepción, si una excepción sobra o si nombra una ruta que no existe.
+     * PCSPHP_PERMISSIONS_MATRIX lee otra matriz, solo para provocarla.
+     *
+     * @return string[]
+     */
+    protected static function checkPermissionsMatrixAgainstDeclared(): array
+    {
+        //Canario: cae la discrepancia sin excepción y la excepción que sobra; la discrepancia con excepción, no.
+        $celda = static fn (string $clase): array => ['clase' => $clase, 'codigo' => $clase === 'CONCEDE' ? 200 : 403];
+        $matrizSembrada = [
+            'zz-a' => ['url' => '/zz-a/', 'filas' => ['zz (0)' => $celda('CONCEDE'), 'zz (1)' => $celda('CONCEDE')]],
+            'zz-b' => ['url' => '/zz-b/', 'filas' => ['zz (0)' => $celda('CONCEDE'), 'zz (1)' => $celda('CONCEDE')]],
+            'zz-c' => ['url' => '/zz-c/', 'filas' => ['zz (0)' => $celda('CONCEDE'), 'zz (1)' => $celda('NIEGA')]],
+            'zz-modulo' => ['url' => '/zz/statics/', 'filas' => ['zz (0)' => $celda('NIEGA')]],
+        ];
+        $declaradoSembrado = array_fill_keys(['zz-a', 'zz-b', 'zz-c', 'zz-modulo'], ['requireLogin' => true, 'roles' => [0]]);
+        $excepcionesSembradas = [
+            ['ruta' => 'zz-b', 'tipos' => [1], 'sin_sesion' => false, 'motivo' => 'x'],
+            ['ruta' => 'zz-c', 'tipos' => [1], 'sin_sesion' => false, 'motivo' => 'x'],
+        ];
+        $canario = self::permissionsMatrixDiscrepancies($matrizSembrada, $declaradoSembrado, $excepcionesSembradas);
+        if (count($canario) !== 2 || !str_starts_with($canario[0], 'zz-a') || !str_starts_with($canario[1], 'zz-c')) {
+            return ['canario muerto: no distingue una discrepancia sin excepción, una con excepción y una excepción que sobra: la comprobación no miró nada'];
+        }
+
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $rutaMatriz = getenv('PCSPHP_PERMISSIONS_MATRIX') ?: $root . '/files/dev/permissions-matrix.json';
+        $matriz = json_decode((string) @file_get_contents($rutaMatriz), true);
+        $declarado = json_decode((string) @file_get_contents($root . '/files/dev/permissions-declared.json'), true);
+        $excepciones = json_decode((string) @file_get_contents($root . '/' . self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH), true);
+        if (!is_array($matriz['matriz'] ?? null) || !is_array($declarado['rutas'] ?? null) || !is_array($excepciones['excepciones'] ?? null)) {
+            return ['no se pudo leer la matriz, lo declarado o ' . self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+
+        $failures = self::permissionsMatrixDiscrepancies($matriz['matriz'], $declarado['rutas'], $excepciones['excepciones']);
+        if ($failures === []) {
+            $celdas = array_sum(array_map(static fn ($fila): int => is_array($fila['filas'] ?? null) ? count($fila['filas']) : 0, $matriz['matriz']));
+            echoTerminal("\e[94mINFO:\e[39m matriz de permisos: " . count($matriz['matriz']) . " ruta(s) y {$celdas} celda(s) contra lo declarado; "
+                . count($excepciones['excepciones']) . ' excepción(es) con su motivo, todas necesarias. Fuera por regla: estáticos de módulo, statics-files y terminal-*.');
+        }
+        return $failures;
+    }
+
+    /**
+     * 57. Cada cita `bin/cli <acción>` de la documentación (los .md versionados de source-docs/) nombra una acción que
+     * existe: una de CliActions o una tarea de la terminal, las mismas que lista `bin/cli _list-actions`. G17-12.
+     *
+     * La acción es la primera palabra tras `bin/cli`, sin opciones. No cuentan, por regla: un marcador (lleva `<`, `{` o
+     * `$`, o es `...`), y la acción que el mismo documento declara con `CliActions::make('…')`, que es el ejemplo de la guía.
+     *
+     * @return string[]
+     */
+    protected static function checkDocumentedCliActions(): array
+    {
+        $tareas = get_config('terminalTaskAvailablesVerbose');
+        $acciones = array_merge(CliActions::listActionNames(), array_map(static fn ($t): string => (string) ($t['name'] ?? ''), is_array($tareas) ? $tareas : []));
+        //Canario: cae la acción inventada; no caen una que existe, los marcadores ni el ejemplo que el texto declara.
+        $sembrado = "bin/cli verify-integrity\nbin/cli zz-accion-inventada\nbin/cli <accion>\nbin/cli ...\nCliActions::make('zz-ejemplo', fn () => 1);\nbin/cli zz-ejemplo\n";
+        if (!in_array('verify-integrity', $acciones, true) || self::documentedCliActionsMissing($sembrado, $acciones) !== [2 => 'zz-accion-inventada']) {
+            return ['canario muerto: no separa una acción que no existe de una que sí, de un marcador o del ejemplo de la guía: la comprobación no miró nada'];
+        }
+
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $documentos = array_values(array_filter(
+            self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z -- 'source-docs/*.md'"),
+            static fn (string $f): bool => is_file($root . '/' . $f)
+        ));
+        if ($documentos === []) {
+            return ['canario muerto: git no lista ningún .md de source-docs/: la comprobación no miró nada'];
+        }
+
+        $failures = [];
+        $citas = 0;
+        foreach ($documentos as $documento) {
+            $texto = (string) file_get_contents($root . '/' . $documento);
+            $citas += preg_match_all('/bin\/cli\s+[^\s-]/', $texto);
+            foreach (self::documentedCliActionsMissing($texto, $acciones) as $linea => $accion) {
+                $failures[] = "{$documento}:{$linea} cita `bin/cli {$accion}`, que no es ninguna acción de bin/cli (bin/cli _list-actions)";
+            }
+        }
+        if ($failures === []) {
+            echoTerminal("\e[94mINFO:\e[39m acciones de bin/cli en la documentación: {$citas} cita(s) en " . count($documentos) . ' .md de source-docs/, todas existen.'
+                . ' No cuentan los marcadores ni el ejemplo que declara el propio documento.');
+        }
+        return $failures;
+    }
+
+    /**
+     * Las citas `bin/cli <acción>` de un texto que no existen, por línea (la primera de cada línea).
+     *
+     * @param string $text
+     * @param string[] $actions
+     * @return array<int,string>
+     */
+    protected static function documentedCliActionsMissing(string $text, array $actions): array
+    {
+        //RETORNO-IGNORADO: sin ninguna declaración, $declared[1] queda vacío y no añade nada.
+        preg_match_all("/CliActions::make\\(\\s*['\"]([^'\"]+)['\"]/", $text, $declared);
+        $known = array_flip(array_merge($actions, $declared[1]));
+        $missing = [];
+        foreach (preg_split('/\R/', $text) ?: [] as $index => $line) {
+            if (preg_match_all('/bin\/cli\s+([^\s`\'"|;&()\[\]]+)/', $line, $matches) < 1) {
+                continue;
+            }
+            foreach ($matches[1] as $action) {
+                $action = rtrim($action, '.,:');
+                if ($action === '' || $action[0] === '-' || $action === '...' || $action === '…' || preg_match('/[<{$]/', $action) === 1) {
+                    continue;
+                }
+                if (!isset($known[$action])) {
+                    $missing[$index + 1] ??= $action;
+                }
+            }
+        }
+        return $missing;
+    }
+
+    /**
+     * 58. Cada cita `Clase::método(` de la documentación (código en línea o bloque de código de los .md versionados de
+     * source-docs/) nombra un método que existe en una clase, interfaz o trait del framework: src/app y los paquetes
+     * piecesphp/*, heredados incluidos. Un nombre corto vale si el método está en ALGUNA de las clases que se llaman así.
+     * Lo que no es del framework a propósito (un ejemplo, ReactPHP) va en las excepciones, con su motivo. G17-12.
+     *
+     * @return string[]
+     */
+    protected static function checkDocumentedMethods(): array
+    {
+        $inicio = microtime(true);
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $indice = self::frameworkClassIndex($root);
+        //Canario: cae la clase inventada y el método que no existe; no caen el que existe (corto y con espacio de nombres),
+        //el comodín ni self::.
+        $sembrado = "`Config::get_lang()` y `\\PiecesPHP\\Core\\Config::get_lang()`\n`ZzClaseInventada::zz()`\n`Config::zzNoExiste()`\n`*Routes::routes()` `self::zz()`\n";
+        $faltan = array_values(array_filter(self::documentedMethodCitations($sembrado), static fn (array $c): bool => !self::documentedMethodExists($c[1], $c[2], $indice)));
+        if ($faltan !== [[2, 'ZzClaseInventada', 'zz'], [3, 'Config', 'zzNoExiste']]) {
+            return ['canario muerto: no separa un método inexistente de uno que existe, de un comodín o de self::: la comprobación no miró nada (' . json_encode($faltan) . ')'];
+        }
+
+        $excepciones = json_decode((string) @file_get_contents($root . '/' . self::DOC_METHOD_EXCEPTIONS_RELATIVE_PATH), true);
+        if (!is_array($excepciones['excepciones'] ?? null)) {
+            return ['no se pudo leer ' . self::DOC_METHOD_EXCEPTIONS_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+        $documentos = array_values(array_filter(
+            self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z -- 'source-docs/*.md'"),
+            static fn (string $f): bool => is_file($root . '/' . $f)
+        ));
+        if ($documentos === []) {
+            return ['canario muerto: git no lista ningún .md de source-docs/: la comprobación no miró nada'];
+        }
+
+        $exceptuadas = [];
+        foreach ($excepciones['excepciones'] as $excepcion) {
+            $exceptuadas[($excepcion['documento'] ?? '') . '|' . ($excepcion['cita'] ?? '')] = 0;
+        }
+        $failures = [];
+        $citas = 0;
+        foreach ($documentos as $documento) {
+            foreach (self::documentedMethodCitations((string) file_get_contents($root . '/' . $documento)) as [$linea, $clase, $metodo]) {
+                $citas++;
+                if (self::documentedMethodExists($clase, $metodo, $indice)) {
+                    continue;
+                }
+                $clave = "{$documento}|{$clase}::{$metodo}";
+                if (isset($exceptuadas[$clave])) {
+                    $exceptuadas[$clave]++;
+                    continue;
+                }
+                $failures[] = "{$documento}:{$linea} cita `{$clase}::{$metodo}(`, que no es un método de ninguna clase del framework (src/app y piecesphp/*)";
+            }
+        }
+        foreach ($exceptuadas as $clave => $usos) {
+            if ($usos === 0) {
+                $failures[] = "la excepción «{$clave}» de " . self::DOC_METHOD_EXCEPTIONS_RELATIVE_PATH . ' ya no hace falta: o la cita resuelve o ese documento ya no la tiene';
+            }
+        }
+        if ($failures === []) {
+            echoTerminal("\e[94mINFO:\e[39m métodos citados en la documentación: {$citas} cita(s) en " . count($documentos) . ' .md de source-docs/; '
+                . count($exceptuadas) . ' excepción(es) con su motivo, todas necesarias; ' . count($indice) . ' nombres de clase indexados, '
+                . round(microtime(true) - $inicio, 2) . ' s. No cuentan self::, static::, parent:: ni un comodín (`*Routes::`).');
+        }
+        return $failures;
+    }
+
+    /**
+     * Las citas `Clase::método(` de un texto markdown que van en código (en línea o en bloque), por línea.
+     *
+     * @param string $text
+     * @return array<int, array{0: int, 1: string, 2: string}> [línea, clase como se escribió sin la barra inicial, método]
+     */
+    protected static function documentedMethodCitations(string $text): array
+    {
+        $citas = [];
+        $enBloque = false;
+        foreach (preg_split('/\R/', $text) ?: [] as $index => $line) {
+            if (preg_match('/^\s*(```|~~~)/', $line) === 1) {
+                $enBloque = !$enBloque;
+                continue;
+            }
+            //RETORNO-IGNORADO: sin código en línea, $tramos[1] queda vacío.
+            preg_match_all('/`([^`]*)`/', $line, $tramos);
+            foreach ($enBloque ? [$line] : $tramos[1] as $tramo) {
+                //RETORNO-IGNORADO: sin citas, $coincidencias queda vacío.
+                preg_match_all('/(?<![\w\\*<{$])(\\\\?[A-Za-z_]\w*(?:\\\\[A-Za-z_]\w*)*)::([A-Za-z_]\w*)\(/', $tramo, $coincidencias, \PREG_SET_ORDER);
+                foreach ($coincidencias as $coincidencia) {
+                    $clase = ltrim($coincidencia[1], '\\');
+                    if (!in_array(strtolower($clase), ['self', 'static', 'parent'], true)) {
+                        $citas[] = [$index + 1, $clase, $coincidencia[2]];
+                    }
+                }
+            }
+        }
+        return $citas;
+    }
+
+    /**
+     * Las clases, interfaces, traits y enums del framework (src/app y src/vendor/piecesphp/*, sin sus vendor), por nombre
+     * corto, leídas por tokens.
+     *
+     * @param string $root
+     * @return array<string, string[]>
+     */
+    protected static function frameworkClassIndex(string $root): array
+    {
+        $indice = [];
+        foreach (["{$root}/src/app", "{$root}/src/vendor/piecesphp"] as $base) {
+            if (!is_dir($base)) {
+                continue;
+            }
+            $archivos = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS));
+            foreach ($archivos as $archivo) {
+                $ruta = $archivo->getPathname();
+                if (!$archivo->isFile() || !str_ends_with($ruta, '.php') || str_contains(substr($ruta, strlen($base)), '/vendor/')) {
+                    continue;
+                }
+                $tokens = token_get_all((string) file_get_contents($ruta));
+                $espacio = '';
+                $total = count($tokens);
+                for ($i = 0; $i < $total; $i++) {
+                    $token = $tokens[$i];
+                    if (!is_array($token)) {
+                        continue;
+                    }
+                    if ($token[0] === \T_NAMESPACE) {
+                        $espacio = '';
+                        for ($j = $i + 1; $j < $total && $tokens[$j] !== ';' && $tokens[$j] !== '{'; $j++) {
+                            if (is_array($tokens[$j]) && in_array($tokens[$j][0], [\T_STRING, \T_NAME_QUALIFIED], true)) {
+                                $espacio .= $tokens[$j][1];
+                            }
+                        }
+                        continue;
+                    }
+                    if (!in_array($token[0], [\T_CLASS, \T_INTERFACE, \T_TRAIT, \T_ENUM], true)) {
+                        continue;
+                    }
+                    //`Clase::class` no declara nada; una clase anónima tampoco tiene nombre.
+                    $previo = $i - 1;
+                    while ($previo >= 0 && is_array($tokens[$previo]) && $tokens[$previo][0] === \T_WHITESPACE) {
+                        $previo--;
+                    }
+                    if ($previo >= 0 && is_array($tokens[$previo]) && in_array($tokens[$previo][0], [\T_DOUBLE_COLON, \T_NEW], true)) {
+                        continue;
+                    }
+                    $nombre = $i + 2 < $total && is_array($tokens[$i + 1]) && $tokens[$i + 1][0] === \T_WHITESPACE && is_array($tokens[$i + 2]) && $tokens[$i + 2][0] === \T_STRING ? $tokens[$i + 2][1] : null;
+                    if ($nombre !== null) {
+                        $indice[$nombre][] = ltrim("{$espacio}\\{$nombre}", '\\');
+                    }
+                }
+            }
+        }
+        return $indice;
+    }
+
+    /**
+     * Si `Clase::método` existe: con espacio de nombres, esa clase; con nombre corto, alguna de las que se llaman así.
+     *
+     * @param string $clase
+     * @param string $metodo
+     * @param array<string, string[]> $indice
+     * @return bool
+     */
+    protected static function documentedMethodExists(string $clase, string $metodo, array $indice): bool
+    {
+        $candidatas = str_contains($clase, '\\') ? [$clase] : array_unique($indice[$clase] ?? []);
+        foreach ($candidatas as $candidata) {
+            if ((class_exists($candidata) || interface_exists($candidata) || trait_exists($candidata)) && (new \ReflectionClass($candidata))->hasMethod($metodo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Lo que no cuadra entre la matriz y lo declarado, con las excepciones aplicadas: discrepancias, excepciones que sobran
+     * y excepciones de rutas que no existen.
+     *
+     * @param array<mixed> $matriz
+     * @param array<mixed> $declarado
+     * @param array<mixed> $excepciones
+     * @return string[]
+     */
+    protected static function permissionsMatrixDiscrepancies(array $matriz, array $declarado, array $excepciones): array
+    {
+        $exceptuadas = [];
+        $failures = [];
+        foreach ($excepciones as $excepcion) {
+            $ruta = (string) ($excepcion['ruta'] ?? '');
+            if (!array_key_exists($ruta, $declarado)) {
+                $failures[] = "{$ruta}: la excepción nombra una ruta que no existe; quítala";
+                continue;
+            }
+            foreach ((array) ($excepcion['tipos'] ?? []) as $tipo) {
+                $exceptuadas[$ruta][(string) $tipo] = true;
+            }
+            if (($excepcion['sin_sesion'] ?? false) === true) {
+                $exceptuadas[$ruta]['sin-sesion'] = true;
+            }
+        }
+
+        foreach ($matriz as $ruta => $fila) {
+            $ruta = (string) $ruta;
+            $url = (string) ($fila['url'] ?? '');
+            if (str_starts_with($ruta, 'terminal-') || $ruta === 'statics-files' || preg_match('#/statics(-resolver)?/$#', $url) === 1) {
+                continue;
+            }
+            $rutaDeclarada = $declarado[$ruta] ?? null;
+            if (!is_array($rutaDeclarada)) {
+                $failures[] = "{$ruta}: está en la matriz y no en lo declarado; regenera los dos";
+                continue;
+            }
+            foreach ((array) ($fila['filas'] ?? []) as $identidad => $celda) {
+                $tipo = preg_match('/\((\d+)\)$/', (string) $identidad, $m) === 1 ? $m[1] : null;
+                $quien = $tipo ?? 'sin-sesion';
+                if (!($rutaDeclarada['requireLogin'] ?? false)) {
+                    $esperado = 'CONCEDE';
+                } elseif ($tipo === null) {
+                    $esperado = 'NIEGA';
+                } else {
+                    $esperado = in_array((int) $tipo, array_map('intval', (array) ($rutaDeclarada['roles'] ?? [])), true) ? 'CONCEDE' : 'NIEGA';
+                }
+                $clase = (string) ($celda['clase'] ?? '');
+                $exceptuada = isset($exceptuadas[$ruta][$quien]);
+                if ($clase !== $esperado && !$exceptuada) {
+                    $failures[] = "{$ruta} [{$identidad}]: la matriz dice {$clase} (HTTP " . ($celda['codigo'] ?? '?') . ") y lo declarado, {$esperado}; arregla el permiso o escribe la excepción con su motivo";
+                } elseif ($clase === $esperado && $exceptuada) {
+                    $failures[] = "{$ruta} [{$identidad}]: la excepción sobra, la matriz ya dice lo declarado ({$esperado}); quítala";
+                }
+                unset($exceptuadas[$ruta][$quien]);
+            }
+        }
+        foreach ($exceptuadas as $ruta => $quienes) {
+            foreach (array_keys($quienes) as $quien) {
+                $failures[] = "{$ruta} [{$quien}]: la excepción nombra a alguien que la matriz no mide; quítala";
+            }
+        }
+        return $failures;
+    }
+
+    /**
+     * Las direcciones a un archivo local sin static-url() de un texto SCSS, por número de línea (la primera de cada línea).
+     *
+     * @param string $text
+     * @return array<int,string>
+     */
+    protected static function scssUnstampedAddresses(string $text): array
+    {
+        $found = [];
+        foreach (preg_split('/\R/', $text) ?: [] as $index => $line) {
+            $trimmed = ltrim($line);
+            if (str_starts_with($trimmed, '//') || str_starts_with($trimmed, '/*') || str_starts_with($trimmed, '*')) {
+                continue;
+            }
+            if (preg_match_all('/(?<![\w-])url\(\s*([\'"]?)([^\'")]*)/', $line, $matches, PREG_SET_ORDER) > 0) {
+                foreach ($matches as $match) {
+                    $address = $match[2];
+                    if (!str_starts_with($address, 'static-url(') && preg_match('~^(https?:|//|data:)~i', $address) !== 1) {
+                        $found[$index + 1] ??= "url({$match[1]}{$address}{$match[1]})";
+                    }
+                }
+            }
+            if (preg_match('/@import\s+([^;]*)/', $line, $import) === 1 && preg_match_all('/([\'"])(.*?)\1/', $import[1], $strings, PREG_SET_ORDER) > 0) {
+                foreach ($strings as $string) {
+                    $address = $string[2];
+                    $isCss = preg_match('~\.css([?#].*)?$~i', $address) === 1;
+                    if ($isCss && preg_match('~^(https?:|//)~i', $address) !== 1 && !str_contains($import[1], 'url(')) {
+                        $found[$index + 1] ??= "@import {$string[1]}{$address}{$string[1]}";
+                    }
+                }
+            }
+        }
+        return $found;
+    }
+
+    /**
      * 53. Cada `//@areas` de cada suite nombra una ruta que existe y que cae dentro de una carpeta de
      * GatesTask::AREA_MODULES (ADR 0062): un área muerta no elige nunca su suite, y una del núcleo no hace falta, porque
-     * un cambio en el núcleo ya las corre todas.
+     * un cambio en el núcleo ya las corre todas. «nucleo» es la excepción declarada (ADR 0066).
      *
      * @return string[]
      */
@@ -6168,6 +6764,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $relative = ltrim(str_replace($repoRoot, '', str_replace('\\', '/', $file)), '/');
             foreach ($declared as $area) {
                 $areas++;
+                if ($area === GatesTask::AREA_CORE) {
+                    continue;
+                }
                 $exists = str_ends_with($area, '/') ? is_dir($repoRoot . '/' . $area) : is_file($repoRoot . '/' . $area);
                 if (!$exists) {
                     $failures[] = $relative . ' — //@areas ' . $area . ' no existe: esa área no elegiría nunca la suite.';

@@ -4,7 +4,8 @@ _Solo si está activa la bandera `API_TRANSLATION_MODULE` (ver el [índice](../i
 
 Rutas para traducir texto con un modelo de IA (adaptadores de OpenAI y Mistral, en `src/app/classes/API/Adapters/`).
 Las acciones `translate` y `translateGroup` solo existen si la configuración `translationAIEnable` está activa; si no,
-responden **404**.
+responden **404**. Las rutas solo las puede usar el tipo de usuario elegido en Configuración › IA, «Quién puede traducir
+con IA» (opción `translationAIUserTypes`; por omisión, los seis; root siempre): los demás reciben **403**.
 
 ## GET | POST
 

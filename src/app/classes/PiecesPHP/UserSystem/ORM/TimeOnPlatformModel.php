@@ -4,8 +4,8 @@
  */
 namespace PiecesPHP\UserSystem\ORM;
 
-use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\UserSystem\UserHierarchy;
 
 /**
  * TimeOnPlatformModel.
@@ -59,15 +59,15 @@ class TimeOnPlatformModel extends BaseEntityMapper
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      * @param float $minutes
      * @return bool
      */
-    public static function addTime(int $user_id, float $minutes)
+    public static function addTime(int $userId, float $minutes)
     {
         $result = false;
-        if (self::existsUser($user_id)) {
-            $mapper = self::getRecordByUser($user_id);
+        if (self::existsUser($userId)) {
+            $mapper = self::getRecordByUser($userId);
 
             if ($mapper !== null) {
                 $mapper->minutes += $minutes;
@@ -78,7 +78,7 @@ class TimeOnPlatformModel extends BaseEntityMapper
         } else {
 
             $mapper = new TimeOnPlatformModel();
-            $mapper->userID = $user_id;
+            $mapper->userID = $userId;
             $mapper->minutes += $minutes;
             $mapper->minutes = round($mapper->minutes, 3);
 
@@ -89,27 +89,27 @@ class TimeOnPlatformModel extends BaseEntityMapper
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      * @return bool
      */
-    public static function existsUser(int $user_id)
+    public static function existsUser(int $userId)
     {
         $model = (new TimeOnPlatformModel())->getModel();
         $row = $model->select()->where([
-            'userID' => $user_id,
+            'userID' => $userId,
         ])->row();
         return $row !== false && $row !== -1;
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      * @return TimeOnPlatformModel|null
      */
-    public static function getRecordByUser(int $user_id)
+    public static function getRecordByUser(int $userId)
     {
         $model = (new TimeOnPlatformModel())->getModel();
         $row = $model->select()->where([
-            'userID' => $user_id,
+            'userID' => $userId,
         ])->row();
         return is_object($row) ? new TimeOnPlatformModel($row->id) : null;
     }

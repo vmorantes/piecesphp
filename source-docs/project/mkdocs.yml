@@ -38,6 +38,7 @@ nav:
         - Despliegue: piecesphp/content/general.md
         - Permisos: piecesphp/content/permissions.md
         - Estructura: piecesphp/content/structure.md
+        - Los archivos de configuración: piecesphp/content/configuration.md
         - Rutas: piecesphp/content/routing.md
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md
@@ -61,6 +62,7 @@ nav:
             - CronJobs: piecesphp/new-features/cronjobs.md
             - Pruebas Unitarias (CLI): piecesphp/new-features/unit-testing.md
             - Archivos Protegidos: piecesphp/new-features/protected-files.md
+            - Gestor de archivos: piecesphp/new-features/gestor-de-archivos.md
             - Exportador BBDD Nativo: piecesphp/new-features/database-exporter.md
             - Respaldos de la base de datos: piecesphp/new-features/backups.md
             - Registro de sesiones caducadas: piecesphp/new-features/expired-sessions-log.md

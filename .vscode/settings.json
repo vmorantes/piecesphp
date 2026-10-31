@@ -24,11 +24,11 @@
     "html.format.wrapAttributesIndentSize": 0,
     "html.format.maxPreserveNewLines": 1,
     "html.format.preserveNewLines": true,
+    "phpfmt.php_bin": "\"$(git rev-parse --show-toplevel)/bin/tools/formato/php-editor\"",
     "phpfmt.indent_with_space": 4,
     "phpfmt.psr2": true,
     "phpfmt.passes": [
         "AlignPHPCode",
-        "AutoSemicolon",
         "MergeNamespaceWithOpenTag",
         "RemoveSemicolonAfterCurly",
         "RestoreComments",
@@ -37,8 +37,31 @@
     ],
     "[javascript]": {
         "editor.formatOnSave": true,
-        "js/ts.format.semicolons": "remove"
+        "js/ts.format.semicolons": "remove",
+        "js/ts.format.insertSpaceAfterCommaDelimiter": true,
+        "js/ts.format.insertSpaceAfterConstructor": false,
+        "js/ts.format.insertSpaceAfterSemicolonInForStatements": true,
+        "js/ts.format.insertSpaceBeforeAndAfterBinaryOperators": true,
+        "js/ts.format.insertSpaceAfterKeywordsInControlFlowStatements": true,
+        "js/ts.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+        "js/ts.format.insertSpaceBeforeFunctionParenthesis": false,
+        "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+        "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
+        "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
+        "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": true,
+        "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
+        "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": false,
+        "js/ts.format.insertSpaceAfterTypeAssertion": false,
+        "js/ts.format.placeOpenBraceOnNewLineForFunctions": false,
+        "js/ts.format.placeOpenBraceOnNewLineForControlBlocks": false,
+        "js/ts.format.indentSwitchCase": true,
+        "editor.tabSize": 4,
+        "editor.insertSpaces": false,
+        "editor.detectIndentation": false
     },
+    "js/ts.tsdk.path": "node_modules/typescript/lib",
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "js/ts.tsdk.promptToUseWorkspaceVersion": true,
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.multiCursorMergeOverlapping": true,
@@ -64,6 +87,22 @@
     },
     "[css]": {
         "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    },
+    "beautify.options": {
+        "indent_size": 4,
+        "indent_char": " ",
+        "indent_with_tabs": false,
+        "indent_level": 0,
+        "indent_empty_lines": false,
+        "eol": "auto",
+        "end_with_newline": false,
+        "preserve_newlines": true,
+        "max_preserve_newlines": 32786,
+        "wrap_line_length": 0,
+        "selector_separator_newline": true,
+        "newline_between_rules": true,
+        "space_around_combinator": false,
+        "space_around_selector_separator": true
     },
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"

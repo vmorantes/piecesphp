@@ -2,8 +2,10 @@
 
 //El registro de acciones: el de organización ve solo las de la suya, ni por id; las de root, solo root (P133).
 //Crea una organización y tres usuarios zz-agente-acciones-*, y dos acciones; borra todo.
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
@@ -11,6 +13,7 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -235,8 +238,8 @@ CliActions::make('unit-tests:core/actions-log-organization', function ($args) {
             return (int) $consulta->fetchColumn();
         };
         $quedan = $cuenta("SELECT COUNT(*) FROM `{$tablaAcciones}` WHERE textMessageVariables LIKE ?", ["%{$marca}%"])
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE ?", ["{$prefijo}%"])
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE ?", ["{$prefijo}%"]);
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE ?", ["{$prefijo}%"])
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE ?", ["{$prefijo}%"]);
         $check($quedan === 0, 'z1 no queda ninguna acción, organización ni usuario de la prueba', (string) $quedan);
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 //Fija que ningún buscador de OTP escriba: era el defecto D2. Ver T33.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
@@ -134,6 +135,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         } finally {
             $db->prepare('DELETE FROM pcsphp_users_otp_secrets WHERE user = ?')->execute([$usuarioID]);
             $db->prepare('DELETE FROM user_system_profile WHERE belongsTo = ?')->execute([$usuarioID]);
+            $db->prepare("DELETE FROM `system_approvals_elements` WHERE referenceTable = 'pcsphp_users' AND referenceValue = ?")->execute([(string) $usuarioID]);
             $db->prepare('DELETE FROM pcsphp_users WHERE id = ?')->execute([$usuarioID]);
         }
     }
@@ -166,7 +168,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $countRows = function (): ?int {
         try {
             $model = OTPSecretsUsersMapper::model();
-                $model->select('COUNT(*) AS total');
+            $model->select('COUNT(*) AS total');
             $model->execute();
             $rows = $model->result();
             return isset($rows[0]) ? (int) $rows[0]->total : null;

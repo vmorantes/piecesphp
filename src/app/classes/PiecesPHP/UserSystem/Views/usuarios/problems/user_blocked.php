@@ -16,49 +16,42 @@
 
 <body>
 
+    <?php ob_start(); ?>
+
     <section class="container">
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'headerText' => 'Usuario bloqueado',
-            'classesCSS' => "one",
-            'active' => false,
-        ]); ?>
+    'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'headerText' => 'Usuario bloqueado',
+    'classesCSS' => "one",
+    'active' => false,
+]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'headerText' => 'Usuario bloqueado',
-            'classesCSS' => "two",
-            'active' => false,
-        ]); ?>
+    'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'headerText' => 'Usuario bloqueado',
+    'classesCSS' => "two",
+    'active' => false,
+]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'headerText' => 'Usuario bloqueado',
-            'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Correo no registrado'),
-            'classesCSS' => "three",
-            'active' => true,
-        ]); ?>
+    'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'headerText' => 'Usuario bloqueado',
+    'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Código incorrecto'),
+    'classesCSS' => "four",
+    'active' => true,
+]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'headerText' => 'Usuario bloqueado',
-            'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Código incorrecto'),
-            'classesCSS' => "four",
-            'active' => true,
-        ]); ?>
-
-        <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-            'headerText' => 'Usuario desbloqueado',
-            'classesCSS' => "five",
-            'active' => false,
-        ]); ?>
+    'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
+    'headerText' => 'Usuario desbloqueado',
+    'classesCSS' => "five",
+    'active' => false,
+]); ?>
 
         <div class="form-container" data-system-mail="<?= \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'); ?>">
 
@@ -66,7 +59,7 @@
 
             <div recovery>
 
-                <form class="ui form">
+                <form class="ui form initial">
 
                     <div class="horizontal-section-form">
                         <div class="number-step">PASO 1</div>
@@ -78,11 +71,11 @@
 
                     <div class="horizontal-section-buttons">
                         <div class="field buttons">
-                            <a href="#" class="ui button" has-code><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ya tengo un código')?></a>
-                            <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui button back-color">
+                            <a href="#" class="ui basic button" has-code><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ya tengo un código')?></a>
+                            <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui basic button back-color">
                                 <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás')?>
                             </a>
-                            <button type="submit" class="ui button custom-color">
+                            <button type="submit" class="ui primary button custom-color">
                                 <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Siguiente')?>
                             </button>
                         </div>
@@ -93,7 +86,7 @@
 
             <div code>
 
-                <form class="ui form">
+                <form class="ui form initial">
 
                 <div class="horizontal-section-form">
                     <div class="number-step">PASO 2</div>
@@ -105,8 +98,8 @@
                 <div class="horizontal-section-buttons">
                     <div class="field buttons">
                         <div class="field">
-                            <a href="#" class="ui button back-color" repeat><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Introducir un email diferente')?></a>
-                            <button type="submit" class="ui button custom-color"><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Enviar')?></button>
+                            <a href="#" class="ui basic button back-color" repeat><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Introducir un email diferente')?></a>
+                            <button type="submit" class="ui primary button custom-color"><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Enviar')?></button>
                         </div>
                     </div>
                 </div>
@@ -116,13 +109,13 @@
 
             <div error>
 
-                <form class="ui form">
+                <form class="ui form initial">
                     <div class="two fields">
                         <div class="field">
-                            <a href="#" class="ui button back-color" repeat><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás')?></a>
+                            <a href="#" class="ui basic button back-color" repeat><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás')?></a>
                         </div>
                         <div class="field">
-                            <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'); ?>" class="ui button custom-color">
+                            <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'); ?>" class="ui primary button custom-color">
                                 <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Solicitud de soporte')?>
                             </a>
                         </div>
@@ -133,9 +126,9 @@
 
             <div finish>
 
-                <form class="ui form">
+                <form class="ui form initial">
                     <div class="field">
-                        <a href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'); ?>" class="ui button custom-color">
+                        <a href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'); ?>" class="ui primary button custom-color">
                             <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingresar')?>
                         </a>
                     </div>
@@ -145,12 +138,9 @@
 
         </div>
 
-        <div class="line-footer"></div>
-        <div class="img-logo-footer">
-            <img src="<?=get_config('logo');?>" alt="">
-        </div>
-
     </section>
+
+    <?php $accessContent = (string) ob_get_clean(); require dirname(__DIR__) . '/inc/access-frame.php'; ?>
 
     <?php load_js(['base_url' => "", 'custom_url' => ""])?>
 </body>

@@ -4,11 +4,11 @@ $langGroup = SettingsController::LANG_GROUP;
 $imageAlt = isset($imageAlt) && is_string($imageAlt) ? $imageAlt : '';
 $classes = isset($classes) && is_string($classes) ? $classes : '';
 $imageActionAttrs = isset($imageActionAttrs) && is_string($imageActionAttrs) ? $imageActionAttrs : '';
-$changeImageText = isset($changeImageText) && is_string($changeImageText)  ? $changeImageText : __($langGroup, 'Cambiar imagen');
-$title = isset($title) && is_string($title)  ? $title : __($langGroup, 'Imagen');
-$description = isset($description) && is_string($description)  ? $description : __($langGroup, "Imagen preferiblemente de fondo transparente");
-$width = isset($width) && is_numeric($width)  ? (int) $width : 400;
-$height = isset($height) && is_numeric($height)  ? (int) $height : 400;
+$changeImageText = isset($changeImageText) && is_string($changeImageText) ? $changeImageText : __($langGroup, 'Cambiar imagen');
+$title = isset($title) && is_string($title) ? $title : __($langGroup, 'Imagen');
+$description = isset($description) && is_string($description) ? $description : __($langGroup, "Imagen preferiblemente de fondo transparente");
+$width = isset($width) && is_numeric($width) ? (int) $width : 400;
+$height = isset($height) && is_numeric($height) ? (int) $height : 400;
 $image = isset($image) && is_string($image) && mb_strlen($image) > 0 ? $image : baseurl("img-gen/{$width}/{$height}");
 ?>
 <div class="input-image-card">

@@ -44,50 +44,57 @@ class ProfileTasksUtilities extends AdminPanelController
     }
 
     /**
-     * Genera los perfiles faltantes para los usuarios que deberían tener uno.
+     * Los usuarios de UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE que no tienen perfil y, con $doIt, el perfil de cada uno
+     * ({@see UserProfileMapper::ensureFor()}). Es el cuerpo de `bin/cli profiles-create-missing`: al actualizar una
+     * instalación se rellenan una vez. Ya no corre en cada petición (P266): el alta crea el perfil.
      *
-     * Este método verifica qué usuarios no tienen un perfil asociado y los crea automáticamente.
-     * Se utiliza para asegurar que todos los usuarios que necesitan un perfil tengan uno, especialmente
-     * después de una actualización o migración de datos.
-     *
-     * @param bool $doIt Si es verdadero, el método ejecuta la generación de perfiles faltantes. Si es falso, no hace nada.
+     * @param bool $doIt Con true crea los que faltan; con false solo los enumera.
+     * @return array{missing:int[],created:int[],failed:int[]}
      */
-    public static function generateMissingProfiles(bool $doIt = true): void
+    public static function generateMissingProfiles(bool $doIt = true): array
     {
+        $missing = [];
+        $created = [];
+        $failed = [];
 
-        if ($doIt) {
-            $userTable = UsersModel::TABLE;
-            $profileTable = UserProfileMapper::TABLE;
-            $model = UsersModel::model();
-            $typesShouldHaveProfile = implode(', ', UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE);
+        $userTable = UsersModel::TABLE;
+        $profileTable = UserProfileMapper::TABLE;
+        $model = UsersModel::model();
+        $typesShouldHaveProfile = implode(', ', UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE);
 
-            $model->select([
-                "{$userTable}.id AS userID",
-                "{$userTable}.type",
-                "{$profileTable}.id AS profileID",
-            ])->leftJoin($profileTable, [
-                "{$profileTable}.belongsTo" => "{$userTable}.id",
-            ])->having([
-                "profileID" => [
-                    'and_or' => 'AND',
-                    'IS NULL' => '',
-                ],
-                "{$userTable}.type" => [
-                    'and_or' => 'AND',
-                    'IN' => "({$typesShouldHaveProfile})",
-                ],
-            ]);
+        $model->select([
+            "{$userTable}.id AS userID",
+            "{$userTable}.type",
+            "{$profileTable}.id AS profileID",
+        ])->leftJoin($profileTable, [
+            "{$profileTable}.belongsTo" => "{$userTable}.id",
+        ])->having([
+            "profileID" => [
+                'and_or' => 'AND',
+                'IS NULL' => '',
+            ],
+            "{$userTable}.type" => [
+                'and_or' => 'AND',
+                'IN' => "({$typesShouldHaveProfile})",
+            ],
+        ]);
 
-            $model->execute();
-            $result = $model->result();
+        $model->execute();
+        $result = $model->result();
 
-            foreach ($result ?? [] as $element) {
-                //Esta utilidad existe para MATERIALIZAR perfiles que falten: el creador es
-                //lo que quiere, no el buscador.
-                UserProfileMapper::createProfile($element->userID);
+        foreach ($result ?? [] as $element) {
+            $userID = (int) $element->userID;
+            $missing[] = $userID;
+            if ($doIt) {
+                if (UserProfileMapper::ensureFor($userID)) {
+                    $created[] = $userID;
+                } else {
+                    $failed[] = $userID;
+                }
             }
-
         }
+
+        return ['missing' => $missing, 'created' => $created, 'failed' => $failed];
     }
 
 }

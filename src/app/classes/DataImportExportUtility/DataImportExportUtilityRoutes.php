@@ -9,6 +9,7 @@ namespace DataImportExportUtility;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersExportDefinition;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\DataTransfer\Export\ExportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\Menu\MenuGroup;
@@ -57,6 +58,8 @@ class DataImportExportUtilityRoutes
      */
     public static function routes(RouteGroup $groupAdministration)
     {
+        //La opción que guarda (ADR 0055); fuera del if, porque la fila se lee aunque el módulo esté apagado.
+        ConfigOptions::declare(DataTransferController::DISABLED_CONFIG, DataTransferController::class, ConfigOptions::SHAPE_JSON);
         if (self::ENABLE) {
 
             $groupAdministration = DataTransferController::routes($groupAdministration);

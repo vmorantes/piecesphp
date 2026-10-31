@@ -101,7 +101,7 @@ el mismo cambio**.
 ## La verificación por área (ADR 0062, bloque GD, 2026-10-16)
 
 ```bash
-bin/verify --changed-since=<commit>          # check-routes, phpstan y verify-integrity enteras; gates por área
+bin/verify --changed-since=<commit>          # check-routes, phpstan y verify-integrity enteras; formato y gates, solo lo tocado
 bin/cli gates changed-since=<commit>         # solo gates, por área
 ```
 
@@ -109,6 +109,14 @@ bin/cli gates changed-since=<commit>         # solo gates, por área
   que tienen un área que casa con un cambio. **Todas** si algún cambio no es documentación (`.agents/`, `.claude/`,
   `source-docs/`, `.md` de la raíz) ni cae en `GatesTask::AREA_MODULES` ni es el archivo de una suite. La línea
   «SELECCIÓN POR ÁREA» dice cuántas y por qué, y si las fuerza todas, el primer archivo que lo hizo.
+- **Los errores de las pruebas se marcan y se podan** (ADR 0063) en los tres registros: `gates` y una suite sola lo hacen
+  solos; **cualquier otra orden** (una provocación, `bin/check-routes`, `bin/navegador`, una medida) va con
+  `bin/con-marca -- <orden>`, que abre una corrida, la exporta en `PCSPHP_TEST_RUN`, poda al salir
+  (`bin/cli test-run-prune run=<corrida>`) y sale con el código de la orden. Dentro de otra corrida, la usa y no poda.
+- **`App/Locations/` NO está en `AREA_MODULES` a propósito** (decidido en JAH, `#1963`): un censo por nombre ve 13
+  suites que la nombran, pero no lo indirecto (organizaciones y perfiles guardan sus ciudades, el geovisor pinta sus
+  puntos, los formularios piden sus selectores por AJAX). Tocarla fuerza todas las suites, y es lo seguro. Añadirla
+  pide antes medir esas dependencias.
 - **Cambiados** = `git diff --name-only <commit>` más lo nuevo sin seguimiento. Un commit que no existe: error y salida 1.
 - **La parcial no cierra nada**: su última línea es «VERIFICACIÓN PARCIAL … NO vale para cerrar un bloque ni para avalar
   una etiqueta». Al cerrar un bloque, al etiquetar y al cerrar la jornada, `bin/verify` sin argumento.
@@ -466,19 +474,19 @@ En el bloque `env` de `.claude/settings.local.json` (ignorado por git, modo `060
 | `PCSPHP_AGENTE_<TIPO>_USER` / `_PASS` | uno por tipo: `ADMIN_GENERAL`, `ADMIN_ORGANIZACION`, `GENERAL`, `INSTITUCIONAL`, `COMUNICACIONES` |
 | `PCSPHP_AGENTE_TYPES` | mapa `usuario:tipo` de los seis, separado por comas, **para no adivinar el tipo** |
 
-**Los dos recorredores NO toman la sesión igual**, y confundirlos hace perder el tiempo:
+**Los dos recorredores leen la sesión del ENTORNO**, y ninguno pide armar un archivo con contraseñas:
 
-- **`bin/walk-matrix` pide un archivo** con `--credentials=<ruta a un JSON>` (`bin/walk-matrix:67-69`), y sin él no
-  arranca. Ese archivo vive FUERA del repositorio.
-- **`bin/walk-routes` no acepta `--credentials`** y no quiere ningún archivo: lee `PCSPHP_WALK_USER` y
-  `PCSPHP_WALK_PASS` del entorno (`bin/walk-routes:77-78`). Y el bloque `env` de `.claude/settings.local.json` **sí
-  llega al entorno de las órdenes**, comprobado el 2026-09-23 por presencia —nunca por valor—, así que **arranca con
-  sesión él solo**.
-
-**Reconstruir el archivo que pide `bin/walk-matrix`**, sin mirar ningún temporal:
-leer `env`, partir `PCSPHP_AGENTE_TYPES` por comas, y armar `{usuario: {type, password}}`. Comprobado el 2026-09-23
-reconstruyéndolo solo desde la configuración: «reconstruidas 6 identidades; tipos [0, 1, 2, 3, 4, 12]», y la puerta de
-la matriz dio «SIN CAMBIOS» contra su línea base.
+- **`bin/walk-matrix`** (desde JD, `a4c12a39`, P209 a): sin `--credentials`, parte `PCSPHP_AGENTE_TYPES` en pares
+  `usuario:tipo` y toma la contraseña de la pareja `*_USER`/`*_PASS` cuyo `_USER` es ese usuario
+  (`bin/walk-matrix:67-119`). Dice «credenciales del entorno: 6 identidades; tipos [0, 1, 2, 3, 4, 12]» y, si falta una
+  variable, sale con 2 nombrando la VARIABLE, nunca un valor. `--credentials=<archivo>` sigue valiendo y manda.
+  **Por qué cambió**: armar ese archivo desde el entorno lo deniega el clasificador de permisos de Claude Code
+  («Credential Exploration», `#1829`); que lo lea la herramienta no expone nada a nadie.
+- **`bin/walk-routes`** lee `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` (`bin/walk-routes:77-78`).
+- El bloque `env` de `.claude/settings.local.json` **sí llega al entorno de las órdenes**, comprobado el 2026-09-23 por
+  presencia —nunca por valor—.
+- **`bin/walk-matrix` solo pide rutas GET** (`:169-175`): las POST (la suplantación, la traducción por POST) no tienen
+  celda; tampoco las que llevan parámetros en la URL.
 
 **Trampa:** los usuarios existen en la base LOCAL con el prefijo `zz-agente-`. Si las claves se pierden, los usuarios
 siguen ahí pero **no se puede entrar con ellos**: hay que restablecer sus contraseñas o crear otros con el mismo

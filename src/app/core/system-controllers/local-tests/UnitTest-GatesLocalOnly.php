@@ -2,6 +2,7 @@
 
 //`gates` solo corre en una instalación `local`: las suites escriben en la base de donde se corren.
 //Se prueba con archivos de entorno temporales; el `environment.php` real no se toca.
+//@areas nucleo
 
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Terminal\CliActions;

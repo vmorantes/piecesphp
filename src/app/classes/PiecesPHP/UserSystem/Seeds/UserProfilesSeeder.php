@@ -21,10 +21,9 @@ use Terminal\Seeding\SeedContext;
  * TYPES_USER_SHOULD_HAVE_PROFILE, para que el Directorio y los perfiles públicos se vean poblados. Con la
  * cantidad por defecto son exactamente esos; con otra, se completa con los demás usuarios sembrados.
  *
- * Tiene que sembrarse aquí y no rellenarse después: el arranque (`ProfileTasksUtilities::generateMissingProfiles()`)
- * crea un perfil VACÍO a todo usuario de esos tipos que no lo tenga, y en el proceso de la siembra los usuarios se
- * escriben después del arranque, así que este llega primero. El limpiado borra estos por su marca y, después, los
- * vacíos que queden por `UsersSeeder::ownedRows()`.
+ * Tiene que sembrarse aquí: los usuarios sembrados se escriben sin pasar por el alta, que es la que crea el perfil
+ * (`UserProfileMapper::ensureFor()`), y el arranque ya no rellena los que falten (P266). El limpiado borra estos por su
+ * marca y, después, los vacíos que queden por `UsersSeeder::ownedRows()`.
  *
  * @package     PiecesPHP\UserSystem\Seeds
  * @author      Vicsen Morantes <sir.vamb@gmail.com>

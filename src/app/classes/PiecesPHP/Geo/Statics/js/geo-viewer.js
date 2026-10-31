@@ -2,7 +2,7 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 
 const GEO_LANG_GROUP = 'geo-lang'
-//El centro por omisión es una opción (Integraciones › Llaves de MapBox); si no llega, Barranquilla, el de la página vieja.
+//El centro por omisión es una opción (Configuración › Sistema › Llaves de Mapas); si no llega, Barranquilla, el de la página vieja.
 const GEO_DEFAULT_CENTER = pcsphpGlobals.mapDefaultCenter !== null ? [pcsphpGlobals.mapDefaultCenter.longitude, pcsphpGlobals.mapDefaultCenter.latitude] : [-74.8065913846496, 11.0021516003209]
 const GEO_DEFAULT_ZOOM = pcsphpGlobals.mapDefaultCenter !== null ? pcsphpGlobals.mapDefaultCenter.zoom : 11
 const GEO_LABELS_MIN_ZOOM = 14
@@ -146,13 +146,32 @@ class GeoViewer {
 				},
 			})
 		}
+		//Las opciones remotas se buscan al escribir (GeoController::filterOptions): la página no trae ninguna.
+		for (const select of form.querySelectorAll('select[data-geo-filter-type="remoteOptions"]')) {
+			const url = new URL(select.dataset.searchUrl)
+			url.searchParams.set('search', 'SEARCH_QUERY')
+			$(select).dropdown({
+				clearable: true,
+				minCharacters: 1,
+				saveRemoteData: true,
+				apiSettings: {
+					url: url.href.replace('SEARCH_QUERY', '{query}'),
+					cache: false,
+				},
+				onChange: () => {
+					if (!this.resetting) {
+						this.refresh()
+					}
+				},
+			})
+		}
 		for (const input of form.querySelectorAll('[data-geo-filter-type="dateRange"] input')) {
 			input.addEventListener('change', () => this.refresh())
 		}
 		form.addEventListener('reset', () => {
 			this.resetting = true
 			setTimeout(() => {
-				for (const select of form.querySelectorAll('select[data-geo-filter-type="options"]')) {
+				for (const select of form.querySelectorAll('select[data-geo-filter-type="options"], select[data-geo-filter-type="remoteOptions"]')) {
 					$(select).dropdown('clear')
 				}
 				this.resetting = false
@@ -180,6 +199,13 @@ class GeoViewer {
 				for (const option of element.selectedOptions) {
 					if (option.value !== '') {
 						params.push([`filters[${key}][]`, option.value])
+					}
+				}
+			} else if (type === 'remoteOptions') {
+				//Una opción elegida de la búsqueda no queda en el <select>: el valor lo da el dropdown.
+				for (const value of $(element).dropdown('get values') || []) {
+					if (value !== '') {
+						params.push([`filters[${key}][]`, value])
 					}
 				}
 			} else if (type === 'dateRange') {
@@ -247,7 +273,7 @@ class GeoViewer {
 		this.style = name
 		//El estilo activo es el primario del panel; el otro, secundario.
 		for (const button of this.root.querySelectorAll('[data-geo-style]')) {
-			button.classList.toggle('alt', button.dataset.geoStyle !== name)
+			button.classList.toggle('primary', button.dataset.geoStyle === name)
 			button.setAttribute('aria-pressed', button.dataset.geoStyle === name ? 'true' : 'false')
 		}
 		//Al cambiar de estilo mapbox-gl borra fuentes y capas: style.load las reconstruye con los datos que hay.
@@ -271,7 +297,7 @@ class GeoViewer {
 					//El mismo aviso que el adaptador del núcleo: sin llave, mapbox-gl lanza en su constructor.
 					const message = document.createElement('div')
 					message.className = 'ui warning visible message geo-no-key'
-					message.textContent = _i18n(GEO_LANG_GROUP, 'Falta la llave de MapBox: configúrela en Integraciones › Llaves de MapBox.')
+					message.textContent = _i18n(GEO_LANG_GROUP, 'Falta la llave de MapBox: configúrela en Configuración › Sistema › Llaves de Mapas.')
 					this.mapElement.replaceChildren(message)
 					this.counter.closest('.geo-counter').hidden = true
 					return
@@ -331,7 +357,12 @@ class GeoViewer {
 		const read = (variable, fallback) => {
 			probe.style.color = ''
 			probe.style.color = `var(${variable}, ${fallback})`
-			return getComputedStyle(probe).color
+			//El tema da oklch() y Mapbox no lo entiende: un canvas lo devuelve en sRGB.
+			const canvas = document.createElement('canvas').getContext('2d')
+			canvas.fillStyle = getComputedStyle(probe).color
+			canvas.fillRect(0, 0, 1, 1)
+			const [red, green, blue] = canvas.getImageData(0, 0, 1, 1).data
+			return `rgb(${red}, ${green}, ${blue})`
 		}
 		this.colors = {
 			text: read('--geo-text-color', 'currentColor'),

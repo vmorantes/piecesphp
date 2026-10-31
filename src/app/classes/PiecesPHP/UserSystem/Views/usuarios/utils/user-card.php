@@ -1,86 +1,58 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use Organizations\Mappers\OrganizationMapper;
 use SystemApprovals\SystemApprovalsLang;
 
 /**
  * @var UsersModel $mapper
  */;
- 
+
 $canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
 $organizationMapper = $mapper->organization !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($mapper->organization, 'id')) : null;
-$getExcerpt = function(string $str, int $maxLength = 300){
-    $strLength = mb_strlen($str);
-    return $strLength <= $maxLength ? $str : substr($str, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
-};
-$isActive = $mapper->status == UsersModel::STATUS_USER_ACTIVE;
+$statusColors = [
+    UsersModel::STATUS_USER_ACTIVE => StatusLabel::POSITIVE,
+    UsersModel::STATUS_USER_APPROVED_PENDING => StatusLabel::WARNING,
+];
 $statusText = UsersModel::statuses()[$mapper->status];
-$statusClass = "status-{$mapper->status}-number";
 $userTypeText = UsersModel::getTypeUserName($mapper->type);
 $isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
-if($mapper->type == UsersModel::TYPE_USER_GENERAL){
-    if($isBaseOrganization && ORGANIZATIONS_MODULE){
+if ($mapper->type == UsersModel::TYPE_USER_GENERAL) {
+    if ($isBaseOrganization && ORGANIZATIONS_MODULE) {
         $userTypeText = __(SystemApprovalsLang::LANG_GROUP, 'Usuario independiente');
     }
 }
+$fullName = $mapper->getFullName();
+$avatar = AvatarModel::getAvatar($mapper->id);
+//Pieza compartida: sin permiso de edición, routeName() da '' y el enlace no se pinta.
+$editURL = \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-edit', ['id' => $mapper->id]);
+$editText = __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Editar');
+$organizationName = $canModifyAll && $organizationMapper !== null && ORGANIZATIONS_MODULE ? (string) $organizationMapper->currentLangData('name') : '';
 ?>
-
-<div class="ui card user">
-
-    <div class="content">
-
-        <div class="head">
-
-            <div class="user-info <?= $statusClass; ?>" data-tooltip="<?= $statusText; ?>">
-                <div class="image">
-                    <?php if(AvatarModel::getAvatar($mapper->id)): ?>
-                    <img src="<?= AvatarModel::getAvatar($mapper->id) ?>">
-                    <?php else: ?>
-                    <div class="defauld">
-                        <i class="user outline icon"></i>
-                    </div>
-                    <?php endif; ?>
-                    <div class="status"></div>
-                </div>
-                <div class="info">
-                    <span><?= escape_html(($getExcerpt)($mapper->getFullName(), 30)); ?></span>
-                </div>
-            </div>
-
-            <?php //Pieza compartida: sin permiso de edición, routeName() da '' y el enlace no se pinta. ?>
-            <?php $editURL = \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-edit', ['id' => $mapper->id]); ?>
+<article class="card" aria-label="<?= escape_html($fullName); ?>">
+    <div class="ui vertical relaxed flex content">
+        <div class="ui nowrap relaxed flex">
+            <?php if ($avatar): ?>
+            <img class="ui avatar image" src="<?= $avatar; ?>" alt="">
+            <?php endif; ?>
+            <h2 class="fluid ui small header" title="<?= escape_html($fullName); ?>"><span class="ui truncated text"><?= escape_html($fullName); ?></span></h2>
             <?php if ($editURL !== ''): ?>
-            <a class="ui mini basic button" href="<?= $editURL; ?>">
-                <i class="edit icon"></i>
-                <?= __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Editar'); ?>
-            </a>
-            <?php endif; ?>
-
-        </div>
-
-        <div class="body">
-            <div class="item">
-                <img src="<?= base_url('statics/images/dashboard/user_type.svg') ?>">
-                <span><?= $userTypeText; ?></span>
-            </div>
-            <div class="item">
-                <img src="<?= base_url('statics/images/dashboard/user.svg') ?>">
-                <span data-tooltip="<?= escape_html($mapper->username); ?>"><?= escape_html(($getExcerpt)($mapper->username, 30)); ?></span>
-            </div>
-            <div class="item">
-                <img src="<?= base_url('statics/images/dashboard/email.svg') ?>">
-                <span data-tooltip="<?= escape_html($mapper->email); ?>"><?= escape_html(($getExcerpt)($mapper->email, 30)); ?></span>
-            </div>
-            <?php if($canModifyAll && $organizationMapper !== null && ORGANIZATIONS_MODULE): ?>
-            <div class="item">
-                <img src="<?= base_url('statics/images/dashboard/user_organization.svg') ?>">
-                <span data-tooltip="<?= escape_html($organizationMapper->currentLangData('name')); ?>"><?= escape_html(($getExcerpt)($organizationMapper->currentLangData('name'), 30)); ?></span>
-            </div>
+            <a class="ui icon button" href="<?= $editURL; ?>" aria-label="<?= escape_html($editText . ': ' . $fullName); ?>" data-tooltip="<?= escape_html($editText); ?>" data-position="top center" data-inverted=""><i class="pencil alternate icon" aria-hidden="true"></i></a>
             <?php endif; ?>
         </div>
-
+        <div class="fluid ui double top aligned flex">
+            <?= StatusLabel::html($statusText, $statusColors[$mapper->status] ?? StatusLabel::NEGATIVE); ?>
+            <span class="ui label" title="<?= escape_html($userTypeText); ?>"><?= escape_html($userTypeText); ?></span>
+        </div>
+        <div class="ui fitted divider"></div>
+        <div class="ui vertical tight flex">
+            <small class="ui nowrap muted text flex" title="<?= escape_html($mapper->username); ?>"><i class="user icon" aria-hidden="true"></i><span class="fluid ui truncated text"><?= escape_html($mapper->username); ?></span></small>
+            <small class="ui nowrap muted text flex" title="<?= escape_html($mapper->email); ?>"><i class="envelope icon" aria-hidden="true"></i><span class="fluid ui truncated text"><?= escape_html($mapper->email); ?></span></small>
+            <?php if ($organizationName !== ''): ?>
+            <small class="ui nowrap muted text flex" title="<?= escape_html($organizationName); ?>"><i class="building icon" aria-hidden="true"></i><span class="fluid ui truncated text"><?= escape_html($organizationName); ?></span></small>
+            <?php endif; ?>
+        </div>
     </div>
-
-</div>
+</article>

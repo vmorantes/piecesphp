@@ -97,7 +97,11 @@ class RouteAdapter
             throw new \TypeError('El argumento $controller debe ser un string o un objeto callable.');
         }
         $this->controller($controller);
-        $this->name($name == null ? uniqid() : $name);
+        //El nombre de una ruta es su permiso: uno inventado cambiaba en cada arranque y no se podía conceder.
+        if ($name === null || $name === '') {
+            throw new \InvalidArgumentException("La ruta «{$route}» necesita un nombre.");
+        }
+        $this->name($name);
         $this->method($method);
         $this->requireLogin($requireLogin);
         $this->alias($alias == null ? $name : $alias);
@@ -519,7 +523,7 @@ class RouteAdapter
         $middlewares = $route['middlewares'] ?? [];
         $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
 
-        $instance = new RouteAdapter($routeSegment, $controller);
+        $instance = new RouteAdapter($routeSegment, $controller, $name);
 
         if (is_array($method)) {
             $instance->methodFromArray($method);

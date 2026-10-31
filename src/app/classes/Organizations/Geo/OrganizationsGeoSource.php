@@ -99,19 +99,38 @@ class OrganizationsGeoSource implements GeoSource
      */
     public function filters(): array
     {
-        $model = OrganizationMapper::model();
-        $model->select(self::fields());
-        $model->having(self::visibleHaving());
-        $model->orderBy('name ASC');
-        $model->execute();
-        $options = [];
-        foreach ($model->result() ?? [] as $row) {
-            $options[(int) $row->id] = (string) $row->name;
-        }
         return [
             new GeoFilter(self::FILTER_SEARCH, __(OrganizationsLang::LANG_GROUP, 'Buscar'), GeoFilter::TYPE_TEXT),
-            new GeoFilter(self::FILTER_ORGANIZATIONS, __(OrganizationsLang::LANG_GROUP, 'Organizaciones'), GeoFilter::TYPE_OPTIONS, $options),
+            new GeoFilter(self::FILTER_ORGANIZATIONS, __(OrganizationsLang::LANG_GROUP, 'Organizaciones'), GeoFilter::TYPE_REMOTE_OPTIONS),
         ];
+    }
+
+    /**
+     * Las organizaciones que se verían en el mapa, por nombre.
+     *
+     * @param string $key
+     * @param string $search
+     * @param int $limit
+     * @return array<string|int,string>
+     */
+    public function filterOptions(string $key, string $search, int $limit): array
+    {
+        if ($key !== self::FILTER_ORGANIZATIONS) {
+            return [];
+        }
+        $having = self::visibleHaving();
+        if ($search !== '') {
+            GeoSourceSql::addSearch($having, ['name'], $search);
+        }
+        $model = OrganizationMapper::model();
+        $model->select(self::fields());
+        $model->having($having);
+        [, $rows] = GeoSourceSql::countAndFetch($model, 'name ASC', $limit);
+        $options = [];
+        foreach ($rows as $row) {
+            $options[(int) $row['id']] = (string) $row['name'];
+        }
+        return $options;
     }
 
     /**
@@ -253,8 +272,7 @@ class OrganizationsGeoSource implements GeoSource
 
     /**
      * La coordenada de `meta` para el WHERE: un prefiltro que deja pasar todo lo que coordinate() acepta (un texto que
-     * no es número vale 0 o su prefijo numérico, y el HAVING lo descarta después). No es coordinate() porque el marcador
-     * de WhereItem se fabrica con el texto de la expresión y `$`, `^`, `?` o `+` lo rompen: aquí no hay ninguno.
+     * no es número vale 0 o su prefijo numérico, y el HAVING lo descarta después).
      *
      * @param string $property longitude o latitude
      * @return string
@@ -262,7 +280,7 @@ class OrganizationsGeoSource implements GeoSource
     protected static function coordinatePrefilter(string $property): string
     {
         $table = OrganizationMapper::TABLE;
-        return "CAST(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, CONCAT(CHAR(36), '.{$property}'))) AS DOUBLE)";
+        return "CAST(JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.{$property}')) AS DOUBLE)";
     }
 
     /**

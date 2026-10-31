@@ -6,16 +6,17 @@
 
 namespace News\Mappers;
 
-use PiecesPHP\Core\Database\PreferSlugMinter;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\NewsLang;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * NewsMapper.
@@ -24,7 +25,8 @@ use PiecesPHP\Core\Validation\Validator;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2022
  * @property int|null $id
- * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string|null $preferSlug El id con un sufijo aleatorio, ofuscado (no cifrado) para que la dirección
+ *     no sea un número correlativo: se puede deshacer y no oculta el id.
  * @property string $newsTitle
  * @property array $profilesTarget
  * @property string $content
@@ -46,7 +48,6 @@ class NewsMapper extends EntityMapperExtensible
 {
 
     use PreferSlugMinter;
-
 
     /** @var string|null Campo que da nombre: sin él no se acuña slug. */
     const SLUG_NAME_FIELD = 'newsTitle';
@@ -121,7 +122,7 @@ class NewsMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -134,12 +135,11 @@ class NewsMapper extends EntityMapperExtensible
         self::INACTIVE => 'Inactiva',
     ];
 
-    //Los de la familia de contenidos (PublicationMapper::VISIBILITIES_COLORS): un `ui label` de Fomantic sin `tag` no
-    //conoce `brand-color` y sale gris.
+    //Los de la familia de contenidos (PublicationMapper::VISIBILITIES_COLORS).
     const STATUSES_COLORS = [
-        self::ACTIVE => 'green',
-        self::INACTIVE => 'red',
-        self::PSEUDO_STATUS_DRAFT => 'orange',
+        self::ACTIVE => StatusLabel::POSITIVE,
+        self::INACTIVE => StatusLabel::NEGATIVE,
+        self::PSEUDO_STATUS_DRAFT => StatusLabel::WARNING,
     ];
 
     const CAN_DELETE_ALL = [
@@ -325,7 +325,7 @@ class NewsMapper extends EntityMapperExtensible
     public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -337,7 +337,7 @@ class NewsMapper extends EntityMapperExtensible
     public function startDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->startDate instanceof \DateTime  ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
+        $formated = $this->startDate instanceof \DateTime ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -349,7 +349,7 @@ class NewsMapper extends EntityMapperExtensible
     public function endDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->endDate instanceof \DateTime  ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
+        $formated = $this->endDate instanceof \DateTime ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -989,7 +989,7 @@ class NewsMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
                         if (!property_exists($value, $defaultMetaProperty)) {

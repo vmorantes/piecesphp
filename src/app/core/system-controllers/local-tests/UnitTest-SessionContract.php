@@ -2,17 +2,19 @@
 
 //P46 tramo 0: el contrato de sesión por el lado que SÍ funciona. core/session-user fija qué pasa sin sesión; esta fija
 //el viaje del token, la caducidad, el aud y la expulsión. Solo lee: no escribe en la base ni cambia configuración.
+//@areas nucleo
+//@areas src/app/classes/Organizations/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
-use PiecesPHP\UserSystem\Authentication\UserSessions;
-use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 CliActions::make('unit-tests:core/session-contract', function ($args) {
 
@@ -356,21 +358,28 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
             $paquete = is_array($cuerpoK) && isset($cuerpoK['userData']) && is_array($cuerpoK['userData']) ? $cuerpoK['userData'] : [];
             $claves = array_keys($paquete);
             sort($claves);
-            $esperadas = array_merge(\PiecesPHP\UserSystem\Controllers\UsersController::LOGIN_USER_DATA_FIELDS, ['misc']);
+            //Lo esperado sale de lo DECLARADO, no de la constante que la suite vigila: un campo añadido a la constante
+            //tiene que caer aquí.
+            $declarado = json_decode((string) @file_get_contents(dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/files/dev/login-user-data-declared.json'), true);
+            $campos = is_array($declarado) && is_array($declarado['fields'] ?? null) ? $declarado['fields'] : [];
+            $extra = is_array($declarado) && is_array($declarado['extra'] ?? null) ? array_keys($declarado['extra']) : [];
+            $excluidos = is_array($declarado) && is_array($declarado['excluded'] ?? null) ? array_keys($declarado['excluded']) : [];
+            $check(count($campos) > 0 && count($excluidos) > 0, 'k0 canario: files/dev/login-user-data-declared.json se pudo leer, con campos y excluidos', count($campos) . ' campos, ' . count($excluidos) . ' excluidos');
+            $esperadas = array_merge($campos, $extra);
             sort($esperadas);
 
             $check(($cuerpoK['auth'] ?? null) === true, 'k1 el login del usuario de prueba responde que sí', mb_substr((string) $respuestaK->getBody(), 0, 120));
             $check($claves === $esperadas, 'k1 y el paquete trae EXACTAMENTE los campos declarados más «misc», ni uno más', (string) json_encode($claves));
-            foreach (['failedAttempts', 'status', 'createdAt', 'modifiedAt'] as $retirado) {
+            foreach ($excluidos as $retirado) {
                 $check(!array_key_exists($retirado, $paquete), "k2 «{$retirado}» NO viaja");
             }
             $check(!array_key_exists('password', $paquete) && !array_key_exists('meta', $paquete), 'k3 password y meta siguen sin viajar');
             //k4: el filtro es por LISTA, no por exclusión. Se comprueba con la fila entera: tiene más campos que el
             //paquete, y los que sobran son exactamente los no declarados. No hace falta tocar la tabla para verlo.
             $deLaFila = array_keys((new UsersModel((int) $zzK->id))->humanReadable());
-            $noDeclarados = array_values(array_diff($deLaFila, \PiecesPHP\UserSystem\Controllers\UsersController::LOGIN_USER_DATA_FIELDS));
+            $noDeclarados = array_values(array_diff($deLaFila, $campos));
             $viajanSinDeclarar = array_values(array_intersect($noDeclarados, $claves));
-            $check(count($deLaFila) > count(\PiecesPHP\UserSystem\Controllers\UsersController::LOGIN_USER_DATA_FIELDS), 'k4 la fila tiene más campos que la lista', count($deLaFila) . ' contra ' . count(\PiecesPHP\UserSystem\Controllers\UsersController::LOGIN_USER_DATA_FIELDS));
+            $check(count($deLaFila) > count($campos), 'k4 la fila tiene más campos que la lista', count($deLaFila) . ' contra ' . count($campos));
             $check(count($viajanSinDeclarar) === 0, 'k4 y NINGUNO de los no declarados viaja: el filtro es por lista', (string) json_encode($viajanSinDeclarar));
         } finally {
             if ($pdoK->inTransaction()) {
@@ -407,6 +416,12 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
                 'l2 y sin datos extra RETIRA la clave del almacén en vez de escribir la cadena «null»');
             $check(preg_match('/setItem\(\s*PiecesPHPSystemUserHelper\.localJWTAuthExtraDataName\s*,\s*this\.extraData\s*!==\s*null\s*\?/', $paqueteJs) !== 1,
                 'l3 y ya no queda el ternario que pasaba null a setItem()');
+            //El cuerpo de deleteSession(), por lo mismo que en l2. Unos milisegundos no son una fecha y la cookie se quedaba.
+            $inicioDelete = strpos($paqueteJs, 'deleteSession(reload = true) {');
+            $cuerpoDelete = $inicioDelete === false ? '' : substr($paqueteJs, $inicioDelete, (strpos($paqueteJs, 'getCookies()', $inicioDelete) ?: strlen($paqueteJs)) - $inicioDelete);
+            $check($cuerpoDelete !== '', 'l4 se localiza el cuerpo de deleteSession()', strlen($cuerpoDelete) . ' bytes');
+            $check(!str_contains($cuerpoDelete, 'expires=${now}') && str_contains($cuerpoDelete, 'toUTCString()'),
+                'l4 y cerrar la sesión caduca la cookie del token con una fecha pasada, no con milisegundos');
         }
 
         //─── m · Inactividad y tope salen de la configuración; session_duration ya no manda (P142) ─

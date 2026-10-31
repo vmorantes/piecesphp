@@ -2,6 +2,9 @@
 
 //Probar la conexión y el correo de prueba de Configuración › Correo: solo root, y dicen a dónde fue de verdad (ADR 0046).
 //Nunca sale a la red: si el correo no va retenido a 127.0.0.1, se para antes de pedir nada.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
@@ -155,6 +158,9 @@ CliActions::make('unit-tests:core/mail-settings-tests', function ($args) {
         $check($enRegistro() === 1, 'b4 y queda UNA línea en el registro de correos', 'líneas ' . $enRegistro());
         $r = $pedir($rutaEnviar, $jwtRoot, ['to' => 'zz-no-es-un-correo']);
         $check($r['status'] === 400 && ($r['data']['success'] ?? null) === false && $enRegistro() === 1, 'b5 una dirección que no es un correo: 400 y no envía');
+        //Mal formada pero con un dominio que SÍ tiene MX: mirar solo el MX la daba por buena.
+        $r = $pedir($rutaEnviar, $jwtRoot, ['to' => 'x y@mailinator.com']);
+        $check($r['status'] === 400 && ($r['data']['success'] ?? null) === false && $enRegistro() === 1, 'b6 una dirección mal formada con un dominio con MX: 400 y no envía', "HTTP {$r['status']}");
         echoTerminal(' ');
 
         //─── c · El camino de fallo, en proceso y solo en memoria ───────────────────────────────────────
@@ -176,6 +182,7 @@ CliActions::make('unit-tests:core/mail-settings-tests', function ($args) {
         MailLogMapper::deleteByRecipientMark($destinatario);
         foreach ($usuarios as $id) {
             $database->prepare('DELETE FROM `' . UserSessionsModel::TABLE . '` WHERE userID = ?')->execute([$id]);
+            $database->prepare("DELETE FROM `system_approvals_elements` WHERE referenceTable = ? AND referenceValue = ?")->execute([UsersModel::TABLE, (string) $id]);
             $database->prepare('DELETE FROM `' . UsersModel::TABLE . '` WHERE id = ?')->execute([$id]);
         }
         $quedan = (int) $database->query('SELECT COUNT(*) FROM `' . UsersModel::TABLE . '` WHERE username LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();

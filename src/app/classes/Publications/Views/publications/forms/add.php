@@ -18,19 +18,21 @@ $allowedManyLangs = count($langs) > 1;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
-        <div class="tabs-controls content-tabs">
-            <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
-            <div data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
-            <div data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
-            <div data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>"><?= __($langGroup, 'Anexos'); ?></div>
-            <div data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
+        <div class="ui secondary pointing menu tabs-controls content-tabs">
+            <div class="active item" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
+            <div class="item" data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
+            <div class="item" data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
+            <?php if ($withAttachments): ?>
+            <div class="item" data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
+            <?php endif; ?>
+            <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
         </div>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial publications" data-content-form>
@@ -41,7 +43,7 @@ $allowedManyLangs = count($langs) > 1;
 
                 <div class="ui tab active" data-tab="basic">
 
-                    <div class="field required" style="<?= $allowedManyLangs ? '' : 'display:none;'; ?>">
+                    <div class="field required"<?= $allowedManyLangs ? '' : ' hidden'; ?>>
                         <label><?= __('lang', 'Idioma principal'); ?></label>
                         <select class="ui dropdown search" name="baseLang" required>
                             <?= $langsOptions; ?>
@@ -91,50 +93,31 @@ $allowedManyLangs = count($langs) > 1;
 
                 <div class="ui tab" data-tab="images">
 
-                    <div class="form-attachments-regular">
-                        <div class="attach-placeholder main-image required">
-                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                            <div class="ui top right attached label green">
-                                <i class="paperclip icon"></i>
-                            </div>
-                            <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                    <i class="icon upload"></i>
-                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                                </div>
-                                <div class="text">
-                                    <div class="filename"></div>
-                                    <div class="header">
-                                        <div class="title"><?= __($langGroup, 'Imagen principal'); ?></div>
-                                        <div class="meta"><?= __($langGroup, 'Tamaño 800x600'); ?></div>
-                                    </div>
-                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                                </div>
-                            </label>
-                            <input required type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                        </div>
-
-                        <div class="attach-placeholder thumb-image required">
-                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                            <div class="ui top right attached label green">
-                                <i class="paperclip icon"></i>
-                            </div>
-                            <label for="<?= $uniqueIdentifier; ?>">
-                                <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                    <i class="icon upload"></i>
-                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                                </div>
-                                <div class="text">
-                                    <div class="filename"></div>
-                                    <div class="header">
-                                        <div class="title"><?= __($langGroup, 'Imagen miniatura'); ?></div>
-                                        <div class="meta"><?= __($langGroup, 'Tamaño 400x300'); ?></div>
-                                    </div>
-                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                                </div>
-                            </label>
-                            <input required type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                        </div>
+                    <div class="two fields">
+                        <?php
+                            $this->helpController->_render('panel/built-in/content/image-field.php', [
+                                'card' => [
+                                    'id' => 'main-image',
+                                    'title' => __($langGroup, 'Imagen principal'),
+                                    'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                    'field' => 'mainImage',
+                                    'width' => 800,
+                                    'height' => 600,
+                                    'required' => true,
+                                ],
+                            ]);
+                            $this->helpController->_render('panel/built-in/content/image-field.php', [
+                                'card' => [
+                                    'id' => 'thumb-image',
+                                    'title' => __($langGroup, 'Imagen miniatura'),
+                                    'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                    'field' => 'thumbImage',
+                                    'width' => 400,
+                                    'height' => 300,
+                                    'required' => true,
+                                ],
+                            ]);
+                        ?>
                     </div>
 
                 </div>
@@ -166,29 +149,18 @@ $allowedManyLangs = count($langs) > 1;
 
                 <div class="ui tab" data-tab="seo">
 
-                    <div class="attach-placeholder og-image">
-                        <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
-                            <i class="paperclip icon"></i>
-                        </div>
-                        <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                <i class="icon upload"></i>
-                                <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                            </div>
-                            <div class="text">
-                                <div class="filename"></div>
-                                <div class="header">
-                                    <div class="title"><?= __($langGroup, 'Imagen'); ?></div>
-                                    <div class="meta"><?= __($langGroup, 'Tamaño 1200x600'); ?></div>
-                                </div>
-                                <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                            </div>
-                        </label>
-                        <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                    </div>
-
-                    <br>
+                    <?php
+                        $this->helpController->_render('panel/built-in/content/image-field.php', [
+                            'card' => [
+                                'id' => 'og-image',
+                                'title' => __($langGroup, 'Imagen'),
+                                'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                'field' => 'ogImage',
+                                'width' => 1200,
+                                'height' => 600,
+                            ],
+                        ]);
+                    ?>
 
                     <div class="field">
                         <label><?= __($langGroup, 'Descripción'); ?></label>
@@ -197,19 +169,15 @@ $allowedManyLangs = count($langs) > 1;
 
                 </div>
 
-                <div class="ui tab" data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>">
+                <div class="ui tab" data-tab="attachments">
 
-                    <div class="section-fields-divider">
-                        <div class="title s20">
-                            <?= __($langGroup, 'Adjuntos y/o anexos'); ?>
-                        </div>
-                    </div>
+                    <?php $this->helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Adjuntos y/o anexos')]); ?>
 
                     <div class="form-attachments-regular">
 
                         <?php $uniqueIdentifier = "add-trigger"; ?>
                         <div class="attach-placeholder tall" data-dynamic-attachment="<?= $uniqueIdentifier; ?>">
-                            <div class="ui top right attached label green">
+                            <div class="ui top right attached basic green label">
                                 <i class="paperclip icon"></i>
                             </div>
                             <label for="<?= $uniqueIdentifier; ?>">
@@ -237,7 +205,7 @@ $allowedManyLangs = count($langs) > 1;
                         <?php $existingFileAttr = "{$existingFileAttr}='" . escape_html($fileLocation) . "'"; ?>
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
                         <div class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>">
-                            <div class="ui top right attached label green">
+                            <div class="ui top right attached basic green label">
                                 <i class="paperclip icon"></i>
                             </div>
                             <label <?= $existingFileAttr; ?> for="<?= $uniqueIdentifier; ?>">
@@ -266,17 +234,17 @@ $allowedManyLangs = count($langs) > 1;
             </div>
 
             <?php
-            //La barra fija (§2.3). Los atributos `save` y `add-translation` son los que busca add-form.js.
-            $secondaryActions = [];
-            if ($allowedManyLangs) {
-                $secondaryActions[] = ['text' => __($langGroup, 'Guardar y traducir'), 'type' => 'submit', 'icon' => 'language', 'attributes' => ['add-translation' => '']];
-            }
-            $secondaryActions[] = ['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times'];
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'saveAttributes' => ['save' => ''],
-                'secondaryActions' => $secondaryActions,
-            ]);
+                //La barra fija (§2.3). Los atributos `save` y `add-translation` son los que busca add-form.js.
+                $secondaryActions = [];
+                if ($allowedManyLangs) {
+                    $secondaryActions[] = ['text' => __($langGroup, 'Guardar y traducir'), 'type' => 'submit', 'icon' => 'language', 'attributes' => ['add-translation' => '']];
+                }
+                $secondaryActions[] = ['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times'];
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'saveAttributes' => ['save' => ''],
+                    'secondaryActions' => $secondaryActions,
+                ]);
             ?>
 
         </form>
@@ -285,69 +253,10 @@ $allowedManyLangs = count($langs) > 1;
 
 </section>
 
-<?php
-
-    $croppers = [
-        [
-            'id' => 'main-image',
-            'cropperOptions' => [
-                'type' => 'image/*',
-                'required' => true,
-                'referenceW' => '800',
-                'referenceH' => '600',
-                'image' => '',
-            ],
-        ],
-        [
-            'id' => 'thumb-image',
-            'cropperOptions' => [
-                'type' => 'image/*',
-                'required' => true,
-                'referenceW' => '400',
-                'referenceH' => '300',
-                'image' => '',
-            ],
-        ],
-        [
-            'id' => 'og-image',
-            'cropperOptions' => [
-                'type' => 'image/*',
-                'required' => false,
-                'referenceW' => '1200',
-                'referenceH' => '600',
-                'image' => '',
-            ],
-        ],
-    ];
-
-    foreach ($croppers as $cropperData) {
-        $id = $cropperData['id'];
-        $cropperOptions = $cropperData['cropperOptions'];
-        $cropperOptions['selectorAttr'] = $id;
-        modalImageUploaderForCropperAdminViews([
-            //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-            'content' => simpleCropperAdapterWorkSpace($cropperOptions, false),
-            //Atributos que se asignarán al modal (el contenedor principal), string
-            'modalContainerAttrs' => "modal='{$id}'",
-            //Clases que se asignarán al modal (el contenedor principal), string
-            'modalContainerClasses' => "ui tiny modal",
-            //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-            'modalContentElementAttrs' => null,
-            //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-            'informationContentMainClass' => null,
-            //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-            'informationContentClasses' => null,
-            //Título del modal, string
-            'titleModal' => null,
-            //Descripción del modal, string
-            'descriptionModal' => null,
-        ]);
-    }
-
-?>
+<?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>
 <template attach>
     <div class="attach-placeholder" data-dynamic-attachment="{ID}">
-        <div class="ui top right attached label green">
+        <div class="ui top right attached basic green label">
             <i class="paperclip icon"></i>
         </div>
         <label for="{ID}">

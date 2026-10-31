@@ -111,11 +111,14 @@ CookiesHandler.setCookie = function (name, value, options = {}) {
  * @param {Object} [options={}] - Opciones adicionales para la eliminación
  */
 CookiesHandler.deleteCookie = function (name, options = {}) {
-	const deleteOptions = {
-		...options,
-		expires: -1
-	}
-	this.setCookie(name, '', deleteOptions)
+	//setCookie() no escribe una expiración pasada: se borra con una fecha de 1970, en las tres formas de dominio que escribe.
+	const path = typeof options.path === 'string' ? options.path : '/'
+	const domain = typeof options.domain === 'string' ? options.domain : location.hostname
+	const sameSite = typeof options.sameSite === 'string' ? options.sameSite : 'Lax'
+	const cookieString = `${encodeURIComponent(name)}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path};SameSite=${sameSite}${location.protocol === 'https:' ? ';Secure' : ''}`
+	document.cookie = cookieString
+	document.cookie = `${cookieString};domain=${domain}`
+	document.cookie = `${cookieString};domain=.${domain}`
 }
 
 /**

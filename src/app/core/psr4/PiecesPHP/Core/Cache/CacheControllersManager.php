@@ -6,7 +6,6 @@
 namespace PiecesPHP\Core\Cache;
 
 use PiecesPHP\Core\StringManipulate;
-use \ArrayObject;
 use \JsonSerializable;
 
 /**

@@ -14,9 +14,35 @@ $percent = $totalAttempts > 0 ? intval(($successAttempts * 100) / $totalAttempts
 ?>
 <div class="login-reports-view">
 
-    <?php ob_start(); ?>
-    <div class="three-columns-grid">
+    <div class="ui stackable relaxed flex">
+        <a class="right floated ui basic labeled icon button" href="<?= escape_html($exportUrl); ?>"><i class="download icon" aria-hidden="true"></i><?= __($langGroup, 'Exportar'); ?></a>
+    </div>
+
+    <div class="ui hidden divider"></div>
+
+    <section class="ui three stackable cards" aria-label="<?= escape_html(__($langGroup, 'Resumen de intentos')); ?>">
         <?php
+            $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+                'title' => __($langGroup, 'Intentos totales'),
+                'figure' => ['value' => (string) $totalAttempts, 'dataType' => 'totalAttempts', 'description' => sprintf(__($langGroup, '%d exitosos y %d fallidos'), $successAttempts, $errorAttempts)],
+            ]);
+            $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+                'title' => __($langGroup, 'Exitosos'),
+                'help' => __($langGroup, 'Intentos que terminaron en ingreso'),
+                'figure' => ['value' => (string) $successAttempts, 'dataType' => 'successAttempts', 'description' => sprintf(__($langGroup, '%d%% de %d intentos'), $percent, $totalAttempts)],
+            ]);
+            $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+                'title' => __($langGroup, 'Fallidos'),
+                'help' => __($langGroup, 'Contraseña o usuario incorrectos'),
+                'figure' => ['value' => (string) $errorAttempts, 'dataType' => 'errorAttempts', 'description' => sprintf(__($langGroup, '%d%% de %d intentos'), $totalAttempts > 0 ? 100 - $percent : 0, $totalAttempts)],
+            ]);
+        ?>
+    </section>
+
+    <div class="ui hidden divider"></div>
+
+    <?php
+        //El reparto se queda hasta que llegue la gráfica por día del diseño, con ECharts.
         $pieces->_render('panel/built-in/statistics/chart-card.php', [
             'title' => __($langGroup, 'Intentos'),
             'titleModifiers' => ['big'],
@@ -27,32 +53,14 @@ $percent = $totalAttempts > 0 ? intval(($successAttempts * 100) / $totalAttempts
             ],
             'footer' => ['caption' => sprintf(__($langGroup, '%d%% de los intentos entraron'), $percent)],
         ]);
-        $pieces->_render('panel/built-in/statistics/statistic-card.php', [
-            'number' => ['dataType' => 'totalAttempts', 'initial' => (string) $totalAttempts],
-            'footer' => ['caption' => __($langGroup, 'Intentos Totales')],
-        ]);
-        $pieces->_render('panel/built-in/statistics/action-card.php', [
-            'modifiers' => ['horizontal-center'],
-            'url' => $exportUrl,
-            'icon' => 'file export',
-            'title' => __($langGroup, 'Exportar datos'),
-            'description' => __($langGroup, 'Los intentos de ingreso, en una hoja de cálculo'),
-        ]);
-        ?>
-    </div>
-    <?php
-    $pieces->_render('panel/built-in/statistics/statistics-section.php', [
-        'modifiers' => ['one-column'],
-        'content' => (string) ob_get_clean(),
-    ]);
     ?>
 
-    <div class="container-standard-table">
+    <div class="ui fluid card container-standard-table">
 
-        <table data-access-table="<?= escape_html(\PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'attempts'])); ?>" class="ui basic table content-table">
+        <table data-access-table="<?= escape_html(\PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'attempts'])); ?>" class="ui selectable very basic table content-table">
             <thead>
                 <tr>
-                    <th class="collapsing"><?= __($langGroup, 'Indicador'); ?></th>
+                    <th class-name="collapsing"><?= __($langGroup, 'Indicador'); ?></th>
                     <th><?= __($langGroup, 'Usuario ingresado'); ?></th>
                     <th><?= __($langGroup, 'Información'); ?></th>
                     <th><?= __($langGroup, 'Vía'); ?></th>

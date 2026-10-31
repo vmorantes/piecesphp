@@ -9,14 +9,14 @@
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
+use Documents\Mappers\DocumentsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\BaseModel;
-use Documents\Mappers\DocumentsMapper;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -294,9 +294,8 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         } finally {
             $reponerOpciones();
         }
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso falla.
-        preg_match('#<span only-expanded class="main">(.*?)</span>#s', $panel['body'], $enMenu);
-        $check($panel['status'] === 200 && trim($enMenu[1] ?? '') === $esc($m('zzowner')), 'a1 menu.php: el propietario del pie del menú sale escapado', "HTTP {$panel['status']}, " . var_export(isset($enMenu[1]), true));
+        //El pie del menú ya no lo pinta (como el prototipo): que no vuelva crudo.
+        $check($panel['status'] === 200 && !str_contains($panel['body'], $crudo('zzowner')), 'a1 menu.php: el propietario no sale crudo en el panel', "HTTP {$panel['status']}");
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso falla.
         preg_match('#<div class="copy">(.*?)\|#s', $publicaPagina['body'], $enPie);
         $check($publicaPagina['status'] === 200 && trim($enPie[1] ?? '') === $esc($m('zzowner')), 'a2 footer.php: el propietario del pie público sale escapado', "HTTP {$publicaPagina['status']}, " . var_export(isset($enPie[1]), true));
@@ -321,7 +320,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         }
         $check(str_contains($seo['body'], 'name="titleApp" value="' . $esc($m('zztitle')) . '"'), 'b1 seo.php: el título del sitio, escapado en su value', "HTTP {$seo['status']}");
         $check(str_contains($seo['body'], 'name="owner" value="' . $esc($m('zzowner')) . '"'), 'b2 seo.php: el propietario, escapado en su value', "HTTP {$seo['status']}");
-        $check((bool) preg_match('#<textarea required name="description"[^>]*>' . preg_quote($esc($m('zzdesc')), '#') . '</textarea>#', $seo['body']), 'b3 seo.php: la descripción, escapada dentro del textarea', "HTTP {$seo['status']}");
+        $check((bool) preg_match('#<textarea [^>]*name="description"[^>]*>' . preg_quote($esc($m('zzdesc')), '#') . '</textarea>#', $seo['body']), 'b3 seo.php: la descripción, escapada dentro del textarea', "HTTP {$seo['status']}");
         $check($seo['status'] === 200 && !str_contains($seo['body'], $crudo('zztitle')) && !str_contains($seo['body'], $crudo('zzdesc')), 'b4 y ninguno de los dos sale crudo en la página', "HTTP {$seo['status']}");
         $check($database->query("SELECT name, value FROM `{$tablaOpciones}`")->fetchAll(\PDO::FETCH_KEY_PAIR) == $fotoOpciones, 'b5 la tabla de opciones queda como estaba');
 
@@ -466,7 +465,11 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         echoTerminal('');
         echoTerminal('[h] El geovisor: el filtro de organizaciones, los puntos y el detalle');
         $r = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('viewer', [], true)), $jwtRoot);
-        $escapado($r['body'], 'zzo', 'h1 Geo/Views/viewer.php: la organización en la opción de su filtro', $r['status']);
+        $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzo')), 'h1 Geo/Views/viewer.php: la organización no sale cruda en la pantalla', "HTTP {$r['status']}");
+        //Las opciones del filtro llegan al escribir (GeoController::filterOptions) y Fomantic pinta su name como HTML.
+        $opciones = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('filter-options', ['key' => 'organizations'], true)) . '?' . http_build_query(['search' => $m('zzo')]), $jwtRoot);
+        $nombresOpciones = implode("\n", array_column((array) (json_decode($opciones['body'], true)['results'] ?? []), 'name'));
+        $escapado($nombresOpciones, 'zzo', 'h1b GeoController::filterOptions: la organización en la opción de su filtro', $opciones['status']);
         $puntos = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('points', [], true)) . '?' . http_build_query(['bbox' => '-75,10,-74,11', 'sources' => ['persons', 'organizations']]), $jwtRoot);
         $geo = json_decode($puntos['body'], true);
         $deFuente = ['persons' => null, 'organizations' => null];
@@ -708,11 +711,14 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $largo = $sanear(str_repeat('a', 150) . '.png');
         $check(strlen($largo) <= 100 && str_starts_with($largo, 'aaaa'), 's2c un nombre de más de 100 bytes se recorta a 100', (string) strlen($largo));
         $check(str_starts_with($sanear('...'), 'file_') && str_starts_with($sanear('<>'), 'file_') && str_starts_with($sanear('....'), 'file_'), 's3 y si no queda nada (solo puntos, solo signos), uno generado');
-        $fuenteBanner = (string) file_get_contents(basepath('app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php'));
-        $posCorte = mb_strpos($fuenteBanner, '$name = mb_substr($name, 0, $lastPointIndex);');
-        $posSaneo = mb_strpos($fuenteBanner, '$name = self::safeUploadName($name);');
-        $posMover = mb_strpos($fuenteBanner, '$locations = $handler->moveTo($uploadDirPath, $name');
-        $check($posCorte !== false && $posSaneo !== false && $posMover !== false && $posCorte < $posSaneo && $posSaneo < $posMover, 's4 handlerUpload sanea el nombre del navegador después de quitarle la extensión y antes de mover el archivo');
+        //El nombre del navegador se sanea en un solo sitio, FormUploadHandler::nameFromInput() (ADR 0068): quita la extensión y sanea, una vez.
+        $fuentePieza = (string) file_get_contents(basepath('app/core/psr4/PiecesPHP/Core/Forms/FormUploadHandler.php'));
+        $inicioNombre = mb_strpos($fuentePieza, 'function nameFromInput(');
+        $finNombre = $inicioNombre === false ? false : mb_strpos($fuentePieza, 'function ', $inicioNombre + 1);
+        $cuerpoNombre = $inicioNombre === false ? '' : mb_substr($fuentePieza, $inicioNombre, $finNombre === false ? null : $finNombre - $inicioNombre);
+        $posCorte = mb_strpos($cuerpoNombre, '$name = mb_substr($name, 0, $lastPointIndex);');
+        $posSaneo = mb_strpos($cuerpoNombre, '$name = safe_upload_name($name);');
+        $check(substr_count($fuentePieza, 'safe_upload_name(') === 1 && $posCorte !== false && $posSaneo !== false && $posCorte < $posSaneo, 's4 FormUploadHandler::nameFromInput() quita la extensión y después sanea el nombre del navegador, una sola vez');
         $fuenteLista = (string) file_get_contents(basepath('app/classes/PiecesPHP/BuiltIn/Banner/Statics/js/list.js'));
         $check(!str_contains($fuenteLista, '<img src="${src}"') && str_contains($fuenteLista, ".attr('src', src)"), 's5 list.js: la ruta de la vista previa va por attr(), no dentro de una cadena de HTML');
         $ayudante = fn (array $datos): string => (string) simpleUploadPlaceholderWorkSpace($datos, false);
@@ -725,11 +731,11 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $check(str_contains($sinFondo, 'class="overlay-element" style=""'), 's8 y sin imagePreview, igual que antes: style vacío');
         $database->prepare('UPDATE `news_categories` SET iconImage = ? WHERE id = ?')->execute(['statics/uploads/news-categories/zz/icono_1.png', $categoriaNoticiaID]);
         $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
-        $check($r['status'] === 200 && str_contains($r['body'], 'background-image: url(&#039;statics/uploads/news-categories/zz/icono_1.png'), 's9 su único llamador con imagen (edición de categoría de noticias) sigue pintando el icono de fondo', "HTTP {$r['status']}");
+        $check($r['status'] === 200 && str_contains($r['body'], 'src="statics/uploads/news-categories/zz/icono_1.png'), 's9 la edición de categoría de noticias pinta el icono en la tarjeta de imagen', "HTTP {$r['status']}");
         $database->prepare('UPDATE `news_categories` SET iconImage = ? WHERE id = ?')->execute(["statics/x.png');}" . $crudo('zzbg2'), $categoriaNoticiaID]);
         $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
         //Escapar el atributo no basta: el navegador lo decodifica dentro del style. Tiene que no pintarse.
-        $check($r['status'] === 200 && !str_contains($r['body'], 'statics/x.png') && !str_contains($r['body'], 'zzbg2'), 's10 y un icono plantado con CSS dentro no se pinta (falla cerrado)', "HTTP {$r['status']}");
+        $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzbg2')), 's10 y un icono plantado sale escapado en la tarjeta', "HTTP {$r['status']}");
 
         //──── [t] Las rutas de imagen del banner y del recortador (bloque EU de #1008) ───────────
         echoTerminal('');
@@ -742,22 +748,19 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //El sello de caché se inserta después de renderizar, y parte la primera entidad (&#039;): se mira el resto del marcador.
         $check(str_contains($recortador, '&quot;&lt;zzcrop&gt;') && !str_contains($recortador, $crudo('zzcrop')), 't3 simple-cropper/workspace.php (en proceso): el src de la imagen sale escapado', mb_substr((string) strstr($recortador, 'class="preview"'), 0, 200));
         $check(str_contains($recortador, 'default-reference-image="') && str_contains($recortador, 'img-gen/400/400'), 't4 y el default-reference-image sigue apuntando a su imagen de referencia');
-        //CANARIO: pantallas que pintan el recortador, como antes.
-        foreach (['banner' => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-add', [], true), 'publicaciones' => \Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true), 'organizaciones' => \Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true), 'barra superior' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true)] as $pantalla => $ruta) {
+        //CANARIO: las que pasaron a la tarjeta de imagen (JCZ), y la barra superior, con su foto de perfil.
+        foreach (['organizaciones' => \Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true), 'banner' => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-add', [], true), 'publicaciones' => \Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true), 'imagen principal' => \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('forms-home-image', [], true), 'barra superior' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true)] as $pantalla => $ruta) {
             $r = $pedir($camino($ruta), $jwtRoot);
-            $check($r['status'] === 200 && str_contains($r['body'], '<img class="preview" default-reference-image="'), "t5 CANARIO: {$pantalla} sigue pintando su recortador", "HTTP {$r['status']}");
+            $check($r['status'] === 200 && str_contains($r['body'], 'data-image-card=') && !str_contains($r['body'], '<img class="preview" default-reference-image="'), "t6 CANARIO: {$pantalla} pinta la tarjeta de imagen, sin el recortador viejo", "HTTP {$r['status']}");
         }
 
         //──── [u] El plugin de anexos ya no vuelve HTML lo que lee de su atributo (bloque EU de #1008) ───
         echoTerminal('');
-        echoTerminal('[u] AttachmentPlaceholder.js monta la imagen y el enlace con attr(); sus cuatro módulos siguen pintando su marcador');
+        echoTerminal('[u] AttachmentPlaceholder.js monta la imagen y el enlace con attr(); Publicaciones sigue pintando su marcador');
         $fuentePlugin = (string) @file_get_contents(basepath('statics/core/own-plugins/AttachmentPlaceholder.js'));
         $check($fuentePlugin !== '' && !str_contains($fuentePlugin, '<img src="${') && !str_contains($fuentePlugin, 'href="${') && substr_count($fuentePlugin, ".attr('src', ") >= 2 && str_contains($fuentePlugin, ".attr('href', fileNoImageSetted)") && str_contains($fuentePlugin, 'filenameContainer.text(fileName)'), 'u1 la imagen y el enlace del archivo guardado van por attr(), y el nombre del archivo local por text()');
         //CANARIO, uno por módulo: la pantalla carga el plugin y pinta su marcador de anexo.
         $pantallasAnexo = [
-            'home-image' => \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('forms-home-image', [], true),
-            'banner' => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $bannerID, 'lang' => $lang], true),
-            'organizaciones' => \Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true),
             'publicaciones' => \Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true),
         ];
         //Noticias NO usa el plugin: su JS solo nombra la clase .attach-placeholder al validar.
@@ -774,20 +777,17 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $check(safe_upload_name('...') !== '' && safe_upload_name('<>') !== '', 'v1b y un nombre que se queda sin nada devuelve uno no vacío');
         $peligrosoBanner = 'a" onerror="zzBn()" x=\'' . $crudo('zzbandel') . '.v2';
         $check(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::safeUploadName($peligrosoBanner) === safe_upload_name($peligrosoBanner), 'v2 el banner delega: safeUploadName() y safe_upload_name() devuelven lo mismo');
-        //Los tres handlerUpload que faltaban: saneo después de quitar la extensión y antes de mover, una sola vez.
-        $subidas = [
-            'app/classes/Organizations/Controllers/OrganizationsController.php' => 'ProtectedUploads::moveUploadedToPrivate(',
-            'app/classes/Publications/Controllers/PublicationsController.php' => 'ProtectedUploads::moveUploadedToPrivate(',
-            'app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php' => '$handler->moveTo(',
-            'app/classes/Documents/Controllers/DocumentsController.php' => 'ProtectedUploads::moveUploadedToPrivate(',
-        ];
-        foreach ($subidas as $archivo => $mover) {
-            $fuente = (string) file_get_contents(basepath($archivo));
-            $inicio = mb_strpos($fuente, 'function handlerUpload(');
-            $posCorte = $inicio === false ? false : mb_strpos($fuente, '$name = mb_substr($name, 0, $lastPointIndex);', $inicio);
-            $posSaneo = $inicio === false ? false : mb_strpos($fuente, '$name = safe_upload_name($name);', $inicio);
-            $posMover = $inicio === false ? false : mb_strpos($fuente, $mover, $inicio);
-            $check(substr_count($fuente, 'safe_upload_name(') === 1 && $posCorte !== false && $posSaneo !== false && $posMover !== false && $posCorte < $posSaneo && $posSaneo < $posMover, "v3 {$archivo}: handlerUpload sanea el nombre una vez, después de quitar la extensión y antes de mover");
+        //Y upload() lo pide ANTES de mover, en las dos ramas: la de varios por campo y la de un archivo (privado o público).
+        $inicioSubida = mb_strpos($fuentePieza, 'public function upload(');
+        $finSubida = $inicioSubida === false ? false : mb_strpos($fuentePieza, 'function nameFromInput(', $inicioSubida);
+        $cuerpoSubida = $inicioSubida === false || $finSubida === false ? '' : mb_substr($fuentePieza, $inicioSubida, $finSubida - $inicioSubida);
+        $corteRamas = mb_strpos($cuerpoSubida, '$handler = new FileUpload(');
+        $ramas = $corteRamas === false ? [] : ['varios por campo' => mb_substr($cuerpoSubida, 0, $corteRamas), 'un archivo' => mb_substr($cuerpoSubida, $corteRamas)];
+        foreach (['varios por campo', 'un archivo'] as $rama) {
+            $cuerpo = $ramas[$rama] ?? '';
+            $posNombre = mb_strpos($cuerpo, 'self::nameFromInput(');
+            $posMover = min(array_map(fn ($p) => $p === false ? \PHP_INT_MAX : $p, [mb_strpos($cuerpo, '->moveToPrivate('), mb_strpos($cuerpo, '->moveToPrivateOrFail('), mb_strpos($cuerpo, '->moveToPublic(')]));
+            $check($posNombre !== false && $posMover !== \PHP_INT_MAX && $posNombre < $posMover, "v3 upload(), rama de {$rama}: pide el nombre saneado antes de mover");
         }
         //Censo, no lista (unidad: ocurrencias): todo sitio de src/app que lea el nombre que manda el navegador y lo lleve al disco lo sanea antes
         //de mover. Los que no lo llevan al disco se declaran aquí con su motivo; uno nuevo sin sanear ni declarar, falla.
@@ -829,21 +829,16 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             }
         }
         $declaradosVistos = count(array_intersect_key($exentos, $lecturas));
-        $check($sinSanear === [] && $saneados === 5 && $declaradosVistos === count($exentos), 'v6 censo de $_FILES[…][\'name\'] en src/app: las 5 lecturas que llegan al disco se sanean antes de mover, y las 4 exentas (en 2 archivos) están declaradas con su motivo', "saneadas {$saneados}/5; exentos vistos {$declaradosVistos}/" . count($exentos) . '; ' . implode(', ', $sinSanear));
+        $check($sinSanear === [] && $saneados === 1 && $declaradosVistos === count($exentos), 'v6 censo de $_FILES[…][\'name\'] en src/app: la lectura que llega al disco (FormUploadHandler, ADR 0068) se sanea antes de mover, y las 4 exentas (en 2 archivos) están declaradas con su motivo', "saneadas {$saneados}/1; exentos vistos {$declaradosVistos}/" . count($exentos) . '; ' . implode(', ', $sinSanear));
         //Esperados: 15 sitios = 14 atributos + 1 nodo de texto. Cada uno por su forma escapada literal.
         $sitios = [
-            'app/classes/PiecesPHP/BuiltIn/Helpers/Views/generic/forms/home-image.php' => [
-                'data-image="<?= escape_html($value); ?>"' => 1,
+            'app/view/panel/built-in/content/image-card.php' => [
+                '<img class="ui small image" src="<?= escape_html($imageURL); ?>"' => 1,
             ],
-            'app/classes/Organizations/Views/organizations/forms/edit.php' => [
-                "data-image=\"<?= escape_html(\$element->getLangData(\$lang, 'logo', false, '')); ?>\"" => 1,
-                "data-file=\"<?= escape_html(\$element->getLangData(\$lang, 'rut', false, '')); ?>\"" => 1,
-            ],
-            'app/classes/Organizations/Views/my-organization-profile/my-organization-profile.php' => [
-                "data-image=\"<?= escape_html(\$organizationMapper->currentLangData('logo')); ?>\"" => 1,
+            'app/view/panel/built-in/utilities/simple-upload-placeholder/workspace.php' => [
+                'href="<?= escape_html($currentFileURL); ?>"' => 1,
             ],
             'app/classes/Publications/Views/publications/forms/edit.php' => [
-                "data-image=\"<?= escape_html(\$element->getLangData(\$langCode, \$fieldName, false, '')); ?>\"" => 3,
                 'value="<?= escape_html($attachmentElement->getDisplayName()); ?>"' => 1,
                 'data-file-name="<?= escape_html($attachmentElement->getDisplayName()); ?>"' => 1,
                 "\"{\$existingFileAttr}='\" . escape_html(\$fileLocation) . \"'\"" => 1,
@@ -869,7 +864,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
                 }
             }
         }
-        $check($encontrados === 15 && $faltan === [], 'v4 los 15 sitios van dentro de escape_html(): 14 atributos (home-image 1, organización 2, perfil 1, edición de publicación 6, alta 1, recortador 3) y 1 nodo de texto (el título del anexo)', "{$encontrados}/15 " . implode(', ', $faltan));
+        $check($encontrados === 10 && $faltan === [], 'v4 los 10 sitios van dentro de escape_html(): 9 atributos (tarjeta de imagen 1, archivo actual 1, edición de publicación 3, alta 1, recortador 3) y 1 nodo de texto (el título del anexo)', "{$encontrados}/15 " . implode(', ', $faltan));
         $fuenteEdicion = (string) file_get_contents(basepath('app/classes/Publications/Views/publications/forms/edit.php'));
         $check(substr_count($fuenteEdicion, 'getDisplayName()') === 3 && substr_count($fuenteEdicion, 'getDisplayName()') === substr_count($fuenteEdicion, 'escape_html($attachmentElement->getDisplayName())'), 'v5 Publications/forms/edit.php no pinta getDisplayName() sin escape_html( en ningún sitio, ni atributo ni texto', (string) substr_count($fuenteEdicion, 'getDisplayName()'));
     } finally {
@@ -946,19 +941,19 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         };
         $ids = fn (array $lista): string => $lista === [] ? '0' : implode(',', array_map('intval', $lista));
         $quedan = $cuenta("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE id IN ({$ids($usuarios)})")
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE id IN ({$ids($organizaciones)})")
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaPerfiles}` WHERE belongsTo IN ({$ids($usuarios)})")
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaAprobaciones}` WHERE referenceAlias LIKE " . $database->quote("{$prefijo}%"))
-            + $cuenta('SELECT COUNT(*) FROM `' . PublicationMapper::TABLE . "` WHERE id IN ({$ids($publicaciones)})")
-            + $cuenta('SELECT COUNT(*) FROM `' . BuiltInBannerMapper::TABLE . "` WHERE id IN ({$ids($banners)})")
-            + $cuenta('SELECT COUNT(*) FROM `' . DocumentsMapper::TABLE . "` WHERE id IN ({$ids($documentos)})")
-            + $cuenta("SELECT COUNT(*) FROM `forms_document_types` WHERE id IN ({$ids($tiposDocumento)})")
-            + $cuenta("SELECT COUNT(*) FROM `forms_categories` WHERE id IN ({$ids($categoriasFormularios)})")
-            + $cuenta("SELECT COUNT(*) FROM `actions_log` WHERE createdBy IN ({$ids($usuarios)})")
-            + $cuenta("SELECT COUNT(*) FROM `news_elements` WHERE id IN ({$ids($noticias)})")
-            + $cuenta("SELECT COUNT(*) FROM `news_categories` WHERE id IN ({$ids($categoriasNoticias)})")
-            + $cuenta("SELECT COUNT(*) FROM `publications_categories` WHERE id IN ({$ids($categoriasPublicaciones)})")
-            + $cuenta('SELECT COUNT(*) FROM `login_attempts` WHERE usernameAttempt = ' . $database->quote($m('zzlogin')));
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE id IN ({$ids($organizaciones)})")
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaPerfiles}` WHERE belongsTo IN ({$ids($usuarios)})")
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaAprobaciones}` WHERE referenceAlias LIKE " . $database->quote("{$prefijo}%"))
+             + $cuenta('SELECT COUNT(*) FROM `' . PublicationMapper::TABLE . "` WHERE id IN ({$ids($publicaciones)})")
+             + $cuenta('SELECT COUNT(*) FROM `' . BuiltInBannerMapper::TABLE . "` WHERE id IN ({$ids($banners)})")
+             + $cuenta('SELECT COUNT(*) FROM `' . DocumentsMapper::TABLE . "` WHERE id IN ({$ids($documentos)})")
+             + $cuenta("SELECT COUNT(*) FROM `forms_document_types` WHERE id IN ({$ids($tiposDocumento)})")
+             + $cuenta("SELECT COUNT(*) FROM `forms_categories` WHERE id IN ({$ids($categoriasFormularios)})")
+             + $cuenta("SELECT COUNT(*) FROM `actions_log` WHERE createdBy IN ({$ids($usuarios)})")
+             + $cuenta("SELECT COUNT(*) FROM `news_elements` WHERE id IN ({$ids($noticias)})")
+             + $cuenta("SELECT COUNT(*) FROM `news_categories` WHERE id IN ({$ids($categoriasNoticias)})")
+             + $cuenta("SELECT COUNT(*) FROM `publications_categories` WHERE id IN ({$ids($categoriasPublicaciones)})")
+             + $cuenta('SELECT COUNT(*) FROM `login_attempts` WHERE usernameAttempt = ' . $database->quote($m('zzlogin')));
         $quedanCarpetas = count(array_filter($carpetasSubidas, fn (string $carpeta): bool => is_dir(append_to_path_system(append_to_path_system((string) get_config('upload_dir'), \Documents\Controllers\DocumentsController::UPLOAD_DIR), $carpeta))));
         $check($quedanCarpetas === 0, 'z3 no queda en disco la carpeta de la prueba', "quedan {$quedanCarpetas}");
         $check($quedan === 0, 'z1 no queda ninguna fila sembrada (usuarios, perfiles, organizaciones, aprobaciones, publicación, banner, documentos, tipos, categorías)', "quedan {$quedan}");

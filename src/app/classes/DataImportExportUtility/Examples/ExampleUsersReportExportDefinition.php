@@ -6,7 +6,6 @@
 
 namespace DataImportExportUtility\Examples;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\DataImportExportUtilityLang;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItemGroup;
@@ -18,6 +17,7 @@ use PiecesPHP\Core\DataTransfer\Export\ExportDefinition;
 use PiecesPHP\Core\DataTransfer\Export\ExportParameter;
 use PiecesPHP\Core\DataTransfer\Export\ExportResult;
 use PiecesPHP\Core\DataTransfer\Export\ExportSheet;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * ExampleUsersReportExportDefinition - Ejemplo de la guía: un informe de usuarios con filtros, dos hojas, totales e imagen.

@@ -1,26 +1,26 @@
 <?php
-    defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-    use PiecesPHP\App\Locations\LocationsLang;
-    use PiecesPHP\App\Locations\Mappers\CityMapper;
-    use PiecesPHP\App\Locations\Mappers\CountryMapper;
-    use PiecesPHP\UserSystem\ORM\UsersModel;
-    use Organizations\Mappers\OrganizationMapper;
-    use PiecesPHP\UserSystem\UserDataPackage;
-    use SystemApprovals\Mappers\SystemApprovalsMapper;
-    /**
-     * @var SystemApprovalsMapper $approvalMapper
-     * @var string $langGroup
-     * @var string $action
-     */
-    $mapper = new OrganizationMapper($approvalMapper->referenceValue);
-    $affiliatedInstitutions = $mapper->affiliatedInstitutions;
-    $affiliatedInstitutions ??= [];
-    //Lo que escribe un usuario se escapa al pintar: nada lo limpia al entrar (pendientes.md 394).
-    $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    //Sin encargado se dice y no se toca nada: una vista solo mira (pendientes.md 374.6). Antes asignaba el usuario 1 y guardaba.
-    $administratorID = $mapper->administrator instanceof UsersModel ? $mapper->administrator->id : (is_int($mapper->administrator) ? $mapper->administrator : null);
-    $adminUser = $administratorID !== null ? new UserDataPackage($administratorID) : null;
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\App\Locations\LocationsLang;
+use PiecesPHP\App\Locations\Mappers\CityMapper;
+use PiecesPHP\App\Locations\Mappers\CountryMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserDataPackage;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
+/**
+ * @var SystemApprovalsMapper $approvalMapper
+ * @var string $langGroup
+ * @var string $action
+ */
+$mapper = new OrganizationMapper($approvalMapper->referenceValue);
+$affiliatedInstitutions = $mapper->affiliatedInstitutions;
+$affiliatedInstitutions ??= [];
+//Lo que escribe un usuario se escapa al pintar: nada lo limpia al entrar (pendientes.md 394).
+$escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+//Sin encargado se dice y no se toca nada: una vista solo mira (pendientes.md 374.6). Antes asignaba el usuario 1 y guardaba.
+$administratorID = $mapper->administrator instanceof UsersModel ? $mapper->administrator->id : (is_int($mapper->administrator) ? $mapper->administrator : null);
+$adminUser = $administratorID !== null ? new UserDataPackage($administratorID) : null;
 ?>
 <section class="module-view-container">
 
@@ -28,11 +28,11 @@
     <div class="limiter-content">
 
         <?php
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
         <div class="approval-time"><?= $approvalMapper->getTimeTag(); ?></div>
 
@@ -85,7 +85,7 @@
             <div class="form-attachments-regular">
                 <div data-trigger-open-link="<?=$escape($adminUser->getAvatarURL());?>" class="attach-placeholder tall">
                     <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                    <div class="ui top right attached label green">
+                    <div class="ui top right attached basic green label">
                         <i class="paperclip icon"></i>
                     </div>
                     <label for="<?=$uniqueIdentifier;?>">
@@ -111,7 +111,7 @@
                 <div class="form-attachments-regular">
                     <div data-trigger-open-link="<?=$escape($mapper->getLogoURL());?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
+                        <div class="ui top right attached basic green label">
                             <i class="paperclip icon"></i>
                         </div>
                         <label for="<?=$uniqueIdentifier;?>">
@@ -142,13 +142,13 @@
             </div>
 
             <?php
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Aprobar'),
-                'saveAttributes' => ['approve-trigger' => ''],
-                'secondaryActions' => [
-                    ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
-                ],
-            ]);
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Aprobar'),
+                    'saveAttributes' => ['approve-trigger' => ''],
+                    'secondaryActions' => [
+                        ['text' => __($langGroup, 'Rechazar'), 'type' => 'button', 'icon' => 'times', 'danger' => true, 'attributes' => ['reject-trigger' => '']],
+                    ],
+                ]);
             ?>
 
         </form>

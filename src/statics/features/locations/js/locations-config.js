@@ -37,7 +37,8 @@ window.addEventListener('load', function (e) {
 		triggerCenterView: $(`[set-center-view]`),
 	}
 
-	if (typeof pcsphpGlobals.globalAuthenticator !== 'undefined') {
+	//Sin sesión no hay ruta de la llave (`mapboxKeyURL` nulo): en el acceso, el `fetch` pedía la dirección «null».
+	if (typeof pcsphpGlobals.globalAuthenticator !== 'undefined' && typeof pcsphpGlobals.mapboxKeyURL === 'string') {
 
 		pcsphpGlobals.globalAuthenticator.verify(function () {
 

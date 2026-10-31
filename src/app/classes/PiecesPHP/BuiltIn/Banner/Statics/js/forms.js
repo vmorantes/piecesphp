@@ -1,13 +1,11 @@
 /// <reference path="../../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
+/// <reference path="../../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
 /// <reference path="../../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
-/// <reference path="../../../../../../../statics/core/own-plugins/AttachmentPlaceholder.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
 
 	window.dispatchEvent(new Event('canDeleteBuiltInBanner'))
-	let isEdit = false
 
 	/* Traducciones */
 	const langGroup = 'built-in-banner-lang'
@@ -15,29 +13,12 @@ window.addEventListener('load', function () {
 
 	/* Selectores y elementos de interfaz */
 	const formSelector = `.ui.form.built-in-banner`
-	const idDesktopImage = 'desktop-image'
-	const idMobileImage = 'mobile-image'
 
-	//Placeholders
-	let attachmentDesktopImage = new AttachmentPlaceholder($(`.attach-placeholder.${idDesktopImage}`))
-	let attachmentMobileImage = new AttachmentPlaceholder($(`.attach-placeholder.${idMobileImage}`))
-
-	//Croppers
-	const BuiltInBannerConfiguration = pcsphpGlobals.frontConfigurationsFromBackend.BuiltInBannerConfiguration
-	let cropperDesktopImage = new SimpleCropperAdapter(`[${idDesktopImage}]`, {
-		aspectRatio: BuiltInBannerConfiguration.desktop.aspectRatio,
-		format: 'image/jpeg',
-		quality: 0.8,
-		fillColor: 'white',
-		outputWidth: BuiltInBannerConfiguration.desktop.outputWidth,
-	})
-	let cropperMobileImage = new SimpleCropperAdapter(`[${idMobileImage}]`, {
-		aspectRatio: BuiltInBannerConfiguration.mobile.aspectRatio,
-		format: 'image/jpeg',
-		quality: 0.8,
-		fillColor: 'white',
-		outputWidth: BuiltInBannerConfiguration.mobile.outputWidth,
-	})
+	//Tarjetas de imagen: lo aplicado en el editor se envía al guardar, con el nombre de su campo.
+	const editedImages = {}
+	const imageEditor = new ContentImageEditor()
+	imageEditor.onApply('desktop-image', (file) => editedImages.desktopImage = file)
+	imageEditor.onApply('mobile-image', (file) => editedImages.mobileImage = file)
 
 	//Editores de texto
 	let richEditorAdapter = new RichEditorAdapterComponent({
@@ -68,42 +49,13 @@ window.addEventListener('load', function () {
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 
-			if (isEdit) {
-				formData.set('desktopImage', cropperDesktopImage.getFile())
-				if (cropperMobileImage.wasChange()) {
-					formData.set('mobileImage', cropperMobileImage.getFile())
-				}
-			} else {
-				formData.set('desktopImage', cropperDesktopImage.getFile())
-				if (cropperMobileImage.wasChange()) {
-					formData.set('mobileImage', cropperMobileImage.getFile())
-				}
+			for (const field in editedImages) {
+				formData.set(field, editedImages[field])
 			}
 
 			return formData
 		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-			if (field.length == 0) {
-				field = jElement.closest('.attach-placeholder')
-				nameOnLabel = field.find('>label >.text >.header >.title').text()
-			}
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		}
 	})
-
-	//Comportamiento de placeholders
-	attachmentDesktopImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperDesktopImage, idDesktopImage) })
-	attachmentMobileImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperMobileImage, idMobileImage) })
 
 	//Tabs
 	const tabs = $('.tabs-controls [data-tab]').tab({
@@ -114,41 +66,10 @@ window.addEventListener('load', function () {
 	//Otros
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
-	$('.ui.accordion').accordion()
-
-	isEdit = form.find(`[name="id"]`).length > 0
+	//Solo los del formulario: uno global reiniciaba el de la navegación del shell sin su selector.ignore del riel.
+	form.find('.ui.accordion').accordion()
 
 	configLangChange('.ui.dropdown.langs')
-
-	/** 
-	 * @param {AttachmentPlaceholder} instance
-	 * @param {AttachmentPlaceholderElements} elements
-	 * @param {SimpleCropperAdapter} cropper
-	 * @param {String} selector
-	*/
-	function genericAttachmentWithModalCropperBehavior(instance, elements, cropper, selector) {
-
-		const modal = $(`[modal="${selector}"]`)
-		let firstDraw = true
-		cropper.onCancel(() => modal.modal('hide'))
-		cropper.onCropped((blobImage, settedImage) => {
-			instance.setFile(blobImage)
-			modal.modal('hide')
-		})
-
-		instance.onClick(function (instance, elements, event) {
-			event.preventDefault()
-			modal.modal({
-				onVisible: function () {
-					if (firstDraw) {
-						cropper.refresh()
-						firstDraw = false
-					}
-				},
-			}).modal('show')
-		})
-
-	}
 
 	function configLangChange(dropdownSelector) {
 

@@ -108,7 +108,7 @@ class MaintenanceMode
             self::$invalidEnabledLogged = true;
             log_exception(new \UnexpectedValueException(
                 'El valor de «' . self::ENABLED_CONFIG . '» no es válido y el modo mantenimiento se deja APAGADO.'
-                . ' Se admite un booleano, o 0/1, o «true»/«false».'
+                    . ' Se admite un booleano, o 0/1, o «true»/«false».'
             ));
         }
 
@@ -155,7 +155,7 @@ class MaintenanceMode
             self::$invalidRolesLogged = true;
             log_exception(new \UnexpectedValueException(
                 'La lista de «' . self::ALLOWED_ROLES_CONFIG . '» no es válida y se usa la de por defecto.'
-                . ' Se admite una lista de códigos de rol existentes, y la lista vacía significa que no pasa nadie.'
+                    . ' Se admite una lista de códigos de rol existentes, y la lista vacía significa que no pasa nadie.'
             ));
         }
 
@@ -215,7 +215,7 @@ class MaintenanceMode
             self::$invalidRetryAfterLogged = true;
             log_exception(new \UnexpectedValueException(
                 'El valor de «' . self::RETRY_AFTER_CONFIG . '» no es válido y se usa el de por defecto.'
-                . ' Se admite un entero de 1 a ' . self::RETRY_AFTER_MAX . ' segundos.'
+                    . ' Se admite un entero de 1 a ' . self::RETRY_AFTER_MAX . ' segundos.'
             ));
         }
 

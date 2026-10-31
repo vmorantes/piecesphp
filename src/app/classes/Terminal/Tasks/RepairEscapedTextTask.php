@@ -6,8 +6,6 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\DataStructures\IntegerArray;
@@ -15,7 +13,9 @@ use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\TerminalData;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * RepairEscapedTextTask.

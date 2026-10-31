@@ -1,6 +1,7 @@
 <?php
 
 //El motor de importación y exportación del núcleo (ADR 0022): todo o nada por archivo, solo columnas declaradas, sin HTML.
+//@areas nucleo
 
 use PiecesPHP\Core\DataTransfer\Export\ExportColumn;
 use PiecesPHP\Core\DataTransfer\Export\ExportDefinition;
@@ -43,10 +44,22 @@ CliActions::make('unit-tests:core/data-transfer', function ($args) {
         public $throw = null;
         /** @var int */
         public $max = 5000;
-        public function key(): string { return 'zz-prueba'; }
-        public function title(): string { return 'Prueba'; }
-        public function allowedUserTypes(): array { return [0]; }
-        public function maxRows(): int { return $this->max; }
+        public function key(): string
+        {
+            return 'zz-prueba';
+        }
+        public function title(): string
+        {
+            return 'Prueba';
+        }
+        public function allowedUserTypes(): array
+        {
+            return [0];
+        }
+        public function maxRows(): int
+        {
+            return $this->max;
+        }
         public function columns(): array
         {
             return [
@@ -213,11 +226,28 @@ CliActions::make('unit-tests:core/data-transfer', function ($args) {
         //─── 9/9 · Exportación ──────────────────────────────────────────────────────────────────────────
         echoTerminal('[9/9] SpreadsheetExportWriter');
         $exportacion = new class extends ExportDefinition {
-            public function key(): string { return 'zz-export'; }
-            public function title(): string { return 'Prueba'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function columns(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): array { return [new ExportColumn('formula', 'Fórmula'), new ExportColumn('texto', 'Texto')]; }
-            public function rows(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): iterable { yield ['formula' => '=1+1', 'texto' => 'normal']; yield ['formula' => "@SUM(A1)", 'texto' => '-2']; yield ['formula' => '+57 300', 'texto' => '-x']; }
+            public function key(): string
+            {
+                return 'zz-export';
+            }
+            public function title(): string
+            {
+                return 'Prueba';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function columns(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): array
+            {
+                return [new ExportColumn('formula', 'Fórmula'), new ExportColumn('texto', 'Texto')];
+            }
+            public function rows(\PiecesPHP\Core\DataTransfer\Export\ExportContext $context): iterable
+            {
+                yield ['formula' => '=1+1', 'texto' => 'normal'];
+                yield ['formula' => "@SUM(A1)", 'texto' => '-2'];
+                yield ['formula' => '+57 300', 'texto' => '-x'];
+            }
         };
         $csvSalida = $temporal('csv');
         (new SpreadsheetExportWriter())->toCsv($exportacion, new \PiecesPHP\Core\DataTransfer\Export\ExportContext([], null), $csvSalida);

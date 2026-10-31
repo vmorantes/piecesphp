@@ -1,60 +1,16 @@
-//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
-$placeholderBorder: rgba(73, 73, 73, 0.3);
-$placeholderShadow: rgba(0, 0, 0, 0.25);
-$previewOverlayBackground: rgba(153, 153, 153, 0.727);
-
+//El marco lo pone el tema (`ui placeholder segment`): aquí, lo que no da: la vista previa de la imagen elegida y el input oculto.
 .simple-upload-placeholder {
 
-    position: relative;
-    border: 1px solid $placeholderBorder;
-    box-shadow: 0px 0px 8px 0px $placeholderShadow;
-    margin: 0px !important;
-    padding: 0px !important;
-    overflow: hidden;
+    .overlay-element {
+        display: none;
 
-    .preview {
-
-        position: relative;
-        min-height: 300px;
-        width: 100%;
-        max-width: 100%;
-
-        .placeholder-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-
-            .icon {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 150px;
-                filter: blur(8px);
-            }
-        }
-
-        .overlay-element {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 105%;
-            background-color: $previewOverlayBackground;
+        &.image {
+            display: block;
+            height: 12rem;
             background-repeat: no-repeat;
-            background-size: cover;
+            background-size: contain;
             background-position: center center;
-
-            &.image {
-                background-color: transparent;
-            }
         }
-
-
     }
 
     input[type=file],
@@ -67,42 +23,7 @@ $previewOverlayBackground: rgba(153, 153, 153, 0.727);
         visibility: hidden;
     }
 
-    .ui.button.trigger-file {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-
-        &:not(.fomantic) {
-            background-color: var(--main-brand-color);
-            color: var(--font-color-two);
-
-            &:hover,
-            &:active,
-            &:focus {
-                opacity: 0.8;
-            }
-        }
+    &.only-button .preview {
+        display: none;
     }
-
-    &.only-button {
-
-        border: none;
-        box-shadow: none;
-        margin: 0px !important;
-        padding: 0px !important;
-
-        .preview {
-            display: none;
-        }
-
-        .ui.button.trigger-file {
-            position: relative;
-            top: initial;
-            left: initial;
-            transform: none;
-        }
-    }
-
-
 }

@@ -201,12 +201,15 @@ petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la r
 | `PiecesPHP/BuiltIn/Helpers/` | Contenidos genéricos (`GenericContentController`, `GenericContentPseudoMapper`) |
 | `PiecesPHP/RoutingUtils/` | `DefaultAccessControlModules` — middleware de control de acceso por módulo |
 
-## Módulos de sistema fuera de `classes/`
+## Módulos de sistema
 
-`App\Controller\*` y `App\Model\*` (`src/app/controller/`, `src/app/model/`):
-panel administrativo, usuarios, avatares, configuraciones, tokens, recuperación de
-contraseña, intentos de login, tickets, temporizador, problemas de usuario, área
-pública.
+Fuera de `classes/` quedan solo dos controladores, en `App\Controller` (`src/app/controller/`):
+`PublicAreaController` (el área pública) y `ContactFormsController`. No hay `src/app/model/`.
+
+El resto de lo que es del sistema vive en `classes/PiecesPHP/`: el panel (`AdminPanel/`, con
+`AdminPanelController`), usuarios, avatares, recuperación de contraseña, intentos de acceso, temporizador,
+problemas de usuario y tokens (`UserSystem/Controllers/`), y las configuraciones (`Settings/`). Tickets no
+tiene controlador: queda `UserSystem/ORM/TicketsLogModel.php` y la configuración de osTicket.
 
 `AdminPanelController` es la clase base de casi todos los controladores de módulo y
 aporta: usuario en sesión (`$this->user`), variables globales de vista, breadcrumbs,

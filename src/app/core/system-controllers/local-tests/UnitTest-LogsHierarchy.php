@@ -268,9 +268,9 @@ CliActions::make('unit-tests:core/logs-hierarchy', function ($args) {
             return (int) $consulta->fetchColumn();
         };
         $quedan = $cuenta("SELECT COUNT(*) FROM `{$tablaAcciones}` WHERE textMessageVariables LIKE ?", ["%{$marca}%"])
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE usernameAttempt LIKE ?", ["{$marca}%"])
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE ?", ["{$prefijo}%"])
-            + $cuenta("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE ?", ["{$prefijo}%"]);
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE usernameAttempt LIKE ?", ["{$marca}%"])
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE ?", ["{$prefijo}%"])
+             + $cuenta("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE ?", ["{$prefijo}%"]);
         $check($quedan === 0, 'z1 no queda ninguna acción, intento, organización ni usuario de la prueba', (string) $quedan);
     }
 

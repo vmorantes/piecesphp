@@ -1,6 +1,7 @@
 <?php
 
 //El volcado lo produce db-backup: NO lo fabrique esta prueba. Ver T96 y T46 caso 4.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
@@ -88,18 +89,18 @@ CliActions::make('unit-tests:core/db-restore', function ($args) {
             return count((array) $metodo->invoke(null, $sql));
         };
         $casos = [
-            ['dos sentencias corrientes',            "SELECT 1;\nSELECT 2;\n", 2],
-            ['`;` dentro de una cadena',             "INSERT INTO `t` VALUES ('uno; dos');\n", 1],
-            ['`;` en una cadena de varias líneas',   "INSERT INTO `t` VALUES ('uno; dos;\ntres');\n", 1],
-            ['`;` dentro de un identificador',       "SELECT `a;b` FROM `t`;\n", 1],
-            ['comilla escapada con barra',           "INSERT INTO `t` VALUES ('a\\';b');\n", 1],
-            ['comentario `--` con `;` dentro',       "-- ojo; aqui\nSELECT 1;\n", 1],
-            ['comentario `#` con `;` dentro',        "# ojo; aqui\nSELECT 1;\n", 1],
-            ['comentario de bloque',                 "/* uno;\ndos */\nSELECT 1;\n", 1],
-            ['comentario ejecutable `/*!…*/`',       "/*!40101 SET NAMES utf8mb4 */;\n", 1],
-            ['DELIMITER con cuerpo de rutina',       "DELIMITER ;;\nCREATE FUNCTION f() RETURNS int\nBEGIN\n DECLARE x int;\n SET x = 1;\n RETURN x;\nEND;;\nDELIMITER ;\n", 1],
-            ['última sentencia sin `;` final',       "SELECT 1;\nSELECT 2", 2],
-            ['LOCK/UNLOCK de mysqldump',             "LOCK TABLES `t` WRITE;\nUNLOCK TABLES;\n", 2],
+            ['dos sentencias corrientes', "SELECT 1;\nSELECT 2;\n", 2],
+            ['`;` dentro de una cadena', "INSERT INTO `t` VALUES ('uno; dos');\n", 1],
+            ['`;` en una cadena de varias líneas', "INSERT INTO `t` VALUES ('uno; dos;\ntres');\n", 1],
+            ['`;` dentro de un identificador', "SELECT `a;b` FROM `t`;\n", 1],
+            ['comilla escapada con barra', "INSERT INTO `t` VALUES ('a\\';b');\n", 1],
+            ['comentario `--` con `;` dentro', "-- ojo; aqui\nSELECT 1;\n", 1],
+            ['comentario `#` con `;` dentro', "# ojo; aqui\nSELECT 1;\n", 1],
+            ['comentario de bloque', "/* uno;\ndos */\nSELECT 1;\n", 1],
+            ['comentario ejecutable `/*!…*/`', "/*!40101 SET NAMES utf8mb4 */;\n", 1],
+            ['DELIMITER con cuerpo de rutina', "DELIMITER ;;\nCREATE FUNCTION f() RETURNS int\nBEGIN\n DECLARE x int;\n SET x = 1;\n RETURN x;\nEND;;\nDELIMITER ;\n", 1],
+            ['última sentencia sin `;` final', "SELECT 1;\nSELECT 2", 2],
+            ['LOCK/UNLOCK de mysqldump', "LOCK TABLES `t` WRITE;\nUNLOCK TABLES;\n", 2],
         ];
         $malos = [];
         foreach ($casos as [$nombre, $sql, $esperadas]) {

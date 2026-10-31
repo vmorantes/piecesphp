@@ -1,5 +1,5 @@
 <?php
-    $text = <<<EOF
+$text = <<<EOF
         <p>
         Estimado/a <strong>Lorem ipsum dolor sit amet</strong>,
         </p>
@@ -23,19 +23,19 @@
         </p>
     EOF;
 
-    $footerTemplate = "<span class='owner'>{TITLE}</span> <p>{TEXT}</p>";
-    $this->helpController->render('mailing/template_base', [
-        'header_image' => base_url(get_config('mailing_logo')),
-        'text' => $text,
-        'code' => generate_code(6, true),
-        'note' => "Mensaje informativo del correo electrónico.",
-        'url' => $refererURL !== null ? $refererURL : '#',
-        'text_button' => 'Llamado a la acción',
-        'text_footer' => strReplaceTemplate($footerTemplate, [
-            '{TITLE}' => htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            '{TEXT}' => "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
-        ]),
-    ]);
+$footerTemplate = "<span class='owner'>{TITLE}</span> <p>{TEXT}</p>";
+$this->helpController->render('mailing/template_base', [
+    'header_image' => base_url(get_config('mailing_logo')),
+    'text' => $text,
+    'code' => generate_code(6, true),
+    'note' => "Mensaje informativo del correo electrónico.",
+    'url' => $refererURL !== null ? $refererURL : '#',
+    'text_button' => 'Llamado a la acción',
+    'text_footer' => strReplaceTemplate($footerTemplate, [
+        '{TITLE}' => htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+        '{TEXT}' => "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
+    ]),
+]);
 
 ?>
 
@@ -44,18 +44,18 @@
 
 <div style="max-width: 800px; margin: 0 auto;">
 <?php
-    $footerTemplate = "<strong>{TITLE} - {TEXT}</strong>";
-    $this->helpController->render('mailing/template_base_no_style', [
-        'header_image' => base_url(get_config('mailing_logo')),
-        'text' => $text,
-        'code' => generate_code(6, true),
-        'url' => $refererURL !== null ? $refererURL : '#',
-        'text_button' => 'Llamado a la acción',
-        'text_footer' => strReplaceTemplate($footerTemplate, [
-            '{TITLE}' => htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            '{TEXT}' => "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
-        ]),
-        'note' => "Mensaje informativo del correo electrónico.",
-    ]);
+$footerTemplate = "<strong>{TITLE} - {TEXT}</strong>";
+$this->helpController->render('mailing/template_base_no_style', [
+    'header_image' => base_url(get_config('mailing_logo')),
+    'text' => $text,
+    'code' => generate_code(6, true),
+    'url' => $refererURL !== null ? $refererURL : '#',
+    'text_button' => 'Llamado a la acción',
+    'text_footer' => strReplaceTemplate($footerTemplate, [
+        '{TITLE}' => htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+        '{TEXT}' => "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
+    ]),
+    'note' => "Mensaje informativo del correo electrónico.",
+]);
 ?>
 </div>

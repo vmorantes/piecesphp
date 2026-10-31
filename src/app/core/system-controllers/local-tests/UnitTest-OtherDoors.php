@@ -9,20 +9,20 @@
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use API\Controllers\APIController;
 use DataImportExportUtility\Definitions\UsersImportDefinition;
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
-use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
-use PiecesPHP\Core\DataTransfer\Source\ArrayRowSource;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\DataTransfer\Import\ImportRunner;
+use PiecesPHP\Core\DataTransfer\Source\ArrayRowSource;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Statics\ProtectedUploads;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -433,11 +433,11 @@ CliActions::make('unit-tests:core/other-doors', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
         $quedan = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaPublicaciones}` WHERE title LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query('SELECT COUNT(*) FROM `' . NewsMapper::TABLE . '` WHERE newsTitle LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
-            + count(array_filter($archivos, 'is_file'))
-            + count(array_filter($carpetas, 'is_dir'));
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaPublicaciones}` WHERE title LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query('SELECT COUNT(*) FROM `' . NewsMapper::TABLE . '` WHERE newsTitle LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
+         + count(array_filter($archivos, 'is_file'))
+         + count(array_filter($carpetas, 'is_dir'));
         $check($quedan === 0, 'z1 no queda ningún usuario, organización, publicación, archivo ni carpeta de la prueba', "quedan {$quedan}");
     }
 

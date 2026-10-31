@@ -6,20 +6,18 @@
 
 namespace Organizations\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Exceptions\SafeException;
+use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsLang;
 use Organizations\OrganizationsRoutes;
-use Organizations\Mappers\OrganizationMapper;
-use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Roles;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
-use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -28,8 +26,8 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use Slim\Exception\HttpForbiddenException;
 
 /**
@@ -243,7 +241,6 @@ class MyOrganizationProfileController extends AdminPanelController
         }
     }
 
-
     /**
      * Cambia el administrador de la organización mediante el cambio de tipo de usuario
      *
@@ -333,6 +330,11 @@ class MyOrganizationProfileController extends AdminPanelController
             if (!$newAdminUserExists) {
                 throw new SafeException(__(self::LANG_GROUP, 'El usuario seleccionado como encargado no existe'));
             }
+            //El encargado tiene que ser de esta organización: uno de otra administraría el perfil de una ajena.
+            $newAdminUser = UsersModel::getBy((int) $newUserAdminID);
+            if (!is_object($newAdminUser) || (int) ($newAdminUser->organization ?? 0) !== (int) $organizationMapper->id) {
+                throw new SafeException(__(self::LANG_GROUP, 'El usuario seleccionado como encargado no pertenece a esta organización'));
+            }
 
             try {
 
@@ -372,7 +374,7 @@ class MyOrganizationProfileController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);

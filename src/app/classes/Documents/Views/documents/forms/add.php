@@ -9,11 +9,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <section class="module-view-container limit-size">
 
     <?php
-    //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
-    $this->helpController->_render('panel/built-in/content/page-header.php', [
-        'breadcrumbs' => $breadcrumbs,
-        'title' => $title,
-    ]);
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en el alta.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
     ?>
 
     <form method='POST' action="<?= $action; ?>" class="ui form initial" document-form data-content-form>
@@ -26,8 +26,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div class="ten wide field">
 
                     <div class="field">
-                        <h4 class="ui dividing header alt"><?= __($langGroup, 'Carga de documentos'); ?></h4>
-                        <br>
+                        <h4 class="ui dividing header"><?= __($langGroup, 'Carga de documentos'); ?></h4>
                     </div>
 
                     <div class="two fields">
@@ -45,17 +44,15 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
 
                     <div class="field required" document>
-                        <br>
                         <label><?= __($langGroup, 'Documento'); ?></label>
                         <?php simpleUploadPlaceholderWorkSpace([
-                            'onlyButton' => false,
-                            'inputNameAttr' => 'document',
-                            'buttonText' =>   __($langGroup, 'Agregar documento'),
-                            'required' =>  true,
-                            'multiple' =>  false,
-                            'icon' => 'file outline',
+                                'onlyButton' => false,
+                                'inputNameAttr' => 'document',
+                                'buttonText' => __($langGroup, 'Agregar documento'),
+                                'required' => true,
+                                'multiple' => false,
+                                'icon' => 'file outline',
                         ]); ?>
-                        <br>
                     </div>
 
                     <div class="field">
@@ -69,20 +66,18 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                     <h4 class="ui dividing header"><?= __($langGroup, 'Imagen'); ?></h4>
 
-                    <div class="ui form cropper-adapter" document-image-main>
-
-                        <div class="field">
-                            <label style="display: none;"><?= __($langGroup, 'Imagen'); ?></label>
-                            <input type="file" accept="image/*">
-                            <em><?= __($langGroup, 'Tamaño de la imagen 300x300 (px)'); ?></em>
-                        </div>
-
-                        <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                            'referenceW'=> '300',
-                            'referenceH'=> '300',
-                        ]); ?>
-
-                    </div>
+                    <?php
+                        $this->helpController->_render('panel/built-in/content/image-field.php', [
+                            'card' => [
+                                'id' => 'document-image',
+                                'title' => __($langGroup, 'Imagen'),
+                                'field' => 'documentImage',
+                                'image' => '',
+                                'width' => 300,
+                                'height' => 300,
+                            ],
+                        ]);
+                    ?>
                 </div>
 
             </div>
@@ -90,12 +85,15 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         </div>
 
             <?php
-            //La barra al final del formulario (§2.3). utils.js guarda con el submit del form.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
-            ]);
+                //La barra al final del formulario (§2.3). utils.js guarda con el submit del form.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']],
+                ]);
             ?>
 
     </form>
+
+    <?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>
+
 </section>

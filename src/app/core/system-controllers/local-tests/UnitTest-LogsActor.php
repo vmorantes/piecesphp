@@ -2,6 +2,7 @@
 
 //El registro de acciones dice QUIÉN actuaba: con suplantación, `createdBy` es el suplantado, y sin
 //nadie conectado el 1 no significa el principal. Crea filas zz- y las retira. 276.2.
+//@areas src/app/classes/EventsLog/
 
 use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\BaseModel;

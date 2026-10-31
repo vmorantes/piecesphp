@@ -25,7 +25,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 <div class="user-form-component">
 
     <?php //«Cuenta» y su icono son los mismos en usuarios y en organizaciones; dos pestañas nunca con el mismo icono. ?>
-    <div class="ui pointing secondary menu items-pointing">
+    <div class="ui pointing secondary menu">
         <?php if (!$onlyImage): ?>
         <a class="item active" data-tab="form-container"><i class="user circle icon"></i><?= __($langGroup, 'Cuenta'); ?></a>
         <?php endif;?>
@@ -38,39 +38,42 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
     </div>
 
     <?php if (!$onlyImage): ?>
-    <div class="ui bottom attached tab active" data-tab="form-container">
+    <div class="ui tab active" data-tab="form-container">
         <?= $form; ?>
     </div>
     <?php endif;?>
 
     <?php if (!$create && !$onlyProfile): ?>
 
-    <div class="ui bottom attached tab<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container">
+    <div class="ui tab<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container">
 
-        <form action="<?=get_route('push-avatars');?>" class="ui form profile-photo-form">
-
-            <input type="hidden" name="user" value="<?=$edit_user->id;?>">
-            <input type="hidden" name="edit" value="<?= $hasAvatar ? '1' : '0';?>">
-
-            <div class="ui form cropper-adapter">
-
-                <div class="field required">
-                    <label><?= __($langGroup, 'Foto de perfil'); ?></label>
-                    <input type="file" accept="image/*" required>
-                </div>
-
-                <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                    'referenceW'=> '400',
-                    'referenceH'=> '400',
-                    'withTitle' => false,
-                    'image' => $hasAvatar ? $avatar : '',
-                ]); ?>
-
+        <section class="ui segment" aria-labelledby="user-photo-title" data-user-avatar="<?= (int) $edit_user->id; ?>" data-user-avatar-url="<?= escape_html(get_route('push-avatars')); ?>">
+            <?php
+                $this->helpController->_render('panel/built-in/content/section-header.php', [
+                    'id' => 'user-photo-title',
+                    'title' => __($langGroup, 'Foto de perfil'),
+                    'description' => __($langGroup, 'Se muestra en el menú del usuario, en su tarjeta de la lista de usuarios y junto a lo que publica.'),
+                ]);
+            ?>
+            <div class="ui one stackable horizontal cards">
+                <?php
+                    $this->helpController->_render('panel/built-in/content/image-card.php', [
+                        'id' => 'user-avatar-card',
+                        'title' => __($langGroup, 'Foto de perfil'),
+                        'description' => __($langGroup, 'Una foto del rostro, centrada y con buena luz. Se recorta en círculo donde se muestra.'),
+                        'hint' => __($langGroup, 'Formatos: JPG, PNG o WEBP'),
+                        'accept' => 'image/jpeg,image/png,image/webp',
+                        'image' => $hasAvatar ? (string) $avatar : '',
+                        'field' => 'image',
+                        'width' => 400,
+                        'height' => 400,
+                        'format' => 'image/png',
+                    ]);
+                ?>
             </div>
+        </section>
 
-            <?php $this->helpController->_render('panel/built-in/content/form-action-bar.php', ['saveText' => __($langGroup, 'Guardar foto de perfil')]); ?>
-
-        </form>
+        <?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>
 
     </div>
 
@@ -78,7 +81,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
     <?php if ($canRevokeSessions): ?>
 
-    <div class="ui bottom attached tab" data-tab="sessions-container">
+    <div class="ui tab" data-tab="sessions-container">
 
         <?= UserSessionsController::userSessionsHTML((int) $edit_user->id, false); ?>
 
@@ -88,7 +91,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
         <form action="<?= UsersController::routeName('revoke-sessions-request'); ?>" method="POST" class="ui form" revoke-user-sessions data-confirmation-title="<?= __($langGroup, 'Cerrar sesiones'); ?>" data-confirmation-message="<?= htmlspecialchars(strReplaceTemplate(__($langGroup, 'Se cerrarán todas las sesiones de %s.'), ['%s' => $edit_user->username])); ?>">
             <input type="hidden" name="id" value="<?= $edit_user->id; ?>">
-            <button type="submit" class="ui button red"><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></button>
+            <button type="submit" class="ui negative button"><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></button>
         </form>
 
     </div>

@@ -6,31 +6,27 @@
 
 namespace PiecesPHP\Settings\Controllers;
 
-use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
+use DataImportExportUtility\Controllers\DataTransferController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\Controllers\HelperController;
+use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Backups\BackupRotation;
 use PiecesPHP\Core\BaseController;
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\Settings\Mail\MailTester;
-use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
-use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
-use PiecesPHP\Core\MaintenanceMode;
-use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
-use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
@@ -38,12 +34,23 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Geo\GeoThumbnail;
 use PiecesPHP\LangInjector;
+use PiecesPHP\Logs\Controllers\LogsController;
+use PiecesPHP\Logs\LogsLang;
+use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\Settings\Mail\MailTester;
+use PiecesPHP\Settings\ORM\SettingsModel;
+use PiecesPHP\Settings\SettingsRoutes;
+use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
+use PiecesPHP\SystemStatus\ServerDelegatedLinks;
+use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
+use PiecesPHP\UserSystem\Controllers\UserSessionsController;
+use PiecesPHP\UserSystem\Controllers\UserTokensController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\ControllerRoutingTrait;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
-use PiecesPHP\Settings\SettingsRoutes;
 
 /**
  * SettingsController.
@@ -57,23 +64,24 @@ class SettingsController extends AdminPanelController
 
     use ControllerRoutingTrait;
     /**
-     * El sha1 de las imágenes de socios que trae el framework (statics/images/): un relleno «280x50». Una imagen propia
-     * en PNG se guarda en el MISMO archivo, así que se distingue por el contenido y no por la ruta.
+     * El sha1 de las imágenes de marca que trae el framework (statics/images/). Una imagen propia en PNG se guarda en el
+     * MISMO archivo, así que se distingue por el contenido y no por la ruta.
      */
     const FACTORY_BRAND_IMAGES = [
-        'partners' => 'a9859251d2b678dae97487514bf7b27190826277',
-        'partnersVertical' => 'f9b63958f1c2945f7c54362975eba26d65ec92df',
+        'logo' => '9cf27f1fbb82e550d03fbaca632f9c6563eec81a',
+        'partners' => 'f99eed56bd1b37230c3da8219a88aa4ca3e815c1',
+        'partnersVertical' => '759ba8f2f55108ad876d8974da1ef0ae3dfbbf0f',
     ];
 
-    const PARSE_TYPE_STRING = 'string';
-    const PARSE_TYPE_BOOL = 'bool';
-    const PARSE_TYPE_INT = 'int';
-    const PARSE_TYPE_FLOAT = 'float';
-    const PARSE_TYPE_DOUBLE = 'double';
-    const PARSE_TYPE_JSON_ENCODE = 'json_encode';
-    const PARSE_TYPE_JSON_DECODE = 'json_decode';
-    const PARSE_TYPE_UPPERCASE = 'uppercase';
-    const PARSE_TYPE_LOWERCASE = 'lowercase';
+    /**
+     * Las imágenes que el modo oscuro puede volver blancas (P277 c): imagen => su opción. Se guardan 1 o 0, nunca un
+     * booleano: get_config() devuelve false también si la opción no existe, y sin opción manda brandImageInvertsOnDark().
+     */
+    const BRAND_IMAGES_INVERT_ON_DARK = [
+        'logo' => 'logoInvertOnDark',
+        'partners' => 'partnersInvertOnDark',
+        'partnersVertical' => 'partnersVerticalInvertOnDark',
+    ];
 
     const LANG_GROUP = 'appConfig';
 
@@ -104,67 +112,110 @@ class SettingsController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
-    const ROLES_GENERIC_ACTION = [
+    const ROLES_SAVE_COLORS = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     /**
-     * Claves que solo el usuario principal puede escribir por la acción genérica.
-     *
-     * SEGUNDA CAPA: la primera es GENERIC_SAVE_ALLOWED, que ya solo deja pasar colores de marca. Esta queda por si
-     * alguien amplía esa lista: ninguna de estas debe poder escribirla otro rol por aquí.
-     *
-     * Por constante, nunca por cadena escrita a mano: si una clave cambia de nombre, esto la sigue.
+     * Los colores que se guardan desde la pantalla Colores. Responde QUÉ se declara; el catálogo es ConfigOptions (ADR 0055).
      *
      * @var string[]
      */
-    const ROOT_ONLY_CONFIG_KEYS = [
-        MaintenanceMode::ENABLED_CONFIG,
-        MaintenanceMode::ALLOWED_ROLES_CONFIG,
-        MaintenanceMode::RETRY_AFTER_CONFIG,
-        //Credenciales: cambiar el destino y dejar el secreto vacío lo enviaría a otro servidor (pendientes.md 402).
-        self::MAIL_CONFIG,
-        MailDelivery::CONFIG_NAME,
-        self::OS_TICKET_URL_CONFIG,
-        self::OS_TICKET_KEY_CONFIG,
-        //Las que tienen pantalla o tarea solo del principal (pendientes.md 405): un script inyectado lee la sesión de
-        //cualquiera; la fecha mínima echa a todos o deshace una revocación; y respaldos y avisos.
-        \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::CONFIG_NAME,
-        \PiecesPHP\Core\SessionToken::MINIMUM_DATE_CONFIG,
-        \PiecesPHP\Core\Backups\BackupPolicy::CONFIG_NAME,
-        \PiecesPHP\SystemStatus\SystemAlertRegistry::HIDDEN_CONFIG,
-    ];
-    /**
-     * Lo ÚNICO que guarda la acción genérica: los colores de marca de la pestaña «Colores» (decisión del PO, pendientes.md
-     * 176.2). Todo lo demás tiene su acción propia, con su permiso y su validación. ROOT_ONLY_CONFIG_KEYS y el patrón del
-     * nombre se quedan como segunda capa.
-     *
-     * @var string[]
-     */
-    const GENERIC_SAVE_ALLOWED = [
+    const COLOR_OPTIONS = [
         'main_brand_color',
         'second_brand_color',
-        'font_color_one',
-        'font_color_two',
-        'menu_color_background',
-        'menu_color_mark',
-        'menu_color_font',
+        'third_brand_color',
         'meta_theme_color',
-        'bg_tools_buttons',
+        'data_color_2',
+        'data_color_3',
+        'data_color_4',
+        'data_color_5',
     ];
     /**
-     * Los colores que se pintan con un alfa concatenado: solo #RRGGBB. El vacío se rechaza aunque el selector lo permita.
+     * Los tres acentos: se publican siempre, y un valor inválido cae a su valor de fábrica.
      *
-     * @var string[]
+     * @var array<string,string> token del tema => opción
      */
-    const BRAND_COLORS_SIX_HEX = [
-        'main_brand_color',
-        'menu_color_background',
+    const ACCENT_TOKENS = [
+        'accent' => 'main_brand_color',
+        'accent-2' => 'second_brand_color',
+        'accent-3' => 'third_brand_color',
     ];
+    /**
+     * Las series de datos: vacías no se publican y manda el tema (la serie 5 es light-dark(): fijarla rompería el oscuro).
+     *
+     * @var array<string,string> token del tema => opción
+     */
+    const DATA_TOKENS = [
+        'data-2' => 'data_color_2',
+        'data-3' => 'data_color_3',
+        'data-4' => 'data_color_4',
+        'data-5' => 'data_color_5',
+    ];
+    /**
+     * Los valores de fábrica del tema. Una serie que llega con el suyo se guarda vacía.
+     *
+     * @var array<string,string>
+     */
+    const FACTORY_COLORS = [
+        'main_brand_color' => '#356DCA',
+        'second_brand_color' => '#7A5AF8',
+        'third_brand_color' => '#C11574',
+        'data_color_2' => '#7A5AF8',
+        'data_color_3' => '#C11574',
+        'data_color_4' => '#6E4A2E',
+        'data_color_5' => '#1D2939',
+    ];
+    /**
+     * El neutro de la barra del navegador en el móvil; la otra opción es el acento.
+     */
+    const META_THEME_DARK = '#1F2430';
+    const BROWSER_BAR_ACCENT = 'accent';
+    const BROWSER_BAR_DARK = 'dark';
+    /**
+     * Las fuentes que se pueden elegir. Una que no sea del tema lleva su hoja, relativa a la raíz pública.
+     *
+     * @var array<string,array{name:string,stack:string,stylesheet:string|null}>
+     */
+    const THEME_FONTS = [
+        'inter' => [
+            'name' => 'Inter',
+            'stack' => '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+            'stylesheet' => null,
+        ],
+        'poppins' => [
+            'name' => 'Poppins',
+            'stack' => "'Poppins', sans-serif",
+            'stylesheet' => 'statics/fonts/poppins/poppins.css',
+        ],
+        'public-sans' => [
+            'name' => 'Public Sans',
+            'stack' => "'Public Sans', sans-serif",
+            'stylesheet' => 'statics/fonts/public-sans/public-sans.css',
+        ],
+    ];
+    const THEME_FONT_FACTORY = 'inter';
+    /**
+     * @var int[] En píxeles
+     */
+    const THEME_FONT_SIZES = [14, 15, 16];
+    const THEME_FONT_SIZE_FACTORY = 14;
+    /**
+     * @var int[] En píxeles
+     */
+    const THEME_RADII = [0, 4, 6, 8, 12];
+    const THEME_RADIUS_FACTORY = 8;
     /**
      * La configuración SMTP, cifrada, y las de osTicket.
      */
     const MAIL_CONFIG = 'mail';
+    /**
+     * El texto opcional del pie del menú, encima de la imagen del patrocinador (P258); vacío, no se pinta. Se edita en
+     * Imágenes de marca.
+     */
+    const PARTNERS_TEXT_CONFIG = 'partnersText';
+    const PARTNERS_TEXT_MAX_LENGTH = 120;
+
     const OS_TICKET_URL_CONFIG = 'osTicketAPI';
     const OS_TICKET_KEY_CONFIG = 'osTicketAPIKey';
     const ROLES_ROUTES_VIEWS = [
@@ -187,8 +238,8 @@ class SettingsController extends AdminPanelController
     ];
 
     /**
-     * Lo que guarda cada una de las dos pantallas que eran «Seguridad e IA». Una pantalla solo valida y escribe las
-     * suyas: si validara todas, guardar la seguridad vaciaría las claves de IA, que no viajan en su formulario.
+     * Qué valida y escribe cada pantalla de «Seguridad e IA» (el catálogo es ConfigOptions, ADR 0055): si una validara
+     * todas, guardar la seguridad vaciaría las claves de IA, que no viajan en su formulario.
      */
     const SECURITY_CONFIG_KEYS = [
         'check_aud_on_auth',
@@ -203,10 +254,12 @@ class SettingsController extends AdminPanelController
         'MistralAIApiKey',
         'translationAI',
         'translationAIEnable',
+        \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG,
     ];
 
     /**
      * De AI_CONFIG_KEYS, los secretos: el formulario no los pinta.
+     * Responde QUÉ no se pinta; el catálogo de opciones es ConfigOptions (ADR 0055).
      */
     const AI_SECRET_CONFIG_KEYS = [
         'OpenAIApiKey',
@@ -234,6 +287,11 @@ class SettingsController extends AdminPanelController
     const SEO_OPTION_SHARE_DESCRIPTION_ON_FORM = 'shareDescription';
     const SEO_OPTION_X_ACCOUNT_ON_FORM = 'xAccount';
 
+    /**
+     * Responde QUÉ campo del formulario de SEO va a qué opción; el catálogo de opciones es ConfigOptions (ADR 0055).
+     *
+     * @var array<string,string>
+     */
     const SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME = [
         self::SEO_OPTION_TITLE_APP_ON_FORM => self::SEO_OPTION_TITLE_APP,
         self::SEO_OPTION_OWNER_ON_FORM => self::SEO_OPTION_OWNER,
@@ -285,7 +343,7 @@ class SettingsController extends AdminPanelController
     {
         $langGroup = self::LANG_GROUP;
         $requestMethod = mb_strtoupper($req->getMethod());
-        set_title(__(self::LANG_GROUP, 'Fondos'));
+        set_title(__(self::LANG_GROUP, 'Fondos del inicio de sesión'));
 
         if ($requestMethod == 'GET') {
 
@@ -295,16 +353,12 @@ class SettingsController extends AdminPanelController
                 SettingsRoutes::staticRoute('js/backgrounds.js'),
             ], 'js');
 
-            set_custom_assets([
-                SettingsRoutes::staticRoute('css/backgrounds.css'),
-            ], 'css');
-
             $actionURL = self::routeName('appearance-backgrounds');
 
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
-            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Fondos'), __(self::LANG_GROUP, 'Las imágenes de fondo del acceso y de la página de problemas para iniciar sesión.'));
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Fondos del inicio de sesión'), __(self::LANG_GROUP, 'Estas imágenes llenan el panel izquierdo del inicio de sesión; la plataforma muestra una al azar en cada visita.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -343,19 +397,19 @@ class SettingsController extends AdminPanelController
 
             $currentBackgroundConfigMapper = new SettingsModel('backgrounds');
             $oldImage = '';
-            $currentBackgroundConfigValues = $currentBackgroundConfigMapper->value;
-            //Sin la opción guardada (o con otra forma) no hay fondos que recorrer.
+            //El valor efectivo y no el de la fila: sin fila, partir de vacío borraría los fondos de fábrica.
+            $currentBackgroundConfigValues = get_config('backgrounds');
             $currentBackgroundConfigValues = is_array($currentBackgroundConfigValues) ? $currentBackgroundConfigValues : (is_object($currentBackgroundConfigValues) ? (array) $currentBackgroundConfigValues : []);
 
-            foreach ($currentBackgroundConfigValues as $i => $v) {
-                if (mb_strlen($nameImage) > 0 && str_contains($v, $nameImage)) {
-                    $currentBackgroundConfigValues[$i] = $relativePath;
+            foreach ($currentBackgroundConfigValues as $v) {
+                if (mb_strlen($nameImage) > 0 && is_string($v) && str_contains($v, $nameImage)) {
                     $oldImage = $v != $relativePath ? $v : '';
                     break;
                 }
             }
 
-            $currentBackgroundConfigMapper->value = $currentBackgroundConfigValues;
+            //El fondo de los problemas de inicio se pisa por nombre: no está en la opción.
+            $newBackgroundConfigValues = str_starts_with($nameImage, 'bg') ? self::backgroundsWithImage($currentBackgroundConfigValues, $nameImage, $relativePath) : $currentBackgroundConfigValues;
 
             $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
             $result->setSingleOperation(true);
@@ -386,15 +440,24 @@ class SettingsController extends AdminPanelController
 
                     if (!empty($route)) {
 
-                        $updated = $currentBackgroundConfigMapper->update();
+                        //Con el mismo valor no hay nada que escribir: reemplazar un fondo pisa su archivo y deja la opción igual.
+                        $updated = $newBackgroundConfigValues === $currentBackgroundConfigValues;
+                        if (!$updated) {
+                            $currentBackgroundConfigMapper->value = $newBackgroundConfigValues;
+                            $updated = $currentBackgroundConfigMapper->id !== null ? $currentBackgroundConfigMapper->update() : SettingsModel::setConfigValue('backgrounds', $newBackgroundConfigValues);
+                        }
 
-                        if ($updated && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
-                            unlink(basepath($oldImage));
+                        if ($updated && is_string($oldImage) && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
+                            //El anterior puede no estar ya; si no se puede borrar, se registra y el guardado sigue.
+                            $oldFile = basepath($oldImage);
+                            if (is_file($oldFile) && (!is_writable(dirname($oldFile)) || !unlink($oldFile))) {
+                                log_exception(new \RuntimeException('No se pudo borrar el archivo anterior: ' . $oldFile));
+                            }
                         }
 
                         $result
-                            ->setMessage($createMessage)
-                            ->setSuccessOnSingleOperation(true);
+                            ->setMessage($updated ? $createMessage : $unknowErrorMessage)
+                            ->setSuccessOnSingleOperation($updated);
 
                     } else {
                         $result->setMessage($unknowErrorMessage);
@@ -416,6 +479,28 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * La lista de fondos con una imagen puesta: sustituye la que lleva ese nombre (bg3 puede ser .jpg o .webp) y, si no
+     * está, la añade. Un fondo vacío de la pantalla no tiene valor en la lista.
+     *
+     * @param array<int|string,mixed> $current
+     * @param string $name El nombre del archivo sin extensión, `bg<n>`.
+     * @param string $relativePath
+     * @return array<int,mixed>
+     */
+    public static function backgroundsWithImage(array $current, string $name, string $relativePath): array
+    {
+        $backgrounds = array_values($current);
+        foreach ($backgrounds as $index => $background) {
+            if (is_string($background) && str_contains($background, $name)) {
+                $backgrounds[$index] = $relativePath;
+                return $backgrounds;
+            }
+        }
+        $backgrounds[] = $relativePath;
+        return $backgrounds;
+    }
+
+    /**
      * @param Request $req
      * @param Response $res
      * @return Response
@@ -434,10 +519,6 @@ class SettingsController extends AdminPanelController
                 SettingsRoutes::staticRoute('js/logos-favicons.js'),
             ], 'js');
 
-            set_custom_assets([
-                SettingsRoutes::staticRoute('css/logos-favicons.css'),
-            ], 'css');
-
             $actionURL = self::routeName('appearance-brand-images');
 
             $data = [
@@ -449,12 +530,42 @@ class SettingsController extends AdminPanelController
                 'partners' => get_config('partners'),
                 'partnersVertical' => get_config('partnersVertical'),
                 'mailingLogo' => get_config('mailing_logo'),
-            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Imágenes de marca'), __(self::LANG_GROUP, 'El logotipo, el favicon y las imágenes que identifican la plataforma.'));
+                'partnersText' => self::partnersText(),
+                'invertOnDark' => array_map(fn(string $option) => self::brandImageInvertsOnDark((string) array_search($option, self::BRAND_IMAGES_INVERT_ON_DARK, true)), self::BRAND_IMAGES_INVERT_ON_DARK),
+                'partnersTextMaxLength' => self::PARTNERS_TEXT_MAX_LENGTH,
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Imágenes de marca'), __(self::LANG_GROUP, 'La plataforma es marca blanca: estas imágenes identifican al cliente en toda la plataforma, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
             $this->settingsViews->render("{$baseViewDir}/logos-favicons", $data);
             $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST' && is_string($req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, null))) {
+
+            //El texto sobre el patrocinador: texto plano, recortado; vacío lo quita del pie.
+            $text = trim(strip_tags((string) $req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, '')));
+            $text = mb_substr($text, 0, self::PARTNERS_TEXT_MAX_LENGTH);
+            $saved = SettingsModel::setConfigValue(self::PARTNERS_TEXT_CONFIG, $text);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Texto sobre el patrocinador'));
+            $result->setSingleOperation(true);
+            $result
+                ->setMessage($saved ? __(self::LANG_GROUP, 'Texto guardado.') : __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'))
+                ->setSuccessOnSingleOperation($saved);
+            $res = $res->withJson($result);
+
+        } elseif ($requestMethod == 'POST' && is_string($req->getParsedBodyParam('invertOnDark', null))) {
+
+            //La casilla «Invertir colores en modo oscuro» de una imagen: se guarda al cambiarla.
+            $image = (string) $req->getParsedBodyParam('invertOnDark', '');
+            $checked = $req->getParsedBodyParam('checked', null);
+            $valid = array_key_exists($image, self::BRAND_IMAGES_INVERT_ON_DARK) && in_array($checked, ['0', '1'], true);
+            $saved = $valid && SettingsModel::setConfigValue(self::BRAND_IMAGES_INVERT_ON_DARK[$image], (int) $checked);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Invertir colores en modo oscuro'));
+            $result->setSingleOperation(true);
+            $result
+                ->setMessage($saved ? __(self::LANG_GROUP, 'Preferencia guardada.') : __(self::LANG_GROUP, 'Información faltante o inesperada.'))
+                ->setSuccessOnSingleOperation($saved);
+            $res = $res->withJson($result);
 
         } elseif ($requestMethod == 'POST') {
 
@@ -523,8 +634,12 @@ class SettingsController extends AdminPanelController
 
                         $updated = $logosAndFaviconsMapper->id !== null ? $logosAndFaviconsMapper->update() : SettingsModel::setConfigValue($nameCurrentAllowedImage, $relativePath);
 
-                        if ($updated && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
-                            unlink(basepath($oldImage));
+                        if ($updated && is_string($oldImage) && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
+                            //El anterior puede no estar ya; si no se puede borrar, se registra y el guardado sigue.
+                            $oldFile = basepath($oldImage);
+                            if (is_file($oldFile) && (!is_writable(dirname($oldFile)) || !unlink($oldFile))) {
+                                log_exception(new \RuntimeException('No se pudo borrar el archivo anterior: ' . $oldFile));
+                            }
                         }
 
                         $result
@@ -613,7 +728,7 @@ class SettingsController extends AdminPanelController
                 'actionURL' => $actionURL,
                 'SEOValues' => $SEOValues,
                 'xAccount' => SettingsModel::getConfigValue(self::SEO_OPTION_X_ACCOUNT),
-            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Identidad y SEO'), __(self::LANG_GROUP, 'Cómo se presenta la plataforma en los buscadores y al compartirla.'));
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Identidad y SEO'), __(self::LANG_GROUP, 'Datos del sitio para buscadores y para la vista previa cuando se comparte un enlace en redes sociales y aplicaciones de mensajería.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -785,10 +900,13 @@ class SettingsController extends AdminPanelController
                         self::SEO_OPTION_SHARE_DESCRIPTION => $shareDescription,
                     ];
 
+                    //Solo se escribe lo que cambia (comparado por su JSON, como se guarda), y cada opción se intenta aunque
+                    //otra falle: el resultado es falso si alguna falló.
                     $success = true;
+                    $sameValue = fn ($current, $new): bool => json_encode($current) === json_encode($new);
 
-                    if (is_string($xAccount)) {
-                        $success = SettingsModel::setConfigValue(self::SEO_OPTION_X_ACCOUNT, $xAccount);
+                    if (is_string($xAccount) && !$sameValue(SettingsModel::getConfigValue(self::SEO_OPTION_X_ACCOUNT), $xAccount)) {
+                        $success = SettingsModel::setConfigValue(self::SEO_OPTION_X_ACCOUNT, $xAccount) && $success;
                     }
 
                     foreach ($options as $optionName => $optionValue) {
@@ -799,13 +917,17 @@ class SettingsController extends AdminPanelController
 
                         $optionMapper = new SettingsModel($optionName);
 
+                        if ($optionMapper->id !== null && $sameValue($optionMapper->value, $optionValue)) {
+                            continue;
+                        }
+
                         $optionMapper->value = $optionValue;
 
                         if ($optionMapper->id !== null) {
-                            $success = $success && $optionMapper->update();
+                            $success = $optionMapper->update() && $success;
                         } else {
                             $optionMapper->name = $optionName;
-                            $success = $success && $optionMapper->save();
+                            $success = $optionMapper->save() && $success;
                         }
 
                     }
@@ -916,7 +1038,8 @@ class SettingsController extends AdminPanelController
             $user = getLoggedFrameworkUser();
             $to = $user !== null ? trim((string) $user->email) : '';
         }
-        if (!Validator::isEmail($to)) {
+        //filter_var y no Validator::isEmail(): ese consulta el DNS en cada llamada.
+        if (filter_var($to, \FILTER_VALIDATE_EMAIL) === false) {
             return $res->withJson(['success' => false, 'message' => __(self::LANG_GROUP, 'La dirección no es un correo válido.')], 400);
         }
         return $res->withJson(MailTester::send($to));
@@ -952,7 +1075,7 @@ class SettingsController extends AdminPanelController
                 'testSendURL' => self::routeName('integrations-mail-test-send'),
                 'currentEmail' => (string) (getLoggedFrameworkUser()->email ?? ''),
                 'element' => $element,
-            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Integraciones'), __(self::LANG_GROUP, 'Correo'), __(self::LANG_GROUP, 'Desde dónde y cómo sale el correo de la plataforma.'));
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Correo'), __(self::LANG_GROUP, 'Desde dónde y cómo sale el correo de la plataforma.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -1237,8 +1360,8 @@ class SettingsController extends AdminPanelController
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
                 'url' => $url,
-                'key' => $key,
-            ] + $this->sectionHeader(__(self::LANG_GROUP, 'Integraciones'), __(self::LANG_GROUP, 'OsTicket'), __(self::LANG_GROUP, 'La conexión con el sistema de soporte osTicket.'));
+                'hasKey' => mb_strlen((string) $key) > 0,
+            ] + $this->sectionHeader(__(self::LANG_GROUP, 'OsTicket'), __(self::LANG_GROUP, 'La conexión con el sistema de soporte osTicket.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -1359,7 +1482,7 @@ class SettingsController extends AdminPanelController
     public function security(Request $req, Response $res)
     {
         $title = __(self::LANG_GROUP, 'Seguridad');
-        $header = $this->sectionHeader(__(self::LANG_GROUP, 'Sistema'), $title, __(self::LANG_GROUP, 'Las opciones de seguridad de la plataforma.'));
+        $header = $this->sectionHeader($title, __(self::LANG_GROUP, 'Las opciones de seguridad de la plataforma.'));
         return $this->securityOrAI($req, $res, 'system-security', $title, 'security', self::SECURITY_CONFIG_KEYS, $header);
     }
 
@@ -1371,7 +1494,7 @@ class SettingsController extends AdminPanelController
     public function ai(Request $req, Response $res)
     {
         $title = __(self::LANG_GROUP, 'Inteligencia artificial');
-        $header = $this->sectionHeader(__(self::LANG_GROUP, 'Integraciones'), $title, __(self::LANG_GROUP, 'Los proveedores y las claves de las funciones de inteligencia artificial.'));
+        $header = $this->sectionHeader($title, __(self::LANG_GROUP, 'Proveedor, modelo y claves que usa la plataforma para las funciones con inteligencia artificial.'));
         return $this->securityOrAI($req, $res, 'integrations-ai', $title, 'ai', self::AI_CONFIG_KEYS, $header);
     }
 
@@ -1391,12 +1514,9 @@ class SettingsController extends AdminPanelController
         set_custom_assets([
             SettingsRoutes::staticRoute('js/site-files.js'),
         ], 'js');
-        set_custom_assets([
-            SettingsRoutes::staticRoute('css/site-files.css'),
-        ], 'css');
 
         $added = fn(string $name): string => is_string($value = SettingsModel::getConfigValue($name)) ? $value : '';
-        $data = $this->sectionHeader(__($langGroup, 'Apariencia'), __($langGroup, 'Archivos para buscadores'), __($langGroup, 'Lo que leen los buscadores y las inteligencias artificiales: robots.txt, humans.txt y llms.txt.')) + [
+        $data = $this->sectionHeader(__($langGroup, 'Archivos para buscadores'), __($langGroup, 'Lo que leen los buscadores y las inteligencias artificiales: robots.txt, humans.txt y llms.txt.')) + [
             'langGroup' => $langGroup,
             'actionURL' => self::routeName('appearance-site-files-save'),
             'files' => [
@@ -1473,9 +1593,6 @@ class SettingsController extends AdminPanelController
         set_custom_assets([
             SettingsRoutes::staticRoute('js/scripts.js'),
         ], 'js');
-        set_custom_assets([
-            SettingsRoutes::staticRoute('css/scripts.css'),
-        ], 'css');
 
         $data = [
             'langGroup' => $langGroup,
@@ -1491,7 +1608,7 @@ class SettingsController extends AdminPanelController
                 ExtraScripts::POSITION_BODY_START => __($langGroup, 'Al empezar la página'),
                 ExtraScripts::POSITION_BODY_END => __($langGroup, 'Al final de la página'),
             ],
-        ] + $this->sectionHeader(__($langGroup, 'Integraciones'), __($langGroup, 'Scripts'), __($langGroup, 'El código que se añade a las páginas del sitio, del panel o de los dos, como la analítica.'));
+        ] + $this->sectionHeader(__($langGroup, 'Scripts'), __($langGroup, 'Código propio que se inserta en el sitio público, en el panel o en ambos: analítica, píxeles de anuncios, chats y similares.'));
 
         $this->render('panel/layout/header');
         $this->settingsViews->render('panel/pages/app_configurations/scripts', $data);
@@ -1596,13 +1713,9 @@ class SettingsController extends AdminPanelController
             'tables' => self::databaseTables(),
             'codeExcluded' => BackupPolicy::codeExcludedDataTables(),
         ] + $this->sectionHeader(
-            __(self::LANG_GROUP, 'Sistema'),
             __(self::LANG_GROUP, 'Respaldos'),
             __(self::LANG_GROUP, 'Cada cuánto se respalda la base de datos, cuántos respaldos se guardan y qué tablas salen sin sus filas.')
         );
-
-        //Las cuatro cifras de «Cómo está ahora», con las piezas de estadística.
-        add_global_asset('statics/core/css/graphs-and-statistics.css', 'css');
 
         $this->render('panel/layout/header');
         $this->settingsViews->render('panel/pages/app_configurations/backups', $data);
@@ -1729,13 +1842,6 @@ class SettingsController extends AdminPanelController
                 SettingsRoutes::staticRoute("js/{$asset}.js"),
             ], 'js');
 
-            //Su hoja, si la tiene: la de la IA se quedó vacía con la cabecera del panel y salió.
-            if ($asset === 'security') {
-                set_custom_assets([
-                    SettingsRoutes::staticRoute('css/security.css'),
-                ], 'css');
-            }
-
             $actionURL = self::routeName($routeSuffix);
 
             $data = [
@@ -1856,6 +1962,17 @@ class SettingsController extends AdminPanelController
                         return $value;
                     }
                 ),
+                \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => new Parameter(
+                    \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG,
+                    null,
+                    function ($value) {
+                        return self::translationUserTypesIsValid($value);
+                    },
+                    true,
+                    function ($value) {
+                        return is_array($value) ? array_values(array_map('intval', array_filter($value, fn($type) => $type !== ''))) : [];
+                    }
+                ),
                 'translationAIEnable' => new Parameter(
                     'translationAIEnable',
                     null,
@@ -1920,6 +2037,7 @@ class SettingsController extends AdminPanelController
                         'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key de Mistral actualizada'),
                         'translationAI' => __(self::LANG_GROUP, 'IA para traducciones'),
                         'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
+                        \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),
                     ];
 
                     $success = true;
@@ -2023,7 +2141,6 @@ class SettingsController extends AdminPanelController
         $this->settingsViews->render('panel/pages/app_configurations/routes', [
             'groups' => self::routesByModule(get_routes()),
         ] + $this->sectionHeader(
-            __(self::LANG_GROUP, 'Sistema'),
             __(self::LANG_GROUP, 'Rutas y permisos'),
             __(self::LANG_GROUP, 'Qué rutas existen y qué tipos de usuario pueden usar cada una.')
         ));
@@ -2033,52 +2150,23 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * La puerta de la configuración: los tres grupos y, en cada uno, las pantallas que quien mira puede abrir.
+     * La taxonomía del panel de configuración (ADR 0028): los cinco grupos del prototipo y su orden (P255 a; diseño del
+     * tema, design.md §2.2) y, en cada uno, sus pantallas. Lo nuestro que el prototipo no nombra no se quita: va al
+     * final del grupo más afín (P256).
      *
-     * No pinta ningún ajuste. Un grupo sin ninguna pantalla visible no se enseña.
+     * ÚNICA FUENTE del panel de Configuración de la barra (el índice se retiró, ADR 0070).
+     * `visible` es el permiso de quien mira, y un grupo se ve si se ve alguna de sus pantallas. Muchas son de otros
+     * módulos y aquí solo se agrupan: el menú no obliga a la URL a espejarlo. Las de registros son pestañas del visor de
+     * registros (`?tab=`), con su título, su icono y su permiso de LogTabRegistry.
      *
-     * @param Request $req
-     * @param Response $res
-     * @return Response
-     */
-    public function indexView(Request $req, Response $res)
-    {
-        $title = __(self::LANG_GROUP, 'Configuración');
-        set_title($title);
-
-        $this->render('panel/layout/header');
-        $this->settingsViews->render('panel/pages/app_configurations/index', [
-            'langGroup' => self::LANG_GROUP,
-            'title' => $title,
-            'description' => __(self::LANG_GROUP, 'Lo que se ajusta de esta instalación: su aspecto, sus integraciones y el sistema.'),
-            'breadcrumbs' => [
-                __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-                ],
-                $title,
-            ],
-            //Las piezas del panel (page-header.php) se pintan desde src/app/view, no desde las vistas de Settings.
-            'helpController' => new HelperController($this->user, $this->getGlobalVariables()),
-            'groups' => array_values(array_filter(self::panelGroups(), fn(array $group) => $group['visible'])),
-        ]);
-        $this->render('panel/layout/footer');
-
-        return $res;
-    }
-
-    /**
-     * La taxonomía del panel de configuración (ADR 0028): tres grupos y, en cada uno, sus pantallas.
-     *
-     * ÚNICA FUENTE para el menú y para el índice: dos listas escritas por separado acaban ofreciendo cosas distintas.
-     * `visible` es el permiso de quien mira, y un grupo se ve si se ve alguna de sus pantallas. Las tres de estado del
-     * sistema son de otro módulo y aquí solo se agrupan: el menú no obliga a la URL a espejarlo.
-     *
-     * @return array<int,array{name:string,visible:bool,items:array<int,array{name:string,icon:string,href:string,visible:bool}>}>
+     * @return array<int,array{name:string,icon:string,visible:bool,items:array<int,array{name:string,icon:string,href:string,visible:bool}>}>
      */
     public static function panelGroups(): array
     {
         $langGroup = self::LANG_GROUP;
         $statusLangGroup = SystemStatusController::LANG_GROUP;
+        $user = getLoggedFrameworkUser();
+        $userType = $user !== null ? (int) $user->type : null;
         $own = fn(string $suffix, string $name, string $icon): array => [
             'name' => $name,
             'icon' => $icon,
@@ -2098,38 +2186,85 @@ class SettingsController extends AdminPanelController
             'href' => (string) GenericContentController::routeName($suffix, [], true),
             'visible' => GenericContentController::allowedRoute($suffix),
         ];
+        $permission = fn(string $routeName, string $href, string $name, string $icon): array => [
+            'name' => $name,
+            'icon' => $icon,
+            'href' => $href,
+            'visible' => $userType !== null && Roles::hasPermissions($routeName, $userType),
+        ];
+        //Una pestaña del visor de registros; sin título propio (`$name`), el de la pestaña.
+        $recordTabs = $userType !== null && LogsController::allowedRoute('index') ? LogTabRegistry::visibleFor($userType) : [];
+        $record = function (string $tab, ?string $view = null, ?string $name = null, ?string $icon = null) use ($recordTabs): array {
+            $logTab = $recordTabs[$tab] ?? null;
+            return [
+                'name' => $name ?? ($logTab !== null ? $logTab->title() : $tab),
+                'icon' => $icon ?? ($logTab !== null ? $logTab->icon() : 'clipboard list'),
+                'href' => (string) LogsController::routeName('index') . '?' . http_build_query(array_filter(['tab' => $tab, 'view' => $view])),
+                'visible' => $logTab !== null,
+            ];
+        };
+        $accessTab = LoginAttemptsController::ACCESS_TAB;
 
         $groups = [
-            __($langGroup, 'Apariencia') => [
+            __(ADMIN_MENU_LANG_GROUP, 'Gestión de usuarios') => ['users', [
+                $permission('users-selection-create', (string) UsersController::routeName('selection-create'), __(AdminPanelController::ADMIN_LANG_GROUP, 'Agregar usuario'), 'user plus'),
+                $permission('users-list', (string) UsersController::routeName('list'), __(AdminPanelController::ADMIN_LANG_GROUP, 'Gestionar usuarios'), 'users cog'),
+                [
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Importar usuarios'),
+                    'icon' => 'upload',
+                    'href' => (string) DataTransferController::routeName('import-users', [], true),
+                    'visible' => DataTransferController::allowedRoute('import-users'),
+                ],
+                $record(UserSessionsController::SESSIONS_TAB),
+            ]],
+            __($langGroup, 'Registros y Logs') => ['clipboard list', [
+                $record(LogsController::ERRORS_TAB),
+                $record($accessTab, 'attempts', __(LogsLang::LANG_GROUP, 'Intentos de ingreso'), 'sign in alternate'),
+                $record($accessTab, 'logged', __(LogsLang::LANG_GROUP, 'Registro de ingresos'), 'chart bar outline'),
+                $record($accessTab, 'not-logged', __(LogsLang::LANG_GROUP, 'Usuarios sin ingresos'), 'user times'),
+                $record(SystemStatusController::MAIL_LOG_TAB),
+                $record(UserTokensController::TOKENS_TAB),
+                $record(SystemStatusController::TASK_RUNS_TAB),
+                //Sin ?tab: la primera pestaña visible.
+                [
+                    'name' => __(LogsLang::LANG_GROUP, 'Todos los registros'),
+                    'icon' => 'clipboard list',
+                    'href' => (string) LogsController::routeName('index'),
+                    'visible' => $recordTabs !== [],
+                ],
+            ]],
+            __($langGroup, 'Apariencia') => ['palette', [
                 $own('appearance-brand-images', __($langGroup, 'Imágenes de marca'), 'image'),
-                $own('appearance-backgrounds', __($langGroup, 'Fondos'), 'images'),
+                $own('appearance-backgrounds', __($langGroup, 'Fondos del inicio de sesión'), 'images'),
                 $own('appearance-colors', __($langGroup, 'Colores'), 'fill drip'),
+            ]],
+            __($langGroup, 'SEO y Scripts') => ['globe', [
                 $own('appearance-seo', __($langGroup, 'Identidad y SEO'), 'cog'),
                 $own('appearance-site-files', __($langGroup, 'Archivos para buscadores'), 'file alternate outline'),
-            ],
-            __($langGroup, 'Integraciones') => [
-                $own('integrations-mail', __($langGroup, 'Correo'), 'envelope outline'),
-                $own('integrations-osticket', __($langGroup, 'OsTicket'), 'life ring outline'),
+                $own('integrations-scripts', __($langGroup, 'Scripts'), 'code'),
+            ]],
+            __($langGroup, 'Sistema') => ['microchip', [
                 $own('integrations-ai', __($langGroup, 'Inteligencia artificial'), 'microchip'),
                 $helpers('forms-tokens-limit', __($langGroup, 'Límite de tokens de IA'), 'tachometer alternate'),
-                $helpers('forms-mapbox-keys', __($langGroup, 'Llaves de MapBox'), 'map'),
-                $own('integrations-scripts', __($langGroup, 'Scripts'), 'code'),
-            ],
-            __($langGroup, 'Sistema') => [
-                $status('health', __($statusLangGroup, 'Salud de la instalación'), 'heartbeat'),
                 $status('alerts', __($statusLangGroup, 'Avisos del sistema'), 'bell outline'),
                 $status('maintenance', __($statusLangGroup, 'Estado y cachés'), 'wrench'),
+                $status('health', __($statusLangGroup, 'Salud de la instalación'), 'heartbeat'),
                 $status('site-maintenance', __($statusLangGroup, 'Sitio en mantenimiento'), 'power off'),
+                $own('integrations-mail', __($langGroup, 'Correo'), 'envelope outline'),
+                $helpers('forms-mapbox-keys', __($langGroup, 'Llaves de Mapas'), 'map'),
                 $own('system-routes', __($langGroup, 'Rutas y permisos'), 'shield alternate'),
                 $own('system-security', __($langGroup, 'Seguridad'), 'lock'),
                 $own('system-backups', __($langGroup, 'Respaldos'), 'database'),
-            ],
+                $own('integrations-osticket', __($langGroup, 'OsTicket'), 'life ring outline'),
+                $permission('admin-design-sheet', (string) AdminPanelController::routeName('design-sheet'), __(AdminPanelController::ADMIN_LANG_GROUP, 'Hoja de diseño'), 'paint brush'),
+            ]],
         ];
 
         $result = [];
-        foreach ($groups as $name => $items) {
+        foreach ($groups as $name => [$icon, $items]) {
             $result[] = [
                 'name' => $name,
+                'icon' => $icon,
                 'visible' => count(array_filter($items, fn(array $item) => $item['visible'])) > 0,
                 'items' => $items,
             ];
@@ -2138,53 +2273,42 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * La cabecera de una pantalla de un grupo de la configuración (diseno/02-configuracion.md §2.1): migas, título, su
-     * frase, el HelperController que pinta las piezas del panel (las vistas de Settings pintan desde su carpeta) y el
-     * índice, al que vuelve «Cancelar».
+     * La cabecera de una pantalla de la configuración: título, su frase, el HelperController que pinta las piezas del
+     * panel (las vistas de Settings pintan desde su carpeta) y adonde vuelve «Cancelar».
      *
-     * @param string $section El grupo del índice (Apariencia, Integraciones…), ya traducido: miga sin enlace.
      * @param string $title
      * @param string $description
      * @return array{title:string,description:string,breadcrumbs:array<string|int,string|array{url:string}>,helpController:HelperController,indexLink:string}
      */
-    private function sectionHeader(string $section, string $title, string $description): array
+    private function sectionHeader(string $title, string $description): array
     {
-        return self::sectionHeaderData($section, $title, $description) + [
+        return self::sectionHeaderData($title, $description) + [
             'helpController' => new HelperController($this->user, $this->getGlobalVariables()),
         ];
     }
 
     /**
-     * Los datos de la cabecera de una pantalla de un grupo de la configuración, sin el HelperController: la usan también
-     * las pantallas de Sistema de SystemStatusController, que pintan con el suyo.
+     * Los datos de la cabecera de una pantalla de la configuración, sin el HelperController: la usan también las
+     * pantallas de Sistema de SystemStatusController, que pintan con el suyo. Sin migas, porque son vistas principales a
+     * las que se llega por el panel de Configuración, y «Cancelar» vuelve al inicio del panel (ADR 0070).
      *
-     * @param string $section El grupo del índice (Apariencia, Integraciones, Sistema), ya traducido: miga sin enlace.
      * @param string $title
      * @param string $description
      * @return array{title:string,description:string,breadcrumbs:array<string|int,string|array{url:string}>,indexLink:string}
      */
-    public static function sectionHeaderData(string $section, string $title, string $description): array
+    public static function sectionHeaderData(string $title, string $description): array
     {
-        $indexLink = self::routeName('index');
         return [
             'title' => $title,
             'description' => $description,
-            'breadcrumbs' => [
-                __(self::LANG_GROUP, 'Inicio') => [
-                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-                ],
-                __(self::LANG_GROUP, 'Configuración') => [
-                    'url' => $indexLink,
-                ],
-                $section,
-                $title,
-            ],
-            'indexLink' => $indexLink,
+            //Vacío, page-header.php no pinta migas; las vistas lo siguen leyendo.
+            'breadcrumbs' => [],
+            'indexLink' => AdminPanelController::routeName(''),
         ];
     }
 
     /**
-     * La pantalla de colores. Conserva el contenedor de pestañas con permiso por pestaña, que hoy tiene una.
+     * La pantalla de colores: un solo formulario (acento, series, realces, tipografía, forma y barra del navegador).
      *
      * @param Request $req
      * @param Response $res
@@ -2195,252 +2319,225 @@ class SettingsController extends AdminPanelController
 
         set_title(__(self::LANG_GROUP, 'Colores'));
 
-        import_spectrum();
-
-        set_custom_assets([
-            SettingsRoutes::staticRoute('css/configurations.css'),
-        ], 'css');
+        //Las fuentes que no trae el tema, para la vista previa: solo en esta pantalla.
+        set_custom_assets(array_map('base_url', array_values(array_filter(array_column(self::THEME_FONTS, 'stylesheet')))), 'css');
         set_custom_assets([
             SettingsRoutes::staticRoute('js/colors.js'),
         ], 'js');
 
-        $langGroup = SettingsController::LANG_GROUP;
-
-        $tabsTitles = [];
-        $tabsItems = [];
-
-        $currentUser = getLoggedFrameworkUserOrFail();
-        $baseViewDir = 'panel/pages/app_configurations';
-
-        if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
-
-            $actionGenericURL = SettingsController::routeName('generic-save');
-
-            $hasPermissionsGenerals = count(array_filter([
-                $actionGenericURL,
-            ], function ($e) {return mb_strlen(trim($e)) > 0;})) > 0;
-
-            if ($hasPermissionsGenerals) {
-
-                $data = [
-                    'langGroup' => $langGroup,
-                    'actionGenericURL' => $actionGenericURL,
-                    //La barra de guardar de cada formulario es una pieza del panel.
-                    'helpController' => new HelperController($this->user, $this->getGlobalVariables()),
-                    'indexLink' => self::routeName('index'),
-                ];
-
-                $tabsTitles['general'] = __($langGroup, 'Colores');
-                $tabsItems['general'] = $this->settingsViews->render("{$baseViewDir}/inc/configuration-tabs/general", $data, false, false);
-
-            }
-
+        $tokens = self::themeTokens();
+        $seriesColors = [];
+        foreach (self::DATA_TOKENS as $token => $option) {
+            $seriesColors[$option] = ['value' => $tokens[$token] ?? self::FACTORY_COLORS[$option], 'factory' => self::FACTORY_COLORS[$option]];
         }
 
         $data = [
-            'langGroup' => $langGroup,
-            'tabsTitles' => $tabsTitles,
-            'tabsItems' => $tabsItems,
-        ] + $this->sectionHeader(__(self::LANG_GROUP, 'Apariencia'), __(self::LANG_GROUP, 'Colores'), __(self::LANG_GROUP, 'Los colores de marca, del menú, de la barra del móvil y de los botones de arriba a la derecha.'));
+            'langGroup' => self::LANG_GROUP,
+            'actionURL' => self::routeName('appearance-colors-save'),
+            'accentColor' => $tokens['accent'],
+            'secondColor' => $tokens['accent-2'],
+            'thirdColor' => $tokens['accent-3'],
+            'seriesColors' => $seriesColors,
+            'browserBar' => mb_strtoupper((string) get_config('meta_theme_color')) === self::META_THEME_DARK ? self::BROWSER_BAR_DARK : self::BROWSER_BAR_ACCENT,
+            'themeFont' => self::themeFont(),
+            'themeFontSize' => self::themeFontSize(),
+            'themeRadius' => self::themeRadius(),
+        ] + $this->sectionHeader(__(self::LANG_GROUP, 'Colores'), __(self::LANG_GROUP, 'El color del cliente se usa solo como acento (botones, selección, enlaces y foco). Los colores complementarios se usan únicamente en gráficas y datos.'));
 
         $this->render('panel/layout/header');
-        $this->settingsViews->render("{$baseViewDir}/configurations", $data);
+        $this->settingsViews->render('panel/pages/app_configurations/inc/configuration-tabs/general', $data);
         $this->render('panel/layout/footer');
 
         return $res;
     }
 
     /**
+     * Guarda la pantalla Colores de una vez. TODO se valida antes de escribir: un campo malo no cambia ninguna opción.
+     *
      * @param Request $req
      * @param Response $res
      * @return Response
      */
-    public function actionGeneric(Request $req, Response $res)
+    public function saveColorsAction(Request $req, Response $res)
     {
-        $operation_name = __(self::LANG_GROUP, 'Configuración');
+        $langGroup = self::LANG_GROUP;
+        $color = fn (string $name): Parameter => new Parameter(
+            $name,
+            null,
+            fn ($value): bool => self::isBrandColorValue($name, $value),
+            false,
+            fn (string $value): string => mb_strtoupper($value)
+        );
+        $inList = fn (array $allowed): callable => fn ($value): bool => is_scalar($value) && in_array((string) $value, array_map('strval', $allowed), true);
 
-        $result = new ResultOperations([
-            new Operation($operation_name),
-        ], $operation_name);
-
-        $message_create = __(self::LANG_GROUP, 'Guardado.');
-        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
-
-        $parametersExcepted = new Parameters([
-            new Parameter(
-                'name',
-                null,
-                function ($value) {
-                    //Solo nombres de clave: un espacio o una variante crearía una fila que la base iguala a otra.
-                    return is_string($value) && preg_match('/^[A-Za-z0-9_.-]+\z/', $value) === 1;
-                }
-            ),
-            new Parameter(
-                'value',
+        $expectedParameters = new Parameters([
+            $color('main_brand_color'),
+            $color('second_brand_color'),
+            $color('third_brand_color'),
+            ...array_map(fn (string $name): Parameter => new Parameter(
+                $name,
                 '',
-                function ($value) {
-                    return is_string($value) || is_array($value) || is_object($value);
-                },
-                true
-            ),
-            new Parameter(
-                'parse',
-                null,
-                function ($value) {
-
-                    if (is_array($value)) {
-
-                        $valid = true;
-
-                        array_map(function ($v) use (&$valid) {
-                            if (!is_string($v)) {
-                                $valid = false;
-                            }
-                        }, $value);
-
-                        return $valid;
-
-                    } else {
-                        return is_string($value);
-                    }
-
-                },
-                true
-            ),
-            new Parameter(
-                'merge',
-                false,
-                function ($value) {
-                    return is_string($value) || is_bool($value);
-                },
+                fn ($value): bool => self::isBrandColorValue($name, $value),
                 true,
-                function ($value) {
-                    return self::parseTo($value, self::PARSE_TYPE_BOOL) === true;
-                }
-            ),
+                fn (string $value): string => mb_strtoupper($value)
+            ), array_values(self::DATA_TOKENS)),
+            new Parameter('browser_bar', null, $inList([self::BROWSER_BAR_ACCENT, self::BROWSER_BAR_DARK])),
+            new Parameter('theme_font', null, $inList(array_keys(self::THEME_FONTS))),
+            new Parameter('theme_font_size', null, $inList(self::THEME_FONT_SIZES), false, fn ($value): int => (int) $value),
+            new Parameter('theme_radius', null, $inList(self::THEME_RADII), false, fn ($value): int => (int) $value),
         ]);
 
-        $parametersExcepted->setInputValues($req->getParsedBody());
+        $inputData = $req->getParsedBody();
+        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+        $resultOperation = new ResultOperations([], __($langGroup, 'Colores'));
+        $resultOperation->setSingleOperation(true);
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $pdo = null;
 
         try {
 
-            $parametersExcepted->validate();
+            $expectedParameters->validate();
 
-            $name = $parametersExcepted->getValue('name');
-            $value = $parametersExcepted->getValue('value');
-            $parse = $parametersExcepted->getValue('parse');
-            $merge = $parametersExcepted->getValue('merge');
-
-            //ANTES DE ESCRIBIR NADA: hay claves que esta acción no puede tocar aunque su ruta te deje
-            //entrar. Falla cerrado: sin usuario, tampoco.
-            $currentUser = getLoggedFrameworkUser();
-            $isRoot = $currentUser !== null && (int) $currentUser->type === UsersModel::TYPE_USER_ROOT;
-
-            //Antes de leer ni escribir nada: solo los colores de marca.
-            if (!in_array($name, self::GENERIC_SAVE_ALLOWED, true)) {
-
-                $result->setMessage(__(
-                    self::LANG_GROUP,
-                    'Esta acción solo guarda los colores de marca: cada configuración se cambia desde su propia pantalla.'
-                ));
-
-                return $res->withJson($result, 403);
-
+            $accent = $expectedParameters->getValue('main_brand_color');
+            $options = [
+                'main_brand_color' => $accent,
+                'second_brand_color' => $expectedParameters->getValue('second_brand_color'),
+                'third_brand_color' => $expectedParameters->getValue('third_brand_color'),
+                'meta_theme_color' => $expectedParameters->getValue('browser_bar') === self::BROWSER_BAR_DARK ? self::META_THEME_DARK : $accent,
+                'theme_font' => $expectedParameters->getValue('theme_font'),
+                'theme_font_size' => $expectedParameters->getValue('theme_font_size'),
+                'theme_radius' => $expectedParameters->getValue('theme_radius'),
+            ];
+            foreach (self::DATA_TOKENS as $option) {
+                $series = $expectedParameters->getValue($option);
+                $options[$option] = $series === self::FACTORY_COLORS[$option] ? '' : $series;
             }
 
-            //Y el valor, un color: lo pinta el CSS de cada página y la plantilla de los correos, y un valor que no es una
-            //cadena tira el sitio entero (pendientes.md 407). Lo que manda la pestaña: parse «uppercase» y sin merge.
-            if ($merge || $parse !== self::PARSE_TYPE_UPPERCASE || !self::isBrandColorValue($name, $value)) {
-
-                $result->setMessage(__(self::LANG_GROUP, 'El valor no es un color válido.'));
-
-                return $res->withJson($result);
-
+            //Las escrituras van juntas: una que falle no deja la paleta a medias.
+            $pdo = SettingsModel::model()->getDatabase();
+            //Null solo sin conexión, que el arranque ya exige: aquí sería un fallo de verdad, y el catch lo registra.
+            if ($pdo === null) {
+                throw new \Exception('Sin conexión a la base de datos al guardar los colores.');
             }
-
-            $option = new SettingsModel($name);
-            $optionExists = !is_null($option->id);
-
-            //También contra el nombre de la fila que se va a escribir: la base puede encontrarla con una variante del
-            //texto pedido que la lista no reconoce.
-            $targetName = $optionExists ? (string) $option->name : $name;
-            if (self::isRootOnlyConfigName($name, $targetName) && !$isRoot) {
-
-                $result->setMessage(__(
-                    self::LANG_GROUP,
-                    'Esta configuración solo la cambia el usuario principal, desde su propia pantalla.'
-                ));
-
-                return $res->withJson($result, 403);
-
+            $pdo->beginTransaction();
+            $success = true;
+            foreach ($options as $name => $value) {
+                $success = $success && SettingsModel::setConfigValue($name, $value);
             }
-
-            if ($optionExists && $merge) {
-
-                $oldValue = $option->value;
-                if (
-                    (is_array($oldValue) || $oldValue instanceof \stdClass)
-                    &&
-                    (is_array($value) || $value instanceof \stdClass)
-                ) {
-                    $value = self::recursiveMergeArray($oldValue, $value);
-                }
-
-            }
-
-            $value = self::processGenericInputValues($value, $parse);
-
-            $option->value = $value;
-
-            if ($optionExists) {
-
-                $success = $option->update();
-
-            } else {
-
-                $option->name = $name;
-                $success = $option->save();
-
-            }
-
             if ($success) {
-
-                //La hoja de variables se sirve con dos meses de caché: con la marca nueva su URL cambia y el color se ve ya. Solo
-                //la marca, como «Borrar todo lo temporal» (recreateStaticCacheStamp()), sin WebP ni enlaces.
+                $pdo->commit();
+                //La hoja de variables no depende de esto: su URL lleva la huella de su contenido. Se renueva la de los demás estáticos.
                 static_files_cache_stamp(true);
-
-                $result
-                    ->setMessage($message_create);
-                //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
-                ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
-
+                $resultOperation->setMessage(__($langGroup, 'Los colores se guardaron.'));
+                $resultOperation->setSuccessOnSingleOperation(true);
             } else {
-
-                $result
-                    ->setMessage($message_unknow_error);
-
+                $pdo->rollBack();
+                $resultOperation->setMessage(__($langGroup, 'Ha ocurrido un error desconocido, intente más tarde.'));
             }
 
-        } catch (\PDOException $e) {
-            $reference = log_exception($e);
+        } catch (MissingRequiredParameterException|InvalidParameterValueException|ParsedValueException $e) {
 
-            $result
-                ->setMessage(CustomSlimErrorHandler::genericMessage($reference));
-
-        } catch (MissingRequiredParameterException | InvalidParameterValueException | ParsedValueException $e) {
-
-            $result->setMessage($e->getMessage());
-            log_exception($e);
+            $resultOperation->setMessage($e->getMessage());
 
         } catch (\Exception $e) {
-            $reference = log_exception($e);
 
-            $result
-                ->setMessage(CustomSlimErrorHandler::genericMessage($reference));
+            if ($pdo !== null && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage(log_exception($e)));
 
         }
 
-        return $res->withJson($result);
+        return $res->withJson($resultOperation);
+    }
+
+    /**
+     * Los tokens del contrato del tema que escribe la instalación, sin los dos guiones: nombre de la variable => valor.
+     * Lo que no se aparta de lo de fábrica no se publica, y manda el tema; un valor guardado que no vale cae a fábrica,
+     * nunca se publica crudo.
+     *
+     * @return array<string,string>
+     */
+    public static function themeTokens(): array
+    {
+        $tokens = [];
+        foreach (self::ACCENT_TOKENS as $token => $option) {
+            $value = get_config($option);
+            $tokens[$token] = self::isBrandColorValue($option, $value) ? $value : self::FACTORY_COLORS[$option];
+        }
+        foreach (self::DATA_TOKENS as $token => $option) {
+            $value = get_config($option);
+            if ($value !== '' && self::isBrandColorValue($option, $value)) {
+                $tokens[$token] = $value;
+            }
+        }
+        $font = self::themeFont();
+        if ($font !== self::THEME_FONT_FACTORY) {
+            $tokens['font-body'] = self::THEME_FONTS[$font]['stack'];
+            $tokens['font-heading'] = self::THEME_FONTS[$font]['stack'];
+        }
+        $fontSize = self::themeFontSize();
+        if ($fontSize !== self::THEME_FONT_SIZE_FACTORY) {
+            $tokens['font-size-base'] = "{$fontSize}px";
+        }
+        $radius = self::themeRadius();
+        if ($radius !== self::THEME_RADIUS_FACTORY) {
+            $tokens['r-xs'] = (int) round($radius / 2) . 'px';
+            $tokens['r-sm'] = (int) round($radius * 3 / 4) . 'px';
+            $tokens['r-md'] = "{$radius}px";
+            $tokens['r-lg'] = (int) round($radius * 3 / 2) . 'px';
+        }
+        return $tokens;
+    }
+
+    /**
+     * La fuente del panel: una clave de THEME_FONTS.
+     *
+     * @return string
+     */
+    public static function themeFont(): string
+    {
+        $font = get_config('theme_font');
+        return is_string($font) && array_key_exists($font, self::THEME_FONTS) ? $font : self::THEME_FONT_FACTORY;
+    }
+
+    /**
+     * La hoja de la fuente elegida, relativa a la raíz pública; null si es la del tema.
+     *
+     * @return string|null
+     */
+    public static function themeFontStylesheet(): ?string
+    {
+        return self::THEME_FONTS[self::themeFont()]['stylesheet'];
+    }
+
+    /**
+     * @return int El tamaño base en píxeles, de THEME_FONT_SIZES
+     */
+    public static function themeFontSize(): int
+    {
+        return self::configFromList('theme_font_size', self::THEME_FONT_SIZES, self::THEME_FONT_SIZE_FACTORY);
+    }
+
+    /**
+     * @return int El radio en píxeles, de THEME_RADII
+     */
+    public static function themeRadius(): int
+    {
+        return self::configFromList('theme_radius', self::THEME_RADII, self::THEME_RADIUS_FACTORY);
+    }
+
+    /**
+     * @param string $name
+     * @param int[] $allowed
+     * @param int $factory
+     * @return int El valor de la opción si está en la lista; si no, el de fábrica
+     */
+    private static function configFromList(string $name, array $allowed, int $factory): int
+    {
+        $value = get_config($name);
+        return is_numeric($value) && in_array((int) $value, $allowed, true) ? (int) $value : $factory;
     }
 
     /**
@@ -2482,6 +2579,13 @@ class SettingsController extends AdminPanelController
             $publicationsCache->process();
             $publicationsCache->delete();
 
+            //Los avisos de opciones no declaradas (ADR 0055): tras limpiar, se vuelven a avisar. Sin permiso, se queda.
+            $warnedOptions = basepath(\PiecesPHP\Core\ConfigHelpers\ConfigOptions::WARNED_FILE);
+            if (is_file($warnedOptions) && is_writable(dirname($warnedOptions))) {
+                //RETORNO-IGNORADO: si no se borra, no se vuelve a avisar; la limpieza sigue igual.
+                @unlink($warnedOptions);
+            }
+
             //La caché de conversiones a WebP de ServerStatics. Sin permiso de escritura (la creó otro usuario con 0755) no se
             //toca: delete() haría un unlink que falla con un aviso, y aquí un aviso aborta la limpieza entera.
             $webpCacheDirectory = basepath(ServerStatics::WEBP_CACHE_DIRECTORY);
@@ -2497,19 +2601,21 @@ class SettingsController extends AdminPanelController
                 }
             }
 
-            //Caché de enlaces simbólicos
+            //Las miniaturas del geovisor de los puntos que ya no existen o no se ven.
+            $geoThumbnails = GeoThumbnail::sweep();
+            $result->setValue('geoThumbnailsSwept', count($geoThumbnails['deleted']));
+            $result->setValue('geoThumbnailsSweepFailed', $geoThumbnails['failed']);
+
+            //Caché de enlaces simbólicos: solo los enlaces y las carpetas que quedan vacías, nunca un archivo ni la raíz
+            //(ServerDelegatedLinks). Lo que el proceso no puede borrar (carpetas de www-data, desde el terminal) se cuenta.
             $result->setValue('serverDelegatedSymLinksRemoved', false);
+            $result->setValue('serverDelegatedSymLinksFailed', 0);
             if ($removeServerDelegatedSymLinks) {
-                try {
-                    $symLinksDir = new DirectoryObject(basepath('statics/server-delegated'));
-                    $symLinksDir->process(new FilesIgnore([
-                        '.htaccess',
-                        '.gitignore',
-                    ]));
-                    $symLinksDir->delete();
-                    $result->setValue('serverDelegatedSymLinksRemoved', true);
-                } catch (\Exception $e) {
-                    log_exception($e);
+                $removedLinks = ServerDelegatedLinks::deleteAll();
+                $result->setValue('serverDelegatedSymLinksFailed', $removedLinks['failed']);
+                $result->setValue('serverDelegatedSymLinksRemoved', $removedLinks['failed'] === 0);
+                if ($removedLinks['failed'] > 0) {
+                    log_soft_error("clean-cache: {$removedLinks['failed']} enlace(s) de statics/server-delegated sin permiso para borrarse.");
                 }
             }
 
@@ -2594,8 +2700,8 @@ class SettingsController extends AdminPanelController
                                     //reintenta la copia para siempre y nadie se entera nunca.
                                     log_exception(new \Exception(
                                         'Activación de idiomas: no se pudo copiar la imagen Open Graph de '
-                                        . basepath($defaultValue) . ' a ' . basepath($relativePath)
-                                        . '. La configuración de ese idioma queda sin materializar.'
+                                            . basepath($defaultValue) . ' a ' . basepath($relativePath)
+                                            . '. La configuración de ese idioma queda sin materializar.'
                                     ), false);
                                 }
 
@@ -2616,7 +2722,7 @@ class SettingsController extends AdminPanelController
                             if (!@copy(basepath($defaultValue), basepath($valueLang))) {
                                 log_exception(new \Exception(
                                     'Activación de idiomas: no se pudo reponer la imagen Open Graph en '
-                                    . basepath($valueLang) . '. La fila apunta a un archivo que no existe.'
+                                        . basepath($valueLang) . '. La fila apunta a un archivo que no existe.'
                                 ), false);
                             }
                         }
@@ -2715,79 +2821,7 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * @param mixed $input
-     * @param string|array $parse
-     * @return mixed
-     */
-    private static function processGenericInputValues($input, $parse = null)
-    {
-
-        if (is_array($input) || $input instanceof \stdClass) {
-
-            $parseIsArray = is_array($parse);
-            $inputIsArray = is_array($input);
-
-            foreach ($input as $index => $value) {
-
-                if ($parseIsArray) {
-
-                    $parseType = null;
-
-                    if (array_key_exists($index, $parse)) {
-                        $parseType = $parse[$index];
-                    }
-
-                    if (!is_array($value)) {
-
-                        if (is_string($parseType)) {
-
-                            if ($inputIsArray) {
-                                $input[$index] = self::parseTo($value, $parseType);
-                            } else {
-                                $input->$index = self::parseTo($value, $parseType);
-                            }
-
-                        }
-
-                    } else {
-
-                        $input[$index] = self::processGenericInputValues($value, $parseType);
-
-                    }
-
-                }
-
-            }
-
-        } elseif (is_scalar($input)) {
-
-            $parseType = is_string($parse) ? $parse : '';
-            $input = self::parseTo($input, $parseType);
-
-        }
-
-        return $input;
-
-    }
-
-    /**
-     * Si la acción genérica debe reservar ese nombre al usuario principal (segunda capa: ROOT_ONLY_CONFIG_KEYS).
-     *
-     * Mira el nombre pedido y el de la fila que se escribiría, sin distinguir mayúsculas: en una base con colación _ci,
-     * «MAIL» es la fila «mail».
-     *
-     * @param string $requestedName
-     * @param string $targetName
-     * @return bool
-     */
-    public static function isRootOnlyConfigName(string $requestedName, string $targetName): bool
-    {
-        $reservedLower = array_map('mb_strtolower', self::ROOT_ONLY_CONFIG_KEYS);
-        return in_array(mb_strtolower($requestedName), $reservedLower, true) || in_array(mb_strtolower($targetName), $reservedLower, true);
-    }
-
-    /**
-     * Si la imagen de esa configuración es todavía la de fábrica: entonces no se pinta, porque es un relleno.
+     * Si la imagen de esa configuración es todavía la de fábrica.
      *
      * @param string $configName Una clave de FACTORY_BRAND_IMAGES
      * @return bool
@@ -2801,8 +2835,36 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * Si el valor es un color de marca válido para ese nombre: cadena; #RRGGBB, nunca vacía, para los que llevan alfa
-     * concatenado, y para el resto vacía (el selector la permite), hex de 3, 4, 6 u 8 cifras o rgb()/rgba() numérico.
+     * Si esa imagen se pinta en blanco en modo oscuro: su opción si existe; si no, solo la de fábrica. Así el logo de
+     * fábrica la trae activa, y un logo propio nunca se invierte sin marcarla.
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_INVERT_ON_DARK
+     * @return bool
+     */
+    public static function brandImageInvertsOnDark(string $configName): bool
+    {
+        if (!array_key_exists($configName, self::BRAND_IMAGES_INVERT_ON_DARK)) {
+            return false;
+        }
+        $value = get_config(self::BRAND_IMAGES_INVERT_ON_DARK[$configName]);
+        return $value === false ? self::isFactoryBrandImage($configName) : in_array($value, [1, '1'], true);
+    }
+
+    /**
+     * El texto sobre el patrocinador: lo guardado si la opción existe, también vacío (quien lo borró lo quiso quitar), y
+     * si no existe, el de fábrica.
+     *
+     * @return string
+     */
+    public static function partnersText(): string
+    {
+        $text = get_config(self::PARTNERS_TEXT_CONFIG);
+        return is_string($text) ? trim($text) : __(LANG_GROUP, 'Con el apoyo de');
+    }
+
+    /**
+     * Si el valor es un color válido para esa opción: #RRGGBB, o vacío en las series de datos (manda el tema). Lo pinta
+     * el CSS de cada página y la plantilla de los correos: lo que no sea una cadena con esa forma no se guarda ni se publica.
      *
      * @param string $name
      * @param mixed $value
@@ -2813,178 +2875,31 @@ class SettingsController extends AdminPanelController
         if (!is_string($value)) {
             return false;
         }
-        //Vacío solo donde no se concatena un alfa: en los otros dos deja botón y pie del correo en blanco sobre blanco.
         if ($value === '') {
-            return !in_array($name, self::BRAND_COLORS_SIX_HEX, true);
+            return in_array($name, self::DATA_TOKENS, true);
         }
-        if (in_array($name, self::BRAND_COLORS_SIX_HEX, true)) {
-            return preg_match('/^#[0-9A-Fa-f]{6}\z/', $value) === 1;
-        }
-        return Validator::isColor($value);
+        return preg_match('/^#[0-9A-Fa-f]{6}\z/', $value) === 1;
     }
 
     /**
+     * Quién puede traducir con IA, tal como llega del formulario: una lista de tipos conocidos. Sin ninguno elegido llega
+     * `['']` (un '' suelto, Parameter lo toma por nulo y no se guardaría): es la lista vacía, solo root.
+     *
      * @param mixed $value
-     * @param string $to
-     * @return mixed
+     * @return bool
      */
-    public static function parseTo($value, ?string $to = null)
+    public static function translationUserTypesIsValid($value): bool
     {
-        $to ??= self::PARSE_TYPE_STRING;
-
-        switch ($to) {
-
-            case self::PARSE_TYPE_STRING :
-
-                if (is_scalar($value)) {
-                    return (string) $value;
-                }
-                return $value;
-
-            case self::PARSE_TYPE_BOOL:
-
-                if (is_scalar($value)) {
-                    $toFalse = [0, '0', 'off', 'no', 'false', null, 'null'];
-                    $toTrue = [1, '1', 'on', 'yes', 'si', 'sí', 'true'];
-                    if (is_string($value)) {
-                        $value = mb_strtolower($value);
-                    }
-                    foreach ($toTrue as $i) {
-                        if ($i === $value) {
-                            return true;
-                        }
-                    }
-                    foreach ($toFalse as $i) {
-                        if ($i === $value) {
-                            return false;
-                        }
-                    }
-                }
-                return $value;
-
-            case self::PARSE_TYPE_INT:
-
-                if (is_scalar($value) && is_numeric($value)) {
-                    return (int) $value;
-                }
-                return $value;
-
-            case self::PARSE_TYPE_FLOAT:
-            case self::PARSE_TYPE_DOUBLE:
-
-                if (is_scalar($value) && is_numeric($value)) {
-                    return (float) $value;
-                }
-                return $value;
-
-            case self::PARSE_TYPE_JSON_ENCODE:
-                $parsedValue = json_encode($value);
-                if (json_last_error() == \JSON_ERROR_NONE) {
-                    return $parsedValue;
-                } else {
-                    return $value;
-                }
-
-            case self::PARSE_TYPE_JSON_DECODE:
-                $parsedValue = json_decode($value);
-                if (json_last_error() == \JSON_ERROR_NONE) {
-                    return $parsedValue;
-                } else {
-                    return $value;
-                }
-
-            case self::PARSE_TYPE_UPPERCASE:
-                if (is_string($value)) {
-                    return mb_strtoupper($value);
-                } else {
-                    return $value;
-                }
-
-            case self::PARSE_TYPE_LOWERCASE:
-                if (is_string($value)) {
-                    return mb_strtolower($value);
-                } else {
-                    return $value;
-                }
-
-            default:
-
-                return $value;
+        if (!is_array($value)) {
+            return false;
         }
-    }
-
-    /**
-     * @param array|\stdClass $one
-     * @param array|\stdClass $two
-     * @return array
-     */
-    public static function recursiveMergeArray($one, $two)
-    {
-        if (!is_array($one) && !($one instanceof \stdClass)) {
-            throw new \TypeError('$one debe ser un array o una instancia de \stdClass');
-        }
-        if (!is_array($two) && !($two instanceof \stdClass)) {
-            throw new \TypeError('$two debe ser un array o una instancia de \stdClass');
-        }
-
-        $oneIsArray = is_array($one);
-        $twoIsArray = is_array($two);
-
-        $oneKeys = $oneIsArray ? array_keys($one) : array_keys(get_object_vars($one));
-        $twoKeys = $twoIsArray ? array_keys($two) : array_keys(get_object_vars($two));
-
-        $keys = array_unique(array_merge($oneKeys, $twoKeys));
-
-        foreach ($keys as $key) {
-
-            $oneHasKey = $oneIsArray ? array_key_exists($key, $one) : isset($two->$one);
-            $twoHasKey = $twoIsArray ? array_key_exists($key, $two) : isset($two->$key);
-
-            if ($twoHasKey) {
-
-                $twoValue = $twoIsArray ? $two[$key] : $two->$key;
-
-                if ($oneHasKey) {
-
-                    $oneValue = $one[$key];
-
-                    if (is_scalar($oneValue)) {
-
-                        if ($oneIsArray) {
-                            $one[$key] = $twoValue;
-                        } else {
-                            $one->$key = $twoValue;
-                        }
-
-                    } else {
-
-                        if ($oneIsArray) {
-                            $one[$key] = self::recursiveMergeArray($oneValue, $twoValue);
-                        } else {
-                            $one->$key = self::recursiveMergeArray($oneValue, $twoValue);
-                        }
-
-                    }
-
-                } else {
-
-                    if ($oneIsArray) {
-
-                        $one[$key] = $twoValue;
-
-                    } else {
-
-                        $one->$key = $twoValue;
-
-                    }
-
-                }
+        $known = array_keys(UsersModel::TYPES_USERS);
+        foreach ($value as $type) {
+            if ($type !== '' && (!Validator::isInteger($type) || !in_array((int) $type, $known, true))) {
+                return false;
             }
-
         }
-
-        return $one;
-
+        return true;
     }
 
     /**
@@ -3009,16 +2924,6 @@ class SettingsController extends AdminPanelController
         $group->register([
 
             //──── GET ─────────────────────────────────────────────────────────────────────────
-            //El índice: la puerta de la configuración. No pinta ningún ajuste.
-            new Route(
-                "{$startRoute}[/]",
-                $classname . ':indexView',
-                self::$baseRouteName . '-' . 'index',
-                'GET',
-                true,
-                null,
-                self::ROLES_VIEW_CONFIGURATIONS_VIEW
-            ),
             //Colores
             new Route(
                 "{$startRoute}appearance/colors[/]",
@@ -3071,15 +2976,15 @@ class SettingsController extends AdminPanelController
             ),
 
             //──── POST ────────────────────────────────────────────────────────────────────────
-            //General
+            //Guardar los colores
             new Route(
-                "{$startRoute}generic-save[/]",
-                $classname . ':actionGeneric',
-                self::$baseRouteName . '-' . 'generic-save',
+                "{$startRoute}appearance/colors/save[/]",
+                $classname . ':saveColorsAction',
+                self::$baseRouteName . '-' . 'appearance-colors-save',
                 'POST',
                 true,
                 null,
-                self::ROLES_GENERIC_ACTION
+                self::ROLES_SAVE_COLORS
             ),
 
             //Mapbox Key

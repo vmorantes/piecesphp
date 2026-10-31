@@ -6,14 +6,15 @@
 
 namespace PiecesPHP\UserSystem\ORM;
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
-
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -307,8 +308,10 @@ class UsersModel extends EntityMapperExtensible
             || str_starts_with($routeName, 'my-organization-profile-admin-')
             || str_starts_with($routeName, 'profile-organization-admin-')
             || str_starts_with($routeName, 'profile-admin-')
-            //Solo enviar la edición del propio perfil y los ajustes de su cuenta: «users-» entero concedería la gestión de usuarios.
+        //Solo enviar la edición del propio perfil y los ajustes de su cuenta: «users-» entero concedería la gestión de usuarios.
             || $routeName === 'users-edit-request'
+        //Quien actúa como otro tiene que poder volver: si el suplantado está recortado, terminar no puede dar 403.
+            || $routeName === 'user-impersonation-end'
             || str_starts_with($routeName, 'user-system-features-')
             || str_starts_with($routeName, 'my-space-admin-')
             || str_starts_with($routeName, 'api-admin-')
@@ -629,6 +632,8 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
+     * Cambia el tipo y, si el nuevo lleva perfil, lo garantiza (UserProfileMapper::ensureFor(), P266).
+     *
      * @param mixed $type
      * @param mixed $id
      * @return bool
@@ -638,9 +643,10 @@ class UsersModel extends EntityMapperExtensible
         $this->updateModifiedAt($id);
         $model = $this->getModel();
         $model->resetAll();
-        return $model->update([
+        $changed = $model->update([
             'type' => $type,
         ])->where(['id' => $id])->execute();
+        return $changed && UserProfileMapper::ensureFor((int) $id);
     }
 
     /**
@@ -1378,7 +1384,11 @@ class UsersModel extends EntityMapperExtensible
         if ($currentUser !== null) {
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
             if (!$canModifyOrganizations) {
-                $criteryValue = $currentOrganizationID;
+                //Sin organización no ve a nadie, nunca a todos: antes el criterio quedaba «organization = » y daba 500.
+                if (!Validator::isInteger($currentOrganizationID) || (int) $currentOrganizationID <= 0) {
+                    return [];
+                }
+                $criteryValue = (int) $currentOrganizationID;
                 $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "organization = {$criteryValue}";
                 $where[] = "{$beforeOperator} ({$critery})";

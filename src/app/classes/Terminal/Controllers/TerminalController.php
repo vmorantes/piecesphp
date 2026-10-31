@@ -8,11 +8,13 @@ namespace Terminal\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\LoadFailures;
 
@@ -70,6 +72,9 @@ class TerminalController extends AdminPanelController
      */
     public static function routes(RouteGroup $group)
     {
+        //Las opciones que escriben sus tareas (ADR 0055); fuera del if: las peticiones web también las leen.
+        ConfigOptions::declare(SessionToken::MINIMUM_DATE_CONFIG, \Terminal\Tasks\SessionsRevokeAllTask::class, ConfigOptions::SHAPE_TEXT);
+        ConfigOptions::declare(\Terminal\Tasks\RepairEscapedTextTask::MARKER, \Terminal\Tasks\RepairEscapedTextTask::class, ConfigOptions::SHAPE_JSON);
         if (TerminalData::getInstance()->isTerminal()) {
 
             $routes = [];
@@ -85,8 +90,8 @@ class TerminalController extends AdminPanelController
             /* Buscar tareas */
             $classesDirectoryPath = str_replace('/', \DIRECTORY_SEPARATOR, basepath('app/classes'));
             $tasksDirectory = realpath(dirname(__FILE__) . '/../Tasks/');
-        $tasksDirectory = $tasksDirectory !== false ? $tasksDirectory : dirname(__FILE__) . '/../Tasks/';
-        $tasksDirectoryPath = str_replace('/', \DIRECTORY_SEPARATOR, $tasksDirectory);
+            $tasksDirectory = $tasksDirectory !== false ? $tasksDirectory : dirname(__FILE__) . '/../Tasks/';
+            $tasksDirectoryPath = str_replace('/', \DIRECTORY_SEPARATOR, $tasksDirectory);
             $tasksDirectory = new DirectoryObject($tasksDirectoryPath);
             $tasksDirectory->process();
             foreach ($tasksDirectory->getFiles() as $file) {

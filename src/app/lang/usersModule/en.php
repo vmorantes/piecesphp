@@ -57,6 +57,7 @@ $lang = [
     'Edición de usuario' => 'User Edition',
     'Usuario editado.' => 'User edited.',
     'La contraseña es errónea.' => 'The password is wrong.',
+    'Para cambiar tu usuario, tu correo o tu contraseña, escribe tu contraseña actual.' => 'To change your username, your email or your password, enter your current password.',
     'No existe el usuario que intenta modificar.' => 'There is no user trying to modify.',
     'Principal' => 'Main',
     'Administrador general' => 'General Administrator',
@@ -103,6 +104,18 @@ $lang = [
     "Cerrar sesiones" => "Sign out sessions",
     "Se cerrarán todas las sesiones de %s." => "All sessions of %s will be closed.",
     "Cerrar todas sus sesiones" => "Close all their sessions",
+    'Organización base' => 'Base organization',
+    'Datos personales' => 'Personal data',
+    'Acceso' => 'Access',
+    'Acceso total y configuración del sistema' => 'Full access and system configuration',
+    'Gestiona contenidos y usuarios' => 'Manages content and users',
+    'Gestiona usuarios de su organización' => 'Manages the users of their organization',
+    'Consulta contenidos y diligencia formularios' => 'Reads content and fills in forms',
+    'Publica contenidos en nombre de la institución' => 'Publishes content on behalf of the institution',
+    'Crea noticias, publicaciones y banners' => 'Creates news, publications and banners',
+    'Se muestra en el menú del usuario, en su tarjeta de la lista de usuarios y junto a lo que publica.' => 'Shown in the user menu, on their card in the user list and next to what they publish.',
+    'Una foto del rostro, centrada y con buena luz. Se recorta en círculo donde se muestra.' => 'A photo of the face, centered and well lit. It is cropped to a circle where it is shown.',
+    'Formatos: JPG, PNG o WEBP' => 'Formats: JPG, PNG or WEBP',
 ];
 
 return $lang;

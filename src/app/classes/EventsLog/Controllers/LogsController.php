@@ -6,11 +6,16 @@
 
 namespace EventsLog\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use EventsLog\LogsLang;
 use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -19,12 +24,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItemGroup;
-use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserHierarchy;
 
 /**

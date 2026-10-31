@@ -1,12 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Controllers\OrganizationProfileController;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsLang;
 use PiecesPHP\Core\Config;
-use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
  * @var string $langGroup
@@ -33,16 +31,16 @@ if (OrganizationProfileController::allowedRoute('profile', ['organizationID' => 
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-            'secondaryActions' => $secondaryActions,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
-        <div class="tabs-controls content-tabs">
-            <div class="active" data-tab="generalData"><?= __($langGroup, 'Datos generales'); ?></div>
+        <div class="ui secondary pointing menu tabs-controls content-tabs">
+            <div class="active item" data-tab="generalData"><?= __($langGroup, 'Datos generales'); ?></div>
         </div>
 
         <form action="." class="ui form my-organization-profile-assign-administrator">
@@ -99,19 +97,18 @@ if (OrganizationProfileController::allowedRoute('profile', ['organizationID' => 
 
 </section>
 
-<div class="ui modal" change-organization-admin-modal>
+<div class="ui tiny modal" change-organization-admin-modal>
+    <i class="close icon"></i>
+    <div class="header"><?= __($langGroup, 'Cambiar persona encargada'); ?></div>
     <div class="content">
-        <form action="<?= $actionChangeAdministrator; ?>" class="ui form">
-            <div class="section-fields-divider">
-                <div class="title s24"><?= __($langGroup, 'Cambiar persona encargada'); ?></div>
-            </div>
+        <form action="<?= $actionChangeAdministrator; ?>" class="ui form" id="change-organization-admin-form">
             <div class="field">
-                <label style="display: none;"><?= __($langGroup, 'Persona encargada'); ?></label>
+                <label hidden><?= __($langGroup, 'Persona encargada'); ?></label>
                 <select required name="newUserAdminID" class="ui dropdown search auto"><?= $optionsUsersAdministrators; ?></select>
             </div>
-            <div class="field">
-                <button type="submit" class="ui button big brand-color"><?= __($langGroup, 'Cambiar'); ?></button>
-            </div>
         </form>
+    </div>
+    <div class="actions">
+        <button type="submit" form="change-organization-admin-form" class="ui primary button"><?= __($langGroup, 'Cambiar'); ?></button>
     </div>
 </div>

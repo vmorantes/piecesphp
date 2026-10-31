@@ -95,7 +95,7 @@ $fontModule: $fontGlobal;
 
         position: relative;
 
-        >* {
+        > * {
             font-size: pxToRem(16);
             line-height: pxToRem(25);
             padding: 0px 0px pxToRem(10) 0px;

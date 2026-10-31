@@ -1,6 +1,7 @@
 <?php
 
 //Abrir un formulario no crea filas. Ver T69.
+//@areas src/app/classes/PiecesPHP/BuiltIn/
 
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper as GenericContent;
 use PiecesPHP\Core\BaseModel;
@@ -81,7 +82,7 @@ CliActions::make('unit-tests:core/generic-content', function ($args) {
         $db->prepare("DELETE FROM pcsphp_app_config WHERE name = ?")->execute([$clave]);
         if ($original !== null) {
             $db->prepare("INSERT INTO pcsphp_app_config (id, name, value) VALUES (?,?,?)")
-               ->execute([$original['id'], $original['name'], $original['value']]);
+                ->execute([$original['id'], $original['name'], $original['value']]);
         }
     }
 

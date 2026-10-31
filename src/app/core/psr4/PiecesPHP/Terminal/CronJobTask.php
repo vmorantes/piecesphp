@@ -105,7 +105,7 @@ class CronJobTask
      * @param callable $taskHandler
      * @param callable|null $executionCondition Opcional. Si retorna false, la tarea se omite.
      */
-    public function __construct(string $name, callable $taskHandler,  ? callable $executionCondition = null)
+    public function __construct(string $name, callable $taskHandler, ?callable $executionCondition = null)
     {
         $this->name = $name;
         $this->taskHandler = $taskHandler;
@@ -118,7 +118,7 @@ class CronJobTask
      *
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }

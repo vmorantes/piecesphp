@@ -6,12 +6,10 @@
 
 namespace ReportsManage\Controllers;
 
-use PiecesPHP\UserSystem\UserDataPackage;
-use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\DashboardCard;
 use PiecesPHP\AdminPanel\DashboardCardBody;
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -19,6 +17,8 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserDataPackage;
 use ReportsManage\Queries\ReportsManageQueries;
 use ReportsManage\ReportsManageLang;
 use ReportsManage\ReportsManageRoutes;

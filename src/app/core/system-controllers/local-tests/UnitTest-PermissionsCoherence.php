@@ -3,9 +3,9 @@
 //11f: las dos capas de acceso no pueden contradecirse. El reparto por roles de una ruta se traduce a permisos DE ROL
 //al arrancar (AppHelpers::set_route -> Roles::addPermission), y el 403 por rol solo se emite si la ruta exige login.
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
 
@@ -261,6 +261,7 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     $porClosure = 0;
     $tryRevisados = 0;
     $sinRelanzar = [];
+    $enArgumento = [];
     $archivos = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(basepath('app'), \FilesystemIterator::SKIP_DOTS));
     foreach ($archivos as $archivo) {
         $ruta = $archivo->getPathname();
@@ -298,7 +299,32 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
         };
         $trys = [];
         $closures = [];
+        $argumentos = [];
         for ($i = 0; $i < $n; $i++) {
+            //Un closure pasado como argumento (su token anterior es «(» o «,»): la 9 no sabe dónde se invoca.
+            if (is_array($t[$i]) && in_array($t[$i][0], [T_FUNCTION, T_FN], true)) {
+                $antes = $saltaBlancos($i - 1, -1);
+                $antes = is_array($t[$antes] ?? null) && $t[$antes][0] === T_STATIC ? $saltaBlancos($antes - 1, -1) : $antes;
+                if (in_array($t[$antes] ?? null, ['(', ','], true)) {
+                    if ($t[$i][0] === T_FUNCTION) {
+                        $abre = $siguiente($i, '{');
+                        $argumentos[] = ['abre' => $abre, 'fin' => $cierre($abre)];
+                    } else {
+                        $abre = $i;
+                        while ($abre < $n && !(is_array($t[$abre]) && $t[$abre][0] === T_DOUBLE_ARROW)) {
+                            $abre++;
+                        }
+                        $nivel = 0;
+                        for ($fin = $abre + 1; $fin < $n; $fin++) {
+                            $nivel += in_array($texto($fin), ['(', '[', '{'], true) ? 1 : (in_array($texto($fin), [')', ']', '}'], true) ? -1 : 0);
+                            if ($nivel < 0 || ($nivel === 0 && in_array($texto($fin), [',', ';'], true))) {
+                                break;
+                            }
+                        }
+                        $argumentos[] = ['abre' => $abre, 'fin' => $fin];
+                    }
+                }
+            }
             if (is_array($t[$i]) && $t[$i][0] === T_TRY) {
                 $abre = $siguiente($i, '{');
                 $fin = $cierre($abre);
@@ -337,6 +363,12 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
                 continue;
             }
             $llamadas++;
+            foreach ($argumentos as $argumento) {
+                if ($argumento['abre'] < $i && $i < $argumento['fin']) {
+                    $enArgumento[] = str_replace(basepath(), '', $ruta) . ':' . $t[$i][2];
+                    break;
+                }
+            }
             $envuelven = array_filter($trys, fn (array $try): bool => $try['abre'] < $i && $i < $try['fin']);
             $funcion = null;
             foreach ($closures as $closure) {
@@ -379,6 +411,7 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     }
     $check($llamadas >= 25 && $porClosure >= 1 && $tryRevisados >= 6, '9a CANARIO: el censo ve las llamadas, el closure de GenericContentController y los try con catch genérico', "{$llamadas} llamada(s), {$porClosure} try por closure, {$tryRevisados} try con catch genérico");
     $check($sinRelanzar === [], '9b ninguno de esos try se come la denegación', implode(', ', array_unique($sinRelanzar)));
+    $check($enArgumento === [], '9c ningún throw403() va en un closure pasado como argumento, que la 9 no puede seguir: sácalo a un método', implode(', ', $enArgumento));
     echoTerminal(' ');
 
     $total = $passed + $failed;

@@ -6,14 +6,14 @@
 
 namespace Publications\Mappers;
 
-use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
-use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Validation\Validator;
 use Publications\Exceptions\DuplicateException;
@@ -26,7 +26,8 @@ use Publications\PublicationsLang;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
  * @property int|null $id
- * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string|null $preferSlug El id con un sufijo aleatorio, ofuscado (no cifrado) para que la dirección
+ *     no sea un número correlativo: se puede deshacer y no oculta el id.
  * @property string $name
  * @property \stdClass|string|null $meta
  * @property string $baseLang
@@ -36,7 +37,6 @@ class PublicationCategoryMapper extends EntityMapperExtensible
 {
 
     use PreferSlugMinter;
-
 
     /** @var string|null Campo que da nombre: sin él no se acuña slug. */
     const SLUG_NAME_FIELD = 'name';
@@ -56,7 +56,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -616,7 +616,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
                         if (!property_exists($value, $defaultMetaProperty)) {

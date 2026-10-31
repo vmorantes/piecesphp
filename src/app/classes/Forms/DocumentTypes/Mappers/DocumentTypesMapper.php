@@ -6,8 +6,6 @@
 
 namespace Forms\DocumentTypes\Mappers;
 
-use PiecesPHP\Core\Database\PreferSlugMinter;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Forms\DocumentTypes\DocumentTypesLang;
 use Forms\DocumentTypes\Exceptions\DuplicateException;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -17,7 +15,9 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * DocumentTypesMapper.
@@ -26,7 +26,8 @@ use PiecesPHP\Core\Validation\Validator;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2022
  * @property int|null $id
- * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string|null $preferSlug El id con un sufijo aleatorio, ofuscado (no cifrado) para que la dirección
+ *     no sea un número correlativo: se puede deshacer y no oculta el id.
  * @property string $documentTypeName
  * @property string $folder
  * @property int $status
@@ -41,7 +42,6 @@ class DocumentTypesMapper extends EntityMapperExtensible
 {
 
     use PreferSlugMinter;
-
 
     /** @var string|null Campo que da nombre: sin él no se acuña slug. */
     const SLUG_NAME_FIELD = 'documentTypeName';
@@ -93,7 +93,7 @@ class DocumentTypesMapper extends EntityMapperExtensible
         'meta' => [
             'type' => 'json',
             'null' => true,
-            'dafault' => null,
+            'default' => null,
         ],
     ];
 
@@ -216,7 +216,7 @@ class DocumentTypesMapper extends EntityMapperExtensible
     public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -613,6 +613,8 @@ class DocumentTypesMapper extends EntityMapperExtensible
     }
 
     /**
+     * Todas, también las borradas (inactivas): es la lectura cruda.
+     *
      * @param bool $asMapper
      *
      * @return static[]|array
@@ -640,6 +642,8 @@ class DocumentTypesMapper extends EntityMapperExtensible
     }
 
     /**
+     * Todas las que casan, también las borradas (inactivas): es la lectura cruda.
+     *
      * @param string $column
      * @param int $value
      * @param bool $asMapper
@@ -737,10 +741,11 @@ class DocumentTypesMapper extends EntityMapperExtensible
         $ignoreID ??= -1;
         $model = self::model();
 
-        //Por marcador: el nombre llega del formulario y viaja como dato (ADR 0009).
+        //Por marcador: el nombre llega del formulario y viaja como dato (ADR 0009). Solo las activas: borrar es inactivar.
         $model->select()->where(new WhereSegment([
             WhereItem::isEqual('documentTypeName', $name, WhereItem::AND_OPERATOR),
-            WhereItem::isNotEqual('id', $ignoreID),
+            WhereItem::isNotEqual('id', $ignoreID, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('status', self::STATUS_ACTIVE),
         ]));
 
         $model->execute();
@@ -775,7 +780,7 @@ class DocumentTypesMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
                     //Sin langData el tipo de documento no tiene traducciones: un objeto vacío, no un mapper null que tumbaba su listado.
                     if ($value instanceof \stdClass && !property_exists($value, 'langData')) {
                         $value->langData = new \stdClass;

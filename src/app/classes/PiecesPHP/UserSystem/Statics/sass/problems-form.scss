@@ -1,22 +1,11 @@
 @use 'sass:color';
 @use 'import/variables' as *;
-@use '../../../../../../statics/core/sass/includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
 @use 'import/reset' as *;
+@use 'import/access';
 
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
 $captionTextColor: #3C3C3C;
 
-$fontModule: $fontGlobal;
-
-//La hoja base del panel (ui-pcs.scss) cierra el desplazamiento de html y body; aquí la página es más alta que un móvil.
-html,
-body {
-    overflow-y: auto;
-}
-
-body {
-    font-family: $fontModule;
-}
 
 .container {
 
@@ -32,7 +21,7 @@ body {
             display: none;
         }
 
-        >.overlay {
+        > .overlay {
             position: absolute;
             z-index: 1;
             top: 0px;
@@ -42,13 +31,13 @@ body {
             background-color: $problem-overlay-color;
         }
 
-        >.content,
-        >.header {
+        > .content,
+        > .header {
             position: relative;
             z-index: 2;
         }
 
-        >.header {
+        > .header {
 
             display: grid;
             grid-template-columns: auto auto;
@@ -67,25 +56,9 @@ body {
             .back {
 
                 .ui.button {
-                    font-family: $fontModule;
                     font-size: 95%;
                 }
 
-                .ui.button.custom-color {
-                    font-family: $fontModule;
-                    background-color: $problem-color-button;
-                    color: $problem-color-text-button;
-                }
-
-            }
-
-            .ui.button.back-color {
-                padding-left: 20px;
-                padding-right: 20px;
-                font-size: 95%;
-                background-color: $problem-back-color;
-                color: $problem-color-text-button;
-                font-family: $fontModule;
             }
 
         }
@@ -94,15 +67,15 @@ body {
             margin-left: 8px;
         }
 
-        >.content {
+        > .content {
 
             padding: 0px 50px 30px 50px;
 
-            >.caption {
+            > .caption {
 
                 text-align: center;
 
-                >.image {
+                > .image {
                     text-align: center;
 
                     img {
@@ -120,19 +93,17 @@ body {
                     }
                 }
 
-                >.title-step {
+                > .title-step {
                     font-size: 1.5rem;
                     line-height: 2rem;
                     font-weight: 550;
-                    text-transform: uppercase;
                     text-align: center;
                 }
 
-                >.text {
+                > .text {
                     font-size: 2.5rem;
                     font-weight: bold;
                     line-height: 2.6rem;
-                    text-transform: uppercase;
                     text-align: center;
                     color: $captionTextColor;
                     margin: 2.5rem 0rem 0rem 0rem;
@@ -146,14 +117,14 @@ body {
                 margin-top: 2rem;
                 padding-top: 3rem;
 
-                >.caption {
+                > .caption {
 
                     margin: 0 auto;
                     max-width: 1200px;
                     padding-bottom: 3rem;
                     border-bottom: 1px color.adjust($problem-secondary-color, $alpha: -0.8) solid;
 
-                    >.image {
+                    > .image {
 
                         img {
                             &.default {
@@ -167,7 +138,7 @@ body {
 
                     }
 
-                    >.text {
+                    > .text {
                         color: black;
                         margin-top: 1rem;
                     }
@@ -180,18 +151,17 @@ body {
 
     }
 
-    >.header {
+    > .header {
         color: $problem-title-color;
         margin-top: 2rem;
         padding: 0px 15px;
         font-size: 2rem;
         line-height: 2.2rem;
         font-weight: 500;
-        text-transform: uppercase;
         text-align: center;
     }
 
-    >.options {
+    > .options {
 
         display: flex;
         flex: 0 0 auto;
@@ -242,9 +212,7 @@ body {
                 display: grid;
                 align-items: center;
 
-                .title {
-                    text-transform: uppercase;
-                }
+                .title {}
 
             }
 
@@ -266,7 +234,6 @@ body {
             font-size: 1.5rem;
             line-height: 2rem;
             font-weight: 550;
-            text-transform: uppercase;
             margin-right: 7%;
         }
 
@@ -289,24 +256,11 @@ body {
             gap: 5%;
         }
 
-        .ui.button.back-color {
-            font-family: $fontModule;
-            background-color: $back-button-color;
-            color: $color-text-button-back-form;
-            margin-right: 20px;
-        }
-
-        .ui.button.custom-color {
-            font-family: $fontModule;
-            background-color: $next-button-color;
-            color: $color-text-next;
-        }
-
         .link-mailto {
             color: $color-text-mailto;
         }
 
-        >.message {
+        > .message {
             padding: 0rem 0rem 2rem;
             font-size: 1.5rem;
             line-height: 1.6rem;
@@ -319,7 +273,6 @@ body {
         }
 
         .ui.button {
-            font-family: $fontModule;
             font-size: $font-size-buttons;
             font-weight: $font-weight-buttons;
             border-radius: $border-radius-buttons;
@@ -333,7 +286,6 @@ body {
                     flex: 0 0 auto;
                     flex-wrap: wrap;
                     justify-content: space-evenly;
-                    font-family: $fontModule;
                 }
             }
 
@@ -365,7 +317,7 @@ body {
 
         .topbar {
 
-            >.header {
+            > .header {
 
                 padding: 20px 30px 0px 30px;
 
@@ -385,16 +337,16 @@ body {
 
             }
 
-            >.content {
+            > .content {
                 margin-top: 2rem;
 
-                >.caption {
-                    >.image {
+                > .caption {
+                    > .image {
                         max-width: 220px;
                         margin: 0 auto;
                     }
 
-                    >.text {
+                    > .text {
                         margin-top: 1.8rem;
                     }
                 }
@@ -409,10 +361,6 @@ body {
             }
 
             .horizontal-section-buttons {
-
-                .ui.button.back-color {
-                    margin-right: 4px;
-                }
 
                 .field.buttons {
                     display: flex;
@@ -440,13 +388,13 @@ body {
 
         }
 
-        >.header {
+        > .header {
             color: $problem-title-color;
             font-size: 1.6rem;
             line-height: 2rem;
         }
 
-        >.options {
+        > .options {
 
             display: block;
             flex: initial;

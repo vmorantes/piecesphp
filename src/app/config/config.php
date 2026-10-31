@@ -13,24 +13,7 @@ defined('BASEPATH') or die();
  *                                                                                      */
 //========================================================================================
 /**
- *
- * $config['default_lang']: Lenguaje por defecto de la aplicación
- * $config['app_lang']: Lenguaje actual de la aplicación
- *
- * $config['title_app']: Título de la aplicación en general
- * $config['title']: Título de la sección actual (set_title() y get_title())
- *
- * $config['domain']: Dominio de la aplicación
- * $config['domain_protocol']: Protocolo de la aplicación
- * $config['base_domain_path']: Ruta base del dominio de la aplicación
- * $config['base_domain_url']: URL base del dominio de la aplicación
- * $config['base_url']: URL base de la aplicación
- *
- * $config['app_key']: Llave de la aplicación usada para la encriptación de todos los token y sesiones
- *
- * $['statics_path']: Este es el directorio por defecto donde buscará todas las solicitudes de archivos
- * estáticos. Si se quiere desactivar esta opción puede borrarse la ruta /statics/ de slim
- *
+ * Las claves de este archivo, su tipo y su efecto: source-docs/project/docs/piecesphp/content/configuration.md, «config.php».
  */
 
 //──── Generales ─────────────────────────────────────────────────────────────────────────
@@ -66,18 +49,18 @@ $config['keywords'] = [
 $config['description'] = "Descripción de la página.";
 
 //Colors and fonts
-$config['main_brand_color'] = "#6435C9";
-$config['second_brand_color'] = "#A333C8";
-$config['font_color_one'] = "#1B1C1D";
-$config['font_color_two'] = "#FFFFFF";
-$config['menu_color_background'] = "#6435C9";
-$config['menu_color_mark'] = "rgba(255, 255, 255, 0.2)";
-$config['menu_color_font'] = "#FFFFFF";
-$config['meta_theme_color'] = "#6435C9";
-$config['bg_tools_buttons'] = "#E2ECEF";
-$config['body_gradient'] = "transparent linear-gradient(180deg,rgba(100, 53, 201, 0.78) 0%, #D1CCBD00 100%) 0% 0% no-repeat padding-box";
-$config['font_family_global'] = "'Poppins', sans-serif";
-$config['font_family_sidebars'] = "'Public Sans', sans-serif";
+$config['main_brand_color'] = "#356DCA";
+$config['second_brand_color'] = "#7A5AF8";
+$config['third_brand_color'] = "#C11574";
+$config['meta_theme_color'] = "#356DCA";
+//Vacío, no se publica y manda el tema: la serie 5 es light-dark(), y fijarla rompería el modo oscuro.
+$config['data_color_2'] = "";
+$config['data_color_3'] = "";
+$config['data_color_4'] = "";
+$config['data_color_5'] = "";
+$config['theme_font'] = "inter";
+$config['theme_font_size'] = 14;
+$config['theme_radius'] = 8;
 
 //Varios
 $config['osTicketAPI'] = "";
@@ -88,7 +71,8 @@ $config['contact_form_recipients'] = [];
 $config['other_problems_recipients'] = [];
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
-$config['CronJobKey'] = 'TODO:secret';
+//La llave del cron (CronJobKey) no va aquí: la pone secure-keys/cronjob (core/extensions/api-keys.php). Sin ella, la ruta
+//del cron no acepta ninguna.
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
@@ -101,7 +85,7 @@ $config['hide_app_key_warning'] = false;
 //Orígenes exactos —esquema, host y puerto, como `https://app.ejemplo.com:8443`— que reciben CORS CON credenciales.
 //Cada uno recibe las cookies del usuario en sus peticiones: el propio de la instalación ya va incluido.
 $config['cors_credentials_origins'] = [];
-//Límite de intentos de generate-otp, check-totp, two-factor-auth-status y del segundo factor del login (OTPRateLimiter).
+//Límite de intentos de generate-otp, check-totp, two-factor-auth-status, del segundo factor y de la contraseña del login (OTPRateLimiter).
 //uniformResponse: generate-otp responde lo mismo exista o no el usuario. oneUseCodeMinutes: la validez del código de un uso.
 $config['otp_security'] = [
     'maxFailuresPerUser' => 5,
@@ -110,6 +94,12 @@ $config['otp_security'] = [
     'lockMinutes' => 15,
     'uniformResponse' => true,
     'oneUseCodeMinutes' => 20,
+    //Login con contraseña: una IP con tantos fallos en windowMinutes queda frenada lockMinutes, sin mirar el usuario.
+    'loginMaxFailuresPerIP' => 5,
+    //La cuenta solo se bloquea (con failedAttempts al tope) si sus fallos vienen de al menos tantas IP distintas…
+    'loginAccountDistinctIPs' => 3,
+    //…dentro de esta ventana, en minutos.
+    'loginAccountWindowMinutes' => 1440,
 ];
 
 //── Del framework: no lo edites ──
@@ -127,8 +117,6 @@ $config['mailjet'] = [
     'apiKey' => 'API_KEY',
     'secretKey' => 'SECRET_KEY',
 ];
-
-$config['SurveyJSKey'] = "";
 
 //Claves de reCAPTCHA v3 de PRUEBA del propietario: solo valen en sus dominios de prueba y en localhost.
 //En producción, las reales van en las claves seguras (ver api-keys.php), que tienen prioridad.
@@ -164,8 +152,13 @@ ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 
 //======Información complementaria para mostrar en la aplicación========
 
-//Desarrollador
-$config['developer'] = 'Lorem ipsum';
+//Desarrollador: el crédito del pie del menú del panel (P263). Fijo por clon, aquí y no en el panel; vacío no se pinta.
+//Ejemplo: 'developer' => 'Mi Empresa S.A.S.', 'developer_logo' => 'statics/images/mi-empresa.svg', 'developer_url' => 'https://mi-empresa.example'
+$config['developer'] = 'Nombre Desarrollador';
+$config['developer_logo'] = 'statics/images/developer-logo.png';
+$config['developer_url'] = '';
+//Preguntas frecuentes del centro de ayuda de la barra; vacío, la entrada no sale.
+$config['help_faq_url'] = 'https://piecesphp.bitbucket.io/';
 
 //Listeners
 \PiecesPHP\Core\BaseEventDispatcher::defaultListen(\PiecesPHP\Core\BaseEventDispatcher::EVENT_INIT_ROUTES_NAME, function () {

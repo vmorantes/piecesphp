@@ -7,15 +7,16 @@
 namespace PiecesPHP\BuiltIn\Banner\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Exceptions\DuplicateException;
 use PiecesPHP\BuiltIn\Banner\Exceptions\SafeException;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\FormUploadHandler;
+use PiecesPHP\Core\Forms\FormUploadRejectedException;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -35,7 +36,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * BuiltInBannerController.
@@ -313,7 +314,7 @@ class BuiltInBannerController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -527,13 +528,13 @@ class BuiltInBannerController extends AdminPanelController
                         }
 
                         if ($desktopImageSetted !== null) {
-                            $desktopImage = self::handlerUpload('desktopImage', '', $desktopImageSetted);
+                            $desktopImage = self::handlerUpload('desktopImage', $mapper->folder, $desktopImageSetted);
                         } else {
                             $desktopImage = self::handlerUpload('desktopImage', $mapper->folder, null);
                         }
 
                         if ($mobileImageSetted !== null) {
-                            $mobileImage = self::handlerUpload('mobileImage', '', $mobileImageSetted);
+                            $mobileImage = self::handlerUpload('mobileImage', $mapper->folder, $mobileImageSetted);
                         } else {
                             $mobileImage = self::handlerUpload('mobileImage', $mapper->folder, null);
                         }
@@ -571,7 +572,7 @@ class BuiltInBannerController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -591,7 +592,7 @@ class BuiltInBannerController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -621,7 +622,7 @@ class BuiltInBannerController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -1190,99 +1191,13 @@ class BuiltInBannerController extends AdminPanelController
      */
     protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
     {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
+        try {
+            return FormUploadHandler::forModule(self::UPLOAD_DIR, FormUploadHandler::MODE_PUBLIC)
+                ->upload($nameOnFiles, $folder, $currentRoute, $allowedTypes ?? [FileValidator::TYPE_ALL_IMAGES], $setNameByInput, $name);
+        } catch (FormUploadRejectedException $e) {
+            //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
+            throw new SafeException($e->getMessage());
         }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name ??= 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new BuiltInBannerController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                    $name = self::safeUploadName($name);
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-
-                if ($valid) {
-
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-                    if (!empty($locations)) {
-
-                        $url = $locations[0];
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
-                        }
-
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
-                                }
-                            }
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
     }
 
     /**

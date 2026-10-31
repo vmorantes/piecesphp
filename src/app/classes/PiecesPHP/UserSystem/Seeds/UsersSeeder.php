@@ -6,7 +6,12 @@
 
 namespace PiecesPHP\UserSystem\Seeds;
 
+use EventsLog\Mappers\LogsMapper;
+use News\Mappers\NewsReadedMapper;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
+use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -46,9 +51,11 @@ class UsersSeeder extends ModuleSeeder
     }
 
     /**
-     * Cada arranque de la aplicación crea el perfil que le falte a un usuario de
-     * TYPES_USER_SHOULD_HAVE_PROFILE (`ProfileTasksUtilities::generateMissingProfiles()`), y su fila
-     * de aprobación (`SystemApprovalManager::init()`), que apunta por número de id y por tabla.
+     * Un usuario de TYPES_USER_SHOULD_HAVE_PROFILE puede tener un perfil vacío (`bin/cli profiles-create-missing`), y
+     * cada arranque le crea su fila de aprobación (`SystemApprovalManager::init()`), que apunta por número de id y por tabla.
+     *
+     * La actividad de un usuario sembrado (quien lo suplanta la deja) es dato de prueba y se va con él. Lo que creó o
+     * editó (createdBy, modifiedBy, author, approvalBy del contenido) no se borra: si existe, el limpiado para (1451).
      *
      * @return array<string,string|array{column: string, where: array<string,string|int>}>
      */
@@ -57,6 +64,11 @@ class UsersSeeder extends ModuleSeeder
         return [
             UserProfileMapper::TABLE => 'belongsTo',
             SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => UsersModel::TABLE]],
+            LogsMapper::TABLE => 'createdBy',
+            TimeOnPlatformModel::TABLE => 'userID',
+            LoginAttemptsModel::TABLE => 'userID',
+            NewsReadedMapper::TABLE => 'readerUser',
+            OTPSecretsUsersMapper::TABLE => 'user',
         ];
     }
 

@@ -2,6 +2,7 @@
 
 //El inventario de rutas refleja el router: una fila por ruta nombrada, sin repetir ni omitir.
 //Nace de que una ruta con ALIAS salía duplicada y la del alias no aparecía (297.5).
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 

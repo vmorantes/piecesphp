@@ -11,9 +11,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Collection;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Interfaces\Http\EnvironmentInterface;
 
 /**
- * This class decouples the Slim application from the global PHP environment.
- * This is particularly useful for unit testing, but it also lets us create
- * custom sub-requests.
+ * Separa la aplicación del entorno global de PHP: sirve para las pruebas y para crear subpeticiones.
  */
 class Environment extends Collection implements EnvironmentInterface
 {

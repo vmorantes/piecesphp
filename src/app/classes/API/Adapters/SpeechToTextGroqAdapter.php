@@ -103,7 +103,8 @@ class SpeechToTextGroqAdapter
             $result = json_decode($response->getBody()->getContents(), true);
             return $result['text'] ?? null;
         } catch (RequestException $e) {
-            $errorBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse !== null ? $errorResponse->getBody()->getContents() : $e->getMessage();
             throw new Exception(strReplaceTemplate(__(APILang::LANG_GROUP, "Error en la transcripción: %1"), [
                 '%1' => $errorBody,
             ]));

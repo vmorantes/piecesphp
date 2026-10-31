@@ -109,7 +109,7 @@ CliActions::make('unit-tests:core/scheme-sql-round-trip', function ($args) {
         'cada clave ajena declara el MISMO tipo que la columna que referencia',
         count($mismatches) > 0
             ? count($mismatches) . " desajuste(s):\n        - " . implode("\n        - ", array_slice($mismatches, 0, 8))
-              . (count($mismatches) > 8 ? "\n        - … y " . (count($mismatches) - 8) . ' más' : '')
+            . (count($mismatches) > 8 ? "\n        - … y " . (count($mismatches) - 8) . ' más' : '')
             : ''
     );
 

@@ -10,11 +10,11 @@ use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 
 /**
  * Region.
@@ -125,8 +125,10 @@ class Region extends AdminPanelController
         $result = [];
 
         $model = $this->model;
-        $prepared = $model->prepare("SELECT region AS name FROM locations_countries WHERE UPPER(region) LIKE UPPER('{$query}%') GROUP BY region ORDER BY region ASC");
-        $prepared->execute();
+        //Por marcador: la búsqueda viaja como dato, con %, _ y | escapados para que LIKE los lea como texto.
+        $like = str_replace(['|', '%', '_'], ['||', '|%', '|_'], $query) . '%';
+        $prepared = $model->prepare("SELECT region AS name FROM locations_countries WHERE UPPER(region) LIKE UPPER(?) ESCAPE '|' GROUP BY region ORDER BY region ASC");
+        $prepared->execute([$like]);
         $regionsRecords = $prepared->fetchAll(\PDO::FETCH_OBJ);
 
         foreach ($regionsRecords as $row) {
@@ -138,7 +140,6 @@ class Region extends AdminPanelController
 
         return $response->withJson($result);
     }
-
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

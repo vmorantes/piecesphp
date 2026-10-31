@@ -2,24 +2,29 @@
 
 //La pantalla del registro de correos: solo el usuario principal la abre, porque lista
 //DESTINATARIOS. Y lo que pinta va escapado. Crea dos usuarios zz-agente-maillog-*.
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Logs/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
+use EventsLog\Mappers\LogsMapper;
+use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Email\MailDelivery;
-use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
+use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
+use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
-use PiecesPHP\Core\SessionToken;
-use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
-use PiecesPHP\Terminal\CliActions;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/mail-log-screen', function ($args) {

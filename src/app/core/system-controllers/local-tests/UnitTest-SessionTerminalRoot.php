@@ -2,11 +2,12 @@
 
 //P46 tramo 0: la sesión automática de root en terminal, de la que dependen bin/verify y todas las tareas del sistema
 //de rutas. Lanza una TAREA en su propio proceso —es el único camino donde esa sesión existe— y no escribe nada.
+//@areas nucleo
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\SessionToken;
-use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 CliActions::make('unit-tests:core/session-terminal-root', function ($args) {
 

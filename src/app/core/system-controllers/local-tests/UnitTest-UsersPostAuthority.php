@@ -7,9 +7,8 @@
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
-use Organizations\Mappers\OrganizationMapper;
 use API\Controllers\APIController;
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -17,6 +16,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
@@ -231,18 +231,15 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
         $check($fila($usuarios['sin-rol']) === $antes, 'j1 el usuario de un tipo sin rol NO se edita', "HTTP {$r['status']}");
 
         echoTerminal('');
-        echoTerminal('[k] El núcleo del alta: ninguna ruta apunta a él, y la API pública sí llega');
+        echoTerminal('[k] El núcleo del alta: ninguna ruta apunta a él, y la API pública viene apagada');
         $apuntan = array_filter(get_routes(), fn ($ruta) => is_string($ruta['controller'] ?? null) && str_ends_with((string) $ruta['controller'], ':createUserFromRequest'));
         $check(count($apuntan) === 0, 'k1 ninguna ruta apunta a createUserFromRequest', implode(', ', array_keys($apuntan)));
-        //Sin organización el alta falla ANTES de guardar y de enviar correo: lo que se mide es que llega al núcleo.
         $api = $pedir($camino(APIController::routeName('users-actions', ['actionType' => 'register'], true)), null, [
             'email' => "{$prefijo}-api@mailinator.com", 'password' => 'zz-Clave-Api-1', 'passwordConfirm' => 'zz-Clave-Api-1',
             'firstName' => 'Zz', 'firstLastName' => 'Api', 'phoneCode' => '+57', 'phoneNumber' => '3000000000',
             'userType' => BaseHashEncryption::encryptBidirectionalHash((string) UsersModel::TYPE_USER_GENERAL),
         ]);
-        $cuerpoApi = json_decode($api['body'], true);
-        $mensajeApi = is_array($cuerpoApi) ? (string) ($cuerpoApi['message'] ?? '') : '';
-        $check($mensajeApi === __(UsersController::LANG_GROUP, 'Debe seleccionar una organización.'), 'k2 sin sesión, el alta pública llega al núcleo y responde su validación', "HTTP {$api['status']}: " . mb_substr($mensajeApi, 0, 160));
+        $check($api['status'] === 404, 'k2 sin sesión y apagada de fábrica (API_PUBLIC_SIGNUP), el alta pública responde como una ruta que no existe', "HTTP {$api['status']}: " . mb_substr($api['body'], 0, 200));
         //Antes respondía 200 con el cuerpo vacío: k2 es su canario, la misma ruta sí llega a una acción que existe.
         $inexistente = $pedir($camino(APIController::routeName('users-actions', ['actionType' => 'zz-no-existe'], true)), $adminGeneral, ['zz' => '1']);
         $check($inexistente['status'] === 404, 'k3 con sesión, un POST a una acción de usuarios que no existe responde 404', "HTTP {$inexistente['status']}: " . mb_substr($inexistente['body'], 0, 80));
@@ -345,8 +342,8 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
         $quedan = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
-            + (int) $database->query("SELECT COUNT(*) FROM `{$tablaPublicaciones}` WHERE title LIKE " . $database->quote("{$prefijo}%"))->fetchColumn();
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaOrganizaciones}` WHERE name LIKE " . $database->quote("{$prefijo}%"))->fetchColumn()
+         + (int) $database->query("SELECT COUNT(*) FROM `{$tablaPublicaciones}` WHERE title LIKE " . $database->quote("{$prefijo}%"))->fetchColumn();
         $check($quedan === 0, 'z1 no queda ningún usuario, organización ni publicación de la prueba', "quedan {$quedan}");
     }
 

@@ -44,19 +44,6 @@ window.addEventListener('load', function () {
 						onSetFormData: function (formData) {
 							return formData
 						},
-						onInvalidEvent: function (event) {
-
-							let element = event.target
-							let validationMessage = element.validationMessage
-							let jElement = $(element)
-							let field = jElement.closest('.field')
-							let nameOnLabel = field.find('label').text().trim()
-
-							errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-							event.preventDefault()
-
-						},
 						confirmation: {
 							title: _i18n(langGroup, 'Confirmación'),
 							message: _i18n(langGroup, '¿Está seguro de cancelar la operación?'),

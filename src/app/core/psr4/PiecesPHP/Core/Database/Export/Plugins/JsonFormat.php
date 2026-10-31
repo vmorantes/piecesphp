@@ -1,16 +1,12 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
-use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
-use PiecesPHP\Core\Database\Database;
 use PDO;
+use PiecesPHP\Core\Database\Database;
+use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 
 /**
- * Class JsonFormat
- * 
- * Plugin de formato para exportar datos en formato JSON.
- * Ideal para interoperabilidad con otros sistemas y APIs.
+ * Formato JSON, para intercambiar datos con otros sistemas.
  */
 class JsonFormat implements FormatPluginInterface
 {
@@ -46,7 +42,7 @@ class JsonFormat implements FormatPluginInterface
         // Para JSON, no exportamos la estructura SQL, pero podríamos imprimir el nombre de la tabla
         $prefix = $this->firstTable ? "" : ",\n";
         $this->firstTable = false;
-        
+
         return $prefix . "  \"" . addcslashes($table, "\r\n\"\\") . "\": [\n";
     }
 
@@ -65,7 +61,7 @@ class JsonFormat implements FormatPluginInterface
         $useHexBlob = $options['hex_blob'] ?? true;
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            
+
             // Aplicar Transformaciones (GDPR / Masking)
             foreach ($transforms as $col => $callback) {
                 if (array_key_exists($col, $row)) {
@@ -133,16 +129,16 @@ class JsonFormat implements FormatPluginInterface
      */
     public function getTableFakeView(Database $db, string $table): string
     {
-        // En JSON las vistas son fuentes de datos normales. 
+        // En JSON las vistas son fuentes de datos normales.
         // Las exportamos completas aquí para aprovechar el flujo de 1 sola fase real para datos.
         $output = $this->getTableStructure($db, $table, []); // Esto devolvería "" si isView es true, así que forzamos:
-        
+
         $prefix = $this->firstTable ? "" : ",\n";
         $this->firstTable = false;
         $output = $prefix . "  \"" . addcslashes($table, "\r\n\"\\") . "\": [\n";
 
         $data = $this->getTableData($db, $table, []);
-        
+
         return $output . $data;
     }
 

@@ -11,5 +11,5 @@ use Organizations\OrganizationsLang;
         <span data-geo-field="city"></span>
         <span data-geo-field="country"></span>
     </div>
-    <a class="ui button brand-color alt" data-geo-href="url"><?= __(OrganizationsLang::LANG_GROUP, 'Ver perfil'); ?></a>
+    <a class="ui button" data-geo-href="url"><?= __(OrganizationsLang::LANG_GROUP, 'Ver perfil'); ?></a>
 </div>

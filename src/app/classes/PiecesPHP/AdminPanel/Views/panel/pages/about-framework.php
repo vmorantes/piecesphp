@@ -15,17 +15,17 @@ $langGroup = 'about-framework';
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => __($langGroup, 'Acerca de'),
-            'description' => get_config('title_app') . ' ' . __($langGroup, 'desarrollada en:'),
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => __($langGroup, 'Acerca de'),
+                'description' => get_config('title_app') . ' ' . __($langGroup, 'desarrollada en:'),
+            ]);
         ?>
 
-        <div class="container-standard-form">
+        <div class="ui segment">
             <div class="ui stackable two column middle aligned grid">
                 <div class="column">
-                    <img class="about-framework-logo" src="<?= base_url('statics/images/framework/main_logo.svg') ?>" alt="PiecesPHP">
+                    <img class="about-framework-logo invert-on-dark" src="<?= base_url('statics/images/framework/main_logo.svg') ?>" alt="PiecesPHP">
                     <div class="ui horizontal relaxed list">
                         <div class="item">
                             <div class="content">
@@ -60,14 +60,14 @@ $langGroup = 'about-framework';
             </div>
         </div>
 
-        <div class="container-standard-form">
-            <div class="form-section-title"><?= __($langGroup, 'Descripción'); ?></div>
+        <div class="ui segment">
+            <?php $helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Descripción')]); ?>
             <p><?= __($langGroup, 'Es un conjunto de componentes personalizables y reusables para el desarrollo web basado en PHP con licencia MIT (de código abierto, sin costos escondidos o adicionales para el cliente final), modular, liviano y flexible que permite “ensamblar” diferentes librerías, funcionalidades y plugins como su nombre “Pieces” lo indica; normalmente a este grupo de componentes se le conoce como Framework.'); ?></p>
             <p><?= escape_html(sprintf(__($langGroup, 'Este framework ha venido siendo desarrollado desde hace aproximadamente %d años por Tejido Digital y ha permitido la estandarización de procesos dentro de la organización, desarrollo de manera más ágil y rápida, disminuyendo las solicitudes de soporte (garantía) y en caso de presentarse alguna, lograr una solución más rápida.'), $years)); ?></p>
         </div>
 
-        <div class="container-standard-form">
-            <div class="form-section-title"><?= __($langGroup, 'Librerías propias'); ?></div>
+        <div class="ui segment">
+            <?php $helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Librerías propias')]); ?>
             <div class="ui bulleted list">
                 <?php foreach ($ownPackages as $package): ?>
                 <div class="item"><?= escape_html($package); ?></div>
@@ -75,8 +75,8 @@ $langGroup = 'about-framework';
             </div>
         </div>
 
-        <div class="container-standard-form">
-            <div class="form-section-title"><?= __($langGroup, 'Plugins, scripts y dependencias'); ?></div>
+        <div class="ui segment">
+            <?php $helpController->_render('panel/built-in/content/section-header.php', ['title' => __($langGroup, 'Plugins, scripts y dependencias')]); ?>
             <p><span class="ui small grey text"><?= __($langGroup, 'Desarrollados por terceros'); ?></span></p>
             <p><?= __($langGroup, 'Cada una tiene su propia licencia, que permite usarla en proyectos comerciales con las condiciones que fija esa licencia:'); ?></p>
             <p><span class="ui small grey text"><?= __($langGroup, 'De PHP, instaladas con Composer'); ?></span></p>
@@ -94,7 +94,7 @@ $langGroup = 'about-framework';
         </div>
 
         <div class="about-framework-footer">
-            <img src="<?= base_url('statics/images/framework/developer_by_logo.png'); ?>" alt="">
+            <img class="invert-on-dark" src="<?= base_url('statics/images/framework/developer_by_logo.png'); ?>" alt="">
             <div><?= date('Y') ?></div>
         </div>
 

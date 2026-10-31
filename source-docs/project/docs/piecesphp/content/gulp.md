@@ -82,6 +82,29 @@ Con un adaptador propio (`sassCompileAdapter()` en `src/gulpfile.js`) sobre el p
 reescribe un `.css` ni su `.map` si su contenido no cambió**, así que su versión (y la caché de los visitantes) se
 conserva. Un error de Sass enseña archivo y línea, compila las demás hojas y hace fallar la tarea.
 
+### Direcciones dentro del SCSS: `static-url()`
+
+Una dirección a un archivo propio dentro de una hoja (una imagen de fondo, otra hoja importada) se escribe con
+`static-url()`, con la ruta relativa a donde queda el `.css` compilado, como un `url()` normal:
+
+```scss
+.error-page {
+    background-image: url(static-url('../images/errors/masc.svg'));
+}
+```
+
+Una hoja de CSS importada va igual, dentro de `@import url(…)`, y sale como un `@import` de CSS con su huella:
+
+```scss
+@import url(static-url('../fonts/poppins/poppins.css'));
+```
+
+Al compilar, la dirección sale con la huella del contenido del archivo (`…/masc.svg?cacheStamp=<16 caracteres>`): si la
+imagen cambia, cambia la hoja, su versión, y el navegador pide las dos. Con la huella, el servidor les da un año de
+caché; sin ella, el navegador pregunta en cada visita. **Si el archivo no existe, esa hoja no compila** y la tarea falla
+con su nombre. Lo externo (`https://…`, `//…`) y `data:` se escriben con `url()` normal. `bin/cli verify-integrity`
+señala un `url()` o un `@import` de un `.scss` propio que apunte a un archivo local sin `static-url()` (ADR 0067).
+
 ## Compilar no limpia la caché
 
 Cada estático lleva la versión de su propio archivo: al compilar, el CSS o el JS que cambia cambia de

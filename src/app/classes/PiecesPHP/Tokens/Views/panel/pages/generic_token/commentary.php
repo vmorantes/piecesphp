@@ -22,7 +22,7 @@ $langGroup = GenericTokenController::LANG_GROUP;
 
     <h2 class="ui header"><?= __($langGroup, 'Comentarios'); ?></h2>
 
-    <form pcs-generic-handler-js action="<?= $action; ?>" method="<?= $method_action; ?>" class="ui form" style="max-width: 600px; margin: 0 auto;">
+    <form pcs-generic-handler-js action="<?= $action; ?>" method="<?= $method_action; ?>" class="ui form">
         <input type="hidden" name="token" value="<?= $token; ?>">
 
         <div class="field required">
@@ -41,7 +41,7 @@ $langGroup = GenericTokenController::LANG_GROUP;
         </div>
 
         <div class="field">
-            <button type="submit" class="ui button green"><?= __($langGroup, 'Enviar'); ?></button>
+            <button type="submit" class="ui primary button"><?= __($langGroup, 'Enviar'); ?></button>
         </div>
 
     </form>

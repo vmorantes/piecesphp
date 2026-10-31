@@ -2,18 +2,27 @@
 
 //Avisos del sistema y mantenimiento: el registro, el aviso de app_key con su marca vieja, y el borrado que solo toca enlaces rotos.
 //Escribe de verdad las opciones system_alerts_hidden y hide_app_key_warning y las repone en el finally: db-backup antes.
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Settings\ORM\SettingsModel;
+use PiecesPHP\SystemStatus\CleanTarget;
+use PiecesPHP\SystemStatus\CleanTargetRegistry;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\ServerDelegatedLinks;
 use PiecesPHP\SystemStatus\SystemAlert;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 
 CliActions::make('unit-tests:core/system-status', function ($args) {
 
@@ -166,7 +175,7 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
         $filasAdmin = SystemStatusController::alertRows(UsersModel::TYPE_USER_ADMIN_GRAL);
         $htmlRoot = $pintar(true, $filasRoot);
         $htmlAdmin = $pintar(false, $filasAdmin);
-        $check(str_contains($htmlRoot, 'data-system-alert-toggle data-key="app-key-placeholder"') && !str_contains($htmlAdmin, 'data-system-alert-toggle') && str_contains($htmlAdmin, 'data-system-alert-row="app-key-placeholder"'), 'd3 root ve los interruptores; el administrador general ve los avisos sin interruptor');
+        $check(str_contains($htmlRoot, 'data-system-alert-toggle="" data-key="app-key-placeholder"') && !str_contains($htmlAdmin, 'data-system-alert-toggle') && str_contains($htmlAdmin, 'data-system-alert-row="app-key-placeholder"'), 'd3 root ve el botón de ocultar; el administrador general ve los avisos sin botón');
         $check(!str_contains($htmlRoot, 'href=""') && !str_contains($htmlAdmin, 'href=""'), 'd4 ningún href vacío');
         $check(str_contains($pintar(true, []), 'No hay avisos activos.'), 'd5 sin avisos: «No hay avisos activos.»');
         $estado = SystemStatusController::maintenanceStatus();
@@ -211,14 +220,70 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
         //a mayúsculas. Con in_array() no estricto, el 0 pasaría.
         $check(count($colados) === 0, 'f1 ningún destino inválido pasa la validación', 'colados: ' . implode(', ', $colados));
         $rechazados = [];
-        foreach (SystemStatusController::CLEAN_TARGETS as $valido) {
+        $registrados = array_keys(CleanTargetRegistry::all());
+        foreach ($registrados as $valido) {
             if (!SystemStatusController::isCleanTarget($valido)) {
                 $rechazados[] = $valido;
             }
         }
-        $check(count($rechazados) === 0 && count(SystemStatusController::CLEAN_TARGETS) === 4,
-            'f2 los cuatro destinos declarados sí pasan', 'rechazados: ' . implode(', ', $rechazados)
-            . ' · declarados: ' . count(SystemStatusController::CLEAN_TARGETS));
+        $check(count($rechazados) === 0 && $registrados === ['statics-stamp', 'webp-cache', 'publications-cache', 'server-delegated-links'],
+            'f2 los cuatro destinos registrados, en el orden de sus botones, sí pasan', 'rechazados: ' . implode(', ', $rechazados)
+                . ' · registrados: ' . implode(', ', $registrados));
+
+        //f.1b · El registro: un destino que registra una prueba se acepta, se ejecuta y sale en el estado; uno sin registrar, 400.
+        $registroLimpiezas = CleanTargetRegistry::swapForTesting();
+        try {
+            $ejecutado = 0;
+            CleanTargetRegistry::register((new CleanTarget('zz-limpieza', fn (): string => 'zz', fn (): string => 'zz', function () use (&$ejecutado): array {
+                $ejecutado++;
+                return ['before' => 3, 'after' => 0, 'message' => 'zz-limpiado', 'freed' => 3, 'log' => [\EventsLog\Mappers\LogsMapper::MSG_MAINTENANCE_CACHE_CLEANED, ['%freed%' => '3']]];
+            }, 10))->withRow(10, fn (): string => 'zz', CleanTarget::UNIT_BYTES, ['zzLimpiezaBytes'], fn (): array => ['zzLimpiezaBytes' => 7]));
+            $pide = function (string $destino): array {
+                $peticion = (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-prueba'), new Headers(), [], [], (new StreamFactory())->createStream('')))->withParsedBody(['target' => $destino]);
+                $respuesta = (new SystemStatusController())->maintenanceClean($peticion, new ResponseRoute());
+                return [$respuesta->getStatusCode(), json_decode((string) $respuesta->getBody(), true)];
+            };
+            [$codigo, $cuerpo] = $pide('zz-limpieza');
+            $check($codigo === 200 && $ejecutado === 1 && ($cuerpo['message'] ?? null) === 'zz-limpiado' && ($cuerpo['status']['zzLimpiezaBytes'] ?? null) === 7,
+                'f1b un destino registrado por la prueba se acepta, se ejecuta y su fila sale en el estado con su clave', (string) json_encode($cuerpo));
+            [$codigo, $cuerpo] = $pide('zz-sin-registrar');
+            $check($codigo === 400 && $ejecutado === 1, 'f1c uno sin registrar: 400, y no se ejecuta nada', "HTTP {$codigo}");
+            $check(array_keys(SystemStatusController::maintenanceStatus()) === ['zzLimpiezaBytes'], 'f1d maintenanceStatus() sale del registro: solo la clave de la fila registrada');
+            //f.1e · El icono de la fila: por omisión, el declarado, y uno con otros caracteres se rechaza.
+            $sinIcono = (new CleanTarget('zz-sin-icono', fn (): string => 'zz', fn (): string => 'zz', fn (): array => [], 20))->withRow(20, fn (): string => 'zz', CleanTarget::UNIT_BYTES, ['zzA'], fn (): array => ['zzA' => 1]);
+            $conIcono = (new CleanTarget('zz-con-icono', fn (): string => 'zz', fn (): string => 'zz', fn (): array => [], 30))->withRow(30, fn (): string => 'zz', CleanTarget::UNIT_BYTES, ['zzA'], fn (): array => ['zzA' => 1], null, 'sign out alternate');
+            $rechazado = false;
+            try {
+                (new CleanTarget('zz-icono-malo', fn (): string => 'zz', fn (): string => 'zz', fn (): array => [], 40))->withRow(40, fn (): string => 'zz', CleanTarget::UNIT_BYTES, ['zzA'], fn (): array => [], null, 'x" onclick="zz');
+            } catch (\InvalidArgumentException $e) {
+                $rechazado = true;
+            }
+            $check($sinIcono->rowIcon() === 'archive' && $conIcono->rowIcon() === 'sign out alternate' && $rechazado, 'f1e el icono de la fila: «archive» por omisión, el declarado tal cual, y uno con comillas se rechaza');
+            //f.1f · La vista: «A de B» con dos claves (la fija de los accesos rotos y una del registro), el icono en su fila y
+            //el botón solo si quien mira puede pulsarlo.
+            $dosClaves = (new CleanTarget('zz-dos-claves', fn (): string => 'zz-boton', fn (): string => 'zz', fn (): array => [], 50))->withRow(50, fn (): string => 'zz-fila', CleanTarget::UNIT_NUMBER, ['zzParte', 'zzTotal'], fn (): array => [], null, 'images');
+            $pintarMantenimiento = function (array $cleanTargets) use ($dosClaves): string {
+                $langGroup = SystemStatusController::LANG_GROUP;
+                $title = 'Estado y cachés';
+                $cleanRows = ['zz-dos-claves' => $dosClaves];
+                $maintenanceStatus = ['zzParte' => 2, 'zzTotal' => 5, 'linksBroken' => 1, 'linksTotal' => 9];
+                $brokenShown = [];
+                $brokenLinksURL = 'https://zz/broken';
+                $cleanURL = 'https://zz/clean';
+                $cacheCleanURL = 'https://zz/cache';
+                ob_start();
+                include basepath('app/classes/PiecesPHP/SystemStatus/Views/maintenance.php');
+                return (string) ob_get_clean();
+            };
+            $conPermiso = $pintarMantenimiento(['zz-dos-claves' => $dosClaves]);
+            $sinPermiso = $pintarMantenimiento([]);
+            $check(str_contains($conPermiso, '>2 de 5</strong>') && str_contains($conPermiso, '>1 de 9</strong>') && str_contains($conPermiso, 'primary tinted bordered images icon'),
+                'f1f la vista pinta «A de B» con dos claves (también la fila fija de los rotos) y el icono declarado');
+            $check(str_contains($conPermiso, 'data-system-maintenance-target="zz-dos-claves"') && !str_contains($sinPermiso, 'data-system-maintenance-target="zz-dos-claves"') && str_contains($sinPermiso, '>2 de 5</strong>'),
+                'f1g sin permiso, la fila sale con su valor y sin su botón');
+        } finally {
+            CleanTargetRegistry::swapForTesting($registroLimpiezas);
+        }
 
         //f.2 · deleteAll() sobre una raíz propia: borra TODOS los enlaces, y nada más que enlaces.
         $raizF = "{$base}/todos";

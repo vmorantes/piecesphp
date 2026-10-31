@@ -2,8 +2,13 @@
 
 //La revocación de sesiones (ADR 0026) medida por HTTP: la comprobación vive en `src/index.php` y solo corre al servir.
 //Crea usuarios y organizaciones zz-prueba-rev-*, un borrador de publicación y mueve la marca global; lo retira todo y lo comprueba.
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/MySpace/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
@@ -13,13 +18,16 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Publications\Mappers\PublicationMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsMiddleware;
 
-CliActions::make('unit-tests:core/session-revocation', function ($args) {
+//Con $revokeAllReal, también cierra TODAS las sesiones de la instalación con la tarea de verdad (g3-g6): echa a quien esté dentro,
+//así que va en su propia suite, que gates no corre si no se le pide (CliActions::EFFECT_SESSIONS).
+$sessionRevocation = function (bool $revokeAllReal) {
 
     echoTerminal("\e[33m[TEST:SessionRevocation] Un token revocado deja de valer, y nadie cierra lo que no le toca\e[39m");
     echoTerminal('');
@@ -98,7 +106,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
     /**
      * @return array{status:int,body:string,location:string,cookies:list<string>,json:mixed}
      */
-    $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = [], bool $xhr = true) use ($base, $cabeceraToken): array {
+    $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = [], bool $xhr = true, array $cookiesEnviadas = []) use ($base, $cabeceraToken): array {
         $cabeceras = [];
         if ($jwt !== null) {
             $cabeceras[] = "{$cabeceraToken}: {$jwt}";
@@ -124,6 +132,9 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
                 return strlen($linea);
             },
         ]);
+        if ($cookiesEnviadas !== []) {
+            \Terminal\TestRun::curlSetopt($handle, CURLOPT_COOKIE, implode('; ', array_map(fn($n, $v) => "{$n}={$v}", array_keys($cookiesEnviadas), $cookiesEnviadas)));
+        }
         if ($metodo === 'POST') {
             \Terminal\TestRun::curlSetopt($handle, CURLOPT_POST, true);
             \Terminal\TestRun::curlSetopt($handle, CURLOPT_POSTFIELDS, http_build_query($datos));
@@ -224,7 +235,6 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         return (int) (((array) $m->result())[0]->ultimo ?? 0);
     })();
     $publicacionID = null;
-    $publicacionKID = null;
     $ids = [];
 
     try {
@@ -489,34 +499,12 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             }
         }
         $check($recortada !== null, 'pk0 banco: hay una ruta del rol general fuera del recorte que el aprobado abre', count($candidatas) . ' candidatas');
-        [$kProtegida, ] = $medir('K general NO aprobado, organización pendiente', $noAprobado);
-        //Su señal pública: un borrador SUYO. El de arriba es de otro creador y, desde F3 (pendientes.md 380), un general
-        //solo ve los borradores de su organización: lo que se mide es la sesión, no el permiso de borradores.
-        $pk = new PublicationMapper();
-        $pk->baseLang = $lang;
-        foreach (['title' => "{$prefijo} borrador de K", 'content' => 'Borrador de K.', 'seoDescription' => '', 'publicDate' => new \DateTime(), 'startDate' => null, 'endDate' => null, 'category' => $categoria, 'visits' => 0, 'author' => $ids['pK'], 'folder' => str_replace('.', '', uniqid()), 'featured' => PublicationMapper::UNFEATURED, 'mainImage' => 'statics/images/zz-prueba.jpg', 'thumbImage' => 'statics/images/zz-prueba.jpg', 'ogImage' => ''] as $campo => $valor) {
-            $pk->setLangData($lang, $campo, $valor);
-        }
-        $pk->status = PublicationMapper::DRAFT;
-        $usuarioPrevio = get_config('current_user');
-        $guardadoPrevio = get_config('pcsphp_current_user_stored');
-        try {
-            set_config('current_user', (object) ['id' => $ids['pK']]);
-            set_config('pcsphp_current_user_stored', null);
-            $pk->save();
-        } finally {
-            set_config('current_user', $usuarioPrevio);
-            set_config('pcsphp_current_user_stored', $guardadoPrevio);
-        }
-        $publicacionKID = $pk->id !== null ? (int) $pk->id : null;
-        $rutaPublicaK = (string) $ruta($nombres['publica'], ['slug' => $pk->getSlug()]);
-        $kPublica = $pedir('GET', $rutaPublicaK, $noAprobado, [], false)['status'];
-        $kPublicaSinSesion = $pedir('GET', $rutaPublicaK, null, [], false)['status'];
-        echoTerminal("      MEDIDA K, su propio borrador: con sesión HTTP {$kPublica} · sin sesión HTTP {$kPublicaSinSesion}");
+        [$kProtegida] = $medir('K general NO aprobado, organización pendiente', $noAprobado);
+        //Sin pk2 (JC): ningún tipo que ve borradores puede quedar sin aprobar (UsersApprovalHandler los aprueba solos), y
+        //ninguna salida pública distingue la sesión de un general: lo que pk2 medía no se ve por HTTP.
         $kRecortada = $recortada !== null ? $pedir('GET', (string) $ruta($recortada), $noAprobado)['status'] : 0;
         echoTerminal("      MEDIDA K, ruta recortada {$recortada} (XHR): no aprobado HTTP {$kRecortada} · aprobado HTTP 200");
         $check($kProtegida === 'DENTRO', 'pk1 K: el no aprobado ENTRA: conserva su espacio', $kProtegida);
-        $check($kPublica === 200 && $kPublicaSinSesion === 404, 'pk2 K: y la ruta pública lo ve como identificado (su borrador: 200 con sesión, 404 sin ella)', "HTTP {$kPublica} y {$kPublicaSinSesion}");
         $check($kRecortada === 403, "pk3 K: pero {$recortada}, que su rol tiene, le responde 403: el recorte sigue aplicándose", "HTTP {$kRecortada}");
         //La lista de lo que conserva el no aprobado nombra rutas por su nombre: si una se renombra y la lista no, la pierde sin ruido.
         $kMapbox = $pedir('GET', (string) $ruta('configurations-integrations-mapbox-key'), $noAprobado)['status'];
@@ -639,13 +627,17 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         $check($codigo === 1 && SettingsModel::getConfigValue(SessionToken::MINIMUM_DATE_CONFIG) === $marcaGlobalPrevia, 'g1 sin confirm=yes → 1 y la marca no se mueve', $salida);
         $check($entra($vivo) === 'DENTRO', 'g2 y el token sigue entrando');
         //SIN separar un segundo: un token del mismo segundo que la marca global tampoco vale, como con la del usuario.
-        [$codigo, $salida] = $tarea(['confirm=yes']);
-        $nueva = SettingsModel::getConfigValue(SessionToken::MINIMUM_DATE_CONFIG);
-        $check($codigo === 0 && is_string($nueva) && abs(strtotime($nueva) - time()) <= 5, 'g3 con confirm=yes → 0 y la marca queda en ahora', "código {$codigo}, marca " . var_export($nueva, true));
-        $check(preg_match('/hasta \d+ usuario/', $salida) === 1, 'g4 y dice a cuántos usuarios alcanza', $salida);
-        $check($entra($vivo) === 'FUERA', 'g5 el token de antes ya no entra', $ultimaEntrada);
-        $siguienteSegundo(is_string($nueva) ? (int) strtotime($nueva) : time());
-        $check($entra($token($ids['admin'])) === 'DENTRO', 'g6 DISCRIMINANTE: uno nacido después, sí');
+        if ($revokeAllReal) {
+            [$codigo, $salida] = $tarea(['confirm=yes']);
+            $nueva = SettingsModel::getConfigValue(SessionToken::MINIMUM_DATE_CONFIG);
+            $check($codigo === 0 && is_string($nueva) && abs(strtotime($nueva) - time()) <= 5, 'g3 con confirm=yes → 0 y la marca queda en ahora', "código {$codigo}, marca " . var_export($nueva, true));
+            $check(preg_match('/hasta \d+ usuario/', $salida) === 1, 'g4 y dice a cuántos usuarios alcanza', $salida);
+            $check($entra($vivo) === 'FUERA', 'g5 el token de antes ya no entra', $ultimaEntrada);
+            $siguienteSegundo(is_string($nueva) ? (int) strtotime($nueva) : time());
+            $check($entra($token($ids['admin'])) === 'DENTRO', 'g6 DISCRIMINANTE: uno nacido después, sí');
+        } else {
+            echoTerminal('      - g3-g6 (cerrar todas las sesiones de verdad) van aparte: unit-tests:core/session-revocation-global');
+        }
         echoTerminal(' ');
 
         //─── S · La suplantación mira al principal (P160 a) ─────────────────────────────────────
@@ -656,8 +648,22 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             $m->resetAll();
             $m->update($valores)->where(['id' => $id])->execute();
         };
-        $suplanta = function (string $jwt, int $objetivo) use ($pedir, $ruta, $nombres, $acceso, &$ultimaEntrada): string {
-            $r = $pedir('GET', (string) $ruta($nombres['protegida']) . '?' . http_build_query([CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME => $objetivo]), $jwt, [], false);
+        //Se empieza desde el panel (P204 a) y se pide con la cookie que devuelve. Con `$cookie` ya dada, solo se pide con
+        //ella: así se mide que una suplantación EMPEZADA deja de valer, que es lo de P160 a.
+        $suplanta = function (string $jwt, int $objetivo, ?string &$cookie = null) use ($pedir, $ruta, $nombres, $acceso, &$ultimaEntrada): string {
+            if ($cookie === null) {
+                $inicio = $pedir('POST', (string) $ruta('user-impersonation-start'), $jwt, ['userID' => $objetivo]);
+                foreach ($inicio['cookies'] as $linea) {
+                    if (str_starts_with($linea, CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME . '=')) {
+                        $cookie = (string) explode(';', substr($linea, strlen(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME) + 1))[0];
+                    }
+                }
+                if ($cookie === null) {
+                    $ultimaEntrada = "empezar: HTTP {$inicio['status']}, sin cookie";
+                    return 'SIN EMPEZAR';
+                }
+            }
+            $r = $pedir('GET', (string) $ruta($nombres['protegida']), $jwt, [], false, [CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME => $cookie]);
             $ultimaEntrada = 'HTTP ' . $r['status'] . ($r['location'] !== '' ? " → {$r['location']}" : '');
             if ($r['status'] === 302 && str_contains($r['location'], $acceso)) {
                 return 'FUERA';
@@ -668,13 +674,15 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         $ids['rootI'] = $crear('root-i', UsersModel::TYPE_USER_ROOT);
         $tokenS = $token($ids['rootS']);
         $tokenI = $token($ids['rootI']);
-        $check($suplanta($tokenS, $ids['otro']) === 'DENTRO', 's1 CANARIO: root sano suplanta y entra', $ultimaEntrada);
+        $cookieS = null;
+        $cookieI = null;
+        $check($suplanta($tokenS, $ids['otro'], $cookieS) === 'DENTRO', 's1 CANARIO: root sano suplanta y entra', $ultimaEntrada);
         $siguienteSegundo((int) BaseToken::getCreated($tokenS));
         $soloColumna($ids['rootS'], ['sessionsValidFrom' => date('Y-m-d H:i:s')]);
-        $check($suplanta($tokenS, $ids['otro']) === 'FUERA', 's2 con SU marca movida después de su token, root ya no suplanta', $ultimaEntrada);
-        $check($suplanta($tokenI, $ids['otro']) === 'DENTRO', 's3 CANARIO: el otro root, sano, suplanta', $ultimaEntrada);
+        $check($suplanta($tokenS, $ids['otro'], $cookieS) === 'FUERA', 's2 con SU marca movida después de su token, root ya no suplanta', $ultimaEntrada);
+        $check($suplanta($tokenI, $ids['otro'], $cookieI) === 'DENTRO', 's3 CANARIO: el otro root, sano, suplanta', $ultimaEntrada);
         $soloColumna($ids['rootI'], ['status' => UsersModel::STATUS_USER_INACTIVE]);
-        $check($suplanta($tokenI, $ids['otro']) === 'FUERA', 's4 inactivo, root ya no suplanta', $ultimaEntrada);
+        $check($suplanta($tokenI, $ids['otro'], $cookieI) === 'FUERA', 's4 inactivo, root ya no suplanta', $ultimaEntrada);
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
@@ -695,7 +703,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
                 $config->delete(['name' => SessionToken::MINIMUM_DATE_CONFIG])->execute();
             }
             $retirado[] = 'marca global ' . ($marcaGlobalExistia ? 'restaurada' : 'retirada');
-            foreach ([$publicacionID, $publicacionKID] as $idPublicacion) {
+            foreach ([$publicacionID] as $idPublicacion) {
                 if ($idPublicacion !== null) {
                     $pub = PublicationMapper::model();
                     $pub->resetAll();
@@ -753,7 +761,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             $referencias = [
                 UsersModel::TABLE => array_map(fn($u) => (int) $u->id, $ahora),
                 OrganizationMapper::TABLE => $idsOrganizaciones,
-                PublicationMapper::TABLE => array_values(array_filter([$publicacionID, $publicacionKID], fn ($id) => $id !== null)),
+                PublicationMapper::TABLE => array_values(array_filter([$publicacionID], fn ($id) => $id !== null)),
             ];
             $quedanAprobaciones = 0;
             foreach ($referencias as $tabla => $idsDeTabla) {
@@ -782,7 +790,7 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
 
-        $quedaPublicacion = ($publicacionID !== null && PublicationMapper::existsByID($publicacionID)) || ($publicacionKID !== null && PublicationMapper::existsByID($publicacionKID));
+        $quedaPublicacion = $publicacionID !== null && PublicationMapper::existsByID($publicacionID);
         $logsRestantes = LogsMapper::model();
         $logsRestantes->resetAll();
         $logsRestantes->select()->where(new WhereSegment([
@@ -791,11 +799,15 @@ CliActions::make('unit-tests:core/session-revocation', function ($args) {
         ]))->execute();
         $check(
             count($usuariosDelPrefijo()) === 0 && $quedanOrganizaciones === 0 && $quedanAprobaciones === 0 && !$quedaPublicacion && count((array) $logsRestantes->result()) === 0
-            && SettingsModel::optionExists(SessionToken::MINIMUM_DATE_CONFIG) === $marcaGlobalExistia,
+                && SettingsModel::optionExists(SessionToken::MINIMUM_DATE_CONFIG) === $marcaGlobalExistia,
             'z1 limpieza: 0 usuarios, 0 organizaciones, 0 publicaciones, 0 filas de aprobación, 0 registros de la prueba y la marca global como estaba'
         );
     }
 
     return $balance();
 
-})->setDescription('La revocación de sesiones por HTTP: el token revocado deja de valer, nadie cierra lo que no le toca y la marca global se mueve desde el terminal.')->setEffects([CliActions::EFFECT_NETWORK, CliActions::EFFECT_DATABASE])->register();
+};
+
+CliActions::make('unit-tests:core/session-revocation', fn ($args) => $sessionRevocation(false))->setDescription('La revocación de sesiones por HTTP: el token revocado deja de valer y nadie cierra lo que no le toca. Sin confirmación, la tarea de cerrar todas no mueve la marca global.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+
+CliActions::make('unit-tests:core/session-revocation-global', fn ($args) => $sessionRevocation(true))->setDescription('Lo mismo que core/session-revocation y, además, la tarea sessions-revoke-all con confirm=yes sobre la marca global REAL: cierra las sesiones de todos mientras corre (luego la repone). Solo con gates with=external.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_SESSIONS])->register();

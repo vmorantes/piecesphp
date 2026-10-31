@@ -140,7 +140,9 @@ propia.
 (`UsersController::LOGIN_USER_DATA_FIELDS`: `id`, `username`, `email`, `firstname`, `secondname`, `firstLastname`,
 `secondLastname`, `type` y `organization`) más `misc` (el avatar y las meta-propiedades del usuario); el panel no lee
 ninguno salvo el identificador, y está previsto adelgazarlo. Si necesitas datos del usuario, pídelos al
-servidor.
+servidor. Un campo no viaja si lo deja fuera cualquiera de las dos capas: esa lista, que dice
+qué entra, y `UsersModel::HIDDEN_FIELDS`, que dice qué no sale nunca del modelo (`password`, `meta`, `failedAttempts`,
+`sessionsValidFrom`).
 
 ### Correo en desarrollo
 

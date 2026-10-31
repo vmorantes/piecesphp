@@ -2,6 +2,7 @@
 
 //`systemOutFormatted()` tiene DOS modos y los dos son la función: embellecer en terminal y
 //salir limpia hacia una tubería o un archivo. Se prueban los dos, sin pseudo-terminal. Ver T124.
+//@areas nucleo
 
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;

@@ -2,6 +2,7 @@
 
 //bin/artefactos (P193): con --check NO escribe nada, nombra la foto rancia y nunca escribe un trinquete.
 //Toca dos archivos versionados y los repone por sha1 en el finally: si la suite muere a mitad, git los enseña.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 

@@ -1,7 +1,5 @@
 $(document).ready(function (e) {
 
-	let cropperAdapter = null
-
 	$('.user-form-component .menu .item').tab({
 		context: $('.user-form-component')
 	})
@@ -10,50 +8,12 @@ $(document).ready(function (e) {
 		context: 'parent'
 	})
 
-	if (typeof CropperAdapterComponent != 'undefined' && $('.ui.form.cropper-adapter').length > 0) {
-
-		cropperAdapter = new CropperAdapterComponent({
-			containerSelector: '.ui.form.cropper-adapter',
-			outputWidth: 400,
-			minWidth: 400,
-			cropperOptions: {
-				aspectRatio: 1 / 1,
-				viewMode: 3,
-			},
-		})
-
-	}
-
 	configProfilePhoto()
 	configRevokeUserSessions()
 
 	const formConfiguration = {
 		onSetFormData: function (formData) {
 			return formData
-		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let label = field.find('label')
-			let altLabel = field.find('.ui.label')
-			let placeholder = jElement.attr('placeholder')
-			let nameOnLabel = ''
-
-			if (typeof placeholder == 'string' && placeholder.length > 0) {
-				nameOnLabel = placeholder
-			} else if (label.length > 0) {
-				nameOnLabel = label.html()
-			} else if (altLabel.length > 0) {
-				nameOnLabel = altLabel.text()
-			}
-
-			errorMessage(`${nameOnLabel}`, validationMessage)
-
-			event.preventDefault()
-
 		},
 	}
 
@@ -116,79 +76,33 @@ $(document).ready(function (e) {
 
 	function configProfilePhoto() {
 
-		let formSelector = '.profile-photo-form'
-		let form = $(formSelector)
-		let formExists = form.length > 0
+		const section = document.querySelector('[data-user-avatar]')
+		if (section === null) {
+			return
+		}
 
-		if (formExists && cropperAdapter !== null) {
+		new ContentImageEditor().onApply('user-avatar-card', function (file) {
 
-			form.on('submit', function (e) {
+			const formData = new FormData()
+			formData.set('user_id', section.getAttribute('data-user-avatar'))
+			formData.set('image', file)
 
-				e.preventDefault()
+			showGenericLoader('CARGA_FOTO_PERFIL')
 
-				let user = form.find(`[name="user"]`).val()
-				let isEdit = form.find(`[name="edit"]`).val() == '1'
-				let saveRoute = form.attr('action')
-
-				confirmAction({
-					title: _i18n('avatar', 'Confirmación'),
-					message: _i18n('avatar', '¿Seguro de guardar la foto de perfil?'),
-					confirmText: _i18n('avatar', 'Sí'),
-					cancelText: _i18n('avatar', 'No'),
-				}).then(function (confirmed) {
-
-							if (!confirmed) {
-								return
-							}
-
-							showGenericLoader('CARGA_FOTO_PERFIL')
-
-							let formData = new FormData()
-
-							formData.set('user_id', user)
-
-							if (isEdit) {
-
-								formData.set('image', cropperAdapter.getFile('avatar.png', null, null, null, true))
-
-							} else {
-
-								formData.set('image', cropperAdapter.getFile('avatar.png'))
-
-							}
-
-							let requestUploadAvatar = postRequest(saveRoute, formData)
-
-							requestUploadAvatar.done(function (res) {
-
-								if (res.success) {
-
-									window.location.reload()
-
-								} else {
-
-									errorMessage('Error', res.message)
-
-								}
-
-							})
-
-							requestUploadAvatar.fail(function (res) {
-
-								console.error(res)
-
-							})
-
-							requestUploadAvatar.always(function () {
-
-								removeGenericLoader('CARGA_FOTO_PERFIL')
-
-							})
-
-				})
+			postRequest(section.getAttribute('data-user-avatar-url'), formData).done(function (res) {
+				if (res.success) {
+					window.location.reload()
+				} else {
+					errorMessage('Error', res.message)
+				}
+			}).fail(function (res) {
+				console.error(res)
+			}).always(function () {
+				removeGenericLoader('CARGA_FOTO_PERFIL')
 			})
 
-		}
+		})
+
 	}
 
 })

@@ -10,11 +10,7 @@
  *                                                                                      */
 //========================================================================================
 /**
- *  $config['cookies']: Configuraciones de las cookies [lifetime,path,domain,secure,httponly,samesite]
- * Ver http://php.net/manual/en/session.configuration.php En los apartados session.cookie*
- *
- * Nota: el ejemplo anterior se refiere a los valores que la aplicación asume por defecto.
- *
+ * Opciones de las cookies. Formato y trampas (lifetime): source-docs/project/docs/piecesphp/content/configuration.md, «cookies.php».
  */
 
 //──── Cookies ───────────────────────────────────────────────────────────────────────────

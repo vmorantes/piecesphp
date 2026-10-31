@@ -27,7 +27,7 @@ $gray-transparent: #CCCCCC;
         visibility: hidden;
     }
 
-    >.preview {
+    > .preview {
 
         display: none;
         position: relative;
@@ -52,9 +52,9 @@ $gray-transparent: #CCCCCC;
         }
     }
 
-    >.workspace>.steps {
+    > .workspace > .steps {
 
-        >.step {
+        > .step {
 
             display: none;
             margin: 0 auto;
@@ -68,12 +68,12 @@ $gray-transparent: #CCCCCC;
             }
 
             &.add {
-                >.placeholder {
+                > .placeholder {
                     border: 1px $gray-transparent solid;
                     border-radius: 20px;
                     padding: 5em 3em;
 
-                    >.content {
+                    > .content {
                         display: grid;
                         justify-content: center;
                         align-content: center;
@@ -92,7 +92,7 @@ $gray-transparent: #CCCCCC;
             }
 
             &.edit {
-                canvas+* {
+                canvas + * {
                     margin-left: auto;
                     margin-right: auto;
                 }
@@ -100,7 +100,7 @@ $gray-transparent: #CCCCCC;
         }
     }
 
-    >.workspace>.controls {
+    > .workspace > .controls {
         display: none;
 
         &.active {
@@ -113,13 +113,13 @@ $gray-transparent: #CCCCCC;
             text-align: center;
             line-height: 100%;
 
-            >* {
+            > * {
                 display: block;
             }
         }
 
-        >.options,
-        >.sub-options {
+        > .options,
+        > .sub-options {
             display: none;
             flex-wrap: wrap;
             justify-content: space-around;
@@ -132,13 +132,13 @@ $gray-transparent: #CCCCCC;
                 display: flex;
             }
 
-            >.option {
+            > .option {
                 margin: 0 1em;
                 min-width: 60px;
                 text-align: center;
                 cursor: pointer;
 
-                >.icon {
+                > .icon {
                     display: block;
                     padding-bottom: 0.5em;
 
@@ -150,7 +150,7 @@ $gray-transparent: #CCCCCC;
                     }
                 }
 
-                >.text {
+                > .text {
                     display: block;
                 }
 
@@ -162,7 +162,7 @@ $gray-transparent: #CCCCCC;
         }
     }
 
-    >.workspace>.main-buttons {
+    > .workspace > .main-buttons {
         display: none;
         grid-template-columns: auto auto;
         justify-content: center;
@@ -174,7 +174,7 @@ $gray-transparent: #CCCCCC;
             display: grid;
         }
 
-        >.element {
+        > .element {
             padding: 0em 1em;
         }
     }

@@ -6,7 +6,7 @@ $-subtitleGreyColor: #4A494A;
 @mixin titleZoneBaseLegacy {
 
     position: relative;
-    color: var(--main-brand-color);
+    color: var(--accent);
     text-align: center;
     font-size: 2rem;
     margin: 0px auto;
@@ -46,7 +46,7 @@ $-subtitleGreyColor: #4A494A;
         width: 100%;
         height: 2px;
         display: block;
-        border-bottom: 1.8px solid var(--second-brand-color);
+        border-bottom: 1.8px solid var(--accent-2);
     }
 
     &.no-underline {
@@ -68,11 +68,11 @@ $-subtitleGreyColor: #4A494A;
 
     &.subtitle {
 
-        >.subtitle {
+        > .subtitle {
 
             position: relative;
             font-size: 1.3rem;
-            color: var(--second-brand-color);
+            color: var(--accent-2);
             display: block;
             margin-top: 0.5rem;
 
@@ -84,7 +84,7 @@ $-subtitleGreyColor: #4A494A;
                 width: 100%;
                 height: 2px;
                 display: block;
-                border-bottom: 1.8px solid var(--second-brand-color);
+                border-bottom: 1.8px solid var(--accent-2);
             }
 
             &.grey {
@@ -98,7 +98,7 @@ $-subtitleGreyColor: #4A494A;
         }
     }
 
-    >.extra {
+    > .extra {
 
         position: relative;
         font-size: 1rem;
@@ -114,7 +114,7 @@ $-subtitleGreyColor: #4A494A;
         font-size: 2.2rem;
 
         &.subtitle {
-            >.subtitle {
+            > .subtitle {
                 font-size: 1.8rem;
                 font-weight: bold;
 

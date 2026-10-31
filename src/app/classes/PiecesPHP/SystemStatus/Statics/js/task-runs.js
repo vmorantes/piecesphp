@@ -2,8 +2,11 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
-	//La chuleta del cron: plegable de Fomantic; abierta o cerrada la deja el servidor.
-	$('[data-task-runs-cron]').accordion()
+	//Acotado a esta vista: `.menu .item` sin más tomaría también el menú lateral.
+	$('[data-task-runs-tabs] .item').tab({
+		//DataTables mide sus columnas: en una pestaña oculta salen a cero.
+		onVisible: () => $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(),
+	})
 
 	//Registros › Tareas programadas: el libro, por servidor, con sus filtros en la dirección de los datos.
 	const table = $('table[data-task-runs-table]')

@@ -17,11 +17,6 @@ $fontPublicSans: 'Public Sans',
 sans-serif;
 $fontPoppins: 'Poppins',
 sans-serif;
-$fontGlobal: var(--font-family-global);
-$fontGlobalText: $fontPoppins;
-$pFontFamily: $fontGlobalText;
-$listFontFamily: $fontGlobalText;
-$fontSidebars: var(--font-family-sidebars);
 
 // Weights
 $fwHairLine: 100;
@@ -33,11 +28,11 @@ $fwBold: 700;
 $fwExtraBold: 800;
 
 //──── Colors ────────────────────────────────────────────────────────────────────────────
-$colorFirst: var(--main-brand-color);
-$colorFirstOpacity: var(--main-brand-color-opacity);
-$colorSecond: var(--second-brand-color);
-$colorThird: var(--font-color-one);
-$colorFirstOver: var(--font-color-two);
+//Tokens del tema (H106): la instalación escribe --accent y --accent-2; --theme-text y --accent-contrast son de lectura.
+$colorFirst: var(--accent);
+$colorSecond: var(--accent-2);
+$colorThird: var(--theme-text);
+$colorFirstOver: var(--accent-contrast);
 
 $textHeader1Color: $colorFirst;
 $textHeader2Color: $colorSecond;
@@ -90,19 +85,3 @@ $quotePadding: 3% 10% 0% 10%;
 $quoteMaxWidth: 54rem;
 $quoteBorderTop: 1px solid $colorFirst;
 $quoteBorderBottom: 1px solid $colorFirst;
-
-//──── Sidebar ───────────────────────────────────────────────────────────────────────────
-$sidebarBreakPoint: 800px;
-$sidebarBackgroundColor: var(--menu-color-background);
-$sidebarColor: var(--menu-color-font);
-$sidebarColor2: var(--menu-color-font);
-$sidebarColorActive: rgb(220, 220, 220);
-$sidebarBackgroundItemHover: var(--menu-color-mark);
-$containerAsideContentPaddingT: pxToRem(15);
-$containerAsideContentPaddingR: 3rem;
-$containerAsideContentPaddingB: 8rem;
-$containerAsideContentPaddingL: 5rem;
-$containerAsideContentPaddingTRs: 1rem;
-$containerAsideContentPaddingRRs: 1rem;
-$containerAsideContentPaddingBRs: 0rem;
-$containerAsideContentPaddingLRs: 1rem;

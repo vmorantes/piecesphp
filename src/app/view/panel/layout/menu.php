@@ -1,144 +1,115 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 $sidebarMenu = get_sidebar_menu();
+$langGroup = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::ADMIN_LANG_GROUP;
+//Los atributos de un grupo son ganchos de los módulos: van en su elemento, y su clase se suma a la del ítem.
+$groupAttributes = function (\PiecesPHP\Core\Menu\MenuGroup $group): array {
+    $attributes = $group->getAttributes();
+    $attributes = is_array($attributes) ? $attributes : [];
+    $class = array_key_exists('class', $attributes) ? ' ' . escape_html((string) $attributes['class']) : '';
+    unset($attributes['class']);
+    $string = [];
+    foreach ($attributes as $name => $value) {
+        $string[] = escape_html((string) $name) . '="' . escape_html((string) $value) . '"';
+    }
+    return [$class, implode(' ', $string)];
+};
+//El texto sobre el patrocinador (Configuración › Apariencia › Imágenes de marca, P258): vacío, no se pinta.
+$partnersText = \PiecesPHP\Settings\Controllers\SettingsController::partnersText();
+//La casilla «Invertir colores en modo oscuro» de Imágenes de marca (P277 c).
+$invertOnDark = fn(string $image): string => \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark($image) ? ' invert-on-dark' : '';
+//El crédito del desarrollador (config.php, P263): fijo por clon; vacío no se pinta.
+$developer = trim((string) get_config('developer'));
+$developerLogo = trim((string) get_config('developer_logo'));
+$developerURL = trim((string) get_config('developer_url'));
+$developerName = $developer === '' ? '' : '<strong>' . escape_html($developer) . '</strong>';
+if ($developerName !== '' && $developerURL !== '') {
+    $developerName = '<a href="' . escape_html($developerURL) . '" target="_blank" rel="noopener">' . $developerName . '</a>';
+}
 ?>
-<div class="ui-pcs sidebar-toggle">
-    <i class="icon bars"></i>
-</div>
-<aside main-aside class="ui-pcs sidebar">
+<nav class="navigation" aria-label="<?= escape_html(__($langGroup, 'Menú principal')); ?>">
 
-    <div bar-controller class="bar-controller">
-        <i class="angle left icon"></i>
+    <div class="brand">
+        <span class="logo"><img class="<?= trim(($invertOnDark)('logo')); ?>" src="<?= get_config('logo'); ?>" alt=""></span>
+        <div class="identity">
+            <span class="name"><?= escape_html((string) get_config('title_app')); ?></span>
+            <small class="meta"><?= escape_html(strReplaceTemplate(__('general', 'Versión {ver}'), ['{ver}' => APP_VERSION])); ?></small>
+        </div>
+        <button class="ui tertiary icon button drawer toggle" type="button"><i class="times icon" aria-hidden="true"></i></button>
     </div>
 
-    <div class="content">
+    <button class="toggle" type="button"><i class="panel svg icon" aria-hidden="true"></i></button>
 
-        <div class="logo">
+    <div class="ui vertical accordion menu">
 
-            <div class="image round">
-                <img src="<?= get_config('logo'); ?>">
-            </div>
+        <?php foreach ($sidebarMenu->getItems() as $element) : ?>
+        <?php
+            if (!$element->isVisible()) {
+                continue;
+            }
+            //Una subentrada invisible no se pinta: el constructor de MenuGroup ya las quita, addItem() no.
+            $subItems = $element->asLink() ? [] : array_values(array_filter($element->getItems(), fn($subElement) => $subElement->isVisible()));
+            if (!$element->asLink() && count($subItems) === 0) {
+                continue;
+            }
+            $name = $element->getName();
+            $isCurrent = $element->isCurrent();
+            [$extraClass, $extraAttributes] = $groupAttributes($element);
+            $icon = $element->hasIcon() ? '<i class="icon ' . $element->getIcon(false) . '" aria-hidden="true"></i>' : '';
+        ?>
 
-            <div class="expand-vs text"><?= strReplaceTemplate(__('general', 'Versión {ver}'), ['{ver}' => APP_VERSION,]) ?></div>
-            <div class="contrac-vs text"><?= strReplaceTemplate(__('general', 'V {ver}'), ['{ver}' => APP_VERSION,]) ?></div>
-
-        </div>
-
-        <article class="links">
-
-            <?php foreach ($sidebarMenu->getItems() as $element) : ?>
-
-            <?php $hasIcon = $element->hasIcon(); ?>
-            <?php $icon = $element->getIcon(false); ?>
-            <?php $isCurrent = $element->isCurrent(); ?>
-            <?php $elementAttributes = $element->getAttributes(); ?>
-            <?php $elementClasses = array_key_exists('class', $elementAttributes) ? ' ' . $elementAttributes['class'] : ''; ?>
-            <?php $hrefTarget = $element->getHrefTarget(); ?>
-
-            <ul <?= $isCurrent ? ' current' : '' ?> class="group <?= !$hasIcon ? 'no-icon' : ''; ?> <?= $elementClasses; ?>" <?= $element->getAttributes(true); ?>>
-
-                <?php if($element->isVisible() && (!$element->asLink() ? count($element->getItems()) > 0 : true)): ?>
-
-                <?php if($element->asLink()): ?>
-
-                <a class="title-group as-link <?= $isCurrent ? ' current' : '' ?>" href="<?= $element->getHref(); ?>" <?= mb_strlen($hrefTarget) > 0 ? "target='$hrefTarget'" : ''; ?>>
-                    <?php if($hasIcon): ?>
-                    <i class="icon <?= $icon; ?>"></i>
-                    <?php endif; ?>
-                    <span><?= $element->getName(); ?></span>
-                    <div class="tool-tip">
-                        <?= $element->getName(); ?>
-                    </div>
-                </a>
-
-                <?php else: ?>
-
-                <?php $subItems = $element->getItems(); ?>
-
-                <div class="title-group <?= $isCurrent ? ' current' : '' ?>">
-                    <?php if($hasIcon): ?>
-                    <i class="icon <?= $icon; ?>"></i>
-                    <?php endif; ?>
-                    <span><?= $element->getName(); ?></span>
-
-                    <div class="tool-tip">
-                        <span class="title"><?= $element->getName(); ?></span>
-
-                        <div class="options">
-                            <?php foreach ($subItems as $subElement) : ?>
-
-                            <?php $subIsCurrent = $subElement->isCurrent(); ?>
-                            <?php $subElementAttributes = $subElement->getAttributes(); ?>
-                            <?php $subElementClasses = array_key_exists('class', $subElementAttributes) ? ' ' . $subElementAttributes['class'] : ''; ?>
-
-                            <li>
-                                <?php if (!$subIsCurrent) : ?>
-                                <a class="tool-item <?= $subIsCurrent ? ' current' : '' ?>" href="<?= $subElement->getHref(); ?>">
-                                    <?= $subElement->getText(); ?>
-                                </a>
-                                <?php else : ?>
-                                <span class="tool-item <?= $subIsCurrent ? ' current' : '' ?>" href="<?= $subElement->getHref(); ?>">
-                                    <?= $subElement->getText(); ?>
-                                </span>
-                                <?php endif; ?>
-                            </li>
-
-                            <?php endforeach; ?>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="items">
-
-                    <?php foreach($subItems as $subElement): ?>
-
+        <?php if ($element->asLink()) : ?>
+        <?php $hrefTarget = $element->getHrefTarget(); ?>
+        <a class="item<?= $isCurrent ? ' active' : ''; ?><?= $extraClass; ?>" href="<?= $element->getHref(); ?>" data-tooltip="<?= escape_html($name); ?>" data-position="right center"<?= $isCurrent ? ' aria-current="page"' : ''; ?><?= mb_strlen($hrefTarget) > 0 ? ' target="' . escape_html($hrefTarget) . '"' : ''; ?> <?= $extraAttributes; ?>>
+            <?= $icon; ?><span><?= $name; ?></span>
+        </a>
+        <?php else : ?>
+        <div class="item<?= $extraClass; ?>" <?= $extraAttributes; ?>>
+            <button class="title<?= $isCurrent ? ' active' : ''; ?>" type="button">
+                <?= $icon; ?><span><?= $name; ?></span><i class="dropdown icon" aria-hidden="true"></i>
+            </button>
+            <div class="content<?= $isCurrent ? ' active' : ''; ?>">
+                <div class="header"><?= $name; ?></div>
+                <div class="menu">
+                    <?php foreach ($subItems as $subElement) : ?>
                     <?php $subIsCurrent = $subElement->isCurrent(); ?>
-                    <?php $subElementAttributes = $subElement->getAttributes(); ?>
-                    <?php $subElementClasses = array_key_exists('class', $subElementAttributes) ? ' ' . $subElementAttributes['class'] : ''; ?>
-
-                    <li>
-                        <?php if(!$subIsCurrent): ?>
-                        <a class="item <?= $subIsCurrent ? ' current' : '' ?>" href="<?= $subElement->getHref(); ?>">
-                            <?= $subElement->getText(); ?>
-                        </a>
-                        <?php else: ?>
-                        <span class="item <?= $subIsCurrent ? ' current' : '' ?>" href="<?= $subElement->getHref(); ?>">
-                            <?= $subElement->getText(); ?>
-                        </span>
-                        <?php endif; ?>
-                    </li>
-
+                    <a class="item<?= $subIsCurrent ? ' active' : ''; ?>" href="<?= $subElement->getHref(); ?>"<?= $subIsCurrent ? ' aria-current="page"' : ''; ?>><span><?= $subElement->getText(); ?></span></a>
                     <?php endforeach; ?>
-
                 </div>
+            </div>
+        </div>
+        <?php endif; ?>
 
+        <?php endforeach; ?>
+
+    </div>
+
+    <div class="footer">
+        <div class="expanded only">
+            <?php //Como el marco del tema: el texto, el patrocinador y el crédito. ?>
+            <div class="ui vertical centered flex">
+                <?php if ($partnersText !== '') : ?>
+                <strong><?= escape_html($partnersText); ?></strong>
                 <?php endif; ?>
-
-                <?php endif; ?>
-            </ul>
-
-            <?php endforeach; ?>
-        </article>
-
-        <div class="footer-sidebar">
-            <span only-expanded class="main"><?= escape_html(get_config('owner')); ?></span>
-            <span only-expanded class="text"><?= __(LANG_GROUP, 'Todos los derechos reservados'); ?></span>
-            <span class="meta"><?= date('Y'); ?></span>
-            <?php //La de fábrica es un relleno «280x50»: no se pinta mientras siga siendo esa, ni su caja si no queda ninguna. ?>
-            <?php $partnersImage = !\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partners'); ?>
-            <?php $partnersVerticalImage = !\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partnersVertical'); ?>
-            <?php if ($partnersImage || $partnersVerticalImage): ?>
-            <div menu-footer-images class="images-grup">
-                <?php if ($partnersImage): ?>
-                <img class="horizontal" src="<?= get_config('partners'); ?>">
-                <?php endif; ?>
-                <?php if ($partnersVerticalImage): ?>
-                <img class="vertical" src="<?= get_config('partnersVertical'); ?>">
+                <img class="partners<?= ($invertOnDark)('partners'); ?>" src="<?= get_config('partners'); ?>" alt="">
+                <?php if ($developerName !== '') : ?>
+                <span class="developer-credit">
+                    <?php if ($developerLogo !== '') : ?>
+                    <img class="developer-logo" src="<?= escape_html($developerLogo); ?>" alt="">
+                    <?php endif; ?>
+                    <?= __('general', 'Desarrollado por'); ?> <?= $developerName; ?>
+                </span>
                 <?php endif; ?>
             </div>
-            <?php endif; ?>
+        </div>
+        <div class="collapsed only">
+            <div class="ui vertical centered flex">
+                <img class="partners<?= ($invertOnDark)('partnersVertical'); ?>" src="<?= get_config('partnersVertical'); ?>" alt="">
+                <?php if ($developer !== '' && $developerLogo !== '') : ?>
+                <img class="developer-logo" src="<?= escape_html($developerLogo); ?>" alt="" title="<?= escape_html(__('general', 'Desarrollado por') . ' ' . $developer); ?>">
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-</aside> <!-- .ui-pcs.sidebar -->
+
+</nav>

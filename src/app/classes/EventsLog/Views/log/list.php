@@ -18,11 +18,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+            ]);
         ?>
 
         <?php if ($scope !== ''): ?>
@@ -61,13 +61,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
                 </div>
             </div>
-            <button type="submit" class="ui button brand-color"><i class="filter icon"></i><?= __($langGroup, 'Filtrar'); ?></button>
+            <button type="submit" class="ui primary button"><i class="filter icon"></i><?= __($langGroup, 'Filtrar'); ?></button>
             <button type="reset" class="ui basic button"><?= __($langGroup, 'Limpiar'); ?></button>
         </form>
 
-        <div class="container-standard-table">
+        <div class="ui fluid card container-standard-table">
 
-            <table url="<?= escape_html($processTableLink); ?>" class="ui basic table content-table" data-actions-log-table>
+            <table url="<?= escape_html($processTableLink); ?>" class="ui selectable very basic table content-table" data-actions-log-table>
                 <thead>
                     <tr>
                         <th class="collapsing"><?= __($langGroup, '#'); ?></th>

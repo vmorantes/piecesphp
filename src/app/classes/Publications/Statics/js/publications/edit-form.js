@@ -1,6 +1,6 @@
 /// <reference path="../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/AttachmentPlaceholder.js" />
@@ -12,13 +12,14 @@ window.addEventListener('load', function () {
 	const defaultLang = atob(getVariableFromHTML('defaultLang'))
 	const baseLang = atob(getVariableFromHTML('baseLang'))
 	const previousTranslationsPromises = []
+	const imageEditor = new ContentImageEditor()
 
 	const tabsLang = $('.lang-tabs [data-tab]').tab({
 		onVisible: function (tabName) {
 			//Crear nuevo objeto URL con la URL actual
 			const url = new URL(window.location.href)
 			//Actualizar o agregar el parámetro lang
-			url.searchParams.set('lang', tabName);
+			url.searchParams.set('lang', tabName)
 			//Actualizar la URL del navegador sin recargar la página
 			window.history.pushState({}, '', url)
 		}
@@ -139,37 +140,16 @@ window.addEventListener('load', function () {
 		/* Selectores y elementos de interfaz */
 		const baseSelector = `[lang-container="${lang}"]`
 		const formSelector = `${baseSelector} .ui.form.publications`
-		const idMainImage = `main-image-${lang}`
-		const idThumbImage = `thumb-image-${lang}`
-		const idOpenGraphImage = `og-image-${lang}`
 
-		//Placeholders
-		let attachmentMainImage = new AttachmentPlaceholder($(`${baseSelector} .attach-placeholder.${idMainImage}`))
-		let attachmentThumbImage = new AttachmentPlaceholder($(`${baseSelector} .attach-placeholder.${idThumbImage}`))
-		let attachmentOpenGraphImage = new AttachmentPlaceholder($(`${baseSelector} .attach-placeholder.${idOpenGraphImage}`))
-
-		//Croppers (están afuera de los formularios, no requieren el selector base)
-		let cropperMainImage = new SimpleCropperAdapter(`[${idMainImage}]`, {
-			aspectRatio: 4 / 3,
-			format: 'image/jpeg',
-			quality: 0.8,
-			fillColor: 'white',
-			outputWidth: 800,
+		//Tarjetas de imagen: solo viaja la que se cambió, con el nombre de su campo.
+		const editedImages = {}
+		const onImage = (cardId, field) => imageEditor.onApply(cardId, (file) => {
+			editedImages[field] = file
+			triggerChange()
 		})
-		let cropperThumbImage = new SimpleCropperAdapter(`[${idThumbImage}]`, {
-			aspectRatio: 4 / 3,
-			format: 'image/jpeg',
-			quality: 0.8,
-			fillColor: 'white',
-			outputWidth: 400,
-		})
-		let cropperOpenGraphImage = new SimpleCropperAdapter(`[${idOpenGraphImage}]`, {
-			aspectRatio: 2 / 1,
-			format: 'image/jpeg',
-			quality: 0.8,
-			fillColor: 'white',
-			outputWidth: 1200,
-		})
+		onImage(`main-image-${lang}`, 'mainImage')
+		onImage(`thumb-image-${lang}`, 'thumbImage')
+		onImage(`og-image-${lang}`, 'ogImage')
 
 		//Editores de texto
 		let richEditorAdapter = null
@@ -201,14 +181,8 @@ window.addEventListener('load', function () {
 
 		formsByLang.get(lang).form = genericFormHandler(formSelector, {
 			onSetFormData: function (formData) {
-				formData.set('mainImage', cropperMainImage.getFile())
-				formData.set('thumbImage', cropperThumbImage.getFile())
-				if (cropperOpenGraphImage.wasChange()) {
-					formData.set('ogImage', cropperOpenGraphImage.getFile())
-				} else {
-					if (cropperOpenGraphImage.getFile() !== null) {
-						formData.set('ogImage', cropperOpenGraphImage.getFile())
-					}
+				for (const field in editedImages) {
+					formData.set(field, editedImages[field])
 				}
 
 				let attachCounter = 0
@@ -228,23 +202,6 @@ window.addEventListener('load', function () {
 					formData.append(`attachmentsName_${attachCounter}`, attachment.getName())
 				}
 				return formData
-			},
-			onInvalidEvent: function (event) {
-
-				let element = event.target
-				let validationMessage = element.validationMessage
-				let jElement = $(element)
-				let field = jElement.closest('.field')
-				let nameOnLabel = field.find('label').html()
-				if (field.length == 0) {
-					field = jElement.closest('.attach-placeholder')
-					nameOnLabel = field.find('>label >.text >.header >.title').text()
-				}
-
-				errorMessage(`${langPrefix}</small> ${nameOnLabel}: ${validationMessage}`)
-
-				event.preventDefault()
-
 			},
 			toast: false,
 			onSuccess: function (formProcess, formData, response) {
@@ -267,11 +224,6 @@ window.addEventListener('load', function () {
 		form.find('input, select, textarea').on('change', triggerChange)
 		form.find('input, select, textarea').on('keyup', triggerChange)
 
-		//Comportamiento de placeholders
-		attachmentMainImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperMainImage, idMainImage) })
-		attachmentThumbImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperThumbImage, idThumbImage) })
-		attachmentOpenGraphImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperOpenGraphImage, idOpenGraphImage) })
-
 		//Tabs
 		const tabsContent = $(`${baseSelector} .tabs-controls [data-tab]`).tab({
 			context: baseSelector,
@@ -285,37 +237,6 @@ window.addEventListener('load', function () {
 		$('.ui.accordion').accordion()
 
 		configTranslations()
-
-		/** 
-		 * @param {AttachmentPlaceholder} instance
-		 * @param {AttachmentPlaceholderElements} elements
-		 * @param {SimpleCropperAdapter} cropper
-		 * @param {String} selector
-		*/
-		function genericAttachmentWithModalCropperBehavior(instance, elements, cropper, selector) {
-
-			const modal = $(`[modal="${selector}"]`)
-			let firstDraw = true
-			cropper.onCancel(() => modal.modal('hide'))
-			cropper.onCropped((blobImage, settedImage) => {
-				triggerChange()
-				instance.setFile(blobImage)
-				modal.modal('hide')
-			})
-
-			instance.onClick(function (instance, elements, event) {
-				event.preventDefault()
-				modal.modal({
-					onVisible: function () {
-						if (firstDraw) {
-							cropper.refresh()
-							firstDraw = false
-						}
-					},
-				}).modal('show')
-			})
-
-		}
 
 		/**
 		 * Configura el comportamiento de los adjuntos

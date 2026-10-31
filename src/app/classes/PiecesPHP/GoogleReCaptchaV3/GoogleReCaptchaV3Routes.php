@@ -6,8 +6,9 @@
 
 namespace PiecesPHP\GoogleReCaptchaV3;
 
-use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
 
 /**
  * GoogleReCaptchaV3Routes.
@@ -27,6 +28,9 @@ class GoogleReCaptchaV3Routes
      */
     public static function routes(RouteGroup $group)
     {
+        //La opción que guarda (ADR 0055), con el nombre que le da GoogleReCaptchaV3Controller; fuera del if, porque la
+        //fila se lee aunque el módulo esté apagado.
+        ConfigOptions::declare('GoogleReCaptchaV3Controller', GoogleReCaptchaV3Controller::class, ConfigOptions::SHAPE_JSON);
         if (self::ENABLE) {
 
             $group = GoogleReCaptchaV3Controller::routes($group);

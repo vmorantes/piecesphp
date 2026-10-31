@@ -2,6 +2,16 @@
 
 //P38: ningún listado manda al navegador su SQL ni las filas crudas, y recordsTotal cuenta con los filtros fijos
 //del listado (su alcance) y sin la búsqueda. Solo LEE: los usuarios fijados son los zz de la base local.
+//@areas src/app/classes/Directory/
+//@areas src/app/classes/Documents/
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/Forms/
+//@areas src/app/classes/News/
+//@areas src/app/classes/Newsletter/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
@@ -221,6 +231,39 @@ CliActions::make('unit-tests:core/datatables-scope', function ($args) {
         } elseif (is_file($log)) {
             //RETORNO-IGNORADO: limpieza del log de depuración que creó esta prueba.
             @unlink($log);
+        }
+        echoTerminal(' ');
+
+        //─── f · start y length llegan como cadena ──────────────────────────────────────────────────────
+        //H95: el LIMIT de processFromQuery() los interpola; sin el (int) al leerlos, fuera de local la cadena llega al SQL.
+        echoTerminal('[f] start y length con basura: se leen como entero en los dos caminos');
+        $as($rootID);
+        $errorLog = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/error.log.jsonl';
+        $logLines = function () use ($errorLog): int {
+            clearstatcache();
+            return is_file($errorLog) ? count(file($errorLog) ?: []) : 0;
+        };
+        $paths = [
+            'processFromQuery · perfiles' => [\Directory\Controllers\AllProfilesController::class, 'dataTables'],
+            'process · organizaciones' => [\Organizations\Controllers\OrganizationsController::class, 'dataTables'],
+        ];
+        foreach ($paths as $name => [$class, $method]) {
+            $linesBefore = $logLines();
+            try {
+                $normal = ($fromController($class, $method))($request([]));
+                $check(count($normal['data'] ?? []) > 0, "f · {$name}: la normal devuelve filas (si no, f no prueba nada)", 'filas ' . count($normal['data'] ?? []));
+                $response = (new $class())->$method($request(['length' => '10 x', 'start' => "0'"]), new ResponseRoute());
+                $attacked = json_decode((string) $response->getBody(), true);
+                $attacked = is_array($attacked) ? $attacked : [];
+                $check(
+                    $response->getStatusCode() === 200 && ($attacked['data'] ?? null) === ($normal['data'] ?? null) && ($attacked['recordsTotal'] ?? null) === ($normal['recordsTotal'] ?? null),
+                    "f · {$name}: length «10 x» y start «0'» dan 200 y las mismas filas que la normal",
+                    'estado ' . $response->getStatusCode() . ', filas ' . count($attacked['data'] ?? []) . ' contra ' . count($normal['data'] ?? [])
+                );
+            } catch (\Throwable $e) {
+                $check(false, "f · {$name}: length «10 x» y start «0'» dan 200 y las mismas filas que la normal", get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 160));
+            }
+            $check($logLines() === $linesBefore, "f · {$name}: sin entrada nueva en error.log.jsonl", "{$linesBefore} → " . $logLines());
         }
 
     } catch (\Throwable $e) {

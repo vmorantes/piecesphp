@@ -194,7 +194,7 @@ Piezas de sistema que no llegaron a ser módulos:
 ```
 view/
 ├── layout/       Layout general
-├── panel/        Zona administrativa (ADMIN_PATH_VIEWS = 'panel')
+├── panel/        Zona administrativa
 │   ├── layout/, pages/, built-in/
 ├── pages/        Páginas públicas (+ generic-views/)
 ├── usuarios/     Vistas del sistema de usuarios (forms por tipo, mails, problems)

@@ -1,16 +1,16 @@
 <?php
-    use App\Controller\PublicAreaController;
-    $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
-    $header_image = isset($header_image) && is_string($header_image) ? $header_image : '';
-    $text = isset($text) && is_string($text) ? $text : '';
-    //`reason` llega ya escapado por quien llama.
-    $reason = isset($reason) && is_string($reason) ? $reason : '';
-    $hasCode = isset($code) && is_string($code);
-    $note = isset($note) && is_string($note) ? $note : '';
-    $hasURL = isset($url) && is_string($url);
-    $text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
-    $text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</span></p>";
-    $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
+use App\Controller\PublicAreaController;
+$langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
+$header_image = isset($header_image) && is_string($header_image) ? $header_image : '';
+$text = isset($text) && is_string($text) ? $text : '';
+//`reason` llega ya escapado por quien llama.
+$reason = isset($reason) && is_string($reason) ? $reason : '';
+$hasCode = isset($code) && is_string($code);
+$note = isset($note) && is_string($note) ? $note : '';
+$hasURL = isset($url) && is_string($url);
+$text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
+$text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</span></p>";
+$unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
 ?>
 
 <?php if(mb_strlen($header_image) > 0): ?>

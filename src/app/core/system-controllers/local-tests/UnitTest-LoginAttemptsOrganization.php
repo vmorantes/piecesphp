@@ -6,7 +6,6 @@
 //@areas src/app/classes/PiecesPHP/Logs/
 //@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -14,6 +13,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Logs\Controllers\LogsController;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;

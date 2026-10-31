@@ -1,25 +1,25 @@
 <?php
 
-    $defaultNotes = [
-        'showCropDimensions' => true, 
-        'showOutputDimensions' => true, 
-        'showMinWidthOutput' => true, 
-    ];
+$defaultNotes = [
+    'showCropDimensions' => true,
+    'showOutputDimensions' => true,
+    'showMinWidthOutput' => true,
+];
 
-    $notes = isset($notes) && is_array($notes) ? $notes : [];
+$notes = isset($notes) && is_array($notes) ? $notes : [];
 
-    $settedNotes = [];
+$settedNotes = [];
 
-    $note = 'showCropDimensions';
-    $settedNotes[$note] = isset($notes[$note]) && is_bool($notes[$note]) ? $notes[$note] : $defaultNotes[$note];
+$note = 'showCropDimensions';
+$settedNotes[$note] = isset($notes[$note]) && is_bool($notes[$note]) ? $notes[$note] : $defaultNotes[$note];
 
-    $note = 'showOutputDimensions';
-    $settedNotes[$note] = isset($notes[$note]) && is_bool($notes[$note]) ? $notes[$note] : $defaultNotes[$note];
+$note = 'showOutputDimensions';
+$settedNotes[$note] = isset($notes[$note]) && is_bool($notes[$note]) ? $notes[$note] : $defaultNotes[$note];
 
-    $note = 'showMinWidthOutput';
-    $settedNotes[$note] = isset($notes[$note]) && is_bool($notes[$note]) ? $notes[$note] : $defaultNotes[$note];
+$note = 'showMinWidthOutput';
+$settedNotes[$note] = isset($notes[$note]) && is_bool($notes[$note]) ? $notes[$note] : $defaultNotes[$note];
 
-    $visible = $settedNotes['showCropDimensions'] || $settedNotes['showOutputDimensions'] || $settedNotes['showMinWidthOutput'];
+$visible = $settedNotes['showCropDimensions'] || $settedNotes['showOutputDimensions'] || $settedNotes['showMinWidthOutput'];
 
 ?>
 

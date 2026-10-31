@@ -158,6 +158,12 @@ class MiModuloRoutes
 lo que hace más un desplazamiento propio que no repita otro: con dos posiciones iguales manda el orden en que se
 registraron los módulos. Y un icono que no use otra entrada del menú.
 
+**El icono** es de Font Awesome, con su nombre sin `icon` (`'cube'`). Si no hay uno que sirva, el tema del panel trae
+íconos SVG que se piden con su nombre y `svg`: `'icon' => 'inicio svg'` (están `panel`, `inicio`, `usuarios`,
+`contenidos`, `reportes`, `documentos` y `calendario`). Uno propio va en `src/statics/svg-icons/`: el `.svg` y su regla en
+el `svg-icons.css` de esa carpeta, con el patrón que trae comentado. No va en el `Statics/` del módulo, porque desde ahí la
+dirección relativa del `.svg` no se resuelve. El ejemplo está en la hoja de diseño › «Íconos SVG».
+
 ## 6. El controlador
 
 Extiende `PiecesPHP\AdminPanel\Controllers\AdminPanelController` y define `$URLDirectory`, `$baseRouteName`, `$title`, las constantes
@@ -209,6 +215,36 @@ ProtectFileMiddleware::protectWithSession(append_to_path_system($uploadsDir, 'mi
 
 `bin/cli verify-integrity` falla si una carpeta de subidas no está protegida ni declarada como pública. La guía
 completa: [Archivos protegidos](../new-features/protected-files.md).
+
+**El archivo de un campo de formulario se recibe con `PiecesPHP\Core\Forms\FormUploadHandler`**, no con una copia
+propia: valida el tipo, guarda en `<subidas del módulo>/<carpeta del registro>`, saca la extensión del contenido y
+borra el anterior solo si está dentro de las subidas del módulo. El módulo pone su política en un `handlerUpload()`
+corto, como el de `src/app/classes/Documents/Controllers/DocumentsController.php`:
+
+```php
+use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\FormUploadHandler;
+use PiecesPHP\Core\Forms\FormUploadRejectedException;
+use MiModulo\Exceptions\SafeException; //La del módulo: Documents tiene Documents\Exceptions\SafeException
+
+protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
+{
+    try {
+        return FormUploadHandler::forModule(self::UPLOAD_DIR, FormUploadHandler::MODE_PRIVATE)
+            ->upload($nameOnFiles, $folder, $currentRoute, $allowedTypes ?? [FileValidator::TYPE_ALL_IMAGES], $setNameByInput, $name);
+    } catch (FormUploadRejectedException $e) {
+        //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
+        throw new SafeException($e->getMessage());
+    }
+}
+```
+
+- `MODE_PRIVATE`: un archivo por campo, que nace privado; `MODE_PUBLIC`: uno público; `MODE_PRIVATE_MULTIPLE`: uno
+  privado leído con `UploadedFileAdapter`, que admite el campo anidado `campo[0]` y el sufijo de idioma en
+  `upload(…, $suffixName)` (Publications); dos o más archivos en un campo se rechazan.
+- `upload()` devuelve la ruta relativa que se guarda en el registro, o `''` si no llegó archivo: en una edición, quédate
+  entonces con la ruta que ya tenía.
+- `FormUploadRejectedException` se convierte en la `SafeException` del módulo para que el mensaje llegue a quien sube.
 
 ## 9. Registrarlo
 

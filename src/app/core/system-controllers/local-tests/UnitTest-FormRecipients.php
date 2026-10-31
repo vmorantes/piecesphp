@@ -2,10 +2,11 @@
 
 //La configuración se cambia SOLO en memoria (set_config) y se restaura en un finally: la guardada no se toca.
 //Los destinatarios fallan cerrado: una sola entrada inválida vacía la lista entera.
+//@areas nucleo
 
 use App\Controller\ContactFormsController;
-use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 
 CliActions::make('unit-tests:core/form-recipients', function ($args) {
 

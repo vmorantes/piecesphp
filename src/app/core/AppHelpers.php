@@ -10,8 +10,6 @@
  * @copyright   Copyright (c) 2018
  */
 
-use PiecesPHP\Settings\Controllers\SettingsController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
@@ -21,6 +19,8 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\Exception\HttpForbiddenException;
@@ -416,24 +416,6 @@ function __(string $type, ?string $message = null, bool $echo = false)
  * Si $message es nulo devuelve el array completo de mensajes en $type
  */
 function lang(string $type, ?string $message = null, string $lang = 'es', bool $echo = false)
-{
-    $message = $message === null ? '' : (string) $message;
-    return Config::i18n($type, $message, $echo, $lang);
-}
-
-/**
- * Se diferencia de lang() en que recibe $lang como primer parámetro
- *
- * @param string $lang Idioma
- * @param string $type Índice del tipo de mensaje
- * @param string|null $message Índice del mensaje en el tipo dado
- * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
- * @return ($message is null ? array<string, string> : string)
- * Si $echo es true retorna el string y hace un echo de este.
- * Si $echo es false retorna un string correspondiente al mensaje.
- * Si $message es '' devuelve el array completo de mensajes en $type
- */
-function lang2(string $lang, string $type, ?string $message = null, bool $echo = false)
 {
     $message = $message === null ? '' : (string) $message;
     return Config::i18n($type, $message, $echo, $lang);
@@ -1880,18 +1862,17 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
         }
 
         if ($all) {
-            $plugins = [];
-            foreach ($library_plugins as $name => $item) {
-                $plugins[] = $name;
-            }
+            $plugins = array_keys($library_plugins);
         }
 
         foreach ($plugins as $plugin) {
             if (is_string($plugin)) {
 
-                $plugin_is_imported = isset($imported[$library_name][$plugin]);
+                //Los plugins se guardan como VALORES y esto mira una CLAVE: no la encuentra, así que reimportar vuelve a pasar sus
+                //archivos por add_global_assets(), que deduplica, y uno quitado a mano vuelve (lo fija core/import-front-library e1).
+                $plugin_key_is_set = isset($imported[$library_name][$plugin]);
 
-                if (!$plugin_is_imported) {
+                if (!$plugin_key_is_set) {
                     if (array_key_exists($plugin, $library_plugins)) {
 
                         $_plugin = $library_plugins[$plugin];
@@ -1938,13 +1919,13 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
         $imported = get_config('imported_assets');
 
-        $plugins_importeds = isset($imported) && isset($imported[$name]) ? $imported[$name] : [];
+        $plugins_importeds = isset($imported) && isset($imported[$library_name]) ? $imported[$library_name] : [];
         $plugins_to_delete = [];
 
         foreach ($plugins_importeds as $plugin_imported) {
             if (!in_array($plugin_imported, $plugins)) {
                 $plugins_to_delete[] = $plugin_imported;
-                unset($imported[$name][array_search($plugin_imported, $imported[$name])]);
+                unset($imported[$library_name][array_search($plugin_imported, $imported[$library_name])]);
             }
         }
 
@@ -2038,21 +2019,17 @@ function import_semantic(array $plugins = ['calendar'], bool $all = false)
  * @param bool $all
  * @return void
  */
-function import_datatables(array $plugins = ['rowReorder', 'colReorder', 'responsive'], bool $all = false)
+function import_datatables(array $plugins = [], bool $all = false)
 {
+    //RowReorder y ColReorder salieron con DataTables 3 (ningún listado los usaba): un plugin que no está en assets.php no
+    //carga nada, y sin esto se ignoraba en silencio.
+    $known = get_config('default_assets')['datatables']['plugins'] ?? [];
+    foreach ($plugins as $plugin) {
+        if (is_string($plugin) && !array_key_exists($plugin, $known)) {
+            log_exception(new \InvalidArgumentException("import_datatables(): el plugin «{$plugin}» no existe: no se carga. RowReorder y ColReorder ya no vienen con DataTables desde su versión 3."));
+        }
+    }
     import_front_library('datatables', $plugins, $all);
-}
-
-/**
- * Registra nprogress como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_nprogress(array $plugins = [], bool $all = false)
-{
-    import_front_library('nprogress', $plugins, $all);
 }
 
 /**
@@ -2068,18 +2045,6 @@ function import_swal2(array $plugins = [], bool $all = false)
 }
 
 /**
- * Registra izitoast como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_izitoast(array $plugins = [], bool $all = false)
-{
-    import_front_library('izitoast', $plugins, $all);
-}
-
-/**
  * Registra cropper como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
@@ -2089,30 +2054,6 @@ function import_izitoast(array $plugins = [], bool $all = false)
 function import_cropper(array $plugins = [], bool $all = true)
 {
     import_front_library('cropper', $plugins, $all);
-}
-
-/**
- * Registra jquerymask como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_jquerymask(array $plugins = [], bool $all = false)
-{
-    import_front_library('jquerymask', $plugins, $all);
-}
-
-/**
- * Registra quilljs como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_quilljs(array $plugins = [], bool $all = true)
-{
-    import_front_library('quilljs', $plugins, $all);
 }
 
 /**
@@ -2164,18 +2105,6 @@ function import_app_libraries(array $plugins = [], bool $all = false)
 }
 
 /**
- * Registra spectrum como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_spectrum(array $plugins = [], bool $all = true)
-{
-    import_front_library('spectrum', $plugins, $all);
-}
-
-/**
  * Registra simple_upload_placeholder como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
@@ -2185,18 +2114,6 @@ function import_spectrum(array $plugins = [], bool $all = true)
 function import_simple_upload_placeholder(array $plugins = [], bool $all = true)
 {
     import_front_library('simple_upload_placeholder', $plugins, $all);
-}
-
-/**
- * Registra fancybox3 como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_fancybox3(array $plugins = [], bool $all = true)
-{
-    import_front_library('fancybox3', $plugins, $all);
 }
 
 /**
@@ -2255,18 +2172,6 @@ function import_mapbox(array $plugins = [], bool $all = true)
 }
 
 /**
- * Registra openlayers como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins Plugins disponibles: openLayersAdapter
- * @param bool $all
- * @return void
- */
-function import_openlayers(array $plugins = [], bool $all = true)
-{
-    import_front_library('openlayers', $plugins, $all);
-}
-
-/**
  * Registra qrcodejs como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
@@ -2288,28 +2193,6 @@ function import_qrcodejs(array $plugins = [], bool $all = true)
 function import_indexeDB_adapter(array $plugins = [], bool $all = true)
 {
     import_front_library('indexeDB_adapter', $plugins, $all);
-}
-
-/**
- * Registra una ruta o un conjunto de rutas
- *
- * @param array $routes Rutas
- * @param object &$router Referencia al el enrutador de la aplicación
- * @return void
- */
-function register_routes($routes, &$router)
-{
-
-    $routes = is_array($routes) ? $routes : [$routes];
-
-    if (count($routes) < 1) {
-        return;
-    }
-
-    foreach ($routes as $route) {
-        register_route($route, $router);
-    }
-
 }
 
 /**
@@ -2510,21 +2393,6 @@ function get_routes_by_controller(string $name_controller = '', ?string $method 
 }
 
 /**
- * Devuelve la URL correspondiente al método del controlador indicado.
- *
- * @param string $name_controller Nombre del controlador
- * @param string $method_controller Método del controlador
- * @param array $params Array Clave:Valor con los nombre de los parámetros de la ruta
- * @param string $method_request Método de la ruta POST|GET|PUT etc..
- * @return string
- */
-function get_route_by_controller(string $name_controller, string $method_controller, ?array $params = null, string $method_request = 'GET')
-{
-    $route = get_routes_by_controller($name_controller, $method_controller, $params);
-    return (is_array($route) && !empty($route)) ? $route['url'] : null;
-}
-
-/**
  * Devuelve la información de la ruta indicada
  *
  * @param string $name Nombre de la ruta
@@ -2542,7 +2410,7 @@ function get_route_info(string $name)
  *
  * @param string $name Nombre de la ruta
  * @param array $params Array asociativo para los parámetros de la ruta.
- * @param bool $silentOnNotExists Si es true devuelve NULL en caso de que no exista; si no, Slim lanzará una excepción
+ * @param bool $silentOnNotExists Si es true devuelve NULL en caso de que no exista o le falten parámetros; si no, Slim lanzará una excepción
  * @return string|null
  */
 function get_route(string $name, array $params = [], bool $silentOnNotExists = false)
@@ -2566,7 +2434,15 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
             }
         }
 
-        $route = $app->getRouteCollector()->getRouteParser()->urlFor($name, $params);
+        try {
+            $route = $app->getRouteCollector()->getRouteParser()->urlFor($name, $params);
+        } catch (\InvalidArgumentException $e) {
+            //Faltan parámetros de la ruta: en silencio es el mismo «no hay» que una ruta inexistente.
+            if ($silentOnNotExists) {
+                return null;
+            }
+            throw $e;
+        }
 
         $app_base = appbase();
         $app_base_position = mb_strlen($app_base) > 0 ? mb_strpos($route, $app_base) : false;
@@ -3379,7 +3255,8 @@ function cookie_options_by_config(array $cookiesConfig): array
         default => 'Lax',
     };
     return [
-        'expires' => is_int($lifetime) ? $lifetime : 0,
+        //Una duración en segundos, como la de la cookie de sesión: tal cual, la cookie nacía caducada.
+        'expires' => is_int($lifetime) && $lifetime > 0 ? time() + $lifetime : 0,
         'path' => is_string($path) ? $path : '',
         'domain' => is_string($domain) ? $domain : '',
         'secure' => $secure,
@@ -3469,11 +3346,11 @@ function getKeyFromSecureKeys(string $name, ?string $fullDirectory = null)
     try {
 
         //Carpeta relativa en donde están las llaves por defecto
-        $relativePathFile = 'secure-keys' . \DIRECTORY_SEPARATOR  . $name;
+        $relativePathFile = 'secure-keys' . \DIRECTORY_SEPARATOR . $name;
 
         //Opciones de carpetas padre inmediatamente arriba (..) o tipo HestiaCP (public_html/../private)
-        $defaultDir = $fullDirectory !== null ? $fullDirectory : basepath() . \DIRECTORY_SEPARATOR  . '..' . \DIRECTORY_SEPARATOR;
-        $privateDirHestiaLike = basepath() . \DIRECTORY_SEPARATOR  . '..' . \DIRECTORY_SEPARATOR  . 'private' . \DIRECTORY_SEPARATOR;
+        $defaultDir = $fullDirectory !== null ? $fullDirectory : basepath() . \DIRECTORY_SEPARATOR . '..' . \DIRECTORY_SEPARATOR;
+        $privateDirHestiaLike = basepath() . \DIRECTORY_SEPARATOR . '..' . \DIRECTORY_SEPARATOR . 'private' . \DIRECTORY_SEPARATOR;
         $alternativesDirectories = [
             'defaultDir' => $defaultDir,
             'privateDirHestiaLike' => $privateDirHestiaLike,

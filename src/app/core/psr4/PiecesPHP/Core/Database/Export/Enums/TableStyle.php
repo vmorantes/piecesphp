@@ -1,10 +1,9 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Enums;
 
 /**
  * Enum TableStyle
- * 
+ *
  * Estilo de comandos para la creación de tablas.
  */
 enum TableStyle: string

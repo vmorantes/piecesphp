@@ -14,7 +14,7 @@ $avatarBorderOrganization: #99C221;
             align-items: center;
             gap: 10px;
 
-            >.avatar {
+            > .avatar {
                 width: 45px;
                 height: 45px;
 
@@ -30,7 +30,7 @@ $avatarBorderOrganization: #99C221;
                 }
             }
 
-            >.name {}
+            > .name {}
         }
 
     }
@@ -44,7 +44,7 @@ $avatarBorderOrganization: #99C221;
             width: max-content;
             max-width: 100%;
             border-radius: 16px;
-            background: linear-gradient(0deg, $colorBorderSoft 0%, $colorBorderSoft 100%), $colorWhite;
+            background: var(--theme-fill);
             padding: 15px 30px;
 
             .field {
@@ -67,6 +67,6 @@ $avatarBorderOrganization: #99C221;
     }
 }
 
-[share-action]{
+[share-action] {
     cursor: pointer;
 }

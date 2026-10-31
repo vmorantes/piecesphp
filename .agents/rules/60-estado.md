@@ -48,6 +48,10 @@ Documentación que ya no sirve es ruido que un agente leerá como verdad. Se pod
 
 - **Tramos**: se conservan los 10 más recientes. Uno más viejo se borra cuando lo que importaba
   de él ya está en la bitácora, un ADR o el CHANGELOG.
+- **Propuestas e informes de `estado/`** (`propuesta-*.md`, `informe-*.md`): se borran en cuanto se resuelven; su
+  referencia queda en el tramo, el ADR o el CHANGELOG, y su texto en git (2026-10-26, G20). Uno nuevo necesita su
+  patrón en la capa C de `.agents/capas.json`, y al podarlo se quita el patrón: `capas.py` cae con un archivo sin capa
+  y con un patrón que no casa con nada.
 - **`context/`**: lo que el código ya no hace se borra en el mismo commit que lo cambia. Una
   trampa cubierta por una puerta se reduce a una línea con el nombre de la puerta.
 - **Roadmap**: lo cerrado sale; su historia queda en la bitácora.

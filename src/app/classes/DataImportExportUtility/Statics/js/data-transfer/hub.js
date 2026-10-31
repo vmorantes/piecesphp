@@ -10,7 +10,10 @@ window.addEventListener('load', function () {
 	//La pestaña activa vive en la URL (#importar / #exportar): recargar no la pierde.
 	const tabs = $('.tabs-controls [data-tab]').tab({
 		onVisible: function (tabName) {
-			history.replaceState(null, '', '#' + tabName)
+			//Sobre la dirección de la página: el panel lleva <base href>, y un «#…» suelto se resuelve contra la portada.
+			const url = new URL(window.location.href)
+			url.hash = tabName
+			history.replaceState(null, '', url)
 		},
 	})
 	const fromURL = window.location.hash.replace('#', '')

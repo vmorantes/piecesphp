@@ -1,6 +1,7 @@
 <?php
 
 //Lo privado de uploads lo decide el nombre en disco: resolución por sufijo, renombrado y el .htaccess que niega el sufijo.
+//@areas nucleo
 
 use PiecesPHP\Core\Statics\ProtectedUploads;
 use PiecesPHP\Core\Statics\ProtectedUploadsMigration;
@@ -98,7 +99,13 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(ProtectedUploads::writeDenyHtaccess($uploads, $sufijo), 'se escribe');
     $contenido = (string) @file_get_contents("{$uploads}{$sep}.htaccess");
     $check(str_contains($contenido, '<FilesMatch "\\.protected$">') && str_contains($contenido, 'Require all denied'), 'con el FilesMatch del sufijo y Require all denied', $contenido);
+    $activas = implode('|', ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS);
+    $descarga = implode('|', array_diff(ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS, ProtectedUploads::ACTIVE_CONTENT_INLINE_EXTENSIONS));
+    $check(str_contains($contenido, '<IfModule mod_headers.c>') && str_contains($contenido, "<FilesMatch \"(?i)\\.({$activas})$\">\n        Header set Content-Security-Policy \"sandbox\""), 'las activas (SVG, HTML, XML) llevan CSP sandbox', $contenido);
+    $check(str_contains($contenido, "<FilesMatch \"(?i)\\.({$descarga})$\">\n        Header set Content-Disposition \"attachment\"") && !str_contains($descarga, 'svg'), 'y las que no son imagen, descarga; el SVG no', $descarga);
     $check(ProtectedUploads::writeDenyHtaccess($uploads, $sufijo) && (string) @file_get_contents("{$uploads}{$sep}.htaccess") === $contenido, 'otra vez: idempotente');
+    $viejo = ProtectedUploads::DENY_HTACCESS_MARK . "\n<FilesMatch \"\\.protected$\">\n    Require all denied\n</FilesMatch>\n";
+    $check($escribe("{$uploads}{$sep}.htaccess", $viejo) && ProtectedUploads::writeDenyHtaccess($uploads, $sufijo) && (string) @file_get_contents("{$uploads}{$sep}.htaccess") === $contenido, 'el de una instalación existente (con la marca, sin las cabeceras) se reescribe con el nuevo');
     $ajeno = "{$banco}{$sep}ajeno";
     $check(mkdir($ajeno, 0775, true) && $escribe("{$ajeno}{$sep}.htaccess", "RewriteEngine On\n"), 'un .htaccess ajeno queda preparado');
     $check(ProtectedUploads::writeDenyHtaccess($ajeno, $sufijo) === false && file_get_contents("{$ajeno}{$sep}.htaccess") === "RewriteEngine On\n", 'DISCRIMINANTE: un .htaccess sin la marca del subsistema no se pisa');

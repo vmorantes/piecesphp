@@ -6,10 +6,10 @@
 
 namespace News\Mappers;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\NewsLang;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * NewsReadedMapper.
@@ -283,7 +283,7 @@ class NewsReadedMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

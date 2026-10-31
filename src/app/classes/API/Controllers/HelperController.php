@@ -32,7 +32,7 @@ class HelperController extends BaseController
     {
         set_config('lock_assets', true);
         parent::__construct(false);
-        $this->user = $user instanceof \stdClass  ? $user : null;
+        $this->user = $user instanceof \stdClass ? $user : null;
         $this->setVariables($globalVariables);
         set_config('lock_assets', false);
     }
@@ -48,7 +48,7 @@ class HelperController extends BaseController
         $jsonResponse = $aiResponse;
         $parseJSON = function (string $jsonStr) {
             $decoded = json_decode($jsonStr, true);
-            $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
+            $decoded = json_last_error() === \JSON_ERROR_NONE ? $decoded : null;
             return $decoded;
         };
         $getByPattern = function (string $jsonStr, string $pattern) use ($parseJSON) {

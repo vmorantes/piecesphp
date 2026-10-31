@@ -1,20 +1,20 @@
 <?php
-    use App\Controller\PublicAreaController;
-    $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
-    $header_image = isset($header_image) && is_string($header_image) ? $header_image : (
-        is_local() ?
-        "https://placehold.co/500x172.png?text=" . urlencode(get_config('title_app')) :
-        base_url(get_config('mailing_logo'))
-    );
-    $text = isset($text) && is_string($text) ? $text : '';
-    $hasCode = isset($code) && is_string($code);
-    $note = isset($note) && is_string($note) ? $note : '';
-    $hasURL = isset($url) && is_string($url);
-    $text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
-    //La marca la escribe un administrador general (SEO y colores): se escapa al pintar, también dentro de <style>.
-    $brandColor = htmlspecialchars((string) get_config('main_brand_color'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</span></p>";
-    $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
+use App\Controller\PublicAreaController;
+$langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
+$header_image = isset($header_image) && is_string($header_image) ? $header_image : (
+    is_local() ?
+    "https://placehold.co/500x172.png?text=" . urlencode(get_config('title_app')) :
+    base_url(get_config('mailing_logo'))
+);
+$text = isset($text) && is_string($text) ? $text : '';
+$hasCode = isset($code) && is_string($code);
+$note = isset($note) && is_string($note) ? $note : '';
+$hasURL = isset($url) && is_string($url);
+$text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
+//La marca la escribe un administrador general (SEO y colores): se escapa al pintar, también dentro de <style>.
+$brandColor = htmlspecialchars((string) get_config('main_brand_color'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . htmlspecialchars((string) get_config('owner'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</span></p>";
+$unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
 ?>
 <!DOCTYPE html>
 <html>

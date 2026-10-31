@@ -58,7 +58,7 @@ $addDynamicTranslationsLogicFunction = function () {
     $currentJSONTranslationsData = $currentJSONTranslationsPackage->getData();
     $currentDatabaseData = GenericContentPseudoMapper::getContentData($dataConfigName);
     $currentDatabaseLastDate = GenericContentPseudoMapper::getContentData($lastDateConfigName);
-    $currentDatabaseLastDate = $currentDatabaseLastDate instanceof \DateTime  ? $currentDatabaseLastDate : null;
+    $currentDatabaseLastDate = $currentDatabaseLastDate instanceof \DateTime ? $currentDatabaseLastDate : null;
 
     /* Actualizar traducciones locales del JSON con las de la base de datos, si es necesario */
     if ($currentDatabaseLastDate !== null && $currentDatabaseLastDate >= $currentJSONTranslationsPackage->getUpdated()) {
@@ -81,17 +81,23 @@ $addDynamicTranslationsLogicFunction = function () {
             }
         }
 
-        //Guardar los datos en el JSON
+        //Guardar los datos en el JSON; la base solo se vacía si quedaron escritos, o se perderían.
         $currentJSONTranslationsPackage->setData($currentJSONTranslationsData);
-        DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON($currentJSONTranslationsPackage);
+        if (DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON($currentJSONTranslationsPackage)) {
 
-        //Limpiar base de datos
-        GenericContentPseudoMapper::setContentData($dataConfigName, []);
-        GenericContentPseudoMapper::setContentData($lastDateConfigName, new \DateTime('1990-01-01 00:00:00'));
+            //Limpiar base de datos
+            GenericContentPseudoMapper::setContentData($dataConfigName, []);
+            GenericContentPseudoMapper::setContentData($lastDateConfigName, new \DateTime('1990-01-01 00:00:00'));
 
-        //Agregar log de actualización
-        $fileByUpdateDate = append_to_path_system($langDynamicTranslationsDirectory->getPath(), $filePrefix . date('Y-m-d H:i:s') . '.json');
-        file_put_contents($fileByUpdateDate, json_encode($currentJSONTranslationsPackage, \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
+            //Agregar log de actualización
+            $fileByUpdateDate = append_to_path_system($langDynamicTranslationsDirectory->getPath(), $filePrefix . date('Y-m-d H:i:s') . '.json');
+            if (!DynamicTranslationsHelper::writeJSONFile($fileByUpdateDate, $currentJSONTranslationsPackage)) {
+                log_exception(new \RuntimeException("Traducciones dinámicas: no se pudo escribir la copia {$fileByUpdateDate}; el JSON actual sí está escrito."));
+            }
+
+        } else {
+            log_exception(new \RuntimeException('Traducciones dinámicas: no se pudo escribir current-translations.json; las pendientes siguen en la base.'));
+        }
 
     }
 

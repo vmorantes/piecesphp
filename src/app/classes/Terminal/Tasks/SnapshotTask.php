@@ -6,15 +6,15 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * SnapshotTask.
@@ -375,23 +375,23 @@ class SnapshotTask extends TerminalTaskAbstract
             echoTerminal("  \e[35m? VISTAS: NO COMPARABLES\e[39m — una de las dos fotos no las censó");
             $findings++;
         } else {
-        $viewsBefore = (array) ($before['views'] ?? []);
-        $viewsAfter = (array) ($after['views'] ?? []);
-        foreach ($viewsAfter as $view => $hashAfter) {
-            if (!array_key_exists($view, $viewsBefore)) {
-                echoTerminal("  \e[31m+ VISTA NUEVA\e[39m {$view}");
-                $findings++;
-            } elseif ($viewsBefore[$view] !== $hashAfter) {
-                echoTerminal("  \e[33m~ VISTA\e[39m {$view} — la definición cambió");
-                $findings++;
+            $viewsBefore = (array) ($before['views'] ?? []);
+            $viewsAfter = (array) ($after['views'] ?? []);
+            foreach ($viewsAfter as $view => $hashAfter) {
+                if (!array_key_exists($view, $viewsBefore)) {
+                    echoTerminal("  \e[31m+ VISTA NUEVA\e[39m {$view}");
+                    $findings++;
+                } elseif ($viewsBefore[$view] !== $hashAfter) {
+                    echoTerminal("  \e[33m~ VISTA\e[39m {$view} — la definición cambió");
+                    $findings++;
+                }
             }
-        }
-        foreach ($viewsBefore as $view => $hashBefore) {
-            if (!array_key_exists($view, $viewsAfter)) {
-                echoTerminal("  \e[31m- VISTA BORRADA\e[39m {$view}");
-                $findings++;
+            foreach ($viewsBefore as $view => $hashBefore) {
+                if (!array_key_exists($view, $viewsAfter)) {
+                    echoTerminal("  \e[31m- VISTA BORRADA\e[39m {$view}");
+                    $findings++;
+                }
             }
-        }
         }
 
         echoTerminal("\e[32m── ÁRBOL DE ARCHIVOS ──\e[39m");

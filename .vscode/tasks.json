@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Formatear este archivo",
+            "detail": "bin/formatear: el formato del repositorio, con lo que phpfmt y js-beautify no hacen solos (P236)",
+            "type": "process",
+            "command": "${workspaceFolder}/bin/formatear",
+            "args": [
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "silent",
+                "revealProblems": "never",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

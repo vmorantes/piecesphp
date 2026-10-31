@@ -5,6 +5,8 @@
 namespace PiecesPHP\UserSystem\ORM;
 
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 
 /**
  * UserProblemsModel.
@@ -84,5 +86,23 @@ class UserProblemsModel extends BaseEntityMapper
         ])->row();
 
         return is_object($data) ? new UserProblemsModel($data->id) : null;
+    }
+
+    /**
+     * Cuántos códigos se crearon para ese correo desde esa fecha, de cualquier tipo.
+     *
+     * @param string $email
+     * @param \DateTime $since
+     * @return int
+     */
+    public static function countSince(string $email, \DateTime $since): int
+    {
+        $instance = new UserProblemsModel();
+        $data = $instance->getModel()->select(['COUNT(id) AS total'])->where(new WhereSegment([
+            WhereItem::isEqual('email', $email, WhereItem::AND_OPERATOR),
+            WhereItem::isGreaterThanOrEqualTo('created', $since->format('Y-m-d H:i:s')),
+        ]))->row();
+
+        return is_object($data) ? (int) (((array) $data)['total'] ?? 0) : 0;
     }
 }

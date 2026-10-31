@@ -1,12 +1,13 @@
 <?php
 
 //Fija que las dos MetaProperty se comporten igual mientras convivan. Ver T22.
+//@areas nucleo
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/meta-property-hybrid';

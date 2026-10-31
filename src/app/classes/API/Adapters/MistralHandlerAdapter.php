@@ -6,6 +6,7 @@
 
 namespace API\Adapters;
 
+use API\APILang;
 use PiecesPHP\Core\Http\HttpClient;
 
 /**
@@ -36,6 +37,19 @@ class MistralHandlerAdapter
     }
 
     /**
+     * El constructor siempre crea el cliente; si falta, se lanza una excepción que el llamador captura y registra.
+     *
+     * @return HttpClient
+     */
+    protected function client(): HttpClient
+    {
+        if ($this->httpClient === null) {
+            throw new \RuntimeException(__(APILang::LANG_GROUP, 'El cliente del proveedor de IA no está disponible.'));
+        }
+        return $this->httpClient;
+    }
+
+    /**
      * Traducción rápida desde un contexto estático.
      *
      * @param array|array<string,string> $input
@@ -44,7 +58,7 @@ class MistralHandlerAdapter
      * @param ?callable $parseJSON
      * @return array|null Array asociativo o null si no se pudo extrar un JSON de la respuesta
      */
-    public function translate(array $input, string $from = 'es', string $to = 'en',  ?callable $parseJSON = null)
+    public function translate(array $input, string $from = 'es', string $to = 'en', ?callable $parseJSON = null)
     {
         $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to), 0.0, [
             'response_format' => [
@@ -63,9 +77,9 @@ class MistralHandlerAdapter
      * @param array $moreOptions
      * @return string
      */
-    public function askToChat(string $prompt, float $temperature = 0.0, array $moreOptions = []) : string|array
+    public function askToChat(string $prompt, float $temperature = 0.0, array $moreOptions = []): string|array
     {
-        $client = $this->httpClient;
+        $client = $this->client();
 
         $payload = [
             'model' => $this->model,

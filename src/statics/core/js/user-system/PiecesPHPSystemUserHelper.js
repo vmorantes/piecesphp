@@ -289,14 +289,15 @@ class PiecesPHPSystemUserHelper {
 
 	deleteSession(reload = true) {
 
-		let now = new Date().getTime()
+		//Una fecha pasada en formato de fecha: un número de milisegundos no lo es, y la cookie se quedaba.
+		const expired = new Date(0).toUTCString()
 		let JWT = this.getJWT()
 		let JWTFromCookie = this.getCookie(PiecesPHPSystemUserHelper.localJWTAuthName)
 		JWTFromCookie = typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : ''
 		JWT = JWT.length > 0 ? JWT : JWTFromCookie
 
 		if (JWT.length > 0) {
-			document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=;expires=${now};path=/;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
+			document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=;expires=${expired};path=/;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localUserDataName)

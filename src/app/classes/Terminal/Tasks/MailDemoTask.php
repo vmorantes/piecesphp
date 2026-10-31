@@ -98,7 +98,7 @@ class MailDemoTask extends TerminalTaskAbstract
                 'ok' => $sink,
                 'line' => $sink
                     ? 'entrega: retenida; nada sale de esta máquina.'
-                    : "\e[31mentrega: REAL\e[39m — estos correos saldrían de esta máquina. Ponga «Entrega del correo» en «Retenido» en Integraciones → Correo, o en «Según el entorno».",
+                    : "\e[31mentrega: REAL\e[39m — estos correos saldrían de esta máquina. Ponga «Entrega del correo» en «Retenido» en Configuración → Sistema → Correo, o en «Según el entorno».",
             ],
         ];
     }

@@ -36,7 +36,6 @@ window.addEventListener('load', function () {
 	function configureForm() {
 
 		const qrActivationContainer = $('[qr-activation-container]')
-		qrActivationContainer.hide()
 
 		genericFormHandler("form[totp]")
 		genericFormHandler("form[configure-2af]", {
@@ -95,7 +94,7 @@ window.addEventListener('load', function () {
 									correctLevel: QRCode.CorrectLevel.H,
 								})
 
-								qrActivationContainer.show()
+								qrActivationContainer.removeAttr('hidden')
 
 							} else {
 								errorMessage(response.name, response.message)

@@ -1,6 +1,7 @@
 <?php
 
 //El límite de intentos del OTP y del segundo factor, con filas y fechas sintéticas: la lógica es una función pura.
+//@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
@@ -38,6 +39,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         'lockMinutes' => 15,
         'uniformResponse' => true,
         'oneUseCodeMinutes' => 20,
+        'loginMaxFailuresPerIP' => 5,
+        'loginAccountDistinctIPs' => 3,
+        'loginAccountWindowMinutes' => 1440,
     ];
     $ahora = new \DateTime('2026-01-10 12:00:00');
     $fila = static function (string $usuario, string $ip, int $minutosAtras, array $extra = ['otpVia' => OTPRateLimiter::VIA_CHECK_TOTP], int $exito = 0) use ($ahora): array {
@@ -59,7 +63,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── 1. La configuración ──────────────────────────────────────────────────────────────────
     echoTerminal('[1/4] config(): la de config.php, con las cinco vías que cuentan');
 
-    $check(OTPRateLimiter::config() === $config, 'otp_security de config.php: 5 por usuario, 20 por IP, 15 de ventana, 15 de bloqueo, uniforme y 20 del código',
+    $check(OTPRateLimiter::config() === $config, 'otp_security de config.php: 5 por usuario, 20 por IP, 15 de ventana, 15 de bloqueo, uniforme, 20 del código y las tres del login (core/login-ip-throttle)',
         json_encode(OTPRateLimiter::config(), JSON_THROW_ON_ERROR));
     $check(OTPRateLimiter::VIAS === ['generate-otp', 'check-totp', 'two-factor-auth-status', 'login-totp', 'recovery-code'], 'las vías: generate-otp, check-totp, two-factor-auth-status, login-totp y recovery-code');
     echoTerminal(' ');
@@ -98,6 +102,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $exitos = array_map(fn (int $m): array => $fila('ana', '10.0.0.1', $m, ['otpVia' => OTPRateLimiter::VIA_CHECK_TOTP], 1), [4, 3, 2, 1, 0]);
     $check($segundos($exitos) === 0, 'los intentos correctos no cuentan');
     $check($segundos($fallos([4, 3, 2, 1, 0], 'ana', '10.0.0.1', ['dimensions' => ['w' => null]])) === 0, 'los fallos del login con contraseña (sin vía) no cuentan: ya los cuenta failedAttempts');
+    $check($segundos($fallos([4, 3, 2, 1, 0], 'ana', '10.0.0.1', ['otpVia' => OTPRateLimiter::VIA_LOGIN_PASSWORD])) === 0, 'ni los de la vía login-password: los cuenta el freno del login');
     foreach (OTPRateLimiter::VIAS as $via) {
         $check($segundos($fallos([4, 3, 2, 1, 0], 'ana', '10.0.0.1', ['otpVia' => $via])) === 900, "los fallos de la vía {$via} cuentan");
     }

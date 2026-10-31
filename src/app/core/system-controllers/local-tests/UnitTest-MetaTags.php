@@ -2,6 +2,7 @@
 
 //MetaTags escribe el título y las etiquetas del <head>: con comillas, < y & tienen que salir válidas y leerse igual.
 //Sin base ni red: fija valores, pide el HTML y lo lee con un analizador de HTML. Devuelve los valores que había.
+//@areas nucleo
 
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Terminal\CliActions;

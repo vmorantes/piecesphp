@@ -1,6 +1,7 @@
 <?php
 
 //El panel de importación: una ruta por importador, el artefacto solo si se guardó y nada del archivo pintado como HTML.
+//@areas src/app/classes/DataImportExportUtility/
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
@@ -39,13 +40,31 @@ CliActions::make('unit-tests:core/data-transfer-module', function ($args) {
         {
             /** @var int */
             private static $persistCalls = 0;
-            public static function persistCalls(): int { return self::$persistCalls; }
-            public static function resetPersistCalls(): void { self::$persistCalls = 0; }
-            public function key(): string { return 'zz-prueba'; }
-            public function title(): string { return 'Prueba'; }
-            public function allowedUserTypes(): array { return [0]; }
+            public static function persistCalls(): int
+            {
+                return self::$persistCalls;
+            }
+            public static function resetPersistCalls(): void
+            {
+                self::$persistCalls = 0;
+            }
+            public function key(): string
+            {
+                return 'zz-prueba';
+            }
+            public function title(): string
+            {
+                return 'Prueba';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
             //La prueba es de CSV: desde P47 un importador lo añade de forma explícita.
-            public function acceptedExtensions(): array { return ['xlsx', 'csv']; }
+            public function acceptedExtensions(): array
+            {
+                return ['xlsx', 'csv'];
+            }
             public function columns(): array
             {
                 return [new Column('code', 'Código', true), new Column('name', 'Nombre', true)];

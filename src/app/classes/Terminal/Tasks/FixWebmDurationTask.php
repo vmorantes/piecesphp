@@ -7,7 +7,6 @@
 namespace Terminal\Tasks;
 
 use API\Adapters\FfmpegAudioAdapter;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -15,6 +14,7 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * FixWebmDurationTask.
@@ -97,7 +97,7 @@ class FixWebmDurationTask extends TerminalTaskAbstract
                 $uploadsDirectory = str_replace(['//', '\\'], \DIRECTORY_SEPARATOR, getcwd() . DIRECTORY_SEPARATOR . $uploadsDirectory);
             }
             $uploadsDirectory = rtrim($uploadsDirectory, \DIRECTORY_SEPARATOR);
-            $globPattern = $uploadsDirectory . \DIRECTORY_SEPARATOR  . trim($globPattern, '/');
+            $globPattern = $uploadsDirectory . \DIRECTORY_SEPARATOR . trim($globPattern, '/');
 
             if (!file_exists($uploadsDirectory)) {
                 $message[] = "\e[31mError:\e[39m El directorio no existe: {$uploadsDirectory}";
@@ -109,7 +109,8 @@ class FixWebmDurationTask extends TerminalTaskAbstract
             echoTerminal(implode("\r\n", $message));
             $message = []; // Reiniciamos el búfer para imprimir progreso vivo
 
-            $fileResults = glob($globPattern, GLOB_BRACE);
+            //glob() da false si falla: sin archivos que recorrer, no un foreach sobre false.
+            $fileResults = glob($globPattern, GLOB_BRACE) ?: [];
 
             // Instanciar nuestro Wrapper de procesamiento robusto FFMpeg
             $audioAdapter = new FfmpegAudioAdapter(null, null);
@@ -134,10 +135,10 @@ class FixWebmDurationTask extends TerminalTaskAbstract
                 }
                 $fileName = mb_substr(basename($filePath), 0, $extensionPosition);
 
-                $tmpFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.tmp.wav';
+                $tmpFilePath = $fileDir . \DIRECTORY_SEPARATOR . $fileName . '.tmp.wav';
                 $bkFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $bkExtension;
-                $fixedFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $fixedExtension;
-                $processedFlagFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.processed';
+                $fixedFilePath = $fileDir . \DIRECTORY_SEPARATOR . $fileName . $fixedExtension;
+                $processedFlagFilePath = $fileDir . \DIRECTORY_SEPARATOR . $fileName . '.processed';
 
                 if (!$isRestoreBk) {
 

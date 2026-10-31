@@ -2,6 +2,7 @@
 
 //QueueTask::dispatch() devuelve el id de la tarea encolada (database 5.2.0: save() deja el id). Escribe una tarea zz
 //en la cola local y la borra al final.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;

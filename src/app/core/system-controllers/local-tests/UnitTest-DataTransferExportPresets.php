@@ -2,8 +2,9 @@
 
 //Filtros de exportación guardados por usuario en users.meta: reglas, fusión con el resto de meta y aislamiento entre usuarios.
 //Crea usuarios zz-prueba-presets-* dentro de una transacción que se revierte: la base queda como estaba.
+//@areas src/app/classes/DataImportExportUtility/
+//@areas src/app/classes/Organizations/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Presets\UserMetaPresetStore;
 use PiecesPHP\Core\Config;
@@ -18,6 +19,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -44,10 +46,22 @@ CliActions::make('unit-tests:core/data-transfer-export-presets', function ($args
         {
             /** @var int */
             public static $level = self::INTERFACE_EXTENDED;
-            public function key(): string { return 'zz-presets'; }
-            public function title(): string { return 'Presets'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function interfaceLevel(): int { return self::$level; }
+            public function key(): string
+            {
+                return 'zz-presets';
+            }
+            public function title(): string
+            {
+                return 'Presets';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function interfaceLevel(): int
+            {
+                return self::$level;
+            }
             public function parameters(): array
             {
                 return [ExportParameter::integer('min', 'Mínimo', 0), ExportParameter::dateRange('created', 'Creado')];
@@ -56,7 +70,10 @@ CliActions::make('unit-tests:core/data-transfer-export-presets', function ($args
             {
                 return [new ExportColumn('name', 'Nombre'), new ExportColumn('qty', 'Cantidad')];
             }
-            public function rows(ExportContext $context): iterable { return []; }
+            public function rows(ExportContext $context): iterable
+            {
+                return [];
+            }
         }
     }
 

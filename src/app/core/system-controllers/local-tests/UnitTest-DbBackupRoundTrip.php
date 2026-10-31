@@ -1,6 +1,7 @@
 <?php
 
 //Un volcado del que no se puede restaurar no es un respaldo. Ver T45.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;

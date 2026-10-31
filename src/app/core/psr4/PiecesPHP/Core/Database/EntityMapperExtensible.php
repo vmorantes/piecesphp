@@ -47,7 +47,7 @@ class EntityMapperExtensible extends BaseEntityMapper
         parent::__construct($value, $field_compare);
 
         $metaColumnName = $this->metaColumnName;
-        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass  ? (object) $this->$metaColumnName : null;
+        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : null;
 
         if (!is_null($metaColumnValue)) {
 
@@ -185,7 +185,7 @@ class EntityMapperExtensible extends BaseEntityMapper
     public function metaValueToSave()
     {
         $metaColumnName = $this->metaColumnName;
-        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass  ? (object) $this->$metaColumnName : new \stdClass();
+        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : new \stdClass();
         $metaIsArray = is_array($metaColumnValue);
 
         foreach ($this->metaProperties as $name => $property) {
@@ -241,7 +241,7 @@ class EntityMapperExtensible extends BaseEntityMapper
     public function metaValueToUpdate()
     {
         $metaColumnName = $this->metaColumnName;
-        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass  ? (object) $this->$metaColumnName : new \stdClass();
+        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : new \stdClass();
         $metaIsArray = is_array($metaColumnValue);
 
         foreach ($this->metaProperties as $name => $property) {
@@ -360,6 +360,6 @@ class EntityMapperExtensible extends BaseEntityMapper
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new static)->getModel();
     }
 }

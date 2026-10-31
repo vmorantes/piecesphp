@@ -6,7 +6,7 @@ window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, functi
 	//Configurar botón de "ir arriba"
 	let toTopButton = $('button.to-top')
 	toTopButton.on('click', function () {
-		$("html, body").animate({ scrollTop: 0 }, 350);
+		$("html, body").animate({ scrollTop: 0 }, 350)
 	})
 
 	//Formulario de suscriptor

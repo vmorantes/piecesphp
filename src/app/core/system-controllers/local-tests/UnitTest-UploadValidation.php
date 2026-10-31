@@ -2,6 +2,7 @@
 
 //Caracterización de 4f: lo que devolvían FileUpload::validate() y UploadedFileAdapter::validate() ANTES de unificarlas.
 //Los esperados se midieron contra el código de hoy. Si una unificación cambia uno solo, esta suite cae.
+//@areas nucleo
 
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;

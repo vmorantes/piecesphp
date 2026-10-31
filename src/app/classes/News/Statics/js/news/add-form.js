@@ -35,23 +35,6 @@ window.addEventListener('load', function () {
 		onSetFormData: function (formData) {
 			return formData
 		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-			if (field.length == 0) {
-				field = jElement.closest('.attach-placeholder')
-				nameOnLabel = field.find('>label >.text >.header >.title').text()
-			}
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		}
 	})
 
 	//Botones de guardado
@@ -60,7 +43,8 @@ window.addEventListener('load', function () {
 	//Otros
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
-	$('.ui.accordion').accordion()
+	//Solo los del formulario: uno global reiniciaba el de la navegación del shell sin su selector.ignore del riel.
+	form.find('.ui.accordion').accordion()
 
 	removeGenericLoader('_CARGA_INICIAL_')
 

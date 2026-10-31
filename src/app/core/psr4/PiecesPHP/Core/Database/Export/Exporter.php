@@ -1,21 +1,17 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export;
 
-use PiecesPHP\Core\Database\Database;
+use Exception;
 use PDO;
+use PiecesPHP\Core\Database\Database;
+use PiecesPHP\Core\Database\Export\Enums\DataStyle;
+use PiecesPHP\Core\Database\Export\Enums\TableStyle;
 use PiecesPHP\Core\Database\Export\Interfaces\ExporterInterface;
 use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 use PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface;
-use PiecesPHP\Core\Database\Export\Enums\TableStyle;
-use PiecesPHP\Core\Database\Export\Enums\DataStyle;
-use Exception;
 
 /**
- * Class Exporter
- * 
- * Clase principal que coordina la exportación de la base de datos.
- * Utiliza un enfoque de "Estrategia" para el formato y la salida.
+ * Coordina la exportación de la base de datos; el formato y la salida son estrategias intercambiables.
  */
 class Exporter implements ExporterInterface
 {
@@ -28,7 +24,7 @@ class Exporter implements ExporterInterface
 
     /**
      * Constructor de la clase Exporter.
-     * 
+     *
      * @param Database $db Conexión ya configurada. NO lo relajes a `PDO`: con el tipo del
      *                       padre, `query()` y `prepare()` vuelven a verse como
      *                       `PDOStatement|false`.
@@ -46,7 +42,7 @@ class Exporter implements ExporterInterface
 
     /**
      * Establece el plugin de formato.
-     * 
+     *
      * @param FormatPluginInterface $plugin
      * @return self
      */
@@ -58,7 +54,7 @@ class Exporter implements ExporterInterface
 
     /**
      * Establece el plugin de salida.
-     * 
+     *
      * @param OutputPluginInterface $plugin
      * @return self
      */
@@ -70,12 +66,12 @@ class Exporter implements ExporterInterface
 
     /**
      * Realiza la exportación de la base de datos según las opciones dadas.
-     * 
+     *
      * El flujo sigue 3 fases principales para garantizar la integridad de las dependencias:
      * 1. Rutinas (Funciones/Procesos) primero.
      * 2. Mezcla alfabética de Tablas y Vistas Temporales.
      * 3. Recreación de Vistas Reales al final.
-     * 
+     *
      * @param array{
      *     tables?: string[],
      *     table_style?: TableStyle|string,
@@ -99,9 +95,7 @@ class Exporter implements ExporterInterface
      */
     public function export(array $options = []): mixed
     {
-        if (!$this->formatPlugin || !$this->outputPlugin) {
-            throw new Exception("Se deben configurar los plugins de formato y salida antes de exportar.");
-        }
+        [$formatPlugin, $outputPlugin] = $this->plugins();
 
         $defaults = [
             'tables' => [],
@@ -146,8 +140,8 @@ class Exporter implements ExporterInterface
 
         // Filtrar vistas si no se deben incluir
         if (!$opts['include_views']) {
-            $opts['tables'] = array_filter($opts['tables'], function ($table) {
-                return !$this->formatPlugin->isView($this->db, $table);
+            $opts['tables'] = array_filter($opts['tables'], function ($table) use ($formatPlugin) {
+                return !$formatPlugin->isView($this->db, $table);
             });
             $opts['tables'] = array_values($opts['tables']);
         }
@@ -164,7 +158,7 @@ class Exporter implements ExporterInterface
                 $this->db->beginTransaction();
             }
 
-            if (!$this->outputPlugin->init($opts)) {
+            if (!$outputPlugin->init($opts)) {
                 return false;
             }
 
@@ -176,40 +170,40 @@ class Exporter implements ExporterInterface
             // Identificar cuáles son tablas y cuáles son vistas
             $views = [];
             foreach ($allObjects as $obj) {
-                if ($this->formatPlugin->isView($this->db, $obj)) {
+                if ($formatPlugin->isView($this->db, $obj)) {
                     $views[] = $obj;
                 }
             }
 
             // 1. Encabezado
-            $this->outputPlugin->write($this->formatPlugin->getHeader($this->db, $this->database, $this->charset));
+            $outputPlugin->write($formatPlugin->getHeader($this->db, $this->database, $this->charset));
 
             // 2. Rutinas (Funciones y Procedimientos)
             if ($opts['routines']) {
-                $this->outputPlugin->write($this->formatPlugin->getFunctions($this->db, $this->database, $opts));
-                $this->outputPlugin->write($this->formatPlugin->getProcedures($this->db, $this->database, $opts));
+                $outputPlugin->write($formatPlugin->getFunctions($this->db, $this->database, $opts));
+                $outputPlugin->write($formatPlugin->getProcedures($this->db, $this->database, $opts));
             }
 
             // 3. Mezcla Alfabética (Tablas y Vistas Temporales)
             foreach ($allObjects as $obj) {
-                $isObjectView = $this->formatPlugin->isView($this->db, $obj);
+                $isObjectView = $formatPlugin->isView($this->db, $obj);
 
                 if ($isObjectView) {
                     // Vista como Tabla Temporal (para dependencias)
-                    $this->outputPlugin->write($this->formatPlugin->getTableFakeView($this->db, $obj));
+                    $outputPlugin->write($formatPlugin->getTableFakeView($this->db, $obj));
                 } else {
                     // Tabla Real
-                    $this->outputPlugin->write($this->formatPlugin->getTableStructure($this->db, $obj, $opts));
+                    $outputPlugin->write($formatPlugin->getTableStructure($this->db, $obj, $opts));
 
                     // Disparadores
                     if ($opts['triggers']) {
-                        $this->outputPlugin->write($this->formatPlugin->getTableTriggers($this->db, $obj, $opts));
+                        $outputPlugin->write($formatPlugin->getTableTriggers($this->db, $obj, $opts));
                     }
 
                     // Datos (Bulk Insert)
                     if ($opts['include_data']) {
-                        $this->formatPlugin->getTableData($this->db, $obj, $opts, function ($chunk) {
-                            $this->outputPlugin->write($chunk);
+                        $formatPlugin->getTableData($this->db, $obj, $opts, function ($chunk) use ($outputPlugin) {
+                            $outputPlugin->write($chunk);
                         });
                     }
                 }
@@ -217,17 +211,17 @@ class Exporter implements ExporterInterface
 
             // 4. Vistas Reales (Al final de todo)
             foreach ($views as $view) {
-                $this->outputPlugin->write($this->formatPlugin->getTableStructure($this->db, $view, $opts));
+                $outputPlugin->write($formatPlugin->getTableStructure($this->db, $view, $opts));
             }
 
             // 5. Pie
-            $this->outputPlugin->write($this->formatPlugin->getFooter());
+            $outputPlugin->write($formatPlugin->getFooter());
 
             if ($opts['single_transaction']) {
                 $this->db->commit();
             }
 
-            return $this->outputPlugin->finalize();
+            return $outputPlugin->finalize();
 
         } catch (Exception $e) {
             if (isset($opts) && $opts['single_transaction'] && $this->db->inTransaction()) {
@@ -239,8 +233,22 @@ class Exporter implements ExporterInterface
     }
 
     /**
+     * Los dos plugins, o una excepción con mensaje si falta alguno: sin ellos no hay nada que exportar.
+     *
+     * @return array{0: FormatPluginInterface, 1: OutputPluginInterface}
+     * @throws \RuntimeException
+     */
+    protected function plugins(): array
+    {
+        if ($this->formatPlugin === null || $this->outputPlugin === null) {
+            throw new \RuntimeException("Se deben configurar los plugins de formato y salida antes de exportar.");
+        }
+        return [$this->formatPlugin, $this->outputPlugin];
+    }
+
+    /**
      * Obtiene la lista completa de tablas y vistas de la base de datos.
-     * 
+     *
      * @return string[]
      */
     public function getTables(): array
@@ -259,7 +267,7 @@ class Exporter implements ExporterInterface
 
     /**
      * Devuelve los errores acumulados durante la ejecución.
-     * 
+     *
      * @return string[]
      */
     public function getErrors(): array
@@ -269,7 +277,7 @@ class Exporter implements ExporterInterface
 
     /**
      * Escapa identificadores para compatibilidad (usado internamente).
-     * 
+     *
      * @param string $idf
      * @return string
      */

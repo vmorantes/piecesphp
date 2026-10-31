@@ -2,8 +2,9 @@
 
 //afterExport va tras generar y su fallo impide la descarga; el enlace de reimportación exige usuario con permiso.
 //Escribe un usuario zz-prueba-after-* en una transacción revertida, una entrada en el log de errores y temporales propios.
+//@areas src/app/classes/DataImportExportUtility/
+//@areas src/app/classes/Organizations/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersExportDefinition;
 use PiecesPHP\Core\Config;
@@ -14,6 +15,7 @@ use PiecesPHP\Core\DataTransfer\Export\ExportResult;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -50,9 +52,18 @@ CliActions::make('unit-tests:core/data-transfer-export-after', function ($args) 
             public static $seenTemp = [];
             /** @var string[] los que ya había antes: no son de la prueba */
             public static $before = [];
-            public function key(): string { return 'zz-after'; }
-            public function title(): string { return 'Tras exportar'; }
-            public function allowedUserTypes(): array { return [0]; }
+            public function key(): string
+            {
+                return 'zz-after';
+            }
+            public function title(): string
+            {
+                return 'Tras exportar';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
             public function columns(ExportContext $context): array
             {
                 return [new ExportColumn('n', 'Nombre'), (new ExportColumn('q', 'Cantidad'))->asInteger()];

@@ -3,144 +3,20 @@
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
 $-stackedCellLabelColor: rgba(0, 0, 0, 0.6);
 
-//-------- La cabecera de una pantalla de contenido (page-header.php).
-//`ui grid` lleva margen -1rem para compensar el relleno de sus columnas, y abajo pegaba la cabecera a lo que la sigue.
-//Fomantic no alinea por ancho de pantalla: apilada (columnas a todo el ancho), los botones van a la izquierda, como el título.
-.content-page-header {
-
-    .#{$globalClassPcs} &.ui.grid {
-        margin-bottom: 1rem;
-    }
-
-    .#{$globalClassPcs} &.ui.grid > .right.aligned.column {
-        @media only screen and (max-width: 991.98px) {
-            //`flex-direction` porque `middle aligned` de Fomantic pone las columnas en vertical y estira los botones.
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.75rem;
-            text-align: left;
-        }
-    }
-}
-
-//-------- Las migas de page-header.php (`ui breadcrumb`): en UNA fila, la última recortada con «…» (su texto entero va en
-//`title`). En escritorio la barra superior (.topbar-switches, absoluta) ocupa la esquina: el hueco de la derecha es su
-//ancho con tres botones (el del usuario, 175px, y tres de 40px con su hueco de 15px), para que la miga no llegue debajo.
-$contentBreadcrumbTopbarReserve: 175px + 3 * (40px + 15px);
-.content-breadcrumb {
-
-    .#{$globalClassPcs} &.ui.breadcrumb {
-        flex-wrap: nowrap;
-        min-width: 0;
-        max-width: 100%;
-
-        > .section {
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-
-        > .active.section {
-            flex: 0 1 auto;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        > .divider {
-            flex: 0 0 auto;
-        }
-
-        @media only screen and (min-width: 800.02px) {
-            padding-right: $contentBreadcrumbTopbarReserve;
-        }
-    }
-}
-
-//Sin migas, en el móvil el título quedaba bajo el botón del menú lateral: el mismo hueco que dejan las migas (.breadcrumb,
-//admin_app_base.scss).
-.content-page-header:not(.content-breadcrumb + .content-page-header) {
-
-    .#{$globalClassPcs} &.ui.grid {
-        @media only screen and (max-width: 800px) {
-            padding-top: 70px;
-        }
-    }
-}
-
-//-------- Las pestañas de una pantalla de contenido (.tabs-controls.content-tabs): en el móvil, UNA fila que se desliza en
-//horizontal, nunca tres líneas (diseño de contenidos §2.3). Las de .tabs-controls (admin_app_base.scss) envuelven.
-.content-tabs {
-
-    .#{$globalClassPcs} &.tabs-controls {
-        @media only screen and (max-width: 767.98px) {
-            flex-wrap: nowrap;
-            overflow-x: auto;
-
-            > * {
-                flex-shrink: 0;
-            }
-        }
-    }
-}
-
-//-------- Las acciones de una fila (RowActions): botones sueltos. `brand-color` (ui-pcs.scss) les quita el margen de
-//Fomantic y quedaban pegados.
-.row-actions {
-
-    .#{$globalClassPcs} & {
-        display: inline-flex;
-        gap: 0.25rem;
-    }
-}
-
 //-------- La paginación de una tabla de contenido (su contenedor lo marca main.js, contentTablesStackable()): en el móvil
 //envuelve y no lleva «Primero» ni «Último», que la sacaban de su caja.
 .content-table-container {
 
-    .#{$globalClassPcs} & .ui.pagination.menu {
+    :is(.#{$globalClassPcs}, .admin-shell) & .ui.pagination.menu {
         @media only screen and (max-width: 767.98px) {
             flex-wrap: wrap;
         }
     }
 
-    .#{$globalClassPcs} & .dt-paging-button.first,
-    .#{$globalClassPcs} & .dt-paging-button.last {
+    :is(.#{$globalClassPcs}, .admin-shell) & .dt-paging-button.first,
+    :is(.#{$globalClassPcs}, .admin-shell) & .dt-paging-button.last {
         @media only screen and (max-width: 767.98px) {
             display: none;
-        }
-    }
-}
-
-//-------- Barra de acciones de un formulario: al final del formulario, sin fijar (PO, 2026-10-09); el aspecto lo pone su
-//`ui segment`.
-.form-action-bar {
-
-    //En el móvil, UNA fila: «Guardar» ocupa lo que sobra y las secundarias se quedan con su icono (form-action-bar.php).
-    .#{$globalClassPcs} &.ui.segment {
-        @media only screen and (max-width: 767.98px) {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-
-            > .button {
-                flex: 0 0 auto;
-                margin: 0;
-            }
-
-            > .button:first-child {
-                flex: 1 1 auto;
-            }
-
-            //Solo si hay icono: una secundaria sin él se queda con su texto.
-            > .button > .icon + .form-action-text {
-                display: none;
-            }
-
-            > .button > .icon {
-                margin: 0;
-            }
         }
     }
 }
@@ -150,7 +26,7 @@ $contentBreadcrumbTopbarReserve: 175px + 3 * (40px + 15px);
 //`!important` porque el apilado de Fomantic pone `display: block !important` en la cabecera.
 .content-table {
 
-    .#{$globalClassPcs} &.ui.table:not(.unstackable) > thead {
+    :is(.#{$globalClassPcs}, .admin-shell) &.ui.table:not(.unstackable) > thead {
         @media only screen and (max-width: 767.98px) {
             display: none !important;
         }
@@ -158,14 +34,14 @@ $contentBreadcrumbTopbarReserve: 175px + 3 * (40px + 15px);
 
     //En el móvil cada fila es una tarjeta (el apilado de Fomantic) y cada dato lleva delante su cabecera, que pone
     //main.js (contentTablesStackable()); el título (la primera) y las acciones (la última) no la necesitan.
-    .#{$globalClassPcs} &.ui.table:not(.unstackable) > tbody > tr > td {
+    :is(.#{$globalClassPcs}, .admin-shell) &.ui.table:not(.unstackable) > tbody > tr > td {
         @media only screen and (max-width: 767.98px) {
             //DataTables alinea a la derecha las columnas numéricas (dt-type-numeric): en la tarjeta, todo a la izquierda.
             text-align: left;
         }
     }
 
-    .#{$globalClassPcs} &.ui.table:not(.unstackable) > tbody > tr > td:not(:first-child):not(:last-child)[data-label] {
+    :is(.#{$globalClassPcs}, .admin-shell) &.ui.table:not(.unstackable) > tbody > tr > td:not(:first-child):not(:last-child)[data-label] {
         @media only screen and (max-width: 767.98px) {
             &::before {
                 content: attr(data-label);
@@ -175,4 +51,38 @@ $contentBreadcrumbTopbarReserve: 175px + 3 * (40px + 15px);
             }
         }
     }
+}
+
+//-------- La tarjeta de imagen y su editor (design.md §3.18 y §3.19)
+//Pulsar la vista previa abre el editor (P276 a): un botón real sin caja, con el foco visible sobre el damero.
+.content-image-card-edit {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+//Apilada, `ui stackable cards` le da su ancho contando márgenes que la caja no compensa: salía corrida a la derecha.
+@media screen and (max-width: 767px) {
+    .ui.stackable.horizontal.cards > [data-image-card] {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin-inline: 0 !important;
+    }
+}
+
+//La vista previa de la casilla «Invertir colores en modo oscuro», también en el tema claro: el mismo filtro que `.invert-on-dark`.
+.content-image-card-inverted img {
+    filter: brightness(0) invert(1);
+}
+
+//Cropper mide la caja del resultado y pinta dentro la imagen entera: sin esto se vería lo que queda fuera del recuadro.
+[data-image-editor-preview] {
+    overflow: hidden;
 }

@@ -1,14 +1,9 @@
-//Lo propio de Seguridad: la explicación de cada pestaña y el código de seguridad que pinta user-security.js al activar
-//el 2FA. El resto lo pone el armazón del panel.
-
-.explanation {
-    font-size: 1.5rem;
-}
+//Lo propio de Seguridad: el código de seguridad que pinta user-security.js al activar el 2FA. El resto lo pone el armazón del panel.
 
 [security-code] {
     display: inline-block;
     font-size: 2.5rem;
     line-height: 1;
-    color: var(--main-brand-color);
+    color: var(--accent);
     word-break: break-all;
 }

@@ -1,14 +1,15 @@
 <?php
 
 //Doble vía declarada: todo exportador que declara importDefinition() genera un archivo que su importador puede leer.
+//@areas src/app/classes/DataImportExportUtility/
 
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use PiecesPHP\Core\DataTransfer\Export\ExportColumn;
 use PiecesPHP\Core\DataTransfer\Export\ExportContext;
 use PiecesPHP\Core\DataTransfer\Export\ExportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\Column;
-use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportArtifacts;
+use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Terminal\CliActions;
 
 CliActions::make('unit-tests:core/data-transfer-roundtrip', function ($args) {
@@ -31,14 +32,26 @@ CliActions::make('unit-tests:core/data-transfer-roundtrip', function ($args) {
     if (!class_exists('ZzRoundtripImport', false)) {
         class ZzRoundtripImport extends ImportDefinition
         {
-            public function key(): string { return 'zz-ida'; }
-            public function title(): string { return 'Ida'; }
-            public function allowedUserTypes(): array { return [0]; }
+            public function key(): string
+            {
+                return 'zz-ida';
+            }
+            public function title(): string
+            {
+                return 'Ida';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
             public function columns(): array
             {
                 return [new Column('name', 'Nombre', true), new Column('age', 'Edad', true), new Column('note', 'Nota')];
             }
-            public function persist(array $rows): ?ImportArtifacts { return null; }
+            public function persist(array $rows): ?ImportArtifacts
+            {
+                return null;
+            }
         }
         class ZzRoundtripExport extends ExportDefinition
         {
@@ -46,12 +59,30 @@ CliActions::make('unit-tests:core/data-transfer-roundtrip', function ($args) {
             public static $columns = [];
             /** @var string|null */
             public static $import = null;
-            public function key(): string { return 'zz-vuelta'; }
-            public function title(): string { return 'Vuelta'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function columns(ExportContext $context): array { return self::$columns; }
-            public function rows(ExportContext $context): iterable { return []; }
-            public function importDefinition(): ?string { return self::$import; }
+            public function key(): string
+            {
+                return 'zz-vuelta';
+            }
+            public function title(): string
+            {
+                return 'Vuelta';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function columns(ExportContext $context): array
+            {
+                return self::$columns;
+            }
+            public function rows(ExportContext $context): iterable
+            {
+                return [];
+            }
+            public function importDefinition(): ?string
+            {
+                return self::$import;
+            }
         }
     }
 

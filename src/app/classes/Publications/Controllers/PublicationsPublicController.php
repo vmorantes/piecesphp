@@ -6,10 +6,9 @@
 
 namespace Publications\Controllers;
 
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -17,11 +16,12 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
-use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Sitemap\SitemapItem;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Utilities\Helpers\StructuredData;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
@@ -78,7 +78,6 @@ class PublicationsPublicController extends BaseController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         import_jquery();
-        import_izitoast();
         import_semantic();
         import_app_libraries();
         import_app_front_libraries();
@@ -470,7 +469,6 @@ class PublicationsPublicController extends BaseController
         $this->setVariables($view_data);
 
     }
-
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

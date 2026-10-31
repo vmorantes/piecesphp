@@ -6,18 +6,18 @@
 
 namespace PiecesPHP\FileManager\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use elFinder;
 use elFinderConnector;
-use PiecesPHP\FileManager\FileManagerLang;
-use PiecesPHP\FileManager\FileManagerRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\FileManager\FileManagerLang;
+use PiecesPHP\FileManager\FileManagerRoutes;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * FileManagerController.
@@ -60,6 +60,47 @@ class FileManagerController extends AdminPanelController
     const NOT_ACCEPTED_EXTENSIONS = [
         'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'phtm', 'phps', 'phar', 'pht',
         'cgi', 'fcgi', 'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
+    ];
+
+    /**
+     * Lo único que se sube por la ruta del editor, que abren todos los tipos de usuario: una lista cerrada por MIME
+     * detectado, así que un `.jpg` con otro contenido queda fuera. `audio/x-wav` es como el sistema detecta un `.wav`.
+     */
+    const EDITOR_UPLOAD_ALLOWED = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'application/pdf',
+        'text/plain',
+        'text/csv',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.oasis.opendocument.text',
+        'application/vnd.oasis.opendocument.spreadsheet',
+        'video/mp4',
+        'video/webm',
+        'audio/mpeg',
+        'audio/ogg',
+        'audio/wav',
+        'audio/x-wav',
+    ];
+
+    /**
+     * Los comandos que la ruta del editor no necesita: escriben contenido sin pasar por la lista de subida. `edit` guarda
+     * con `put`: encendido, sería un botón que falla al guardar.
+     */
+    const EDITOR_DISABLED_COMMANDS = [
+        'chmod',
+        'extract',
+        'archive',
+        'mkfile',
+        'put',
+        'edit',
     ];
 
     public function __construct()
@@ -163,19 +204,16 @@ class FileManagerController extends AdminPanelController
                 'trashHash' => 't2_Lw',
                 'uploadDeny' => [],
                 'uploadAllow' => ['all'],
-                'permissions' => 0755,
             ],
             [
                 'alias' => __(self::LANG_GROUP, 'Cargas'),
                 'relativePath' => 'statics/uploads',
                 'withBasePath' => false,
-                'permissions' => 0755,
             ],
             [
                 'alias' => __(self::LANG_GROUP, 'Temporales'),
                 'relativePath' => 'tmp',
                 'withBasePath' => false,
-                'permissions' => 0755,
             ],
         ];
         $trashes = [
@@ -211,27 +249,31 @@ class FileManagerController extends AdminPanelController
     public function fileManagerConfigurationRichEditor(Request $request, Response $response)
     {
 
+        $restricted = [
+            'uploadDeny' => ['all'],
+            'uploadAllow' => self::EDITOR_UPLOAD_ALLOWED,
+            'uploadOrder' => ['deny', 'allow'],
+            'disabled' => self::EDITOR_DISABLED_COMMANDS,
+        ];
         $dirs = [
             [
                 'alias' => __(self::LANG_GROUP, 'Documentos'),
                 'relativePath' => 'documents',
                 'trashHash' => 't2_Lw',
-                'uploadDeny' => [],
-                'uploadAllow' => ['all'],
-            ],
+            ] + $restricted,
         ];
         $trashes = [
             [
                 'id' => '2',
                 'relativePath' => '.trash-documents',
                 'alias' => __(self::LANG_GROUP, 'Papelera (Documentos)'),
-                'uploadDeny' => [],
-                'uploadAllow' => ['all'],
-            ],
+            ] + $restricted,
         ];
 
         $opts = [
             'roots' => self::structureOptions($dirs, $trashes),
+            //Un editor de texto no trae archivos de otro servidor: lo suyo se sube desde el equipo.
+            'urlUploadFilter' => fn (): bool => false,
         ];
 
         $connector = new elFinderConnector(new elFinder($opts));
@@ -275,7 +317,6 @@ class FileManagerController extends AdminPanelController
         $createOrder = [
             $basePath,
         ];
-        $permissionsOrder = [];
 
         $accessControlDefault = self::class . '::accessElFinderHandler';
 
@@ -315,18 +356,11 @@ class FileManagerController extends AdminPanelController
             }
 
             $withBasePath = isset($i['withBasePath']) ? $i['withBasePath'] === true : true;
-            $permissions = $i['permissions'] ?? null;
 
             $i['path'] = $withBasePath ? basepath("{$base}/{$i['relativePath']}") : basepath("{$i['relativePath']}");
             $i['URL'] = $withBasePath ? baseurl("{$base}/{$i['relativePath']}") : baseurl("{$i['relativePath']}");
 
             $createOrder[] = $i['path'];
-            if ($permissions !== null) {
-                $permissionsOrder[] = [
-                    'path' => $i['path'],
-                    'permissions' => $permissions,
-                ];
-            }
 
             $options[] = $i;
 
@@ -355,18 +389,11 @@ class FileManagerController extends AdminPanelController
             }
 
             $withBasePath = isset($i['withBasePath']) ? $i['withBasePath'] === true : true;
-            $permissions = $i['permissions'] ?? null;
 
             $i['path'] = $withBasePath ? basepath("{$base}/{$i['relativePath']}") : basepath("{$i['relativePath']}");
             $i['tmbURL'] = $withBasePath ? baseurl("{$base}/{$i['relativePath']}/.tmb") : baseurl("{$i['relativePath']}/.tmb");
 
             $createOrder[] = $i['path'];
-            if ($permissions !== null) {
-                $permissionsOrder[] = [
-                    'path' => $i['path'],
-                    'permissions' => $permissions,
-                ];
-            }
 
             $options[] = $i;
 
@@ -391,10 +418,9 @@ class FileManagerController extends AdminPanelController
             }
         }
 
-        foreach ($permissionsOrder as $iPathData) {
-            $iPath = $iPathData['path'];
-            $iToPermissionsOctal = $iPathData['permissions'];
-            @chmod($iPath, $iToPermissionsOctal);
+        //Lo que se sube aquí se sirve por su URL: un SVG o un HTML no puede ejecutarse en nuestro origen.
+        if (!\PiecesPHP\Core\Statics\ProtectedUploads::writeDenyHtaccess($basePath)) {
+            log_soft_error('El .htaccess de statics/filemanager no se pudo escribir: lo subido al gestor se sirve sin sandbox.');
         }
 
         return $options;
@@ -417,9 +443,9 @@ class FileManagerController extends AdminPanelController
     {
         $basename = basename($path);
         return $basename[0] === '.' // if file/folder begins with '.' (dot)
-        && strlen($relpath) !== 1// but with out volume root
-        ? !($attr == 'read' || $attr == 'write') // set read+write to false, other (locked+hidden) set to true
-        : null; // else elFinder decide it itself
+            && strlen($relpath) !== 1// but with out volume root
+            ? !($attr == 'read' || $attr == 'write') // set read+write to false, other (locked+hidden) set to true
+            : null; // else elFinder decide it itself
     }
 
     /**

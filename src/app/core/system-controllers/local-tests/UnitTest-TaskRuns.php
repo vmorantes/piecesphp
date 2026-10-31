@@ -9,12 +9,12 @@ use API\Controllers\APIController;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
-use Slim\Psr7\Factory\StreamFactory;
-use Slim\Psr7\Factory\UriFactory;
-use Slim\Psr7\Headers;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 
 CliActions::make('unit-tests:core/task-runs', function ($args) {
 
@@ -183,6 +183,43 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
             //RETORNO-IGNORADO: limpieza de una tabla propia; z1 lo comprueba.
             $database->exec("DROP TABLE IF EXISTS `{$tablaTope}`");
         }
+
+        //─── d4-d7 · El tope POR TAREA: una tarea ruidosa no expulsa la historia de las demás ──────
+        //RETORNO-IGNORADO: si no se crea, d4 cuenta en una tabla que no existe y falla.
+        $database->exec("CREATE TABLE `{$tablaTope}` LIKE `{$tabla}`");
+        try {
+            TaskRunMapper::useTableForTesting($tablaTope);
+            TaskRunMapper::setMaxRows(10);
+            TaskRunMapper::setMaxRowsPerTask(3);
+            $anotar = function (string $nombre, int $veces): void {
+                for ($i = 0; $i < $veces; $i++) {
+                    //RETORNO-IGNORADO: lo que se mide es lo que queda en la tabla.
+                    TaskRunMapper::record($nombre, null, TaskRunMapper::TRIGGER_CLI, CronJobTask::STATUS_EXECUTED, 1, new \DateTime(), new \DateTime(), 1, "zz {$nombre} {$i}");
+                }
+            };
+            $deTarea = function (string $nombre) use ($database, $tablaTope): array {
+                $consulta = $database->prepare("SELECT message FROM `{$tablaTope}` WHERE taskName = ? ORDER BY id");
+                //RETORNO-IGNORADO: ERRMODE_EXCEPTION; lo que cuenta es lo leído.
+                $consulta->execute([$nombre]);
+                return $consulta->fetchAll(\PDO::FETCH_COLUMN);
+            };
+            $anotar("{$prefijo}-ruidosa", 5);
+            $anotar("{$prefijo}-callada", 2);
+            $check($deTarea("{$prefijo}-ruidosa") === ["zz {$prefijo}-ruidosa 2", "zz {$prefijo}-ruidosa 3", "zz {$prefijo}-ruidosa 4"],
+                'd4 DISCRIMINANTE: con 3 por tarea, la que anotó 5 queda en sus 3 más recientes', json_encode($deTarea("{$prefijo}-ruidosa")) ?: '');
+            $check(count($deTarea("{$prefijo}-callada")) === 2, 'd5 la que anotó 2 no se toca');
+            $anotar("{$prefijo}-otra-1", 3);
+            $anotar("{$prefijo}-otra-2", 3);
+            $total = (int) $database->query("SELECT COUNT(*) FROM `{$tablaTope}`")->fetchColumn();
+            $check($total === 10 && count($deTarea("{$prefijo}-ruidosa")) < 3, 'd6 el tope global sigue mandando: 11 anotadas en total, quedan 10 y sale la más vieja', "quedan {$total}");
+            $check(TaskRunMapper::trimTask("{$prefijo}-no-existe") === 0, 'd7 trimTask() de una tarea sin filas no retira nada');
+        } finally {
+            TaskRunMapper::setMaxRows(null);
+            TaskRunMapper::setMaxRowsPerTask(null);
+            TaskRunMapper::useTableForTesting(null);
+            //RETORNO-IGNORADO: limpieza de una tabla propia; z1 lo comprueba.
+            $database->exec("DROP TABLE IF EXISTS `{$tablaTope}`");
+        }
         TaskRunMapper::useTableForTesting(TaskRunMapper::TABLE . "_zz_falta_{$marca}");
         try {
             $sinTabla = $tarea('sin-tabla', fn(): array => ['success' => true, 'message' => 'corrió'])->when(fn(): bool => true);
@@ -221,6 +258,64 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
         } finally {
             set_config('CronJobKey', $llavePrevia);
         }
+
+        //─── f · Cada resultado con su etiqueta, en los dos idiomas ──────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[f] Los cuatro resultados del libro llevan etiqueta y color; uno desconocido sale tal cual');
+        $idiomaPrevio = get_config('app_lang');
+        $etiquetas = [];
+        try {
+            foreach (['es', 'en'] as $idioma) {
+                set_config('app_lang', $idioma);
+                foreach ([CronJobTask::STATUS_EXECUTED, CronJobTask::STATUS_FAILED, CronJobTask::STATUS_LOCKED, CronJobTask::STATUS_ALREADY_DONE, 'zz-resultado-raro'] as $resultado) {
+                    $etiquetas[$idioma][$resultado] = SystemStatusController::taskRunStatusLabel($resultado);
+                }
+            }
+        } finally {
+            set_config('app_lang', $idiomaPrevio);
+        }
+        $esperadas = [
+            'es' => [CronJobTask::STATUS_LOCKED => ['yellow', 'Saltada: otra en curso'], CronJobTask::STATUS_ALREADY_DONE => ['grey', 'Saltada: ya hecha en su franja']],
+            'en' => [CronJobTask::STATUS_LOCKED => ['yellow', 'Skipped: another one running'], CronJobTask::STATUS_ALREADY_DONE => ['grey', 'Skipped: already done in its slot']],
+        ];
+        foreach ($esperadas as $idioma => $porResultado) {
+            foreach ($porResultado as $resultado => $esperada) {
+                $check(($etiquetas[$idioma][$resultado] ?? null) === $esperada, "f1 DISCRIMINANTE: «{$resultado}» en {$idioma}: «{$esperada[1]}», no el valor crudo", json_encode($etiquetas[$idioma][$resultado] ?? null, JSON_UNESCAPED_UNICODE) ?: '');
+            }
+        }
+        $check(($etiquetas['en'][CronJobTask::STATUS_EXECUTED] ?? null) === ['green', 'Executed'] && ($etiquetas['en'][CronJobTask::STATUS_FAILED] ?? null) === ['red', 'Failed'], 'f2 CANARIO: ejecutada y fallida, como siempre');
+        $check(($etiquetas['en']['zz-resultado-raro'] ?? null) === ['grey', 'zz-resultado-raro'], 'f3 un resultado desconocido sale tal cual, en gris: es un dato del registro');
+        $peticionFiltro = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz'), new Headers(), [], [], (new StreamFactory())->createStream(''));
+        $htmlFiltro = SystemStatusController::taskRunsTab($peticionFiltro, 'https://zz.test/tab');
+        $check(str_contains($htmlFiltro, 'value="' . CronJobTask::STATUS_LOCKED . '"') && str_contains($htmlFiltro, 'value="' . CronJobTask::STATUS_ALREADY_DONE . '"'),
+            'f4 el filtro «Resultado» ofrece también los dos «saltada»');
+
+        //─── g · Los nombres de las tareas y la pestaña «Accesos», en inglés ─────────────────────
+        echoTerminal(' ');
+        echoTerminal('[g] El nombre de una tarea se pinta traducido; el identificador no cambia');
+        $nombresDelFramework = ['Respaldar base de datos', 'Rellenar slugs pendientes', 'Sincronizar visibilidad de publicaciones', 'Procesar la cola', 'Purgar registros viejos'];
+        $registradas = array_map(fn ($t) => $t->getName(), CronJobTask::getCronJobs());
+        $check(array_diff($nombresDelFramework, $registradas) === [], 'g0 CANARIO: las cinco tareas del framework están registradas con su nombre en español', implode(' · ', $registradas));
+        $idiomaPrevio = get_config('app_lang');
+        try {
+            set_config('app_lang', 'en');
+            $enIngles = array_map(fn (string $n): string => SystemStatusController::taskDisplayName($n), $nombresDelFramework);
+            $desconocida = SystemStatusController::taskDisplayName('zz-tarea-de-un-clon');
+            $htmlIngles = SystemStatusController::taskRunsTab(new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz'), new Headers(), [], [], (new StreamFactory())->createStream('')), 'https://zz.test/tab');
+            $accesos = __(\PiecesPHP\UserSystem\UserSystemFeaturesLang::LANG_GROUP, 'Accesos');
+            set_config('app_lang', 'es');
+            $enEspanol = SystemStatusController::taskDisplayName('Procesar la cola');
+        } finally {
+            set_config('app_lang', $idiomaPrevio);
+        }
+        $check($enIngles === ['Back up the database', 'Fill in pending slugs', 'Sync publications visibility', 'Process the queue', 'Purge old records'],
+            'g1 DISCRIMINANTE: en inglés, las cinco se pintan traducidas', json_encode($enIngles) ?: '');
+        $check($desconocida === 'zz-tarea-de-un-clon' && $enEspanol === 'Procesar la cola', 'g2 una tarea de un clon sale tal cual, y en español el nombre es el de siempre');
+        $check(str_contains($htmlIngles, '<option value="Procesar la cola">Process the queue</option>'), 'g3 el filtro «Tarea» filtra por el nombre ORIGINAL y enseña el traducido');
+        $check(str_contains($htmlIngles, '<code style="white-space: nowrap;">--local</code>') && str_contains($htmlIngles, 'Cron-Job-Key: &lt;KEY&gt;'), 'g4 el ejemplo del cron: --local en <code>, sin corte, y la llave como &lt;KEY&gt;');
+        $fuenteAccesos = (string) file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Controllers/LoginAttemptsController.php'));
+        $check($accesos === 'Access' && str_contains($fuenteAccesos, "__(UserSystemFeaturesLang::LANG_GROUP, 'Accesos')"),
+            'g5 «Accesos» se traduce con un grupo inyectado ANTES de registrar la pestaña, y tiene su inglés', $accesos);
 
     } catch (\Throwable $e) {
         $check(false, 'sin excepciones', get_class($e) . ': ' . $e->getMessage());

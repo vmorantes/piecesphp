@@ -2,15 +2,16 @@
 
 //Tokens genéricos: selector opaco, solo se borra el suyo, claves derivadas de app_key y el aviso de la de relleno.
 //Escribe en pcsphp_tokens: sus filas llevan un token zz-prueba- y se borran siempre en el finally.
+//@areas src/app/classes/PiecesPHP/Tokens/
 
-use PiecesPHP\Tokens\Controllers\GenericTokenController;
-use PiecesPHP\Tokens\Controllers\TokenController;
-use PiecesPHP\Tokens\ORM\TokenModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\Tokens\Controllers\GenericTokenController;
+use PiecesPHP\Tokens\Controllers\TokenController;
+use PiecesPHP\Tokens\ORM\TokenModel;
 use Terminal\Tasks\GenerateAppKeyTask;
 
 $cliTaskName = 'unit-tests';

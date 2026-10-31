@@ -6,25 +6,25 @@
 
 namespace App\Controller;
 
-use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
-use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
+use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\ControllerRoutingTrait;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 
 /**
  * ContactFormsController.
@@ -259,6 +259,7 @@ class ContactFormsController extends PublicAreaController
                         $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
                         $mailer = new Mailer();
                         $mailConfig = new MailConfig;
+                        //El diálogo SMTP solo va al registro, y solo si el envío falla (el catch de abajo): nunca al cliente.
                         $mailer->SMTPDebug = 2;
                         $mailer->isHTML(true);
                         $mailer->setFrom($mailConfig->user());
@@ -371,7 +372,6 @@ class ContactFormsController extends PublicAreaController
 
         return $group;
     }
-
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

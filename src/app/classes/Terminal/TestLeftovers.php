@@ -96,10 +96,10 @@ class TestLeftovers
 
             $columnas = $database->query(
                 'SELECT `table_name` AS `t`, `column_name` AS `c`'
-                . ' FROM `information_schema`.`columns`'
-                . ' WHERE `table_schema` = DATABASE()'
-                . " AND `data_type` IN ('char','varchar','text','mediumtext','longtext','tinytext')"
-                . ' ORDER BY `table_name`, `column_name`'
+                    . ' FROM `information_schema`.`columns`'
+                    . ' WHERE `table_schema` = DATABASE()'
+                    . " AND `data_type` IN ('char','varchar','text','mediumtext','longtext','tinytext')"
+                    . ' ORDER BY `table_name`, `column_name`'
             );
             if ($columnas === false) {
                 $resultado['error'] = 'no se pudo leer el esquema';

@@ -39,6 +39,21 @@ class ProtectedUploads
      * La primera línea del .htaccess de uploads: sin ella, el archivo no es del subsistema y no se reescribe.
      */
     const DENY_HTACCESS_MARK = '#PiecesPHP\\Core\\Statics\\ProtectedUploads: lo reescribe el subsistema; no se edita a mano.';
+    //Lo que el navegador EJECUTA al abrirlo: subido, se sirve con CSP sandbox, y lo que no es imagen, como descarga.
+    const ACTIVE_CONTENT_EXTENSIONS = ['svg', 'svgz', 'html', 'htm', 'xhtml', 'xml', 'xsl', 'xslt'];
+    const ACTIVE_CONTENT_INLINE_EXTENSIONS = ['svg', 'svgz'];
+    //Por contenido (finfo): un MIME conocido decide la extensión; la primera de cada lista es la canónica.
+    const CONTENT_EXTENSIONS = [
+        'image/jpeg' => ['jpg', 'jpeg'],
+        'image/png' => ['png'],
+        'image/webp' => ['webp'],
+        'image/gif' => ['gif'],
+        'application/pdf' => ['pdf'],
+        'image/svg+xml' => ['svg', 'svgz'],
+        'text/html' => ['html', 'htm', 'xhtml'],
+        'text/xml' => ['xml', 'xsl', 'xslt'],
+        'application/xml' => ['xml', 'xsl', 'xslt'],
+    ];
 
     /**
      * El sufijo de lo privado: el de la configuración si es válido; si no, «.protected».
@@ -193,7 +208,7 @@ class ProtectedUploads
         if (!is_dir($directory) && !@mkdir($directory, 0755, true) && !is_dir($directory)) {
             return '';
         }
-        $extension ??= pathinfo($temporaryFile, \PATHINFO_EXTENSION);
+        $extension = self::safeExtension($temporaryFile, $extension ?? pathinfo($temporaryFile, \PATHINFO_EXTENSION));
         $basename ??= bin2hex(random_bytes(8));
         $publicPath = str_replace(['//', '\\\\'], ['/', '\\'], $directory . \DIRECTORY_SEPARATOR . sprintf('%s.%0.8s', $basename, $extension));
         $privatePath = self::privatePath($publicPath, $suffix);
@@ -247,6 +262,26 @@ class ProtectedUploads
     }
 
     /**
+     * La extensión sale del CONTENIDO: con un MIME conocido, la del nombre si es una de las suyas y si no, la canónica;
+     * con uno desconocido, la del nombre. En minúsculas y cortada a 8.
+     *
+     * @param string $file El archivo en disco (el temporal de la subida)
+     * @param string $nameExtension La extensión del nombre que mandó el cliente
+     * @return string
+     */
+    public static function safeExtension(string $file, string $nameExtension): string
+    {
+        $nameExtension = mb_strtolower($nameExtension);
+        $information = finfo_open(\FILEINFO_MIME_TYPE);
+        $mime = $information !== false && is_file($file) ? finfo_file($information, $file) : false;
+        $known = is_string($mime) ? (self::CONTENT_EXTENSIONS[$mime] ?? null) : null;
+        if ($known !== null && !in_array($nameExtension, $known, true)) {
+            $nameExtension = $known[0];
+        }
+        return mb_substr($nameExtension, 0, 8);
+    }
+
+    /**
      * El .htaccess de uploads que niega pedir un archivo por su nombre de disco. Idempotente y atómico; un
      * .htaccess que no lleve la marca del subsistema no se pisa.
      *
@@ -257,7 +292,13 @@ class ProtectedUploads
     public static function writeDenyHtaccess(string $uploadsDirectory, ?string $suffix = null): bool
     {
         $suffix ??= self::suffix();
-        $content = self::DENY_HTACCESS_MARK . "\n<FilesMatch \"" . preg_quote($suffix, '"') . "$\">\n    Require all denied\n</FilesMatch>\n";
+        $active = implode('|', self::ACTIVE_CONTENT_EXTENSIONS);
+        $download = implode('|', array_diff(self::ACTIVE_CONTENT_EXTENSIONS, self::ACTIVE_CONTENT_INLINE_EXTENSIONS));
+        $content = self::DENY_HTACCESS_MARK . "\n<FilesMatch \"" . preg_quote($suffix, '"') . "$\">\n    Require all denied\n</FilesMatch>\n"
+            . "<IfModule mod_headers.c>\n"
+            . "    <FilesMatch \"(?i)\\.({$active})$\">\n        Header set Content-Security-Policy \"sandbox\"\n    </FilesMatch>\n"
+            . "    <FilesMatch \"(?i)\\.({$download})$\">\n        Header set Content-Disposition \"attachment\"\n    </FilesMatch>\n"
+            . "</IfModule>\n";
         $htaccess = rtrim($uploadsDirectory, '/\\') . \DIRECTORY_SEPARATOR . '.htaccess';
         if (is_file($htaccess)) {
             $current = file_get_contents($htaccess);

@@ -2,6 +2,7 @@
 
 //Vigila que siga viva la rama del `BaseModel` genérico CON conexión —de ella dependen las llamadas
 //`new BaseController()` sin argumento— y que la deducción por nombre de clase no vuelva.
+//@areas nucleo
 
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseModel;

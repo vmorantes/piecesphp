@@ -672,16 +672,6 @@ function last_char(string $string)
 }
 
 /**
- * Obtiene la posición último caracter de un cadena
- * @param string $string La cadena
- * @return int
- */
-function last_char_pos(string $string)
-{
-    return strlen($string) - 1;
-}
-
-/**
  * Elimina el último carácter de una cadena y devuelve la nueva cadena.
  * @param string $string La cadena
  * @return string
@@ -692,22 +682,6 @@ function remove_last_char(string $string)
 }
 
 /**
- * Elimina el último carácter de la cadena si coincide con el carácter proporcionado
- *
- * @param string $char El carácter a eliminar
- * @param string $string La cadena
- * @return string La cadena
- */
-function remove_last_char_on($char, $string)
-{
-    $last_char = mb_substr($string, strlen($string) - 1);
-    if ($last_char == $char) {
-        $string = mb_substr($string, 0, (strlen($string) - 1));
-    }
-    return $string;
-}
-
-/**
  * Elimina el primer carácter de una cadena y devuelve la nueva cadena.
  * @param string $string La cadena
  * @return string
@@ -715,41 +689,6 @@ function remove_last_char_on($char, $string)
 function remove_first_char(string $string)
 {
     return mb_substr($string, 1);
-}
-
-/**
- * Elimina el carácter indicado de una cadena y devuelve la nueva cadena.
- * (Se cuenta desde 0).
- * @param string $string La cadena
- * @param int $pos Posición
- * @return string
- */
-function remove_char(string $string, int $pos)
-{
-    $string[$pos] = '';
-    return $string;
-}
-
-/**
- * Reemplaza el primer carácter de una cadena.
- * @param string $string La cadena
- * @param string $replace Reemplazo
- * @return string
- */
-function replace_first_char(string $string, string $replace)
-{
-    return $replace . mb_substr($string, 1);
-}
-
-/**
- * Reemplaza el último carácter de una cadena.
- * @param string $string La cadena
- * @param string $replace Reemplazo
- * @return string
- */
-function replace_last_char(string $string, string $replace)
-{
-    return mb_substr($string, 0, (strlen($string) - 1)) . $replace;
 }
 
 /**
@@ -779,33 +718,6 @@ function string_compare(string $str1, $compare)
         return false;
     }
     return false;
-}
-
-/**
- * Elimina las posiciones vacías.
- * NO se considera vacío: 0, 0.0, "0", false, null ni []
- * @param array $array
- * @return array El array nuevo
- */
-function remove_emptys(array $array)
-{
-    foreach ($array as $key => $value) {
-        if (($value !== 0 && $value !== 0.0 && $value !== "0" && $value !== false && $value !== null && $value !== []) && empty($value)) {
-            unset($array[$key]);
-        }
-    }
-    return $array;
-}
-
-/**
- * Compara el tamaño de dos arrays.
- * @param array $array1
- * @param array $array2
- * @return boolean true si son de igual tamaño
- */
-function compare_array_length(array $array1, array $array2)
-{
-    return (count($array1) === count($array2));
 }
 
 /**
@@ -914,7 +826,8 @@ function remove_directory(string $path)
 {
     if (file_exists($path)) {
 
-        foreach (glob(append_to_url($path, '*')) as $element) {
+        //glob() da false si falla: sin elementos que recorrer, no un foreach sobre false.
+        foreach (glob(append_to_url($path, '*')) ?: [] as $element) {
 
             if (is_dir($element)) {
 
@@ -940,7 +853,7 @@ function remove_directory(string $path)
  * @param ZipArchive &$zipInstance
  * @return string La ruta del zip
  */
-function directory_to_zip(string $root, ?string $output_directory = null, ?string $output_name = null, bool $self = false, array $exclude = [], ?string $parent = null,  ? \ZipArchive  &$zipInstance = null)
+function directory_to_zip(string $root, ?string $output_directory = null, ?string $output_name = null, bool $self = false, array $exclude = [], ?string $parent = null, ?\ZipArchive &$zipInstance = null)
 {
     $zip_path = '';
 
@@ -955,7 +868,7 @@ function directory_to_zip(string $root, ?string $output_directory = null, ?strin
                 $base = '';
             }
         } else {
-            $base = $parent . \DIRECTORY_SEPARATOR  . $root_name;
+            $base = $parent . \DIRECTORY_SEPARATOR . $root_name;
         }
 
         $base = str_replace([
@@ -1000,7 +913,7 @@ function directory_to_zip(string $root, ?string $output_directory = null, ?strin
                 "\\",
             ], $output_directory);
 
-            $name_zip = $output_directory . \DIRECTORY_SEPARATOR  . $output_name;
+            $name_zip = $output_directory . \DIRECTORY_SEPARATOR . $output_name;
             $zip->open($name_zip, \ZIPARCHIVE::CREATE);
 
             $zip_path = $name_zip;
@@ -1040,6 +953,13 @@ function directory_to_zip(string $root, ?string $output_directory = null, ?strin
                         if (is_dir($path_file)) {
 
                             directory_to_zip($path_file, $output_directory, $output_name, true, $exclude, $base, $zip);
+                            //$zip va por referencia a un ?ZipArchive: si volviera sin él, se anota y no se escribe nada más.
+                            if ($zip === null) {
+                                //RETORNO-IGNORADO: closedir() no devuelve nada (void desde PHP 8); solo suelta el directorio antes de volver.
+                                closedir($handler);
+                                log_exception(new \RuntimeException("directory_to_zip(): se perdió el zip al recorrer {$path_file}."));
+                                return $zip_path;
+                            }
                         } else {
                             $filename = $base . '/' . $file;
                             $zip->addFile($path_file, $filename);
@@ -1123,7 +1043,7 @@ function directory_mapper(string $path, ?string $base_path = null, ?int $mode = 
 
                 if (!in_array($file, $ignore)) {
 
-                    $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR  . $file;
+                    $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $file;
                     $file_path = realpath($file_path);
 
                     if (is_string($file_path) && file_exists($file_path)) {
@@ -1474,36 +1394,6 @@ function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoute $r
 }
 
 /**
- * Toma una imagen y devuelve sus dimensiones
- * @param string $imagePath
- * @return array Un array asociativo con los índices width y height
- */
-function imageDimensions(string $imagePath)
-{
-
-    $dimensions = [
-        'width' => null,
-        'height' => null,
-    ];
-
-    if (file_exists($imagePath)) {
-
-        $imageResource = imagecreatefromstring(file_get_contents($imagePath));
-        $width = imagesx($imageResource);
-        $height = imagesy($imageResource);
-
-        $dimensions = [
-            'width' => $width,
-            'height' => $height,
-        ];
-
-    }
-
-    return $dimensions;
-
-}
-
-/**
  * Toma un fichero, lo recorta y redimensiona.
  * Si alguna dimensión ingresada es mayor a la original se usará la original.
  * Dependiendo de $outputPath lo guarda o simplemente lo muestra.
@@ -1694,7 +1584,7 @@ function resizeAndCenterImage(string $inputPath, string $outputPath, int $target
  * @return string
  * @see https://www.php.net/manual/es/function.strftime.php#96424
  */
-function localeDateFormat(string $format,  ? \DateTime $time = null, array $replaceTemplate = [])
+function localeDateFormat(string $format, ?\DateTime $time = null, array $replaceTemplate = [])
 {
     if ($time === null) {
         $time = new \DateTime();
@@ -1761,7 +1651,7 @@ function localeDateFormat(string $format,  ? \DateTime $time = null, array $repl
  * @param float $opacity Valor de opacidad entre 0.0 y 1.0
  * @return string Representación hexadecimal de 2 caracteres (00-FF)
  */
-function opacityToHex(float $opacity) : string
+function opacityToHex(float $opacity): string
 {
     //Asegurar que el valor esté entre 0 y 1
     $opacity = max(0.0, min(1.0, $opacity));

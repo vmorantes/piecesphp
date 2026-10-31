@@ -2,6 +2,9 @@
 
 //El usuario de sistema (B14): no entra, no está en los listados, no se toca, y lo hecho sin sesión es suyo.
 //Crea un root zz-agente-fr-* con su sesión; borra lo que crea, con sus intentos, aprobaciones y registros.
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
@@ -13,6 +16,7 @@ use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
 use PiecesPHP\UserSystem\Controllers\UserProblemsController;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
+use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserHierarchy;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -134,22 +138,27 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         $login = $ruta('users-login-request');
         $inexistente = "{$prefijo}-nadie";
         $deNadie = $pedir($login, '', ['username' => $inexistente, 'password' => '!']);
-        $check(($deNadie['json']['error'] ?? null) === UsersController::USER_NO_EXISTS, 'b1 CANARIO: un usuario que no existe da USER_NO_EXISTS', $deNadie['body']);
+        $check(($deNadie['json']['error'] ?? null) === UsersController::INCORRECT_PASSWORD, 'b1 CANARIO: un usuario que no existe da INCORRECT_PASSWORD (P201)', $deNadie['body']);
         foreach (['system' => 'el nombre', 'system@localhost.invalid' => 'el correo'] as $quien => $como) {
             $r = $pedir($login, '', ['username' => $quien, 'password' => '!']);
-            $check(($r['json']['auth'] ?? null) === false && ($r['json']['error'] ?? null) === UsersController::USER_NO_EXISTS,
-                "b2 por {$como}, el login lo rechaza como a uno que no existe (no «inactivo»)", (string) ($r['json']['error'] ?? $r['status']));
+            $check(($r['json']['auth'] ?? null) === false && ($r['json']['error'] ?? null) === UsersController::INCORRECT_PASSWORD && ($r['json']['message'] ?? 'a') === ($deNadie['json']['message'] ?? 'b'),
+                "b2 por {$como}, el login lo rechaza como a uno que no existe (no «inactivo»): mismo error y mismo mensaje", (string) ($r['json']['error'] ?? $r['status']));
         }
         $check((new RecoveryPasswordController())->resolveUser('system') === null && (new RecoveryPasswordController())->resolveUser('system@localhost.invalid') === null,
             'b3 la recuperación de contraseña no lo encuentra, ni por nombre ni por correo');
         $check((new RecoveryPasswordController())->resolveUser('root') !== null || (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username = 'root'")->fetchColumn() === 0,
             'b4 CANARIO: la recuperación sí encuentra a un usuario real');
+        //Quien no existe recibe la respuesta de un envío (P201): que no se envíe nada se mide en la tabla de problemas.
+        $tablaProblemas = (new UserProblemsModel())->getModel()->getTable();
+        $codigosDeSistema = fn (): int => (int) $database->query("SELECT COUNT(*) FROM `{$tablaProblemas}` WHERE email = 'system@localhost.invalid'")->fetchColumn();
+        $codigosAntes = $codigosDeSistema();
         $olvido = $pedir($ruta('users-forget-request-code'), '', ['username' => 'system', 'type' => UserProblemsController::TYPE_USER_FORGET]);
         $olvidoNadie = $pedir($ruta('users-forget-request-code'), '', ['username' => $inexistente, 'type' => UserProblemsController::TYPE_USER_FORGET]);
-        $check(($olvido['json']['send_mail'] ?? null) === false && ($olvido['json']['error'] ?? 'a') === ($olvidoNadie['json']['error'] ?? 'b'),
-            'b5 «usuario olvidado» lo trata como a uno que no existe y no envía nada', $olvido['body']);
+        $check(is_array($olvido['json']) && $olvido['json'] === $olvidoNadie['json'] && $codigosDeSistema() === $codigosAntes,
+            'b5 «usuario olvidado» lo trata como a uno que no existe y no crea código', $olvido['body']);
         $bloqueo = $pedir($ruta('users-blocked-request-code'), '', ['username' => 'system', 'type' => UserProblemsController::TYPE_USER_BLOCKED]);
-        $check(($bloqueo['json']['send_mail'] ?? null) === false, 'b6 «usuario bloqueado», igual', $bloqueo['body']);
+        $bloqueoNadie = $pedir($ruta('users-blocked-request-code'), '', ['username' => $inexistente, 'type' => UserProblemsController::TYPE_USER_BLOCKED]);
+        $check(is_array($bloqueo['json']) && $bloqueo['json'] === $bloqueoNadie['json'] && $codigosDeSistema() === $codigosAntes, 'b6 «usuario bloqueado», igual', $bloqueo['body']);
 
         //─── c · Fuera de los listados y recuentos ────────────────────────────────────────────────
         echoTerminal(' ');
@@ -211,11 +220,11 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         $check(!UsersController::canManageUser(new UsersModel((int) $root->id), new UsersModel($sistema)), 'd4 canManageUser() lo niega a root (el avatar y el formulario)');
         $cerrar = $pedir($ruta('users-revoke-sessions-request'), $jwt, ['id' => $sistema]);
         $check($cerrar['status'] === 400, 'd5 cerrarle las sesiones: 400 (id < 1)', (string) $cerrar['status']);
-        $suplantar = $pedir($ruta('admin'), $jwt, null, [CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME => $sistema]);
+        $suplantar = $pedir($ruta('user-impersonation-start'), $jwt, ['userID' => $sistema]);
         $huella = $database->prepare("SELECT COUNT(*) FROM `{$tablaRegistro}` WHERE id > ? AND referenceValue = ? AND textMessage = ?");
         //RETORNO-IGNORADO: lo que cuenta es el COUNT que sigue, y se comprueba.
         $huella->execute([$maxRegistro, (string) $sistema, LogsMapper::MESSAGES[LogsMapper::MSG_IMPERSONATION_START]]);
-        $check(in_array($suplantar['status'], [200, 302], true) && (int) $huella->fetchColumn() === 0, 'd6 suplantarlo no empieza (sin huella de inicio)', (string) $suplantar['status']);
+        $check($suplantar['status'] === 400 && (int) $huella->fetchColumn() === 0, 'd6 suplantarlo desde el panel: 400 y sin huella de inicio', (string) $suplantar['status']);
 
         //─── e · Lo hecho sin sesión es suyo ──────────────────────────────────────────────────────
         echoTerminal(' ');

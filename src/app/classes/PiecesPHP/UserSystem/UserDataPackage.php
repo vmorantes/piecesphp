@@ -4,10 +4,10 @@
  */
 namespace PiecesPHP\UserSystem;
 
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
@@ -239,7 +239,7 @@ class UserDataPackage
         $this->type = $this->userMapper->type;
         $this->status = $this->userMapper->status;
         $this->failedAttempts = $this->userMapper->failedAttempts;
-        $this->createdAt = $this->userMapper->createdAt instanceof \DateTime  ? $this->userMapper->createdAt : new \DateTime($this->userMapper->createdAt);
+        $this->createdAt = $this->userMapper->createdAt instanceof \DateTime ? $this->userMapper->createdAt : new \DateTime($this->userMapper->createdAt);
         $this->modifiedAt = null;
         if ($this->userMapper->modifiedAt instanceof \DateTime) {
             $this->modifiedAt = $this->userMapper->modifiedAt;
@@ -278,7 +278,7 @@ class UserDataPackage
      * @param string|null $onDefault
      * @return string
      */
-    public function getAvatarURL(string | null $onDefault = 'statics/images/default-avatar.png')
+    public function getAvatarURL(string|null $onDefault = 'statics/images/default-avatar.png')
     {
         return $this->hasAvatar ? $this->avatar : (is_string($onDefault) ? $onDefault : '');
     }

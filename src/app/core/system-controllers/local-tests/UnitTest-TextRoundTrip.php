@@ -2,11 +2,12 @@
 
 //Escribe en la base local: crea filas zz en login_attempts por el mapper y en el finally las borra.
 //Ver la ruptura 30 del CHANGELOG y la 5.0.0 de piecesphp/database.
+//@areas nucleo
 
-use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 
 CliActions::make('unit-tests:core/text-round-trip', function ($args) {
 

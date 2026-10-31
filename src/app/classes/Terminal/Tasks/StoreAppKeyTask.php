@@ -6,15 +6,14 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
-use PiecesPHP\TerminalData;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * StoreAppKeyTask - Mueve la clave de config.php al llavero de secure-keys, sin cambiarla (ADR 0061 §5).

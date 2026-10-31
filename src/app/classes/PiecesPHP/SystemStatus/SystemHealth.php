@@ -12,8 +12,8 @@ use PiecesPHP\Core\AppVersion;
 use PiecesPHP\Core\InstalledPackages;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
-use PiecesPHP\Terminal\TaskRunMapper;
 use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\Terminal\TaskRunMapper;
 use Terminal\Distribution;
 use Terminal\Tasks\SchemeSqlTask;
 

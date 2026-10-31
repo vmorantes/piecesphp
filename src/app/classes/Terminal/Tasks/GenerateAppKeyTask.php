@@ -6,14 +6,14 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * GenerateAppKeyTask - Crea el llavero de secure-keys con una clave nueva (ADR 0061 §5). Nunca la imprime.

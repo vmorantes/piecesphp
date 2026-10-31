@@ -1,5 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
+
 /**
  * Las sesiones abiertas de un usuario («Mis sesiones» y su ficha). Lo pinta UserSessionsController::userSessionsHTML():
  * solo lo que quien mira puede ver.
@@ -31,7 +33,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <td data-label="<?= escape_html(__($langGroup, 'Navegador')); ?>">
                     <?= escape_html($row['browser']); ?>
                     <?php if ($row['current']): ?>
-                    <span class="ui mini green label"><?= __($langGroup, 'Esta sesión'); ?></span>
+                    <?= StatusLabel::html(__($langGroup, 'Esta sesión'), StatusLabel::POSITIVE); ?>
                     <?php endif; ?>
                 </td>
                 <td data-label="<?= escape_html(__($langGroup, 'IP')); ?>"><?= escape_html($row['ip']); ?></td>

@@ -1,7 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\Core\Config;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
+use PiecesPHP\Core\Config;
 /**
  * @var GenericContentPseudoMapper $element
  */
@@ -19,11 +19,11 @@ $contentName = $element->userSetContentName();
     <div class="limiter-content">
 
         <?php
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-        ]);
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+            ]);
         ?>
 
         <form method='POST' action="<?= escape_html($action); ?>" class="ui form initial generic" data-content-form>
@@ -36,38 +36,28 @@ $contentName = $element->userSetContentName();
                 <?php $isMultilang = $element->isTranslatable($contentName); ?>
                 <?php $langSuffix = $isMultilang ? " ({$lang})" : ''; ?>
                 <?php if($isMultilang || $lang === $defaultLang): ?>
-                <div class="form-attachments-regular">
-                    <div class="attach-placeholder main-image" data-lang="<?= $lang; ?>" data-name="<?= $contentName; ?>">
-                        <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                        <div class="ui top right attached label green">
-                            <i class="paperclip icon"></i>
-                        </div>
-                        <label for="<?= $uniqueIdentifier; ?>">
-                            <div data-image="<?= escape_html($value); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                <i class="icon upload"></i>
-                                <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                            </div>
-                            <div class="text">
-                                <div class="filename"></div>
-                                <div class="header">
-                                    <div class="title"><?= __($langGroup, 'Imagen principal'); ?></div>
-                                    <div class="meta"><?= __($langGroup, 'Tamaño 1200x900'); ?></div>
-                                </div>
-                                <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                            </div>
-                        </label>
-                        <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                    </div>
-                </div>
+                <?php
+                    $this->helpController->_render('panel/built-in/content/image-field.php', [
+                        'card' => [
+                            'id' => "main-image-{$lang}",
+                            'title' => __($langGroup, 'Imagen principal') . $langSuffix,
+                            'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                            'image' => (string) $value,
+                            'field' => "{$contentName}[{$lang}]",
+                            'width' => 1200,
+                            'height' => 900,
+                        ],
+                    ]);
+                ?>
                 <?php endif; ?>
                 <?php endforeach; ?>
 
             </div>
 
             <?php
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-            ]);
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                ]);
             ?>
 
         </form>
@@ -75,36 +65,4 @@ $contentName = $element->userSetContentName();
     </div>
 
 </section>
-<?php
-foreach ($allowedLangs as $lang) {
-    //Modal para imagen
-    $idElements = "main-image-cropper-{$lang}";
-    $value = $element->getLangData($lang, $contentName, true, '');
-    modalImageUploaderForCropperAdminViews([
-        //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-        'content' => simpleCropperAdapterWorkSpace([
-            'type' => 'image/*',
-            'required' => false,
-            'selectorAttr' => $idElements,
-            'referenceW' => '1200',
-            'referenceH' => '900',
-            'image' => $value,
-            'imageName' => $value === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-        ], false),
-        //Atributos que se asignarán al modal (el contenedor principal), string
-        'modalContainerAttrs' => "modal='{$idElements}'",
-        //Clases que se asignarán al modal (el contenedor principal), string
-        'modalContainerClasses' => "ui tiny modal",
-        //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-        'modalContentElementAttrs' => null,
-        //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-        'informationContentMainClass' => null,
-        //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-        'informationContentClasses' => null,
-        //Título del modal, string
-        'titleModal' => null,
-        //Descripción del modal, string
-        'descriptionModal' => null,
-    ]);
-}
-?>
+<?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>

@@ -16,21 +16,21 @@ use News\Controllers\NewsCategoryController;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1). Categoría compleja (§2.6): alta en su página.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Nueva categoría'), 'url' => $addLink, 'icon' => 'plus'] : null,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1). Categoría compleja (§2.6): alta en su página.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'primaryAction' => $hasPermissionsAdd ? ['text' => __($langGroup, 'Nueva categoría'), 'url' => $addLink, 'icon' => 'plus'] : null,
+            ]);
         ?>
 
         <div class="mirror-scroll-x all" mirror-scroll-target=".container-standard-table.all">
             <div class="mirror-scroll-x-content"></div>
         </div>
 
-        <div class="container-standard-table all">
+        <div class="ui fluid card container-standard-table all">
 
-            <table url="<?= $processTableLink; ?>" class="ui basic table content-table all">
+            <table url="<?= $processTableLink; ?>" class="ui selectable very basic table content-table all">
 
                 <thead>
 

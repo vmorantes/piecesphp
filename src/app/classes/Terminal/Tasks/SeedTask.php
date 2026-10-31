@@ -11,8 +11,8 @@ use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
@@ -109,6 +109,13 @@ class SeedTask extends TerminalTaskAbstract
         $wanted = array_map('get_class', $seeders);
         $universe = SeedPlanner::universe($all, 'all');
         $tables = $universe['mappers'];
+        //Un mapper fuera del universo de scheme-create (los de src/app/core/psr4, como TaskRunMapper) se rotula con su TABLE.
+        foreach ($all as $seeder) {
+            $mapper = $seeder->mapper();
+            if (!isset($tables[$mapper]) && defined("{$mapper}::TABLE") && is_string(constant("{$mapper}::TABLE"))) {
+                $tables[$mapper] = constant("{$mapper}::TABLE");
+            }
+        }
 
         try {
             //Las dependencias de un módulo pueden estar en otro: el orden se resuelve con todos.

@@ -8,11 +8,11 @@ namespace PiecesPHP\App\Locations\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\App\Locations\LocationsLang;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -144,9 +144,10 @@ class Locations extends AdminPanelController
     }
 
     /**
-     * Las opciones de un desplegable, con la clave y el texto escapados: `array_to_html_options()` los pinta en crudo y
-     * aquí vienen de la base. Lo seleccionado se le pasa escapado igual (`escape_html()`), o su `in_array` deja de
-     * casarlo y el formulario de edición pierde la selección.
+     * Las opciones de un desplegable, con la clave y el texto escapados: aquí vienen de la base.
+     * `array_to_html_options()` también escapa, sin doblar lo ya escapado (P211), así que esto sale igual. Lo
+     * seleccionado se le pasa escapado igual (`escape_html()`), o su `in_array` deja de casarlo y el formulario de
+     * edición pierde la selección.
      *
      * @param array<int|string,mixed> $options
      * @return array<int|string,string>
@@ -410,7 +411,6 @@ class Locations extends AdminPanelController
             ),
         ];
     }
-
 
     /**
      * Verificar si una ruta es permitida y determinar pasos para permitirla o no

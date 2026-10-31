@@ -6,7 +6,6 @@
 
 namespace DataImportExportUtility\Examples;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\DataImportExportUtilityLang;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -16,6 +15,7 @@ use PiecesPHP\Core\DataTransfer\Import\ImportArtifacts;
 use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportPersistException;
 use PiecesPHP\Core\DataTransfer\Import\ParsedRow;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * ExampleUserNamesImportDefinition - Ejemplo de la guía: actualiza nombre y apellidos de usuarios que ya existen.

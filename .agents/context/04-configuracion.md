@@ -23,13 +23,14 @@ Configuración maestra. Contiene:
   (derivados de `$_SERVER`).
 - `default_lang` (`es`), `cache_stamp_render_files`.
 - `title_app`, `owner`, `keywords`, `description`, `developer`.
-- **Paleta de marca**: `main_brand_color`, `second_brand_color`, `font_color_one/two`,
-  `menu_color_background|mark|font`, `meta_theme_color`, `bg_tools_buttons`,
-  `body_gradient`, `font_family_global`, `font_family_sidebars`. Estos valores se
-  convierten en variables CSS (ver [09-frontend-assets.md](./09-frontend-assets.md)).
+- **Paleta y forma** (JCP y JCQ, H106): `main_brand_color`, `second_brand_color`, `third_brand_color`, `data_color_2..5`,
+  `theme_font`, `theme_font_size` y `theme_radius` se publican como tokens del tema por `SettingsController::themeTokens()`
+  (ver [09-frontend-assets.md](./09-frontend-assets.md)), y lo de fábrica no se publica. `main_brand_color` la lee además
+  el correo por PHP; `meta_theme_color` sale en la meta `theme-color` por PHP. Las edita una sola acción,
+  `configurations-appearance-colors-save`, que valida todo antes de escribir.
 - **Secretos**: `app_key` (usada por `BaseToken` y `BaseHashEncryption`),
   `CronJobKey`, `mailjet`, `OpenAIApiKey`, `MistralAIApiKey`, `GroqAPIKey`,
-  `SurveyJSKey`, `Azure`, `osTicketAPI(Key)`, `LabsMobileAPIKey`.
+  `Azure`, `osTicketAPI(Key)`, `LabsMobileAPIKey`.
   En el repo están como `TODO:secret` / placeholders.
 - **Destinatarios de formularios públicos**: `contact_form_recipients` (formulario de contacto) y
   `other_problems_recipients` (correo de «otros problemas» cuando osTicket falta o falla). Lista de
@@ -72,7 +73,7 @@ importantes:
 | `CONTENT_NAVIGATION_HUB_MODULE` | Hub de contenidos |
 | `HOME_IMAGE_BANNER` | Banner de inicio |
 
-Otras: `ADMIN_PATH_VIEWS = 'panel'`, `ADMIN_AREA_PATH_JS`,
+Otras: `ADMIN_AREA_PATH_JS`,
 `CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME`/`_GET_PARAM_NAME`,
 `ROOT_ORIGINAL_ID_CONFIG_NAME`, `ROOT_ID_AS_CONNECT_CONFIG_NAME`,
 grupos de idioma (`ADMIN_MENU_LANG_GROUP`, `GENERAL_LANG_GROUP`, `LANG_GROUP`,
@@ -206,7 +207,6 @@ comprobación 41 de `verify-integrity`. Ayudantes para el clon: `set_configs_fro
 | `mailing.php` | SMTP y remitentes |
 | `protected-files.php` | `ProtectFileMiddleware::protect()` |
 | `queues.php` | Handlers de cola (`QueueTask::make()`) |
-| `patches_composer_dependencies.php` | Parches a dependencias |
 | `set-additional-configurations.php` | Ajustes finales / parches de configuración |
 
 **Estos son los puntos de extensión preferidos**: si necesitas añadir un cronjob,

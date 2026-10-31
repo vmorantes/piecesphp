@@ -10,38 +10,23 @@
  */
 
 use App\Controller\PublicAreaController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Exceptions\RouteNotExistsException;
-use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
- * Funciones adicionales.
- * En este este archivo se puede añadir cualquier función adicional.
- * Puede hacerse uso de todas las funciones del sistema.
+ * Funciones globales de ayuda; las tuyas, al final. Formato: source-docs/project/docs/piecesphp/content/configuration.md, «functions.php».
  */
 
 //── Del framework: no lo edites ──
 
 /**
- * Devuelve un string con los ítems del menú lateral
+ * Devuelve las etiquetas <option> de un arreglo valor => texto, con el valor y el texto escapados
  *
- * @param \stdClass $user
- * @return string
- */
-function menu_sidebar_items(\stdClass $user): string
-{
-    $groups = get_sidebar_menu();
-    return $groups->getHtml();
-}
-
-/**
- * Devuelve un string con la estructura de un orderBy para un EntityMapper
- *
- * @param array $values
- * @param mixed $selected_values
- * @param bool $multiple
- * @param bool $key_as_value
- * @return string
+ * @param array $values valor => texto; lo que no sea escalar se descarta
+ * @param mixed $selected_values El valor seleccionado o una lista de ellos; se comparan contra el valor sin escapar
+ * @param bool $multiple Si marca todos los seleccionados o solo el primero
+ * @param bool $key_as_value Con false el arreglo se lee al revés: texto => valor
+ * @return string Las opciones, separadas por saltos de línea
  */
 function array_to_html_options(array $values, $selected_values = null, bool $multiple = false, bool $key_as_value = true): string
 {
@@ -71,8 +56,9 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
 
     foreach ($values as $value => $display) {
 
-        $optionValue = (string) $value;
-        $optionText = $display;
+        //`false` en double_encode: lo que quien llama ya escapó no sale como `&amp;amp;` y una entidad puesta a propósito se conserva; `<`, `>` y las comillas se escapan igual.
+        $optionValue = htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
+        $optionText = htmlspecialchars((string) $display, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
         $optionTag = "<option%selected%value='{$optionValue}'>{$optionText}</option>";
 
         if ($has_selected_values && in_array($value, $selected_values)) {

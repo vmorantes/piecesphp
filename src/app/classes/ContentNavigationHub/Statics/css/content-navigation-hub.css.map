@@ -1,1 +1,0 @@
-{"version":3,"sources":["ContentNavigationHub/Statics/sass/content-navigation-hub.scss"],"names":[],"mappings":"AAGA,eACI","sourcesContent":["@use '../../../../../statics/core/sass/includes/variables_app_base' as *;\n@use '../../../../../statics/core/sass/includes/functions_app_base' as *;\n\n[share-action]{\n    cursor: pointer;\n}"],"file":"content-navigation-hub.css"}

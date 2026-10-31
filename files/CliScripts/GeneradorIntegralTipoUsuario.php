@@ -3,7 +3,7 @@
  * GeneradorIntegralTipoUsuario.php
  *
  * Herramienta de automatización para la creación de nuevos tipos de usuario.
- * Reclica vistas, inyecta constantes en el modelo, configura roles y 
+ * Reclica vistas, inyecta constantes en el modelo, configura roles y
  * registra los renderizadores en el controlador de forma quirúrgica.
  *
  * @package     PiecesPHP
@@ -15,6 +15,11 @@ include __DIR__ . '/../../src/app/core/psr4/PiecesPHP/Cli.php';
 use PiecesPHP\Cli;
 
 // Inicialización de la consola
+if (!isset($argv)) {
+    //RETORNO-IGNORADO: si STDERR no acepta la línea, el exit(1) de abajo sigue parando.
+    fwrite(STDERR, "Solo se ejecuta por terminal.\n");
+    exit(1);
+}
 $cli = new Cli($argv, [
     'addLines' => false,
     'skipArgs' => 1,
@@ -31,15 +36,15 @@ $files = [
 ];
 
 /**
- * Helper para capturar datos. 
+ * Helper para capturar datos.
  * El espacio en readline evita que el prompt se borre visualmente en algunas terminales.
  */
-$getOrAsk = function($argName, $label, $default = '') use ($cli) {
+$getOrAsk = function ($argName, $label, $default = '') use ($cli) {
     $value = $cli->getArgumentValue($argName);
     if (empty($value)) {
         $promptText = $default ? "$label [$default]: " : "$label: ";
         Cli::systemOutFormatted($promptText, ['bold' => true, 'newLine' => false]);
-        $value = readline(" "); 
+        $value = readline(" ");
         $value = trim($value);
         return empty($value) ? $default : $value;
     }
@@ -55,8 +60,8 @@ Cli::systemOutFormatted("└─────────────────�
 $srcSlug   = $getOrAsk('source', '📂 Slug base (origen)', 'comunicaciones');
 $newSlug   = $getOrAsk('target', '📂 Nuevo Slug (ej: auditor)', 'auditor');
 $newLabel  = $getOrAsk('label', '🏷️  Etiqueta visual', 'Auditor');
-$newID     = (int)$getOrAsk('id', '🔢 ID numérico único', '15');
-$priority  = (int)$getOrAsk('priority', '⚖️  Prioridad de autoridad', '2');
+$newID     = (int) $getOrAsk('id', '🔢 ID numérico único', '15');
+$priority  = (int) $getOrAsk('priority', '⚖️  Prioridad de autoridad', '2');
 
 $srcConst  = "TYPE_USER_" . strtoupper(str_replace('-', '_', $srcSlug));
 $newConst  = "TYPE_USER_" . strtoupper(str_replace('-', '_', $newSlug));
@@ -66,7 +71,7 @@ Cli::systemOutFormatted("\n[1/5] Generando archivos de vista...", ['color' => 'g
 foreach (['create', 'edit', 'profile'] as $dir) {
     $srcPath = "{$files['views_dir']}/$dir/$srcSlug";
     $dstPath = "{$files['views_dir']}/$dir/$newSlug";
-    
+
     if (is_dir($srcPath)) {
         if (!is_dir($dstPath)) {
             mkdir($dstPath, 0755, true);
@@ -118,7 +123,7 @@ if (strpos($model, $newConst) === false) {
         $model,
         1
     );
-    
+
     file_put_contents($files['model'], $model);
     Cli::systemOutFormatted("  ✔ UsersModel.php actualizado correctamente.", ['color' => 'light-gray']);
 }
@@ -135,7 +140,7 @@ if (strpos($roles, "UsersModel::$newConst") === false) {
         'allowed_routes' => \$permisosGenerales,
     ],
 ROLE;
-    
+
     // Inserción al final del array $config['roles']['types'], antes del cierre ];
     // Se usa .* (greedy) para avanzar hasta el último ]; del bloque, no el primero
     $roles = preg_replace(
@@ -154,16 +159,16 @@ $ctrl = file_get_contents($files['controller']);
 $methods = [
     'formCreateByType' => 'create',
     'formEditByType'   => 'edit',
-    'formProfileByType' => 'profile'
+    'formProfileByType' => 'profile',
 ];
 
 foreach ($methods as $methodName => $folder) {
     // Localiza el array $formsByType específico de cada función del controlador
     $pattern = "/function $methodName.*?\{.*?((\\\$formsByType\s*=\s*\[)(.*?)(\];))/s";
-    
+
     if (preg_match($pattern, $ctrl, $matches)) {
-        $fullBlock = $matches[1]; 
-        
+        $fullBlock = $matches[1];
+
         if (strpos($fullBlock, "UsersModel::$newConst") === false) {
             // Detectar la indentación del cierre ]; para derivar la indentación de entradas
             if (preg_match('/^( +)\];/m', $fullBlock, $closeIndentMatch)) {
@@ -176,11 +181,11 @@ foreach ($methods as $methodName => $folder) {
             $innerIndent = $indent . '    ';
 
             $newEntry = "{$indent}UsersModel::$newConst => [\n{$innerIndent}'view' => 'usuarios/form-by-type/$folder/$newSlug/form',\n{$innerIndent}'data' => array_merge(\$data_form, []),\n{$indent}],";
-            
+
             // Buscar la línea completa de cierre (indentación + ];) y poner antes
             $closePattern = '/(\r?\n)(' . preg_quote($closeIndent, '/') . '\];)/';
             $updatedBlock = preg_replace($closePattern, "$1$newEntry$1$2", $fullBlock, 1);
-            
+
             if ($updatedBlock !== $fullBlock) {
                 $ctrl = str_replace($fullBlock, $updatedBlock, $ctrl);
             }
@@ -206,7 +211,7 @@ foreach (['create', 'edit', 'profile'] as $t) {
         $closingPart = $jsMatches[2][0];
         $fullMatchOffset = $jsMatches[0][1];
         $fullMatch = $jsMatches[0][0];
-        
+
         // Asegurarse de que la última línea tiene coma antes de añadir
         $newLine = "\n\t\t\t$jsKey: 'form.users.$t.$newSlug',";
         // Reemplazar: mantener el contenido del bloque, añadir nueva línea, y cerrar

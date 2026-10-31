@@ -429,17 +429,19 @@ class MenuGroup
 
             $group_container = new HtmlElement('ul', '', null, $group_attributes);
 
+            //El icono y el nombre van como hijos: como texto, la librería los escaparía y saldrían literales.
+            $group_title_children = [];
             if (mb_strlen(trim($group_icon)) > 0) {
                 $group_container->setAttribute('class', 'group');
-                $group_name = "<i class='icon $group_icon'></i><span>$group_name</span>";
+                $group_title_children[] = new HtmlElement('i', '', null, ['class' => "icon {$group_icon}"]);
             } else {
                 $group_container->setAttribute('class', 'group no-icon');
-                $group_name = "<span>$group_name</span>";
             }
+            $group_title_children[] = new HtmlElement('span', $group_name);
 
             if (!$group_as_link || $group_current) {
 
-                $group_title_container = new HtmlElement('div', $group_name);
+                $group_title_container = new HtmlElement('div', '', $group_title_children);
 
                 if ($group_current) {
                     if ($group_as_link) {
@@ -453,7 +455,7 @@ class MenuGroup
 
             } else {
 
-                $group_title_container = new HtmlElement('a', $group_name);
+                $group_title_container = new HtmlElement('a', '', $group_title_children);
                 $group_title_container->setAttribute('class', 'title-group');
                 $group_title_container->setAttribute('href', $group_href);
                 if (mb_strlen($group_href_target) > 0) {

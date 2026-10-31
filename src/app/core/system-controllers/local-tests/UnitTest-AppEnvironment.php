@@ -2,6 +2,7 @@
 
 //P58: el entorno sale de environment.php y la cabecera Host ya no decide si la instalación es local.
 //Los archivos de entorno de prueba viven en un temporal propio; el real no se toca.
+//@areas nucleo
 
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;

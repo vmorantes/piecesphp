@@ -4,10 +4,10 @@
  */
 namespace PiecesPHP\UserSystem\ORM;
 
+use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\Crypto\EncryptedDataRegistry;
 use PiecesPHP\Core\Crypto\Sealed;
-use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\TOTPStandard;

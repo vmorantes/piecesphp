@@ -5,7 +5,6 @@
 namespace PiecesPHP\UserSystem\Authentication;
 
 use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
@@ -14,6 +13,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 
@@ -130,7 +130,6 @@ class OTPHandler
                 $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
                 $mailer = new Mailer();
                 $mailConfig = new MailConfig;
-                $mailer->SMTPDebug = 2;
                 $mailer->isHTML(true);
                 $mailer->setFrom($mailConfig->user());
                 $mailer->addAddress($userData->email);

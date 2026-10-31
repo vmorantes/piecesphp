@@ -23,46 +23,38 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => sprintf(__($langGroup, 'Archivos %s de hasta %d MB y %d filas. Si una fila tiene errores, no se guarda ninguna.'), implode(', ', $extensions), $maxSizeMB, $maxRows),
-            'secondaryActions' => [
-                ['text' => __($langGroup, 'Descargar plantilla'), 'url' => $template, 'icon' => 'download'],
-            ],
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => sprintf(__($langGroup, 'Archivos %s de hasta %d MB y %d filas. Si una fila tiene errores, no se guarda ninguna.'), implode(', ', $extensions), $maxSizeMB, $maxRows),
+            ]);
         ?>
 
-        <div class="container-standard-table">
-        <table class="ui basic table content-table">
-            <thead>
-                <tr>
-                    <th><?= __($langGroup, 'Columna'); ?></th>
-                    <th><?= __($langGroup, 'Obligatoria'); ?></th>
-                    <th><?= __($langGroup, 'También se reconoce como'); ?></th>
-                    <th><?= __($langGroup, 'Ayuda'); ?></th>
-                    <th><?= __($langGroup, 'Ejemplo'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($columns as $column): ?>
-                <tr>
-                    <td><?= $escape($column['label']); ?></td>
-                    <td><?= $column['required'] ? __($langGroup, 'Sí') : __($langGroup, 'No'); ?></td>
-                    <td><?= $escape(implode(', ', $column['aliases'])); ?></td>
-                    <td><?= $escape($column['help'] ?? ''); ?></td>
-                    <td><?= $escape($column['example'] ?? ''); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        </div>
+        <form method="POST" action="<?= $escape($action); ?>" class="ui form initial segment data-transfer-import" data-transfer-import data-content-form>
 
-        <form method="POST" action="<?= $escape($action); ?>" class="ui form initial data-transfer-import" data-transfer-import data-content-form>
-            <div class="container-standard-form">
-                <div class="field required">
-                    <label><?= __($langGroup, 'Archivo'); ?></label>
-                    <input type="file" name="file" accept="<?= $escape($accept); ?>" required>
+            <section aria-labelledby="import-step-template">
+                <h2 class="ui header" id="import-step-template"><span class="ui flex"><span class="ui active circular label" aria-hidden="true">1</span><?= __($langGroup, 'Descarga la plantilla'); ?></span></h2>
+                <div class="ui tight segments"><div class="ui secondary segment">
+                    <div class="ui relaxed flex">
+                        <i class="green bordered file excel icon" aria-hidden="true"></i>
+                        <div class="ui vertical fitted flex">
+                            <strong class="ui breaking text"><?= $escape($title); ?></strong>
+                            <small class="ui muted text"><?= __($langGroup, 'Llénala sin cambiar sus columnas'); ?></small>
+                        </div>
+                        <a class="right floated mobile stretched ui basic labeled icon button" href="<?= $escape($template); ?>"><i class="download icon" aria-hidden="true"></i><?= __($langGroup, 'Descargar plantilla'); ?></a>
+                    </div>
+                </div></div>
+            </section>
+
+            <div class="ui section divider"></div>
+
+            <section aria-labelledby="import-step-file">
+                <h2 class="ui header" id="import-step-file"><span class="ui flex"><span class="ui active circular label" aria-hidden="true">2</span><?= __($langGroup, 'Sube la plantilla diligenciada'); ?></span></h2>
+                <div class="fields">
+                    <div class="eight wide required field">
+                        <label for="data-transfer-import-file"><?= __($langGroup, 'Archivo'); ?></label>
+                        <input type="file" id="data-transfer-import-file" name="file" accept="<?= $escape($accept); ?>" required>
+                    </div>
                 </div>
                 <?php if (isset($partial) && $partial !== null): ?>
                 <?php include $partial; ?>
@@ -75,16 +67,42 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
                     </div>
                 </div>
                 <?php endif; ?>
-            </div>
+            </section>
 
             <?php
-            $helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Importar'),
-            ]);
+                $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Importar'),
+                ]);
             ?>
         </form>
 
-        <br>
+        <section class="ui segment" aria-labelledby="import-columns">
+            <h2 class="ui header" id="import-columns"><?= __($langGroup, 'Las columnas de la plantilla'); ?></h2>
+            <div class="ui basic fitted horizontal scrolling segment" role="region" tabindex="0" aria-label="<?= __($langGroup, 'Las columnas de la plantilla'); ?>">
+            <table class="ui selectable very basic unstackable table content-table">
+                <thead>
+                    <tr>
+                        <th><?= __($langGroup, 'Columna'); ?></th>
+                        <th><?= __($langGroup, 'Obligatoria'); ?></th>
+                        <th><?= __($langGroup, 'También se reconoce como'); ?></th>
+                        <th><?= __($langGroup, 'Ayuda'); ?></th>
+                        <th><?= __($langGroup, 'Ejemplo'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($columns as $column): ?>
+                    <tr>
+                        <td><?= $escape($column['label']); ?></td>
+                        <td><?= $column['required'] ? __($langGroup, 'Sí') : __($langGroup, 'No'); ?></td>
+                        <td><?= $escape(implode(', ', $column['aliases'])); ?></td>
+                        <td><?= $escape($column['help'] ?? ''); ?></td>
+                        <td><?= $escape($column['example'] ?? ''); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+        </section>
 
         <div class="data-transfer-report" data-transfer-report></div>
 

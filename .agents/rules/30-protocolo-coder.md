@@ -419,6 +419,10 @@ Y se cierra con: «Si algo te obliga a desviarte, para y repórtalo en vez de de
     guarda de borrado o de reescritura, la instrucción dicta copia y `sha1sum` de esos DATOS antes y después, y apaga
     lo que corre solo (ganchos de arranque, tareas) durante la orden. Nace de `#1603`: una provocación de la poda de
     errores vació el registro real de la instalación local; `#1602` la dictó sin esa copia.
+  - **Una provocación o una medida que pueda escribir un error y no sea una suite va con `bin/con-marca -- <orden>`**
+    (JAK, `d0ecdbe5`): marca lo que escribe con su corrida y lo poda al terminar (ADR 0063), también lo que pidan
+    `bin/navegador` y las peticiones de las suites. Un `curl` a mano no lleva la marca. Nace del 2026-10-26: las
+    provocaciones con `bin/check-routes` y las medidas por HTTP dejaron 21 entradas en el registro real del PO.
   - **Si lo que se provoca es la propia guarda de hooks**, la prueba, la restauración y la suma
     van en UNA sola llamada de shell. Mientras la provocación está puesta, el hook que filtra las
     llamadas del coder está debilitado, y así la ventana no depende de la disciplina entre
@@ -460,7 +464,8 @@ bash .agents/scripts/verificar.sh
 
 verifica el **andamiaje de agentes**. La verificación del **producto** la nombra cada
 instrucción; para cambios en `src/` o `bin/`, por defecto **`bin/verify`**, que encadena
-`bin/check-routes` (una ruta mala tumba `bin/cli`, así que va primero y fuera de él), `bin/phpstan`
+`bin/check-routes` (una ruta mala tumba `bin/cli`, así que va primero y fuera de él), `bin/formatear --check` (en la
+parcial, lo tocado desde su commit; en la entera, todo el universo del formato), `bin/phpstan`
 contra `PHPStanResult.Summary.baseline.txt`, `bin/cli verify-integrity` y `bin/cli gates`, cada una
 con su línea de «ejecutada», y para en la primera que falla. Una suite omitida es una puerta fallada (LEY 13). **En las
 rondas intermedias la instrucción puede dictar la parcial**, `bin/verify --changed-since=<commit de partida>` (ADR 0062);
@@ -499,8 +504,8 @@ de correr `gates`, y el commit entró con una prueba rota.
 ### Ramas (PO, 2026-09-14)
 
 - **En este repositorio**, `master` recibe las pre-versiones etiquetadas y `last-stable` apunta a la
-  última versión estable etiquetada (ADR 0019). El resto son ramas de trabajo: hoy `dev`,
-  `limpieza-modulos`, `modificacion-docs` y `upgrade-to-php85`. `master` y `last-stable` **solo
+  última versión estable etiquetada (ADR 0019). El resto son ramas de trabajo: hoy solo `dev`
+  (medido el 2026-10-28 con `git branch --list`; el rediseño va en `dev`, sin rama aparte: P241 a). `master` y `last-stable` **solo
   avanzan**, con `git update-ref refs/heads/<rama> <nuevo> <anterior>` tras comprobar
   `git merge-base --is-ancestor <anterior> <nuevo>`; retrocederlas o reescribirlas es punto serio.
 - **En los cuatro paquetes**, `master` es su estable, pueden tener las ramas que quieran y todos

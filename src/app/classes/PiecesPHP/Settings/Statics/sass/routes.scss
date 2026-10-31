@@ -1,24 +1,19 @@
 .routes-view {
 
-    .routes-search {
-        margin-bottom: 1rem;
-    }
+    //Prototipo §3.38: anchos fijos por columna y textos que parten (las rutas y los controladores llevan <wbr> en sus
+    //separadores; lo que no tenga, parte donde pueda). A ≤1023, ancho mínimo y desplazamiento dentro de su contenedor
+    //(.dt-layout-full, del fork).
+    table.routes-table {
+        table-layout: fixed;
 
-    //La tabla de cada grupo es más ancha que la pantalla en el móvil: se desplaza su envoltorio, no la página.
-    .routes-table-wrapper {
-        overflow-x: auto;
-    }
-
-    table.roles {
-        max-width: 100%;
-
-        //Nombres de clase y rutas sin espacios: sin esto, una sola celda empujaba la tabla fuera de la vista a 1440.
         td {
+            white-space: normal;
             overflow-wrap: anywhere;
         }
 
-        .ui.label {
-            margin: 0 0.25rem 0.25rem 0;
+        @media only screen and (max-width: 1023.98px) {
+            table-layout: auto;
+            min-width: 760px;
         }
     }
 

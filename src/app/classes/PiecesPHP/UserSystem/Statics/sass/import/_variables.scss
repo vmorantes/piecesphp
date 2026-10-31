@@ -1,6 +1,6 @@
-//Colors
-$mainBrandColor: var(--main-brand-color);
-$secondBrandColor: var(--second-brand-color);
+//Colors: los tokens del tema (H106); el acceso es panel y carga el tema.
+$mainBrandColor: var(--accent);
+$secondBrandColor: var(--accent-2);
 
 $login-overlay-color: rgba(0, 0, 0, 0.55);
 $login-form-bg-color: white;
@@ -23,12 +23,9 @@ $width-image-footer: 120px;
 $height-imagen-footer: 120px;
 $problem-size-text-footer: 12px;
 $problem-back-color: #707070;
-$problem-card-hover: $secondBrandColor;
-$problem-title-card: $mainBrandColor;
 $problem-background-modal: rgba(112, 112, 112, .4);
 $card-modal-title: $mainBrandColor;
 $card-modal-title-danger: #DB2828;
-$color-name-company: $secondBrandColor;
 $card-button-help-desk: #2185D0;
 $card-button-new-code: #21BA45;
 $card-button-login: #2185D0;
@@ -54,7 +51,7 @@ $fontPublicSans: 'Public Sans',
 sans-serif;
 $fontPoppins: 'Poppins',
 sans-serif;
-$fontGlobal: var(--font-family-global, $fontPoppins);
+$fontGlobal: $fontPoppins;
 $fontGlobalText: $fontPoppins;
 $pFontFamily: $fontGlobalText;
 $listFontFamily: $fontGlobalText;

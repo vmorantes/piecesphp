@@ -21,6 +21,7 @@ return [
     'Blog' => 'Blog',
     'Cargar más' => 'Load more',
     'Todos los derechos reservados' => 'All rights reserved',
+    'Con el apoyo de' => 'With the support of',
     'E-mail' => 'E-mail',
     'Acepta que le envíen actualizaciones' => 'Agree to receive updates',
     'Sí' => 'Yes',

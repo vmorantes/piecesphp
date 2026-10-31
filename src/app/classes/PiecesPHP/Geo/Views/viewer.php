@@ -1,6 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
+use PiecesPHP\Geo\Controllers\GeoController;
 use PiecesPHP\Geo\GeoFilter;
 use PiecesPHP\Geo\GeoSource;
 
@@ -53,6 +54,13 @@ $withSources = count($sources) > 0;
                     <?php endforeach; ?>
                 </select>
             </div>
+            <?php elseif ($filter->type() === GeoFilter::TYPE_REMOTE_OPTIONS): ?>
+            <div class="field">
+                <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
+                <select multiple class="ui search multiple selection dropdown" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_REMOTE_OPTIONS; ?>" data-search-url="<?= escape_html(GeoController::routeName('filter-options', ['key' => $filter->key()], true)); ?>">
+                    <option value=""><?= escape_html($filter->label()); ?></option>
+                </select>
+            </div>
             <?php else: ?>
             <div class="two fields" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_DATE_RANGE; ?>">
                 <div class="field" calendar-js calendar-type="date">
@@ -67,7 +75,7 @@ $withSources = count($sources) > 0;
             <?php endif; ?>
             <?php endforeach; ?>
             <?php if (count($filters) > 0): ?>
-            <button type="reset" class="ui button brand-color alt" data-geo-reset><?= __($langGroup, 'Quitar los filtros'); ?></button>
+            <button type="reset" class="ui button" data-geo-reset><?= __($langGroup, 'Quitar los filtros'); ?></button>
             <?php endif; ?>
         </form>
     </div>
@@ -90,8 +98,8 @@ $withSources = count($sources) > 0;
         <div class="geo-legend-styles">
             <span><?= __($langGroup, 'Vista del mapa'); ?></span>
             <div class="ui two mini buttons">
-                <button type="button" class="ui button brand-color" data-geo-style="streets" aria-pressed="true"><?= __($langGroup, 'Calles'); ?></button>
-                <button type="button" class="ui button brand-color alt" data-geo-style="satellite" aria-pressed="false"><?= __($langGroup, 'Satélite'); ?></button>
+                <button type="button" class="ui primary button" data-geo-style="streets" aria-pressed="true"><?= __($langGroup, 'Calles'); ?></button>
+                <button type="button" class="ui button" data-geo-style="satellite" aria-pressed="false"><?= __($langGroup, 'Satélite'); ?></button>
             </div>
         </div>
     </div>

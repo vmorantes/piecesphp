@@ -18,12 +18,12 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del panel (diseno/01-contenidos.md §2.1).
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            //La cabecera del panel (diseno/01-contenidos.md §2.1).
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
 
 
@@ -53,17 +53,17 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
             </div>
 
             <?php
-            //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => $allowDelete ? [[
-                    'text' => __($langGroup, 'Eliminar'),
-                    'type' => 'button',
-                    'icon' => 'trash alternate',
-                    'danger' => true,
-                    'attributes' => ['delete-newsletter-suscriber-button' => '', 'data-route' => $deleteRoute],
-                ]] : [],
-            ]);
+                //La barra aparte (§2.3). «Eliminar», secundaria en rojo y type=button, con lo que busca delete-config.js.
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => $allowDelete ? [[
+                        'text' => __($langGroup, 'Eliminar'),
+                        'type' => 'button',
+                        'icon' => 'trash alternate',
+                        'danger' => true,
+                        'attributes' => ['delete-newsletter-suscriber-button' => '', 'data-route' => $deleteRoute],
+                    ]] : [],
+                ]);
             ?>
 
         </form>

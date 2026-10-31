@@ -777,7 +777,7 @@ var BaseFormSchema = /** @class */ (function () {
                 var firstError = form.find('.field.error:first');
                 try {
                     $([document.documentElement, document.body]).animate({
-                        scrollTop: firstError.offset().top
+                        scrollTop: firstError.offset().top - (typeof pcsStickyTopOffset === 'function' ? pcsStickyTopOffset() : 0)
                     }, 500);
                 }
                 catch (e) {

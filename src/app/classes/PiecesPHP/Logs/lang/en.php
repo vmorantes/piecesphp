@@ -10,6 +10,7 @@ return [
     'Código' => 'Code',
     'Datos adicionales' => 'Extra data',
     'Traza' => 'Trace',
+    'La traza de este error ya se purgó.' => 'The trace of this error has already been purged.',
     'Copiar la referencia' => 'Copy the reference',
     'Mensaje completo y ruta' => 'Full message and path',
     'Referencia' => 'Reference',

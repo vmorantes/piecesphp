@@ -5,17 +5,17 @@ ob_start();
 <div class="with-circle-and-data-two-columns">
     <div class="data">
         <?php $this->helpController->_render('panel/built-in/statistics/progress-circle.php', [
-            'dataType' => 'exampleProgress',
-            'numberDataType' => 'exampleProgressNumber',
-            'progress' => 70,
-            'modifiers' => ['no-margin-t-b'],
+                'dataType' => 'exampleProgress',
+                'numberDataType' => 'exampleProgressNumber',
+                'progress' => 70,
+                'modifiers' => ['no-margin-t-b'],
         ]); ?>
     </div>
     <?php $this->helpController->_render('panel/built-in/statistics/chart-legend.php', [
-        'items' => [
-            ['name' => __($langGroup, 'Aprobadas'), 'dataType' => 'exampleApproved', 'level' => 'primary', 'stack' => true, 'initial' => '70'],
-            ['name' => __($langGroup, 'Pendientes'), 'dataType' => 'examplePending', 'level' => 'secondary', 'stack' => true, 'valueModifiers' => ['text-black'], 'initial' => '30'],
-        ],
+            'items' => [
+                ['name' => __($langGroup, 'Aprobadas'), 'dataType' => 'exampleApproved', 'level' => 'primary', 'stack' => true, 'initial' => '70'],
+                ['name' => __($langGroup, 'Pendientes'), 'dataType' => 'examplePending', 'level' => 'secondary', 'stack' => true, 'valueModifiers' => ['text-black'], 'initial' => '30'],
+            ],
     ]); ?>
 </div>
 <?php

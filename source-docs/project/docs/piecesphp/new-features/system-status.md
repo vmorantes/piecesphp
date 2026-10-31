@@ -14,21 +14,25 @@ sistema necesita que alguien revise, y las tareas de mantenimiento que antes sol
 ## Para quien usa el panel
 
 **Avisos del sistema** (menú de la barra superior; root y administrador general). Una tabla con los avisos activos:
-gravedad (grave, atención, información), el mensaje, su estado y, si el aviso lo trae, un botón «Cómo arreglarlo» que
-lleva a donde se arregla. Algunos avisos salen además como **aviso flotante** en la parte inferior del panel.
+gravedad (grave, atención, información), el mensaje, su estado, si el aviso lo trae un botón «Cómo arreglarlo» que
+lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos salen además como **aviso flotante** en la parte inferior del panel.
 
-- **Root puede ocultar** los avisos que admiten ocultarse. Un aviso oculto deja de salir como flotante, pero **sigue en
+- **Root puede ocultar** los avisos que admiten ocultarse, con el botón del ojo tachado («Ocultar»; el ojo,
+  «Mostrar», lo vuelve a enseñar). Un aviso oculto deja de salir como flotante, pero **sigue en
   la tabla, marcado «Oculto»**: ocultar no lo resuelve. Desde ahí mismo se vuelve a mostrar.
 - El aviso de la `app_key` de relleno se puede ocultar también, como siempre, desde «Seguridad e IA».
 
 **Mantenimiento** (solo root):
 
-- **Estado:** cuántos enlaces hay en `statics/server-delegated` y cuántos están rotos (con los 50 primeros), el tamaño de
-  las cachés de WebP y de Publicaciones, y la marca de estáticos.
-- **Borrar enlaces rotos:** borra solo los enlaces que apuntan a un archivo que ya no existe, y las carpetas que queden
+- **Una fila por caché**, cada una con su icono, su nombre, lo que vacía, cuánto ocupa (o cuenta) ahora y su botón
+  «Vaciar» («Renovar» en la versión de los archivos estáticos). La primera fila son los accesos rotos de
+  `statics/server-delegated`, con su valor como «N de M» (rotos de todos), y debajo de la lista salen los 50 primeros si
+  hay alguno. Tras el botón de una caché de la lista, todos los valores se vuelven a pintar (no tras «Vaciar» de los
+  accesos rotos ni tras «Borrar todo lo temporal», cuyas respuestas no los traen).
+- **Accesos rotos, «Vaciar»:** borra solo los enlaces que apuntan a un archivo que ya no existe, y las carpetas que queden
   vacías. Nunca sigue un enlace ni toca su destino. El panel lo hace como el usuario del servidor web, así que no hace
   falta ningún permiso de administrador del sistema. Queda en el registro de acciones.
-- **Limpiar toda la caché:** la misma limpieza que «Limpiar caché» de la barra superior (marca de estáticos, cachés de
+- **Borrar todo lo temporal** (el recuadro del pie): la misma limpieza que «Limpiar caché» de la barra superior (marca de estáticos, cachés de
   WebP y de Publicaciones, y todos los enlaces de `server-delegated`, que se vuelven a crear al servirse).
 
 ## Los avisos que trae el framework
@@ -103,12 +107,64 @@ Reglas:
 - La clave repetida es un error de programación, que salta al registrar.
 - Los avisos ocultos se guardan en la configuración (`system_alerts_hidden`).
 
+## Para quien desarrolla: registrar una limpieza
+
+La pantalla **Sistema → Estado y cachés** pinta su lista de cachés desde un registro (`CleanTargetRegistry`): un módulo
+con una caché propia declara la suya y sale con su fila y su botón, sin tocar
+Sistema. El framework registra cuatro: la marca de los estáticos, las imágenes optimizadas y los accesos directos de
+`server-delegated` (desde `SystemStatusRoutes`) y los listados guardados de Publications (desde `PublicationsRoutes`,
+que es su dueño). Un módulo lo hace una vez, en el `routes()` de su clase `…Routes`:
+
+```php
+use PiecesPHP\SystemStatus\CleanTarget;
+use PiecesPHP\SystemStatus\CleanTargetRegistry;
+use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
+
+$directory = basepath('app/cache/MiModulo');
+CleanTargetRegistry::register((new CleanTarget(
+    'mi-modulo-cache',                                                   // clave en kebab-case, única: el `target` del botón
+    fn (): string => __(MiModuloLang::LANG_GROUP, 'Borrar la caché de mi módulo'),
+    fn (): string => __(MiModuloLang::LANG_GROUP, '¿Borrar la caché de mi módulo? Se vuelve a crear al pedirse.'),
+    fn (): array => SystemStatusController::cleanCacheDirectory(        // borra la carpeta y arma la respuesta
+        $directory,
+        __(MiModuloLang::LANG_GROUP, 'No se pudo borrar: el sistema no tiene permiso sobre su carpeta.'),
+        __(MiModuloLang::LANG_GROUP, 'Caché de mi módulo borrada. Se vuelve a crear al pedirse.')
+    ),
+    50                                                                   // orden del botón
+))->withRow(
+    50,                                                                  // orden de la fila
+    fn (): string => __(MiModuloLang::LANG_GROUP, 'Caché de mi módulo'),
+    CleanTarget::UNIT_BYTES,                                             // UNIT_BYTES, UNIT_NUMBER o UNIT_STAMP
+    ['miModuloCacheBytes'],                                              // sus claves de estado
+    fn (): array => ['miModuloCacheBytes' => \PiecesPHP\SystemStatus\ServerDelegatedLinks::directorySize($directory)],
+    icon: 'database'                                                     // icono de Fomantic de la fila (por omisión, 'archive')
+));
+```
+
+Reglas:
+
+- **La limpieza** (el cuarto argumento, tras la clave, el texto del botón y su pregunta) borra y devuelve `before`, `after`, `message` y `freed`, y si hace falta `extra`
+  (claves que van al acuse) y `log`; si no pudo, `error` y `httpStatus`. `cleanCacheDirectory()` lo hace para una carpeta,
+  y no intenta borrar si el sistema no tiene permiso sobre ella.
+- **Solo root** puede pulsar una limpieza: la ruta de la pantalla y la de la acción son de root. El sexto argumento
+  (`allowedTypes`, por omisión `[root]`) decide a quién se le pinta el botón entre quienes pueden entrar; abrir una
+  limpieza a otro tipo pide también abrir esas rutas.
+- **La fila con tamaño es opcional** (`withRow()`): sin ella, la limpieza sale al final de la lista con su texto y su
+  botón, sin valor, y solo a quien puede pulsarla. Su estado se calcula al abrir la pantalla y tras cada limpieza: tiene que ser barato.
+- **Las unidades**: `UNIT_BYTES` (KB o MB), `UNIT_STAMP` (una marca de texto; su botón dice «Renovar») y `UNIT_NUMBER`
+  (un número; con dos claves, «N de M», la segunda es el total).
+- **El icono** (`icon`, el último parámetro de `withRow()`) es un nombre de icono de Fomantic: solo letras minúsculas,
+  números, guiones y espacios; con otro carácter, `withRow()` lanza `InvalidArgumentException`.
+- La clave repetida es un error de programación, que salta al registrar.
+- **«Borrar todo lo temporal»** de Configuración no recorre este registro (todavía): borra sus carpetas por su cuenta.
+
 ## Referencia
 
 - `SystemAlert`: `key()`, `severity()`, `message()`, `isDismissible()`, `audience()`, `showAsNag()`, `fixRoute()`,
   `fixLabel()`.
 - `SystemAlertRegistry`: `register()`, `all()`, `get()`, `visibleFor(int $tipo)`, `nagsFor(int $tipo)`, `isActive()`,
   `hidden()`, `isHidden()`, `hide()`, `show()`.
+- `CleanTarget` (con `withRow()` y `rowIcon()`) y `CleanTargetRegistry`: `register()`, `all()`, `withRows()`, `get()`.
 - `ServerDelegatedLinks`: `scan()`, `deleteBroken()`, `directorySize()`.
 - Tarea de terminal: `Terminal\Tasks\SystemAlertsTask` (`system-alerts`); `lines()` devuelve las líneas sin imprimir.
 - Rutas, bajo `<zona administrativa>/system-status/`:

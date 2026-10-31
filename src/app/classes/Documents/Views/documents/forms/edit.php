@@ -18,11 +18,11 @@ use Documents\Mappers\DocumentsMapper;
 <section class="module-view-container limit-size">
 
     <?php
-    //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
-    $this->helpController->_render('panel/built-in/content/page-header.php', [
-        'breadcrumbs' => $breadcrumbs,
-        'title' => $title,
-    ]);
+        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+        $this->helpController->_render('panel/built-in/content/page-header.php', [
+            'breadcrumbs' => $breadcrumbs,
+            'title' => $title,
+        ]);
     ?>
 
     <form method='POST' action="<?= $action; ?>" class="ui form initial" document-form data-content-form>
@@ -46,8 +46,7 @@ use Documents\Mappers\DocumentsMapper;
                 <div class="ten wide field">
 
                     <div class="field">
-                        <h4 class="ui dividing header alt"><?= __($langGroup, 'Carga de documentos'); ?></h4>
-                        <br>
+                        <h4 class="ui dividing header"><?= __($langGroup, 'Carga de documentos'); ?></h4>
                     </div>
 
                     <div class="two fields">
@@ -65,25 +64,23 @@ use Documents\Mappers\DocumentsMapper;
                     </div>
 
                     <div class="field required" document>
-                        <br>
                         <label><?= __($langGroup, 'Documento'); ?></label>
 
                         <div preview>
-                            <a target="_blank" href="<?= escape_html($element->document); ?>" class="ui button icon labeled blue">
+                            <a target="_blank" href="<?= escape_html($element->document); ?>" class="ui basic labeled icon button">
                                 <i class="ui icon download"></i>
                                 <?= __($langGroup, 'Ver documento'); ?>
                             </a>
                         </div>
 
                         <?php simpleUploadPlaceholderWorkSpace([
-                            'onlyButton' => true,
-                            'inputNameAttr' => 'document',
-                            'buttonText' =>   __($langGroup, 'Cambiar documento'),
-                            'required' =>  false,
-                            'multiple' =>  false,
-                            'icon' => 'file outline',
+                                'onlyButton' => true,
+                                'inputNameAttr' => 'document',
+                                'buttonText' => __($langGroup, 'Cambiar documento'),
+                                'required' =>  false,
+                                'multiple' =>  false,
+                                'icon' => 'file outline',
                         ]); ?>
-                        <br>
                     </div>
 
                     <div class="field">
@@ -97,22 +94,18 @@ use Documents\Mappers\DocumentsMapper;
 
                     <h4 class="ui dividing header"><?= __($langGroup, 'Imagen'); ?></h4>
 
-                    <div class="ui form cropper-adapter" document-image-main>
-
-                        <div class="field">
-                            <label style="display: none;"><?= __($langGroup, 'Imagen'); ?></label>
-                            <input type="file" accept="image/*">
-                            <em><?= __($langGroup, 'Tamaño de la imagen 300x300 (px)'); ?></em>
-                        </div>
-
-                        <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                            'referenceW'=> '300',
-                            'referenceH'=> '300',
-                            'image' => $element->getLangData($lang, 'documentImage'),
-                            'imageName' => $element->getLangData($lang, 'documentImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-                        ]); ?>
-
-                    </div>
+                    <?php
+                        $this->helpController->_render('panel/built-in/content/image-field.php', [
+                            'card' => [
+                                'id' => 'document-image',
+                                'title' => __($langGroup, 'Imagen'),
+                                'field' => 'documentImage',
+                                'image' => (string) $element->getLangData($lang, 'documentImage', false, ''),
+                                'width' => 300,
+                                'height' => 300,
+                            ],
+                        ]);
+                    ?>
                 </div>
 
             </div>
@@ -120,17 +113,20 @@ use Documents\Mappers\DocumentsMapper;
         </div>
 
             <?php
-            //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
-            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
-            if ($allowDelete) {
-                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-document-button' => '', 'data-route' => $deleteRoute]];
-            }
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'secondaryActions' => $secondaryActions,
-            ]);
+                //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
+                $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+                if ($allowDelete) {
+                    $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-document-button' => '', 'data-route' => $deleteRoute]];
+                }
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'secondaryActions' => $secondaryActions,
+                ]);
             ?>
 
     </form>
+
+
+    <?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>
 
 </section>

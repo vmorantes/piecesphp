@@ -14,7 +14,7 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\Settings\Controllers\SettingsController;
 
 /**
- * Las dos pruebas de Configuración › Integraciones › Correo: probar la conexión y enviar un correo de prueba.
+ * Las dos pruebas de Configuración › Sistema › Correo: probar la conexión y enviar un correo de prueba.
  *
  * **El destino se lee de un `Mailer` recién creado, nunca de `MailConfig`**: con el correo retenido, el constructor del
  * `Mailer` se desvía al servidor de pruebas, y decir el host configurado midiendo el del sumidero es el defecto que
@@ -121,7 +121,7 @@ class MailTester
             $mailer->addAddress($to);
             $mailer->isHTML(true);
             $mailer->Subject = sprintf(__(self::LANG_GROUP, 'Correo de prueba de %s'), $app);
-            $mailer->Body = '<p>' . escape_html(sprintf(__(self::LANG_GROUP, 'Si lees esto, el correo sale de %s. Lo envió la prueba de Configuración › Integraciones › Correo el %s.'), $app, date('Y-m-d H:i:s'))) . '</p>';
+            $mailer->Body = '<p>' . escape_html(sprintf(__(self::LANG_GROUP, 'Si lees esto, el correo sale de %s. Lo envió la prueba de Configuración › Sistema › Correo el %s.'), $app, date('Y-m-d H:i:s'))) . '</p>';
             $sent = $mailer->send();
             $error = $sent ? null : $mailer->ErrorInfo;
         } catch (\Throwable $e) {

@@ -1,10 +1,11 @@
 <?php
 
 //Una carpeta de subidas sin proteger la sirve Apache directo. Ver el 20 §7, «UPLOADS».
+//@areas src/app/classes/Publications/
 
-use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use PiecesPHP\Terminal\CliActions;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationMapper;

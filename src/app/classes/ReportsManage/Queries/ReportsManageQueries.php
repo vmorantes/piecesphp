@@ -6,16 +6,16 @@
 
 namespace ReportsManage\Queries;
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\App\Locations\LocationsLang;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\JoinItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\JoinSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use Publications\Mappers\PublicationMapper;
 use ReportsManage\ReportsManageLang;
@@ -272,10 +272,10 @@ class ReportsManageQueries
                 'fontSize' => '14px',
                 'fontWeight' => '500',
                 'lineHeight' => '19px',
-                'fontFamily' => get_config('font_family_global'),
                 'colors' => ['#FFFFFF'],
             ],
-            "background" => '#FFFFFF',
+            //Sin fondo propio: el hueco del donut deja ver la tarjeta, en claro y en oscuro.
+            "background" => 'transparent',
             "unitText" => $unitText,
         ];
     }

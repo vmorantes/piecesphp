@@ -2,6 +2,7 @@
 
 //Los dos recuentos de DataTablesHelper::process() contra filas propias de la base LOCAL: recordsFiltered y recordsTotal
 //coinciden con lo contado aparte, con enlace, en cada forma de listado. Las filas llevan prefijo y se borran por id.
+//@areas nucleo
 
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\BaseModel;

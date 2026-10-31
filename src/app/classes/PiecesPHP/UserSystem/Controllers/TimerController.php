@@ -6,12 +6,12 @@
 
 namespace PiecesPHP\UserSystem\Controllers;
 
-use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -50,16 +50,16 @@ class TimerController extends BaseController
         $seconds = $request->getParsedBodyParam('seconds', null);
         //El usuario sale de la sesión a propósito: el `user_id` del cuerpo se ignora, o se sumaría tiempo a otro.
         $currentUser = getLoggedFrameworkUser();
-        $user_id = $currentUser !== null ? $currentUser->id : null;
+        $userId = $currentUser !== null ? $currentUser->id : null;
         $valid_time = is_numeric($seconds);
 
         $response_json = [
             'success' => true,
         ];
 
-        if ($valid_time && $user_id !== null) {
+        if ($valid_time && $userId !== null) {
             $seconds = (float) $seconds;
-            $response_json['success'] = TimeOnPlatformModel::addTime($user_id, $seconds / 60);
+            $response_json['success'] = TimeOnPlatformModel::addTime($userId, $seconds / 60);
             return $response->withJson($response_json);
         } else {
 

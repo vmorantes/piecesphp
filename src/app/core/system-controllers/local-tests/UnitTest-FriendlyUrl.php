@@ -2,6 +2,7 @@
 
 //friendlyURLString() conserva los dígitos (P94), y en lo demás sale igual que antes: las URLs viejas sin
 //dígitos no cambian. Los casos «antes» se midieron con la función anterior el 2026-10-05.
+//@areas nucleo
 
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Terminal\CliActions;

@@ -2,6 +2,8 @@
 
 //El CORS da credenciales SOLO al propio origen y a los declarados: la función por casos y las cabeceras por HTTP.
 //Sin escribir nada: solo lee, y pide una ruta pública de datos y un preflight.
+//@areas nucleo
+//@areas src/app/classes/Publications/
 
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
@@ -119,4 +121,4 @@ CliActions::make('unit-tests:core/cors', function ($args) {
 
     return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El CORS da credenciales solo al propio origen y a los declarados: la función por casos y las cabeceras por HTTP.')->setEffects([CliActions::EFFECT_NETWORK])->register();
+})->setDescription('El CORS da credenciales solo al propio origen y a los declarados: la función por casos y las cabeceras por HTTP.')->setEffects([CliActions::EFFECT_NONE])->register();

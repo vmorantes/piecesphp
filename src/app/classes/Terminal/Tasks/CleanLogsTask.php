@@ -6,10 +6,9 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
-use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
@@ -18,6 +17,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * CleanLogsTask.
@@ -102,23 +102,28 @@ class CleanLogsTask extends TerminalTaskAbstract
 
             if (file_exists($baseLogsDirectory)) {
 
+                //Un vaciado que no se pudo escribir se dice: antes se anunciaba «vaciado» igual.
+                $empty = function (string $file, string $name, string $content = '') use (&$message): void {
+                    if (file_put_contents($file, $content) === false) {
+                        $message[] = "\e[31m{$name} NO se pudo vaciar.\e[39m";
+                        return;
+                    }
+                    //RETORNO-IGNORADO: el permiso deja escribir al otro usuario del sistema; el archivo ya está vacío.
+                    @chmod($file, 0664);
+                    $message[] = "\e[34m{$name} vaciado.\e[39m";
+                };
+
                 //Log de errores: el formato viejo (ya no se escribe) y el nuevo, con sus trazas y contadores.
                 if (is_file($errorLogFile)) {
-                    file_put_contents($errorLogFile, '[]');
-                    chmod($errorLogFile, 0664);
-                    $message[] = "\e[34merror.log.json vaciado.\e[39m";
+                    $empty($errorLogFile, 'error.log.json', '[]');
                 }
                 $retiradosRegistro = GenericHandler::clearStorage(basepath('app/logs'));
                 $message[] = "\e[34m" . GenericHandler::FILE_ENTRIES . " vaciado ({$retiradosRegistro} trazas y contadores).\e[39m";
 
                 //Log de errores planto
-                file_put_contents($errorLogPlanFile, '');
-                chmod($errorLogPlanFile, 0664);
-                $message[] = "\e[34merror.plain.log vaciado.\e[39m";
+                $empty($errorLogPlanFile, 'error.plain.log');
                 //Sin esta limpieza el log de deprecaciones crece sin límite en producción.
-                file_put_contents($deprecationsLogFile, '');
-                chmod($deprecationsLogFile, 0664);
-                $message[] = "\e[34mdeprecations.log vaciado.\e[39m";
+                $empty($deprecationsLogFile, 'deprecations.log');
 
                 //Anotaciones de traducciones faltantes. Su consumidor es `scan-missing-lang`,
                 //y sin limpieza el directorio crece sin fin: llegó a 1.586 archivos.
@@ -132,9 +137,11 @@ class CleanLogsTask extends TerminalTaskAbstract
                     }
                     //Los directorios de grupo e idioma quedan vacíos: se retiran de dentro afuera.
                     foreach (glob($missingLangDirectory . '/*/*', \GLOB_ONLYDIR) ?: [] as $langDirectory) {
+                        //RETORNO-IGNORADO: una carpeta que aún tiene algo se queda; lo que se informa son las anotaciones.
                         @rmdir($langDirectory);
                     }
                     foreach (glob($missingLangDirectory . '/*', \GLOB_ONLYDIR) ?: [] as $groupDirectory) {
+                        //RETORNO-IGNORADO: una carpeta que aún tiene algo se queda; lo que se informa son las anotaciones.
                         @rmdir($groupDirectory);
                     }
                     $message[] = "\e[34mmissing-lang-messages vaciado ({$borrados} anotaciones).\e[39m";
@@ -157,10 +164,7 @@ class CleanLogsTask extends TerminalTaskAbstract
                 //Sesiones caducadas: el registro nuevo se vacía como los demás.
                 $expiredSessionsLogFile = ExpiredSessionsLog::path();
                 if (is_file($expiredSessionsLogFile)) {
-                    //RETORNO-IGNORADO: como los demás vaciados de arriba, y en UNA línea: la marca cubre solo las dos siguientes.
-                    file_put_contents($expiredSessionsLogFile, '');
-                    chmod($expiredSessionsLogFile, 0664);
-                    $message[] = "\e[34m" . ExpiredSessionsLog::FILE_NAME . " vaciado.\e[39m";
+                    $empty($expiredSessionsLogFile, ExpiredSessionsLog::FILE_NAME);
                 }
                 $expiredSessionsRotated = ExpiredSessionsLog::rotatedPath();
                 if (is_file($expiredSessionsRotated) && @unlink($expiredSessionsRotated)) {

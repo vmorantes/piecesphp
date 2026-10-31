@@ -6,8 +6,6 @@
 
 namespace Forms\DocumentTypes\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Documents\Controllers\DocumentsController;
 use Forms\DocumentTypes\DocumentTypesLang;
 use Forms\DocumentTypes\DocumentTypesRoutes;
@@ -15,10 +13,11 @@ use Forms\DocumentTypes\Exceptions\DuplicateException;
 use Forms\DocumentTypes\Exceptions\SafeException;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PDOException;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -35,7 +34,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * DocumentTypesController.
@@ -270,7 +269,7 @@ class DocumentTypesController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -422,7 +421,7 @@ class DocumentTypesController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -442,7 +441,7 @@ class DocumentTypesController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -472,7 +471,7 @@ class DocumentTypesController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -778,7 +777,8 @@ class DocumentTypesController extends AdminPanelController
         $jsonExtractExists = DocumentTypesMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
-        $where = [];
+        //Solo las activas: borrar es inactivar.
+        $where = ["{$table}.status = " . DocumentTypesMapper::STATUS_ACTIVE];
 
         //Verificación de idioma
         $defaultLang = Config::get_default_lang();

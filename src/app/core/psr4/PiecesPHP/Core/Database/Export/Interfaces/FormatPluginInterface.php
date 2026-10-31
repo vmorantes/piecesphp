@@ -1,20 +1,18 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Interfaces;
 
 use PiecesPHP\Core\Database\Database;
-use PDO;
 
 /**
  * Interface FormatPluginInterface
- * 
+ *
  * Interfaz para los plugins que definen el formato de la exportación (SQL, JSON, etc).
  */
 interface FormatPluginInterface
 {
     /**
      * Devuelve el encabezado de la exportación.
-     * 
+     *
      * @param Database $db
      * @param string $database
      * @param string $charset
@@ -24,7 +22,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve la estructura de una tabla.
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @param array $options
@@ -34,7 +32,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve los datos de una tabla.
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @param array $options
@@ -44,7 +42,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve las funciones de la base de datos.
-     * 
+     *
      * @param Database $db
      * @param string $database
      * @param array $options
@@ -54,7 +52,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve los procedimientos de la base de datos.
-     * 
+     *
      * @param Database $db
      * @param string $database
      * @param array $options
@@ -64,7 +62,7 @@ interface FormatPluginInterface
 
     /**
      * Determina si una tabla es una vista.
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @return bool
@@ -73,7 +71,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve una "tabla de mentira" para representar una vista en la primera fase.
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @return string
@@ -82,7 +80,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve los disparadores (triggers) de una tabla.
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @param array $options
@@ -92,7 +90,7 @@ interface FormatPluginInterface
 
     /**
      * Devuelve el pie de la exportación.
-     * 
+     *
      * @return string
      */
     public function getFooter(): string;

@@ -5,24 +5,24 @@ use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
  * @var BuiltInBannerMapper $element
  */
 
- $hasString = function(?string $str){
+$hasString = function (?string $str) {
     return is_string($str) && mb_strlen($str) > 0;
- };
- $title = $element->currentLangData('title');
- $content = $element->currentLangData('content');
- $desktopImage = $element->currentLangData('desktopImage');
- $mobileImage = $element->currentLangData('mobileImage');
- $link = $element->currentLangData('link');
- $hasTitle = ($hasString)($title);
- $hasContent = ($hasString)($content);
- $hasLink = ($hasString)($link);
- $hasMobileImage = ($hasString)($mobileImage);
- $hasDesktopImage = ($hasString)($desktopImage);
- $withCaption = $hasContent || $hasTitle;
- $mainTag = $hasLink ? 'a' : 'div';
- $mobileImage = $hasMobileImage ? $mobileImage : $desktopImage;
- //Sin imagen, `<img src="">` se dibuja como imagen rota y no pide ningún 404: nada lo delata.
- $paintMobileImage = ($hasString)($mobileImage);
+};
+$title = $element->currentLangData('title');
+$content = $element->currentLangData('content');
+$desktopImage = $element->currentLangData('desktopImage');
+$mobileImage = $element->currentLangData('mobileImage');
+$link = $element->currentLangData('link');
+$hasTitle = ($hasString)($title);
+$hasContent = ($hasString)($content);
+$hasLink = ($hasString)($link);
+$hasMobileImage = ($hasString)($mobileImage);
+$hasDesktopImage = ($hasString)($desktopImage);
+$withCaption = $hasContent || $hasTitle;
+$mainTag = $hasLink ? 'a' : 'div';
+$mobileImage = $hasMobileImage ? $mobileImage : $desktopImage;
+//Sin imagen, `<img src="">` se dibuja como imagen rota y no pide ningún 404: nada lo delata.
+$paintMobileImage = ($hasString)($mobileImage);
 ?>
 <<?= $mainTag;?> class="item" <?= $hasLink ? 'href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
     <?php if($hasDesktopImage): ?>

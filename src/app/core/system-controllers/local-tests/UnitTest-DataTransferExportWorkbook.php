@@ -2,8 +2,8 @@
 
 //El libro XLSX de informe: hojas, títulos, filtros aplicados, totales, fórmulas, imágenes, estilo y vía de escape.
 //Un dato nunca llega a fórmula. Escribe temporales propios (prefijo zz-libro-) y los borra en el finally; solo lee la base.
+//@areas src/app/classes/DataImportExportUtility/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersExportDefinition;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -21,6 +21,7 @@ use PiecesPHP\Core\DataTransfer\Export\SpreadsheetExportWriter;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -65,9 +66,18 @@ CliActions::make('unit-tests:core/data-transfer-export-workbook', function ($arg
             public static $afterBuildCalls = 0;
             /** @var Spreadsheet|null */
             public static $afterBuildBook = null;
-            public function key(): string { return 'zz-libro'; }
-            public function title(): string { return 'Principal'; }
-            public function allowedUserTypes(): array { return [0]; }
+            public function key(): string
+            {
+                return 'zz-libro';
+            }
+            public function title(): string
+            {
+                return 'Principal';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
             public function parameters(): array
             {
                 return [
@@ -78,8 +88,14 @@ CliActions::make('unit-tests:core/data-transfer-export-workbook', function ($arg
                     ExportParameter::text('name', 'Nombre'),
                 ];
             }
-            public function columns(ExportContext $context): array { return self::$columns; }
-            public function rows(ExportContext $context): iterable { return self::$rows; }
+            public function columns(ExportContext $context): array
+            {
+                return self::$columns;
+            }
+            public function rows(ExportContext $context): iterable
+            {
+                return self::$rows;
+            }
             public function sheets(ExportContext $context): array
             {
                 return self::$sheets !== null ? (self::$sheets)($context, $this) : parent::sheets($context);

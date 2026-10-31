@@ -7,14 +7,13 @@ $-dividerDescriptionColor: #AAAAAA;
 
 @mixin list-data-cards {
 
-    font-family: $fontGlobal;
     display: flex;
     flex: 0 0 auto;
     flex-wrap: wrap;
     column-gap: pxToRem(40);
     row-gap: pxToRem(40);
 
-    >.list-card {
+    > .list-card {
 
         position: relative;
         width: 365px;
@@ -24,7 +23,7 @@ $-dividerDescriptionColor: #AAAAAA;
         border-radius: pxToRem(10);
         border: 1px solid $colorBorderSoft;
         box-shadow: 0px 3px 6px $colorBorderSoft;
-        background-color: white;
+        background-color: var(--theme-surface);
         font-weight: $fwRegular;
         line-height: 1;
         color: $colorTextStrong;
@@ -42,7 +41,7 @@ $-dividerDescriptionColor: #AAAAAA;
             border-radius: pxToRem(14);
             background-color: $-cardIconBackground;
 
-            >.icon {
+            > .icon {
                 display: grid;
                 justify-content: center;
                 align-items: center;
@@ -51,7 +50,7 @@ $-dividerDescriptionColor: #AAAAAA;
 
                 i.icon {
                     font-size: pxToRem(24);
-                    color: var(--main-brand-color);
+                    color: var(--accent);
 
                     &,
                     &::before,
@@ -63,15 +62,15 @@ $-dividerDescriptionColor: #AAAAAA;
             }
         }
 
-        >.meta-title {
+        > .meta-title {
             font-size: pxToRem(14.5);
             margin-bottom: pxToRem(10);
         }
 
-        >.title {
+        > .title {
             font-weight: $fwMedium;
             font-size: pxToRem(22);
-            color: var(--main-brand-color);
+            color: var(--accent);
             margin-bottom: pxToRem(20);
 
             &.small {
@@ -101,7 +100,7 @@ $-dividerDescriptionColor: #AAAAAA;
                         max-width: 100%;
                         align-items: center;
 
-                        >.icon {
+                        > .icon {
                             i.icon {
                                 display: grid;
                                 justify-content: center;
@@ -109,7 +108,7 @@ $-dividerDescriptionColor: #AAAAAA;
                                 width: 20px;
                                 height: 20px;
                                 font-size: pxToRem(16);
-                                color: var(--main-brand-color);
+                                color: var(--accent);
 
                                 &,
                                 &::before,
@@ -120,7 +119,7 @@ $-dividerDescriptionColor: #AAAAAA;
                             }
                         }
 
-                        >.text {
+                        > .text {
                             font-size: pxToRem(16);
                             font-weight: $fwRegular;
                             line-height: normal;
@@ -144,13 +143,13 @@ $-dividerDescriptionColor: #AAAAAA;
             padding-left: pxToRem(25);
             padding-right: pxToRem(25);
 
-            >.controls {
+            > .controls {
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: space-around;
                 align-items: center;
 
-                >.control {
+                > .control {
 
                     display: grid;
                     grid-template-columns: auto auto;
@@ -158,10 +157,10 @@ $-dividerDescriptionColor: #AAAAAA;
                     justify-content: space-evenly;
                     max-width: 100%;
                     padding: pxToRem(8);
-                    color: var(--main-brand-color);
+                    color: var(--accent);
                     cursor: pointer;
 
-                    >.icon {
+                    > .icon {
                         display: grid;
                         justify-content: center;
                         align-items: center;
@@ -180,14 +179,14 @@ $-dividerDescriptionColor: #AAAAAA;
                         }
                     }
 
-                    >.text {
+                    > .text {
                         font-size: pxToRem(15);
                         font-weight: $fwRegular;
                         line-height: normal;
                     }
 
                     &.icon {
-                        >.icon {
+                        > .icon {
                             i.icon {
                                 font-size: pxToRem(15);
                             }
@@ -199,15 +198,15 @@ $-dividerDescriptionColor: #AAAAAA;
     }
 
     //Header con ícono
-    >.list-card {
-        >.header-with-icon {
+    > .list-card {
+        > .header-with-icon {
 
             display: grid;
             grid-template-columns: 50px auto;
             column-gap: 15px;
             margin-bottom: 20px;
 
-            >.icon-container {
+            > .icon-container {
 
                 width: 52px;
                 height: 52px;
@@ -215,7 +214,7 @@ $-dividerDescriptionColor: #AAAAAA;
                 border-radius: pxToRem(14);
                 background-color: $-cardIconBackground;
 
-                >.icon {
+                > .icon {
                     display: grid;
                     justify-content: center;
                     align-items: center;
@@ -224,7 +223,7 @@ $-dividerDescriptionColor: #AAAAAA;
 
                     i.icon {
                         font-size: pxToRem(24);
-                        color: var(--main-brand-color);
+                        color: var(--accent);
 
                         &,
                         &::before,
@@ -236,25 +235,25 @@ $-dividerDescriptionColor: #AAAAAA;
                 }
             }
 
-            >.text {
-                >.title {
+            > .text {
+                > .title {
                     font-weight: $fwMedium;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+5);
-                    color: var(--main-brand-color);
+                    color: var(--accent);
                 }
 
-                >.description {
+                > .description {
                     color: black;
                     padding-top: 5px;
 
-                    >* {
+                    > * {
                         font-weight: $fwRegular;
                         font-size: pxToRem(14);
                         line-height: pxToRem(14+5);
                     }
 
-                    >.data {
+                    > .data {
                         color: $colorTextMuted;
 
                         &:not(:last-child) {
@@ -273,10 +272,10 @@ $-dividerDescriptionColor: #AAAAAA;
 
         margin-bottom: 20px;
 
-        >.title {
+        > .title {
 
             font-weight: $fwMedium;
-            color: var(--main-brand-color);
+            color: var(--accent);
             word-break: break-word;
 
             &.h1 {
@@ -321,7 +320,7 @@ $-dividerDescriptionColor: #AAAAAA;
             }
         }
 
-        >.description {
+        > .description {
             margin-top: 10px;
             font-weight: $fwLight;
             font-size: pxToRem(15);

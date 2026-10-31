@@ -16,9 +16,12 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var int $plainLines
  * @var int $pageSize
  * @var string|null $plainContent Con $file
+ * @var \PiecesPHP\Logs\Controllers\HelperController $pieces Pinta las piezas del panel
  * @var array{day:string,entry:array<string,mixed>}|null $found Con $reference
  * @var array{entries:array<int,array{day:string,entry:array<string,mixed>}>,page:int,hasMore:bool}|null $result Sin $file ni $reference
  */
+//Pintada fuera del controlador (la suite la incluye con sus propias variables): las piezas, con lo que haya.
+$pieces = isset($pieces) && $pieces instanceof \PiecesPHP\Logs\Controllers\HelperController ? $pieces : new \PiecesPHP\Logs\Controllers\HelperController();
 $plainContent = $plainContent ?? null;
 $found = $found ?? null;
 $result = $result ?? null;
@@ -77,9 +80,9 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
         <tbody<?= $fold ? ' data-logs-folded hidden' : ''; ?>>
             <?php foreach ($group['frames'] as $index => $frame): ?>
             <?php
-            $function = $text($frame['function'] ?? '');
-            $class = $text($frame['class'] ?? '');
-            ?>
+                $function = $text($frame['function'] ?? '');
+                    $class = $text($frame['class'] ?? '');
+                ?>
             <tr>
                 <td class="collapsing"><?= (int) $index; ?></td>
                 <td><code><?= escape_html(($class !== '' ? $shortClass($class) . '::' : '') . $function); ?></code></td>
@@ -90,34 +93,35 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
         <?php endforeach; ?>
     </table>
     <?php
-};
-$renderEntry = function (array $item, bool $open) use ($langGroup, $text, $json, $relative, $shortClass, $levelLabels, $renderTrace): void {
-    $entry = $item['entry'];
-    $message = $text($entry['message']);
-    $shortMessage = mb_strlen($message) > 200 ? rtrim(mb_substr($message, 0, 200)) . '…' : $message;
-    $type = $text($entry['type']);
-    $code = $text($entry['code']);
-    $level = $text($entry['level'] ?? 'grave');
-    $count = (int) ($entry['count'] ?? 1);
-    $lastAt = (int) ($entry['lastAt'] ?? 0);
-    $extraData = $entry['extraData'];
-    $hasExtraData = $extraData !== [] && $extraData !== null && $extraData !== '' && $extraData !== (object) [];
-    $trace = is_array($entry['trace']) ? $entry['trace'] : [];
-    $previous = is_array($entry['previous'] ?? null) ? $entry['previous'] : [];
-    $context = is_array($entry['context'] ?? null) ? array_filter($entry['context'], fn($value) => $value !== '' && $value !== null) : [];
-    $contextLabels = [
-        'method' => __($langGroup, 'Método'),
-        'route' => __($langGroup, 'Ruta'),
-        'url' => __($langGroup, 'Dirección'),
-        'userID' => __($langGroup, 'Usuario (id)'),
-    ];
-    ?>
+        };
+        $renderEntry = function (array $item, bool $open) use ($langGroup, $text, $json, $relative, $shortClass, $levelLabels, $renderTrace): void {
+            $entry = $item['entry'];
+            $message = $text($entry['message']);
+            $shortMessage = mb_strlen($message) > 200 ? rtrim(mb_substr($message, 0, 200)) . '…' : $message;
+            $type = $text($entry['type']);
+            $code = $text($entry['code']);
+            $level = $text($entry['level'] ?? 'grave');
+            $count = (int) ($entry['count'] ?? 1);
+            $lastAt = (int) ($entry['lastAt'] ?? 0);
+            $extraData = $entry['extraData'];
+            $hasExtraData = $extraData !== [] && $extraData !== null && $extraData !== '' && $extraData !== (object) [];
+            $trace = is_array($entry['trace']) ? $entry['trace'] : [];
+            $previous = is_array($entry['previous'] ?? null) ? $entry['previous'] : [];
+            $tracePurged = ($entry['tracePurged'] ?? false) === true;
+            $context = is_array($entry['context'] ?? null) ? array_filter($entry['context'], fn($value) => $value !== '' && $value !== null) : [];
+            $contextLabels = [
+                'method' => __($langGroup, 'Método'),
+                'route' => __($langGroup, 'Ruta'),
+                'url' => __($langGroup, 'Dirección'),
+                'userID' => __($langGroup, 'Usuario (id)'),
+            ];
+        ?>
     <div class="<?= $open ? 'active ' : ''; ?>title logs-error-title" data-error-reference="<?= escape_html($text($entry['reference'])); ?>" data-error-level="<?= escape_html($level); ?>">
         <i class="dropdown icon"></i>
         <div class="logs-error-summary">
             <div class="logs-error-head">
                 <span class="logs-error-time"><?= escape_html(mb_substr($text($entry['time']), 0, 8)); ?></span>
-                <span class="ui small <?= $level === 'soft' ? 'yellow' : 'red'; ?> label" data-error-level-label><?= escape_html($levelLabels[$level] ?? $level); ?></span>
+                <span data-error-level-label><?= \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html($levelLabels[$level] ?? $level, $level === 'soft' ? \PiecesPHP\Core\Utilities\Helpers\StatusLabel::WARNING : \PiecesPHP\Core\Utilities\Helpers\StatusLabel::NEGATIVE); ?></span>
                 <span class="ui small basic label" data-logs-copy="<?= escape_html($text($entry['reference'])); ?>" title="<?= escape_html(__($langGroup, 'Copiar la referencia')); ?>"><i class="copy outline icon"></i><?= escape_html($text($entry['reference'])); ?></span>
                 <strong title="<?= escape_html($type); ?>"><?= escape_html($shortClass($type)); ?></strong>
                 <?php if ($level === 'soft' && $count > 1 && $lastAt > 0): ?>
@@ -152,6 +156,9 @@ $renderEntry = function (array $item, bool $open) use ($langGroup, $text, $json,
         <?php if ($trace !== []): ?>
         <p><strong><?= __($langGroup, 'Traza'); ?>:</strong></p>
         <?php $renderTrace($trace); ?>
+        <?php elseif ($tracePurged): ?>
+        <p><strong><?= __($langGroup, 'Traza'); ?>:</strong></p>
+        <p class="ui grey text" data-error-trace-purged><?= __($langGroup, 'La traza de este error ya se purgó.'); ?></p>
         <?php endif; ?>
         <?php if ($previous !== []): ?>
         <p><strong><?= __($langGroup, 'Excepciones previas'); ?>:</strong></p>
@@ -164,6 +171,8 @@ $renderEntry = function (array $item, bool $open) use ($langGroup, $text, $json,
             <pre class="logs-pre"><?= escape_html($text($prior['message'] ?? '')); ?></pre>
             <?php if (is_array($prior['trace'] ?? null) && $prior['trace'] !== []): ?>
             <?php $renderTrace($prior['trace']); ?>
+            <?php elseif (($prior['tracePurged'] ?? false) === true): ?>
+            <p class="ui grey text" data-error-trace-purged><?= __($langGroup, 'La traza de este error ya se purgó.'); ?></p>
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
@@ -172,8 +181,8 @@ $renderEntry = function (array $item, bool $open) use ($langGroup, $text, $json,
         <pre class="logs-pre"><?= escape_html($message . "\n\n" . $text($entry['file']) . ':' . $text($entry['line'])); ?></pre>
     </div>
     <?php
-};
-?>
+        };
+    ?>
 <form class="ui form segment" method="GET" action="<?= escape_html($tabURL); ?>" data-logs-errors-filters>
     <input type="hidden" name="tab" value="<?= escape_html($tabKey); ?>">
     <div class="fields">
@@ -225,8 +234,7 @@ $renderEntry = function (array $item, bool $open) use ($langGroup, $text, $json,
             </select>
         </div>
     </div>
-    <button type="submit" class="ui button brand-color"><i class="filter icon"></i><?= __($langGroup, 'Filtrar'); ?></button>
-    <a class="ui basic button" href="<?= escape_html($tabURL); ?>"><?= __($langGroup, 'Limpiar'); ?></a>
+    <?php $pieces->_render('panel/built-in/content/filter-actions.php', ['clearUrl' => $tabURL]); ?>
 </form>
 
 <?php if ($file !== null): ?>

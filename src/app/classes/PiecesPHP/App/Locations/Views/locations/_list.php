@@ -20,20 +20,20 @@ use PiecesPHP\Core\Utilities\Helpers\RowActions;
     <div class="limiter-content">
 
         <?php
-        $pieces->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'primaryAction' => $has_add_link_permissions ? ['text' => $addText, 'url' => $add_link, 'icon' => 'plus'] : null,
-        ]);
+            $pieces->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'primaryAction' => $has_add_link_permissions ? ['text' => $addText, 'url' => $add_link, 'icon' => 'plus'] : null,
+            ]);
         ?>
 
         <div class="mirror-scroll-x all" mirror-scroll-target=".container-standard-table.all">
             <div class="mirror-scroll-x-content"></div>
         </div>
 
-        <div class="container-standard-table all">
+        <div class="ui fluid card container-standard-table all">
 
-            <table process="<?= escape_html($process_table); ?>" class="ui basic table content-table">
+            <table process="<?= escape_html($process_table); ?>" class="ui selectable very basic table content-table">
                 <thead>
                     <tr>
                         <?php foreach ($columns as $column): ?>

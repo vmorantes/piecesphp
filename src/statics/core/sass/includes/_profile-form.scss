@@ -3,7 +3,6 @@
 
 //El cuerpo común de los formularios de perfil: $form es la clase del formulario de datos.
 //@content va tras .identity-profile-card, donde la de organización añade su modal.
-$fontModule:$fontGlobal;
 $grey:#707070;
 
 @mixin profile-form($form) {
@@ -44,14 +43,13 @@ $grey:#707070;
             flex-wrap: wrap;
             align-items: center;
             column-gap: 10px;
-            font-family: $fontModule;
 
             .name {
                 width: 100%;
                 font-weight: $fwMedium;
                 font-size: pxToRem(23);
                 line-height: pxToRem(32);
-                color: var(--main-brand-color);
+                color: var(--accent);
                 margin-bottom: 15px;
             }
 
@@ -74,7 +72,7 @@ $grey:#707070;
         }
     }
 
-        @content;
+    @content;
 
     @container container-standard-form (max-width:450px) {
         .identity-profile-card {

@@ -206,10 +206,9 @@ public function ownedRows(): array
 }
 ```
 
-**Un perfil sembrado y el que crea el arranque.** El arranque crea un perfil vacío a todo usuario cuyo tipo lo lleva y
-no lo tiene. Los perfiles sembrados llegan antes, porque en la siembra los usuarios se escriben después del arranque; y
-los usuarios declaran sus perfiles en `ownedRows()`, así que el limpiado borra primero los sembrados (por su marca) y
-luego los vacíos que queden.
+**Un perfil sembrado.** El perfil de un usuario se crea al darlo de alta (`UserProfileMapper::ensureFor()`), no al arrancar.
+La siembra escribe sus usuarios en crudo, así que siembra también sus perfiles (`UserProfilesSeeder`); los usuarios los
+declaran en `ownedRows()`, y el limpiado los borra con ellos.
 
 ### Si tu tabla tiene archivos: `copyToUploads()` y `ownedFolder()`
 

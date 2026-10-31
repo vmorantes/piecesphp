@@ -93,7 +93,7 @@ CustomNamespace.scrollTo = function (target, stopOn = 0) {
 				clearInterval(checkIfDone)
 			}
 
-		}, 100);
+		}, 100)
 
 	}
 

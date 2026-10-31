@@ -13,19 +13,6 @@ window.addEventListener('load', function () {
 			onSetFormData: function (formData) {
 				return formData
 			},
-			onInvalidEvent: function (event) {
-
-				let element = event.target
-				let validationMessage = element.validationMessage
-				let jElement = $(element)
-				let field = jElement.closest('.field')
-				let nameOnLabel = field.find('label').html()
-
-				errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-				event.preventDefault()
-
-			}
 		})
 	})
 
@@ -46,7 +33,8 @@ window.addEventListener('load', function () {
 			}
 		}
 	})
-	$('.ui.accordion').accordion()
+	//Solo los del formulario: uno global reiniciaba el de la navegación del shell sin su selector.ignore del riel.
+	form.find('.ui.accordion').accordion()
 
 	removeGenericLoader('_CARGA_INICIAL_')
 

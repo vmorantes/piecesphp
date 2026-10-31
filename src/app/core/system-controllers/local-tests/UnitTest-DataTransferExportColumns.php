@@ -2,6 +2,7 @@
 
 //Columnas con tipo: cada valor se escribe tipado si encaja y como texto si no; nunca excepción por un dato.
 //Escribe temporales propios (prefijo zz-cols-) y los borra en el finally.
+//@areas src/app/classes/DataImportExportUtility/
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -45,10 +46,22 @@ CliActions::make('unit-tests:core/data-transfer-export-columns', function ($args
             public static $name = null;
             /** @var string[] temporales de exportación vistos mientras se generaba */
             public static $seenTemp = [];
-            public function key(): string { return 'zz-columnas'; }
-            public function title(): string { return 'Prueba'; }
-            public function allowedUserTypes(): array { return [0]; }
-            public function columns(ExportContext $context): array { return self::$columns; }
+            public function key(): string
+            {
+                return 'zz-columnas';
+            }
+            public function title(): string
+            {
+                return 'Prueba';
+            }
+            public function allowedUserTypes(): array
+            {
+                return [0];
+            }
+            public function columns(ExportContext $context): array
+            {
+                return self::$columns;
+            }
             public function rows(ExportContext $context): iterable
             {
                 self::$seenTemp = glob(sys_get_temp_dir() . '/' . DataTransferController::EXPORT_TEMP_PREFIX . '*') ?: [];

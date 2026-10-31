@@ -20,8 +20,8 @@
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon-back')); ?>" type="image/x-icon">
     <?php load_font() ?>
     <?php load_css([
-        'base_url' => "", 
-        'custom_url' => "",
+            'base_url' => "",
+            'custom_url' => "",
     ]) ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('panel', 'head'); ?>
 </head>
@@ -29,6 +29,7 @@
 <body>
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('panel', 'body_start'); ?>
 
+    <?php //Sin shell no hay header.bar para topbar-bar.php: aquí solo cabe lo flotante. Su único uso (el editor enriquecido, FileManagerController) pasa noTopBar. ?>
     <?php if(!isset($noTopBar) || $noTopBar === false): ?>
     <?php $this->render('panel/layout/topbar'); ?>
     <?php endif; ?>

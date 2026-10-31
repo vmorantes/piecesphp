@@ -10,20 +10,8 @@
  *                                                                                      */
 //========================================================================================
 /**
- * $config['database']: Configuraciones de las bases de datos es un array multidimensional para brindar
- * la posibilidad de configurar múltiples bases de datos siguiento la lógia $config['database']['GRUPO']['CONFIGURACIÓN'].
- * Las confiraciones posibles son [driver,db,user,password,host,charset]
- *
- * Por ejemplo:
- * $config['database']['default']['driver'] = 'mysql'; //Driver que se usará en PDO
- * $config['database']['default']['db'] = 'piecesphp'; //Nombre de la base de datos
- * $config['database']['default']['user'] = 'root'; //Usuario
- * $config['database']['default']['password'] = ''; //Contraseña
- * $config['database']['default']['host'] = 'localhost'; //Host
- * $config['database']['default']['charset'] = 'utf8'; //Juego de caracteres
- *
- * Nota: el ejemplo anterior muestra los valores que la aplicación asume por defecto.
- *
+ * Conexiones a base de datos, por grupo ($config['database'][GRUPO][CLAVE]); los mappers usan 'default'.
+ * Formato y trampas: source-docs/project/docs/piecesphp/content/configuration.md, «database.php».
  */
 
 //──── Bases de datos ────────────────────────────────────────────────────────────────────

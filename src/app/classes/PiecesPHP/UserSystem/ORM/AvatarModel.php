@@ -6,7 +6,7 @@
 namespace PiecesPHP\UserSystem\ORM;
 
 use Psr\Http\Message\UploadedFileInterface;
-use Slim\Http\UploadedFile;
+use Slim\Psr7\UploadedFile as SlimUploadedFile;
 
 /**
  * AvatarModel.
@@ -56,12 +56,32 @@ class AvatarModel
     {
         $upload_dir = self::getFolderUser($id);
 
-        if ($file->getError() === UPLOAD_ERR_OK) {
+        if ($file->getError() === UPLOAD_ERR_OK && self::isAcceptedImage($file)) {
             $filename = move_uploaded_file_to($upload_dir, $file, self::NAME_AVATAR, self::EXTENSION_AVATAR);
             return is_string($filename);
         } else {
             return false;
         }
+    }
+
+    /**
+     * Si el contenido del temporal es JPEG, PNG o WebP. El nombre y el tipo que manda el cliente no cuentan: se sirve
+     * como avatar.jpg sea lo que sea.
+     *
+     * @param UploadedFileInterface $file
+     * @return bool
+     */
+    public static function isAcceptedImage(UploadedFileInterface $file): bool
+    {
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            return false;
+        }
+        $path = $file instanceof SlimUploadedFile ? $file->getFilePath() : $file->getStream()->getMetadata('uri');
+        if (!is_string($path) || !is_file($path)) {
+            return false;
+        }
+        $mime = (new \finfo(\FILEINFO_MIME_TYPE))->file($path);
+        return in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true);
     }
 
     /**
@@ -107,7 +127,7 @@ class AvatarModel
      * @param string|null $onDefault
      * @return string
      */
-    public static function getUserAvatarNameURLOrDefault(int $id, string | null $onDefault = 'statics/images/default-avatar.png')
+    public static function getUserAvatarNameURLOrDefault(int $id, string|null $onDefault = 'statics/images/default-avatar.png')
     {
         if (self::hasUserAvatar($id)) {
             $route = append_to_url(self::getFolderUserURL($id), self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR);

@@ -1,12 +1,12 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use Directory\Controllers\ProfileController;
 use Organizations\Controllers\OrganizationProfileController;
 use Organizations\Controllers\OrganizationsController;
-use Directory\Controllers\ProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsLang;
 use PiecesPHP\Core\Config;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -38,7 +38,7 @@ $affiliatedInstitutionsOptions = [
 ];
 //Valor y texto los escribe el usuario; la selección se compara contra el valor ya escapado.
 $affiliatedInstitutions = array_map('escape_html', $affiliatedInstitutions);
-foreach($affiliatedInstitutions as $affiliatedInstitution){
+foreach ($affiliatedInstitutions as $affiliatedInstitution) {
     $affiliatedInstitutionsOptions[$affiliatedInstitution] = $affiliatedInstitution;
 }
 
@@ -66,17 +66,17 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
     <div class="limiter-content">
 
         <?php
-        $helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-            'secondaryActions' => $secondaryActions,
-        ]);
+            $helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+                'secondaryActions' => $secondaryActions,
+            ]);
         ?>
 
-        <div class="tabs-controls content-tabs">
-            <div class="active" data-tab="generalData"><?= __($langGroup, 'Datos generales'); ?></div>
-            <div data-tab="professionalData"><?= __($langGroup, 'Datos profesionales'); ?></div>
+        <div class="ui secondary pointing menu tabs-controls content-tabs">
+            <div class="active item" data-tab="generalData"><?= __($langGroup, 'Datos generales'); ?></div>
+            <div class="item" data-tab="professionalData"><?= __($langGroup, 'Datos profesionales'); ?></div>
         </div>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial my-organization-profile" data-content-form>
@@ -107,29 +107,20 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                     </div>
                                 </div>
                                 <div class="five wide column">
-                                    <div class="form-attachments-regular">
-                                        <div class="attach-placeholder logo">
-                                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
-                                            <div class="ui top right attached label green">
-                                                <i class="paperclip icon"></i>
-                                            </div>
-                                            <label for="<?= $uniqueIdentifier; ?>">
-                                                <div data-image="<?= escape_html($organizationMapper->currentLangData('logo')); ?>" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
-                                                    <i class="icon upload"></i>
-                                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
-                                                </div>
-                                                <div class="text">
-                                                    <div class="filename"></div>
-                                                    <div class="header">
-                                                        <div class="title"><?= __($langGroup, 'Logo'); ?></div>
-                                                        <div class="meta"><?= __($langGroup, 'Tamaño 400x400'); ?></div>
-                                                    </div>
-                                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
-                                                </div>
-                                            </label>
-                                            <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
-                                        </div>
-                                    </div>
+                                    <?php
+                                        $helpController->_render('panel/built-in/content/image-field.php', [
+                                            'card' => [
+                                                'id' => 'organization-logo',
+                                                'title' => __($langGroup, 'Logo'),
+                                                'hint' => __($langGroup, 'Imagen preferiblemente en formato .jpg'),
+                                                'accept' => 'image/jpeg,image/png,image/webp',
+                                                'image' => (string) $organizationMapper->currentLangData('logo'),
+                                                'field' => 'logo',
+                                                'width' => 400,
+                                                'height' => 400,
+                                            ],
+                                        ]);
+                                    ?>
                                 </div>
                             </div>
                         </div>
@@ -177,7 +168,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                 <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
                                 <div class="meta email"><?= escape_html($adminUser->getMapper()->email); ?></div>
                                 <div class="actions">
-                                    <a class="ui right labeled icon button brand-color" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
+                                    <a class="ui right labeled icon primary button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
                                         <?= __($langGroup, 'Ver perfil'); ?>
                                         <i class="angle right icon"></i>
                                     </a>
@@ -255,12 +246,12 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
             </div>
 
             <?php
-            //Una barra para las dos pestañas: guarda el formulario entero. Su JS busca [save] y [cancel].
-            $helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'saveAttributes' => ['save' => ''],
-                'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'type' => 'submit', 'icon' => 'times', 'attributes' => ['cancel' => '']]],
-            ]);
+                //Una barra para las dos pestañas: guarda el formulario entero. Su JS busca [save] y [cancel].
+                $helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'saveAttributes' => ['save' => ''],
+                    'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'type' => 'submit', 'icon' => 'times', 'attributes' => ['cancel' => '']]],
+                ]);
             ?>
 
         </form>
@@ -269,50 +260,20 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
 </section>
 
-<?php
-    //Modal para logo
-    $idLogoElements = 'logo-cropper';
-    modalImageUploaderForCropperAdminViews([
-        //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
-        'content' => simpleCropperAdapterWorkSpace([
-            'type' => 'image/*',
-            'required' => false,
-            'selectorAttr' => $idLogoElements,
-            'referenceW' => '400',
-            'referenceH' => '400',
-            'image' => $organizationMapper->currentLangData('logo'),
-            'imageName' => $organizationMapper->currentLangData('logo') === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-        ], false),
-        //Atributos que se asignarán al modal (el contenedor principal), string
-        'modalContainerAttrs' => "modal='{$idLogoElements}'",
-        //Clases que se asignarán al modal (el contenedor principal), string
-        'modalContainerClasses' => "ui tiny modal",
-        //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
-        'modalContentElementAttrs' => null,
-        //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
-        'informationContentMainClass' => null,
-        //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
-        'informationContentClasses' => null,
-        //Título del modal, string
-        'titleModal' => null,
-        //Descripción del modal, string
-        'descriptionModal' => null,
-    ]);
-?>
+<?php $helpController->_render('panel/built-in/content/image-editor.php'); ?>
 
-<div class="ui modal" change-organization-admin-modal>
+<div class="ui tiny modal" change-organization-admin-modal>
+    <i class="close icon"></i>
+    <div class="header"><?= __($langGroup, 'Cambiar persona encargada'); ?></div>
     <div class="content">
-        <form action="<?= $actionChangeAdministrator; ?>" class="ui form">
-            <div class="section-fields-divider">
-                <div class="title s24"><?= __($langGroup, 'Cambiar persona encargada'); ?></div>
-            </div>
+        <form action="<?= $actionChangeAdministrator; ?>" class="ui form" id="change-organization-admin-form">
             <div class="field">
-                <label style="display: none;"><?= __($langGroup, 'Persona encargada'); ?></label>
+                <label hidden><?= __($langGroup, 'Persona encargada'); ?></label>
                 <select required name="newUserAdminID" class="ui dropdown search auto"><?= $optionsUsersAdministrators; ?></select>
             </div>
-            <div class="field">
-                <button type="submit" class="ui button big brand-color"><?= __($langGroup, 'Cambiar'); ?></button>
-            </div>
         </form>
+    </div>
+    <div class="actions">
+        <button type="submit" form="change-organization-admin-form" class="ui primary button"><?= __($langGroup, 'Cambiar'); ?></button>
     </div>
 </div>

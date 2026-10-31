@@ -6,10 +6,10 @@
 
 namespace PiecesPHP\Core;
 
-use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\Core\Exceptions\RoleDuplicateException;
 use PiecesPHP\Core\Exceptions\RoleMalformedException;
 use PiecesPHP\Core\Exceptions\RoleNotExistsException;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 
 /**
@@ -308,7 +308,12 @@ class Roles
 
         if ($request_route instanceof \PiecesPHP\Core\Routing\RequestRoute) {
 
-            $request_route = $request_route->getRoute()->getName();
+            $routeOfRequest = $request_route->getRoute();
+            //Una petición sin ruta resuelta es una ruta que no existe: el mismo `false` que un nombre desconocido.
+            if ($routeOfRequest === null) {
+                return false;
+            }
+            $request_route = $routeOfRequest->getName();
 
         } else if (!is_string($request_route)) {
 

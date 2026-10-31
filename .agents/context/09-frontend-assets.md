@@ -14,8 +14,10 @@ extensión.
 - Directorio por módulo: `$this->setInstanceViewDir(__DIR__ . '/../Views/')`.
 - `setVariables([...])` define variables disponibles en todas las vistas del
   controlador (sobrescriben a las de `render()`).
-- Si `cache_stamp_render_files` está activo, `render()` parsea el HTML con
-  `DOMDocument` y añade `?cacheStamp=...` a todos los `<img src>`.
+- Si `cache_stamp_render_files` está activo, `render()` marca con la versión de su archivo cada URL de imagen de la
+  salida, por atributo (`src` de `img` y `source`, `srcset`, `poster`, `url(…)` de un `style` en línea; ADR 0034 §3,
+  `BaseController::addStaticVersions()`). Las URL de DENTRO de una hoja SCSS llevan la huella con `static-url()`
+  (ADR 0067, `content/gulp.md`).
 - `format = true` pasa la salida por `PiecesPHP\Core\HTML\FormatHtml`.
 
 > Cualquier `Throwable` dentro de una vista se captura, se registra con
@@ -48,12 +50,12 @@ $assets['nombre_lib']['plugins'] = ['plugin_name' => ['js' => ['...']]];
 ### Importadores de librerías
 
 `import_jquery`, `import_jqueryui`, `import_semantic`, `import_datatables`,
-`import_nprogress`, `import_swal2`, `import_izitoast`, `import_cropper`,
-`import_jquerymask`, `import_quilljs`, `import_apexcharts`,
-`import_default_rich_editor`, `import_spectrum`,
-`import_simple_upload_placeholder`, `import_fancybox3`, `import_elfinder`,
+`import_swal2`, `import_cropper`,
+`import_apexcharts`,
+`import_default_rich_editor`,
+`import_simple_upload_placeholder`, `import_elfinder`,
 `import_google_captcha_v3_adapter`, `import_locations`, `import_mapbox`,
-`import_openlayers`, `import_qrcodejs`, `import_indexeDB_adapter`,
+`import_qrcodejs`, `import_indexeDB_adapter`,
 `import_front_library`, `import_app_front_libraries`, `import_app_libraries`.
 
 **Volver a importar una librería sustituye su lista de plugins** (`import_front_library()`, `src/app/core/AppHelpers.php`):
@@ -71,6 +73,10 @@ Uso típico en un método de controlador:
 set_custom_assets([ NewsRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js') ], 'js');
 import_default_rich_editor();
 ```
+
+**El explorador del editor enriquecido** toma sus dos URL de `richEditorFileManagerURLs`, que inyecta
+`FileManagerRoutes::routes()` con `routeName()`. Estuvo roto desde `fec3528c` (v6.3.0) porque el adaptador las
+concatenaba con `admin_url`, que vale `''`. Lo vigila `core/rich-editor-file-manager-urls`.
 
 ### Configuración expuesta al front
 
@@ -115,13 +121,18 @@ return $server->serve($request, $response, $args, __DIR__ . '/Statics');
 > bloque, el método quedaba idéntico a `serve()`, así que **se borró entero**: los módulos
 > llaman a `serve()`. Ver T112 y T115.
 >
-> Consecuencia: **`scssphp/scssphp` es peso muerto.** Es requisito directo en
-> `src/composer.json`, pero su única mención en todo el código es una línea de
-> créditos en `app/view/panel/pages/about-framework.php:106`. Ningún PHP lo
-> instancia.
+> `scssphp/scssphp` no tenía consumidor posible y salió de `src/composer.json` en la 9.2.0 (P227).
 >
 > El CSS de los módulos lo genera **Gulp** (`gulp sass-modules`), con Dart Sass,
 > en tiempo de desarrollo. No hay compilación en servidor.
+
+**Una ruta con `..` o con un byte nulo da 404 antes de nada** (`ServerStatics::pathHasTraversal()`, al principio de
+`serve()` y de `getSymbolicLink()`; JH, P210). Hace falta ahí porque **el camino delegado no pasa por
+`isValidResourcePath()`**: enlaza en `statics/server-delegated/` y redirige, y esa lista blanca de caracteres solo la
+aplica `verifyFile()`. No la lleves al camino delegado: rechazaría nombres con espacio o `@` que hoy se sirven. Y
+cualquier comprobación nueva ahí, de texto y sin disco (P210: «lo que mantenga el framework súper veloz»). Probar
+`serve()` delegado escribe en `server-delegated/`, que es de `www-data`: las pruebas usan `getSymbolicLink()` sobre un
+enlace que ya existe (`core/server-statics` §6).
 
 Las subidas protegidas se deciden por el NOMBRE en disco (`foto.jpg.protected`; lote 4b). Si
 se pide `foto.jpg` y no existe, `PiecesPHP\Core\Statics\ServerStatics` busca el privado, aplica
@@ -136,10 +147,11 @@ la política de su carpeta y lo sirve con caché privada.
 `PiecesPHP\CSSVariables::instance('global')` recoge la paleta desde `config.php`
 (en el servicio DI `foundHandler`) y la expone como CSS:
 
-`--meta-theme-color`, `--main-brand-color` (+ variantes de opacidad
-`-opacity`, `-0-5`, `-0-8`), `--second-brand-color`, `--bg-tools-buttons`,
-`--font-color-one`, `--font-color-two`, `--menu-color-background` (+ `-opacity`),
-`--menu-color-mark`, `--menu-color-font`, `--body-gradient`, y variables del loader.
+los tokens del contrato del tema que devuelve `SettingsController::themeTokens()` (JCP y JCQ, H106): siempre `--accent`,
+`--accent-2` y `--accent-3`, y `--data-2..5`, `--font-body`, `--font-heading`, `--font-size-base` y `--r-xs/sm/md/lg` solo si
+difieren de fábrica. Una fuente que no sea Inter añade su hoja con `themeFontStylesheet()`. Las 20 variables propias de antes
+salieron; las hojas del panel y del acceso leen los tokens del tema, y la zona pública y las páginas de error llevan sus
+valores fijos en su hoja.
 
 Se sirven por módulo en `<modulo>/statics/globals-vars.css`.
 **Para cambiar la marca visual, se editan los valores en `config.php` o en las

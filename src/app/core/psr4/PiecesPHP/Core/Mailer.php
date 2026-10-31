@@ -6,10 +6,10 @@
 namespace PiecesPHP\Core;
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PiecesPHP\Core\Email\MailDelivery;
-use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PHPMailer\PHPMailer\SMTP;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Email\MailDelivery;
+use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 
 /**
  * Mailer - Enviar mails.
@@ -28,7 +28,6 @@ class Mailer extends PHPMailer
      * @var string
      */
     protected $outboxReason = '';
-
 
     /**
      * Log

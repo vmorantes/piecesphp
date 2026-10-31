@@ -9,9 +9,9 @@ namespace PiecesPHP\Core;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
+use PiecesPHP\Terminal\LoadFailures;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Terminal\LoadFailures;
 
 /**
  * Test.
@@ -116,7 +116,6 @@ class Test
 
         // Generar imagen JPEG
         imagejpeg($image, null, 90); // Calidad 90%
-
 
         // Obtener datos de la imagen
         $imageData = ob_get_contents();

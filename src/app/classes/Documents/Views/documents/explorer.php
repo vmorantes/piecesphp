@@ -16,12 +16,12 @@ $langGroupDatatables = 'datatables';
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1 y §2.5), sin acciones.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1 y §2.5), sin acciones.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description,
+            ]);
         ?>
 
         <?php //content-table-container: la paginación en el móvil, la misma regla que los listados (_content-screens.scss). ?>
@@ -40,7 +40,7 @@ $langGroupDatatables = 'datatables';
 
             </div>
 
-            <table url="<?= $processTableLink; ?>" style='display:none;'>
+            <table url="<?= $processTableLink; ?>" hidden>
 
                 <thead>
 

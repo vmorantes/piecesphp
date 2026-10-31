@@ -2,6 +2,7 @@
 
 //Sin red: `request()` escribe URI, cuerpo y cabeceras ANTES de su `file_get_contents()`,
 //y el destino es un `data://`. Ver T130.
+//@areas nucleo
 
 use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\Terminal\CliActions;

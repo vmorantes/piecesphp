@@ -2,7 +2,6 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
 use News\Mappers\NewsCategoryMapper;
-use PiecesPHP\Core\Config;
 
 /**
  * @var NewsCategoryMapper $element
@@ -20,11 +19,11 @@ use PiecesPHP\Core\Config;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-        ]);
+            //La cabecera del diseño de contenidos (diseno/01-contenidos.md §2.1); sin frase en la edición.
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+            ]);
         ?>
 
         <?php if($manyLangs): ?>
@@ -36,7 +35,6 @@ use PiecesPHP\Core\Config;
                 </select>
             </div>
         </div>
-        <br>
         <?php endif; ?>
 
         <form method='POST' action="<?= $action; ?>" class="ui form initial news-categories" data-content-form>
@@ -57,7 +55,6 @@ use PiecesPHP\Core\Config;
                             <input required type="text" name="name" maxlength="300" value="<?= escape_html($element->getLangData($selectedLang, 'name', false, '')); ?>">
                         </div>
 
-                        <br>
 
                         <div class="field required">
                             <label><?= __($langGroup, 'Color'); ?></label>
@@ -70,20 +67,20 @@ use PiecesPHP\Core\Config;
 
                         <h4 class="ui dividing header"><?= __($langGroup, 'Ícono de categoría'); ?></h4>
 
-                        <div class="field" placeholder="<?= __($langGroup, 'Ícono de categoría'); ?>" image-element>
-                            <label><?= __($langGroup, 'Tamaño del ícono'); ?> 300x300px</label>
-                            <?php simpleUploadPlaceholderWorkSpace([
-                            'imagePreview' => $element->getLangData($selectedLang, 'iconImage'),
-                            'inputNameAttr' => 'iconImage',
-                            'buttonText' => __($langGroup, 'Agregar'),
-                            'classesButton' => 'fomantic green',
-                            'required' => false,
-                            'multiple' => false,
-                            'icon' => 'upload',
-                            'accept' => 'image/*',
-                        ]); ?>
-                            <br><br>
-                        </div>
+                        <?php
+                            $this->helpController->_render('panel/built-in/content/image-field.php', [
+                                'card' => [
+                                    'id' => 'category-icon',
+                                    'title' => __($langGroup, 'Ícono de categoría'),
+                                    'field' => 'iconImage',
+                                    'image' => (string) $element->getLangData($selectedLang, 'iconImage'),
+                                    'width' => 300,
+                                    'height' => 300,
+                                    'format' => 'image/png',
+                                    'fillColor' => 'transparent',
+                                ],
+                            ]);
+                        ?>
 
                     </div>
 
@@ -92,16 +89,16 @@ use PiecesPHP\Core\Config;
             </div>
 
             <?php
-            //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
-            $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
-            if ($allowDelete) {
-                $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-news-category-button' => '', 'data-route' => $deleteRoute]];
-            }
-            $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
-                'saveText' => __($langGroup, 'Guardar'),
-                'saveAttributes' => ['save' => ''],
-                'secondaryActions' => $secondaryActions,
-            ]);
+                //La barra al final del formulario (§2.3): Eliminar es `button` y delete-config.js lo intercepta en el clic.
+                $secondaryActions = [['text' => __($langGroup, 'Cancelar'), 'url' => $backLink, 'icon' => 'times']];
+                if ($allowDelete) {
+                    $secondaryActions[] = ['text' => __($langGroup, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => ['delete-news-category-button' => '', 'data-route' => $deleteRoute]];
+                }
+                $this->helpController->_render('panel/built-in/content/form-action-bar.php', [
+                    'saveText' => __($langGroup, 'Guardar'),
+                    'saveAttributes' => ['save' => ''],
+                    'secondaryActions' => $secondaryActions,
+                ]);
             ?>
 
         </form>
@@ -109,3 +106,4 @@ use PiecesPHP\Core\Config;
     </div>
 
 </section>
+<?php $this->helpController->_render('panel/built-in/content/image-editor.php'); ?>

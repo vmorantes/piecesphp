@@ -13,12 +13,12 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
     <div class="limiter-content">
 
         <?php
-        //La cabecera del panel (diseno/01-contenidos.md §2.1).
-        $this->helpController->_render('panel/built-in/content/page-header.php', [
-            'breadcrumbs' => $breadcrumbs,
-            'title' => $title,
-            'description' => $description ?? '',
-        ]);
+            //La cabecera del panel (diseno/01-contenidos.md §2.1).
+            $this->helpController->_render('panel/built-in/content/page-header.php', [
+                'breadcrumbs' => $breadcrumbs,
+                'title' => $title,
+                'description' => $description ?? '',
+            ]);
         ?>
 
 

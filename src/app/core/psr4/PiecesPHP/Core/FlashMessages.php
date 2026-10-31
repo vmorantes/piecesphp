@@ -82,6 +82,10 @@ class FlashMessages
     {
         $context = $context !== null ? $context : self::NAME_SESSION;
         if (session_status() == PHP_SESSION_NONE) {
+            //Leer no abre una sesión: sin su cookie no hay nada guardado, y abrirla mandaría Set-Cookie a todo visitante.
+            if (!isset($_COOKIE[session_name()])) {
+                return false;
+            }
             session_start();
         }
         return isset($_SESSION[$context]) ? true : false;

@@ -6,9 +6,9 @@
 
 namespace SystemApprovals\Util\Packages;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\ApprovalElementHandlerInterface;
 
@@ -56,7 +56,7 @@ abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
         return static::$MAPPER_NAME;
     }
 
-    public static function getContentType(int | EntityMapper $reference): string
+    public static function getContentType(int|EntityMapper $reference): string
     {
         if (method_exists(static::class, 'getContentTypeSpecificMapper')) {
             return call_user_func([static::class, 'getContentTypeSpecificMapper'], $reference);
@@ -95,7 +95,7 @@ abstract class BaseApprovalHandler implements ApprovalElementHandlerInterface
         return static::$CREATION_DATE_COLUMN;
     }
 
-    public static function isAutoApproval(int | EntityMapper $reference): bool
+    public static function isAutoApproval(int|EntityMapper $reference): bool
     {
         if (method_exists(static::class, 'isAutoApprovalSpecificMapper')) {
             return call_user_func([static::class, 'isAutoApprovalSpecificMapper'], $reference);

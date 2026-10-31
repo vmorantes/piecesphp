@@ -1,6 +1,10 @@
 <?php
 
 //Fija que ningún buscador de mapper escriba al no encontrar. Ver T33.
+//@areas src/app/classes/EventsLog/
+//@areas src/app/classes/News/
+//@areas src/app/classes/Publications/
+//@areas src/app/classes/SystemApprovals/
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
@@ -93,8 +97,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $foreignKeys = [];
             $statement = $database->prepare(
                 'SELECT COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME'
-                . ' FROM information_schema.KEY_COLUMN_USAGE'
-                . ' WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL'
+                    . ' FROM information_schema.KEY_COLUMN_USAGE'
+                    . ' WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL'
             );
             $statement->execute([$table]);
             while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
@@ -345,7 +349,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             if (!method_exists('PiecesPHP\\UserSystem\\ORM\\UsersModel', $method)) { continue; }
             try {
                 $r = $method === 'all'
-                    ? \PiecesPHP\UserSystem\ORM\UsersModel::all()
+                 ? \PiecesPHP\UserSystem\ORM\UsersModel::all()
                     : \PiecesPHP\UserSystem\ORM\UsersModel::allByMultipleCriteries([['column' => 'id', 'value' => $missingID]]);
                 $check(is_array($r), "UsersModel::{$method}() SIN SESIÓN devuelve un array",
                     'Obtenido: ' . gettype($r) . (is_array($r) ? ' de ' . count($r) . ' elementos' : ''));

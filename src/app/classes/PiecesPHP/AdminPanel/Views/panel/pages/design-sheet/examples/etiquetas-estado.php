@@ -1,13 +1,16 @@
 <?php
 use News\Mappers\NewsMapper;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use Publications\Mappers\PublicationMapper;
 
-//Un `ui label` con el color de su estado; el color y el texto salen del mapper, nunca de la vista.
+//StatusLabel pinta el estado: el color y el texto salen del mapper, nunca de la vista.
 $visibility = PublicationMapper::VISIBILITY_SCHEDULED;
 $color = PublicationMapper::VISIBILITIES_COLORS[$visibility];
 $text = PublicationMapper::visibilities()[$visibility];
 ?>
-<span class="ui <?= escape_html($color); ?> label"><?= escape_html($text); ?></span>
+<?= StatusLabel::html($text, $color); ?>
 <?php foreach (NewsMapper::statuses() as $status => $statusText): ?>
-<span class="ui <?= escape_html(NewsMapper::STATUSES_COLORS[$status]); ?> label"><?= escape_html($statusText); ?></span>
+<?= StatusLabel::html($statusText, NewsMapper::STATUSES_COLORS[$status]); ?>
 <?php endforeach; ?>
+<?= StatusLabel::html(__($langGroup, 'Advertencia'), StatusLabel::WARNING); ?>
+<?= StatusLabel::neutral(__($langGroup, 'Neutro')); ?>

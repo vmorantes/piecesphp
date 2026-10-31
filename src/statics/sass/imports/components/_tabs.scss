@@ -1,5 +1,6 @@
 @use '../variables' as *;
 @use '../functions' as *;
+
 @mixin simple-tabs {
 
     display: flex;
@@ -11,7 +12,7 @@
     width: max-content;
     max-width: 100%;
 
-    >* {
+    > * {
         width: 100%;
         margin: pxToRem(5) pxToRem(2);
         padding: pxToRem(10) pxToRem(10);
@@ -31,7 +32,7 @@
 
     @media screen and (min-width: $rsTablet) {
 
-        >* {
+        > * {
             width: auto;
         }
 

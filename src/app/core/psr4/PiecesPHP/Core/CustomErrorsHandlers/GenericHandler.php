@@ -30,6 +30,8 @@ use Throwable;
 class GenericHandler
 {
     const FILE_ENTRIES = 'error.log.jsonl';
+    const FILE_PLAIN = 'error.plain.log';
+    const FILE_UNIQUE = 'error.unique.message.log';
     const DIRECTORY_TRACES = 'error-traces';
     const DIRECTORY_SOFT = 'error-soft';
 
@@ -162,10 +164,10 @@ class GenericHandler
         $this->fileLocation = $this->directory . '/' . self::FILE_ENTRIES;
         $this->oldFileLocation = $this->directoryBackup . '/error.log.{{DATE}}.jsonl';
 
-        $this->fileLocationPlain = $this->directory . '/error.plain.log';
+        $this->fileLocationPlain = $this->directory . '/' . self::FILE_PLAIN;
         $this->oldFileLocationPlain = $this->directoryBackup . '/error.plain.{{DATE}}.log';
 
-        $this->fileLocationUniqueMessage = $this->directory . '/error.unique.message.log';
+        $this->fileLocationUniqueMessage = $this->directory . '/' . self::FILE_UNIQUE;
     }
 
     /**
@@ -309,24 +311,36 @@ class GenericHandler
      * Reescribe con el mismo cerrojo que appendEntry(), a un temporal y con rename(): el archivo queda entero o no
      * cambia. Quien esperaba el cerrojo ve otro inodo y vuelve a abrir.
      *
+     * También los dos registros planos, error.plain.log y error.unique.message.log, por bloques: cada uno, con su propia
+     * POSCONDICIÓN, queda entero o no cambia. Los rotados (olds/) no se podan.
+     *
      * @param string $run
      * @param string|null $directory Por omisión, LOG_ERRORS_PATH; las pruebas dan un temporal
-     * @return array{entries:int,traces:int,soft:int,error:string|null}
+     * @return array{entries:int,traces:int,soft:int,plain:int,unique:int,error:string|null}
      */
     public static function pruneTestRun(string $run, ?string $directory = null): array
     {
-        $result = ['entries' => 0, 'traces' => 0, 'soft' => 0, 'error' => null];
+        $result = ['entries' => 0, 'traces' => 0, 'soft' => 0, 'plain' => 0, 'unique' => 0, 'error' => null];
         if ($directory === null) {
             $directory = defined('LOG_ERRORS_PATH') ? (string) LOG_ERRORS_PATH : (string) realpath(__DIR__ . '/../../../../../logs');
         }
         $directory = rtrim($directory, '/\\');
+        $errors = [];
+        foreach (['plain' => self::FILE_PLAIN, 'unique' => self::FILE_UNIQUE] as $key => $name) {
+            [$result[$key], $error] = self::pruneBlocks($directory . '/' . $name, $key === 'plain', $run);
+            if ($error !== null) {
+                $errors[] = $error;
+            }
+        }
+        $result['error'] = $errors !== [] ? implode('; ', $errors) : null;
         $file = $directory . '/' . self::FILE_ENTRIES;
         if (!is_file($file)) {
             return $result;
         }
         $handle = @fopen($file, 'r+b');
         if ($handle === false || !flock($handle, LOCK_EX)) {
-            $result['error'] = 'no se pudo abrir ni echar el cerrojo a ' . $file;
+            $errors[] = 'no se pudo abrir ni echar el cerrojo a ' . $file;
+            $result['error'] = implode('; ', $errors);
             if ($handle !== false) {
                 //RETORNO-IGNORADO: no se escribió nada; cerrar o no, el registro sigue como estaba.
                 fclose($handle);
@@ -364,7 +378,8 @@ class GenericHandler
             //podable, no se escribe nada. Así un fallo del filtro aborta en vez de borrar errores reales (#1603).
             $unmarked = self::unmarkedAmong($removed, $run);
             if ($unmarked > 0) {
-                $result['error'] = "poda abortada: {$unmarked} entradas sin marca";
+                $errors[] = "poda abortada: {$unmarked} entradas sin marca";
+                $result['error'] = implode('; ', $errors);
                 $result['entries'] = 0;
                 return $result;
             }
@@ -373,7 +388,8 @@ class GenericHandler
                 if (@file_put_contents($temporary, $kept) !== strlen($kept) || !@rename($temporary, $file)) {
                     //RETORNO-IGNORADO: si el temporal no se escribió entero, no queda nada que conservar.
                     @unlink($temporary);
-                    $result['error'] = 'no se pudo reescribir ' . $file . ': no se podó nada';
+                    $errors[] = 'no se pudo reescribir ' . $file . ': no se podó nada';
+                    $result['error'] = implode('; ', $errors);
                     $result['entries'] = 0;
                     return $result;
                 }
@@ -403,6 +419,95 @@ class GenericHandler
             }
         }
         return $result;
+    }
+
+    /**
+     * Poda un registro plano por bloques: una cabecera "[fecha] …" y las líneas que la siguen hasta la próxima (un mensaje
+     * con saltos de línea no deja restos). Mismo cerrojo, temporal y rename que la poda del principal.
+     *
+     * @param string $file
+     * @param bool $plain error.plain.log (la marca tras "[ref X]") o error.unique.message.log (la marca cierra la cabecera)
+     * @param string $run
+     * @return array{0:int,1:string|null} Los bloques quitados y el error, si lo hubo
+     */
+    private static function pruneBlocks(string $file, bool $plain, string $run): array
+    {
+        if (!is_file($file)) {
+            return [0, null];
+        }
+        $handle = @fopen($file, 'r+b');
+        if ($handle === false || !flock($handle, LOCK_EX)) {
+            if ($handle !== false) {
+                //RETORNO-IGNORADO: no se escribió nada; cerrar o no, el registro sigue como estaba.
+                fclose($handle);
+            }
+            return [0, 'no se pudo abrir ni echar el cerrojo a ' . $file];
+        }
+        try {
+            $content = stream_get_contents($handle);
+            $content = is_string($content) ? $content : '';
+            //Byte a byte: cada línea conserva su salto, y lo que se queda se escribe tal cual estaba.
+            $blocks = [];
+            foreach (preg_split('/(?<=\n)/', $content, -1, \PREG_SPLIT_NO_EMPTY) ?: [] as $line) {
+                if ($blocks === [] || preg_match('/^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:.]{15}\] \[/', $line) === 1) {
+                    $blocks[] = '';
+                }
+                $blocks[count($blocks) - 1] .= $line;
+            }
+            $kept = '';
+            $removed = [];
+            foreach ($blocks as $block) {
+                $mark = self::blockMark($block, $plain);
+                if ($mark !== null && self::isPrunable($mark, $run)) {
+                    $removed[] = $block;
+                } else {
+                    $kept .= $block;
+                }
+            }
+            //POSCONDICIÓN, aparte del filtro: si un solo bloque que se iba a quitar no lleva la marca de una corrida podable,
+            //no se escribe nada en este archivo (#1603).
+            $unmarked = 0;
+            foreach ($removed as $block) {
+                $mark = self::blockMark($block, $plain);
+                if ($mark === null || !str_contains($block, " [test {$mark}]") || !self::isPrunable($mark, $run)) {
+                    $unmarked++;
+                }
+            }
+            if ($unmarked > 0) {
+                return [0, "poda de {$file} abortada: {$unmarked} bloques sin marca"];
+            }
+            if ($removed === []) {
+                return [0, null];
+            }
+            $temporary = $file . '.' . bin2hex(random_bytes(6)) . '.tmp';
+            if (@file_put_contents($temporary, $kept) !== strlen($kept) || !@rename($temporary, $file)) {
+                //RETORNO-IGNORADO: si el temporal no se escribió entero, no queda nada que conservar.
+                @unlink($temporary);
+                return [0, 'no se pudo reescribir ' . $file . ': no se podó nada'];
+            }
+            //RETORNO-IGNORADO: el permiso deja escribir al otro usuario del sistema; el archivo sirve igual.
+            @chmod($file, 0664);
+            return [count($removed), null];
+        } finally {
+            self::release($handle);
+        }
+    }
+
+    /**
+     * La marca de un bloque de un registro plano, o null. En el plano va justo tras "[ref X]" en la cabecera; en el único,
+     * al final de la primera línea de la firma, seguida de las cuatro líneas de traza que cierran el bloque: ningún
+     * mensaje puede ponerla ahí.
+     *
+     * @param string $block
+     * @param bool $plain
+     * @return string|null
+     */
+    private static function blockMark(string $block, bool $plain): ?string
+    {
+        $pattern = $plain
+            ? '/^\[[^\]\n]*\] \[[^\]\n]*\] \[ref [^\]\n]*\] \[test (t[0-9]+-[0-9a-f]{12})\] /'
+            : '/ \[test (t[0-9]+-[0-9a-f]{12})\]\n(?: {5}in [^\n]*\n){4}$/';
+        return preg_match($pattern, $block, $matched) === 1 ? $matched[1] : null;
     }
 
     /**
@@ -628,9 +733,12 @@ class GenericHandler
             $codeException = $this->exception->getCode();
         } catch (\Throwable) {}
 
+        //La marca va DENTRO de la firma, al final de la cabecera (ADR 0063 §4): delante, la firma real sería subcadena de la marcada.
+        $run = self::testRun();
+
         // Construir la firma de 5 líneas (sin el timestamp inicial)
         // Línea 1: Cabecera
-        $headerSignature = sprintf("[%s] [%s] %s in %s:%s\n", $classException, $codeException, $message, $file, $line);
+        $headerSignature = sprintf("[%s] [%s] %s in %s:%s%s\n", $classException, $codeException, $message, $file, $line, $run !== null ? " [test {$run}]" : '');
 
         // Líneas 2 a 5: Traza
         $traceLines = "";
@@ -647,22 +755,11 @@ class GenericHandler
 
         $fullSignature = $headerSignature . $traceLines;
 
-        $existsInFile = false;
-        if (file_exists($this->fileLocationUniqueMessage)) {
-            // Buscamos la firma completa de 5 líneas para evitar duplicados exactos de flujo
-            $content = file_get_contents($this->fileLocationUniqueMessage);
-            if ($content !== false && str_contains($content, $fullSignature)) {
-                $existsInFile = true;
-            }
-        }
-
-        if (!$existsInFile) {
-            // Si no existe el flujo exacto, lo añadimos con el timestamp y la referencia de esta, la PRIMERA aparición.
-            // Van delante de la firma: la búsqueda de duplicados mira solo la firma, y así no cambia.
-            $logEntry = sprintf("[%s] [ref %s] %s", $this->date->format('Y-m-d H:i:s.u'), $this->reference, $fullSignature);
-            file_put_contents($this->fileLocationUniqueMessage, $logEntry, \FILE_APPEND);
-            @chmod($this->fileLocationUniqueMessage, 0664);
-        }
+        // Si no existe el flujo exacto, lo añadimos con el timestamp y la referencia de esta, la PRIMERA aparición.
+        // Van delante de la firma: la búsqueda de duplicados mira solo la firma, y así no cambia.
+        $logEntry = sprintf("[%s] [ref %s] %s", $this->date->format('Y-m-d H:i:s.u'), $this->reference, $fullSignature);
+        //RETORNO-IGNORADO: el registro único es un resumen; la entrada completa ya está en el principal.
+        self::appendLocked($this->fileLocationUniqueMessage, $logEntry, fn(string $content): bool => str_contains($content, $fullSignature));
     }
 
     /**
@@ -859,11 +956,13 @@ class GenericHandler
         }
         $traceString = count($traceSummary) > 0 ? " | Trace: " . implode(" <- ", $traceSummary) : "";
 
+        $run = self::testRun();
         $plainLogEntry = sprintf(
-            "[%s] [%s] [ref %s] [%s] %s in %s:%s%s\n",
+            "[%s] [%s] [ref %s]%s [%s] %s in %s:%s%s\n",
             $this->date->format('Y-m-d H:i:s.u'),
             $classException,
             $this->reference,
+            $run !== null ? " [test {$run}]" : '',
             $codeException,
             $this->exception->getMessage(),
             $this->exception->getFile(),
@@ -884,8 +983,49 @@ class GenericHandler
             @chmod($file_old_output_plain, 0664);
         }
 
-        file_put_contents($this->fileLocationPlain, $plainLogEntry, \FILE_APPEND | \LOCK_EX);
-        @chmod($this->fileLocationPlain, 0664);
+        //RETORNO-IGNORADO: el plano es una copia legible; la entrada completa ya está en el principal.
+        self::appendLocked($this->fileLocationPlain, $plainLogEntry);
+    }
+
+    /**
+     * Añade con el cerrojo de la poda: si mientras se esperaba el archivo se reescribió (otro inodo), se vuelve a abrir,
+     * como appendEntry(); si no, lo escrito iría al archivo viejo y se perdería.
+     *
+     * @param string $file
+     * @param string $text
+     * @param (callable(string):bool)|null $skip Con el contenido actual, bajo el cerrojo: true si no hay que escribir
+     * @return bool
+     */
+    private static function appendLocked(string $file, string $text, ?callable $skip = null): bool
+    {
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $handle = @fopen($file, 'ab');
+            if ($handle === false) {
+                return false;
+            }
+            if (!flock($handle, LOCK_EX)) {
+                self::release($handle);
+                return false;
+            }
+            clearstatcache(true, $file);
+            $onPath = @stat($file);
+            $opened = fstat($handle);
+            if ($onPath === false || $opened === false || $onPath['ino'] !== $opened['ino']) {
+                self::release($handle);
+                continue;
+            }
+            if ($skip !== null && $skip((string) @file_get_contents($file))) {
+                self::release($handle);
+                return true;
+            }
+            $written = fwrite($handle, $text);
+            $flushed = fflush($handle);
+            self::release($handle);
+            //RETORNO-IGNORADO: el permiso deja escribir al otro usuario del sistema (web o terminal); la línea ya está.
+            @chmod($file, 0664);
+            return $written === strlen($text) && $flushed;
+        }
+        return false;
     }
 
     /**

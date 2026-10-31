@@ -9,6 +9,7 @@ use PDOException;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\Core\Database\ORM\ActiveRecord;
 use PiecesPHP\Core\Database\ORM\ORM;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
@@ -324,14 +325,10 @@ class DataTablesHelper
              * @var int
              */
             $draw = (int) $request->getQueryParam('draw', null);
-            /**
-             * @var int
-             */
-            $start = $request->getQueryParam('start', 0);
-            /**
-             * @var int
-             */
-            $length = $request->getQueryParam('length', 10);
+            /** A entero al leerlos: el LIMIT de processFromQuery() los interpola, y fuera de local una cadena llegaba al SQL (H95). */
+            $start = max(0, (int) $request->getQueryParam('start', 0));
+            $length = (int) $request->getQueryParam('length', 10);
+            $length = $length > 0 ? $length : 10;
             /**
              * @var array
              */
@@ -464,12 +461,7 @@ class DataTablesHelper
             //Ejecutar callable $on_set_model sobre el modelo
             if (!is_null($on_set_model)) {
 
-                //Se espera que se devuelva un objeto de la clase BaseModel o que la herede
-                $set_model_value = ($on_set_model)($model);
-
-                if (is_subclass_of($set_model_value, BaseModel::class)) {
-                    $model = $set_model_value;
-                }
+                $model = self::modelFromCallable(($on_set_model)($model), $model, 'on_set_model');
             }
             //=============================================================
 
@@ -520,12 +512,7 @@ class DataTablesHelper
             //Ejecutar callable $config_result_model sobre el modelo
             if (is_callable($config_result_model)) {
 
-                //Se espera que se devuelva un objeto de la clase \PiecesPHP\Core\BaseModel o que la herede
-                $config_result_model_return = ($config_result_model)($select_fields, $order_by, $where, $limit);
-
-                if (is_subclass_of($config_result_model_return, '\PiecesPHP\Core\BaseModel')) {
-                    $limit = $config_result_model_return;
-                }
+                $limit = self::modelFromCallable(($config_result_model)($select_fields, $order_by, $where, $limit), $limit, 'config_result_model');
 
             }
 
@@ -819,6 +806,28 @@ class DataTablesHelper
     }
 
     /**
+     * Lo que devuelve un callable que ajusta la consulta: null deja la de antes, un modelo (ActiveRecord, lo que dan los
+     * getModel(); BaseModel también lo es) la sustituye y cualquier otra cosa lanza. FALLA CERRADO: el callable suele
+     * restringir la consulta (organización, estado), y seguir sin su restricción sería una fuga de datos.
+     *
+     * @param mixed $returned
+     * @param ActiveRecord $current
+     * @param string $parameter
+     * @return ActiveRecord
+     * @throws \UnexpectedValueException
+     */
+    protected static function modelFromCallable($returned, ActiveRecord $current, string $parameter): ActiveRecord
+    {
+        if ($returned === null) {
+            return $current;
+        }
+        if ($returned instanceof ActiveRecord) {
+            return $returned;
+        }
+        throw new \UnexpectedValueException("DataTablesHelper::process(): `{$parameter}` debe devolver null o un modelo, y devolvió " . get_debug_type($returned) . '.');
+    }
+
+    /**
      * Como process(), pero sobre una consulta propia (`fakeTable`) en vez de un mapper.
      *
      * Mismo contrato de respuesta: sin SQL ni filas crudas (ver rawRows()), y `recordsTotal` con el
@@ -982,14 +991,10 @@ class DataTablesHelper
              * @var int
              */
             $draw = (int) $request->getQueryParam('draw', null);
-            /**
-             * @var int
-             */
-            $start = $request->getQueryParam('start', 0);
-            /**
-             * @var int
-             */
-            $length = $request->getQueryParam('length', 10);
+            /** A entero al leerlos: el LIMIT de processFromQuery() los interpola, y fuera de local una cadena llegaba al SQL (H95). */
+            $start = max(0, (int) $request->getQueryParam('start', 0));
+            $length = (int) $request->getQueryParam('length', 10);
+            $length = $length > 0 ? $length : 10;
             /**
              * @var array
              */
@@ -1132,7 +1137,6 @@ class DataTablesHelper
             $sqlLimitQuery = $sqlBaseQuery;
             if (!is_null($page) && !is_null($length)) {
                 $page = $page > 0 ? $page : 1;
-                $length = $length > 0 ? $length : 1;
                 $from = ($page - 1) * $length;
                 $sqlLimitQuery .= " LIMIT $from, $length";
             }
@@ -1476,6 +1480,7 @@ class DataTablesHelper
     protected static function generateOrderBy(array $columns_order, $order, ?array $custom_order = null, string $table = ''): string
     {
         $order_by = [];
+        $ordered_columns = [];
 
         $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
 
@@ -1508,6 +1513,7 @@ class DataTablesHelper
                                 continue;
                             }
                             $order_by[] = $table . "$name $direction_ordering";
+                            $ordered_columns[] = self::orderColumnName($name);
                         }
                     }
                 }
@@ -1520,19 +1526,27 @@ class DataTablesHelper
             //La direccion se normaliza como la de la peticion: `custom_order` no debe poder meter SQL
             //aunque algun dia no venga del programador.
             $direction = trim(mb_strtoupper((string) $direction)) === 'ASC' ? 'ASC' : 'DESC';
-            $exists_order = false;
-            foreach ($order_by as $order_item) {
-                if (mb_strpos($order_item, $column) !== false) {
-                    $exists_order = true;
-                    break;
-                }
-            }
-            if (!$exists_order) {
+            //Por nombre exacto: buscarlo como subcadena daba por puesto `id` al ordenar por `userId` y se perdía el desempate.
+            if (!in_array(self::orderColumnName($column), $ordered_columns, true)) {
                 $order_by[] = $table . "$column $direction";
+                $ordered_columns[] = self::orderColumnName($column);
             }
         }
 
         return !empty($order_by) ? implode(',', $order_by) : '';
+    }
+
+    /**
+     * El nombre de una columna de orden sin el prefijo de tabla ni las comillas invertidas
+     *
+     * @param string $column
+     * @return string
+     */
+    protected static function orderColumnName(string $column): string
+    {
+        $column = str_replace('`', '', trim($column));
+        $position = mb_strrpos($column, '.');
+        return $position !== false && preg_match('/^[\w.]+$/u', $column) === 1 ? mb_substr($column, $position + 1) : $column;
     }
 
     /**

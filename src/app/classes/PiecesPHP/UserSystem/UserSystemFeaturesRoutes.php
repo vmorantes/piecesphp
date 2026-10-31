@@ -11,11 +11,12 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\CSSVariables;
+use PiecesPHP\UserSystem\Controllers\ImpersonationController;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use PiecesPHP\UserSystem\Controllers\UserSessionsController;
-use PiecesPHP\UserSystem\Controllers\UserTokensController;
-use PiecesPHP\CSSVariables;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
+use PiecesPHP\UserSystem\Controllers\UserTokensController;
 
 /**
  * UserSystemFeaturesRoutes.
@@ -46,6 +47,8 @@ class UserSystemFeaturesRoutes
             UserSystemFeaturesController::routes($groupAdministration, $groupPublic);
             //Las sesiones abiertas (ADR 0026, fases B y C): cerrar sesión, cerrar una, extender y su listado.
             UserSessionsController::routes($groupAdministration);
+            //Actuar como otro usuario (P204 a): empezar y terminar, solo por POST desde el panel.
+            ImpersonationController::routes($groupAdministration);
             //Los tokens y códigos vigentes y su historia (Registros); ver su valor, invalidarlos y restablecer el doble factor.
             UserTokensController::routes($groupAdministration);
 

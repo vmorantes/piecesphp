@@ -1,6 +1,16 @@
 $(document).ready(function (e) {
 
 	const LOADER_NAME = "RECOVERY_LOADER"
+
+	//Con `<base>`, `href="#"` llevaría al inicio: las opciones abren ventanas.
+	$('nav.cards a[href="#"]').on("click", (event) => event.preventDefault())
+
+	//El fondo de esta página, en el panel de marca: sin imagen queda el del tema.
+	const brand = $("[bg-js]")
+	const brandImage = JSON.parse(atob(brand.attr("bg-js")))[0]
+	if (typeof brandImage == "string" && brandImage !== "") {
+		brand.addClass("with-image").css("background-image", `url(${brandImage})`)
+	}
 	const recoveryItemUserAndPass = $("[recovery-user-pass]")
 	const recoveryModalUserAndPass = $("[modal-password]")
 
@@ -25,16 +35,16 @@ $(document).ready(function (e) {
 	const mainForm = recoveryModalUserAndPass.find("[steps-form]")
 
 	$("#modalNoUserButton").on('click', function (e) {
-		e.preventDefault();
-		$("#modalNoUser").removeClass("modal-no-user");
+		e.preventDefault()
+		$("#modalNoUser").removeClass("modal-no-user")
 	})
 
 	$("#cardModal").on('click', function (e) {
-		e.stopPropagation();
+		e.stopPropagation()
 	})
 
 	$("#backgrodund-modal").on('click', function () {
-		$("#modalNoUser").addClass("modal-no-user");
+		$("#modalNoUser").addClass("modal-no-user")
 	})
 
 	// Recuperación de contraseñas 
@@ -425,7 +435,7 @@ $(document).ready(function (e) {
 	userProblemItem.on('click', () => {
 		userProblemModal.modal({
 			closeIcon: false, allowMultiple: true, onShow: () => {
-				$("#modalNoUser").addClass("modal-no-user");
+				$("#modalNoUser").addClass("modal-no-user")
 				userProblemModal.find('form').find('button[type=submit]').show()
 				supportAllSteps.hide()
 				$(supportAllSteps[0]).show()

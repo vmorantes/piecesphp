@@ -1,15 +1,15 @@
 <?php
 
 use App\Controller\PublicAreaController;
-use PiecesPHP\Settings\ORM\SettingsModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
-use Organizations\Mappers\OrganizationMapper;
 use EventsLog\Mappers\LogsMapper;
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\Logs\ExpiredSessionsLog;
 use PiecesPHP\Core\MaintenanceMode;
 use PiecesPHP\Core\Roles;
@@ -17,21 +17,25 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
-use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\ResponseRouteFactory;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterException;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\TerminalData;
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\LoadFailures;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\Controllers\ImpersonationController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -148,33 +152,8 @@ if (APP_CONFIGURATION_MODULE) {
     SettingsModel::initializateConfigurations($default_configurations_values);
 }
 
-/**
- * --------------------------------------------------------------------------
- * Sobrescritura de Configuraciones desde la Base de Datos
- * --------------------------------------------------------------------------
- * Carga y aplica los ajustes de sistema guardados en tiempo real
- * y configura el módulo de correos y título principal.
- */
-if (APP_CONFIGURATION_MODULE) {
-    //Configuraciones de la aplicación tomadas desde la base de datos
-    $configurations = SettingsModel::getConfigurations();
-
-    foreach ($configurations as $name => $value) {
-        set_config($name, $value);
-    }
-
-    //Configuración de correo
-    (function ($config) {
-        if (!is_scalar($config)) {
-            set_config('mail', (new MailConfig)->toArray());
-        }
-    })(get_config('mail'));
-
-    //Configuración del título
-    if (mb_strlen(get_title()) == 0) {
-        set_title(SettingsModel::getConfigValue('title_app'));
-    }
-}
+//La carga de las opciones de la base va tras RouteGroup::initRoutes(false): hasta registrar las rutas ningún módulo ha
+//declarado sus opciones, y sin declarar no se aplican (ADR 0055, segunda versión).
 
 /**
  * --------------------------------------------------------------------------
@@ -515,18 +494,12 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             $user = null;
         }
 
-        //Conectarse arbitrariamente como un usuario si se es root
-
         // --- 6. Impersonación (Login as) ---
-        // Capacidad exclusiva del usuario ROOT para autenticarse temporalmente
-        // en el contexto del sistema como si fuera otro usuario en tiempo de ejecución.
-        // Intercepción de parámetros GET o Cookies para activar la Suplantación de Identidad (Impersonation)
-        $anotherUserID = isset($_GET) && array_key_exists(CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME, $_GET) ? $_GET[CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME] : null;
-        //La petición que TRAE el parámetro es el acto de empezar o de dejar de suplantar; las demás
-        //solo arrastran la cookie. Sin esto, cada petición dejaría una entrada en el registro.
-        $impersonationRequested = $anotherUserID !== null;
-        $anotherUserID ??= getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
+        // Root puede actuar como otro usuario (P204 a). El estado vive en una cookie FIRMADA que solo escriben y borran
+        // las rutas de ImpersonationController; aquí solo se lee. El GET CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME ya
+        // no activa nada.
         set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
+        $impersonatedID = null;
         //El principal tiene que valer POR SÍ MISMO antes de suplantar: después `$user` es el suplantado y su marca de
         //revocación y su estado ya no se miran (P160 a). Si no vale, no hay sesión, por el mismo camino que una revocada.
         if ($user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
@@ -540,43 +513,48 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         // El privilegio ROOT es el único autorizado a intercambiar su variable en memoria y operar del lado del servidor simulando ser otro usuario de menor rango.
         if ($isActiveSession && $user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
             set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, $user->id);
-            //El nombre del principal se guarda ANTES de que `$user` pase a ser el suplantado.
-            $rootUsernameForLog = (string) ($user->username ?? $user->id);
-            $anotherUserID = Validator::isInteger($anotherUserID) ? (int) $anotherUserID : null;
-            if ($anotherUserID !== null && $anotherUserID > 0 && !UsersModel::isSystemUser($anotherUserID)) {
-                setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, $anotherUserID);
-                $userJWTData->id = $anotherUserID;
-                $validationUserObject->setUser($userJWTData);
-                $user = $validationUserObject->getUserFromDatabase();
-                if ($user === null) {
-                    die('El id de usuario con el que intenta ingresar no existe');
+            $impersonationCookie = getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
+            if ($impersonationCookie !== null) {
+                $rootSessionID = $tokenSessionData->sid ?? null;
+                //Atada a la sesión de root: sin `sid` (el terminal), en claro, con firma mala o de otra sesión, no vale.
+                $impersonation = is_string($rootSessionID) ? Impersonation::read($impersonationCookie, $rootSessionID, (int) $user->id) : null;
+                $impersonationEnded = null;
+                if ($impersonation !== null && Impersonation::isExpired($impersonation['startedAt'])) {
+                    $impersonationEnded = sprintf(__(UserSystemFeaturesLang::LANG_GROUP, 'caducó a los %d minutos.'), Impersonation::MINUTES);
+                    LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_EXPIRED, [
+                        'username' => (string) ($user->username ?? $user->id),
+                        'target' => (string) (UsersModel::getBy($impersonation['targetID'], 'id')->username ?? $impersonation['targetID']),
+                    ], 'id', (string) $impersonation['targetID'], UsersModel::TABLE);
+                } elseif ($impersonation !== null) {
+                    //Lo que el objetivo es se relee en cada petición: si dejó de ser elegible, root sigue siendo root.
+                    $impersonationEnded = Impersonation::refusalReason($impersonation['targetID']);
+                    if ($impersonationEnded === null) {
+                        $userJWTData->id = $impersonation['targetID'];
+                        $validationUserObject->setUser($userJWTData);
+                        $impersonatedUser = $validationUserObject->getUserFromDatabase();
+                        if ($impersonatedUser !== null) {
+                            $user = $impersonatedUser;
+                            $impersonatedID = $impersonation['targetID'];
+                        }
+                    }
                 }
-                if ($impersonationRequested) {
-                    //Queda la huella de quién empezó a actuar como quién: antes, suplantar no
-                    //dejaba rastro y lo que el suplantado «hacía» aparecía como suyo.
-                    LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_START, [
-                        'username' => $rootUsernameForLog,
-                        'target' => $user->username ?? (string) $anotherUserID,
-                    ], 'id', (string) $anotherUserID, UsersModel::TABLE);
+                if ($impersonatedID === null) {
+                    ImpersonationController::clearCookie();
+                    if ($impersonationEnded !== null) {
+                        ImpersonationController::setNotice($impersonationEnded);
+                    }
                 }
-            } else {
-                if ($impersonationRequested && getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME) !== null) {
-                    LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_END, [
-                        'username' => $rootUsernameForLog,
-                    ], 'id', (string) $user->id, UsersModel::TABLE);
-                }
-                $anotherUserID = null;
-                setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, null);
             }
-            set_config(ROOT_ID_AS_CONNECT_CONFIG_NAME, $anotherUserID ?? $user->id);
+            set_config(ROOT_ID_AS_CONNECT_CONFIG_NAME, $impersonatedID ?? $user->id);
         }
 
         if ($user !== null) {
 
             //REVOCACIÓN POR USUARIO (ADR 0026): un token vale si nació DESPUÉS de esta marca. Va aquí porque `$user`
-            //ya está leído de la base —y ya es el SUPLANTADO si root está suplantando—, así que no cuesta consulta.
+            //ya está leído de la base, así que no cuesta consulta. Suplantando, el token es de root y su marca ya se miró
+            //arriba (P160 a): la del suplantado no lo echa.
             $sessionsValidFrom = $user->sessionsValidFrom ?? null;
-            if ($isActiveSession && is_string($sessionsValidFrom) && trim($sessionsValidFrom) !== '') {
+            if ($isActiveSession && $impersonatedID === null && is_string($sessionsValidFrom) && trim($sessionsValidFrom) !== '') {
                 $tokenCreated = BaseToken::getCreated($JWT);
                 //La regla vive en un solo sitio: sin una fecha entera, o si no nació DESPUÉS de las marcas, se niega.
                 if (!SessionToken::isCreatedAfterMarks(is_int($tokenCreated) ? $tokenCreated : null, $sessionsValidFrom)) {
@@ -593,12 +571,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             //Verificar status de la organización si aplica
             $organizationID = $user->organization;
             // Verifica que si un usuario pertenece a una organización, dicha entidad tenga al menos un estatus ACTIVO/PENDIENTE.
-            $organizationMapper = $organizationID !== null  ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-            $allowedStatusesOrganization = [
-                OrganizationMapper::ACTIVE,
-                OrganizationMapper::PENDING_APPROVAL,
-            ];
-            if ($organizationMapper !== null && !in_array($organizationMapper->status, $allowedStatusesOrganization)) {
+            $organizationMapper = $organizationID !== null ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+            if ($organizationMapper !== null && !in_array($organizationMapper->status, Impersonation::ORGANIZATION_STATUSES_WITH_SESSION)) {
                 $isActiveSession = false;
             }
 
@@ -613,7 +587,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             if ($isActiveSession) {
                 set_config('current_user', $user);
                 if ($organizationMapper !== null && $organizationMapper->administrator !== null) {
-                    $userIsOrganizationAdministrator = $organizationMapper->administrator->id == $user->id;
+                    //El encargado llega como UsersModel o como su id: se compara por id en los dos casos.
+                    $administrator = $organizationMapper->administrator;
+                    $administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;
+                    $userIsOrganizationAdministrator = $administratorID == $user->id;
                 }
                 Roles::setCurrentRole($user->type); //Se establece el rol
             }
@@ -706,7 +683,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         //Redirección al area administrativa desde formulario de logueo en caso de haber una session
         $login_redirect = get_config('admin_url');
         $relative_url = $login_redirect !== false ? ($login_redirect['relative'] ?? true) : true;
-        $relative_url = !is_bool($relative_url)  ?true : $relative_url;
+        $relative_url = !is_bool($relative_url) ?true : $relative_url;
         $admin_url = $login_redirect !== false ? ($login_redirect['url'] ?? '') : '';
         if ($relative_url) {
             $admin_url = baseurl($admin_url);
@@ -726,7 +703,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         // --- Inicia Pipeline de Autorización Dinámica de Roles (RBAC) ---
         $roles_control = get_config('roles');
         $active_roles_control = $roles_control['active'] ?? false;
-        $current_role = $user !== null  ?Roles::getCurrentRole() : null;
+        $current_role = $user !== null ?Roles::getCurrentRole() : null;
         $has_permissions = null;
 
         //Modificación de permisos del usuario en caso de tener una organización encargada
@@ -863,8 +840,24 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     if (is_string($responseExpectedLang) && mb_strlen($responseExpectedLang) > 1) {
         set_config('app_lang', $responseExpectedLang);
     }
+    //Lo que PHP ponía al abrir la sesión (session_cache_limiter 'nocache'), que desde la 9.1.0 no se abre al leer un
+    //flash. Con header() y ANTES del controlador: una página sale por echo y Slim ya no emite sus cabeceras.
+    $noCacheHeaders = ['Cache-Control' => 'no-store, no-cache, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => 'Thu, 19 Nov 1981 08:52:00 GMT'];
+    if (!headers_sent()) {
+        foreach ($noCacheHeaders as $name => $value) {
+            header("{$name}: {$value}");
+        }
+    }
     //Continuar
     $response = $handler->handle($request);
+    //La que fija su Cache-Control lo conserva (Slim reemplaza el de arriba al emitir) y no hereda Pragma ni Expires.
+    if ($response->hasHeader('Cache-Control') && !headers_sent()) {
+        foreach (['Pragma', 'Expires'] as $name) {
+            if (!$response->hasHeader($name)) {
+                header_remove($name);
+            }
+        }
+    }
     if (API_MODULE) {
         if ($globalDI instanceof DependenciesInjector) {
             $response = $globalDI->get('cors')($request, $response);
@@ -879,6 +872,34 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
  * --------------------------------------------------------------------------
  */
 RouteGroup::initRoutes(false);
+
+/**
+ * --------------------------------------------------------------------------
+ * Sobrescritura de Configuraciones desde la Base de Datos
+ * --------------------------------------------------------------------------
+ * Carga y aplica los ajustes de sistema guardados en tiempo real
+ * y configura el módulo de correos y título principal.
+ */
+if (APP_CONFIGURATION_MODULE) {
+    //Configuraciones de la aplicación tomadas desde la base de datos
+    $configurations = SettingsModel::getConfigurations();
+
+    //Solo lo declarado (ADR 0055, segunda versión); $configurations sigue entero para el aviso de lo no declarado.
+    ConfigOptions::applyDeclared($configurations);
+
+    //Configuración de correo
+    (function ($config) {
+        if (!is_scalar($config)) {
+            set_config('mail', (new MailConfig)->toArray());
+        }
+    })(get_config('mail'));
+
+    //Configuración del título
+    if (mb_strlen(get_title()) == 0) {
+        set_title(SettingsModel::getConfigValue('title_app'));
+    }
+}
+
 set_config('AppRoutesInit', true);
 /**
  * @category GlobalMethodDispatch
@@ -930,6 +951,8 @@ if (TerminalData::getInstance()->isTerminal()) {
         //Por otras acciones desacopladas del sistema de rutas
         //CONTRATO: bin/check-routes depende de que esta rama vuelva antes de $app->run(); así lee las
         //rutas sin despachar. Si deja de volver, el comprobador sale 2 en vez de aprobar.
+        //$actionName lo fija app/core/bootstrap.php en la terminal; si faltara, es una acción vacía y no reconocida.
+        $actionName = $actionName ?? '';
         if ($actionName === '_list-actions') {
             //Utilidad para autocompletado en CLI
             $cliActionsNames = [];
@@ -964,7 +987,9 @@ if (TerminalData::getInstance()->isTerminal()) {
                 } finally {
                     if ($testRun !== null && $testRun['created']) {
                         $pruned = GenericHandler::pruneTestRun($testRun['run']);
-                        echoTerminal('errores de prueba podados: ' . $pruned['entries'] . ($pruned['error'] !== null ? " ({$pruned['error']})" : ''));
+                        echoTerminal('errores de prueba podados: ' . $pruned['entries'] . ' (trazas ' . $pruned['traces'] . ', contadores de suaves '
+                            . $pruned['soft'] . '; líneas del plano ' . $pruned['plain'] . ', bloques del único ' . $pruned['unique'] . ')'
+                            . ($pruned['error'] !== null ? " ({$pruned['error']})" : ''));
                     }
                 }
                 //Un rojo sale con 1 porque quien encadena `bin/cli <suite> && …` no lee el balance.
@@ -1087,6 +1112,12 @@ $errorMiddleware->setErrorHandler([
     \UnderflowException::class,
     \UnexpectedValueException::class,
 ], $customGlobalExceptionHandler, true);
+
+//Aquí y no al cargarlas: hasta registrar las rutas no ha declarado nadie. Lo no declarado ya no se aplica (applyDeclared);
+//aquí solo se avisa, una vez por nombre.
+if (APP_CONFIGURATION_MODULE && isset($configurations) && is_array($configurations)) {
+    ConfigOptions::warnUndeclared(array_keys($configurations));
+}
 
 /**
  * --------------------------------------------------------------------------

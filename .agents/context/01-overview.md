@@ -58,11 +58,11 @@ desde este repo.
 ### Dependencias externas relevantes
 
 `mpdf/mpdf` (PDF), `phpoffice/phpspreadsheet` (Excel), `phpmailer/phpmailer`,
-`scssphp/scssphp` (compilar SASS en runtime), `studio-42/elfinder` (gestor de
-archivos), `spatie/url`, `pragmarx/google2fa` (OTP/2FA),
-`microsoft/azure-storage-blob`, `openai-php/client`, `hubspot/api-client`,
-`aminyazdanpanah/php-ffmpeg-video-streaming`, `guzzlehttp/guzzle`,
-`react/event-loop` (acciones CLI reactivas).
+`studio-42/elfinder` (gestor de archivos), `spatie/url`, `pragmarx/google2fa`
+(OTP/2FA), `openai-php/client`, `php-ffmpeg/php-ffmpeg` (conversión de audio de
+`FfmpegAudioAdapter`), `guzzlehttp/guzzle` (también Azure Blob, por REST, desde la 9.2.0),
+`react/event-loop` (acciones CLI reactivas). `scssphp/scssphp`,
+`php-ffmpeg-video-streaming` y el SDK de Azure Storage salieron en la 9.2.0 (P227, P228).
 
 ## Requisitos de entorno
 
@@ -82,12 +82,11 @@ archivos), `spatie/url`, `pragmarx/google2fa` (OTP/2FA),
 
 | Rama | Uso |
 | :-- | :-- |
-| `dev` | Rama de integración / trabajo diario |
-| `limpieza-modulos` | Rama de trabajo actual (limpieza y depuración de módulos) |
-| `master` | **Estable sin versionar**, la general. Se sincroniza desde `dev` |
-| `last-stable` | **Estable con etiqueta de versión**: la publicada, la que se descarga para desplegar. Las etiquetas apuntan aquí |
-| `modificacion-docs` | Trabajo sobre documentación |
-| `redesign` | Rediseño de UI. **Sin rama local** al 2026-09-14 (`git branch`); no se comprobó el remoto |
+| `dev` | La única rama de trabajo; también el rediseño de la `10.0.0` (P241 a, 2026-10-28) |
+| `master` | Recibe las pre-versiones etiquetadas; solo avanza (ADR 0019) |
+| `last-stable` | **La última versión estable etiquetada**: la que se descarga para desplegar; solo avanza (ADR 0019) |
+
+Medido el 2026-10-28 con `git branch --list`: no hay más ramas locales.
 | ~~`updagre-to-php84`~~ | Marcador vacío, 0 commits por delante de `dev`. Retirar |
 | `upgrade-to-php85` | Migración al rango 8.4.1–8.5. **Ejecutada** el 2026-08-20, mergeada a `dev` |
 

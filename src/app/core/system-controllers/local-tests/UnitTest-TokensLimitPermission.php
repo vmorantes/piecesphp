@@ -2,6 +2,8 @@
 
 //El límite de tokens de IA es de root (GenericContentController::TOKENS_LIMIT_PERMISSION): un administrador general que
 //lo envía no lo cambia, y root sí. Por HTTP; el valor se lee antes y después y se repone por el mismo camino.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/BuiltIn/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
@@ -53,7 +55,7 @@ CliActions::make('unit-tests:core/tokens-limit-permission', function ($args) {
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
     $ruta = (string) parse_url(GenericContentController::routeName('actions-edit', [], true), \PHP_URL_PATH);
     $ruta = $prefijoBase !== '' && str_starts_with($ruta, $prefijoBase) ? substr($ruta, strlen($prefijoBase)) : $ruta;
-    $guardar = function (string $jwt, int $valor) use ($base, $ruta): int {
+    $guardar = function (string $jwt, int $valor, bool $suelto = false) use ($base, $ruta): int {
         $h = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($h, [
             CURLOPT_URL => $base . '/' . ltrim($ruta, '/'),
@@ -63,7 +65,7 @@ CliActions::make('unit-tests:core/tokens-limit-permission', function ($args) {
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query(['configName' => GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT, GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT => [Config::get_default_lang() => $valor]]),
+            CURLOPT_POSTFIELDS => http_build_query(['configName' => GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT, GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT => $suelto ? $valor : [Config::get_default_lang() => $valor]]),
             CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
         ]);
         curl_exec($h);
@@ -110,6 +112,9 @@ CliActions::make('unit-tests:core/tokens-limit-permission', function ($args) {
 
         $estado = $guardar($jwtRoot, $intento);
         $check($leer() === (string) $intento, 'a2 CANARIO: root sí lo cambia', "HTTP {$estado}, después " . $leer());
+
+        $estado = $guardar($jwtRoot, $intento + 1, true);
+        $check($estado === 400 && $leer() === (string) $intento, 'a3 un entero suelto, sin idioma, da 400 y no cambia nada (antes, 500)', "HTTP {$estado}, después " . $leer());
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

@@ -24,10 +24,11 @@ $rsMobile: 480px;
 //──── Colors ────────────────────────────────────────────────────────────────────────────
 $defaultTextColor: #676767;
 
-$primaryColor: var(--main-brand-color);
-$primaryColorOver: var(--font-color-two);
+//Fijos (H106): la zona pública no se configura ni carga el tema; son los de fábrica de config.php.
+$primaryColor: #6435C9;
+$primaryColorOver: #FFFFFF;
 
-$secondaryColor: var(--second-brand-color);
+$secondaryColor: #A333C8;
 
 $footerColor: white;
 $footerSocialIconsOnHoverColor: $secondaryColor;
@@ -47,7 +48,7 @@ $fontPublicSans: 'Public Sans',
 sans-serif;
 $fontPoppins: 'Poppins',
 sans-serif;
-$fontGlobal: var(--font-family-global, $fontPoppins);
+$fontGlobal: $fontPoppins;
 $fontGlobalText: $fontPoppins;
 
 // Weights
@@ -62,17 +63,12 @@ $fwExtraBold: 800;
 //──── Vistas especiales: 404, 403 y mantenimiento ───────────────────────────────────────
 
 // Colores
-$mainBrandColor: var(--main-brand-color);
-$secondBrandColor: var(--second-brand-color);
-$color-bg: $mainBrandColor;
-$color-mega-title: $secondBrandColor;
+$mainBrandColor: $primaryColor;
+$secondBrandColor: $secondaryColor;
 $border-radius-buttons: 10px;
 $background-color-body: white;
 $margin-body: 0;
 $card-background-color: white;
-// Colores para el gradiente
-$color-gradient-1: $mainBrandColor;
-$color-gradient-2: $secondBrandColor;
 // Imagen footer
 $width-image-footer: 120px;
 $height-imagen-footer: 120px;

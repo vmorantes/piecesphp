@@ -20,7 +20,10 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
     <?php foreach($idsElements as $idElement): ?>
     <?php
         $element = new PublicationMapper($idElement);
-        if($element->id == null) continue;
+        if ($element->id == null) {
+            continue;
+        }
+
         $singleURL = PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]);
         $excerptTitle = $element->excerptTitle(100);
         $excerptTitle = mb_strpos($excerptTitle, '...') !== false ? $excerptTitle : $excerptTitle . '...';

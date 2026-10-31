@@ -6,19 +6,19 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\Core\AppEnvironment;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Core\AppEnvironment;
-use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Terminal\CliActions;
-use Terminal\Distribution;
-use Terminal\TestLeftovers;
 use PiecesPHP\Terminal\LoadFailures;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
+use Terminal\Distribution;
+use Terminal\TestLeftovers;
 
 /**
  * GatesTask.
@@ -120,6 +120,9 @@ class GatesTask extends TerminalTaskAbstract
         'src/app/classes/PiecesPHP/SystemStatus/',
         'src/app/classes/PiecesPHP/Tokens/',
     ];
+
+    /** «@areas nucleo»: la suite depende solo del núcleo y no corre con un cambio solo de módulos (ADR 0066). */
+    const AREA_CORE = 'nucleo';
 
     /** La documentación no elige ninguna suite (ADR 0062 §2), y tampoco un `.md` de la raíz. */
     const AREA_DOCUMENTATION = ['.agents/', '.claude/', 'source-docs/'];
@@ -260,6 +263,18 @@ class GatesTask extends TerminalTaskAbstract
             exit(1);
         }
 
+        //Con la base sembrada, core/seed-round-trip c3 y core/geo-viewer e0 caen sin defecto que arreglar: se para antes de
+        //correr nada y se dice la receta (G18-9).
+        if (array_intersect($suites, ['unit-tests:core/seed-round-trip', 'unit-tests:core/geo-viewer']) !== []) {
+            $sembradas = array_sum(array_map('count', \Terminal\Seeding\SeedPlanner::seededIds(\Terminal\Seeding\SeedPlanner::order(\Terminal\Seeding\SeedPlanner::discover('all')))));
+            $cargadas = GeoLoadFixtureTask::existingCount();
+            if ($sembradas > 0 || $cargadas > 0) {
+                echoTerminal("\e[31mBASE SEMBRADA:\e[39m aplica la receta 13 (.agents/context/13-recetas.md) antes de verificar"
+                    . " ({$sembradas} fila(s) de la siembra y {$cargadas} de la carga del geovisor).");
+                exit(1);
+            }
+        }
+
         $root = rtrim(str_replace('\\', '/', basepath('..')), '/');
         $failed = [];
 
@@ -385,6 +400,10 @@ class GatesTask extends TerminalTaskAbstract
             if ($result['failures'] > 0 || $result['exit'] !== 0) {
                 $failed[] = $suite;
                 echoTerminal("   \e[31m[FALLÓ]\e[39m        {$label} {$result['balance']}{$seconds}");
+                //QUÉ CASO CAE: sin él, una intermitente no se puede atribuir (G18).
+                foreach ($result['failedCases'] !== [] ? $result['failedCases'] : ["sin caso marcado: código de salida {$result['exit']}"] as $case) {
+                    echoTerminal("                    {$case}");
+                }
                 continue;
             }
 
@@ -399,7 +418,8 @@ class GatesTask extends TerminalTaskAbstract
             $pruned = GenericHandler::pruneTestRun($testRun['run']);
             echoTerminal('');
             echoTerminal('   errores de prueba podados: ' . $pruned['entries'] . ' (trazas ' . $pruned['traces'] . ', contadores de suaves '
-                . $pruned['soft'] . ')' . ($pruned['error'] !== null ? " \e[31m— {$pruned['error']}\e[39m" : ''));
+                . $pruned['soft'] . '; líneas del plano ' . $pruned['plain'] . ', bloques del único ' . $pruned['unique'] . ')'
+                . ($pruned['error'] !== null ? " \e[31m— {$pruned['error']}\e[39m" : ''));
         }
 
         echoTerminal('');
@@ -444,7 +464,7 @@ class GatesTask extends TerminalTaskAbstract
      * no es documentación, ni cae en una carpeta de AREA_MODULES, ni es el archivo de una suite, ni es un artefacto de
      * instrumento, todas («nucleo»); si no, las cuyo archivo cambió («su-archivo»), las que no declaran área
      * («sin-area»), las que tienen un área que casa («area»: una carpeta, terminada en `/`, casa por prefijo; un archivo,
-     * por igualdad) y las que leen un artefacto cambiado («artefacto <archivo>»): lo nombran, nombran files/dev sin
+     * por igualdad; «nucleo» no casa con ningún cambio de módulo, ADR 0066) y las que leen un artefacto cambiado («artefacto <archivo>»): lo nombran, nombran files/dev sin
      * nombre de archivo y el cambio es de files/dev/, o lo declaran en SUITE_DISTRIBUTION_REQUIREMENTS. Lo que lee cada
      * suite llega calculado (suiteArtifactReads()), para que esto siga sin leer disco.
      *
@@ -473,7 +493,7 @@ class GatesTask extends TerminalTaskAbstract
                 $selected[$suite] = 'sin-area';
                 continue;
             }
-            foreach ($areas as $area) {
+            foreach (array_diff($areas, [self::AREA_CORE]) as $area) {
                 foreach ($changedFiles as $file) {
                     if (str_ends_with($area, '/') ? str_starts_with($file, $area) : $file === $area) {
                         $selected[$suite] = 'area';
@@ -793,7 +813,7 @@ class GatesTask extends TerminalTaskAbstract
      * En proceso aparte a propósito: una suite que llame a `exit()` se llevaría por delante al
      * corredor, y varias tocan la base —`db-restore` la restaura entera—.
      *
-     * @return array{ran: bool, reason: string, balance: string, failures: int, exit: int}
+     * @return array{ran: bool, reason: string, balance: string, failures: int, exit: int, failedCases: string[]}
      */
     protected static function runSuite(string $root, string $suite): array
     {
@@ -811,16 +831,9 @@ class GatesTask extends TerminalTaskAbstract
         $plain = is_string($plain) ? $plain : '';
 
         //LA PRUEBA DE QUE CORRIÓ ES SU BALANCE. Sin él no llegó al final, y el motivo da igual.
-        $failures = null;
-        $balance = '';
-
-        if (preg_match('/BALANCE FINAL:\s*(\d+)\/(\d+)\s*PASADAS(?:,\s*(\d+)\s*OMITIDAS)?/u', $plain, $matched) === 1) {
-            $balance = trim($matched[0]);
-            $failures = (int) $matched[2] - (int) $matched[1];
-        } elseif (preg_match('/Total:\s*(\d+)\s*\|\s*Pasaron:\s*(\d+)\s*\|\s*Fallaron:\s*(\d+)/u', $plain, $matched) === 1) {
-            $balance = trim($matched[0]);
-            $failures = (int) $matched[3];
-        }
+        $parsed = self::parseBalance($plain);
+        $failures = $parsed['failures'] ?? null;
+        $balance = $parsed['balance'] ?? '';
 
         if ($failures === null) {
             $lines = array_values(array_filter(array_map('trim', explode("\n", $plain)), static fn (string $l): bool => $l !== ''));
@@ -831,6 +844,7 @@ class GatesTask extends TerminalTaskAbstract
                 'balance' => '',
                 'failures' => 0,
                 'exit' => $status,
+                'failedCases' => [],
             ];
         }
 
@@ -840,7 +854,59 @@ class GatesTask extends TerminalTaskAbstract
             'balance' => $balance,
             'failures' => $failures,
             'exit' => $status,
+            'failedCases' => self::failedCases($plain),
         ];
+    }
+
+    /**
+     * El balance de la salida plana de una suite: la frase entera, con sus «, N FALLIDAS» y «, N OMITIDAS», y los fallos,
+     * que salen de N/M (o de «Fallaron»), no de esas coletillas. Null si no imprimió balance.
+     *
+     * @param string $plain
+     * @return array{balance:string,failures:int}|null
+     */
+    public static function parseBalance(string $plain): ?array
+    {
+        if (preg_match('/BALANCE FINAL:\s*(\d+)\/(\d+)\s*PASADAS(?:,\s*\d+\s*(?:FALLIDAS|OMITIDAS))*/u', $plain, $matched) === 1) {
+            return ['balance' => trim($matched[0]), 'failures' => (int) $matched[2] - (int) $matched[1]];
+        }
+        if (preg_match('/Total:\s*(\d+)\s*\|\s*Pasaron:\s*(\d+)\s*\|\s*Fallaron:\s*(\d+)/u', $plain, $matched) === 1) {
+            return ['balance' => trim($matched[0]), 'failures' => (int) $matched[3]];
+        }
+        return null;
+    }
+
+    /**
+     * Los casos que cayeron, de la salida plana (sin colores) de una suite: cada línea con «[FALLÓ]» y, si la sigue, su
+     * línea de detalle («- …»), en orden. Como mucho $max casos; si hay más, una última línea «… y N más».
+     *
+     * @param string $plain
+     * @param int $max
+     * @return string[]
+     */
+    public static function failedCases(string $plain, int $max = 10): array
+    {
+        $lines = explode("\n", str_replace("\r", '', $plain));
+        $cases = [];
+        $count = 0;
+        foreach ($lines as $index => $line) {
+            if (!str_contains($line, '[FALLÓ]')) {
+                continue;
+            }
+            $count++;
+            if ($count > $max) {
+                continue;
+            }
+            $cases[] = trim($line);
+            $next = trim($lines[$index + 1] ?? '');
+            if (str_starts_with($next, '- ')) {
+                $cases[] = '  ' . $next;
+            }
+        }
+        if ($count > $max) {
+            $cases[] = '… y ' . ($count - $max) . ' más';
+        }
+        return $cases;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

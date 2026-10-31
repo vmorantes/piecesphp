@@ -6,11 +6,11 @@
 
 namespace PiecesPHP\BuiltIn\Helpers\Mappers;
 
-use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\BuiltIn\Helpers\Exceptions\SafeException;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemLang;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Settings\ORM\SettingsModel;
 
 /**
  * GenericContentPseudoMapper.
@@ -29,7 +29,12 @@ class GenericContentPseudoMapper
     const LANG_GROUP = HelpersSystemLang::LANG_GROUP;
     const CONTENT_TOKENS_LIMIT = 'tokensLimit';
     const CONTENT_TOKENS_USED = 'tokensUsed';
-    const CONTENT_DYNAMIC_TRANSCALTIONS = 'DYNAMIC_TRANSCALTIONS';
+    const CONTENT_DYNAMIC_TRANSLATIONS = 'DYNAMIC_TRANSLATIONS';
+    /**
+     * El nombre con la errata que se usó hasta la 9.0. Solo se lee, si la fila nueva no existe
+     * (databases/actualizaciones/2026-10-26-errata-traducciones-dinamicas.sql la renombra).
+     */
+    const LEGACY_CONTENT_DYNAMIC_TRANSLATIONS = 'DYNAMIC_TRANSCALTIONS';
     const CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT = 'DYNAMIC_TRANSLATIONS_UPDATED_AT';
     const CONTENT_MAPBOX_KEYS = 'MAPBOX_KEYS';
     const CONTENT_MAP_DEFAULT_CENTER = 'MAP_DEFAULT_CENTER';
@@ -55,7 +60,7 @@ class GenericContentPseudoMapper
             AI_OPENAI => 0,
             AI_MISTRAL => 0,
         ],
-        self::CONTENT_DYNAMIC_TRANSCALTIONS => [],
+        self::CONTENT_DYNAMIC_TRANSLATIONS => [],
         self::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT => null,
         self::CONTENT_MAPBOX_KEYS => [
             'keyLocal' => '',
@@ -73,7 +78,7 @@ class GenericContentPseudoMapper
      */
     protected $propertiesParseData = [
         self::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT => 'datetime',
-        self::CONTENT_DYNAMIC_TRANSCALTIONS => 'associativeArray',
+        self::CONTENT_DYNAMIC_TRANSLATIONS => 'associativeArray',
         self::CONTENT_MAPBOX_KEYS => 'associativeArray',
         self::CONTENT_MAP_DEFAULT_CENTER => 'associativeArray',
     ];
@@ -136,19 +141,38 @@ class GenericContentPseudoMapper
     public function __construct(string $contentName = 'default')
     {
         $this->userSetContentName = $contentName;
-        $this->contentName = sha1(GenericContentPseudoMapper::class) . "|{$this->userSetContentName}";
-        if (mb_strlen($this->contentName) > 255) {
-            $this->contentName = sha1($this->contentName);
-        }
+        $this->contentName = self::nameFor($this->userSetContentName);
         $this->baseLang = Config::get_default_lang();
         $this->langData = new \stdClass;
         $this->orm = new SettingsModel($this->contentName);
         if ($this->orm->id === null) {
             //Solo se prepara el nombre: quien guarde encontrará la fila lista para insertarse.
             $this->orm->name = $this->contentName;
+            //Sin migrar, las traducciones pendientes siguen en la fila con la errata: se leen de ahí, sin escribir en ella;
+            //el primer guardado ya va a la fila nueva.
+            if ($this->userSetContentName === self::CONTENT_DYNAMIC_TRANSLATIONS) {
+                $legacy = new SettingsModel(self::nameFor(self::LEGACY_CONTENT_DYNAMIC_TRANSLATIONS));
+                $legacyValue = $legacy->id !== null ? (array) $legacy->value : [];
+                if (array_key_exists(self::LEGACY_CONTENT_DYNAMIC_TRANSLATIONS, $legacyValue)) {
+                    $this->fromArray([self::CONTENT_DYNAMIC_TRANSLATIONS => $legacyValue[self::LEGACY_CONTENT_DYNAMIC_TRANSLATIONS]], true);
+                }
+            }
         } else {
             $this->fromArray((array) $this->orm->value, true);
         }
+    }
+
+    /**
+     * El nombre de la fila de configuración de un contenido. Lo usan el constructor y la declaración del catálogo
+     * (ConfigOptions): una sola fórmula, para que lo declarado sea lo que se guarda.
+     *
+     * @param string $content
+     * @return string
+     */
+    public static function nameFor(string $content): string
+    {
+        $name = sha1(GenericContentPseudoMapper::class) . "|{$content}";
+        return mb_strlen($name) > 255 ? sha1($name) : $name;
     }
 
     /**
@@ -553,7 +577,7 @@ class GenericContentPseudoMapper
         if ($parseType === 'datetime') {
             if ($mode === $fromSQL) {
                 if (Validator::isDate($value, 'Y-m-d H:i:s')) {
-                    $value = $value instanceof \DateTime  ? $value : new \DateTime($value);
+                    $value = $value instanceof \DateTime ? $value : new \DateTime($value);
                 }
             } elseif ($mode === $toSQL) {
                 if ($value instanceof \DateTime) {

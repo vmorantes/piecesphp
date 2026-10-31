@@ -1,0 +1,35 @@
+//El panel de marca del acceso y de la ayuda (access-open.php). Con imagen, un velo: el texto va encima de una foto cualquiera.
+$-accessScrim: rgba(0, 0, 0, 0.55);
+$-accessBrandText: #fff;
+
+//La hoja base del panel (ui-pcs.scss) cierra el desplazamiento de html y body; estas páginas no llevan su armazón.
+html,
+body {
+    overflow-y: auto;
+}
+
+.developer-credit {
+    text-align: center;
+}
+
+.access-brand {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+//El velo sustituye a la trama del tema (`::before`), que sigue encima de la imagen: necesita su misma especificidad.
+.ui.grid > .tinted.column.access-brand.with-image {
+    &::before {
+        background: $-accessScrim;
+    }
+
+    &,
+    .ui.header,
+    .ui.header .sub.header,
+    .ui.muted.text,
+    .welcome-msg,
+    a {
+        color: $-accessBrandText;
+    }
+}

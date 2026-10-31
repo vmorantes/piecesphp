@@ -6,13 +6,11 @@
 
 namespace Directory\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Directory\DirectoryLang;
 use Directory\DirectoryRoutes;
 use Organizations\Controllers\OrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -22,6 +20,8 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\ORM\AvatarModel;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
@@ -193,7 +193,6 @@ class AllProfilesController extends AdminPanelController
                 $orgClass = $isOrg ? 'org' : '';
                 $avatar = "<div class='avatar {$orgClass}'><img src='" . escape_html($avatar) . "' /></div>";
                 $name = "<div class='name'>" . escape_html($e->name) . "</div>";
-
 
                 $columns[] = "<div class='user-info'>{$avatar} {$name}</div>";
                 $columns[] = escape_html($e->fullLocation);

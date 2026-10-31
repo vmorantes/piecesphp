@@ -127,7 +127,7 @@ if (!$isAbsolute) {
 $uploadsDirectory = rtrim($uploadsDirectory, \DIRECTORY_SEPARATOR);
 
 //Ajustar patrón
-$globPattern = $uploadsDirectory . \DIRECTORY_SEPARATOR  . trim($globPattern, '/');
+$globPattern = $uploadsDirectory . \DIRECTORY_SEPARATOR . trim($globPattern, '/');
 
 //Validar existencia del directorio
 if (!file_exists($uploadsDirectory)) {
@@ -136,7 +136,8 @@ if (!file_exists($uploadsDirectory)) {
 }
 
 /* Buscar */
-$fileResults = glob($globPattern, GLOB_BRACE);
+//glob() da false si falla: sin archivos que recorrer, no un foreach sobre false.
+$fileResults = glob($globPattern, GLOB_BRACE) ?: [];
 
 /* Iterar los resultados */
 foreach ($fileResults as $filePath) {
@@ -149,10 +150,10 @@ foreach ($fileResults as $filePath) {
     $fileDir = dirname($filePath);
     $fileExtension = '.webm';
     $fileName = mb_substr(basename($filePath), 0, mb_strpos(basename($filePath), $fileExtension));
-    $tmpFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.tmp.wav';
+    $tmpFilePath = $fileDir . \DIRECTORY_SEPARATOR . $fileName . '.tmp.wav';
     $bkFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $bkExtension;
-    $fixedFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $fixedExtension;
-    $processedFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.processed';
+    $fixedFilePath = $fileDir . \DIRECTORY_SEPARATOR . $fileName . $fixedExtension;
+    $processedFilePath = $fileDir . \DIRECTORY_SEPARATOR . $fileName . '.processed';
     $filePathEsc = escapeshellarg($filePath);
     $tmpFilePathEsc = escapeshellarg($tmpFilePath);
     $fixedFilePathEsc = escapeshellarg($fixedFilePath);

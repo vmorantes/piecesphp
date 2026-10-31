@@ -7,6 +7,8 @@
 namespace PiecesPHP\BuiltIn\Helpers;
 
 use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
@@ -37,8 +39,15 @@ class HelpersSystemRoutes
      * @param RouteGroup $groupAdministration
      * @return RouteGroup[] Con los índices groupAdministration
      */
-    public static function routes(RouteGroup $groupAdministration, )
+    public static function routes(RouteGroup $groupAdministration,)
     {
+        //Los contenidos genéricos que se guardan (ADR 0055), con el nombre que les da nameFor(); fuera del if, porque las
+        //filas se leen aunque el módulo esté apagado.
+        foreach ((new \ReflectionClass(GenericContentPseudoMapper::class))->getConstants() as $constant => $content) {
+            if (str_starts_with($constant, 'CONTENT_') && is_string($content)) {
+                ConfigOptions::declare(GenericContentPseudoMapper::nameFor($content), GenericContentPseudoMapper::class, ConfigOptions::SHAPE_JSON);
+            }
+        }
         if (self::ENABLE) {
 
             $groupAdministration = GenericContentController::routes($groupAdministration);
@@ -88,7 +97,7 @@ class HelpersSystemRoutes
                 'position' => MenuGroupCollection::BAND_CONTENTS + 40,
             ]));
 
-            //«Variables de entorno» ya no está en el menú lateral: sus dos pantallas viven en Configuración › Integraciones
+            //«Variables de entorno» ya no está en el menú lateral: sus dos pantallas viven en Configuración › Sistema
             //(SettingsController::panelGroups(), P134 a).
 
         }

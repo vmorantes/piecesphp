@@ -6,8 +6,9 @@
 
 namespace SystemApprovals\Util\Packages;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
@@ -35,12 +36,29 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
     ];
 
     /**
+     * A quién va el aviso de una organización (P216): a su encargado; si no tiene, o fue Eliminado, a quien la creó.
+     *
+     * @param EntityMapper $reference
+     * @return UsersModel|null
+     */
+    public static function getContactUserSpecificMapper(EntityMapper $reference): ?UsersModel
+    {
+        $toUser = fn ($value): ?UsersModel => $value instanceof UsersModel ? $value : (is_numeric($value) ? new UsersModel((int) $value) : null);
+        $administrator = $reference instanceof OrganizationMapper ? $toUser($reference->administrator) : null;
+        if ($administrator !== null && $administrator->id !== null && (int) $administrator->status !== UsersModel::STATUS_USER_DELETED) {
+            return $administrator;
+        }
+        $creator = $reference instanceof OrganizationMapper ? $toUser($reference->createdBy) : null;
+        return $creator !== null && $creator->id !== null ? $creator : null;
+    }
+
+    /**
      * Obtiene el tipo de contenido específico del mapper.
      *
      * @param int|OrganizationMapper $reference Referencia al mapper o su ID.
      * @return string Texto base del tipo de contenido.
      */
-    public static function getContentTypeSpecificMapper(int | OrganizationMapper $reference): string
+    public static function getContentTypeSpecificMapper(int|OrganizationMapper $reference): string
     {
         $text = static::$BASE_TEXT;
         return $text;
@@ -52,7 +70,7 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
      * @param int|OrganizationMapper $reference Referencia al mapper o su ID.
      * @return bool True si el mapper debe ser aprobado automáticamente, false en caso contrario.
      */
-    public static function isAutoApprovalSpecificMapper(int | OrganizationMapper $reference): bool
+    public static function isAutoApprovalSpecificMapper(int|OrganizationMapper $reference): bool
     {
         $approved = false;
         $mapper = $reference instanceof OrganizationMapper ? $reference : new OrganizationMapper($reference);

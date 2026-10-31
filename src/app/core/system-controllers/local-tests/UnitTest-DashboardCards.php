@@ -2,6 +2,8 @@
 
 //El inicio del panel con tarjetas (C5, FY): el registro, DashboardCardBody, la ayuda vacía sin icono y lo plegado (la de
 //errores nace plegada y, plegada, no calcula ni enseña cifras pero sí su pie). En proceso y por HTTP.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/PiecesPHP/Logs/
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;

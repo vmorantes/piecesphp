@@ -6,7 +6,6 @@
 
 namespace Organizations;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Controllers\OrganizationProfileController;
 use Organizations\Controllers\OrganizationsController;
@@ -22,6 +21,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\Geo\GeoSourceRegistry;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * OrganizationsRoutes.

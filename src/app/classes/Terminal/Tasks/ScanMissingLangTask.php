@@ -6,7 +6,6 @@
 
 namespace Terminal\Tasks;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
@@ -15,6 +14,7 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * ScanMissingLangTask.
@@ -47,8 +47,8 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         //Establecer propiedades
         $this->description = new StringArray([
             "Revisa los mensajes faltantes por traducción y genera un archivo php con ellos.\r\n",
-            "\tNO mira todos los idiomas: solo los de `allowed_langs` que NO estén en `no_scan_langs`.\r\n",
-            "\tHoy son 6 permitidos y 5 sin escanear, así que se revisa UNO: `en`. Ver LEY 15.\r\n",
+            "\tNO mira todos los idiomas: solo los de `allowed_langs` y `additional_langs_to_scan` que NO estén en\r\n",
+            "\t`no_scan_langs` ni en --exclude-lang (src/app/config/lang.php). Cuáles son sale de ahí al correr. Ver LEY 15.\r\n",
             "\tParámetros:\r\n",
             "\t  --exclude-lang Cadena separada por comas de idiomas a ignorar, i.e.: --exclude-lang=es,en\r\n",
             "\t  --exclude-group Cadena separada por comas de grupos a ignorar, i.e.: --exclude-group=general,public\r\n",
@@ -137,7 +137,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                     touch($fileMissingLangMessagePath);
                     chmod($fileMissingLangMessagePath, 0664);
                 }
-                file_put_contents($fileMissingLangMessagePath, json_encode($messagesDataByLang, \JSON_PRETTY_PRINT  | \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
+                file_put_contents($fileMissingLangMessagePath, json_encode($messagesDataByLang, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES));
                 $message[] = "\e[34mArchivo generado en: {$fileMissingLangMessagePath}\e[39m";
             }
 
@@ -256,7 +256,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                     if ($node instanceof \PhpParser\Node\Stmt\Namespace_) {
                         $namespace = $node->name ? $node->name->toString() : '';
                     }
-                    if ($node instanceof \PhpParser\Node\Stmt\ClassLike  && $node->hasAttribute('namespacedName')) {
+                    if ($node instanceof \PhpParser\Node\Stmt\ClassLike && $node->hasAttribute('namespacedName')) {
                         $currentClassName = $node->getAttribute('namespacedName')->toString();
                     }
                 }
@@ -267,12 +267,12 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                         if ($node instanceof \PhpParser\Node\Stmt\Namespace_) {
                             $namespace = $node->name ? $node->name->toString() : '';
                             foreach ($node->stmts as $stmt) {
-                                if ($stmt instanceof \PhpParser\Node\Stmt\Class_  && $stmt->name) {
+                                if ($stmt instanceof \PhpParser\Node\Stmt\Class_ && $stmt->name) {
                                     $currentClassName = $namespace ? $namespace . '\\' . $stmt->name->toString() : $stmt->name->toString();
                                     break 2;
                                 }
                             }
-                        } elseif ($node instanceof \PhpParser\Node\Stmt\Class_  && $node->name) {
+                        } elseif ($node instanceof \PhpParser\Node\Stmt\Class_ && $node->name) {
                             $currentClassName = $node->name->toString();
                             break;
                         }
@@ -285,8 +285,8 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                 // Buscar llamadas a la función indicada
                 $calls = $nodeFinder->find($ast, function ($node) use ($function) {
                     return $node instanceof \PhpParser\Node\Expr\FuncCall
-                    && $node->name instanceof \PhpParser\Node\Name
-                    && $node->name->toString() === $function;
+                        && $node->name instanceof \PhpParser\Node\Name
+                        && $node->name->toString() === $function;
                 });
 
                 if (!empty($calls)) {
@@ -305,11 +305,11 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                             } elseif ($arg->value instanceof \PhpParser\Node\Expr\ClassConstFetch) {
                                 // Constantes de clase: Clase::CONSTANTE
                                 $class = $arg->value->class instanceof \PhpParser\Node\Name
-                                ? $arg->value->class->toString()
-                                : '';
+                                    ? $arg->value->class->toString()
+                                    : '';
                                 $constName = $arg->value->name instanceof \PhpParser\Node\Identifier
-                                ? $arg->value->name->toString()
-                                : '';
+                                    ? $arg->value->name->toString()
+                                    : '';
 
                                 $lower = strtolower($class);
                                 if (in_array($lower, ['self', 'static'])) {
@@ -406,7 +406,8 @@ class ScanMissingLangTask extends TerminalTaskAbstract
      */
     public static function collectMissing(string $missingFolder, array $allowedLangs, array $excludeLang, array $ignoreGroup, array &$readLines = []): array
     {
-        $messagesFiles = glob($missingFolder . '/*/*/*.to-translate');
+        //glob() da false si falla: sin archivos que leer, no un foreach sobre false.
+        $messagesFiles = glob($missingFolder . '/*/*/*.to-translate') ?: [];
         $messagesDataByLang = [];
 
         foreach ($messagesFiles as $messageFile) {

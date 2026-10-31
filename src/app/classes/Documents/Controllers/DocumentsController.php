@@ -6,8 +6,6 @@
 
 namespace Documents\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Documents\DocumentsLang;
 use Documents\DocumentsRoutes;
 use Documents\Exceptions\DuplicateException;
@@ -16,16 +14,18 @@ use Documents\Mappers\DocumentsMapper;
 use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
 use PDOException;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
-use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
-use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\FormUploadHandler;
+use PiecesPHP\Core\Forms\FormUploadRejectedException;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -42,7 +42,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * DocumentsController.
@@ -359,7 +359,7 @@ class DocumentsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -544,7 +544,7 @@ class DocumentsController extends AdminPanelController
                         }
 
                         if ($documentSetted !== null) {
-                            $document = self::handlerUpload('document', '', $documentSetted, [
+                            $document = self::handlerUpload('document', $mapper->folder, $documentSetted, [
                                 FileValidator::TYPE_ANY,
                             ]);
                         } else {
@@ -553,7 +553,7 @@ class DocumentsController extends AdminPanelController
                             ]);
                         }
                         if ($documentImageSetted !== null) {
-                            $documentImage = self::handlerUpload('documentImage', '', $documentImageSetted, [
+                            $documentImage = self::handlerUpload('documentImage', $mapper->folder, $documentImageSetted, [
                                 FileValidator::TYPE_JPEG,
                                 FileValidator::TYPE_JPG,
                             ]);
@@ -596,7 +596,7 @@ class DocumentsController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -616,7 +616,7 @@ class DocumentsController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -646,7 +646,7 @@ class DocumentsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -1301,87 +1301,13 @@ class DocumentsController extends AdminPanelController
      */
     protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
     {
-        if ($allowedTypes === null) {
-            $allowedTypes = [
-                FileValidator::TYPE_ALL_IMAGES,
-            ];
+        try {
+            return FormUploadHandler::forModule(self::UPLOAD_DIR, FormUploadHandler::MODE_PRIVATE)
+                ->upload($nameOnFiles, $folder, $currentRoute, $allowedTypes ?? [FileValidator::TYPE_ALL_IMAGES], $setNameByInput, $name);
+        } catch (FormUploadRejectedException $e) {
+            //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
+            throw new SafeException($e->getMessage());
         }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
-        $valid = false;
-        $relativeURL = '';
-
-        $name ??= 'file_' . uniqid();
-        $oldFile = null;
-
-        if ($handler->hasInput()) {
-
-            try {
-
-                $valid = $handler->validate();
-
-                $instance = new DocumentsController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
-
-                if ($setNameByInput && $valid) {
-
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
-
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
-
-                    $name = safe_upload_name($name);
-
-                }
-
-                if (!is_null($currentRoute)) {
-                    //Si ya existe. En disco puede llevar el sufijo de lo privado: resolve() lo encuentra con o sin él.
-                    [$oldFile] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(append_to_url(basepath(), $currentRoute));
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-
-                if ($valid) {
-
-                    //NACE PRIVADO, y directamente: va a su nombre de disco sin pasar por el público; la ruta que se guarda no
-                    //lleva el sufijo. Si no se puede mover, no hay ruta y la subida falla.
-                    $information = $handler->getFileInformation();
-                    $url = \PiecesPHP\Core\Statics\ProtectedUploads::moveUploadedToPrivate((string) $information['tmp_name'], $uploadDirPath, $name, pathinfo((string) $information['name'], \PATHINFO_EXTENSION));
-
-                    if ($url !== '') {
-
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior: si tenía el mismo nombre, el movimiento ya lo sustituyó
-                        if (!is_null($oldFile) && is_file($oldFile) && $oldFile !== \PiecesPHP\Core\Statics\ProtectedUploads::privatePath($url)) {
-                            unlink($oldFile);
-                        }
-
-                    }
-
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-
-        }
-
-        return $relativeURL;
     }
 
     /**

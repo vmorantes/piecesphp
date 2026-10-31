@@ -15,16 +15,19 @@
 </head>
 
 <body>
+    <?php
+        $accessBackgrounds = [(string) get_config('backgoundProblems')];
+        ob_start();
+    ?>
     <?= strReplaceTemplate(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'PROBLEMS_LIST'), [
-        '${loginLink}' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'),
-        '${valueMailUser}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
-        '${otherProblemsFormLink}' => \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'),
-        '${owner}' => escape_html(get_config('owner')),
-        '${logoURL}' => get_config('logo'),
-        '${partnersImage}' => \PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('partners') ? '' : '<img src="' . escape_html((string) get_config('partners')) . '">',
-        '${backgroundURL}' => get_config('backgoundProblems'),
-        '${mailSystem}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
-    ]); ?>
+    '${loginLink}' => \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login'),
+    '${valueMailUser}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
+    '${otherProblemsFormLink}' => \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'),
+    '${owner}' => escape_html(get_config('owner')),
+    '${logoURL}' => get_config('logo'),
+    '${mailSystem}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
+]); ?>
+    <?php $accessContent = (string) ob_get_clean(); require dirname(__DIR__) . '/inc/access-frame.php'; ?>
     <?php load_js(['base_url' => "", 'custom_url' => ""]); ?>
 </body>
 

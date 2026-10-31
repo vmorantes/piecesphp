@@ -45,6 +45,7 @@ class LocationPointsGeoSource implements GeoSource
     public function marker(): string { return GeoSource::MARKER_DOT; }
     public function colorVariable(): string { return '--geo-location-points-color'; }
     public function filters(): array { return []; }
+    public function filterOptions(string $key, string $search, int $limit): array { return []; }
 
     public function points(GeoQuery $query): GeoPointsResult
     {
@@ -100,7 +101,8 @@ El color se declara como variable CSS en una hoja del módulo: `--geo-location-p
 | `permissionRoute()` | El nombre de una ruta existente | Quien no tiene permiso sobre ESA ruta no ve la fuente ni pide sus puntos, su detalle ni sus miniaturas |
 | `marker()` | `GeoSource::MARKER_DOT` o `GeoSource::MARKER_AVATAR` | Con `MARKER_AVATAR`, cada punto lleva su imagen o, sin ella, las iniciales |
 | `colorVariable()` | El nombre de una variable CSS (`--geo-…`) | Nunca un color escrito |
-| `filters()` | `GeoFilter[]` (texto u opciones) | Los que no declara, los ignora; un valor que no sirve lanza `GeoQueryException` |
+| `filters()` | `GeoFilter[]` (texto, opciones, u opciones remotas con `GeoFilter::TYPE_REMOTE_OPTIONS`) | Los que no declara, los ignora; un valor que no sirve lanza `GeoQueryException`. **No consulta la base**: un filtro con muchas opciones se declara remoto |
+| `filterOptions()` | Las opciones de un filtro remoto que casan con la búsqueda, valor → texto sin escapar, hasta `$limit` | Un filtro que no es suyo o no es remoto: `[]`. Las pide el desplegable al escribir, por `geo-admin-filter-options`, con el permiso del geovisor y hasta 20 |
 | `points()` | `GeoPointsResult` con los puntos del encuadre y el total | El encuadre en `WHERE` con `GeoSourceSql::addBboxWhere()`, y total y página en UNA consulta con `GeoSourceSql::countAndFetch()`; respeta `$query->limit()` |
 | `pointDetail()` | Las claves de la tarjeta, o `null` | `null` si el punto no saldría en `points()` (oculto, inactivo, sin permiso): si no, la tarjeta filtra lo que el mapa esconde |
 | `thumbnailSource()` | El archivo ORIGINAL de la imagen en disco, o `null` | Nunca una URL. Misma visibilidad que `pointDetail()` |
@@ -110,7 +112,8 @@ El color se declara como variable CSS en una hoja del módulo: `--geo-location-p
 `PiecesPHP\Geo\GeoThumbnail::url($clave, $id, $archivoOriginal)`. La miniatura de 64 px (128 en una pantalla de alta densidad,
 que el visor pide sola) se genera una vez en `app/cache/geo-thumbnails/`, se regenera si el original cambia —otro
 archivo, otra fecha u otro tamaño— y se sirve por `geo-admin-thumbnail` con el permiso de la
-fuente, así que un archivo privado no se publica.
+fuente, así que un archivo privado no se publica. `bin/cli clean-cache` borra las miniaturas de los puntos que su fuente
+ya no daría (`GeoThumbnail::sweep()`).
 
 ## Para cambiar lo que viene
 

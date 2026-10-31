@@ -440,33 +440,32 @@ class UserTokensController extends AdminPanelController
     protected static function actionsCell(UserDataPackage $actor, string $kind, int $id, ?int $userID): string
     {
         $params = ['kind' => $kind, 'id' => $id];
-        $main = null;
-        $menu = [];
+        $textReset = __(self::LANG_GROUP, 'Restablecer doble factor');
+        $textShow = __(self::LANG_GROUP, 'Mostrar');
+        $textInvalidate = __(self::LANG_GROUP, 'Invalidar ahora');
+        //Siempre las tres y en el mismo orden (design.md §3.28): la que no aplica va inactiva.
+        $reset = RowActions::inactive($textReset, 'undo');
+        if ($kind === TokenEvents::KIND_TWO_FACTOR && $userID !== null && $userID !== (int) $actor->id) {
+            $reset = RowActions::action($textReset, '#', 'undo', [
+                'data-token-action' => self::routeName('reset-two-factor', ['id' => $id]),
+                'data-confirmation-message' => __(self::LANG_GROUP, 'El usuario entrará solo con su contraseña hasta que active de nuevo el doble factor. ¿Restablecerlo?'),
+            ]);
+        }
+        $reveal = RowActions::inactive($textShow, 'eye');
         if (in_array($kind, TokenEvents::REVEALABLE, true)) {
-            $main = RowActions::action(__(self::LANG_GROUP, 'Mostrar'), '#', 'eye', [
+            $reveal = RowActions::action($textShow, '#', 'eye', [
                 'data-token-reveal' => self::routeName('reveal', $params),
                 'data-confirmation-message' => __(self::LANG_GROUP, 'Ver el valor de un código queda anotado en el registro. ¿Mostrarlo?'),
             ]);
         }
-        if ($kind === TokenEvents::KIND_TWO_FACTOR) {
-            if ($userID !== null && $userID !== (int) $actor->id) {
-                $main = RowActions::action(__(self::LANG_GROUP, 'Restablecer doble factor'), '#', 'undo', [
-                    'data-token-action' => self::routeName('reset-two-factor', ['id' => $id]),
-                    'data-confirmation-message' => __(self::LANG_GROUP, 'El usuario entrará solo con su contraseña hasta que active de nuevo el doble factor. ¿Restablecerlo?'),
-                ]);
-            }
-        } else {
-            $invalidate = RowActions::action(__(self::LANG_GROUP, 'Invalidar ahora'), '#', 'ban', [
+        $invalidate = RowActions::inactive($textInvalidate, 'ban');
+        if ($kind !== TokenEvents::KIND_TWO_FACTOR) {
+            $invalidate = RowActions::action($textInvalidate, '#', 'ban', [
                 'data-token-action' => self::routeName('invalidate', $params),
                 'data-confirmation-message' => __(self::LANG_GROUP, 'El código dejará de servir ahora mismo. ¿Invalidarlo?'),
             ]);
-            if ($main === null) {
-                $main = $invalidate;
-            } else {
-                $menu[] = $invalidate;
-            }
         }
-        return $main !== null ? RowActions::cell($main, $menu) : '';
+        return RowActions::cell($reset, [$reveal, $invalidate]);
     }
 
     /**

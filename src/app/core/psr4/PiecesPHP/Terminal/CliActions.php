@@ -109,6 +109,9 @@ class CliActions
     /** Escribe archivos en el disco. */
     const EFFECT_FILES = 'files';
 
+    /** Cierra las sesiones reales de la instalación: mueve su marca global y echa a todos, también a quien la usa. */
+    const EFFECT_SESSIONS = 'sessions';
+
     /** Declara EXPLÍCITAMENTE que no tiene ninguno. No es lo mismo que no declarar. */
     const EFFECT_NONE = 'none';
 
@@ -117,7 +120,7 @@ class CliActions
      *
      * @var string[]
      */
-    const EFFECTS_EXTERNAL = [self::EFFECT_NETWORK, self::EFFECT_EMAIL];
+    const EFFECTS_EXTERNAL = [self::EFFECT_NETWORK, self::EFFECT_EMAIL, self::EFFECT_SESSIONS];
 
     /**
      * Declara qué hace esta acción fuera de sí misma.

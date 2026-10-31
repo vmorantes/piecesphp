@@ -1,6 +1,7 @@
 @use 'sass:string';
 @use '../variables' as *;
 @use '../functions' as *;
+
 @mixin simple-slideshow {
 
     opacity: 0;

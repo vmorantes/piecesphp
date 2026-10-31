@@ -1,9 +1,10 @@
 <?php
 
-//Organizaciones con datos a medias no tumban el panel: el menú sin organización, la edición de una que no existe o sin
-//encargado, y el listado sin langData. Por HTTP. Siembra organizaciones y usuarios zz-, y los retira.
+//Organizaciones a medias no tumban el panel: menú sin organización, edición de una que no existe, sin encargado o con
+//él Eliminado, y listado sin langData. Por HTTP. Siembra organizaciones y usuarios zz-, y los retira.
+//@areas src/app/classes/Organizations/
+//@areas src/app/classes/SystemApprovals/
 
-use PiecesPHP\UserSystem\Authentication\UserSessions;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
@@ -12,6 +13,7 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -77,6 +79,24 @@ CliActions::make('unit-tests:core/organizations-incomplete', function ($args) {
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
     };
+    $enviar = function (string $path, string $jwt, array $campos) use ($base, $cabeceraToken): array {
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
+            CURLOPT_URL => $base . '/' . ltrim($path, '/'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($campos),
+            CURLOPT_HTTPHEADER => ["{$cabeceraToken}: {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+        ]);
+        $body = curl_exec($handle);
+        return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'json' => json_decode(is_string($body) ? $body : '', true)];
+    };
+    //La etiqueta del desplegable del encargado, para mirar si es obligatorio.
+    $selectEncargado = fn (string $html): string => preg_match('/<select[^>]*name="administrator"[^>]*>/', $html, $m) === 1 ? $m[0] : '';
 
     $prefijo = 'zz-prueba-organizaciones-' . bin2hex(random_bytes(3));
     $tablaOrganizaciones = OrganizationMapper::TABLE;
@@ -150,12 +170,39 @@ CliActions::make('unit-tests:core/organizations-incomplete', function ($args) {
         $check($vacia['status'] === 200 && str_contains($vacia['body'], "{$prefijo}-sin-encargado"), 'c1 se pinta, sin encargado seleccionado', "HTTP {$vacia['status']}");
 
         echoTerminal('');
-        echoTerminal('[d] El listado del panel con una organización sin langData');
+        echoTerminal('[d] La edición de una organización cuyo encargado fue eliminado (C3)');
+        $conEliminado = $sembrar('encargado-eliminado', ['baseLang' => 'es', 'langData' => new \stdClass]);
+        $eliminadoID = $crearUsuario('encargado-eliminado', UsersModel::TYPE_USER_ADMIN_ORG, $conEliminado);
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET status = ? WHERE id = ?")->execute([UsersModel::STATUS_USER_DELETED, $eliminadoID]);
+        //Con un NIT propio: guardar rechaza un NIT repetido, y las sembradas comparten «zz-».
+        $database->prepare("UPDATE `{$tablaOrganizaciones}` SET meta = ?, nit = ? WHERE id = ?")
+            ->execute([json_encode(['baseLang' => 'es', 'langData' => new \stdClass, 'administrator' => $eliminadoID]), "{$prefijo}-nit", $conEliminado]);
+        $aviso = 'El encargado actual fue eliminado: elija otro cuando pueda.';
+        $pagina = $pedir($editar($conEliminado), $root);
+        $select = $selectEncargado($pagina['body']);
+        $check($pagina['status'] === 200 && $select !== '' && !str_contains($select, 'required') && str_contains($pagina['body'], $aviso), 'd1 se pinta con el encargado sin obligar y con el aviso', "HTTP {$pagina['status']}, {$select}");
+        $selectCompleta = $selectEncargado($canario['body']);
+        $check(str_contains($selectCompleta, 'required') && !str_contains($canario['body'], $aviso), 'd2 CANARIO: la de un encargado activo sigue obligando y sin aviso', $selectCompleta);
+        $guardar = $enviar($camino(OrganizationsController::routeName('actions-edit', [], true)), $root, ['id' => $conEliminado, 'lang' => 'es', 'name' => "{$prefijo}-encargado-eliminado", 'administrator' => '']);
+        $guardada = new OrganizationMapper($conEliminado);
+        $encargado = $guardada->administrator instanceof UsersModel ? $guardada->administrator->id : $guardada->administrator;
+        $check($guardar['status'] === 200 && ($guardar['json']['success'] ?? false) === true && (int) $encargado === $eliminadoID, 'd3 se guarda con el encargado vacío, y lo conserva', "HTTP {$guardar['status']}, success " . var_export($guardar['json']['success'] ?? null, true) . ", encargado " . var_export($encargado, true) . ", mensaje " . mb_substr((string) ($guardar['json']['message'] ?? ''), 0, 200));
+
+        echoTerminal('');
+        echoTerminal('[e] El listado del panel con una organización sin langData');
         $tabla = $pedir($camino(OrganizationsController::routeName('datatables', [], true)) . '?status=' . OrganizationMapper::ACTIVE . '&draw=1&start=0&length=100&search[value]=' . rawurlencode($prefijo), $root);
-        $check($tabla['status'] === 200, 'd1 responde 200', "HTTP {$tabla['status']}");
-        $check(str_contains($tabla['body'], "{$prefijo}-completa"), 'd2 CANARIO: la completa está en el listado');
-        $check(str_contains($tabla['body'], "{$prefijo}-incompleta"), 'd3 y la incompleta también: sin langData se lista con sus campos base');
-        $check($incompleta > 0, 'd4 la incompleta se sembró');
+        $check($tabla['status'] === 200, 'e1 responde 200', "HTTP {$tabla['status']}");
+        $check(str_contains($tabla['body'], "{$prefijo}-completa"), 'e2 CANARIO: la completa está en el listado');
+        $check(str_contains($tabla['body'], "{$prefijo}-incompleta"), 'e3 y la incompleta también: sin langData se lista con sus campos base');
+        $check($incompleta > 0, 'e4 la incompleta se sembró');
+
+        echoTerminal('');
+        echoTerminal('[f] El listado JSON del panel no publica el esquema de la tabla');
+        $todas = $pedir($camino(OrganizationsController::routeName('ajax-all', [], true)) . '?' . http_build_query(['page' => 1, 'per_page' => 2, 'name' => $prefijo]), $root);
+        $primera = (json_decode($todas['body'], true)['parsedElements'] ?? [])[0] ?? [];
+        $check($todas['status'] === 200 && isset($primera['id'], $primera['name']), 'f1 CANARIO: responde 200 y la primera organización trae id y name', "HTTP {$todas['status']}");
+        $esquema = array_values(array_intersect(['table', 'primaryKey', 'foreingsKeys', 'fields'], array_keys($primera)));
+        $check($primera !== [] && $esquema === [], 'f2 y ninguna de table, primaryKey, foreingsKeys ni fields', implode(', ', $esquema));
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');
@@ -203,4 +250,4 @@ CliActions::make('unit-tests:core/organizations-incomplete', function ($args) {
 
     return $balance();
 
-})->setDescription('Organizaciones con datos a medias no tumban el panel: el menú de un usuario sin organización, la edición de una que no existe o sin encargado, y el listado con una sin langData. Por HTTP.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Organizaciones con datos a medias no tumban el panel: el menú de un usuario sin organización, la edición de una que no existe, sin encargado o con el encargado Eliminado, y el listado con una sin langData. Por HTTP.')->setEffects([CliActions::EFFECT_DATABASE])->register();

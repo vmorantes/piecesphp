@@ -6,10 +6,10 @@
 
 namespace SystemApprovals;
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Psr\Http\Server\RequestHandlerInterface;
 use SystemApprovals\Util\Packages\UsersApprovalHandler;
 use SystemApprovals\Util\SystemApprovalManager;

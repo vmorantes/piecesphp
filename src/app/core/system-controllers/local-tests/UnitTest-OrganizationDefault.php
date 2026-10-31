@@ -2,8 +2,9 @@
 
 //P61: navegar NO escribe. El middleware del panel ya no asigna la organización global (-10) a quien no tiene; si el
 //tipo la requiere, anota el defecto una vez por sesión. Corre el foundHandler REAL, en transacción que se revierte.
+//@areas nucleo
+//@areas src/app/classes/Organizations/
 
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
@@ -12,6 +13,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;

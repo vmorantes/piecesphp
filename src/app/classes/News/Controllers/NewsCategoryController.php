@@ -6,20 +6,19 @@
 
 namespace News\Controllers;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use News\Exceptions\DuplicateException;
 use News\Exceptions\SafeException;
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
 use News\NewsLang;
 use News\NewsRoutes;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -35,7 +34,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * NewsCategoryController.
@@ -102,7 +101,6 @@ class NewsCategoryController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(NewsRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(NewsRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'), 'css');
 
         NewsCategoryMapper::uncategorizedCategory();
 
@@ -115,9 +113,6 @@ class NewsCategoryController extends AdminPanelController
      */
     public function addForm(Request $request, Response $response)
     {
-
-        import_simple_upload_placeholder();
-        import_spectrum();
 
         set_custom_assets([
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
@@ -175,9 +170,6 @@ class NewsCategoryController extends AdminPanelController
         $element = new NewsCategoryMapper($id);
 
         if ($element->id !== null && NewsCategoryMapper::existsByID($element->id)) {
-
-            import_simple_upload_placeholder();
-            import_spectrum();
 
             set_custom_assets([
                 NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -294,7 +286,7 @@ class NewsCategoryController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -506,7 +498,10 @@ class NewsCategoryController extends AdminPanelController
                                 $iconImage = trim(str_replace(basepath(), '', $destination), \DIRECTORY_SEPARATOR);
 
                                 if (!is_null($oldFile) && file_exists($oldFile)) {
-                                    unlink($oldFile);
+                                    //El anterior puede no estar ya; si no se puede borrar, se registra y el guardado sigue.
+                                    if (is_file($oldFile) && (!is_writable(dirname($oldFile)) || !unlink($oldFile))) {
+                                        log_exception(new \RuntimeException('No se pudo borrar el archivo anterior: ' . $oldFile));
+                                    }
                                 }
 
                                 if (!is_null($oldDirectory) && file_exists($oldDirectory)) {
@@ -543,7 +538,7 @@ class NewsCategoryController extends AdminPanelController
 
                 }
 
-            } catch (SafeException | DuplicateException $e) {
+            } catch (SafeException|DuplicateException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
 
@@ -563,7 +558,7 @@ class NewsCategoryController extends AdminPanelController
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (MissingRequiredParameterException | InvalidParameterValueException $e) {
+        } catch (MissingRequiredParameterException|InvalidParameterValueException $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -593,7 +588,7 @@ class NewsCategoryController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
-                -1,
+                    -1,
                 function ($value) {
                     if ($value == NewsCategoryMapper::UNCATEGORIZED_ID || $value == (string) NewsCategoryMapper::UNCATEGORIZED_ID) {
                         $value = NewsCategoryMapper::UNCATEGORIZED_ID;
@@ -679,6 +674,7 @@ class NewsCategoryController extends AdminPanelController
                         ],
                     ];
 
+                    $iconImage = (string) (new NewsCategoryMapper($id))->iconImage;
                     $pdo = NewsCategoryMapper::model()->getDatabase();
 
                     try {
@@ -700,6 +696,8 @@ class NewsCategoryController extends AdminPanelController
                         }
 
                         $pdo->commit();
+
+                        $this->removeCategoryIcon($iconImage);
 
                         $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -746,6 +744,47 @@ class NewsCategoryController extends AdminPanelController
         }
 
         return $response->withJson($resultOperation);
+    }
+
+    /**
+     * Borra el icono de una categoría ya borrada, si es suyo: dentro de la carpeta de iconos del módulo (no un enlace), no
+     * el de por omisión y que ninguna otra categoría use. Un fallo se anota y no cambia la respuesta: la fila ya no está.
+     *
+     * @param string $iconImage La ruta guardada, relativa a basepath()
+     * @return void
+     */
+    protected function removeCategoryIcon(string $iconImage): void
+    {
+        if (trim($iconImage) === '' || $iconImage === NewsCategoryMapper::DEFAULT_ICON) {
+            return;
+        }
+        try {
+            [$file] = \PiecesPHP\Core\Statics\ProtectedUploads::resolve(basepath($iconImage));
+            $iconsDirectory = realpath($this->uploadDir);
+            $realFile = $file !== null && !is_link($file) ? realpath($file) : false;
+            if ($iconsDirectory === false || $realFile === false || !str_starts_with($realFile, $iconsDirectory . \DIRECTORY_SEPARATOR)) {
+                return;
+            }
+            $model = NewsCategoryMapper::model();
+            //RETORNO-IGNORADO: la conexión va en ERRMODE_EXCEPTION; lo que cuenta es result(), que se lee abajo.
+            $model->select()->where(new \PiecesPHP\Core\Database\ORM\Statements\WhereSegment([
+                \PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem::isEqual('iconImage', $iconImage),
+            ]))->execute();
+            if (!empty($model->result())) {
+                return;
+            }
+            if (!unlink($realFile)) {
+                throw new \RuntimeException("No se pudo borrar el icono de la categoría: {$iconImage}");
+            }
+            //Cada icono nace en su propia carpeta (uniqid): se va con él si queda vacía, como al cambiarlo en la edición.
+            $iconDirectory = dirname($realFile);
+            $remaining = scandir($iconDirectory);
+            if ($iconDirectory !== $iconsDirectory && is_array($remaining) && count($remaining) === 2 && !rmdir($iconDirectory)) {
+                throw new \RuntimeException("No se pudo borrar la carpeta del icono de la categoría: {$iconImage}");
+            }
+        } catch (\Throwable $e) {
+            log_exception($e);
+        }
     }
 
     /**

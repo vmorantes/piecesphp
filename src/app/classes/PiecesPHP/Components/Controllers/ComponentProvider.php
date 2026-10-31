@@ -7,7 +7,6 @@
 namespace PiecesPHP\Components\Controllers;
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\Components\ComponentProviderLang;
 use PiecesPHP\Components\ComponentProviderRoutes;
 use PiecesPHP\Core\Roles;
@@ -17,6 +16,7 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * ComponentProvider.

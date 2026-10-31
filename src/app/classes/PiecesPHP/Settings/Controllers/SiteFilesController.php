@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Settings\Controllers;
 
+use App\Controller\PublicAreaController;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Route;
@@ -15,7 +16,6 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Sitemap\Sitemap;
 use PiecesPHP\Core\Sitemap\SitemapItem;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
-use App\Controller\PublicAreaController;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\PublicationsRoutes;

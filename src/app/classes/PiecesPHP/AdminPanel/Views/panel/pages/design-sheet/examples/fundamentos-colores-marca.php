@@ -1,17 +1,16 @@
 <?php
 use PiecesPHP\CSSVariables;
 
-//Las variables CSS globales salen de la configuración (src/app/config/containers.php): el color se cambia allí, nunca en
-//una hoja de estilos.
+//Los tokens que escribe la instalación salen de la configuración (src/app/config/containers.php): el color se cambia allí,
+//nunca en una hoja de estilos.
 $variables = CSSVariables::instance('global')->getVariables();
 ?>
 <div class="ui stackable grid">
     <div class="six wide column">
-        <button class="ui fluid button brand-color" type="button">--main-brand-color</button>
-        <br>
-        <button class="ui fluid button brand-color alt" type="button">--second-brand-color</button>
-        <br>
-        <button class="ui fluid button brand-color alt2" type="button">--font-color-one</button>
+        <?php //Cada acento lo enseña su botón; sus valores, en la tabla. ?>
+        <button class="ui fluid primary button" type="button">--accent</button>
+        <div class="ui hidden divider"></div>
+        <button class="ui fluid secondary button" type="button">--accent-2</button>
     </div>
     <div class="ten wide column">
         <table class="ui very basic compact table">

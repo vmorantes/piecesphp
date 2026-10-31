@@ -1,27 +1,15 @@
 <?php
-
 namespace PiecesPHP\Core\Database\Export\Plugins;
 
-use PiecesPHP\Core\Database\Database;
-use PDO;
-use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
-use PiecesPHP\Core\Database\Export\Enums\TableStyle;
-use PiecesPHP\Core\Database\Export\Enums\DataStyle;
 use Exception;
+use PDO;
+use PiecesPHP\Core\Database\Database;
+use PiecesPHP\Core\Database\Export\Enums\DataStyle;
+use PiecesPHP\Core\Database\Export\Enums\TableStyle;
+use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 
 /**
- * Class SqlFormat
- * 
- * Plugin de formato encargado de generar sentencias SQL compatibles con MySQL/MariaDB.
- * Soporta remoción de DEFINER, Bulk Inserts y diferentes estilos de creación y datos.
- * 
- * Opciones soportadas:
- * - table_style: Enums\TableStyle (DROP_CREATE, CREATE).
- * - data_style: Enums\DataStyle (INSERT, REPLACE, TRUNCATE_INSERT).
- * - auto_increment: bool (incluir o no AUTO_INCREMENT en CREATE TABLE).
- * - remove_definer: bool (eliminar DEFINER de todos los objetos).
- * - create_if_not_exists: bool (usar CREATE TABLE IF NOT EXISTS).
- * - drop_if_exists_on_functions: bool (usar DROP FUNCTION/PROCEDURE IF EXISTS).
+ * SQL para MySQL/MariaDB: quita DEFINER, inserta por lotes y admite varios estilos de creación y de datos.
  */
 class SqlFormat implements FormatPluginInterface
 {
@@ -98,7 +86,7 @@ class SqlFormat implements FormatPluginInterface
         $outputBuffer = "";
         $rowCount = 0;
         $insertHeader = "";
-        
+
         $dataStyle = $options['data_style'] ?? DataStyle::INSERT->value;
         $verb = ($dataStyle === DataStyle::REPLACE->value) ? 'REPLACE' : 'INSERT';
         $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
@@ -149,10 +137,10 @@ class SqlFormat implements FormatPluginInterface
             }
 
             $rowLine = "(" . implode(', ', $values) . ")";
-            
+
             // Ver si hay una siguiente fila
             $nextRow = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             $lineEnd = ($nextRow ? ",\n" : ";\n\n");
             $fullLine = $rowLine . $lineEnd;
 
@@ -161,7 +149,7 @@ class SqlFormat implements FormatPluginInterface
             } else {
                 $outputBuffer .= $fullLine;
             }
-            
+
             $rowCount++;
             $row = $nextRow;
         }
@@ -176,16 +164,16 @@ class SqlFormat implements FormatPluginInterface
     {
         $output = "DROP VIEW IF EXISTS " . $this->idfEscape($table) . ";\n";
         $output .= "CREATE TABLE " . $this->idfEscape($table) . " (\n";
-        
+
         $sql = "SHOW COLUMNS FROM " . $this->idfEscape($table);
         $stmt = $db->query($sql);
         $cols = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $cols[] = "  " . $this->idfEscape($row['Field']) . " " . $row['Type'];
         }
-        
+
         $output .= implode(",\n", $cols) . "\n);\n\n";
-        
+
         return $output;
     }
 
@@ -292,7 +280,7 @@ class SqlFormat implements FormatPluginInterface
 
     /**
      * Obtiene el estado de una tabla para determinar metadatos (como si es una vista).
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @return array
@@ -306,7 +294,7 @@ class SqlFormat implements FormatPluginInterface
 
     /**
      * Obtiene los nombres y tipos de los campos de una tabla.
-     * 
+     *
      * @param Database $db
      * @param string $table
      * @return array
@@ -323,7 +311,7 @@ class SqlFormat implements FormatPluginInterface
 
     /**
      * Determina si un tipo de dato es numérico para evitar comillas en el SQL.
-     * 
+     *
      * @param string $type
      * @return bool
      */
@@ -334,7 +322,7 @@ class SqlFormat implements FormatPluginInterface
 
     /**
      * Determina si un tipo de dato es binario para exportar como Hex.
-     * 
+     *
      * @param string $type
      * @return bool
      */
@@ -345,7 +333,7 @@ class SqlFormat implements FormatPluginInterface
 
     /**
      * Escapa un identificador (tabla, columna, etc.) con comillas invertidas.
-     * 
+     *
      * @param string $idf
      * @return string
      */
@@ -356,7 +344,7 @@ class SqlFormat implements FormatPluginInterface
 
     /**
      * Envuelve los parámetros de una rutina en acentos graves para evitar conflictos con palabras reservadas.
-     * 
+     *
      * @param string $sql
      * @return string
      */
@@ -365,11 +353,22 @@ class SqlFormat implements FormatPluginInterface
         $sql = preg_replace('~^(CREATE\s+(?:PROCEDURE|FUNCTION)\s+)([^`(\s]+)(\s*\()~i', '$1`$2`$3', $sql);
         return preg_replace_callback('~\((.*)\)\s+(?:RETURNS|BEGIN|LANGUAGE)~isU', function ($m) {
             $params_list = $m[1];
-            if (trim($params_list) === '') return $m[0];
+            if (trim($params_list) === '') {
+                return $m[0];
+            }
+
             $parts = preg_split('~,\s*~', $params_list);
+            //preg_split() da false si falla: la definición se queda como está, nunca sin sus parámetros en el volcado.
+            if ($parts === false) {
+                return $m[0];
+            }
+
             foreach ($parts as &$part) {
                 $part = trim($part);
-                if ($part === '') continue;
+                if ($part === '') {
+                    continue;
+                }
+
                 if (preg_match('~^(IN|OUT|INOUT)\s+(`?[^`\s]+`?)\s+(.*)$~i', $part, $pm)) {
                     $mod = $pm[1];
                     $name = trim($pm[2], '`');

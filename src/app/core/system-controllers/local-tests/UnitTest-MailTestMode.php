@@ -2,7 +2,10 @@
 
 //La ENTREGA declarada decide si el correo sale, y con «retenido» no hay reserva por el sistema: va al
 //buzón. Antes del 2026-10-03 esto lo decidía `test_mode` y un clon sin entorno enviaba. ADR 0043 y 0045.
+//@areas src/app/classes/PiecesPHP/Settings/
+//@areas src/app/classes/PiecesPHP/SystemStatus/
 
+use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Mailer;
@@ -10,7 +13,6 @@ use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
-use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
