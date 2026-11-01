@@ -588,40 +588,56 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
 }
 
 //Las imágenes de patrocinadores, al ancho del pie de la navegación.
-.admin-shell > .navigation > .footer img.partners {
+.admin-shell > .navigation img.partners {
     max-width: 100%;
     height: auto;
 }
 
-//En el riel el menú no desplaza (el tema le deja `overflow: visible` para flotantes y tooltips): si encogiera, sus ítems
-//pasarían bajo el pie. Por eso cede el pie, que es lo que el menú empuja; quitar el `overflow` del tema rompe los flotantes.
+//En el riel, iconos y logos desplazan juntos dentro del menú, y por eso el menú recorta: flotantes y tooltips salen con
+//`fixed`, a la altura que mide pcsAdminRailPositions(). 72 px y el hueco son los del tema; quitar `fixed` los corta.
 @media (min-width: 768px) {
     .ui.admin-shell.collapsed > .navigation {
-        > .ui.menu {
-            flex: 1 0 auto;
+        > .footer {
+            display: none;
         }
 
-        > .footer {
-            flex: 0 1 auto;
-            min-height: 0;
-            overflow: hidden;
+        > .ui.menu {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden auto;
+            scrollbar-width: thin;
+
+            //Con el alto justo, un hijo que encoge deja de ser un ítem: esto desplaza, no reparte.
+            > * {
+                flex: none;
+            }
 
             > .collapsed.only {
-                display: flex;
-                flex: 0 1 auto;
-                flex-direction: column;
-                min-height: 0;
+                margin: auto -0.85714286rem 0;
+                padding: 1rem 0 0;
+                border-top: 1px solid var(--theme-border);
 
                 > .ui.vertical.flex {
-                    flex: 0 1 auto;
-                    min-height: 0;
+                    gap: 1rem;
                 }
             }
 
-            img.partners {
-                flex: 0 1 auto;
-                min-height: 0;
-                object-fit: contain;
+            > .item > .content {
+                position: fixed;
+                top: var(--pcs-rail-float-top, 0);
+                left: calc(72px + 0.71428571rem);
+
+                //El hueco nace de `fixed`, y el puente del tema (1rem) no llega al ítem: sin esto, cruzarlo cierra el flotante.
+                &::before {
+                    left: -28px;
+                    width: 28px;
+                }
+            }
+
+            > .item[data-tooltip]::after {
+                position: fixed;
+                top: var(--pcs-rail-tip-top, 0);
+                left: calc(72px + 0.71428571rem);
             }
         }
     }
@@ -648,7 +664,7 @@ $-invertOnDark: brightness(0) invert(1);
 }
 
 //El logotipo del desarrollador (config.php, developer_logo), a la altura de una línea del pie.
-.admin-shell > .navigation > .footer img.developer-logo {
+.admin-shell > .navigation img.developer-logo {
     flex: none;
     width: auto;
     max-width: 100%;

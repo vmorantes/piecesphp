@@ -61,6 +61,8 @@ Las otras veintisiete, en el orden en que corren:
 | 28 | La **interpolación de SQL** con valor de petición no ha crecido |
 | 29 | Toda **carpeta de subidas** está protegida o declarada |
 
+> **La 60, lo público no enseña a atacar** (regla 40 §6bis): el código en línea de las secciones de seguridad del `CHANGELOG` se contrasta con `files/dev/public-security-doc-allowed.json`, y ningún documento público lleva una carga de ataque. Solo ve secciones con «seguridad» en el título, un método sin paréntesis ni `::` pasa, y lo permitido vale en cualquier sección: no sustituye a leer. No aplica en la distribución.
+
 > La de los tipos existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
 > `SystemApprovalsMapper`: con un tipo desconocido, `validateType()` devuelve **`true` para
 > todo**, o sea que el campo **deja de validarse**. Ver T54. Comprueba 370 tipos declarados.

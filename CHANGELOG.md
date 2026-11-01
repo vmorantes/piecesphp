@@ -1,3 +1,8 @@
+# 10.0.4 (01-11-2026)
+
+- **Con el lateral contraído, el menú desplaza.** Iconos y logos se mueven juntos y los logos conservan su tamaño; los submenús flotantes y los tooltips siguen a su ítem. Sustituye a lo que hacía la `10.0.3`, que los encogía.
+- **Si tu clon** cuelga estilos o pruebas de `.collapsed.only` dentro de `.footer`, ese bloque ahora vive al final del menú. Se aplica al recompilar las hojas y el JavaScript de configuración.
+
 # 10.0.3 (01-11-2026)
 
 - **Con el lateral contraído, los logos del pie ya no se pintan sobre el menú.** El pie cede el alto: si no hay espacio, los logos encogen o dejan de verse. Con el lateral expandido no cambia nada. Se aplica al recompilar las hojas.
@@ -5492,8 +5497,7 @@ deja en español, como antes, y `UploadedFileAdapter` los traduce, como antes.
 - **Corregido de paso en `UploadedFileAdapter`:** los mensajes de tamaño máximo se traducían con el
   valor ya pegado dentro (`… (8MB)`), así que la traducción nunca casaba. Ahora se traduce el texto
   fijo y el valor se añade después. En español el texto no cambia.
-- Las constantes `NOT_UPLOAD_FAKE_ERROR` y `NOT_UPLOAD_FAKE_TMP_NAME` de las dos clases siguen
-  existiendo, con el mismo valor: ahora apuntan a las de `UploadedFileValidation`.
+- Las constantes públicas de esas dos clases siguen existiendo, con el mismo valor.
 
 ## Eliminado — los restos del módulo de experiencias (E3)
 

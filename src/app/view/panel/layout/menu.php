@@ -82,6 +82,14 @@ if ($developerName !== '' && $developerURL !== '') {
 
         <?php endforeach; ?>
 
+        <div class="collapsed only">
+            <div class="ui vertical centered flex">
+                <img class="partners<?= ($invertOnDark)('partnersVertical'); ?>" src="<?= get_config('partnersVertical'); ?>" alt="">
+                <?php if ($developer !== '' && $developerLogo !== '') : ?>
+                <img class="developer-logo" src="<?= escape_html($developerLogo); ?>" alt="" title="<?= escape_html(__('general', 'Desarrollado por') . ' ' . $developer); ?>">
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 
     <div class="footer">
@@ -99,14 +107,6 @@ if ($developerName !== '' && $developerURL !== '') {
                     <?php endif; ?>
                     <?= __('general', 'Desarrollado por'); ?> <?= $developerName; ?>
                 </span>
-                <?php endif; ?>
-            </div>
-        </div>
-        <div class="collapsed only">
-            <div class="ui vertical centered flex">
-                <img class="partners<?= ($invertOnDark)('partnersVertical'); ?>" src="<?= get_config('partnersVertical'); ?>" alt="">
-                <?php if ($developer !== '' && $developerLogo !== '') : ?>
-                <img class="developer-logo" src="<?= escape_html($developerLogo); ?>" alt="" title="<?= escape_html(__('general', 'Desarrollado por') . ' ' . $developer); ?>">
                 <?php endif; ?>
             </div>
         </div>

@@ -66,7 +66,7 @@ semanas en uso y sin fila. Si añades un artefacto, su fila va en el mismo commi
 | `test-data-baseline.json` | `bin/cli gates` (los restos de prueba en la base) |
 | `global-files.json` | La comprobación 49 de `verify-integrity` (lo que vive en lo global, declarado) |
 | `column-renames.json` | `bin/censo-columnas` |
-| `announced-capabilities.json`, `browser-dialogs-allowed.json`, `doc-config-exemptions.json`, `doc-path-exemptions.json`, `exception-message-declared.json`, `get-route-direct-allowed.json`, `head-without-front-configurations.json`, `login-user-data-declared.json`, `upload-dirs.json`, `whole-removals-declared.json` | Declaraciones que leen las puertas de `verify-integrity` y `bin/cli gates` |
+| `announced-capabilities.json`, `browser-dialogs-allowed.json`, `doc-config-exemptions.json`, `doc-path-exemptions.json`, `exception-message-declared.json`, `get-route-direct-allowed.json`, `head-without-front-configurations.json`, `login-user-data-declared.json`, `public-security-doc-allowed.json`, `upload-dirs.json`, `whole-removals-declared.json` | Declaraciones que leen las puertas de `verify-integrity` y `bin/cli gates` |
 | `api-census.json` | Nadie: la medida única del bloque BG, histórica |
 
 **Tres clases, y `bin/artefactos` las conoce** (medido el 2026-10-21, `#1601`):

@@ -622,6 +622,42 @@ function pcsAdminShell(selector) {
 		new ResizeObserver(update).observe(nags)
 		update()
 	}
+	pcsAdminRailPositions(shell)
+}
+
+/**
+ * Pone a la altura de su ítem los flotantes y los tooltips del riel: el menú desplaza, así que salen con `position: fixed`.
+ *
+ * @param {JQuery} shell El shell del panel
+ * @returns {void}
+ */
+function pcsAdminRailPositions(shell) {
+	const menu = shell.find('> .navigation > .ui.menu').get(0)
+	if (menu === undefined) {
+		return
+	}
+	const place = (item) => {
+		if (!shell.hasClass('collapsed')) {
+			return
+		}
+		const rect = item.getBoundingClientRect()
+		item.style.setProperty('--pcs-rail-tip-top', `${rect.top + rect.height / 2}px`)
+		const content = item.querySelector(':scope > .content')
+		if (content === null) {
+			return
+		}
+		const nags = parseFloat(getComputedStyle(document.body).getPropertyValue('--pcs-bottom-nags')) || 0
+		const lowest = window.innerHeight - nags - content.offsetHeight - 8
+		item.style.setProperty('--pcs-rail-float-top', `${Math.max(8, Math.min(rect.top - 6, lowest))}px`)
+	}
+	const placeOpen = () => menu.querySelectorAll(':scope > .item:hover, :scope > .item:focus-within, :scope > .item.pinned').forEach(place)
+	$(menu).on('mouseenter focusin', '.item', function () {
+		if (this.parentElement === menu) {
+			place(this)
+		}
+	})
+	menu.addEventListener('scroll', placeOpen, { passive: true })
+	window.addEventListener('resize', placeOpen)
 }
 
 /**

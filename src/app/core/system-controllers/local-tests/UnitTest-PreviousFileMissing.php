@@ -146,7 +146,7 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         //Solo la parte desplegada del pie del menú, que es donde va el texto.
         $pie = function (string $html): string {
             $desde = strpos($html, '<div class="footer">');
-            $hasta = $desde === false ? false : strpos($html, '<div class="collapsed only">', $desde);
+            $hasta = $desde === false ? false : strpos($html, '</nav>', $desde);
             return $desde === false || $hasta === false ? '' : substr($html, $desde, $hasta - $desde);
         };
         $textoDeFabrica = '<strong>' . __(LANG_GROUP, 'Con el apoyo de') . '</strong>';
