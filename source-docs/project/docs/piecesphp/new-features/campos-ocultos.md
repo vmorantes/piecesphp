@@ -3,10 +3,9 @@
 Una tabla puede declarar **qué columnas suyas no se serializan jamás**. El framework lo respeta por su cuenta, en todas
 las vías por las que un dato puede salir, y sin que nadie tenga que acordarse.
 
-Nació de un defecto real y conviene contarlo, porque explica por qué la pieza está donde está: **cuando una pantalla
-pedía los datos de algo que apunta a un usuario** —una noticia y su autor, un documento y quien lo creó— **el framework
-devolvía la ficha entera de ese usuario, con su contraseña cifrada dentro.** No se filtraba porque **tres controladores
-se acordaban de taparlo a mano**. Nada obligaba al cuarto.
+Existe para que una columna sensible no dependa de que cada controlador se acuerde de taparla a mano: se declara una vez
+en el mapper y el framework la respeta cuando el dato sale, también cuando viaja anidado dentro de otro registro (una
+noticia y su autor, un documento y quien lo creó).
 
 ## Cómo se usa
 
@@ -46,8 +45,8 @@ Un dato puede salir de un mapper por más caminos de los que parece. Los cuatro 
 | **La conversión a texto** | `"$mapper"`, `(string) $mapper`, `echo $mapper` |
 
 > [!IMPORTANT]
-> **Se oculta SIEMPRE, no solo cuando el mapper va anidado.** Podría parecer suficiente filtrar en la expansión —que es
-> donde estaba la fuga—, pero entonces el día que alguien pida el mapper directamente el dato sale. **Un campo declarado
+> **Se oculta SIEMPRE, no solo cuando el mapper va anidado.** Podría parecer suficiente filtrar en la expansión, pero
+> entonces el día que alguien pida el mapper directamente el dato saldría. **Un campo declarado
 > no se serializa, punto.**
 
 ## Lo que NO hace, y hay que saberlo
@@ -85,8 +84,8 @@ duda enseña todo no es un filtro.
 
 - **Declara en tu tabla lo que no deba salir nunca**: contraseñas, secretos, tokens, telemetría de seguridad, marcas
   internas. Cuesta una línea y deja de depender de que cada pantalla se acuerde.
-- **Las protecciones a mano que ya tengas, déjalas.** Las tres del framework se quedaron a propósito: dos capas no
-  estorban, y el día que alguien rompa la de abajo la de arriba sigue tapando.
+- **Las protecciones a mano que ya tengas, déjalas.** Dos capas no estorban, y el día que alguien rompa la de
+  abajo la de arriba sigue tapando.
 - Y está vigilado, en el framework, por la suite `unit-tests:core/hidden-fields`:
 
 ```bash

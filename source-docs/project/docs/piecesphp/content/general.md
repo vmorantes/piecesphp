@@ -71,8 +71,7 @@ y dentro, `return 'local';` en tu máquina de desarrollo o `return 'production';
 - **Sin ese archivo, la instalación funciona como producción.** Es lo seguro: un servidor nunca enseña trazas completas
   por olvido. Pero en tu máquina de desarrollo significa que `src/app/config/database.php` elige las credenciales de
   producción y seguramente no conecta.
-- «Local» ya no depende del nombre con que se visita el sitio (`localhost`, `*.localhost`): antes lo decidía la
-  cabecera `Host`, que manda el navegador y se puede falsear.
+- «Local» no depende del nombre con que se visita el sitio (`localhost`, `*.localhost`): lo decide solo este archivo.
 - Qué cambia en local: se enseñan los errores completos, las deprecaciones abortan y se puede depurar el SQL de los
   listados.
 - En la terminal, `bin/cli` sigue siendo local con `--local`.

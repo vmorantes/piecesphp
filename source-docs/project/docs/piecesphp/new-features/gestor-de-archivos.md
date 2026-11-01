@@ -35,8 +35,8 @@ servidor y añádelo.
 
 ## Lo activo no se activa
 
-Un SVG o un HTML servido desde tu dominio podría ejecutar código en la sesión de quien lo abra. Por eso `statics/filemanager/`
-lleva el mismo `.htaccess` que las subidas, escrito por `ProtectedUploads::writeDenyHtaccess()` al arrancar y al abrir el
+Los archivos con contenido activo (SVG, HTML, XML) se sirven con cabeceras que impiden que se ejecuten al abrirlos. Por eso
+`statics/filemanager/` lleva el mismo `.htaccess` que las subidas, escrito por `ProtectedUploads::writeDenyHtaccess()` al arrancar y al abrir el
 conector. Lo ignora git.
 
 - `.svg`, `.svgz`, `.html`, `.htm`, `.xhtml`, `.xml`, `.xsl` y `.xslt` salen con `Content-Security-Policy: sandbox`.

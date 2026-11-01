@@ -63,7 +63,7 @@ Todo archivo versionado de `.agents/`, `.claude/`, `AGENTS.md` y `CLAUDE.md` per
 - **A, la metodología**: reglas, personas, guiones, las skills de trabajo, `.claude/`, los ADR de cómo se trabaja y
   [`project-architect-coder.json`](./project-architect-coder.json), lo propio del proyecto que aplica la guarda (ADR 0071).
 - **B, desarrollar sobre PiecesPHP**: `AGENTS.md`, `context/01`–`16` y `21`, la skill de PHP y los ADR que
-  condicionan el código (0006, 0009, 0012, 0018).
+  condicionan el código (0006, 0012).
 - **C, mantener el framework**: la campaña (estado, tramos, bitácora, mapa, `abierto`, `decisiones-del-po`, `19`–`20`, `historico/`
   y los ADR de campaña).
 

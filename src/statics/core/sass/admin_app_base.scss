@@ -593,6 +593,40 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     height: auto;
 }
 
+//En el riel el menú no desplaza (el tema le deja `overflow: visible` para flotantes y tooltips): si encogiera, sus ítems
+//pasarían bajo el pie. Por eso cede el pie, que es lo que el menú empuja; quitar el `overflow` del tema rompe los flotantes.
+@media (min-width: 768px) {
+    .ui.admin-shell.collapsed > .navigation {
+        > .ui.menu {
+            flex: 1 0 auto;
+        }
+
+        > .footer {
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow: hidden;
+
+            > .collapsed.only {
+                display: flex;
+                flex: 0 1 auto;
+                flex-direction: column;
+                min-height: 0;
+
+                > .ui.vertical.flex {
+                    flex: 0 1 auto;
+                    min-height: 0;
+                }
+            }
+
+            img.partners {
+                flex: 0 1 auto;
+                min-height: 0;
+                object-fit: contain;
+            }
+        }
+    }
+}
+
 //La casilla «Invertir colores en modo oscuro» (P277 c): el logo y las banderas, en blanco. Va por `data-theme` y no por
 //light-dark() porque `filter` no lo admite. El acceso y los errores no llevan `data-theme`: salen en claro, a propósito.
 $-invertOnDark: brightness(0) invert(1);

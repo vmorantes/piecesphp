@@ -75,7 +75,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | `db-backup` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la base en `dumps/` |
 | `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes` |
 | `bundle` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o los estáticos en `bundle/` |
-| `clean-cache` / `clean-logs` / `clean-all` | — | Fuerza que todos descarguen de nuevo los estáticos (renueva la marca global, borra las imágenes optimizadas y los accesos directos de `server-delegated` que el usuario que la ejecuta pueda borrar) / limpia los logs, **sin borrar los `.json` viejos de sesiones caducadas, que llevan un token** / las dos |
+| `clean-cache` / `clean-logs` / `clean-all` | — | Fuerza que todos descarguen de nuevo los estáticos (renueva la marca global, borra las imágenes optimizadas y los accesos directos de `server-delegated` que el usuario que la ejecuta pueda borrar) / limpia los logs, **sin borrar los archivos del formato viejo de sesiones caducadas** / las dos |
 | `scan-missing-lang` | `--exclude-lang=`, `--exclude-group=` | Informe de traducciones faltantes |
 | `scan-invalid-utf8` | `table`, `limit` (def. 5000) | Busca UTF-8 inválido en columnas de texto. Solo lectura. Córrela antes de desplegar |
 | `run-cronjobs` / `cronjobs-status` | — | Ejecuta los cronjobs que tocan / muestra franja, último éxito, intentos y último error (solo lectura) |
@@ -126,11 +126,9 @@ bin/cli db-backup gz=yes
 
 **Restaurar:** `bin/cli db-restore file=<volcado.sql> confirm=yes` (ver la tabla de abajo).
 
-> **AVISO — copias anteriores a esta versión NO restauran.** La columna `password` se
-> cifraba al exportar y nada la descifraba al restaurar, así que la base restaurada dejaba a
-> todos los usuarios sin poder entrar. **Se recupera** aplicando
-> `BaseHashEncryption::deobfuscate($valor, 'ENCRYPTION_KEY')` a cada `password` (hasta la 9.0.0-alpha.2 se
-> llamaba `decrypt()`) — comprobado, devuelve el hash exacto. Detalle y procedimiento en `.agents/context/11-base-de-datos.md`.
+> **AVISO — copias anteriores a esta versión NO restauran las contraseñas.** La base restaurada
+> dejaría a todos los usuarios sin poder entrar. Si necesitas restaurar una copia de ese tipo,
+> pide el procedimiento de recuperación a quien mantiene el framework.
 
 ---
 
@@ -172,8 +170,8 @@ bin/cli clean-cache
 Limpia los archivos de logs: errores, deprecaciones, logs antiguos, anotaciones de traducciones faltantes y el
 registro de sesiones caducadas (`app/logs/expired-sessions.log` y su rotado).
 
-**No borra los `.json` del formato viejo** de `app/logs/expired-sessions/`: los cuenta y avisa de que **cada uno
-contiene un token**, para que usted decida. La carpeta se retira sola cuando queda vacía. (Hasta la `v8.0.0` sí los
+**No borra los `.json` del formato viejo** de `app/logs/expired-sessions/`: los cuenta y avisa de que
+**contienen datos de sesión**, para que usted decida. La carpeta se retira sola cuando queda vacía. (Hasta la `v8.0.0` sí los
 borraba; ver el `CHANGELOG`.)
 
 **Parámetros:**

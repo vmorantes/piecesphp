@@ -59,22 +59,14 @@ la petición entra. Lo único que cambia es lo que contesta `hasPermissions()` �
 Si «declarar concede» significa que la lista puede quedarse corta, el espejo es igual de real: **una ruta puede
 declarar un acceso que luego no da.** Pasa en cuanto una sola dirección sirve a varias cosas con permisos distintos.
 
-El caso vivo en el framework es la **acción común de los ajustes** del panel: una sola ruta `POST` guarda el límite de
-tokens, las claves de Mapbox y la imagen de inicio. Está declarada abierta a todos los roles, porque la ruta no sabe
-cuál de los tres ajustes le va a llegar; **lo que decide de verdad es una comprobación dentro del controlador**, que
-mira la constante de permisos del ajuste concreto y **deniega**. Los tres son hoy solo del usuario principal.
+Si una sola acción atiende varias cosas, la ruta tiene que dejar pasar a quien pueda con alguna de ellas; **lo que decide
+de verdad es una comprobación dentro del controlador**, que mira el permiso de cada caso y **deniega**.
 
 Lo que eso implica, y es lo que hay que recordar:
 
-- **La declaración de esa ruta no se puede leer como «quién puede guardar un ajuste».** Dice quién llega al
-  controlador, no quién consigue algo. Cualquier rol con cuenta pasa la capa de rutas y es **rechazado después** de
-  que el método haya procesado lo que envió —y lo recibe como el mensaje de error genérico de la acción, no como un
-  403, porque el `catch (\Exception)` del propio método captura la denegación—.
-- **Un ajuste nuevo en una acción así no hereda nada de la ruta.** En la acción común del panel, la comprobación
-  interna **falla cerrada**: parte de denegar y solo concede si reconoce el ajuste, así que uno sin su rama **es
-  rechazado** para todos, principal incluido. **Pero eso es una decisión de ESE controlador, no una garantía del framework.** Si
-  tu módulo hace lo mismo, que su comprobación **también parta de denegar**, y que la prueba lo mida: lo que nace
-  abierto no es el ajuste sin comprobación, es el ajuste con una comprobación demasiado ancha.
+- **La declaración de esa ruta no dice quién consigue algo**, solo quién llega al controlador.
+- **Lo nuevo en una acción así no hereda nada de la ruta.** Que la comprobación interna **parta de denegar** es una
+  decisión de tu controlador, no una garantía del framework.
 - **Si tu módulo hace esto**, déjalo escrito junto a la acción, y que la prueba mida **la comprobación interna**, no
   solo el valor de la constante. Medir que la constante vale lo correcto no prueba que alguien la siga mirando: para
   eso hace falta mirar el cuerpo del método, y que la prueba se ponga en rojo si deja de nombrarla.

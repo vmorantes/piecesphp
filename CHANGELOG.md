@@ -1,3 +1,8 @@
+# 10.0.3 (01-11-2026)
+
+- **Con el lateral contraído, los logos del pie ya no se pintan sobre el menú.** El pie cede el alto: si no hay espacio, los logos encogen o dejan de verse. Con el lateral expandido no cambia nada. Se aplica al recompilar las hojas.
+- **La documentación pública cuenta los arreglos de seguridad en términos generales.** Este `CHANGELOG` y la guía se han reescrito así: el detalle de versiones anteriores ya no está aquí. Si mantienes un clon en una versión anterior, actualiza.
+
 # 10.0.2 (31-10-2026)
 
 - **El Directorio usa la maqueta común de los listados.** Desaparecen las barras de desplazamiento que no hacían falta; el buscador y «Exportar listado actual» son los de los demás listados. Cada fila dice si es una persona o una organización.
@@ -181,26 +186,23 @@ devuelve a lo guardado.
 - Salen `Statics/sass/configurations.scss` y la vista `app_configurations/configurations.php`: si tu clon las extendía,
   general.php se pinta directo.
 
-## ⚠ Seguridad — el gestor de archivos: lo activo ya no se activa, y la ruta del editor se cierra
+## ⚠ Seguridad — el gestor de archivos endurece lo que sirve y lo que acepta el editor
 
-La ruta del gestor que usa el editor la abren todos los tipos de usuario, y aceptaba cualquier tipo: un `.svg` o `.html` subido
-por ahí se servía activo desde el mismo dominio. Es la misma clase de fallo que se cerró en las subidas.
+El gestor de archivos pasa a servir los archivos con contenido activo con las mismas protecciones que las subidas, y la ruta
+que usa el editor admite menos operaciones.
 
-- **`statics/filemanager/` lleva el `.htaccess` de las subidas**: los SVG, HTML y XML salen con `sandbox`, y los que no son SVG,
-  además, como descarga. Se escribe solo al arrancar. Pide Apache con `mod_headers`; con nginx, añade esas cabeceras.
+- **`statics/filemanager/` lleva el `.htaccess` de las subidas**. Se escribe solo al arrancar. Pide Apache con `mod_headers`; con nginx, añade esas cabeceras.
 - **La ruta del editor admite una lista cerrada de tipos**, según el contenido: imágenes, PDF, Office, OpenDocument, texto, CSV,
   vídeo y audio. **Si tu clon sube otro tipo por el editor, añádelo a `FileManagerController::EDITOR_UPLOAD_ALLOWED`.**
-- **En esa ruta se apagan** `chmod`, `extract`, `archive`, `mkfile`, `put` y `edit`, y la subida por URL. El gestor del usuario
-  principal no cambia.
+- **Esa ruta limita las operaciones del gestor** y la subida por URL. El gestor del usuario principal no cambia.
 - Guía nueva: «Gestor de archivos», en Desarrolladores.
 
 ## Cambia — los campos de formulario, a la altura del tema; el cliente de elFinder, a 2.1.70
 
 - **Los campos de formulario del panel y del acceso** miden lo que dice el tema (40 px de fábrica) y escalan con el tamaño base:
   sale el `min-height: 52px` de `admin_app_base.scss`, y el acceso ya no fija `html` a 16 px. Si una vista de tu clon contaba con esos 52 px, ajústala con el marcado.
-- **El cliente de elFinder pasa de 2.1.57 a 2.1.70**, la versión del conector (`src/statics/plugins/elfinder/`). Trae lo que
-  el `Changelog` de elFinder marca de seguridad en el navegador, como «postMessage origin bypass and playsound DOM XSS».
-  La integración con el editor no cambia.
+- **El cliente de elFinder pasa de 2.1.57 a 2.1.70**, la versión del conector (`src/statics/plugins/elfinder/`). Trae las
+  correcciones de seguridad en el navegador de esa versión. La integración con el editor no cambia.
 
 ## ⚠ Rompe — el panel de Configuración, con su patrón
 
@@ -561,26 +563,11 @@ servidor (`DataTablesHelper`), los textos y las clases `dt-*` no cambian: un lis
 - **La paginación de todas las tablas es `simple_numbers`** (Anterior · 1-5 · … · N · Siguiente, sin «Primero» ni
   «Último»), y el buscador lleva la etiqueta «Buscar:», como el diseño nuevo. Un listado puede cambiarlo en sus opciones.
 
-## Corrige — seguridad: el tamaño de página de los listados ya no llega crudo al SQL
+## Corrige — seguridad: se refuerzan los listados del panel
 
-`DataTablesHelper::processFromQuery()` interpolaba en su `LIMIT` el `length` de la petición sin convertirlo a número.
-En local un valor como `10 x` daba un error; **fuera de local, donde un aviso de PHP no detiene la petición, la cadena
-llegaba entera al SQL**: un usuario con sesión que pudiera abrir un listado servido así (el Directorio y los tokens de
-usuarios) podía colar SQL en el `LIMIT`. `DataTablesHelper::process()` no llegaba al SQL, pero respondía con un error 500
-con el mismo valor, también fuera de local.
+Actualiza a esta versión si tienes un clon en producción con una anterior.
 
-- Los dos métodos convierten `start` y `length` a entero al leerlos. `start` negativo pasa a 0.
-- **`length` menor que 1 (`0`, `-1`) da 10 filas**; antes daba 1. El panel nunca lo envía (sus menús de «Ver N» son
-  10, 25, 50, 100 y el tamaño de la instalación). Si tu clon pedía `length=-1` esperando «todas», nunca las tuvo: recibía
-  una sola fila.
-- **Si tienes un clon en producción con la 9.x**, aplica el mismo cambio en los dos bloques de lectura de
-  `src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php`:
-
-  ```php
-  $start = max(0, (int) $request->getQueryParam('start', 0));
-  $length = (int) $request->getQueryParam('length', 10);
-  $length = $length > 0 ? $length : 10;
-  ```
+- **Un tamaño de página no válido da 10 filas**; antes daba 1. El panel nunca lo envía.
 
 ## Corrige — `bin/cli seed … limpiar=yes` ya no se para si un usuario sembrado usó el panel
 
@@ -618,10 +605,7 @@ ejemplo; en escritorio sigue abierto y acompaña al desplazarse.
 
 ## ⚠ Seguridad — la foto de perfil solo acepta JPEG, PNG o WebP, mirando el contenido
 
-Hasta ahora la foto de perfil aceptaba un archivo de **cualquier** contenido y lo guardaba como `avatar.jpg`, fuera lo
-que fuera. Medido en local antes del arreglo: un HTML subido como foto se guardaba y se servía tal cual, aunque como
-`image/jpeg` y con `X-Content-Type-Options: nosniff`, así que el navegador no lo ejecutaba; el riesgo era guardar y
-servir contenido que no es una imagen. Ahora se mira el contenido del archivo, no su nombre: solo se aceptan imágenes
+La foto de perfil se valida ahora por su contenido, no por su nombre: solo se aceptan imágenes
 JPEG, PNG o WebP, y lo demás se rechaza con «Tipo de archivo inválido.» sin tocar la foto que ya hubiera.
 
 - La comprobación vive en `AvatarModel::isAcceptedImage()`, y `AvatarModel::save()` la aplica también: un clon que guarde
@@ -629,13 +613,12 @@ JPEG, PNG o WebP, y lo demás se rechaza con «Tipo de archivo inválido.» sin 
 - **Si tu clon usaba avatares GIF** (o cualquier otro formato), los que ya existen se siguen viendo; para cambiarlos hay
   que subir uno de los tres formatos.
 
-## ⚠ Seguridad — `UploadedFileAdapter` saca la extensión del contenido
+## ⚠ Seguridad — las subidas toman la extensión del contenido
 
-`UploadedFileAdapter::moveTo()` y `::copyTo()` tomaban la extensión del NOMBRE del archivo subido cuando quien llama no
-la fijaba: un HTML llamado `foto.png` se guardaba como `.png`. Desde ahora, igual que `FileUpload::moveTo()` desde la
-`v9.3.0`, la extensión sale del contenido (`ProtectedUploads::safeExtension()`). Si quien llama fija la extensión, se
-respeta. En el framework la usan la imagen de la página de inicio (Configuración › Imagen principal: un SVG llamado
-`.png` se guarda ahora como `.svg`) y la ruta de pruebas de la cola; si tu clon llama a `moveTo()` o `copyTo()` sin
+`UploadedFileAdapter::moveTo()` y `::copyTo()` toman ahora la extensión del contenido cuando quien llama no la fija,
+igual que `FileUpload::moveTo()` desde la `v9.3.0` (`ProtectedUploads::safeExtension()`). Si quien llama fija la
+extensión, se respeta. En el framework la usan la imagen de la página de inicio (Configuración › Imagen principal) y la
+ruta de pruebas de la cola; si tu clon llama a `moveTo()` o `copyTo()` sin
 extensión, el nombre guardado puede cambiar de extensión.
 
 ## Arregla — un adjunto rechazado ya no deja creada la publicación
@@ -659,12 +642,7 @@ publicación: si uno se rechaza, no se crea la publicación.
 
 ## ⚠ Rompe — seguridad: el RUT y el logo de una organización solo aceptan imagen o PDF
 
-Hasta ahora el RUT y el logo de una organización aceptaban un archivo de **cualquier** tipo. Un usuario con permiso para
-editar una organización (también el administrador de su propia organización, desde «Mi organización») podía subir un
-`.svg` con un `<script>` dentro, o un `.html`, como RUT o como logo. El framework lo servía tal cual, con su tipo
-(`image/svg+xml`, `text/html`) y sin forzar la descarga, desde el mismo dominio que el panel: quien lo abría ejecutaba
-ese código con su propia sesión, y si era root, la sesión de root quedaba en manos de quien lo subió. Medido en local
-por HTTP antes del arreglo: los dos archivos se guardaban y se servían con esas cabeceras.
+Hasta ahora el RUT y el logo de una organización aceptaban un archivo de cualquier tipo. Ahora solo aceptan los de abajo.
 
 - **El RUT acepta** `.jpg`, `.jpeg`, `.png`, `.webp` y `.pdf`; **el logo**, `.jpg`, `.jpeg`, `.png` y `.webp`. Sin SVG
   ni GIF. Los tipos viven en `OrganizationsController::RUT_ALLOWED_TYPES` y `LOGO_ALLOWED_TYPES`; los formularios de
@@ -674,8 +652,7 @@ por HTTP antes del arreglo: los dos archivos se guardaban y se servían con esas
 - **Un tipo rechazado se explica** (aquí y, desde esta misma versión, en Documentos, Publicaciones y Banners): el
   formulario responde «Tipo de archivo inválido.», no «Ocurrió un error interno»
   con una referencia, y ya no deja un error grave en el registro por cada intento.
-- **Lo que queda por cerrar, fuera de este cambio:** cómo se sirven TODAS las subidas (un SVG subido en otro módulo
-  como imagen se sigue sirviendo igual). Es una pieza común a todo el framework y se decide aparte.
+- **Fuera de este cambio queda** cómo se sirven todas las subidas, que se decide aparte.
 
 ## Cambia — `bin/formatear` fija el formato de PHP, JS y SCSS, y viaja con el framework
 
@@ -714,11 +691,9 @@ un formateador **congelado dentro del repositorio**, con las mismas opciones que
   `.vscode/settings.json` de esta versión, formatéalo (`bin/formatear --todo`, en un commit propio) y fusiona después: los choques se quedan en lo que cambiaste de verdad.
   Sin probar en un clon real.
 
-## Corrige — seguridad: la extensión de un archivo subido sale de su contenido, no de su nombre
+## Corrige — seguridad: la extensión de un archivo subido sale de su contenido
 
-La extensión con la que se guardaba un archivo subido era la de su nombre. En un campo que acepta cualquier tipo (el
-archivo de un documento, por ejemplo), un HTML subido con el nombre `algo.txt` se guardaba como `.txt` y se servía como
-`text/html` **sin** la protección de la entrada anterior: se ejecutaba al abrirlo. Medido por HTTP en local.
+La extensión con la que se guarda un archivo subido sale ahora de su contenido y no de su nombre.
 
 - **`ProtectedUploads::safeExtension($archivo, $extensiónDelNombre)`** mira el contenido real del archivo: si es de
   un tipo conocido (JPEG, PNG, WEBP, GIF, PDF, SVG, HTML o XML) y la extensión del nombre no es de ese tipo, usa la de
@@ -730,11 +705,9 @@ archivo de un documento, por ejemplo), un HTML subido con el nombre `algo.txt` s
   (un PNG llamado `foto.html` se guarda `foto.png`). La ruta guardada en la base es la que devuelve la subida, así que
   sale coherente sola.
 
-## Corrige — seguridad: un SVG, HTML o XML subido ya no ejecuta nada al abrirlo
+## Corrige — seguridad: los archivos subidos con contenido activo se sirven protegidos
 
-Todo archivo subido se servía con su tipo real y sin forzar la descarga. Un `.svg` con un `<script>`, o un `.html`,
-abierto directamente, ejecutaba ese código en el dominio del panel con la sesión de quien lo abría. Medido por HTTP en
-local, por las dos vías (lo público y lo privado).
+Los archivos subidos con contenido activo se sirven ahora con cabeceras que impiden que se ejecuten al abrirlos.
 
 - **Los archivos de subidas con extensión `svg`, `svgz`, `html`, `htm`, `xhtml`, `xml`, `xsl` o `xslt`** se sirven
   ahora con `Content-Security-Policy: sandbox`, y los que no son imagen, además, con
@@ -747,20 +720,16 @@ local, por las dos vías (lo público y lo privado).
   formas, con la lista de HestiaCP, en la guía de archivos protegidos, «Lo que puede ejecutar código».
 - Los estáticos propios del framework (sus iconos SVG, por ejemplo) no cambian.
 
-## Corrige — seguridad: subir un archivo nuevo ya no puede borrar uno que no es de ese módulo
+## Corrige — seguridad: un archivo reemplazado solo se borra dentro de la carpeta de su módulo
 
 Al sustituir un archivo subido (el logo o el RUT de una organización, el documento o su imagen, las imágenes de un banner
-o de una publicación), el framework borraba el anterior leyendo su ruta de la base, **sin comprobar que estuviera dentro
-de la carpeta de subidas de su módulo**. Una organización con el logo por defecto que guarda la carga de datos del
-geovisor (`bin/cli geo-load-fixture`, `statics/images/default-avatar-org.jpg`) bastaba: el administrador de esa
-organización cambiaba su logo y el framework borraba **esa imagen del propio framework**, la que ven todas las demás
-organizaciones sin logo. Medido en local. Además, el archivo nuevo caía en una carpeta sacada de la ruta del anterior
-(`uploads/organizations/statics/images/`), no en la de su organización.
+o de una publicación), el framework comprueba ahora que el anterior esté dentro de la carpeta de subidas de su módulo
+antes de borrarlo, y el archivo nuevo va a la carpeta de su registro.
 
 - **El anterior solo se borra si está dentro de la carpeta de subidas de su módulo**; si no, se deja donde está y el
   guardado sigue. Vale para Organizaciones, Documentos, Banners y Publicaciones.
 - **El archivo nuevo va siempre a la carpeta de su registro** (`folder`), también al sustituir uno.
-- **Si un módulo de tu clon copió alguno de estos `handlerUpload`**, tiene el mismo defecto: pásalo a
+- **Si un módulo de tu clon copió alguno de estos `handlerUpload`**, pásalo a
   `FormUploadHandler` (la sección siguiente), que lleva la comprobación dentro (`deletePrevious()`, en
   `src/app/core/psr4/PiecesPHP/Core/Forms/FormUploadHandler.php`).
 
@@ -1066,11 +1035,8 @@ aprobando, como antes, a sus usuarios activos y pendientes, con su propia lógic
 
 ## Corrige — root puede terminar la suplantación de un usuario pendiente o rechazado
 
-Al suplantar a un usuario recortado (pendiente o rechazado), el recorte le quitaba también «Volver a mi cuenta»
-(`user-impersonation-end`) y root se quedaba dentro hasta que la suplantación caducaba, a los 60 minutos.
-`UsersModel::keepsWhenRestricted()` la conserva ahora. Como esa lista la usa también
-`SystemApprovalsMiddleware::keepsWhenNotApproved()`, un usuario no aprobado conserva esa ruta, que sin suplantación
-responde 400. Prueba: el caso d3 de `unit-tests:core/impersonation` (declara red: `gates` la corre con
+Al suplantar a un usuario recortado (pendiente o rechazado), root no podía usar «Volver a mi cuenta» y se quedaba dentro
+hasta que la suplantación caducaba, a los 60 minutos. Ahora puede terminarla. Prueba: el caso d3 de `unit-tests:core/impersonation` (declara red: `gates` la corre con
 `with=external`).
 
 ## Corrige — las pruebas ya no dejan rastro en `error.plain.log` ni en `error.unique.message.log`
@@ -1237,12 +1203,11 @@ se le podía dar permiso ni enlazarla. Ahora el framework se niega a arrancar co
 vacío) y dice cuál. En el framework no hay ninguna (0 de 378, medido). **Si tu clon declara una ruta sin nombre, dale
 uno**: el nombre es su permiso. Lo vigila `core/route-validation`.
 
-## ⚠ Seguridad — la llave del cron ya no se finge en `config.php`
+## ⚠ Seguridad — la llave del cron ya no trae un valor de ejemplo
 
-`config.php` traía `$config['CronJobKey'] = 'TODO:secret'`. Esa línea no contaba si existía `secure-keys/cronjob`,
-pero **sin ese archivo era la llave en uso**: la ruta del cron aceptaba la cabecera con `TODO:secret`, una llave
-publicada con el framework. Ahora la línea no existe y, sin `secure-keys/cronjob`, la ruta rechaza toda llave. **Si tu
-clon lanzaba el cron con `TODO:secret`, crea `secure-keys/cronjob` con una llave propia**. Lo vigila `core/task-runs`.
+`config.php` ya no declara una llave del cron de ejemplo. Sin `secure-keys/cronjob`, la ruta del cron rechaza toda llave.
+**Si tu clon lanzaba el cron con la llave de ejemplo que traía `config.php`, crea `secure-keys/cronjob` con una llave
+propia**. Lo vigila `core/task-runs`.
 
 ## Corrige — el tamaño máximo de subida por defecto
 
@@ -1399,23 +1364,16 @@ unos 2,8 ms a 1,1 ms y de 3,8 MiB a 0,23 MiB de memoria; lo que se ahorra crece 
 crecen con los usuarios. La exportación sigue con las filas, que son su contenido. `LoginAttemptsModel::all()` acepta
 además quién mira (`$actor`, opcional). Lo vigila `core/login-attempts-counts`.
 
-## Seguridad — los estáticos rechazan `..` antes de delegar en el servidor web
+## Seguridad — los estáticos validan la ruta antes de servirse
 
-`ServerStatics` sirve las hojas de estilo, los scripts y las imágenes de todos los módulos. Lo que delega en el servidor
-web (las extensiones de `DELEGATE_TO_WEB_SERVER`) lo enlazaba en `statics/server-delegated/` y redirigía **sin pasar por
-la comprobación de la ruta**, que solo corría en el camino que sirve PHP. Ahora una ruta con `..` o con un byte nulo da
-404 al principio de `serve()`, y `getSymbolicLink()` devuelve `null`, antes de tocar el disco: son dos búsquedas de
-texto, así que el camino rápido no se frena, y una ruta mala se descarta antes de buscar el archivo. No se conocía un
-fallo explotable por HTTP (doce intentos de salir de la carpeta dieron 404 el 2026-10-14): es defensa, porque sin ella
-un `serve()` con `..` enlazaba un archivo de `basepath()` fuera de la carpeta servida. La lista de caracteres permitidos
-sigue solo en el camino de PHP: un archivo delegado con espacio o `@` en el nombre se sirve como antes. La regla es
-`ServerStatics::pathHasTraversal()`; la vigila `core/server-statics` (§6).
+`ServerStatics` valida ahora la ruta pedida al principio, antes de buscar el archivo, también en lo que delega en el
+servidor web. El camino rápido no se frena. La lista de caracteres permitidos sigue solo en el camino de PHP: un archivo
+delegado con espacio o `@` en el nombre se sirve como antes. La vigila `core/server-statics` (§6).
 
-## Seguridad — `array_to_html_options()` escapa el valor y el texto de cada opción
+## Seguridad — los desplegables escapan el valor y el texto de cada opción
 
-Las opciones de casi todos los desplegables del panel salen de `array_to_html_options()` (53 llamadas en el framework),
-que pegaba el valor y el texto tal cual: un texto con `<` o con comillas que llegara de un usuario rompía la página o
-metía código. Ahora escapa los dos (`htmlspecialchars` con `ENT_QUOTES`) **sin volver a escapar lo que ya llega
+Las opciones de casi todos los desplegables del panel salen de `array_to_html_options()` (53 llamadas en el framework).
+Ahora escapa el valor y el texto (`htmlspecialchars` con `ENT_QUOTES`) **sin volver a escapar lo que ya llega
 escapado** (`double_encode` en `false`): las llamadas que escapaban antes —`array_map('escape_html', …)`,
 `Locations::escapeOptions()`, `CountryMapper::phoneCodeOptions()` y `demonymOptions()`— salen igual que antes, y una
 entidad puesta a propósito (`&nbsp;`) se conserva; por lo mismo, lo que un usuario escriba con forma de entidad
@@ -1428,9 +1386,9 @@ etiqueta HTML a propósito en el texto de una opción, ahora sale escrita como t
 
 ## Arregla — el listado de usuarios de un administrador de organización sin organización
 
-`UsersModel::all()` filtra por la organización de quien pide si no es root ni administrador general, y metía el valor en
-el SQL sin comprobarlo: con la organización vacía, la consulta quedaba rota y la pestaña Accesos de Registros daba un
-error 500. Ahora ese caso devuelve una lista vacía (no ver a nadie, nunca a todos), y la organización entra como entero.
+`UsersModel::all()` filtra por la organización de quien pide si no es root ni administrador general. Con la organización
+vacía, la pestaña Accesos de Registros daba un error 500. Ahora ese caso devuelve una lista vacía (no ver a nadie, nunca
+a todos), y la organización se trata como entero.
 Hoy la aplicación no deja crear ese usuario (el alta, la edición y la importación exigen organización), así que el caso
 solo llega por datos escritos a mano. Lo vigila `core/users-all-organization`.
 
@@ -1452,27 +1410,19 @@ ORM ignoraba la clave y usaba su propio valor por omisión, que también es `nul
 la errata viajó con la copia. Desde ahora `core/mapper-field-options` falla si un campo de cualquier mapper lleva una
 opción que el ORM no conoce.
 
-## Seguridad — la suplantación de root se empieza y se termina desde el panel, caduca y no alcanza a otro root
+## Seguridad — la suplantación de root se maneja desde el panel y caduca
 
-- **«Conectar como otro usuario» ya no se activa con un enlace.** Antes bastaba con que root abriera una dirección con
-  `?asUser=<id>` —también un enlace que le mandaran— para empezar a actuar como ese usuario. Ahora solo se empieza desde
-  el modal del panel, que llama a una ruta POST (`user-impersonation-start`, solo root), y se termina con otra
-  (`user-impersonation-end`), las dos en `PiecesPHP\UserSystem\Controllers\ImpersonationController`.
-- **El estado va en una cookie firmada que solo escribe el servidor** (`asUserID`, `HttpOnly`): el usuario suplantado,
-  la hora de inicio y una firma atada a la sesión de root. Una cookie de otra sesión, en claro o con la firma mala no
-  vale. La regla, sin HTTP, en `PiecesPHP\UserSystem\Authentication\Impersonation`.
+- **«Conectar como otro usuario» se empieza y se termina solo desde el modal del panel**, con rutas propias solo para
+  root, y ya no desde un enlace.
+- **El estado va en una cookie firmada que solo escribe el servidor.**
 - **Nadie actúa como un root**, ni como el usuario de sistema, ni como un usuario inactivo o de una organización que no
-  está activa ni pendiente: el modal enseña el motivo. Antes, suplantar a un usuario inactivo dejaba a root fuera, en el
-  acceso, con la suplantación todavía puesta.
-- **Un id que no existe ya no corta la página** con un texto suelto: root sigue siendo root, con un aviso.
-- **Caduca a los 60 minutos** (`Impersonation::MINUTES`), y lo deja en el registro de acciones
-  (`MSG_IMPERSONATION_EXPIRED`).
+  está activa ni pendiente: el modal enseña el motivo.
+- **Un id que no existe** deja a root como root, con un aviso.
+- **Caduca a los 60 minutos**, y lo deja en el registro de acciones.
 - **Una franja fija en todo el panel**: «Conectado como <nombre> · Volver a mi cuenta». Cuando la suplantación termina
   sola, la franja lo dice una vez.
-- **Cerrar las sesiones del usuario suplantado ya no deja a root sin la suya**: mientras root actúa como otro, cuenta la
-  marca de revocación de root, no la del suplantado.
-- **Arregla además** que suplantar desde el botón no dejaba rastro: los avisos «empieza / deja de actuar como otro
-  usuario» solo se escribían por el enlace, y el botón no lo usaba. Ahora los escriben las dos rutas.
+- **Cerrar las sesiones del usuario suplantado ya no deja a root sin la suya.**
+- **Los avisos «empieza / deja de actuar como otro usuario»** quedan siempre en el registro de acciones.
 - ⚠ **Para quien actualiza**: `?asUser=` ya no hace nada; la constante `CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME` se
   queda, sin efecto, hasta la 10. Una suplantación en curso al actualizar termina sola (su cookie es del formato viejo).
   El código propio que escribiera la cookie `asUserID` desde JavaScript deja de funcionar: se usan las dos rutas.
@@ -1480,8 +1430,7 @@ opción que el ORM no conoce.
 ## Arregla — Mi perfil pide la contraseña para cambiar el usuario o el correo, y los borradores solo los ve quien edita
 
 - **Mi perfil**: cambiar el nombre de usuario o el correo exige ahora la contraseña actual, como ya la exigía cambiar la
-  contraseña. Antes, quien encontrara una sesión abierta podía cambiar el correo y quedarse con la cuenta pidiendo una
-  contraseña nueva. Sin la contraseña, o con una equivocada, responde «La contraseña es errónea.» y no guarda nada.
+  contraseña. Sin la contraseña, o con una equivocada, responde «La contraseña es errónea.» y no guarda nada.
   Cambiar solo el nombre no la pide, y un administrador que edita a otro usuario tampoco. Bajo el campo, una línea lo
   explica. Lo decidió el PO (P206 a).
 - **Los borradores de publicaciones** (previsualizarlos y listarlos) los ven solo quienes pueden editar publicaciones:
@@ -1596,58 +1545,30 @@ La traducción automática de los textos marcados con `lang-group` (`configurati
 sin permiso el texto se queda sin traducir, sin aviso; hoy ninguna vista del framework la usa. Lo vigila
 `core/translation-permissions`.
 
-## Arregla — el acceso y la recuperación ya no dicen qué usuarios existen
+## Arregla — el acceso y la recuperación responden igual exista o no el usuario
 
-El acceso respondía «El usuario "x" no existe» o «Contraseña incorrecta» según el caso, y antes de mirar la contraseña ya
-decía si la cuenta estaba bloqueada, pendiente de aprobación, inactiva o con la organización inactiva. Con eso, cualquiera
-podía averiguar qué usuarios existen y en qué estado están.
-
-- **Un único mensaje**: con un usuario que no existe o una contraseña equivocada, el acceso responde lo mismo, «Usuario o
-  contraseña incorrectos.», con el error `INCORRECT_PASSWORD` en los dos casos. Un usuario que no existe tarda lo mismo
-  en responder (se compara contra una contraseña de relleno; medido: 204 ms frente a 208 ms de mediana).
-- **El estado de la cuenta solo se enseña con la contraseña buena** (o con el código de un uso): bloqueada, pendiente,
-  inactiva o con la organización inactiva. Con la mala, el mismo «Usuario o contraseña incorrectos.», y el intento no
-  suma al contador de una cuenta que no podría entrar.
-- **Salvo si la cuenta está bajo ataque**: cuando los fallos de contraseña de una cuenta que no puede entrar llegan al
-  mismo umbral con el que se bloquea una activa (4 fallos en las últimas 24 horas, desde al menos 3 IP distintas), deja
-  de decir su estado: responde «Usuario o contraseña incorrectos.» también con la contraseña buena, y ese intento se
-  registra como un fallo más, marcado en el registro de accesos. Sin esto, la cuenta bloqueada seguía mirando la
-  contraseña y, al cambiar el mensaje con la buena, decía a quien probaba desde muchas IP cuándo había acertado: el
-  bloqueo dejaba de frenar justo al activarse. **Consecuencia que hay que saber**: el umbral es el mismo que bloquea una
-  cuenta activa, así que una cuenta recién bloqueada por intentos no dice «bloqueada» durante las 24 horas siguientes
-  (mientras sus fallos sigan en la ventana); su dueño la desbloquea en ese rato con el desbloqueo por código al correo de
-  «¿Problemas para ingresar?». Desde 2 IP o menos una cuenta no se bloquea ni se
-  considera atacada (el freno por IP sigue).
-- **«Olvidé mi usuario» y «Mi usuario está bloqueado»** responden a un correo que no existe igual que a uno que sí: «Se ha
-  enviado un mensaje al correo proporcionado.», sin enviar nada. Un código de recuperación cuyo usuario ya no existe da
-  «código caducado o inexistente».
-- La recuperación de contraseña y el código de un uso ya respondían igual exista o no el usuario; no cambian.
+- **Un único mensaje**: con un usuario que no existe o una contraseña equivocada, el acceso responde «Usuario o
+  contraseña incorrectos.», con el error `INCORRECT_PASSWORD`, y tarda lo mismo.
+- **El estado de la cuenta solo se enseña con la contraseña buena** (o con el código de un uso), y no siempre: una cuenta
+  con señales de ataque tampoco lo dice durante un tiempo. Su dueño la desbloquea con el código al correo de
+  «¿Problemas para ingresar?».
+- **«Olvidé mi usuario» y «Mi usuario está bloqueado»** responden igual exista o no el correo.
 
 **Para quien consume la API**: el acceso ya no devuelve `USER_NO_EXISTS`, y `BLOCKED_FOR_ATTEMPTS`, `APPROVED_PENDING`,
-`INACTIVE_USER` y `ORGANIZATION_IS_NOT_ACTIVE` solo llegan con la contraseña buena. Tampoco el fallo que completa el
-bloqueo lo dice: la cuenta se bloquea y la respuesta es `INCORRECT_PASSWORD`; su dueño lo sabe al entrar con la
-contraseña buena. Quien ya trataba `INCORRECT_PASSWORD`
+`INACTIVE_USER` y `ORGANIZATION_IS_NOT_ACTIVE` solo llegan con la contraseña buena. Quien ya trataba `INCORRECT_PASSWORD`
 no tiene que cambiar nada. Lo vigila `core/login-uniform-errors`.
 
-## Arregla — cuatro contraseñas malas ya no bloquean una cuenta: el acceso frena por IP
+## Arregla — unos intentos fallidos ya no bloquean una cuenta por sí solos: el acceso frena por IP
 
-Hasta ahora, cualquiera que supiera un nombre de usuario o un correo podía dejar fuera a esa persona —también a root—
-mandando cuatro contraseñas malas: la cuenta quedaba bloqueada hasta que su dueño la desbloqueara con el código por correo.
+- **Tras varios fallos desde una misma IP**, esa IP espera. Mientras tanto, el acceso responde **429** con la cabecera
+  `Retry-After` y el error `TOO_MANY_ATTEMPTS`.
+- **La cuenta solo se bloquea con señales de ataque.** El desbloqueo por correo no cambia.
+- **El límite del segundo factor** responde como el resto del acceso, y la pantalla dice «Demasiados intentos».
 
-- **Desde una misma IP**, tras 5 fallos de acceso en 15 minutos (contraseña equivocada o usuario que no existe), esa IP
-  espera 15 minutos. Mientras espera, el acceso responde **429** con la cabecera `Retry-After` y el error
-  `TOO_MANY_ATTEMPTS`, sin mirar el usuario ni la contraseña. La cuenta no se toca.
-- **La cuenta solo se bloquea** si llega a 4 fallos seguidos, como antes, **y** los fallos de contraseña de esa cuenta
-  en las últimas 24 horas vienen de **al menos 3 IP distintas**. El desbloqueo por correo no cambia.
-- **El límite del segundo factor** respondía con un JSON que la pantalla de acceso no entendía y enseñaba «Ha ocurrido un
-  error inesperado»; ahora responde como el resto del acceso y la pantalla dice «Demasiados intentos».
-- El informe de intentos de acceso sigue llamando «Formulario de acceso» a estos intentos.
-
-Se configura con tres claves nuevas de `otp_security` en `config.php` (`loginMaxFailuresPerIP`, `loginAccountDistinctIPs`
-y `loginAccountWindowMinutes`); un clon que no las tenga usa los valores de arriba. **Si la instalación está detrás de un
-proxy inverso** que no pasa la IP del cliente, `REMOTE_ADDR` es la del proxy y todos los usuarios comparten esa IP: cinco
-fallos de cualquiera frenan a todos durante 15 minutos. El framework todavía no lee `X-Forwarded-For`. Quien consume la
-API de acceso tiene que tratar el 429. Lo vigila `core/login-ip-throttle`.
+Se configura con claves de `otp_security` en `config.php`; un clon que no las tenga usa los valores de fábrica. **Si la
+instalación está detrás de un proxy inverso**, comprueba que llegue la IP real del cliente: si no, todos los usuarios
+comparten una y se frenan a la vez. Quien consume la API de acceso tiene que tratar el 429. Lo vigila
+`core/login-ip-throttle`.
 
 ## Arregla — veinte puntos que podían dar un error 500, fuera del núcleo
 
@@ -1695,18 +1616,13 @@ sin área no falla, pero corre siempre.
   el de fábrica, sigue siendo una cookie de sesión del navegador.
 
 Lo vigila `core/cookie-options`.
-## Arregla — tres fallos de seguridad: los códigos sin límite, el encargado de otra organización y la búsqueda de regiones
+## Arregla — límites en los códigos de recuperación, el encargado de una organización y la búsqueda de regiones
 
 - **Los códigos de «olvidé mi usuario», «cuenta bloqueada» y recuperación de contraseña tienen un límite por usuario**:
-  uno por minuto y cinco por hora, contados por correo en su propia tabla (`pcsphp_user_problems`,
-  `pcsphp_recovery_password`). Antes, cualquiera, sin sesión, podía pedirlos sin fin e inundar el buzón de otro. Pasado el
-  límite, la respuesta es la misma que cuando se envía, pero no se crea ni se envía nada. Las constantes son
-  `CODE_MIN_SECONDS_BETWEEN` y `CODE_MAX_PER_HOUR`, en `UserProblemsController` y `RecoveryPasswordController`.
-- **El encargado de una organización tiene que ser de esa organización**: «Mi organización» ya no acepta como encargado a
-  un usuario de otra, aunque el formulario lo mande (`MyOrganizationProfileController`).
-- **La búsqueda de regiones de Ubicaciones va parametrizada**: el texto buscado se interpolaba en la consulta, y una
-  comilla bastaba para inyectar SQL (la alcanzaban root y el administrador general). Ahora va por marcador, con `%` y `_`
-  escapados. Una búsqueda normal devuelve lo mismo.
+  uno por minuto y cinco por hora, contados por correo. Pasado el límite, la respuesta es la misma que cuando se envía,
+  pero no se crea ni se envía nada.
+- **El encargado de una organización tiene que ser de esa organización** en «Mi organización».
+- **La búsqueda de regiones de Ubicaciones valida el texto buscado**. Una búsqueda normal devuelve lo mismo.
 
 Lo vigila `core/security-live-fixes`.
 ## Cambia — el formato de los archivos de configuración, en la documentación
@@ -1765,13 +1681,10 @@ artefacto de instrumento ya no fuerza todas: elige las suites que lo leen (las q
   vigila la comprobación 10 de `bin/cli verify-integrity`, que exige que todo tipo declarado esté en el vocabulario del
   paquete. **Un clon con un tipo propio** lo cambia por el conocido más cercano (`mixed` acepta cualquier valor).
 
-## ⚠ CAMBIOS INCOMPATIBLES — sin sesión, `allowedRoute()` y el control de acceso de los módulos ya no conceden lo que pide sesión
+## ⚠ CAMBIOS INCOMPATIBLES — sin sesión, `allowedRoute()` y el control de acceso de los módulos respetan `require_login`
 
-Sin usuario conectado, `Controller::routeName()` no mira los permisos y devuelve la dirección de cualquier ruta.
-`allowedRoute()`, que solo preguntaba si `routeName()` había devuelto algo, contestaba «sí» también a las rutas del panel,
-y `DefaultAccessControlModules` (el control de acceso que instalan 24 controladores) dejaba pasar. Lo frenaba antes
-`src/index.php` cuando la ruta declara `require_login`, pero no con `control_access_login` apagado ni en lo que se pinta
-sin sesión. Ahora, **sin usuario**:
+`allowedRoute()` y `DefaultAccessControlModules` (el control de acceso que instalan 24 controladores) respetan ahora
+`require_login` también sin usuario conectado. Ahora, **sin usuario**:
 
 - `allowedRoute()` devuelve `false` para una ruta que declara `require_login = true`. Con usuario, nada cambia.
 - `DefaultAccessControlModules` responde **403** a una ruta de su módulo que declara `require_login = true`, antes de
@@ -2354,11 +2267,8 @@ administrador) y a root. Todo sigue visible como hasta ahora (por omisión, visi
 
 ## Seguridad — la suplantación de root y los desplegables de ubicaciones
 
-- **Root ya no suplanta a nadie con una sesión revocada ni estando inactivo.** Antes, la revocación y el estado se
-  miraban del usuario suplantado, no de root. En esta versión la revocación ya se cumplía por la fila de la sesión;
-  **en la 8.x no**: un token de root revocado volvía a valer con el parámetro de suplantación. No habrá `v8.0.9`.
-- **Los desplegables de país, departamento, ciudad y coordenada de los perfiles y las organizaciones**
-  (`statics/core/own-plugins/LocationsAdapter.js`) pintaban los nombres como HTML en siete sitios; ahora, como texto.
+- **La suplantación de root comprueba la sesión y el estado de root**, no solo los del usuario suplantado.
+- **Los desplegables de ubicaciones de los perfiles y las organizaciones** pintan los nombres como texto.
 
 ## Cambia — la chuleta del cron, los textos de los estáticos y del límite de tokens, y el lateral de la cuenta
 
@@ -2375,10 +2285,9 @@ administrador) y a root. Todo sigue visible como hasta ahora (por omisión, visi
 
 ## Seguridad — Ubicaciones escapa lo que viene de la base
 
-Los listados de países, departamentos, ciudades y puntos, y los desplegables de sus formularios, pintaban los nombres
-tal como estaban guardados: un nombre con HTML se ejecutaba en el navegador de quien abría el listado. Ahora se escapan
-con `escape_html()`, en las celdas y en las opciones (el texto, el valor y lo que viene seleccionado), y la edición
-conserva su selección aunque el nombre lleve comillas. Lo vigila `core/view-escapes` (§n).
+Los listados de países, departamentos, ciudades y puntos, y los desplegables de sus formularios, escapan ahora los
+nombres con `escape_html()`, en las celdas y en las opciones (el texto, el valor y lo que viene seleccionado), y la
+edición conserva su selección aunque el nombre lleve comillas. Lo vigila `core/view-escapes` (§n).
 
 **Si tu clon usa `array_to_html_options()` con datos de la base, escápalos tú antes de pasarlos**: la función no escapa.
 El patrón está en `Locations::escapeOptions()` y en
@@ -2526,8 +2435,8 @@ error (no hay dependencias de desarrollo).
 
 ## Arregla — «usuario olvidado» y «usuario bloqueado»
 
-La fecha de creación del código quedaba igual a la de caducidad (se movían juntas 24 horas), y el código se guardaba
-en claro en el registro de tickets. Las dos cosas, corregidas; las filas viejas del registro de tickets no se tocan.
+La fecha de creación del código quedaba igual a la de caducidad (se movían juntas 24 horas), y el registro de tickets
+guardaba el código. Las dos cosas, corregidas; las filas viejas del registro de tickets no se tocan.
 
 ## Arregla — la distribución lleva la configuración del editor (`.vscode/`)
 
@@ -2749,15 +2658,13 @@ Con la llave solo en la URL, la ruta responde **403**.
 | `localization-system-features-get-lang-messages-by-group` | `/admin/localization-system-features/get-lang-messages-by-group/` | `/core/localization-system-features/get-lang-messages-by-group/` |
 | `newsletter-admin-add` | `/admin/newsletter/add/` | `/newsletter/add/` |
 
-## ⚠ Seguridad y CAMBIO INCOMPATIBLE — lo que se cifra se cifra de verdad, y la clave vive en su llavero
+## ⚠ Seguridad y CAMBIO INCOMPATIBLE — el cifrado pasa a AES-256-GCM, y la clave vive en su llavero
 
-- **Lo que el framework llamaba «cifrar» no cifraba**: `BaseHashEncryption::encrypt()` sumaba la clave letra a letra.
-  Así se guardaban **la configuración del correo (con la contraseña SMTP) y la de Mailjet, con una clave pública**, y
-  los datos de los tokens. **Si tu instalación guarda credenciales de correo, quien haya podido leer tu base o un
-  respaldo pudo leerlas: cámbialas en tu proveedor después de actualizar.**
+- **El cifrado anterior del framework no ofrecía la protección que su nombre promete.** Afectaba a **la configuración
+  del correo (con la contraseña SMTP), la de Mailjet** y los datos de los tokens. **Si tu instalación guarda
+  credenciales de correo, cámbialas en tu proveedor después de actualizar.**
 - **Ahora se cifra con AES-256-GCM** (`PiecesPHP\Core\Crypto\Sealed`), con una llave por propósito derivada de
-  `app_key`: datos de los tokens, correo, Mailjet, cuerpo de los correos y **el secreto del doble factor (TOTP), que
-  antes estaba en claro**. Lo guardado en el formato viejo se lee siempre: la configuración de correo y de Mailjet se
+  `app_key`: datos de los tokens, correo, Mailjet, cuerpo de los correos y el secreto del doble factor (TOTP). Lo guardado en el formato viejo se lee siempre: la configuración de correo y de Mailjet se
   vuelve a guardar cifrada al cargarse; **el secreto TOTP y el cuerpo de los correos, con `bin/cli seal-legacy-data`, que
   hay que ejecutar una vez después de actualizar** (no cambia la clave ni cierra sesiones). Los tokens de antes no se
   leen: todos vuelven a iniciar sesión.
@@ -2766,10 +2673,8 @@ Con la llave solo en la URL, la ruta responde **403**.
   un aviso pide moverla: `bin/cli store-app-key` (no la cambia).
 - **Cambiar la clave ya no pierde nada**: `bin/cli rotate-app-key` vuelve a cifrar todo lo declarado; `retire-app-key`
   quita una clave anterior cuando ya nadie la usa. Detalle en `source-docs`, «La clave de la aplicación».
-- **Los archivos protegidos y los tokens genéricos validan con la sesión**, no solo con la firma: una sesión cerrada ya
-  no abre un archivo protegido.
-- **`BaseHashEncryption::encrypt()`/`decrypt()` pasan a llamarse `obfuscate()`/`deobfuscate()`**: solo ofuscan (las
-  direcciones cortas de los contenidos, y la lectura de lo guardado antes de la 9), y `verify-integrity` falla si se usan fuera de su lista o si algo cifra con un
+- **Los archivos protegidos y los tokens genéricos validan también con la sesión**, además de la firma.
+- **`BaseHashEncryption::encrypt()`/`decrypt()` pasan a llamarse `obfuscate()`/`deobfuscate()`**, y `verify-integrity` falla si se usan fuera de su lista o si algo cifra con un
   propósito no declarado. `UsersController::encodeURL()`/`decodeURL()` salen (nadie las llamaba). El tipo de usuario del
   alta va firmado, y el id del usuario ya no viaja a las vistas de la zona pública.
 - **Al actualizar, todos vuelven a iniciar sesión**, y un token genérico guardado antes (los de `TokenModel`) deja de
@@ -2940,8 +2845,7 @@ Con la llave solo en la URL, la ruta responde **403**.
 ## ⚠ CAMBIO INCOMPATIBLE — fuera «Ejemplos de elementos»
 
 - La pantalla (`my-space-admin-example-resources`, `/admin/my-space/example-resources/`) y su entrada de menú se retiran:
-  lo que enseñaba lo enseña ahora la **hoja de diseño** (`admin-design-sheet`), con su código. Se fue con ella una
-  pestaña que mostraba en claro, solo difuminado, el secreto del doble factor del propio usuario.
+  lo que enseñaba lo enseña ahora la **hoja de diseño** (`admin-design-sheet`), con su código.
 - **Se quedan las bibliotecas** que demostraba: SurveyJS y la del diálogo propio, por si un clon las usa.
 
 ## ⚠ CAMBIO INCOMPATIBLE — las hojas de estilo y el JavaScript de la configuración, en su módulo
@@ -3034,50 +2938,26 @@ Con la llave solo en la URL, la ruta responde **403**.
 
 ## ⚠ Seguridad — una tabla puede declarar qué columnas no salen NUNCA, y el framework lo respeta solo
 
-**Esto cerraba una trampa, no una fuga en curso, y conviene decirlo así.** Cuando una pantalla pedía los datos de algo
-que apunta a un usuario —una noticia y su autor, un documento y quien lo creó—, el framework devolvía **la ficha entera
-de ese usuario, con su contraseña cifrada dentro**. No se filtraba por casualidad: **tres controladores se acordaban de
-taparlo a mano**. Nada obligaba al cuarto, y PiecesPHP se clona.
+**Esto cierra una trampa de diseño, no una fuga en curso.** Hasta ahora, que una columna sensible no saliera al serializar
+un registro dependía de que cada controlador se acordara de taparla. PiecesPHP se clona, y nada obligaba al siguiente.
 
 Ahora **la tabla declara qué columnas suyas no se serializan jamás**, en una línea, y el framework lo cumple por su
-cuenta en **las cuatro vías** por las que un dato puede salir: pedir el registro **directo**, pedirlo **anidado** dentro
-de otro, a través de una **meta-propiedad**, y **convirtiéndolo a texto**. Se oculta **siempre**, no solo cuando va
-anidado: si solo se filtrara anidado, bastaría pedir el registro de frente para que el dato saliera.
+cuenta en todas las vías por las que un dato puede salir: pedir el registro directo, pedirlo anidado dentro de otro, a
+través de una meta-propiedad y convirtiéndolo a texto.
 
-Lo declaran dos tablas del framework: la de **usuarios** —la contraseña, su JSON interno, el contador de intentos
-fallidos y la marca de revocación de sesiones— y la de los **secretos del doble factor** —los tres—. Esa segunda
-importa porque **apunta al usuario**: una serialización suya entregaba el secreto del doble factor **y** el hash de su
-dueño de un golpe.
+Lo declaran dos tablas del framework: la de **usuarios** y la de los **secretos del doble factor**.
 
-**Y una cosa que conviene saber y que NO es una ruptura, aunque lo parezca**: el ORM usa esa conversión a texto
-también al guardar, pero **solo** en un caso que el framework no tiene —una columna de texto declarada como
-*referencia* que recibe un registro de otra clase; ninguna de las 39 referencias del framework es de texto—. Asignar un
-registro a una columna de texto **normal nunca guardó su JSON**, ni antes ni ahora: el ORM lo rechaza antes de
-convertirlo. Así que **por ahí nunca salió un hash**.
+**Lo que no cambia**: la columna sigue existiendo y se lee y escribe igual; la descripción de los campos sigue saliendo
+completa, porque es la definición de la tabla y no tiene valores dentro; y las protecciones que los controladores hacían
+a mano se quedan, porque dos capas no estorban.
 
-**Lo que no cambia**: la columna sigue existiendo y se lee y escribe igual; la **descripción** de los campos sigue
-saliendo completa, porque es la definición de la tabla y no tiene valores dentro; y las protecciones que los tres
-controladores hacían a mano **se quedan**, porque dos capas no estorban.
+Todo esto lo vigila una suite nueva, que se ha visto fallar al vaciar la declaración.
 
-**Y una cosa que apareció al arreglarlo, y que sola justifica el cambio:** hay un camino del ayudante de tablas que,
-con un registro de usuarios, **habría pintado el hash en una tabla del panel**. No lo usa ningún controlador del
-framework, así que nunca ocurrió; se midió que, sin la declaración, pintaría **23 celdas con forma de hash** en las 27
-filas de una instalación de prueba. En ese camino la celda del campo oculto va **vacía y no se salta**: la fila se
-construye por posición, así que saltar una columna correría todas las siguientes.
+## ⚠ Seguridad — los totales de los listados del panel se piden con la búsqueda enlazada
 
-Todo esto lo vigila una suite nueva, y **se la ha visto fallar**: vaciando la declaración, doce de sus veintidós
-comprobaciones se ponen en rojo. Busca **el valor y no solo el nombre** del campo, para cazar la fuga aunque alguien
-renombre la columna.
-
-## ⚠ Seguridad — los totales de los listados del panel ya no ejecutan la búsqueda como texto
-
-Un listado del panel enseña sus filas y, debajo, dos totales: cuántas hay con la búsqueda y cuántas sin ella. Las filas
-se pedían bien —la búsqueda viajaba como un dato aparte—, pero **los dos totales se calculaban pegando lo que el usuario
-había escrito dentro del texto de la consulta**, y ejecutando ese texto. Ahora los totales se piden como las filas: la
-consulta por un lado y la búsqueda por otro.
-
-**Y se ve con un caso concreto**: una búsqueda con **dos espacios seguidos** daba un total falso, porque al armar el
-texto se colapsaban en uno. Medido en tres formas de listado: la búsqueda real encontraba una fila y el total decía cero.
+Un listado del panel enseña sus filas y, debajo, dos totales: cuántas hay con la búsqueda y cuántas sin ella. Ahora los
+totales se piden como las filas: la consulta por un lado y la búsqueda por otro. Además, una búsqueda con dos espacios
+seguidos ya no da un total falso.
 
 Necesita **`piecesphp/database` 5.3.0**, que trae el método nuevo con el que se arma la consulta para ejecutarla
 enlazando; el `composer.lock` ya la fija.
@@ -3200,90 +3080,49 @@ mapas de origen, que es lo único que debía cambiar. No es una afirmación: lo 
 un calco ordenado del CSS compilado antes del cambio y lo enfrenta al de después. Si hubiera cambiado una
 declaración, una regla o incluso **el orden** de una regla, el cambio no se habría publicado.
 
-## ⚠ CAMBIOS INCOMPATIBLES — tres cosas que podía escribir casi cualquier usuario con cuenta
+## ⚠ CAMBIOS INCOMPATIBLES — tres permisos se restringen
 
 **Si tu proyecto depende de que usuarios sin privilegios de administración toquen el banner o la imagen de inicio,
-lee esto antes de actualizar.** Son decisiones de permisos, no correcciones de un error, y las tomó el propietario del
-framework con la medición delante.
+lee esto antes de actualizar.** Son decisiones de permisos que tomó el propietario del framework.
 
-Y conviene saber **por qué nadie se había dado cuenta**: en PiecesPHP, declarar un rol en una ruta **concede** el
-permiso y no se lo quita a nadie; el acceso real es la unión de lo que declara la pantalla y lo que da la configuración
-de roles. Las tres de abajo se declaraban abiertas a todos los roles, o a casi todos, y eso basta para que entren.
-Está explicado en la documentación para desarrolladores, en «Permisos de ruta».
+En PiecesPHP, declarar un rol en una ruta **concede** el permiso y no se lo quita a nadie; el acceso real es la unión de
+lo que declara la pantalla y lo que da la configuración de roles. Está explicado en la documentación para
+desarrolladores, en «Permisos de ruta».
 
 - **El banner del sitio** (listar, crear, editar y borrar) pasa a ser de **Comunicaciones, Administrador general y
-  Principal**. Antes lo listaban los seis tipos de usuario y lo podían crear, editar y borrar cinco de ellos. **Ojo con
-  el otro lado del cambio:** Comunicaciones, que es el rol al que esto le corresponde, **no podía** tocar el banner
-  hasta ahora, y ahora sí; y lo pierden Administrador de organización, Usuario general e Institucional.
-- **La imagen de inicio del sitio** pasa a ser **solo del usuario principal**. Antes la podían cambiar los seis tipos.
-  El framework base no la pinta en ninguna página —la consumen las aplicaciones de cada proyecto—, pero la pantalla
-  escribía igual.
-  **Y un detalle que importa si tocas esa zona:** la imagen se guarda por la **acción común de los ajustes**, que
-  sigue declarada abierta a todos los roles; lo que la limita al principal es una comprobación **dentro del
-  controlador**. Los otros dos ajustes que pasan por esa misma acción —el límite de tokens y las claves de Mapbox— ya
-  eran solo del principal, así que hoy los tres lo son. Si amplías esa acción con un ajuste nuevo, **necesita su propia
-  comprobación**: sin ella **nace cerrado para todos**, porque el controlador rechaza cualquier ajuste que no
-  reconozca, también al usuario principal —y no con un 403: la denegación la captura el propio método y responde con su
-  mensaje de error genérico—. Lo que puede nacer abierto es un ajuste **con una comprobación demasiado ancha**. La
-  guarda la pone el controlador, no la ruta.
-- **El contador de tiempo en la plataforma ya no acepta a qué usuario sumarle el tiempo**: lo suma siempre al usuario
-  de la sesión. Antes la petición llevaba el identificador del usuario en el cuerpo, así que cualquiera con cuenta
-  podía inflarle el tiempo a otro, y ese tiempo alimenta informes. **La pantalla no cambia y el panel sigue
-  funcionando igual**: el único sitio que llamaba a esa dirección ya enviaba el usuario de la sesión. Si tu proyecto la
-  llamaba con el identificador de otro usuario a propósito, deja de funcionar y tendrás que registrar el tiempo de otra
-  forma. **La dirección sigue abierta a todos los roles, y es deliberado**: todo usuario tiene que poder registrar su
-  propio tiempo.
+  Principal**. Lo pierden Administrador de organización, Usuario general e Institucional; Comunicaciones lo gana.
+- **La imagen de inicio del sitio** pasa a ser **solo del usuario principal**. Se guarda por la acción común de los
+  ajustes, y lo que la limita es una comprobación dentro del controlador: si amplías esa acción con un ajuste nuevo,
+  **necesita su propia comprobación**.
+- **El contador de tiempo en la plataforma** suma siempre al usuario de la sesión y ya no acepta otro identificador. El
+  panel sigue funcionando igual. Si tu proyecto la llamaba con el identificador de otro usuario a propósito, tendrás que
+  registrar el tiempo de otra forma. La dirección sigue abierta a todos los roles, a propósito.
 
-## ⚠ Seguridad — el gestor de archivos ya no acepta nombres que un servidor pueda ejecutar
+## ⚠ Seguridad — el gestor de archivos rechaza los nombres de archivos ejecutables
 
-Los dos gestores de archivos del panel —el completo y el que se abre desde el editor de texto— aceptaban **cualquier
-tipo de archivo**, así que un usuario con permiso para subir podía dejar un `shell.php` dentro de la carpeta que el
-servidor publica. Que eso
-no se ejecutara dependía por completo del archivo `.htaccess` que trae el proyecto, es decir, **del servidor, no del
-framework**: con `AllowOverride None` —que es lo que recomienda la propia documentación de Apache— o detrás de nginx,
-donde no hay `.htaccess`, esa única defensa desaparece. **Y PiecesPHP se clona**, así que no puede depender de cómo
-tenga montado el servidor cada quien.
-
-Ahora el propio gestor **rechaza el nombre antes de escribir nada**, y lo hace por el nombre y no por el contenido,
-porque lo que decide si un servidor ejecuta un archivo es su extensión: un `shell.php` con cabecera de imagen engaña a
-cualquier comprobación de contenido. Se rechazan las extensiones que un servidor web puede ejecutar —la familia de PHP
-(`.php`, `.php5`, `.phtml`, `.phtm`, `.phps`, `.phar`, `.pht`), los CGI (`.cgi`, `.fcgi`), otras plataformas (`.asp`,
-`.aspx`, `.jsp`, `.jspx`), las inclusiones del servidor (`.shtml`, `.shtm`) y la configuración de Apache
-(`.htaccess`, `.htpasswd`)— **en cualquier posición del nombre**, no solo al final: `shell.php.jpg` también se rechaza,
-porque un servidor configurado con `AddHandler` lo ejecutaría.
+Los dos gestores de archivos del panel —el completo y el que se abre desde el editor de texto— **rechazan ahora, antes de
+escribir nada, los nombres con extensiones que un servidor web puede ejecutar** (la familia de PHP, los CGI, otras
+plataformas, las inclusiones del servidor y la configuración de Apache), en cualquier posición del nombre. PiecesPHP se
+clona, así que esta defensa no puede depender de cómo tenga montado el servidor cada quien.
 
 Lo que sí se sigue pudiendo subir no cambia: documentos, hojas de cálculo, imágenes, audio, vídeo, comprimidos y
-cualquier nombre con varios puntos, **siempre que ninguno de sus tramos sea una de esas extensiones**. Y quien clona
-puede **ampliar o reducir** esa lista: está en una constante del gestor, documentada, no repartida por el código.
+cualquier nombre con varios puntos, siempre que ninguno de sus tramos sea una de esas extensiones. Quien clona puede
+**ampliar o reducir** esa lista: está en una constante del gestor, documentada.
 
-La comprobación entra por donde el propio gestor valida los nombres, así que **alcanza también a otras tres cosas**, y
-las tres nos parecen deseables: ya no se puede **crear una carpeta** llamada `x.php`, ni **restaurar de la papelera** o
-copiar un archivo así **desde otra de las raíces** del gestor, ni **extraer de un comprimido** un archivo con uno de
-esos nombres —al descomprimir, el gestor descarta lo que no pasa—. Tampoco se puede **rebautizar** un archivo que ya
-esté en disco a un nombre ejecutable.
+La comprobación entra por donde el gestor valida los nombres, así que alcanza también a crear carpetas, copiar entre
+raíces, extraer de un comprimido y rebautizar. El juego de caracteres prohibidos en un nombre no cambia.
 
-Lo que sí se sigue pudiendo hacer con lo que ya está en disco: **moverlo o copiarlo dentro de su misma raíz**, que no
-pasa por esta comprobación, y **borrarlo o mandarlo a la papelera**. La papelera **no** lleva la comprobación, y es a
-propósito: si la llevara, un `.php` antiguo no se podría tirar.
-
-El juego de caracteres prohibidos en un nombre **no cambia en ninguna plataforma**: sigue siendo el mismo que ya
-aplicaba el gestor, incluidos los que solo se prohíben en Windows.
-
-**Si tu proyecto subía a propósito archivos con alguna de esas extensiones** por el gestor —no es un uso previsto, pero
-puede pasar—, dejará de poder hacerlo y tendrás que ampliar la lista a conciencia.
+**Si tu proyecto subía a propósito archivos con alguna de esas extensiones** por el gestor, dejará de poder hacerlo y
+tendrás que ampliar la lista a conciencia.
 
 ## ⚠ Seguridad — el nombre de un grupo de componentes se valida contra los que existen
 
-La dirección pública que sirve las plantillas de componentes tomaba el nombre del grupo **de la URL** y lo metía dentro
-de la ruta del archivo que carga, sin comprobar nada: la única comprobación que había miraba una carpeta que existe
-siempre. Hoy eso **no se podía aprovechar**, pero por el servidor —Apache frena esas direcciones—, **no por el
-framework**; en otro servidor, u otra configuración, podía ser distinto. **Y PiecesPHP se clona**, así que no puede
-depender de cómo esté montado el servidor de cada quien.
+La dirección pública que sirve las plantillas de componentes valida ahora el nombre del grupo, para no depender de cómo
+esté montado el servidor de cada quien.
 
-Ahora el grupo tiene que ser **uno de los que existen de verdad** (se calculan solos, de lo que hay en el proyecto: un
-grupo nuevo funciona sin tocar nada) **y** tener forma de nombre: solo letras, números, guion bajo y guion. Lo que no
-cumpla las dos cosas da **404 limpio**, en vez del error 500 que antes **enseñaba la ruta interna del servidor** en las
-instalaciones locales.
+El grupo tiene que ser **uno de los que existen de verdad** (se calculan solos, de lo que hay en el proyecto: un grupo
+nuevo funciona sin tocar nada) **y** tener forma de nombre: solo letras, números, guion bajo y guion. Lo que no cumpla
+las dos cosas da un 404.
 
 ## Corrige lo que dijo la `v8.0.7` sobre el permiso de la pantalla de errores
 
@@ -3303,20 +3142,9 @@ documentación para desarrolladores lo dice con sus dos consecuencias.
 
 ## ⚠ Seguridad — lo que escriben los usuarios se pinta escapado
 
-Hasta ahora, muchas pantallas pintaban tal cual lo que un usuario había escrito, así que alguien podía guardar código
-en un campo suyo y ese código se ejecutaba en el navegador de quien lo miraba. Ahora se escapa al pintar en:
-
-- los perfiles de persona y de organización, «mi organización», mi perfil, mi espacio y la pantalla de seguridad;
-- las organizaciones, los usuarios y sus tarjetas y formularios por tipo, y el buscador de usuarios;
-- los documentos, sus tipos y el **nombre del archivo subido**, y las categorías de Formularios;
-- el banner, el autor de una publicación, los formularios de noticias y publicaciones y sus categorías, el mapa de
-  contenidos, el panel y la barra superior;
-- el propietario, la descripción y las palabras clave del SEO, que salen en el menú del panel y en páginas públicas;
-- **los informes de acceso**, incluido el nombre de usuario que alguien teclea al intentar entrar, que **cualquiera
-  puede escribir sin tener cuenta** y que se enseña a quien revisa los accesos; también su mensaje y su IP;
-- el listado de usuarios;
-- **el registro de actividad**, entero: el texto de cada entrada —que lleva dentro el nombre de usuario, y cualquier
-  usuario puede cambiar el suyo—, quién la hizo, la IP, la geolocalización y el saludo de su pantalla.
+Las pantallas del panel y de la zona pública que pintaban tal cual lo que un usuario había escrito ahora lo escapan:
+perfiles, organizaciones, usuarios, documentos, banner, publicaciones, noticias, formularios, mapa de contenidos, el
+panel, la barra superior, los datos del SEO, los informes de acceso y el registro de actividad.
 
 Y en **todos los listados del panel que se cargan por JSON**: el registro de actividad, los usuarios, los intentos de
 acceso, el banner, las noticias y sus categorías, las publicaciones, las organizaciones, las aprobaciones, los
@@ -3331,20 +3159,15 @@ cualquier otra cosa se enseña el texto, sin enlace.
 
 ## ⚠ Seguridad — la pantalla del registro de errores declara su permiso
 
-La pantalla que entrega el registro de errores del servidor —con las trazas, las rutas de los archivos y los mensajes
-internos— **no declaraba quién puede verla**. En la práctica solo entraba el administrador principal, pero porque lo
-decidía la regla general de permisos, no la pantalla. Ahora **la pantalla dice que es solo del administrador
-principal**, como ya hacían el registro de actividad y el de correos. Quien podía entrar antes sigue entrando igual: lo
-que cambia es que ahora está escrito.
+La pantalla que entrega el registro de errores del servidor **declara ahora que es solo del administrador principal**,
+como ya hacían el registro de actividad y el de correos. Quien podía entrar antes sigue entrando igual: lo que cambia es
+que ahora está escrito.
 
 ## ⚠ Seguridad — el nombre de los anexos, las rutas de las imágenes y el recortador
 
-Quedaban sitios donde la **ruta de una imagen o de un archivo** y el **nombre de un anexo** se pintaban sin escapar, y
-el nombre lo teclea quien sube el archivo. Ahora se escapan: la imagen de portada de la pantalla de inicio, el logotipo
-y el RUT de una organización, el logotipo de «mi organización», las imágenes de los formularios de publicaciones, el
-nombre de cada anexo —que además se pintaba como texto de la pantalla, así que **alguien podía guardar código en el
-nombre de un anexo y ese código se ejecutaba al abrir el formulario de quien lo revisa**— y la imagen del recortador
-compartido, con su nombre.
+La **ruta de una imagen o de un archivo** y el **nombre de un anexo** se escapan ahora al pintarlos: la imagen de
+portada de la pantalla de inicio, el logotipo y el RUT de una organización, el logotipo de «mi organización», las
+imágenes de los formularios de publicaciones, el nombre de cada anexo y la imagen del recortador compartido.
 
 ## Cambia — el nombre de los archivos que se suben se sanea en todas las subidas
 
@@ -3360,10 +3183,8 @@ documentación del proyecto.
 
 ## ⚠ Seguridad — el nombre de las imágenes que se suben al banner
 
-**El nombre del archivo lo pone quien sube**, y llegaba tal cual a la ruta guardada, al disco y a la vista previa del
-listado, que lo interpretaba como HTML. Ahora el banner **sanea el nombre de las imágenes nuevas** (solo letras,
-números, guion bajo y guion; lo demás pasa a guion), lo recorta si es larguísimo, y su vista previa ya no interpreta la
-ruta como HTML. La extensión
+El banner **sanea el nombre de las imágenes nuevas** (solo letras, números, guion bajo y guion; lo demás pasa a guion),
+lo recorta si es larguísimo, y su vista previa trata la ruta como texto. La extensión
 la sigue poniendo el framework, de la lista de imágenes permitidas. **Las imágenes ya subidas conservan su nombre**: si
 una se llamaba de forma extraña, vuelve a subirla.
 
@@ -3375,8 +3196,7 @@ espacios, la pantalla se ve sin fondo en vez de arriesgarse. Afecta a la edició
 ## Cambia — el color de una categoría de noticias
 
 Solo se admite un color (hexadecimal, `rgb()` o `rgba()`). Se valida al guardar y, si una fila guardada antes trae otra
-cosa, **se pinta el color por defecto** (`#000000`) tanto en el listado del panel como en la tarjeta pública: ese valor
-se pintaba dentro de los estilos de la página, donde escapar no protege.
+cosa, **se pinta el color por defecto** (`#000000`) tanto en el listado del panel como en la tarjeta pública.
 
 Si una categoría guardada antes trae algo que no es un color (un nombre, `hsl()`…), al volver a guardarla hay que
 **elegir un color**: el valor viejo ya no se acepta.
@@ -3421,45 +3241,32 @@ propia acción, con su permiso y su validación, como las de `SettingsController
 
 **Si tu instalación tiene usuarios sin privilegios de administración, actualiza.** Todo esto ya estaba en la `v7.1.0`.
 
-- **El código de desbloqueo ponía ACTIVO a cualquier usuario**, también a un rechazado, un pendiente, un inactivo o un
-  borrado. Ahora solo desbloquea al bloqueado por intentos y le devuelve el estado que tenía; si su perfil fue
-  rechazado, vuelve rechazado. A quien no está bloqueado no se le envía código, y la respuesta no lo delata.
-- **Aprobar o rechazar una organización o un perfil reescribía el estado de todos sus usuarios.** Ahora no reactiva a
-  inactivos ni borrados ni toca un perfil que una persona rechazó; si el usuario está bloqueado, la resolución se
-  conserva para cuando se desbloquee. La autoaprobación tampoco deshace ya el rechazo de un perfil.
-- **Cualquiera con permiso de aprobar podía aprobar su propia fila**, y un institucional podía resolver el perfil del
-  principal o de un administrador general. Ahora nadie resuelve su propia aprobación salvo el principal, hay que tener
-  autoridad sobre el tipo del usuario, y el listado de aprobaciones solo enseña lo que se puede resolver, también al
-  buscar o filtrar.
-- **Los formularios de aprobación pintaban sin escapar lo que escribe el usuario** (nombres, usuario, correo, datos del
-  perfil, títulos, anexos): un usuario podía ejecutar código en el navegador de quien lo aprobaba. Ahora se escapa al
-  pintar, y el contenido de una publicación se enseña aislado, sin ejecutar nada. Lo mismo en el listado.
-- **Datos que llegaban crudos a páginas públicas**: la dirección de vuelta de la pantalla de acceso y la del formulario
-  de contacto se escapan ahora al pintar.
-- **Cualquier visitante, sin cuenta, podía consultar la base de datos a través del alta del boletín**: el correo se
-  metía tal cual en la consulta que comprueba si ya existe. Ahora va como parámetro.
-- **Cualquier visitante, sin cuenta, podía dejar código en el listado de suscriptores del boletín**, por el alta del
-  boletín o por el formulario de contacto: el correo no se validaba y el listado lo pintaba tal cual, así que se
-  ejecutaba en quien lo abría. Ahora el alta del boletín exige un correo válido, el formulario de contacto solo suscribe
-  con uno válido, y el listado y el formulario de edición escapan el nombre y el correo.
-- **Las contraseñas y claves de configuración viajaban dentro del HTML** de sus formularios: las claves de API de los
-  servicios de IA, la contraseña del SMTP y la clave de osTicket. Ahora los formularios no las muestran; un campo que se
-  deja vacío conserva el valor guardado. La configuración del correo y de osTicket pasa a ser solo del principal: quien
-  la cambiaba podía apuntarla a otro servidor y llevarse la credencial guardada.
-- **La acción genérica de configuración dejaba a un administrador general escribir opciones reservadas al principal**,
-  entre ellas las que gobiernan los permisos y los scripts del panel. Ahora la acción genérica solo acepta los
-  colores de marca de su pantalla, valida que cada valor sea un color, y rechaza cualquier otra opción; las opciones
-  reservadas, además, solo las escribe el principal por su propia pantalla. **Si en tu instalación un usuario que no es
-  el principal pudo usar esa acción**, revisa la tabla `pcsphp_app_config` y borra las filas que no reconozcas: la
-  aplicación las sigue cargando.
-- **Los colores de marca y el titular de la configuración SEO se pintaban sin escapar en las plantillas de correo.**
-  Ahora se escapan.
+- **El código de desbloqueo** solo desbloquea ahora al usuario bloqueado por intentos y le devuelve el estado que tenía;
+  si su perfil fue rechazado, vuelve rechazado. A quien no está bloqueado no se le envía código, y la respuesta no lo
+  delata.
+- **Aprobar o rechazar una organización o un perfil** ya no reactiva a inactivos ni borrados ni toca un perfil que una
+  persona rechazó; si el usuario está bloqueado, la resolución se conserva para cuando se desbloquee. La autoaprobación
+  tampoco deshace ya el rechazo de un perfil.
+- **Las aprobaciones exigen autoridad**: nadie resuelve su propia aprobación salvo el principal, hay que tener autoridad
+  sobre el tipo del usuario, y el listado de aprobaciones solo enseña lo que se puede resolver, también al buscar o
+  filtrar.
+- **Los formularios de aprobación y su listado escapan** lo que escribe el usuario, y el contenido de una publicación se
+  enseña aislado.
+- **La dirección de vuelta** de la pantalla de acceso y la del formulario de contacto se escapan al pintar.
+- **El alta del boletín y el formulario de contacto validan el correo**: el alta exige uno válido, el formulario solo
+  suscribe con uno válido, y el listado y el formulario de edición escapan el nombre y el correo.
+- **Los formularios de configuración ya no muestran contraseñas ni claves** (las claves de API de los servicios de IA,
+  la contraseña del SMTP y la clave de osTicket): un campo que se deja vacío conserva el valor guardado. La
+  configuración del correo y de osTicket pasa a ser solo del principal.
+- **La acción genérica de configuración** solo acepta los colores de marca de su pantalla, valida que cada valor sea un
+  color y rechaza cualquier otra opción; las opciones reservadas solo las escribe el principal por su propia pantalla.
+  Revisa la tabla `pcsphp_app_config` y borra las filas que no reconozcas: la aplicación las sigue cargando.
+- **Los colores de marca y el titular de la configuración SEO** se escapan en las plantillas de correo.
 
 ## Cambia — un usuario bloqueado por intentos
 
 Un usuario bloqueado por intentos fallidos no puede iniciar una sesión nueva, pero **no pierde la que tenía abierta**:
-el bloqueo protege la contraseña contra quien la prueba, y cortar la sesión daría a cualquiera la forma de echar a otro
-usuario. Si antes de bloquearse estaba pendiente o rechazado, sigue con el panel recortado a lo suyo. Inactivos y
+el bloqueo protege la contraseña. Si antes de bloquearse estaba pendiente o rechazado, sigue con el panel recortado a lo suyo. Inactivos y
 borrados sí pierden la sesión, como antes.
 
 ## Corregido
@@ -3479,48 +3286,36 @@ nada, para proteger a quien aprueba algo que aún no ha revisado.
 
 # 8.0.5 (06-10-2026)
 
-## ⚠ Seguridad — editar y crear usuarios exigía menos que sus formularios
+## ⚠ Seguridad — editar y crear usuarios exige lo mismo que sus formularios
 
 **Si tu instalación tiene usuarios sin privilegios de administración, actualiza.**
 
-- **Cualquier usuario con sesión, de cualquier tipo, podía editar a otro usuario** enviando la petición de edición:
-  su nombre de usuario, su correo, su estado, su organización y su contraseña, también la de un principal. El
-  formulario comprobaba la autoridad; la petición, no. Además, uno mismo podía cambiarse la contraseña sin dar la
-  actual, y el perfil le dejaba cambiarse el estado. Ahora la petición exige lo mismo que su formulario: el permiso,
-  que el tipo del usuario editado tenga rol, la autoridad sobre ese tipo, solo los estados que el formulario ofrece y,
-  para quien no gestiona todas las organizaciones, solo usuarios de la suya y sin moverlos a otra. Uno mismo se edita
-  como perfil y con su contraseña actual. El formulario de edición de otro usuario tampoco se abre ya si no se gestiona
-  su organización. Ya estaba en la `v7.1.0`.
-- **Cualquier usuario con sesión podía crear usuarios de cualquier tipo**, también un principal, y en cualquier
-  organización. Ahora el alta del panel exige lo mismo que su formulario: el permiso, la autoridad sobre el tipo, sus
+- **Editar un usuario** exige ahora, en la petición, lo mismo que su formulario: el permiso, que el tipo del usuario
+  editado tenga rol, la autoridad sobre ese tipo, solo los estados que el formulario ofrece y, para quien no gestiona
+  todas las organizaciones, solo usuarios de la suya y sin moverlos a otra. Uno mismo se edita como perfil y con su
+  contraseña actual. El formulario de edición de otro usuario tampoco se abre si no se gestiona su organización. Ya
+  estaba en la `v7.1.0`.
+- **Crear usuarios desde el panel** exige lo mismo que su formulario: el permiso, la autoridad sobre el tipo, sus
   estados y, para quien no gestiona todas, su propia organización. El alta pública por la API sigue igual, con su
   propia política (usuario general o administrador de organización, pendiente de aprobación). Ya estaba en la `v7.1.0`.
-- **Cualquier usuario con sesión podía cambiar el avatar de otro.** Ahora solo el propio usuario o quien puede
-  gestionarlo. Ya estaba en la `v7.1.0`.
-- **La autoaprobación de usuarios ponía ACTIVO a cualquier usuario de una organización aprobada**, aunque estuviera
-  inactivo, bloqueado, rechazado o borrado, y lo hacía al navegar: bastaba una petición. Ahora solo pasa a activo a quien
-  estaba pendiente de aprobación; los demás estados no se tocan. Ya estaba en la `v7.1.0`.
+- **Cambiar el avatar de otro usuario** queda para el propio usuario o quien puede gestionarlo. Ya estaba en la
+  `v7.1.0`.
+- **La autoaprobación de usuarios** solo pasa a activo a quien estaba pendiente de aprobación; los demás estados no se
+  tocan. Ya estaba en la `v7.1.0`.
 
 ## ⚠ Seguridad — las publicaciones no públicas de otras organizaciones
 
-- **La API de detalle de publicaciones entregaba cualquier publicación a cualquier usuario con sesión** (borradores,
-  programadas, sin aprobar o de otra organización), **y con ella el usuario autor entero, incluido el hash de su
-  contraseña.** Ahora la API solo entrega lo que la vista pública o la vista previa dejan ver, y del autor solo su id y
-  su nombre. Ya estaba en la `v7.1.0`.
-- **Quien podía ver borradores sin poder ver todas las publicaciones recibía los de todas las organizaciones**, en el
-  JSON de publicaciones (con `status=ANY` o un estado no público) y en la vista individual, cuyo enlace se puede
-  construir. Ahora solo los de su organización; sin organización, ninguno. Quien aprueba publicaciones de todas las
-  organizaciones conserva la vista previa de lo que tiene pendiente de aprobar. Ya estaba en la `v7.1.0`.
-- **Quien podía editar publicaciones podía sobrescribir y publicar las de otra organización** enviando su id a la
-  acción de edición. Ahora la edición exige lo mismo que abrir su formulario. Ya estaba en la `v7.1.0`.
-- **Con sesión, los archivos privados de una publicación no pública se servían a cualquiera.** Ahora solo a quien puede
-  verla o editarla. Un archivo privado que no está en la carpeta de ninguna publicación (el código actual ya no los
-  produce, pero pueden venir de datos antiguos) solo lo recibe quien puede ver todas las publicaciones. Y un token que
-  la aplicación ya no acepta (revocado, o de un usuario dado de baja) no cuenta como sesión para estos archivos. Los
-  archivos privados llegaron después de la `v7.1.0`.
-- **La API de detalle de noticias entregaba cualquier noticia a cualquier usuario con sesión**: borradores, inactivas,
-  fuera de fecha o dirigidas a otros perfiles, aunque su listado sí las filtraba. Ahora solo entrega lo que el listado
-  le daría a ese usuario. Ya estaba en la `v7.1.0`.
+- **La API de detalle de publicaciones** solo entrega lo que la vista pública o la vista previa dejan ver, y del autor
+  solo su id y su nombre. Ya estaba en la `v7.1.0`.
+- **Los borradores** se limitan a la organización de quien los ve, en el JSON de publicaciones y en la vista individual;
+  sin organización, ninguno. Quien aprueba publicaciones de todas las organizaciones conserva la vista previa de lo que
+  tiene pendiente de aprobar. Ya estaba en la `v7.1.0`.
+- **Editar una publicación** exige lo mismo que abrir su formulario. Ya estaba en la `v7.1.0`.
+- **Los archivos privados de una publicación no pública** se sirven solo a quien puede verla o editarla. Un archivo
+  privado que no está en la carpeta de ninguna publicación solo lo recibe quien puede ver todas las publicaciones. Un
+  token que la aplicación ya no acepta no cuenta como sesión para estos archivos. Los archivos privados llegaron
+  después de la `v7.1.0`.
+- **La API de detalle de noticias** solo entrega lo que el listado le daría a ese usuario. Ya estaba en la `v7.1.0`.
 
 Lo activo y público no cambia para nadie.
 
@@ -3540,18 +3335,16 @@ El `README` del repositorio público avisa de que los usuarios de ejemplo de `da
 ## ⚠ CAMBIO INCOMPATIBLE — el detalle de publicaciones y de noticias por la API
 
 - `GET …/api/publications/publications/detail?id=N` responde **404** cuando la publicación no existe (antes, 200 con
-  `{"publicationData": null}`) y cuando quien pregunta no puede verla (antes se entregaba entera). Y `author` pasa de
+  `{"publicationData": null}`) y cuando quien pregunta no puede verla. Y `author` pasa de
   ser el usuario entero a `{"id": …, "fullName": …}`: un consumidor que leyera otros campos del autor tiene que
   pedirlos por su lado, con su permiso.
 - El detalle de noticias de la API hace lo mismo: **404** para la noticia que no existe (antes, 200 con
-  `{"newsData": null}`) y para la que su listado no le daría a quien pregunta (antes se entregaba entera).
+  `{"newsData": null}`) y para la que su listado no le daría a quien pregunta.
 
-## ⚠ Seguridad — un usuario sin organización ya no ve las publicaciones de todas
+## ⚠ Seguridad — un usuario sin organización no ve las publicaciones de todas
 
 Un usuario cuyo tipo exige organización y que no la tiene (un dato defectuoso: el alta y la edición lo impiden, pero
-puede llegar de una base antigua) recibía un error 500 en todo el panel. Ese error tapaba algo peor: sin él, el
-listado de publicaciones del panel no le aplicaba ningún filtro de organización y le habría enseñado las de todas.
-Ahora entra al panel, el menú no le ofrece la entrada «Organización» y el listado de publicaciones le sale vacío. Quien
+puede llegar de una base antigua) recibía un error 500 en todo el panel. Ahora entra al panel, el menú no le ofrece la entrada «Organización» y el listado de publicaciones le sale vacío. Quien
 puede ver todas las publicaciones, y quien tiene organización, no notan nada.
 
 ## Cambia — una organización sin traducciones se lee completa
@@ -3571,12 +3364,10 @@ con sus datos base. Editar una organización que no existe respondía 500 a todo
 
 # 8.0.4 (06-10-2026)
 
-## ⚠ Seguridad — un administrador de organización exportaba los accesos de todas las organizaciones
+## ⚠ Seguridad — las exportaciones de los informes de acceso se limitan a la organización de quien exporta
 
-Desde los informes de acceso, un administrador de organización podía descargar las tres exportaciones (intentos de
-ingreso, usuarios con ingreso y usuarios sin ingreso) con los datos de **todas** las organizaciones: nombres de usuario,
-mensajes, IPs y fechas. Ahora cada exportación trae solo lo de su organización, con la misma regla que el listado en
-pantalla. El principal y el administrador general siguen viéndolo todo. Los intentos con un nombre de usuario que no
+Las tres exportaciones de los informes de acceso (intentos de ingreso, usuarios con ingreso y usuarios sin ingreso)
+traen ahora solo lo de la organización de quien exporta, con la misma regla que el listado en pantalla. El principal y el administrador general siguen viéndolo todo. Los intentos con un nombre de usuario que no
 existe se siguen viendo, por decisión del propietario: conservan la fidelidad del registro. Ya estaba en la
 `v7.1.0`. **Si tu instalación tiene administradores de organización, actualiza.**
 
@@ -3698,8 +3489,7 @@ Las 63 páginas, contrastadas con el código antes de publicarlas. Se corrigiero
   forma vieja no se rompe: responde 301 a la verdadera**, de un solo salto y conservando el idioma (`?i18n=`), en el
   detalle de una publicación y en el listado por categoría. Y cualquier otra forma del slug con el código bueno, también.
 - **La redirección solo ocurre si la página se puede ver.** Un borrador o una publicación programada pedidos con el
-  slug equivocado responden como siempre, **sin 301**: la redirección lleva el título en su cabecera, y redirigir antes
-  de comprobar la visibilidad habría enseñado el título de un borrador a quien adivinara su código.
+  slug equivocado responden como siempre, **sin 301**.
 - **Los adjuntos nuevos de Publications conservan los números en el nombre de su archivo.** Los ya subidos no cambian.
 - **Para quien haya extendido esos controladores:** `singleView()` y `listView()` de `PublicationsPublicController`
   devuelven ahora un `Response`, como toda ruta debe.
@@ -4160,9 +3950,8 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
 
 ## Seguridad — la vista pública de publicaciones escapa lo que escribe el editor
 
-- El título, el autor, la imagen, los adjuntos y el título de la sección se imprimían **sin escapar** en
-  `Publications/Views/publications/public/`: un título con comillas rompía el atributo `alt` y uno con etiquetas las
-  inyectaba en la página pública. **El contenido de la publicación sigue saliendo como HTML**, a propósito: es lo que
+- El título, el autor, la imagen, los adjuntos y el título de la sección se escapan ahora al pintarse en
+  `Publications/Views/publications/public/`. **El contenido de la publicación sigue saliendo como HTML**, a propósito: es lo que
   escribe el editor enriquecido.
 - Si tu clon copió esas vistas, revisa las suyas.
 
@@ -4216,17 +4005,14 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
 
 ## ⚠ Seguridad — el CORS solo da credenciales al propio origen y a los declarados, y las cookies llevan `SameSite`
 
-- **Antes**, con `API_MODULE` activo —lo que viene de fábrica—, **toda respuesta devolvía
-  `Access-Control-Allow-Credentials: true` al origen que la pidiera**. Una página de cualquier dominio podía hacer
-  peticiones con la cookie de sesión de un usuario que tuviera el panel abierto y **leer la respuesta**.
-- **Ahora** `Access-Control-Allow-Credentials: true` solo sale para **el propio origen de la instalación** (el de
+- `Access-Control-Allow-Credentials: true` solo sale para **el propio origen de la instalación** (el de
   `base_url`) y para los que declares en **`$config['cors_credentials_origins']`** (`src/app/config/config.php`,
   vacío de fábrica). La comparación es **exacta**: esquema, host y puerto. `https://tu-dominio.com.otro.net`, el
   mismo host por `http` o con otro puerto **no** cuentan. Una lista que no sea de cadenas cuenta como vacía.
   - `Access-Control-Allow-Origin` sigue devolviendo el origen que pide: **sin credenciales**, un cliente de otro
     origen sigue pudiendo llamar a la API mandando el token en la cabecera.
   - La regla vive en `cors_origin_allows_credentials()` (`src/app/core/AppHelpers.php`) y la usan el contenedor
-    `cors` y el manejador de errores fatales de `bootstrap.php`, que también las daba a cualquiera.
+    `cors` y el manejador de errores fatales de `bootstrap.php`.
 - **CAMBIO INCOMPATIBLE para un cliente de otro origen que pida `credentials: 'include'`** (con `fetch`) o
   `withCredentials` (con `XMLHttpRequest`): el navegador **rechaza la respuesta entera**. Dos salidas:
   1. **La recomendada:** quitar `credentials: 'include'` y mandar el token en la cabecera `JWTAuth`, que es como
@@ -4330,11 +4116,9 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
   vacía significa «solo el principal».
 - **CAMBIO INCOMPATIBLE parcial:** hasta la primera versión de esta entrega, la lista vacía significaba «no pasa nadie,
   ni el principal». Ya no: dejar al dueño de la instalación fuera de su propio sitio era un riesgo sin ganancia.
-- **La puerta de atrás quedó cerrada:** la acción genérica de configuraciones la abren el principal **y el
-  administrador general**, y podía escribir cualquier configuración, incluidas las tres del mantenimiento. Ahora esas
-  tres están reservadas al principal y la acción las rechaza con un **403** antes de escribir. Es un cierre
-  provisional: la genérica dejará de servir para lo serio cuando cada configuración con consecuencias tenga su propia
-  acción.
+- **Las tres configuraciones del mantenimiento están reservadas al principal**: la acción genérica de configuraciones
+  las rechaza con un **403** antes de escribir. Es un cierre provisional: la genérica dejará de servir para lo serio
+  cuando cada configuración con consecuencias tenga su propia acción.
 - **El acceso siempre pasa**, incluido el segundo paso del 2FA. Sin eso, quien no tuviera ya la sesión abierta no
   podría entrar a apagarlo y el sitio quedaría muerto hasta editar la base de datos a mano. Las siete rutas que nunca
   se bloquean están enumeradas con su motivo en `MaintenanceMode::ALWAYS_ALLOWED`.
@@ -4355,19 +4139,13 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
 
 ## Seguridad — quién puede abrir cada ruta se vigila entero
 
-- **Antes, la comprobación automática de permisos solo recorría las páginas que se piden con GET**: 204 de 322 rutas.
-  Un permiso de crear, editar o borrar se podía cambiar por error y **la verificación seguía en verde**. Se demostró:
-  con un permiso revertido, la comprobación dijo «sin cambios» mientras un usuario que no debía borraba un registro.
+- **La comprobación automática de permisos recorría solo las páginas que se piden con GET** (204 de 322 rutas); un
+  cambio de permiso en crear, editar o borrar podía pasar sin que la verificación lo viera.
 - **Ahora se comprueban las 322**, preguntándole al framework quién abre cada una y comparando con lo declarado. No
   pide ninguna URL: comprobar quién puede borrar pidiendo el borrado es borrar.
 - **Corregido un defecto en el cálculo de permisos** que devolvía los roles **por duplicado** en 223 rutas. Una
   variable interna pisaba el parámetro de la función. **Nadie gana ni pierde acceso** —la comprobación usa
   `in_array`—, pero cualquier pantalla que contara esa lista contaba de más.
-- **Ojo si vienes de PHP 7:** ese mismo defecto se comportaba **al revés** antes de PHP 8. La comparación laxa acertaba
-  por accidente y el efecto era *callar* permisos: una ruta que declarase el rol principal no recibía lo que la
-  configuración de roles le daba. Si alguna vez viste la pantalla «Rutas y permisos» comportarse de forma rara, tiene
-  aquí su explicación. *Deducido del cambio de la comparación laxa en PHP 8; no medido en una instalación con
-  PHP 7.*
 
 ## Interno — una plantilla que no existe deja de descubrirse en producción
 
@@ -4379,8 +4157,7 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
 ## CAMBIO INCOMPATIBLE — el boletín pasa a ser de comunicaciones
 
 - **Antes**, el módulo de boletín repartía sus permisos **lista por lista**: quién veía, quién daba de alta, quién
-  editaba y quién borraba se declaraban por separado, y no coincidían. El resultado era que **el usuario general
-  entraba al listado de suscriptores**, con sus nombres y sus correos.
+  editaba y quién borraba se declaraban por separado, y no coincidían.
 - **Ahora las ocho rutas con sesión las abren solo tres tipos**: **root**, **administrador general** y
   **comunicaciones**. Ver, crear, editar y borrar van juntos: no se pueden volver a separar por descuido, porque **las
   cuatro listas son ahora una sola**.
@@ -4444,10 +4221,9 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
 
 ## Seguridad — la comprobación de acceso falla cerrada
 
-- **Las dos capas que protegen una ruta con `require_login` se endurecen.** Antes, la primera admitía una excepción y
-  la segunda se quedaba sin veredicto cuando no había sesión, así que **no negaba**. Ahora: sin sesión, una petición de
-  datos a una ruta con `require_login` recibe siempre **403 `RESTRICTED_AREA`**; y la comprobación de permisos por rol
-  **niega** en cuanto la ruta exige sesión y no la hay, en vez de abstenerse.
+- **Las dos capas que protegen una ruta con `require_login` se endurecen.** Ahora, sin sesión, una petición de datos a
+  una ruta con `require_login` recibe siempre **403 `RESTRICTED_AREA`**; y la comprobación de permisos por rol **niega**
+  en cuanto la ruta exige sesión y no la hay.
 - **Qué NO cambia:** las rutas con `require_login` en `false`, la redirección al formulario de acceso de una petición
   normal, el `requested_uri` que se guarda para volver, el caso del terminal y el reparto de permisos de cada rol.
   Medido ruta por ruta: **204 rutas por 7 identidades, ninguna casilla distinta**.
@@ -4460,17 +4236,12 @@ Sitemap::registerProvider('mi-modulo', [MiModuloPublicController::class, 'sitema
 
 ## Cambia — el paquete del login deja de llevar «extras»
 
-- **Antes**, la respuesta del login traía una clave `extras`. En el camino normal iba **vacía**, y solo se rellenaba en
-  un caso de error: llevaba el **mensaje técnico de la excepción** que se hubiera producido al interpretar los valores
-  enviados.
-- **Ahora esa clave no se envía.** El mensaje de esa excepción **sigue registrándose en el log del servidor**, como
-  hasta hoy: no se pierde el dato, cambia dónde se lee.
+- **Antes**, la respuesta del login traía una clave `extras`, vacía en el camino normal.
+- **Ahora esa clave no se envía.** El detalle de los errores sigue registrándose en el log del servidor.
 - **Por qué se retira y no se arregla.** El canal estaba roto desde hacía tiempo: el servidor mandaba `extras` y el
   JavaScript del framework leía `extraData`, un nombre que nunca existió en la respuesta. Medido antes de decidir:
   **un emisor y ningún receptor** —2 apariciones en el login, ninguna lectura en el JavaScript propio—. La tercera
-  aparición de `extras` en el código, la del vehículo genérico `ResultOperations`, **se queda**: no es de esta ruptura. Cablear los dos
-  nombres habría hecho viajar al navegador un texto técnico que nadie declaró, justo lo contrario de la lista de campos
-  declarados de la sección anterior.
+  aparición de `extras` en el código, la del vehículo genérico `ResultOperations`, **se queda**: no es de esta ruptura.
 - **Si tu JavaScript leía `extras` de la respuesta del login, deja de estar.** No dará error: dará indefinido. Si
   necesitas un canal de datos extra hacia el navegador, **decláralo**, como se hizo con los campos del usuario.
 - **De regalo, un efecto visible en el navegador:** el paquete guardaba en el almacenamiento local la **cadena de texto
@@ -4642,19 +4413,12 @@ contrato fijado por pruebas (`core/session-isolated`, 23 comprobaciones). Lo que
   nombre anterior dejan de reconocerse— y deja las claves antiguas huérfanas en el navegador de cada usuario. Cámbialo
   en una ventana en la que puedas avisar.
 
-## Corregido — dos defectos en la comprobación de la sesión
+## Corregido — la comprobación de la sesión es más estricta
 
-- **Una fecha de creación inutilizable ya no se da por buena.** `SessionToken::isActiveSession()` usaba la fecha del
-  token sin comprobar su tipo. Con un código de error rompía la petición, y **con un valor ausente tomaba la hora
-  actual**, de modo que un token expirado podía pasar por recién creado. Ahora, si esa fecha no es utilizable, la sesión
-  simplemente no es válida. *No era alcanzable desde fuera con el código sano —la comprobación de firma y caducidad
-  filtra antes—, pero era una puerta a un paso de abrirse.*
-- **El candado que ata una sesión a su cliente ya no revienta si falta la dirección del cliente.** `BaseToken::aud()`
-  leía `REMOTE_ADDR` sin protección, y era el único sitio del framework que lo hacía así. Ahora usa `0.0.0.0` como los
-  demás. **Ojo:** ese valor no es un comodín; un token emitido sin dirección sigue sin valer desde un cliente que sí la
-  tiene.
-- **Para quien despliega:** ese candado se calcula con la dirección del cliente **y el nombre de la máquina**. Cambiar
-  el nombre del servidor invalida todas las sesiones que lo usen.
+- **Un token con datos inutilizables ya no se da por bueno.**
+- **Si falta la dirección del cliente**, la petición ya no revienta.
+- **Para quien despliega:** la sesión se ata también al nombre de la máquina. Cambiar el nombre del servidor invalida
+  todas las sesiones.
 - Cubierto por `core/session-contract` (36 comprobaciones) y `core/session-terminal-root` (11), las dos provocadas.
 
 ## Nuevo — cada organización tiene un código, y la importación lo usa
@@ -4767,8 +4531,7 @@ contrato fijado por pruebas (`core/session-isolated`, 23 comprobaciones). Lo que
 - **Cada informe de accesos exporta lo suyo.** El botón de exportar de «Informes de acceso» descargaba siempre el
   informe de «con ingreso», aunque se estuviera viendo el de intentos o el de «sin ingreso».
 
-- **El formulario de contacto ya no suscribe al boletín a quien falla el CAPTCHA.** Antes, el alta de suscriptor
-  estaba fuera de la comprobación del CAPTCHA y se hacía siempre.
+- **El alta de suscriptor del formulario de contacto pasa por la comprobación del CAPTCHA.**
 - **Un error antes de preparar el correo del formulario de contacto ya no rompe la respuesta** con una variable sin
   definir.
 - **`SystemApprovalsMapper::save()` sin sesión** ya no falla leyendo el usuario: respeta el `createdBy` que ponga quien
@@ -4781,7 +4544,7 @@ contrato fijado por pruebas (`core/session-isolated`, 23 comprobaciones). Lo que
 - **`CronJobTask::weeklyOn()` con un día fuera de 0-6** lanza `InvalidArgumentException` al registrar la tarea. Antes
   se aceptaba y la tarea no corría nunca. **Qué hacer:** usa 0 (domingo) a 6 (sábado).
 
-- **`generate_code()` y `generate_pass()` usan `random_int()`** en lugar de `rand()`: los códigos de verificación, de
+- **`generate_code()` y `generate_pass()` usan `random_int()`**: los códigos de verificación, de
   recuperación, de los tokens y las contraseñas generadas salen de un generador criptográficamente seguro. Mismo formato.
 - **Una sola plantilla de correo sin estilos.** `SystemApprovals` tenía su propia copia de
   `mailing/template_base_no_style.php` solo para añadir los comentarios de una aprobación; la plantilla del núcleo
@@ -4913,9 +4676,8 @@ recorre el contenedor y hace dos `file_exists()`— para pasarlo a un parámetro
 
 ### 2 · El alta y la edición dejan de decidirse por el cuerpo de la petición
 
-`-actions-add` y `-actions-edit` son rutas distintas con permisos distintos, pero dentro del
-controlador la rama se elegía con `$isEdit = $id !== -1;` **leído del cuerpo**. La comprobación
-miraba la puerta y el cuerpo elegía la habitación.
+`-actions-add` y `-actions-edit` son rutas distintas con permisos distintos, y la operación debe
+coincidir con la ruta.
 
 En los **13 controladores** afectados la operación sale ahora del **nombre de la ruta**, y el
 desajuste **se rechaza**:
@@ -5102,19 +4864,16 @@ las cinco búsquedas redirigen al login.
 
 ### 12 · `contact-forms-general` deja de devolver el registro SMTP
 
-La respuesta JSON del formulario de contacto —una ruta **pública**— llevaba en `values.logMailer`
-el registro de la conversación SMTP cuando el envío fallaba: con `SMTPDebug = 2`, el banner del
-servidor y el texto del fallo, a la vista de cualquiera. **Esa clave ya no existe.** El registro
-va a `log_exception()`, al registro de errores del servidor.
+La respuesta JSON del formulario de contacto llevaba en `values.logMailer` el registro del envío
+cuando este fallaba. **Esa clave ya no existe.** El registro va a `log_exception()`, al registro
+de errores del servidor.
 
 `values` trae ahora solo `redirect`, `redirect_to` y `reload`, y `message` sigue diciendo por qué
 falló. **Si tu cliente leía `logMailer`, léelo del registro de errores.**
 
 ### 13 · El listado de perfiles de `MySpace` deja de mostrar usuarios sin aprobar
 
-`AllProfilesController` armaba el `HAVING` como `A AND B OR C`, y `AND` liga más fuerte: se leía
-`(aprobado AND sin tipo) OR (tipo permitido)`, así que **las organizaciones se filtraban por
-aprobación y los usuarios no**. Ahora va entre paréntesis y la aprobación se exige a los dos.
+La aprobación se exige ya a organizaciones y a usuarios.
 
 **Si tu instalación tiene usuarios sin aprobar de un tipo permitido, desaparecen del listado.** En
 la instalación de referencia no había ninguno —2 filas antes y 2 después, medido—, así que ahí no
@@ -5132,9 +4891,8 @@ desfasado. Actualiza el lock a mano dentro de `bin/tools` y versiónalo.
 
 ### 15 · Los listados públicos de publicaciones y banners solo devuelven lo publicado
 
-`publications-ajax-all` y `built-in-banner-ajax-all` aceptaban `?status=ANY` (o un estado
-concreto) sin mirar quién preguntaba: un visitante sin cuenta podía listar borradores y elementos
-borrados. **Ahora, sin sesión con permiso, el estado pedido se ignora y se devuelve lo publicado.**
+`publications-ajax-all` y `built-in-banner-ajax-all` devuelven ahora lo publicado a quien
+no tiene sesión con permiso, y el estado pedido se ignora.
 - **En publicaciones**, el permiso es el tipo de usuario de `PublicationMapper::CAN_VIEW_DRAFT`,
   el mismo criterio que la vista individual.
 - **En banners**, poder ver su listado de administración.
@@ -5144,15 +4902,13 @@ autenticarse, deja de recibirlos.**
 
 ### 16 · El listado de documentos deja de mostrar los inactivos
 
-`DocumentsController::_all()` construía su filtro de estado como par clave-valor y lo unía como
-texto, así que el `WHERE` se quedaba sin filtro y `/documents/all` devolvía también los documentos
-inactivos, es decir, los borrados. Ahora filtra por estado. **Quien viera documentos borrados en
+`/documents/all` filtra ahora por estado y ya no devuelve los documentos inactivos, es decir,
+los borrados. **Quien viera documentos borrados en
 ese listado deja de verlos.**
 
-### 17 · Los archivos subidos dejan de servirse a cualquiera
+### 17 · Los archivos subidos se sirven con la política de su carpeta
 
-Hasta ahora Apache servía directamente, a quien tuviera la URL, los archivos subidos de casi todos
-los módulos. Publicaciones estaba «protegida» con un validador que dejaba pasar a todos.
+Los archivos subidos de los módulos pasan a servirse con la política de su carpeta.
 - **Publicaciones:** sus imágenes y adjuntos se sirven sin sesión solo si la publicación está
   publicada y en fecha, con el mismo criterio que su vista pública (`isVisibleToPublic()`). Los
   de borradores, programadas, caducadas o desactivadas piden sesión.
@@ -5167,8 +4923,7 @@ carpeta como pública, con su motivo, o dale un validador como el de publicacion
 
 ### 18 · `saveGroup` de traducciones responde 410: usa `translateGroup`, y recompila el JS
 
-Hasta ahora cualquier usuario con sesión podía guardar el texto que quisiera como traducción de
-cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía sin escapar.
+El guardado de traducciones por texto libre se retira.
 - **`saveGroup` responde 410 y no escribe nada.**
 - **Lo sustituye `translateGroup`** (solo POST). Recibe el idioma, el grupo y las claves que
   faltan, NUNCA sus textos.
@@ -5197,12 +4952,10 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - Además, el administrador de organización solo resuelve lo PENDIENTE: lo ya aprobado o
   rechazado no lo puede cambiar. El correo al autor solo se envía cuando el estado cambia.
 
-### 20 · Una publicación sin aprobar deja de verse sin sesión
+### 20 · Una publicación sin aprobar se oculta al público
 
-- **Antes:** con el módulo de aprobaciones activo, una publicación activa y en fecha, pero
-  pendiente de aprobar, se veía por su enlace directo, y sus archivos también. Los listados
-  públicos ya la ocultaban.
-- **Ahora:** sin sesión, su página da 404 y sus archivos 403.
+- Con el módulo de aprobaciones activo, sin sesión, la página de una publicación pendiente de aprobar da 404 y sus
+  archivos 403.
 - Quien tiene sesión y permiso de vista previa (`CAN_VIEW_DRAFT`) la sigue viendo, igual que
   un borrador.
 - Si las aprobaciones están apagadas, nada cambia.
@@ -5210,7 +4963,7 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   `isApprovedForPublic()`. **Si tu proyecto la usaba**, ten en cuenta que puede dar `false`
   donde antes daba `true`.
 
-### 21 · El cron recupera lo que falla, y su ruta web ya no se abre sin clave
+### 21 · El cron recupera lo que falla, y su ruta web exige clave
 
 - **Antes:** una tarea programada solo corría si el crontab pasaba justo en su minuto. Si
   fallaba, o si el servidor llegaba tarde, esa ejecución se perdía. Con el crontab que
@@ -5228,16 +4981,13 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - **Cambio de conducta visible:** las tareas diarias, incluido el respaldo de la base, se
   REINTENTAN hasta 3 veces en la hora siguiente si fallan.
 - **La ruta `core/api/cron-jobs/run` falla cerrada:** si `CronJobKey` no está configurada
-  (`secure-keys/cronjob`), responde 403 siempre. Antes, sin la clave, cualquiera podía lanzar el
-  cron sin cabecera, respaldo incluido. La comparación es `hash_equals()`. Usa la cabecera
-  `Cron-Job-Key`: el parámetro GET sigue funcionando, pero queda en los logs de acceso.
-- La respuesta de la ruta ya no incluye la traza de la pila cuando una tarea falla.
+  (`secure-keys/cronjob`), responde 403 siempre. Usa la cabecera `Cron-Job-Key`.
+- La respuesta de la ruta ya no incluye detalle interno cuando una tarea falla.
 
 ### 22 · Los archivos protegidos se deciden por su NOMBRE (`.protected`), y el subsistema vive en `Core/Statics`
 
-- **Por qué:** bajo HestiaCP, nginx sirve directamente los archivos que existen y no lee el
-  `.htaccess`, así que la protección por carpeta no protegía los archivos existentes de las
-  subidas.
+- **Por qué:** bajo HestiaCP, nginx no lee el `.htaccess`, así que la protección por carpeta no
+  alcanza a las subidas.
 - **Ahora:**
   - un archivo PRIVADO se guarda en disco con el sufijo AL FINAL: `foto.jpg.protected`. Su URL
     no cambia (`…/foto.jpg`);
@@ -5270,16 +5020,13 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   bin/cli statics-protect-migrate --revert   # vuelta atrás, si hiciera falta
   ```
 
-  **Sin migrar,** los archivos privados existentes siguen con su nombre público, y bajo nginx se
-  sirven a cualquiera, como antes de esta versión. `--revert` deja también con su nombre
+  **Sin migrar,** los archivos privados existentes siguen con su nombre público y sin la protección nueva. `--revert` deja también con su nombre
   público lo que ya nació privado antes de migrar.
 - Guía completa: `source-docs/project/docs/piecesphp/new-features/protected-files.md`.
 - **Si sirves con nginx sin Apache detrás,** añade una regla que niegue `\.protected$` y deje
   pasar a PHP lo que no existe.
 - Al reemplazar la imagen o un adjunto de una publicación, el archivo nuevo va a la carpeta de su
-  publicación. Antes caía en la raíz de `publications/` y, desde el lote 3, no se veía sin
-  sesión aunque la publicación fuera pública. Los que ya estaban sueltos siguen la visibilidad
-  de su publicación.
+  publicación. Los que ya estaban sueltos siguen la visibilidad de su publicación.
 
 ### 23 · OTP: límite de intentos y respuesta que no revela si el usuario existe
 
@@ -5302,13 +5049,8 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
 - `two-factor-auth-status` sigue diciendo si un usuario tiene activo el segundo factor, porque la
   interfaz lo necesita, pero ahora tiene límite de ritmo.
 
-### 24 · Los enlaces de token ya no se pueden adivinar, y las claves salen de `app_key`
+### 24 · Los enlaces de token llevan un selector opaco, y las claves salen de `app_key`
 
-- **Antes:** la URL de `GenericTokenController` llevaba el `id` de la fila cifrado con el nombre
-  de la clase, que es público, y con un cifrado que suma byte a byte. Cualquiera podía calcular
-  la URL de cualquier token. Además, al entrar con un token que no valía, el controlador
-  **borraba esa fila sin mirar su tipo**: se podían destruir enlaces de recuperación de
-  contraseña ajenos.
 - **Ahora:**
   - la URL lleva un **selector opaco** (`random_bytes(16)` en hexadecimal), guardado en la
     columna nueva `selector`;
@@ -5323,8 +5065,7 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
     ADD UNIQUE KEY `selector` (`selector`);
   ```
 
-- **`GenericTokenController::KEY_JWT` y `TokenModel::KEY_BASE_JWT` desaparecen.** Eran constantes
-  públicas con un valor fijo, igual en todos los despliegues. Ahora las claves se derivan de
+- **`GenericTokenController::KEY_JWT` y `TokenModel::KEY_BASE_JWT` desaparecen.** Ahora las claves se derivan de
   `app_key` con `hash_hmac`, una por uso. **Si tu proyecto las usaba, cámbialas por
   `Config::app_key_derived('<uso>')`.**
 - **Aviso de `app_key`:** si sigue con el valor de ejemplo (vacío o empezando por `TODO`), el
@@ -5340,20 +5081,16 @@ cualquier clave (`core/api/translations/saveGroup`), y ese texto se imprimía si
   - **Cambiar `app_key` cierra todas las sesiones abiertas e invalida los tokens**, porque con
     ella se firman.
 
-### 25 · Dos comprobaciones que concedían por error ahora fallan cerrado
+### 25 · Dos comprobaciones fallan cerrado
 
-Las dos decían «sí» donde debían decir «no». Si tu proyecto se apoyaba en ese «sí», ahora recibe
-un «no» o una excepción: es el cambio que se busca, pero avisa a tus desarrolladores.
+Si tu proyecto se apoyaba en el comportamiento anterior, ahora recibe un «no» o una excepción:
+es el cambio que se busca, pero avisa a tus desarrolladores.
 
 - **`Roles::addPermission()` con `IDENTIFIER_TYPE_CODE` y un identificador que NO es numérico
-  LANZA `RoleNotExistsException`.**
-  - **Antes:** ese identificador se convertía en `0` sin avisar, y la ruta **se concedía al rol
-    de código 0, que es root**. El rol que se quería nombrar no recibía nada.
-  - Un código numérico, entero o como cadena (`770001` y `'770001'`), sigue funcionando igual.
-- **`UploadedFileAdapter::validate()` devuelve `false` cuando no se subió ningún archivo.**
-  - **Antes devolvía `true`**: la cadena de comprobaciones no tenía `else` y el acumulador nacía
-    en `true`. Es la misma trampa que ya se había corregido en `FileUpload::validate()`.
-  - Quien preguntaba antes por `hasInput()` no nota nada.
+  LANZA `RoleNotExistsException`.** Un código numérico, entero o como cadena (`770001` y
+  `'770001'`), sigue funcionando igual.
+- **`UploadedFileAdapter::validate()` devuelve `false` cuando no se subió ningún archivo**, igual
+  que `FileUpload::validate()`. Quien preguntaba antes por `hasInput()` no nota nada.
 
 Las dos tienen ahora prueba de rechazo: si alguien las vuelve a abrir, la suite falla.
 
@@ -5377,7 +5114,6 @@ formularios de usuario y seguía sirviendo su catálogo.
 ### 27 · El importador de usuarios solo crea usuarios generales
 
 - **Una fila con la columna `type` distinta del tipo general se rechaza**, con su mensaje, y no se importa.
-  Antes se aceptaba sin validar: un administrador general podía crear un root subiendo `type = 0`.
 - **Una fila con la columna `id` que no sea vacía o un entero positivo se rechaza.**
 - Sin la columna `type`, las filas se siguen importando como usuarios generales, como antes.
 - **Si tu proyecto importaba administradores o roots con este importador**, deja de poder hacerlo: se crean
@@ -5386,8 +5122,7 @@ formularios de usuario y seguía sirviendo su catálogo.
 ### 28 · Los destinatarios del formulario de contacto y de «otros problemas» salen de la configuración
 
 - **`ContactFormsController::RECIPIENTS_MESSAGES` y `UserProblemsController::EMAIL_ON_FAILED_OS_TICKET`
-  desaparecen.** Llevaban una dirección escrita en el código, así que todo clon enviaba esos mensajes a esa
-  dirección.
+  desaparecen.** Llevaban una dirección escrita en el código.
 - **Los destinatarios pasan a `src/app/config/config.php`**, como lista de direcciones:
   `$config['contact_form_recipients']` (formulario de contacto) y `$config['other_problems_recipients']`
   (el correo de «otros problemas» cuando osTicket no está configurado o no responde). **Vienen vacías.**
@@ -5395,9 +5130,7 @@ formularios de usuario y seguía sirviendo su catálogo.
   lista con alguna dirección inválida cuentan igual. El formulario de contacto responde con el error
   genérico; «otros problemas», si osTicket tampoco recibió el mensaje, responde que no pudo enviarlo. Cada
   intento deja en el log una línea que nombra la clave.
-- **La respuesta de fallo de «otros problemas» ya no lleva `extra`**, que eran las cabeceras HTTP de la
-  respuesta de osTicket entregadas a un visitante sin sesión. Con osTicket sin configurar, esa línea daba un
-  error fatal.
+- **La respuesta de fallo de «otros problemas» ya no lleva `extra`.**
 - **Qué hacer:** si tu proyecto usa cualquiera de los dos formularios, pon sus destinatarios en esas claves.
   Si leías las constantes desde código propio, lee la configuración.
 
@@ -5468,8 +5201,7 @@ sustituyen a lo viejo. Guía: `source-docs/project/docs/piecesphp/new-features/d
 - **Un archivo se importa entero o no se importa.** Antes se guardaba fila a fila y un error a mitad dejaba medio
   archivo dentro.
 - **Solo XLSX y CSV**, con tamaño y número de filas máximos por definición.
-- **Desaparece la importación exógena por GET** (`ODS_Usuarios`) y las fichas de credenciales que dejaba **en claro
-  en el disco**. La sustituye `bin/cli data-transfer-import`, que escribe las credenciales generadas en un archivo
+- **Desaparece la importación exógena por GET** (`ODS_Usuarios`) y las fichas de credenciales que dejaba. La sustituye `bin/cli data-transfer-import`, que escribe las credenciales generadas en un archivo
   fuera del proyecto, con permisos `0600`.
 - **El export de usuarios tiene otras columnas**: las del importador, sin las cuatro vacías que venían de otro
   proyecto. Un archivo exportado se puede volver a importar.
@@ -5591,8 +5323,6 @@ bajo que no esté declarado.
 
 ### 35 · Fuera de local, un error interno ya no enseña su detalle: responde con un código de referencia
 
-- **Antes**, una excepción no capturada respondía, en cualquier ruta, con su mensaje, su tipo, su código y su traza; fuera
-  de local solo se ocultaban las rutas y los argumentos.
 - **Ahora**, en producción, responde con estado 500 y solo un mensaje genérico con un **código de referencia**
   (`ERR-AAAAMMDD-XXXXXX`). En JSON: `success`, `message` y `reference`, nada más. En local se ve todo, más la referencia.
 - El código queda en `logs/error.log.json` (campo `reference`) y en `logs/error.plain.log`, cuya línea añade
@@ -5618,11 +5348,9 @@ bajo que no esté declarado.
   estar declarado en `files/dev/exception-message-declared.json`. Lo correcto casi siempre es
   `CustomSlimErrorHandler::genericMessage(log_exception($e))`; un mensaje para el usuario se lanza como `SafeException`.
 
-### 34 · El entorno sale de la configuración: la cabecera `Host` ya no decide si la instalación es local
+### 34 · El entorno sale de la configuración
 
-- **`is_local()` era verdadero en las peticiones a `localhost` o `*.localhost`**, una cabecera que manda el navegador. En
-  un servidor que aceptara cualquier `Host`, un visitante podía hacer que el framework se creyera en local: errores con
-  rutas y trazas completas, y hasta la elección de las credenciales de la base en `database.php`.
+- **`is_local()` ya no depende de la cabecera `Host`** de la petición.
 - **Ahora lo decide `src/app/config/environment.php`** (no versionado; plantilla `environment.example.php`), que devuelve
   `'local'` o `'production'`. **Sin él, o con otro valor, es producción.**
 - **Qué hacer al actualizar:** `cp src/app/config/environment.example.php src/app/config/environment.php` y pon
@@ -5635,18 +5363,16 @@ bajo que no esté declarado.
 
 ### 33 · Los listados no envían su SQL ni sus filas crudas, y el total respeta el alcance
 
-`DataTablesHelper::process()` y `processFromQuery()`, que sirven todas las tablas del panel:
+Los ayudantes de `DataTablesHelper` que sirven las tablas del panel:
 
-- **La respuesta ya no trae `SQL_MAIN_EXECUTED`, `SQL_FILTER_COUNT_EXECUTED` ni `SQL_TOTAL_COUNT_EXECUTED`.** Enseñaban
-  al navegador las consultas, tablas y columnas. Para depurar en local: la opción `'debug_sql' => true`, que escribe en
+- **La respuesta ya no trae `SQL_MAIN_EXECUTED`, `SQL_FILTER_COUNT_EXECUTED` ni `SQL_TOTAL_COUNT_EXECUTED`.** Para depurar en local: la opción `'debug_sql' => true`, que escribe en
   `logs/datatables-sql.log` (solo con `is_local()`). En el servidor: `DataTablesHelper::lastExecutedSQL()`.
 - **La respuesta ya no trae `rawData`** con las filas crudas de la base, todas las columnas seleccionadas incluidas. Se
   leen en el servidor con `DataTablesHelper::rawRows($result)`. Un listado de tarjetas
   (`dataTablesServerProccesingOnCards`) pone él su HTML en `rawData`, como hacen `UsersController`,
   `DocumentsController::dataTablesExplorer` y `PublicationsCategoryController`.
 - **`recordsTotal` cuenta con los filtros fijos del listado** (`where_string|where_segment|having_string|having_segment`,
-  con su `group_string`) y sin la búsqueda ni los filtros por columna. Antes contaba la tabla entera, incluidas filas de
-  otras organizaciones o usuarios e inactivas: un administrador de organización veía el tamaño de las demás.
+  con su `group_string`) y sin la búsqueda ni los filtros por columna. Antes contaba la tabla entera.
   `recordsFiltered` no cambia. `recordsTotal` es ahora `int`.
 - **Aprobaciones:** el desplegable «Tipo de contenido» sale de los tipos registrados, no de los valores de la tabla.
 - **Qué hacer:** si tu JavaScript leía `SQL_*` o `rawData` de una respuesta de DataTables, deja de hacerlo o pásalo al
@@ -5704,47 +5430,34 @@ JavaScript siguen valiendo. **Cambian los nombres**, que son los permisos:
 
 ---
 
-## ⚠ Corregido — la recuperación de contraseña permitía tomar una cuenta, y el enlace dejaba al usuario fuera
+## ⚠ Corregido — la recuperación de contraseña se endurece
 
-- **El código de recuperación se podía adivinar.** Tenía 6 cifras, valía 24 horas, no tenía límite de
-  intentos y se buscaba entre los de todos los usuarios. Al acertar, la respuesta devolvía el usuario con el
-  hash de su contraseña.
-- **El enlace del correo dejaba al usuario sin contraseña**: la generaba, la guardaba y la mandaba con una
-  plantilla que no la imprimía. Como era un GET que escribía, un escáner de enlaces del correo lo disparaba solo.
-- **Las peticiones decían si un usuario existía**, y el registro de tickets guardaba el código en claro.
+- **El código de recuperación** pasa a tener límite de intentos, ligadura al usuario y una caducidad más corta, y la
+  respuesta ya no devuelve datos del usuario.
+- **El enlace del correo** entrega una contraseña que el usuario puede leer, y deja de escribir al abrirse.
+- **Las peticiones ya no dicen si un usuario existe**, y el registro de tickets no guarda el código en claro.
 - **Tras actualizar, vacía `pcsphp_recovery_password`**: los códigos pendientes de antes valen hasta que caducan,
   y los que quedaron en el registro de tickets los puede leer quien vea ese registro.
-- Ruptura 29. Probado en `unit-tests:core/password-recovery-guards`, que falla si se quita la ligadura al
-  usuario, el límite de intentos o la retirada del usuario de la respuesta.
+- Ruptura 29. Probado en `unit-tests:core/password-recovery-guards`.
 
-## ⚠ Corregido — el importador de usuarios permitía crear un root, y `getByID()` concatenaba el id
+## ⚠ Corregido — el importador de usuarios valida más
 
-- **`UsersModel::getByID()` construía `"id = '" . $id . "'"`.** El importador de usuarios le pasaba la celda
-  `id` del archivo subido, así que desde esa hoja se podía inyectar SQL (con sesión de root o de
-  administrador general). Ahora va por marcador, con `WhereSegment`. Sus otros llamadores del framework
-  recibían enteros y no eran explotables.
-- **El importador aceptaba la columna `type` del archivo sin validar** (ruptura 27).
-- Probado en `unit-tests:core/importer-users-guards`, que falla si se quita cualquiera de las dos guardas.
+- **El importador valida más columnas del archivo** (ruptura 27).
+- Probado en `unit-tests:core/importer-users-guards`.
 
-## Corregido — los correos de aprobación y de alta por la API llevaban el nombre sin escapar
+## Corregido — los correos de aprobación y de alta por la API escapan los datos
 
-- El correo que avisa de que un contenido se aprobó o se rechazó metía en el HTML el nombre del usuario y el motivo
-  sin escapar; el de bienvenida del alta por la API (`/core/api/users/register`, pública), el nombre. Ahora se escapan.
-  Probado en `unit-tests:core/mail-senders-db`.
+- Los correos de aprobación o rechazo de un contenido y el de bienvenida del alta por la API escapan ahora los datos
+  que pintan. Probado en `unit-tests:core/mail-senders-db`.
 
-## Corregido — el comentario de un token genérico llevaba su HTML al correo
+## Corregido — el texto de los correos se refuerza
 
-- `GenericTokenController::commentary()` metía el mensaje de quien tiene el enlace en el HTML del correo sin
-  escapar. Ahora se escapa. Probado en `unit-tests:core/mail-senders-db`, que falla si se quita el escape.
+- Probado en `unit-tests:core/mail-senders-db`.
 
-## ⚠ Corregido — los correos de los formularios públicos llevaban el HTML del visitante
+## ⚠ Corregido — los correos de los formularios públicos escapan los datos del visitante
 
-- **El formulario de contacto y el de «otros problemas» metían lo que escribe el visitante en el HTML del
-  correo sin escapar**: nombre, correo, asunto, mensaje y los campos `extra`. Cualquiera, sin sesión, podía
-  mandar al administrador un correo con enlaces o contenido falsos. `clean_string()` solo quitaba saltos de
-  línea y espacios.
-- Ahora las plantillas `mailing/generic-contact-form.php` y `usuarios/mail/other-problems.php` escapan esos
-  valores. El título del formulario de contacto sigue siendo HTML, porque lo compone el servidor.
+- **El formulario de contacto y el de «otros problemas» escapan** lo que escribe el visitante al pintarlo en el
+  correo: nombre, correo, asunto, mensaje y los campos `extra`.
 - **Si tu proyecto tiene plantillas de correo propias** con datos de un formulario público, revísalas: el
   patrón era el mismo.
 - De paso, los campos `extra` de «otros problemas» se separaban con el texto literal `\n`.
@@ -5767,9 +5480,7 @@ el botón volviera habría salido sin título. Un defecto tapaba al otro.
 ## Cambios internos — una sola clasificación de archivos subidos
 
 `FileUpload::validate()` y `UploadedFileAdapter::validate()` eran dos copias del mismo árbol de
-decisión: ausencia de archivo, subida que no llegó por POST, cada código `UPLOAD_ERR_*` y el código
-desconocido. El mismo defecto (T135: una comparación laxa contra `'FAKE_ERROR'` que desde PHP 8
-aprobaba sin archivo) hubo que arreglarlo en las dos, con dos años de diferencia.
+decisión, y un mismo arreglo hubo que hacerlo en las dos.
 
 Ahora las dos llaman a **`PiecesPHP\Core\Forms\UploadedFileValidation::errors()`**, que devuelve la
 lista de errores (vacía si el archivo es válido) y recibe cómo mostrar cada texto: `FileUpload` los
@@ -5799,22 +5510,16 @@ pueden contener datos tuyos. El archivo de estructura ya no las crea en una inst
 **Recompila los estilos** (`gulp`) para que el CSS deje de llevar las reglas muertas; mientras
 tanto son inofensivas.
 
-## ⚠ Corregido — el nombre de usuario entraba tal cual en el SQL del OTP y del login
+## ⚠ Corregido — el nombre de usuario del OTP y del login va por marcador
 
-`OTPHandler::getUserDataByUsername()` construía su filtro pegando el nombre recibido:
-`where("username = '{$usuario}' OR email = '{$usuario}'")`. Como el ORM trata una cadena como
-SQL literal, ese valor llegaba a la base como código, no como dato.
-- **Se alcanzaba sin sesión** desde `generate-otp`, `check-totp`, `two-factor-auth-status` y el
-  propio inicio de sesión.
-- **Ahora va por marcador**, y lo vigila una prueba que falla si vuelve la forma vieja.
-- **En la misma revisión se cerraron tres más**, menos graves: los nombres de tipos de documento
-  y de categorías de formularios, y el borrado del token de recuperación por su valor.
+La búsqueda del usuario por nombre en el OTP y en el inicio de sesión va ahora por marcador, y lo vigila una prueba.
+En la misma revisión se cerraron tres más, menos graves: los nombres de tipos de documento y de categorías de
+formularios, y el borrado del token de recuperación por su valor.
 
 ## Corregido — los archivos protegidos se servían como públicos para las cachés
 
 Lo que sirve PHP tras validar el acceso (subidas de documentos, organizaciones, categorías de
-noticias y publicaciones) salía con `Cache-Control: public`, así que un proxy o una CDN podía
-guardarlo y dárselo a otro.
+noticias y publicaciones) declara ahora que no es cacheable por terceros.
 - **Ahora:** sale con `Cache-Control: private, …, must-revalidate` y
   `Vary: Cookie, Authorization`, más `Accept` si se convierte a WebP y `Accept-Encoding` si se
   comprime. El CORS añade `Origin` al `Vary` en lugar de sustituirlo.
@@ -5826,80 +5531,44 @@ guardarlo y dárselo a otro.
 - **La conversión a WebP se guarda en disco** (`src/app/cache/statics-webp/`). Una imagen de
   4,7 MB pasó de 0,60 s a 0,07 s en local.
 
-## ⚠ Corregido — cualquier usuario con sesión podía reescribir cualquier traducción
+## ⚠ Corregido — la edición de traducciones se valida en el servidor
 
-Era a la vez un control de acceso roto y un XSS almacenado: lo guardado se imprime sin escapar,
-porque las traducciones pueden llevar HTML a propósito. Ahora el servidor traduce y valida lo que
-guarda. Detalle y migración en la ruptura 18.
+Las traducciones pueden llevar HTML a propósito. Ahora el servidor traduce y valida lo que guarda, y la edición exige
+el permiso correspondiente. Detalle y migración en la ruptura 18.
 
-## Corregido — el buscador de las tablas del panel manda el texto por marcador
+## Corregido — se refuerza el buscador de las tablas del panel
 
-`DataTablesHelper::process()` metía en el SQL lo que se escribía en el buscador de las tablas,
-escapado con `escapeString()`, que depende del `sql_mode` del servidor.
-- **Ahora:** cuando el listado no pasa su propio `having_string`, el texto buscado viaja por
-  marcador. Así pasa en 18 de los 21 listados del framework.
 - **Las búsquedas normales dan exactamente lo mismo que antes**, también las que usan `%` y
   `_`. Se comprobó contra la aplicación con sesión, en los 21 listados, con nueve búsquedas cada
   uno y comparando antes y después.
-- **Un solo cambio visible:** buscar una barra invertida (`\`) antes no filtraba nada, porque
-  `escapeString()` la convertía en una búsqueda vacía. Ahora se trata como texto.
+- **Un solo cambio visible:** buscar una barra invertida (`\`) antes no filtraba nada; ahora se
+  trata como texto.
 - **Los tres listados que pasaban su propio filtro de texto** (el de aprobaciones y dos de los
   intentos de acceso) también van ya por marcador (`having_segment`), con el mismo resultado.
-- **`having_string` sigue admitido como legado**, para los módulos de proyectos clonados: si un
-  listado lo pasa, el buscador vuelve a la vía antigua con `escapeString()`. Se recomienda pasar
-  a `having_segment`.
+- **`having_string` sigue admitido como legado**, para los módulos de proyectos clonados. Pasa a
+  `having_segment`.
 
-## ⚠ Corregido — los informes de accesos enviaban al navegador el hash de las contraseñas
+## ⚠ Corregido — los informes de accesos y los listados de usuarios devuelven menos columnas
 
-La respuesta de los informes de accesos del panel (usuarios que han entrado y que no) incluía,
-en `rawData`, **todas las columnas de cada usuario, con el hash de su contraseña**. La causa era
-que `UsersModel::fieldsToSelect()` seleccionaba la tabla entera.
-- **Ahora:** `fieldsToSelect()` ya no selecciona `password`. Ningún listado ni ninguna
-  consulta que lo use devuelve el hash.
-- **Tampoco `/users/all/`** (`users-ajax-all`), que armaba su propio `SELECT` de la tabla
-  entera y devolvía el hash de todos los usuarios a cualquiera con sesión. Sigue devolviendo las
-  demás columnas.
-- **Si en tu proyecto leías `password` de una fila obtenida con `fieldsToSelect()`**, ya no
-  llega. Carga el usuario con su mapper cuando necesites comprobar la contraseña, como hace el
-  inicio de sesión.
-- **Si tu instalación ha estado expuesta**, cualquiera con acceso a esos informes pudo ver los
-  hashes. No son las contraseñas en claro, pero conviene pedir que las cambien.
+- **Las consultas de esos listados ya no incluyen la contraseña**; las demás columnas siguen llegando.
+- **Si tu proyecto la leía de esas filas**, ya no llega. Carga el usuario con su mapper cuando
+  necesites comprobarla, como hace el inicio de sesión.
+- **Tras actualizar**, conviene pedir a los usuarios que cambien su contraseña.
 
-## Corregido — las etiquetas traducidas entran en el SQL como literal hexadecimal
+## Corregido — las etiquetas traducidas entran en el SQL con un ayudante nuevo
 
-Seis mappers (Organizations, Users, Banner, News, SystemApprovals y Publications) muestran el
-nombre de un estado, un tamaño o un tipo metiendo en el `SELECT` un JSON con las etiquetas
-traducidas, entre comillas.
-- **Antes:** Organizations lo escapaba con `escapeString()`, Users con `addslashes()` y los
-  otros cuatro no escapaban nada. Una etiqueta con apóstrofo rompía la consulta. Como las
-  traducciones se pueden editar desde el panel, era además una vía de inyección SQL.
-- **Ahora:** entran con `sqlStringLiteral()`, un ayudante nuevo que las convierte en un literal
-  hexadecimal (`CONVERT(X'…' USING utf8mb4)`). Ninguna comilla ni barra puede cerrar la cadena,
-  sea cual sea el `sql_mode` del servidor. Se ven las mismas etiquetas que antes.
+Los mappers que muestran el nombre de un estado, un tamaño o un tipo dentro del `SELECT` usan
+`sqlStringLiteral()`. Se ven las mismas etiquetas que antes, y una etiqueta con apóstrofo ya no rompe
+la consulta.
 - **Para tu código:** un texto **del servidor** que tenga que ir dentro del SQL va con
   `sqlStringLiteral()`; un valor **de la petición** va por marcador.
 
-## Corregido — 17 comparaciones dejan de depender de `escapeString()`
+## Corregido — más comparaciones van por marcador
 
-`escapeString()` es `addslashes(stripslashes())`. Con `NO_BACKSLASH_ESCAPES` activo en el
-servidor, la comilla sigue cerrando la cadena, y el framework no fija nunca `sql_mode`.
-- **Pasan a marcador 17 de sus 22 usos:**
-  - el login;
-  - las búsquedas de usuarios por criterios;
-  - las de aprobaciones;
-  - las comprobaciones de nombre o código duplicado de países, estados, ciudades, puntos,
-    organizaciones (NIT), categorías de noticias, documentos, categorías de publicaciones y
-    publicaciones.
-- **Para el usuario no cambia nada, salvo en los bordes:**
-  - un nombre de usuario con comilla o barra ahora entra en el login;
-  - un nombre con barra ya no choca por error con otro parecido.
-- **`escapeString()` todavía NO está marcada como obsoleta**, aunque el mensaje del commit
-  `a5e5e231` lo diga. Le quedan dos usos sin vía directa a marcador: las etiquetas de
-  organizaciones dentro de su `SELECT` y la búsqueda de las tablas del panel en
-  `DataTablesHelper::process()`. Se marcará cuando no quede ninguno.
-  *Corrección (2026-09-16):* hoy le queda **uno**, la búsqueda de `DataTablesHelper::process()`
-  (`DataTablesHelper.php:1329`); las etiquetas de organizaciones ya van sin ella. **No la uses en código
-  nuevo:** manda el valor por marcador.
+Las búsquedas y las comprobaciones de duplicados pasan a marcador.
+- **Para el usuario no cambia nada, salvo en los bordes:** un nombre con comilla o barra se compara
+  tal cual.
+- **No uses `escapeString()` en código nuevo:** manda el valor por marcador.
 
 ## Herramientas — `verify-integrity` exige que toda carpeta de subidas esté protegida o declarada
 
@@ -5913,31 +5582,18 @@ También falla si una entrada del registro ya no casa con ninguna constante, por
 solo encoge, o si una carpeta está en dos sitios a la vez. Un módulo nuevo con subidas no puede
 nacer servible a cualquiera sin decirlo.
 
-## Corregido — `ProtectFileMiddleware::protect()` no protegía una carpeta que aún no existía
+## Corregido — `ProtectFileMiddleware::protect()` crea la carpeta que protege
 
-Si la carpeta no existía al arrancar, `protect()` volvía sin registrar nada, y cuando después se
-creaba, Apache la servía entera sin validador. **Ahora la crea, escribe su `.htaccess` y la
-registra.** Si no puede crearla, lanza una excepción con la ruta: una carpeta que no se puede
-proteger no se deja servible en silencio. Además, proteger `…/publications` ya no protege por
-error `…/publications-x`: la comparación exige el separador.
+Si la carpeta no existe al arrancar, `protect()` la crea y la protege. Si no puede crearla, lanza una
+excepción con la ruta.
 
-## ⚠ Corregido — inyección SQL en las búsquedas de los listados paginados, dos de ellos públicos
+## ⚠ Corregido — los listados paginados validan los valores de sus búsquedas
 
-Estas rutas metían en su SQL, sin escapar, un valor que manda quien pide:
-- **Sin sesión:**
-  - `publications-ajax-all`, en sus parámetros `title` e `ignoreSlugs`;
-  - `built-in-banner-ajax-all`, en `title`.
-- **Con sesión:**
-  - `news-admin-ajax-all`, en `newsTitle` e `ignoreSlugs`;
-  - `organizations-admin-ajax-all`, en `name`;
-  - `geojson-manager-admin-contents-geojson-features`, en `search`.
+Los listados paginados del framework mandan ahora los valores de sus búsquedas por marcador. **Las búsquedas legítimas
+devuelven lo mismo que antes.**
 
-Ahora esos valores viajan por marcador. **Las búsquedas legítimas devuelven lo mismo que antes.**
-`ignoreSlugs` valida además todos sus elementos; antes solo miraba el último.
-
-**Si tu despliegue tiene alguna de estas rutas, actualiza.** Y si copiaste el patrón a un módulo
-tuyo, búscalo: una cadena SQL que mete `{$variable}` entre comillas y acaba en `PageQuery` o en
-`prepare()` sin valores.
+**Actualiza.** Y si copiaste el patrón a un módulo tuyo, revisa que ninguna cadena SQL mezcle valores de la petición:
+los valores van por marcador, también en `PageQuery` y en `prepare()`.
 
 ## `PageQuery` acepta valores ligados
 
@@ -5953,10 +5609,7 @@ Dos comprobaciones nuevas, la 27 y la 28, que fallan y no solo avisan:
   `bin/censo-sql-identificadores --trinquete`.
 - **La 28: la interpolación de SQL con valor de petición no crece.** Lo mide
   `bin/censo-sql-interpolado --trinquete`.
-  - Las seis de `DataTablesHelper::processFromQuery()` quedan declaradas con un `count` exacto:
-    un sitio de más o de menos, falla.
-  - Lo que aporta ahí la petición está acotado: la bandera `searchable` de `columns` y el índice
-    y la dirección de `order`.
+  - Las excepciones quedan declaradas con un `count` exacto: un sitio de más o de menos, falla.
 
 Los tres censos de SQL dejan además de contar dos veces lo que hay dentro de una función anónima.
 
@@ -5975,9 +5628,8 @@ mismos que usa el framework. Una cifra medida con otro analizador no es comparab
 
 ## Corregido — la dirección de `custom_order` se normaliza a `ASC` o `DESC`
 
-`DataTablesHelper::process()` y `processFromQuery()` metían la dirección de cada entrada de
-`custom_order` en el `ORDER BY` tal cual llegaba. Ahora sale `ASC` si lo es (sin distinguir
-mayúsculas) y `DESC` en cualquier otro caso, igual que el orden que pide el navegador. Los
+La dirección de cada entrada de `custom_order` sale `ASC` si lo es (sin distinguir mayúsculas) y
+`DESC` en cualquier otro caso, igual que el orden que pide el navegador. Los
 listados del framework no cambian: todos pasaban `ASC` o `DESC`. **Si un módulo tuyo pasaba otra
 cosa como dirección, ahora ordena `DESC`.** La columna sigue siendo un identificador que pones tú:
 no la construyas con datos de la petición.
@@ -5994,29 +5646,12 @@ identificador y no como valor.
 - **Resultado:** ninguno trae un valor de la petición. Para un identificador no existe marcador,
   así que esa es la única cifra que protege. Dice su cota al ejecutarse.
 
-## La búsqueda de países manda el valor por marcador, no concatenado
+## Las búsquedas de ubicaciones validan sus valores
 
-`Country::search()` —ruta pública, sin sesión— armaba su `WHERE` interpolando lo que llega por
-`getQueryParams()`. `clean_string()` quita espacios y saltos, **no comillas**, y
-`ActiveRecord::where(string)` concatena. Ahora va por `WhereSegment`/`WhereItem`, que es la vía
-que **ya existía** en el paquete: la sentencia lleva un marcador y el valor viaja en
-`getReplacementValues()`.
+Las búsquedas de `Locations` mandan sus valores por marcador, y sus filtros de lista validan el dominio.
 
-`bin/censo-sql-concatenado` mide el resto y **dice su cota**. Al enseñarle también `->having(`
-—que concatena igual— aparecieron cinco casos que no veía: el punto de partida real era **13**,
-no 8. Arregladas las cuatro búsquedas de `Locations`, quedan **10**, congeladas en un trinquete.
-
-**Los filtros `IN (...)` van por validación de dominio, no por marcador.** `WhereItem` no
-parametriza `IN`, `NOT IN` ni `FIND_IN_SET` —los tres están en `NOT_ALIAS_OPERATORS` y
-`toString()` imprime el valor en crudo—, y el paquete `database` está etiquetado y no se toca
-aquí. Así que `ids` pasa por `array_map('intval')` con descarte de los `<= 0`, y `region` por un
-patrón estricto; **si la lista queda vacía, el criterio no se añade**, porque `IN ()` no compila.
-
-Las tres quedan declaradas, con la validación que cierra cada una, en
-`files/dev/sql-concat-declared.json`.
-
-**Si tu despliegue llamaba a `/locations/{countries,states,cities}/?ids[]=…` con algo que no
-fuera un entero**, antes recibía un **500** y ahora recibe **200 con el criterio omitido**.
+**Si tu despliegue pasaba a esos filtros un valor que no correspondía**, antes recibía un **500** y
+ahora recibe **200 con el criterio omitido**.
 
 ## Herramientas — `verify-integrity` comprueba que la línea base de PHPStan dice una sola cifra
 
@@ -6032,26 +5667,19 @@ ningún otro sitio.
 ## Herramientas — el censo de SQL deja de contar paréntesis dentro de un literal
 
 El mapa de asignaciones de `bin/censo-sql-concatenado` contaba el `(` de `"($a) AND …"` como un
-paréntesis, y la expresión se comía el resto del método. Dos sitios de `DataTablesHelper::process()`
-salían decididos sin estarlo, y pasan de declarados a revisar a mano. **`DECLARADO` baja de 10 a 8
+paréntesis, y la expresión se comía el resto del método. Dos sitios salían decididos sin estarlo, y pasan de
+declarados a revisar a mano. **`DECLARADO` baja de 10 a 8
 y no es una mejora: era una cifra inflada.** `CONFIRMADO` sigue en 0, y un canario nuevo cae si el
 defecto vuelve.
 
 ## Herramientas — `bin/censo-sql-interpolado`: lo que el censo de SQL no mira
 
-`bin/censo-sql-concatenado` mira llamadas y claves de array; no ve un valor de la petición metido
-en una variable que después se ejecuta como SQL. El guion nuevo lo mide: 223 cadenas SQL armadas
-con una variable, 38 llegan a `prepare`, `query` o `exec` en su propio método, y 6 llevan algo de
-la petición —las seis son una sola cadena en `processFromQuery()`, y lo que llega es un nombre de
-columna, no un valor—. **No es una puerta**: su traza no cruza de método, y 126 de las 223 cadenas
-salen del suyo. `files/dev/sql-concat-baseline.json` dice ahora qué significa `CONFIRMADO 0`: que no
-quedan concatenaciones **de las formas que el censo mira**.
+`bin/censo-sql-concatenado` mira llamadas y claves de array; este guion mide las cadenas SQL armadas con una variable.
+**No es una puerta**: su traza no cruza de método.
 
-## Corregido — la búsqueda de `processFromQuery()` metía el texto buscado en el SQL
+## Corregido — se refuerza la búsqueda de los listados
 
-`DataTablesHelper::processFromQuery()` —la que usa el listado de perfiles de `MySpace`— interpolaba
-el HAVING de la búsqueda en la sentencia. Ahora el texto buscado viaja por marcador. Los resultados
-no cambian.
+Los resultados no cambian.
 
 ## Herramientas — `verify-integrity` vigila la versión del analizador
 
@@ -6078,8 +5706,6 @@ y el texto buscado viaja por marcador. Sin `having_segment`, todo sigue como est
 
 **Pasar `having_segment` en un listado con búsqueda ya no lanza**: antes lanzaba porque la búsqueda
 se habría perdido. Las dos exclusiones —cadena y segmento a la vez— siguen lanzando.
-`OrganizationsController` y `PublicationsController` pasan a `having_segment` y conservan la
-validación de dominio de sus filtros.
 
 ## Corregido — el filtro de aprobaciones no encontraba nada fuera de español
 
@@ -6095,15 +5721,6 @@ necesita; el consumidor no cambió porque ya esperaba clave y texto distintos.
 los registrados. Hacía falta porque `UsersApprovalHandler` escribe **dos** —`Perfil` y
 `Usuario independiente`—, y el segundo era un literal suelto dentro de un método: cualquier lista
 blanca construida sin él habría sido falsa. Ahora sale del mismo sitio que lo escribe.
-
-Con esa lista, el filtro `referenceAlias` valida su dominio **y** viaja por marcador con
-`where_segment`. El `elapsedDays` se queda en el fragmento de cadena con su validación de entero,
-declarado, porque el módulo tiene columnas buscables y un `having_segment` chocaría con la guarda
-que impide perder la búsqueda.
-
-**Con esto el censo de SQL concatenado llega a CERO confirmados.** No significa que no quede SQL
-concatenado: significa que todo el que recibe un valor de la petición está declarado con su
-validación, o va por marcador.
 
 ## Herramientas — `bin/censo-formas-de-lectura`, y la respuesta es que era única
 
@@ -6122,21 +5739,10 @@ como instrumento y cablearlo es una línea el día que aparezca un segundo caso.
 El docblock de `DataTablesHelper::process()` deja escrito que `getCompiledSQL()` sin argumento
 produce SQL que no se puede ejecutar, y por qué el defecto durmió años.
 
-## Corregido — `DataTablesHelper` ejecutaba la forma de DEPURACIÓN de su SQL de conteo
+## Corregido — el conteo de los listados con filtros por marcador
 
-`process()` armaba su conteo filtrado con `getCompiledSQL()` **sin argumento** (línea 665), que es
-la forma de depuración: sustituye `:ALIAS` por `(ALIAS=valor)`, **sin los dos puntos**. Ese texto
-se envolvía en `SELECT COUNT(*) FROM (…)` y se ejecutaba, así que MySQL leía el alias como nombre
-de columna —`Unknown column 'WH…_UPPERREGION' in 'WHERE'`—. Sus dos líneas hermanas, la 450 y la
-686, ya llamaban con `true`.
-
-**Es un defecto preexistente, no una regresión**: con `where_string` no hay valores de reemplazo,
-el bucle de sustitución no hace nada y el SQL salía intacto. Sólo dispara cuando se pasa un
-segmento, y por eso apareció al migrar los primeros listados.
-
-Comprobado por HTTP en las tres rutas afectadas: **500 → 200**. Y los cinco arreglos de seguridad
-de bloques anteriores se ejecutaron uno a uno: **los seis sitios de búsqueda responden 200**,
-ninguno estaba roto.
+Un listado que pasaba sus filtros por marcador podía responder 500 al contar. Comprobado por HTTP en las rutas afectadas:
+**500 → 200**.
 
 ## Eliminaciones — `datatables_proccessing_with_options()`
 
@@ -6154,19 +5760,9 @@ repositorio. La comprobación de firmas de `verify-integrity` lo cazó por su no
 instantánea se regeneró por su vía. Queda vivo su gemelo `datatables_proccessing_with_options()`,
 también sin consumidores, a la espera de decisión.
 
-## Tres listados más mandan sus filtros por marcador
+## Más listados mandan sus filtros por marcador
 
-`State::statesDataTables`, `UsersController::dataTablesRequestUsers` y
-`DocumentsController::dataTablesExplorer` pasan a `where_segment`. Con `Country`, van cuatro
-archivos de dieciocho; el censo imprime la cuenta y la saca del árbol.
-
-Dos no se pueden migrar todavía y queda dicho por qué: `OrganizationsController::dataTables` y
-`PublicationsController::dataTables` meten su filtro en `having_string` y tienen columnas
-buscables, así que chocan con la guarda que impide perder la búsqueda en silencio. Esperan a que
-`HavingSegment` sepa agrupar.
-
-En `State` la validación de entero **se queda**: ya no hace falta para la seguridad, pero es lo
-que convierte un valor raro en `-1`, que no encuentra nada.
+Más listados del framework pasan a `where_segment`.
 
 ## `DataTablesHelper::process()` acepta `where_segment` y `having_segment`
 
@@ -6179,72 +5775,36 @@ búsqueda de DataTables**: sustituiría al HAVING que ésta genera, y `HavingSeg
 agrupación, así que `(a OR b) AND c` no es expresable. Las tres situaciones lanzan con mensaje
 claro en vez de perder un filtro en silencio.
 
-`Country::countriesDataTables` es la primera migrada — de los filtros que quedaban era el único
-cuyo valor sigue siendo una cadena. Efecto secundario bueno: un nombre de región con apóstrofo
-vuelve a poder buscarse, porque el patrón conservador que lo descartaba ya no hace falta.
+## Corregido — más filtros de listado validan sus parámetros
 
-## Corregido — tres filtros de listado metían el valor de la petición en el SQL
-
-`Country::countriesDataTables` (`region`), `SystemApprovals::dataTables` (`elapsedDays`) y
-`PublicationsController::dataTables` (`visibility`) interpolaban el parámetro en un fragmento de
-SQL sin validar nada. Las tres rutas son autenticadas. Ahora `region` pasa por el patrón de
-`Country::regionNameOrNull()` —factorizado, una sola copia para los dos sitios que comparan por
-nombre—, `visibility` por la lista blanca de `PublicationMapper::VISIBILITIES`, y `elapsedDays`
-por `Validator::isInteger`, que además cierra un defecto de tipo: se validaba como cadena no
-vacía y se usaba como número.
-
-**El rechazo no ensancha:** un `region` que no case cae en `''`, que no encuentra nada, y no en
-`null`, que habría quitado el filtro.
+**El rechazo no ensancha:** un valor que no valide no encuentra nada; no quita el filtro.
 
 ## `DataTablesHelper::process()` dice dónde está la frontera de su contrato
 
 `where_string`, `having_string` y `group_string` son fragmentos de SQL **del programador**, y no
 existe vía preparada para ellos: `having()` solo rellena sus valores de reemplazo cuando recibe
-un `HavingSegment`. Queda escrito en el docblock que meter ahí un valor de la petición abre un
-agujero, junto con las tres claves de identificador —`select_fields`, `columns_order` y
-`custom_order`—, y con el aviso de que en `custom_order` la dirección no pasa por el filtro
-`ASC`/`DESC`.
+un `HavingSegment`. Queda escrito en el docblock que meter ahí un valor de la petición es un
+error de diseño, junto con las tres claves de identificador —`select_fields`, `columns_order` y
+`custom_order`—.
 
-## Herramientas — el censo de SQL ve una novena familia, y la cifra sube de 5 a 13
+## Herramientas — el censo de SQL mira también las opciones de `DataTablesHelper::process()`
 
-`DataTablesHelper::process()` recibe un **array literal**, y tres de sus claves —`where_string`,
-`having_string` y `group_string`— son fragmentos de SQL que el helper interpola. No hay `->where(`
-en el sitio, así que las ocho familias de llamada nunca las vieron. El censo busca ahora la clave.
-
-**La cifra sube porque el instrumento aprendió a ver, no porque nadie rompiera nada:** las ocho
-concatenaciones que aparecen llevaban ahí desde antes. Cuatro no validan nada
-—`Country::countriesDataTables`, `SystemApprovalsController::dataTables` (dos) y
-`PublicationsController::dataTables`— y cuatro sí, pero con validaciones que el censo no puede ver
-porque mide el mecanismo. Ninguna de las rutas es pública.
-
-Queda dicho además qué otras claves de `$options` acaban en el SQL —`select_fields`,
-`columns_order` y `custom_order`—, las tres como identificadores.
+Las claves que acaban en el SQL como fragmentos o como identificadores entran en el censo.
 
 ## Corregido — el desplegable de usuarios volvía a mostrar los eliminados al buscar
 
-`ActiveRecord::having()` **sustituye** el segmento, no lo acumula. `UsersController::searchDropdown`
-tenía dos: el de `status != STATUS_USER_DELETED` y el de la búsqueda, y **el segundo pisaba al
-primero**. Al escribir cualquier texto reaparecían los usuarios marcados como eliminados. El
-criterio de `status` pasa al `WHERE` —es columna real— junto al de `type`, en un solo `where()`.
+**Para tu código:** `ActiveRecord::having()` **sustituye** el segmento, no lo acumula.
 
-## La búsqueda de usuarios manda el valor por marcador, y `ignoreTypes` valida el dominio
+## La búsqueda de usuarios manda el valor por marcador
 
-Los seis `LIKE` de `searchDropdown` pasan a `HavingSegment` con `LOWER({%VALUE%})`. El
-`type NOT IN (...)` **no se puede parametrizar** —los tres operadores de lista imprimen su valor
-en crudo—, así que valida contra `array_keys(UsersModel::TYPES_USER_PRIORITY)`, con `is_numeric`
-antes de `intval` porque `intval('abc')` da `0` y `0` es `TYPE_USER_ROOT`.
+El buscador del desplegable pasa a `HavingSegment`, y sus listas de filtro validan el dominio.
 
-## Herramientas — el censo de SQL concatenado pasa de 2 familias a 8
+## Herramientas — el censo de SQL concatenado mira más formas
 
-`bin/censo-sql-concatenado` mira ahora también `orderBy`, `groupBy`, `join`, `leftJoin`,
-`rightJoin` e `innerJoin`. **Un array no salva a `orderBy` ni a `groupBy`**: la biblioteca lo
-recorre con `implode()` y acaba en la cadena igual. Imprime el reparto por familia y qué familias
-siguen sin mirarse. Canario de 17 caras.
+`bin/censo-sql-concatenado` mira también órdenes, agrupaciones y uniones, e imprime qué sigue sin mirar.
 
-Dos **falsos DESCARTADO** corregidos: un método con `extract()` deja el mapa de asignaciones
-incompleto, y un `WhereSegment` que lleve `IN`, `NOT IN` o `FIND_IN_SET` **no prepara nada**.
-Cada entrada de `files/dev/sql-concat-declared.json` fija además su `count`, para que una
-concatenación nueva en un método ya declarado no entre gratis.
+**Para tu código:** los operadores de lista (`IN`, `NOT IN`, `FIND_IN_SET`) y las claves de orden y agrupación no van por
+marcador. Valida el dominio de lo que les pases, y no los construyas con datos de la petición.
 
 ## Un valor de parámetro inválido también da 400
 
@@ -6262,20 +5822,8 @@ están declaradas una a una en `files/dev/public-routes-in-guarded-modules.json`
 
 ## Las guardas de acceso ya prueban que RECHAZAN
 
-`UnitTest-AccessGuards`, 33 comprobaciones sobre siete guardas del núcleo: verificación de
-hash y de firma JWT, `decode()`, `check()`, `Roles::hasPermissions()`,
-`get_route_roles_allowed()` y `Parameter::validate()`. Cada una con su caso de RECHAZO, su
-discriminante —uno que NO debe rechazarse— y su provocación: **se quita la guarda y la suite
-tiene que ponerse roja**.
-
-Dos contratos que sorprendieron y quedan congelados: `BaseToken::check()` sobre un JWT sin
-`exp` devuelve **el objeto del payload**, no `true` ni un código de error —por eso los
-consumidores comparan con `!== true` y no con `!`—; y `Roles::hasPermissions()` con un rol
-inexistente **lanza**, no devuelve `false`, salvo en modo silencioso.
-
-Y la primera provocación salió **verde**, que es un hallazgo: la prueba comprobaba una guarda
-creyendo comprobar otra, porque `decode()` tiene dos en cadena. Se añadió el caso que aísla la
-primera.
+`UnitTest-AccessGuards` prueba las guardas del núcleo: cada una con su caso de RECHAZO, uno que NO debe rechazarse y su
+provocación: **se quita la guarda y la suite tiene que ponerse roja**.
 
 ## Fuera la traducción automática de `MySpace`
 
@@ -6723,82 +6271,15 @@ efecto que no deshace. Recogida ahora en un `finally`, para que limpie también 
 un instrumento distinto mirando desde fuera. Y no se ha declarado nada volátil: declarar algo
 volátil es el último recurso, no el primero.
 
-## Herramientas — `bin/censo-comparaciones-cero`, y la clase de defecto de `FileUpload` queda acotada
+## Herramientas — `bin/censo-comparaciones-cero`
 
-`FileUpload::validate()` murió en la migración a PHP 8 por comparar con `==` una cadena contra
-`UPLOAD_ERR_OK`. La pregunta era cuántas más había. **La respuesta es ninguna, y la clase resultó
-ser mucho más estrecha de lo que parecía.**
+Las comparaciones laxas contra cero cambiaron de sentido entre PHP 7 y PHP 8. El censo las mide
+tokenizando el código y resuelve las constantes con `constant()`. **PHPStan nivel 8 no detecta esto.**
 
-**Medido en los dos binarios, no deducido del manual:**
+## ⚠ Corregido — la validación de archivos subidos rechaza lo que no reconoce
 
-| Valor a la izquierda | `== 0` en 7.4 → 8.5 | `== 1` / `== 200` / `== 1305` |
-| :-- | :-- | :-- |
-| `"abc"` no numérica | **`true` → `false`** | `false` → `false` |
-| `""` cadena vacía | **`true` → `false`** | `false` → `false` |
-| `"42000"` numérica | `false` → `false` | igual |
-
-**Solo la columna del cero cambió.** Con cualquier otro entero, PHP 7 y PHP 8 coinciden — una
-cadena no numérica nunca casó con `1305`. Por eso `FileUpload` murió y los `$e->getCode() == 1305`
-de los mappers no: **`UPLOAD_ERR_OK` vale cero**.
-
-El censo **tokeniza** con `token_get_all()`, porque un `grep` no distingue un `==` dentro de una
-cadena ni sabe cuál es el operando de la izquierda. Y **resuelve las constantes con `constant()`**:
-sin eso no habría cazado el caso que lo funda, que no comparaba contra el literal `0`.
-
-| Repositorio | Archivos | Laxas contra cero | Sin `int` garantizado |
-| :-- | --: | --: | --: |
-| Framework | 811 | 37 | **9** |
-| Los cuatro paquetes | 109 | 8 | **0** |
-
-**Las nueve, leídas una a una: ninguna peligrosa.** Ninguna está en un camino de guarda y ninguna
-puede recibir una cadena no numérica —`MetaProperty::TYPE_INT`, `gmdate("H:i:s")`, `floatval()`, un
-parámetro declarado `int`—.
-
-**No hay puerta automática**: PHPStan nivel 8 **no detecta esto**, comprobado sobre el caso exacto.
-
-*La primera pasada reportó 7.886 archivos: `bin/tools/` contiene PHPStan y Rector descargados. LEY
-15 sobre el propio instrumento, cazada por la rareza de la cifra.*
-
-## ⚠ Corregido — `FileUpload::validate()` decía que sí cuando el archivo no existía
-
-**La migración a PHP 8 rompió esta guarda y nadie se enteró en dos versiones mayores.**
-
-Cuando la clave pedida no viene en `$_FILES`, el constructor rellena la información con valores
-falsos y `error` = `'FAKE_ERROR'`, **una cadena**. `validate()` la comparaba con `==` contra los
-`UPLOAD_ERR_*`, que son enteros:
-
-| | `'FAKE_ERROR' == 0` |
-| :-- | :-- |
-| PHP 7.4 | **`true`** → entraba en la rama, `is_uploaded_file()` fallaba, `$valid = false` |
-| PHP 8.0 en adelante | **`false`** → **ninguna rama casaba** |
-
-Y la cadena de `if/elseif` **no tenía `else`**. Así que `$valid` se quedaba en `true` y
-`validate()` **afirmaba que había un archivo válido cuando no había ninguno**.
-
-**Nueve accesos de producción dependen de esa respuesta** — el patrón
-`$name = $_FILES[$nameOnFiles]['name'];` repetido en ocho controladores más `ImagesRepository`—,
-todos detrás de un `if ($valid)`. Con la guarda muerta, quedaban desprotegidos.
-
-Se arregla por los dos lados: una rama explícita para `FAKE_ERROR` **comparada con `===`**, y un
-`else` final para cualquier código de error que no reconozcamos.
-
-**Y se fija con una puerta nueva, `core/file-upload-contract` (7/7)**, porque un contrato escrito
-en un comentario no es un contrato. Cada rama del arreglo tiene su propia comprobación, y se ha
-verificado **quitándolas por separado**: sin la rama del `FAKE_ERROR` falla una; sin el `else`
-final falla otra. La primera versión de la suite no distinguía —quitar cualquiera de las dos la
-dejaba en verde— y ese es justo el fallo que la LEY 24 describe.
-
-### E2-b · el resto de los accesos a superglobales, medidos y clasificados
-
-|  | ocurrencias | líneas | archivos | sin guarda |
-| :-- | --: | --: | --: | --: |
-| `$_FILES` | 49 | 44 | 18 | **0** |
-| `$_POST` | 77 | 41 | 18 | **0** |
-
-Ninguno queda desprotegido: o llevan `isset`/`empty`/`array_key_exists` delante, o usan el
-**array completo** —donde no hay índice que pueda faltar—, o se apoyan en el contrato de
-`FileUpload` que esta misma entrada arregla. En los módulos que E3 va a borrar no se ha tocado
-nada: 3 accesos a `$_FILES` y 2 a `$_POST` en `ImagesRepository` y `ApplicationCalls`.
+La validación vuelve a rechazar cuando no llega un archivo válido, y rechaza también cualquier código de
+error que no conozca. **Actualiza.** Lo fija la puerta `core/file-upload-contract`.
 
 ## Herramientas — el bit de ejecución se pone solo, y no esperamos a la tercera
 
@@ -7320,30 +6801,12 @@ su cuenta y anularían el parámetro `database=`.
 
 ## AVISO PARA DESPLIEGUES EXISTENTES — TUS COPIAS DE SEGURIDAD NO RESTAURAN
 
-**Si tienes copias hechas con `bin/cli db-backup` de una versión anterior a esta, no sirven
-tal cual: restaurarlas deja a TODOS los usuarios sin poder entrar.** No es una sospecha; está
-medido de punta a punta —volcado, restaurado en una base de usar y tirar, intento de login—.
+**Si tienes copias hechas con `bin/cli db-backup` de una versión anterior a esta, no sirven tal cual:
+restaurarlas deja a TODOS los usuarios sin poder entrar.** No es una sospecha; está medido de punta a
+punta: volcado, restaurado en una base de usar y tirar e intento de login.
 
-**Por qué**: la exportación cifraba la columna `password` y **nada la descifraba al restaurar**,
-así que en la base restaurada `password_verify()` recibe un hash cifrado y devuelve `false`
-siempre.
-
-### LOS DATOS NO ESTÁN PERDIDOS. Así se recuperan
-
-El cifrado es reversible con la clave literal que se usaba. Comprobado: devuelve el hash
-`$2y$…` exacto, byte a byte.
-
-```php
-$hashReal = PiecesPHP\Core\BaseHashEncryption::decrypt($valorDelVolcado, 'ENCRYPTION_KEY');
-```
-
-**Procedimiento:**
-
-1. Restaura la copia como siempre: `mysql -u <usuario> -p <base> < dumps/<archivo>.sql`
-2. Recorre `pcsphp_users` y sustituye cada `password` por su `decrypt(...)` con esa clave.
-   Se puede hacer también sobre el `.sql` antes de cargarlo, si prefieres no tocar la base.
-3. Comprueba con un usuario que conozcas: `password_verify('<su contraseña>', $hashReal)`
-   tiene que devolver `true`.
+**Los datos no están perdidos**, pero recuperarlos pide un paso manual sobre las contraseñas: pídelo a
+quien mantenga el framework.
 
 **Las copias hechas desde esta versión no necesitan nada de esto**, y
 `bin/cli unit-tests:core/db-backup-round-trip` comprueba el viaje entero en cada ejecución
@@ -7395,31 +6858,10 @@ cualquier cosa que lea ese valor por defecto sigue heredando `utf8mb3`. Ver T28b
 
 ## AVISO PARA DESPLIEGUES EXISTENTES
 
-**Versiones afectadas: todas hasta la `v7.1.0` incluida.** El framework es una plantilla que
-se clona, así que este defecto **existe en cualquier despliegue anterior a esta entrada**.
-No se puede corregir a distancia; quien actualice debe saber qué está corrigiendo.
+**Hasta la `v7.1.0` incluida**, el inicio de sesión creaba datos de 2FA para cuentas que nunca lo
+pidieron. Son inertes.
 
-**Qué es:** un **defecto de diseño con escritura no autenticada acotada.** Comprobar
-credenciales en el login insertaba filas en `pcsphp_users_otp_secrets`, generando de paso un
-secreto TOTP, sin que nadie se hubiera autenticado. La causa es que
-`UserDataPackage::__construct()` llamaba a un buscador que creaba el registro al leerlo.
-
-**Qué NO es:** no hay toma de cuentas. El secreto pregenerado **nunca llega a ser una
-credencial viva**, porque activar el 2FA lo regenera. Tampoco hay crecimiento sin límite: como
-mucho una fila por usuario y método.
-
-**Qué implica en la práctica:**
-
-- Filas y secretos TOTP creados para cuentas que nunca pidieron 2FA.
-- Una primitiva de escritura alcanzable sin autenticar, acotada pero real.
-- Un canal de enumeración de usuarios **débil**: el estado de la base cambia solo si el
-  nombre existe. En la mayoría de despliegues estará tapado, porque una rutina de relleno que
-  corría en cada petición ya había creado todas las filas.
-
-**Al actualizar:** las filas existentes son inertes y **no hace falta purgarlas**. Vaciar la
-columna `secret` de las filas `TOTP` con `twoAuthFactor = 'DISABLED'` es higiene opcional, de
-prioridad baja. **Las filas `ONE_USE_CODE` no se tocan**: pueden sostener códigos vigentes;
-mirar `maxDate` antes de nada.
+**Al actualizar:** no hace falta purgarlos.
 
 **Antes de actualizar**, `bin/cli scan-invalid-utf8` avisa de otra cosa que sí puede romper:
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
@@ -7905,60 +7347,17 @@ a pasar: todo archivo de `bin/` que empiece por `#!` tiene que estar en el índi
 
 ## Seguridad
 
-- **`db-backup` cifraba las contraseñas y NADIE las descifraba: una restauración dejaba a todos
-  los usuarios sin poder entrar.** Severidad alta, y está embarcado en todos los despliegues.
-  Medido de punta a punta —volcado, restaurado en una base de usar y tirar, intento de login—:
-  `password_verify` contra lo restaurado devuelve **false**.
-    - El cifrado tampoco protegía nada: la clave era la **cadena literal `'ENCRYPTION_KEY'`**
-      escrita en el propio archivo, y aparecía **una sola vez en todo el código** —en la llamada
-      que cifra—. No hay ni un `decrypt` con esa clave en ninguna parte.
-    - **Si tienes volcados viejos, no están perdidos**: la columna `password` se recupera con
-      `BaseHashEncryption::decrypt($valor, 'ENCRYPTION_KEY')`, comprobado.
-    - `bin/cli unit-tests:core/db-backup-round-trip` fija el viaje de ida y vuelta, y se validó
-      rompiéndola: con la transformación puesta, falla 2 de 4.
+- **Las copias de `db-backup` se restauran ahora de punta a punta**: tras restaurar, los usuarios pueden entrar. Si
+  tienes volcados viejos, no están perdidos: ver «AVISO PARA DESPLIEGUES EXISTENTES — TUS COPIAS DE SEGURIDAD NO
+  RESTAURAN». `bin/cli unit-tests:core/db-backup-round-trip` fija el viaje de ida y vuelta, y se validó rompiéndola.
 
-- **Dos `false` que eran un fatal en ejecución, no un aviso de tipos.**
-    - `src/index.php`: al recorrer el directorio de sesiones expiradas, la fecha se sacaba del
-      **nombre del archivo**. Un archivo que no encajara con el patrón hacía que
-      `DateTime::createFromFormat()` devolviera `false`, y la llamada siguiente reventaba la
-      petición entera. Ahora ese archivo se descarta.
-    - `PublicationsController`: el sello de última modificación podía llegar sin hidratar desde
-      el mapper, y `getTimestamp()` sobre una cadena es un fatal. Guarda con `instanceof`, y el
-      valor por defecto pasa a `new DateTime()`, que no puede devolver `false`.
-    - Con esto quedan **cero** errores de la forma «llamar a un método sobre un `false`».
+- **Dos llamadas a funciones que podían devolver `false` se protegen**, en `src/index.php` y en
+  `PublicationsController`. Con esto quedan **cero** errores de la forma «llamar a un método sobre un `false`».
 
-- **Ver el QR del doble factor dejaba el flujo sin salida: PREPARAR NO ES ACTIVAR.**
-  `OTPSecretsUsersMapper::toggle2FA()` escribía `twoAuthFactor = ENABLED` al pulsar
-  «Activar», antes de que el usuario confirmase nada. A partir de ahí, volver a pulsar
-  «Activar» entraba por la rama `if (!$isCurrentlyEnabled)` de
-  `UserSystemFeaturesController::configureTOTP()`, que **no regeneraba el código de
-  seguridad y lo devolvía vacío** aunque respondiera «Activado.»; y `user-security.js` solo
-  muestra el QR si ese código no viene vacío. Al recargar, la vista revertía el estado y
-  **regeneraba el secreto**, invalidando en silencio cualquier QR ya escaneado.
-    - `toggle2FA()` solo **prepara**: guarda secreto, alias y hash del código de seguridad, y
-      deja el estado en `DISABLED`.
-    - El nuevo `confirm2FA()` es lo único que escribe `ENABLED`, junto con
-      `twoAuthFactorQRViewed = 1`, y **no toca el secreto**: el QR escaneado sigue siendo
-      válido. `markQRDataAsViewed()` lo llama y **propaga su fallo** en vez de responder éxito.
-    - **No había bloqueo de acceso**: la puerta de login exige `isEnabled2FA` **y**
-      `wasViewedQRData`, y esta última seguía en `0`. Comprobado reproduciendo el estado
-      antiguo, no deducido.
-    - La rama de reversión de `MySpace/Views/user-security.php` **se mantiene**: es el camino
-      de salida de las filas que quedaran armadas antes de este cambio.
-    - Queda abierto y anotado: confirmar **no exige demostrar un TOTP válido**, así que
-      confirmar sin haber escaneado bien sí deja fuera de verdad.
+- **El doble factor se activa al confirmarlo**, no al prepararlo; el QR escaneado sigue siendo válido.
 
-- **Comprobar credenciales dejaba de escribir en base de datos.**
-  `OTPSecretsUsersMapper::getOTPData()` y `getTOTPData()` eran get-or-create: si no
-  encontraban registro, lo insertaban generando un secreto TOTP. Como
-  `UserDataPackage::__construct()` llama al segundo sin condiciones, **construir un paquete
-  de usuario escribía**, y lo alcanzan sin autenticar `checkValidityOTP`,
-  `checkValidityTOTP`, `toExpireOTP` y `generateOTP`. Los dos buscadores son ahora puros y
-  devuelven `null`; la creación vive en `createOTPData()` / `createTOTPData()` y solo la
-  llama `toggle2FA()`, donde el usuario ya autenticado configura su segundo factor.
-    - Severidad **baja** en seguridad: el secreto se regenera al activar el 2FA, así que el
-      material pregenerado nunca llega a ser credencial viva.
-    - `TOTPData` pasa a ser nulable de verdad; seis sitios lo manejan de forma explícita.
+- **Comprobar credenciales ya no escribe en la base de datos.** Los buscadores de `OTPSecretsUsersMapper` pueden
+  devolver `null`: si tu código los usa, compruébalo.
 
 ## Rendimiento
 
@@ -8073,11 +7472,6 @@ a pasar: todo archivo de `bin/` que empiece por `#!` tiene que estar en el índi
 
 ## Seguridad
 
-- **AVISO, defecto abierto y de la misma familia que el del login**: `UserDataPackage`
-  llama a `UserProfileMapper::getProfile()`, que es **get-or-create**, en la línea
-  siguiente a la que se corrigió para el OTP. Ese constructor se alcanza **sin autenticar**
-  desde el formulario de login, así que **comprobar credenciales sigue creando una fila de
-  perfil**. Acotado —una por usuario— pero es escritura no autenticada. No se corrige aún.
 - **`get-current-totp-qr-data/` devolvía 500 para todo usuario que no hubiera nombrado su
   segundo factor**, que es el estado normal de una cuenta nueva: se pasaba un alias nulo a
   un parámetro `string`. Ahora el emisor por defecto es **el nombre del sitio**, que es lo
@@ -8101,19 +7495,13 @@ a pasar: todo archivo de `bin/` que empiece por `#!` tiene que estar en el índi
 
 ## Seguridad — cifrado
 
-- **`BaseHashEncryption::encrypt()` y `decrypt()` dejaron de descifrar en PHP 8.5.** Las dos
-  suman y restan bytes y **dependen de que `chr()` dé la vuelta en 256**; desde 8.5 eso emite
-  una deprecación y, con el manejador de errores del framework, **lanza**. Efecto visible: la
+- **`BaseHashEncryption::encrypt()` y `decrypt()` dejaron de funcionar en PHP 8.5.** Efecto visible: la
   configuración de correo dejaba de descifrarse y **cinco páginas públicas devolvían 500** —
   recuperación de contraseña, desbloqueo de usuario, «no recuerdo mi usuario», problemas de
   ingreso y solicitud de soporte.
-    - El arreglo es `& 0xFF`, que **reproduce ese desbordamiento exactamente**. Comprobado
-      valor a valor entre −600 y 600 contra el `chr()` de 8.4: cero diferencias.
-    - **Compatible con lo ya cifrado**, demostrado en las dos direcciones: el código nuevo
-      descifra lo cifrado por el viejo y el viejo descifra lo del nuevo, con cifrado byte a
-      byte idéntico.
-    - **NO SE TOCA ESA ARITMÉTICA.** Cualquier otro cambio vuelve indescifrable todo lo ya
-      guardado en cada despliegue. El archivo lleva la prohibición escrita.
+    - El arreglo es **compatible con lo ya cifrado**, demostrado en las dos direcciones: el código nuevo
+      descifra lo cifrado por el viejo y el viejo descifra lo del nuevo.
+    - **No se toca su algoritmo.** Cualquier otro cambio vuelve indescifrable todo lo ya guardado en cada despliegue.
 
 ## Corregido — el servidor de estáticos
 

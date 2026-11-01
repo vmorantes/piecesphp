@@ -40,11 +40,8 @@
         ".agents/context/21-*",
         ".agents/skills/full-stack-php-senior/*",
         ".agents/docs/adr/0006-*",
-        ".agents/docs/adr/0009-*",
         ".agents/docs/adr/0012-*",
-        ".agents/docs/adr/0018-*",
         ".agents/docs/adr/0021-*",
-        ".agents/docs/adr/0022-*",
         ".agents/docs/adr/0023-*",
         ".agents/docs/adr/0055-*"
       ]
@@ -66,6 +63,9 @@
         ".agents/docs/aportes-al-andamiaje.md",
         ".agents/docs/bitacora/*",
         ".agents/docs/adr/0007-*",
+        ".agents/docs/adr/0009-*",
+        ".agents/docs/adr/0018-*",
+        ".agents/docs/adr/0022-*",
         ".agents/docs/adr/0008-*",
         ".agents/docs/adr/0010-*",
         ".agents/docs/adr/0011-*",

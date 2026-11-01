@@ -12,8 +12,7 @@ Ruta para ejecutar las tareas programadas del sistema.
 	- Si la llave no está configurada (vacía), la ruta responde **403** siempre: falla cerrada.
 	- Llave ausente o distinta: **403**.
 - **Cabecera (obligatoria):**
-	- **Cron-Job-Key:** la llave configurada. Solo por cabecera: desde la 9 el parámetro de consulta no se acepta, porque
-	  quedaba escrito en los logs de acceso del servidor.
+	- **Cron-Job-Key:** la llave configurada. Solo por cabecera: no se acepta como parámetro de consulta.
 - **Método:** solo GET; con otro método, **404**.
 - **Descripción:** ejecuta cada tarea registrada. Cada tarea decide su franja, su ventana, sus reintentos y su bloqueo,
   así que el cron del servidor puede llamar cada minuto.

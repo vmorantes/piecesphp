@@ -131,8 +131,7 @@ bin/cli statics-protect-migrate --revert   # vuelta atrás
 
 ### Lo que puede ejecutar código: SVG, HTML y XML subidos
 
-Un `.svg` puede llevar un `<script>`, y un `.html` o un `.xml` también. Si alguien sube uno y otra persona lo abre
-directamente, ese código se ejecuta en el dominio del panel, con la sesión de quien lo abre. Por eso el framework sirve
+Un `.svg`, un `.html` o un `.xml` pueden llevar código activo. Por eso el framework sirve
 los archivos de **subidas** con estas extensiones (`ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS`: `svg`, `svgz`,
 `html`, `htm`, `xhtml`, `xml`, `xsl`, `xslt`) con `Content-Security-Policy: sandbox`, que le prohíbe al navegador
 ejecutar nada, y los que no son imagen además con `Content-Disposition: attachment` (se descargan). Un SVG se sigue

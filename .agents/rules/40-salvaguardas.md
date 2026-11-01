@@ -136,7 +136,7 @@ cualquier herramienta —y también a una persona— una vez que el PO los activ
 
 La documentación pública es una guía general para tener presencia web y manuales para desarrolladores, no un mapa para quien quiera atacar (PO, 2026-10-30, P282). En `CHANGELOG.md`,
 `source-docs/`, `README.md` y lo que viaje en la distribución, un arreglo de seguridad se cuenta **en términos generales**: qué mejora y qué debe hacer quien actualiza. **Nunca** la clase, el método, el parámetro ni la forma de
-reproducirlo. El detalle vive en el registro privado (`.agents/`, que no se publica). Vale aunque el fallo esté arreglado: los clones viejos siguen en producción.
+reproducirlo. El detalle vive en el registro privado: la capa C de `.agents/`, que no se publica. **Las capas A y B viajan en la distribución** (`.agents/capas.json`), así que lo que se escriba ahí también es público (medido el 2026-11-01). Vale aunque el fallo esté arreglado: los clones viejos siguen en producción.
 
 ## 7. Secretos
 

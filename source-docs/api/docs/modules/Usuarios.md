@@ -86,10 +86,10 @@ xhr.send(data);
 			- NO_ERROR: No hay ningún error
 			- INCORRECT_PASSWORD: «Usuario o contraseña incorrectos»: el usuario no existe o la contraseña no vale (el acceso no distingue los dos casos)
 			- (Los cuatro de estado —BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE y APPROVED_PENDING— solo llegan con la contraseña o el código de un uso buenos; el fallo que completa el bloqueo bloquea la cuenta y responde INCORRECT_PASSWORD)
-			- BLOCKED_FOR_ATTEMPTS: Bloqueado por intentos fallidos: 4 fallos seguidos que vienen de al menos 3 IP distintas en 24 horas
+			- BLOCKED_FOR_ATTEMPTS: Bloqueado por intentos fallidos
 			- TOO_MANY_ATTEMPTS: Demasiados intentos desde esta IP o, con 2FA, de este usuario; respuesta 429 con `Retry-After`
 			- INACTIVE_USER: Usuario inactivo/bloqueado
-			- USER_NO_EXISTS: Ya no lo devuelve el acceso (desde la versión siguiente a la 9.0.0): un usuario que no existe da INCORRECT_PASSWORD
+			- USER_NO_EXISTS: No lo devuelve el acceso: un usuario que no existe da INCORRECT_PASSWORD
 			- ACTIVE_SESSION: Ya hay una sesión activa
 			- INVALID_TWO_FACTOR_CODE: El usuario tiene 2FA y el código `twoFactor` falta o no es válido
 			- ORGANIZATION_IS_NOT_ACTIVE: La organización del usuario no está activa
@@ -166,7 +166,7 @@ xhr.send(data);
 	- ese usuario queda como **administrador de esa organización**, y su tipo pasa a «administrador de organización» aunque `type` diga otra cosa;
 	- la organización nace **pendiente de aprobación**, y su NIT queda con un marcador `SIN_INFORMACION_…` que se corrige después desde el panel;
 	- **si la organización no se puede crear, no se crea el usuario** y la organización a medias se retira. La respuesta trae `success: false` y un mensaje genérico con un **código de referencia** (`ERR-AAAAMMDD-XXXXXX`) que identifica el error en los logs de la instalación;
-	- un usuario cuyo tipo exige organización **no se queda en la organización global por descuido**: si no hay organización válida, el alta falla.
+	- un usuario cuyo tipo exige organización necesita una organización válida: si no la hay, el alta falla.
 - El usuario nace **pendiente de aprobación**: puede iniciar sesión y completar su perfil, pero no opera hasta que lo aprueben. Recibe un correo avisándolo.
 - Devolución:
 	- Tipo: JSON

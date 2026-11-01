@@ -119,6 +119,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     const PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH = 'files/dev/permissions-matrix-exceptions.json';
     /** Las citas `Clase::método(` de la documentación que no son del framework a propósito, con su motivo (comprobación 58). */
     const DOC_METHOD_EXCEPTIONS_RELATIVE_PATH = 'files/dev/doc-method-citations-exceptions.json';
+    /** Los códigos que una sección de seguridad del CHANGELOG puede nombrar: APIs seguras o instrucciones a quien actualiza (comprobación 60). */
+    const PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH = 'files/dev/public-security-doc-allowed.json';
+    /** Formas de reproducir un ataque que lo público no lleva, sin distinguir mayúsculas (comprobación 60). */
+    const PUBLIC_ATTACK_FORMS = ['UNION SELECT', "' OR '", '<script>alert', 'onerror='];
 
     /**
      * Las vistas con su propio <head> que NO emiten <meta name="front-configurations">, con su motivo (comprobación 51).
@@ -230,6 +234,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         45 => ['bin/censo-claves-config', 'files/dev/doc-config-exemptions.json'],
         58 => ['source-docs', self::DOC_METHOD_EXCEPTIONS_RELATIVE_PATH],
         59 => ['bin/censo-estilos-en-linea'],
+        60 => [self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH],
     ];
 
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
@@ -491,6 +496,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 59. Ninguna vista gana style= (fase (1) del rediseño, D16) ─────────────────
         $inlineStyleFailures = Distribution::applies('59', self::DISTRIBUTION_REQUIREMENTS[59]) ? self::checkInlineStyles() : [];
 
+        //──── 60. Una sección de seguridad del CHANGELOG no nombra lo que arregló ────────
+        $publicSecurityFailures = Distribution::applies('60', self::DISTRIBUTION_REQUIREMENTS[60]) ? self::checkPublicSecurityDocs() : [];
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -515,7 +523,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($distributionFailures) + count($globalFailures) + count($dialogFailures) + count($frontConfigFailures)
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
-         + count($inlineStyleFailures);
+         + count($inlineStyleFailures) + count($publicSecurityFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -590,6 +598,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             echoTerminal("\e[31mDOCUMENTACIÓN:\e[39m {$line}");
         }
         foreach ($docMethodFailures as $line) {
+            echoTerminal("\e[31mDOCUMENTACIÓN:\e[39m {$line}");
+        }
+        foreach ($publicSecurityFailures as $line) {
             echoTerminal("\e[31mDOCUMENTACIÓN:\e[39m {$line}");
         }
         foreach ($distributionFailures as $line) {
@@ -6465,6 +6476,134 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
         return $missing;
+    }
+
+    /**
+     * 60. Lo público no enseña a atacar (regla 40 §6bis): un código en línea de una sección del CHANGELOG con «seguridad»
+     * en el título no nombra una clase, un método ni una variable, salvo lo permitido; y CHANGELOG.md, los .md de
+     * source-docs/ y los README no llevan una forma de reproducir un ataque. Su cota: solo ve las secciones con esa
+     * palabra en el título, y no entiende prosa.
+     *
+     * @return string[]
+     */
+    protected static function checkPublicSecurityDocs(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        //Canario: cuentan las cuatro formas, también bajo un ###; no cuentan ni el código normal, ni un bloque, ni otra sección.
+        $sembrado = "# 1\n## Corrige — SEGURIDAD: algo\n`Zz::a()` `zz()` `\$zz` `zz(\$a)` `zz`\n```\n`Zz::bloque()`\n```\n### Sub\n`Zz::b`\n## Otra\n`Zz::c()`\n";
+        $sembrados = self::securitySectionCodes($sembrado);
+        $nombrados = array_values(array_filter($sembrados['codigos'], static fn (array $c): bool => self::codeNamesInternals($c[1])));
+        if ($sembrados['secciones'] !== 1 || count($sembrados['codigos']) !== 6 || array_column($nombrados, 1) !== ['Zz::a()', 'zz()', '$zz', 'zz($a)', 'Zz::b']
+            || self::attackFormIn('una uNiOn sElEcT aquí') !== 'UNION SELECT' || self::attackFormIn('nada') !== null) {
+            return ['canario muerto: no separa lo que una sección de seguridad no debe nombrar: la comprobación no miró nada (' . json_encode($sembrados, \JSON_UNESCAPED_UNICODE) . ')'];
+        }
+
+        $declarado = json_decode((string) @file_get_contents($root . '/' . self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH), true);
+        if (!is_array($declarado['permitidos'] ?? null)) {
+            return ['no se pudo leer ' . self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+        $changelog = @file_get_contents($root . '/CHANGELOG.md');
+        $publicos = array_values(array_filter(
+            self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z -- CHANGELOG.md README.md README.distribucion.md 'source-docs/*.md'"),
+            static fn (string $f): bool => is_file($root . '/' . $f)
+        ));
+        if ($changelog === false || !in_array('CHANGELOG.md', $publicos, true)) {
+            return ['canario muerto: git no lista CHANGELOG.md: la comprobación no miró nada'];
+        }
+
+        $usos = array_fill_keys($declarado['permitidos'], 0);
+        $failures = [];
+        $vistos = self::securitySectionCodes($changelog);
+        foreach ($vistos['codigos'] as [$linea, $codigo]) {
+            if (!self::codeNamesInternals($codigo)) {
+                continue;
+            }
+            if (isset($usos[$codigo])) {
+                $usos[$codigo]++;
+                continue;
+            }
+            $failures[] = "CHANGELOG.md:{$linea}, en una sección de seguridad, nombra `{$codigo}`: se cuenta en términos generales; si es una API segura o una instrucción, va en " . self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH;
+        }
+        foreach ($usos as $codigo => $veces) {
+            if ($veces === 0) {
+                $failures[] = "«{$codigo}» de " . self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH . ' ya no aparece en ninguna sección de seguridad: sobra';
+            }
+        }
+        foreach ($publicos as $publico) {
+            foreach (preg_split('/\R/', (string) file_get_contents($root . '/' . $publico)) ?: [] as $index => $line) {
+                $forma = self::attackFormIn($line);
+                if ($forma !== null) {
+                    $failures[] = "{$publico}:" . ($index + 1) . " lleva «{$forma}»: lo público no enseña a reproducir un ataque";
+                }
+            }
+        }
+        echoTerminal("\e[94mINFO:\e[39m lo público no enseña a atacar: {$vistos['secciones']} sección(es) de seguridad del CHANGELOG, "
+            . count($vistos['codigos']) . ' código(s) en línea mirados, ' . count($usos) . ' permitido(s); ' . count($publicos)
+            . ' documento(s) públicos mirados por formas de ataque. Solo ve secciones con «seguridad» en el título, y no entiende prosa.');
+        return $failures;
+    }
+
+    /**
+     * Los códigos en línea de las secciones `## ` con «seguridad» en el título. Una sección acaba en el siguiente `## ` o `# `.
+     *
+     * @param string $text
+     * @return array{secciones: int, codigos: array<int, array{0: int, 1: string}>} Cada código: [línea, código]
+     */
+    protected static function securitySectionCodes(string $text): array
+    {
+        $secciones = 0;
+        $codigos = [];
+        $dentro = false;
+        $enBloque = false;
+        foreach (preg_split('/\R/', $text) ?: [] as $index => $line) {
+            if (preg_match('/^\s*(```|~~~)/', $line) === 1) {
+                $enBloque = !$enBloque;
+                continue;
+            }
+            if ($enBloque) {
+                continue;
+            }
+            if (str_starts_with($line, '## ') || str_starts_with($line, '# ')) {
+                $dentro = str_starts_with($line, '## ') && mb_stripos($line, 'seguridad') !== false;
+                $secciones += $dentro ? 1 : 0;
+            }
+            if (!$dentro) {
+                continue;
+            }
+            //RETORNO-IGNORADO: sin código en línea, $tramos[1] queda vacío.
+            preg_match_all('/`([^`]*)`/', $line, $tramos);
+            foreach ($tramos[1] as $tramo) {
+                $codigos[] = [$index + 1, $tramo];
+            }
+        }
+        return ['secciones' => $secciones, 'codigos' => $codigos];
+    }
+
+    /**
+     * Si un código en línea nombra algo interno: una clase, un método o una variable.
+     *
+     * @param string $code
+     * @return bool
+     */
+    protected static function codeNamesInternals(string $code): bool
+    {
+        return str_contains($code, '::') || str_ends_with($code, '()') || str_starts_with($code, '$') || str_contains($code, '($');
+    }
+
+    /**
+     * La forma de reproducir un ataque que lleva una línea, si lleva alguna.
+     *
+     * @param string $line
+     * @return string|null
+     */
+    protected static function attackFormIn(string $line): ?string
+    {
+        foreach (self::PUBLIC_ATTACK_FORMS as $forma) {
+            if (mb_stripos($line, $forma) !== false) {
+                return $forma;
+            }
+        }
+        return null;
     }
 
     /**

@@ -254,7 +254,7 @@ El archivo `.htaccess` es fundamental para el funcionamiento del framework en Ap
 - **Routing:** Redirige todas las peticiones que no son archivos o carpetas reales hacia `index.php`.
 
 - **Seguridad:** Implementa cabeceras de seguridad modernas y niega el acceso a archivos sensibles: por extensión (`.sass`, `.scss`, `.htaccess`, `.php`, `.gitignore`, `.zip`,
-  `.ts`, `.sh`) y por nombre (`composer.json`, `composer.lock` y `gulpfile.js`). **No bloquea los `.json` en general.**
-  Solo `index.php` se puede ejecutar.
+  `.ts`, `.sh`) y por nombre (`composer.json`, `composer.lock` y `gulpfile.js`). Los `.json` no se bloquean en general:
+  no dejes en ellos nada que no deba ser público. Solo `index.php` se puede ejecutar.
 
 - **Optimización:** Habilita la compresión Gzip para mejorar la velocidad de carga.

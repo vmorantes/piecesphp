@@ -190,8 +190,7 @@ rompen, **dejarían el modo inservible sin que nada fallara**:
 
 !!! info "No hay ninguna acción genérica de configuraciones"
     La ruta `configurations-generic-save` salió en la 10. La pantalla Colores guarda con su propia acción,
-    `configurations-appearance-colors-save`, que solo admite sus campos: ninguna petición puede colar por ahí una clave
-    del modo mantenimiento. Cada configuración con consecuencias tiene su propia acción, con su permiso y su validación.
+    `configurations-appearance-colors-save`, que solo admite sus campos. Cada configuración con consecuencias tiene su propia acción, con su permiso y su validación.
 
 ## Límites conocidos
 

@@ -3,10 +3,9 @@
 Cuando llega una petición con el token de sesión **ya vencido**, el framework puede dejar una línea de registro para
 que usted pueda depurar una renovación de sesión. **Está apagado de serie, y no escribe nada hasta que lo enciende.**
 
-> **Si viene de la `v7.x`:** antes esto escribía **un archivo JSON por petición** en
-> `src/app/logs/expired-sessions/`, y **cada archivo contenía el token entero**, su `aud` y su `data` (el contenido de
-> la sesión). Esos archivos **no se borran al actualizar** —no nos corresponde borrar datos de su instalación—, pero
-> **conviene vaciar esa carpeta**: cada archivo es una credencial. `bin/cli clean-logs` ya no los toca: los cuenta y
+> **Si viene de la `v7.x`:** esa versión guardaba su registro en otro formato, en `src/app/logs/expired-sessions/`.
+> Esos archivos **no se borran al actualizar** —no nos corresponde borrar datos de su instalación—, pero
+> **conviene vaciar esa carpeta**: contienen datos de sesión. `bin/cli clean-logs` ya no los toca: los cuenta y
 > se lo dice.
 
 ---
@@ -66,13 +65,5 @@ más de dos archivos.** `bin/cli clean-logs` los vacía.
 detecta la sesión caducada; no hace falta llamarlo a mano.
 
 > ⚠️ **Si toca esa parte de `index.php`:** la decisión de **revocación de sesiones** necesita el token caducado ya
-> decodificado, y durante años leía ese dato del array que se construía **para volcarlo al disco**. Hoy el token
-> caducado se decodifica siempre, al margen de que el registro esté encendido o apagado, y la revocación lee de ahí.
-> **No vuelva a colgar esa decisión de algo que solo existe cuando se está registrando.** Hoy el daño sería el
-> contrario de lo que parece: sin ese dato, la comprobación **niega siempre**
-> (`isCreatedAfterMarks(null, …)` devuelve `false` en su primera línea), así que las rutas de excepción **dejarían de
-> renovar el token en silencio**. El día que alguien invierta ese `return false`, el mismo acoplamiento sí sería una
-> puerta trasera para un usuario con la sesión revocada. **Y no cuente con las pruebas para enterarse:** lo que cazó el fallo fue el
-> análisis estático, porque la variable dejó de existir. Si la variable existe pero llega vacía,
-> `core/session-revocation` pasa igual (medido el 2026-10-02: 93 de 93 comprobaciones en verde con la decisión tomada
-> sobre un dato nulo). Esa comprobación todavía no tiene prueba propia para el dato vacío.
+> decodificado. Hoy el token caducado se decodifica siempre, al margen de que el registro esté encendido o apagado, y
+> la revocación lee de ahí. **No cuelgue esa decisión de algo que solo existe cuando se está registrando.**

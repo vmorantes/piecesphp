@@ -95,7 +95,7 @@ safe_upload_name(string $name): string
 Reduce un nombre de archivo a **letras, números, `_` y `-`**, lo recorta a **100 bytes** y devuelve uno generado
 (`file_<id>`) si no queda nada. **No deja puntos**: la extensión la pone el framework al mover el archivo —la del
 archivo original, una vez que el validador lo ha aceptado contra los tipos permitidos—, y así no se puede formar un
-nombre como `shell.php.png`.
+nombre con doble extensión.
 
 ### Dónde va, exactamente
 
@@ -166,17 +166,13 @@ Su puerta es otra, y está donde se configura cada volumen:
 
 Es la decisión que más fácil se toma mal, así que va con su motivo.
 
-**Lo que decide si un servidor ejecuta un archivo es su extensión, no su contenido.** Un `shell.php` cuyos primeros
-bytes son la cabecera de un GIF pasa cualquier comprobación de contenido, y Apache lo ejecuta igual porque mira el
-nombre. Así que un filtro por tipo de archivo es, para esto, decorativo.
+**Lo que decide si un servidor ejecuta un archivo es su extensión, no su contenido.** Un filtro por tipo de archivo es,
+para esto, insuficiente.
 
 > [!WARNING]
-> **Y hay una trampa concreta en elFinder que hay que conocer antes de tocar su configuración.** Sus opciones
-> `uploadAllow` y `uploadDeny` se resuelven en `allowPutMime()` con la lógica del `Order` de Apache: con
-> `uploadOrder => ['deny', 'allow']` —que es el valor por defecto— **solo deniega si el tipo casa con la lista de
-> denegados Y NO casa con la de permitidos**. Como `'all'` casa siempre, **mientras `uploadAllow` contenga `'all'`, la
-> lista de denegados no hace absolutamente nada.** Una configuración escrita sin saber esto queda verde y no protege,
-> que es el peor resultado posible: parece hecha.
+> Las opciones `uploadAllow` y `uploadDeny` de elFinder siguen la lógica del `Order` de Apache y no sirven para esto
+> mientras `uploadAllow` contenga `'all'`. Antes de tocar la configuración, lee `allowPutMime()` en la biblioteca: una
+> configuración que no protege es peor que no tener ninguna, porque parece hecha.
 
 ### La opción que sí decide: `acceptedName`
 
@@ -207,10 +203,8 @@ al descomprimir.
 ajustas, pruébalo contra nombres que deban pasar, no solo contra los que deban caer.
 
 > [!NOTE]
-> **Las papeleras NO llevan el patrón, y es una decisión, no un olvido.** Mandar algo a la papelera es, por dentro, una
-> copia a otro volumen, y esa sí consulta el nombre en el destino. Si la papelera llevara el patrón, **un archivo con
-> una de esas extensiones que ya estuviera en disco no se podría tirar**. Borrar del todo sí funciona en cualquier caso:
-> ese camino no mira el nombre. Y subir a una papelera no es posible: su driver se deshabilita la subida.
+> **Las papeleras NO llevan el patrón, y es una decisión, no un olvido.** Si la papelera llevara el patrón, un archivo
+> con una de esas extensiones que ya estuviera en disco no se podría tirar.
 
 ### Un efecto de la configuración que conviene conocer
 
@@ -225,7 +219,6 @@ La lista de extensiones rechazadas vive en **una sola constante** del gestor, co
 que buscarla por el código. Amplíala con lo que tu servidor pueda ejecutar y que no esté ya; redúcela solo si sabes qué
 ejecuta tu servidor y por qué, y **déjalo escrito en tu módulo**.
 
-**Lo que no se hace es resolverlo con un `.htaccess`.** El proyecto trae uno que deniega `.php` en todo el árbol, y
-viene bien, pero **es del servidor y no del framework**: con `AllowOverride None` —lo que recomienda la documentación de
-Apache— o detrás de nginx, desaparece sin avisar. La guarda tiene que estar en el código, que es lo único que viaja con
-el clon.
+**Lo que no se hace es resolverlo solo con un `.htaccess`.** El proyecto trae uno, y viene bien, pero **es del servidor
+y no del framework**: no viaja a todas las configuraciones (nginx no lo lee). La guarda tiene que estar en el código,
+que es lo único que viaja con el clon.
