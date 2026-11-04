@@ -97,7 +97,7 @@ class ReportsManageController extends AdminPanelController
             $title,
         ];
 
-        import_apexcharts();
+        import_echarts();
 
         set_custom_assets([
             ReportsManageRoutes::staticRoute(self::BASE_CSS_DIR . '/generic-report.css'),

@@ -22,6 +22,7 @@ $percent = $totalUsers > 0 ? intval(($loggedUsers * 100) / $totalUsers) : 0;
                 'title' => __($langGroup, 'Usuarios totales'),
                 'titleModifiers' => ['big'],
                 'chartAttributes' => ['data-access-chart' => ''],
+                'chartModifiers' => ['tall'],
                 'legend' => [
                     ['name' => __($langGroup, 'Con ingreso'), 'dataType' => 'loggedUsers', 'level' => 'primary', 'color' => '#21BA45', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $loggedUsers],
                     ['name' => __($langGroup, 'Sin ingreso'), 'dataType' => 'notLoggedUsers', 'level' => 'secondary', 'color' => '#7A7A7A', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $notLoggedUsers],

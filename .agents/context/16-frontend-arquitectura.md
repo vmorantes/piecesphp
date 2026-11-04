@@ -260,7 +260,7 @@ ordenación es estable). `MenuGroup` no tiene títulos de sección. «Mi espacio
 `ContentNavigationHubRoutes::ENABLE`. Las capturas (`bin/tools/navegador/recorrer.js:80`) resuelven por nombre de
 ruta, no por orden del menú.
 
-**Contraído, el menú desplaza, y con él los logos** (JDI, `9803d5f7`, P284; `admin_app_base.scss`, `menu.php`). El bloque `.collapsed.only` es el último hijo de `.ui.menu`, no del pie, y `.navigation` no desplaza: lo que sale de ella, como `.toggle`, se recortaría. Como el menú recorta, flotantes y tooltips van con `position: fixed`, a la altura que mide `pcsAdminRailPositions()` (`configurations.js`); `72px` y el hueco son del tema. **El puente del flotante mide 28 px**: con `fixed` hay un hueco que el del tema no cubre, y sin él no se pulsa un subítem. **Los logos no se encogen** (el PO rechazó eso en la `10.0.3`). Medido en `#2327`: 12 tamaños.
+**Contraído, el menú desplaza, y con él los logos** (JDI, `9803d5f7`, P284; `admin_app_base.scss`, `menu.php`). El bloque `.collapsed.only` es el último hijo de `.ui.menu`, no del pie, y `.navigation` no desplaza: lo que sale de ella, como `.toggle`, se recortaría. Como el menú recorta, flotantes y tooltips van con `position: fixed`, a la altura que mide `pcsAdminRailPositions()` (`configurations.js`); `72px` y el hueco son del tema. **El puente del flotante mide 28 px**: con `fixed` hay un hueco que el del tema no cubre, y sin él no se pulsa un subítem. **Los logos no se encogen** (el PO rechazó eso en la `10.0.3`). Medido en `#2327`: 6 tamaños, con y sin aviso.
 
 **Preguntar** (FT, `57e3c7d4`): la comprobación 50 caza también un toast de Fomantic con botones (`actions` dentro de la
 llamada); los avisos sin botones siguen permitidos. **`RowActions::delete()` pinta siempre en rojo** (decisión del
@@ -346,9 +346,14 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
 - **Ningún marco dentro de otro** (PO, 2026-10-10): pestañas `ui secondary pointing menu` sin segmento alrededor, y los
   bloques (cifras, tabla, formulario, barra de guardar) como hermanos separados, nunca anidados; la barra de guardar,
   desde JBV, `div.actions` dentro del formulario (sin segmento).
-- **La leyenda de un gráfico es la nuestra, y es interactiva**: `linkStatisticsChartLegend(chart, leyenda)`
-  (`statics/core/js/statistics-chart-legend.js`); la nativa de ApexCharts, apagada. **Trampa**: en tarta y donut,
-  `toggleSeries()` de ApexCharts 3.50.0 no hace nada visible; la función usa `updateSeries()` (`#1312`).
+- **Los gráficos, con Apache ECharts 5.5.1** (JDL, `249dd6ff`), dentro de un `ui chart` del tema (`chart-card.php`,
+  `chartModifiers`; una dona, `tall` o más: `square` la deja a la izquierda en `.data` y corta las etiquetas, `#2342`).
+  La leyenda es la nuestra, interactiva: `linkStatisticsChartLegend(chart, leyenda)` con la nativa declarada y oculta
+  (`legend: {show: false}`): `legendToggleSelect` la usa para ocultar (en una dona funcionó también sin declararla,
+  `#2342`; en las líneas, sin medir). Desde JDN acepta también una instancia de ApexCharts (compatibilidad hasta la
+  `11.0.0`, H155), y `chart-card.php` sin `chartModifiers` pinta el contenedor de antes, sin `ui chart`. Y `resizeStatisticsChart(chart)` para la
+  ventana y las pestañas (`statics/core/js/statistics-chart-legend.js`). **Trampa**: con etiquetas blancas dentro del aro,
+  un aro fino deja salir el texto de las porciones pequeñas sobre la tarjeta blanca, donde no se ve.
 - **Las piezas de estadísticas** (`view/panel/built-in/statistics/`, siete) **no traen su CSS**: la pantalla carga
   `statics/core/css/graphs-and-statistics.css` (el parcial `_graphs-and-statistics.scss`, compilado una vez en el
   núcleo). Sin esa hoja, la sección sale sin estilos (`#1285`, `#1289`).

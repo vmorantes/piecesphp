@@ -1,3 +1,9 @@
+# 10.1.0 (04-11-2026)
+
+- **Las gráficas del panel se dibujan con Apache ECharts 5.5.1**: Registros › Accesos, Informes y el ejemplo de la hoja de diseño. Para las tuyas: `import_echarts()` en el controlador y, en `chart-card.php`, `chartModifiers` (el contenedor pasa a ser un `ui chart` del tema; una dona necesita al menos `['tall']`). `linkStatisticsChartLegend()` enlaza la leyenda con un gráfico de ECharts, y `resizeStatisticsChart()` lo redimensiona con la ventana y al abrir su pestaña. La guía de estadísticas trae un ejemplo completo.
+- **ApexCharts queda en desuso y sale en la `11.0.0`.** Hasta entonces nada cambia para tu clon: `import_apexcharts()` funciona, `chart-card.php` sin `chartModifiers` pinta el contenedor de siempre y la leyenda enlazada acepta también un gráfico de ApexCharts.
+- **El tema del panel, al día**: un icono con caja ya no se deforma junto a un texto largo, y los indicadores de un carrusel sin imágenes se ven sobre la superficie.
+
 # 10.0.4 (01-11-2026)
 
 - **Con el lateral contraído, el menú desplaza.** Iconos y logos se mueven juntos y los logos conservan su tamaño; los submenús flotantes y los tooltips siguen a su ítem. Sustituye a lo que hacía la `10.0.3`, que los encogía.

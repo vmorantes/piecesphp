@@ -2,23 +2,32 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
-	//Los donuts de chart-card.php: nombres, valores y colores salen de su leyenda (chart-legend.php), que pinta el servidor.
+	//Las donas de chart-card.php (Apache ECharts): nombres, valores y colores salen de su leyenda (chart-legend.php), que
+	//pinta el servidor.
 	for (const container of document.querySelectorAll('[data-access-chart]')) {
-		if (typeof ApexCharts === 'undefined') {
+		if (typeof echarts === 'undefined') {
 			break
 		}
 		const legend = container.closest('.card-statistic').querySelector('.chart-data')
 		const items = Array.from(legend.querySelectorAll('.item'))
-		const chart = new ApexCharts(container, {
-			chart: { type: 'donut', height: 220 },
-			series: items.map((item) => parseFloat(item.querySelector('.value').textContent.trim()) || 0),
-			labels: items.map((item) => item.querySelector('.name').textContent.trim()),
-			colors: items.map((item) => item.style.getPropertyValue('--custom-color').trim()),
+		const chart = echarts.init(container)
+		chart.setOption({
+			color: items.map((item) => item.style.getPropertyValue('--custom-color').trim()),
+			//La leyenda nativa, declarada y oculta: la nuestra la usa para ocultar porciones (statistics-chart-legend.js).
 			legend: { show: false },
-			dataLabels: { enabled: false },
+			tooltip: { trigger: 'item' },
+			series: [{
+				type: 'pie',
+				radius: ['65%', '100%'],
+				label: { show: false },
+				data: items.map((item) => ({
+					name: item.querySelector('.name').textContent.trim(),
+					value: parseFloat(item.querySelector('.value').textContent.trim()) || 0,
+				})),
+			}],
 		})
-		//La leyenda es la nuestra (chart-legend.php), enlazada: un clic oculta o muestra su porción.
-		chart.render().then(() => linkStatisticsChartLegend(chart, legend))
+		linkStatisticsChartLegend(chart, legend)
+		resizeStatisticsChart(chart)
 	}
 
 	for (const element of document.querySelectorAll('table[data-access-table]')) {

@@ -121,6 +121,14 @@ $assets['apexcharts']['js'] = [
 ];
 
 /**
+ * Apache ECharts v5.5.1
+ * https://echarts.apache.org/
+ */
+$assets['echarts']['js'] = [
+    'statics/plugins/echarts/echarts.min.js',
+];
+
+/**
  * SweetAlert2
  * https://sweetalert2.github.io/
  */

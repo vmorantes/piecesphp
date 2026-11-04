@@ -14,7 +14,7 @@ window.addEventListener('load', function () {
 
 		showGenericLoader('getDataConfig')
 
-		//Las series son la paleta de datos del tema (--data-*), no el JSON: ApexCharts no entiende var() ni light-dark(), así
+		//Las series son la paleta de datos del tema (--data-*), no el JSON: ECharts no entiende var() ni light-dark(), así
 		//que una sonda los resuelve aquí, y el mismo color va a la leyenda de cada torta.
 		const seriesColors = resolveColors(['var(--data-1)', 'var(--data-2)', 'var(--statistics-disabled-color, gray)'])
 
@@ -136,72 +136,55 @@ window.addEventListener('load', function () {
 	function configDonutChart(selector, series, labels, colors, style, background, unitText = '') {
 		//Sin datos, una sola porción del color de pista de las piezas de estadísticas.
 		const emptyColor = resolveColors(['var(--statistics-track-color, gainsboro)'])[0]
-		const chartHeight = 350
+		//El aro mide 65 px de verdad: su etiqueta blanca («71.9%», unos 38 px) tiene que caber dentro, porque fuera cae
+		//sobre la tarjeta y no se lee. Con un lienzo pequeño, la proporción de antes (65 sobre 175) para no comerse el hueco.
 		const donutThickness = 65
-		const radius = chartHeight / 2
-		const sizePercent = 1 - (donutThickness / radius)
+		const proportionalInner = 1 - (donutThickness / 175)
 
 		//Verificar si hay datos
 		const hasData = series && series.length > 0 && series.some(val => val > 0)
 
-		const options = {
-			series: hasData ? series : [100],
-			chart: {
-				type: 'donut',
-				height: chartHeight
-			},
-			labels: hasData ? labels : [''],
-			colors: hasData ? colors : [emptyColor],
-			dataLabels: {
-				enabled: hasData,
-				dropShadow: {
-					enabled: false
+		const container = document.querySelector(selector)
+		if (container === null || typeof echarts === 'undefined') {
+			return
+		}
+		const chart = echarts.init(container)
+		chart.setOption({
+			backgroundColor: background,
+			color: hasData ? colors : [emptyColor],
+			//La leyenda nativa, declarada y oculta: la de la tarjeta (chart-legend.php) la usa para ocultar porciones.
+			legend: { show: false },
+			tooltip: {
+				show: hasData,
+				trigger: 'item',
+				formatter: function (params) {
+					return `${params.marker}${echarts.format.encodeHTML(params.name)}: ${params.value}` + (unitText.length > 0 ? ` ${echarts.format.encodeHTML(unitText)}` : '')
 				},
-				style: {
-					fontSize: style.fontSize,
+			},
+			series: [{
+				type: 'pie',
+				radius: donutRadius(container, donutThickness, proportionalInner),
+				silent: !hasData,
+				//Sin borde entre porciones ni alrededor.
+				itemStyle: { borderWidth: 0 },
+				label: {
+					show: hasData,
+					position: 'inside',
+					fontSize: parseFloat(style.fontSize),
 					fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-body').trim(),
 					fontWeight: style.fontWeight,
-					colors: hasData ? style.colors : [emptyColor]
+					color: Array.isArray(style.colors) && style.colors.length > 0 ? style.colors[0] : '#FFFFFF',
+					formatter: function (params) {
+						return params.percent.toFixed(1) + '%'
+					},
 				},
-				formatter: function (val) {
-					return hasData ? val.toFixed(1) + "%" : ""
-				}
-			},
-			fill: {
-				colors: hasData ? colors : [emptyColor]
-			},
-			plotOptions: {
-				pie: {
-					donut: {
-						size: `${(sizePercent * 100).toFixed(1)}%`, // tamaño calculado para grosor fijo
-						background: background,
-						labels: {
-							show: false
-						}
-					}
-				}
-			},
-			stroke: {
-				show: false, // Oculta el borde externo (outline)
-				width: 0,
-				colors: ['transparent']
-			},
-			//La leyenda es la de la tarjeta (chart-legend.php), enlazada abajo.
-			legend: {
-				show: false,
-			},
-			tooltip: {
-				enabled: hasData,
-				y: {
-					formatter: function (val) {
-						return val + (unitText.length > 0 ? ` ${unitText}` : '')
-					}
-				}
-			}
-		}
-		const container = document.querySelector(selector)
-		const chart = new ApexCharts(container, options)
-		const card = container !== null ? container.closest('.card-statistic') : null
+				labelLine: { show: false },
+				data: hasData
+					? series.map((value, index) => ({ name: typeof labels[index] == 'string' ? labels[index] : '', value: value }))
+					: [{ name: '', value: 100 }],
+			}],
+		})
+		const card = container.closest('.card-statistic')
 		const legend = card !== null ? card.querySelector('.chart-data') : null
 		//Cada fila de la leyenda, con el color de su serie: el de la vista es var(…) y sin reserva (chart-legend.php).
 		if (legend !== null) {
@@ -212,7 +195,29 @@ window.addEventListener('load', function () {
 			})
 		}
 		//Sin datos el gráfico es una sola porción gris: no hay series que encender ni apagar.
-		chart.render().then(() => hasData && linkStatisticsChartLegend(chart, legend))
+		if (hasData) {
+			linkStatisticsChartLegend(chart, legend)
+		}
+		//resizeStatisticsChart() llama a chart.resize() con la ventana y con la pestaña: ahí se vuelve a medir el aro.
+		const resize = chart.resize.bind(chart)
+		chart.resize = function (options) {
+			chart.setOption({ series: [{ radius: donutRadius(container, donutThickness, proportionalInner) }] })
+			resize(options)
+		}
+		resizeStatisticsChart(chart)
+	}
+
+	/**
+	 * El radio [interior, exterior] de la dona para un aro de `thickness` px, medido sobre el lienzo tal como está.
+	 * @param {HTMLElement} canvas El `.canvas` del `ui chart`
+	 * @param {number} thickness El grosor del aro en px
+	 * @param {number} proportionalInner El interior, en fracción del radio, si el lienzo no da para el aro y su hueco
+	 * @returns {string[]}
+	 */
+	function donutRadius(canvas, thickness, proportionalInner) {
+		const radius = Math.min(canvas.clientWidth, canvas.clientHeight) / 2
+		const inner = radius >= thickness + 20 ? 1 - (thickness / radius) : proportionalInner
+		return [`${(inner * 100).toFixed(1)}%`, '100%']
 	}
 
 })

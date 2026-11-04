@@ -669,5 +669,6 @@ Por RONDA, no por módulo (tres o cuatro módulos en cada una):
 SQL sin secretos y `DESPLIEGUE.md`, con la contraseña de `zz-agente-revisor`, de modo 600 y fuera del repositorio. Lo sube el PO.
 
 - **El canario manda:** compara el zip y el SQL con los valores reales, sin imprimirlos, y si encuentra uno borra lo generado. Sus filtros, en `#2294`.
-- **Trampas:** cada corrida rota la clave del revisor; deja esa cuenta en la base y `bin/verify` parte SUCIO; no repite destino (`abierto.md` H142).
+- **Trampas:** cada corrida rota la clave del revisor; no repite destino (`abierto.md` H142).
+- **El revisor se retira al salir**, también si el guion para: lo crea, entra en el volcado y se borra con sus filas propias (las de `UsersSeeder::ownedRows()`, con una copia de la lectura de `SeedPlanner::clean()` en `bin/tools/paquete-revision.php`, que para sin borrar nada si encuentra una forma que no conoce: entonces se actualiza la copia). La herramienta vive fuera de `src/` porque el guion exige `src/` igual a la etiqueta.
 

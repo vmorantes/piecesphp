@@ -83,7 +83,6 @@ class MySpaceController extends AdminPanelController
             MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/user-security.css'),
         ], 'css');
 
-        import_apexcharts();
         import_qrcodejs();
 
         $currentUser = getLoggedFrameworkUserOrFail();

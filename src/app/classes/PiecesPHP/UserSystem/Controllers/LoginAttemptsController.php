@@ -145,9 +145,9 @@ class LoginAttemptsController extends AdminPanelController
      */
     public static function accessTab(Request $request, string $tabURL): string
     {
-        //Las piezas de estadísticas no traen su hoja (16 §9); las gráficas, con ApexCharts.
+        //Las piezas de estadísticas no traen su hoja (16 §9); las gráficas, con Apache ECharts.
         add_global_asset('statics/core/css/graphs-and-statistics.css', 'css');
-        import_apexcharts();
+        import_echarts();
         add_global_asset('statics/core/js/statistics-chart-legend.js', 'js');
         add_global_asset(UserSystemFeaturesRoutes::staticRoute('js/access-reports.js'), 'js');
 

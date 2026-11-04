@@ -199,6 +199,7 @@ class AdminPanelController extends BaseController
 
     //Medidas en la cabecera de cada archivo de statics/plugins/: al actualizar una librería, se actualiza aquí.
     const ABOUT_JS_LIBRARIES = [
+        'Apache ECharts Ver. 5.5.1 Licencia Apache 2.0',
         'ApexCharts Ver. 3.50.0 Licencia MIT',
         'CKEditor Ver. 27.1.0',
         'Cropper Ver. 1.6.2 Licencia MIT',
@@ -292,8 +293,8 @@ class AdminPanelController extends BaseController
             'statics/core/js/statistics-chart-legend.js',
             self::staticRoute('js/design-sheet/estadisticas-grafico.js'),
         ], 'js');
-        //Los gráficos los dibuja ApexCharts.
-        import_apexcharts();
+        //Los gráficos los dibuja Apache ECharts.
+        import_echarts();
         //El editor de la tarjeta de imagen recorta con Cropper.
         import_cropper();
 

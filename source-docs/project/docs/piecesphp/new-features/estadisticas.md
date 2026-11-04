@@ -13,7 +13,7 @@ puede cambiarlos sin tocar las piezas.
 
 > [!NOTE]
 > **Las piezas pintan el armazón; los datos los pone tu JavaScript.** Cada número lleva un `data-type`, y tu pantalla lo
-> rellena cuando tiene los datos. Los gráficos los dibuja ApexCharts sobre el contenedor que deja la pieza.
+> rellena cuando tiene los datos. Los gráficos los dibuja Apache ECharts sobre el contenedor que deja la pieza.
 
 ## Las siete
 
@@ -47,6 +47,7 @@ $this->helpController->_render('panel/built-in/statistics/chart-card.php', [
     'modifiers' => ['tall'],
     'title' => __($langGroup, 'Usuarios por país'),
     'chartAttributes' => ['users-by-country-chart' => ''],
+    'chartModifiers' => ['tall'],
     'legend' => [
         ['name' => __($langGroup, 'Colombia'), 'dataType' => 'usersColombia', 'level' => 'primary', 'color' => '#3558A2'],
         ['name' => __($langGroup, 'Otros países'), 'dataType' => 'usersOthers', 'level' => 'secondary', 'color' => '#7A7A7A'],
@@ -58,30 +59,50 @@ $this->helpController->_render('panel/built-in/statistics/statistics-section.php
 ?>
 ```
 
-En el controlador, ApexCharts: `import_apexcharts();`. Y en tu JavaScript, cuando lleguen los datos, rellenas los
-números por su `data-type` y dibujas el gráfico en el contenedor; los nombres y colores puedes leerlos de la leyenda que
-pintó la pieza:
+El contenedor del gráfico es un `ui chart` del tema, y la librería dibuja en su `.canvas`. Su alto lo da el modificador,
+con `chartModifiers`, una clase por elemento (`['tall']`, 220 px; `['very', 'tall']`, 300 px; sin modificador, 140 px): una dona necesita al menos
+`tall`, como en el ejemplo de arriba.
+
+En el controlador, Apache ECharts: `import_echarts();`, y la leyenda enlazada:
+`add_global_asset('statics/core/js/statistics-chart-legend.js', 'js')`. En tu JavaScript, cuando lleguen los datos,
+rellenas los números por su `data-type` y dibujas el gráfico en el contenedor; los nombres y colores puedes leerlos de la
+leyenda que pintó la pieza:
 
 ```js
 const container = document.querySelector('[users-by-country-chart]')
-const items = Array.from(container.closest('.card-statistic').querySelectorAll('.chart-data .item'))
-const chart = new ApexCharts(container, {
-    chart: { type: 'donut', height: 220 },
-    series: items.map((item) => parseFloat(item.querySelector('.value').textContent) || 0),
-    labels: items.map((item) => item.querySelector('.name').textContent.trim()),
-    colors: items.map((item) => item.style.getPropertyValue('--custom-color').trim()),
+const legend = container.closest('.card-statistic').querySelector('.chart-data')
+const items = Array.from(legend.querySelectorAll('.item'))
+const chart = echarts.init(container)
+chart.setOption({
+    color: items.map((item) => item.style.getPropertyValue('--custom-color').trim()),
     legend: { show: false },
+    tooltip: { trigger: 'item' },
+    series: [{
+        type: 'pie',
+        radius: ['65%', '100%'],
+        label: { show: false },
+        data: items.map((item) => ({
+            name: item.querySelector('.name').textContent.trim(),
+            value: parseFloat(item.querySelector('.value').textContent) || 0,
+        })),
+    }],
 })
-chart.render()
-//La leyenda de la pieza, interactiva como la nativa: un clic (o Enter/Espacio) oculta o muestra su serie.
-linkStatisticsChartLegend(chart, container.closest('.card-statistic').querySelector('.chart-data'))
+//La leyenda de la pieza, interactiva: un clic (o Enter/Espacio) oculta o muestra su porción o su serie.
+linkStatisticsChartLegend(chart, legend)
+//Con la ventana, y al hacerse visible su pestaña: dibujado en una oculta, mide cero.
+resizeStatisticsChart(chart)
 ```
 
-**La leyenda nativa de ApexCharts va siempre apagada** (`legend: { show: false }`) y la nuestra se enlaza con
-`linkStatisticsChartLegend(chart, leyenda)`, de `statics/core/js/statistics-chart-legend.js` (cárgalo con
-`add_global_asset('statics/core/js/statistics-chart-legend.js', 'js')`). La fila apagada lleva la clase `series-hidden`.
-En una tarta o un donut, `toggleSeries()` de ApexCharts 3.50.0 **no oculta la porción**: la función lo resuelve poniendo
-esa porción a cero con `updateSeries()` y devolviéndole su valor al reactivarla.
+**La leyenda nativa va declarada y oculta** (`legend: { show: false }`): `linkStatisticsChartLegend()` la usa para
+ocultar, con la misma acción, una serie o una porción de tarta. La fila apagada lleva la clase `series-hidden` y
+`aria-pressed="false"`. La fila N de la leyenda es la serie (o la porción) N, así que van en el mismo orden.
+
+**Los colores, ya resueltos**: ECharts no entiende `var(--…)`. Léelos del elemento que los tiene (como arriba, de la
+leyenda) o con `getComputedStyle()`.
+
+**ApexCharts sigue disponible, en desuso**, hasta la `11.0.0`, donde sale: `import_apexcharts()` funciona,
+`linkStatisticsChartLegend()` acepta también un gráfico de ApexCharts, y `chart-card.php` **sin** `chartModifiers` pinta
+el contenedor de antes (sin `ui chart`), que es el que ApexCharts necesita. Para pasar a ECharts, añade `chartModifiers`.
 
 ## El estilo
 

@@ -1,10 +1,10 @@
 {
     "origen": "/var/www/html/vicsen/Fomantic-UI/dist-temas/piecesphp",
-    "commit": "0a18a57",
-    "sin_commitear": 1,
-    "fecha": "2026-10-30T20:02:47",
+    "commit": "f0d6f4f",
+    "sin_commitear": 0,
+    "fecha": "2026-11-04T15:14:40",
     "sha1": {
-        "semantic.min.css": "184c60babb74cbade8f29dd09f9d3272760ac745",
+        "semantic.min.css": "8e1b93085a6095b94f7d8c9f656e72fcbaa6492a",
         "semantic.min.js": "2fd331473edf6e347b89c9b905af1aa5a74eca9d"
     }
 }

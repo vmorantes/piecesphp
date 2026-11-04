@@ -2794,6 +2794,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $comparados = 0;
         $alDia = 0;
+        $alDiaNombres = [];
         $descartadasForma = 0;
         $descartadasPre = 0;
         $etiquetasVistas = 0;
@@ -2816,13 +2817,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $comparados++;
             if (version_compare(ltrim($instalada, 'v'), ltrim($etiqueta, 'v'), '==')) {
                 $alDia++;
+                $alDiaNombres[] = $nombre . ' ' . $instalada;
                 continue;
             }
             $avisos[] = $nombre . ' — INSTALADA ' . $instalada . ', ETIQUETADA ' . $etiqueta
                 . '. Puede ser deliberado; queda dicho.';
         }
 
-        $avisos[] = $comparados . ' paquete(s) comparado(s), ' . $alDia . ' al día.';
+        $avisos[] = $comparados . ' paquete(s) comparado(s), ' . $alDia . ' al día'
+            . (count($alDiaNombres) > 0 ? ': ' . implode(', ', $alDiaNombres) : '') . '.';
         //LO QUE SE TIRA SE DICE: el filtro anterior descartaba `v3`, `v4` y las `vX.Y` sin
         //contarlas, y acertaba por suerte. Ver T165.
         $avisos[] = $etiquetasVistas . ' etiqueta(s) con forma de versión aceptadas; '

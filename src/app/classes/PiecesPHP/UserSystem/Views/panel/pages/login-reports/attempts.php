@@ -42,11 +42,12 @@ $percent = $totalAttempts > 0 ? intval(($successAttempts * 100) / $totalAttempts
     <div class="ui hidden divider"></div>
 
     <?php
-        //El reparto se queda hasta que llegue la gráfica por día del diseño, con ECharts.
+        //El reparto, en dona, se queda hasta que llegue la gráfica por día del diseño.
         $pieces->_render('panel/built-in/statistics/chart-card.php', [
             'title' => __($langGroup, 'Intentos'),
             'titleModifiers' => ['big'],
             'chartAttributes' => ['data-access-chart' => ''],
+            'chartModifiers' => ['tall'],
             'legend' => [
                 ['name' => __($langGroup, 'Intentos exitosos'), 'dataType' => 'successAttempts', 'level' => 'primary', 'color' => '#21BA45', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $successAttempts],
                 ['name' => __($langGroup, 'Intentos fallidos'), 'dataType' => 'errorAttempts', 'level' => 'secondary', 'color' => '#DB2828', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $errorAttempts],

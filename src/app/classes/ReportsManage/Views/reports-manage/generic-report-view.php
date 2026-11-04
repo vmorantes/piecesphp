@@ -51,6 +51,7 @@ $countriesLegend = fn (string $dataTypePrefix): array => [
                     'title' => __($langGroup, 'Total de usuarios generales'),
                     'titleModifiers' => ['big'],
                     'chartAttributes' => ['class' => 'apex-chart'],
+                    'chartModifiers' => ['very', 'tall'],
                     'legend' => $countriesLegend('peopleData'),
                 ]);
                 $this->helpController->_render('panel/built-in/statistics/chart-card.php', [
@@ -58,6 +59,7 @@ $countriesLegend = fn (string $dataTypePrefix): array => [
                     'title' => __($langGroup, 'Total Organizaciones'),
                     'titleModifiers' => ['big'],
                     'chartAttributes' => ['class' => 'apex-chart'],
+                    'chartModifiers' => ['very', 'tall'],
                     'legend' => $countriesLegend('organizationsData'),
                 ]);
             ?>

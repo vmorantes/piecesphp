@@ -2062,10 +2062,23 @@ function import_cropper(array $plugins = [], bool $all = true)
  * @param array $plugins
  * @param bool $all
  * @return void
+ * @deprecated 10.x: usa import_echarts(); sale en la 11.0.0
  */
 function import_apexcharts(array $plugins = [], bool $all = true)
 {
     import_front_library('apexcharts', $plugins, $all);
+}
+
+/**
+ * Registra Apache ECharts como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_echarts(array $plugins = [], bool $all = true)
+{
+    import_front_library('echarts', $plugins, $all);
 }
 
 /**

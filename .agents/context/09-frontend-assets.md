@@ -51,7 +51,7 @@ $assets['nombre_lib']['plugins'] = ['plugin_name' => ['js' => ['...']]];
 
 `import_jquery`, `import_jqueryui`, `import_semantic`, `import_datatables`,
 `import_swal2`, `import_cropper`,
-`import_apexcharts`,
+`import_echarts`, `import_apexcharts` (en desuso desde JDL; sale en la `11.0.0`),
 `import_default_rich_editor`,
 `import_simple_upload_placeholder`, `import_elfinder`,
 `import_google_captcha_v3_adapter`, `import_locations`, `import_mapbox`,

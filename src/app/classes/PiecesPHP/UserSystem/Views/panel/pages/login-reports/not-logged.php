@@ -20,6 +20,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
                 'title' => __($langGroup, 'Usuarios totales'),
                 'titleModifiers' => ['big'],
                 'chartAttributes' => ['data-access-chart' => ''],
+                'chartModifiers' => ['tall'],
                 'legend' => [
                     ['name' => __($langGroup, 'Sin ingreso'), 'dataType' => 'notLoggedUsers', 'level' => 'primary', 'color' => '#DB2828', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $notLoggedUsers],
                     ['name' => __($langGroup, 'Con ingreso'), 'dataType' => 'loggedUsers', 'level' => 'secondary', 'color' => '#7A7A7A', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $loggedUsers],
